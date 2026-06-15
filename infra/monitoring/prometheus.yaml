@@ -1,0 +1,742 @@
+# JobHunt Pro - Prometheus + Grafana Monitoring Stack
+# Deploy: kubectl apply -f infra/monitoring/prometheus.yaml
+# Access Grafana: kubectl port-forward svc/grafana 3000:3000 -n monitoring
+
+---
+# ─── Namespace ───────────────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    app.kubernetes.io/name: monitoring
+
+---
+# ─── Prometheus ConfigMap (prometheus.yml) ───────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      scrape_timeout: 10s
+
+    rule_files:
+      - /etc/prometheus/rules/*.yml
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets: ['alertmanager:9093']
+
+    scrape_configs:
+      # ─── Kubernetes API Server ───
+      - job_name: 'kubernetes-apiservers'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names: ['default']
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: default;kubernetes;https
+
+      # ─── Kubernetes Nodes ───
+      - job_name: 'kubernetes-nodes'
+        kubernetes_sd_configs:
+          - role: node
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+          - target_label: __address__
+            replacement: kubernetes.default.svc:443
+          - source_labels: [__meta_kubernetes_node_name]
+            regex: (.+)
+            target_label: __metrics_path__
+            replacement: /api/v1/nodes/${1}/proxy/metrics
+
+      # ─── Kubernetes Pods (All Namespaces) ───
+      - job_name: 'kubernetes-pods'
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            target_label: __address__
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+
+      # ─── JobHunt Pro Web App ───
+      - job_name: 'jobhunt-web'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ['jobhunt-pro']
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: jobhunt-web
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            target_label: __address__
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            replacement: $1:8000
+
+      # ─── JobHunt Pro Swarm Agents ───
+      - job_name: 'jobhunt-swarm'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ['jobhunt-pro']
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: jobhunt-swarm
+          - target_label: __address__
+            replacement: jobhunt-swarm:9090
+
+      # ─── JobHunt Pro AI Workers ───
+      - job_name: 'jobhunt-ai'
+        kubernetes_sd_configs:
+          - pod
+            namespaces:
+              names: ['jobhunt-pro']
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: jobhunt-ai
+
+      # ─── PostgreSQL Exporter ───
+      - job_name: 'postgres'
+        static_configs:
+          - targets: ['postgres-exporter:9187']
+
+      # ─── Redis Exporter ───
+      - job_name: 'redis'
+        static_configs:
+          - targets: ['redis-exporter:9121']
+
+      # ─── Node Exporter (System Metrics) ───
+      - job_name: 'node-exporter'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ['monitoring']
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: node-exporter
+
+  # ─── Alert Rules ───
+  alert-rules.yml: |
+    groups:
+      # ─── Swarm Agent Alerts ───
+      - name: swarm_agent_alerts
+        rules:
+          - alert: SwarmAgentCrashLoop
+            expr: rate(kube_pod_container_status_restarts_total{namespace="jobhunt-pro", pod=~"jobhunt-swarm.*"}[5m]) > 0.1
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Swarm Agent crash loop detected"
+              description: "Pod {{ $labels.pod }} is restarting > {{ $value }}/min"
+
+          - alert: SwarmAgentHighMemory
+            expr: container_memory_usage_bytes{namespace="jobhunt-pro", container="swarm-agent"} / container_spec_memory_limit_bytes > 0.9
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Swarm agent memory > 90% of limit"
+              description: "Pod {{ $labels.pod }} memory usage critical"
+
+          - alert: SwarmAgentHighCPU
+            expr: rate(container_cpu_usage_seconds_total{namespace="jobhunt-pro", container="swarm-agent"}[5m]) > 1.8
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Swarm agent CPU > 90% of limit"
+
+          - alert: SwarmReplicasBelowMinimum
+            expr: kube_deployment_status_replicas_available{namespace="jobhunt-pro", deployment="jobhunt-swarm"} < 3
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Swarm agents below minimum (3)"
+
+      # ─── Email Provider Alerts ───
+      - name: email_provider_alerts
+        rules:
+          - alert: EmailProviderRateLimited
+            expr: increase(jobhunt_email_send_failures_total{reason="rate_limit"}[5m]) > 5
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Email provider rate limited"
+              description: "Provider {{ $labels.provider }} rate limited {{ $value }} times"
+
+          - alert: EmailProviderCircuitOpen
+            expr: jobhunt_email_circuit_breaker_state == 1
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Email circuit breaker OPEN"
+              description: "Provider {{ $labels.provider }} has been disabled for > 1 hour"
+
+          - alert: AllEmailProvidersDown
+            expr: count(jobhunt_email_circuit_breaker_state == 1) == count(jobhunt_email_circuit_breaker_state >= 0)
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "ALL email providers circuit breakers open"
+
+          - alert: DailySendLimitApproaching
+            expr: jobhunt_daily_emails_sent / jobhunt_daily_send_limit > 0.9
+            for: 1m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Daily send limit > 90%"
+
+      # ─── API / Web Alerts ───
+      - name: api_alerts
+        rules:
+          - alert: APIHighLatency
+            expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{namespace="jobhunt-pro"}[5m])) > 2
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "API p95 latency > 2 seconds"
+
+          - alert: APIHighErrorRate
+            expr: rate(http_requests_total{code=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "API 5xx error rate > 5%"
+
+          - alert: APIDown
+            expr: up{job="jobhunt-web"} == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "JobHunt Web API is DOWN"
+
+      # ─── Database Alerts ───
+      - name: database_alerts
+        rules:
+          - alert: PostgreSQLHighConnections
+            expr: pg_stat_activity_count > 250
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "PostgreSQL connections > 250"
+
+          - alert: PostgreSQLSlowQueries
+            expr: pg_stat_activity_max_tx_duration{datname="jobhunt_pro"} > 300
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "PostgreSQL long-running query > 5min"
+
+          - alert: PostgreSQLReplicationLag
+            expr: pg_replication_lag > 30
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "PostgreSQL replication lag > 30s"
+
+          - alert: RedisHighMemory
+            expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Redis memory > 90%"
+
+          - alert: RedisDown
+            expr: redis_up == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Redis is DOWN"
+
+      # ─── Business Metrics Alerts ───
+      - name: business_alerts
+        rules:
+          - alert: ZeroApplicationsSent
+            expr: increase(jobhunt_applications_sent_total[1h]) == 0
+            for: 2h
+            labels:
+              severity: warning
+            annotations:
+              summary: "No applications sent in 2 hours"
+
+          - alert: LowSuccessRate
+            expr: jobhunt_applications_sent_success / jobhunt_applications_sent_total < 0.5
+            for: 30m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Application success rate < 50%"
+
+          - alert: HighUnsubscribeRate
+            expr: rate(jobhunt_unsubscribes_total[1h]) / rate(jobhunt_applications_sent_total[1h]) > 0.02
+            for: 30m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Unsubscribe rate > 2%"
+
+---
+# ─── Prometheus Deployment ──────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccountName: prometheus
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.51.0
+          ports:
+            - containerPort: 9090
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+            - "--storage.tsdb.retention.time=30d"
+            - "--web.enable-lifecycle"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus
+            - name: data
+              mountPath: /prometheus
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"
+      volumes:
+        - name: config
+          configMap:
+            name: prometheus-config
+        - name: data
+          emptyDir: {}
+
+---
+# ─── Prometheus Service ─────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - port: 9090
+      targetPort: 9090
+  type: ClusterIP
+
+---
+# ─── Prometheus RBAC ────────────────────────────────────────
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: monitoring
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "pods", "services", "endpoints"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get"]
+  - nonResourceURLs: ["/metrics"]
+    verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+  - kind: ServiceAccount
+    name: prometheus
+    namespace: monitoring
+
+---
+# ─── Grafana Deployment ─────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.4.1
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: "admin"
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-secrets
+                  key: admin-password
+            - name: GF_USERS_ALLOW_SIGN_UP
+              value: "false"
+            - name: GF_SERVER_ROOT_URL
+              value: "https://grafana.jobhuntpro.com"
+          volumeMounts:
+            - name: grafana-storage
+              mountPath: /var/lib/grafana
+            - name: datasource-config
+              mountPath: /etc/grafana/provisioning/datasources
+            - name: dashboard-config
+              mountPath: /etc/grafana/provisioning/dashboards
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+      volumes:
+        - name: grafana-storage
+          emptyDir: {}
+        - name: datasource-config
+          configMap:
+            name: grafana-datasources
+        - name: dashboard-config
+          configMap:
+            name: grafana-dashboard-providers
+
+---
+# ─── Grafana Service ────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  selector:
+    app: grafana
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: ClusterIP
+
+---
+# ─── Grafana Secrets ────────────────────────────────────────
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-secrets
+  namespace: monitoring
+type: Opaque
+stringData:
+  admin-password: "CHANGE_ME_TO_SECURE_PASSWORD"
+
+---
+# ─── Grafana Datasource ConfigMap ───────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: monitoring
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus:9090
+        isDefault: true
+        editable: false
+
+---
+# ─── Grafana Dashboard Provider ConfigMap ───────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-providers
+  namespace: monitoring
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: 'default'
+        orgId: 1
+        folder: 'JobHunt Pro'
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 30
+        options:
+          path: /var/lib/grafana/dashboards
+
+---
+# ─── Grafana Dashboard ConfigMap (JobHunt Pro) ─────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-jobhunt
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  jobhunt-overview.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "title": "JobHunt Pro - Overview",
+      "uid": "jobhunt-overview",
+      "panels": [
+        {
+          "title": "Applications Sent (24h)",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+          "targets": [{
+            "expr": "increase(jobhunt_applications_sent_total[24h]",
+            "legendFormat": "Applications"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 100 },
+                  { "color": "green", "value": 500 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "Email Success Rate",
+          "type": "gauge",
+          "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+          "targets": [{
+            "expr": "jobhunt_applications_sent_success / jobhunt_applications_sent_total",
+            "legendFormat": "Success Rate"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percentunit",
+              "min": 0, "max": 1,
+              "thresholds": {
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 0.7 },
+                  { "color": "green", "value": 0.9 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "Active Swarm Agents",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+          "targets": [{
+            "expr": "kube_deployment_status_replicas_available{deployment=\"jobhunt-swarm\"}",
+            "legendFormat": "Agents"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 3 },
+                  { "color": "green", "value": 5 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "Email Providers Status",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+          "targets": [{
+            "expr": "count(jobhunt_email_circuit_breaker_state == 0)",
+            "legendFormat": "Active Providers"
+          }],
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 5 },
+                  { "color": "green", "value": 10 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "Applications Over Time",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+          "targets": [
+            {
+              "expr": "rate(jobhunt_applications_sent_total[5m])",
+              "legendFormat": "Applications/min"
+            },
+            {
+              "expr": "rate(jobhunt_email_send_failures_total[5m])",
+              "legendFormat": "Failures/min"
+            }
+          ]
+        },
+        {
+          "title": "API Latency (p50/p95/p99)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket[5m]))",
+              "legendFormat": "p50"
+            },
+            {
+              "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+              "legendFormat": "p95"
+            },
+            {
+              "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))",
+              "legendFormat": "p99"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "s" } }
+        },
+        {
+          "title": "Email Provider Send Volume",
+          "type": "barchart",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+          "targets": [{
+            "expr": "sum by (provider) (increase(jobhunt_emails_sent_total[1h]))",
+            "legendFormat": "{{ provider }}"
+          }]
+        },
+        {
+          "title": "PostgreSQL Connections",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 6, "x": 12, "y": 12 },
+          "targets": [{
+            "expr": "pg_stat_activity_count{datname=\"jobhunt_pro\"}",
+            "legendFormat": "Connections"
+          }]
+        },
+        {
+          "title": "Redis Memory Usage",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 6, "x": 18, "y": 12 },
+          "targets": [{
+            "expr": "redis_memory_used_bytes",
+            "legendFormat": "Used"
+          }],
+          "fieldConfig": { "defaults": { "unit": "bytes" } }
+        },
+        {
+          "title": "Response Rate by Source",
+          "type": "piechart",
+          "gridPos": { "h": 8, "w": 8, "x": 0, "y": 20 },
+          "targets": [{
+            "expr": "sum by (source) (jobhunt_responses_total)",
+            "legendFormat": "{{ source }}"
+          }]
+        },
+        {
+          "title": "Revenue (Wallet Credits)",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 8, "x": 8, "y": 20 },
+          "targets": [{
+            "expr": "sum(wallet_transactions_total{type=\"credit\"})",
+            "legendFormat": "Total Revenue"
+          }],
+          "fieldConfig": { "defaults": { "unit": "currencyUSD" } }
+        },
+        {
+          "title": "Active Users (Daily)",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 8, "x": 16, "y": 20 },
+          "targets": [{
+            "expr": "increase(daily_logins_total[24h])",
+            "legendFormat": "DAU"
+          }]
+        }
+      ],
+      "time": { "from": "now-24h", "to": "now" },
+      "refresh": "30s"
+    }

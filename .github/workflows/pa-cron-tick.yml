@@ -1,0 +1,16 @@
+﻿name: PA Cron Tick
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+    - cron: "*/30 * * * *" # fallback
+  workflow_dispatch:
+
+jobs:
+  ping-pa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping PA Cron Tick
+        run: curl -sSf -o /dev/null -w "%{http_code}" "https://jhfguf.pythonanywhere.com/api/cron/tick?reset=cooldown"
+      - name: Check PA Health
+        run: curl -sSf "https://jhfguf.pythonanywhere.com/" > /dev/null 2>&1 && echo "PA HEALTHY" || echo "PA UNHEALTHY"
+

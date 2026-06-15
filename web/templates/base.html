@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/static/css/cyberpunk.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="JobHunt Pro - Enterprise AI Job Application Automator">
+    <meta name="theme-color" content="#3b82f6">
+    <title>{% block title %}JobHunt Pro{% end block %}</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icon-192.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Enterprise Glassmorphism CSS -->
+    <link rel="stylesheet" href="/static/css/index.css">
+    
+    <!-- SEO JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "JobHunt Pro",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any"
+    }
+    </script>
+    {% block head %}{% end block %}
+</head>
+<body class="cyberpunk-body">
+    
+    {% block content %}{% end block %}
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/static/service-worker.js')
+            .then(reg => console.log('Service Worker registered', reg))
+            .catch(err => console.error('Service Worker registration failed', err));
+        });
+      }
+    </script>
+
+    <!-- Auto-Reconnect WebSocket Logic -->
+    <script>
+        function connectWebSocket() {
+            if (window.location.pathname !== "/dashboard") return;
+            
+            const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+            const wsUrl = `${protocol}//${window.location.host}/ws/live`;
+            let ws = new WebSocket(wsUrl);
+            let reconnectDelay = 1000; // Exponential backoff starting at 1s
+
+            ws.onmessage = function(event) {
+                // Update dashboard UI dynamically here
+                console.log("WS Data:", event.data);
+            };
+
+            ws.onclose = function(e) {
+                console.log(`Socket is closed. Reconnecting in ${reconnectDelay}ms...`, e.reason);
+                setTimeout(function() {
+                    reconnectDelay = Math.min(reconnectDelay * 2, 10000); // Max wait 10s
+                    connectWebSocket();
+                }, reconnectDelay);
+            };
+
+            ws.onerror = function(err) {
+                console.error("Socket encountered error: ", err.message, "Closing socket");
+                ws.close();
+            };
+        }
+        
+        connectWebSocket();
+    </script>
+    
+    {% block scripts %}{% end block %}
+</body>
+</html>

@@ -1,0 +1,254 @@
+/* JobHunt Pro - Auto Apply Extension Styles */
+
+/* Floating Auto Apply Button */
+.jh-auto-apply-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(59, 130, 246, 0.4), 0 0 60px rgba(139, 92, 246, 0.25);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.3px;
+  animation: jh-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.jh-auto-apply-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.55), 0 0 80px rgba(139, 92, 246, 0.35);
+}
+
+.jh-auto-apply-btn:active {
+  transform: scale(0.97);
+}
+
+.jh-auto-apply-btn.pending {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  animation: jh-pulse 1.5s ease-in-out infinite;
+}
+
+.jh-auto-apply-btn.success {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.jh-auto-apply-btn.error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.jh-auto-apply-btn .btn-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.jh-auto-apply-btn .btn-label {
+  line-height: 1.2;
+}
+
+.jh-auto-apply-btn .btn-sub {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.75;
+  letter-spacing: 0.5px;
+}
+
+/* Settings Modal */
+.jh-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999999;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: jh-fade-in 0.2s ease;
+}
+
+.jh-modal {
+  background: #0f0f1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 32px;
+  width: 90%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  animation: jh-scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #e2e8f0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.jh-modal h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: #f8fafc;
+}
+
+.jh-modal .modal-sub {
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+.jh-modal .form-group {
+  margin-bottom: 16px;
+}
+
+.jh-modal label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.jh-modal input,
+.jh-modal textarea,
+.jh-modal select {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #e2e8f0;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.jh-modal input:focus,
+.jh-modal textarea:focus,
+.jh-modal select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.jh-modal textarea {
+  min-height: 80px;
+  resize: vertical;
+  font-size: 12px;
+}
+
+.jh-modal .modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+.jh-modal .btn {
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.jh-modal .btn-primary {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.jh-modal .btn-primary:hover {
+  background: #2563eb;
+}
+
+.jh-modal .btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+}
+
+.jh-modal .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+/* Success toast */
+.jh-toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 99999999;
+  padding: 14px 22px;
+  border-radius: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: jh-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.jh-toast.success {
+  background: linear-gradient(135deg, #065f46, #047857);
+  color: #d1fae5;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.jh-toast.error {
+  background: linear-gradient(135deg, #7f1d1d, #991b1b);
+  color: #fecaca;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.jh-toast.info {
+  background: linear-gradient(135deg, #1e3a5f, #1e40af);
+  color: #dbeafe;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Field highlight on autofill */
+.jh-filled {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Animations */
+@keyframes jh-slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes jh-slide-in {
+  from { transform: translateX(100px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes jh-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes jh-scale-in {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes jh-pulse {
+  0%, 100% { box-shadow: 0 4px 24px rgba(245, 158, 11, 0.4); }
+  50% { box-shadow: 0 4px 40px rgba(245, 158, 11, 0.7); }
+}

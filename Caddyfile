@@ -1,0 +1,51 @@
+# Caddyfile — Automatic HTTPS with Let's Encrypt
+# 
+# HOW TO USE:
+# 1. Install Caddy: https://caddyserver.com/download
+# 2. Replace YOUR_DOMAIN.com with your actual domain
+# 3. Run: caddy run
+#
+# Caddy automatically:
+# - Requests free SSL certificates from Let's Encrypt
+# - Renews certificates automatically
+# - Proxies to your JobHunt Pro app
+# - Handles HTTP→HTTPS redirects
+#
+# IMPORTANT: Update SITE_URL in .env to https://YOUR_DOMAIN.com before going live
+
+your-domain.com {
+    # Reverse proxy to the JobHunt Pro app
+    reverse_proxy localhost:8080 {
+        # Forward real client IP to the app
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Real-IP {remote_host}
+    }
+
+    # Security headers
+    header {
+        # Enable HTTP Strict Transport Security (HSTS)
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        # Prevent clickjacking
+        X-Frame-Options "DENY"
+        # Enable XSS filter
+        X-XSS-Protection "1; mode=block"
+        # Prevent MIME type sniffing
+        X-Content-Type-Options "nosniff"
+        # Referrer policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Compress responses
+    encode gzip
+
+    # Logs
+    log {
+        output file /var/log/caddy/jobhunt-pro.log
+    }
+}
+
+# Optional: Redirect www to non-www
+www.your-domain.com {
+    redir https://your-domain.com{uri} permanent
+}

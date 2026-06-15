@@ -1,0 +1,1128 @@
+<!-- Dashboard content rendered inside _build_dashboard_shell -->
+<style>
+/* ═══════════════════════════════════════════
+   DASHBOARD v3 — Premium Grid + Card Design
+   Scoped under .dashboard-scale
+   ═══════════════════════════════════════════ */
+.dashboard-scale {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  zoom: 1.1;
+}
+
+/* ── Welcome Header ── */
+.dashboard-scale .welcome-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(59,130,246,.08), rgba(139,92,246,.05));
+  border: 1px solid rgba(59,130,246,.12);
+  border-radius: 12px;
+}
+.dashboard-scale .welcome-card h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 0 0 4px 0;
+}
+.dashboard-scale .welcome-card .wc-sub {
+  font-size: 13px;
+  color: #64748b;
+}
+.dashboard-scale .balance-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.dashboard-scale .bal-block {
+  text-align: right;
+}
+.dashboard-scale .bal-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+.dashboard-scale .bal-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #22c55e;
+  line-height: 1;
+}
+
+/* ── Streak Card ── */
+.dashboard-scale .streak-card {
+  padding: 12px 18px;
+  background: linear-gradient(135deg, rgba(245,158,11,.06), rgba(251,191,36,.03));
+  border: 1px solid rgba(245,158,11,.15);
+  border-radius: 12px;
+}
+.dashboard-scale .streak-dots {
+  display: flex;
+  gap: 6px;
+}
+.dashboard-scale .streak-dot {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ── Upgrade Banner ── */
+.dashboard-scale .upgrade-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(34,197,94,.06), rgba(16,185,129,.03));
+  border: 1px solid rgba(34,197,94,.12);
+  border-radius: 12px;
+}
+.dashboard-scale .upgrade-card .upgrade-icon { font-size: 28px; }
+.dashboard-scale .upgrade-card .upgrade-body { flex: 1; min-width: 200px; }
+.dashboard-scale .upgrade-card .upgrade-title { font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 2px; }
+.dashboard-scale .upgrade-card .upgrade-sub { font-size: 12px; color: #64748b; line-height: 1.5; }
+
+/* ── Flash Sale Banner ── */
+.dashboard-scale .flash-card {
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(239,68,68,.08), rgba(220,38,38,.04));
+  border: 1px solid rgba(239,68,68,.18);
+  border-radius: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+}
+.dashboard-scale .flash-label { font-size: 13px; font-weight: 700; color: #fca5a5; }
+.dashboard-scale .flash-title { font-size: 14px; color: #e2e8f0; font-weight: 600; }
+.dashboard-scale .flash-off { font-size: 13px; color: #94a3b8; }
+.dashboard-scale .flash-timer { font-family: monospace; font-size: 20px; font-weight: 800; color: #ef4444; }
+
+/* ═══ CARDS ═══ */
+.dashboard-scale .card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px;
+  padding: 16px 20px;
+}
+.dashboard-scale .card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Section Header ── */
+.dashboard-scale .section-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.dashboard-scale .section-hdr h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ═══ STATS GRID — Premium Cards ═══ */
+.dashboard-scale .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.dashboard-scale .stat-box {
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 12px;
+  padding: 16px 12px;
+  text-align: center;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.dashboard-scale .stat-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  opacity: .6;
+}
+.dashboard-scale .stat-box:hover {
+  border-color: rgba(255,255,255,.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+}
+.dashboard-scale .stat-num {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+.dashboard-scale .stat-lbl {
+  font-size: 10px;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+/* ── Pipeline Bar ── */
+.dashboard-scale .pipe-bar {
+  display: flex;
+  height: 30px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.dashboard-scale .pipe-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  transition: flex .4s;
+}
+.dashboard-scale .seg-disc { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.dashboard-scale .seg-appl { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+.dashboard-scale .seg-fup  { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.dashboard-scale .seg-intv { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.dashboard-scale .seg-offr { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+
+/* ── Deliverability ── */
+.dashboard-scale .deliv-card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+.dashboard-scale .deliv-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.dashboard-scale .deliv-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+.dashboard-scale .deliv-score {
+  font-size: 22px;
+  font-weight: 800;
+  color: #22c55e;
+}
+.dashboard-scale .deliv-bar-bg {
+  height: 6px;
+  background: rgba(255,255,255,.06);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.dashboard-scale .deliv-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+  border-radius: 6px;
+  transition: width .6s;
+}
+.dashboard-scale .deliv-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+}
+.dashboard-scale .deliv-label { color: #52525b; font-weight: 500; }
+.dashboard-scale .deliv-label.lbl-poor { color: #ef4444; }
+.dashboard-scale .deliv-label.lbl-excellent { color: #22c55e; }
+
+/* ═══ MINI STATS ═══ */
+.dashboard-scale .mini-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.dashboard-scale .mini-stats .stat-box {
+  padding: 14px 10px;
+  border-radius: 10px;
+}
+.dashboard-scale .mini-stats .stat-num {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.dashboard-scale .mini-stats .stat-lbl {
+  font-size: 10px;
+}
+
+/* ═══ PIPELINE STAGES ═══ */
+.dashboard-scale .pipe-stages {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.dashboard-scale .pipe-stage-box {
+  flex: 1;
+  min-width: 80px;
+  padding: 14px 10px;
+  text-align: center;
+  border: 1px solid;
+  border-radius: 10px;
+  transition: all .2s;
+}
+.dashboard-scale .pipe-stage-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.2);
+}
+.dashboard-scale .psb-num {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.dashboard-scale .psb-lbl {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.dashboard-scale .pipe-arrow {
+  font-size: 16px;
+  color: #334155;
+  flex-shrink: 0;
+}
+
+/* ═══ TABLES ═══ */
+.dashboard-scale .table-wrapper {
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.dashboard-scale .table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.dashboard-scale .table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: #52525b;
+  background: rgba(255,255,255,.015);
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.dashboard-scale .table td {
+  padding: 10px 14px;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(255,255,255,.025);
+}
+.dashboard-scale .table tr:last-child td { border-bottom: none; }
+.dashboard-scale .table tr:hover td { background: rgba(255,255,255,.01); }
+
+/* ── Badges ── */
+.dashboard-scale .badge-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.dashboard-scale .badge-pill.ps-discovered { background: rgba(59,130,246,.12); color: #60a5fa; }
+.dashboard-scale .badge-pill.ps-applied { background: rgba(99,102,241,.12); color: #818cf8; }
+.dashboard-scale .badge-pill.ps-followed_up { background: rgba(245,158,11,.12); color: #fbbf24; }
+.dashboard-scale .badge-pill.ps-interview { background: rgba(34,197,94,.12); color: #4ade80; }
+.dashboard-scale .badge-pill.ps-offer { background: rgba(139,92,246,.12); color: #a78bfa; }
+.dashboard-scale .badge-pill.s-completed { background: rgba(34,197,94,.1); color: #4ade80; }
+.dashboard-scale .badge-pill.s-active { background: rgba(59,130,246,.1); color: #60a5fa; }
+.dashboard-scale .badge-pill.s-failed { background: rgba(239,68,68,.1); color: #fca5a5; }
+.dashboard-scale .badge-pill.s-draft { background: rgba(100,116,139,.1); color: #94a3b8; }
+.dashboard-scale .badge-pill.s-paused { background: rgba(245,158,11,.1); color: #fbbf24; }
+.dashboard-scale .badge-pill.bp-blue { background: rgba(59,130,246,.1); color: #60a5fa; }
+
+/* ═══ EMAIL COMPOSER ═══ */
+.dashboard-scale .email-card {
+  background: rgba(255,255,255,.015);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px;
+  padding: 24px 28px;
+}
+.dashboard-scale .email-card .section-hdr { margin-bottom: 18px; }
+
+/* ── Form Elements ── */
+.dashboard-scale .form-group { margin-bottom: 14px; }
+.dashboard-scale .form-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  margin-bottom: 5px;
+}
+.dashboard-scale .form-group input,
+.dashboard-scale .form-group textarea {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px;
+  color: #e2e8f0;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: all .2s;
+}
+.dashboard-scale .form-group input:focus,
+.dashboard-scale .form-group textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.1);
+}
+.dashboard-scale .form-group textarea { min-height: 100px; line-height: 1.6; }
+
+/* ── Grid Row ── */
+.dashboard-scale .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* ═══ REFERRAL CARD ═══ */
+.dashboard-scale .referral-card {
+  background: linear-gradient(135deg, rgba(139,92,246,.06), rgba(168,85,247,.03));
+  border: 1px solid rgba(139,92,246,.1);
+  border-radius: 14px;
+  padding: 22px 26px;
+  text-align: center;
+}
+.dashboard-scale .referral-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 6px;
+}
+.dashboard-scale .referral-card p {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.dashboard-scale .ref-link-box {
+  display: inline-block;
+  padding: 10px 16px;
+  background: rgba(0,0,0,.2);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 12px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ═══ BUTTONS ═══ */
+.dashboard-scale .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .2s;
+  border: none;
+  text-decoration: none;
+  font-family: 'Inter', sans-serif;
+  color: #fff;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+}
+.dashboard-scale .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,130,246,.2); }
+.dashboard-scale .btn-sm { padding: 6px 12px; font-size: 11px; border-radius: 8px; }
+.dashboard-scale .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,.12); color: #94a3b8; }
+.dashboard-scale .btn-outline:hover { background: rgba(255,255,255,.04); }
+.dashboard-scale .btn-purple { background: linear-gradient(135deg, #8b5cf6, #a855f7); }
+.dashboard-scale .btn-purple:hover { box-shadow: 0 6px 20px rgba(139,92,246,.2); }
+.dashboard-scale .btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.dashboard-scale .btn-orange { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; }
+.dashboard-scale .btn-ai { background: linear-gradient(135deg, #059669, #10b981); }
+.dashboard-scale .btn-ai:hover { box-shadow: 0 6px 20px rgba(16,185,129,.2); }
+.dashboard-scale .wa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all .2s;
+}
+.dashboard-scale .wa-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,211,102,.25); }
+
+/* ═══ ALERTS ═══ */
+.dashboard-scale .empty-state { text-align: center; padding: 32px 20px; color: #64748b; }
+.dashboard-scale .empty-state p { font-size: 13px; margin-bottom: 12px; }
+.dashboard-scale .alert-ok {
+  padding: 10px 14px;
+  background: rgba(34,197,94,.06);
+  border: 1px solid rgba(34,197,94,.1);
+  border-radius: 10px;
+  color: #4ade80;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+.dashboard-scale .alert-err {
+  padding: 10px 14px;
+  background: rgba(239,68,68,.06);
+  border: 1px solid rgba(239,68,68,.1);
+  border-radius: 10px;
+  color: #ef4444;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+/* ═══ TOAST ═══ */
+.dashboard-scale .toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 14px 20px;
+  background: #080812;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  z-index: 9999;
+  color: #e2e8f0;
+  font-size: 13px;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  transition: all .3s;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5);
+}
+.dashboard-scale .toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.dashboard-scale .toast.error { border-color: rgba(239,68,68,.3); }
+.dashboard-scale .toast.info { border-color: rgba(59,130,246,.3); }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 1200px) {
+  .dashboard-scale .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-scale .mini-stats { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .dashboard-scale { zoom: 1; max-width: 100%; margin: 0; }
+  .dashboard-scale .welcome-card { padding: 18px 20px; }
+  .dashboard-scale .welcome-card h1 { font-size: 18px; }
+  .dashboard-scale .card { padding: 18px 20px; }
+  .dashboard-scale .email-card { padding: 20px 22px; }
+  .dashboard-scale .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .dashboard-scale .stat-num { font-size: 28px; }
+  .dashboard-scale .mini-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .dashboard-scale .row { grid-template-columns: 1fr; }
+  .dashboard-scale .pipe-stages { gap: 4px; }
+  .dashboard-scale .pipe-stage-box { min-width: calc(33% - 4px); }
+  .dashboard-scale .pipe-arrow { display: none; }
+  .dashboard-scale .psb-num { font-size: 18px; }
+}
+@media (max-width: 480px) {
+  .dashboard-scale .stats-grid { grid-template-columns: 1fr; }
+  .dashboard-scale .mini-stats { grid-template-columns: 1fr 1fr; }
+  .dashboard-scale .bal-value { font-size: 24px; }
+}
+</style>
+
+<div class="dashboard-scale">
+
+  <!-- ═══ WELCOME HEADER ═══ -->
+  <div class="welcome-card">
+    <div>
+      <h1>&#x1F44B; Welcome back, {{ user.name or 'User' }}!</h1>
+      <div class="wc-sub">Here's your job hunt overview</div>
+    </div>
+    <div class="balance-row">
+      <a href="https://wa.me/96171019053" target="_blank" rel="noopener" class="wa-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp
+      </a>
+      <div class="bal-block">
+        <div class="bal-label">Wallet</div>
+        <div class="bal-value">${{ "%.2f"|format(user.wallet_balance or 0) }}</div>
+      </div>
+      <a href="/wallet" class="btn btn-outline btn-sm">&#x1F4B3; Top Up</a>
+    </div>
+  </div>
+
+  <!-- ═══ GOLDEN TICKET (HONGBAO VIRAL LOOP) ═══ -->
+  <div class="streak-card" style="background: linear-gradient(135deg, rgba(220,38,38,.08), rgba(239,68,68,.04)); border-color: rgba(239,68,68,.2); margin-top: 5px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="font-size:30px;">&#x1F9E7;</div>
+        <div>
+          <div style="font-size:16px;font-weight:700;color:#ef4444;">Send a Golden Ticket, Get 100 Free Apps!</div>
+          <div style="color:#94a3b8;font-size:12px;margin-top:3px;">
+            Your friend gets 50 free AI applications when they join. You get 100 added to your account instantly.
+          </div>
+        </div>
+      </div>
+      <button onclick="generateGoldenTicket()" class="btn btn-outline" style="border-color:#ef4444; color:#ef4444; font-weight:700;" id="gtBtn">
+        &#x1F381; Generate Ticket
+      </button>
+    </div>
+  </div>
+  
+  <script>
+  function generateGoldenTicket() {
+      const btn = document.getElementById('gtBtn');
+      btn.innerHTML = '⏳ Generating...';
+      fetch('/api/viral/generate', { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+          if(data.success) {
+              navigator.clipboard.writeText(data.message);
+              btn.innerHTML = '✅ Link Copied!';
+              setTimeout(() => btn.innerHTML = '🎁 Generate Ticket', 3000);
+          } else {
+              btn.innerHTML = '❌ Failed';
+          }
+      }).catch(() => {
+          btn.innerHTML = '❌ Error';
+      });
+  }
+  </script>
+
+  <!-- ═══ LOGIN STREAK ═══ -->
+  {% if login_streak is defined and login_streak %}
+  <div class="streak-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="font-size:30px;">&#x1F525;</div>
+        <div>
+          <div style="font-size:16px;font-weight:700;color:#f59e0b;">{{ login_streak }}-Day Login Streak</div>
+          <div style="color:#94a3b8;font-size:12px;margin-top:3px;">
+            {% if streak_reward > 0 %}<span style="color:#fbbf24;font-weight:600;">&#x1F3C6; +${{ "%.2f"|format(streak_reward) }} bonus earned!</span>
+            {% elif next_milestone %}<span>{{ days_to_next }} day{{ 's' if days_to_next != 1 }} to reach {{ next_milestone }}d &rarr; <strong style="color:#fbbf24;">${{ "%.2f"|format(next_reward) }}</strong></span>
+            {% else %}<span>Max streak! You're on fire &#x1F525;</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="streak-dots">
+        {% for ms in [3, 5, 7, 14, 21, 30] %}
+        <div class="streak-dot" style="{% if login_streak >= ms %}background:#fbbf24;color:#000;{% elif ms == next_milestone %}background:rgba(251,191,36,.1);border:2px solid #fbbf24;color:#fbbf24;{% else %}background:rgba(255,255,255,.04);color:#52525b;border:1px solid rgba(255,255,255,.06);{% endif %}">{{ ms }}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ═══ UPGRADE BANNER ═══ -->
+  {% if not user.user_type or user.user_type in ('free', 'starter') %}
+  <div class="upgrade-card">
+    <div class="upgrade-icon">&#x1F680;</div>
+    <div class="upgrade-body">
+      <div class="upgrade-title">Unlock Unlimited Applications</div>
+      <div class="upgrade-sub">You're on the Free plan. Upgrade to PRO for unlimited companies, AI-powered cover letters &amp; 20 email providers.</div>
+    </div>
+    <a href="/pricing" class="btn btn-orange btn-sm">Upgrade Now &rarr;</a>
+  </div>
+  {% endif %}
+
+  <!-- ═══ FLASH SALE ═══ -->
+  {% if flash_sales and flash_sales|length > 0 %}{% set fs = flash_sales[0] %}
+  <div class="flash-card" id="flashSaleBanner">
+    <div class="flash-label">&#x26A1; Flash Sale</div>
+    <div class="flash-title">{{ fs.title }}</div>
+    <div class="flash-off"><strong style="color:#ef4444;font-size:18px;">{{ "%.0f"|format(fs.discount_percent) }}% OFF</strong></div>
+    <div class="flash-timer" id="flashTimer" data-end="{{ fs.end_time }}">&#x23F3; Loading...</div>
+    <a href="/pricing" class="btn btn-red btn-sm">&#x1F525; Shop Now</a>
+  </div>
+  {% endif %}
+
+  <!-- ═══ CAMPAIGN PERFORMANCE ═══ -->
+  <div class="card">
+    <div class="card-title">&#x1F4CA; Campaign Performance</div>
+    
+    <!-- Chart.js Injection -->
+    <div style="width: 100%; height: 250px; margin-bottom: 20px;">
+        <canvas id="campaignChart"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('campaignChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Emails Sent',
+                    data: [12, 19, 3, 5, 2, 3, {{ stats.emails_sent or 0 }}],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Opened',
+                    data: [2, 3, 20, 5, 1, 4, {{ stats.emails_opened or 0 }}],
+                    borderColor: '#4ade80',
+                    backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { grid: { color: 'rgba(255,255,255,0.05)' } }
+                },
+                plugins: {
+                    legend: { labels: { color: '#e2e8f0' } }
+                }
+            }
+        });
+      });
+    </script>
+
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-num" style="color:#60a5fa;">{{ stats.emails_sent or 0 }}</div><div class="stat-lbl">Emails Sent</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:#4ade80;">{{ stats.emails_opened or 0 }}</div><div class="stat-lbl">Opened</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:#fbbf24;">{{ stats.responses or 0 }}</div><div class="stat-lbl">Responses</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:#c084fc;">{{ stats.open_rate or 0 }}%</div><div class="stat-lbl">Open Rate</div></div>
+    </div>
+
+    <div class="pipe-bar">
+      <div class="pipe-seg seg-disc" style="flex:{{ stats.discovered_percent or 25 }};" title="Discovered">Discovered</div>
+      <div class="pipe-seg seg-appl" style="flex:{{ stats.applied_percent or 30 }};" title="Applied">Applied</div>
+      <div class="pipe-seg seg-fup"  style="flex:{{ stats.followup_percent or 20 }};" title="Follow Up">Follow Up</div>
+      <div class="pipe-seg seg-intv" style="flex:{{ stats.interview_percent or 15 }};" title="Interview">Interview</div>
+      <div class="pipe-seg seg-offr" style="flex:{{ stats.offer_percent or 10 }};" title="Offer">Offer</div>
+    </div>
+
+    <div class="deliv-card">
+      <div class="deliv-row">
+        <div class="deliv-title">&#x1F4E7; Email Deliverability</div>
+        <div class="deliv-score">{{ stats.deliverability_score or 95 }}/100</div>
+      </div>
+      <div class="deliv-bar-bg"><div class="deliv-bar-fill" style="width:{{ stats.deliverability_score or 95 }}%;"></div></div>
+      <div class="deliv-labels">
+        <span class="deliv-label lbl-poor">Poor</span>
+        <span class="deliv-label">Average</span>
+        <span>Good</span>
+        <span class="deliv-label lbl-excellent">Excellent</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MINI STATS ═══ -->
+  <div class="mini-stats">
+    <div class="stat-box"><div class="stat-num" style="color:#60a5fa;">{{ campaigns|length }}</div><div class="stat-lbl">Campaigns</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:#4ade80;">${{ "%.2f"|format(user.total_spent or 0) }}</div><div class="stat-lbl">Total Spent</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:#c084fc;">{{ profiles|length }}</div><div class="stat-lbl">CV Profiles</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:#fbbf24;">{{ referrals or 0 }}</div><div class="stat-lbl">Referrals</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:#f472b6;">{{ (user.user_type or 'free')|title }}</div><div class="stat-lbl">Tier</div></div>
+  </div>
+
+  <!-- ═══ JOB PIPELINE ═══ -->
+  <div class="card">
+    <div class="section-hdr">
+      <h2>&#x1F504; Job Pipeline</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="/stats" class="btn btn-outline btn-sm">&#x1F4CA; Details</a>
+        <button onclick="copyShareLink()" class="btn btn-purple btn-sm">&#x1F517; Share</button>
+      </div>
+    </div>
+
+    {% set stages = [
+      {"key":"discovered","label":"Discovered","bg":"rgba(59,130,246,.08)","bd":"rgba(59,130,246,.15)","tx":"#60a5fa"},
+      {"key":"applied","label":"Applied","bg":"rgba(99,102,241,.08)","bd":"rgba(99,102,241,.15)","tx":"#818cf8"},
+      {"key":"followed_up","label":"Followed Up","bg":"rgba(245,158,11,.08)","bd":"rgba(245,158,11,.15)","tx":"#fbbf24"},
+      {"key":"interview","label":"Interview","bg":"rgba(34,197,94,.08)","bd":"rgba(34,197,94,.15)","tx":"#4ade80"},
+      {"key":"offer","label":"Offer","bg":"rgba(139,92,246,.08)","bd":"rgba(139,92,246,.15)","tx":"#a78bfa"}
+    ] %}
+    <div class="pipe-stages">
+      {% for s in stages %}
+      <div class="pipe-stage-box" style="background:{{ s.bg }};border-color:{{ s.bd }};">
+        <div class="psb-num" style="color:{{ s.tx }};">{{ pipeline_counts.get(s.key, 0) }}</div>
+        <div class="psb-lbl" style="color:{{ s.tx }};">{{ s.label }}</div>
+      </div>
+      {% if not loop.last %}<div class="pipe-arrow">&rarr;</div>{% endif %}
+      {% endfor %}
+    </div>
+
+    {% if pipeline_emails %}
+    <div class="table-wrapper">
+      <table class="table">
+        <thead><tr><th>Company</th><th>Job Title</th><th>Stage</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for email in pipeline_emails[:10] %}
+          {% set stage = email.pipeline_stage or 'discovered' %}
+          {% set sidx = 0 %}
+          {% if stage == 'applied' %}{% set sidx = 1 %}
+          {% elif stage == 'followed_up' %}{% set sidx = 2 %}
+          {% elif stage == 'interview' %}{% set sidx = 3 %}
+          {% elif stage == 'offer' %}{% set sidx = 4 %}
+          {% endif %}
+          <tr>
+            <td style="font-weight:600;color:#e2e8f0;">{{ email.company_name }}</td>
+            <td>{{ email.job_title }}</td>
+            <td><span class="badge-item ps-{{ stage }}">{{ stage|replace('_',' ')|title }}</span></td>
+            <td>
+              {% if sidx < 4 %}
+              <button class="btn btn-sm advance-btn" data-id="{{ email.id }}" data-stage="{{ stage }}" style="background:linear-gradient(135deg,#3b82f6,#6366f1);">Advance &rarr;</button>
+              {% else %}<span style="color:#4ade80;font-size:12px;">&#x2705; Complete</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>No applications tracked yet. Start a campaign to populate your pipeline!</p>
+      <a href="/new-campaign" class="btn btn-sm">&#x1F680; Start Campaign</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ═══ RECENT CAMPAIGNS ═══ -->
+  <div class="card">
+    <div class="section-hdr">
+      <h2>&#x1F4CB; Recent Campaigns</h2>
+      <a href="/new-campaign" class="btn btn-sm">&#x2B; New</a>
+    </div>
+    {% if campaigns %}
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr><th>ID</th><th>Status</th><th>Companies</th><th>Sent</th><th>Opened</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+          {% for camp in campaigns %}
+          <tr>
+            <td><a href="/campaign/{{ camp.campaign_id }}" style="color:#3b82f6;text-decoration:none;font-family:monospace;font-size:12px;">{% if camp.campaign_id|length > 16 %}{{ camp.campaign_id[:16] }}..{% else %}{{ camp.campaign_id }}{% endif %}</a></td>
+            <td><span class="badge-pill s-{{ camp.status }}">{{ camp.status }}</span></td>
+            <td style="color:#e2e8f0;">{{ camp.total_companies }}</td>
+            <td>{{ camp.sent or camp.sent_count or 0 }}</td>
+            <td>{{ camp.opened or camp.open_count or 0 }}</td>
+            <td style="font-family:monospace;font-size:11px;">{{ (camp.created_at or '')[:10] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>No campaigns yet. Start your first one!</p>
+      <a href="/new-campaign" class="btn btn-sm">&#x1F680; Create</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ═══ CV PROFILES ═══ -->
+  <div class="card">
+    <div class="section-hdr">
+      <h2>&#x1F4C4; CV Profiles</h2>
+      <a href="/upload-cv" class="btn btn-sm">&#x2B; Add</a>
+    </div>
+    {% if profiles %}
+    <div class="table-wrapper">
+      <table class="table">
+        <thead><tr><th>Profile Name</th><th>Experience</th><th>Target</th><th>Created</th></tr></thead>
+        <tbody>
+          {% for profile in profiles %}
+          <tr>
+            <td style="font-weight:600;color:#e2e8f0;">{{ profile.profile_name }}</td>
+            <td><span class="badge-pill bp-blue">{{ profile.experience_years }} yrs</span></td>
+            <td style="font-size:12px;">{{ (profile.target_locations or '—')[:30] }}</td>
+            <td style="font-family:monospace;font-size:11px;">{{ (profile.created_at or '')[:10] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>No CV profiles yet. Upload your first CV!</p>
+      <a href="/upload-cv" class="btn btn-sm">&#x1F4DD; Upload CV</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ═══ VIRAL SQUADS (Hack 1) ═══ -->
+  <div class="card" style="background:linear-gradient(135deg,rgba(59,130,246,.05),rgba(37,99,235,.02)); border-color:rgba(59,130,246,.15);">
+    <div class="section-hdr">
+      <h2>👥 Multiplayer Job Squad</h2>
+      <span class="badge-pill" style="background:rgba(59,130,246,.1);color:#60a5fa;">Hack #1</span>
+    </div>
+    <p style="font-size:13px; color:#94a3b8; margin-bottom:14px;">Invite 2 friends to form a squad. When your squad is full, all 3 of you unlock <strong style="color:#60a5fa;">$20 Free Wallet Credits</strong>!</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button onclick="createSquad()" class="btn btn-sm" style="background:#3b82f6;">Form a Squad</button>
+    </div>
+  </div>
+
+  <!-- ═══ FOMO WAITLIST (Hack 4) ═══ -->
+  <div class="card" style="background:linear-gradient(135deg,rgba(245,158,11,.05),rgba(217,119,6,.02)); border-color:rgba(245,158,11,.15);">
+    <div class="section-hdr">
+      <h2>⭐ God-Mode: Unlisted Jobs</h2>
+      <span class="badge-pill" style="background:rgba(245,158,11,.1);color:#fbbf24;">Hack #4</span>
+    </div>
+    <p style="font-size:13px; color:#94a3b8; margin-bottom:14px;">Apply to jobs before they are even posted online. Currently in beta. Join the waitlist to get your rank.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button onclick="joinWaitlist()" class="btn btn-orange btn-sm">Join Waitlist</button>
+      <span id="waitlistRank" style="display:none; color:#fbbf24; font-weight:bold; font-size:18px;"></span>
+    </div>
+  </div>
+
+  <!-- ═══ VIRAL GROWTH: ROAST MY RESUME (Hack 6) & Pay with Tweet (Hack 7) ═══ -->
+  <div class="card" style="background:linear-gradient(135deg,rgba(239,68,68,.05),rgba(220,38,38,.02)); border-color:rgba(239,68,68,.15);">
+    <div class="section-hdr">
+      <h2>🔥 Roast My Resume (AI)</h2>
+      <span class="badge-pill" style="background:rgba(239,68,68,.1);color:#ef4444;">Hack #6 & #7</span>
+    </div>
+    <p style="font-size:13px; color:#94a3b8; margin-bottom:14px;">Let our brutal AI roast your CV in 2 sentences. Get a score out of 100, and share it on X/LinkedIn to unlock <strong style="color:#ef4444;">50 FREE applications ($25 balance)</strong>.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <a href="/roast" class="btn btn-red btn-sm">Upload & Roast</a>
+      <button onclick="claimSocialShare()" class="btn btn-outline btn-sm">Share on X for Free Credits</button>
+    </div>
+  </div>
+
+  <script>
+  function createSquad() {
+    fetch('/api/v1/squads/create', {method:'POST'}).then(r=>r.json()).then(d=>{
+      if(d.status==='ok') alert('Squad created! Your invite link: https://jhfguf.pythonanywhere.com/api/v1/squads/join/'+d.squad_id);
+      else alert('Error: '+d.message);
+    });
+  }
+  function joinWaitlist() {
+    fetch('/api/v1/waitlist/join', {method:'POST'}).then(r=>r.json()).then(d=>{
+      if(d.status==='ok') {
+        document.getElementById('waitlistRank').textContent = "Rank: #" + d.rank;
+        document.getElementById('waitlistRank').style.display = "inline-block";
+      }
+    });
+  }
+  function claimSocialShare() {
+    window.open('https://twitter.com/intent/tweet?text=My%20AI%20agent%20applied%20to%20100%20jobs%20while%20I%20slept%20this%20week.%20Welcome%20to%20the%20future.%20%F0%9F%9A%80%20Try%20it%20here:%20https://jhfguf.pythonanywhere.com', '_blank');
+    setTimeout(() => {
+      fetch('/api/v1/claim-social-share', {method:'POST'}).then(r=>r.json()).then(d=>{
+        if(d.status==='ok') alert('Success: ' + d.message);
+        window.location.reload();
+      });
+    }, 5000);
+  }
+  </script>
+
+  <!-- ═══ SEND MANUAL EMAIL ═══ -->
+  <div class="email-card">
+    <div class="section-hdr">
+      <div>
+        <h2>&#x2709;&#xFE0F; Send Manual Email</h2>
+        <div class="wc-sub" style="margin-top:2px;"><strong style="color:#22c55e;">$0.10</strong> per email via Brevo</div>
+      </div>
+      <div style="padding:8px 14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.15);border-radius:8px;text-align:center;">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#52525b;">Balance</div>
+        <div style="color:#22c55e;font-weight:700;font-size:15px;">${{ "%.2f"|format(user.wallet_balance or 0) }}</div>
+      </div>
+    </div>
+
+    {% if request.query_params.get('success') and 'Email' in request.query_params.get('success','') %}
+    <div class="alert-ok">&#x2705; {{ request.query_params.get('success') }}</div>
+    {% endif %}
+    {% if request.query_params.get('error') and ('email' in request.query_params.get('error','').lower() or 'balance' in request.query_params.get('error','').lower()) %}
+    <div class="alert-err">&#x274C; {{ request.query_params.get('error') }}</div>
+    {% endif %}
+
+    <form method="POST" action="/send-manual-email">
+      <div class="row">
+        <div class="form-group">
+          <label>Recipient</label>
+          <input type="email" name="to_email" placeholder="recipient@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Subject</label>
+          <input type="text" name="subject" placeholder="Subject line" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea name="body" placeholder="Write your email (HTML or plain text)..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-ai">&#x2709;&#xFE0F; Send ($0.10)</button>
+    </form>
+  </div>
+
+  <!-- ═══ RECENT MANUAL EMAILS ═══ -->
+  {% if manual_emails_user %}
+  <div class="card">
+    <div class="card-title">&#x1F4EC; Recent Manual Emails</div>
+    <div class="table-wrapper">
+      <table class="table">
+        <thead><tr><th>To</th><th>Subject</th><th>Cost</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for m in manual_emails_user %}
+          <tr>
+            <td>{{ m.to_email }}</td>
+            <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ m.subject }}">{{ (m.subject or '')[:35] }}{% if m.subject and m.subject|length > 35 %}...{% endif %}</td>
+            <td style="color:#22c55e;font-weight:600;">${{ "%.2f"|format(m.price_usd or 0) }}</td>
+            <td><span class="badge-pill {% if m.status=='sent' %}s-completed{% else %}s-failed{% endif %}">{% if m.status=='sent' %}Sent{% else %}Failed{% endif %}</span></td>
+            <td style="font-family:monospace;font-size:11px;">{{ (m.created_at or '')[:16] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ═══ REFERRAL ═══ -->
+  <div class="referral-card">
+    <h3>&#x1F381; Refer &amp; Earn</h3>
+    <p>Invite friends and earn up to <strong>20% commission</strong></p>
+    <div class="ref-link-box" id="refLinkBox">{{ referral_link }}</div>
+    <button onclick="copyReferral()" class="btn btn-purple btn-sm">&#x1F4CB; Copy Link</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type === 'error' ? ' error' : type === 'info' ? ' info' : '');
+  setTimeout(function() { t.classList.remove('show'); }, 3500);
+}
+
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.advance-btn');
+  if (!btn) return;
+  e.preventDefault();
+  const emailId = btn.dataset.id;
+  btn.disabled = true;
+  btn.textContent = '...';
+  fetch('/api/pipeline/advance/' + emailId, { method: 'POST' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) { location.reload(); }
+      else {
+        showToast(data.error || 'Error', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Advance →';
+      }
+    })
+    .catch(function() {
+      showToast('Network error', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Advance →';
+    });
+});
+
+(function() {
+  const el = document.getElementById('flashTimer');
+  if (!el) return;
+  const endStr = el.dataset.end;
+  if (!endStr) { el.textContent = 'ENDED'; return; }
+  const endMs = new Date(endStr.replace(' ', 'T') + (endStr.includes('Z') ? '' : 'Z')).getTime();
+  function tick() {
+    const diff = endMs - Date.now();
+    if (diff <= 0) {
+      el.textContent = 'ENDED';
+      const banner = document.getElementById('flashSaleBanner');
+      if (banner) banner.style.opacity = '.4';
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    el.textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+(function() {
+  if (sessionStorage.getItem('spShown')) return;
+  fetch('/api/social-proof')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.success || !data.purchases || data.purchases.length < 2) return;
+      const purchases = data.purchases;
+      let idx = Math.floor(Math.random() * purchases.length);
+      function popup() {
+        const p = purchases[idx % purchases.length];
+        if (!p) return;
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#080812;border:1px solid rgba(59,130,246,.25);border-radius:12px;padding:14px 18px;color:#fff;font-size:12px;z-index:9999;max-width:280px;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:slideIn .4s ease-out;cursor:pointer;';
+        toast.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:16px;">🎉</span><div><strong>' + (p.name||'Someone') + '</strong> just bought<br><span style="color:#3b82f6;font-weight:600;">' + (p.package_name||'a package') + (p.amount_usd?' $'+parseFloat(p.amount_usd).toFixed(2):'') + '</span></div><button class="btn" onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:14px;">✕</button></div>';
+        document.body.appendChild(toast);
+        setTimeout(function() { toast.style.opacity='0'; toast.style.transition='opacity .4s'; setTimeout(function(){ toast.remove(); }, 400); }, 5000);
+        idx++;
+      }
+      sessionStorage.setItem('spShown', '1');
+      setTimeout(popup, 4000);
+    })
+    .catch(function() {});
+})();
+
+function copyShareLink() {
+  fetch('/api/v1/share-link')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.share_url) {
+        navigator.clipboard.writeText(data.share_url)
+          .then(function() { showToast('Link copied!'); })
+          .catch(function() { prompt('Copy:', data.share_url); });
+      }
+    })
+    .catch(function() { showToast('Error', 'error'); });
+}
+
+function copyReferral() {
+  const box = document.getElementById('refLinkBox');
+  if (!box) return;
+  navigator.clipboard.writeText(box.textContent.trim())
+    .then(function() { showToast('Referral link copied!'); })
+    .catch(function() { prompt('Your referral link:', box.textContent.trim()); });
+}
+</script>

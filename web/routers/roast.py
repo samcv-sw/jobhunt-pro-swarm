@@ -1,0 +1,67 @@
+from fastapi import APIRouter, Request, UploadFile, File
+from fastapi.templating import Jinja2Templates
+from core.ai_tailor import ai_tailor
+import PyPDF2
+import io
+import logging
+
+logger = logging.getLogger(__name__)
+router = APIRouter()
+templates = Jinja2Templates(directory="web/templates")
+
+@router.get("/roast")
+async def roast_page(request: Request):
+    """Viral Marketing: Un-gated free tool for lead gen."""
+    return templates.TemplateResponse(request, "roast.html")
+
+@router.post("/api/roast")
+async def roast_resume(file: UploadFile = File(...)):
+    """Extracts text from PDF and sends to Gemini for a brutal roast."""
+    try:
+        content = await file.read()
+        reader = PyPDF2.PdfReader(io.BytesIO(content))
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text()
+            
+        if not text:
+            return {"error": "Could not extract text from PDF"}
+
+        prompt = f"""
+        You are a brutally honest, sarcastic, but funny Silicon Valley Tech Recruiter.
+        Read this resume and roast it in exactly 2-3 sentences. Be savage but hilarious.
+        Then, give it a score out of 100 based on how bad it is.
+        Format exactly like this:
+        ROAST: [Your 2-3 sentence roast]
+        SCORE: [Number]/100
+        
+        Resume text: {text[:2000]}
+        """
+        
+        # Using the $0 Semantic Cached AI call
+        result = await ai_tailor._call_ai(prompt, max_tokens=150, temperature=0.9)
+        
+        if not result:
+            return {"error": "AI failed to roast."}
+            
+        roast_text = "Your resume is so generic it puts AI to sleep."
+        score = 12
+        
+        for line in result.split("\n"):
+            if line.startswith("ROAST:"):
+                roast_text = line.replace("ROAST:", "").strip()
+            elif line.startswith("SCORE:"):
+                score_str = line.replace("SCORE:", "").split("/")[0].strip()
+                try:
+                    score = int(score_str)
+                except:
+                    pass
+                    
+        return {
+            "roast": roast_text,
+            "score": score,
+            "share_text": f"I just got a {score}/100 on my resume roast. The AI told me: '{roast_text}' 😂 Get yours roasted at JobHunt Pro!"
+        }
+    except Exception as e:
+        logger.error(f"Roast error: {e}")
+        return {"error": "Failed to roast resume."}

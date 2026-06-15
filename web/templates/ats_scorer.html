@@ -1,0 +1,801 @@
+
+
+<!-- ATS Score Simulator — Feature #7 -->
+<style>
+/* ═══════════ ATS SCORER SPECIFIC ═══════════ */
+.ats-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+@media(max-width:900px) { .ats-container { grid-template-columns: 1fr; } }
+
+.ats-panel {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px;
+}
+.ats-panel h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ats-panel textarea {
+  width: 100%;
+  min-height: 220px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 14px;
+  color: #e2e8f0;
+  font-family: 'Inter', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+.ats-panel textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+}
+.ats-panel textarea::placeholder {
+  color: #475569;
+  font-style: italic;
+}
+
+.ats-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+/* ═══════════ RESULTS ═══════════ */
+.ats-results { display: none; margin-top: 20px; }
+.ats-results.visible { display: block; }
+
+.ats-score-hero {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 28px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+
+/* CSS-only gauge */
+.gauge {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+.gauge-circle {
+  transform: rotate(-90deg);
+  width: 140px;
+  height: 140px;
+}
+.gauge-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 10;
+}
+.gauge-fill {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease, stroke 0.6s ease;
+}
+.gauge-score {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+.gauge-label {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.score-details { flex: 1; }
+.score-details h3 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.score-tier {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+}
+.tier-excellent { background: rgba(34,197,94,0.15); color: #4ade80; }
+.tier-good { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.tier-average { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.tier-poor { background: rgba(239,68,68,0.15); color: #fca5a5; }
+
+/* Breakdown bars */
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media(max-width:600px) { .breakdown-grid { grid-template-columns: 1fr; } }
+
+.breakdown-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 16px;
+}
+.breakdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.breakdown-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.breakdown-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+.breakdown-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.breakdown-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease, background 0.5s ease;
+}
+
+/* Keyword & suggestion cards */
+.ats-card-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+@media(max-width:900px) { .ats-card-row { grid-template-columns: 1fr; } }
+
+.ats-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 18px;
+}
+.ats-card h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ats-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  margin: 3px 4px 3px 0;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.tag-missing { background: rgba(239,68,68,0.12); color: #fca5a5; }
+.tag-strength { background: rgba(34,197,94,0.12); color: #4ade80; }
+
+.ats-suggestion {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 13px;
+  color: #d4d4d8;
+  line-height: 1.5;
+  display: flex;
+  gap: 8px;
+}
+.ats-suggestion:last-child { border-bottom: none; }
+.sug-num {
+  color: #f59e0b;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Bulk mode */
+.bulk-jobs { margin-top: 12px; }
+.bulk-job-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: start;
+}
+.bulk-job-row input {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Loading spinner */
+.loading-overlay {
+  display: none;
+  text-align: center;
+  padding: 40px;
+}
+.loading-overlay.visible { display: block; }
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255,255,255,0.08);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* URL import button */
+.ats-panel .url-import {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.ats-panel .url-import input {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Error message */
+.ats-error {
+  display: none;
+  padding: 14px 18px;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 10px;
+  color: #fca5a5;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* Bulk results table */
+.bulk-results table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.bulk-results th {
+  text-align: left;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.03);
+  color: #64748b;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.bulk-results td {
+  padding: 10px 14px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  color: #d4d4d8;
+}
+.bulk-score-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+</style>
+
+<div class="ats-container">
+  <!-- Resume panel -->
+  <div class="ats-panel">
+    <h3>&#x1F4C4; Your Resume</h3>
+    <textarea id="ats-resume" placeholder="Paste your full resume text here...
+
+Example:
+SAM SALAMEH
+Senior Network Engineer | CCNA, Fortinet NSE, MikroTik MTCNA
+samatou683@gmail.com | +961 70 841 1009
+linkedin.com/in/sam-salameh
+
+PROFESSIONAL SUMMARY
+15+ years as a Network Engineer specializing in...
+..."></textarea>
+    <small style="color:#64748b;display:block;margin-top:6px;font-size:11px;">
+      &#x26A0;&#xFE0F; Paste the full text — the more detail, the better the score.
+    </small>
+  </div>
+
+  <!-- Job description panel -->
+  <div class="ats-panel">
+    <h3>&#x1F4CB; Job Description</h3>
+    <div class="url-import">
+      <input type="url" id="ats-url" placeholder="Or paste a job posting URL..." />
+      <button class="btn btn-outline btn-sm" onclick="importFromUrl()" id="btn-url-import">&#x1F517; Import</button>
+    </div>
+    <textarea id="ats-job-desc" placeholder="Paste the job description here...
+
+Example:
+Network Engineer
+Company XYZ — Beirut, Lebanon
+
+Requirements:
+- 5+ years experience with Cisco/Juniper
+- CCNP or equivalent certification
+- Strong knowledge of BGP, OSPF, MPLS
+- Experience with Fortinet firewalls
+..."></textarea>
+    <input type="text" id="ats-job-title" placeholder="Job title (optional, e.g. Senior Network Engineer)"
+      style="margin-top:10px;width:100%;padding:8px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#e2e8f0;font-size:13px;font-family:'Inter',sans-serif;" />
+  </div>
+</div>
+
+<!-- Actions -->
+<div class="ats-actions">
+  <button class="btn btn-ai" onclick="scoreResume()" id="btn-score" style="font-size:16px;padding:13px 28px;">
+    &#x1F3AF; Score My Resume
+  </button>
+  <button class="btn btn-outline" onclick="toggleBulkMode()" id="btn-bulk-toggle">
+    &#x1F4CA; Score Against Multiple Jobs
+  </button>
+  <span style="color:#64748b;font-size:12px;">&#x26A1; Powered by Advanced AI — near-instant results</span>
+</div>
+
+<!-- Bulk mode (hidden by default) -->
+<div id="bulk-section" style="display:none;margin-bottom:20px;">
+  <div class="ats-panel" style="margin-bottom:16px;">
+    <h3>&#x1F4CA; Bulk Scoring — Up to 10 Jobs</h3>
+    <p style="color:#94a3b8;font-size:12px;margin-bottom:10px;">Add job titles to compare your resume against multiple positions at once.</p>
+    <div class="bulk-jobs" id="bulk-jobs-container">
+      <div class="bulk-job-row">
+        <input type="text" class="bulk-title" placeholder="Job Title (e.g. Senior Network Engineer)" />
+        <input type="text" class="bulk-desc" placeholder="Job Description (paste here)" style="flex:2;" />
+        <button class="btn btn-outline btn-sm" onclick="this.closest('.bulk-job-row').remove()" style="flex-shrink:0;">&#x2715;</button>
+      </div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="addBulkRow()" style="margin-top:8px;">+ Add Another Job</button>
+  </div>
+  <button class="btn btn-purple" onclick="scoreBulk()" id="btn-bulk-score">
+    &#x1F4CA; Score All Jobs
+  </button>
+</div>
+
+<!-- Error -->
+<div class="ats-error" id="ats-error"></div>
+
+<!-- Loading -->
+<div class="loading-overlay" id="ats-loading">
+  <div class="spinner"></div>
+  <div style="color:#94a3b8;font-size:14px;">Analyzing your resume... AI is scoring it against the job description...</div>
+</div>
+
+<!-- Results -->
+<div class="ats-results" id="ats-results">
+  <div class="ats-score-hero">
+    <div class="gauge">
+      <svg class="gauge-circle" viewBox="0 0 140 140">
+        <circle class="gauge-bg" cx="70" cy="70" r="60"/>
+        <circle class="gauge-fill" id="gauge-fill" cx="70" cy="70" r="60"
+          stroke-dasharray="377" stroke-dashoffset="377" stroke="#3b82f6"/>
+      </svg>
+      <div class="gauge-score" id="gauge-score">0</div>
+      <div class="gauge-label">ATS Score</div>
+    </div>
+    <div class="score-details">
+      <h3 id="score-verdict">Ready to Score</h3>
+      <p style="color:#94a3b8;font-size:13px;margin-bottom:8px;" id="score-subtitle">
+        Paste your resume and a job description above, then click Score.
+      </p>
+      <span class="score-tier" id="score-tier" style="display:none;"></span>
+    </div>
+  </div>
+
+  <!-- Breakdown -->
+  <div class="breakdown-grid" id="breakdown-grid"></div>
+
+  <!-- Cards row -->
+  <div class="ats-card-row">
+    <div class="ats-card">
+      <h4>&#x1F50D; Missing Keywords</h4>
+      <div id="missing-keywords">—</div>
+    </div>
+    <div class="ats-card">
+      <h4>&#x2705; Strengths</h4>
+      <div id="ats-strengths">—</div>
+    </div>
+    <div class="ats-card">
+      <h4>&#x1F4A1; Suggestions</h4>
+      <div id="ats-suggestions">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk results -->
+<div class="ats-results" id="bulk-results-section" style="margin-top:24px;">
+  <div class="card">
+    <div class="card-title">&#x1F4CA; Bulk Scoring Results</div>
+    <div class="bulk-results" id="bulk-results-table"></div>
+  </div>
+</div>
+
+<script>
+const CIRCUMFERENCE = 2 * Math.PI * 60; // ~377
+
+function showError(msg) {
+  const el = document.getElementById('ats-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+function setLoading(loading) {
+  document.getElementById('ats-loading').classList.toggle('visible', loading);
+  document.getElementById('btn-score').disabled = loading;
+  document.getElementById('btn-bulk-score').disabled = loading;
+}
+
+function getTierClass(score) {
+  if (score >= 80) return 'tier-excellent';
+  if (score >= 65) return 'tier-good';
+  if (score >= 45) return 'tier-average';
+  return 'tier-poor';
+}
+
+function getTierLabel(score) {
+  if (score >= 80) return 'Excellent Match! \uD83C\uDF1F';
+  if (score >= 65) return 'Good Match \uD83D\uDC4D';
+  if (score >= 45) return 'Average Match \uD83E\uDD14';
+  return 'Needs Work \uD83D\uDEE0\uFE0F';
+}
+
+function getBarColor(score) {
+  if (score >= 80) return '#4ade80';
+  if (score >= 60) return '#60a5fa';
+  if (score >= 40) return '#fbbf24';
+  return '#f87171';
+}
+
+function animateGauge(score) {
+  const circle = document.getElementById('gauge-fill');
+  const offset = CIRCUMFERENCE - (score / 100) * CIRCUMFERENCE;
+  circle.style.strokeDashoffset = offset;
+  circle.style.stroke = getBarColor(score);
+
+  const scoreEl = document.getElementById('gauge-score');
+  scoreEl.style.color = getBarColor(score);
+  // Animate counting up
+  let current = 0;
+  const step = () => {
+    if (current < score) {
+      current += Math.max(1, Math.ceil((score - current) / 10));
+      if (current > score) current = score;
+      scoreEl.textContent = current;
+      requestAnimationFrame(step);
+    }
+  };
+  requestAnimationFrame(step);
+}
+
+function renderBreakdown(data) {
+  const items = [
+    { key: 'skills_match', label: 'Skills Match', icon: '\uD83C\uDFAF', weight: '40%' },
+    { key: 'experience_match', label: 'Experience', icon: '\uD83D\uDCBC', weight: '30%' },
+    { key: 'keyword_density', label: 'Keywords', icon: '\uD83D\uDD0D', weight: '15%' },
+    { key: 'education_match', label: 'Education', icon: '\uD83C\uDF93', weight: '10%' },
+    { key: 'format_score', label: 'Format', icon: '\uD83D\uDCC4', weight: '5%' },
+  ];
+
+  const grid = document.getElementById('breakdown-grid');
+  grid.innerHTML = items.map(item => {
+    const score = data[item.key] || 0;
+    const color = getBarColor(score);
+    return `
+      <div class="breakdown-item">
+        <div class="breakdown-header">
+          <span class="breakdown-label">${item.icon} ${item.label} <small style="color:#64748b;">(${item.weight})</small></span>
+          <span class="breakdown-value" style="color:${color}">${score}%</span>
+        </div>
+        <div class="breakdown-bar-bg">
+          <div class="breakdown-bar-fill" style="width:${score}%;background:${color};"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function scoreResume() {
+  const resume = document.getElementById('ats-resume').value.trim();
+  const jobDesc = document.getElementById('ats-job-desc').value.trim();
+  const jobTitle = document.getElementById('ats-job-title').value.trim();
+
+  if (!resume || !jobDesc) {
+    showError('Please paste both your resume and the job description.');
+    return;
+  }
+
+  if (resume.length < 100 || jobDesc.length < 100) {
+    showError('Both resume and job description should be at least 100 characters for a meaningful score.');
+    return;
+  }
+
+  setLoading(true);
+  document.getElementById('ats-results').classList.remove('visible');
+  document.getElementById('bulk-results-section').classList.remove('visible');
+  document.getElementById('ats-error').style.display = 'none';
+
+  try {
+    const resp = await fetch('/api/v1/ats-score', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resume, job_description: jobDesc, job_title: jobTitle })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.error || err.detail || `HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    displayResults(data, jobTitle);
+  } catch (e) {
+    showError('Scoring failed: ' + e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function displayResults(data, jobTitle) {
+  document.getElementById('ats-results').classList.add('visible');
+  const score = data.overall_score || 0;
+
+  animateGauge(score);
+
+  document.getElementById('score-verdict').textContent = getTierLabel(score);
+  document.getElementById('score-subtitle').textContent =
+    jobTitle ? `Match for: ${jobTitle}` : 'ATS match analysis complete';
+
+  const tierEl = document.getElementById('score-tier');
+  tierEl.textContent = `Score: ${score}/100`;
+  tierEl.className = 'score-tier ' + getTierClass(score);
+  tierEl.style.display = 'inline-block';
+
+  renderBreakdown(data);
+
+  // Missing keywords
+  const kwDiv = document.getElementById('missing-keywords');
+  if (data.missing_keywords && data.missing_keywords.length > 0) {
+    kwDiv.innerHTML = data.missing_keywords.map(k => `<span class="ats-tag tag-missing">${escapeHtml(k)}</span>`).join('');
+  } else {
+    kwDiv.textContent = 'No missing keywords — great job!';
+  }
+
+  // Strengths
+  const strDiv = document.getElementById('ats-strengths');
+  if (data.strengths && data.strengths.length > 0) {
+    strDiv.innerHTML = data.strengths.map(s => `<span class="ats-tag tag-strength">${escapeHtml(s)}</span>`).join('');
+  } else {
+    strDiv.textContent = '—';
+  }
+
+  // Suggestions
+  const sugDiv = document.getElementById('ats-suggestions');
+  if (data.suggestions && data.suggestions.length > 0) {
+    sugDiv.innerHTML = data.suggestions.map((s, i) =>
+      `<div class="ats-suggestion"><span class="sug-num">${i+1}.</span>${escapeHtml(s)}</div>`
+    ).join('');
+  } else {
+    sugDiv.textContent = 'No suggestions — your resume is well-optimized!';
+  }
+
+  // Scroll to results
+  document.getElementById('ats-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function scoreBulk() {
+  const resume = document.getElementById('ats-resume').value.trim();
+  if (!resume || resume.length < 100) {
+    showError('Please paste a detailed resume first (at least 100 characters).');
+    return;
+  }
+
+  const rows = document.querySelectorAll('#bulk-jobs-container .bulk-job-row');
+  const jobs = [];
+  rows.forEach(row => {
+    const title = row.querySelector('.bulk-title').value.trim();
+    const desc = row.querySelector('.bulk-desc').value.trim();
+    if (title || desc) {
+      jobs.push({ title, description: desc });
+    }
+  });
+
+  if (jobs.length === 0) {
+    showError('Please add at least one job to score against.');
+    return;
+  }
+
+  setLoading(true);
+  document.getElementById('ats-results').classList.remove('visible');
+  document.getElementById('ats-error').style.display = 'none';
+
+  try {
+    const resp = await fetch('/api/v1/ats-score-bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resume, jobs })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.error || err.detail || `HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    displayBulkResults(data.results);
+  } catch (e) {
+    showError('Bulk scoring failed: ' + e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function displayBulkResults(results) {
+  const section = document.getElementById('bulk-results-section');
+  section.classList.add('visible');
+
+  const best = results.reduce((max, r) => {
+    const s = r.score ? (r.score.overall_score || 0) : 0;
+    return s > max.score ? { score: s, title: r.job_title } : max;
+  }, { score: 0, title: '' });
+
+  let html = `<p style="color:#94a3b8;font-size:12px;margin-bottom:10px;">
+    \uD83C\uDFC6 Best match: <strong style="color:#f59e0b;">${escapeHtml(best.title)}</strong> at ${best.score}%
+  </p>`;
+
+  html += '<div class="table-wrapper"><table class="cyber-table"><thead><tr><th>#</th><th>Job Title</th><th>Score</th><th>Skills</th><th>Experience</th><th>Keywords</th></tr></thead><tbody>';
+
+  results.forEach((r, i) => {
+    if (r.error) {
+      html += `<tr><td>${i+1}</td><td>${escapeHtml(r.job_title)}</td><td colspan="4" style="color:#fca5a5;">Error: ${escapeHtml(r.error)}</td></tr>`;
+    } else {
+      const s = r.score;
+      const score = s.overall_score || 0;
+      const color = getBarColor(score);
+      html += `<tr>
+        <td>${i+1}</td>
+        <td><strong>${escapeHtml(r.job_title)}</strong></td>
+        <td><span class="bulk-score-badge" style="background:${color}20;color:${color};">${score}%</span></td>
+        <td>${s.skills_match || 0}%</td>
+        <td>${s.experience_match || 0}%</td>
+        <td>${s.keyword_density || 0}%</td>
+      </tr>`;
+    }
+  });
+
+  html += '</tbody></table></div>';
+  document.getElementById('bulk-results-table').innerHTML = html;
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleBulkMode() {
+  const section = document.getElementById('bulk-section');
+  const btn = document.getElementById('btn-bulk-toggle');
+  if (section.style.display === 'none') {
+    section.style.display = 'block';
+    btn.textContent = '\u274C Hide Bulk Mode';
+    if (document.querySelectorAll('#bulk-jobs-container .bulk-job-row').length === 0) {
+      addBulkRow();
+    }
+  } else {
+    section.style.display = 'none';
+    btn.textContent = '\uD83D\uDCCA Score Against Multiple Jobs';
+  }
+}
+
+function addBulkRow() {
+  const container = document.getElementById('bulk-jobs-container');
+  const row = document.createElement('div');
+  row.className = 'bulk-job-row';
+  row.innerHTML = `
+    <input type="text" class="bulk-title" placeholder="Job Title" />
+    <input type="text" class="bulk-desc" placeholder="Job Description" style="flex:2;" />
+    <button class="btn btn-outline btn-sm" onclick="this.closest('.bulk-job-row').remove()" style="flex-shrink:0;">\u2715</button>
+  `;
+  container.appendChild(row);
+}
+
+async function importFromUrl() {
+  const url = document.getElementById('ats-url').value.trim();
+  if (!url) { showError('Please enter a URL to import from.'); return; }
+
+  const btn = document.getElementById('btn-url-import');
+  btn.disabled = true;
+  btn.textContent = '\u23F3 Importing...';
+
+  try {
+    const resp = await fetch('/api/v1/fetch-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.error || `HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    document.getElementById('ats-job-desc').value = data.text || data.content || '';
+    if (data.title) {
+      document.getElementById('ats-job-title').value = data.title;
+    }
+  } catch (e) {
+    showError('Import failed: ' + e.message + '. Try pasting the JD directly.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '\uD83D\uDD17 Import';
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Keyboard shortcut: Ctrl+Enter to score
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    const bulkVisible = document.getElementById('bulk-section').style.display !== 'none';
+    if (bulkVisible) {
+      scoreBulk();
+    } else {
+      scoreResume();
+    }
+  }
+});
+</script>
+</div>

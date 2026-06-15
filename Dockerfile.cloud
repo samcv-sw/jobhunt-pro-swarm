@@ -1,0 +1,69 @@
+# ============================================
+# JobHunt Pro - Cloud Dockerfile
+# Optimized for Railway / Render free tier
+# SQLite only (no PostgreSQL dependency)
+# ============================================
+
+# Stage 1: Build
+FROM python:3.12-slim as builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first (Docker cache optimization)
+COPY requirements-cloud.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements-cloud.txt
+
+# Stage 2: Runtime
+FROM python:3.12-slim as runtime
+
+# Install curl for healthcheck
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy installed packages from builder
+COPY --from=builder /install /usr/local
+
+# Create non-root user
+RUN groupadd -r jobhunt && useradd -r -g jobhunt jobhunt
+
+WORKDIR /app
+
+# Copy application code
+COPY . .
+
+# Create data/logs directories and set permissions
+RUN mkdir -p /app/data /app/logs /app/sent_mails /app/cache && \
+    chown -R jobhunt:jobhunt /app
+
+# Switch to non-root user
+USER jobhunt
+
+# Environment variables (defaults, overridden by cloud platform)
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    HOST=0.0.0.0 \
+    PORT=8000 \
+    DATABASE_URL=sqlite:///data/jobhunt_saas_v2.db \
+    DATABASE_URL_SYNC=sqlite:///data/jobhunt_saas_v2.db \
+    DB_PATH=data/sam_max.db \
+    CLOUD_MODE=true \
+    DRY_RUN=true \
+    MAX_WORKERS=50 \
+    BREVO_API_KEY="" \
+    BREVO_ACCOUNT_EMAIL=""
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+
+# Expose port (Railway sets PORT automatically)
+EXPOSE 8000
+
+# Run with cloud startup script
+CMD ["python", "start_render.py"]

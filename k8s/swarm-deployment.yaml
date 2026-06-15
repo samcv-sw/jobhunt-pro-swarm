@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobhunt-swarm
+  labels:
+    app: jobhunt-swarm
+spec:
+  replicas: 50 # Start with 50 pods (scaling to 20,000+ agents)
+  selector:
+    matchLabels:
+      app: jobhunt-swarm
+  template:
+    metadata:
+      labels:
+        app: jobhunt-swarm
+    spec:
+      containers:
+      - name: swarm-node
+        image: jobhuntpro:v13-maximum
+        env:
+        - name: REDIS_URL
+          value: "redis://redis:6379/0"
+        - name: GROQ_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: jobhunt-secrets
+              key: GROQ_API_KEY
+        - name: BLAND_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: jobhunt-secrets
+              key: BLAND_API_KEY
+        resources:
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: jobhunt-swarm-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: jobhunt-swarm
+  minReplicas: 10
+  maxReplicas: 500 # Maximum elasticity
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80

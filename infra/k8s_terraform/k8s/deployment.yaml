@@ -1,0 +1,413 @@
+# JobHunt Pro - Kubernetes Deployment Manifests
+# Apply with: kubectl apply -f k8s/
+
+---
+# ─── Namespace ───────────────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jobhunt-pro
+  labels:
+    app.kubernetes.io/name: jobhunt-pro
+    app.kubernetes.io/environment: production
+
+---
+# ─── ConfigMap (Environment Variables) ───────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jobhunt-config
+  namespace: jobhunt-pro
+data:
+  DB_HOST: "jobhunt-pro-db.cluster-xxxx.us-east-1.rds.amazonaws.com"
+  DB_PORT: "5432"
+  DB_NAME: "jobhunt_pro"
+  REDIS_URL: "rediss://jobhunt-pro-redis.xxxx.0001.use1.cache.amazonaws.com:6379"
+  MAX_WORKERS: "200"
+  DAILY_SEND_LIMIT: "2000"
+  MIN_MATCH_SCORE: "60"
+  FOLLOW_UP_DAYS: "7"
+  OPTIMAL_SEND_HOUR: "10"
+
+---
+# ─── Secrets ─────────────────────────────────────────────────
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jobhunt-secrets
+  namespace: jobhunt-pro
+type: Opaque
+stringData:
+  DB_PASSWORD: "CHANGE_ME"
+  GEMINI_API_KEY: "CHANGE_ME"
+  GROQ_API_KEY: "CHANGE_ME"
+  TELEGRAM_BOT_TOKEN: "CHANGE_ME"
+  TELEGRAM_CHAT_ID: "CHANGE_ME"
+  CANDIDATE_EMAIL: "samsalameh.cv@gmail.com"
+
+---
+# ─── Web Deployment (FastAPI) ────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobhunt-web
+  namespace: jobhunt-pro
+  labels:
+    app: jobhunt-web
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: jobhunt-web
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: jobhunt-web
+        tier: frontend
+    spec:
+      nodeSelector:
+        role: core
+      containers:
+        - name: web
+          image: jobhunt-pro/web:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: jobhunt-config
+            - secretRef:
+                name: jobhunt-secrets
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 5"]
+
+---
+# ─── Web Service ─────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: jobhunt-web-svc
+  namespace: jobhunt-pro
+spec:
+  selector:
+    app: jobhunt-web
+  ports:
+    - port: 80
+      targetPort: 8000
+  type: ClusterIP
+
+---
+# ─── Ingress (Load Balancer) ────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jobhunt-ingress
+  namespace: jobhunt-pro
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  tls:
+    - hosts:
+        - app.jobhuntpro.com
+        - api.jobhuntpro.com
+      secretName: jobhunt-tls
+  rules:
+    - host: app.jobhuntpro.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jobhunt-web-svc
+                port:
+                  number: 80
+    - host: api.jobhuntpro.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jobhunt-web-svc
+                port:
+                  number: 80
+
+---
+# ─── Swarm Agent Deployment (Auto-Scaling) ──────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobhunt-swarm
+  namespace: jobhunt-pro
+  labels:
+    app: jobhunt-swarm
+    tier: worker
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: jobhunt-swarm
+  template:
+    metadata:
+      labels:
+        app: jobhunt-swarm
+        tier: worker
+    spec:
+      nodeSelector:
+        role: swarm
+      tolerations:
+        - key: "dedicated"
+          value: "swarm"
+          effect: "NoSchedule"
+      containers:
+        - name: swarm-agent
+          image: jobhunt-pro/swarm:latest
+          command: ["python", "orchestrator.py", "--mode", "worker"]
+          envFrom:
+            - configMapRef:
+                name: jobhunt-config
+            - secretRef:
+                name: jobhunt-secrets
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "1Gi"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+
+---
+# ─── Swarm HorizontalPodAutoscaler ──────────────────────────
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: jobhunt-swarm-hpa
+  namespace: jobhunt-pro
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: jobhunt-swarm
+  minReplicas: 3
+  maxReplicas: 50
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 5
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 120
+
+---
+# ─── AI Processing Deployment ───────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobhunt-ai
+  namespace: jobhunt-pro
+  labels:
+    app: jobhunt-ai
+    tier: ai
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jobhunt-ai
+  template:
+    metadata:
+      labels:
+        app: jobhunt-ai
+        tier: ai
+    spec:
+      nodeSelector:
+        role: ai-processing
+      containers:
+        - name: ai-worker
+          image: jobhunt-pro/ai-worker:latest
+          command: ["python", "-m", "core.ai_tailor", "--mode", "worker"]
+          envFrom:
+            - configMapRef:
+                name: jobhunt-config
+            - secretRef:
+                name: jobhunt-secrets
+          resources:
+            requests:
+              cpu: "1500m"
+              memory: "2Gi"
+            limits:
+              cpu: "4000m"
+              memory: "4Gi"
+
+---
+# ─── AI HorizontalPodAutoscaler ─────────────────────────────
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: jobhunt-ai-hpa
+  namespace: jobhunt-pro
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: jobhunt-ai
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 120
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 120
+    scaleDown:
+      stabilizationWindowSeconds: 600
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 300
+
+---
+# ─── Telegram Bot Deployment ────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobhunt-telegram
+  namespace: jobhunt-pro
+  labels:
+    app: jobhunt-telegram
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jobhunt-telegram
+  template:
+    metadata:
+      labels:
+        app: jobhunt-telegram
+    spec:
+      nodeSelector:
+        role: core
+      containers:
+        - name: telegram-bot
+          image: jobhunt-pro/telegram:latest
+          command: ["python", "core/telegram_bot.py"]
+          envFrom:
+            - configMapRef:
+                name: jobhunt-config
+            - secretRef:
+                name: jobhunt-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+---
+# ─── Network Policies ───────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: jobhunt-network-policy
+  namespace: jobhunt-pro
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow web ingress
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - port: 8000
+  egress:
+    # Allow DNS
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    # Allow external HTTPS (for APIs, SMTP)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - port: 443
+          protocol: TCP
+        - port: 587
+          protocol: TCP
+        - port: 25
+          protocol: TCP
+    # Allow internal communication
+    - to:
+        - podSelector:
+            matchLabels:
+              app: jobhunt-web
+        - podSelector:
+            matchLabels:
+              app: jobhunt-swarm
+        - podSelector:
+            matchLabels:
+              app: jobhunt-ai

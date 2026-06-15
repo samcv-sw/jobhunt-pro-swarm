@@ -1,0 +1,117 @@
+# ============================================
+# JobHunt Pro - .gitignore (GitHub-ready)
+# ============================================
+
+# ── Environment & Secrets — NEVER commit ────
+.env
+.env.local
+.env.production
+.env.staging
+*.env.local
+
+# Files containing old secrets
+RENDER_DEPLOY.md
+SECURITY_AUDIT_REPORT*.md
+_CLOUD_DEPLOY_COMPLETE.md
+_pa_env.txt
+deploy_*.py
+hf_*.py
+run_logs.txt
+
+# ── Databases (local only) ──────────────────
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# ── Logs ────────────────────────────────────
+*.log
+logs/
+sent_mails/
+
+# ── Python ──────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+venv/
+env/
+.venv/
+env312/
+test_env/
+test_env_2/
+*.whl
+
+# ── OS files ────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ── IDE ─────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ── Cache ───────────────────────────────────
+cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ── Backups ─────────────────────────────────
+*.bak
+backup/
+*.tmp
+
+# ── Cloud platform build artifacts ──────────
+.render/
+.railway/
+
+# ── Node (if any frontend tooling) ──────────
+node_modules/
+
+# ── Misc ────────────────────────────────────
+*.pid
+*.seed
+.npm
+.eslintcache
+
+# Generated cover letter PDFs
+assets/Cover_Letter_*.pdf
+
+# ── Temp/Audit scripts ────────────────────
+_pu*.py
+_tw*.py
+_audit_*.py
+_deploy_*.py
+_fix_*.py
+_check_*.py
+_pa_*.py
+_set_*.py
+_setup_*.py
+_trigger_*.py
+seed_demo.py
+test_*.py
+!tests/
+*.db-shm
+*.db-wal
+dump_live_dom.py
+live_body.html
+live_head.html
+web/dump_dashboard.py
+scratch/
+.venv2/

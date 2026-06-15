@@ -1,0 +1,14 @@
+services:
+  - type: worker
+    name: jobhunt-swarm-worker
+    env: docker
+    region: frankfurt
+    plan: free # Runs on Render's Free Tier
+    dockerCommand: "Xvfb :99 -screen 0 1280x1024x24 & python core/swarm_master.py"
+    envVars:
+      - key: WHATSAPP_ACCESS_TOKEN
+        sync: false # Set this in the Render Dashboard
+      - key: WHATSAPP_PHONE_ID
+        sync: false # Set this in the Render Dashboard
+      - key: GROQ_API_KEY
+        sync: false # Set this in the Render Dashboard

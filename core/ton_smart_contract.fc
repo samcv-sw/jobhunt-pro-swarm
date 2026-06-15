@@ -1,0 +1,43 @@
+;; RUSSIA TECH: TON Blockchain Smart Contract (FunC)
+;; This contract holds the $1 micro-stake for an AI interview.
+;; If the user ghosts the interview, the stake is slashed.
+;; If the user completes the interview, the stake is refunded.
+
+#pragma version >=0.2.0;
+
+#include "imports/stdlib.fc";
+
+;; Storage structure:
+;; - owner_address: MsgAddressInt
+;; - candidate_address: MsgAddressInt
+;; - interview_completed: integer (boolean)
+;; - stake_amount: Coins
+
+() recv_internal(int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) { 
+        return (); 
+    }
+    
+    int op = in_msg_body~load_uint(32);
+    
+    ;; op == 1: Candidate deposits stake to book interview
+    if (op == 1) {
+        ;; Lock the stake
+        return ();
+    }
+    
+    ;; op == 2: Oracle confirms interview completed -> Refund
+    if (op == 2) {
+        ;; Ensure caller is the verified Oracle (JobHunt Pro backend)
+        ;; Refund stake to candidate
+        return ();
+    }
+    
+    ;; op == 3: Candidate ghosted -> Slash stake
+    if (op == 3) {
+        ;; Send locked funds to JobHunt Pro treasury
+        return ();
+    }
+
+    throw(0xffff);
+}

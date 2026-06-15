@@ -1,0 +1,277 @@
+<style>
+/* Battle Station Premium Styles */
+.bs-topbar { margin-bottom: 30px; }
+.bs-title { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 8px; letter-spacing: -0.5px; }
+.bs-subtitle { font-size: 15px; color: #94a3b8; line-height: 1.5; }
+
+.bs-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.bs-stat-card {
+    background: linear-gradient(135deg, rgba(255,255,255,.02), rgba(255,255,255,.0));
+    border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 24px;
+    text-align: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(0,0,0,.2);
+}
+.bs-stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,.4); border-color: rgba(255,255,255,.15); }
+.bs-stat-num { font-size: 34px; font-weight: 800; line-height: 1.1; margin-bottom: 8px; letter-spacing: -1px; color: #fff; }
+.bs-stat-lbl { font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+.bs-section-hdr { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 16px; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+
+.bs-actions { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+.bs-btn {
+    padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif;
+    border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); color: #fff;
+    cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+}
+.bs-btn:hover { background: rgba(255,255,255,.1); transform: translateY(-1px); }
+.bs-btn.green { border-color: rgba(34,197,94,.3); color: #4ade80; background: rgba(34,197,94,.1); }
+.bs-btn.green:hover { background: rgba(34,197,94,.2); }
+.bs-btn.red { border-color: rgba(239,68,68,.3); color: #ef4444; background: rgba(239,68,68,.1); }
+.bs-btn.red:hover { background: rgba(239,68,68,.2); }
+.bs-btn.amber { border-color: rgba(245,158,11,.3); color: #fbbf24; background: rgba(245,158,11,.1); }
+.bs-btn.amber:hover { background: rgba(245,158,11,.2); }
+.bs-btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 8px; }
+
+.bs-cta { background: linear-gradient(135deg, rgba(59,130,246,.15), rgba(139,92,246,.15)); border: 1px solid rgba(59,130,246,.3); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 32px; box-shadow: 0 8px 32px rgba(59,130,246,.1); }
+.bs-cta-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+.bs-cta-sub { font-size: 14px; color: #cbd5e1; margin-bottom: 16px; }
+.bs-cta-btn { display: inline-block; padding: 12px 24px; border-radius: 12px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; font-weight: 700; text-decoration: none; box-shadow: 0 4px 15px rgba(59,130,246,.4); transition: all 0.2s; }
+.bs-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,.6); }
+
+.bs-panel { background: rgba(15,15,20,.6); border: 1px solid rgba(255,255,255,.05); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(0,0,0,.2); }
+.bs-camp-card { background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06); border-radius: 12px; padding: 16px; margin-bottom: 12px; transition: all 0.2s; }
+.bs-camp-card:hover { border-color: rgba(255,255,255,.15); background: rgba(255,255,255,.04); }
+.bs-camp-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.bs-camp-name { font-size: 16px; font-weight: 700; color: #fff; margin-right: 12px; }
+.bs-camp-id { font-size: 11px; color: #64748b; font-family: monospace; background: rgba(0,0,0,.3); padding: 4px 8px; border-radius: 6px; }
+.bs-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+.bs-dot.green { color: #4ade80; background: #4ade80; }
+.bs-dot.yellow { color: #fbbf24; background: #fbbf24; }
+.bs-dot.red { color: #ef4444; background: #ef4444; }
+.bs-status { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 20px; }
+.bs-status.running { background: rgba(74,222,128,.15); color: #4ade80; }
+.bs-status.paused { background: rgba(251,191,36,.15); color: #fbbf24; }
+.bs-status.completed { background: rgba(96,165,250,.15); color: #60a5fa; }
+.bs-status.failed { background: rgba(239,68,68,.15); color: #ef4444; }
+.bs-status { background: rgba(100,116,139,.1); color: #94a3b8; }
+
+.bs-prog-wrap { margin-bottom: 16px; }
+.bs-prog-info { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 6px; }
+.bs-prog-bar { height: 8px; background: rgba(0,0,0,.3); border-radius: 4px; overflow: hidden; }
+.bs-prog-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); border-radius: 4px; transition: width 0.5s ease; }
+.bs-prog-fill.done { background: #4ade80; }
+
+.bs-camp-stats { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+.bs-camp-stat { font-size: 12px; color: #94a3b8; }
+.bs-camp-stat .val { font-size: 14px; font-weight: 700; color: #e2e8f0; }
+
+.bs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media(max-width: 1024px) { .bs-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width: 768px) { .bs-grid { grid-template-columns: 1fr; } .bs-stat-num { font-size: 28px; } .bs-stats-grid { gap: 10px; } .bs-stat-card { padding: 18px; } .bs-title { font-size: 24px; } .bs-actions { gap: 8px; } .bs-btn { padding: 8px 14px; font-size: 12px; } .bs-camp-stats { gap: 8px; } .bs-feed { max-height: 200px; } }
+
+.bs-feed { max-height: 300px; overflow-y: auto; padding-right: 8px; }
+.bs-feed::-webkit-scrollbar { width: 4px; }
+.bs-feed::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 4px; }
+.bs-feed-item { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+.bs-feed-item:last-child { border-bottom: none; }
+.bs-feed-icon { font-size: 16px; margin-top: 2px; }
+.bs-feed-body { flex: 1; font-size: 13px; color: #cbd5e1; line-height: 1.5; }
+.bs-feed-body strong { color: #fff; }
+.bs-feed-time { font-size: 11px; color: #64748b; white-space: nowrap; }
+
+.bs-health-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+.bs-health-row:last-child { border-bottom: none; }
+.bs-health-label { font-size: 13px; color: #cbd5e1; display: flex; align-items: center; gap: 8px; }
+.bs-health-val { font-size: 16px; font-weight: 800; }
+
+.bs-bottom-cta { text-align: center; padding: 40px 20px; background: rgba(255,255,255,.02); border-radius: 16px; border: 1px dashed rgba(255,255,255,.1); margin-top: 24px; }
+.bs-bottom-cta p { font-size: 15px; color: #94a3b8; margin-bottom: 16px; }
+
+.bs-empty { text-align: center; padding: 48px 20px; }
+.bs-empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.6; }
+.bs-empty-text { font-size: 13px; color: #64748b; margin-bottom: 20px; line-height: 1.5; }
+</style>
+
+<!-- ═══════════════ TOP BAR ═══════════════ -->
+ <div class="bs-topbar">
+   <div>
+     <h1 class="bs-title">⚔️ Battle Station</h1>
+     <p class="bs-subtitle">Live Campaign Command Center — monitor and control all active offensives</p>
+   </div>
+ </div>
+
+ <!-- ═══════════════ STATS GRID ═══════════════ -->
+ <div class="bs-stats-grid">
+   <div class="bs-stat-card">
+     <div class="bs-stat-num">{{ campaigns|length }}</div>
+     <div class="bs-stat-lbl">🎯 Total Campaigns</div>
+   </div>
+   <div class="bs-stat-card">
+     <div class="bs-stat-num" style="color:#4ade80;">{{ running_count }}</div>
+     <div class="bs-stat-lbl">⚡ Active Offensives</div>
+   </div>
+   <div class="bs-stat-card">
+     <div class="bs-stat-num" style="color:#60a5fa;">{{ total_sent }}</div>
+     <div class="bs-stat-lbl">📨 Apps Deployed</div>
+   </div>
+   <div class="bs-stat-card">
+     <div class="bs-stat-num" style="color:#a78bfa;">{{ total_responses }}</div>
+     <div class="bs-stat-lbl">💬 Responses</div>
+   </div>
+ </div>
+
+ <!-- ═══════════════ COMMAND & CONTROL ═══════════════ -->
+ <div class="bs-section-hdr">🎮 Command &amp; Control</div>
+ <div class="bs-actions">
+   <button class="bs-btn green" onclick="bsStartAll()">▶ Start All</button>
+   <button class="bs-btn red" onclick="bsStopAll()">⏹ Stop All</button>
+   <a href="/new-campaign" class="bs-btn amber">➕ New Campaign</a>
+   <a href="/sent-emails" class="bs-btn">📊 View Reports</a>
+ </div>
+
+ <!-- ═══════════════ LAUNCH CTA ═══════════════ -->
+ <div class="bs-cta">
+   <div class="bs-cta-title">⚔️ Ready to Strike?</div>
+   <div class="bs-cta-sub">Deploy a new campaign offensive. Your weapons are loaded, targets identified — one click to glory.</div>
+   <a href="/new-campaign" class="bs-cta-btn">🚀 Launch New Offensive</a>
+ </div>
+
+ <!-- ═══════════════ ACTIVE CAMPAIGNS ═══════════════ -->
+ <div class="bs-panel">
+   <div class="bs-section-hdr">🛡️ Active Campaigns</div>
+   {% if campaigns %}
+     {% for c in campaigns %}
+       {% set wc = c.get('premium_weapons', 0) or 0 %}
+       {% set status = c.get('status', 'unknown') %}
+       {% set sent = c.get('sent_count', 0) or 0 %}
+       {% set total = c.get('total_companies', 0) or 0 %}
+       {% set progress = ((sent / total * 100) if total > 0 else 0) %}
+       {% set health = 'green' if progress >= 80 else 'yellow' if progress >= 30 else 'red' %}
+       {% set icon = '💀' if wc >= 14 else '🎯' if wc >= 10 else '🦅' if wc >= 3 else '⚡' %}
+       {% set scls = status %}
+       <div class="bs-camp-card">
+         <div class="bs-camp-top">
+           <div>
+             <span class="bs-camp-name">{{ icon }} Campaign #{{ c['campaign_id'][:8] }}</span>
+             <span class="bs-camp-id">{{ c['campaign_id'] }}</span>
+           </div>
+           <div style="display:flex;align-items:center;gap:10px;">
+             <span class="bs-dot {{ health }}" title="Health: {{ '%.0f'|format(progress) }}%"></span>
+             <span class="bs-status {{ scls }}">{{ status }}</span>
+           </div>
+         </div>
+         <div class="bs-prog-wrap">
+           <div class="bs-prog-info">
+             <span>Progress</span>
+             <span>{{ '%.0f'|format(progress) }}%</span>
+           </div>
+           <div class="bs-prog-bar">
+             <div class="bs-prog-fill{% if progress >= 100 %} done{% endif %}" style="width:{{ progress }}%"></div>
+           </div>
+         </div>
+         <div class="bs-camp-stats">
+           <div class="bs-camp-stat">📨 <span class="val">{{ sent }}</span> sent</div>
+           <div class="bs-camp-stat">🏢 <span class="val">{{ total }}</span> companies</div>
+           <div class="bs-camp-stat">📬 <span class="val">{{ c.get('open_count', 0) or 0 }}</span> opened</div>
+           <div class="bs-camp-stat">💬 <span class="val">{{ c.get('response_count', 0) or 0 }}</span> replies</div>
+           <div class="bs-camp-stat">⚔️ <span class="val">{{ wc }}</span>/15 weapons</div>
+           <a href="/campaign/{{ c['campaign_id'] }}/war-room" class="bs-btn bs-btn-sm" style="margin-left:auto;">⚔️ War Room</a>
+         </div>
+       </div>
+     {% endfor %}
+   {% else %}
+     <div class="bs-empty">
+       <div class="bs-empty-icon">⚔️</div>
+       <div class="bs-empty-text">No campaigns deployed yet. Ready your arsenal and launch your first offensive!</div>
+       <a href="/new-campaign" class="bs-cta-btn">🚀 Launch First Campaign</a>
+     </div>
+   {% endif %}
+ </div>
+
+ <!-- ═══════════════ TWO-COLUMN ═══════════════ -->
+ <div class="bs-grid">
+   <!-- Live Activity Feed -->
+   <div class="bs-panel">
+     <div class="bs-section-hdr">📡 Live Activity Feed</div>
+     <div class="bs-feed">
+       {% if campaigns %}
+         {% for c in campaigns[:8] %}
+           {% set st = c.get('status', 'unknown') %}
+           {% set fi = '✅' if st == 'completed' else '⚡' if st == 'running' else '⏸️' if st == 'paused' else '❌' %}
+           <div class="bs-feed-item">
+             <div class="bs-feed-icon">{{ fi }}</div>
+             <div class="bs-feed-body">
+               <strong>Campaign #{{ c['campaign_id'][:8] }}</strong>
+               — {{ st|capitalize }} · {{ c.get('sent_count', 0) or 0 }} apps sent · {{ c.get('total_companies', 0) or 0 }} targets
+             </div>
+             <div class="bs-feed-time">{{ c.get('created_at', '')[:10] }}</div>
+           </div>
+         {% endfor %}
+       {% else %}
+         <div class="bs-feed-item">
+           <div class="bs-feed-icon">🛡️</div>
+           <div class="bs-feed-body">Battle Station is online. Awaiting your first deployment orders.</div>
+           <div class="bs-feed-time">now</div>
+         </div>
+       {% endif %}
+     </div>
+   </div>
+
+   <!-- System Health -->
+   <div class="bs-panel">
+     <div class="bs-section-hdr">❤️ System Health</div>
+     <div>
+       <div class="bs-health-row">
+         <div class="bs-health-label">
+           <span class="bs-dot green"></span> Healthy (Running)
+         </div>
+         <span class="bs-health-val" style="color:#4ade80;">{{ running_count }}</span>
+       </div>
+       <div class="bs-health-row">
+         <div class="bs-health-label">
+           <span class="bs-dot yellow"></span> Attention (Paused)
+         </div>
+         <span class="bs-health-val" style="color:#fbbf24;">{{ paused_count }}</span>
+       </div>
+       <div class="bs-health-row">
+         <div class="bs-health-label">
+           <span class="bs-dot yellow"></span> Completed
+         </div>
+         <span class="bs-health-val" style="color:#60a5fa;">{{ completed_count }}</span>
+       </div>
+       <div class="bs-health-row">
+         <div class="bs-health-label">
+           <span class="bs-dot red"></span> Critical (Failed)
+         </div>
+         <span class="bs-health-val" style="color:#fca5a5;">{{ failed_count }}</span>
+       </div>
+       <div class="bs-health-row">
+         <div class="bs-health-label">
+           <span>🛡️</span> Total Arsenal
+         </div>
+         <span class="bs-health-val" style="color:#e2e8f0;">{{ campaigns|length }} campaigns</span>
+       </div>
+     </div>
+   </div>
+ </div>
+
+ <!-- ═══════════════ BOTTOM CTA ═══════════════ -->
+ <div class="bs-bottom-cta">
+   <p>⚔️ The war for your dream job is won one campaign at a time. Keep pushing forward.</p>
+   <a href="/new-campaign" class="bs-cta-btn">🚀 Launch New Offensive</a>
+ </div>
+
+
+
+<div class="toast" id="bsToast"></div>
+<script>
+function bsShowToast(msg, type) {
+  const t = document.getElementById('bsToast');
+  if (!t) return;
+  t.textContent = msg;
+  t.className = 'toast show' + (type === 'error' ? ' error' : type === 'info' ? ' info' : '');
+  setTimeout(function() { t.classList.remove('show'); }, 3500);
+}
+function bsStartAll() { bsShowToast('Start All feature coming soon! Use individual campaign War Rooms.'); }
+function bsStopAll() { bsShowToast('Stop All feature coming soon! Use individual campaign War Rooms.'); }
+</script>

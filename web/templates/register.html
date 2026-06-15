@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create your JobHunt Pro account. Start automating job applications with AI-crafted cover letters & 200-agent swarm. Choose your plan.">
+  <title>Register &#x2014; JobHunt Pro | 200 AI Agents, 24/7</title>
+  <link rel="stylesheet" href="/static/css/cyberpunk.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#000;--card:rgba(15,15,25,0.85);--cyan:#00f0ff;--magenta:#ff0055;--gold:#ffb300;--green:#00e676;--text:#f0f0f5;--muted:#8888aa;--border:rgba(255,255,255,0.06)}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.6}
+/* BG effects */
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(0,240,255,.04) 0%,transparent 50%),
+  radial-gradient(ellipse 60% 40% at 80% 30%,rgba(255,0,85,.03) 0%,transparent 50%),
+  radial-gradient(ellipse 50% 60% at 50% 80%,rgba(255,179,0,.03) 0%,transparent 50%)}
+body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(0,240,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.015) 1px,transparent 1px);background-size:60px 60px}
+
+.headroom{position:relative;z-index:10;min-height:60px;background:rgba(5,5,15,.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-wrap:wrap;gap:10px}
+.headroom .brand{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,#00f0ff,#00a0cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;letter-spacing:-.5px}
+.headroom nav{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.headroom nav a{font-size:12px;color:#8888aa;font-weight:500;text-decoration:none;padding:6px 0;transition:all .2s}
+.headroom nav a:hover{color:#00f0ff}
+
+.page-wrap{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:center;padding:30px 16px 60px;min-height:calc(100vh - 60px)}
+.container{width:100%;max-width:900px;display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+@media(max-width:700px){.container{grid-template-columns:1fr}}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.card h1{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}
+.card .subtitle{color:var(--muted);font-size:14px;margin-bottom:28px}
+
+/* Benefits sidebar */
+.benefits-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.benefits-card h2{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin-bottom:18px;text-shadow:0 0 10px rgba(0,240,255,0.2)}
+.benefit-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.03);transition:all .25s}
+.benefit-item:hover{background:rgba(0,240,255,.03);border-color:rgba(0,240,255,.1)}
+.benefit-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.benefit-item strong{display:block;font-size:13px;color:#e2e8f0;margin-bottom:2px}
+.benefit-item span{font-size:11px;color:#64748b}
+
+/* Plan selector */
+.plan-selector{margin-bottom:28px}
+.plan-selector h3{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.plan-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+@media(max-width:400px){.plan-options{grid-template-columns:1fr}}
+.plan-option{position:relative;padding:14px 10px;background:rgba(255,255,255,.02);border:2px solid var(--border);border-radius:12px;cursor:pointer;text-align:center;transition:all .25s}
+.plan-option:hover{border-color:rgba(0,240,255,.2);background:rgba(0,240,255,.03)}
+.plan-option.selected{border-color:#00f0ff;background:rgba(0,240,255,.06);box-shadow:0 0 20px rgba(0,240,255,.1)}
+.plan-option input{display:none}
+.plan-name{font-size:12px;font-weight:700;color:#e2e8f0;margin-bottom:4px}
+.plan-price{font-size:18px;font-weight:800;color:#00f0ff;text-shadow:0 0 10px rgba(0,240,255,.3)}
+.plan-price span{font-size:11px;color:var(--muted);font-weight:400}
+.plan-apps{font-size:10px;color:var(--muted);margin-top:3px}
+.plan-badge{position:absolute;top:-8px;right:-6px;background:linear-gradient(135deg,#00f0ff,#0088ff);color:#000;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px}
+
+.savings-banner{text-align:center;margin:12px 0 20px;padding:10px;background:rgba(0,240,255,.04);border:1px solid rgba(0,240,255,.1);border-radius:10px;font-size:12px;color:#00f0ff;font-weight:600}
+.savings-banner strong{font-size:15px}
+
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500}
+.form-group input{width:100%;padding:12px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-size:15px;font-family:'Inter',sans-serif;transition:all .25s}
+.form-group input:focus{outline:none;border-color:#00f0ff;box-shadow:0 0 0 3px rgba(0,240,255,.1)}
+.form-group input::placeholder{color:#555577}
+
+.btn-submit{width:100%;padding:15px;background:linear-gradient(135deg,#00f0ff,#0088cc,#00f0ff);background-size:200% 200%;animation:btnShine 3s ease infinite;color:#000;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;transition:all .3s;font-family:'Space Grotesk',sans-serif;letter-spacing:.5px;text-transform:uppercase}
+@keyframes btnShine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(0,240,255,.35)}
+
+.link-row{text-align:center;margin-top:18px;font-size:13px;color:var(--muted)}
+.link-row a{color:#00f0ff;text-decoration:none;font-weight:600}
+.link-row a:hover{text-decoration:underline}
+
+.error{background:rgba(255,0,85,.08);border:1px solid rgba(255,0,85,.2);color:#ff4466;padding:12px;border-radius:10px;margin-bottom:18px;font-size:13px}
+
+.trust-strip{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;padding:12px;background:rgba(34,197,94,.03);border:1px solid rgba(34,197,94,.08);border-radius:10px}
+.trust-strip span{font-size:11px;color:#4ade80;font-weight:500}
+
+.turnstile-wrap{display:flex;justify-content:center;margin:12px 0}
+</style>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</head>
+<body class="cyberpunk-body">
+<header class="headroom">
+  <a href="/" class="brand">⚡ JOBHUNT PRO <span style="font-size:10px;color:#00f0ff;-webkit-text-fill-color:#00f0ff;margin-left:6px;font-weight:400">v{{ VERSION }}</span></a>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/services">Services</a>
+    <a href="/trust">Trust</a>
+    <a href="/faq">FAQ</a>
+    <a href="/login" style="color:#00f0ff">Login</a>
+  </nav>
+</header>
+
+<div class="page-wrap">
+<div class="container">
+  <!-- LEFT: Registration Form -->
+  <div class="card">
+    <h1>Create Account</h1>
+    <p class="subtitle">Start applying to 1000s of jobs with AI</p>
+
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+    <!-- Plan Picker -->
+    <div class="plan-selector">
+      <h3>🎯 Choose Your Plan</h3>
+      <div class="plan-options">
+        <label class="plan-option selected" for="plan-starter">
+          <input type="radio" name="plan" value="starter" id="plan-starter" checked>
+          <div class="plan-name">Starter</div>
+          <div class="plan-price">$2 <span>one-time</span></div>
+          <div class="plan-apps">10 applications</div>
+        </label>
+        <label class="plan-option" for="plan-basic">
+          <input type="radio" name="plan" value="basic" id="plan-basic">
+          <span class="plan-badge">POPULAR</span>
+          <div class="plan-name">Basic</div>
+          <div class="plan-price">$5 <span>one-time</span></div>
+          <div class="plan-apps">100 applications</div>
+        </label>
+        <label class="plan-option" for="plan-pro">
+          <input type="radio" name="plan" value="pro" id="plan-pro">
+          <div class="plan-name">Pro ⭐</div>
+          <div class="plan-price">$15 <span>one-time</span></div>
+          <div class="plan-apps">500 applications</div>
+        </label>
+      </div>
+      <div class="savings-banner" id="savings-banner">
+        💡 <strong id="savings-text">$0.20</strong> per application — less than a coffee ☕
+      </div>
+    </div>
+
+    <form method="POST" action="/register">
+    <input type="hidden" name="selected_plan" id="selected-plan" value="starter">
+    <input type="hidden" name="ref" value="{{ ref }}">
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" name="name" placeholder="e.g. Sam Salameh" required autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" name="email" placeholder="you@example.com" required autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Phone (optional)</label>
+      <input type="tel" name="phone" placeholder="e.g. +961 70 000 000" autocomplete="tel">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password">
+    </div>
+    <div class="turnstile-wrap">
+      <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="dark"></div>
+    </div>
+    <button type="submit" class="btn-submit">🚀 Create Free Account</button>
+    </form>
+
+    <div class="link-row">Already have an account? <a href="/login">Login</a></div>
+    <div class="trust-strip">
+      <span>🔒 No credit card required • 30-day money-back guarantee • Cancel anytime</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: Benefits -->
+  <div class="benefits-card">
+    <h2>✨ What You Get</h2>
+    <div class="benefit-item">
+      <span class="benefit-icon">🤖</span>
+      <div><strong>200 AI Agents 24/7</strong><span>Hundreds of AI agents work around the clock searching & applying</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">✉️</span>
+      <div><strong>Unique Cover Letters</strong><span>Each application gets a personalized AI-written cover letter</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">📧</span>
+      <div><strong>20+ Email Providers</strong><span>Smart rotation keeps your emails out of spam folders</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">🌍</span>
+      <div><strong>50+ Countries</strong><span>Search across Lebanon, UAE, Saudi, Qatar, Kuwait, remote & more</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">📊</span>
+      <div><strong>Real-Time Dashboard</strong><span>Track opens, clicks, responses & pipeline progress live</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">🛡️</span>
+      <div><strong>30-Day Money Back</strong><span>No interviews? Full refund. Zero risk guarantee</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">🔒</span>
+      <div><strong>256-Bit Encryption</strong><span>Your CV and data are locked down — never shared or sold</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">₿</span>
+      <div><strong>Crypto Payments</strong><span>Pay with BTC, ETH, USDT — private & borderless</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// Plan selector interactivity
+document.querySelectorAll('.plan-option').forEach(opt => {
+  opt.addEventListener('click', function() {
+    document.querySelectorAll('.plan-option').forEach(o => o.classList.remove('selected'));
+    this.classList.add('selected');
+    const plan = this.querySelector('input').value;
+    document.getElementById('selected-plan').value = plan;
+    // Update savings banner
+    const prices = {starter: {apps: 10, price: 2, per: '0.20'},
+                     basic: {apps: 100, price: 5, per: '0.05'},
+                     pro: {apps: 500, price: 15, per: '0.03'}};
+    const p = prices[plan];
+    document.getElementById('savings-text').textContent = '$' + p.per;
+    document.querySelector('.savings-banner').innerHTML = '💡 <strong>$' + p.per + '</strong> per application — ' + p.apps + ' apps for just $' + p.price + ' 🚀';
+  });
+});
+</script>
+</body>
+</html>

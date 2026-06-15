@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>JobHunt Pro Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --card: #16213e;
+            --accent: #0f3460;
+            --gold: #e8b90c;
+            --green: #00c853;
+            --red: #ff1744;
+            --text: #e0e0e0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 16px;
+            min-height: 100vh;
+        }
+        .header {
+            text-align: center;
+            padding: 24px 0;
+            background: linear-gradient(135deg, var(--gold), #ff9800);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 28px;
+            font-weight: 800;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gold), #ff9800);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .chart-container {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: var(--card);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            color: var(--text);
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .tab.active {
+            background: var(--gold);
+            color: #000;
+            font-weight: 700;
+        }
+        .funnel-bar {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .funnel-label {
+            width: 80px;
+            font-size: 12px;
+            text-align: right;
+        }
+        .funnel-fill {
+            height: 24px;
+            border-radius: 12px;
+            background: linear-gradient(90deg, var(--gold), #ff9800);
+            transition: width 0.5s ease;
+        }
+        .funnel-num {
+            font-size: 14px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+        .alert-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">🚀 JobHunt Pro</div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-value" id="appsAll">--</div>
+            <div class="stat-label">Total Apps</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="appsToday">--</div>
+            <div class="stat-label">Today</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="responseRate">--</div>
+            <div class="stat-label">Response Rate</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="interviews">--</div>
+            <div class="stat-label">Interviews</div>
+        </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+        <div class="tab active" data-tab="trend">📈 Trends</div>
+        <div class="tab" data-tab="funnel">🔽 Funnel</div>
+        <div class="tab" data-tab="companies">🏢 Companies</div>
+        <div class="tab" data-tab="recent">📋 Recent</div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-container">
+        <canvas id="mainChart" height="200"></canvas>
+    </div>
+
+    <!-- Funnel (hidden by default) -->
+    <div class="chart-container" id="funnelContainer" style="display:none;"></div>
+
+    <!-- Companies List -->
+    <div id="companiesList" style="display:none;"></div>
+
+    <!-- Recent Apps -->
+    <div id="recentList" style="display:none;"></div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        // Set theme colors from Telegram
+        const bgColor = tg.backgroundColor || '#1a1a2e';
+        const textColor = tg.textColor || '#e0e0e0';
+        document.body.style.background = bgColor;
+        document.body.style.color = textColor;
+
+        const API = 'https://jhfguf.pythonanywhere.com/api/v1';
+        let mainChart = null;
+
+        async function fetchData(endpoint) {
+            try {
+                const res = await fetch(`${API}${endpoint}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.json();
+            } catch (e) {
+                console.error('API error:', e);
+                return null;
+            }
+        }
+
+        async function loadDashboard() {
+            // Load stats
+            const stats = await fetchData('/stats');
+            if (stats) {
+                document.getElementById('appsAll').textContent = stats.total || '0';
+                document.getElementById('appsToday').textContent = stats.today || '0';
+                document.getElementById('responseRate').textContent = (stats.response_rate || 0) + '%';
+                document.getElementById('interviews').textContent = stats.interviews || '0';
+            }
+
+            loadTrends();
+        }
+
+        async function loadTrends() {
+            const data = await fetchData('/trends?days=7');
+            if (!data || !data.dates) return;
+
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            if (mainChart) mainChart.destroy();
+
+            mainChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.dates,
+                    datasets: [{
+                        label: 'Applications',
+                        data: data.counts,
+                        backgroundColor: 'rgba(232,185,12,0.6)',
+                        borderColor: '#e8b90c',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#888', precision: 0 }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#888' }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function loadFunnel() {
+            const data = await fetchData('/funnel');
+            if (!data) return;
+
+            const stages = [
+                { key: 'applied', label: 'Applied', color: '#e8b90c' },
+                { key: 'viewed', label: 'Viewed', color: '#ff9800' },
+                { key: 'responded', label: 'Responded', color: '#00c853' },
+                { key: 'interview', label: 'Interview', color: '#2196f3' },
+                { key: 'offer', label: 'Offer', color: '#9c27b0' },
+                { key: 'hired', label: 'Hired', color: '#4caf50' },
+            ];
+
+            const maxVal = data.applied || 1;
+            let html = '';
+            for (const stage of stages) {
+                const val = data[stage.key] || 0;
+                const pct = Math.round((val / maxVal) * 100);
+                html += `
+                <div class="funnel-bar">
+                    <div class="funnel-label">${stage.label}</div>
+                    <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:12px;">
+                        <div class="funnel-fill" style="width:${pct}%;background:${stage.color};"></div>
+                    </div>
+                    <div class="funnel-num">${val}</div>
+                </div>`;
+            }
+            document.getElementById('funnelContainer').innerHTML = html;
+        }
+
+        async function loadCompanies() {
+            const data = await fetchData('/top-companies?limit=10');
+            if (!data || !data.companies) {
+                document.getElementById('companiesList').innerHTML = '<div class="loading">No data yet</div>';
+                return;
+            }
+            let html = '<div class="chart-container"><h3 style="margin-bottom:12px;">🏢 Top Companies</h3>';
+            const maxCount = data.companies[0]?.count || 1;
+            for (const c of data.companies) {
+                const pct = Math.round((c.count / maxCount) * 100);
+                html += `
+                <div class="funnel-bar">
+                    <div class="funnel-label" style="width:120px;text-align:left;">${c.company}</div>
+                    <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:12px;">
+                        <div class="funnel-fill" style="width:${pct}%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);"></div>
+                    </div>
+                    <div class="funnel-num">${c.count}</div>
+                </div>`;
+            }
+            html += '</div>';
+            document.getElementById('companiesList').innerHTML = html;
+        }
+
+        async function loadRecent() {
+            const data = await fetchData('/recent?limit=15');
+            if (!data || !data.recent) {
+                document.getElementById('recentList').innerHTML = '<div class="loading">No applications yet</div>';
+                return;
+            }
+            let html = '<div class="chart-container"><h3 style="margin-bottom:12px;">📋 Recent Applications</h3>';
+            for (const app of data.recent) {
+                const statusColor = app.status === 'sent' ? '#3b82f6' :
+                    app.responded ? '#22c55e' : '#64748b';
+                html += `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <div>
+                        <div style="font-weight:600;font-size:14px;">${app.company || 'Unknown'}</div>
+                        <div style="font-size:12px;color:#888;">${app.title || 'Unknown Position'}</div>
+                    </div>
+                    <span style="font-size:11px;color:${statusColor};font-weight:600;">${app.responded ? '📬 Responded' : app.opened ? '👁 Opened' : '📤 Sent'}</span>
+                </div>`;
+            }
+            html += '</div>';
+            document.getElementById('recentList').innerHTML = html;
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                const tabName = tab.dataset.tab;
+                document.getElementById('mainChart').parentElement.style.display = 'none';
+                document.getElementById('funnelContainer').style.display = 'none';
+                document.getElementById('companiesList').style.display = 'none';
+                document.getElementById('recentList').style.display = 'none';
+
+                if (tabName === 'trend') {
+                    document.getElementById('mainChart').parentElement.style.display = '';
+                    loadTrends();
+                } else if (tabName === 'funnel') {
+                    document.getElementById('funnelContainer').style.display = '';
+                    loadFunnel();
+                } else if (tabName === 'companies') {
+                    document.getElementById('companiesList').style.display = '';
+                    loadCompanies();
+                } else if (tabName === 'recent') {
+                    document.getElementById('recentList').style.display = '';
+                    loadRecent();
+                }
+            });
+        });
+
+        // Initial load
+        loadDashboard();
+    </script>
+</body>
+</html>

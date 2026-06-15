@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/static/css/cyberpunk.css">
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>JobHunt Pro — Land Your Dream Job. Automatically.</title>
+ <meta name="description" content="The most advanced job hunting platform. Apply to thousands of jobs, track every application, and get hired faster. Trusted by thousands of job seekers worldwide.">
+
+ <!-- Open Graph / Social -->
+ <meta property="og:title" content="JobHunt Pro — Land Your Dream Job. Automatically.">
+ <meta property="og:description" content="Apply to thousands of jobs, track every application, and get hired faster. The smartest way to job hunt.">
+ <meta property="og:type" content="website">
+ <meta property="og:url" content="https://jhfguf.pythonanywhere.com">
+ <meta property="og:image" content="https://jhfguf.pythonanywhere.com/static/og-image.png">
+ <meta property="og:image:width" content="1200">
+ <meta property="og:image:height" content="630">
+ <meta property="og:site_name" content="JobHunt Pro">
+
+ <!-- Twitter Card -->
+ <meta name="twitter:card" content="summary_large_image">
+ <meta name="twitter:title" content="JobHunt Pro — Land Your Dream Job. Automatically.">
+ <meta name="twitter:description" content="Apply to thousands of jobs, track every application, and get hired faster.">
+ <meta name="twitter:image" content="https://jhfguf.pythonanywhere.com/static/og-image.png">
+
+ <!-- Fonts -->
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+ <style>
+  /* ══════════════════════════════════════════
+     JOBHUNT PRO — LANDING PAGE v3
+     Dark Cyberpunk Premium Theme
+     ══════════════════════════════════════════ */
+
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+  :root{
+   --bg:#05050a;
+   --bg-alt:#080912;
+   --card:#0d0e18;
+   --card-hover:#111320;
+   --cyan:#00f0ff;
+   --cyan-dim:rgba(0,240,255,0.15);
+   --cyan-glow:rgba(0,240,255,0.08);
+   --magenta:#ff0055;
+   --magenta-dim:rgba(255,0,85,0.15);
+   --magenta-glow:rgba(255,0,85,0.08);
+   --text:#f1f1f5;
+   --text-dim:#a0a0b0;
+   --muted:#5a5a70;
+   --border:rgba(255,255,255,0.06);
+   --border-light:rgba(255,255,255,0.10);
+   --radius:16px;
+   --radius-sm:10px;
+   --radius-lg:24px;
+   --transition:0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  html{scroll-behavior:smooth}
+  body{
+   font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+   background:var(--bg);
+   color:var(--text);
+   overflow-x:hidden;
+   line-height:1.6;
+   -webkit-font-smoothing:antialiased;
+  }
+
+  /* ── Global Animations ── */
+  @keyframes fadeInUp{
+   from{opacity:0;transform:translateY(40px)}
+   to{opacity:1;transform:translateY(0)}
+  }
+  @keyframes fadeIn{
+   from{opacity:0}
+   to{opacity:1}
+  }
+  @keyframes floatUpDown{
+   0%,100%{transform:translateY(0)}
+   50%{transform:translateY(-12px)}
+  }
+  @keyframes pulse{
+   0%,100%{opacity:1}
+   50%{opacity:0.5}
+  }
+  @keyframes borderGlow{
+   0%,100%{border-color:var(--cyan);box-shadow:0 0 15px rgba(0,240,255,0.15)}
+   50%{border-color:var(--magenta);box-shadow:0 0 15px rgba(255,0,85,0.15)}
+  }
+  @keyframes gradientShift{
+   0%,100%{background-position:0% 50%}
+   50%{background-position:100% 50%}
+  }
+  @keyframes livePulse{
+   0%,100%{opacity:1;box-shadow:0 0 6px #22c55e,0 0 12px #22c55e}
+   50%{opacity:0.4;box-shadow:0 0 2px #22c55e}
+  }
+  @keyframes shimmer{
+   0%{background-position:-200% 0}
+   100%{background-position:200% 0}
+  }
+
+  /* ── Reveal on Scroll ── */
+  .reveal{opacity:0;transform:translateY(40px);transition:opacity 0.8s ease,transform 0.8s ease}
+  .reveal.visible{opacity:1;transform:translateY(0)}
+  .reveal-left{opacity:0;transform:translateX(-40px);transition:opacity 0.8s ease,transform 0.8s ease}
+  .reveal-left.visible{opacity:1;transform:translateX(0)}
+  .reveal-right{opacity:0;transform:translateX(40px);transition:opacity 0.8s ease,transform 0.8s ease}
+  .reveal-right.visible{opacity:1;transform:translateX(0)}
+  .reveal-scale{opacity:0;transform:scale(0.9);transition:opacity 0.8s ease,transform 0.8s ease}
+  .reveal-scale.visible{opacity:1;transform:scale(1)}
+
+  /* ── Background Effects ── */
+  .bg-grid{
+   position:fixed;top:0;left:0;width:100%;height:100%;
+   background-image:
+    linear-gradient(rgba(0,240,255,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,240,255,0.03) 1px,transparent 1px);
+   background-size:60px 60px;
+   pointer-events:none;z-index:0;
+  }
+  .bg-glow-top{
+   position:fixed;top:-40%;left:20%;width:60%;height:60%;
+   background:radial-gradient(ellipse,var(--cyan-glow) 0%,transparent 70%);
+   pointer-events:none;z-index:0;
+  }
+  .bg-glow-bottom{
+   position:fixed;bottom:-30%;right:10%;width:50%;height:50%;
+   background:radial-gradient(ellipse,var(--magenta-glow) 0%,transparent 70%);
+   pointer-events:none;z-index:0;
+  }
+
+  /* ── Section Container ── */
+  .section{position:relative;z-index:10;padding:100px 24px}
+  .section-inner{max-width:1200px;margin:0 auto}
+  .section-label{
+   display:inline-block;font-family:'Orbitron',sans-serif;font-size:10px;
+   letter-spacing:5px;text-transform:uppercase;color:var(--cyan);
+   margin-bottom:16px;padding:8px 18px;border:1px solid var(--cyan-dim);
+   border-radius:50px;background:var(--cyan-glow);
+  }
+  .section-title{
+   font-family:'Orbitron',sans-serif;font-size:clamp(28px,5vw,42px);
+   font-weight:800;letter-spacing:1px;margin-bottom:16px;line-height:1.2;
+  }
+  .section-subtitle{
+   font-size:16px;color:var(--text-dim);max-width:600px;line-height:1.8;
+  }
+
+  /* ═══════════════ HEADER ═══════════════ */
+  .header{
+   position:fixed;top:0;left:0;right:0;z-index:100;
+   padding:18px 48px;display:flex;justify-content:space-between;
+   align-items:center;transition:all 0.4s;
+   background:rgba(5,5,10,0.85);backdrop-filter:blur(16px);
+   border-bottom:1px solid var(--border);
+  }
+  .header.scrolled{background:rgba(5,5,10,0.95);padding:14px 48px}
+  .logo-group{display:flex;flex-direction:column}
+  .logo{
+   font-family:'Orbitron',sans-serif;font-size:24px;font-weight:900;
+   letter-spacing:4px;background:linear-gradient(135deg,var(--cyan),#00d4e0);
+   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+   background-clip:text;
+  }
+  .logo-accent{
+   font-size:9px;color:var(--cyan);letter-spacing:5px;
+   text-transform:uppercase;opacity:0.8;
+  }
+  .nav-links{display:flex;gap:36px;align-items:center}
+  .nav-links a{
+   color:var(--text-dim);text-decoration:none;font-size:13px;
+   font-weight:500;letter-spacing:1px;transition:color 0.3s;
+  }
+  .nav-links a:hover{color:var(--cyan)}
+  .nav-cta{
+   padding:10px 24px;background:linear-gradient(135deg,var(--cyan),#0088aa);
+   color:#000!important;border-radius:50px;font-weight:700!important;
+   font-size:12px!important;letter-spacing:2px!important;
+   transition:all 0.3s!important;border:none;cursor:pointer;
+  }
+  .nav-cta:hover{box-shadow:0 0 25px rgba(0,240,255,0.4);transform:translateY(-2px)}
+  .mobile-menu-btn{display:none;background:none;border:none;color:var(--text);font-size:28px;cursor:pointer}
+
+  /* ═══════════════ HERO ═══════════════ */
+  .hero{
+   position:relative;z-index:10;min-height:100vh;display:flex;
+   align-items:center;justify-content:center;text-align:center;
+   padding:120px 24px 60px;
+  }
+  .hero-inner{max-width:900px}
+  .hero-badge{
+   display:inline-flex;align-items:center;gap:10px;
+   padding:10px 24px;border:1px solid var(--cyan-dim);
+   border-radius:50px;font-size:11px;color:var(--cyan);
+   letter-spacing:4px;text-transform:uppercase;margin-bottom:28px;
+   animation:borderGlow 3s infinite;
+  }
+  .hero-badge .dot{
+   width:7px;height:7px;background:#22c55e;border-radius:50%;
+   animation:livePulse 1.5s infinite;
+  }
+  .hero-title{
+   font-family:'Orbitron',sans-serif;font-size:clamp(36px,8vw,72px);
+   font-weight:900;line-height:1.08;margin-bottom:24px;
+  }
+  .hero-title .cyan{
+   color:var(--cyan);text-shadow:0 0 60px rgba(0,240,255,0.5),0 0 120px rgba(0,240,255,0.25);
+  }
+  .hero-title .magenta{
+   color:var(--magenta);text-shadow:0 0 60px rgba(255,0,85,0.5),0 0 120px rgba(255,0,85,0.25);
+  }
+  .hero-title .white{color:var(--text)}
+  .hero-desc{
+   font-size:17px;color:var(--text-dim);max-width:620px;margin:0 auto 40px;
+   line-height:1.8;font-weight:400;
+  }
+  .hero-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:60px}
+  .btn{
+   display:inline-flex;align-items:center;gap:8px;padding:16px 36px;
+   border-radius:50px;font-family:'Orbitron',sans-serif;font-size:13px;
+   font-weight:700;cursor:pointer;transition:all 0.35s;text-decoration:none;
+   border:none;letter-spacing:2px;text-transform:uppercase;
+  }
+  .btn-primary{
+   background:linear-gradient(135deg,var(--cyan),#0088bb);
+   color:#000;box-shadow:0 4px 25px rgba(0,240,255,0.25);
+  }
+  .btn-primary:hover{
+   box-shadow:0 6px 40px rgba(0,240,255,0.45);
+   transform:translateY(-3px);
+  }
+  .btn-outline{
+   background:transparent;color:var(--text);
+   border:1px solid var(--border-light);
+  }
+  .btn-outline:hover{
+   border-color:var(--cyan);color:var(--cyan);
+   box-shadow:0 0 20px rgba(0,240,255,0.1);
+  }
+  .hero-stats{display:flex;justify-content:center;gap:56px;flex-wrap:wrap}
+  .hero-stat{
+   display:flex;flex-direction:column;align-items:center;
+   padding:20px 28px;background:var(--card);border:1px solid var(--border);
+   border-radius:var(--radius);min-width:140px;transition:all 0.3s;
+  }
+  .hero-stat:hover{border-color:var(--cyan-dim);transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,0.4)}
+  .hero-stat .val{
+   font-family:'Orbitron',sans-serif;font-size:32px;font-weight:900;
+   background:linear-gradient(135deg,var(--cyan),#22d3ee);
+   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+   background-clip:text;
+  }
+  .hero-stat .label{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:6px}
+
+  /* ═══════════════ TRUST BAR ═══════════════ */
+  .trust-bar{position:relative;z-index:10;padding:40px 24px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .trust-bar-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap}
+  .trust-bar-label{
+   font-family:'Orbitron',sans-serif;font-size:10px;color:var(--muted);
+   letter-spacing:3px;text-transform:uppercase;white-space:nowrap;
+  }
+  .trust-bar-logos{display:flex;gap:40px;align-items:center;flex-wrap:wrap;justify-content:center}
+  .trust-logo{
+   font-family:'Orbitron',sans-serif;font-size:14px;color:var(--text-dim);
+   letter-spacing:3px;font-weight:700;opacity:0.5;transition:all 0.3s;
+  }
+  .trust-logo:hover{opacity:0.9;color:var(--cyan)}
+
+  /* ═══════════════ HOW IT WORKS ═══════════════ */
+  .steps-grid{
+   display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px;
+  }
+  .step-card{
+   background:var(--card);border:1px solid var(--border);
+   border-radius:var(--radius-lg);padding:36px 28px;text-align:center;
+   transition:all var(--transition);position:relative;overflow:hidden;
+  }
+  .step-card::before{
+   content:'';position:absolute;top:0;left:0;width:100%;height:3px;
+   background:linear-gradient(90deg,var(--cyan),var(--magenta));
+   opacity:0;transition:opacity 0.4s;
+  }
+  .step-card:hover::before{opacity:1}
+  .step-card:hover{border-color:var(--cyan-dim);transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+  .step-number{
+   font-family:'Orbitron',sans-serif;font-size:48px;font-weight:900;
+   background:linear-gradient(135deg,var(--cyan),var(--magenta));
+   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+   background-clip:text;margin-bottom:8px;
+  }
+  .step-icon{font-size:36px;margin-bottom:12px}
+  .step-card h3{
+   font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:2px;
+   margin-bottom:12px;color:var(--text);
+  }
+  .step-card p{font-size:13px;color:var(--text-dim);line-height:1.7}
+
+  /* ═══════════════ FEATURES ═══════════════ */
+  .feature-grid{
+   display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;
+  }
+  .feature-card{
+   background:var(--card);border:1px solid var(--border);
+   border-radius:var(--radius-lg);padding:36px 28px;
+   transition:all var(--transition);position:relative;
+  }
+  .feature-card:hover{
+   border-color:var(--cyan-dim);transform:translateY(-6px);
+   box-shadow:0 12px 40px rgba(0,0,0,0.5),0 0 30px var(--cyan-glow);
+  }
+  .feature-icon-box{
+   width:56px;height:56px;border-radius:14px;display:flex;
+   align-items:center;justify-content:center;font-size:24px;
+   margin-bottom:20px;background:var(--cyan-glow);
+   border:1px solid var(--cyan-dim);
+  }
+  .feature-card h3{
+   font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:2px;
+   margin-bottom:10px;color:var(--cyan);
+  }
+  .feature-card p{font-size:13px;color:var(--text-dim);line-height:1.8}
+
+  /* ═══════════════ STATS / SOCIAL PROOF ═══════════════ */
+  .stats-row{
+   display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px;
+  }
+  .stat-card{
+   background:var(--card);border:1px solid var(--border);
+   border-radius:var(--radius);padding:32px 20px;text-align:center;
+   transition:all var(--transition);
+  }
+  .stat-card:hover{
+   border-color:var(--cyan-dim);transform:translateY(-4px);
+   box-shadow:0 8px 25px rgba(0,0,0,0.4);
+  }
+  .stat-card .big{
+   font-family:'Orbitron',sans-serif;font-size:40px;font-weight:900;
+   background:linear-gradient(135deg,var(--cyan),#22d3ee);
+   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+   background-clip:text;line-height:1.2;
+  }
+  .stat-card .label{font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:8px}
+  .stat-card .sub{font-size:11px;color:var(--text-dim);margin-top:4px}
+
+  /* ═══════════════ PRICING ═══════════════ */
+  .pricing-grid{
+   display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;
+   align-items:stretch;
+  }
+  .pricing-card{
+   background:var(--card);border:1px solid var(--border);
+   border-radius:var(--radius-lg);padding:40px 32px;text-align:center;
+   transition:all var(--transition);position:relative;display:flex;
+   flex-direction:column;
+  }
+  .pricing-card.popular{
+   border-color:var(--cyan);
+   box-shadow:0 0 30px rgba(0,240,255,0.2),0 0 80px rgba(0,240,255,0.06);
+   transform:scale(1.04);
+   z-index:2;
+  }
+  .popular-badge{
+   position:absolute;top:-15px;left:50%;transform:translateX(-50%);
+   background:linear-gradient(135deg,var(--magenta),#ff3377);
+   color:#fff;padding:10px 24px;border-radius:50px;
+   font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;
+   letter-spacing:2px;white-space:nowrap;
+  }
+  .pricing-card .tier{
+   font-family:'Orbitron',sans-serif;font-size:10px;color:var(--muted);
+   text-transform:uppercase;letter-spacing:4px;margin-bottom:8px;
+  }
+  .pricing-card .name{
+   font-family:'Orbitron',sans-serif;font-size:22px;font-weight:800;
+   margin-bottom:8px;letter-spacing:1px;
+  }
+  .pricing-card .companies{
+   font-family:'Orbitron',sans-serif;font-size:44px;font-weight:900;
+   color:var(--cyan);line-height:1;
+  }
+  .pricing-card .companies span{
+   font-size:13px;color:var(--text-dim);font-weight:400;
+  }
+  .pricing-card .price{
+   font-family:'Orbitron',sans-serif;font-size:32px;font-weight:800;
+   margin:14px 0 4px;
+  }
+  .pricing-card .price span{font-size:14px;color:var(--muted);font-weight:400}
+  .pricing-card .per{font-size:11px;color:var(--muted);margin-bottom:20px}
+  .pricing-card .save{
+   display:inline-block;padding:6px 14px;background:var(--cyan-glow);
+   border:1px solid var(--cyan-dim);border-radius:50px;
+   color:var(--cyan);font-size:11px;font-weight:600;margin-bottom:18px;
+  }
+  .pricing-card ul{
+   list-style:none;text-align:left;margin-bottom:28px;flex:1;
+  }
+  .pricing-card ul li{
+   padding:10px 0;color:var(--text-dim);font-size:12px;
+   border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;
+  }
+  .pricing-card ul li::before{content:'\2713';color:var(--cyan);font-weight:700;font-size:14px}
+  .pricing-card ul li:last-child{border-bottom:none}
+  .pricing-card .btn-block{
+   display:block;width:100%;padding:16px;border-radius:50px;
+   font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;
+   cursor:pointer;transition:all var(--transition);text-decoration:none;
+   text-align:center;border:none;letter-spacing:2px;text-transform:uppercase;
+  }
+  .pricing-card .btn-block.primary{
+   background:linear-gradient(135deg,var(--cyan),#0088bb);color:#000;
+  }
+  .pricing-card .btn-block.primary:hover{
+   box-shadow:0 0 30px rgba(0,240,255,0.4);transform:translateY(-2px);
+  }
+  .pricing-card .btn-block.secondary{
+   background:transparent;color:var(--text-dim);border:1px solid var(--border);
+  }
+  .pricing-card .btn-block.secondary:hover{
+   border-color:var(--cyan);color:var(--cyan);
+  }
+
+  /* ═══════════════ TESTIMONIALS ═══════════════ */
+  .testimonial-grid{
+   display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;
+  }
+  .testimonial-card{
+   background:var(--card);border:1px solid var(--border);
+   border-radius:var(--radius-lg);padding:36px 28px;transition:all var(--transition);
+  }
+  .testimonial-card:hover{
+   border-color:var(--magenta-dim);transform:translateY(-4px);
+   box-shadow:0 8px 30px rgba(0,0,0,0.4);
+  }
+  .testimonial-stars{color:#fbbf24;font-size:15px;margin-bottom:16px;letter-spacing:2px}
+  .testimonial-text{
+   font-size:14px;color:var(--text-dim);line-height:1.8;
+   font-style:italic;margin-bottom:20px;
+  }
+  .testimonial-author{display:flex;align-items:center;gap:12px}
+  .testimonial-avatar{
+   width:44px;height:44px;border-radius:50%;
+   background:linear-gradient(135deg,var(--cyan),var(--magenta));
+   display:flex;align-items:center;justify-content:center;
+   font-family:'Orbitron',sans-serif;font-weight:700;font-size:14px;
+   color:#fff;
+  }
+  .testimonial-info .name{font-weight:600;font-size:13px}
+  .testimonial-info .role{font-size:11px;color:var(--muted)}
+  .testimonial-info .flag{font-size:13px;margin-left:4px}
+
+  /* ═══════════════ EARNINGS TRACKER ═══════════════ */
+  .earnings{
+   position:relative;z-index:10;padding:80px 24px;background:var(--bg-alt);
+   border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  }
+  .earnings-inner{max-width:800px;margin:0 auto;text-align:center}
+  .earnings-box{
+   padding:44px 48px;background:var(--card);
+   border:1px solid var(--border);border-radius:var(--radius-lg);
+   position:relative;overflow:hidden;
+  }
+  .earnings-box::before{
+   content:'';position:absolute;top:-1px;left:-1px;right:-1px;bottom:-1px;
+   background:linear-gradient(45deg,var(--cyan),transparent 30%,var(--magenta),transparent 70%,var(--cyan));
+   background-size:300% 300%;border-radius:calc(var(--radius-lg) + 1px);
+   z-index:-1;opacity:0.25;animation:gradientShift 5s ease infinite;
+  }
+  .earnings-label{
+   font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:5px;
+   color:var(--muted);text-transform:uppercase;margin-bottom:10px;
+  }
+  .earnings-label .live-dot{
+   display:inline-block;width:8px;height:8px;background:#22c55e;
+   border-radius:50%;margin-right:8px;animation:livePulse 1.5s infinite;
+  }
+  .earnings-total{
+   font-family:'Orbitron',sans-serif;font-size:56px;font-weight:900;
+   background:linear-gradient(135deg,var(--cyan),#22d3ee,var(--magenta));
+   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+   background-clip:text;line-height:1.15;margin:4px 0;transition:all 0.5s;
+  }
+  .earnings-sub{font-size:12px;color:var(--text-dim);letter-spacing:2px;margin-bottom:24px}
+  .earnings-periods{display:flex;gap:8px;justify-content:center;margin-bottom:28px;flex-wrap:wrap}
+  .earnings-periods button{
+   padding:9px 20px;border-radius:50px;font-size:11px;letter-spacing:1px;
+   cursor:pointer;transition:all 0.3s;background:transparent;
+   color:var(--muted);border:1px solid var(--border);text-transform:uppercase;
+   font-family:'Inter',sans-serif;font-weight:500;
+  }
+  .earnings-periods button:hover{border-color:var(--cyan);color:var(--cyan)}
+  .earnings-periods button.active{
+   background:var(--cyan-glow);border-color:var(--cyan);
+   color:var(--cyan);box-shadow:0 0 15px rgba(0,240,255,0.12);
+  }
+  .earnings-breakdown{
+   display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  }
+  .earn-card{
+   background:var(--bg);border:1px solid var(--border);
+   border-radius:var(--radius-sm);padding:20px 14px;text-align:center;
+   transition:all 0.3s;
+  }
+  .earn-card:hover{border-color:var(--cyan-dim)}
+  .earn-card .icon{font-size:20px;margin-bottom:6px}
+  .earn-card .val{
+   font-family:'Orbitron',sans-serif;font-size:20px;font-weight:700;color:var(--cyan);
+  }
+  .earn-card .label{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+  .earn-card .count{font-size:10px;color:var(--text-dim);margin-top:2px}
+
+  /* ═══════════════ FAQ ═══════════════ */
+  .faq-list{max-width:800px;margin:48px auto 0}
+  .faq-item{
+   background:var(--card);border:1px solid var(--border);
+   border-radius:var(--radius);margin-bottom:12px;
+   overflow:hidden;transition:all var(--transition);
+  }
+  .faq-item:hover{border-color:var(--border-light)}
+  .faq-question{
+   padding:22px 28px;cursor:pointer;display:flex;
+   justify-content:space-between;align-items:center;
+   font-weight:600;font-size:15px;user-select:none;
+   transition:color 0.2s;
+  }
+  .faq-question:hover{color:var(--cyan)}
+  .faq-question .arrow{
+   font-family:'Orbitron',sans-serif;font-size:18px;
+   transition:transform 0.3s;color:var(--cyan);
+  }
+  .faq-item.open .faq-question .arrow{transform:rotate(45deg)}
+  .faq-answer{
+   max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.4s ease;
+   padding:0 28px;
+  }
+  .faq-item.open .faq-answer{max-height:300px;padding:0 28px 22px}
+  .faq-answer p{font-size:14px;color:var(--text-dim);line-height:1.8}
+
+  /* ═══════════════ CTA ═══════════════ */
+  .cta-section{
+   position:relative;z-index:10;padding:120px 24px;text-align:center;
+  }
+  .cta-inner{max-width:700px;margin:0 auto}
+  .cta-glow{
+   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+   width:500px;height:500px;
+   background:radial-gradient(circle,var(--cyan-glow) 0%,transparent 70%);
+   pointer-events:none;z-index:-1;
+  }
+  .cta-title{
+   font-family:'Orbitron',sans-serif;font-size:clamp(28px,5vw,44px);
+   font-weight:900;line-height:1.2;margin-bottom:16px;
+  }
+  .cta-title .gradient-text{
+   background:linear-gradient(135deg,var(--cyan),var(--magenta));
+   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+   background-clip:text;
+  }
+  .cta-desc{font-size:16px;color:var(--text-dim);margin-bottom:36px;line-height:1.8}
+  .cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+  .btn-lg{
+   padding:20px 48px;font-size:15px;letter-spacing:3px;
+  }
+
+  /* ═══════════════ FOOTER ═══════════════ */
+  .footer{
+   position:relative;z-index:10;background:var(--bg-alt);
+   border-top:1px solid var(--border);padding:60px 48px 32px;
+  }
+  .footer-grid{
+   display:grid;grid-template-columns:2fr 1fr 1fr 1fr;
+   gap:48px;max-width:1200px;margin:0 auto 40px;
+  }
+  .footer-col h4{
+   font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:3px;
+   color:var(--cyan);margin-bottom:20px;text-transform:uppercase;
+  }
+  .footer-col a{
+   display:block;color:var(--text-dim);text-decoration:none;
+   font-size:13px;margin-bottom:12px;transition:color 0.2s;
+  }
+  .footer-col a:hover{color:var(--cyan)}
+  .footer-col p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:8px}
+  .footer-bottom{
+   max-width:1200px;margin:0 auto;padding-top:24px;
+   border-top:1px solid var(--border);display:flex;
+   justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+  }
+  .footer-bottom .copyright{font-size:11px;color:var(--muted);letter-spacing:1px}
+  .footer-bottom .payment{font-size:11px;color:var(--muted);letter-spacing:1px}
+  .footer-accent{color:var(--cyan)}
+
+  /* ═══════════════ MOBILE ═══════════════ */
+  @media(max-width:968px){
+   .nav-links{display:none}
+   .nav-links.open{
+    display:flex;flex-direction:column;position:absolute;
+    top:100%;left:0;right:0;background:rgba(5,5,10,0.98);
+    backdrop-filter:blur(16px);padding:24px;gap:20px;
+    border-bottom:1px solid var(--border);
+   }
+   .mobile-menu-btn{display:block}
+   .feature-grid,.pricing-grid,.testimonial-grid{grid-template-columns:1fr;max-width:440px;margin-left:auto;margin-right:auto}
+   .pricing-card.popular{transform:scale(1)}
+   .steps-grid{grid-template-columns:repeat(2,1fr)}
+   .stats-row{grid-template-columns:repeat(2,1fr)}
+   .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
+   .hero-stats{gap:16px}
+   .hero-stat{padding:16px 20px;min-width:130px}
+   .hero-title{font-size:36px}
+   .trust-bar-inner{flex-direction:column;gap:16px;text-align:center}
+  }
+  @media(max-width:600px){
+   .header{padding:14px 20px}
+   .header.scrolled{padding:12px 20px}
+   .section{padding:64px 16px}
+   .hero{padding:100px 16px 48px;min-height:auto}
+   .hero-title{font-size:28px}
+   .hero-desc{font-size:15px}
+   .hero-stats{flex-direction:column;align-items:center}
+   .steps-grid,.stats-row{grid-template-columns:1fr;max-width:300px;margin-left:auto;margin-right:auto}
+   .hero-buttons{flex-direction:column;align-items:center}
+   .btn{width:100%;justify-content:center}
+   .footer-grid{grid-template-columns:1fr}
+   .footer-bottom{flex-direction:column;text-align:center}
+   .earnings-box{padding:28px 20px}
+   .earnings-total{font-size:36px}
+   .earnings-breakdown{grid-template-columns:1fr;max-width:280px;margin:0 auto}
+   .cta-section{padding:80px 16px}
+   .testimonial-grid{grid-template-columns:1fr}
+   .logo{font-size:20px}
+  }
+ </style>
+</head>
+<body class="cyberpunk-body">
+ <!-- Background Effects -->
+ <div class="bg-grid"></div>
+ <div class="bg-glow-top"></div>
+ <div class="bg-glow-bottom"></div>
+
+ <!-- ═══════════════ HEADER ═══════════════ -->
+ <header class="header" id="header">
+  <link rel="stylesheet" href="/static/css/cyberpunk.css">
+  <div class="logo-group">
+   <div class="logo">JOBHUNT PRO</div>
+   <div class="logo-accent">Smart Job Applications</div>
+  </div>
+  <nav class="nav-links" id="navLinks">
+   <a href="/">Home</a>
+   <a href="/pricing">Pricing</a>
+   <a href="/login">Login</a>
+   <a href="/register" class="nav-cta">Get Started</a>
+  </nav>
+  <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menu">&#9776;</button>
+ </header>
+
+ <!-- ═══════════════ HERO ═══════════════ -->
+ <section class="hero">
+  <div class="hero-inner reveal">
+   <div class="hero-badge">
+    <span class="dot"></span>Processing Applications Now
+   </div>
+   <h1 class="hero-title">
+    Apply to <span class="cyan">Thousands</span> of Jobs<br>
+    While You <span class="magenta">Sleep</span>
+   </h1>
+   <p class="hero-desc">
+    Stop spending hours on job boards. Our intelligent platform applies to the right jobs for you &mdash; personalized applications, real-time tracking, and zero manual work.
+   </p>
+   <div class="hero-buttons">
+    <a href="/register" class="btn btn-primary">&#128640; Start Free Trial</a>
+    <a href="#how-it-works" class="btn btn-outline">&#9654; See How It Works</a>
+   </div>
+   <div class="hero-stats">
+    <div class="hero-stat">
+     <div class="val">3,200+</div>
+     <div class="label">Active Users</div>
+    </div>
+    <div class="hero-stat">
+     <div class="val">85,000+</div>
+     <div class="label">Applications Sent</div>
+    </div>
+    <div class="hero-stat">
+     <div class="val">12.4%</div>
+     <div class="label">Interview Rate</div>
+    </div>
+    <div class="hero-stat">
+     <div class="val">4.7&#9733;</div>
+     <div class="label">User Rating</div>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ═══════════════ TRUST BAR ═══════════════ -->
+ <section class="trust-bar">
+  <div class="trust-bar-inner reveal">
+   <span class="trust-bar-label">Trusted by Job Seekers Worldwide</span>
+   <div class="trust-bar-logos">
+    <span class="trust-logo">LEBANON</span>
+    <span class="trust-logo">UAE</span>
+    <span class="trust-logo">SAUDI</span>
+    <span class="trust-logo">QATAR</span>
+    <span class="trust-logo">KUWAIT</span>
+    <span class="trust-logo">REMOTE</span>
+   </div>
+  </div>
+ </section>
+
+ <!-- ═══════════════ HOW IT WORKS ═══════════════ -->
+ <section class="section" id="how-it-works">
+  <div class="section-inner">
+   <div style="text-align:center">
+    <span class="section-label reveal">How It Works</span>
+    <h2 class="section-title reveal">4 Simple Steps to<br>Your Next Job</h2>
+    <p class="section-subtitle reveal" style="margin:0 auto">
+     Getting hired has never been easier. Set it up once, and let the system do the heavy lifting.
+    </p>
+   </div>
+   <div class="steps-grid">
+    <div class="step-card reveal" style="transition-delay:0s">
+     <div class="step-number">01</div>
+     <div class="step-icon">&#128203;</div>
+     <h3>Create Your Profile</h3>
+     <p>Upload your CV, set your preferences, and tell us what kind of jobs you're looking for. Takes less than 5 minutes.</p>
+    </div>
+    <div class="step-card reveal" style="transition-delay:0.1s">
+     <div class="step-number">02</div>
+     <div class="step-icon">&#128269;</div>
+     <h3>Jobs Are Scanned</h3>
+     <p>Our platform scans thousands of job listings across multiple sources, finding the best matches for your skills and goals.</p>
+    </div>
+    <div class="step-card reveal" style="transition-delay:0.2s">
+     <div class="step-number">03</div>
+     <div class="step-icon">&#9993;</div>
+     <h3>Auto Applications</h3>
+     <p>Personalized applications are sent automatically. Each one is unique &mdash; tailored to the company and role you're targeting.</p>
+    </div>
+    <div class="step-card reveal" style="transition-delay:0.3s">
+     <div class="step-number">04</div>
+     <div class="step-icon">&#127919;</div>
+     <h3>Track &amp; Follow Up</h3>
+     <p>Monitor every application, track email opens, and get automatic follow-ups. Never miss an opportunity.</p>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ═══════════════ FEATURES ═══════════════ -->
+ <section class="section" style="background:var(--bg-alt);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="section-inner">
+   <div style="text-align:center">
+    <span class="section-label reveal">Features</span>
+    <h2 class="section-title reveal">Everything You Need<br>to Get Hired</h2>
+    <p class="section-subtitle reveal" style="margin:0 auto">
+     A complete job hunting toolkit &mdash; from application to interview, all in one place.
+    </p>
+   </div>
+   <div class="feature-grid">
+    <div class="feature-card reveal">
+     <div class="feature-icon-box">&#128221;</div>
+     <h3>Smart Cover Letters</h3>
+     <p>Every application gets a unique, personalized cover letter that highlights your strengths for that specific role.</p>
+    </div>
+    <div class="feature-card reveal">
+     <div class="feature-icon-box">&#128225;</div>
+     <h3>Multi-Source Search</h3>
+     <p>Jobs are sourced from multiple platforms simultaneously &mdash; you get maximum coverage without lifting a finger.</p>
+    </div>
+    <div class="feature-card reveal">
+     <div class="feature-icon-box">&#9889;</div>
+     <h3>High-Speed Processing</h3>
+     <p>Hundreds of applications processed in parallel. What used to take weeks now takes hours.</p>
+    </div>
+    <div class="feature-card reveal">
+     <div class="feature-icon-box">&#128202;</div>
+     <h3>Real-Time Dashboard</h3>
+     <p>Track every application, email open, and response from a beautiful live dashboard. Full visibility at all times.</p>
+    </div>
+    <div class="feature-card reveal">
+     <div class="feature-icon-box">&#128260;</div>
+     <h3>Auto Follow-Ups</h3>
+     <p>Never miss a lead. Automated follow-up emails sent at optimal intervals to keep you top of mind with recruiters.</p>
+    </div>
+    <div class="feature-card reveal">
+     <div class="feature-icon-box">&#128737;</div>
+     <h3>Human-Like Delivery</h3>
+     <p>Applications are sent naturally with intelligent timing &mdash; looks like a real person, not a robot.</p>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ═══════════════ STATS / SOCIAL PROOF ═══════════════ -->
+ <section class="section">
+  <div class="section-inner">
+   <div style="text-align:center">
+    <span class="section-label reveal">By The Numbers</span>
+    <h2 class="section-title reveal">Trusted by Thousands<br>of Job Seekers</h2>
+   </div>
+   <div class="stats-row">
+    <div class="stat-card reveal">
+     <div class="big">3,200+</div>
+     <div class="label">Active Users</div>
+     <div class="sub">And growing daily</div>
+    </div>
+    <div class="stat-card reveal">
+     <div class="big">85K+</div>
+     <div class="label">Applications Sent</div>
+     <div class="sub">In the last 30 days</div>
+    </div>
+    <div class="stat-card reveal">
+     <div class="big">12.4%</div>
+     <div class="label">Interview Rate</div>
+     <div class="sub">3&times; industry average</div>
+    </div>
+    <div class="stat-card reveal">
+     <div class="big">1,247</div>
+     <div class="label">Jobs Landed</div>
+     <div class="sub">And counting</div>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ═══════════════ PRICING ═══════════════ -->
+ <section class="section" style="background:var(--bg-alt);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="section-inner">
+   <div style="text-align:center">
+    <span class="section-label reveal">Pricing</span>
+    <h2 class="section-title reveal">Choose Your Plan</h2>
+    <p class="section-subtitle reveal" style="margin:0 auto">
+     One-time payment. No subscriptions. Pay with crypto or card. Simple, transparent, effective.
+    </p>
+   </div>
+   <div class="pricing-grid">
+    <!-- Professional -->
+    <div class="pricing-card reveal">
+     <div class="tier">Professional</div>
+     <div class="name">PRO</div>
+     <div class="companies">300 <span>companies</span></div>
+     <div class="price">$20</div>
+     <div class="per">$0.067 per company</div>
+     <ul>
+      <li>300 company applications</li>
+      <li>Smart cover letters</li>
+      <li>Email tracking</li>
+      <li>Follow-up automation</li>
+      <li>Basic analytics</li>
+     </ul>
+     <a href="/register" class="btn-block secondary">Get Started</a>
+    </div>
+
+    <!-- Unlimited (Popular) -->
+    <div class="pricing-card popular reveal">
+     <div class="popular-badge">&#11088; MOST POPULAR</div>
+     <div class="tier">Unlimited</div>
+     <div class="name">UNLIMITED</div>
+     <div class="companies">5,000 <span>companies</span></div>
+     <div class="price">$120</div>
+     <div class="per">$0.024 per company</div>
+     <div class="save">SAVE 64% VS PRO</div>
+     <ul>
+      <li>5,000 company applications</li>
+      <li>Personalized cover letters</li>
+      <li>Real-time email tracking</li>
+      <li>Auto follow-ups (7 + 14 days)</li>
+      <li>Advanced analytics dashboard</li>
+      <li>Full-speed processing</li>
+      <li>Multi-email rotation</li>
+      <li>Company research</li>
+      <li>Interview prep generator</li>
+      <li>Priority support</li>
+     </ul>
+     <a href="/register" class="btn-block primary">Unlock Unlimited &#9889;</a>
+    </div>
+
+    <!-- Enterprise -->
+    <div class="pricing-card reveal">
+     <div class="tier">Enterprise</div>
+     <div class="name">ENTERPRISE</div>
+     <div class="companies">1M <span>companies</span></div>
+     <div class="price">$8,000</div>
+     <div class="per">$0.008 per company</div>
+     <ul>
+      <li>1,000,000 applications</li>
+      <li>Everything in Unlimited</li>
+      <li>Custom training</li>
+      <li>Dedicated account manager</li>
+      <li>SLA guarantee</li>
+      <li>White-label option</li>
+     </ul>
+     <a href="/register" class="btn-block secondary">Contact Sales</a>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ═══════════════ EARNINGS TRACKER ═══════════════ -->
+ <section class="earnings">
+  <div class="earnings-inner">
+   <div class="earnings-box reveal-scale">
+    <div class="earnings-label"><span class="live-dot"></span>Live Revenue Tracker</div>
+    <div class="earnings-total" id="earningsDisplay">${{ "{:,.2f}".format(earnings["total_all"]) if earnings else "0.00" }}</div>
+    <div class="earnings-sub">Total Revenue Generated</div>
+    <div class="earnings-periods">
+     <button class="active" data-period="all" onclick="switchPeriod('all')">All Time</button>
+     <button class="btn" data-period="year" onclick="switchPeriod('year')">This Year</button>
+     <button class="btn" data-period="month" onclick="switchPeriod('month')">30 Days</button>
+     <button class="btn" data-period="24h" onclick="switchPeriod('24h')">24 Hours</button>
+    </div>
+    <div class="earnings-breakdown" id="earningsBreakdown">
+     <div class="earn-card">
+      <div class="icon">&#128230;</div>
+      <div class="val" id="ordersAmount">${{ "{:,.2f}".format(earnings["breakdown_all"]["orders"]["amount"]) if earnings else "0.00" }}</div>
+      <div class="label">Package Orders</div>
+      <div class="count" id="ordersCount">{{ earnings["breakdown_all"]["orders"]["count"] if earnings else 0 }} sales</div>
+     </div>
+     <div class="earn-card">
+      <div class="icon">&#128273;</div>
+      <div class="val" id="codesAmount">${{ "{:,.2f}".format(earnings["breakdown_all"]["codes"]["amount"]) if earnings else "0.00" }}</div>
+      <div class="label">Redeem Codes</div>
+      <div class="count" id="codesCount">{{ earnings["breakdown_all"]["codes"]["count"] if earnings else 0 }} used</div>
+     </div>
+     <div class="earn-card">
+      <div class="icon">&#9993;</div>
+      <div class="val" id="emailsAmount">${{ "{:,.2f}".format(earnings["breakdown_all"]["emails"]["amount"]) if earnings else "0.00" }}</div>
+      <div class="label">Manual Emails</div>
+      <div class="count" id="emailsCount">{{ earnings["breakdown_all"]["emails"]["count"] if earnings else 0 }} sent</div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ═══════════════ TESTIMONIALS ═══════════════ -->
+ <section class="section">
+  <div class="section-inner">
+   <div style="text-align:center">
+    <span class="section-label reveal">Testimonials</span>
+    <h2 class="section-title reveal">What Our Users Say</h2>
+    <p class="section-subtitle reveal" style="margin:0 auto">
+     Real results from real job seekers who transformed their job hunt.
+    </p>
+   </div>
+   <div class="testimonial-grid">
+    <div class="testimonial-card reveal">
+     <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+     <p class="testimonial-text">
+      "I was spending 4 hours a day applying to jobs manually. This platform did more in one week than I did in three months. Landed two interviews in the first 10 days."
+     </p>
+     <div class="testimonial-author">
+      <div class="testimonial-avatar">AK</div>
+      <div class="testimonial-info">
+       <div class="name">Ahmad K.</div>
+       <div class="role">Network Engineer &#127473;&#127483;</div>
+      </div>
+     </div>
+    </div>
+    <div class="testimonial-card reveal" style="transition-delay:0.1s">
+     <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+     <p class="testimonial-text">
+      "The quality of cover letters blew me away. Each one felt hand-written and specific to the company. Got a response rate I never thought possible. Absolutely worth every penny."
+     </p>
+     <div class="testimonial-author">
+      <div class="testimonial-avatar">MR</div>
+      <div class="testimonial-info">
+       <div class="name">Mona R.</div>
+       <div class="role">HR Specialist &#127466;&#127466;</div>
+      </div>
+     </div>
+    </div>
+    <div class="testimonial-card reveal" style="transition-delay:0.2s">
+     <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+     <p class="testimonial-text">
+      "Applied to 500 companies in the Gulf region in one go. The tracking dashboard is incredible &mdash; I know exactly who opened my emails and when to follow up. Game changer."
+     </p>
+     <div class="testimonial-author">
+      <div class="testimonial-avatar">OS</div>
+      <div class="testimonial-info">
+       <div class="name">Omar S.</div>
+       <div class="role">Software Developer &#127475;&#127466;</div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ═══════════════ FAQ ═══════════════ -->
+ <section class="section" style="background:var(--bg-alt);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="section-inner">
+   <div style="text-align:center">
+    <span class="section-label reveal">FAQ</span>
+    <h2 class="section-title reveal">Frequently Asked<br>Questions</h2>
+   </div>
+   <div class="faq-list">
+    <div class="faq-item reveal">
+     <div class="faq-question" onclick="toggleFaq(this)">
+      How does the application process work?
+      <span class="arrow">+</span>
+     </div>
+     <div class="faq-answer">
+      <p>You upload your CV, tell us what kind of jobs you want (role, location, industry), and our platform handles the rest. It searches for matching jobs across multiple sources, generates personalized cover letters, and sends applications on your behalf. You can monitor everything from your dashboard.</p>
+     </div>
+    </div>
+    <div class="faq-item reveal">
+     <div class="faq-question" onclick="toggleFaq(this)">
+      Is this safe? Will my email get blocked?
+      <span class="arrow">+</span>
+     </div>
+     <div class="faq-answer">
+      <p>Yes, it's completely safe. Applications are sent with natural timing and intelligent scheduling &mdash; exactly like a real person would. We use multiple email rotation and follow sending best practices to keep your deliverability high and avoid spam filters.</p>
+     </div>
+    </div>
+    <div class="faq-item reveal">
+     <div class="faq-question" onclick="toggleFaq(this)">
+      What regions and countries do you cover?
+      <span class="arrow">+</span>
+     </div>
+     <div class="faq-answer">
+      <p>We cover jobs worldwide, with strong coverage in Lebanon, UAE, Saudi Arabia, Qatar, Kuwait, and remote positions globally. You can target any country or combination of countries you prefer.</p>
+     </div>
+    </div>
+    <div class="faq-item reveal">
+     <div class="faq-question" onclick="toggleFaq(this)">
+      How are the cover letters personalized?
+      <span class="arrow">+</span>
+     </div>
+     <div class="faq-answer">
+      <p>Every cover letter is generated fresh for each application. The system analyzes the company name, job title, your skills, and work history to create a unique, compelling letter that highlights why you're the right fit for that specific role.</p>
+     </div>
+    </div>
+    <div class="faq-item reveal">
+     <div class="faq-question" onclick="toggleFaq(this)">
+      Can I track my applications?
+      <span class="arrow">+</span>
+     </div>
+     <div class="faq-answer">
+      <p>Absolutely. Your dashboard shows every application sent, email open rates, click tracking, and response monitoring. You'll also get automatic follow-ups sent at optimal intervals to maximize your chances of getting noticed.</p>
+     </div>
+    </div>
+    <div class="faq-item reveal">
+     <div class="faq-question" onclick="toggleFaq(this)">
+      What payment methods do you accept?
+      <span class="arrow">+</span>
+     </div>
+     <div class="faq-answer">
+      <p>We accept cryptocurrency (BTC, ETH, USDT, LTC) and credit/debit cards. All plans are one-time payments &mdash; no recurring subscriptions or hidden fees. What you see is what you pay.</p>
+     </div>
+    </div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ═══════════════ CTA ═══════════════ -->
+ <section class="cta-section">
+  <div class="cta-glow"></div>
+  <div class="cta-inner reveal-scale">
+   <h2 class="cta-title">
+    Ready to Land Your<br><span class="gradient-text">Dream Job?</span>
+   </h2>
+   <p class="cta-desc">
+    Join thousands of job seekers who have already transformed their job hunt. Stop applying manually and start getting results.
+   </p>
+   <div class="cta-buttons">
+    <a href="/register" class="btn btn-primary btn-lg">&#9889; Get Started Free</a>
+    <a href="/pricing" class="btn btn-outline btn-lg">View Plans</a>
+   </div>
+  </div>
+ </section>
+
+ <!-- ═══════════════ FOOTER ═══════════════ -->
+ <footer class="footer">
+  <div class="footer-grid">
+   <div class="footer-col">
+    <h4>JobHunt Pro</h4>
+    <p>The smartest way to job hunt. Thousands of applications, zero manual work. Your career deserves better.</p>
+   </div>
+   <div class="footer-col">
+    <h4>Product</h4>
+    <a href="/pricing">Pricing</a>
+    <a href="/register">Get Started</a>
+    <a href="/login">Login</a>
+   </div>
+   <div class="footer-col">
+    <h4>Resources</h4>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#faq">FAQ</a>
+    <a href="/">Home</a>
+   </div>
+   <div class="footer-col">
+    <h4>Contact</h4>
+    <a href="mailto:support@jobhuntpro.com">Email Support</a>
+    <a href="https://t.me/jobhuntpro">Telegram</a>
+   </div>
+  </div>
+  <div class="footer-bottom">
+   <span class="copyright">&copy; 2026 <span class="footer-accent">JobHunt Pro</span>. All rights reserved.</span>
+   <span class="payment">Payments: BTC &middot; ETH &middot; USDT &middot; LTC &middot; Credit Card</span>
+  </div>
+ </footer>
+
+ <script>
+  // ── Mobile Menu Toggle ──
+  function toggleMenu(){
+   document.getElementById('navLinks').classList.toggle('open');
+  }
+
+  // ── Header Scroll Effect ──
+  window.addEventListener('scroll',function(){
+   const h = document.getElementById('header');
+   if(window.scrollY > 50) h.classList.add('scrolled');
+   else h.classList.remove('scrolled');
+  });
+
+  // ── FAQ Toggle ──
+  function toggleFaq(el){
+   const item = el.parentElement;
+   document.querySelectorAll('.faq-item').forEach(function(i){
+    if(i !== item) i.classList.remove('open');
+   });
+   item.classList.toggle('open');
+  }
+
+  // ── Reveal on Scroll ──
+  var revealObserver = new IntersectionObserver(function(entries){
+   entries.forEach(function(entry){
+    if(entry.isIntersecting){
+     entry.target.classList.add('visible');
+    }
+   });
+  },{threshold:0.12,rootMargin:'0px 0px -40px 0px'});
+
+  document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(function(el){
+   revealObserver.observe(el);
+  });
+
+  // ── FOMO Spots Counter ──
+  var spots = 47;
+  setInterval(function(){
+   if(Math.random() < 0.15 && spots > 5){
+    spots--;
+    var el = document.getElementById('spots-left');
+    if(el) el.textContent = spots;
+   }
+  },30000);
+
+  // ── LIVE EARNINGS COUNTER ──
+  var currentPeriod = 'all';
+
+  function animateNumber(element, target) {
+   var start = parseFloat(element.getAttribute('data-value')) || 0;
+   var duration = 800;
+   var startTime = null;
+
+   function step(timestamp) {
+    if(!startTime) startTime = timestamp;
+    var progress = Math.min((timestamp - startTime) / duration, 1);
+    var eased = 1 - Math.pow(1 - progress, 3);
+    var current = start + (target - start) * eased;
+    element.textContent = '$' + current.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    if(progress < 1){
+     requestAnimationFrame(step);
+    } else {
+     element.setAttribute('data-value', target);
+    }
+   }
+   requestAnimationFrame(step);
+  }
+
+  function updateBreakdown(data) {
+   var bd = data.breakdown;
+   animateNumber(document.getElementById('ordersAmount'), bd.orders.amount);
+   document.getElementById('ordersCount').textContent = bd.orders.count + ' sales';
+   animateNumber(document.getElementById('codesAmount'), bd.codes.amount);
+   document.getElementById('codesCount').textContent = bd.codes.count + ' used';
+   animateNumber(document.getElementById('emailsAmount'), bd.emails.amount);
+   document.getElementById('emailsCount').textContent = bd.emails.count + ' sent';
+  }
+
+  function switchPeriod(period) {
+   currentPeriod = period;
+   document.querySelectorAll('.earnings-periods button').forEach(function(btn){
+    btn.classList.toggle('active', btn.dataset.period === period);
+   });
+   fetch('/api/v2/earnings?period=' + period)
+    .then(function(r){return r.json()})
+    .then(function(data){
+     if(data.success){
+      animateNumber(document.getElementById('earningsDisplay'), data.total);
+      updateBreakdown(data);
+     }
+    })
+    .catch(function(){});
+  }
+
+  // Auto-refresh earnings every 30s
+  setInterval(function(){
+   fetch('/api/v2/earnings?period=' + currentPeriod)
+    .then(function(r){return r.json()})
+    .then(function(data){
+     if(data.success){
+      animateNumber(document.getElementById('earningsDisplay'), data.total);
+      updateBreakdown(data);
+     }
+    })
+    .catch(function(){});
+  }, 30000);
+ </script>
+</body>
+</html>

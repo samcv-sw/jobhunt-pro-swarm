@@ -1,0 +1,46 @@
+{
+  "name": "JobHunt Pro",
+  "tagline": "Apply to 1000s of jobs automatically with 200+ AI agents",
+  "url": "https://jhfguf.pythonanywhere.com",
+  "topics": [
+    "Artificial Intelligence",
+    "SaaS",
+    "Productivity",
+    "Career Planning"
+  ],
+  "scheduled_date": "2026-06-12 00:01 PT",
+  "maker_name": "Sam Salameh",
+  "maker_headline": "Network Engineer \u00b7 Built an AI that applies to jobs while I sleep",
+  "assets": {
+    "logo": "/static/img/og-image.png",
+    "gallery": [
+      "/static/img/og-image.png"
+    ],
+    "video": "https://jhfguf.pythonanywhere.com/static/demo.mp4"
+  },
+  "checklist": [
+    "\u2705 Maker profile ready",
+    "\u2705 Tagline + description written",
+    "\u2705 First comment prepared",
+    "\u2705 Gallery images ready",
+    "\u23f3 Demo video (record 2-min walkthrough)",
+    "\u23f3 Hunter list (20+ people to notify on launch)",
+    "\u23f3 Social media posts scheduled for launch day",
+    "\u23f3 Google Analytics events configured",
+    "\u23f3 Server capacity verified (PA can handle spike)",
+    "\u23f3 Launch date confirmed (June 12, Tuesday)"
+  ],
+  "hunters_to_notify": [
+    "tech twitter accounts",
+    "job search influencers",
+    "Lebanon tech community",
+    "product hunt regulars",
+    "AI/automation enthusiasts",
+    "career coaches"
+  ],
+  "launch_day_posts": {
+    "twitter": "\ud83d\ude80 JobHunt Pro launches on @ProductHunt today! 200 AI agents that apply to jobs automatically. From $2. RT if you know someone job hunting \ud83d\ude4f {link}",
+    "linkedin": "I built an AI that applies to jobs FOR you. It launched on Product Hunt today. Would mean the world if you checked it out \u2192 {link} #ProductHunt #AI #JobSearch",
+    "reddit": "[Product Hunt] I built JobHunt Pro - 200 AI agents that auto-apply to jobs. $2 lifetime access. AMA! {link}"
+  }
+}

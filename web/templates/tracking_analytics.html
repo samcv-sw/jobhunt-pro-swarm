@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>JobHunt Pro — Tracking Analytics</title>
+ <link rel="stylesheet" href="/static/css/cyberpunk.css">
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+ <style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  body{background:#05050a;color:#f1f1f5;font-family:'Inter',sans-serif;min-height:100vh}
+  .page-wrap{max-width:1200px;margin:0 auto;padding:24px 20px 80px}
+
+  .header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:28px}
+  .header h1{font-family:'Orbitron',monospace;font-size:22px;font-weight:700;letter-spacing:1px;background:linear-gradient(135deg,#00f0ff,#ff0055);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .header .sub{font-size:13px;color:#64748b;margin-top:4px}
+  .header .date{font-size:12px;color:#52525b;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 14px}
+
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px}
+  .kpi-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:20px 16px;text-align:center;transition:all .3s;position:relative;overflow:hidden}
+  .kpi-card:hover{border-color:rgba(0,240,255,0.2);transform:translateY(-2px)}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:.6}
+  .kpi-card.primary::before{background:#00f0ff}
+  .kpi-card.success::before{background:#4ade80}
+  .kpi-card.warning::before{background:#facc15}
+  .kpi-card.danger::before{background:#ff0055}
+  .kpi-card.info::before{background:#3b82f6}
+  .kpi-card .kpi-value{font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1;margin-bottom:4px}
+  .kpi-card .kpi-label{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.8px}
+  .kpi-card .kpi-sub{font-size:9px;color:#52525b;margin-top:4px}
+  .kpi-card .kpi-value.cyan{color:#00f0ff}
+  .kpi-card .kpi-value.green{color:#4ade80}
+  .kpi-card .kpi-value.yellow{color:#facc15}
+  .kpi-card .kpi-value.red{color:#ff0055}
+  .kpi-card .kpi-value.blue{color:#3b82f6}
+  .kpi-card .kpi-value.white{color:#f1f5f9}
+
+  .rate-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+  .rate-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px;text-align:center}
+  .rate-card h3{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+  .rate-value{font-size:42px;font-weight:900;letter-spacing:-2px}
+  .rate-bar{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;margin-top:12px;overflow:hidden}
+  .rate-bar-fill{height:100%;border-radius:3px;transition:width 1s ease}
+  .rate-bar-fill.green{background:linear-gradient(90deg,#4ade80,#22d3ee)}
+  .rate-bar-fill.blue{background:linear-gradient(90deg,#3b82f6,#00f0ff)}
+  .rate-bar-fill.red{background:linear-gradient(90deg,#ff0055,#f97316)}
+
+  .section-title{font-family:'Orbitron',monospace;font-size:15px;font-weight:600;margin:32px 0 18px;letter-spacing:0.5px;color:#cbd5e1;display:flex;align-items:center;gap:10px}
+  .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,0.08),transparent)}
+
+  .campaign-table{width:100%;border-collapse:collapse;background:rgba(255,255,255,0.02);border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.05)}
+  .campaign-table th{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;padding:12px 14px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05)}
+  .campaign-table td{padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.03)}
+  .campaign-table tr:last-child td{border-bottom:none}
+  .campaign-table tr:hover td{background:rgba(255,255,255,0.03)}
+  .campaign-table .num{font-weight:700;font-variant-numeric:tabular-nums;text-align:center}
+  .campaign-table .num.cyan{color:#00f0ff}
+  .campaign-table .num.green{color:#4ade80}
+  .campaign-table .num.red{color:#ff0055}
+  .campaign-table .num.yellow{color:#facc15}
+
+  .badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.3px}
+  .badge-sent{background:rgba(59,130,246,0.15);color:#3b82f6}
+  .badge-failed{background:rgba(255,0,85,0.15);color:#ff0055}
+  .badge-opened{background:rgba(74,222,128,0.15);color:#4ade80}
+  .badge-replied{background:rgba(250,204,21,0.15);color:#facc15}
+
+  .empty-state{text-align:center;padding:60px 20px;color:#52525b}
+  .empty-state .icon{font-size:48px;margin-bottom:12px;opacity:.4}
+  .empty-state p{font-size:14px}
+
+  .nav-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#3b82f6;text-decoration:none;padding:8px 16px;border-radius:10px;background:rgba(59,130,246,0.08);transition:all .2s;margin-top:16px}
+  .nav-link:hover{background:rgba(59,130,246,0.15)}
+
+  @media(max-width:600px){.kpi-grid{grid-template-columns:1fr 1fr}.rate-grid{grid-template-columns:1fr}}
+ </style>
+</head>
+<body>
+<div class="page-wrap">
+
+ <div class="header">
+  <div>
+   <h1>📊 TRACKING ANALYTICS</h1>
+   <p class="sub">Campaign performance at a glance</p>
+  </div>
+  <div class="date">📅 {{ today }}</div>
+ </div>
+
+ <!-- KPI Grid -->
+ <div class="kpi-grid">
+  <div class="kpi-card primary">
+   <div class="kpi-value cyan">{{ total_sent }}</div>
+   <div class="kpi-label">Total Sent</div>
+   <div class="kpi-sub">All campaigns combined</div>
+  </div>
+  <div class="kpi-card success">
+   <div class="kpi-value green">{{ delivered }}</div>
+   <div class="kpi-label">Delivered</div>
+   <div class="kpi-sub">Successfully reached inbox</div>
+  </div>
+  <div class="kpi-card info">
+   <div class="kpi-value blue">{{ opened }}</div>
+   <div class="kpi-label">Opened</div>
+   <div class="kpi-sub">Recipients opened email</div>
+  </div>
+  <div class="kpi-card warning">
+   <div class="kpi-value yellow">{{ replied }}</div>
+   <div class="kpi-label">Replied</div>
+   <div class="kpi-sub">Got a response</div>
+  </div>
+  <div class="kpi-card danger">
+   <div class="kpi-value red">{{ bounced }}</div>
+   <div class="kpi-label">Bounced / Failed</div>
+   <div class="kpi-sub">Undelivered</div>
+  </div>
+ </div>
+
+ <!-- Rate Cards -->
+ <div class="rate-grid">
+  <div class="rate-card">
+   <h3>📨 Open Rate</h3>
+   <div class="rate-value" style="color:#4ade80">{{ open_rate }}</div>
+   <div class="rate-bar"><div class="rate-bar-fill green" style="width:{{ open_rate_raw }}%"></div></div>
+  </div>
+  <div class="rate-card">
+   <h3>💬 Response Rate</h3>
+   <div class="rate-value" style="color:#3b82f6">{{ response_rate }}</div>
+   <div class="rate-bar"><div class="rate-bar-fill blue" style="width:{{ response_rate_raw }}%"></div></div>
+  </div>
+  <div class="rate-card">
+   <h3>⚠️ Bounce Rate</h3>
+   <div class="rate-value" style="color:#ff0055">{{ bounce_rate }}</div>
+   <div class="rate-bar"><div class="rate-bar-fill red" style="width:{{ bounce_rate_raw }}%"></div></div>
+  </div>
+ </div>
+
+ <!-- Per-Campaign Breakdown -->
+ <div class="section-title">📋 Campaign Breakdown</div>
+ {% if per_campaign %}
+ <table class="campaign-table">
+  <thead>
+   <tr>
+    <th>Campaign Type</th>
+    <th style="text-align:center">Total</th>
+    <th style="text-align:center">Sent</th>
+    <th style="text-align:center">Delivered</th>
+    <th style="text-align:center">Opened</th>
+    <th style="text-align:center">Replied</th>
+    <th style="text-align:center">Failed</th>
+   </tr>
+  </thead>
+  <tbody>
+   {% for camp in per_campaign %}
+   <tr>
+    <td><span class="badge badge-sent">{{ camp.name }}</span></td>
+    <td class="num cyan">{{ camp.total }}</td>
+    <td class="num">{{ camp.get('sent', 0) }}</td>
+    <td class="num green">{{ camp.get('delivered', camp.get('sent', 0)) }}</td>
+    <td class="num blue">{{ camp.get('opened', 0) }}</td>
+    <td class="num yellow">{{ camp.get('replied', 0) }}</td>
+    <td class="num red">{{ camp.get('bounced', 0) + camp.get('failed', 0) }}</td>
+   </tr>
+   {% endfor %}
+  </tbody>
+ </table>
+ {% else %}
+ <div class="empty-state">
+  <div class="icon">📭</div>
+  <p>No campaign data yet. Start a campaign to see analytics here.</p>
+ </div>
+ {% endif %}
+
+ <a href="/" class="nav-link">← Back to Dashboard</a>
+
+</div>
+</body>
+</html>

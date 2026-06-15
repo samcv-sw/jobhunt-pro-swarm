@@ -1,0 +1,625 @@
+
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<title>🏢 Post a Job — JobHunt Pro | HIRE TOP TALENT</title>
+<style>
+:root {
+  --gold: #f59e0b; --gold2: #fbbf24; --purple: #8b5cf6; --pink: #ec4899;
+  --dark: #0f0f23; --card: rgba(30,30,50,.6); --border: rgba(255,255,255,.08);
+  --green: #22c55e; --red: #ef4444; --blue: #3b82f6;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--dark); color:#e2e8f0; min-height:100vh; }
+.layout { display:flex; min-height:100vh; }
+.main { flex:1; margin-left:240px; padding:20px 30px; max-width:1200px; }
+
+/* ── Section headers ── */
+.sec-title { text-align:center; margin:40px 0 20px; font-size:1.6em; }
+.sec-title span { background:linear-gradient(90deg,var(--gold),var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+/* ═══════════ HERO ═══════════ */
+.hero { text-align:center; padding:50px 20px 35px; border-radius:20px; background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(236,72,153,.1),rgba(245,158,11,.05)); border:1px solid rgba(139,92,246,.25); margin-bottom:25px; position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle,rgba(139,92,246,.08) 0%,transparent 70%); animation:heroGlow 8s ease-in-out infinite; }
+@keyframes heroGlow { 0%,100% { transform:translate(0,0); } 50% { transform:translate(30px,-30px); } }
+.hero > * { position:relative; z-index:1; }
+.hero h1 { font-size:2.6em; background:linear-gradient(90deg,var(--gold),var(--pink),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:10px; }
+.hero p { color:#94a3b8; font-size:1.1em; max-width:650px; margin:0 auto; }
+.hero .badge-row { margin-top:18px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+.hero .badge { background:rgba(139,92,246,.15); border:1px solid rgba(139,92,246,.3); padding:6px 16px; border-radius:20px; font-size:.8em; color:#c4b5fd; }
+.hero .badge.trust { background:rgba(34,197,94,.1); border-color:rgba(34,197,94,.3); color:#86efac; }
+
+/* ═══════════ VS COMPARISON ═══════════ */
+.vs-section { margin-bottom:25px; }
+.vs-grid { display:grid; grid-template-columns:1fr auto 1fr; gap:0; align-items:center; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:25px; }
+.vs-col { text-align:center; }
+.vs-col h3 { font-size:1.1em; margin-bottom:12px; }
+.vs-col .price-big { font-size:2.5em; font-weight:800; }
+.vs-col .price-big.expensive { color:var(--red); text-decoration:line-through; text-decoration-color:rgba(239,68,68,.5); }
+.vs-col .price-big.cheap { color:var(--green); }
+.vs-col ul { list-style:none; text-align:left; max-width:250px; margin:10px auto; }
+.vs-col ul li { padding:4px 0; font-size:.85em; }
+.vs-col ul li.good::before { content:'✅ '; }
+.vs-col ul li.bad::before { content:'❌ '; }
+.vs-divider { font-size:2em; font-weight:900; color:var(--gold); padding:0 10px; }
+
+/* ═══════════ PRICING CARDS ═══════════ */
+.pricing-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:25px; }
+.price-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:28px 22px; text-align:center; position:relative; transition:all .25s; cursor:pointer; }
+.price-card:hover { transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,0,0,.3); }
+.price-card.selected { border-color:var(--gold)!important; box-shadow:0 0 30px rgba(245,158,11,.2); }
+.price-card.popular { border-color:rgba(139,92,246,.4); }
+.price-card.popular::before { content:'🔥 MOST POPULAR'; position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,var(--purple),var(--pink)); color:#fff; font-size:.65em; font-weight:700; padding:4px 14px; border-radius:20px; white-space:nowrap; }
+.price-card .tier-icon { font-size:2.2em; margin-bottom:6px; }
+.price-card .tier-name { font-size:1.15em; font-weight:700; margin-bottom:4px; }
+.price-card .tier-price { font-size:2.4em; font-weight:800; color:var(--gold2); margin:8px 0; }
+.price-card .tier-price small { font-size:.35em; color:#94a3b8; font-weight:400; }
+.price-card .tier-save { font-size:.75em; color:var(--green); margin-bottom:10px; display:inline-block; background:rgba(34,197,94,.1); padding:3px 10px; border-radius:10px; }
+.price-card ul { list-style:none; text-align:left; margin:12px 0; }
+.price-card ul li { padding:5px 0; font-size:.82em; color:#94a3b8; }
+.price-card ul li::before { content:'✓ '; color:var(--green); font-weight:700; margin-right:5px; }
+.price-card .btn { display:block; margin-top:auto; padding:12px; border-radius:10px; border:none; color:#fff; font-weight:700; cursor:pointer; width:100%; font-size:.9em; transition:all .15s; }
+.price-card .btn:hover { transform:translateY(-1px); }
+
+/* ═══════════ DURATION SELECTOR ═══════════ */
+.duration-section { margin-bottom:25px; }
+.duration-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.duration-btn { padding:12px 24px; border-radius:30px; border:1px solid var(--border); background:var(--card); color:#e2e8f0; cursor:pointer; font-size:.9em; transition:all .15s; text-align:center; }
+.duration-btn:hover { border-color:rgba(139,92,246,.4); }
+.duration-btn.selected { border-color:var(--gold); background:rgba(245,158,11,.1); color:var(--gold2); font-weight:700; }
+.duration-btn .dur-save { display:block; font-size:.7em; color:var(--green); margin-top:2px; }
+
+/* ═══════════ ADD-ONS ═══════════ */
+.addons-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:25px; }
+.addon-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; cursor:pointer; transition:all .15s; position:relative; }
+.addon-card:hover { border-color:rgba(139,92,246,.3); }
+.addon-card.selected { border-color:var(--green); background:rgba(34,197,94,.06); }
+.addon-card .addon-check { position:absolute; top:10px; right:12px; width:22px; height:22px; border-radius:50%; border:2px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; }
+.addon-card.selected .addon-check { background:var(--green); border-color:var(--green); }
+.addon-card.selected .addon-check::after { content:'✓'; font-size:.7em; font-weight:700; }
+.addon-card .addon-icon { font-size:1.5em; margin-bottom:6px; }
+.addon-card .addon-name { font-weight:700; font-size:.9em; margin-bottom:3px; }
+.addon-card .addon-price { color:var(--gold2); font-weight:700; font-size:.85em; }
+.addon-card .addon-desc { font-size:.75em; color:#94a3b8; margin-top:4px; }
+
+/* ═══════════ FORM ═══════════ */
+.form-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:35px; margin-bottom:25px; }
+.form-card h2 { margin-bottom:6px; font-size:1.4em; }
+.form-card .subtitle { color:#94a3b8; font-size:.85em; margin-bottom:20px; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.form-group { margin-bottom:16px; }
+.form-group.full { grid-column:1/-1; }
+.form-group label { display:block; margin-bottom:5px; font-size:.82em; color:#94a3b8; font-weight:600; }
+.form-group input, .form-group textarea, .form-group select { width:100%; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:rgba(15,15,35,.8); color:#e2e8f0; font-size:.92em; font-family:inherit; transition:border .2s; }
+.form-group input:focus, .form-group textarea:focus { outline:none; border-color:var(--purple); }
+.form-group textarea { min-height:120px; resize:vertical; }
+.form-group .helper { font-size:.72em; color:#64748b; margin-top:4px; }
+
+/* ═══════════ ORDER SUMMARY ═══════════ */
+.order-summary { background:rgba(245,158,11,.04); border:1px solid rgba(245,158,11,.2); border-radius:16px; padding:20px; margin-bottom:20px; }
+.order-summary h3 { margin-bottom:12px; }
+.order-row { display:flex; justify-content:space-between; padding:6px 0; font-size:.9em; }
+.order-row.total { border-top:1px solid rgba(245,158,11,.2); margin-top:10px; padding-top:12px; font-size:1.2em; font-weight:800; color:var(--gold2); }
+.order-row .discount-text { color:var(--green); font-size:.8em; }
+
+/* ═══════════ LEGAL + SUBMIT ═══════════ */
+.legal-box { background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.2); border-radius:12px; padding:16px; margin:20px 0; }
+.legal-box label { display:flex; align-items:flex-start; gap:10px; cursor:pointer; }
+.legal-box input[type=checkbox] { width:auto; margin-top:3px; accent-color:var(--gold); }
+.legal-box .legal-text { font-size:.78em; color:#94a3b8; }
+.legal-box .legal-text strong { color:#fbbf24; }
+
+.submit-btn { width:100%; padding:16px; background:linear-gradient(135deg,var(--purple),var(--pink)); border:none; border-radius:12px; color:#fff; font-size:1.1em; font-weight:700; cursor:pointer; transition:all .2s; }
+.submit-btn:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(139,92,246,.3); }
+.submit-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+/* ═══════════ TRUST STRIP ═══════════ */
+.trust-strip { display:flex; justify-content:center; gap:30px; margin:25px 0; flex-wrap:wrap; }
+.trust-item { text-align:center; }
+.trust-item .num { font-size:1.8em; font-weight:800; color:var(--gold); }
+.trust-item .label { font-size:.78em; color:#94a3b8; }
+
+/* ═══════════ PACKAGES ═══════════ */
+.pkg-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-bottom:25px; }
+.pkg-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px; text-align:center; cursor:pointer; transition:all .15s; }
+.pkg-card:hover, .pkg-card.selected { border-color:var(--gold); transform:translateY(-2px); }
+.pkg-card .pkg-icon { font-size:2em; margin-bottom:6px; }
+.pkg-card .pkg-count { font-size:2em; font-weight:800; color:var(--gold2); }
+.pkg-card .pkg-label { color:#94a3b8; font-size:.8em; }
+.pkg-card .pkg-price { font-weight:700; margin:8px 0; }
+.pkg-card .pkg-per { font-size:.7em; color:var(--green); }
+
+/* ═══════════ RESPONSIVE ═══════════ */
+@media (max-width:900px) {
+  .main { margin-left:0; padding:15px; }
+  .pricing-grid { grid-template-columns:repeat(2,1fr); }
+  .addons-grid { grid-template-columns:1fr; }
+  .form-grid { grid-template-columns:1fr; }
+  .vs-grid { grid-template-columns:1fr; }
+  .vs-divider { transform:rotate(90deg); }
+}
+</style>
+<div class="layout">
+
+
+<!-- ═══════════ HERO ═══════════ -->
+<div class="hero">
+  <h1>🏢 Hire Top Talent — Starting at $1</h1>
+  <p>The <strong>most affordable</strong> job board in the world. Reach 5,000+ active job seekers. <strong style="color:#fbbf24;">95% cheaper</strong> than LinkedIn.</p>
+  <div class="badge-row">
+    <span class="badge trust">🔒 Secure Payments</span>
+    <span class="badge">⚡ Instant Publishing</span>
+    <span class="badge">📊 Free Analytics</span>
+    <span class="badge">🌍 Google Jobs Indexed</span>
+  </div>
+</div>
+
+<!-- ═══════════ TRUST STRIP ═══════════ -->
+<div class="trust-strip">
+  <div class="trust-item"><div class="num">5,000+</div><div class="label">Active Job Seekers</div></div>
+  <div class="trust-item"><div class="num">94%</div><div class="label">Response Rate</div></div>
+  <div class="trust-item"><div class="num">48h</div><div class="label">Avg. First Applicant</div></div>
+  <div class="trust-item"><div class="num">$1</div><div class="label">Starting Price</div></div>
+  <div class="trust-item"><div class="num">15+</div><div class="label">Countries Reach</div></div>
+</div>
+
+<!-- ═══════════ VS LINKEDIN ═══════════ -->
+<div class="vs-section">
+  <h2 class="sec-title">💡 <span>Why JobHunt Pro? (vs LinkedIn $495/post)</span></h2>
+  <div class="vs-grid">
+    <div class="vs-col">
+      <h3>🔴 LinkedIn</h3>
+      <div class="price-big expensive">$495</div>
+      <p style="color:#94a3b8;font-size:.8em;">per single 30-day post</p>
+      <ul>
+        <li class="bad">Overpriced 30-day listing</li>
+        <li class="bad">No applicant screening</li>
+        <li class="bad">Generic audience</li>
+        <li class="bad">No analytics included</li>
+        <li class="bad">No urgent/feature options</li>
+      </ul>
+    </div>
+    <div class="vs-divider">VS</div>
+    <div class="vs-col">
+      <h3>🟢 JobHunt Pro</h3>
+      <div class="price-big cheap">$3</div>
+      <p style="color:#22c55e;font-size:.8em;">Featured post (99.4% cheaper!)</p>
+      <ul>
+        <li class="good">Up to 365 days</li>
+        <li class="good">AI-matched candidates</li>
+        <li class="good">Targeted industry reach</li>
+        <li class="good">Free analytics dashboard</li>
+        <li class="good">Urgent/Boost/Featured options</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PRICING ═══════════ -->
+<h2 class="sec-title">📦 <span>Choose Your Plan</span></h2>
+
+<div class="pricing-grid" id="pricingGrid">
+  <!-- Basic -->
+  <div class="price-card" onclick="selectTier('basic', 1, this)" data-tier="basic" data-price="1">
+    <div class="tier-icon">📋</div>
+    <div class="tier-name">Basic</div>
+    <div class="tier-price">$1<small>/post</small></div>
+    <ul>
+      <li>30-day listing</li>
+      <li>Appears in job feed</li>
+      <li>Email applications</li>
+      <li>Basic support</li>
+    </ul>
+    <button class="btn" style="background:linear-gradient(135deg,#64748b,#475569);">Select Basic</button>
+  </div>
+
+  <!-- Featured (POPULAR) -->
+  <div class="price-card popular selected" onclick="selectTier('featured', 3, this)" data-tier="featured" data-price="3">
+    <div class="tier-icon">⭐</div>
+    <div class="tier-name">Featured</div>
+    <div class="tier-price">$3<small>/post</small></div>
+    <div class="tier-save">💰 99.4% cheaper than LinkedIn</div>
+    <ul>
+      <li>Everything in Basic</li>
+      <li>Pinned at top 🔝</li>
+      <li>Highlighted listing 🌟</li>
+      <li>Social media share</li>
+      <li>Priority support</li>
+    </ul>
+    <button class="btn" style="background:linear-gradient(135deg,var(--purple),#7c3aed);">Select Featured</button>
+  </div>
+
+  <!-- Enterprise -->
+  <div class="price-card" onclick="selectTier('enterprise', 5, this)" data-tier="enterprise" data-price="5">
+    <div class="tier-icon">👑</div>
+    <div class="tier-name">Enterprise</div>
+    <div class="tier-price">$5<small>/post</small></div>
+    <ul>
+      <li>Everything in Featured</li>
+      <li>60-day default listing</li>
+      <li>Company profile page 🏢</li>
+      <li>Dedicated email blast</li>
+      <li>Google Jobs indexed</li>
+      <li>VIP support 💎</li>
+    </ul>
+    <button class="btn" style="background:linear-gradient(135deg,var(--gold),#d97706);">Select Enterprise</button>
+  </div>
+
+  <!-- Annual (NEW!) -->
+  <div class="price-card" onclick="selectTier('annual', 25, this)" data-tier="annual" data-price="25">
+    <div class="tier-icon">🚀</div>
+    <div class="tier-name">Annual Pro</div>
+    <div class="tier-price">$25<small>/year</small></div>
+    <div class="tier-save">🔥 Save 58% — unlimited posts</div>
+    <ul>
+      <li>Unlimited job posts</li>
+      <li>All Enterprise features</li>
+      <li>Priority in search results</li>
+      <li>Bulk candidate export</li>
+      <li>API access 🔌</li>
+      <li>Dedicated account manager</li>
+    </ul>
+    <button class="btn" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);">Select Annual</button>
+  </div>
+</div>
+
+<!-- ═══════════ DURATION ═══════════ -->
+<div class="duration-section">
+  <h3 style="text-align:center;margin-bottom:12px;">⏱️ Post Duration <span style="font-size:.75em;color:#94a3b8;">(longer = bigger discount)</span></h3>
+  <div class="duration-row" id="durationRow">
+    <button class="duration-btn selected" onclick="selectDuration(30, 0, this)" data-days="30" data-discount="0">
+      30 Days<br><span class="dur-save">Standard</span>
+    </button>
+    <button class="duration-btn" onclick="selectDuration(60, 10, this)" data-days="60" data-discount="10">
+      60 Days<br><span class="dur-save">Save 10%</span>
+    </button>
+    <button class="duration-btn" onclick="selectDuration(90, 17, this)" data-days="90" data-discount="17">
+      90 Days<br><span class="dur-save">Save 17%</span>
+    </button>
+    <button class="duration-btn" onclick="selectDuration(180, 25, this)" data-days="180" data-discount="25">
+      180 Days<br><span class="dur-save">Save 25%</span>
+    </button>
+    <button class="duration-btn" onclick="selectDuration(365, 42, this)" data-days="365" data-discount="42">
+      365 Days<br><span class="dur-save">Save 42% 🔥</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════ ADD-ONS ═══════════ -->
+<h2 class="sec-title">💎 <span>Power-Ups (Optional Add-ons)</span></h2>
+<div class="addons-grid" id="addonsGrid">
+  <div class="addon-card" onclick="toggleAddon(this, 'urgent', 2)" data-addon="urgent" data-price="2">
+    <div class="addon-check"></div>
+    <div class="addon-icon">🚨</div>
+    <div class="addon-name">Urgent Badge</div>
+    <div class="addon-price">+$2</div>
+    <div class="addon-desc">Red "URGENT" badge — gets 3x more views. Top of all job feeds.</div>
+  </div>
+  <div class="addon-card" onclick="toggleAddon(this, 'social_blast', 3)" data-addon="social_blast" data-price="3">
+    <div class="addon-check"></div>
+    <div class="addon-icon">📢</div>
+    <div class="addon-name">Social Media Blast</div>
+    <div class="addon-price">+$3</div>
+    <div class="addon-desc">Your job shared on Telegram & WhatsApp to 500+ job seekers.</div>
+  </div>
+  <div class="addon-card" onclick="toggleAddon(this, 'company_page', 5)" data-addon="company_page" data-price="5">
+    <div class="addon-check"></div>
+    <div class="addon-icon">🏛️</div>
+    <div class="addon-name">Company Profile Page</div>
+    <div class="addon-price">+$5</div>
+    <div class="addon-desc">Dedicated company page with logo, description, all your jobs listed.</div>
+  </div>
+  <div class="addon-card" onclick="toggleAddon(this, 'ai_screening', 3)" data-addon="ai_screening" data-price="3">
+    <div class="addon-check"></div>
+    <div class="addon-icon">🤖</div>
+    <div class="addon-name">AI Applicant Screening</div>
+    <div class="addon-price">+$3</div>
+    <div class="addon-desc">AI pre-screens applicants & ranks by match %. Save hours of manual review.</div>
+  </div>
+  <div class="addon-card" onclick="toggleAddon(this, 'google_jobs', 2)" data-addon="google_jobs" data-price="2">
+    <div class="addon-check"></div>
+    <div class="addon-icon">🔍</div>
+    <div class="addon-name">Google for Jobs</div>
+    <div class="addon-price">+$2</div>
+    <div class="addon-desc">SEO-optimized listing indexed on Google Jobs — reach millions searching.</div>
+  </div>
+  <div class="addon-card" onclick="toggleAddon(this, 'qr_code', 1)" data-addon="qr_code" data-price="1">
+    <div class="addon-check"></div>
+    <div class="addon-icon">📱</div>
+    <div class="addon-name">QR Code + Landing Page</div>
+    <div class="addon-price">+$1</div>
+    <div class="addon-desc">Custom QR code + mobile-optimized job page. Print on flyers, share everywhere.</div>
+  </div>
+</div>
+
+<!-- ═══════════ BULK PACKAGES ═══════════ -->
+<h2 class="sec-title">📦 <span>Bulk Job Packages</span> <span style="font-size:.7em;color:#94a3b8;">(best value!)</span></h2>
+<div class="pkg-grid" id="pkgGrid">
+  <div class="pkg-card" onclick="selectBulkPkg(this, 3, 2.50)" data-count="3" data-price="2.50">
+    <div class="pkg-icon">📋📋📋</div>
+    <div class="pkg-count">3</div>
+    <div class="pkg-label">Job Posts</div>
+    <div class="pkg-price">$2.50 <span class="pkg-per">$0.83/post</span></div>
+  </div>
+  <div class="pkg-card selected" onclick="selectBulkPkg(this, 5, 4)" data-count="5" data-price="4">
+    <div class="pkg-icon">📋📋📋📋📋</div>
+    <div class="pkg-count">5</div>
+    <div class="pkg-label">Job Posts</div>
+    <div class="pkg-price">$4 <span class="pkg-per">$0.80/post 🔥</span></div>
+  </div>
+  <div class="pkg-card" onclick="selectBulkPkg(this, 10, 7)" data-count="10" data-price="7">
+    <div class="pkg-icon">📋×10</div>
+    <div class="pkg-count">10</div>
+    <div class="pkg-label">Job Posts</div>
+    <div class="pkg-price">$7 <span class="pkg-per">$0.70/post 💎</span></div>
+  </div>
+</div>
+
+<!-- ═══════════ POST FORM ═══════════ -->
+<div class="form-card" id="postForm">
+  <h2>📝 Post Your Job</h2>
+  <p class="subtitle">Fill in the details below. The more complete, the more applicants you'll get.</p>
+  <form id="jobForm" onsubmit="submitJob(event)">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>🏢 Company Name *</label>
+        <input type="text" id="company_name" required placeholder="e.g. Murex, Bank Audi...">
+      </div>
+      <div class="form-group">
+        <label>💼 Job Title *</label>
+        <input type="text" id="job_title" required placeholder="e.g. Senior Network Engineer">
+      </div>
+      <div class="form-group">
+        <label>📍 Location *</label>
+        <input type="text" id="location" required placeholder="e.g. Beirut, Lebanon">
+      </div>
+      <div class="form-group">
+        <label>🏷️ Category</label>
+        <select id="category">
+          <option value="">Select category...</option>
+          <option value="it">💻 IT & Technology</option>
+          <option value="finance">🏦 Finance & Banking</option>
+          <option value="engineering">⚙️ Engineering</option>
+          <option value="healthcare">🏥 Healthcare</option>
+          <option value="marketing">📢 Marketing</option>
+          <option value="sales">📈 Sales</option>
+          <option value="hr">👥 HR & Recruitment</option>
+          <option value="other">📋 Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>💰 Salary Range <span style="font-size:.75em;color:var(--green);">(+3x applicants!)</span></label>
+        <input type="text" id="salary" placeholder="e.g. $2,500 - $3,500/month">
+      </div>
+      <div class="form-group">
+        <label>📧 Contact Email *</label>
+        <input type="email" id="contact_email" required placeholder="hr@yourcompany.com">
+        <div class="helper">Applications forwarded here</div>
+      </div>
+      <div class="form-group full">
+        <label>📋 Job Description *</label>
+        <textarea id="description" required placeholder="Describe the role, responsibilities, requirements, and why your company is a great place to work...&#10;&#10;💡 Tip: Include benefits, culture, and growth opportunities for 2x more applicants!"></textarea>
+      </div>
+      <div class="form-group">
+        <label>🔗 External Apply URL (optional)</label>
+        <input type="url" id="apply_url" placeholder="https://yourcompany.com/careers/...">
+      </div>
+      <div class="form-group">
+        <label>🖼️ Company Logo URL (optional)</label>
+        <input type="url" id="logo_url" placeholder="https://yourcompany.com/logo.png">
+        <div class="helper">Appears next to your listing</div>
+      </div>
+    </div>
+
+    <!-- ORDER SUMMARY -->
+    <div class="order-summary" id="orderSummary">
+      <h3>🧾 Order Summary</h3>
+      <div class="order-row"><span>Plan:</span><span id="sumPlan">Featured</span></div>
+      <div class="order-row"><span>Duration:</span><span id="sumDuration">30 Days</span></div>
+      <div class="order-row"><span>Base Price:</span><span id="sumBase">$3.00</span></div>
+      <div class="order-row" id="rowDurationDiscount" style="display:none;"><span>Duration Discount:</span><span id="sumDiscount" style="color:var(--green);">-$0.00</span></div>
+      <div class="order-row" id="rowAddons" style="display:none;"><span>Add-ons:</span><span id="sumAddons">+$0.00</span></div>
+      <div class="order-row" id="rowBulk" style="display:none;"><span>Package (×<span id="bulkCount">5</span>):</span><span id="sumBulk">$4.00</span></div>
+      <div class="order-row total"><span>💳 TOTAL:</span><span id="sumTotal">$3.00</span></div>
+    </div>
+
+    <!-- LEGAL -->
+    <div class="legal-box">
+      <label>
+        <input type="checkbox" id="legal_check" required onchange="updateSubmitBtn()">
+        <span class="legal-text">
+          ✅ I confirm this is a <strong>real, legal job</strong>. No scams, no pyramid schemes, no multi-level marketing, no fake jobs. I have the authority to post on behalf of this company. I understand that violations result in permanent ban and may be reported to authorities.
+        </span>
+      </label>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submitBtn" disabled>
+      🚀 Post Job — $<span id="submitPrice">3.00</span>
+    </button>
+    <div id="formMsg" style="margin-top:10px;text-align:center;display:none;"></div>
+  </form>
+</div>
+
+</div>
+</div>
+
+<!-- ═══════════ SCRIPTS ═══════════ -->
+<script>
+// ── State ──
+let state = {
+  tier: 'featured',
+  tierPrice: 3,
+  duration: 30,
+  durationDiscount: 0,
+  addons: [],  // [{name, price}]
+  bulkCount: 5,
+  bulkPrice: 4,
+  isBulk: true,  // default to bulk package
+};
+
+// ── Tier selection ──
+function selectTier(tier, price, el) {
+  state.tier = tier;
+  state.tierPrice = price;
+  state.isBulk = false;
+  document.querySelectorAll('#pricingGrid .price-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.querySelectorAll('#pkgGrid .pkg-card').forEach(c => c.classList.remove('selected'));
+  recalc();
+}
+
+// ── Duration ──
+function selectDuration(days, discount, el) {
+  state.duration = days;
+  state.durationDiscount = discount;
+  document.querySelectorAll('#durationRow .duration-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  recalc();
+}
+
+// ── Add-ons ──
+function toggleAddon(el, name, price) {
+  const idx = state.addons.findIndex(a => a.name === name);
+  if (idx >= 0) {
+    state.addons.splice(idx, 1);
+    el.classList.remove('selected');
+  } else {
+    state.addons.push({name, price});
+    el.classList.add('selected');
+  }
+  recalc();
+}
+
+// ── Bulk packages ──
+function selectBulkPkg(el, count, price) {
+  state.isBulk = true;
+  state.bulkCount = count;
+  state.bulkPrice = price;
+  document.querySelectorAll('#pkgGrid .pkg-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.querySelectorAll('#pricingGrid .price-card').forEach(c => c.classList.remove('selected'));
+  recalc();
+}
+
+// ── Recalculate total ──
+function recalc() {
+  let basePrice, total;
+
+  if (state.isBulk) {
+    basePrice = state.bulkPrice;
+    // Duration discount on bulk
+    const discountAmt = (basePrice * state.durationDiscount / 100);
+    total = basePrice - discountAmt;
+    document.getElementById('sumPlan').textContent = `Bulk (${state.bulkCount} posts)`;
+    document.getElementById('sumBase').textContent = '$' + basePrice.toFixed(2);
+    document.getElementById('rowBulk').style.display = 'none';
+    document.getElementById('sumDuration').textContent = state.duration + ' Days';
+  } else {
+    basePrice = state.tierPrice;
+    // Duration multiplier
+    let durationMultiplier = 1;
+    if (state.duration === 60) durationMultiplier = 1.8;
+    else if (state.duration === 90) durationMultiplier = 2.5;
+    else if (state.duration === 180) durationMultiplier = 4.5;
+    else if (state.duration === 365) durationMultiplier = 7;
+    const durationPrice = basePrice * durationMultiplier;
+    const discountAmt = (durationPrice * state.durationDiscount / 100);
+    total = durationPrice - discountAmt;
+    document.getElementById('sumPlan').textContent = state.tier.charAt(0).toUpperCase() + state.tier.slice(1);
+    document.getElementById('sumBase').textContent = '$' + basePrice.toFixed(2) + ' base';
+    document.getElementById('rowBulk').style.display = 'none';
+    document.getElementById('sumDuration').textContent = state.duration + ' Days';
+  }
+
+  // Add-ons
+  const addonTotal = state.addons.reduce((s, a) => s + a.price, 0);
+  total += addonTotal;
+
+  // Update UI
+  const durDiscountAmt = state.isBulk ? (state.bulkPrice * state.durationDiscount / 100) : ((state.tierPrice * (state.duration === 365 ? 7 : state.duration === 180 ? 4.5 : state.duration === 90 ? 2.5 : state.duration === 60 ? 1.8 : 1)) * state.durationDiscount / 100);
+  
+  if (state.durationDiscount > 0) {
+    document.getElementById('rowDurationDiscount').style.display = 'flex';
+    document.getElementById('sumDiscount').textContent = '-$' + durDiscountAmt.toFixed(2) + ' (' + state.durationDiscount + '%)';
+  } else {
+    document.getElementById('rowDurationDiscount').style.display = 'none';
+  }
+
+  if (state.addons.length > 0) {
+    document.getElementById('rowAddons').style.display = 'flex';
+    document.getElementById('sumAddons').textContent = '+$' + addonTotal.toFixed(2) + ' (' + state.addons.map(a => a.name.replace('_',' ')).join(', ') + ')';
+  } else {
+    document.getElementById('rowAddons').style.display = 'none';
+  }
+
+  document.getElementById('sumTotal').textContent = '$' + total.toFixed(2);
+  document.getElementById('submitPrice').textContent = total.toFixed(2);
+  updateSubmitBtn();
+}
+
+function updateSubmitBtn() {
+  document.getElementById('submitBtn').disabled = !document.getElementById('legal_check').checked;
+}
+
+// ── Submit ──
+function submitJob(e) {
+  e.preventDefault();
+  const total = parseFloat(document.getElementById('sumTotal').textContent.replace('$',''));
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Posting...';
+
+  const formData = new FormData();
+  formData.append('company_name', document.getElementById('company_name').value);
+  formData.append('job_title', document.getElementById('job_title').value);
+  formData.append('location', document.getElementById('location').value);
+  formData.append('category', document.getElementById('category').value);
+  formData.append('salary', document.getElementById('salary').value);
+  formData.append('contact_email', document.getElementById('contact_email').value);
+  formData.append('description', document.getElementById('description').value);
+  formData.append('apply_url', document.getElementById('apply_url').value);
+  formData.append('logo_url', document.getElementById('logo_url').value);
+  formData.append('tier', state.isBulk ? state.tier : state.tier);
+  formData.append('price', total);
+  formData.append('duration_days', state.duration);
+  formData.append('is_bulk', state.isBulk ? '1' : '0');
+  formData.append('bulk_count', state.bulkCount);
+  formData.append('addons', JSON.stringify(state.addons));
+
+  fetch('/api/employer/post-job', { method:'POST', body:formData })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === 'ok') {
+        showMsg('✅ ' + res.message, '#22c55e');
+        document.getElementById('jobForm').reset();
+        // Reset defaults
+        state.addons = [];
+        document.querySelectorAll('.addon-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById('legal_check').checked = false;
+        updateSubmitBtn();
+        recalc();
+      } else {
+        showMsg('❌ ' + res.message, '#ef4444');
+      }
+      btn.disabled = true;
+      btn.innerHTML = '🚀 Post Job — $<span id="submitPrice">' + total.toFixed(2) + '</span>';
+    })
+    .catch(err => {
+      showMsg('❌ Network error. Please try again.', '#ef4444');
+      btn.disabled = false;
+      btn.innerHTML = '🚀 Post Job — $<span id="submitPrice">' + total.toFixed(2) + '</span>';
+    });
+}
+
+function showMsg(text, color) {
+  const div = document.getElementById('formMsg');
+  div.textContent = text;
+  div.style.color = color;
+  div.style.display = 'block';
+  setTimeout(() => div.style.display = 'none', 6000);
+}
+
+// Init
+recalc();
+</script>

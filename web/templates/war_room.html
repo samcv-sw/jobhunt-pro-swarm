@@ -1,0 +1,205 @@
+
+
+<style>
+.war-body{background:#05050a;color:#c0c0c0;font-family:"Inter",sans-serif;--matrix:#00ff41;--matrix-dim:rgba(0,255,65,.15);--blue:#3b82f6;--gold:#f59e0b;--red:#ef4444;--pink:#ec4899;--cyan:#06b6d4;}
+.war-body *{box-sizing:border-box;}
+@keyframes godPulse{0%,100%{box-shadow:0 0 8px rgba(236,72,153,.3),0 0 20px rgba(236,72,153,.1);}50%{box-shadow:0 0 20px rgba(236,72,153,.6),0 0 40px rgba(236,72,153,.25);}}
+@keyframes rainDrop{0%,100%{opacity:.08;}50%{opacity:.2;}}
+.wb-god{display:inline-block;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:800;letter-spacing:1px;background:linear-gradient(135deg,rgba(236,72,153,.2),rgba(139,92,246,.2));border:1px solid rgba(236,72,153,.4);color:#f9a8d4;animation:godPulse 2s infinite;}
+.wb-emperor{display:inline-block;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:700;background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(6,182,212,.2));border:1px solid rgba(59,130,246,.4);color:#93c5fd;}
+.wb-pro{display:inline-block;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:700;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#fcd34d;}
+.wb-starter{display:inline-block;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#86efac;}
+.wb-none{display:inline-block;padding:6px 14px;border-radius:8px;font-size:12px;color:#64748b;border:1px dashed rgba(255,255,255,.1);}
+.wr-header{background:linear-gradient(180deg,rgba(10,10,20,.98),rgba(5,5,10,.98));border:1px solid rgba(0,255,65,.1);border-radius:12px;padding:24px 28px 18px;margin-bottom:20px;position:relative;}
+.wr-dashboard .wr-header .wr-title{font-size:20px;font-weight:800;color:var(--matrix);letter-spacing:1px;font-family:"Courier New",monospace;}
+.wr-dashboard .wr-header .wr-sub{font-size:11px;color:#64748b;margin-top:4px;font-family:"Courier New",monospace;}
+.wr-progress{margin-top:12px;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.wr-progress-fill{height:100%;background:linear-gradient(90deg,var(--matrix),var(--cyan),var(--blue),var(--pink));border-radius:2px;transition:width .6s;}
+.wr-badge-row{margin-top:12px;}
+.wr-stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:20px;}
+.wr-stat{background:rgba(10,10,20,.95);border:1px solid rgba(0,255,65,.08);border-radius:10px;padding:14px;text-align:center;transition:all .2s;}
+.wr-stat:hover{border-color:var(--matrix-dim);box-shadow:0 0 12px var(--matrix-dim);}
+.wr-stat-num{font-size:26px;font-weight:800;color:var(--matrix);font-family:"Courier New",monospace;}
+.wr-stat.danger .wr-stat-num{color:var(--red);}
+.wr-stat.warn .wr-stat-num{color:var(--gold);}
+.wr-stat-lbl{font-size:10px;color:#52525b;text-transform:uppercase;letter-spacing:1.5px;margin-top:4px;}
+.wr-section{font-size:14px;font-weight:700;color:var(--matrix);margin:28px 0 14px;font-family:"Courier New",monospace;letter-spacing:1px;}
+.wr-section::before{content:"[ ";color:rgba(0,255,65,.4);}
+.wr-section::after{content:" ]";color:rgba(0,255,65,.4);}
+.wr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:12px;margin-bottom:16px;}
+.wr-card{background:rgba(10,10,20,.9);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:14px;transition:all .2s;}
+.wr-card:hover{border-color:var(--matrix-dim);box-shadow:0 0 16px rgba(0,255,65,.06);}
+.wr-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;}
+.wr-company{font-size:13px;font-weight:600;color:#d4d4d8;}
+.wr-role{font-size:10px;color:#52525b;}
+.wr-status{font-size:9px;padding:2px 8px;border-radius:8px;font-weight:700;letter-spacing:.5px;}
+.wr-status.sent{background:rgba(0,255,65,.12);color:var(--matrix);}
+.wr-status.failed{background:rgba(239,68,68,.12);color:var(--red);}
+.wr-card-body{font-size:11px;color:#71717a;line-height:1.6;margin-bottom:10px;max-height:180px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(0,255,65,.2) transparent;}
+.wr-card-body.terminal{font-family:"Courier New",monospace;color:#a3e635;background:rgba(0,0,0,.3);padding:10px;border-radius:6px;border-left:2px solid var(--matrix-dim);}
+.wr-btn-copy{background:rgba(0,255,65,.08);color:var(--matrix);border:1px solid rgba(0,255,65,.2);padding:5px 12px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;transition:all .2s;font-family:"Courier New",monospace;letter-spacing:.5px;}
+.wr-btn-copy:hover{background:rgba(0,255,65,.16);border-color:var(--matrix);box-shadow:0 0 8px var(--matrix-dim);}
+.wr-btn-copy.copied{background:rgba(0,255,65,.2);color:#000;}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;margin-bottom:16px;}
+.comp-card{background:rgba(10,10,20,.9);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;transition:all .2s;}
+.comp-card:hover{border-color:rgba(0,255,65,.1);}
+.comp-card.hot{border-left:3px solid var(--red);}
+.comp-card.good{border-left:3px solid var(--gold);}
+.comp-card.cold{border-left:3px solid var(--cyan);}
+.comp-company{font-size:12px;font-weight:600;color:#d4d4d8;min-width:100px;}
+.comp-role{font-size:10px;color:#52525b;flex:1;}
+.comp-score-bar{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.comp-fill{height:100%;border-radius:2px;transition:width .5s;}
+.comp-card.hot .comp-fill{background:linear-gradient(90deg,var(--red),#f97316);}
+.comp-card.good .comp-fill{background:linear-gradient(90deg,var(--gold),#a3e635);}
+.comp-card.cold .comp-fill{background:linear-gradient(90deg,var(--cyan),var(--blue));}
+.comp-heat{font-size:10px;font-weight:700;min-width:80px;text-align:right;}
+.comp-heat.hot{color:var(--red);}
+.comp-heat.good{color:var(--gold);}
+.comp-heat.cold{color:var(--cyan);}
+.action-item{background:rgba(10,10,20,.9);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:12px 16px;margin-bottom:8px;font-size:13px;color:#d4d4d8;display:flex;align-items:center;gap:10px;transition:all .2s;}
+.action-item:hover{border-color:rgba(0,255,65,.08);}
+.action-badge{font-size:9px;font-weight:800;padding:3px 10px;border-radius:4px;letter-spacing:.8px;min-width:70px;text-align:center;font-family:"Courier New",monospace;}
+.action-badge-crit{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);}
+.action-badge-high{background:rgba(245,158,11,.15);color:var(--gold);border:1px solid rgba(245,158,11,.3);}
+.action-badge-med{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3);}
+.action-badge-info{background:rgba(0,255,65,.1);color:var(--matrix);border:1px solid var(--matrix-dim);}
+.action-crit{border-left:3px solid var(--red);}
+.action-high{border-left:3px solid var(--gold);}
+.action-med{border-left:3px solid var(--blue);}
+.action-info{border-left:3px solid var(--matrix);}
+.sal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px;}
+.sal-box{background:rgba(10,10,20,.9);border:1px solid rgba(0,255,65,.06);border-radius:10px;padding:14px;text-align:center;}
+.sal-box .sal-range{font-size:16px;font-weight:800;color:var(--matrix);font-family:"Courier New",monospace;}
+.sal-box .sal-region{font-size:11px;color:#52525b;margin-top:4px;}
+.sal-box .sal-intel{font-size:9px;color:#3f3f46;margin-top:4px;}
+.wr-empty{text-align:center;padding:40px 20px;color:#3f3f46;}
+.wr-empty-icon{font-size:36px;margin-bottom:10px;opacity:.5;}
+.wr-empty-text{font-size:12px;font-family:"Courier New",monospace;}
+@media(max-width:768px){.wr-grid,.comp-grid{grid-template-columns:1fr;}.wr-stat-grid{grid-template-columns:repeat(3,1fr);}}
+</style>
+{% if auto_refresh %}<meta http-equiv="refresh" content="15">{% endif %}
+<div class="war-body wr-dashboard">
+<div style="position:absolute;top:8px;right:12px;font-family:Courier New,monospace;font-size:10px;color:rgba(0,255,65,.12);line-height:1.2;pointer-events:none;z-index:1;animation:rainDrop 3s ease-in-out infinite;">01001010 01001111 01000010 01001000 01010101 01001110 01010100 00100000 01010000 01010010 01001111</div>
+
+<div class="wr-header">
+    <div class="wr-title">[ WAR ROOM :: CAMPAIGN ACTIVE ]</div>
+    <div class="wr-sub">CID: {{ campaign.cid }}  |  STATUS: {{ campaign.status }}  |  TARGET: {{ campaign.total_companies }} COMPANIES</div>
+    <div class="wr-progress"><div class="wr-progress-fill" style="width:{{ progress_pct }}%;"></div></div>
+    <div class="wr-badge-row">{{ weapon_badge }}</div>
+</div>
+
+<div class="wr-stat-grid">
+    <div class="wr-stat"><div class="wr-stat-num">{{ campaign.total_companies }}</div><div class="wr-stat-lbl">[ TARGETS ]</div></div>
+    <div class="wr-stat"><div class="wr-stat-num" style="color:#22c55e;">{{ stats.sent }}</div><div class="wr-stat-lbl">[ SENT ]</div></div>
+    <div class="wr-stat"><div class="wr-stat-num">{{ campaign.open_count }}</div><div class="wr-stat-lbl">[ OPENS ]</div></div>
+    <div class="wr-stat"><div class="wr-stat-num">{{ campaign.response_count }}</div><div class="wr-stat-lbl">[ RESPONSES ]</div></div>
+    <div class="wr-stat danger"><div class="wr-stat-num">{{ stats.failed }}</div><div class="wr-stat-lbl">[ FAILED ]</div></div>
+    <div class="wr-stat warn"><div class="wr-stat-num">{{ stats.followups }}</div><div class="wr-stat-lbl">[ FOLLOW-UPS ]</div></div>
+</div>
+
+<div class="wr-section">SALARY INTELLIGENCE BRIEFING</div>
+<div class="sal-grid">
+    <div class="sal-box"><div class="sal-range">$1.5-3K</div><div class="sal-region">🇱🇧 LEBANON</div><div class="sal-intel">Local market</div></div>
+    <div class="sal-box"><div class="sal-range">$4-8K</div><div class="sal-region">🇦🇪 UAE</div><div class="sal-intel">Tax-free</div></div>
+    <div class="sal-box"><div class="sal-range">$3.5-7K</div><div class="sal-region">🇸🇦 SAUDI</div><div class="sal-intel">Growing fast</div></div>
+    <div class="sal-box"><div class="sal-range">$4.5-8.5K</div><div class="sal-region">🇶🇦 QATAR</div><div class="sal-intel">Premium market</div></div>
+    <div class="sal-box"><div class="sal-range">$3.5-7K</div><div class="sal-region">🇰🇼 KUWAIT</div><div class="sal-intel">Oil sector</div></div>
+    <div class="sal-box"><div class="sal-range">$3-6K</div><div class="sal-region">🇴🇲 OMAN</div><div class="sal-intel">Stable growth</div></div>
+</div>
+
+<div class="wr-section">COMPETITION RADAR</div>
+{% if comp_rows %}
+<div class="comp-grid">
+{% for c in comp_rows %}
+    <div class="comp-card {{ c.heat_cls }}">
+        <span class="comp-company">{{ c.company }}</span>
+        <span class="comp-role">{{ c.job_title }}</span>
+        <div class="comp-score-bar"><div class="comp-fill" style="width:{{ c.score }}%;"></div></div>
+        <span class="comp-heat {{ c.heat_cls }}">{{ c.heat_label }} · {{ c.score }}%</span>
+    </div>
+{% endfor %}
+</div>
+{% else %}
+<div class="wr-empty"><div class="wr-empty-icon">📡</div><div class="wr-empty-text">[ NO COMPETITION DATA YET — RADAR ACTIVATES WITH CAMPAIGN EXECUTION ]</div></div>
+{% endif %}
+
+<div class="wr-section">LINKEDIN WAR STATION</div>
+{% if linkedin_rows %}
+<div class="wr-grid">
+{% for l in linkedin_rows %}
+    <div class="wr-card">
+        <div class="wr-card-head"><span class="wr-company">{{ l.company }}</span><span class="wr-role">{{ l.job_title }}</span></div>
+        <div class="wr-card-body terminal">{{ l.message }}</div>
+        <button class="wr-btn-copy" onclick="copyText(this)"><span class="copy-icon">📋</span> COPY TO CLIPBOARD</button>
+    </div>
+{% endfor %}
+</div>
+{% else %}
+<div class="wr-empty"><div class="wr-empty-icon">🔗</div><div class="wr-empty-text">[ PURCHASE NETWORKING MISSILE TO AUTO-GENERATE CONNECTION MESSAGES ]</div></div>
+{% endif %}
+
+<div class="wr-section">INTERVIEW PREP ARMORY</div>
+{% if interview_rows %}
+<div class="wr-grid">
+{% for iv in interview_rows %}
+    <div class="wr-card">
+        <div class="wr-card-head"><span class="wr-company">{{ iv.company }}</span><span class="wr-role">{{ iv.job_title }}</span></div>
+        <div class="wr-card-body terminal" style="white-space:pre-wrap;">{{ iv.prep }}</div>
+        <button class="wr-btn-copy" onclick="copyText(this)"><span class="copy-icon">📋</span> COPY GUIDE</button>
+    </div>
+{% endfor %}
+</div>
+{% else %}
+<div class="wr-empty"><div class="wr-empty-icon">🎙️</div><div class="wr-empty-text">[ PURCHASE MOCK INTERVIEW AI OR INTERVIEW NINJA FOR AUTO-GENERATED GUIDES ]</div></div>
+{% endif %}
+
+<div class="wr-section">COVER LETTER LIBRARY</div>
+{% if cover_rows %}
+<div class="wr-grid">
+{% for cv in cover_rows %}
+    <div class="wr-card">
+        <div class="wr-card-head"><span class="wr-company">{{ cv.company }}</span><span class="wr-role">{{ cv.job_title }}</span><span class="wr-status {{ cv.status_cls }}">{{ cv.status }}</span></div>
+        <div class="wr-card-body terminal cover-preview" style="display:{{ 'block' if cv.has_preview else 'none' }};max-height:160px;overflow:hidden;">{{ cv.html[:800] if cv.html else '' }}</div>
+        <button class="wr-btn-copy" onclick="copyHtml(this)"><span class="copy-icon">📋</span> COPY HTML</button>
+    </div>
+{% endfor %}
+</div>
+{% else %}
+<div class="wr-empty"><div class="wr-empty-icon">✉️</div><div class="wr-empty-text">[ NO COVER LETTERS — CAMPAIGN MUST BE RUNNING OR COMPLETED ]</div></div>
+{% endif %}
+
+<div class="wr-section">NEXT ACTIONS</div>
+{% for act in actions %}
+<div class="action-item action-{{ act.sev }}">
+    <span class="action-badge action-badge-{{ act.sev }}">{{ act.label }}</span>{{ act.text }}
+</div>
+{% endfor %}
+
+<a href="/campaign/{{ campaign_id }}" style="margin-top:20px;display:inline-block;padding:10px 20px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#94a3b8;text-decoration:none;font-size:13px;font-weight:600;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background='rgba(255,255,255,.03)'">← BACK TO CAMPAIGN</a>
+</div>
+
+<script>
+function copyText(btn) {
+    var card = btn.closest('.wr-card');
+    var body = card ? card.querySelector('.wr-card-body') : null;
+    var text = body ? body.innerText : '';
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(function() {
+        btn.innerHTML = '<span class="copy-icon">✅</span> COPIED!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.innerHTML = '<span class="copy-icon">📋</span> COPY TO CLIPBOARD'; btn.classList.remove('copied'); }, 2000);
+    });
+}
+function copyHtml(btn) {
+    var card = btn.closest('.wr-card');
+    var body = card ? card.querySelector('.cover-preview') : null;
+    var text = body ? body.innerHTML : '';
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(function() {
+        btn.innerHTML = '<span class="copy-icon">✅</span> COPIED!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.innerHTML = '<span class="copy-icon">📋</span> COPY HTML'; btn.classList.remove('copied'); }, 2000);
+    });
+}
+</script>

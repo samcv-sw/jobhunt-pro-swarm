@@ -1,0 +1,98 @@
+# JobHunt Pro - Pod Disruption Budgets & Resource Quotas
+# Ensures high availability during cluster maintenance
+
+---
+# ─── PodDisruptionBudget: Web ───────────────────────────────
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: jobhunt-web-pdb
+  namespace: jobhunt-pro
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: jobhunt-web
+
+---
+# ─── PodDisruptionBudget: Swarm ─────────────────────────────
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: jobhunt-swarm-pdb
+  namespace: jobhunt-pro
+spec:
+  minAvailable: 3
+  selector:
+    matchLabels:
+      app: jobhunt-swarm
+
+---
+# ─── ResourceQuota ──────────────────────────────────────────
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: jobhunt-quota
+  namespace: jobhunt-pro
+spec:
+  hard:
+    requests.cpu: "40"
+    requests.memory: "80Gi"
+    limits.cpu: "80"
+    limits.memory: "160Gi"
+    pods: "100"
+    services: "20"
+    persistentvolumeclaims: "10"
+
+---
+# ─── LimitRange (Default Limits) ────────────────────────────
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: jobhunt-limits
+  namespace: jobhunt-pro
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: "500m"
+        memory: "512Mi"
+      defaultRequest:
+        cpu: "100m"
+        memory: "128Mi"
+      max:
+        cpu: "4"
+        memory: "8Gi"
+
+---
+# ─── ServiceAccount ─────────────────────────────────────────
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jobhunt-sa
+  namespace: jobhunt-pro
+
+---
+# ─── ClusterRole for metrics-server ─────────────────────────
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: jobhunt-metrics-reader
+rules:
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["pods", "nodes"]
+    verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: jobhunt-metrics-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jobhunt-metrics-reader
+subjects:
+  - kind: ServiceAccount
+    name: jobhunt-sa
+    namespace: jobhunt-pro

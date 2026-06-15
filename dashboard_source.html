@@ -1,0 +1,83 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Login to JobHunt Pro — your AI-powered automated job application platform. Manage campaigns, track applications, and land your dream job faster.">
+  <title>Login — JobHunt Pro</title>
+  <link rel="stylesheet" href="/static/css/cyberpunk.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+ <style>
+ * { margin: 0; padding: 0; box-sizing: border-box; }
+ body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+ .container { width: 100%; max-width: 400px; padding: 20px; }
+ .card { background: linear-gradient(135deg, rgba(30,30,50,0.8), rgba(20,20,35,0.8)); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; }
+ h1 { font-size: 28px; margin-bottom: 8px; text-align: center; }
+ .subtitle { color: #94a3b8; text-align: center; margin-bottom: 30px; }
+ .form-group { margin-bottom: 20px; }
+ label { display: block; font-size: 14px; color: #94a3b8; margin-bottom: 8px; }
+ input { width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 16px; transition: all 0.3s; }
+ input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+ .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+ .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4); }
+ .link { text-align: center; margin-top: 20px; color: #94a3b8; }
+ .link a { color: #3b82f6; text-decoration: none; }
+ .error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; }
+ /* Subtle form animation */
+ @keyframes fadeInUp {
+ from { opacity: 0; transform: translateY(24px); }
+ to { opacity: 1; transform: translateY(0); }
+ }
+ .card.animate { animation: fadeInUp 0.5s ease-out; }
+ .card.animate form { animation: fadeInUp 0.5s ease-out 0.15s both; }
+ /* Mobile Responsive */
+ @media (max-width: 600px) {
+ .card { padding: 20px; margin: 10px; }
+ h1 { font-size: 22px; }
+ input { padding: 12px; }
+ }
+ 
+.headroom{min-height:60px;background:rgba(10,10,15,.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px;margin-bottom:20px}
+.headroom .brand{font-size:18px;font-weight:800;color:#3b82f6;letter-spacing:-.5px}
+.headroom nav{display:flex;gap:18px}
+.headroom nav a{font-size:13px;color:#64748b;font-weight:500;padding:6px 0;border-bottom:2px solid transparent;text-decoration:none}
+.headroom nav a:hover{border-color:#3b82f6;color:#e2e8f0}
+</style>
+<script src="/static/js/i18n.js"></script><style>.lang-ar .text-left{text-align:right!important}.lang-ar .text-right{text-align:left!important}.lang-ar .float-left{float:right!important}.lang-ar .float-right{float:left!important}.lang-ar .mr-auto{margin-left:auto!important;margin-right:0!important}.lang-ar .ml-auto{margin-right:auto!important;margin-left:0!important}</style></head>
+<body class="cyberpunk-body">
+  <header class="headroom">
+    <a href="/" class="brand" style="font-size:18px;font-weight:800;color:#3b82f6;letter-spacing:-.5px;text-decoration:none;">🚀 JobHunt Pro</a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/services">Services</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/blog">Blog</a>
+      <a href="/contact">Contact</a>
+      <a href="/login" style="color:#60a5fa;border-color:#60a5fa">Login</a>
+      <a href="/register" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;padding:6px 16px;border-radius:8px;font-weight:600">Get Started Free</a>
+    </nav>
+  </header>/div&gt;
+
+ <div class="container">
+ <div class="card animate">
+ <h1>Welcome Back</h1>
+ <p class="subtitle">Login to manage your campaigns</p>
+ 
+ <form method="POST" action="/login">
+ <div class="form-group">
+ <label>Email</label>
+ <input type="email" name="email" placeholder="john@example.com" required="" style="">
+ </div>
+ <div class="form-group">
+ <label>Password</label>
+ <input type="password" name="password" placeholder="••••••••" required="" style="">
+ </div>
+ <div style="text-align: right; margin-bottom: 20px;">
+ <a href="/forgot-password" style="color: #3b82f6; text-decoration: none; font-size: 14px;">Forgot Password?</a>
+ </div>
+ <button type="submit" class="btn">Login</button>
+ </form>
+ <div class="link">Don't have an account? <a href="/register">Register</a></div>
+ </div>
+ </div>
+
+</body></html>

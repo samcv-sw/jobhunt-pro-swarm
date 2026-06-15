@@ -1,0 +1,35 @@
+name: Sam Job Hunt - MAXIMUM
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - run: mkdir -p assets
+      - run: echo "${{ secrets.CV_BASE64 }}" | base64 -d > assets/Sam_Salameh_CV.pdf
+      - run: |
+          cat > .env << EOF
+          CANDIDATE_EMAIL=${{ secrets.CANDIDATE_EMAIL }}
+          CANDIDATE_PHONE=${{ secrets.CANDIDATE_PHONE }}
+          CANDIDATE_ADDRESS=${{ secrets.CANDIDATE_ADDRESS }}
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
+          TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
+          BREVO_SMTP_LOGIN=${{ secrets.BREVO_SMTP_LOGIN }}
+          BREVO_SMTP_PASSWORD=${{ secrets.BREVO_SMTP_PASSWORD }}
+          GMAIL_SMTP_USER_1=${{ secrets.GMAIL_SMTP_USER_1 }}
+          GMAIL_APP_PASSWORD_1=${{ secrets.GMAIL_APP_PASSWORD_1 }}
+          EOF
+      - run: python run_once.py
+        env:
+          PYTHONUNBUFFERED: 1

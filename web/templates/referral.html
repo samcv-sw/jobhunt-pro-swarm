@@ -1,0 +1,195 @@
+<style>
+/* Referral Page — Clean & Professional v2 */
+.ref-stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:28px; }
+.ref-stat { background:rgba(15,15,20,.5); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:20px 16px; text-align:center; }
+.ref-stat .s-icon { font-size:24px; margin-bottom:6px; }
+.ref-stat .s-val { font-size:28px; font-weight:800; color:#fff; margin-bottom:2px; line-height:1.2; }
+.ref-stat .s-lbl { font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:.8px; font-weight:600; }
+
+.ref-link-card { background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(139,92,246,.1)); border:1px solid rgba(59,130,246,.2); border-radius:16px; padding:28px; margin-bottom:28px; }
+.ref-link-card h2 { font-size:18px; font-weight:700; color:#fff; margin:0 0 8px; }
+.ref-link-card .rl-sub { font-size:13px; color:#94a3b8; margin-bottom:18px; }
+.ref-link-row { display:flex; gap:12px; align-items:center; }
+.ref-link-input { flex:1; padding:14px 18px; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.12); border-radius:12px; color:#4ade80; font-family:monospace; font-size:14px; outline:none; cursor:pointer; }
+.ref-link-input:focus { border-color:rgba(59,130,246,.5); }
+.btn-ref { padding:14px 28px; border-radius:12px; font-weight:700; font-size:14px; cursor:pointer; border:none; transition:all .2s; white-space:nowrap; }
+.btn-ref-primary { background:linear-gradient(135deg,#3b82f6,#8b5cf6); color:#fff; }
+.btn-ref-primary:hover { filter:brightness(1.15); transform:translateY(-1px); }
+.btn-ref-wa { background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.25); color:#4ade80; }
+.btn-ref-wa:hover { background:rgba(34,197,94,.2); }
+.btn-ref-tw { background:rgba(56,189,248,.12); border:1px solid rgba(56,189,248,.25); color:#38bdf8; }
+.btn-ref-tw:hover { background:rgba(56,189,248,.2); }
+.share-row { display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+.ref-code-tag { display:inline-flex; align-items:center; gap:6px; background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.1); padding:6px 14px; border-radius:8px; font-size:12px; color:#94a3b8; }
+.ref-code-tag strong { color:#60a5fa; font-family:monospace; font-size:13px; }
+
+.how-row { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:28px; }
+.how-card { background:rgba(15,15,20,.5); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:24px 20px; text-align:center; }
+.how-num { width:36px; height:36px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:16px; font-weight:800; color:#fff; }
+.how-card h4 { font-size:15px; font-weight:700; color:#fff; margin:0 0 6px; }
+.how-card p { font-size:13px; color:#94a3b8; margin:0; line-height:1.5; }
+
+.tier-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px; }
+.tier-card { background:rgba(15,15,20,.5); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:22px 18px; text-align:center; transition:all .25s; }
+.tier-card:hover { transform:translateY(-2px); border-color:rgba(255,255,255,.12); }
+.tier-card.gold { border-color:rgba(251,191,36,.3); background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(251,191,36,.02)); }
+.tier-badge { font-size:10px; font-weight:800; letter-spacing:2px; color:#64748b; margin-bottom:10px; text-transform:uppercase; }
+.tier-icon { font-size:28px; margin-bottom:8px; }
+.tier-card h4 { font-size:15px; font-weight:700; color:#fff; margin:0 0 4px; }
+.tier-range { font-size:22px; font-weight:800; color:#e2e8f0; margin-bottom:2px; }
+.tier-label { font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:.5px; margin-bottom:12px; }
+.tier-perks { font-size:12px; color:#94a3b8; line-height:1.8; margin-bottom:14px; }
+.tier-status { padding:8px 14px; border-radius:8px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; display:inline-block; }
+.tier-status.current { background:rgba(59,130,246,.15); color:#60a5fa; border:1px solid rgba(59,130,246,.3); }
+.tier-status.locked { background:rgba(255,255,255,.03); color:#475569; border:1px solid rgba(255,255,255,.05); }
+.tier-status.unlocked { background:rgba(34,197,94,.1); color:#4ade80; border:1px solid rgba(34,197,94,.3); }
+
+.empty-block { text-align:center; padding:48px 20px; background:rgba(15,15,20,.5); border:1px dashed rgba(255,255,255,.08); border-radius:14px; margin-bottom:28px; }
+.empty-block .e-icon { font-size:40px; margin-bottom:12px; opacity:.7; }
+.empty-block p { font-size:14px; color:#64748b; margin:0; }
+
+.section-title { font-size:16px; font-weight:700; color:#e2e8f0; margin:0 0 16px; display:flex; align-items:center; gap:8px; }
+
+.copy-toast { position:fixed; bottom:-60px; left:50%; transform:translateX(-50%); background:#22c55e; color:#fff; padding:12px 28px; border-radius:30px; font-size:14px; font-weight:600; box-shadow:0 4px 20px rgba(34,197,94,.4); transition:all .3s; z-index:1000; opacity:0; pointer-events:none; }
+.copy-toast.show { bottom:28px; opacity:1; }
+
+@media(max-width:900px){ .ref-stats-row,.tier-grid{grid-template-columns:repeat(2,1fr)} .how-row{grid-template-columns:1fr} }
+@media(max-width:500px){ .ref-stats-row,.tier-grid{grid-template-columns:1fr} .ref-link-row{flex-direction:column} }
+</style>
+
+<!-- Toast -->
+<div id="copyToast" class="copy-toast">&#x2705; Link copied!</div>
+
+<!-- Stats Bar -->
+<div class="ref-stats-row">
+  <div class="ref-stat">
+    <div class="s-icon">&#x1F465;</div>
+    <div class="s-val">{{ referrals_count }}</div>
+    <div class="s-lbl">Total Referrals</div>
+  </div>
+  <div class="ref-stat">
+    <div class="s-icon">&#x1F4B0;</div>
+    <div class="s-val" style="color:#4ade80;">${{ "%.2f"|format(wallet_balance) }}</div>
+    <div class="s-lbl">Wallet Balance</div>
+  </div>
+  <div class="ref-stat">
+    <div class="s-icon">&#x2705;</div>
+    <div class="s-val" style="color:#60a5fa;">{{ completed }}</div>
+    <div class="s-lbl">Completed</div>
+  </div>
+  <div class="ref-stat">
+    <div class="s-icon">&#x1F3AF;</div>
+    <div class="s-val" style="color:#8b5cf6;">{{ "%.0f"|format(wallet_balance * 0.1) }}</div>
+    <div class="s-lbl">Est. Commission</div>
+  </div>
+</div>
+
+<!-- Your Referral Link -->
+<div class="ref-link-card">
+  <h2>&#x1F517; Your Referral Link</h2>
+  <p class="rl-sub">Share this link. When someone signs up and buys, you earn <strong style="color:#60a5fa;">10% commission</strong> — for life.</p>
+  <div class="ref-link-row">
+    <input class="ref-link-input" type="text" id="refLink" value="{{ referral_link }}" readonly onclick="this.select()" />
+    <button class="btn-ref btn-ref-primary" onclick="copyLink()">&#x1F4CB; Copy Link</button>
+  </div>
+  <div class="share-row">
+    <button class="btn-ref btn-ref-wa" onclick="window.open('{{ wa_url }}','_blank')">&#x1F4F1; WhatsApp</button>
+    <button class="btn-ref btn-ref-tw" onclick="window.open('{{ tw_url }}','_blank')">&#x1F426; X / Twitter</button>
+    <span class="ref-code-tag">Code: <strong>{{ ref_code }}</strong></span>
+  </div>
+</div>
+
+<!-- How It Works -->
+<div class="section-title">&#x1F4A1; How It Works</div>
+<div class="how-row">
+  <div class="how-card">
+    <div class="how-num">1</div>
+    <h4>Share Your Link</h4>
+    <p>Send it to friends, colleagues, or anyone job hunting</p>
+  </div>
+  <div class="how-card">
+    <div class="how-num">2</div>
+    <h4>They Sign Up &amp; Buy</h4>
+    <p>They register and purchase any service or campaign</p>
+  </div>
+  <div class="how-card">
+    <div class="how-num">3</div>
+    <h4>You Earn 10% Forever</h4>
+    <p>Lifetime commission on every purchase they make</p>
+  </div>
+</div>
+
+<!-- Referral Tiers -->
+<div class="section-title">&#x1F3C6; Referral Tiers</div>
+<div class="tier-grid">
+  {% set rcount = referrals_count %}
+  <div class="tier-card">
+    <div class="tier-badge">BRONZE</div>
+    <div class="tier-icon">&#x1F949;</div>
+    <h4>Bronze</h4>
+    <div class="tier-range" style="color:#cd7f32;">1–5</div>
+    <div class="tier-label">Referrals</div>
+    <div class="tier-perks">10% commission<br>Basic dashboard<br>Standard support</div>
+    <span class="tier-status {% if rcount < 5 %}current{% else %}unlocked{% endif %}">
+      {% if rcount < 5 %}Current{% else %}Unlocked{% endif %}
+    </span>
+  </div>
+  <div class="tier-card">
+    <div class="tier-badge">SILVER</div>
+    <div class="tier-icon">&#x1F948;</div>
+    <h4>Silver</h4>
+    <div class="tier-range" style="color:#c0c0c0;">5–15</div>
+    <div class="tier-label">Referrals</div>
+    <div class="tier-perks">12% commission<br>Priority support<br>Analytics access</div>
+    <span class="tier-status {% if rcount < 5 %}locked{% elif rcount < 15 %}current{% else %}unlocked{% endif %}">
+      {% if rcount < 5 %}Locked{% elif rcount < 15 %}Current{% else %}Unlocked{% endif %}
+    </span>
+  </div>
+  <div class="tier-card gold">
+    <div class="tier-badge">GOLD</div>
+    <div class="tier-icon">&#x1F947;</div>
+    <h4>Gold</h4>
+    <div class="tier-range">15–50</div>
+    <div class="tier-label">Referrals</div>
+    <div class="tier-perks">15% commission<br>Dedicated manager<br>Beta features<br>Monthly reports</div>
+    <span class="tier-status {% if rcount < 15 %}locked{% elif rcount < 50 %}current{% else %}unlocked{% endif %}">
+      {% if rcount < 15 %}Locked{% elif rcount < 50 %}Current{% else %}Unlocked{% endif %}
+    </span>
+  </div>
+  <div class="tier-card">
+    <div class="tier-badge">PLATINUM</div>
+    <div class="tier-icon">&#x1F48E;</div>
+    <h4>Platinum</h4>
+    <div class="tier-range" style="color:#e5e4e2;">50+</div>
+    <div class="tier-label">Referrals</div>
+    <div class="tier-perks">20% commission<br>Revenue share<br>Co-branding<br>VIP retreats</div>
+    <span class="tier-status {% if rcount < 50 %}locked{% else %}current{% endif %}">
+      {% if rcount < 50 %}Locked{% else %}Current{% endif %}
+    </span>
+  </div>
+</div>
+
+<!-- Recent Referrals -->
+<div class="section-title">&#x1F465; Recent Referrals</div>
+{% if referrals_count > 0 %}
+<div class="empty-block">
+  <div class="e-icon">&#x1F465;</div>
+  <p>{{ referrals_count }} referral(s) recorded. Full history coming soon.</p>
+</div>
+{% else %}
+<div class="empty-block">
+  <div class="e-icon">&#x1F517;</div>
+  <p>No referrals yet. Share your link above to start earning!</p>
+</div>
+{% endif %}
+
+<script>
+function copyLink(){
+  var t=document.getElementById('refLink');
+  t.select();t.setSelectionRange(0,99999);
+  navigator.clipboard.writeText(t.value);
+  var c=document.getElementById('copyToast');
+  c.classList.add('show');
+  setTimeout(function(){c.classList.remove('show');},2000);
+}
+</script>

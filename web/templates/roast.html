@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Roast My Resume - JobHunt Pro{% end block %}
+{% block content %}
+
+<div class="glass-panel" style="max-width: 600px; margin: 50px auto; text-align: center;">
+    <h1 style="color: var(--danger);">🔥 Roast My Resume</h1>
+    <p>Upload your PDF and let our brutally honest AI destroy your ego.</p>
+    
+    <div style="margin: 30px 0;">
+        <input type="file" id="resumeFile" accept="application/pdf" class="glass-input" style="margin-bottom: 20px;">
+        <button id="roastBtn" class="btn-primary" style="width: 100%; background: var(--danger);">Roast Me Now</button>
+    </div>
+    
+    <!-- Skeleton Loader -->
+    <div id="loader" style="display: none; margin: 20px 0;">
+        <div class="skeleton skeleton-text"></div>
+        <div class="skeleton skeleton-text"></div>
+        <div class="skeleton skeleton-text short"></div>
+    </div>
+
+    <!-- Results -->
+    <div id="resultBox" style="display: none; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; margin-top: 20px;">
+        <h2 style="font-size: 3rem; margin: 0; color: #f59e0b;" id="scoreText">0/100</h2>
+        <p id="roastText" style="font-size: 1.2rem; font-style: italic; margin: 20px 0;">...</p>
+        
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <a id="shareTwitter" href="#" target="_blank" class="btn-primary" style="background: #1DA1F2; text-decoration: none;">Share on X</a>
+        </div>
+        
+        <hr style="border-color: var(--glass-border); margin: 30px 0;">
+        <h4>Want to fix this garbage?</h4>
+        <a href="/register" class="btn-primary" style="text-decoration: none; display: block;">Automate Your Job Hunt for Free</a>
+    </div>
+</div>
+
+{% end block %}
+
+{% block scripts %}
+<script>
+document.getElementById('roastBtn').addEventListener('click', async () => {
+    const fileInput = document.getElementById('resumeFile');
+    if (!fileInput.files[0]) {
+        alert("Upload a PDF first!");
+        return;
+    }
+
+    document.getElementById('loader').style.display = 'block';
+    document.getElementById('resultBox').style.display = 'none';
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    try {
+        const response = await fetch("/api/roast", {
+            method: "POST",
+            body: formData
+        });
+        const data = await response.json();
+        
+        if (data.error) {
+            alert(data.error);
+        } else {
+            document.getElementById('scoreText').innerText = data.score + "/100";
+            document.getElementById('roastText').innerText = `"${data.roast}"`;
+            
+            const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(data.share_text)}`;
+            document.getElementById('shareTwitter').href = tweetUrl;
+            
+            document.getElementById('resultBox').style.display = 'block';
+        }
+    } catch (e) {
+        alert("Failed to connect to the roaster.");
+    } finally {
+        document.getElementById('loader').style.display = 'none';
+    }
+});
+</script>
+{% end block %}

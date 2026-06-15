@@ -1,0 +1,60 @@
+{
+  "manifest_version": 3,
+  "name": "JobHunt Pro - Auto Apply",
+  "version": "1.0.0",
+  "description": "One-click job application autofill. Fill forms instantly on LinkedIn, Indeed, Bayt, NaukriGulf & more.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "JobHunt Pro"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.linkedin.com/*",
+    "https://*.indeed.com/*",
+    "https://*.bayt.com/*",
+    "https://*.naukrigulf.com/*",
+    "https://*.naukri.com/*",
+    "https://*.glassdoor.com/*",
+    "https://*.monster.com/*",
+    "https://*.ziprecruiter.com/*",
+    "https://*.founditgulf.com/*",
+    "https://*.gulftalent.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.linkedin.com/*",
+        "https://*.indeed.com/*",
+        "https://*.bayt.com/*",
+        "https://*.naukrigulf.com/*",
+        "https://*.naukri.com/*",
+        "https://*.glassdoor.com/*",
+        "https://*.monster.com/*",
+        "https://*.ziprecruiter.com/*",
+        "https://*.founditgulf.com/*",
+        "https://*.gulftalent.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

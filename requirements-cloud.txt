@@ -1,0 +1,42 @@
+# ============================================
+# JobHunt Pro - Cloud Requirements
+# Pinned versions for reproducible builds
+# SQLite mode (no asyncpg/psycopg2 needed)
+# ============================================
+
+# Web framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# Templates & rendering
+jinja2==3.1.6
+
+# Database (SQLite only for cloud free tier)
+sqlalchemy==2.0.36
+aiosqlite==0.20.0
+greenlet==3.1.1
+
+# Auth & security
+bcrypt==4.2.1
+itsdangerous==2.2.0
+
+# HTTP clients
+httpx==0.28.1
+aiohttp==3.11.11
+
+# Search
+duckduckgo-search==7.5.3
+
+# Config
+python-dotenv==1.0.1
+
+# HTTP & scraping
+requests==2.32.3
+beautifulsoup4==4.12.3
+
+# PDF generation
+fpdf2==2.7.9
+
+# Telegram notifications (optional)
+python-telegram-bot==21.7

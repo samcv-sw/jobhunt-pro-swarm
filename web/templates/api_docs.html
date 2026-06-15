@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Documentation — JobHunt Pro</title>
+  <link rel="stylesheet" href="/static/css/cyberpunk.css">
+</head>
+<body class="cyberpunk-body">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#e2e8f0;min-height:100vh;}
+        .nav{display:flex;justify-content:space-between;align-items:center;padding:16px 40px;border-bottom:1px solid rgba(255,255,255,.05);}
+        .nav .logo{font-size:20px;font-weight:800;color:#00f0ff;letter-spacing:-0.5px;}
+        .nav .logo span{color:#ff0055;}
+        .nav-links{display:flex;gap:24px;}
+        .nav-links a{color:#71717a;text-decoration:none;font-size:13px;font-weight:500;transition:color .2s;}
+        .nav-links a:hover{color:#00f0ff;}
+        .nav-links a.btn{background:linear-gradient(135deg,#ff0055,#ff3377);color:#fff;padding:8px 20px;border-radius:8px;font-weight:600;}
+        .container{max-width:960px;margin:0 auto;padding:60px 20px 80px;}
+        h1{font-size:36px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,#00f0ff,#0066ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .subtitle{color:#64748b;font-size:14px;margin-bottom:16px;}
+        .api-key-section{background:linear-gradient(135deg,rgba(20,20,40,.95),rgba(15,15,30,.98));border:1px solid rgba(0,240,255,.15);border-radius:12px;padding:20px 24px;margin-bottom:32px;display:flex;align-items:center;gap:16px;}
+        .api-key-section .key-icon{font-size:28px;}
+        .api-key-section .key-info{flex:1;}
+        .api-key-section .key-info h3{font-size:14px;font-weight:600;color:#00f0ff;margin-bottom:4px;}
+        .api-key-section .key-info p{font-size:12px;color:#64748b;}
+        .api-key-section .key-code{background:rgba(0,0,0,.3);color:#a3e635;padding:8px 16px;border-radius:6px;font-family:"Courier New",monospace;font-size:12px;cursor:pointer;word-break:break-all;}
+        .endpoint{margin-bottom:10px;}
+        .endpoint-header{background:linear-gradient(135deg,rgba(20,20,40,.9),rgba(15,15,30,.95));border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s;}
+        .endpoint-header:hover{border-color:rgba(0,240,255,.1);}
+        .endpoint.open .endpoint-header{border-radius:10px 10px 0 0;border-bottom-color:transparent;}
+        .method{font-size:11px;font-weight:800;padding:4px 10px;border-radius:6px;min-width:56px;text-align:center;letter-spacing:.5px;font-family:"Courier New",monospace;}
+        .method.get{background:rgba(0,240,255,.12);color:#00f0ff;border:1px solid rgba(0,240,255,.2);}
+        .method.post{background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.2);}
+        .method.delete{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.2);}
+        .method.patch{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.2);}
+        .endpoint-path{font-family:"Courier New",monospace;font-size:14px;color:#e2e8f0;flex:1;}
+        .endpoint-desc{font-size:12px;color:#64748b;min-width:100px;text-align:right;}
+        .endpoint-body{background:rgba(10,10,18,.95);border:1px solid rgba(255,255,255,.04);border-top:none;border-radius:0 0 10px 10px;padding:20px;display:none;}
+        .endpoint.open .endpoint-body{display:block;}
+        .endpoint-body .desc{color:#94a3b8;font-size:13px;margin-bottom:16px;line-height:1.6;}
+        .endpoint-body h4{font-size:12px;font-weight:700;color:#00f0ff;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+        .param-table{width:100%;border-collapse:collapse;margin-bottom:16px;}
+        .param-table th{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px;text-align:left;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.05);}
+        .param-table td{font-size:12px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.03);color:#94a3b8;}
+        .param-table td code{background:rgba(0,240,255,.08);color:#00f0ff;padding:2px 6px;border-radius:3px;font-family:"Courier New",monospace;font-size:11px;}
+        .param-table td .required{color:#ff0055;font-size:9px;font-weight:700;text-transform:uppercase;}
+        .code-block{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:16px;overflow-x:auto;margin-bottom:16px;}
+        .code-block pre{font-family:"Courier New",monospace;font-size:12px;color:#a3e635;line-height:1.8;white-space:pre-wrap;word-break:break-word;}
+        .code-block .comment{color:#52525b;}
+        .code-block .key{color:#00f0ff;}
+        .code-block .str{color:#f59e0b;}
+        .response-block{background:rgba(0,0,0,.4);border:1px solid rgba(34,197,94,.1);border-radius:8px;padding:16px;margin-bottom:16px;}
+        .response-block pre{font-family:"Courier New",monospace;font-size:12px;color:#22c55e;line-height:1.8;white-space:pre-wrap;word-break:break-word;}
+        .footer{text-align:center;padding:32px;border-top:1px solid rgba(255,255,255,.05);color:#52525b;font-size:12px;}
+        .footer a{color:#64748b;text-decoration:none;margin:0 8px;}
+        .footer a:hover{color:#00f0ff;}
+        @media(max-width:768px){.nav{padding:12px 16px;}.nav-links{gap:12px;}.nav-links a{font-size:11px;}.container{padding:40px 16px 60px;}h1{font-size:26px;}.endpoint-header{flex-wrap:wrap;padding:12px 16px;}.endpoint-desc{min-width:100%;text-align:left;margin-top:4px;}.endpoint-path{font-size:12px;}}
+    </style>
+
+<nav class="nav">
+    <div class="logo">JobHunt<span>Pro</span></div>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/blog">Blog</a>
+        <a href="/login" class="btn">Get Started</a>
+    </div>
+</nav>
+<div class="container">
+    <h1>API Documentation</h1>
+    <p class="subtitle">Integrate JobHunt Pro into your workflow. All API requests require authentication via your API key.</p>
+
+    <div class="api-key-section">
+        <div class="key-icon">&#x1F511;</div>
+        <div class="key-info">
+            <h3>Your API Key</h3>
+            <p>Find your API key in the Wallet section of your dashboard. Include it in the <code style="background:rgba(0,240,255,.08);color:#00f0ff;padding:1px 6px;border-radius:3px;font-size:12px;">X-API-Key</code> header on all requests.</p>
+        </div>
+        <div class="key-code">X-API-Key: jhp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+    </div>
+
+    <h2 style="font-size:20px;font-weight:700;color:#00f0ff;margin-bottom:20px;">Endpoints</h2>
+
+    <!-- Health Check -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/api/v1/health</span>
+            <span class="endpoint-desc">Health Check</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="desc">Returns the current health status of the platform. No authentication required.</div>
+            <div class="response-block"><pre>{
+  "status": "healthy",
+  "timestamp": "2026-06-05T08:44:00Z"
+}</pre></div>
+        </div>
+    </div>
+
+    <!-- Profile -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/api/v1/profile</span>
+            <span class="endpoint-desc">Get Profile</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="desc">Retrieve your account profile including CV data, skills, and preferences.</div>
+            <h4>Headers</h4>
+            <table class="param-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td><code>X-API-Key</code></td><td>string</td><td><span class="required">required</span> Your API key</td></tr>
+            </table>
+            <div class="response-block"><pre>{
+  "user_id": "user_...",
+  "email": "...",
+  "name": "...",
+  "cv_profiles": [...]
+}</pre></div>
+        </div>
+    </div>
+
+    <!-- Campaigns -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/api/v1/campaigns</span>
+            <span class="endpoint-desc">List Campaigns</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="desc">Retrieve all your campaigns with status and statistics.</div>
+            <h4>Headers</h4>
+            <table class="param-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td><code>X-API-Key</code></td><td>string</td><td><span class="required">required</span> Your API key</td></tr>
+            </table>
+            <h4>Query Parameters</h4>
+            <table class="param-table">
+                <tr><th>Name</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                <tr><td><code>limit</code></td><td>integer</td><td>20</td><td>Max campaigns to return</td></tr>
+                <tr><td><code>status</code></td><td>string</td><td>&mdash;</td><td>Filter by status (pending, running, completed, failed)</td></tr>
+            </table>
+            <div class="response-block"><pre>{
+  "campaigns": [
+    {
+      "campaign_id": "camp_...",
+      "status": "completed",
+      "total_companies": 50,
+      "sent_count": 48,
+      "response_count": 3
+    }
+  ]
+}</pre></div>
+        </div>
+    </div>
+
+    <!-- Create Campaign -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/v1/campaigns</span>
+            <span class="endpoint-desc">Create Campaign</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="desc">Create and launch a new job application campaign.</div>
+            <h4>Headers</h4>
+            <table class="param-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td><code>X-API-Key</code></td><td>string</td><td><span class="required">required</span> Your API key</td></tr>
+                <tr><td><code>Content-Type</code></td><td>string</td><td><span class="required">required</span> application/json</td></tr>
+            </table>
+            <h4>Body Parameters</h4>
+            <table class="param-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td><code>profile_id</code></td><td>integer</td><td><span class="required">required</span> CV profile ID to use</td></tr>
+                <tr><td><code>query</code></td><td>string</td><td><span class="required">required</span> Job search query (e.g. "network engineer")</td></tr>
+                <tr><td><code>location</code></td><td>string</td><td>Target location (e.g. "Dubai, UAE")</td></tr>
+                <tr><td><code>company_count</code></td><td>integer</td><td><span class="required">required</span> Number of companies to target</td></tr>
+            </table>
+            <div class="code-block"><pre>curl -X POST https://jhfguf.pythonanywhere.com/api/v1/campaigns \
+  -H <span class="str">"X-API-Key: jhp_..."</span> \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{"profile_id": 1, "query": "network engineer", "location": "Dubai, UAE", "company_count": 50}'</span></pre></div>
+        </div>
+    </div>
+
+    <!-- Application Stats -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/api/v1/stats</span>
+            <span class="endpoint-desc">Application Stats</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="desc">Get aggregated statistics about your applications.</div>
+            <h4>Headers</h4>
+            <table class="param-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td><code>X-API-Key</code></td><td>string</td><td><span class="required">required</span> Your API key</td></tr>
+            </table>
+            <div class="response-block"><pre>{
+  "applied": 142,
+  "viewed": 48,
+  "responded": 12,
+  "interview": 4,
+  "offer": 1
+}</pre></div>
+        </div>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="endpoint">
+        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/api/v1/pipeline</span>
+            <span class="endpoint-desc">Pipeline Data</span>
+        </div>
+        <div class="endpoint-body">
+            <div class="desc">Get your application pipeline with stage breakdown.</div>
+            <h4>Headers</h4>
+            <table class="param-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td><code>X-API-Key</code></td><td>string</td><td><span class="required">required</span> Your API key</td></tr>
+            </table>
+            <div class="response-block"><pre>{
+  "pipeline": {
+    "discovered": 120,
+    "applied": 98,
+    "followed_up": 45,
+    "interview": 8,
+    "offer": 2
+  }
+}</pre></div>
+        </div>
+    </div>
+
+    <h2 style="font-size:20px;font-weight:700;color:#00f0ff;margin:40px 0 20px;">Error Codes</h2>
+    <table class="param-table" style="margin-bottom:40px;">
+        <tr><th>Code</th><th>Description</th></tr>
+        <tr><td>200</td><td>Success</td></tr>
+        <tr><td>400</td><td>Bad request &#8212; invalid parameters</td></tr>
+        <tr><td>401</td><td>Unauthorized &#8212; missing or invalid API key</td></tr>
+        <tr><td>404</td><td>Resource not found</td></tr>
+        <tr><td>429</td><td>Rate limited &#8212; too many requests</td></tr>
+        <tr><td>500</td><td>Internal server error</td></tr>
+    </table>
+</div>
+<footer class="footer">
+    <a href="/faq">FAQ</a> &middot; <a href="/terms">Terms</a> &middot; <a href="/privacy">Privacy</a> &middot; <a href="/blog">Blog</a> &middot; <a href="/contact">Contact</a>
+    <p style="margin-top:12px;">&copy; 2026 JobHunt Pro. All rights reserved.</p>
+</footer>
+<script>
+function toggleEndpoint(el){var ep=el.parentElement;ep.classList.toggle('open');}
+</script>
+
+</body>
+</html>
