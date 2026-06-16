@@ -1,12 +1,36 @@
 services:
   - type: web
-    name: jobhunt-swarm-worker
-    env: docker
-    region: frankfurt
+    name: jobhunt-pro
+    env: python
+    repo: https://github.com/samcv-sw/jobhunt-pro-swarm
+    branch: main
+    buildCommand: |
+      pip install -r requirements.txt
+    startCommand: |
+      uvicorn web.app_v2:app --host 0.0.0.0 --port 10000
+    healthCheckPath: /
     envVars:
-      - key: WHATSAPP_ACCESS_TOKEN
-        sync: false # Set this in the Render Dashboard
-      - key: WHATSAPP_PHONE_ID
-        sync: false # Set this in the Render Dashboard
+      - key: SUPABASE_MODE
+        value: "1"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SECRET_KEY
+        sync: false
       - key: GROQ_API_KEY
-        sync: false # Set this in the Render Dashboard
+        sync: false
+      - key: JSEARCH_API_KEY
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_ACCOUNT_EMAIL
+        value: samsalameh.cv@gmail.com
+      - key: CRON_SECRET
+        value: jobhunt-cron-secret-2026
+      - key: ADMIN_EMAIL
+        value: samatou683@gmail.com
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: SUPABASE_URL
+        value: https://zfvzqutgpdbsievsclhn.supabase.co
