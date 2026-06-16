@@ -22,7 +22,7 @@ COPY . .
 ENV CHROME_BIN=/usr/bin/chromium
 ENV DISPLAY=:99
 
-# Health server on 9999 (internal), uvicorn web app on 10000 (Render default)
-# swarm_master runs as background daemon
+# Uvicorn web app ONLY (test: no swarm_master to isolate issue)
+# Health server runs on 9999 (HEALTH_PORT) for Render health check
 EXPOSE 10000
-CMD ["sh", "-c", "Xvfb :99 -screen 0 1280x1024x24 & python -m core.swarm_master & sleep 2 && python -m uvicorn web.app_v2:app --host 0.0.0.0 --port 10000"]
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1280x1024x24 & sleep 2 && python -m uvicorn web.app_v2:app --host 0.0.0.0 --port 10000"]
