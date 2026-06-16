@@ -535,6 +535,11 @@ async def health_check():
     """Immortality Endpoint: UptimeRobot pings this every 10 mins to keep Render free tier awake 24/7."""
     return {"status": "immortal", "timestamp": datetime.now(timezone.utc).isoformat()}
 
+@app.get("/")
+async def root_ping():
+    """Root endpoint for UptimeRobot if they forget /healthz"""
+    return {"status": "online", "system": "jobhunt-swarm"}
+
 @app.get("/.well-known/security.txt")
 @app.get("/security.txt")
 async def security_txt():
