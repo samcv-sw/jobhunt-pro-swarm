@@ -4,16 +4,24 @@ services:
     env: python
     repo: https://github.com/samcv-sw/jobhunt-pro-swarm
     branch: main
-    buildCommand: |
-      pip install -r requirements.txt
-    startCommand: |
-      uvicorn web.app_v2:app --host 0.0.0.0 --port 10000
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn web.app_v2:app --host 0.0.0.0 --port 10000
     healthCheckPath: /
     envVars:
       - key: SUPABASE_MODE
         value: "1"
       - key: SUPABASE_URL
-        sync: false
+        value: https://zfvzqutgpdbsievsclhn.supabase.co
+      - key: BREVO_ACCOUNT_EMAIL
+        value: samsalameh.cv@gmail.com
+      - key: CRON_SECRET
+        value: jobhunt-cron-secret-2026
+      - key: ADMIN_EMAIL
+        value: samatou683@gmail.com
+      - key: PYTHONUNBUFFERED
+        value: "1"
       - key: SUPABASE_SERVICE_KEY
         sync: false
       - key: SECRET_KEY
@@ -24,13 +32,31 @@ services:
         sync: false
       - key: BREVO_API_KEY
         sync: false
-      - key: BREVO_ACCOUNT_EMAIL
-        value: samsalameh.cv@gmail.com
-      - key: CRON_SECRET
-        value: jobhunt-cron-secret-2026
-      - key: ADMIN_EMAIL
-        value: samatou683@gmail.com
-      - key: PYTHONUNBUFFERED
-        value: "1"
-      - key: SUPABASE_URL
-        value: https://zfvzqutgpdbsievsclhn.supabase.co
+      - key: GMAIL1_USER
+        sync: false
+      - key: GMAIL1_PASS
+        sync: false
+      - key: GMAIL2_USER
+        sync: false
+      - key: GMAIL2_PASS
+        sync: false
+      - key: GMAIL3_USER
+        sync: false
+      - key: GMAIL3_PASS
+        sync: false
+      - key: GMAIL4_USER
+        sync: false
+      - key: GMAIL4_PASS
+        sync: false
+      - key: GMAIL5_USER
+        sync: false
+      - key: GMAIL5_PASS
+        sync: false
+      - key: GMAIL6_USER
+        sync: false
+      - key: GMAIL6_PASS
+        sync: false
+      - key: GMAIL7_USER
+        sync: false
+      - key: GMAIL7_PASS
+        sync: false
