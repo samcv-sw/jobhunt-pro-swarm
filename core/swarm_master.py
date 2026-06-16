@@ -860,3 +860,23 @@ class SwarmMaster:
             await self.email_pool.disconnect_all()
 
         logger.info("Swarm shut down complete")
+
+async def main():
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+    master = SwarmMaster()
+    await master.initialize()
+    logger.info("Swarm Master initialized. Starting continuous execution loop...")
+    while True:
+        try:
+            await master.full_job_cycle()
+            logger.info("Cycle complete. Sleeping for 30 minutes before next cycle...")
+            await asyncio.sleep(60 * 30)
+        except Exception as e:
+            logger.error(f"Error in main loop: {e}")
+            await asyncio.sleep(60)
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Swarm master stopped by user.")
