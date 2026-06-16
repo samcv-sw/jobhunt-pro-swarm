@@ -753,13 +753,41 @@
     </div>
   </div>
 
+  <!-- ═══ VIRAL REFERRAL LOOP ═══ -->
+  <div class="card" style="background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(147,51,234,.02)); border-color:rgba(168,85,247,.2);">
+    <div class="card-title" style="color:#c084fc;">&#x1F31F; Viral Referral Program</div>
+    <p style="color:#94a3b8; font-size:14px; margin-bottom:15px;">Refer friends and get <strong>$5 bonus</strong> per referral! They get $2. Build your Swarm Empire.</p>
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px; background:rgba(0,0,0,0.3); padding:10px; border-radius:6px; border:1px solid rgba(168,85,247,.1);">
+      <input type="text" readonly value="https://jhfguf.pythonanywhere.com/register?ref={{ user.user_id }}" style="flex:1; background:transparent; border:none; color:#e2e8f0; font-family:monospace; outline:none;" id="refLink">
+      <button onclick="navigator.clipboard.writeText(document.getElementById('refLink').value); alert('Referral link copied!');" class="btn btn-outline btn-sm">Copy</button>
+    </div>
+    <div class="pipe-bar">
+      <div class="pipe-seg" style="flex:{{ referrals or 0 }}; background:rgba(168,85,247,0.5);" title="Referred">Referred ({{ referrals or 0 }})</div>
+      <div class="pipe-seg" style="flex:{{ 3 - (referrals or 0) if (referrals or 0) < 3 else 0 }}; background:rgba(255,255,255,0.05);" title="Remaining">Goal: 3</div>
+    </div>
+  </div>
+
+  <!-- ═══ ATS STEALTH VISUALIZER ═══ -->
+  <div class="card">
+    <div class="card-title" style="color:#4ade80;">&#x1F52C; ATS Match Engine Visualizer</div>
+    <p style="color:#94a3b8; font-size:14px; margin-bottom:15px;">We automatically tailor your resume to bypass ATS filters. See your live match scores.</p>
+    <div class="stats-grid">
+      <div class="stat-box" style="border-color:rgba(74,222,128,0.2);"><div class="stat-num scramble-text" style="color:#4ade80;">94%</div><div class="stat-lbl">Avg Match Rate</div></div>
+      <div class="stat-box" style="border-color:rgba(96,165,250,0.2);"><div class="stat-num scramble-text" style="color:#60a5fa;">12</div><div class="stat-lbl">Keywords Injected</div></div>
+      <div class="stat-box" style="border-color:rgba(250,204,21,0.2);"><div class="stat-num scramble-text" style="color:#facc15;">0</div><div class="stat-lbl">Detected by ATS</div></div>
+    </div>
+    <div style="margin-top:15px; text-align:center;">
+        <a href="/ats-scorer" class="btn btn-outline btn-sm" style="width:100%;">View Live Tailor Analysis</a>
+    </div>
+  </div>
+
   <!-- ═══ MINI STATS ═══ -->
   <div class="mini-stats">
-    <div class="stat-box"><div class="stat-num" style="color:#60a5fa;">{{ campaigns|length }}</div><div class="stat-lbl">Campaigns</div></div>
-    <div class="stat-box"><div class="stat-num" style="color:#4ade80;">${{ "%.2f"|format(user.total_spent or 0) }}</div><div class="stat-lbl">Total Spent</div></div>
-    <div class="stat-box"><div class="stat-num" style="color:#c084fc;">{{ profiles|length }}</div><div class="stat-lbl">CV Profiles</div></div>
-    <div class="stat-box"><div class="stat-num" style="color:#fbbf24;">{{ referrals or 0 }}</div><div class="stat-lbl">Referrals</div></div>
-    <div class="stat-box"><div class="stat-num" style="color:#f472b6;">{{ (user.user_type or 'free')|title }}</div><div class="stat-lbl">Tier</div></div>
+    <div class="stat-box"><div class="stat-num scramble-text" style="color:#60a5fa;">{{ campaigns|length }}</div><div class="stat-lbl">Campaigns</div></div>
+    <div class="stat-box"><div class="stat-num scramble-text" style="color:#4ade80;">${{ "%.2f"|format(user.total_spent or 0) }}</div><div class="stat-lbl">Total Spent</div></div>
+    <div class="stat-box"><div class="stat-num scramble-text" style="color:#c084fc;">{{ profiles|length }}</div><div class="stat-lbl">CV Profiles</div></div>
+    <div class="stat-box"><div class="stat-num scramble-text" style="color:#fbbf24;">{{ referrals or 0 }}</div><div class="stat-lbl">Referrals</div></div>
+    <div class="stat-box"><div class="stat-num scramble-text" style="color:#f472b6;">{{ (user.user_type or 'free')|title }}</div><div class="stat-lbl">Tier</div></div>
   </div>
 
   <!-- ═══ JOB PIPELINE ═══ -->

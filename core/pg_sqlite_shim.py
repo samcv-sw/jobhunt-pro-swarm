@@ -1,7 +1,9 @@
 import psycopg2
+from psycopg2 import pool
 from psycopg2.extras import DictCursor
 import os
 import logging
+import sqlite3 as real_sqlite3
 import sqlite3 as real_sqlite3
 
 logger = logging.getLogger(__name__)
@@ -11,6 +13,9 @@ NEON_URI = os.getenv("NEON_URL", "postgresql://neondb_owner:npg_yXkT42fDuPUc@ep-
 # Track which backend is active
 BACKEND = None  # "pg" or "sqlite"
 FALLBACK_DB_PATH = None
+
+# Global Connection Pool
+PG_POOL = None
 
 class OperationalError(Exception):
     pass
@@ -79,12 +84,17 @@ class PgCursorWrapper:
 
 class PgConnectionWrapper:
     def __init__(self):
+        global PG_POOL, BACKEND
+        if PG_POOL is None:
+            try:
+                PG_POOL = pool.ThreadedConnectionPool(1, 20, NEON_URI, cursor_factory=DictCursor, connect_timeout=5)
+            except psycopg2.OperationalError as e:
+                raise OperationalError(e)
+        
         try:
-            self.conn = psycopg2.connect(NEON_URI, cursor_factory=DictCursor, connect_timeout=5)
+            self.conn = PG_POOL.getconn()
             self.conn.autocommit = True
-            global BACKEND
             BACKEND = "pg"
-            logger.info("[DB] Connected to Neon PostgreSQL")
         except psycopg2.OperationalError as e:
             raise OperationalError(e)
             
@@ -105,7 +115,10 @@ class PgConnectionWrapper:
         self.conn.rollback()
         
     def close(self):
-        self.conn.close()
+        global PG_POOL
+        if PG_POOL and self.conn:
+            PG_POOL.putconn(self.conn)
+            self.conn = None
         
     def __enter__(self):
         return self
