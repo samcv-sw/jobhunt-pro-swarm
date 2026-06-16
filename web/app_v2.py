@@ -12,7 +12,10 @@ import uuid
 import bcrypt
 import hashlib
 import hmac
-import core.pg_sqlite_shim as sqlite3
+if os.getenv("SUPABASE_MODE"):
+    import core.supabase_rest_shim as sqlite3
+else:
+    import core.pg_sqlite_shim as sqlite3
 import asyncio
 import sys
 if sys.platform != 'win32':

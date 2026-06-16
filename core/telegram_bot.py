@@ -1188,17 +1188,23 @@ class TelegramBot:
             if len(self._progress_messages) > 5000:
                 self._progress_messages.clear()
             if progress_id not in self._progress_messages:
-                display = f"\u23f3 {message}"
+                G = chr(0x1f7e9)
+                W = chr(0x2b1c)
+                H = chr(0x23f3)
+                display = f"{H} {message}"
                 if percent is not None:
                     blocks = int(percent / 10)
-                    display = f"{'\U0001f7e9' * blocks}{'\u2b1c' * (10 - blocks)} {percent}%\n\u23f3 {message}"
+                    display = f"{G * blocks}{W * (10 - blocks)} {percent}%\n{H} {message}"
                 await self.send(display, parse_mode="HTML")
                 self._progress_messages[progress_id] = {"text": message, "percent": percent}
             else:
-                display = f"\u23f3 {message}"
+                G = chr(0x1f7e9)
+                W = chr(0x2b1c)
+                H = chr(0x23f3)
+                display = f"{H} {message}"
                 if percent is not None:
                     blocks = int(percent / 10)
-                    display = f"{'\U0001f7e9' * blocks}{'\u2b1c' * (10 - blocks)} {percent}%\n\u23f3 {message}"
+                    display = f"{G * blocks}{W * (10 - blocks)} {percent}%\n{H} {message}"
                 await self.send(display, parse_mode="HTML")
                 self._progress_messages[progress_id] = {"text": message, "percent": percent}
         except Exception as e:

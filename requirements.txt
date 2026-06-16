@@ -24,3 +24,5 @@ edge-tts>=6.1.10
 httpx>=0.25.0
 undetected-chromedriver>=3.5.3
 uvloop; sys_platform != 'win32'
+huggingface_hub
+markdown
