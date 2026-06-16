@@ -13,7 +13,7 @@ WORKDIR /app
 
 # Copy requirements and install
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --prefer-binary -r requirements.txt
 
 # Copy application code
 COPY . .
@@ -22,9 +22,5 @@ COPY . .
 ENV CHROME_BIN=/usr/bin/chromium
 ENV DISPLAY=:99
 
-# Make start script executable
-COPY start.sh .
-RUN chmod +x start.sh
-
-# Start the application
-CMD ["./start.sh"]
+# Start the application with Xvfb
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1280x1024x24 & sleep 2 && python core/swarm_master.py"]
