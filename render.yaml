@@ -1,9 +1,8 @@
 services:
-  - type: worker
+  - type: web
     name: jobhunt-swarm-worker
     env: docker
     region: frankfurt
-    plan: free # Runs on Render's Free Tier
     envVars:
       - key: WHATSAPP_ACCESS_TOKEN
         sync: false # Set this in the Render Dashboard

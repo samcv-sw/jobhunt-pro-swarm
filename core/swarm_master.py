@@ -20,6 +20,8 @@ import random
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timedelta
 
+import time
+from core.health_server import run_in_background
 import config
 from core.agent_pool import AgentPool, AgentType, AGENT_DISTRIBUTION
 from enum import Enum
@@ -134,6 +136,9 @@ class SwarmMaster:
         logger.info(f"  Target: {config.CANDIDATE_NAME}")
         logger.info(f"  Title: {config.CANDIDATE_TITLE}")
         logger.info("=" * 60)
+
+        # Start background health server
+        run_in_background()
 
         # Store reference to existing orchestrator if provided
         self._orchestrator = orchestrator
@@ -686,7 +691,9 @@ class SwarmMaster:
 
             # 1. Dispatch $0 WhatsApp Outreach (The Free God-Tier Hack)
             try:
-                from core.zero_cost_whatsapp import whatsapp_automator
+                logger.info("Initializing Zero-Cost WhatsApp Automator...")
+                from core.zero_cost_whatsapp import ZeroCostWhatsAppAutomator
+                whatsapp_automator = ZeroCostWhatsAppAutomator()
                 wa_result = await whatsapp_automator.send_whatsapp_message(
                     phone_number=phone_number,
                     company=company,
