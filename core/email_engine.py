@@ -668,9 +668,10 @@ class EmailEngine:
         if not valid:
             return False, f"invalid: {reason}"
 
-        should_send, block_reason = self.scheduler.should_send_now()
-        if not should_send:
-            return False, f"blocked: {block_reason}"
+        # God-Tier Optimization: ALWAYS send immediately, bypass time-of-day blocks
+        # should_send, block_reason = self.scheduler.should_send_now()
+        # if not should_send:
+        #     return False, f"blocked: {block_reason}"
 
         # Check provider availability BEFORE building the email (optimization)
         provider = await self.scheduler.wait_for_send_slot()

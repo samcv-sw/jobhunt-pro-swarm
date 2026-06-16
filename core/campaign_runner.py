@@ -202,7 +202,8 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
                 try:
                     from core.ai_tailor import AITailor
                     ai_tailor = AITailor()
-                    cover_html = ai_tailor.write_cover_letter(user_details.get("cv_text", ""), f"{title} at {company}", company_intel)
+                    # tailor_cover_letter is async, must await
+                    cover_html = await ai_tailor.tailor_cover_letter(company, f"{title} at {company}", company_intel)
                     # Convert plain text to simple HTML
                     cover_html = "".join([f"<p>{p}</p>" for p in cover_html.split("\n\n") if p.strip()])
                 except Exception as e:
