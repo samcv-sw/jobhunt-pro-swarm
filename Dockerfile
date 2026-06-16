@@ -22,5 +22,5 @@ COPY . .
 ENV CHROME_BIN=/usr/bin/chromium
 ENV DISPLAY=:99
 
-# Start the application with Xvfb
-CMD ["sh", "-c", "Xvfb :99 -screen 0 1280x1024x24 & sleep 2 && python -m core.swarm_master"]
+# Start the web application with Xvfb (swarm_master runs in background)
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1280x1024x24 & python -m core.swarm_master & sleep 2 && python -m uvicorn web.app_v2:app --host 0.0.0.0 --port 10000"]
