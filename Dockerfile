@@ -23,4 +23,4 @@ ENV CHROME_BIN=/usr/bin/chromium
 ENV DISPLAY=:99
 
 # Start the application with Xvfb
-CMD ["sh", "-c", "Xvfb :99 -screen 0 1280x1024x24 & sleep 2 && python core/swarm_master.py"]
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1280x1024x24 & sleep 2 && python -m core.swarm_master"]
