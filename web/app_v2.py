@@ -1934,6 +1934,11 @@ def stats_page(request: Request):
         pipeline=pipeline, statuses=statuses)
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "&#x1F4CA; Stats", "stats"))
 
+from fastapi.responses import FileResponse
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return FileResponse(static_dir / "favicon.png")
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
