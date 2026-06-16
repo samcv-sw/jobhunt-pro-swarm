@@ -1,0 +1,21 @@
+name: PA Auto-Renew Monthly
+on:
+  schedule:
+    # Run on the 1st of every month at 10:00 UTC
+    - cron: '0 10 1 * *'
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  autorenew:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Extend PythonAnywhere account
+        env:
+          PA_USERNAME: jhfguf
+          PA_PASSWORD: ${{ secrets.PA_PASSWORD }}
+        run: |
+          python .github/pa_autorenew.py
