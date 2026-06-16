@@ -69,3 +69,17 @@ class RedisDistributor:
             if result:
                 return json.loads(result)
         return {"status": "pending"}
+
+    async def cache_knowledge_graph(self, graph_data: Dict[str, Any]):
+        """Caches the Job Market Knowledge Graph in Redis for ultra-fast lookup."""
+        if self._connected and self.redis_client:
+            await self.redis_client.set("knowledge_graph_cache", json.dumps(graph_data), ex=3600)
+            logger.debug("Knowledge Graph cached in Redis.")
+
+    async def get_cached_knowledge_graph(self) -> Dict[str, Any]:
+        """Retrieves the cached Knowledge Graph from Redis."""
+        if self._connected and self.redis_client:
+            data = await self.redis_client.get("knowledge_graph_cache")
+            if data:
+                return json.loads(data)
+        return None

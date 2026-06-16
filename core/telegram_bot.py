@@ -73,7 +73,8 @@ logger = logging.getLogger(__name__)
 # ── Reply Keyboard (50 bilingual buttons, 2 per row) ─────────────────
 
 REPLY_KEYBOARD = [
-
+    # Telegram Mini-App Dashboard
+    [{"text": "🚀 Open Web Dashboard | لوحة القيادة", "web_app": {"url": "https://jobhunt-pro-engine.onrender.com/"}}],
     # Monitoring
 
     ["🖥️ Status | الحالة", "📊 Stats | الإحصائيات"],

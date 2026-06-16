@@ -19,8 +19,7 @@ import json
 import logging
 from typing import Dict, List, Tuple, Optional
 from collections import Counter
-from difflib import SequenceMatcher
-
+from rapidfuzz import fuzz
 logger = logging.getLogger(__name__)
 
 # ── Config ──────────────────────────────────────────────────────────────────
@@ -194,7 +193,7 @@ class ATSMatcher:
                 for rk in resume_kw:
                     # Substring check (fast)
                     if kw in rk or rk in kw:
-                        ratio = SequenceMatcher(None, kw, rk).ratio()
+                        ratio = fuzz.ratio(kw, rk) / 100.0
                         if ratio > best_ratio:
                             best_ratio = ratio
                             best_rk = rk

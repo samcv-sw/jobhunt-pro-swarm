@@ -310,12 +310,33 @@ async def _campaign_self_tick_loop():
         try:
             await asyncio.sleep(60)  # check every 60 seconds
             _now = _t.time()
-            _conn = get_db()
+            def _db_tick():
+                _conn = get_db()
+                _pending_res = _conn.execute(
+                    "SELECT campaign_id FROM campaigns WHERE status='pending' AND created_at <= datetime('now', '-2 minutes')"
+                ).fetchall()
+                
+                _zombie_res = _conn.execute("""
+                    SELECT c.campaign_id FROM campaigns c
+                    WHERE c.status='running'
+                    AND c.started_at < datetime('now', '-10 minutes')
+                    AND (SELECT COUNT(*) FROM campaign_emails e WHERE e.campaign_id = c.campaign_id) = 0
+                """).fetchall()
+                for _row in _zombie_res:
+                    _conn.execute("UPDATE campaigns SET status='pending', started_at=NULL WHERE campaign_id=?", (_row["campaign_id"],))
+                
+                _stuck_res = _conn.execute(
+                    "SELECT campaign_id FROM campaigns WHERE status='running' AND started_at IS NOT NULL AND datetime(started_at, '+24 hours') < datetime('now')"
+                ).fetchall()
+                for _row in _stuck_res:
+                    _conn.execute("UPDATE campaigns SET status='failed', completed_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (_row["campaign_id"],))
+                
+                _conn.commit()
+                _conn.close()
+                return _pending_res, _zombie_res, _stuck_res
+                
+            _pending, _zombie, _stuck = await asyncio.to_thread(_db_tick)
             
-            # 1. Start pending campaigns as ASYNCIO TASKS (no threads!)
-            _pending = _conn.execute(
-                "SELECT campaign_id FROM campaigns WHERE status='pending' AND created_at <= datetime('now', '-2 minutes')"
-            ).fetchall()
             for _row in _pending:
                 cid = _row["campaign_id"]
                 if cid in _running_tasks and not _running_tasks[cid].done():
@@ -323,35 +344,12 @@ async def _campaign_self_tick_loop():
                 logger.info(f"[CLOUD-TICK] Starting campaign {cid} (asyncio task)")
                 task = asyncio.create_task(_run_campaign(cid, get_db, config))
                 _running_tasks[cid] = task
-                # Clean up when done
                 task.add_done_callback(lambda _t, c=cid: _running_tasks.pop(c, None) if c in _running_tasks else None)
             
-            # 1b. Clean up completed tasks
             _done = [c for c, t in list(_running_tasks.items()) if t.done()]
             for cid in _done:
                 _running_tasks.pop(cid, None)
-            
-            # 2. Reset stuck campaigns (>24h or zombie with 0 emails)
-            _zombie = _conn.execute("""
-                SELECT c.campaign_id FROM campaigns c
-                WHERE c.status='running'
-                AND c.started_at < datetime('now', '-10 minutes')
-                AND (SELECT COUNT(*) FROM campaign_emails e WHERE e.campaign_id = c.campaign_id) = 0
-            """).fetchall()
-            for _row in _zombie:
-                cid = _row["campaign_id"]
-                _conn.execute("UPDATE campaigns SET status='pending', started_at=NULL WHERE campaign_id=?", (cid,))
-                logger.info(f"[CLOUD-TICK] Zombie reset: {cid}")
-            
-            _stuck = _conn.execute(
-                "SELECT campaign_id FROM campaigns WHERE status='running' AND started_at IS NOT NULL AND datetime(started_at, '+24 hours') < datetime('now')"
-            ).fetchall()
-            for _row in _stuck:
-                cid = _row["campaign_id"]
-                _conn.execute("UPDATE campaigns SET status='failed', completed_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (cid,))
-            
-            _conn.commit()
-            _conn.close()
+
             
             if _pending or _stuck or _zombie:
                 logger.info(f"[CLOUD-TICK] Started: {len(_pending)}, Zombie: {len(_zombie)}, Reset: {len(_stuck)}")

@@ -190,6 +190,7 @@ class AgentPool:
         self._rate_limit_semaphores: Dict[AgentType, asyncio.Semaphore] = {}
         self._rate_limit_intervals: Dict[AgentType, float] = {}
         self._tasks: List[asyncio.Task] = []
+        self._background_tasks = set()
         self._health_task: Optional[asyncio.Task] = None
         self._global_semaphore = asyncio.Semaphore(200)
 
@@ -254,11 +255,15 @@ class AgentPool:
         if not sem.locked():
             await sem.acquire()
             # Release after interval
-            asyncio.create_task(self._release_after(agent_type, sem))
+            task = asyncio.create_task(self._release_after(agent_type, sem))
+            self._background_tasks.add(task)
+            task.add_done_callback(self._background_tasks.discard)
         else:
             logger.debug(f"Rate limit hit for {agent_type.value}, waiting...")
             await asyncio.wait_for(sem.acquire(), timeout=timeout)
-            asyncio.create_task(self._release_after(agent_type, sem))
+            task = asyncio.create_task(self._release_after(agent_type, sem))
+            self._background_tasks.add(task)
+            task.add_done_callback(self._background_tasks.discard)
 
         async with self._global_semaphore:
             agent = self.get_agent(agent_type)
