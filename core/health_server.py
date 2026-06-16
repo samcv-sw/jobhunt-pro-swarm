@@ -16,7 +16,7 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
         pass # Suppress logs
 
 def start_health_server():
-    port = int(os.environ.get("PORT", 10000))
+    port = int(os.environ.get("HEALTH_PORT", 9999))
     server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
     print(f"Health check server running on port {port}")
     server.serve_forever()
