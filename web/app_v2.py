@@ -528,13 +528,13 @@ except Exception as e:
 # ----------------------------------------
 
 @app.get("/healthz")
-async def health_check():
+def health_check():
     """Immortality Endpoint: UptimeRobot pings this every 10 mins to keep Render free tier awake 24/7."""
     return {"status": "immortal", "timestamp": datetime.now(timezone.utc).isoformat()}
 
 @app.get("/.well-known/security.txt")
 @app.get("/security.txt")
-async def security_txt():
+def security_txt():
     """Security.txt — White-hat standard for vulnerability disclosure (RFC 9116)."""
     site = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
     txt = f"""Contact: mailto:samatou683@gmail.com
@@ -550,7 +550,7 @@ Canonical: {site}/.well-known/security.txt
     return Response(content=txt, media_type="text/plain")
 
 @app.get("/api/hotmail/stats")
-async def hotmail_stats():
+def hotmail_stats():
     """Return Hotmail OAuth2 pool stats."""
     try:
         from core.hotmail_pool import get_stats, init as hp_init
@@ -569,7 +569,7 @@ async def hotmail_stats():
 
 
 @app.get("/api/ban-shield/status")
-async def ban_shield_status():
+def ban_shield_status():
     """Zero-Risk BanShield dashboard - real-time safety metrics."""
     try:
         from core.ban_shield import get_safe_send_window, get_all_provider_stats, get_multi_provider_cap
@@ -1505,7 +1505,7 @@ def is_honeypot_target(path: str, client_ip: str) -> bool:
 
 
 @app.post("/deploy")
-async def deploy_from_github(request: Request, key: str = Query("")):
+def deploy_from_github(request: Request, key: str = Query("")):
     """Deploy endpoint: pulls latest code from GitHub and reloads the app.
     Usage: POST /deploy?key=YOUR_SECRET_KEY
     SECURITY: POST-only, rate-limited to 1/minute, IP-whitelist via DEPLOY_ALLOWED_IPS."""
@@ -1554,13 +1554,13 @@ async def deploy_from_github(request: Request, key: str = Query("")):
 @app.post("/api/v1/health")
 @app.head("/health")
 @app.head("/api/v1/health")
-async def health_check():
+def health_check():
     """Minimal health check — no version/uptime/db leaks for security."""
     return {"status": "healthy"}
 
 
 @app.get("/api/v1/email-health")
-async def email_health_check():
+def email_health_check():
     """Minimal email health — no provider details leaked."""
     import os
     healthy = bool(os.getenv("BREVO_API_KEY", "") or (os.getenv("BREVO_SMTP_USER", "") and os.getenv("BREVO_SMTP_PASS", "")) or (os.getenv("GMAIL_SMTP_USER_1", "") and os.getenv("GMAIL_APP_PASSWORD_1", "")))
@@ -1586,21 +1586,21 @@ async def api_followup_trigger(request: Request):
 
 
 @app.get("/api/v1/followup/stats/{campaign_id}", response_class=JSONResponse)
-async def api_followup_stats(campaign_id: str):
+def api_followup_stats(campaign_id: str):
     """Get follow-up statistics for a campaign."""
     result = followup_automation.get_followup_stats(campaign_id)
     return JSONResponse(result)
 
 
 @app.post("/api/v1/followup/schedule", response_class=JSONResponse)
-async def api_followup_schedule():
+def api_followup_schedule():
     """Manually trigger follow-up scheduling for all active campaigns."""
     result = followup_automation.schedule_followups()
     return JSONResponse(result)
 
 
 @app.get("/dashboard", response_class=HTMLResponse)
-async def dashboard_redirect(request: Request):
+def dashboard_redirect(request: Request):
     """Redirect /dashboard to user dashboard if logged in, else to login."""
     user_id = get_verified_user_id(request)
     if user_id:
@@ -1610,7 +1610,7 @@ async def dashboard_redirect(request: Request):
 
 
 @app.get("/api/dashboard/stats")
-async def dashboard_stats():
+def dashboard_stats():
     """API endpoint for dashboard real-time stats."""
     from core.smart_scheduler import SmartScheduler
     sched = SmartScheduler()
@@ -1626,7 +1626,7 @@ async def dashboard_stats():
 
 
 @app.get("/api/dashboard/activity")
-async def dashboard_activity():
+def dashboard_activity():
     """API endpoint for recent activity."""
     return {
         "activity": [],
@@ -1636,7 +1636,7 @@ async def dashboard_activity():
 
 # === DASHBOARD STATS JSON ENDPOINT ===
 @app.get("/dashboard/stats")
-async def dashboard_stats_json(request: Request):
+def dashboard_stats_json(request: Request):
     """JSON endpoint: jobs applied, by country, by status, email stats."""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -1711,7 +1711,7 @@ async def dashboard_stats_json(request: Request):
 
 # === EXPORT CSV ENDPOINT ===
 @app.get("/export/applications")
-async def export_applications_csv(
+def export_applications_csv(
     request: Request,
     date_from: str = "",
     date_to: str = "",
@@ -1791,7 +1791,7 @@ async def export_applications_csv(
 PIPELINE_STAGES = ["discovered", "applied", "followed_up", "interview", "offer"]
 
 @app.get("/api/pipeline/emails")
-async def pipeline_emails_api(request: Request):
+def pipeline_emails_api(request: Request):
     """Get user's applications with pipeline stages."""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -1811,7 +1811,7 @@ async def pipeline_emails_api(request: Request):
 
 
 @app.post("/api/pipeline/advance/{email_id}")
-async def pipeline_advance(request: Request, email_id: int):
+def pipeline_advance(request: Request, email_id: int):
     """Advance an application to the next pipeline stage."""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -1841,7 +1841,7 @@ async def pipeline_advance(request: Request, email_id: int):
 
 
 @app.get("/api/pipeline/counts")
-async def pipeline_counts(request: Request):
+def pipeline_counts(request: Request):
     """Get pipeline stage counts for the user."""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -1861,7 +1861,7 @@ async def pipeline_counts(request: Request):
 
 # === STATS PAGE ===
 @app.get("/debug-db")
-async def debug_db():
+def debug_db():
     try:
         with Database.get_db() as conn:
             orders_info = [r[1] for r in conn.execute("PRAGMA table_info(orders)").fetchall()]
@@ -1872,7 +1872,7 @@ async def debug_db():
         return {"error": str(e)}
 
 @app.get("/stats", response_class=HTMLResponse)
-async def stats_page(request: Request):
+def stats_page(request: Request):
     """Stats dashboard with analytics overview."""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -1936,7 +1936,7 @@ async def stats_page(request: Request):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
+def home(request: Request):
     try:
         conn = get_db()
         now = datetime.now()
@@ -2003,7 +2003,7 @@ async def home(request: Request):
     })
 
 @app.get("/pricing_v2", response_class=HTMLResponse)
-async def pricing_v2_redirect(request: Request):
+def pricing_v2_redirect(request: Request):
     return RedirectResponse("/pricing", status_code=301)
 
 def _build_pricing_inline(pricing_data, flash_discount, flash_sale_info):
@@ -2452,7 +2452,7 @@ if ('serviceWorker' in navigator) {{
     return shell
 
 @app.get("/pricing", response_class=HTMLResponse)
-async def pricing(request: Request):
+def pricing(request: Request):
     """Pricing page &#x2014; accessible without login. Shows all plans + flash sales."""
     pricing_data = get_all_pricing()
     # Check for active flash sales
@@ -2497,12 +2497,12 @@ async def pricing(request: Request):
     return response
 
 @app.get("/faq", response_class=HTMLResponse)
-async def faq_page(request: Request):
+def faq_page(request: Request):
     """FAQ page"""
     return templates.TemplateResponse("faq.html", {"request": request})
 
 @app.get("/blog", response_class=HTMLResponse)
-async def blog_page(request: Request):
+def blog_page(request: Request):
     """Blog listing page — powered by SEO Blog Farm."""
     from core.seo_blog_farm import get_posts, get_stats
     posts = get_posts(published_only=True, limit=20)
@@ -2515,7 +2515,7 @@ async def blog_page(request: Request):
     })
 
 @app.get("/blog/{slug}", response_class=HTMLResponse)
-async def blog_post_page(request: Request, slug: str):
+def blog_post_page(request: Request, slug: str):
     """Single blog post page."""
     from core.seo_blog_farm import get_post
     post = get_post(slug)
@@ -2531,12 +2531,12 @@ async def blog_post_page(request: Request, slug: str):
     })
 
 @app.get("/privacy", response_class=HTMLResponse)
-async def privacy_page(request: Request):
+def privacy_page(request: Request):
     """Privacy Policy page"""
     return templates.TemplateResponse("privacy.html", {"request": request})
 
 @app.get("/trust", response_class=HTMLResponse)
-async def trust_page(request: Request):
+def trust_page(request: Request):
     """Trust & Transparency page — security, privacy, guarantees."""
     return templates.TemplateResponse(request, "trust.html", {
         "request": request,
@@ -2544,7 +2544,7 @@ async def trust_page(request: Request):
     })
 
 @app.get("/war-room", response_class=HTMLResponse)
-async def war_room_redirect(request: Request):
+def war_room_redirect(request: Request):
     """Redirect /war-room to the campaign list or login."""
     user_id = get_verified_user_id(request)
     if user_id:
@@ -2552,23 +2552,23 @@ async def war_room_redirect(request: Request):
     return RedirectResponse("/login", status_code=302)
 
 @app.get("/compare", response_class=HTMLResponse)
-async def compare_page(request: Request):
+def compare_page(request: Request):
     """Competitor comparison page — SEO gold for alternative searches."""
     return templates.TemplateResponse("compare.html", {"request": request, "VERSION": config.VERSION})
 
 @app.get("/chrome-extension", response_class=HTMLResponse)
-async def chrome_extension_page(request: Request):
+def chrome_extension_page(request: Request):
     """Chrome extension landing page."""
     return templates.TemplateResponse("chromeext.html", {"request": request, "VERSION": config.VERSION})
 
 
 @app.get("/terms", response_class=HTMLResponse)
-async def terms_page(request: Request):
+def terms_page(request: Request):
     """Terms of Service page"""
     return templates.TemplateResponse("terms.html", {"request": request})
 
 @app.get("/refund", response_class=HTMLResponse)
-async def refund_page(request: Request):
+def refund_page(request: Request):
     """Refund Policy page"""
     html = _public_shell("""
     <div class="max-w-800" style="padding: 40px 20px;">
@@ -2609,7 +2609,7 @@ async def refund_page(request: Request):
     return HTMLResponse(html)
 
 @app.get("/cookies", response_class=HTMLResponse)
-async def cookies_page(request: Request):
+def cookies_page(request: Request):
     """Cookie Policy page"""
     html = _public_shell("""
     <div class="max-w-800" style="padding: 40px 20px;">
@@ -2656,7 +2656,7 @@ async def cookies_page(request: Request):
     return HTMLResponse(html)
 
 @app.get("/careers", response_class=HTMLResponse)
-async def careers_page(request: Request):
+def careers_page(request: Request):
     """Careers page"""
     html = _public_shell("""
     <div class="max-w-800" style="padding: 40px 20px; text-align:center;">
@@ -2691,7 +2691,7 @@ async def careers_page(request: Request):
     return HTMLResponse(html)
 
 @app.get("/sitemap.xml")
-async def sitemap():
+def sitemap():
     site = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     xml = f'''<?xml version="1.0" encoding="UTF-8"?>
@@ -2714,7 +2714,7 @@ async def sitemap():
     return Response(content=xml, media_type="application/xml")
 
 @app.get("/robots.txt")
-async def robots():
+def robots():
     site = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
     txt = f"""User-agent: *
 Allow: /
@@ -2736,12 +2736,12 @@ Sitemap: {site}/sitemap.xml"""
     return PlainTextResponse(txt)
 
 @app.get("/track-application", response_class=HTMLResponse)
-async def track_application_page(request: Request):
+def track_application_page(request: Request):
     """Track application by tracking code"""
     return templates.TemplateResponse("track_application.html", {"request": request})
 
 @app.get("/contact", response_class=HTMLResponse)
-async def contact_page(request: Request):
+def contact_page(request: Request):
     msg = request.query_params.get("msg", "")
     error = request.query_params.get("error", "")
     user_name = ""
@@ -2762,7 +2762,7 @@ async def contact_page(request: Request):
     return HTMLResponse(_public_shell(content, "Contact &mdash; JobHunt Pro"))
 
 @app.post("/contact")
-async def contact_submit(request: Request, name: str = Form(...), email: str = Form(...), message: str = Form(...), subject: str = Form(""), rating: str = Form("")):
+def contact_submit(request: Request, name: str = Form(...), email: str = Form(...), message: str = Form(...), subject: str = Form(""), rating: str = Form("")):
     """Handle contact form submissions from both guests and authenticated users."""
     client_ip = request.client.host if request.client else "unknown"
     if not _check_rate_limit(_contact_attempts, client_ip, max_count=3):
@@ -2785,7 +2785,7 @@ async def contact_submit(request: Request, name: str = Form(...), email: str = F
     return RedirectResponse(f"/contact?msg={quote('Message sent! Thank you for your feedback. We read every message.')}", status_code=303)
 
 @app.get("/export", response_class=HTMLResponse)
-async def export_page(request: Request):
+def export_page(request: Request):
     """Export page with date/status filter UI before downloading."""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -2798,7 +2798,7 @@ async def export_page(request: Request):
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Export", "export"))
 
 @app.get("/register", response_class=HTMLResponse)
-async def register_page(request: Request, ref: str = ""):
+def register_page(request: Request, ref: str = ""):
     return templates.TemplateResponse(request, "register.html", {"ref": ref, "VERSION": config.VERSION})
 
 @app.post("/register")
@@ -2989,12 +2989,12 @@ def _check_login_rate_limit(ip: str) -> bool:
     return _check_rate_limit(_login_attempts, ip, max_count=10)
 
 @app.get("/login", response_class=HTMLResponse)
-async def login_page(request: Request, plan: str = ""):
+def login_page(request: Request, plan: str = ""):
     selected_plan = plan or request.cookies.get("last_selected_plan", "starter")
     return templates.TemplateResponse(request, "login.html", {"selected_plan": selected_plan})
 
 @app.post("/login")
-async def login(request: Request, email: str = Form(...), password: str = Form(...)):
+def login(request: Request, email: str = Form(...), password: str = Form(...)):
     # Rate limiting check
     client_ip = request.client.host if request.client else "unknown"
     if not _check_login_rate_limit(client_ip):
@@ -3050,11 +3050,11 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
     return response
 
 @app.get("/forgot-password", response_class=HTMLResponse)
-async def forgot_password_page(request: Request):
+def forgot_password_page(request: Request):
     return templates.TemplateResponse(request, "forgot_password.html")
 
 @app.post("/forgot-password")
-async def forgot_password(request: Request, email: str = Form(...)):
+def forgot_password(request: Request, email: str = Form(...)):
     client_ip = request.client.host if request.client else "unknown"
     if not _check_rate_limit(_forgot_attempts, client_ip, max_count=5):
         return templates.TemplateResponse(request, "forgot_password.html", {"error": "Too many attempts. Try again in 1 hour."})
@@ -3168,7 +3168,7 @@ If you didn't request this, ignore this email.
 
 
 @app.get("/reset-password", response_class=HTMLResponse)
-async def reset_password_page(request: Request, token: str = ""):
+def reset_password_page(request: Request, token: str = ""):
     if not token:
         return RedirectResponse("/forgot-password", status_code=303)
     try:
@@ -3178,7 +3178,7 @@ async def reset_password_page(request: Request, token: str = ""):
         return templates.TemplateResponse(request, "forgot_password.html", {"error": "Invalid or expired token"})
 
 @app.post("/reset-password")
-async def reset_password(request: Request, token: str = Form(...), password: str = Form(...)):
+def reset_password(request: Request, token: str = Form(...), password: str = Form(...)):
     try:
         data = session_serializer.loads(token, max_age=3600)  # 1 hour expiry
         user_id = data["user_id"]
@@ -3191,7 +3191,7 @@ async def reset_password(request: Request, token: str = Form(...), password: str
         return templates.TemplateResponse(request, "forgot_password.html", {"error": "Invalid or expired token"})
 
 @app.get("/user-dashboard", response_class=HTMLResponse)
-async def user_dashboard(request: Request):
+def user_dashboard(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -3370,7 +3370,7 @@ async def user_dashboard(request: Request):
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Dashboard", "dashboard"))
 
 @app.get("/new-campaign", response_class=HTMLResponse)
-async def new_campaign_page(request: Request):
+def new_campaign_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -3392,7 +3392,7 @@ async def new_campaign_page(request: Request):
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "New Campaign", "new-campaign"))
 
 @app.post("/create-campaign")
-async def create_campaign(request: Request, profile_id: int = Form(...),
+def create_campaign(request: Request, profile_id: int = Form(...),
                           company_count: int = Form(0), bouquet: str = Form(""), bouquet_names: str = Form("")):
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -3487,7 +3487,7 @@ async def create_campaign(request: Request, profile_id: int = Form(...),
     return RedirectResponse(f"/campaign/{campaign_id}?queued=1", status_code=303)
 
 @app.get("/campaign/{campaign_id}", response_class=HTMLResponse)
-async def campaign_detail(request: Request, campaign_id: str):
+def campaign_detail(request: Request, campaign_id: str):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -3509,7 +3509,7 @@ async def campaign_detail(request: Request, campaign_id: str):
     })
 
 @app.get("/campaign/{campaign_id}/war-room", response_class=HTMLResponse)
-async def campaign_war_room(request: Request, campaign_id: str):
+def campaign_war_room(request: Request, campaign_id: str):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -3610,7 +3610,7 @@ async def campaign_war_room(request: Request, campaign_id: str):
     return HTMLResponse(_build_dashboard_shell(user_dict, user_id, content, "⚔️ War Room", "war-room"))
 
 @app.get("/battle-station", response_class=HTMLResponse)
-async def battle_station_page(request: Request):
+def battle_station_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -3644,7 +3644,7 @@ async def battle_station_page(request: Request):
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "&#x2694;&#xFE0F; Battle Station", "battle-station"))
 
 @app.get("/wallet", response_class=HTMLResponse)
-async def wallet_page(request: Request):
+def wallet_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -3673,7 +3673,7 @@ async def wallet_page(request: Request):
 
 
 @app.post("/wallet/regenerate-key")
-async def wallet_regenerate_key(request: Request):
+def wallet_regenerate_key(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -3768,7 +3768,7 @@ async def wallet_create_topup(request: Request):
 
 
 @app.get("/services", response_class=HTMLResponse)
-async def services_page(request: Request):
+def services_page(request: Request):
     # Show success flash to authenticated users
     success_msg = ""
     user_id = get_verified_user_id(request)
@@ -3785,7 +3785,7 @@ async def services_page(request: Request):
     return HTMLResponse(_public_shell(content, "Services &mdash; JobHunt Pro"))
 
 @app.post("/services/purchase")
-async def purchase_service(request: Request, package_id: str = Form(...), service_type: str = Form(...)):
+def purchase_service(request: Request, package_id: str = Form(...), service_type: str = Form(...)):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -3904,7 +3904,7 @@ async def purchase_services_bulk(request: Request):
     return RedirectResponse(f"/services?success=purchased&package={quote(names_str)}", status_code=303)
 
 @app.get("/redeem", response_class=HTMLResponse)
-async def redeem_page(request: Request):
+def redeem_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -3913,7 +3913,7 @@ async def redeem_page(request: Request):
 
 
 @app.get("/about", response_class=HTMLResponse)
-async def about_page(request: Request):
+def about_page(request: Request):
     from fastapi.responses import RedirectResponse
     return RedirectResponse("/", status_code=301)
 
@@ -3948,7 +3948,7 @@ async def api_generate_redeem_code(request: Request):
 
 
 @app.post("/redeem")
-async def redeem_code(request: Request, code: str = Form(...)):
+def redeem_code(request: Request, code: str = Form(...)):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -3996,7 +3996,7 @@ async def redeem_code(request: Request, code: str = Form(...)):
     return RedirectResponse(f"/wallet?success={urllib.parse.quote(msg)}", status_code=303)
 
 @app.post("/wallet/deposit/create")
-async def wallet_deposit_create(request: Request, amount: float = Form(...), currency: str = Form("USDT")):
+def wallet_deposit_create(request: Request, amount: float = Form(...), currency: str = Form("USDT")):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -4046,7 +4046,7 @@ async def wallet_deposit_create(request: Request, amount: float = Form(...), cur
     return RedirectResponse(f"/checkout/{order_id}", status_code=303)
 
 @app.get("/checkout/{order_id}", response_class=HTMLResponse)
-async def checkout_page(request: Request, order_id: str):
+def checkout_page(request: Request, order_id: str):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -4075,28 +4075,28 @@ async def checkout_page(request: Request, order_id: str):
         "currency": currency
     })
 @app.get("/services-v2")
-async def services_v2_redirect():
+def services_v2_redirect():
     from fastapi.responses import RedirectResponse
     return RedirectResponse(url="/services")
 
 @app.get("/premium")
-async def premium_redirect():
+def premium_redirect():
     """Redirect /premium to /services for consistent navigation."""
     from fastapi.responses import RedirectResponse
     return RedirectResponse(url="/services", status_code=303)
 
 @app.get("/checkout")
-async def checkout_redirect():
+def checkout_redirect():
     from fastapi.responses import RedirectResponse
     return RedirectResponse(url="/pricing")
 
 @app.get("/api/health")
-async def api_health_sanitized():
+def api_health_sanitized():
     """Sanitized health check — no version/platform leaks."""
     return {"status": "healthy"}
 
 @app.get("/api/pricing")
-async def api_pricing_public():
+def api_pricing_public():
     """Public pricing with real-time flash sale discounts."""
     from datetime import datetime as dt
     try:
@@ -4165,7 +4165,7 @@ async def api_pricing_public():
 
 
 @app.post("/checkout/{order_id}/pay-simulate")
-async def checkout_pay_simulate(request: Request, order_id: str):
+def checkout_pay_simulate(request: Request, order_id: str):
     """Pay-simulate: STRICTLY admin-only, never in production.
     Requires BOTH: (1) ALLOW_PAY_SIMULATE=true in .env AND (2) valid ADMIN_SECRET_KEY header.
     Never enabled by HYPER_TEST_MODE alone — that's for testing, not for free credits.
@@ -4206,7 +4206,7 @@ async def checkout_pay_simulate(request: Request, order_id: str):
     return RedirectResponse("/wallet?success=redeemed", status_code=303)
 
 @app.get("/api/v1/order/status/{order_id}")
-async def api_order_status(order_id: str):
+def api_order_status(order_id: str):
     conn = get_db()
     order = conn.execute("SELECT payment_status FROM orders WHERE order_id = ?", (order_id,)).fetchone()
     conn.close()
@@ -4281,7 +4281,7 @@ async def payment_webhook(request: Request):
     return {"status": "ignored"}
 
 @app.get("/api/v1/pricing")
-async def api_pricing():
+def api_pricing():
     """Return all pricing data as JSON for frontend API calls."""
     return {
         "success": True,
@@ -4293,7 +4293,7 @@ async def api_pricing():
 
 # â&#x201D;€â&#x201D;€ Upload CV / Profile â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 @app.get("/api/download-cv")
-async def download_cv_pdf(request: Request, name: str = "Candidate", style: str = "executive"):
+def download_cv_pdf(request: Request, name: str = "Candidate", style: str = "executive"):
     """Generate and return CV as PDF download."""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -4328,7 +4328,7 @@ async def download_cv_pdf(request: Request, name: str = "Candidate", style: str 
 
 
 @app.get("/upload-cv", response_class=HTMLResponse)
-async def upload_cv_page(request: Request):
+def upload_cv_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -4457,7 +4457,7 @@ async def upload_cv(
 
 # â&#x201D;€â&#x201D;€ Logout â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 @app.get("/logout")
-async def logout(request: Request):
+def logout(request: Request):
     response = RedirectResponse("/login", status_code=303)
     response.delete_cookie("user_id")
     return response
@@ -4466,7 +4466,7 @@ async def logout(request: Request):
 # â&#x201D;€â&#x201D;€ API Docs page â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 
 @app.get("/admin/analytics", response_class=HTMLResponse)
-async def admin_analytics(req: Request):
+def admin_analytics(req: Request):
     """Admin analytics dashboard &#x2014; revenue, users, campaigns, A/B testing."""
     try:
         db = get_db()
@@ -4612,17 +4612,17 @@ async def custom_404_handler(request: Request, exc):
     return HTMLResponse(html, status_code=404)
 
 @app.get("/api-docs")
-async def api_docs_dash_redirect():
+def api_docs_dash_redirect():
     """Redirect /api-docs (dash) to /api/docs (slash) for consistency."""
     return RedirectResponse(url="/api/docs", status_code=301)
 
 @app.get("/api/docs", response_class=HTMLResponse)
-async def api_docs_page(request: Request):
+def api_docs_page(request: Request):
     return templates.TemplateResponse(request, "api_docs.html")
 
 
 @app.get("/email-test", response_class=HTMLResponse)
-async def email_test_page(request: Request, success: str = "", error: str = "", to_email: str = "", company_name: str = "", job_title: str = ""):
+def email_test_page(request: Request, success: str = "", error: str = "", to_email: str = "", company_name: str = "", job_title: str = ""):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -4654,7 +4654,7 @@ async def email_test_page(request: Request, success: str = "", error: str = "", 
 
 
 @app.post("/email-test")
-async def email_test_send(request: Request, to_email: str = Form(...), company_name: str = Form("Test Company"), job_title: str = Form("Senior Network Engineer"), cv_text: str = Form(""), cover_letter: str = Form(""), email_body: str = Form("")):
+def email_test_send(request: Request, to_email: str = Form(...), company_name: str = Form("Test Company"), job_title: str = Form("Senior Network Engineer"), cv_text: str = Form(""), cover_letter: str = Form(""), email_body: str = Form("")):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -4839,21 +4839,21 @@ async def email_test_parse_cv(request: Request, cv_file: UploadFile = File(...))
 
 # === DAILY LOGIN REWARD API ===
 @app.get("/api/v1/daily-login")
-async def api_daily_login(user_id: str = ""):
+def api_daily_login(user_id: str = ""):
     if not user_id:
         raise HTTPException(status_code=400, detail="user_id required")
     result = claim_daily_login(user_id)
     return result
 
 @app.get("/api/v1/login-streak")
-async def api_login_streak(user_id: str = ""):
+def api_login_streak(user_id: str = ""):
     if not user_id:
         raise HTTPException(status_code=400, detail="user_id required")
     return get_login_streak(user_id)
 
 # === HONEYPOT ENDPOINT ===
 @app.get("/api/v1/honeypot/jobs")
-async def honeypot_jobs(request: Request):
+def honeypot_jobs(request: Request):
     """Honeypot endpoint &#x2014; serves fake job data to suspected scrapers."""
     client_ip = request.client.host if request.client else "unknown"
     fake_jobs = [_generate_fake_job() for _ in range(_random.randint(5, 20))]
@@ -4861,7 +4861,7 @@ async def honeypot_jobs(request: Request):
     return {"jobs": fake_jobs, "total": len(fake_jobs), "source": "api"}
 
 @app.post("/api/v1/campaign")
-async def api_create_campaign(api_key: str = Form(...), profile_cv: str = Form(...),
+def api_create_campaign(api_key: str = Form(...), profile_cv: str = Form(...),
                                company_count: int = Form(0), target_titles: str = Form(""),
                                target_locations: str = Form(""), bouquet: str = Form("")):
     conn = get_db()
@@ -4926,7 +4926,7 @@ async def api_create_campaign(api_key: str = Form(...), profile_cv: str = Form(.
     return {"campaign_id": campaign_id, "status": "pending", "companies": company_count, "price": total_price}
 
 @app.get("/api/v1/campaign/{campaign_id}")
-async def api_campaign_status(campaign_id: str, api_key: str = ""):
+def api_campaign_status(campaign_id: str, api_key: str = ""):
     if not api_key:
         raise HTTPException(status_code=400, detail="api_key required")
     conn = get_db()
@@ -4954,7 +4954,7 @@ async def api_campaign_status(campaign_id: str, api_key: str = ""):
     return {**campaign, **stats}
 
 @app.get("/referral", response_class=HTMLResponse)
-async def referral_page(request: Request):
+def referral_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=302)
@@ -4978,7 +4978,7 @@ async def referral_page(request: Request):
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Referrals", "referral"))
 
 @app.post("/api/campaign/retry/{campaign_id}")
-async def api_retry_campaign(request: Request, campaign_id: str):
+def api_retry_campaign(request: Request, campaign_id: str):
     """Retry a failed campaign."""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -5016,7 +5016,7 @@ def _verify_api_key(api_key: str):
     return dict(user) if user else None
 
 @app.get("/api/v1/me")
-async def api_me(api_key: str = ""):
+def api_me(api_key: str = ""):
     """Get current user profile, balance, and tier."""
     user = _verify_api_key(api_key)
     if not user:
@@ -5099,7 +5099,7 @@ async def api_deposit_create(api_key: str = Form(...), amount: float = Form(...)
     }
 
 @app.get("/api/v1/deposit/status/{order_id}")
-async def api_deposit_status(order_id: str, api_key: str = ""):
+def api_deposit_status(order_id: str, api_key: str = ""):
     """Check deposit payment status."""
     user = _verify_api_key(api_key)
     if not user:
@@ -5112,7 +5112,7 @@ async def api_deposit_status(order_id: str, api_key: str = ""):
     return {"order_id": order["order_id"], "status": order["payment_status"], "amount": order["amount_usd"]}
 
 @app.get("/api/v1/orders")
-async def api_orders(api_key: str = "", limit: int = 10):
+def api_orders(api_key: str = "", limit: int = 10):
     """List recent orders."""
     user = _verify_api_key(api_key)
     if not user:
@@ -5124,7 +5124,7 @@ async def api_orders(api_key: str = "", limit: int = 10):
     return [dict(r) for r in rows]
 
 @app.get("/api/v1/campaigns")
-async def api_campaigns(api_key: str = "", limit: int = 10):
+def api_campaigns(api_key: str = "", limit: int = 10):
     """List recent campaigns."""
     user = _verify_api_key(api_key)
     if not user:
@@ -5136,7 +5136,7 @@ async def api_campaigns(api_key: str = "", limit: int = 10):
     return [dict(r) for r in rows]
 
 @app.get("/api/v1/wallet/transactions")
-async def api_wallet_transactions(api_key: str = "", limit: int = 10):
+def api_wallet_transactions(api_key: str = "", limit: int = 10):
     """List wallet transactions."""
     user = _verify_api_key(api_key)
     if not user:
@@ -5148,7 +5148,7 @@ async def api_wallet_transactions(api_key: str = "", limit: int = 10):
     return [{"type": r["transaction_type"], "amount": r["amount"], "description": r["description"], "created_at": r["created_at"]} for r in rows]
 
 @app.get("/api/v1/stats")
-async def api_stats_v1(api_key: str = ""):
+def api_stats_v1(api_key: str = ""):
     """Get aggregated stats for current user."""
     user = _verify_api_key(api_key)
     if not user:
@@ -5173,7 +5173,7 @@ async def api_stats_v1(api_key: str = ""):
 # â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;
 
 @app.get("/sent-emails", response_class=HTMLResponse)
-async def sent_emails_page(request: Request):
+def sent_emails_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -6256,14 +6256,14 @@ This is not a template. This is not an exercise. This is {name}'s ACTUAL applica
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @app.get("/for-employers", response_class=HTMLResponse)
-async def for_employers_page(request: Request):
+def for_employers_page(request: Request):
     """Public page — companies post jobs without login."""
     content = render_template("for_employers.html", request=request, active_page="employers", user=None)
     return HTMLResponse(_public_shell(content, "For Employers &mdash; JobHunt Pro"))
 
 
 @app.post("/api/employer/post-job")
-async def api_employer_post_job(
+def api_employer_post_job(
     request: Request,
     company_name: str = Form(...),
     job_title: str = Form(...),
@@ -6431,7 +6431,7 @@ async def api_employer_post_job(
 
 
 @app.get("/api/employer/jobs")
-async def api_employer_list_jobs():
+def api_employer_list_jobs():
     """List all active posted jobs (public)."""
     try:
         conn = get_db()
@@ -6455,7 +6455,7 @@ async def api_employer_list_jobs():
 
 
 @app.get("/employer/track", response_class=HTMLResponse)
-async def employer_track_page(request: Request):
+def employer_track_page(request: Request):
     """Employer tracking page — enter email to see all posted jobs."""
     return templates.TemplateResponse("employer_track.html", {
         "request": request,
@@ -6465,7 +6465,7 @@ async def employer_track_page(request: Request):
 
 
 @app.get("/api/employer/dashboard")
-async def api_employer_dashboard(email: str = "", job_id: str = ""):
+def api_employer_dashboard(email: str = "", job_id: str = ""):
     """Get all jobs for an employer email, or a specific job."""
     if not email:
         return {"status": "error", "message": "Email is required."}
@@ -6506,7 +6506,7 @@ async def api_employer_dashboard(email: str = "", job_id: str = ""):
 
 
 @app.post("/api/jobs/apply/{job_id}")
-async def api_apply_to_job(
+def api_apply_to_job(
     job_id: str,
     applicant_name: str = Form(...),
     applicant_email: str = Form(...),
@@ -6623,7 +6623,7 @@ async def api_apply_to_job(
 
 
 @app.get("/api/employer/preferences")
-async def api_employer_get_prefs(email: str = ""):
+def api_employer_get_prefs(email: str = ""):
     """Get notification preferences for employer."""
     if not email:
         return {"status": "error", "message": "Email required."}
@@ -6641,7 +6641,7 @@ async def api_employer_get_prefs(email: str = ""):
 
 
 @app.post("/api/employer/preferences")
-async def api_employer_save_prefs(
+def api_employer_save_prefs(
     email: str = Form(...),
     notify_email: int = Form(0),
 ):
@@ -6690,7 +6690,7 @@ def require_admin(request: Request):
 
 
 @app.get("/admin", response_class=HTMLResponse)
-async def admin_panel(request: Request):
+def admin_panel(request: Request):
     """Admin dashboard &#x2014; full system overview."""
     if not require_admin(request):
         return RedirectResponse("/login", status_code=303)
@@ -6745,7 +6745,7 @@ async def admin_panel(request: Request):
 
 
 @app.post("/admin-reset-pw")
-async def admin_reset_pw(token: str = ""):
+def admin_reset_pw(token: str = ""):
     """Reset admin password via secret token. POST-only, uses ADMIN_PW_HASH env var."""
     if token != config.PA_API_TOKEN:
         return JSONResponse({"error": "invalid token"}, status_code=403)
@@ -6786,7 +6786,7 @@ async def admin_reset_pw(token: str = ""):
 
 
 @app.post("/admin/add-credits")
-async def admin_add_credits(
+def admin_add_credits(
     request: Request,
     target_email: str = Form(...),
     amount: float = Form(...),
@@ -6814,7 +6814,7 @@ async def admin_add_credits(
 
 
 @app.post("/admin/generate-code")
-async def admin_generate_code(
+def admin_generate_code(
     request: Request,
     value: float = Form(...),
     count: int = Form(1),
@@ -6843,7 +6843,7 @@ async def admin_generate_code(
 
 
 @app.post("/admin/toggle-user")
-async def admin_toggle_user(request: Request, target_user_id: str = Form(...)):
+def admin_toggle_user(request: Request, target_user_id: str = Form(...)):
     """Activate or deactivate a user."""
     if not require_admin(request):
         return RedirectResponse("/login", status_code=303)
@@ -6859,7 +6859,7 @@ async def admin_toggle_user(request: Request, target_user_id: str = Form(...)):
 
 
 @app.post("/admin/free-campaign")
-async def admin_free_campaign(
+def admin_free_campaign(
     request: Request,
     target_email: str = Form(...),
     company_count: int = Form(100),
@@ -6905,7 +6905,7 @@ async def admin_free_campaign(
 # â&#x201D;€â&#x201D;€ Flash Sale Admin Endpoints â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 
 @app.post("/admin/create-flash-sale")
-async def admin_create_flash_sale(
+def admin_create_flash_sale(
     request: Request,
     title: str = Form(...),
     discount_percent: float = Form(...),
@@ -6927,7 +6927,7 @@ async def admin_create_flash_sale(
 
 
 @app.post("/admin/end-flash-sale")
-async def admin_end_flash_sale(request: Request, sale_id: int = Form(...)):
+def admin_end_flash_sale(request: Request, sale_id: int = Form(...)):
     """End a flash sale immediately."""
     if not require_admin(request):
         return RedirectResponse("/login", status_code=303)
@@ -6941,7 +6941,7 @@ async def admin_end_flash_sale(request: Request, sale_id: int = Form(...)):
 # â&#x201D;€â&#x201D;€ Tiered Referral API â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 
 @app.get("/api/referral/tier")
-async def get_referral_tier(request: Request):
+def get_referral_tier(request: Request):
     """Get user's referral tier based on referral count."""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -6963,7 +6963,7 @@ async def get_referral_tier(request: Request):
 # â&#x201D;€â&#x201D;€ Social Proof API â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 
 @app.get("/api/social-proof")
-async def api_social_proof():
+def api_social_proof():
     """Return recent purchases for social proof popup."""
     conn = get_db()
     purchases = [dict(r) for r in conn.execute(
@@ -6979,7 +6979,7 @@ async def api_social_proof():
 # â&#x201D;€â&#x201D;€ Flash Sales List API â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 
 @app.get("/api/flash-sales")
-async def api_flash_sales():
+def api_flash_sales():
     """Return active flash sales with computed pricing."""
     from datetime import datetime as dt
     now = dt.now()
@@ -7028,7 +7028,7 @@ async def api_flash_sales():
 
 
 @app.post("/admin/send-manual-email")
-async def admin_send_manual_email(
+def admin_send_manual_email(
     request: Request,
     to_email: str = Form(...),
     subject: str = Form(...),
@@ -7085,7 +7085,7 @@ MANUAL_EMAIL_PRICE = 0.10  # $0.10 per manual email for users
 
 
 @app.post("/send-manual-email")
-async def send_manual_email(
+def send_manual_email(
     request: Request,
     to_email: str = Form(...),
     subject: str = Form(...),
@@ -7155,7 +7155,7 @@ async def send_manual_email(
 
 
 @app.get("/admin/user/{target_user_id}", response_class=HTMLResponse)
-async def admin_user_detail(request: Request, target_user_id: str):
+def admin_user_detail(request: Request, target_user_id: str):
     """Detailed view of a single user."""
     if not require_admin(request):
         return RedirectResponse("/login", status_code=303)
@@ -7189,7 +7189,7 @@ async def admin_user_detail(request: Request, target_user_id: str):
 # ============================================================
 
 @app.get("/api/stats")
-async def api_stats():
+def api_stats():
     """Returns aggregate stats from the applications database.
     Returns JSON with total_applications, today_applications, this_week_applications,
     by_country, by_status, total_companies, total_emails_sent."""
@@ -7260,7 +7260,7 @@ async def api_debug_test_email():
 
 
 @app.get("/export/jobs")
-async def export_jobs_csv():
+def export_jobs_csv():
     """Download all jobs as CSV with columns: company, title, location, status, email, date."""
     import csv
     import io
@@ -7295,7 +7295,7 @@ async def export_jobs_csv():
 
 
 @app.get("/api/pipeline")
-async def api_pipeline():
+def api_pipeline():
     """Returns JSON with counts per pipeline stage."""
     conn = get_db()
     pipeline_stages = ["discovered", "applied", "followed_up", "interview", "offer"]
@@ -7311,7 +7311,7 @@ async def api_pipeline():
 
 
 @app.get("/api/email-stats")
-async def api_email_stats():
+def api_email_stats():
     """Returns email stats: sent count, response rate, follow-ups."""
     conn = get_db()
     total_sent = conn.execute(
@@ -7338,7 +7338,7 @@ async def api_email_stats():
 # ============================================================
 
 @app.get("/cron/run-cycle")
-async def cron_run_cycle(request: Request, key: str = ""):
+def cron_run_cycle(request: Request, key: str = ""):
     """Cron webhook endpoint.
     Call from PA cron (via script) or external cron services.
     Protected by CRON_SECRET env var.
@@ -7377,7 +7377,7 @@ async def cron_run_cycle(request: Request, key: str = ""):
 # ============================================================
 
 @app.get("/api/v2/services")
-async def api_v2_services():
+def api_v2_services():
     """Return the complete service catalog (20 services + 5 bouquets)."""
     services = []
     for s in SERVICE_CATALOG:
@@ -7412,7 +7412,7 @@ async def api_v2_services():
 
 
 @app.get("/api/v2/services/grouped")
-async def api_v2_services_grouped():
+def api_v2_services_grouped():
     """Return services grouped by price tier."""
     micro = [s for s in SERVICE_CATALOG if s["price"] <= 5]
     standard = [s for s in SERVICE_CATALOG if 6 <= s["price"] <= 10]
@@ -7446,7 +7446,7 @@ fulfillment = ServiceFulfillment()
 
 
 @app.post("/api/v2/orders/create")
-async def api_v2_create_order(req: OrderCreateRequest, fastapi_req: Request):
+def api_v2_create_order(req: OrderCreateRequest, fastapi_req: Request):
     """Create a new order for a service or bouquet + generate crypto addresses."""
     try:
         result = fulfillment.create_order(
@@ -7512,7 +7512,7 @@ async def api_v2_create_bulk_order(req: Request):
 
 
 @app.post("/api/v2/orders/verify-payment")
-async def api_v2_verify_payment(req: OrderVerifyRequest, fastapi_req: Request):
+def api_v2_verify_payment(req: OrderVerifyRequest, fastapi_req: Request):
     """Verify a crypto payment for an order and trigger delivery.
 
     ðŸ&#x201D;&#x2019; Requires payment_code (generated at order creation) to prevent unauthorized verification.
@@ -7563,7 +7563,7 @@ class PaymentRecordRequest(BaseModel):
 
 
 @app.post("/api/v2/payments/record")
-async def api_v2_record_payment(req: PaymentRecordRequest, fastapi_req: Request):
+def api_v2_record_payment(req: PaymentRecordRequest, fastapi_req: Request):
     """Record a crypto payment and trigger auto-delivery.
 
     ðŸ&#x201D;&#x2019; Requires payment_code to verify the customer owns this order.
@@ -7603,7 +7603,7 @@ async def api_v2_record_payment(req: PaymentRecordRequest, fastapi_req: Request)
 
 
 @app.get("/api/v2/payments/stats")
-async def api_v2_payment_stats():
+def api_v2_payment_stats():
     """Get payment statistics from the payments module."""
     try:
         stats = get_payment_stats()
@@ -7722,7 +7722,7 @@ async def api_v2_create_nowpayments_invoice(fastapi_req: Request):
 
 
 @app.get("/api/v2/orders/{order_id}")
-async def api_v2_order_status(order_id: str):
+def api_v2_order_status(order_id: str):
     """Get order status and details."""
     try:
         order = fulfillment.get_order(order_id)
@@ -7734,7 +7734,7 @@ async def api_v2_order_status(order_id: str):
 
 
 @app.get("/api/v2/orders/email/{email}")
-async def api_v2_orders_by_email(email: str):
+def api_v2_orders_by_email(email: str):
     """Get all orders for a given email."""
     try:
         orders = fulfillment.get_orders_by_email(email)
@@ -7744,7 +7744,7 @@ async def api_v2_orders_by_email(email: str):
 
 
 @app.get("/api/v2/stats")
-async def api_v2_stats():
+def api_v2_stats():
     """Get fulfillment stats: total orders, revenue, pending, paid."""
     try:
         stats = fulfillment.get_stats()
@@ -7754,7 +7754,7 @@ async def api_v2_stats():
 
 
 @app.get("/api/v2/earnings")
-async def api_v2_earnings(period: str = "all"):
+def api_v2_earnings(period: str = "all"):
     """Get earnings breakdown with time filters.
 
     Period options: 24h, month, year, all
@@ -7825,7 +7825,7 @@ async def api_v2_earnings(period: str = "all"):
 # --- Public services landing page ---
 
 @app.get("/services/new", response_class=HTMLResponse)
-async def services_v2_page(request: Request):
+def services_v2_page(request: Request):
     """Public services landing page &#x2014; no login required."""
     micro = [s for s in SERVICE_CATALOG if s["price"] <= 5]
     standard = [s for s in SERVICE_CATALOG if 6 <= s["price"] <= 10]
@@ -7841,7 +7841,7 @@ async def services_v2_page(request: Request):
 # --- Checkout page for new services ---
 
 @app.get("/checkout/v2/{order_id}", response_class=HTMLResponse)
-async def checkout_v2_page(request: Request, order_id: str):
+def checkout_v2_page(request: Request, order_id: str):
     """Checkout page for a new service order."""
     order = fulfillment.get_order(order_id)
     if not order:
@@ -7852,7 +7852,7 @@ async def checkout_v2_page(request: Request, order_id: str):
 
 
 @app.get("/health/full")
-async def health_full():
+def health_full():
     """Full system health check &#x2014; services, DB, crypto wallets."""
     health_status = {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
 
@@ -7890,7 +7890,7 @@ async def health_full():
 
 # â&#x201D;€â&#x201D;€ EMAIL MARKETING: Tracking pixel â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 @app.get("/api/v2/campaign/track/{campaign_id}")
-async def campaign_track(campaign_id: int):
+def campaign_track(campaign_id: int):
     """Tracking pixel &#x2014; 1&times;&#x2014;1 transparent GIF, updates opened_at timestamp."""
     try:
         conn = get_db()
@@ -7910,7 +7910,7 @@ async def campaign_track(campaign_id: int):
 
 # ── JOB APPLICATION TRACKING PIXEL (campaign_emails) ──────────
 @app.get("/track/open/{tracking_id}")
-async def track_email_open(tracking_id: str):
+def track_email_open(tracking_id: str):
     """Tracking pixel for job application emails. Updates opened_at and fires Telegram alert."""
     try:
         conn = get_db()
@@ -7957,7 +7957,7 @@ async def track_email_open(tracking_id: str):
 
 # â&#x201D;€â&#x201D;€ EMAIL MARKETING: Campaign stats API â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 @app.get("/api/v2/campaigns/stats")
-async def campaign_stats_api():
+def campaign_stats_api():
     """Return aggregated campaign statistics."""
     try:
         stats = get_campaign_stats()
@@ -7975,7 +7975,7 @@ async def campaign_stats_api():
 
 # â&#x201D;€â&#x201D;€ UNSUBSCRIBE page â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 @app.get("/unsubscribe", response_class=HTMLResponse)
-async def unsubscribe_page(request: Request, email: str = "", reason: str = ""):
+def unsubscribe_page(request: Request, email: str = "", reason: str = ""):
     """Simple unsubscribe page &#x2014; users can opt out of marketing emails."""
     html = """<!DOCTYPE html>
 <html lang="en">
@@ -8038,7 +8038,7 @@ async def unsubscribe_page(request: Request, email: str = "", reason: str = ""):
 
 
 @app.get("/antigravity", response_class=HTMLResponse)
-async def antigravity_page(request: Request):
+def antigravity_page(request: Request):
     """Anti-Gravity Mode &#x2014; 3D space experience with floating job cards."""
     return templates.TemplateResponse(request, "antigravity.html")
 
@@ -8048,7 +8048,7 @@ async def antigravity_page(request: Request):
 # ============================================================
 
 @app.get("/api/v1/client/stats")
-async def client_realtime_stats(request: Request, period: str = "24h"):
+def client_realtime_stats(request: Request, period: str = "24h"):
     """Real-time client stats endpoint (authenticated).
     period: 24h | week | month | all
     """
@@ -8116,7 +8116,7 @@ async def client_realtime_stats(request: Request, period: str = "24h"):
 
 
 @app.get("/api/v1/share-link")
-async def get_share_link(request: Request):
+def get_share_link(request: Request):
     """Get the shareable public stats link for the current user."""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -8130,7 +8130,7 @@ async def get_share_link(request: Request):
 
 # === GOLDEN TICKET (HONGBAO) VIRAL LOOP ===
 @app.post("/api/viral/generate")
-async def api_viral_generate(request: Request):
+def api_viral_generate(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return JSONResponse({"error": "not_authenticated"}, status_code=401)
@@ -8143,7 +8143,7 @@ async def api_viral_generate(request: Request):
     })
 
 @app.get("/api/viral/redeem")
-async def api_viral_redeem(request: Request, ticket: str = ""):
+def api_viral_redeem(request: Request, ticket: str = ""):
     if not ticket:
         return RedirectResponse(url="/")
         
@@ -8161,7 +8161,7 @@ async def api_viral_redeem(request: Request, ticket: str = ""):
 
 
 @app.get("/client/{share_user_id}/stats", response_class=HTMLResponse)
-async def client_public_stats(request: Request, share_user_id: str, period: str = "24h"):
+def client_public_stats(request: Request, share_user_id: str, period: str = "24h"):
     """Public shareable stats page &#x2014; no login required.
     Share this link with clients to show real-time job hunt progress.
     Auto-refreshes every 60 seconds.
@@ -8384,7 +8384,7 @@ async def telegram_webhook(request: Request):
 
 
 @app.get("/webhook/telegram/setup")
-async def telegram_webhook_setup(request: Request):
+def telegram_webhook_setup(request: Request):
     """Set up Telegram webhook — visit once to switch from polling to webhook.
     Usage: GET /webhook/telegram/setup?secret=CRON_SECRET"""
     secret = request.query_params.get("secret", "")
@@ -8408,7 +8408,7 @@ async def telegram_webhook_setup(request: Request):
 
 
 @app.get("/webhook/telegram/remove")
-async def telegram_webhook_remove(request: Request):
+def telegram_webhook_remove(request: Request):
     """Remove webhook and switch back to polling.
     Usage: GET /webhook/telegram/remove?secret=CRON_SECRET"""
     secret = request.query_params.get("secret", "")
@@ -8433,7 +8433,7 @@ async def telegram_webhook_remove(request: Request):
 # CRON ENDPOINTS — Trigger via cron-job.org (FREE)
 # ═══════════════════════════════════════════════════════════
 @app.get("/api/cron/keep-alive")
-async def cron_keep_alive(request: Request):
+def cron_keep_alive(request: Request):
     """Keep-alive ping + auto-trigger lightweight maintenance.
     Set cron-job.org to ping this every 5 minutes."""
     db_status = "disconnected"
@@ -8464,7 +8464,7 @@ async def cron_keep_alive(request: Request):
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/ats-scorer")
-async def ats_scorer_page(request: Request):
+def ats_scorer_page(request: Request):
     """ATS Score Simulator page"""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -8479,7 +8479,7 @@ async def ats_scorer_page(request: Request):
 
 
 @app.get("/funnel-analytics", response_class=HTMLResponse)
-async def funnel_analytics_page(request: Request):
+def funnel_analytics_page(request: Request):
     """Application Funnel Analytics page"""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -8492,7 +8492,7 @@ async def funnel_analytics_page(request: Request):
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Funnel Analytics", "funnel-analytics"))
 
 @app.get("/resume-tailor", response_class=HTMLResponse)
-async def resume_tailor_page(request: Request):
+def resume_tailor_page(request: Request):
     """AI Resume Tailor page"""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -8505,7 +8505,7 @@ async def resume_tailor_page(request: Request):
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Resume Tailor", "resume-tailor"))
 
 @app.get("/employers", response_class=HTMLResponse)
-async def employers_page(request: Request):
+def employers_page(request: Request):
     """Employers landing page — public, no login required."""
     # Check if user is logged in (optional — page is public)
     user_id = get_verified_user_id(request)
@@ -8791,13 +8791,13 @@ async def api_groq_proxy(request: Request):
 
 # ============ Services v2 Route (was 404 - FIXED 2026-06-04) ============
 @app.get("/services_v2")
-async def services_v2_page(request: Request):
+def services_v2_page(request: Request):
     """Services v2 page — alias for /services"""
     return RedirectResponse("/services", status_code=301)
 
 # === Notification Center APIs ===
 @app.get("/api/v1/notifications")
-async def api_notifications(request: Request, limit: int = 20, unread_only: bool = False):
+def api_notifications(request: Request, limit: int = 20, unread_only: bool = False):
     user_id = get_verified_user_id(request)
     if not user_id:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
@@ -8835,7 +8835,7 @@ async def api_notifications_mark_read(request: Request):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 @app.post("/api/v1/notifications/read-all")
-async def api_notifications_mark_all_read(request: Request):
+def api_notifications_mark_all_read(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
@@ -8849,7 +8849,7 @@ async def api_notifications_mark_all_read(request: Request):
 
 # === CV Auto-Suggest API ===
 @app.get("/api/v1/cv-auto-suggest")
-async def api_cv_auto_suggest(request: Request, profile_id: int = None):
+def api_cv_auto_suggest(request: Request, profile_id: int = None):
     user_id = get_verified_user_id(request)
     if not user_id:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
@@ -8968,7 +8968,7 @@ async def api_job_match_score(request: Request):
 # ═══════════════════════════════════════════
 # ── Tracking Analytics Dashboard ──
 @app.get("/tracking-analytics", response_class=HTMLResponse)
-async def tracking_analytics(request: Request):
+def tracking_analytics(request: Request):
     """Tracking analytics dashboard — open rates, response rates, campaign stats."""
     try:
         campaign_stats = get_campaign_stats()
@@ -9080,7 +9080,7 @@ def _cron_mark_run():
     conn.close()
 
 @app.get("/api/admin/bootstrap", response_class=JSONResponse)
-async def admin_bootstrap(request: Request, key: str = ""):
+def admin_bootstrap(request: Request, key: str = ""):
     """Bootstrap endpoint: creates admin user + profile + campaign without Turnstile."""
     expected = os.getenv("CRON_SECRET", "") or getattr(config, "CRON_SECRET", "")
     if not key or key != expected:
@@ -9256,7 +9256,7 @@ async def cron_tick(request: Request, key: str = "", maintenance: str = "",
 # === VIRAL GROWTH HACKS ENDPOINTS ===
 
 @app.post("/api/v1/squads/create")
-async def api_create_squad(request: Request):
+def api_create_squad(request: Request):
     user_id = request.session.get("user_id")
     if not user_id:
         return JSONResponse({"status": "error", "message": "Unauthorized"}, status_code=401)
@@ -9272,7 +9272,7 @@ async def api_create_squad(request: Request):
         return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
 
 @app.post("/api/v1/squads/join/{squad_id}")
-async def api_join_squad(request: Request, squad_id: str):
+def api_join_squad(request: Request, squad_id: str):
     user_id = request.session.get("user_id")
     if not user_id:
         return JSONResponse({"status": "error", "message": "Unauthorized"}, status_code=401)
@@ -9346,14 +9346,14 @@ async def api_submit_intel(request: Request):
         return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
 
 @app.get("/intel/{role}")
-async def intel_view(request: Request, role: str):
+def intel_view(request: Request, role: str):
     conn = get_saas_v2_db()
     intel = conn.execute("SELECT * FROM interview_intel WHERE role LIKE ? ORDER BY created_at DESC LIMIT 10", (f"%{role}%",)).fetchall()
     conn.close()
     return render_template("intel_view.html", request=request, role=role, intel=intel)
 
 @app.post("/api/v1/waitlist/join")
-async def api_waitlist_join(request: Request):
+def api_waitlist_join(request: Request):
     user_id = request.session.get("user_id")
     if not user_id: return JSONResponse({"status": "error"}, status_code=401)
     
@@ -9374,7 +9374,7 @@ async def api_waitlist_join(request: Request):
         return JSONResponse({"status": "error"}, status_code=500)
 
 @app.post("/api/v1/claim-social-share")
-async def api_claim_social_share(request: Request):
+def api_claim_social_share(request: Request):
     user_id = request.session.get("user_id")
     if not user_id: return JSONResponse({"status": "error"}, status_code=401)
     
@@ -9398,7 +9398,7 @@ async def api_claim_social_share(request: Request):
         return JSONResponse({"status": "error"}, status_code=500)
 
 @app.get("/roast")
-async def roast_view(request: Request):
+def roast_view(request: Request):
     return render_template("roast.html", request=request)
 
 @app.post("/api/v1/roast")
