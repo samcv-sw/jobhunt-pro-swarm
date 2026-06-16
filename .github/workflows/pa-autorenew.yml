@@ -1,8 +1,8 @@
 name: PA Auto-Renew Monthly
 on:
   schedule:
-    # Run every 15 days to keep account alive
-    - cron: '0 10 1,15 * *'
+    # Run on the 15th of every month to keep account alive
+    - cron: '0 10 15 * *'
   workflow_dispatch:  # Manual trigger
 
 jobs:
