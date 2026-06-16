@@ -22,7 +22,8 @@ COPY . .
 ENV CHROME_BIN=/usr/bin/chromium
 ENV DISPLAY=:99
 
-# Start swarm_master background + gunicorn+uvicorn web server foreground
-# Gunicorn binds port immediately (Render health scan passes), loads app asynchronously
+# Swarm_master background + gunicorn (preload) foreground
+# gunicorn with --preload: loads app FIRST, then opens port
+# Render health check hits /healthz after app is ready
 EXPOSE 10000
 CMD ["sh", "-c", "Xvfb :99 -screen 0 1280x1024x24 & python -m core.swarm_master & sleep 3 && python render_boot.py"]

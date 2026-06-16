@@ -1,43 +1,47 @@
 #!/usr/bin/env python3
-"""Render boot: fast startup via gunicorn (faster than uvicorn for import-heavy apps)."""
+"""Render boot v3: gunicorn with preload. App loads first, then port opens."""
 import os, sys
 
-PORT = os.environ.get("PORT", "10000")
+PORT = int(os.environ.get("PORT", 10000))
 
-if __name__ == "__main__":
-    import multiprocessing
-    workers = int(os.environ.get("WEB_CONCURRENCY", "1"))
-    
-    # Use gunicorn with uvicorn workers for ASGI
-    from gunicorn.app.base import BaseApplication
-    
-    class StandaloneApplication(BaseApplication):
-        def __init__(self, app, options=None):
-            self.options = options or {}
-            self.application = app
-            super().__init__()
-        
-        def load_config(self):
-            config = {k: v for k, v in self.options.items() if k.isupper()}
-            for key, value in config.items():
-                if key in self.cfg.settings:
-                    self.cfg.set(key.lower(), value)
-        
-        def load(self):
-            return self.application
-    
-    options = {
-        "BIND": f"0.0.0.0:{PORT}",
-        "WORKER_CLASS": "uvicorn.workers.UvicornWorker",
-        "WORKERS": workers,
-        "TIMEOUT": 120,
-        "GRACEFUL_TIMEOUT": 30,
-        "KEEP_ALIVE": 5,
-        "ACCESSLOG": "-",
-        "ERRORLOG": "-",
-        "CAPTURE_OUTPUT": True,
-        "LOG_LEVEL": "info",
-    }
-    
-    print(f"[BOOT] Starting gunicorn on port {PORT} with {workers} workers", flush=True)
-    StandaloneApplication("web.app_v2:app", options).run()
+# The health server is started by core.swarm_master on HEALTH_PORT (9999)
+# We only run gunicorn here - swarm_master runs in background via Dockerfile
+
+# Start gunicorn with preload - app loads before port opens
+from gunicorn.app.base import BaseApplication
+
+class App(BaseApplication):
+    def __init__(self, app_uri, opts=None):
+        self.app_uri = app_uri
+        self.opts = opts or {}
+        super().__init__()
+    def load_config(self):
+        for k, v in self.opts.items():
+            kl = k.lower().replace("_", "")
+            for sk in self.cfg.settings:
+                if sk.replace("_", "") == kl:
+                    self.cfg.set(sk, v)
+                    break
+    def load(self):
+        # With preload, this runs in master BEFORE binding port
+        print("[BOOT] Loading app...", flush=True)
+        from web.app_v2 import app
+        print(f"[BOOT] App loaded: {len(app.routes)} routes", flush=True)
+        return app
+
+opts = {
+    "BIND": f"0.0.0.0:{PORT}",
+    "WORKER_CLASS": "uvicorn.workers.UvicornWorker",
+    "WORKERS": 1,
+    "TIMEOUT": 300,
+    "GRACEFUL_TIMEOUT": 60,
+    "KEEPALIVE": 5,
+    "ACCESSLOG": "-",
+    "ERRORLOG": "-",
+    "CAPTUREOUTPUT": True,
+    "LOGLEVEL": "info",
+    "PRELOAD": True,  # Key: load app before binding port
+}
+
+print(f"[BOOT] Starting gunicorn (preload) on port {PORT}...", flush=True)
+App("web.app_v2:app", opts).run()
