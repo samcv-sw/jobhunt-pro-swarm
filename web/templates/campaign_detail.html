@@ -46,14 +46,6 @@ h1 { font-size: 28px;}
 .main h1{font-size:17px;}</style>
 </head>
 <body class="cyberpunk-body">
- {% if campaign.status == 'pending' %}
- <script>
-  // Force server to pick up the pending campaign immediately!
-  fetch('/api/cron/tick?reset=cooldown').then(() => {
-      setTimeout(() => window.location.reload(), 3000);
-  }).catch(console.error);
- </script>
- {% endif %}
  <div class="header">
  <h1>Campaign Details</h1>
  <span class="status {{ campaign.status }}">{{ campaign.status }}</span>
