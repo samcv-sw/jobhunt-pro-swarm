@@ -1555,10 +1555,14 @@ class GlobalJobScraper:
                 
                 if HAS_CFFI and self._cffi_session:
                     # Use curl_cffi for perfect TLS impersonation
-                    cffi_resp = self._cffi_session.get(url, headers=headers, timeout=timeout)
-                    # Shim cffi response to look like httpx response
-                    resp = httpx.Response(status_code=cffi_resp.status_code, content=cffi_resp.content, request=httpx.Request("GET", url))
-                    resp.headers = httpx.Headers(cffi_resp.headers)
+                    try:
+                        cffi_resp = self._cffi_session.get(url, headers=headers, timeout=timeout)
+                        # Shim cffi response to look like httpx response
+                        resp = httpx.Response(status_code=cffi_resp.status_code, content=cffi_resp.content, request=httpx.Request("GET", url))
+                        resp.headers = httpx.Headers(cffi_resp.headers)
+                    except Exception as ce:
+                        logger.warning(f"curl_cffi failed ({ce}), falling back to httpx")
+                        resp = self._session.get(url, headers=headers, timeout=timeout)
                 else:
                     resp = self._session.get(url, headers=headers, timeout=timeout)
 
