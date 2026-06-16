@@ -409,24 +409,32 @@ async def lifespan(app_instance):
     import web.hf_sync as hf_sync
     hf_sync.download_db_on_startup()
     
-    # --- ENTERPRISE $0 POSTGRESQL & QUEUE INITIALIZATION ---
-    from core.database import db
-    from core.queue_worker import queue_worker
-    await db.connect()
-    task_queue = asyncio.create_task(queue_worker.start())
-    # -------------------------------------------------------
+    # --- DEFERRED INIT: connect DB + start tasks in background (non-blocking) ---
+    async def _deferred_init():
+        try:
+            from core.database import db
+            from core.queue_worker import queue_worker
+            await db.connect()
+            task_queue = asyncio.create_task(queue_worker.start())
+            _background_tasks.append(task_queue)
+        except Exception as e:
+            logger.warning(f"[LIFESPAN] DB/queue init deferred error: {e}")
+    
+    asyncio.ensure_future(_deferred_init())
+    # ----------------------------------------------------------------------------
     
     task1 = asyncio.create_task(email_marketing_loop())
     task2 = asyncio.create_task(_honeypot_cleanup_loop())
     task3 = asyncio.create_task(_campaign_self_tick_loop())
     task4 = asyncio.create_task(hf_sync.start_sync_task())
     
-    _background_tasks.extend([task1, task2, task3, task4, task_queue])
+    _background_tasks.extend([task1, task2, task3, task4])
     yield
     logger.info("[LIFESPAN] Shutting down background tasks & PostgreSQL...")
     
-    queue_worker.stop()
-    await db.disconnect()
+    from core.database import db
+    if hasattr(db, 'pool') and db.pool:
+        await db.disconnect()
     
     for t in _background_tasks:
         t.cancel()
