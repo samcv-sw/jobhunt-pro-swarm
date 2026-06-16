@@ -22,7 +22,7 @@ COPY . .
 ENV CHROME_BIN=/usr/bin/chromium
 ENV DISPLAY=:99
 
-# Direct uvicorn start - no health server, no swarm_master, no Xvfb
-# Render health check hits /healthz route directly on uvicorn
+# Start swarm_master background + gunicorn+uvicorn web server foreground
+# Gunicorn binds port immediately (Render health scan passes), loads app asynchronously
 EXPOSE 10000
-CMD ["python", "-m", "uvicorn", "web.app_v2:app", "--host", "0.0.0.0", "--port", "10000"]
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1280x1024x24 & python -m core.swarm_master & sleep 3 && python render_boot.py"]

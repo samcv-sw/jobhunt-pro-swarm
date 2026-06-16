@@ -31,3 +31,4 @@ aiosmtplib
 pyautogui==0.9.54
 networkx==3.2.1
 rapidfuzz==3.6.1
+gunicorn
