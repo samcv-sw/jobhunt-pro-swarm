@@ -27,8 +27,8 @@ class OSAgent:
             import pyautogui
             pyautogui.FAILSAFE = False
             self.is_ready = True
-        except ImportError:
-            logger.warning("pyautogui not installed or X11 not available. OS Agent running in degraded mode.")
+        except Exception as e:
+            logger.warning(f"pyautogui init failed (likely no X11/DISPLAY). OS Agent running in degraded mode. Error: {e}")
 
     async def human_mouse_move(self, target_x: int, target_y: int):
         """Simulate a human-like mouse curve to the target."""

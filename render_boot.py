@@ -40,7 +40,7 @@ opts = {
     "ERRORLOG": "-",
     "CAPTUREOUTPUT": True,
     "LOGLEVEL": "info",
-    "PRELOAD": True,  # Key: load app before binding port
+    "PRELOAD": False,  # False: master binds port immediately to pass health check, workers load app
 }
 
 print(f"[BOOT] Starting gunicorn (preload) on port {PORT}...", flush=True)

@@ -1134,7 +1134,6 @@ def init_saas_v2_db():
             CREATE INDEX IF NOT EXISTS idx_campaign_emails_sent_at ON campaign_emails(sent_at DESC);
             CREATE INDEX IF NOT EXISTS idx_wallet_transactions_user_id ON wallet_transactions(user_id);
             CREATE INDEX IF NOT EXISTS idx_manual_emails_user_id ON manual_emails(user_id);
-            CREATE INDEX IF NOT EXISTS idx_posted_jobs_status ON posted_jobs(status, expires_at);
         """)
 
         # Migration: Add login_streak and last_login to users if missing
