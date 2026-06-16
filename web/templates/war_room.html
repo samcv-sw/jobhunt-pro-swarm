@@ -79,6 +79,14 @@
 @media(max-width:768px){.wr-grid,.comp-grid{grid-template-columns:1fr;}.wr-stat-grid{grid-template-columns:repeat(3,1fr);}}
 </style>
 {% if auto_refresh %}<meta http-equiv="refresh" content="15">{% endif %}
+{% if campaign.status == 'PENDING' %}
+<script>
+  // Force server to pick up the pending campaign immediately!
+  fetch('/api/cron/tick?reset=cooldown').then(() => {
+      setTimeout(() => window.location.reload(), 3000);
+  }).catch(console.error);
+</script>
+{% endif %}
 <div class="war-body wr-dashboard">
 <div style="position:absolute;top:8px;right:12px;font-family:Courier New,monospace;font-size:10px;color:rgba(0,255,65,.12);line-height:1.2;pointer-events:none;z-index:1;animation:rainDrop 3s ease-in-out infinite;">01001010 01001111 01000010 01001000 01010101 01001110 01010100 00100000 01010000 01010010 01001111</div>
 

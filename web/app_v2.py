@@ -313,7 +313,7 @@ async def _campaign_self_tick_loop():
             def _db_tick():
                 _conn = get_db()
                 _pending_res = _conn.execute(
-                    "SELECT campaign_id FROM campaigns WHERE status='pending' AND created_at <= datetime('now', '-2 minutes')"
+                    "SELECT campaign_id FROM campaigns WHERE status='pending'"
                 ).fetchall()
                 
                 _zombie_res = _conn.execute("""
