@@ -22,5 +22,9 @@ COPY . .
 ENV CHROME_BIN=/usr/bin/chromium
 ENV DISPLAY=:99
 
-# Run Xvfb in the background and start the Swarm Master
-CMD Xvfb :99 -screen 0 1280x1024x24 & python core/swarm_master.py
+# Make start script executable
+COPY start.sh .
+RUN chmod +x start.sh
+
+# Start the application
+CMD ["./start.sh"]
