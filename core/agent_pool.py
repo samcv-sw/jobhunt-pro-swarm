@@ -291,26 +291,40 @@ class AgentPool:
                 dispatched += 1
         return dispatched
 
-    async def health_monitor(self, interval: float = 30.0):
-        """Periodically check all agents and revive stuck ones."""
+    async def health_monitor(self, interval: float = 30.0, distributor: Any = None):
+        """Periodically check all agents and revive stuck ones by restarting their coroutine."""
         while True:
             await asyncio.sleep(interval)
             now = time.time()
             revived = 0
             for agent in self.agents.values():
                 age = now - agent.stats.last_heartbeat
+                # If agent hasn't responded in 300s, it's deadlocked.
                 if age > 300 and agent.stats.status == "working":
-                    logger.warning(
-                        f"Agent {agent.agent_id} stuck for {age:.0f}s, resetting"
-                    )
+                    logger.critical(f"🔥 SWARM AUTO-HEAL: Agent {agent.agent_id} deadlocked for {age:.0f}s. Nuking and restarting.")
+                    
+                    # 1. Find and cancel the existing task
+                    for t in self._tasks:
+                        if not t.done() and t.get_coro().cr_code.co_name == 'run' and getattr(t, '_agent_id', None) == agent.agent_id:
+                            t.cancel()
+                    
+                    # 2. Reset agent state
                     agent.stats.status = "idle"
                     agent.stats.current_task_start = None
+                    agent.stats.last_heartbeat = time.time()
+                    
+                    # 3. Spawn a fresh task
+                    if distributor:
+                        new_task = asyncio.create_task(agent.run(distributor))
+                        new_task._agent_id = agent.agent_id  # Tag for future tracking
+                        self._tasks.append(new_task)
+                    
                     revived += 1
             if revived:
-                logger.info(f"Health monitor revived {revived} stuck agents")
+                logger.info(f"Health monitor revived {revived} deadlocked agents via Auto-Heal")
 
-    def start_health_monitor(self):
-        self._health_task = asyncio.create_task(self.health_monitor())
+    def start_health_monitor(self, distributor: Any = None):
+        self._health_task = asyncio.create_task(self.health_monitor(distributor=distributor))
         logger.info("Health monitor started (30s interval)")
 
     def stop_all(self):

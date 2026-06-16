@@ -153,7 +153,7 @@ class SwarmMaster:
         self.agent_pool = AgentPool()
         self.distributor = JobDistributor(self.agent_pool)
         self.agent_pool.build(self.distributor)
-        self.agent_pool.start_health_monitor()
+        self.agent_pool.start_health_monitor(distributor=self.distributor)
         self.distributor.start_scheduler()
 
         total_capacity = self.email_pool.get_total_daily_capacity()

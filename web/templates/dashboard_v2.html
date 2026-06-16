@@ -586,7 +586,11 @@
         <div class="bal-value">${{ "%.2f"|format(user.wallet_balance or 0) }}</div>
       </div>
       <a href="/wallet" class="btn btn-outline btn-sm">&#x1F4B3; Top Up</a>
-    </div>
+      <!-- Cyberpunk Uplink HUD -->
+      <div id="uplink-status" style="display:flex; align-items:center; gap:8px; background:#00ff41; padding:5px 12px; border-radius:4px; box-shadow:0 0 10px #00ff41; border:1px solid rgba(255,255,255,0.2); transition: all 0.3s ease;">
+         <div style="width:8px; height:8px; background:#fff; border-radius:50%; animation: pulse 1.5s infinite;"></div>
+         <span id="uplink-text" style="color:#00ff41; font-family:var(--cyber-font); font-size:11px; font-weight:700; letter-spacing:1px; filter:brightness(0.3);">UPLINK: SECURE</span>
+      </div>
   </div>
 
   <!-- ═══ GOLDEN TICKET (HONGBAO VIRAL LOOP) ═══ -->

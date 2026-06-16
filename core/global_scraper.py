@@ -14,6 +14,11 @@ from typing import List, Dict, Optional
 from urllib.parse import quote_plus, urlparse
 
 import httpx
+try:
+    from curl_cffi import requests as cffi_requests
+    HAS_CFFI = True
+except ImportError:
+    HAS_CFFI = False
 import urllib.request
 from bs4 import BeautifulSoup
 
@@ -366,6 +371,10 @@ class GlobalJobScraper:
         self.rate_limit_delay = rate_limit_delay
         self._last_req: Dict[str, float] = {}
         self._session = httpx.Client(timeout=20, follow_redirects=True)
+        if HAS_CFFI:
+            self._cffi_session = cffi_requests.Session(impersonate="chrome120", timeout=20)
+        else:
+            self._cffi_session = None
         self.stats = {"total_found": 0, "sources_hit": 0, "by_source": {}}
         # Make country configs accessible as instance attribute
         self.country_configs = COUNTRY_CONFIGS
@@ -1544,7 +1553,14 @@ class GlobalJobScraper:
                     'en-CA,en;q=0.9,fr-CA;q=0.5',
                 ])
                 
-                resp = self._session.get(url, headers=headers, timeout=timeout)
+                if HAS_CFFI and self._cffi_session:
+                    # Use curl_cffi for perfect TLS impersonation
+                    cffi_resp = self._cffi_session.get(url, headers=headers, timeout=timeout)
+                    # Shim cffi response to look like httpx response
+                    resp = httpx.Response(status_code=cffi_resp.status_code, content=cffi_resp.content, request=httpx.Request("GET", url))
+                    resp.headers = httpx.Headers(cffi_resp.headers)
+                else:
+                    resp = self._session.get(url, headers=headers, timeout=timeout)
 
                 if resp.status_code in (429, 503):
                     retry_after = int(resp.headers.get('Retry-After', str(5 * attempt)))
