@@ -404,8 +404,7 @@ async def lifespan(app_instance):
         logger.warning(f"[LIFESPAN] Package install warning: {e}")
     
     # Download Hugging Face DB if applicable
-    import web.hf_sync as hf_sync
-    hf_sync.download_db_on_startup()
+    # hf_sync.download_db_on_startup() removed: using PostgreSQL now
     
     # --- DEFERRED INIT: connect DB + start tasks in background (non-blocking) ---
     async def _deferred_init():
@@ -424,7 +423,7 @@ async def lifespan(app_instance):
     task1 = asyncio.create_task(email_marketing_loop())
     task2 = asyncio.create_task(_honeypot_cleanup_loop())
     task3 = asyncio.create_task(_campaign_self_tick_loop())
-    task4 = asyncio.create_task(hf_sync.start_sync_task())
+    # task4 = asyncio.create_task(hf_sync.start_sync_task()) removed
     
     _background_tasks.extend([task1, task2, task3, task4])
     yield
