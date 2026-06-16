@@ -26,3 +26,5 @@ undetected-chromedriver>=3.5.3
 uvloop; sys_platform != 'win32'
 huggingface_hub
 markdown
+fpdf2
+aiosmtplib

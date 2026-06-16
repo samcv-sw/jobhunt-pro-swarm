@@ -818,6 +818,9 @@ def get_db(max_retries: int = 3):
     raise sqlite3.OperationalError(f"Failed to connect to DB after {max_retries} retries")
 
 def init_saas_v2_db():
+    if os.getenv("SUPABASE_MODE"):
+        logger.info("[DB] SUPABASE_MODE: tables already exist in Supabase, skipping init")
+        return
     try:
         with sqlite3.connect(db_path, timeout=60000) as conn:
             try:

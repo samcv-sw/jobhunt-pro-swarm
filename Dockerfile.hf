@@ -1,28 +1,27 @@
-# Stage 1: Build
-FROM python:3.12-slim as builder
+FROM python:3.11-slim
+
+# Install minimal dependencies
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends gcc && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install
 COPY requirements.txt .
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Stage 2: Runtime
-FROM python:3.12-slim
-# Create a user with UID 1000 (required by Hugging Face Spaces)
-RUN useradd -m -u 1000 user
-USER user
-ENV HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH \
-    PYTHONUNBUFFERED=1 \
-    PORT=7860
+# Copy all application code
+COPY . .
 
-WORKDIR $HOME/app
+# Environment variables for HF Spaces
+ENV SUPABASE_MODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=7860
 
-# Copy dependencies
-COPY --from=builder --chown=1000:1000 /install /usr/local
-
-# Copy application files
-COPY --chown=1000:1000 . $HOME/app
-
+# Expose port (HF Spaces default)
 EXPOSE 7860
 
-CMD ["python", "start_render.py"]
+# Start FastAPI with uvicorn
+CMD uvicorn web.app_v2:app --host 0.0.0.0 --port 7860 --workers 2
