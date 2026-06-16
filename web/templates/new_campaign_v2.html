@@ -1,244 +1,485 @@
 <link rel="stylesheet" href="/static/css/cyberpunk.css">
-<style>
- /* ═══════════ MAIN LAYOUT ═══════════ */
-h1{font-size:28px;margin-bottom:4px;}
-.balance-warning{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:14px 20px;margin-bottom:20px;color:#fca5a5;}
-/* ═══════════ FORM ═══════════ */
-.form-card{background:linear-gradient(135deg,rgba(30,30,50,.8),rgba(20,20,35,.8));border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:40px;margin-bottom:30px;}
-.form-group{margin-bottom:24px;}
-label{display:block;font-size:14px;font-weight:600;color:#a1a1aa;margin-bottom:10px;}
-select,input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:'Inter',sans-serif;}
-select:focus,input:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15);}
-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2371717a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px;cursor:pointer;}
-select option{background:#1a1a2e;color:#fff;}
-/* ═══════════ PRICING GRID ═══════════ */
-.pricing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
-.pricing-option{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;position:relative;}
-.pricing-option:hover{border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.05);}
-.pricing-option.selected{border-color:#3b82f6;background:rgba(59,130,246,.1);}
-.pricing-option input{position:absolute;opacity:0;}
-.pricing-option .companies{font-size:18px;font-weight:700;color:#fff;}
-.pricing-option .price{font-size:20px;font-weight:800;color:#3b82f6;margin:4px 0;}
-.pricing-option .per{font-size:11px;color:#64748b;}
-/* ═══════════ BOUQUET GRID ═══════════ */
-.bouquet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
-.bouquet-option{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px;cursor:pointer;transition:all .2s;position:relative;}
-.bouquet-option:hover{border-color:rgba(139,92,246,.3);background:rgba(139,92,246,.05);}
-.bouquet-option input[type="checkbox"]{position:absolute;opacity:0;}
-.bouquet-option.selected{border-color:#8b5cf6;background:rgba(139,92,246,.1);}
-.bouquet-option h4{font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;}
-.bouquet-option .price{font-size:18px;font-weight:800;color:#a78bfa;margin-bottom:4px;}
-.bouquet-option p{font-size:12px;color:#71717a;line-height:1.4;}
-/* ═══════════ SUBMIT ═══════════ */
-.btn{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;border:none;border-radius:14px;padding:16px 32px;font-size:16px;font-weight:700;cursor:pointer;width:100%;transition:all .2s;}
-.btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,130,246,.25);}
-.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
-.total{text-align:center;font-size:18px;color:#94a3b8;margin:24px 0 16px;}
-.total span{font-size:28px;font-weight:800;color:#3b82f6;}
-/* ═══════════ BOUQUET SUMMARY ═══════════ */
-.sel-summary{display:none;margin-top:16px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:12px;padding:16px;}
-.sel-summary.visible{display:block;}
-.sel-summary h3{font-size:14px;font-weight:700;color:#a78bfa;margin-bottom:10px;}
-.sel-summary .sel-item{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;color:#d4d4d8;border-bottom:1px solid rgba(255,255,255,.04);}
-.sel-summary .sel-item:last-child{border-bottom:none;}
-.sel-summary .sel-item .sname{color:#d4d4d8;}
-.sel-summary .sel-item .sprice{color:#a78bfa;font-weight:600;}
-.sel-summary .sel-total{display:flex;justify-content:space-between;padding:8px 0;margin-top:8px;border-top:1px solid rgba(139,92,246,.2);font-weight:700;color:#fff;}
-.sel-summary .sel-total .stval{color:#a78bfa;font-size:16px;}
-.sel-clear{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;margin-top:12px;}
-.sel-clear:hover{background:rgba(239,68,68,.2);}
-.main h1{font-size:22px;}
-.main h1{font-size:18px;margin-bottom:4px;}
+<style>
+
+ /* ═══════════ MAIN LAYOUT ═══════════ */
+
+h1{font-size:28px;margin-bottom:4px;}
+
+.balance-warning{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:14px 20px;margin-bottom:20px;color:#fca5a5;}
+
+/* ═══════════ FORM ═══════════ */
+
+.form-card{background:linear-gradient(135deg,rgba(30,30,50,.8),rgba(20,20,35,.8));border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:40px;margin-bottom:30px;}
+
+.form-group{margin-bottom:24px;}
+
+label{display:block;font-size:14px;font-weight:600;color:#a1a1aa;margin-bottom:10px;}
+
+select,input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-size:14px;font-family:'Inter',sans-serif;}
+
+select:focus,input:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15);}
+
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2371717a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px;cursor:pointer;}
+
+select option{background:#1a1a2e;color:#fff;}
+
+/* ═══════════ PRICING GRID ═══════════ */
+
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+
+.pricing-option{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;position:relative;}
+
+.pricing-option:hover{border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.05);}
+
+.pricing-option.selected{border-color:#3b82f6;background:rgba(59,130,246,.1);}
+
+.pricing-option input{position:absolute;opacity:0;}
+
+.pricing-option .companies{font-size:18px;font-weight:700;color:#fff;}
+
+.pricing-option .price{font-size:20px;font-weight:800;color:#3b82f6;margin:4px 0;}
+
+.pricing-option .per{font-size:11px;color:#64748b;}
+
+/* ═══════════ BOUQUET GRID ═══════════ */
+
+.bouquet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+
+.bouquet-option{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px;cursor:pointer;transition:all .2s;position:relative;}
+
+.bouquet-option:hover{border-color:rgba(139,92,246,.3);background:rgba(139,92,246,.05);}
+
+.bouquet-option input[type="checkbox"]{position:absolute;opacity:0;}
+
+.bouquet-option.selected{border-color:#8b5cf6;background:rgba(139,92,246,.1);}
+
+.bouquet-option h4{font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;}
+
+.bouquet-option .price{font-size:18px;font-weight:800;color:#a78bfa;margin-bottom:4px;}
+
+.bouquet-option p{font-size:12px;color:#71717a;line-height:1.4;}
+
+/* ═══════════ SUBMIT ═══════════ */
+
+.btn{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;border:none;border-radius:14px;padding:16px 32px;font-size:16px;font-weight:700;cursor:pointer;width:100%;transition:all .2s;}
+
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,130,246,.25);}
+
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+.total{text-align:center;font-size:18px;color:#94a3b8;margin:24px 0 16px;}
+
+.total span{font-size:28px;font-weight:800;color:#3b82f6;}
+
+/* ═══════════ BOUQUET SUMMARY ═══════════ */
+
+.sel-summary{display:none;margin-top:16px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:12px;padding:16px;}
+
+.sel-summary.visible{display:block;}
+
+.sel-summary h3{font-size:14px;font-weight:700;color:#a78bfa;margin-bottom:10px;}
+
+.sel-summary .sel-item{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;color:#d4d4d8;border-bottom:1px solid rgba(255,255,255,.04);}
+
+.sel-summary .sel-item:last-child{border-bottom:none;}
+
+.sel-summary .sel-item .sname{color:#d4d4d8;}
+
+.sel-summary .sel-item .sprice{color:#a78bfa;font-weight:600;}
+
+.sel-summary .sel-total{display:flex;justify-content:space-between;padding:8px 0;margin-top:8px;border-top:1px solid rgba(139,92,246,.2);font-weight:700;color:#fff;}
+
+.sel-summary .sel-total .stval{color:#a78bfa;font-size:16px;}
+
+.sel-clear{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;margin-top:12px;}
+
+.sel-clear:hover{background:rgba(239,68,68,.2);}
+
+.main h1{font-size:22px;}
+
+.main h1{font-size:18px;margin-bottom:4px;}
+
 .main h1{font-size:15px;}</style>
-<h1>Create New Campaign</h1>
- 
- {% if balance < 1 %}
- <div class="balance-warning">
- Insufficient balance. <a href="/wallet" style="color: #3b82f6;">Add funds</a> to start campaigns.
- </div>
- {% endif %}
- 
- <form method="POST" action="/create-campaign">
- <div class="form-card">
- <div class="form-group">
- <label>Select CV Profile</label>
- <select name="profile_id" required>
- <option value="">Choose a profile...</option>
- {% for profile in profiles %}
- <option value="{{ profile.id }}">{{ profile.profile_name }} ({{ profile.experience_years }} years exp)</option>
- {% endfor %}
- </select>
- {% if not profiles %}
- <p style="font-size: 12px; color: #64748b; margin-top: 8px;">No profiles yet. <a href="/upload-cv" style="color: #3b82f6;">Create one first</a></p>
- {% endif %}
- </div>
- </div>
- 
- <div class="form-card">
- <h2 style="font-size: 22px; margin-bottom: 20px;">Select Package (35+ options)</h2>
- <div class="pricing-grid">
- <label class="pricing-option">
- <input type="radio" name="company_count" value="0" id="pkg_none">
- <div class="companies" style="font-size:17px;color:#94a3b8;">—</div>
- <div class="price">$0</div>
- <div class="per" style="color:#64748b;font-size:11px;">No Package / Skip</div>
- </label>
- {% for tier in pricing.tiers %}
- <label class="pricing-option">
- <input type="radio" name="company_count" value="{{ tier.companies }}" {% if tier.companies == 100 %}checked{% endif %}>
- <div class="companies">{{ tier.companies }}</div>
- <div class="price">${{ "%.0f"|format(tier['price_usd']) }}</div>
- <div class="per">${{ "%.3f"|format(tier['price_usd'] / tier.companies) }}/ea</div>
- </label>
- {% endfor %}
- </div>
- </div>
- 
- <div class="form-card">
- <h2 style="font-size: 22px; margin-bottom: 20px;">Add Bouquet Package (Optional)</h2>
- <div class="bouquet-grid">
- <label class="bouquet-option">
- <input type="radio" name="bouquet" value="" id="bouquet_none" checked>
- <h4>No Bouquet</h4>
- <div class="price">$0</div>
- </label>
- {% for bouquet in pricing.bouquets %}
- <label class="bouquet-option">
- <input type="checkbox" name="bouquets" value="{{ bouquet.bouquet }}" data-label="{{ bouquet.name }}">
- <h4>{{ bouquet.name }}</h4>
- <div class="price">${{ "%.0f"|format(bouquet['price_usd']) }}</div>
- <p>{{ bouquet.description }}</p>
- </label>
- {% endfor %}
- </div>
- <div class="sel-summary" id="selSummary">
- <h3> Selected Bouquets</h3>
- <div id="selList"></div>
- <div class="sel-total">
- <span>Bouquet Total</span>
- <span class="stval" id="selBouquetTotal">$0.00</span>
- </div>
- <button type="button" class="sel-clear" onclick="clearAllBouquets()">&#x2715; Clear All</button>
- </div>
-
- </div>
- 
- <div class="total">
- Total: <span id="total-price">$5</span>
- </div>
- 
- <input type="hidden" name="bouquet_names" id="bouquetNames" value="">
- 
- <button type="submit" class="btn" {% if balance < 1 %}disabled{% endif %}>
- Launch Campaign
- </button>
- </form>
- </div>
- 
- <script>
- const tierPrices = {
- {% for tier in pricing.tiers %}
- {{ tier.companies }}: {{ tier['price_usd'] }},
- {% endfor %}
- };
- const bouquetPrices = {
- {% for bouquet in pricing.bouquets %}
- '{{ bouquet.bouquet }}': {{ bouquet['price_usd'] }},
- {% endfor %}
- };
- 
- function updateTotal() {
- const sel = document.querySelector('input[name="company_count"]:checked');
- const companies = parseInt(sel?.value || 100);
- const checked = document.querySelectorAll('input[name="bouquets"]:checked');
- let bouquetTotal = 0;
- let names = [];
- checked.forEach(function(cb) {
- bouquetTotal += bouquetPrices[cb.value] || 0;
- names.push(cb.value);
- });
- // If No Package (0), tier = 0, total = bouquets only
- let tierPrice = 0;
- if (companies > 0) {
- tierPrice = tierPrices[companies] || 0;
- }
- const total = tierPrice + bouquetTotal;
- document.getElementById('total-price').innerHTML = '$' + total.toFixed(2);
- document.getElementById('bouquetNames').value = names.join(',');
- updateSummary(checked, bouquetTotal);
- }
- 
- function updateSummary(checked, total) {
- const summary = document.getElementById('selSummary');
- const list = document.getElementById('selList');
- const totalEl = document.getElementById('selBouquetTotal');
- if (!summary) return;
- if (checked.length === 0) {
- summary.classList.remove('visible');
- return;
- }
- let namesHtml = '';
- checked.forEach(function(cb) {
- const price = bouquetPrices[cb.value] || 0;
- namesHtml += '<div class="sel-item">';
- namesHtml += ' <span class="sname">' + (cb.dataset.label || cb.value) + '</span>';
- namesHtml += ' <span class="sprice">$' + price.toFixed(2) + '</span>';
- namesHtml += '</div>';
- });
- list.innerHTML = namesHtml;
- totalEl.innerHTML = '$' + total.toFixed(2);
- summary.classList.add('visible');
- }
- 
- function clearAllBouquets() {
- document.querySelectorAll('input[name="bouquets"]').forEach(function(cb) { cb.checked = false; updateCardVisual(cb); });
- const none = document.getElementById('bouquet_none');
- if (none) none.checked = true;
- updateTotal();
- }
- 
- function updateCardVisual(cb) {
- var card = cb.closest('.bouquet-option');
- if (card) card.classList.toggle('selected', cb.checked);
- }
- 
- document.addEventListener('change', function(e) {
- if (e.target.name === 'bouquets') {
- updateCardVisual(e.target);
- const noneRadio = document.getElementById('bouquet_none');
- const anyChecked = document.querySelectorAll('input[name="bouquets"]:checked').length > 0;
- if (anyChecked && noneRadio) noneRadio.checked = false;
- updateTotal();
- }
- });
- 
- document.getElementById('bouquet_none')?.addEventListener('change', function() {
- if (this.checked) {
- document.querySelectorAll('input[name="bouquets"]').forEach(function(cb) {
- cb.checked = false;
- updateCardVisual(cb);
- });
- updateTotal();
- }
- });
- 
- // Init visual state
- document.querySelectorAll('input[name="bouquets"]').forEach(updateCardVisual);
- 
- // Init package tier visual state
- document.querySelectorAll('input[name="company_count"]').forEach(function(r) {
- var card = r.closest('.pricing-option');
- if (card && r.checked) card.classList.add('selected');
- });
- document.querySelectorAll('input[name="company_count"]').forEach(function(r) {
- r.addEventListener('change', function() {
- // Toggle .selected visual on pricing cards
- document.querySelectorAll('input[name="company_count"]').forEach(function(r2) {
- var c2 = r2.closest('.pricing-option');
- if (c2) c2.classList.toggle('selected', r2.checked);
- });
- updateTotal();
- });
- });
- updateTotal();
+<h1>Create New Campaign</h1>
+
+ 
+
+ {% if balance < 1 %}
+
+ <div class="balance-warning">
+
+ Insufficient balance. <a href="/wallet" style="color: #3b82f6;">Add funds</a> to start campaigns.
+
+ </div>
+
+ {% endif %}
+
+ 
+
+ <form method="POST" action="/create-campaign">
+
+ <div class="form-card">
+
+ <div class="form-group">
+
+ <label>Select CV Profile</label>
+
+ <select name="profile_id" required>
+
+ <option value="">Choose a profile...</option>
+
+ {% for profile in profiles %}
+
+ <option value="{{ profile.id }}">{{ profile.profile_name }} ({{ profile.experience_years }} years exp)</option>
+
+ {% endfor %}
+
+ </select>
+
+ {% if not profiles %}
+
+ <p style="font-size: 12px; color: #64748b; margin-top: 8px;">No profiles yet. <a href="/upload-cv" style="color: #3b82f6;">Create one first</a></p>
+
+ {% endif %}
+
+ </div>
+
+ </div>
+
+ 
+
+ <div class="form-card">
+
+ <h2 style="font-size: 22px; margin-bottom: 20px;">Select Package (35+ options)</h2>
+
+ <div class="pricing-grid">
+
+ <label class="pricing-option">
+
+ <input type="radio" name="company_count" value="0" id="pkg_none">
+
+ <div class="companies" style="font-size:17px;color:#94a3b8;">—</div>
+
+ <div class="price">$0</div>
+
+ <div class="per" style="color:#64748b;font-size:11px;">No Package / Skip</div>
+
+ </label>
+
+ {% for tier in pricing.tiers %}
+
+ <label class="pricing-option">
+
+ <input type="radio" name="company_count" value="{{ tier.companies }}" {% if tier.companies == 100 %}checked{% endif %}>
+
+ <div class="companies">{{ tier.companies }}</div>
+
+ <div class="price">${{ "%.0f"|format(tier['price_usd']) }}</div>
+
+ <div class="per">${{ "%.3f"|format(tier['price_usd'] / tier.companies) }}/ea</div>
+
+ </label>
+
+ {% endfor %}
+
+ </div>
+
+ </div>
+
+ 
+
+ <div class="form-card">
+
+ <h2 style="font-size: 22px; margin-bottom: 20px;">Add Bouquet Package (Optional)</h2>
+
+ <div class="bouquet-grid">
+
+ <label class="bouquet-option">
+
+ <input type="radio" name="bouquet" value="" id="bouquet_none" checked>
+
+ <h4>No Bouquet</h4>
+
+ <div class="price">$0</div>
+
+ </label>
+
+ {% for bouquet in pricing.bouquets %}
+
+ <label class="bouquet-option">
+
+ <input type="checkbox" name="bouquets" value="{{ bouquet.bouquet }}" data-label="{{ bouquet.name }}">
+
+ <h4>{{ bouquet.name }}</h4>
+
+ <div class="price">${{ "%.0f"|format(bouquet['price_usd']) }}</div>
+
+ <p>{{ bouquet.description }}</p>
+
+ </label>
+
+ {% endfor %}
+
+ </div>
+
+ <div class="sel-summary" id="selSummary">
+
+ <h3> Selected Bouquets</h3>
+
+ <div id="selList"></div>
+
+ <div class="sel-total">
+
+ <span>Bouquet Total</span>
+
+ <span class="stval" id="selBouquetTotal">$0.00</span>
+
+ </div>
+
+ <button type="button" class="sel-clear" onclick="clearAllBouquets()">&#x2715; Clear All</button>
+
+ </div>
+
+
+
+ </div>
+
+ 
+
+ <div class="total">
+
+ Total: <span id="total-price">$5</span>
+
+ </div>
+
+ 
+
+ <input type="hidden" name="bouquet_names" id="bouquetNames" value="">
+
+ 
+
+ <button type="submit" class="btn" {% if balance < 1 %}disabled{% endif %}>
+
+ Launch Campaign
+
+ </button>
+
+ </form>
+
+ </div>
+
+ 
+
+ <script>
+
+ const tierPrices = {
+
+ {% for tier in pricing.tiers %}
+
+ {{ tier.companies }}: {{ tier['price_usd'] }},
+
+ {% endfor %}
+
+ };
+
+ const bouquetPrices = {
+
+ {% for bouquet in pricing.bouquets %}
+
+ '{{ bouquet.bouquet }}': {{ bouquet['price_usd'] }},
+
+ {% endfor %}
+
+ };
+
+ 
+
+ function updateTotal() {
+
+ const sel = document.querySelector('input[name="company_count"]:checked');
+
+ const companies = parseInt(sel?.value || 100);
+
+ const checked = document.querySelectorAll('input[name="bouquets"]:checked');
+
+ let bouquetTotal = 0;
+
+ let names = [];
+
+ checked.forEach(function(cb) {
+
+ bouquetTotal += bouquetPrices[cb.value] || 0;
+
+ names.push(cb.value);
+
+ });
+
+ // If No Package (0), tier = 0, total = bouquets only
+
+ let tierPrice = 0;
+
+ if (companies > 0) {
+
+ tierPrice = tierPrices[companies] || 0;
+
+ }
+
+ const total = tierPrice + bouquetTotal;
+
+ document.getElementById('total-price').innerHTML = '$' + total.toFixed(2);
+
+ document.getElementById('bouquetNames').value = names.join(',');
+
+ updateSummary(checked, bouquetTotal);
+
+ }
+
+ 
+
+ function updateSummary(checked, total) {
+
+ const summary = document.getElementById('selSummary');
+
+ const list = document.getElementById('selList');
+
+ const totalEl = document.getElementById('selBouquetTotal');
+
+ if (!summary) return;
+
+ if (checked.length === 0) {
+
+ summary.classList.remove('visible');
+
+ return;
+
+ }
+
+ let namesHtml = '';
+
+ checked.forEach(function(cb) {
+
+ const price = bouquetPrices[cb.value] || 0;
+
+ namesHtml += '<div class="sel-item">';
+
+ namesHtml += ' <span class="sname">' + (cb.dataset.label || cb.value) + '</span>';
+
+ namesHtml += ' <span class="sprice">$' + price.toFixed(2) + '</span>';
+
+ namesHtml += '</div>';
+
+ });
+
+ list.innerHTML = namesHtml;
+
+ totalEl.innerHTML = '$' + total.toFixed(2);
+
+ summary.classList.add('visible');
+
+ }
+
+ 
+
+ function clearAllBouquets() {
+
+ document.querySelectorAll('input[name="bouquets"]').forEach(function(cb) { cb.checked = false; updateCardVisual(cb); });
+
+ const none = document.getElementById('bouquet_none');
+
+ if (none) none.checked = true;
+
+ updateTotal();
+
+ }
+
+ 
+
+ function updateCardVisual(cb) {
+
+ var card = cb.closest('.bouquet-option');
+
+ if (card) card.classList.toggle('selected', cb.checked);
+
+ }
+
+ 
+
+ document.addEventListener('change', function(e) {
+
+ if (e.target.name === 'bouquets') {
+
+ updateCardVisual(e.target);
+
+ const noneRadio = document.getElementById('bouquet_none');
+
+ const anyChecked = document.querySelectorAll('input[name="bouquets"]:checked').length > 0;
+
+ if (anyChecked && noneRadio) noneRadio.checked = false;
+
+ updateTotal();
+
+ }
+
+ });
+
+ 
+
+ document.getElementById('bouquet_none')?.addEventListener('change', function() {
+
+ if (this.checked) {
+
+ document.querySelectorAll('input[name="bouquets"]').forEach(function(cb) {
+
+ cb.checked = false;
+
+ updateCardVisual(cb);
+
+ });
+
+ updateTotal();
+
+ }
+
+ });
+
+ 
+
+ // Init visual state
+
+ document.querySelectorAll('input[name="bouquets"]').forEach(updateCardVisual);
+
+ 
+
+ // Init package tier visual state
+
+ document.querySelectorAll('input[name="company_count"]').forEach(function(r) {
+
+ var card = r.closest('.pricing-option');
+
+ if (card && r.checked) card.classList.add('selected');
+
+ });
+
+ document.querySelectorAll('input[name="company_count"]').forEach(function(r) {
+
+ r.addEventListener('change', function() {
+
+ // Toggle .selected visual on pricing cards
+
+ document.querySelectorAll('input[name="company_count"]').forEach(function(r2) {
+
+ var c2 = r2.closest('.pricing-option');
+
+ if (c2) c2.classList.toggle('selected', r2.checked);
+
+ });
+
+ updateTotal();
+
+ });
+
+ });
+
+ updateTotal();
+
 </script>
