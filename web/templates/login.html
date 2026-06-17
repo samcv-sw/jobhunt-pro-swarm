@@ -92,12 +92,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
         <form method="POST" action="/login">
           <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>
           </div>
           <div class="form-group">
-            <label>Password</label>
-            <input type="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password">
           </div>
           <div class="pw-row">
             <a href="/forgot-password">Forgot password?</a>
