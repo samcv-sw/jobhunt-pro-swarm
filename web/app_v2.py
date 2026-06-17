@@ -3107,6 +3107,22 @@ def google_callback(code: str = None, error: str = None):
         )
         conn.commit()
     else:
+        existing_provider = user.get("oauth_provider")
+        if existing_provider != "google":
+            provider_name = "password" if not existing_provider else existing_provider.capitalize()
+            error_html = f\"\"\"
+            <html><body style="background:#0f172a; color:#e2e8f0; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
+                <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; border:1px solid rgba(239,68,68,0.3); max-width:400px;">
+                    <div style="font-size:40px; margin-bottom:15px;">⚠️</div>
+                    <h3 style="color:#fca5a5; margin-top:0;">Email Already Registered</h3>
+                    <p style="color:#94a3b8; line-height:1.5;">The email <b>{email}</b> is already registered using <b>{provider_name}</b>.</p>
+                    <p style="color:#94a3b8; line-height:1.5; margin-bottom:25px;">Please log in using your original method.</p>
+                    <a href="/login" style="background:#3b82f6; color:#fff; padding:10px 24px; border-radius:6px; text-decoration:none; font-weight:bold;">Return to Login</a>
+                </div>
+            </body></html>
+            \"\"\"
+            return HTMLResponse(error_html)
+            
         user_id = user["user_id"]
         # Update tokens
         if refresh_token:
@@ -3233,6 +3249,22 @@ def microsoft_callback(code: str = None, error: str = None):
         )
         conn.commit()
     else:
+        existing_provider = user.get("oauth_provider")
+        if existing_provider != "microsoft":
+            provider_name = "password" if not existing_provider else existing_provider.capitalize()
+            error_html = f\"\"\"
+            <html><body style="background:#0f172a; color:#e2e8f0; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
+                <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; border:1px solid rgba(239,68,68,0.3); max-width:400px;">
+                    <div style="font-size:40px; margin-bottom:15px;">⚠️</div>
+                    <h3 style="color:#fca5a5; margin-top:0;">Email Already Registered</h3>
+                    <p style="color:#94a3b8; line-height:1.5;">The email <b>{email}</b> is already registered using <b>{provider_name}</b>.</p>
+                    <p style="color:#94a3b8; line-height:1.5; margin-bottom:25px;">Please log in using your original method.</p>
+                    <a href="/login" style="background:#3b82f6; color:#fff; padding:10px 24px; border-radius:6px; text-decoration:none; font-weight:bold;">Return to Login</a>
+                </div>
+            </body></html>
+            \"\"\"
+            return HTMLResponse(error_html)
+            
         user_id = user["user_id"]
         if refresh_token:
             conn.execute(
