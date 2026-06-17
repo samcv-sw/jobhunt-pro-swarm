@@ -3393,6 +3393,31 @@ def new_campaign_page(request: Request):
     )
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "New Campaign", "new-campaign"))
 
+@app.post("/api/v1/delete-cv-profile")
+async def delete_cv_profile(request: Request):
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return JSONResponse({"success": False, "message": "Unauthorized"}, status_code=401)
+    
+    try:
+        data = await request.json()
+        profile_id = data.get("profile_id")
+        if not profile_id:
+            return JSONResponse({"success": False, "message": "Missing profile_id"})
+            
+        conn = get_db()
+        row = conn.execute("SELECT id FROM cv_profiles WHERE id=? AND user_id=?", (profile_id, user_id)).fetchone()
+        if not row:
+            conn.close()
+            return JSONResponse({"success": False, "message": "Profile not found or unauthorized"})
+            
+        conn.execute("DELETE FROM cv_profiles WHERE id=? AND user_id=?", (profile_id, user_id))
+        conn.commit()
+        conn.close()
+        return JSONResponse({"success": True})
+    except Exception as e:
+        return JSONResponse({"success": False, "message": str(e)})
+
 @app.post("/create-campaign")
 def create_campaign(request: Request, profile_id: int = Form(...),
                           company_count: int = Form(0), bouquet: str = Form(""), bouquet_names: str = Form("")):

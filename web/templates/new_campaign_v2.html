@@ -124,17 +124,46 @@ select option{background:#1a1a2e;color:#fff;}
 
  <label>Select CV Profile</label>
 
- <select name="profile_id" required>
-
- <option value="">Choose a profile...</option>
-
- {% for profile in profiles %}
-
- <option value="{{ profile.id }}">{{ profile.profile_name }} ({{ profile.experience_years }} years exp)</option>
-
- {% endfor %}
-
- </select>
+ <div style="display: flex; gap: 10px; align-items: center;">
+   <select name="profile_id" id="profileSelect" required style="flex: 1;">
+     <option value="">Choose a profile...</option>
+     {% for profile in profiles %}
+     <option value="{{ profile.id }}">{{ profile.profile_name }} ({{ profile.experience_years }} years exp)</option>
+     {% endfor %}
+   </select>
+   <button type="button" class="btn btn-outline btn-sm" onclick="deleteSelectedProfile()" style="background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.3); color: #ef4444; padding: 10px 16px; width: auto;" title="Delete selected profile">
+       🗑️
+   </button>
+ </div>
+ 
+ <script>
+ function deleteSelectedProfile() {
+     const select = document.getElementById('profileSelect');
+     const profileId = select.value;
+     if (!profileId) {
+         alert("Please select a profile to delete first.");
+         return;
+     }
+     if (!confirm("Are you sure you want to delete this CV profile? This cannot be undone.")) return;
+     
+     fetch('/api/v1/delete-cv-profile', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ profile_id: profileId })
+     })
+     .then(r => r.json())
+     .then(data => {
+         if (data.success) {
+             select.options[select.selectedIndex].remove();
+             select.value = "";
+             alert("Profile deleted successfully.");
+         } else {
+             alert("Failed to delete profile: " + data.message);
+         }
+     })
+     .catch(e => alert("Error deleting profile."));
+ }
+ </script>
 
  {% if not profiles %}
 
