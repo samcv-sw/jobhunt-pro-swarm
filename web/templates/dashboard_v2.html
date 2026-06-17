@@ -207,6 +207,10 @@
   font-weight: 700;
   color: #fff;
   transition: flex .4s;
+  min-width: 60px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .dashboard-scale .seg-disc { background: linear-gradient(135deg, #3b82f6, #2563eb); }
 .dashboard-scale .seg-appl { background: linear-gradient(135deg, #6366f1, #4f46e5); }
@@ -565,6 +569,31 @@
   .dashboard-scale .mini-stats { grid-template-columns: 1fr 1fr; }
   .dashboard-scale .bal-value { font-size: 24px; }
 }
+
+/* === DASHBOARD GRID SYSTEM === */
+@media (min-width: 1024px) {
+  .dashboard-scale {
+    display: grid !important;
+    grid-template-columns: 2fr 1fr;
+    grid-auto-flow: row dense;
+    align-items: start;
+  }
+  .dashboard-scale > * {
+    grid-column: span 2;
+  }
+  .dashboard-scale > .dash-main-item {
+    grid-column: 1;
+  }
+  .dashboard-scale > .dash-side-item {
+    grid-column: 2;
+  }
+}
+.dashboard-scale .deliv-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 </style>
 
 <div class="dashboard-scale">
@@ -593,7 +622,7 @@
   </div>
 
   <!-- ═══ GOLDEN TICKET (HONGBAO VIRAL LOOP) ═══ -->
-  <div class="streak-card" style="background: linear-gradient(135deg, rgba(220,38,38,.08), rgba(239,68,68,.04)); border-color: rgba(239,68,68,.2); margin-top: 5px;">
+  <div class="streak-card dash-main-item" style="background: linear-gradient(135deg, rgba(220,38,38,.08), rgba(239,68,68,.04)); border-color: rgba(239,68,68,.2); margin-top: 5px;">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
       <div style="display:flex;align-items:center;gap:14px;">
         <div style="font-size:30px;">&#x1F9E7;</div>
@@ -614,7 +643,7 @@
 
   <!-- ═══ LOGIN STREAK ═══ -->
   {% if login_streak is defined and login_streak %}
-  <div class="streak-card">
+  <div class="streak-card dash-main-item">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
       <div style="display:flex;align-items:center;gap:14px;">
         <div style="font-size:30px;">&#x1F525;</div>
@@ -638,7 +667,7 @@
 
   <!-- ═══ UPGRADE BANNER ═══ -->
   {% if not user.user_type or user.user_type in ('free', 'starter') %}
-  <div class="upgrade-card">
+  <div class="upgrade-card dash-main-item">
     <div class="upgrade-icon">&#x1F680;</div>
     <div class="upgrade-body">
       <div class="upgrade-title">Unlock Unlimited Applications</div>
@@ -650,7 +679,7 @@
 
   <!-- ═══ FLASH SALE ═══ -->
   {% if flash_sales and flash_sales|length > 0 %}{% set fs = flash_sales[0] %}
-  <div class="flash-card" id="flashSaleBanner">
+  <div class="flash-card dash-main-item" id="flashSaleBanner">
     <div class="flash-label">&#x26A1; Flash Sale</div>
     <div class="flash-title">{{ fs.title }}</div>
     <div class="flash-off"><strong style="color:#ef4444;font-size:18px;">{{ "%.0f"|format(fs.discount_percent) }}% OFF</strong></div>
@@ -660,7 +689,7 @@
   {% endif %}
 
   <!-- ═══ CAMPAIGN PERFORMANCE ═══ -->
-  <div class="card">
+  <div class="card dash-side-item">
     <div class="card-title">&#x1F4CA; Campaign Performance</div>
     
     <!-- Chart.js Injection -->
@@ -737,14 +766,14 @@
       <div class="deliv-labels">
         <span class="deliv-label lbl-poor">Poor</span>
         <span class="deliv-label">Average</span>
-        <span>Good</span>
+        <span class="deliv-label">GOOD</span>
         <span class="deliv-label lbl-excellent">Excellent</span>
       </div>
     </div>
   </div>
 
   <!-- ═══ VIRAL REFERRAL LOOP ═══ -->
-  <div class="card" style="background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(147,51,234,.02)); border-color:rgba(168,85,247,.2);">
+  <div class="card dash-side-item" style="background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(147,51,234,.02)); border-color:rgba(168,85,247,.2);">
     <div class="card-title" style="color:#c084fc;">&#x1F31F; Viral Referral Program</div>
     <p style="color:#94a3b8; font-size:14px; margin-bottom:15px;">Refer friends and get <strong>$5 bonus</strong> per referral! They get $2. Build your Swarm Empire.</p>
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px; background:rgba(0,0,0,0.3); padding:10px; border-radius:6px; border:1px solid rgba(168,85,247,.1);">
@@ -758,7 +787,7 @@
   </div>
 
   <!-- ═══ ATS STEALTH VISUALIZER ═══ -->
-  <div class="card">
+  <div class="card dash-side-item">
     <div class="card-title" style="color:#4ade80;">&#x1F52C; ATS Match Engine Visualizer</div>
     <p style="color:#94a3b8; font-size:14px; margin-bottom:15px;">We automatically tailor your resume to bypass ATS filters. See your live match scores.</p>
     <div class="stats-grid">
@@ -772,7 +801,7 @@
   </div>
 
   <!-- ═══ MINI STATS ═══ -->
-  <div class="mini-stats">
+  <div class="mini-stats dash-main-item">
     <div class="stat-box"><div class="stat-num scramble-text" style="color:#60a5fa;">{{ campaigns|length }}</div><div class="stat-lbl">Campaigns</div></div>
     <div class="stat-box"><div class="stat-num scramble-text" style="color:#4ade80;">${{ "%.2f"|format(user.total_spent or 0) }}</div><div class="stat-lbl">Total Spent</div></div>
     <div class="stat-box"><div class="stat-num scramble-text" style="color:#c084fc;">{{ profiles|length }}</div><div class="stat-lbl">CV Profiles</div></div>
@@ -781,7 +810,7 @@
   </div>
 
   <!-- ═══ JOB PIPELINE ═══ -->
-  <div class="card">
+  <div class="card dash-main-item">
     <div class="section-hdr">
       <h2>&#x1F504; Job Pipeline</h2>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -843,7 +872,7 @@
   </div>
 
   <!-- ═══ RECENT CAMPAIGNS ═══ -->
-  <div class="card">
+  <div class="card dash-main-item">
     <div class="section-hdr">
       <h2>&#x1F4CB; Recent Campaigns</h2>
       <a href="/new-campaign" class="btn btn-sm">&#x2B; New</a>
@@ -877,7 +906,7 @@
   </div>
 
   <!-- ═══ CV PROFILES ═══ -->
-  <div class="card">
+  <div class="card dash-main-item">
     <div class="section-hdr">
       <h2>&#x1F4C4; CV Profiles</h2>
       <a href="/upload-cv" class="btn btn-sm">&#x2B; Add</a>
@@ -907,7 +936,7 @@
   </div>
 
   <!-- ═══ VIRAL SQUADS (Hack 1) ═══ -->
-  <div class="card" style="background:linear-gradient(135deg,rgba(59,130,246,.05),rgba(37,99,235,.02)); border-color:rgba(59,130,246,.15);">
+  <div class="card dash-side-item" style="background:linear-gradient(135deg,rgba(59,130,246,.05),rgba(37,99,235,.02)); border-color:rgba(59,130,246,.15);">
     <div class="section-hdr">
       <h2>👥 Multiplayer Job Squad</h2>
       <span class="badge-pill" style="background:rgba(59,130,246,.1);color:#60a5fa;">Hack #1</span>
@@ -919,7 +948,7 @@
   </div>
 
   <!-- ═══ FOMO WAITLIST (Hack 4) ═══ -->
-  <div class="card" style="background:linear-gradient(135deg,rgba(245,158,11,.05),rgba(217,119,6,.02)); border-color:rgba(245,158,11,.15);">
+  <div class="card dash-side-item" style="background:linear-gradient(135deg,rgba(245,158,11,.05),rgba(217,119,6,.02)); border-color:rgba(245,158,11,.15);">
     <div class="section-hdr">
       <h2>⭐ God-Mode: Unlisted Jobs</h2>
       <span class="badge-pill" style="background:rgba(245,158,11,.1);color:#fbbf24;">Hack #4</span>
@@ -932,7 +961,7 @@
   </div>
 
   <!-- ═══ VIRAL GROWTH: ROAST MY RESUME (Hack 6) & Pay with Tweet (Hack 7) ═══ -->
-  <div class="card" style="background:linear-gradient(135deg,rgba(239,68,68,.05),rgba(220,38,38,.02)); border-color:rgba(239,68,68,.15);">
+  <div class="card dash-side-item" style="background:linear-gradient(135deg,rgba(239,68,68,.05),rgba(220,38,38,.02)); border-color:rgba(239,68,68,.15);">
     <div class="section-hdr">
       <h2>🔥 Roast My Resume (AI)</h2>
       <span class="badge-pill" style="background:rgba(239,68,68,.1);color:#ef4444;">Hack #6 & #7</span>
@@ -971,7 +1000,7 @@
   </script>
 
   <!-- ═══ SEND MANUAL EMAIL ═══ -->
-  <div class="email-card">
+  <div class="email-card dash-main-item">
     <div class="section-hdr">
       <div>
         <h2>&#x2709;&#xFE0F; Send Manual Email</h2>
@@ -1011,7 +1040,7 @@
 
   <!-- ═══ RECENT MANUAL EMAILS ═══ -->
   {% if manual_emails_user %}
-  <div class="card">
+  <div class="card dash-main-item">
     <div class="card-title">&#x1F4EC; Recent Manual Emails</div>
     <div class="table-wrapper">
       <table class="table">
@@ -1033,7 +1062,7 @@
   {% endif %}
 
   <!-- ═══ REFERRAL ═══ -->
-  <div class="referral-card">
+  <div class="referral-card dash-side-item">
     <h3>&#x1F381; Refer &amp; Earn</h3>
     <p>Invite friends and earn up to <strong>20% commission</strong></p>
     <div class="ref-link-box" id="refLinkBox">{{ referral_link }}</div>

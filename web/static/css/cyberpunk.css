@@ -146,7 +146,7 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
   font-size: 2.5rem;
   font-weight: 800;
-  text-shadow: 0 0 20px rgba(0, 240, 255, 0.6), 0 0 40px rgba(0, 240, 255, 0.4), 0 0 60px rgba(0, 240, 255, 0.2);
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
 }
 
 h2 {
@@ -713,6 +713,8 @@ a:hover {
   border-left: 3px solid transparent !important;
   padding: 12px 20px !important;
   transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .sidebar a:hover, [class*="sidebar"] a:hover {
