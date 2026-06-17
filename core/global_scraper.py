@@ -825,11 +825,7 @@ class GlobalJobScraper:
             domain_base = "unknown"
 
         guessed_domain = f"{domain_base}.com"
-        # Quick HTTP HEAD validation (non-blocking, 3s timeout)
-        domain_ok = _validate_domain_http(guessed_domain)
-        if not domain_ok:
-            logger.debug(f"[LinkedIn] Domain {guessed_domain} failed HTTP HEAD for '{company}'")
-
+        
         placeholder_email = f"careers@{guessed_domain}" if domain_base != "unknown" else ""
 
         return {

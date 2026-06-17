@@ -67,10 +67,11 @@
 
             ws.onopen = function() {
                 if(hudStatus) {
-                    hudStatus.style.backgroundColor = '#00ff41';
-                    hudStatus.style.boxShadow = '0 0 10px #00ff41';
+                    hudStatus.className = 'badge-pill bp-green';
+                }
+                if(hudText) {
                     hudText.innerText = 'UPLINK: SECURE';
-                    hudText.style.color = '#00ff41';
+                    hudText.className = 'badge-pill bp-green';
                 }
                 reconnectDelay = 1000;
             };
@@ -82,10 +83,11 @@
 
             ws.onclose = function(e) {
                 if(hudStatus) {
-                    hudStatus.style.backgroundColor = '#ff0055';
-                    hudStatus.style.boxShadow = '0 0 15px #ff0055';
+                    hudStatus.className = 'badge-pill bp-red';
+                }
+                if(hudText) {
                     hudText.innerText = 'UPLINK SEVERED: RECONNECTING...';
-                    hudText.style.color = '#ff0055';
+                    hudText.className = 'badge-pill bp-red';
                 }
                 console.log(`Socket is closed. Reconnecting in ${reconnectDelay}ms...`, e.reason);
                 setTimeout(function() {

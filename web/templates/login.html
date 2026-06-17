@@ -11,59 +11,87 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#000;--bg2:#050508;--cyan:#00f0ff;--magenta:#ff0055;--gold:#ffb300;--green:#00e676;--text:#f0f0f5;--muted:#8888aa;--dim:#555577;--border:rgba(255,255,255,0.06);--card:rgba(10,10,20,0.8);--radius:16px;--transition:0.35s cubic-bezier(0.25,0.46,0.45,0.94)}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+:root {
+  --bg-dark: #050505;
+  --bg-panel: rgba(18, 18, 24, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.15);
+  --accent-cyan: #00f2fe;
+  --accent-magenta: #4facfe;
+  --accent-glow: rgba(79, 172, 254, 0.15);
+  --text-main: #f8fafc;
+  --text-muted: #8b9bb4;
+  --dim: #555577;
+  --transition: 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+body {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
 /* Background */
-.bg-layer{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(0,240,255,0.04) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 80% 70%,rgba(255,0,85,0.03) 0%,transparent 60%)}
+.bg-layer{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;background:radial-gradient(circle at 15% 50%, rgba(79, 172, 254, 0.08), transparent 25%),radial-gradient(circle at 85% 30%, rgba(0, 242, 254, 0.06), transparent 25%);}
 
 .headroom{min-height:56px;background:rgba(5,5,15,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
-.headroom .brand{font-size:18px;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(135deg,var(--cyan),#00b8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;display:flex;align-items:center;gap:8px}
-.headroom .brand .v{font-size:9px;font-weight:700;background:rgba(0,240,255,0.12);color:var(--cyan);padding:2px 8px;border-radius:12px;border:1px solid rgba(0,240,255,0.2);-webkit-text-fill-color:var(--cyan)}
+.headroom .brand{font-size:18px;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(135deg,var(--accent-cyan),#00b8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;display:flex;align-items:center;gap:8px}
+.headroom .brand .v{font-size:9px;font-weight:700;background:rgba(0,240,255,0.12);color:var(--accent-cyan);padding:2px 8px;border-radius:12px;border:1px solid rgba(0,240,255,0.2);-webkit-text-fill-color:var(--accent-cyan)}
 .headroom nav{display:flex;gap:4px;align-items:center}
-.headroom nav a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;padding:8px 14px;border-radius:10px;transition:all var(--transition)}
+.headroom nav a{color:var(--text-muted);text-decoration:none;font-size:13px;font-weight:500;padding:8px 14px;border-radius:10px;transition:all var(--transition)}
 .headroom nav a:hover{color:#fff;background:rgba(255,255,255,0.05)}
-.headroom nav a.cta{background:linear-gradient(135deg,var(--cyan),#00b8ff);color:#000;font-weight:700}
+.headroom nav a.cta{background:linear-gradient(135deg,var(--accent-cyan),#00b8ff);color:#000;font-weight:700}
 
 .page-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:32px 20px;position:relative;z-index:1}
 .auth-container{width:100%;max-width:440px}
-.auth-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:36px 32px;animation:fadeInUp 0.5s ease-out;position:relative;overflow:hidden}
-.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),var(--magenta),transparent);opacity:0.6}
+.auth-card{background:var(--bg-panel);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--glass-border);border-radius:20px;padding:36px 32px;animation:fadeInUp 0.5s ease-out;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent-cyan),var(--accent-magenta),transparent);opacity:0.6}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
 .auth-header{text-align:center;margin-bottom:28px}
-.auth-header h1{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
-.auth-header .sub{color:var(--muted);font-size:14px}
+.auth-header h1{font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
+.auth-header .sub{color:var(--text-muted);font-size:14px}
 
-/* Plan badge */
 .plan-badge{display:flex;align-items:center;gap:10px;background:rgba(0,240,255,0.06);border:1px solid rgba(0,240,255,0.15);border-radius:12px;padding:12px 16px;margin-bottom:24px}
 .plan-badge-icon{font-size:20px}
-.plan-badge-info strong{color:var(--cyan);font-size:14px}
-.plan-badge-info span{color:var(--muted);font-size:12px;display:block}
+.plan-badge-info strong{color:var(--accent-cyan);font-size:14px}
+.plan-badge-info span{color:var(--text-muted);font-size:12px;display:block}
 
 .form-group{margin-bottom:18px}
-.form-group label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500}
-.form-group input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:15px;transition:all var(--transition);font-family:'Inter',sans-serif}
-.form-group input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,240,255,0.1)}
+.form-group label{display:block;font-size:13px;color:var(--text-muted);margin-bottom:6px;font-weight:500}
+.form-group input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:15px;transition:all var(--transition);font-family:'Outfit',sans-serif}
+.form-group input:focus{outline:none;border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(0,240,255,0.1);background:rgba(255,255,255,0.06)}
 .form-group input::placeholder{color:var(--dim)}
 .pw-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-.pw-row a{color:var(--cyan);text-decoration:none;font-size:13px}
+.pw-row a{color:var(--accent-cyan);text-decoration:none;font-size:13px}
 .pw-row a:hover{text-decoration:underline}
 
-.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--cyan),#00b8ff);color:#000;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:'Inter',sans-serif;letter-spacing:-0.3px}
-.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 35px rgba(0,240,255,0.3)}
-.auth-footer{text-align:center;margin-top:24px;color:rgba(255,255,255,0.8);font-size:14px}
-.auth-footer a{color:var(--cyan);text-decoration:none;font-weight:600}
+.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-magenta));color:#050505;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:'Outfit',sans-serif;letter-spacing:-0.3px}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 25px var(--accent-glow)}
+.auth-footer{text-align:center;margin-top:24px;color:var(--text-muted);font-size:14px}
+.auth-footer a{color:var(--accent-cyan);text-decoration:none;font-weight:600}
 .auth-footer a:hover{text-decoration:underline}
 
-.error{background:rgba(255,0,85,0.08);border:1px solid rgba(255,0,85,0.2);color:var(--magenta);padding:12px 16px;border-radius:10px;margin-bottom:20px;font-size:13px;animation:shake 0.5s ease-out}
+.error{background:rgba(255,0,85,0.08);border:1px solid rgba(255,0,85,0.2);color:#ff0055;padding:12px 16px;border-radius:10px;margin-bottom:20px;font-size:13px;animation:shake 0.5s ease-out}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 
 .trust-strip{text-align:center;margin-top:32px;font-size:11px;color:var(--dim);display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
 .trust-strip span{display:flex;align-items:center;gap:4px}
 @media(max-width:600px){.auth-card{padding:24px 20px}}
+
+.oauth-divider { text-align: center; margin: 24px 0; color: var(--dim); position: relative; font-size: 13px; font-weight: 500; }
+.oauth-divider::before, .oauth-divider::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: rgba(255,255,255,0.1); }
+.oauth-divider::before { left: 0; }
+.oauth-divider::after { right: 0; }
+.btn-oauth { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 12px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--glass-border); border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all var(--transition); text-decoration: none; margin-bottom: 12px; }
+.btn-oauth:hover { background: rgba(255,255,255,0.1); border-color: var(--glass-border-hover); transform: translateY(-1px); box-shadow:0 4px 15px rgba(0,0,0,0.2) }
+.btn-oauth img { width: 20px; height: 20px; }
 </style>
 </head>
-<body class="cyberpunk-body">
+<body>
   <div class="bg-layer"></div>
 
   {% include '_public_nav.html' %}
@@ -89,6 +117,19 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         {% if error %}
         <div class="error">⚠️ {{ error }}</div>
         {% endif %}
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+          <a href="/auth/google/login" class="btn-oauth" style="margin-bottom: 0;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
+            Google
+          </a>
+          <a href="/auth/microsoft/login" class="btn-oauth" style="margin-bottom: 0;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft">
+            Microsoft
+          </a>
+        </div>
+        
+        <div class="oauth-divider">OR</div>
 
         <form method="POST" action="/login">
           <div class="form-group">

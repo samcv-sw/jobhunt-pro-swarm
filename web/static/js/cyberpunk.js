@@ -56,6 +56,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 element.dataset.original = originalText; // Save original
             }
             
+            // Graceful fallback for CSS blur/opacity
+            element.classList.add('scramble-ready');
+            
             // Prevent re-scrambling if it's already running
             if (element.hasAttribute('data-scrambling')) return;
             element.setAttribute('data-scrambling', 'true');

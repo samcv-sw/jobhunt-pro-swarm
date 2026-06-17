@@ -144,6 +144,36 @@ EMAIL_PROVIDERS = [
      "user": "OAUTH2_POOL", "password": "OAUTH2_POOL",
      "daily_limit": 8000, "weight": 20, "oauth2": True},
 ]
+
+# ═══ MASSIVE SCALE SMTP LOADER (For 1200+ Emails) ═══
+import os as _os
+_smtps_file = _os.path.join(_os.path.dirname(__file__), "data", "smtps.txt")
+if _os.path.exists(_smtps_file):
+    try:
+        with open(_smtps_file, "r", encoding="utf-8") as _f:
+            _idx = 1
+            for _line in _f:
+                _line = _line.strip()
+                if not _line or _line.startswith("#"): continue
+                
+                # Format 1: email:password (assumes Gmail/Outlook based on domain)
+                # Format 2: server:port:email:password
+                _parts = _line.split(":")
+                
+                if len(_parts) == 2:
+                    _user, _pwd = _parts
+                    _domain = _user.split("@")[-1].lower() if "@" in _user else ""
+                    _server = "smtp-mail.outlook.com" if "hotmail" in _domain or "outlook" in _domain or "live" in _domain else "smtp.gmail.com"
+                    _port = 587
+                    EMAIL_PROVIDERS.append({"name": f"bulk_{_idx}", "server": _server, "port": _port, "user": _user, "password": _pwd, "daily_limit": 100, "weight": 1})
+                    _idx += 1
+                elif len(_parts) >= 4:
+                    _server, _port_str, _user, _pwd = _parts[0], _parts[1], _parts[2], ":".join(_parts[3:])
+                    EMAIL_PROVIDERS.append({"name": f"bulk_{_idx}", "server": _server, "port": int(_port_str), "user": _user, "password": _pwd, "daily_limit": 100, "weight": 1})
+                    _idx += 1
+    except Exception as e:
+        logger.error(f"Failed to load bulk SMTPs: {e}")
+
 # ═══ Email Quality & Delivery Pipeline (v16.320) ═══
 EMAIL_VERIFY_ENABLED = True          # Bouncify-style MX verification before sending
 TRACKING_PIXEL_ENABLED = False       # Default OFF — prevents spam trigger (">1px image")

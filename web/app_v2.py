@@ -2427,6 +2427,7 @@ def _build_dashboard_shell(user, user_id, content_html, title, active_page):
         <div class="nav-divider"></div>
         <a href="/contact"{ac("contact")}><span class="nav-icon">💬</span>Contact</a>
         <a href="https://wa.me/96171019053?text=Hi%20Sam%21%20JobHunt%20Pro%20Support" target="_blank" style="color:#25D366;"><span class="nav-icon">🟢</span>WhatsApp</a>
+        <a href="/admin/sys-logs"{ac("sys-logs")} style="color:#ef4444;"><span class="nav-icon">📜</span>System Logs</a>
         <a href="/logout" class="logout"><span class="nav-icon">🚪</span>Logout</a>
     </nav>
 </div>
@@ -2989,6 +2990,238 @@ def _check_rate_limit(store: dict, ip: str, max_count: int, window_seconds: int 
 def _check_login_rate_limit(ip: str) -> bool:
     """Returns True if allowed, False if rate limited (10 attempts/hour)."""
     return _check_rate_limit(_login_attempts, ip, max_count=10)
+
+# ==========================================
+# OAUTH 2.0 LOGIN ROUTES
+# ==========================================
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "https://jhfguf.pythonanywhere.com/auth/google/callback")
+
+@app.get("/auth/google/login")
+def google_login():
+    """Redirects user to Google OAuth consent screen."""
+    scopes = [
+        "openid",
+        "email",
+        "profile",
+        "https://www.googleapis.com/auth/gmail.send"
+    ]
+    scope_str = " ".join(scopes)
+    auth_url = (
+        "https://accounts.google.com/o/oauth2/v2/auth?"
+        f"client_id={GOOGLE_CLIENT_ID}&"
+        f"redirect_uri={GOOGLE_REDIRECT_URI}&"
+        "response_type=code&"
+        f"scope={scope_str}&"
+        "access_type=offline&"
+        "prompt=consent"
+    )
+    return RedirectResponse(auth_url)
+
+@app.get("/auth/google/callback")
+def google_callback(code: str = None, error: str = None):
+    """Handles Google OAuth callback, creates user, and logs them in."""
+    if error or not code:
+        return HTMLResponse("<html><body><h3>OAuth Error</h3><p>Google authentication failed or was cancelled.</p><a href='/login'>Try again</a></body></html>")
+    
+    # Exchange code for token
+    token_url = "https://oauth2.googleapis.com/token"
+    data = {
+        "code": code,
+        "client_id": GOOGLE_CLIENT_ID,
+        "client_secret": GOOGLE_CLIENT_SECRET,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "grant_type": "authorization_code",
+    }
+    resp = requests.post(token_url, data=data)
+    if not resp.ok:
+        return HTMLResponse(f"<html><body><h3>OAuth Error</h3><p>Failed to exchange token. {resp.text}</p></body></html>")
+    
+    tokens = resp.json()
+    access_token = tokens.get("access_token")
+    refresh_token = tokens.get("refresh_token")
+    expires_in = tokens.get("expires_in", 3599)
+    expires_at = time.time() + expires_in
+
+    # Get user info
+    user_info_resp = requests.get(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    if not user_info_resp.ok:
+        return HTMLResponse("<html><body><h3>OAuth Error</h3><p>Failed to fetch user profile.</p></body></html>")
+    
+    user_info = user_info_resp.json()
+    email = user_info.get("email")
+    name = user_info.get("name", "User")
+    
+    if not email:
+        return HTMLResponse("<html><body><h3>OAuth Error</h3><p>Email address not provided by Google.</p></body></html>")
+    
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+    
+    if not user:
+        # Create new user
+        import secrets
+        import bcrypt
+        temp_pwd = secrets.token_urlsafe(16)
+        pwd_hash = bcrypt.hashpw(temp_pwd.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
+        import uuid
+        user_id = str(uuid.uuid4())
+        cursor = conn.execute(
+            """INSERT INTO users (user_id, email, password_hash, name, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at) 
+               VALUES (?, ?, ?, ?, 'google', ?, ?, ?)""",
+            (user_id, email, pwd_hash, name, access_token, refresh_token, expires_at)
+        )
+        conn.commit()
+    else:
+        user_id = user["user_id"]
+        # Update tokens
+        if refresh_token:
+            conn.execute(
+                "UPDATE users SET oauth_provider='google', oauth_access_token=?, oauth_refresh_token=?, oauth_expires_at=? WHERE user_id=?",
+                (access_token, refresh_token, expires_at, user_id)
+            )
+        else:
+            conn.execute(
+                "UPDATE users SET oauth_provider='google', oauth_access_token=?, oauth_expires_at=? WHERE user_id=?",
+                (access_token, expires_at, user_id)
+            )
+        conn.commit()
+    
+    conn.close()
+    
+    response = RedirectResponse("/dashboard", status_code=303)
+    response.set_cookie("user_id", session_serializer.dumps(user_id), httponly=True, samesite="lax", max_age=86400*30)
+    return response
+
+@app.get("/force-migrate")
+def force_migrate():
+    conn = sqlite3.connect('jobhunt_saas_v2.db')
+    try:
+        conn.execute("ALTER TABLE users ADD COLUMN oauth_provider TEXT")
+    except: pass
+    try:
+        conn.execute("ALTER TABLE users ADD COLUMN oauth_access_token TEXT")
+    except: pass
+    try:
+        conn.execute("ALTER TABLE users ADD COLUMN oauth_refresh_token TEXT")
+    except: pass
+    try:
+        conn.execute("ALTER TABLE users ADD COLUMN oauth_expires_at REAL")
+    except: pass
+    conn.commit()
+    conn.close()
+    return {"status": "success"}
+
+# ==========================================
+# MICROSOFT OAUTH LOGIN ROUTES
+# ==========================================
+MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
+MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
+MICROSOFT_REDIRECT_URI = os.getenv("MICROSOFT_REDIRECT_URI", "https://jhfguf.pythonanywhere.com/auth/microsoft/callback")
+
+@app.get("/auth/microsoft/login")
+def microsoft_login():
+    """Redirects user to Microsoft OAuth consent screen."""
+    scopes = [
+        "openid",
+        "email",
+        "profile",
+        "offline_access",
+        "https://graph.microsoft.com/Mail.Send",
+        "https://graph.microsoft.com/User.Read"
+    ]
+    scope_str = " ".join(scopes)
+    # Using replace instead of urllib to avoid missing import error
+    auth_url = (
+        "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?"
+        f"client_id={MICROSOFT_CLIENT_ID}&"
+        f"redirect_uri={MICROSOFT_REDIRECT_URI}&"
+        "response_type=code&"
+        f"scope={scope_str.replace(' ', '%20')}&"
+        "prompt=select_account"
+    )
+    return RedirectResponse(auth_url)
+
+@app.get("/auth/microsoft/callback")
+def microsoft_callback(code: str = None, error: str = None):
+    """Handles Microsoft OAuth callback."""
+    if error or not code:
+        return HTMLResponse("<html><body><h3>OAuth Error</h3><p>Microsoft authentication failed.</p><a href='/login'>Try again</a></body></html>")
+    
+    token_url = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+    data = {
+        "client_id": MICROSOFT_CLIENT_ID,
+        "client_secret": MICROSOFT_CLIENT_SECRET,
+        "code": code,
+        "redirect_uri": MICROSOFT_REDIRECT_URI,
+        "grant_type": "authorization_code"
+    }
+    resp = requests.post(token_url, data=data)
+    if not resp.ok:
+        return HTMLResponse(f"<html><body><h3>OAuth Error</h3><p>Token exchange failed: {resp.text}</p></body></html>")
+    
+    tokens = resp.json()
+    access_token = tokens.get("access_token")
+    refresh_token = tokens.get("refresh_token")
+    expires_in = tokens.get("expires_in", 3599)
+    expires_at = time.time() + expires_in
+
+    # Get user profile from Graph API
+    user_resp = requests.get(
+        "https://graph.microsoft.com/v1.0/me",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    if not user_resp.ok:
+        return HTMLResponse("<html><body><h3>OAuth Error</h3><p>Failed to fetch profile.</p></body></html>")
+    
+    user_info = user_resp.json()
+    email = user_info.get("mail") or user_info.get("userPrincipalName")
+    name = user_info.get("displayName", "User")
+    
+    if not email:
+        return HTMLResponse("<html><body><h3>OAuth Error</h3><p>Email address not provided.</p></body></html>")
+    
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+    
+    if not user:
+        import secrets
+        import bcrypt
+        temp_pwd = secrets.token_urlsafe(16)
+        pwd_hash = bcrypt.hashpw(temp_pwd.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
+        import uuid
+        user_id = str(uuid.uuid4())
+        cursor = conn.execute(
+            """INSERT INTO users (user_id, email, password_hash, name, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at) 
+               VALUES (?, ?, ?, ?, 'microsoft', ?, ?, ?)""",
+            (user_id, email, pwd_hash, name, access_token, refresh_token, expires_at)
+        )
+        conn.commit()
+    else:
+        user_id = user["user_id"]
+        if refresh_token:
+            conn.execute(
+                "UPDATE users SET oauth_provider='microsoft', oauth_access_token=?, oauth_refresh_token=?, oauth_expires_at=? WHERE user_id=?",
+                (access_token, refresh_token, expires_at, user_id)
+            )
+        else:
+            conn.execute(
+                "UPDATE users SET oauth_provider='microsoft', oauth_access_token=?, oauth_expires_at=? WHERE user_id=?",
+                (access_token, expires_at, user_id)
+            )
+        conn.commit()
+    
+    conn.close()
+    
+    response = RedirectResponse("/dashboard", status_code=303)
+    response.set_cookie("user_id", session_serializer.dumps(user_id), httponly=True, samesite="lax", max_age=86400*30)
+    return response
 
 @app.get("/login", response_class=HTMLResponse)
 def login_page(request: Request, plan: str = ""):
@@ -6711,7 +6944,7 @@ def require_admin(request: Request):
     conn = get_db()
     row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
     conn.close()
-    if not row or row["email"] != ADMIN_EMAIL:
+    if not row or (ADMIN_EMAIL and row["email"] != ADMIN_EMAIL):
         return None
     return user_id
 
@@ -6721,6 +6954,58 @@ def admin_panel(request: Request):
     """Admin dashboard &#x2014; full system overview."""
     if not require_admin(request):
         return RedirectResponse("/login", status_code=303)
+
+@app.get("/admin/sys-logs", response_class=HTMLResponse)
+def admin_sys_logs(request: Request):
+    """Admin endpoint to view system logs."""
+    if not require_admin(request):
+        return RedirectResponse("/login", status_code=303)
+    
+    logs_html = "<h2>System Logs</h2>"
+    
+    # Try reading PA logs or local logs
+    log_files = [
+        "/var/log/jhfguf.pythonanywhere.com.error.log",
+        "/var/log/jhfguf.pythonanywhere.com.server.log",
+        "error.log",
+        "server.log",
+        "jobhunt.log",
+        "sam_max.log"
+    ]
+    
+    for log_path in log_files:
+        if os.path.exists(log_path):
+            try:
+                # Read last 500 lines using tail-like approach
+                with open(log_path, 'r', encoding='utf-8', errors='replace') as f:
+                    lines = f.readlines()
+                    tail_lines = lines[-500:]
+                    logs_html += f"<h3>{os.path.basename(log_path)}</h3>"
+                    logs_html += f"<pre style='background:#1e1e1e;color:#00ff00;padding:15px;overflow:auto;height:400px;font-size:12px;'>{''.join(tail_lines)}</pre>"
+            except Exception as e:
+                logs_html += f"<p>Error reading {log_path}: {e}</p>"
+                
+    if logs_html == "<h2>System Logs</h2>":
+        logs_html += "<p>No log files found.</p>"
+        
+    html_content = f"""
+    <html>
+    <head>
+        <title>System Logs</title>
+        <style>
+            body {{ background-color: #111; color: #eee; font-family: monospace; padding: 20px; }}
+            a {{ color: #3b82f6; text-decoration: none; }}
+            a:hover {{ text-decoration: underline; }}
+        </style>
+    </head>
+    <body>
+        <a href="/admin">&larr; Back to Admin Panel</a> | <a href="/user-dashboard">Back to Dashboard</a>
+        {logs_html}
+    </body>
+    </html>
+    """
+    return HTMLResponse(html_content)
+
 
     conn = get_db()
 

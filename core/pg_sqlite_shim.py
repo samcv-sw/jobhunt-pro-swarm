@@ -132,9 +132,16 @@ class PgConnectionWrapper:
 class SqliteConnectionWrapper:
     """SQLite fallback wrapper with same interface as PgConnectionWrapper."""
     def __init__(self, db_path):
-        self.conn = real_sqlite3.connect(db_path)
-        self.conn.row_factory = real_sqlite3.Row
         global BACKEND
+        self.conn = real_sqlite3.connect(db_path, check_same_thread=False, timeout=30)
+        self.conn.row_factory = real_sqlite3.Row
+        
+        # Performance tuning for extreme scalability on SQLite
+        self.conn.execute("PRAGMA journal_mode=WAL")
+        self.conn.execute("PRAGMA synchronous=NORMAL")
+        self.conn.execute("PRAGMA cache_size=-64000") # 64MB cache
+        self.conn.execute("PRAGMA busy_timeout=30000")
+        
         BACKEND = "sqlite"
         logger.info(f"[DB] Connected to SQLite fallback: {db_path}")
         

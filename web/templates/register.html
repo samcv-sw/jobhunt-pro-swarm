@@ -10,90 +10,112 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#000;--card:rgba(15,15,25,0.85);--cyan:#00f0ff;--magenta:#ff0055;--gold:#ffb300;--green:#00e676;--text:#f0f0f5;--muted:#8888aa;--border:rgba(255,255,255,0.06)}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.6}
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+:root {
+  --bg-dark: #050505;
+  --bg-panel: rgba(18, 18, 24, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.15);
+  --accent-cyan: #00f2fe;
+  --accent-magenta: #4facfe;
+  --accent-glow: rgba(79, 172, 254, 0.15);
+  --text-main: #f8fafc;
+  --text-muted: #8b9bb4;
+  --dim: #555577;
+  --transition: 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+body {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
 /* BG effects */
-body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(0,240,255,.04) 0%,transparent 50%),
-  radial-gradient(ellipse 60% 40% at 80% 30%,rgba(255,0,85,.03) 0%,transparent 50%),
-  radial-gradient(ellipse 50% 60% at 50% 80%,rgba(255,179,0,.03) 0%,transparent 50%)}
-body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;
-  background-image:linear-gradient(rgba(0,240,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.015) 1px,transparent 1px);background-size:60px 60px}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;background:radial-gradient(circle at 15% 50%, rgba(79, 172, 254, 0.08), transparent 25%),radial-gradient(circle at 85% 30%, rgba(0, 242, 254, 0.06), transparent 25%);}
 
-.headroom{position:relative;z-index:10;min-height:60px;background:rgba(5,5,15,.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-wrap:wrap;gap:10px}
-.headroom .brand{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,#00f0ff,#00a0cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;letter-spacing:-.5px}
+.headroom{position:relative;z-index:10;min-height:60px;background:rgba(5,5,15,.75);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--glass-border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-wrap:wrap;gap:10px}
+.headroom .brand{font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--accent-cyan),#00b8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;letter-spacing:-.5px}
 .headroom nav{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.headroom nav a{font-size:12px;color:#8888aa;font-weight:500;text-decoration:none;padding:6px 0;transition:all .2s}
-.headroom nav a:hover{color:#00f0ff}
+.headroom nav a{font-size:13px;color:var(--text-muted);font-weight:500;text-decoration:none;padding:6px 0;transition:all var(--transition)}
+.headroom nav a:hover{color:#fff}
 
 .page-wrap{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:center;padding:30px 16px 60px;min-height:calc(100vh - 60px)}
 .container{width:100%;max-width:900px;display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
 @media(max-width:700px){.container{grid-template-columns:1fr}}
 
-.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
-.card h1{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}
-.card .subtitle{color:var(--muted);font-size:14px;margin-bottom:28px}
+.card{background:var(--bg-panel);border:1px solid var(--glass-border);border-radius:20px;padding:32px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.card h1{font-size:26px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}
+.card .subtitle{color:var(--text-muted);font-size:14px;margin-bottom:28px}
 
 /* Benefits sidebar */
-.benefits-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
-.benefits-card h2{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin-bottom:18px;text-shadow:0 0 10px rgba(0,240,255,0.2)}
-.benefit-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.03);transition:all .25s}
-.benefit-item:hover{background:rgba(0,240,255,.03);border-color:rgba(0,240,255,.1)}
+.benefits-card{background:var(--bg-panel);border:1px solid var(--glass-border);border-radius:20px;padding:28px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.benefits-card h2{font-size:18px;font-weight:700;margin-bottom:18px;color:var(--accent-cyan)}
+.benefit-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.03);transition:all var(--transition)}
+.benefit-item:hover{background:rgba(255,255,255,.04);border-color:var(--glass-border-hover)}
 .benefit-icon{font-size:18px;flex-shrink:0;margin-top:1px}
-.benefit-item strong{display:block;font-size:13px;color:#e2e8f0;margin-bottom:2px}
-.benefit-item span{font-size:11px;color:#64748b}
+.benefit-item strong{display:block;font-size:13px;color:#fff;margin-bottom:2px}
+.benefit-item span{font-size:11px;color:var(--text-muted)}
 
 /* Plan selector */
 .plan-selector{margin-bottom:28px}
-.plan-selector h3{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.plan-selector h3{font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
 .plan-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 @media(max-width:400px){.plan-options{grid-template-columns:1fr}}
-.plan-option{position:relative;padding:14px 10px;background:rgba(255,255,255,.02);border:2px solid var(--border);border-radius:12px;cursor:pointer;text-align:center;transition:all .25s}
-.plan-option:hover{border-color:rgba(0,240,255,.2);background:rgba(0,240,255,.03)}
-.plan-option.selected{border-color:#00f0ff;background:rgba(0,240,255,.06);box-shadow:0 0 20px rgba(0,240,255,.1)}
+.plan-option{position:relative;padding:14px 10px;background:rgba(255,255,255,.02);border:2px solid var(--glass-border);border-radius:12px;cursor:pointer;text-align:center;transition:all var(--transition)}
+.plan-option:hover{border-color:var(--glass-border-hover);background:rgba(255,255,255,.04)}
+.plan-option.selected{border-color:var(--accent-cyan);background:rgba(0,240,255,.06);box-shadow:0 0 20px var(--accent-glow)}
 .plan-option input{display:none}
-.plan-name{font-size:12px;font-weight:700;color:#e2e8f0;margin-bottom:4px}
-.plan-price{font-size:18px;font-weight:800;color:#00f0ff;text-shadow:0 0 10px rgba(0,240,255,.3)}
-.plan-price span{font-size:11px;color:var(--muted);font-weight:400}
-.plan-apps{font-size:10px;color:var(--muted);margin-top:3px}
-.plan-badge{position:absolute;top:-8px;right:-6px;background:linear-gradient(135deg,#00f0ff,#0088ff);color:#000;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px}
+.plan-name{font-size:12px;font-weight:700;color:#fff;margin-bottom:4px}
+.plan-price{font-size:18px;font-weight:800;color:var(--accent-cyan);text-shadow:0 0 10px var(--accent-glow)}
+.plan-price span{font-size:11px;color:var(--text-muted);font-weight:400}
+.plan-apps{font-size:10px;color:var(--text-muted);margin-top:3px}
+.plan-badge{position:absolute;top:-8px;right:-6px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-magenta));color:#050505;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px}
 
-.savings-banner{text-align:center;margin:12px 0 20px;padding:10px;background:rgba(0,240,255,.04);border:1px solid rgba(0,240,255,.1);border-radius:10px;font-size:12px;color:#00f0ff;font-weight:600}
+.savings-banner{text-align:center;margin:12px 0 20px;padding:10px;background:rgba(0,240,255,.04);border:1px solid rgba(0,240,255,.1);border-radius:10px;font-size:12px;color:var(--accent-cyan);font-weight:600}
 .savings-banner strong{font-size:15px}
 
 .form-group{margin-bottom:18px}
-.form-group label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500}
-.form-group input{width:100%;padding:12px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-size:15px;font-family:'Inter',sans-serif;transition:all .25s}
-.form-group input:focus{outline:none;border-color:#00f0ff;box-shadow:0 0 0 3px rgba(0,240,255,.1)}
-.form-group input::placeholder{color:#555577}
+.form-group label{display:block;font-size:13px;color:var(--text-muted);margin-bottom:6px;font-weight:500}
+.form-group input{width:100%;padding:13px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:15px;font-family:'Outfit',sans-serif;transition:all var(--transition)}
+.form-group input:focus{outline:none;border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(0,240,255,.1);background:rgba(255,255,255,.06)}
+.form-group input::placeholder{color:var(--dim)}
 
-.btn-submit{width:100%;padding:15px;background:linear-gradient(135deg,#00f0ff,#0088cc,#00f0ff);background-size:200% 200%;animation:btnShine 3s ease infinite;color:#000;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;transition:all .3s;font-family:'Space Grotesk',sans-serif;letter-spacing:.5px;text-transform:uppercase}
-@keyframes btnShine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.btn-submit:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(0,240,255,.35)}
+.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-magenta));color:#050505;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:'Outfit',sans-serif;letter-spacing:-0.3px}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 25px var(--accent-glow)}
 
-.link-row{text-align:center;margin-top:18px;font-size:13px;color:var(--muted)}
-.link-row a{color:#00f0ff;text-decoration:none;font-weight:600}
+.link-row{text-align:center;margin-top:18px;font-size:13px;color:var(--text-muted)}
+.link-row a{color:var(--accent-cyan);text-decoration:none;font-weight:600}
 .link-row a:hover{text-decoration:underline}
 
-.error{background:rgba(255,0,85,.08);border:1px solid rgba(255,0,85,.2);color:#ff4466;padding:12px;border-radius:10px;margin-bottom:18px;font-size:13px}
+.error{background:rgba(255,0,85,.08);border:1px solid rgba(255,0,85,.2);color:#ff0055;padding:12px;border-radius:10px;margin-bottom:18px;font-size:13px}
 
 .trust-strip{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;padding:12px;background:rgba(34,197,94,.03);border:1px solid rgba(34,197,94,.08);border-radius:10px}
 .trust-strip span{font-size:11px;color:#4ade80;font-weight:500}
 
 .turnstile-wrap{display:flex;justify-content:center;margin:12px 0}
+
+.oauth-divider { text-align: center; margin: 24px 0; color: var(--dim); position: relative; font-size: 13px; font-weight: 500; }
+.oauth-divider::before, .oauth-divider::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: rgba(255,255,255,0.1); }
+.oauth-divider::before { left: 0; }
+.oauth-divider::after { right: 0; }
+.btn-oauth { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 12px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--glass-border); border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all var(--transition); text-decoration: none; margin-bottom: 12px; }
+.btn-oauth:hover { background: rgba(255,255,255,0.1); border-color: var(--glass-border-hover); transform: translateY(-1px); box-shadow:0 4px 15px rgba(0,0,0,0.2) }
+.btn-oauth img { width: 20px; height: 20px; }
 </style>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
-<body class="cyberpunk-body">
+<body>
 <header class="headroom">
-  <a href="/" class="brand">⚡ JOBHUNT PRO <span style="font-size:10px;color:#00f0ff;-webkit-text-fill-color:#00f0ff;margin-left:6px;font-weight:400">v{{ VERSION }}</span></a>
+  <a href="/" class="brand">⚡ JOBHUNT PRO <span style="font-size:10px;color:var(--accent-cyan);-webkit-text-fill-color:var(--accent-cyan);margin-left:6px;font-weight:400">v{{ VERSION }}</span></a>
   <nav>
     <a href="/">Home</a>
     <a href="/pricing">Pricing</a>
     <a href="/services">Services</a>
     <a href="/trust">Trust</a>
     <a href="/faq">FAQ</a>
-    <a href="/login" style="color:#00f0ff">Login</a>
+    <a href="/login" style="color:var(--accent-cyan)">Login</a>
   </nav>
 </header>
 
@@ -105,6 +127,19 @@ body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointe
     <p class="subtitle">Start applying to 1000s of jobs with AI</p>
 
     {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+    <div style="display: flex; gap: 10px; margin-top: 10px; margin-bottom: 12px;">
+      <a href="/auth/google/login" class="btn-oauth" style="margin-bottom: 0;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
+        Google
+      </a>
+      <a href="/auth/microsoft/login" class="btn-oauth" style="margin-bottom: 0;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft">
+        Microsoft
+      </a>
+    </div>
+    
+    <div class="oauth-divider">OR</div>
 
     <!-- Plan Picker -->
     <div class="plan-selector">

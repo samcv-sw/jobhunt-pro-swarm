@@ -106,3 +106,97 @@ class DatabaseManager:
             logger.info("Disconnected from Neon.tech PostgreSQL")
 
 db = DatabaseManager()
+
+# ==============================================================================
+# LEGACY DATABASE WRAPPER FOR ORCHESTRATOR COMPATIBILITY
+# ==============================================================================
+import sqlite3 as sqlite3_sync
+import asyncio
+import pathlib
+import sys
+
+class Database:
+    """Legacy async wrapper for SQLite jobs table used by orchestrator."""
+    def __init__(self):
+        # Resolve to jobhunt_saas_v2.db in root dir
+        base_dir = pathlib.Path(__file__).resolve().parent.parent
+        self.db_path = str(base_dir / "jobhunt_saas_v2.db")
+        try:
+            import config
+            self.db_path = str(base_dir / getattr(config, "DB_PATH", "jobhunt_saas_v2.db"))
+        except ImportError:
+            pass
+
+    def _get_conn(self):
+        conn = sqlite3_sync.connect(self.db_path, timeout=30)
+        conn.row_factory = sqlite3_sync.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        return conn
+
+    async def save_job(self, job):
+        def _save():
+            with self._get_conn() as conn:
+                try:
+                    conn.execute("""
+                        INSERT INTO jobs 
+                        (job_id, title, company, location, url, snippet, source, salary, status, created_at, email) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?)
+                    """, (
+                        job.get("job_id"),
+                        job.get("title", "Unknown"),
+                        job.get("company", "Unknown"),
+                        job.get("location", ""),
+                        job.get("url", ""),
+                        job.get("description", "")[:1000],
+                        job.get("source", ""),
+                        job.get("salary_range", ""),
+                        "new",
+                        job.get("email", "")
+                    ))
+                    conn.commit()
+                    return True
+                except sqlite3_sync.IntegrityError:
+                    return False
+        return await asyncio.to_thread(_save)
+
+    async def update_job_status(self, job_id, status, reason=None):
+        def _update():
+            with self._get_conn() as conn:
+                conn.execute(
+                    "UPDATE jobs SET status=?, response_type=?, updated_at=datetime('now') WHERE job_id=?", 
+                    (status, str(reason) if reason else None, job_id)
+                )
+                conn.commit()
+        await asyncio.to_thread(_update)
+
+    async def get_jobs_by_status(self, status, limit):
+        def _get():
+            with self._get_conn() as conn:
+                cur = conn.execute("SELECT * FROM jobs WHERE status=? LIMIT ?", (status, limit))
+                return [dict(r) for r in cur.fetchall()]
+        return await asyncio.to_thread(_get)
+
+    async def reset_failed_jobs(self, limit):
+        def _reset():
+            with self._get_conn() as conn:
+                cur = conn.execute("UPDATE jobs SET status='new' WHERE status='failed' LIMIT ?", (limit,))
+                conn.commit()
+                return cur.rowcount
+        return await asyncio.to_thread(_reset)
+
+    async def get_jobs_needing_followup(self, followup_level):
+        def _get():
+            with self._get_conn() as conn:
+                cur = conn.execute("SELECT * FROM jobs WHERE status='applied' LIMIT 10")
+                return [dict(r) for r in cur.fetchall()]
+        return await asyncio.to_thread(_get)
+
+    async def mark_followed_up(self, job_id, level):
+        def _mark():
+            with self._get_conn() as conn:
+                conn.execute("UPDATE jobs SET status='followed_up' WHERE job_id=?", (job_id,))
+                conn.commit()
+        await asyncio.to_thread(_mark)
+
+    async def create_tables(self):
+        pass

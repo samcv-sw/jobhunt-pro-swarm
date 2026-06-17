@@ -560,6 +560,120 @@ class EmailEngine:
             logger.warning(f"[SMTP-ASYNC] Execution error via {provider}: {e}")
             return False
 
+    async def _send_via_google_oauth(self, msg: MIMEMultipart, user_details: dict) -> Tuple[bool, str]:
+        """Send email natively via Gmail API using the user's OAuth tokens."""
+        import time
+        import base64
+        import requests
+        
+        access_token = user_details.get("oauth_access_token")
+        refresh_token = user_details.get("oauth_refresh_token")
+        expires_at = user_details.get("oauth_expires_at", 0)
+        email = user_details.get("email")
+
+        # Refresh token if expired
+        if time.time() > expires_at - 300: # 5 minutes buffer
+            if not refresh_token:
+                return False, "Token expired and no refresh token available."
+            
+            GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+            GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+            
+            resp = requests.post("https://oauth2.googleapis.com/token", data={
+                "client_id": GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET,
+                "refresh_token": refresh_token,
+                "grant_type": "refresh_token"
+            })
+            if not resp.ok:
+                return False, f"Failed to refresh token: {resp.text}"
+            
+            tokens = resp.json()
+            access_token = tokens.get("access_token")
+            expires_at = time.time() + tokens.get("expires_in", 3599)
+            
+            # Update DB using email
+            try:
+                from web.app_v2 import get_db
+                conn = get_db()
+                conn.execute(
+                    "UPDATE users SET oauth_access_token=?, oauth_expires_at=? WHERE email=?",
+                    (access_token, expires_at, email)
+                )
+                conn.commit()
+                conn.close()
+            except Exception as e:
+                logger.error(f"[OAUTH] Failed to update refreshed token in DB: {e}")
+
+        # Send via Gmail API
+        raw_msg = base64.urlsafe_b64encode(msg.as_bytes()).decode('utf-8')
+        headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
+        payload = {"raw": raw_msg}
+
+        resp = requests.post("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", headers=headers, json=payload)
+        
+        if resp.ok:
+            return True, "sent_via_oauth"
+        else:
+            return False, f"Gmail API error: {resp.text}"
+
+    async def _send_via_microsoft_oauth(self, msg: MIMEMultipart, user_details: dict) -> Tuple[bool, str]:
+        """Send email natively via Microsoft Graph API using the user's OAuth tokens."""
+        import time
+        import base64
+        import requests
+        
+        access_token = user_details.get("oauth_access_token")
+        refresh_token = user_details.get("oauth_refresh_token")
+        expires_at = user_details.get("oauth_expires_at", 0)
+        email = user_details.get("email")
+
+        # Refresh token if expired
+        if time.time() > expires_at - 300: # 5 minutes buffer
+            if not refresh_token:
+                return False, "Token expired and no refresh token available."
+            
+            MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
+            MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
+            
+            resp = requests.post("https://login.microsoftonline.com/common/oauth2/v2.0/token", data={
+                "client_id": MICROSOFT_CLIENT_ID,
+                "client_secret": MICROSOFT_CLIENT_SECRET,
+                "refresh_token": refresh_token,
+                "grant_type": "refresh_token"
+            })
+            if not resp.ok:
+                return False, f"Failed to refresh token: {resp.text}"
+            
+            tokens = resp.json()
+            access_token = tokens.get("access_token")
+            expires_at = time.time() + tokens.get("expires_in", 3599)
+            
+            # Update DB
+            try:
+                from web.app_v2 import get_db
+                conn = get_db()
+                conn.execute(
+                    "UPDATE users SET oauth_access_token=?, oauth_expires_at=? WHERE email=?",
+                    (access_token, expires_at, email)
+                )
+                conn.commit()
+                conn.close()
+            except Exception as e:
+                logger.error(f"[OAUTH] Failed to update refreshed Microsoft token in DB: {e}")
+
+        # Send via Microsoft Graph API
+        raw_msg = base64.b64encode(msg.as_bytes()).decode('utf-8')
+        headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "text/plain"}
+
+        resp = requests.post("https://graph.microsoft.com/v1.0/me/sendMail", headers=headers, data=raw_msg)
+        
+        # Microsoft returns 202 Accepted on success
+        if resp.status_code in (200, 202):
+            return True, "sent_via_oauth"
+        else:
+            return False, f"Microsoft Graph API error: {resp.text}"
+
     async def send_with_retry(self, provider: str, msg: MIMEMultipart,
                                max_retries: int = 3) -> Tuple[bool, str]:
         """Send email with exponential backoff retry."""
@@ -592,6 +706,8 @@ class EmailEngine:
 
             except Exception as e:
                 logger.error(f"Send attempt {attempt + 1} failed: {e}")
+                if "No module named" in str(e) or "aiosmtplib" in str(e):
+                    break
                 if attempt < max_retries - 1:
                     await asyncio.sleep(2 ** attempt * 5)
 
@@ -723,6 +839,47 @@ class EmailEngine:
         )
         
         msg_id = str(msg.get("Message-ID", ""))
+
+        can_use_oauth = False
+        if user_details and user_details.get("user_id") and user_details.get("oauth_provider") in ["google", "microsoft"] and user_details.get("oauth_access_token"):
+            try:
+                from web.app_v2 import get_db
+                import datetime
+                conn = get_db()
+                today_start = datetime.datetime.now().strftime('%Y-%m-%d 00:00:00')
+                
+                # Check how many emails sent by this user today (safeguard)
+                count_row = conn.execute(
+                    "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.sent_at >= ?",
+                    (user_details["user_id"], today_start)
+                ).fetchone()
+                
+                daily_sent = count_row[0] if count_row else 0
+                conn.close()
+                
+                if daily_sent < 40:
+                    can_use_oauth = True
+                else:
+                    logger.warning(f"OAuth safety limit reached for user {user_details['user_id']} ({daily_sent} sent today). Falling back to system SMTP to protect account.")
+            except Exception as e:
+                logger.error(f"Failed to check OAuth daily limit: {e}")
+                can_use_oauth = False
+
+        if can_use_oauth and user_details.get("oauth_provider") == "google":
+            success, result = await self._send_via_google_oauth(msg, user_details)
+            if success:
+                logger.info(f"Email sent to {company} via Google OAuth (tracking: {tracking_id})")
+                return True, f"{tracking_id}|{msg_id}"
+            else:
+                logger.warning(f"Google OAuth sending failed: {result}. Falling back to default provider...")
+
+        if can_use_oauth and user_details.get("oauth_provider") == "microsoft":
+            success, result = await self._send_via_microsoft_oauth(msg, user_details)
+            if success:
+                logger.info(f"Email sent to {company} via Microsoft OAuth (tracking: {tracking_id})")
+                return True, f"{tracking_id}|{msg_id}"
+            else:
+                logger.warning(f"Microsoft OAuth sending failed: {result}. Falling back to default provider...")
 
         success, result = await self.send_with_retry(provider, msg)
 

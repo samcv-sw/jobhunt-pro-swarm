@@ -10,6 +10,7 @@ import os
 import random
 import time
 import uuid
+import hashlib
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,11 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
             "profession": profession,
             "skills": profile.get("skills") or "",
             "experience_years": profile.get("experience_years") or 5,
-            "cv_text": profile.get("cv_text") or ""
+            "cv_text": profile.get("cv_text") or "",
+            "oauth_provider": user.get("oauth_provider"),
+            "oauth_access_token": user.get("oauth_access_token"),
+            "oauth_refresh_token": user.get("oauth_refresh_token"),
+            "oauth_expires_at": user.get("oauth_expires_at")
         }
 
         # ── Parse Unlocked Weapons (Bouquets) ──
