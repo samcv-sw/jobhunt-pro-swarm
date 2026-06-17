@@ -433,8 +433,25 @@ class Orchestrator:
         for prov in active_providers:
             logger.info(f"  Warmup ({prov}): {warmup.get_status(prov)}")
         logger.info(f"  Follow-ups:    {followup_sequence.get_stats()}")
+        # Phase 4.5: Resume any PENDING or RUNNING campaigns
+        try:
+            logger.info("=" * 60)
+            logger.info("  RESUMING CAMPAIGNS")
+            logger.info("=" * 60)
+            from core.campaign_runner import run_campaign
+            from core.db_manager import get_db
+            import config
+            
+            conn = get_db()
+            active_camps = conn.execute("SELECT campaign_id FROM campaigns WHERE status IN ('pending', 'running')").fetchall()
+            for c_row in active_camps:
+                cid = c_row["campaign_id"]
+                logger.info(f"  [CAMPAIGN] Resuming {cid}...")
+                await run_campaign(cid, get_db, config)
+        except Exception as camp_err:
+            logger.exception("Campaign resume failed: %s", camp_err)
+            
         logger.info("=" * 60)
-        
         # Phase 5: Hyper Mode (turbo) if configured
         if config.HYPER_MODE_ENABLED:
             try:

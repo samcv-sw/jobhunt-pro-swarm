@@ -11,7 +11,6 @@
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  zoom: 1.1;
 }
 
 /* ── Welcome Header ── */
@@ -611,25 +610,7 @@
     </div>
   </div>
   
-  <script>
-  function generateGoldenTicket() {
-      const btn = document.getElementById('gtBtn');
-      btn.innerHTML = '⏳ Generating...';
-      fetch('/api/viral/generate', { method: 'POST' })
-      .then(r => r.json())
-      .then(data => {
-          if(data.success) {
-              navigator.clipboard.writeText(data.message);
-              btn.innerHTML = '✅ Link Copied!';
-              setTimeout(() => btn.innerHTML = '🎁 Generate Ticket', 3000);
-          } else {
-              btn.innerHTML = '❌ Failed';
-          }
-      }).catch(() => {
-          btn.innerHTML = '❌ Error';
-      });
-  }
-  </script>
+
 
   <!-- ═══ LOGIN STREAK ═══ -->
   {% if login_streak is defined and login_streak %}
@@ -1156,5 +1137,23 @@ function copyReferral() {
   navigator.clipboard.writeText(box.textContent.trim())
     .then(function() { showToast('Referral link copied!'); })
     .catch(function() { prompt('Your referral link:', box.textContent.trim()); });
+}
+
+function generateGoldenTicket() {
+  const btn = document.getElementById('gtBtn');
+  btn.innerHTML = '⏳ Generating...';
+  fetch('/api/viral/generate', { method: 'POST' })
+  .then(r => r.json())
+  .then(data => {
+      if(data.success) {
+          navigator.clipboard.writeText(data.message);
+          btn.innerHTML = '✅ Link Copied!';
+          setTimeout(() => btn.innerHTML = '🎁 Generate Ticket', 3000);
+      } else {
+          btn.innerHTML = '❌ Failed';
+      }
+  }).catch(() => {
+      btn.innerHTML = '❌ Error';
+  });
 }
 </script>
