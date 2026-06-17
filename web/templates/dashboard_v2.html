@@ -669,43 +669,48 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('campaignChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'Emails Sent',
-                    data: [12, 19, 3, 5, 2, 3, {{ stats.emails_sent or 0 }}],
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: true
-                }, {
-                    label: 'Opened',
-                    data: [2, 3, 20, 5, 1, 4, {{ stats.emails_opened or 0 }}],
-                    borderColor: '#4ade80',
-                    backgroundColor: 'rgba(74, 222, 128, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    x: { grid: { color: 'rgba(255,255,255,0.05)' } }
+      (function() {
+        // Run immediately after canvas is parsed to avoid DOMContentLoaded race conditions
+        setTimeout(function() {
+            const canvas = document.getElementById('campaignChart');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Emails Sent',
+                        data: [12, 19, 3, 5, 2, 3, {{ stats.emails_sent or 0 }}],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Opened',
+                        data: [2, 3, 20, 5, 1, 4, {{ stats.emails_opened or 0 }}],
+                        borderColor: '#4ade80',
+                        backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
                 },
-                plugins: {
-                    legend: { labels: { color: '#e2e8f0' } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#e2e8f0' } }
+                    }
                 }
-            }
-        });
-      });
+            });
+        }, 100);
+      })();
     </script>
 
     <div class="stats-grid">
