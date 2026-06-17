@@ -281,7 +281,7 @@ async def main():
     await asyncio.gather(
         run_web_server(),
         run_telegram_bot(),
-        run_legacy_cycles(),
+        # run_legacy_cycles(),  # Legacy orchestrator broken, replaced by SwarmMaster
         run_swarm_master(),
         run_hyper_mode(),
         run_healing_daemon(),

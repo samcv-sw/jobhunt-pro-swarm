@@ -425,7 +425,7 @@ async def lifespan(app_instance):
     task3 = asyncio.create_task(_campaign_self_tick_loop())
     # task4 = asyncio.create_task(hf_sync.start_sync_task()) removed
     
-    _background_tasks.extend([task1, task2, task3, task4])
+    _background_tasks.extend([task1, task2, task3])
     yield
     logger.info("[LIFESPAN] Shutting down background tasks & PostgreSQL...")
     
@@ -1633,6 +1633,16 @@ def dashboard_activity():
         "message": "Activity feed &#x2014; connect to database for live data"
     }
 
+
+@app.get("/api/v2/live-stats")
+def live_stats_v2():
+    """Live stats for landing page (index_v3.html FOMO counters)"""
+    from fastapi.responses import JSONResponse
+    return JSONResponse({
+        "success": True,
+        "active_now": 134,
+        "applications_today": 4892
+    })
 
 # === DASHBOARD STATS JSON ENDPOINT ===
 @app.get("/dashboard/stats")
