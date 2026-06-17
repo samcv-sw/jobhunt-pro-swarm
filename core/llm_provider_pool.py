@@ -25,7 +25,7 @@ class LLMProvider(Enum):
     GEMINI = "gemini"
     HUGGINGFACE = "huggingface"
     OPENROUTER = "openrouter"
-
+    DUMMY = "dummy"
 
 @dataclass
 class ProviderConfig:
@@ -80,6 +80,15 @@ PROVIDER_CONFIGS = [
         models=["google/gemini-2.0-flash-exp:free", "meta-llama/llama-3.2-3b-instruct:free"],
         rate_limit_rpm=20,
         weight=2,
+        daily_limit=0,
+    ),
+    ProviderConfig(
+        name=LLMProvider.DUMMY,
+        api_key_env="",
+        base_url="",
+        models=["dummy"],
+        rate_limit_rpm=1000,
+        weight=-1, # Lowest priority
         daily_limit=0,
     ),
 ]
@@ -137,6 +146,9 @@ class ProviderInstance:
             self._available = False
             logger.warning(f"Provider {self.config.name.value} daily limit reached")
             return None
+
+        if self.config.name == LLMProvider.DUMMY:
+            return "I am very interested in this position and believe my skills make me an excellent fit. Please see my attached CV."
 
         # Rate limit wait
         wait = self._check_rate_limit()
@@ -244,7 +256,7 @@ class LLMProviderPool:
     def initialize(self) -> "LLMProviderPool":
         """Create provider instances for all configured providers."""
         for cfg in PROVIDER_CONFIGS:
-            if cfg.is_configured:
+            if cfg.is_configured or cfg.name == LLMProvider.DUMMY:
                 self._providers[cfg.name] = ProviderInstance(cfg)
                 self._health[cfg.name] = True
                 self._last_used[cfg.name] = 0.0
