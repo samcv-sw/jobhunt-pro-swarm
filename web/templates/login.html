@@ -51,7 +51,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 .btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--cyan),#00b8ff);color:#000;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:'Inter',sans-serif;letter-spacing:-0.3px}
 .btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 35px rgba(0,240,255,0.3)}
-.auth-footer{text-align:center;margin-top:24px;color:var(--muted);font-size:14px}
+.auth-footer{text-align:center;margin-top:24px;color:rgba(255,255,255,0.8);font-size:14px}
 .auth-footer a{color:var(--cyan);text-decoration:none;font-weight:600}
 .auth-footer a:hover{text-decoration:underline}
 
@@ -66,16 +66,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <body class="cyberpunk-body">
   <div class="bg-layer"></div>
 
-  <header class="headroom">
-    <a href="/" class="brand">🚀 JobHunt Pro<span class="v">v{{ VERSION | default(16) }}</span></a>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/pricing">Pricing</a>
-      <a href="/services">Services</a>
-      <a href="/faq">FAQ</a>
-      <a href="/register" class="cta">Get Started</a>
-    </nav>
-  </header>
+  {% include '_public_nav.html' %}
 
   <div class="page-wrap">
     <div class="auth-container">

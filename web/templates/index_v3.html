@@ -269,9 +269,9 @@ body{
 .logo-track:hover{animation-play-state:paused}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .logo-item{
- display:flex;align-items:center;gap:10px;color:var(--muted);
+ display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.8);
  font-size:15px;font-weight:700;white-space:nowrap;transition:color var(--transition);
- opacity:1;filter:grayscale(100%);
+ opacity:1;
 }
 .logo-item:hover{color:var(--cyan);opacity:1;filter:none}
 .logo-item .li-icon{font-size:22px}
@@ -1144,21 +1144,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <canvas class="bg-particles" id="particleCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
 
 <!-- ═══ NAVIGATION ═══ -->
-<nav class="nav" id="nav">
- <a href="/" class="nav-logo">JOBHUNT PRO <span class="badge">v{{ VERSION }}</span></a>
- <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
-  <span></span><span></span><span></span>
- </div>
- <div class="nav-links" id="navLinks">
-  <a href="#how">How It Works</a>
-  <a href="#features">Features</a>
-  <a href="#pricing">Pricing</a>
-  <a href="/trust">Trust</a>
-  <a href="#faq">FAQ</a>
-  <a href="/login">Login</a>
-  <a href="/register" class="cta">Get Started Free</a>
- </div>
-</nav>
+{% include '_public_nav.html' %}
 
 <!-- ═══ HERO ═══ -->
 <section class="hero">

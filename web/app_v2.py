@@ -142,20 +142,7 @@ h3{font-size:17px;font-weight:600;margin-bottom:8px}
 .headroom nav a{font-size:13px;color:var(--text-muted);font-weight:500;padding:6px 0;border-bottom:2px solid transparent}
 .headroom nav a:hover{border-color:var(--blue);color:var(--text)}
 </style>"""
-    nav_html = f"""
-<nav class="nav" id="nav" style="position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:1000; width:calc(100% - 48px); max-width:1300px; padding:14px 28px; display:flex; justify-content:space-between; align-items:center; background:rgba(5,5,15,0.75); backdrop-filter:blur(30px) saturate(180%); -webkit-backdrop-filter:blur(30px) saturate(180%); border:1px solid rgba(255,255,255,0.08); border-radius:16px;">
- <a href="/" class="nav-logo" style="font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:800; letter-spacing:-1px; background:linear-gradient(135deg,#00f0ff 0%,#00b8ff 40%,#00f0ff 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; display:flex; align-items:center; gap:10px; text-decoration:none;">JOBHUNT PRO <span class="badge" style="font-size:9px; font-weight:700; letter-spacing:1.5px; background:rgba(0,240,255,0.12); color:#00f0ff; padding:3px 10px; border-radius:20px; border:1px solid rgba(0,240,255,0.2); -webkit-text-fill-color:#00f0ff;">v{config.VERSION}</span></a>
- <div class="nav-links" style="display:flex; gap:4px; align-items:center;">
-  <a href="/services" style="color:#8888aa; text-decoration:none; font-size:13px; font-weight:500; padding:8px 15px; border-radius:10px;">Services</a>
-  <a href="/pricing" style="color:#8888aa; text-decoration:none; font-size:13px; font-weight:500; padding:8px 15px; border-radius:10px;">Pricing</a>
-  <a href="/trust" style="color:#8888aa; text-decoration:none; font-size:13px; font-weight:500; padding:8px 15px; border-radius:10px;">Trust</a>
-  <a href="/blog" style="color:#8888aa; text-decoration:none; font-size:13px; font-weight:500; padding:8px 15px; border-radius:10px;">Blog</a>
-  <a href="/login" style="color:#8888aa; text-decoration:none; font-size:13px; font-weight:500; padding:8px 15px; border-radius:10px;">Login</a>
-  <a href="/register" class="cta" style="background:linear-gradient(135deg,#00f0ff,#00a0cc); color:#000; font-weight:700; padding:10px 22px; border-radius:12px; box-shadow:0 0 20px rgba(0,240,255,0.15); text-decoration:none; font-size:13px; margin-left:8px;">Get Started</a>
- </div>
-</nav>
-<div style="height:72px;"></div> <!-- Spacer for fixed nav -->
-"""
+    nav_html = render_template("_public_nav.html")
     default_desc = "AI-Powered Job Application Engine — Apply to thousands of jobs automatically. Your personal job-hunting AI works 24/7. Get hired faster."
     meta_desc = description if description else default_desc
     return f"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="{meta_desc}"><meta property="og:title" content="{title}"><meta property="og:description" content="{meta_desc}"><meta property="og:type" content="website"><meta property="og:url" content="https://jhfguf.pythonanywhere.com"><title>{title}</title><link rel="manifest" href="/static/manifest.json"><meta name="theme-color" content="#0a0a14"><link rel="apple-touch-icon" href="/static/img/icon-192.png">{css}
