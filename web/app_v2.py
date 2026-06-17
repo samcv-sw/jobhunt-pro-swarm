@@ -4620,15 +4620,55 @@ def download_cv_pdf(request: Request, name: str = "Candidate", style: str = "exe
     if not user_id:
         return RedirectResponse("/login", status_code=303)
     try:
-        from cv_styles import render_cv_pdf
-        pdf_bytes = render_cv_pdf(None, name, style)
+        conn = get_db()
+        profile = conn.execute("SELECT cv_text, skills FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
+        conn.close()
+        
+        cv_text = profile["cv_text"] if profile and profile["cv_text"] else "No CV content provided."
+        skills = profile["skills"] if profile and profile["skills"] else ""
+        
+        from reportlab.lib.pagesizes import A4
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib import colors
+        import io
+        import html
+        
+        buf = io.BytesIO()
+        doc = SimpleDocTemplate(buf, pagesize=A4, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+        styles = getSampleStyleSheet()
+        
+        title_style = ParagraphStyle('CustomTitle', parent=styles['Title'], fontSize=24, spaceAfter=20, textColor=colors.HexColor('#1e293b'))
+        section_style = ParagraphStyle('SectionHeading', parent=styles['Heading2'], fontSize=16, spaceAfter=10, textColor=colors.HexColor('#3b82f6'))
+        normal_style = ParagraphStyle('CustomNormal', parent=styles['Normal'], fontSize=11, leading=16, textColor=colors.HexColor('#334155'))
+        
+        story = []
+        story.append(Paragraph(f"<b>{html.escape(name)}</b>", title_style))
+        
+        if skills:
+            story.append(Paragraph("Skills", section_style))
+            story.append(Paragraph(html.escape(skills).replace(",", ", "), normal_style))
+            story.append(Spacer(1, 15))
+            
+        story.append(Paragraph("Professional Profile", section_style))
+        
+        formatted_text = html.escape(cv_text).replace('\n', '<br/>')
+        
+        # Split very long texts into multiple paragraphs if necessary
+        story.append(Paragraph(formatted_text, normal_style))
+        
+        doc.build(story)
+        pdf_bytes = buf.getvalue()
+        buf.close()
+        
         from starlette.responses import Response
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
-            headers={"Content-Disposition": 'attachment; filename="' + name + '_CV.pdf"'}
+            headers={"Content-Disposition": f'attachment; filename="{name}_CV.pdf"'}
         )
-    except ImportError:
+    except Exception as e:
+        print(f"PDF Error: {e}")
         from reportlab.lib.pagesizes import A4
         from reportlab.platypus import SimpleDocTemplate, Paragraph
         from reportlab.lib.styles import getSampleStyleSheet
@@ -4636,7 +4676,7 @@ def download_cv_pdf(request: Request, name: str = "Candidate", style: str = "exe
         buf = io.BytesIO()
         doc = SimpleDocTemplate(buf, pagesize=A4)
         styles = getSampleStyleSheet()
-        story = [Paragraph("CV for " + name, styles['Title'])]
+        story = [Paragraph("CV for " + name, styles['Title']), Paragraph("Failed to generate detailed PDF.", styles['Normal'])]
         doc.build(story)
         pdf_bytes = buf.getvalue()
         buf.close()
@@ -4644,7 +4684,7 @@ def download_cv_pdf(request: Request, name: str = "Candidate", style: str = "exe
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
-            headers={"Content-Disposition": 'attachment; filename="' + name + '_CV.pdf"'}
+            headers={"Content-Disposition": f'attachment; filename="{name}_CV.pdf"'}
         )
 
 
