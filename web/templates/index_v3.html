@@ -223,7 +223,7 @@ body{
  transition:all var(--transition);cursor:pointer;position:relative;overflow:hidden;
 }
 .hero-buttons .primary{
- background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;
+ background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000 !important;
  box-shadow:0 4px 30px rgba(0,240,255,0.25);
 }
 .hero-buttons .primary::before{
@@ -251,7 +251,8 @@ body{
 }
 .stat-item .num{
  font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:800;
- color:var(--cyan);letter-spacing:-1px;
+ color:var(--cyan) !important;letter-spacing:-1px;
+ position:relative;z-index:2;text-shadow:0 0 15px rgba(0,240,255,0.6);
 }
 .stat-item .label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-top:6px;font-weight:600}
 
@@ -263,14 +264,14 @@ body{
  font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:4px;
  margin-bottom:36px;font-weight:600;
 }
-.logo-marquee{overflow:hidden;position:relative;mask-image:linear-gradient(90deg,transparent,black 15%,black 85%,transparent)}
+.logo-marquee{overflow:hidden;position:relative;mask-image:linear-gradient(90deg,transparent,black 5%,black 95%,transparent)}
 .logo-track{display:flex;gap:56px;animation:marquee 25s linear infinite;align-items:center}
 .logo-track:hover{animation-play-state:paused}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .logo-item{
- display:flex;align-items:center;gap:10px;color:var(--dim);
+ display:flex;align-items:center;gap:10px;color:var(--muted);
  font-size:15px;font-weight:700;white-space:nowrap;transition:color var(--transition);
- opacity:0.6;filter:grayscale(100%) brightness(0.8);
+ opacity:1;filter:grayscale(100%);
 }
 .logo-item:hover{color:var(--cyan);opacity:1;filter:none}
 .logo-item .li-icon{font-size:22px}
