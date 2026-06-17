@@ -4,7 +4,7 @@ const STATIC_ASSETS = [
   '/static/css/index.css',
   '/static/css/cyberpunk.css',
   '/static/js/cyberpunk.js',
-  '/manifest.json',
+  '/static/manifest.json',
   '/static/favicon.png'
 ];
 
