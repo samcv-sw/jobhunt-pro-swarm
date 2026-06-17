@@ -244,24 +244,24 @@ def _clean_garbled(text: str) -> str:
     if not text:
         return text
     fixes = [
-        ('Ã°Å ̧&#x2019;a','&#x1F4AA;'),
-        ('Ã°Å ̧&#x201C;Â§','&#x1F4E7;'),
-        ('Ã°Å ̧&#x201C;Â±','&#x1F4F1;'),
-        ('Ã°Å ̧&#x201C;Å1⁄2','&#x1F4CE;'),
-        ('Ã°Å ̧Â Â†','&#x1F3C6;'),
-        ('Ã°Å ̧Å'Å ̧','&#x1F31F;'),
-        ('Ã°Å ̧Å¡â'¬','&#x1F680;'),
-        ('Ã°Å ̧Å1⁄2â€°','&#x1F389;'),
-        ('Ã°Å ̧Å1⁄2 Ì"','&#x1F3AF;'),
-        ('Ã°Å ̧Å1⁄2"','&#x1F393;'),
-        ('Ã°Å ̧Â¥â€¡','&#x1F947;'),
-        ('Ã°Å ̧â€¡Â±Ã°Å ̧â€¡Â§','&#x1F1F1;&#x1F1E7;'),
-        ('Ã°Å ̧â€o Ã ̄ Ì§Â ','&#x1F6E0;&#xFE0F;'),
-        ('Ã°Å ̧Å' Ìˆ','&#x2728;'),
-        ('Ã°Å ̧&#x201D;Â·','&#x1F48E;'),
-        ('Ã°Å¥Âˆ','&#x1F948;'),
-        ('Ã°Å¥Â‰','&#x1F949;'),
-        ('Ã°Å ̧&#x201D;â€TM','&#x1F449;'),
+        ("Ã°Å ̧&#x2019;a","&#x1F4AA;"),
+        ("Ã°Å ̧&#x201C;Â§","&#x1F4E7;"),
+        ("Ã°Å ̧&#x201C;Â±","&#x1F4F1;"),
+        ("Ã°Å ̧&#x201C;Å1⁄2","&#x1F4CE;"),
+        ("Ã°Å ̧Â Â†","&#x1F3C6;"),
+        ("Ã°Å ̧Å'Å ̧","&#x1F31F;"),
+        ("Ã°Å ̧Å¡â'¬","&#x1F680;"),
+        ("Ã°Å ̧Å1⁄2â€°","&#x1F389;"),
+        ("Ã°Å ̧Å1⁄2 Ì\"","&#x1F3AF;"),
+        ("Ã°Å ̧Å1⁄2\"","&#x1F393;"),
+        ("Ã°Å ̧Â¥â€¡","&#x1F947;"),
+        ("Ã°Å ̧â€¡Â±Ã°Å ̧â€¡Â§","&#x1F1F1;&#x1F1E7;"),
+        ("Ã°Å ̧â€o Ã ̄ Ì§Â ","&#x1F6E0;&#xFE0F;"),
+        ("Ã°Å ̧Å' Ìˆ","&#x2728;"),
+        ("Ã°Å ̧&#x201D;Â·","&#x1F48E;"),
+        ("Ã°Å¥Âˆ","&#x1F948;"),
+        ("Ã°Å¥Â‰","&#x1F949;"),
+        ("Ã°Å ̧&#x201D;â€TM","&#x1F449;"),
     ]
     for garbled, entity in fixes:
         while garbled in text:
@@ -3110,7 +3110,7 @@ def google_callback(code: str = None, error: str = None):
         existing_provider = user.get("oauth_provider")
         if existing_provider != "google":
             provider_name = "password" if not existing_provider else existing_provider.capitalize()
-            error_html = f\"\"\"
+            error_html = f"""
             <html><body style="background:#0f172a; color:#e2e8f0; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
                 <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; border:1px solid rgba(239,68,68,0.3); max-width:400px;">
                     <div style="font-size:40px; margin-bottom:15px;">⚠️</div>
@@ -3120,7 +3120,7 @@ def google_callback(code: str = None, error: str = None):
                     <a href="/login" style="background:#3b82f6; color:#fff; padding:10px 24px; border-radius:6px; text-decoration:none; font-weight:bold;">Return to Login</a>
                 </div>
             </body></html>
-            \"\"\"
+            """
             return HTMLResponse(error_html)
             
         user_id = user["user_id"]
@@ -3252,7 +3252,7 @@ def microsoft_callback(code: str = None, error: str = None):
         existing_provider = user.get("oauth_provider")
         if existing_provider != "microsoft":
             provider_name = "password" if not existing_provider else existing_provider.capitalize()
-            error_html = f\"\"\"
+            error_html = f"""
             <html><body style="background:#0f172a; color:#e2e8f0; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
                 <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; border:1px solid rgba(239,68,68,0.3); max-width:400px;">
                     <div style="font-size:40px; margin-bottom:15px;">⚠️</div>
@@ -3262,7 +3262,7 @@ def microsoft_callback(code: str = None, error: str = None):
                     <a href="/login" style="background:#3b82f6; color:#fff; padding:10px 24px; border-radius:6px; text-decoration:none; font-weight:bold;">Return to Login</a>
                 </div>
             </body></html>
-            \"\"\"
+            """
             return HTMLResponse(error_html)
             
         user_id = user["user_id"]
