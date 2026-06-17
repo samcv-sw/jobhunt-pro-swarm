@@ -1132,8 +1132,33 @@ function downloadCV() {
     return;
   }
   showToast('📥 Generating PDF...');
-  var url = '/api/download-cv?name=' + encodeURIComponent(name) + '&style=' + document.getElementById('cvStyle').value;
-  window.open(url, '_blank');
+  
+  var form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '/api/download-cv';
+  form.target = '_blank';
+  
+  var nameInput = document.createElement('input');
+  nameInput.type = 'hidden';
+  nameInput.name = 'name';
+  nameInput.value = name;
+  form.appendChild(nameInput);
+  
+  var styleInput = document.createElement('input');
+  styleInput.type = 'hidden';
+  styleInput.name = 'style';
+  styleInput.value = document.getElementById('cvStyle').value;
+  form.appendChild(styleInput);
+  
+  var htmlInput = document.createElement('input');
+  htmlInput.type = 'hidden';
+  htmlInput.name = 'cv_html';
+  htmlInput.value = cvHtml;
+  form.appendChild(htmlInput);
+  
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
 }
 
 document.addEventListener('DOMContentLoaded', loadFlashSale);

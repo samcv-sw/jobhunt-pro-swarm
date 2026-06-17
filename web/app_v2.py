@@ -4613,49 +4613,74 @@ def api_pricing():
 
 
 # â&#x201D;€â&#x201D;€ Upload CV / Profile â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
-@app.get("/api/download-cv")
-def download_cv_pdf(request: Request, name: str = "Candidate", style: str = "executive"):
+@app.api_route("/api/download-cv", methods=["GET", "POST"])
+async def download_cv_pdf(request: Request):
     """Generate and return CV as PDF download."""
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    try:
+        
+    name = request.query_params.get("name", "Candidate")
+    style = request.query_params.get("style", "executive")
+    cv_html = ""
+    
+    if request.method == "POST":
+        form_data = await request.form()
+        name = form_data.get("name", name)
+        style = form_data.get("style", style)
+        cv_html = form_data.get("cv_html", "")
+        
+    if not cv_html:
         conn = get_db()
         profile = conn.execute("SELECT cv_text, skills FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
         conn.close()
-        
-        cv_text = profile["cv_text"] if profile and profile["cv_text"] else "No CV content provided."
-        skills = profile["skills"] if profile and profile["skills"] else ""
-        
+        cv_html = profile["cv_text"] if profile and profile["cv_text"] else "No CV content provided."
+    
+    try:
         from reportlab.lib.pagesizes import A4
         from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib import colors
         import io
-        import html
+        import re
         
         buf = io.BytesIO()
         doc = SimpleDocTemplate(buf, pagesize=A4, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
         styles = getSampleStyleSheet()
         
-        title_style = ParagraphStyle('CustomTitle', parent=styles['Title'], fontSize=24, spaceAfter=20, textColor=colors.HexColor('#1e293b'))
-        section_style = ParagraphStyle('SectionHeading', parent=styles['Heading2'], fontSize=16, spaceAfter=10, textColor=colors.HexColor('#3b82f6'))
-        normal_style = ParagraphStyle('CustomNormal', parent=styles['Normal'], fontSize=11, leading=16, textColor=colors.HexColor('#334155'))
+        title_style = ParagraphStyle('CustomTitle', parent=styles['Title'], fontSize=22, spaceAfter=15, textColor=colors.HexColor('#1e293b'))
+        section_style = ParagraphStyle('SectionHeading', parent=styles['Heading2'], fontSize=14, spaceBefore=10, spaceAfter=8, textColor=colors.HexColor('#3b82f6'))
+        normal_style = ParagraphStyle('CustomNormal', parent=styles['Normal'], fontSize=10, leading=14, textColor=colors.HexColor('#334155'))
+        bullet_style = ParagraphStyle('CustomBullet', parent=normal_style, leftIndent=15, firstLineIndent=-10)
         
         story = []
-        story.append(Paragraph(f"<b>{html.escape(name)}</b>", title_style))
+        story.append(Paragraph(f"<b>{name}</b>", title_style))
         
-        if skills:
-            story.append(Paragraph("Skills", section_style))
-            story.append(Paragraph(html.escape(skills).replace(",", ", "), normal_style))
-            story.append(Spacer(1, 15))
+        # Super basic HTML to ReportLab parser
+        # 1. Replace <br> and <p> with newlines
+        text = re.sub(r'<(br|p|div|li)[^>]*>', '\n', cv_html, flags=re.IGNORECASE)
+        # 2. Strip all other tags but keep b, i, u
+        text = re.sub(r'</?(h[1-6]|span|strong|em|ul|ol|a)[^>]*>', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'<[^>]+>', '', text) # Strip remaining unsafe tags
+        
+        # Clean up excessive newlines
+        text = re.sub(r'\n{3,}', '\n\n', text).strip()
+        
+        for p in text.split('\n'):
+            p = p.strip()
+            if not p:
+                continue
             
-        story.append(Paragraph("Professional Profile", section_style))
-        
-        formatted_text = html.escape(cv_text).replace('\n', '<br/>')
-        
-        # Split very long texts into multiple paragraphs if necessary
-        story.append(Paragraph(formatted_text, normal_style))
+            # If it looks like a section header (all caps or short and ends with colon)
+            if (p.isupper() and len(p) < 40) or (len(p) < 30 and p.endswith(':')):
+                story.append(Spacer(1, 10))
+                story.append(Paragraph(f"<b>{p}</b>", section_style))
+            elif p.startswith('•') or p.startswith('-'):
+                # Bullet point
+                clean_p = p.lstrip('•- ')
+                story.append(Paragraph(f"&bull; {clean_p}", bullet_style))
+            else:
+                story.append(Paragraph(p, normal_style))
         
         doc.build(story)
         pdf_bytes = buf.getvalue()
@@ -4676,7 +4701,7 @@ def download_cv_pdf(request: Request, name: str = "Candidate", style: str = "exe
         buf = io.BytesIO()
         doc = SimpleDocTemplate(buf, pagesize=A4)
         styles = getSampleStyleSheet()
-        story = [Paragraph("CV for " + name, styles['Title']), Paragraph("Failed to generate detailed PDF.", styles['Normal'])]
+        story = [Paragraph("CV for " + name, styles['Title']), Paragraph("Failed to format PDF properly.", styles['Normal'])]
         doc.build(story)
         pdf_bytes = buf.getvalue()
         buf.close()
