@@ -45,9 +45,21 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
         campaign = dict(conn.execute(
             "SELECT * FROM campaigns WHERE campaign_id = ?", (campaign_id,)
         ).fetchone())
-        profile = dict(conn.execute(
+        profile_row = conn.execute(
             "SELECT * FROM cv_profiles WHERE id = ?", (campaign["profile_id"],)
-        ).fetchone())
+        ).fetchone()
+        
+        if not profile_row:
+            logger.warning(f"[CampaignRunner] Profile {campaign['profile_id']} not found. Falling back to latest profile.")
+            profile_row = conn.execute(
+                "SELECT * FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1",
+                (campaign["user_id"],)
+            ).fetchone()
+            
+            if not profile_row:
+                raise Exception(f"No active CV profile found for user {campaign['user_id']}.")
+                
+        profile = dict(profile_row)
 
         user_row = conn.execute(
             "SELECT * FROM users WHERE user_id = ?", (campaign["user_id"],)
@@ -146,20 +158,33 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
                 limit=campaign["total_companies"] * 3
             )
 
-        # Load already-sent emails for this campaign (survives restarts/timeouts)
-        already_sent = set()
+        # Load already-sent emails and companies for this campaign
+        already_sent_emails = set()
+        already_sent_companies = set()
         for row in conn.execute(
-            "SELECT email_address FROM campaign_emails WHERE campaign_id=? AND status='sent'",
+            "SELECT email_address, company_name FROM campaign_emails WHERE campaign_id=? AND status='sent'",
             (campaign_id,)
         ).fetchall():
-            already_sent.add(row["email_address"].lower())
+            already_sent_emails.add(row["email_address"].lower())
+            if row.get("company_name"):
+                already_sent_companies.add(row["company_name"].lower())
         
-        sent_count = len(already_sent)
+        sent_count = len(already_sent_emails)
         failed_count = 0
+
+        # Filter out jobs we already sent to
+        jobs = [j for j in jobs if j.get("company", "Unknown Company").lower() not in already_sent_companies]
+        
+        jobs_available_this_cycle = len(jobs)
+
+        if pa_mode:
+            # We can only safely process ~15-20 jobs in a 5-min PA worker window 
+            # considering EmailFinder + AI Tailor + 10s delay per email.
+            jobs = jobs[:25]
 
         # ── EmailFinder enrichment: replace placeholder emails with verified ones ──
         original_emails = {j.get("company", ""): j.get("email", "") for j in jobs}
-
+        
         try:
             email_finder = EmailFinder()
             jobs = await email_finder.enrich_jobs(jobs, fast=pa_mode)
@@ -175,6 +200,12 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
             logger.info(f"[CampaignRunner] EmailFinder enriched {enriched} of {len(jobs)} jobs")
 
         for job in jobs:
+            if pa_mode and (time.time() - start_time) > 240:
+                logger.info(f"[CampaignRunner] ⏱️ PA Timeout approaching (240s)! Yielding to next cycle.")
+                conn.execute("UPDATE campaigns SET started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (campaign_id,))
+                conn.commit()
+                return {"status": "running", "campaign_id": campaign_id, "sent": sent_count, "failed": failed_count, "message": "Chunk completed"}
+
             if sent_count >= campaign["total_companies"]:
                 break
 
@@ -183,7 +214,7 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
                 continue
             
             # Skip if already sent to this email
-            if email_addr.lower() in already_sent:
+            if email_addr.lower() in already_sent_emails:
                 continue
 
             company = job.get("company", "Unknown Company")
@@ -331,6 +362,13 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
                 delay = random.uniform(8, 15)
             await asyncio.sleep(delay)
 
+        # ── Check if we actually finished the campaign or just chunked ──
+        if sent_count < campaign["total_companies"] and jobs_available_this_cycle > 0:
+            logger.info(f"[CampaignRunner] ⏱️ Yielding to next cycle ({sent_count}/{campaign['total_companies']} sent).")
+            conn.execute("UPDATE campaigns SET started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (campaign_id,))
+            conn.commit()
+            return {"status": "running", "campaign_id": campaign_id, "sent": sent_count, "failed": failed_count, "message": "Chunk completed"}
+
         # ── Auto-Refund for Unsent Applications ──
         unsent_count = campaign["total_companies"] - sent_count
         if unsent_count > 0 and campaign["total_companies"] > 0:
@@ -377,6 +415,10 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
 
     except Exception as e:
         logger.error(f"[CampaignRunner] ❌ Campaign {campaign_id} failed: {e}")
+        import traceback
+        with open('campaign_error.txt', 'w') as f:
+            f.write(str(e) + '\n')
+            traceback.print_exc(file=f)
         try:
             conn.execute(
                 "UPDATE campaigns SET status='failed' WHERE campaign_id=?",
