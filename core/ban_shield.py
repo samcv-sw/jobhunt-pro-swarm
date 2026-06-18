@@ -19,13 +19,15 @@ LOCK_FILE = "ban_shield_state.json.lock"
 GMAIL_DAILY_CAP = 100       
 GMAIL_HOURLY_CAP = 15       
 BREVO_DAILY_CAP = 250       
+HOTMAIL_DAILY_CAP = 20000   # 1000 accounts x 50/day x 0.4 safety factor
+HOTMAIL_HOURLY_CAP = 2000   # Spread across 1000 accounts = 2/hr each
 GROQ_RPM_CAP = 20           
 GROQ_COOLDOWN_MS = 8000     
-GLOBAL_HOURLY_CAP = 80      
-GLOBAL_DAILY_CAP = 500      
+GLOBAL_HOURLY_CAP = 2150    # Hotmail 2000 + Gmail 150
+GLOBAL_DAILY_CAP = 21500    # Hotmail 20000 + Gmail 1500
 WEEKEND_MULTIPLIER = 0.3    
 BUSINESS_HOURS_START = 7    
-BUSINESS_HOURS_END = 21     
+BUSINESS_HOURS_END = 23     # Extended to 11PM for wider send window
 MAX_FAILURES_BEFORE_COOLDOWN = 5  
 FAILURE_COOLDOWN_MINUTES = 30     
 
@@ -160,15 +162,16 @@ PROVIDER_SAFE_LIMITS = {
     "outlook":      {"daily": 300,  "hourly": 40,  "delay": (15, 40)},
     "yahoo":        {"daily": 500,  "hourly": 50,  "delay": (10, 25)},
     "yandex":       {"daily": 500,  "hourly": 50,  "delay": (10, 25)},
+    "hotmail_pool": {"daily": 20000, "hourly": 2000, "delay": (5, 15)},
     "default":      {"daily": 100,  "hourly": 20,  "delay": (15, 45)},
 }
 
 MULTI_PROVIDER_CAPS = {
-    1:  500,
-    2:  800,
-    3:  1200,
-    4:  1800,
-    5:  2500,
+    1:  21500,   # Single provider (Hotmail) = 21500/day
+    2:  22000,
+    3:  22500,
+    4:  23000,
+    5:  24000,
 }
 
 def _get_state():

@@ -9964,9 +9964,9 @@ async def cron_tick(request: Request, key: str = "", maintenance: str = "",
             conn.close()
             return {"status": "ok", "actions": [f"force_reset:{count}"], "timestamp": datetime.now(timezone.utc).isoformat()}
         
-        # 1. Find pending campaign to run (oldest first)
+        # 1. Find pending campaign to run (oldest first, only cloud engine or null)
         pending = conn.execute(
-            "SELECT campaign_id FROM campaigns WHERE status='pending' ORDER BY created_at ASC LIMIT 1"
+            "SELECT campaign_id FROM campaigns WHERE status='pending' AND (engine_type='cloud' OR engine_type IS NULL) ORDER BY created_at ASC LIMIT 1"
         ).fetchone()
         
         if pending:

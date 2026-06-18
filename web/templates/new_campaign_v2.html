@@ -116,7 +116,8 @@ select option{background:#1a1a2e;color:#fff;}
 
  
 
- <form method="POST" action="/create-campaign">
+ <form id="campaign-form" method="POST" action="/api/campaigns">
+ <input type="hidden" name="engine_type" id="engine_type_input" value="piggyback">
 
  <div class="form-card">
 
@@ -509,6 +510,14 @@ select option{background:#1a1a2e;color:#fff;}
 
  });
 
- updateTotal();
+  updateTotal();
 
+  document.getElementById('campaign-form')?.addEventListener('submit', function(e) {
+      if (window.jobHuntExtensionInstalled) {
+          document.getElementById('engine_type_input').value = 'piggyback';
+      } else {
+          document.getElementById('engine_type_input').value = 'cloud';
+          console.log("No extension detected. Using Cloud Engine Fallback.");
+      }
+  });
 </script>

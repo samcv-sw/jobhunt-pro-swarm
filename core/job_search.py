@@ -512,6 +512,13 @@ class MultiSourceSearch:
                 GoogleJobsScraper(),
                 GlassdoorScraper(),
             ]
+            # Add Indeed RSS scraper (never gets 403 since it uses XML feed)
+            try:
+                from core.indeed_rss_scraper import IndeedRSSScraper
+                self._scrapers.insert(1, IndeedRSSScraper())  # high priority
+                logger.info("IndeedRSSScraper added to search rotation")
+            except Exception as e:
+                logger.warning(f"IndeedRSSScraper not available: {e}")
             logger.info(f"MultiSourceSearch: initialized {len(self._scrapers)} scrapers")
         except ImportError as e:
             logger.warning(f"MultiSourceSearch: multi_source_scraper not available: {e}")
