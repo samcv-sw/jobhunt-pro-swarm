@@ -6,15 +6,35 @@ services:
     branch: main
     plan: free
     region: oregon
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements_render.txt
     startCommand: uvicorn web.app_v2:app --host 0.0.0.0 --port 10000
     healthCheckPath: /healthz
     envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PYTHON_VERSION
+        value: "3.11.11"
+      - key: FORCE_SQLITE
+        value: "1"
       - key: SUPABASE_MODE
         value: "1"
       - key: SUPABASE_URL
         value: https://zfvzqutgpdbsievsclhn.supabase.co
-      - key: PYTHONUNBUFFERED
-        value: "1"
-      - key: PYTHON_VERSION
-        value: "3.11.2"
+      # === ENV VARS TO SET IN RENDER DASHBOARD (secrets, not in git) ===
+      # Add these via Render Dashboard → Environment → Environment Variables
+      #
+      # GOOGLE_CLIENT_ID - from Google Cloud Console
+      # GOOGLE_CLIENT_SECRET - from Google Cloud Console
+      # GROQ_API_KEY - primary Groq key
+      # JSEARCH_API_KEY - SerpApi / JSearch key
+      # BREVO_API_KEY - Brevo SMTP key
+      # TELEGRAM_BOT_TOKEN - Telegram bot token
+      # TELEGRAM_CHAT_ID - Telegram admin chat
+      # NOWPAYMENTS_API_KEY - Crypto payment key
+      #
+      # SMTP credentials (all 15 accounts):
+      # GMAIL_SMTP_USER_1..15, GMAIL_APP_PASSWORD_1..15
+      #
+      # Hotmail pool (1000 accounts): already in data/hotmail_pool.json
+      #
+      # See RENDER_DEPLOY.md for full setup instructions
