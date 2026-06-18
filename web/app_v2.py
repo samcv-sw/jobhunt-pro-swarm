@@ -923,6 +923,7 @@ def init_saas_v2_db():
                 open_count INTEGER DEFAULT 0,
                 response_count INTEGER DEFAULT 0,
                 bouquets TEXT,
+                engine_type TEXT DEFAULT 'piggyback',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 started_at TIMESTAMP,
                 completed_at TIMESTAMP,
@@ -1188,6 +1189,7 @@ def init_saas_v2_db():
         add_column("campaign_emails", "error_reason", "TEXT")
         add_column("campaigns", "total_attempted", "INTEGER DEFAULT 0")
         add_column("campaigns", "premium_weapons", "INTEGER DEFAULT 0")
+        add_column("campaigns", "engine_type", "TEXT DEFAULT 'piggyback'")
         add_column("campaign_emails", "interview_prep", "TEXT DEFAULT ''")
         add_column("campaign_emails", "linkedin_message", "TEXT DEFAULT ''")
         add_column("cv_profiles", "home_country", "TEXT DEFAULT 'Lebanon'")
@@ -3830,8 +3832,9 @@ async def delete_cv_profile(request: Request):
         return JSONResponse({"success": False, "message": str(e)})
 
 @app.post("/create-campaign")
+@app.post("/api/campaigns")
 def create_campaign(request: Request, profile_id: int = Form(...),
-                          company_count: int = Form(0), bouquet: str = Form(""), bouquet_names: str = Form("")):
+                          company_count: int = Form(0), bouquet: str = Form(""), bouquet_names: str = Form(""), engine_type: str = Form("piggyback")):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -3901,9 +3904,9 @@ def create_campaign(request: Request, profile_id: int = Form(...),
                      (order_id, user_id, "campaign", tier["tier"], company_count, total_price, "wallet", "completed"))
         
         bouquets_str = ",".join(bouquets_selected)
-        conn.execute("""INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, total_companies, bouquets)
-                        VALUES (?, ?, ?, ?, ?, ?)""",
-                     (campaign_id, user_id, order_id, profile_id, company_count, bouquets_str))
+        conn.execute("""INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, total_companies, bouquets, engine_type)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                     (campaign_id, user_id, order_id, profile_id, company_count, bouquets_str, engine_type))
 
         # Record transaction history
         conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)

@@ -115,3 +115,6 @@ live_head.html
 web/dump_dashboard.py
 scratch/
 .venv2/
+
+# Backup of old test/scripts
+_backups/

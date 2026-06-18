@@ -1,184 +1,0 @@
-async def sent_emails_page(request: Request):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-    user = dict(user_row)
-    conn.close()
-    content = render_template("sent_emails.html", request=request, user=user, user_id=user_id)
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Sent Emails", "sent-emails"))(request: Request):
-    """Parse CV text - regex for basics + Groq for summary only."""
-    try:
-        body = await request.json()
-    except Exception:
-        raise HTTPException(400, "Invalid JSON")
-
-    cv_text = (body.get("cv_text") or "").strip()
-    if not cv_text:
-        raise HTTPException(400, "cv_text is required")
-
-    import re as _re2
-    cv_lower = cv_text.lower()
-
-    # === PHASE 1: Regex extraction (fast, never fails) ===
-    # Name: first line or capitalized name pattern
-    lines = [l.strip() for l in cv_text.split('\n') if l.strip()]
-    name = lines[0][:60].strip() if lines else ""
-    # If first line looks like title, try second line
-    if _re2.search(r'engineer|manager|specialist|developer|consultant|analyst|architect|lead|head|director', name.lower()):
-        name = lines[1][:60].strip() if len(lines) > 1 else name
-    # Remove common prefixes
-    name = _re2.sub(r'^(curriculum\s+vitae|cv|resume)[:;\-\s]*', '', name, flags=_re2.IGNORECASE).strip()
-
-    # Email
-    email_m = _re2.search(r'[\w.+-]+@[\w-]+\.[\w.]+', cv_text)
-    email = email_m.group(0) if email_m else ""
-
-    # Phone
-    phone_m = _re2.search(r'(?:\+?\d{1,3}[\s\-]?)?\(?\d{2,4}\)?[\s\-]?\d{2,4}[\s\-]?\d{2,4}[\s\-]?\d{0,4}', cv_text)
-    phone = phone_m.group(0).strip() if phone_m else ""
-
-    # LinkedIn - try URL pattern first, then text mention
-    li_m = _re2.search(r'linkedin\.com/in/([\w\-]+)', cv_lower)
-    if not li_m:
-        li_m = _re2.search(r'linkedin:?\s*(?:https?://(?:www\.)?linkedin\.com/in/)?([\w\-]+)', cv_lower)
-    linkedin = f"linkedin.com/in/{li_m.group(1)}" if li_m else ""
-
-    # Location
-    loc_m = _re2.search(r'(?:location|based\s+in|address)[:\s]+([^\n]{3,40})', cv_lower)
-    if not loc_m:
-        loc_m = _re2.search(r'(beirut|dubai|lebanon|uae|saudi|qatar|kuwait|bahrain|oman|jordan|egypt|cairo|riyadh|doha|abu\s*dhabi|amman)', cv_lower)
-    location = loc_m.group(1).strip().title() if loc_m else "Lebanon"
-
-    # Certifications
-    known_certs_txt = []
-    cert_pats = [
-        r'CCNA', r'CCNP', r'CCIE', r'Cisco Certified',
-        r'Fortinet NSE\s*\d*', r'NSE\s*\d+', r'Network Security Expert',
-        r'MTCNA', r'MTCRE', r'MTCINE', r'MikroTik Certified',
-        r'UBWA', r'Ubiquiti Certified', r'Ubiquiti Broadband',
-        r'PMP', r'Project Management Professional',
-        r'ITIL', r'CompTIA', r'Network\+', r'Security\+', r'A\+',
-        r'JNCIA', r'JNCIP', r'JNCIE',
-        r'CEH', r'CISSP', r'CISM',
-        r'AWS Certified', r'Azure Certified', r'GCP',
-    ]
-    for pat in cert_pats:
-        m = _re2.search(pat, cv_lower, _re2.IGNORECASE)
-        if m:
-            n = m.group(0).strip().upper()
-            if n not in [c.upper() for c in known_certs_txt]:
-                known_certs_txt.append(n)
-
-    # Education - find section header then next meaningful line
-    education = ""
-    edu_section = _re2.search(r'(?:education|academic|qualification)[s]?\s*[:\n]+([^\n]{5,80})', cv_lower)
-    if edu_section:
-        candidate = edu_section.group(1).strip()
-        if not _re2.search(r'(beirut|dubai|lebanon|city|country|phone|email|linkedin|address)', candidate, _re2.IGNORECASE):
-            education = candidate.title()
-    if not education:
-        edu_m = _re2.search(r'(bachelor|master|phd|b\.?e\.?|m\.?e\.?|b\.?s\.?|m\.?s\.?|mba)[^\n]{0,60}', cv_lower)
-        if edu_m:
-            education = edu_m.group(0).strip().title()
-
-    # Languages
-    langs = []
-    for lang in ['arabic', 'english', 'french', 'spanish', 'german', 'italian', 'portuguese', 'dutch', 'turkish', 'russian', 'mandarin', 'chinese']:
-        if _re2.search(r'\b' + lang + r'\b', cv_lower):
-            langs.append(lang.title())
-
-    # Years of experience
-    exp_years = 0
-    for pat in [r'(\d{1,2})\+?\s*(?:years?|yrs)', r'(\d{1,2})\+?\s*years?\s*(?:of|experience)', r'experience.*?(\d{1,2})\+?\s*years?', r'(\d{1,2})\+?\s*years?\s*(?:of\s*)?experience']:
-        m = _re2.search(pat, cv_lower)
-        if m:
-            val = int(m.group(1))
-            if 1 <= val <= 60:
-                exp_years = val
-                break
-
-    # Skills (common tech keywords)
-    skill_kw = ['cisco','fortinet','mikrotik','juniper','palo alto','checkpoint','sophos','bgp','ospf','mpls','vpn','vlan','qos','tcp/ip','dns','dhcp','http','ssl','tls','ipsec','gre','eigrp','rip','stp','python','bash','powershell','awk','sed','ansible','terraform','docker','kubernetes','jenkins','git','linux','windows server','ubuntu','centos','debian','rhel','vmware','hyper-v','kvm','aws','azure','gcp','oracle cloud','wireshark','prtg','zabbix','solarwinds','nagios','snmp','firewall','ids/ips','siem','waf','vpn','cloud','automation','scripting','monitoring','networking','routing','switching','security','wireless','voip','sdn','nfv']
-    skills = []
-    for kw in skill_kw:
-        if _re2.search(r'\b' + _re2.escape(kw) + r'\b', cv_lower):
-            skills.append(kw.title())
-
-    # === PHASE 2: Groq for AI parts (summary, titles, current_title) ===
-    groq_key = (os.getenv("GROQ_API_KEY", "") or getattr(config, "GROQ_API_KEY", "")).strip()
-    all_keys = [k for k in GROQ_KEYS if k]
-    if groq_key and groq_key not in all_keys:
-        all_keys.insert(0, groq_key)
-
-    summary = f"Experienced {exp_years}+ year professional based in {location}."
-    current_title = name
-    target_titles = ["Network Engineer", "IT Manager"]
-    target_locations = ["Dubai", "Remote"]
-
-    if all_keys:
-        # Minimal prompt - ~150 chars → ~80 tokens + output ~150 tokens = ~230 total (safe!)
-        ai_prompt = f"From this CV, return JSON: {{\"summary\":\"2 sentences summary\",\"current_title\":\"last job title\",\"target_titles\":[\"title1\"],\"target_locations\":[\"city1\"]}}\n\nCV: {cv_text[:800]}"
-        try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                for ki, key in enumerate(all_keys[:4]):  # try only 4 keys max
-                    resp = await client.post(GROQ_API_URL, json={
-                        "model": "llama-3.1-8b-instant",
-                        "messages": [{"role": "user", "content": ai_prompt}],
-                        "temperature": 0.3,
-                        "max_tokens": 300,
-                    }, headers={"Authorization": f"Bearer {key}"})
-                    if resp.status_code == 200:
-                        break
-                    elif resp.status_code == 429:
-                        await asyncio.sleep(1.5)
-                        continue
-                if resp and resp.status_code == 200:
-                    ai_raw = resp.json()["choices"][0]["message"]["content"].strip()
-                    ai_data = _extract_json(ai_raw)
-                    if ai_data.get("summary"):
-                        summary = ai_data["summary"]
-                    if ai_data.get("current_title"):
-                        current_title = ai_data["current_title"]
-                    if ai_data.get("target_titles"):
-                        target_titles = ai_data["target_titles"]
-                    if ai_data.get("target_locations"):
-                        target_locations = ai_data["target_locations"]
-        except Exception:
-            pass  # Groq failed, use regex fallbacks
-
-    # Detect home country from location
-    home_country = "Lebanon"
-    for c in ["Lebanon", "UAE", "Saudi Arabia", "Qatar", "Kuwait", "Bahrain", "Oman", "Jordan", "Egypt"]:
-        if c.lower() in cv_lower or c.lower() in location.lower():
-            home_country = c
-            break
-
-    data = {
-        "name": name or "Unknown",
-        "email": email or "",
-        "phone": phone or "",
-        "linkedin": linkedin or "",
-        "location": location or "Lebanon",
-        "skills": skills or ["Networking", "IT"],
-        "experience_years": exp_years,
-        "highest_education": education or "Bachelor's Degree",
-        "current_title": current_title or name,
-        "summary": summary,
-        "languages": langs or ["Arabic", "English"],
-        "certifications": known_certs_txt or ["CCNA"],
-        "target_titles": target_titles,
-        "target_locations": target_locations,
-        "home_country": home_country,
-        "salary_min_local": 0,
-        "salary_min_international": 0,
-    }
-    return {"status": "success", "profile": data}
-
-
-
-@app.post("/api/parse-cv-file")
