@@ -8,6 +8,7 @@ import logging
 import re
 import httpx
 import asyncio
+import hashlib
 import config
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity

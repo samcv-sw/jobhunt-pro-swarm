@@ -558,33 +558,33 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
     <div class="card">
       <div class="card-title">👤 Basic Information</div>
       <div class="row">
-        <div class="form-group"><label>Full Name <span style="color:#f87171;">*</span></label><input type="text" id="fullName" placeholder="e.g. Sam Salameh"></div>
-        <div class="form-group"><label>Email</label><input type="email" id="email" placeholder="your@email.com"></div>
+        <div class="form-group"><label for="fullName">Full Name <span style="color:#f87171;">*</span></label><input type="text" id="fullName" placeholder="e.g. Sam Salameh"></div>
+        <div class="form-group"><label for="email">Email</label><input type="email" id="email" placeholder="your@email.com"></div>
       </div>
       <div class="row">
-        <div class="form-group"><label>Phone</label><input type="text" id="phone" placeholder="+961 3 123 456"></div>
-        <div class="form-group"><label>Location</label><input type="text" id="location" placeholder="Beirut, Lebanon"></div>
+        <div class="form-group"><label for="phone">Phone</label><input type="text" id="phone" placeholder="+961 3 123 456"></div>
+        <div class="form-group"><label for="location">Location</label><input type="text" id="location" placeholder="Beirut, Lebanon"></div>
       </div>
       <div class="row">
-        <div class="form-group"><label>Current Title</label><input type="text" id="currentTitle" placeholder="Senior Network Engineer"></div>
-        <div class="form-group"><label>Experience (years)</label><input type="number" id="experienceYears" min="0" max="50" value="5"></div>
+        <div class="form-group"><label for="currentTitle">Current Title</label><input type="text" id="currentTitle" placeholder="Senior Network Engineer"></div>
+        <div class="form-group"><label for="experienceYears">Experience (years)</label><input type="number" id="experienceYears" min="0" max="50" value="5"></div>
       </div>
       <div class="row">
-        <div class="form-group"><label>Education</label><input type="text" id="education" placeholder="Bachelor of Engineering"></div>
-        <div class="form-group"><label>LinkedIn</label><input type="url" id="linkedin" placeholder="https://linkedin.com/in/..."></div>
+        <div class="form-group"><label for="education">Education</label><input type="text" id="education" placeholder="Bachelor of Engineering"></div>
+        <div class="form-group"><label for="linkedin">LinkedIn</label><input type="url" id="linkedin" placeholder="https://linkedin.com/in/..."></div>
       </div>
-      <div class="form-group"><label>Skills (comma separated)</label><input type="text" id="skillsInput" placeholder="Cisco, Python, Linux, AWS, MikroTik, Fortinet..."><div class="tag-list" id="skillsTags"></div></div>
-      <div class="form-group"><label>Certifications</label><input type="text" id="certsInput" placeholder="CCNA, NSE, MTCNA..."><div class="tag-list" id="certsTags"></div></div>
-      <div class="form-group"><label>Languages</label><input type="text" id="langsInput" placeholder="English, Arabic, French..."><div class="tag-list" id="langsTags"></div></div>
-      <div class="form-group"><label>Professional Summary</label><textarea id="summary" placeholder="Brief professional summary..." style="min-height:90px;"></textarea></div>
+      <div class="form-group"><label for="skillsInput">Skills (comma separated)</label><input type="text" id="skillsInput" placeholder="Cisco, Python, Linux, AWS, MikroTik, Fortinet..."><div class="tag-list" id="skillsTags"></div></div>
+      <div class="form-group"><label for="certsInput">Certifications</label><input type="text" id="certsInput" placeholder="CCNA, NSE, MTCNA..."><div class="tag-list" id="certsTags"></div></div>
+      <div class="form-group"><label for="langsInput">Languages</label><input type="text" id="langsInput" placeholder="English, Arabic, French..."><div class="tag-list" id="langsTags"></div></div>
+      <div class="form-group"><label for="summary">Professional Summary</label><textarea id="summary" placeholder="Brief professional summary..." style="min-height:90px;"></textarea></div>
     </div>
 
     <!-- Target + Salary -->
     <div class="card">
       <div class="card-title">🎯 Target Job &amp; Salary</div>
       <div class="row" style="margin-bottom:20px;">
-        <div class="form-group"><label>Target Company</label><input type="text" id="targetCompany" placeholder="Murex, Cisco, Bank Audi..."></div>
-        <div class="form-group"><label>Target Job Title</label><input type="text" id="targetJobTitle" placeholder="Senior Network Engineer"></div>
+        <div class="form-group"><label for="targetCompany">Target Company</label><input type="text" id="targetCompany" placeholder="Murex, Cisco, Bank Audi..."></div>
+        <div class="form-group"><label for="targetJobTitle">Target Job Title</label><input type="text" id="targetJobTitle" placeholder="Senior Network Engineer"></div>
       </div>
       <label style="font-size:16px;color:#64748b;margin-bottom:14px;display:block;">💰 Quick Salary Range</label>
       <div class="salary-presets">
@@ -599,12 +599,12 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
         </div>
       </div>
       <div class="row">
-        <div class="form-group"><label>Target Job Titles</label><input type="text" id="targetTitles" placeholder="Senior Network Engineer, IT Manager..."></div>
-        <div class="form-group"><label>Target Locations</label><input type="text" id="targetLocations" placeholder="Dubai, Remote, Riyadh, Beirut..."></div>
+        <div class="form-group"><label for="targetTitles">Target Job Titles</label><input type="text" id="targetTitles" placeholder="Senior Network Engineer, IT Manager..."></div>
+        <div class="form-group"><label for="targetLocations">Target Locations</label><input type="text" id="targetLocations" placeholder="Dubai, Remote, Riyadh, Beirut..."></div>
       </div>
       <div class="row">
-        <div class="form-group"><label>Min Local Salary ($)</label><input type="number" id="minLocalSalary" min="0" step="100" value="1500"></div>
-        <div class="form-group"><label>Min Intl Salary ($)</label><input type="number" id="minIntlSalary" min="0" step="100" value="6000"></div>
+        <div class="form-group"><label for="minLocalSalary">Min Local Salary ($)</label><input type="number" id="minLocalSalary" min="0" step="100" value="1500"></div>
+        <div class="form-group"><label for="minIntlSalary">Min Intl Salary ($)</label><input type="number" id="minIntlSalary" min="0" step="100" value="6000"></div>
       </div>
     </div>
 

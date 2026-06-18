@@ -233,6 +233,8 @@ My CV is attached. I'd welcome 15 minutes to discuss how this experience maps to
             icebreaker=icebreaker, email=config.CANDIDATE_EMAIL,
             phone=config.CANDIDATE_PHONE, address=config.CANDIDATE_ADDRESS,
             linkedin=config.CANDIDATE_LINKEDIN,
+            profession=getattr(config, 'PROFESSION', 'Software Engineer'),
+            experience_years=getattr(config, 'EXPERIENCE_YEARS', '3')
         )
 
     @classmethod

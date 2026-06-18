@@ -577,6 +577,8 @@ class TelegramBot:
 
             {"command": "resume", "description": "▶️ Resume auto-run"},
 
+            {"command": "swarm", "description": "🐝 Live Swarm Status"},
+            
             {"command": "test_strike", "description": "🧪 Test strike application"},
 
             {"command": "ai_check", "description": "🧠 Check AI status"},
@@ -745,6 +747,8 @@ class TelegramBot:
             # Chronos commands
 
             "/pause": self.cmd_pause,
+
+            "/swarm": self.cmd_swarm,
 
             "/resume": self.cmd_resume,
 
@@ -2072,16 +2076,21 @@ class TelegramBot:
     # ── CHRONOS: Pause ────────────────────────────────────────────
 
     async def cmd_pause(self, args=""):
-        """Pause auto-run by toggling _auto_running flag."""
+        """Pause auto-run by toggling _auto_running flag and global pause state."""
+        import json, os
         async with self._state_lock:
             self._auto_running = False
-        logger.info("[BOT] _auto_running set to False by /pause")
+        os.makedirs("data", exist_ok=True)
+        with open("data/system_control.json", "w", encoding="utf-8") as f:
+            json.dump({"status": "paused", "reason": "telegram_command"}, f)
+            
+        logger.info("[BOT] _auto_running set to False and Swarm Master paused by /pause")
         await self.send(
             "<b>⏸️ PAUSE | وقّف</b>\n\n"
             "🛑 Auto-run has been paused.\n"
-            "All active processes are being halted safely.\n\n"
-            "<b>▶️ To resume:</b> Press RESUME button or /campaign\n"
-            "<b>📊 Status:</b> /status"
+            "All active Swarm agents are halting safely.\n\n"
+            "<b>▶️ To resume:</b> /resume\n"
+            "<b>🐝 Status:</b> /swarm"
         )
 
 
@@ -2089,17 +2098,47 @@ class TelegramBot:
     # ── CHRONOS: Resume ───────────────────────────────────────────
 
     async def cmd_resume(self, args=""):
-        """Resume auto-run by toggling _auto_running flag."""
+        """Resume auto-run by toggling _auto_running flag and global resume state."""
+        import json, os
         async with self._state_lock:
             self._auto_running = True
-        logger.info("[BOT] _auto_running set to True by /resume")
+        os.makedirs("data", exist_ok=True)
+        with open("data/system_control.json", "w", encoding="utf-8") as f:
+            json.dump({"status": "running", "reason": "telegram_command"}, f)
+            
+        logger.info("[BOT] _auto_running set to True and Swarm Master resumed by /resume")
         await self.send(
             "<b>▶️ RESUME | كمّل</b>\n\n"
             "🟢 Auto-run has been resumed.\n"
-            "All systems are back online.\n\n"
-            "<b>⏸️ To pause:</b> Press PAUSE button\n"
-            "<b>📊 Status:</b> /status"
+            "All Swarm agents are back online.\n\n"
+            "<b>⏸️ To pause:</b> /pause\n"
+            "<b>🐝 Status:</b> /swarm"
         )
+
+    # ── CHRONOS: Swarm ────────────────────────────────────────────
+
+    async def cmd_swarm(self, args=""):
+        """Live Swarm Agent status."""
+        import os, json
+        stats_path = "data/swarm_status.json"
+        msg = "<b>🐝 LIVE SWARM STATUS</b>\n\n"
+        if os.path.exists(stats_path):
+            try:
+                with open(stats_path, "r", encoding="utf-8") as f:
+                    stats = json.load(f)
+                pool = stats.get("agent_pool", {})
+                msg += (
+                    f"🟢 <b>Active Agents:</b> {pool.get('active_agents', 0)}\n"
+                    f"✅ <b>Total Completed:</b> {pool.get('total_completed', 0)}\n"
+                    f"❌ <b>Total Failed:</b> {pool.get('total_failed', 0)}\n\n"
+                    f"⏱️ <b>Uptime:</b> {stats.get('uptime_seconds', 0):.0f}s\n"
+                    f"🔄 <b>Cycles Completed:</b> {stats.get('cycles_completed', 0)}\n"
+                )
+            except Exception as e:
+                msg += f"⚠️ Error reading swarm state: {e}"
+        else:
+            msg += "⚠️ Swarm is currently offline or booting up."
+        await self.send(msg)
 
 
 
@@ -3471,8 +3510,9 @@ class TelegramBot:
             "/profit": self.cmd_strategy,
             "/admin": self.cmd_admin,
             "/admin_credit": self.cmd_admin_credit,
-            "/campaigns": self.cmd_campaigns,
+            "/campaign": self.cmd_campaign,
             "/pause": self.cmd_pause,
+            "/swarm": self.cmd_swarm,
             "/resume": self.cmd_resume,
             "/test_strike": self.cmd_test_strike,
             "/ai_check": self.cmd_ai_check,

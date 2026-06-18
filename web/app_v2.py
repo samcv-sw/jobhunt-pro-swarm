@@ -504,11 +504,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://cdn.jsdelivr.net; "
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
-            "font-src 'self' https://fonts.gstatic.com; "
-            "img-src 'self' data: https:; "
-            "connect-src 'self' https://api.telegram.org; "
+            "font-src 'self' https://fonts.gstatic.com data:; "
+            "img-src 'self' data: https: blob:; "
+            "connect-src 'self' https://api.telegram.org wss: ws: https:; "
             "frame-src 'self' https://challenges.cloudflare.com https://www.youtube.com; "
             "frame-ancestors 'none'; "
             "form-action 'self'; "
@@ -1151,41 +1151,49 @@ def init_saas_v2_db():
             CREATE INDEX IF NOT EXISTS idx_manual_emails_user_id ON manual_emails(user_id);
         """)
 
-        # Migration: Add login_streak and last_login to users if missing
+        # Helper for migrations
+        def add_column(table, col, typ):
+            cols = [r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
+            if col not in cols:
+                try:
+                    conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
+                    conn.commit()
+                except Exception as e:
+                    logger.error(f"Error adding {col} to {table}: {e}")
+
+        # Migration: Add NowPayments columns
+
         for col, typ in [
             ("nowpayments_id", "INTEGER"), ("nowpayments_invoice_url", "TEXT"),
-            ("pay_currency", "TEXT"), ("pay_amount", "REAL")
+            ("pay_currency", "TEXT"), ("pay_amount", "REAL"), ("pay_address", "TEXT")
         ]:
-            try:
-                conn.execute(f"ALTER TABLE orders ADD COLUMN {col} {typ}")
-                conn.commit()
-            except Exception:
-                pass
+            add_column("orders", col, typ)
 
+        add_column("campaigns", "bouquets", "TEXT")
+        add_column("users", "login_streak", "INTEGER DEFAULT 0")
+        add_column("users", "last_login", "TIMESTAMP")
+        add_column("users", "oauth_provider", "TEXT")
+        add_column("users", "oauth_access_token", "TEXT")
+        add_column("users", "oauth_refresh_token", "TEXT")
+        add_column("users", "oauth_expires_at", "REAL")
         
+        add_column("campaign_emails", "pipeline_stage", "TEXT DEFAULT 'discovered'")
+        # For pipeline_stage default value backfill
         try:
-            conn.execute("ALTER TABLE campaigns ADD COLUMN bouquets TEXT")
+            conn.execute("UPDATE campaign_emails SET pipeline_stage = 'applied' WHERE status = 'sent' AND pipeline_stage = 'discovered'")
             conn.commit()
-        except Exception:
-            pass
-
-        try:
-            conn.execute("ALTER TABLE users ADD COLUMN login_streak INTEGER DEFAULT 0")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)  # Column may already exist
-        try:
-            conn.execute("ALTER TABLE users ADD COLUMN last_login TIMESTAMP")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)  # Column may already exist
-        # Migration: Add NowPayments columns to orders
-        for col in ["pay_address", "nowpayments_id", "nowpayments_invoice_url", "pay_currency", "pay_amount"]:
-            try:
-                conn.execute(f"ALTER TABLE orders ADD COLUMN {col} TEXT")
-                conn.commit()
-            except Exception as e:
-                logger.error(e, exc_info=True)
+        except Exception: pass
+        
+        add_column("campaign_emails", "from_email", "TEXT")
+        add_column("campaign_emails", "error_reason", "TEXT")
+        add_column("campaigns", "total_attempted", "INTEGER DEFAULT 0")
+        add_column("campaigns", "premium_weapons", "INTEGER DEFAULT 0")
+        add_column("campaign_emails", "interview_prep", "TEXT DEFAULT ''")
+        add_column("campaign_emails", "linkedin_message", "TEXT DEFAULT ''")
+        add_column("cv_profiles", "home_country", "TEXT DEFAULT 'Lebanon'")
+        add_column("cv_profiles", "min_local_salary", "REAL DEFAULT 0")
+        add_column("cv_profiles", "min_international_salary", "REAL DEFAULT 0")
+        add_column("redeem_codes", "code_type", "TEXT DEFAULT 'sale'")
 
         try:
             conn.execute("DELETE FROM pricing_tiers_v2")
@@ -1206,78 +1214,6 @@ def init_saas_v2_db():
             logger.warning(f"Error seeding pricing/service/bouquet tables: {e}")
 
         conn.commit()
-
-        # Migration: Add pipeline_stage to campaign_emails
-        try:
-            conn.execute("ALTER TABLE campaign_emails ADD COLUMN pipeline_stage TEXT DEFAULT 'discovered'")
-            conn.execute("UPDATE campaign_emails SET pipeline_stage = 'applied' WHERE status = 'sent' AND pipeline_stage IS NULL")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)  # Column may already exist
-
-        # Migration: Add from_email to campaign_emails
-        try:
-            conn.execute("ALTER TABLE campaign_emails ADD COLUMN from_email TEXT")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)  # Column may already exist
-
-        # Migration: Add error_reason to campaign_emails
-        try:
-            conn.execute("ALTER TABLE campaign_emails ADD COLUMN error_reason TEXT")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)
-
-        # Migration: Add total_attempted to campaigns
-        try:
-            conn.execute("ALTER TABLE campaigns ADD COLUMN total_attempted INTEGER DEFAULT 0")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)
-
-        # Migration: Add premium_weapons to campaigns
-        try:
-            conn.execute("ALTER TABLE campaigns ADD COLUMN premium_weapons INTEGER DEFAULT 0")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)
-
-        # Migration: Add interview_prep and linkedin_message to campaign_emails
-        try:
-            conn.execute("ALTER TABLE campaign_emails ADD COLUMN interview_prep TEXT DEFAULT ''")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        try:
-            conn.execute("ALTER TABLE campaign_emails ADD COLUMN linkedin_message TEXT DEFAULT ''")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)
-
-        # Migration: Add home_country, min_local_salary, min_international_salary to cv_profiles if missing
-        try:
-            conn.execute("ALTER TABLE cv_profiles ADD COLUMN home_country TEXT DEFAULT 'Lebanon'")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        try:
-            conn.execute("ALTER TABLE cv_profiles ADD COLUMN min_local_salary REAL DEFAULT 0")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        try:
-            conn.execute("ALTER TABLE cv_profiles ADD COLUMN min_international_salary REAL DEFAULT 0")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)
-
-        # Migration: Add code_type to redeem_codes if missing (for admin_free vs sale distinction)
-        try:
-            conn.execute("ALTER TABLE redeem_codes ADD COLUMN code_type TEXT DEFAULT 'sale'")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)  # Column may already exist
 
         # Create email_campaign_log table for automated email marketing tracking
         try:
@@ -1581,6 +1517,38 @@ def email_health_check():
     import os
     healthy = bool(os.getenv("BREVO_API_KEY", "") or (os.getenv("BREVO_SMTP_USER", "") and os.getenv("BREVO_SMTP_PASS", "")) or (os.getenv("GMAIL_SMTP_USER_1", "") and os.getenv("GMAIL_APP_PASSWORD_1", "")))
     return {"healthy": healthy}
+
+
+@app.get("/api/v1/swarm/status")
+def api_swarm_status():
+    """Live Swarm stats."""
+    import os, json
+    stats_path = "data/swarm_status.json"
+    if os.path.exists(stats_path):
+        try:
+            with open(stats_path, "r", encoding="utf-8") as f:
+                return JSONResponse(json.load(f))
+        except Exception:
+            pass
+    return JSONResponse({"status": "unknown", "message": "Swarm is offline or booting up."})
+
+
+@app.post("/api/v1/webhook/response")
+async def api_webhook_response(request: Request):
+    """Webhook for incoming email responses (auto-resumes Swarm)."""
+    import os, json
+    try:
+        data = await request.json()
+        logger.info(f"[WEBHOOK] Received response: {data}")
+        # Automatically resume the swarm if paused
+        ctrl_path = "data/system_control.json"
+        os.makedirs("data", exist_ok=True)
+        with open(ctrl_path, "w", encoding="utf-8") as f:
+            json.dump({"status": "running", "reason": "auto_resume_from_webhook"}, f)
+        return JSONResponse({"status": "ok", "message": "Webhook processed, Swarm auto-resumed."})
+    except Exception as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
+
 
 
 @app.post("/api/v1/followup/trigger", response_class=JSONResponse)
@@ -1914,31 +1882,38 @@ def stats_page(request: Request):
     today = datetime.now().date().isoformat()
     week_ago = (datetime.now() - timedelta(days=7)).date().isoformat()
 
-    total_emails = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ?""", (user_id,)).fetchone()[0]
-    sent_emails = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.status='sent'""", (user_id,)).fetchone()[0]
-    opened = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.opened_at IS NOT NULL""", (user_id,)).fetchone()[0]
-    responded = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.responded_at IS NOT NULL""", (user_id,)).fetchone()[0]
-    sent_today = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.status='sent' AND date(ce.sent_at)=?""", (user_id, today)).fetchone()[0]
-    sent_week = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.status='sent' AND date(ce.sent_at)>=?""", (user_id, week_ago)).fetchone()[0]
-
+    total_emails = sent_emails = opened = responded = sent_today = sent_week = 0
     pipe_counts = {}
-    for row in conn.execute("""SELECT COALESCE(ce.pipeline_stage, 'discovered') as stage, COUNT(*) as cnt
-        FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id
-        WHERE c.user_id = ? GROUP BY COALESCE(ce.pipeline_stage, 'discovered')""", (user_id,)).fetchall():
-        pipe_counts[row["stage"]] = row["cnt"]
-
     status_breakdown = {}
-    for row in conn.execute("""SELECT ce.status, COUNT(*) as cnt
-        FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id
-        WHERE c.user_id = ? GROUP BY ce.status""", (user_id,)).fetchall():
-        status_breakdown[row["status"]] = row["cnt"]
-    conn.close()
+
+    try:
+        total_emails = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
+            JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ?""", (user_id,)).fetchone()[0]
+        sent_emails = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
+            JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.status='sent'""", (user_id,)).fetchone()[0]
+        opened = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
+            JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.opened_at IS NOT NULL""", (user_id,)).fetchone()[0]
+        responded = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
+            JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.responded_at IS NOT NULL""", (user_id,)).fetchone()[0]
+        sent_today = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
+            JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.status='sent' AND date(ce.sent_at)=?""", (user_id, today)).fetchone()[0]
+        sent_week = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
+            JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.status='sent' AND date(ce.sent_at)>=?""", (user_id, week_ago)).fetchone()[0]
+
+        for row in conn.execute("""SELECT COALESCE(ce.pipeline_stage, 'discovered') as stage, COUNT(*) as cnt
+            FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id
+            WHERE c.user_id = ? GROUP BY COALESCE(ce.pipeline_stage, 'discovered')""", (user_id,)).fetchall():
+            pipe_counts[row["stage"]] = row["cnt"]
+
+        for row in conn.execute("""SELECT ce.status, COUNT(*) as cnt
+            FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id
+            WHERE c.user_id = ? GROUP BY ce.status""", (user_id,)).fetchall():
+            status_breakdown[row["status"]] = row["cnt"]
+    except Exception as e:
+        logger.error(f"Error in /stats query for user {user_id}: {e}", exc_info=True)
+    finally:
+        conn.close()
+
 
     response_rate = round(responded / sent_emails * 100, 1) if sent_emails > 0 else 0
     open_rate = round(opened / sent_emails * 100, 1) if sent_emails > 0 else 0
@@ -2483,40 +2458,74 @@ if ('serviceWorker' in navigator) {{
 </html>'''
     return shell
 
+@app.get("/api/docs", response_class=HTMLResponse)
+def api_docs(request: Request):
+    return HTMLResponse("<h1>API Documentation</h1><p>Premium access required.</p>")
+
+@app.get("/email-test", response_class=HTMLResponse)
+def email_test(request: Request):
+    return HTMLResponse("<h1>Email Test</h1><p>Premium access required.</p>")
+
 @app.get("/pricing", response_class=HTMLResponse)
 def pricing(request: Request):
-    """Pricing page &#x2014; accessible without login. Shows all plans + flash sales."""
-    pricing_data = get_all_pricing()
-    # Check for active flash sales
-    flash_discount = 0
-    flash_sale_info = None
+    """Pricing page — accessible without login. Shows all plans + flash sales."""
     try:
-        conn = get_db()
-        now_iso = datetime.now().isoformat()
-        fs = conn.execute(
-            "SELECT discount_percent, title, end_time FROM flash_sales WHERE active = 1 AND start_time <= ? AND end_time > ? ORDER BY end_time ASC LIMIT 1",
-            (now_iso, now_iso)
-        ).fetchone()
-        if fs:
-            flash_discount = float(fs["discount_percent"])
-            flash_sale_info = {"title": fs["title"], "discount": flash_discount, "end_time": fs["end_time"]}
-        conn.close()
+        pricing_data = get_all_pricing()
+        # Check for active flash sales
+        flash_discount = 0
+        flash_sale_info = None
+        try:
+            conn = get_db()
+            now_iso = datetime.now().isoformat()
+            fs = conn.execute(
+                "SELECT discount_percent, title, end_time FROM flash_sales WHERE active = 1 AND start_time <= ? AND end_time > ? ORDER BY end_time ASC LIMIT 1",
+                (now_iso, now_iso)
+            ).fetchone()
+            if fs:
+                flash_discount = float(fs["discount_percent"])
+                flash_sale_info = {"title": fs["title"], "discount": flash_discount, "end_time": fs["end_time"]}
+            conn.close()
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            if 'conn' in locals() and conn: conn.close()
+        user_id = get_verified_user_id(request)
+        # Logged-in users get dashboard-embedded pricing (with sidebar)
+        if user_id:
+            conn2 = get_db()
+            user_row = conn2.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            user = dict(user_row) if user_row else None
+            conn2.close()
+            pricing_html = _build_pricing_inline(pricing_data, flash_discount, flash_sale_info)
+            html = _build_dashboard_shell(user, user_id, pricing_html, "&#x1F48E; Pricing", "pricing")
+            resp = HTMLResponse(content=html)
+            resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            resp.headers["Pragma"] = "no-cache"
+            resp.headers["Expires"] = "0"
+            return resp
+        response = templates.TemplateResponse(request, "pricing_v2.html", {
+            "pricing": pricing_data,
+            "flash_discount": flash_discount,
+            "flash_sale": flash_sale_info,
+            "is_logged_in": False
+        })
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
+    except Exception as e:
+        logger.error(f"Pricing page crashed: {e}", exc_info=True)
+        return HTMLResponse("<h2>Error loading pricing</h2><p>Please try again later.</p>", status_code=500)
+
+@app.get("/referral", response_class=HTMLResponse)
+def referral_page(request: Request):
+    try:
+        user_id = get_verified_user_id(request)
+        if not user_id:
+            return RedirectResponse("/login")
+        # Logic for referrals goes here
+        return HTMLResponse("<h1>Referrals</h1>")
     except Exception as e:
         logger.error(e, exc_info=True)
-    user_id = get_verified_user_id(request)
-    # Logged-in users get dashboard-embedded pricing (with sidebar)
-    if user_id:
-        conn2 = get_db()
-        user_row = conn2.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        user = dict(user_row) if user_row else None
-        conn2.close()
-        pricing_html = _build_pricing_inline(pricing_data, flash_discount, flash_sale_info)
-        html = _build_dashboard_shell(user, user_id, pricing_html, "&#x1F48E; Pricing", "pricing")
-        resp = HTMLResponse(content=html)
-        resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-        resp.headers["Pragma"] = "no-cache"
-        resp.headers["Expires"] = "0"
-        return resp
     response = templates.TemplateResponse(request, "pricing_v2.html", {
         "pricing": pricing_data,
         "flash_discount": flash_discount,
@@ -2778,19 +2787,22 @@ def contact_page(request: Request):
     error = request.query_params.get("error", "")
     user_name = ""
     user_email = ""
+    is_admin = False
     user_id = get_verified_user_id(request)
     if user_id:
         try:
             conn = get_db()
-            u = conn.execute("SELECT name, email FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            u = conn.execute("SELECT name, email, user_type FROM users WHERE user_id = ?", (user_id,)).fetchone()
             conn.close()
             if u:
                 user_name = u["name"] or ""
                 user_email = u["email"] or ""
+                if u["user_type"] == "admin":
+                    is_admin = True
         except Exception as e:
             logger.error(e, exc_info=True)
     content = render_template("contact.html", request=request, msg=msg, error=error,
-                              user_name=user_name, user_email=user_email)
+                              user_name=user_name, user_email=user_email, is_admin=is_admin)
     return HTMLResponse(_public_shell(content, "Contact &mdash; JobHunt Pro"))
 
 @app.post("/contact")
@@ -2973,13 +2985,13 @@ def _check_rate_limit(store: dict, ip: str, max_count: int, window_seconds: int 
         conn = get_db()
         db_key = f"rl:{id(store)}:{ip}"
         row = conn.execute(
-            "SELECT value, updated_at FROM system_config WHERE key = ?", (db_key,)
+            "SELECT value FROM system_config WHERE key = ?", (db_key,)
         ).fetchone()
         if row:
             parts = row["value"].split(":")
             db_time, db_count = float(parts[0]), int(parts[1])
             if now - db_time > window_seconds:
-                conn.execute("REPLACE INTO system_config (key, value, updated_at) VALUES (?, ?, datetime('now'))",
+                conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
                              (db_key, f"{now}:1"))
                 conn.commit(); conn.close()
                 store[ip] = [now, 1]
@@ -2987,13 +2999,13 @@ def _check_rate_limit(store: dict, ip: str, max_count: int, window_seconds: int 
             if db_count >= max_count:
                 conn.close()
                 return False
-            conn.execute("REPLACE INTO system_config (key, value, updated_at) VALUES (?, ?, datetime('now'))",
+            conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
                          (db_key, f"{db_time}:{db_count + 1}"))
             conn.commit(); conn.close()
             store[ip] = [db_time, db_count + 1]
             return True
         else:
-            conn.execute("REPLACE INTO system_config (key, value, updated_at) VALUES (?, ?, datetime('now'))",
+            conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
                          (db_key, f"{now}:1"))
             conn.commit(); conn.close()
             store[ip] = [now, 1]
@@ -3107,22 +3119,6 @@ def google_callback(code: str = None, error: str = None):
         )
         conn.commit()
     else:
-        existing_provider = user.get("oauth_provider")
-        if existing_provider != "google":
-            provider_name = "password" if not existing_provider else existing_provider.capitalize()
-            error_html = f"""
-            <html><body style="background:#0f172a; color:#e2e8f0; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
-                <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; border:1px solid rgba(239,68,68,0.3); max-width:400px;">
-                    <div style="font-size:40px; margin-bottom:15px;">⚠️</div>
-                    <h3 style="color:#fca5a5; margin-top:0;">Email Already Registered</h3>
-                    <p style="color:#94a3b8; line-height:1.5;">The email <b>{email}</b> is already registered using <b>{provider_name}</b>.</p>
-                    <p style="color:#94a3b8; line-height:1.5; margin-bottom:25px;">Please log in using your original method.</p>
-                    <a href="/login" style="background:#3b82f6; color:#fff; padding:10px 24px; border-radius:6px; text-decoration:none; font-weight:bold;">Return to Login</a>
-                </div>
-            </body></html>
-            """
-            return HTMLResponse(error_html)
-            
         user_id = user["user_id"]
         # Update tokens
         if refresh_token:
@@ -3249,22 +3245,6 @@ def microsoft_callback(code: str = None, error: str = None):
         )
         conn.commit()
     else:
-        existing_provider = user.get("oauth_provider")
-        if existing_provider != "microsoft":
-            provider_name = "password" if not existing_provider else existing_provider.capitalize()
-            error_html = f"""
-            <html><body style="background:#0f172a; color:#e2e8f0; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
-                <div style="background:#1e293b; padding:40px; border-radius:12px; text-align:center; border:1px solid rgba(239,68,68,0.3); max-width:400px;">
-                    <div style="font-size:40px; margin-bottom:15px;">⚠️</div>
-                    <h3 style="color:#fca5a5; margin-top:0;">Email Already Registered</h3>
-                    <p style="color:#94a3b8; line-height:1.5;">The email <b>{email}</b> is already registered using <b>{provider_name}</b>.</p>
-                    <p style="color:#94a3b8; line-height:1.5; margin-bottom:25px;">Please log in using your original method.</p>
-                    <a href="/login" style="background:#3b82f6; color:#fff; padding:10px 24px; border-radius:6px; text-decoration:none; font-weight:bold;">Return to Login</a>
-                </div>
-            </body></html>
-            """
-            return HTMLResponse(error_html)
-            
         user_id = user["user_id"]
         if refresh_token:
             conn.execute(
@@ -3301,7 +3281,13 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
     # Per-account lockout: 5 failed attempts = 30min lock
     account_key = f"login_lock:{email}"
     conn = get_db()
-    lockout = conn.execute("SELECT value FROM system_config WHERE key = ?", (account_key,)).fetchone()
+    
+    lockout = None
+    try:
+        lockout = conn.execute("SELECT value FROM system_config WHERE key = ?", (account_key,)).fetchone()
+    except Exception:
+        pass
+        
     if lockout:
         from time import time
         try:
@@ -3320,10 +3306,10 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
             fail_key = f"login_fails:{email}"
             row = conn.execute("SELECT value FROM system_config WHERE key = ?", (fail_key,)).fetchone()
             fails = int(row["value"]) + 1 if row else 1
-            conn.execute("REPLACE INTO system_config (key, value, updated_at) VALUES (?, ?, datetime('now'))",
+            conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
                          (fail_key, str(fails)))
             if fails >= 5:
-                conn.execute("REPLACE INTO system_config (key, value, updated_at) VALUES (?, ?, datetime('now'))",
+                conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
                              (account_key, str(time())))
             conn.commit()
         except Exception:
@@ -3485,6 +3471,137 @@ def reset_password(request: Request, token: str = Form(...), password: str = For
         return RedirectResponse("/login", status_code=303)
     except Exception:
         return templates.TemplateResponse(request, "forgot_password.html", {"error": "Invalid or expired token"})
+
+@app.get("/oauth/google/login")
+def oauth_google_login(request: Request):
+    user_id = get_verified_user_id(request)
+    if not user_id: return RedirectResponse("/login", status_code=303)
+    
+    # Needs gmail.send, userinfo.email
+    client_id = getattr(config, "GOOGLE_CLIENT_ID", "")
+    if not client_id: return HTMLResponse("GOOGLE_CLIENT_ID not configured.", status_code=500)
+    
+    redirect_uri = f"https://{request.url.hostname}/oauth/google/callback"
+    if request.url.hostname in ("localhost", "127.0.0.1"): redirect_uri = "http://localhost:8000/oauth/google/callback"
+    
+    scope = "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email"
+    url = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}&access_type=offline&prompt=consent"
+    return RedirectResponse(url)
+
+@app.get("/oauth/google/callback")
+def oauth_google_callback(request: Request, code: str = None, error: str = None):
+    user_id = get_verified_user_id(request)
+    if not user_id: return RedirectResponse("/login", status_code=303)
+    if error or not code: return RedirectResponse("/dashboard?error=OAuth Failed", status_code=303)
+    
+    client_id = getattr(config, "GOOGLE_CLIENT_ID", "")
+    client_secret = getattr(config, "GOOGLE_CLIENT_SECRET", "")
+    redirect_uri = f"https://{request.url.hostname}/oauth/google/callback"
+    if request.url.hostname in ("localhost", "127.0.0.1"): redirect_uri = "http://localhost:8000/oauth/google/callback"
+    
+    import requests, time
+    resp = requests.post("https://oauth2.googleapis.com/token", data={
+        "client_id": client_id, "client_secret": client_secret, "code": code,
+        "grant_type": "authorization_code", "redirect_uri": redirect_uri
+    })
+    if not resp.ok: return RedirectResponse(f"/dashboard?error=TokenExchangeFailed:{resp.text}", status_code=303)
+    
+    tokens = resp.json()
+    access_token = tokens.get("access_token")
+    refresh_token = tokens.get("refresh_token", "")
+    expires_at = time.time() + tokens.get("expires_in", 3599)
+    
+    # Get user email
+    user_info = requests.get("https://www.googleapis.com/oauth2/v2/userinfo", headers={"Authorization": f"Bearer {access_token}"})
+    oauth_email = user_info.json().get("email", "") if user_info.ok else ""
+    
+    conn = get_db()
+    # Check if we should keep the existing refresh token
+    if not refresh_token:
+        row = conn.execute("SELECT oauth_refresh_token FROM users WHERE user_id=?", (user_id,)).fetchone()
+        if row and row[0]: refresh_token = row[0]
+        
+    conn.execute("""
+        UPDATE users 
+        SET oauth_provider='google', oauth_access_token=?, oauth_refresh_token=?, 
+            oauth_expires_at=?, oauth_email=?, personal_email_sent_today=0 
+        WHERE user_id=?
+    """, (access_token, refresh_token, expires_at, oauth_email, user_id))
+    conn.commit()
+    conn.close()
+    return RedirectResponse("/dashboard?success=Google Account Connected!", status_code=303)
+
+@app.get("/oauth/microsoft/login")
+def oauth_microsoft_login(request: Request):
+    user_id = get_verified_user_id(request)
+    if not user_id: return RedirectResponse("/login", status_code=303)
+    
+    client_id = getattr(config, "MICROSOFT_CLIENT_ID", "")
+    if not client_id: return HTMLResponse("MICROSOFT_CLIENT_ID not configured.", status_code=500)
+    
+    redirect_uri = f"https://{request.url.hostname}/oauth/microsoft/callback"
+    if request.url.hostname in ("localhost", "127.0.0.1"): redirect_uri = "http://localhost:8000/oauth/microsoft/callback"
+    
+    scope = "offline_access Mail.Send User.Read"
+    url = f"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}&prompt=select_account"
+    return RedirectResponse(url)
+
+@app.get("/oauth/microsoft/callback")
+def oauth_microsoft_callback(request: Request, code: str = None, error: str = None):
+    user_id = get_verified_user_id(request)
+    if not user_id: return RedirectResponse("/login", status_code=303)
+    if error or not code: return RedirectResponse("/dashboard?error=OAuth Failed", status_code=303)
+    
+    client_id = getattr(config, "MICROSOFT_CLIENT_ID", "")
+    client_secret = getattr(config, "MICROSOFT_CLIENT_SECRET", "")
+    redirect_uri = f"https://{request.url.hostname}/oauth/microsoft/callback"
+    if request.url.hostname in ("localhost", "127.0.0.1"): redirect_uri = "http://localhost:8000/oauth/microsoft/callback"
+    
+    import requests, time
+    resp = requests.post("https://login.microsoftonline.com/common/oauth2/v2.0/token", data={
+        "client_id": client_id, "client_secret": client_secret, "code": code,
+        "grant_type": "authorization_code", "redirect_uri": redirect_uri
+    })
+    if not resp.ok: return RedirectResponse(f"/dashboard?error=TokenExchangeFailed:{resp.text}", status_code=303)
+    
+    tokens = resp.json()
+    access_token = tokens.get("access_token")
+    refresh_token = tokens.get("refresh_token", "")
+    expires_at = time.time() + tokens.get("expires_in", 3599)
+    
+    user_info = requests.get("https://graph.microsoft.com/v1.0/me", headers={"Authorization": f"Bearer {access_token}"})
+    oauth_email = user_info.json().get("mail", "") or user_info.json().get("userPrincipalName", "") if user_info.ok else ""
+    
+    conn = get_db()
+    if not refresh_token:
+        row = conn.execute("SELECT oauth_refresh_token FROM users WHERE user_id=?", (user_id,)).fetchone()
+        if row and row[0]: refresh_token = row[0]
+        
+    conn.execute("""
+        UPDATE users 
+        SET oauth_provider='microsoft', oauth_access_token=?, oauth_refresh_token=?, 
+            oauth_expires_at=?, oauth_email=?, personal_email_sent_today=0 
+        WHERE user_id=?
+    """, (access_token, refresh_token, expires_at, oauth_email, user_id))
+    conn.commit()
+    conn.close()
+    return RedirectResponse("/dashboard?success=Microsoft Account Connected!", status_code=303)
+
+@app.get("/oauth/disconnect")
+def oauth_disconnect(request: Request):
+    user_id = get_verified_user_id(request)
+    if not user_id: return RedirectResponse("/login", status_code=303)
+    
+    conn = get_db()
+    conn.execute("""
+        UPDATE users 
+        SET oauth_provider=NULL, oauth_access_token=NULL, oauth_refresh_token=NULL, 
+            oauth_expires_at=NULL, oauth_email=NULL 
+        WHERE user_id=?
+    """, (user_id,))
+    conn.commit()
+    conn.close()
+    return RedirectResponse("/dashboard?success=Email Account Disconnected", status_code=303)
 
 @app.get("/user-dashboard", response_class=HTMLResponse)
 def user_dashboard(request: Request):
@@ -3936,28 +4053,36 @@ def battle_station_page(request: Request):
     if not user_id:
         return RedirectResponse("/login", status_code=303)
     conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
+    
+    campaigns = []
+    running_count = paused_count = completed_count = failed_count = total_sent = total_responses = 0
+
+    try:
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        if not user_row:
+            conn.close()
+            return RedirectResponse("/login", status_code=303)
+        user = dict(user_row)
+        
+        camp_rows = conn.execute("SELECT * FROM campaigns WHERE user_id = ? ORDER BY created_at DESC", (user_id,)).fetchall()
+        campaigns = [dict(c) for c in camp_rows]
+        
+        running_count = sum(1 for c in campaigns if c.get("status") == "running")
+        paused_count = sum(1 for c in campaigns if c.get("status") == "paused")
+        completed_count = sum(1 for c in campaigns if c.get("status") == "completed")
+        failed_count = sum(1 for c in campaigns if c.get("status") in ("failed", "error"))
+        
+        total_sent = sum(int(c.get("sent_count") or 0) for c in campaigns)
+        
+        total_responses = conn.execute(
+            "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.responded_at IS NOT NULL",
+            (user_id,)
+        ).fetchone()[0]
+    except Exception as e:
+        logger.error(f"Error in /battle-station query for user {user_id}: {e}", exc_info=True)
+        user = {}
+    finally:
         conn.close()
-        return RedirectResponse("/login", status_code=303)
-    user = dict(user_row)
-    
-    camp_rows = conn.execute("SELECT * FROM campaigns WHERE user_id = ? ORDER BY created_at DESC", (user_id,)).fetchall()
-    campaigns = [dict(c) for c in camp_rows]
-    
-    running_count = sum(1 for c in campaigns if c.get("status") == "running")
-    paused_count = sum(1 for c in campaigns if c.get("status") == "paused")
-    completed_count = sum(1 for c in campaigns if c.get("status") == "completed")
-    failed_count = sum(1 for c in campaigns if c.get("status") in ("failed", "error"))
-    
-    total_sent = sum(int(c.get("sent_count") or 0) for c in campaigns)
-    
-    total_responses = conn.execute(
-        "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.responded_at IS NOT NULL",
-        (user_id,)
-    ).fetchone()[0]
-    
-    conn.close()
     content = render_template("battle_station.html", request=request,
                               campaigns=campaigns, running_count=running_count,
                               paused_count=paused_count, completed_count=completed_count,
@@ -3970,16 +4095,23 @@ def wallet_page(request: Request):
     if not user_id:
         return RedirectResponse("/login", status_code=303)
 
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-    user = dict(user_row)
-    transactions = [dict(r) for r in conn.execute(
-        "SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT 50",
-        (user_id,)).fetchall()]
-    conn.close()
+    try:
+        conn = get_db()
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        if not user_row:
+            conn.close()
+            return RedirectResponse("/login", status_code=303)
+        user = dict(user_row)
+        transactions = [dict(r) for r in conn.execute(
+            "SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT 50",
+            (user_id,)).fetchall()]
+    except Exception as e:
+        logger.error(f"Error in /wallet query for user {user_id}: {e}", exc_info=True)
+        user = {}
+        transactions = []
+    finally:
+        if 'conn' in locals() and conn:
+            conn.close()
 
     crypto_addresses = get_payment_addresses()
     
@@ -4851,6 +4983,84 @@ def logout(request: Request):
 
 # â&#x201D;€â&#x201D;€ API Docs page â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 
+@app.get("/admin/logs", response_class=HTMLResponse)
+def admin_logs(request: Request):
+    """Secure Log Viewer - Only accessible by admins."""
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+        
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    conn.close()
+    
+    if not user or user.get("user_type") != "admin":
+        return HTMLResponse("<h2>403 Forbidden</h2><p>You do not have permission to view this page.</p>", status_code=403)
+        
+    import os
+    # PythonAnywhere log paths (fallback to local logs if not on PA)
+    pa_domain = os.getenv("PA_DOMAIN", "jhfguf.pythonanywhere.com")
+    error_log_path = f"/var/log/{pa_domain}.error.log"
+    server_log_path = f"/var/log/{pa_domain}.server.log"
+    
+    # Check if files exist
+    error_log_content = "Log file not found."
+    server_log_content = "Log file not found."
+    
+    try:
+        if os.path.exists(error_log_path):
+            with open(error_log_path, 'r', encoding='utf-8', errors='replace') as f:
+                lines = f.readlines()
+                error_log_content = ''.join(lines[-100:]) # Show last 100 lines
+        else:
+            error_log_content = f"Log file not found at {error_log_path}"
+    except Exception as e:
+        error_log_content = f"Error reading log: {str(e)}"
+        
+    try:
+        if os.path.exists(server_log_path):
+            with open(server_log_path, 'r', encoding='utf-8', errors='replace') as f:
+                lines = f.readlines()
+                server_log_content = ''.join(lines[-100:]) # Show last 100 lines
+        else:
+            server_log_content = f"Log file not found at {server_log_path}"
+    except Exception as e:
+        server_log_content = f"Error reading log: {str(e)}"
+        
+    # Simple HTML shell for the logs
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Server Logs</title>
+        <style>
+            body {{ background: #0f172a; color: #e2e8f0; font-family: monospace; padding: 20px; }}
+            h1 {{ color: #38bdf8; border-bottom: 1px solid #334155; padding-bottom: 10px; }}
+            h2 {{ color: #fbbf24; margin-top: 30px; }}
+            .log-box {{ background: #1e293b; padding: 15px; border-radius: 8px; border: 1px solid #334155; overflow-x: auto; white-space: pre-wrap; }}
+            .error-log {{ border-left: 4px solid #ef4444; }}
+            .server-log {{ border-left: 4px solid #10b981; }}
+            .btn {{ display: inline-block; padding: 8px 16px; background: #3b82f6; color: white; text-decoration: none; border-radius: 6px; font-family: sans-serif; margin-bottom: 20px; font-weight: bold; }}
+            .btn:hover {{ background: #2563eb; }}
+        </style>
+    </head>
+    <body>
+        <a href="/user-dashboard" class="btn">&larr; Back to Dashboard</a>
+        <h1>Server Logs (Tail 100 lines)</h1>
+        
+        <h2>Error Log ({error_log_path})</h2>
+        <div class="log-box error-log">{error_log_content}</div>
+        
+        <h2>Server Log ({server_log_path})</h2>
+        <div class="log-box server-log">{server_log_content}</div>
+    </body>
+    </html>
+    """
+    return HTMLResponse(html)
+
+
 @app.get("/admin/analytics", response_class=HTMLResponse)
 def admin_analytics(req: Request):
     """Admin analytics dashboard &#x2014; revenue, users, campaigns, A/B testing."""
@@ -4996,6 +5206,54 @@ async def custom_404_handler(request: Request, exc):
 </body>
 </html>'''
     return HTMLResponse(html, status_code=404)
+
+@app.get("/email-test", response_class=HTMLResponse)
+def email_test_page(request: Request):
+    """Placeholder Premium page for Email Test."""
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+    conn = get_db()
+    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    conn.close()
+    user = dict(user_row) if user_row else {}
+    content = '''
+    <div style="text-align:center; padding: 100px 20px;">
+        <div style="font-size: 64px; margin-bottom:20px;">🧪</div>
+        <h2 style="font-size: 28px; margin-bottom: 10px; color: #e2e8f0;">Advanced Deliverability Test</h2>
+        <p style="color: #94a3b8; font-size: 16px; margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">Test your spam score and inbox placement before launching a massive campaign.</p>
+        <div style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); padding: 30px; border-radius: 16px; display: inline-block; text-align:left; max-width: 400px;">
+            <h3 style="color:#a78bfa; margin-bottom: 15px; font-size:18px;">Premium Feature</h3>
+            <p style="color:#e2e8f0; font-size:14px; margin-bottom: 20px;">This feature requires an active Premium plan. Upgrade to unlock inbox placement testing.</p>
+            <a href="/pricing" style="display:block; text-align:center; padding:12px 24px; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:white; text-decoration:none; border-radius:8px; font-weight:bold;">View Plans</a>
+        </div>
+    </div>
+    '''
+    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Email Test", "email-test"))
+
+@app.get("/api/docs")
+def api_docs_page(request: Request):
+    """Placeholder Premium page for API Docs."""
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+    conn = get_db()
+    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    conn.close()
+    user = dict(user_row) if user_row else {}
+    content = '''
+    <div style="text-align:center; padding: 100px 20px;">
+        <div style="font-size: 64px; margin-bottom:20px;">🔌</div>
+        <h2 style="font-size: 28px; margin-bottom: 10px; color: #e2e8f0;">Developer API Access</h2>
+        <p style="color: #94a3b8; font-size: 16px; margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">Integrate JobHunt Pro directly into your custom workflows using our GraphQL API.</p>
+        <div style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); padding: 30px; border-radius: 16px; display: inline-block; text-align:left; max-width: 400px;">
+            <h3 style="color:#60a5fa; margin-bottom: 15px; font-size:18px;">Enterprise Feature</h3>
+            <p style="color:#e2e8f0; font-size:14px; margin-bottom: 20px;">API access is restricted to Enterprise and Developer tier users.</p>
+            <a href="/pricing" style="display:block; text-align:center; padding:12px 24px; background:linear-gradient(135deg, #3b82f6, #2563eb); color:white; text-decoration:none; border-radius:8px; font-weight:bold;">View Plans</a>
+        </div>
+    </div>
+    '''
+    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "API Docs", "api"))
 
 @app.get("/api-docs")
 def api_docs_dash_redirect():
@@ -5339,29 +5597,93 @@ def api_campaign_status(campaign_id: str, api_key: str = ""):
     conn.close()
     return {**campaign, **stats}
 
+# ==============================================================================
+# CHROME EXTENSION PIGGYBACKING API
+# ==============================================================================
+
+# Global in-memory queue for tasks to send to Chrome Extension clients
+EXTENSION_TASKS = []
+EXTENSION_RESULTS = {}
+
+@app.post("/api/ext/poll-tasks")
+async def ext_poll_tasks(request: Request):
+    try:
+        data = await request.json()
+    except:
+        return JSONResponse({"status": "error", "message": "Invalid JSON"}, status_code=400)
+    
+    token = data.get("token")
+    if not token:
+        return JSONResponse({"status": "error", "message": "Missing token"}, status_code=401)
+        
+    conn = get_db()
+    user = conn.execute("SELECT user_id FROM users WHERE api_key = ?", (token,)).fetchone()
+    conn.close()
+    
+    if not user:
+        return JSONResponse({"status": "error", "message": "Invalid token"}, status_code=401)
+        
+    # Check if there's a task for this user
+    for task in EXTENSION_TASKS:
+        if task.get("user_id") == user["user_id"]:
+            EXTENSION_TASKS.remove(task)
+            return {"status": "success", "task": task}
+            
+    return {"status": "success", "task": None}
+
+@app.post("/api/ext/submit-results")
+async def ext_submit_results(request: Request):
+    try:
+        data = await request.json()
+    except:
+        return JSONResponse({"status": "error", "message": "Invalid JSON"}, status_code=400)
+        
+    token = data.get("token")
+    task_id = data.get("taskId")
+    result = data.get("result")
+    
+    if not token or not task_id:
+        return JSONResponse({"status": "error", "message": "Missing token or taskId"}, status_code=400)
+        
+    EXTENSION_RESULTS[task_id] = result
+    return {"status": "success"}
+
 @app.get("/referral", response_class=HTMLResponse)
 def referral_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=302)
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    user = dict(user_row) if user_row else {}
-    referrals_count = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ?", (user_id,)).fetchone()[0]
-    wallet_balance = user.get("wallet_balance", 0)
-    paid = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ? AND status='completed'", (user_id,)).fetchone()[0]
-    completed = paid
-    ref_code = user_id[:8].upper()
-    site_url = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
-    referral_link = f"{site_url}/register?ref={user_id}"
-    tw_url = f"https://twitter.com/intent/tweet?text=I'm+using+JobHunt+Pro+to+automate+my+job+search!+Join+me:+{referral_link}"
-    wa_url = f"https://wa.me/?text=Check+out+JobHunt+Pro+-+AI+automated+job+applications!+{referral_link}"
-    conn.close()
-    content = render_template("referral.html", request=request, user=user,
-        referrals_count=referrals_count, wallet_balance=wallet_balance, paid=paid, completed=completed,
-        status="Active" if paid > 0 else "Getting Started", ref_code=ref_code, referral_link=referral_link,
-        referrals=[], tw_url=tw_url, wa_url=wa_url)
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Referrals", "referral"))
+    try:
+        conn = get_db()
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        user = dict(user_row) if user_row else {}
+        
+        # Safe fetches for referrals table
+        try:
+            referrals_count = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ?", (user_id,)).fetchone()[0]
+            paid = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ? AND status='completed'", (user_id,)).fetchone()[0]
+        except Exception:
+            referrals_count = 0
+            paid = 0
+
+        wallet_balance = user.get("wallet_balance", 0)
+        completed = paid
+        ref_code = user_id[:8].upper()
+        site_url = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
+        referral_link = f"{site_url}/register?ref={user_id}"
+        tw_url = f"https://twitter.com/intent/tweet?text=I'm+using+JobHunt+Pro+to+automate+my+job+search!+Join+me:+{referral_link}"
+        wa_url = f"https://wa.me/?text=Check+out+JobHunt+Pro+-+AI+automated+job+applications!+{referral_link}"
+        conn.close()
+        content = render_template("referral.html", request=request, user=user,
+            referrals_count=referrals_count, wallet_balance=wallet_balance, paid=paid, completed=completed,
+            status="Active" if paid > 0 else "Getting Started", ref_code=ref_code, referral_link=referral_link,
+            referrals=[], tw_url=tw_url, wa_url=wa_url)
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Referrals", "referral"))
+    except Exception as e:
+        logger.error(f"Referral page crashed: {e}", exc_info=True)
+        if 'conn' in locals() and conn: conn.close()
+        return HTMLResponse("<h2>Error loading referrals</h2><p>Please try again later.</p>", status_code=500)
+
 
 @app.post("/api/campaign/retry/{campaign_id}")
 def api_retry_campaign(request: Request, campaign_id: str):

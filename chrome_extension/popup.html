@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JobHunt Pro</title>
+    <style>
+        body {
+            width: 350px;
+            padding: 15px;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            margin: 0;
+        }
+        h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            color: #38bdf8;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        textarea, input {
+            width: 100%;
+            box-sizing: border-box;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-family: inherit;
+        }
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        button {
+            width: 100%;
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #0284c7;
+        }
+        .status {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #10b981;
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h2>JobHunt Pro - AI Settings</h2>
+    
+    <label for="profession">Target Profession</label>
+    <input type="text" id="profession" placeholder="e.g., Senior Frontend Engineer">
+
+    <label for="baseCv">Base CV Content</label>
+    <textarea id="baseCv" placeholder="Paste your full resume text here..."></textarea>
+
+    <button id="saveBtn">Save Settings</button>
+    <div id="status" class="status">Settings Saved Successfully!</div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

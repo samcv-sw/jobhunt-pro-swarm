@@ -1,24 +1,19 @@
-import requests
-import time
-token = '1181b0064725fc1bb9f3043c19f943780eeebd3b'
-headers = {'Authorization': f'Token {token}'}
-base_url = 'https://www.pythonanywhere.com/api/v0/user/JHFGUF'
+import sqlite3
+import os
 
-resp = requests.get(f'{base_url}/consoles/', headers=headers)
-if resp.status_code == 200:
-    for c in resp.json():
-        print('Deleting console', c['id'])
-        requests.delete(f"{base_url}/consoles/{c['id']}/", headers=headers)
+def run_fix():
+    try:
+        db_path = os.environ.get('DB_PATH', '/home/JHFGUF/jobhunt/jobhunt_saas_v2.db')
+        conn = sqlite3.connect(db_path, timeout=30)
+        
+        # Mark all failed and stuck running campaigns as pending so they restart properly
+        cursor = conn.execute("UPDATE campaigns SET status = 'pending' WHERE status IN ('running', 'failed')")
+        rowcount = cursor.rowcount
+        conn.commit()
+        conn.close()
+        print(f"[PA FIX] Successfully reset {rowcount} campaigns to pending.")
+    except Exception as e:
+        print("[PA FIX] Error fixing campaigns:", e)
 
-resp = requests.post(f'{base_url}/consoles/', headers=headers, json={'executable': 'bash'})
-if resp.status_code == 201:
-    console_id = resp.json()['id']
-    print('New Console ID:', console_id)
-    time.sleep(2)
-    cmd = 'cd jobhunt && git pull origin main && touch /var/www/jhfguf_pythonanywhere_com_wsgi.py\n'
-    requests.post(f'{base_url}/consoles/{console_id}/send_input/', headers=headers, json={'input': cmd})
-    time.sleep(10)
-    out = requests.get(f'{base_url}/consoles/{console_id}/get_latest_output/', headers=headers)
-    print(out.json().get('output', ''))
-else:
-    print('Failed to start console:', resp.status_code, resp.text)
+if __name__ == "__main__":
+    run_fix()

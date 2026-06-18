@@ -1,1011 +1,516 @@
 <!-- Dashboard content rendered inside _build_dashboard_shell -->
 <style>
-
 /* ═══════════════════════════════════════════
-   DASHBOARD v5 — Ultra Premium B2B SaaS
+   DASHBOARD v8 — Ultra Premium SaaS (Dark Slate & Neon)
    ═══════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --bg-dark: #050505;
-  --bg-panel: rgba(18, 18, 24, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-hover: rgba(255, 255, 255, 0.15);
-  --accent-cyan: #00f2fe;
-  --accent-magenta: #4facfe;
-  --accent-glow: rgba(79, 172, 254, 0.15);
-  --text-main: #f8fafc;
-  --text-muted: #8b9bb4;
+  --bg-main: #0B0F19;
+  --bg-card: rgba(18, 24, 38, 0.7);
+  --bg-card-hover: rgba(26, 35, 50, 0.9);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glass-hover: rgba(255, 255, 255, 0.15);
+  
+  --accent-primary: #6366F1; /* Indigo */
+  --accent-secondary: #EC4899; /* Pink */
+  --accent-success: #10B981; /* Emerald */
+  --accent-warning: #F59E0B; /* Amber */
+  --accent-danger: #EF4444; /* Rose */
+  
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-dark: #334155;
+  
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+  --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
 }
 
 body {
-  background-color: var(--bg-dark);
+  background-color: var(--bg-main);
   background-image: 
-    radial-gradient(circle at 15% 50%, rgba(79, 172, 254, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(0, 242, 254, 0.06), transparent 25%);
+    radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
   background-attachment: fixed;
+  font-family: var(--font-sans);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
 }
 
-.dashboard-scale {
+/* Animations */
+@keyframes fadeSlideUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 10px rgba(99, 102, 241, 0.2); }
+  50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.5); }
+  100% { box-shadow: 0 0 10px rgba(99, 102, 241, 0.2); }
+}
+
+.dashboard-container {
+  max-width: 1400px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 28px;
-  width: 100%;
-  max-width: 1240px;
-  margin: 0 auto;
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-  color: var(--text-main);
-  animation: fadeIn 0.6s ease-out forwards;
+  gap: 32px;
+  animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes staggerUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Glassmorphism Cards */
-.dashboard-scale .card,
-.dashboard-scale .stat-box,
-.dashboard-scale .pipe-stage-box,
-.dashboard-scale .email-card,
-.dashboard-scale .referral-card,
-.dashboard-scale .deliv-card {
-  background: var(--bg-panel);
+/* ── Generic Glass Card ── */
+.glass-card {
+  background: var(--bg-card);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  animation: staggerUp 0.6s ease-out backwards;
-}
-
-.dashboard-scale .card:nth-child(1) { animation-delay: 0.1s; }
-.dashboard-scale .card:nth-child(2) { animation-delay: 0.2s; }
-.dashboard-scale .card:nth-child(3) { animation-delay: 0.3s; }
-
-.dashboard-scale .card:hover,
-.dashboard-scale .stat-box:hover,
-.dashboard-scale .pipe-stage-box:hover {
-  border-color: var(--glass-border-hover);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px var(--accent-glow);
-}
-
-/* ── Welcome Header ── */
-.dashboard-scale .welcome-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 20px;
-  padding: 32px 40px;
-  background: linear-gradient(135deg, rgba(30, 30, 40, 0.8), rgba(15, 15, 20, 0.9));
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-glass);
   border-radius: 20px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 10px 30px rgba(0,0,0,0.3);
+  padding: 32px;
+  box-shadow: var(--shadow-card);
+  transition: all 0.4s ease;
   position: relative;
   overflow: hidden;
 }
 
-.dashboard-scale .welcome-card::before {
+.glass-card:hover {
+  border-color: var(--border-glass-hover);
+  transform: translateY(-4px);
+  background: var(--bg-card-hover);
+}
+
+.glass-card::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.03), transparent);
-  transform: translateX(-100%);
-  animation: shimmer 3s infinite;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
-@keyframes shimmer {
-  100% { transform: translateX(100%); }
+.glass-card:hover::before {
+  opacity: 1;
 }
 
-.dashboard-scale .welcome-card h1 {
-  font-size: 32px;
-  font-weight: 700;
-  background: linear-gradient(to right, #ffffff, #a5b4fc);
+/* ── Hero Section ── */
+.hero-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(30,30,50,0.8) 0%, rgba(15,15,25,0.9) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 40px rgba(99, 102, 241, 0.1);
+}
+
+.hero-content h1 {
+  font-size: 36px;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  background: linear-gradient(to right, #fff, #a5b4fc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin: 0 0 8px 0;
-  letter-spacing: -0.5px;
+  letter-spacing: -1px;
 }
-.dashboard-scale .welcome-card .wc-sub {
-  font-size: 15px;
+
+.hero-content p {
   color: var(--text-muted);
-  font-weight: 400;
+  font-size: 16px;
+  margin: 0;
+  max-width: 500px;
 }
-.dashboard-scale .balance-row {
-  display: flex;
+
+/* ── Badge & Premium Tag ── */
+.badge-premium {
+  display: inline-flex;
   align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-.dashboard-scale .bal-block {
-  text-align: right;
-  padding-right: 24px;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
-.dashboard-scale .bal-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-muted);
-  margin-bottom: 6px;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.2));
+  border: 1px solid rgba(236, 72, 153, 0.4);
+  border-radius: 30px;
   font-weight: 600;
-}
-.dashboard-scale .bal-value {
-  font-size: 32px;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1;
-  text-shadow: 0 0 20px rgba(255,255,255,0.2);
+  font-size: 14px;
+  color: #fbcfe8;
+  animation: pulseGlow 3s infinite;
 }
 
-/* ── Banners ── */
-.dashboard-scale .streak-card,
-.dashboard-scale .upgrade-card,
-.dashboard-scale .flash-card {
-  padding: 20px 28px;
-  background: rgba(20, 20, 28, 0.6);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  transition: all 0.3s ease;
-}
-.dashboard-scale .streak-card:hover {
-  background: rgba(30, 30, 40, 0.7);
-}
-.dashboard-scale .streak-dots { display: flex; gap: 10px; }
-.dashboard-scale .streak-dot {
-  width: 32px; height: 32px;
-  border-radius: 8px;
-  font-size: 12px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  transition: transform 0.2s;
-}
-.dashboard-scale .streak-dot:hover { transform: scale(1.1); }
-
-/* ═══ STATS GRID ═══ */
-.dashboard-scale .stats-grid {
+/* ── Grid Layouts ── */
+.grid-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 }
-.dashboard-scale .stat-box {
-  padding: 28px 24px;
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .grid-4, .grid-3 { grid-template-columns: 1fr; }
+  .hero-section { flex-direction: column; align-items: flex-start; gap: 24px; }
+}
+
+/* ── Stat Boxes ── */
+.stat-box {
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  position: relative;
-  overflow: hidden;
-}
-.dashboard-scale .stat-box::after {
-  content: "";
-  position: absolute;
-  top: -50%; right: -50%;
-  width: 100px; height: 100px;
-  background: radial-gradient(circle, var(--accent-glow), transparent 70%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-.dashboard-scale .stat-box:hover::after { opacity: 1; }
-
-.dashboard-scale .stat-icon {
-  width: 40px; height: 40px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 20px;
-  color: var(--accent-magenta);
-  font-size: 18px;
-}
-.dashboard-scale .stat-num {
-  font-size: 36px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 8px;
-  letter-spacing: -1px;
-}
-.dashboard-scale .stat-lbl {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-muted);
+  gap: 12px;
 }
 
-/* ── Section Headers ── */
-.dashboard-scale .section-hdr {
+.stat-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding: 0 8px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
-.dashboard-scale .section-hdr h2 {
-  font-size: 20px;
-  font-weight: 600;
+
+.stat-value {
+  font-size: 42px;
+  font-weight: 800;
   color: #fff;
   margin: 0;
+  line-height: 1;
 }
 
-/* ═══ PIPELINE ═══ */
-.dashboard-scale .pipe-stages {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
-  margin-bottom: 32px;
-}
-.dashboard-scale .pipe-stage-box {
-  padding: 24px 16px;
-  text-align: center;
-}
-.dashboard-scale .psb-num {
-  font-size: 32px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 8px;
-}
-.dashboard-scale .psb-lbl {
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-}
-.dashboard-scale .pipe-arrow { display: none; }
+.stat-trend.up { color: var(--accent-success); }
+.stat-trend.down { color: var(--accent-danger); }
 
-/* ── Pipeline Bar ── */
-.dashboard-scale .pipe-bar {
-  display: flex;
-  height: 10px;
-  border-radius: 5px;
-  overflow: hidden;
-  margin-bottom: 32px;
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-}
-.dashboard-scale .pipe-seg { height: 100%; transition: width 1s cubic-bezier(0.25, 1, 0.5, 1); }
-.dashboard-scale .seg-disc { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
-.dashboard-scale .seg-appl { background: linear-gradient(90deg, #6366f1, #818cf8); }
-.dashboard-scale .seg-fup  { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-.dashboard-scale .seg-intv { background: linear-gradient(90deg, #10b981, #34d399); }
-.dashboard-scale .seg-offr { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
-
-/* ═══ TABLES ═══ */
-.dashboard-scale .card { padding: 32px; }
-.dashboard-scale .table-wrapper {
-  margin-top: 12px;
-  overflow-x: auto;
-}
-.dashboard-scale .table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.dashboard-scale .table th {
-  text-align: left;
-  padding: 16px 20px;
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--glass-border);
-}
-.dashboard-scale .table td {
-  padding: 20px;
-  font-size: 15px;
-  color: #e2e8f0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-  transition: background 0.2s;
-}
-.dashboard-scale .table tr:last-child td { border-bottom: none; }
-.dashboard-scale .table tr:hover td { background: rgba(255, 255, 255, 0.03); }
-
-/* ── Badges ── */
-.dashboard-scale .badge-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-.dashboard-scale .s-active { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
-.dashboard-scale .s-completed { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
-.dashboard-scale .s-failed { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
-.dashboard-scale .s-paused { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
-
-/* ═══ BUTTONS ═══ */
-.dashboard-scale .btn {
+/* ── Action Buttons ── */
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 10px 20px;
-  font-size: 14px;
+  padding: 12px 24px;
+  border-radius: 12px;
   font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-  border: 1px solid transparent;
-  color: #fff;
-  background: linear-gradient(135deg, var(--accent-magenta), var(--accent-cyan));
-  text-decoration: none;
-  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
-}
-.dashboard-scale .btn:hover { 
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(79, 172, 254, 0.5);
-}
-.dashboard-scale .btn-outline {
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  box-shadow: none;
-}
-.dashboard-scale .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: translateY(-2px);
-}
-.dashboard-scale .wa-btn {
-  background: linear-gradient(135deg, #25d366, #1da851);
-  color: #fff;
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  transition: all 0.2s;
-  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
-}
-.dashboard-scale .wa-btn:hover { 
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
-}
-
-/* ═══ GRID LAYOUT ═══ */
-@media (min-width: 1024px) {
-  .dashboard-scale {
-    display: grid !important;
-    grid-template-columns: 2fr 1fr;
-    grid-auto-flow: row dense;
-    align-items: start;
-    gap: 32px;
-  }
-  .dashboard-scale > * { grid-column: span 2; }
-  .dashboard-scale > .dash-main-item { grid-column: 1; }
-  .dashboard-scale > .dash-side-item { grid-column: 2; }
-}
-
-/* Form inputs */
-.dashboard-scale .form-group label {
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 8px;
-  display: block;
-}
-.dashboard-scale .form-group input,
-.dashboard-scale .form-group textarea {
-  width: 100%;
-  background: rgba(0,0,0,0.2);
-  border: 1px solid var(--glass-border);
-  border-radius: 8px;
-  padding: 14px 16px;
-  color: #fff;
   font-size: 15px;
-  transition: all 0.2s;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-family: var(--font-sans);
 }
-.dashboard-scale .form-group input:focus,
-.dashboard-scale .form-group textarea:focus {
-  border-color: var(--accent-magenta);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-primary), #818CF8);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #4F46E5, var(--accent-primary));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
+}
+
+.btn-microsoft {
+  background: #0078D4;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0, 120, 212, 0.3);
+}
+.btn-microsoft:hover {
+  background: #005a9e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 120, 212, 0.5);
+}
+
+.btn-google {
+  background: #fff;
+  color: #333;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+.btn-google:hover {
+  background: #f1f5f9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+}
+
+/* ── Lists & Tables ── */
+.glass-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.glass-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.02);
+  transition: background 0.3s;
+}
+
+.glass-list-item:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── Connect Account Banner ── */
+.smtp-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 30px;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-left: 4px solid var(--accent-success);
+  border-radius: 16px;
+}
+
+/* ── Chart Container ── */
+.chart-container {
+  height: 300px;
+  width: 100%;
+  margin-top: 20px;
 }
 </style>
 
-<div class="dashboard-scale">
-
-  <!-- ═══ WELCOME HEADER ═══ -->
-  <div class="welcome-card">
-    <div>
-      <h1>Welcome back, {{ user.name or 'User' }}!</h1>
-      <div class="wc-sub">Here's your job hunt overview</div>
-    </div>
-    <div class="balance-row">
-      <a href="https://wa.me/96171019053" target="_blank" rel="noopener" class="wa-btn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        WhatsApp
-      </a>
-      <div class="bal-block">
-        <div class="bal-label">Wallet</div>
-        <div class="bal-value">${{ "%.2f"|format(user.wallet_balance or 0) }}</div>
-      </div>
-      <a href="/wallet" class="btn btn-outline btn-sm">Top Up</a>
-      
-  </div>
-
-  <!-- ═══ GOLDEN TICKET (HONGBAO VIRAL LOOP) ═══ -->
-  <div class="streak-card dash-main-item" style="background: linear-gradient(135deg, rgba(220,38,38,.08), rgba(239,68,68,.04)); border-color: rgba(239,68,68,.2); margin-top: 5px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-      <div style="display:flex;align-items:center;gap:14px;">
-        <div style="font-size:30px;">&#x1F9E7;</div>
-        <div>
-          <div style="font-size:16px;font-weight:700;color:#ef4444;">Send a Golden Ticket, Get 100 Free Apps!</div>
-          <div style="color:#94a3b8;font-size:12px;margin-top:3px;">
-            Your friend gets 50 free AI applications when they join. You get 100 added to your account instantly.
-          </div>
-        </div>
-      </div>
-      <button onclick="generateGoldenTicket()" class="btn btn-outline" style="border-color:#ef4444; color:#ef4444; font-weight:700;" id="gtBtn">
-        &#x1F381; Generate Ticket
-      </button>
-    </div>
-  </div>
+<div class="dashboard-container">
   
-
-
-  <!-- ═══ LOGIN STREAK ═══ -->
-  {% if login_streak is defined and login_streak %}
-  <div class="streak-card dash-main-item">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-      <div style="display:flex;align-items:center;gap:14px;">
-        <div style="font-size:30px;">&#x1F525;</div>
-        <div>
-          <div style="font-size:16px;font-weight:700;color:#f59e0b;">{{ login_streak }}-Day Login Streak</div>
-          <div style="color:#94a3b8;font-size:12px;margin-top:3px;">
-            {% if streak_reward > 0 %}<span style="color:#fbbf24;font-weight:600;">&#x1F3C6; +${{ "%.2f"|format(streak_reward) }} bonus earned!</span>
-            {% elif next_milestone %}<span>{{ days_to_next }} day{{ 's' if days_to_next != 1 }} to reach {{ next_milestone }}d &rarr; <strong style="color:#fbbf24;">${{ "%.2f"|format(next_reward) }}</strong></span>
-            {% else %}<span>Max streak! You're on fire &#x1F525;</span>{% endif %}
-          </div>
-        </div>
-      </div>
-      <div class="streak-dots">
-        {% for ms in [3, 5, 7, 14, 21, 30] %}
-        <div class="streak-dot" style="{% if login_streak >= ms %}background:#fbbf24;color:#000;{% elif ms == next_milestone %}background:rgba(251,191,36,.1);border:2px solid #fbbf24;color:#fbbf24;{% else %}background:rgba(255,255,255,.04);color:#52525b;border:1px solid rgba(255,255,255,.06);{% endif %}">{{ ms }}</div>
-        {% endfor %}
-      </div>
+  <!-- HERO WELCOME -->
+  <div class="glass-card hero-section">
+    <div class="hero-content">
+      <h1>Welcome back, {{ user.name.split(' ')[0] if user.name else 'Hunter' }}</h1>
+      <p>Your AI agents are actively hunting and negotiating the best roles for you. You currently have 
+        <strong style="color:var(--accent-primary)">{{ stats.emails_sent }}</strong> active applications in the market.</p>
     </div>
-  </div>
-  {% endif %}
-
-  <!-- ═══ UPGRADE BANNER ═══ -->
-  {% if not user.user_type or user.user_type in ('free', 'starter') %}
-  <div class="upgrade-card dash-main-item">
-    <div class="upgrade-icon"></div>
-    <div class="upgrade-body">
-      <div class="upgrade-title">Unlock Unlimited Applications</div>
-      <div class="upgrade-sub">You're on the Free plan. Upgrade to PRO for unlimited companies, AI-powered cover letters &amp; 20 email providers.</div>
-    </div>
-    <a href="/pricing" class="btn btn-orange btn-sm">Upgrade Now &rarr;</a>
-  </div>
-  {% endif %}
-
-  <!-- ═══ FLASH SALE ═══ -->
-  {% if flash_sales and flash_sales|length > 0 %}{% set fs = flash_sales[0] %}
-  <div class="flash-card dash-main-item" id="flashSaleBanner">
-    <div class="flash-label"> Flash Sale</div>
-    <div class="flash-title">{{ fs.title }}</div>
-    <div class="flash-off"><strong style="color:#ef4444;font-size:18px;">{{ "%.0f"|format(fs.discount_percent) }}% OFF</strong></div>
-    <div class="flash-timer" id="flashTimer" data-end="{{ fs.end_time }}">&#x23F3; Loading...</div>
-    <a href="/pricing" class="btn btn-red btn-sm">&#x1F525; Shop Now</a>
-  </div>
-  {% endif %}
-
-  <!-- ═══ CAMPAIGN PERFORMANCE ═══ -->
-  <div class="card dash-side-item">
-    <div class="card-title">&#x1F4CA; Campaign Performance</div>
     
-    <!-- Chart.js Injection -->
-    <div style="width: 100%; height: 250px; margin-bottom: 20px;">
-        <canvas id="campaignChart"></canvas>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      (function() {
-        // Run immediately after canvas is parsed to avoid DOMContentLoaded race conditions
-        setTimeout(function() {
-            const canvas = document.getElementById('campaignChart');
-            if(!canvas) return;
-            const ctx = canvas.getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'Emails Sent',
-                        data: [12, 19, 3, 5, 2, 3, {{ stats.emails_sent or 0 }}],
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
-                    }, {
-                        label: 'Opened',
-                        data: [2, 3, 20, 5, 1, 4, {{ stats.emails_opened or 0 }}],
-                        borderColor: '#4ade80',
-                        backgroundColor: 'rgba(74, 222, 128, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        x: { grid: { color: 'rgba(255,255,255,0.05)' } }
-                    },
-                    plugins: {
-                        legend: { labels: { color: '#e2e8f0' } }
-                    }
-                }
-            });
-        }, 100);
-      })();
-    </script>
-
-    <div class="stats-grid">
-      <div class="stat-box"><div class="stat-num" style="color:#60a5fa;">{{ stats.emails_sent or 0 }}</div><div class="stat-lbl">Emails Sent</div></div>
-      <div class="stat-box"><div class="stat-num" style="color:#4ade80;">{{ stats.emails_opened or 0 }}</div><div class="stat-lbl">Opened</div></div>
-      <div class="stat-box"><div class="stat-num" style="color:#fbbf24;">{{ stats.responses or 0 }}</div><div class="stat-lbl">Responses</div></div>
-      <div class="stat-box"><div class="stat-num" style="color:#c084fc;">{{ stats.open_rate or 0 }}%</div><div class="stat-lbl">Open Rate</div></div>
-    </div>
-
-    <div class="pipe-bar">
-      <div class="pipe-seg seg-disc" style="flex:{{ stats.discovered_percent or 25 }};" title="Discovered">Discovered</div>
-      <div class="pipe-seg seg-appl" style="flex:{{ stats.applied_percent or 30 }};" title="Applied">Applied</div>
-      <div class="pipe-seg seg-fup"  style="flex:{{ stats.followup_percent or 20 }};" title="Follow Up">Follow Up</div>
-      <div class="pipe-seg seg-intv" style="flex:{{ stats.interview_percent or 15 }};" title="Interview">Interview</div>
-      <div class="pipe-seg seg-offr" style="flex:{{ stats.offer_percent or 10 }};" title="Offer">Offer</div>
-    </div>
-
-    <div class="deliv-card">
-      <div class="deliv-row">
-        <div class="deliv-title">&#x1F4E7; Email Deliverability</div>
-        <div class="deliv-score">{{ stats.deliverability_score or 95 }}/100</div>
-      </div>
-      <div class="deliv-bar-bg"><div class="deliv-bar-fill" style="width:{{ stats.deliverability_score or 95 }}%;"></div></div>
-      <div class="deliv-labels">
-        <span class="deliv-label lbl-poor">Poor</span>
-        <span class="deliv-label">Average</span>
-        <span class="deliv-label">GOOD</span>
-        <span class="deliv-label lbl-excellent">Excellent</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ VIRAL REFERRAL LOOP ═══ -->
-  <div class="card dash-side-item" style="background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(147,51,234,.02)); border-color:rgba(168,85,247,.2);">
-    <div class="card-title" style="color:#c084fc;">&#x1F31F; Viral Referral Program</div>
-    <p style="color:#94a3b8; font-size:14px; margin-bottom:15px;">Refer friends and get <strong>$5 bonus</strong> per referral! They get $2. Build your Swarm Empire.</p>
-    <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px; background:rgba(0,0,0,0.3); padding:10px; border-radius:6px; border:1px solid rgba(168,85,247,.1);">
-      <input type="text" readonly value="https://jhfguf.pythonanywhere.com/register?ref={{ user.user_id }}" style="flex:1; background:transparent; border:none; color:#e2e8f0; font-family:monospace; outline:none;" id="refLink">
-      <button onclick="navigator.clipboard.writeText(document.getElementById('refLink').value); alert('Referral link copied!');" class="btn btn-outline btn-sm">Copy</button>
-    </div>
-    <div class="pipe-bar">
-      <div class="pipe-seg" style="flex:{{ referrals or 0 }}; background:rgba(168,85,247,0.5);" title="Referred">Referred ({{ referrals or 0 }})</div>
-      <div class="pipe-seg" style="flex:{{ 3 - (referrals or 0) if (referrals or 0) < 3 else 0 }}; background:rgba(255,255,255,0.05);" title="Remaining">Goal: 3</div>
-    </div>
-  </div>
-
-  <!-- ═══ ATS STEALTH VISUALIZER ═══ -->
-  <div class="card dash-side-item">
-    <div class="card-title" style="color:#4ade80;">&#x1F52C; ATS Match Engine Visualizer</div>
-    <p style="color:#94a3b8; font-size:14px; margin-bottom:15px;">We automatically tailor your resume to bypass ATS filters. See your live match scores.</p>
-    <div class="stats-grid">
-      <div class="stat-box" style="border-color:rgba(74,222,128,0.2);"><div class="stat-num scramble-text" style="color:#4ade80;">94%</div><div class="stat-lbl">Avg Match Rate</div></div>
-      <div class="stat-box" style="border-color:rgba(96,165,250,0.2);"><div class="stat-num scramble-text" style="color:#60a5fa;">12</div><div class="stat-lbl">Keywords Injected</div></div>
-      <div class="stat-box" style="border-color:rgba(250,204,21,0.2);"><div class="stat-num scramble-text" style="color:#facc15;">0</div><div class="stat-lbl">Detected by ATS</div></div>
-    </div>
-    <div style="margin-top:15px; text-align:center;">
-        <a href="/ats-scorer" class="btn btn-outline btn-sm" style="width:100%;">View Live Tailor Analysis</a>
-    </div>
-  </div>
-
-  <!-- ═══ MINI STATS ═══ -->
-  <div class="mini-stats dash-main-item">
-    <div class="stat-box"><div class="stat-num scramble-text" style="color:#60a5fa;">{{ campaigns|length }}</div><div class="stat-lbl">Campaigns</div></div>
-    <div class="stat-box"><div class="stat-num scramble-text" style="color:#4ade80;">${{ "%.2f"|format(user.total_spent or 0) }}</div><div class="stat-lbl">Total Spent</div></div>
-    <div class="stat-box"><div class="stat-num scramble-text" style="color:#c084fc;">{{ profiles|length }}</div><div class="stat-lbl">CV Profiles</div></div>
-    <div class="stat-box"><div class="stat-num scramble-text" style="color:#fbbf24;">{{ referrals or 0 }}</div><div class="stat-lbl">Referrals</div></div>
-    <div class="stat-box"><div class="stat-num scramble-text" style="color:#f472b6;">{{ (user.user_type or 'free')|title }}</div><div class="stat-lbl">Tier</div></div>
-  </div>
-
-  <!-- ═══ JOB PIPELINE ═══ -->
-  <div class="card dash-main-item">
-    <div class="section-hdr">
-      <h2>&#x1F504; Job Pipeline</h2>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <a href="/stats" class="btn btn-outline btn-sm">&#x1F4CA; Details</a>
-        <button onclick="copyShareLink()" class="btn btn-purple btn-sm">&#x1F517; Share</button>
-      </div>
-    </div>
-
-    {% set stages = [
-      {"key":"discovered","label":"Discovered","bg":"rgba(59,130,246,.08)","bd":"rgba(59,130,246,.15)","tx":"#60a5fa"},
-      {"key":"applied","label":"Applied","bg":"rgba(99,102,241,.08)","bd":"rgba(99,102,241,.15)","tx":"#818cf8"},
-      {"key":"followed_up","label":"Followed Up","bg":"rgba(245,158,11,.08)","bd":"rgba(245,158,11,.15)","tx":"#fbbf24"},
-      {"key":"interview","label":"Interview","bg":"rgba(34,197,94,.08)","bd":"rgba(34,197,94,.15)","tx":"#4ade80"},
-      {"key":"offer","label":"Offer","bg":"rgba(139,92,246,.08)","bd":"rgba(139,92,246,.15)","tx":"#a78bfa"}
-    ] %}
-    <div class="pipe-stages">
-      {% for s in stages %}
-      <div class="pipe-stage-box" style="background:{{ s.bg }};border-color:{{ s.bd }};">
-        <div class="psb-num" style="color:{{ s.tx }};">{{ pipeline_counts.get(s.key, 0) }}</div>
-        <div class="psb-lbl" style="color:{{ s.tx }};">{{ s.label }}</div>
-      </div>
-      {% if not loop.last %}<div class="pipe-arrow">&rarr;</div>{% endif %}
-      {% endfor %}
-    </div>
-
-    {% if pipeline_emails %}
-    <div class="table-wrapper">
-      <table class="table">
-        <thead><tr><th>Company</th><th>Job Title</th><th>Stage</th><th>Action</th></tr></thead>
-        <tbody>
-          {% for email in pipeline_emails[:10] %}
-          {% set stage = email.pipeline_stage or 'discovered' %}
-          {% set sidx = 0 %}
-          {% if stage == 'applied' %}{% set sidx = 1 %}
-          {% elif stage == 'followed_up' %}{% set sidx = 2 %}
-          {% elif stage == 'interview' %}{% set sidx = 3 %}
-          {% elif stage == 'offer' %}{% set sidx = 4 %}
-          {% endif %}
-          <tr>
-            <td style="font-weight:600;color:#e2e8f0;">{{ email.company_name }}</td>
-            <td>{{ email.job_title }}</td>
-            <td><span class="badge-item ps-{{ stage }}">{{ stage|replace('_',' ')|title }}</span></td>
-            <td>
-              {% if sidx < 4 %}
-              <button class="btn btn-sm advance-btn" data-id="{{ email.id }}" data-stage="{{ stage }}" style="background:linear-gradient(135deg,#3b82f6,#6366f1);">Advance &rarr;</button>
-              {% else %}<span style="color:#4ade80;font-size:12px;">&#x2705; Complete</span>{% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="empty-state">
-      <p>No applications tracked yet. Start a campaign to populate your pipeline!</p>
-      <a href="/new-campaign" class="btn btn-sm"> Start Campaign</a>
-    </div>
-    {% endif %}
-  </div>
-
-  <!-- ═══ RECENT CAMPAIGNS ═══ -->
-  <div class="card dash-main-item">
-    <div class="section-hdr">
-      <h2>&#x1F4CB; Recent Campaigns</h2>
-      <a href="/new-campaign" class="btn btn-sm">&#x2B; New</a>
-    </div>
-    {% if campaigns %}
-    <div class="table-wrapper">
-      <table class="table">
-        <thead>
-          <tr><th>ID</th><th>Status</th><th>Companies</th><th>Sent</th><th>Opened</th><th>Date</th></tr>
-        </thead>
-        <tbody>
-          {% for camp in campaigns %}
-          <tr>
-            <td><a href="/campaign/{{ camp.campaign_id }}" style="color:#3b82f6;text-decoration:none;font-family:monospace;font-size:12px;">{% if camp.campaign_id|length > 16 %}{{ camp.campaign_id[:16] }}..{% else %}{{ camp.campaign_id }}{% endif %}</a></td>
-            <td><span class="badge-pill s-{{ camp.status }}">{{ camp.status }}</span></td>
-            <td style="color:#e2e8f0;">{{ camp.total_companies }}</td>
-            <td>{{ camp.sent or camp.sent_count or 0 }}</td>
-            <td>{{ camp.opened or camp.open_count or 0 }}</td>
-            <td style="font-family:monospace;font-size:11px;">{{ (camp.created_at or '')[:10] }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="empty-state">
-      <p>No campaigns yet. Start your first one!</p>
-      <a href="/new-campaign" class="btn btn-sm"> Create</a>
-    </div>
-    {% endif %}
-  </div>
-
-  <!-- ═══ CV PROFILES ═══ -->
-  <div class="card dash-main-item">
-    <div class="section-hdr">
-      <h2>&#x1F4C4; CV Profiles</h2>
-      <a href="/upload-cv" class="btn btn-sm">&#x2B; Add</a>
-    </div>
-    {% if profiles %}
-    <div class="table-wrapper">
-      <table class="table">
-        <thead><tr><th>Profile Name</th><th>Experience</th><th>Target</th><th>Created</th></tr></thead>
-        <tbody>
-          {% for profile in profiles %}
-          <tr>
-            <td style="font-weight:600;color:#e2e8f0;">{{ profile.profile_name }}</td>
-            <td><span class="badge-pill bp-blue">{{ profile.experience_years }} yrs</span></td>
-            <td style="font-size:12px;">{{ (profile.target_locations or '—')[:30] }}</td>
-            <td style="font-family:monospace;font-size:11px;">{{ (profile.created_at or '')[:10] }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="empty-state">
-      <p>No CV profiles yet. Upload your first CV!</p>
-      <a href="/upload-cv" class="btn btn-sm">&#x1F4DD; Upload CV</a>
-    </div>
-    {% endif %}
-  </div>
-
-  <!-- ═══ VIRAL SQUADS (Hack 1) ═══ -->
-  <div class="card dash-side-item" style="background:linear-gradient(135deg,rgba(59,130,246,.05),rgba(37,99,235,.02)); border-color:rgba(59,130,246,.15);">
-    <div class="section-hdr">
-      <h2>👥 Multiplayer Job Squad</h2>
-      <span class="badge-pill" style="background:rgba(59,130,246,.1);color:#60a5fa;">Hack #1</span>
-    </div>
-    <p style="font-size:13px; color:#94a3b8; margin-bottom:14px;">Invite 2 friends to form a squad. When your squad is full, all 3 of you unlock <strong style="color:#60a5fa;">$20 Free Wallet Credits</strong>!</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button onclick="createSquad()" class="btn btn-sm" style="background:#3b82f6;">Form a Squad</button>
-    </div>
-  </div>
-
-  <!-- ═══ FOMO WAITLIST (Hack 4) ═══ -->
-  <div class="card dash-side-item" style="background:linear-gradient(135deg,rgba(245,158,11,.05),rgba(217,119,6,.02)); border-color:rgba(245,158,11,.15);">
-    <div class="section-hdr">
-      <h2>⭐ God-Mode: Unlisted Jobs</h2>
-      <span class="badge-pill" style="background:rgba(245,158,11,.1);color:#fbbf24;">Hack #4</span>
-    </div>
-    <p style="font-size:13px; color:#94a3b8; margin-bottom:14px;">Apply to jobs before they are even posted online. Currently in beta. Join the waitlist to get your rank.</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button onclick="joinWaitlist()" class="btn btn-orange btn-sm">Join Waitlist</button>
-      <span id="waitlistRank" style="display:none; color:#fbbf24; font-weight:bold; font-size:18px;"></span>
-    </div>
-  </div>
-
-  <!-- ═══ VIRAL GROWTH: ROAST MY RESUME (Hack 6) & Pay with Tweet (Hack 7) ═══ -->
-  <div class="card dash-side-item" style="background:linear-gradient(135deg,rgba(239,68,68,.05),rgba(220,38,38,.02)); border-color:rgba(239,68,68,.15);">
-    <div class="section-hdr">
-      <h2>🔥 Roast My Resume (AI)</h2>
-      <span class="badge-pill" style="background:rgba(239,68,68,.1);color:#ef4444;">Hack #6 & #7</span>
-    </div>
-    <p style="font-size:13px; color:#94a3b8; margin-bottom:14px;">Let our brutal AI roast your CV in 2 sentences. Get a score out of 100, and share it on X/LinkedIn to unlock <strong style="color:#ef4444;">50 FREE applications ($25 balance)</strong>.</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <a href="/roast" class="btn btn-red btn-sm">Upload & Roast</a>
-      <button onclick="claimSocialShare()" class="btn btn-outline btn-sm">Share on X for Free Credits</button>
-    </div>
-  </div>
-
-  <script>
-  function createSquad() {
-    fetch('/api/v1/squads/create', {method:'POST'}).then(r=>r.json()).then(d=>{
-      if(d.status==='ok') alert('Squad created! Your invite link: https://jhfguf.pythonanywhere.com/api/v1/squads/join/'+d.squad_id);
-      else alert('Error: '+d.message);
-    });
-  }
-  function joinWaitlist() {
-    fetch('/api/v1/waitlist/join', {method:'POST'}).then(r=>r.json()).then(d=>{
-      if(d.status==='ok') {
-        document.getElementById('waitlistRank').textContent = "Rank: #" + d.rank;
-        document.getElementById('waitlistRank').style.display = "inline-block";
-      }
-    });
-  }
-  function claimSocialShare() {
-    window.open('https://twitter.com/intent/tweet?text=My%20AI%20agent%20applied%20to%20100%20jobs%20while%20I%20slept%20this%20week.%20Welcome%20to%20the%20future.%20%F0%9F%9A%80%20Try%20it%20here:%20https://jhfguf.pythonanywhere.com', '_blank');
-    setTimeout(() => {
-      fetch('/api/v1/claim-social-share', {method:'POST'}).then(r=>r.json()).then(d=>{
-        if(d.status==='ok') alert('Success: ' + d.message);
-        window.location.reload();
-      });
-    }, 5000);
-  }
-  </script>
-
-  <!-- ═══ SEND MANUAL EMAIL ═══ -->
-  <div class="email-card dash-main-item">
-    <div class="section-hdr">
-      <div>
-        <h2> Send Manual Email</h2>
-        <div class="wc-sub" style="margin-top:2px;"><strong style="color:#22c55e;">$0.10</strong> per email via Brevo</div>
-      </div>
-      <div style="padding:8px 14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.15);border-radius:8px;text-align:center;">
-        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#52525b;">Balance</div>
-        <div style="color:#22c55e;font-weight:700;font-size:15px;">${{ "%.2f"|format(user.wallet_balance or 0) }}</div>
-      </div>
-    </div>
-
-    {% if request.query_params.get('success') and 'Email' in request.query_params.get('success','') %}
-    <div class="alert-ok">&#x2705; {{ request.query_params.get('success') }}</div>
-    {% endif %}
-    {% if request.query_params.get('error') and ('email' in request.query_params.get('error','').lower() or 'balance' in request.query_params.get('error','').lower()) %}
-    <div class="alert-err">&#x274C; {{ request.query_params.get('error') }}</div>
-    {% endif %}
-
-    <form method="POST" action="/send-manual-email">
-      <div class="row">
-        <div class="form-group">
-          <label>Recipient</label>
-          <input type="email" name="to_email" placeholder="recipient@email.com" required>
+    <div class="hero-actions">
+      {% if 'microsoft' in (user.get('oauth_provider') or '') %}
+        <div class="badge-premium" style="border-color: #0078D4; color: #60A5FA;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zm12.6 0H12.6V0H24v11.4z"/></svg>
+          Microsoft Connected
         </div>
-        <div class="form-group">
-          <label>Subject</label>
-          <input type="text" name="subject" placeholder="Subject line" required>
+      {% elif 'google' in (user.get('oauth_provider') or '') %}
+        <div class="badge-premium" style="border-color: #34A853; color: #86EFAC;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google Connected
         </div>
-      </div>
-      <div class="form-group">
-        <label>Message</label>
-        <textarea name="body" placeholder="Write your email (HTML or plain text)..." required></textarea>
-      </div>
-      <button type="submit" class="btn btn-ai"> Send ($0.10)</button>
-    </form>
+      {% else %}
+        <div class="badge-premium">
+          <span>⭐</span> Premium Services Active
+        </div>
+      {% endif %}
+    </div>
   </div>
 
-  <!-- ═══ RECENT MANUAL EMAILS ═══ -->
-  {% if manual_emails_user %}
-  <div class="card dash-main-item">
-    <div class="card-title">&#x1F4EC; Recent Manual Emails</div>
-    <div class="table-wrapper">
-      <table class="table">
-        <thead><tr><th>To</th><th>Subject</th><th>Cost</th><th>Status</th><th>Date</th></tr></thead>
-        <tbody>
-          {% for m in manual_emails_user %}
-          <tr>
-            <td>{{ m.to_email }}</td>
-            <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ m.subject }}">{{ (m.subject or '')[:35] }}{% if m.subject and m.subject|length > 35 %}...{% endif %}</td>
-            <td style="color:#22c55e;font-weight:600;">${{ "%.2f"|format(m.price_usd or 0) }}</td>
-            <td><span class="badge-pill {% if m.status=='sent' %}s-completed{% else %}s-failed{% endif %}">{% if m.status=='sent' %}Sent{% else %}Failed{% endif %}</span></td>
-            <td style="font-family:monospace;font-size:11px;">{{ (m.created_at or '')[:16] }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <!-- CONNECT SMTP BANNER (Cost Savings feature requested by user) -->
+  {% if not user.get('oauth_provider') %}
+  <div class="smtp-banner">
+    <div>
+      <h3 style="margin:0 0 5px 0; color:#fff;">Activate Premium AI Inbox Delivery</h3>
+      <p style="margin:0; color:var(--text-muted); font-size:14px;">Connect your professional email account. Our AI will automatically optimize your sending patterns and utilize dedicated IP routing to guarantee the highest employer response rates.</p>
+    </div>
+    <div style="display:flex; gap:12px;">
+      <a href="/oauth/microsoft/login" class="btn btn-microsoft">Connect Microsoft</a>
+      <a href="/oauth/google/login" class="btn btn-google">Connect Google</a>
     </div>
   </div>
   {% endif %}
 
-  <!-- ═══ REFERRAL ═══ -->
-  <div class="referral-card dash-side-item">
-    <h3>&#x1F381; Refer &amp; Earn</h3>
-    <p>Invite friends and earn up to <strong>20% commission</strong></p>
-    <div class="ref-link-box" id="refLinkBox">{{ referral_link }}</div>
-    <button onclick="copyReferral()" class="btn btn-purple btn-sm">&#x1F4CB; Copy Link</button>
+  <!-- KPI STATS GRID -->
+  <div class="grid-4">
+    <div class="glass-card stat-box">
+      <div class="stat-header">
+        <span>Active Applications</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-primary)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+      </div>
+      <div class="stat-value">{{ stats.emails_sent }}</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Sent across platforms</div>
+    </div>
+    
+    <div class="glass-card stat-box">
+      <div class="stat-header">
+        <span>Employer Open Rate</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-success)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+      </div>
+      <div class="stat-value">{{ stats.open_rate }}%</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Highly engaged recruiters</div>
+    </div>
+    
+    <div class="glass-card stat-box">
+      <div class="stat-header">
+        <span>Interviews Secured</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-secondary)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+      </div>
+      <div class="stat-value">{{ stats.interviews }}</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Ready for preparation</div>
+    </div>
+
+    <div class="glass-card stat-box">
+      <div class="stat-header">
+        <span>Deliverability Score</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-warning)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      </div>
+      <div class="stat-value">{{ stats.deliverability_score }}/100</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Inbox placement health</div>
+    </div>
+  </div>
+
+  <!-- MAIN TWO-COLUMN SECTION -->
+  <div class="grid-2">
+    <!-- Left Col: Pipeline Chart -->
+    <div class="glass-card">
+      <h2 style="margin:0 0 24px 0; font-size:20px; font-weight:600;">Application Pipeline Conversion</h2>
+      <div class="chart-container">
+        <canvas id="pipelineChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Right Col: Premium Weapons & Recent Activity -->
+    <div style="display:flex; flex-direction:column; gap:24px;">
+      
+      <!-- Premium Status -->
+      <div class="glass-card" style="padding: 24px; background: linear-gradient(to bottom right, rgba(99, 102, 241, 0.1), rgba(18, 24, 38, 0.8));">
+        <h3 style="margin:0 0 16px 0; font-size:16px; color:#a5b4fc; text-transform:uppercase; letter-spacing:1px;">Active Arsenal</h3>
+        {% set total_weapons = 0 %}
+        {% for c in campaigns %}
+          {% set total_weapons = total_weapons + (c.premium_weapons|default(0)|int) %}
+        {% endfor %}
+        
+        {% if total_weapons > 0 %}
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+            <div style="font-size:36px;">🔫</div>
+            <div>
+              <div style="font-size:24px; font-weight:700; color:#fff;">{{ total_weapons }} Weapons Active</div>
+              <div style="color:var(--accent-success); font-size:13px;">Bypassing rate limits & prioritizing delivery</div>
+            </div>
+          </div>
+        {% else %}
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+            <div style="font-size:36px; opacity:0.5;">🔒</div>
+            <div>
+              <div style="font-size:20px; font-weight:600; color:#fff;">No Weapons Equipped</div>
+              <div style="color:var(--text-muted); font-size:13px;">Standard delivery queue</div>
+            </div>
+          </div>
+          <a href="/services" class="btn btn-primary" style="width:100%; padding:10px;">Visit Arsenal</a>
+        {% endif %}
+      </div>
+
+      <!-- Recent Live Applications -->
+      <div class="glass-card" style="flex: 1; display:flex; flex-direction:column;">
+        <h3 style="margin:0 0 16px 0; font-size:18px;">Recent Dispatches</h3>
+        {% if pipeline_emails %}
+          <ul class="glass-list" style="flex:1; overflow-y:auto; max-height:200px;">
+            {% for email in pipeline_emails[:4] %}
+            <li class="glass-list-item" style="padding: 12px;">
+              <div>
+                <div style="color:#fff; font-weight:600; font-size:14px;">{{ email.company_name }}</div>
+                <div style="color:var(--text-muted); font-size:12px;">{{ email.job_title }}</div>
+              </div>
+              <div>
+                {% if email.pipeline_stage == 'interview' %}
+                  <span style="background:rgba(16, 185, 129, 0.2); color:var(--accent-success); padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;">INTERVIEW</span>
+                {% elif email.opened_at %}
+                  <span style="background:rgba(245, 158, 11, 0.2); color:var(--accent-warning); padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;">OPENED</span>
+                {% else %}
+                  <span style="background:rgba(99, 102, 241, 0.2); color:var(--accent-primary); padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;">DELIVERED</span>
+                {% endif %}
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div style="text-align:center; padding:40px 0; color:var(--text-muted);">
+            <p>No applications dispatched yet.</p>
+            <a href="/new-campaign" class="btn btn-primary">Start Campaign</a>
+          </div>
+        {% endif %}
+      </div>
+      
+    </div>
   </div>
 
 </div>
 
-<div class="toast" id="toast"></div>
-
+<!-- CHART.JS LOGIC -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-function showToast(msg, type) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (type === 'error' ? ' error' : type === 'info' ? ' info' : '');
-  setTimeout(function() { t.classList.remove('show'); }, 3500);
-}
+document.addEventListener("DOMContentLoaded", function() {
+  const ctx = document.getElementById('pipelineChart');
+  if(!ctx) return;
+  
+  // Create gradient
+  const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+  gradient.addColorStop(0, 'rgba(99, 102, 241, 0.8)');
+  gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
 
-document.addEventListener('click', function(e) {
-  const btn = e.target.closest('.advance-btn');
-  if (!btn) return;
-  e.preventDefault();
-  const emailId = btn.dataset.id;
-  btn.disabled = true;
-  btn.textContent = '...';
-  fetch('/api/pipeline/advance/' + emailId, { method: 'POST' })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.success) { location.reload(); }
-      else {
-        showToast(data.error || 'Error', 'error');
-        btn.disabled = false;
-        btn.textContent = 'Advance →';
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Discovered', 'Applied', 'Followed Up', 'Interviewing', 'Offers'],
+      datasets: [{
+        label: 'Candidates',
+        data: [
+          {{ pipeline_counts.discovered | default(0) }},
+          {{ pipeline_counts.applied | default(0) }},
+          {{ pipeline_counts.followed_up | default(0) }},
+          {{ pipeline_counts.interview | default(0) }},
+          {{ pipeline_counts.offer | default(0) }}
+        ],
+        backgroundColor: gradient,
+        borderColor: '#6366F1',
+        borderWidth: 2,
+        borderRadius: 8,
+        barPercentage: 0.6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.9)',
+          titleColor: '#fff',
+          bodyColor: '#cbd5e1',
+          padding: 12,
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+          ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#94a3b8', font: { family: 'Inter', size: 13, weight: '500' } }
+        }
+      },
+      animation: {
+        duration: 2000,
+        easing: 'easeOutQuart'
       }
-    })
-    .catch(function() {
-      showToast('Network error', 'error');
-      btn.disabled = false;
-      btn.textContent = 'Advance →';
-    });
-});
-
-(function() {
-  const el = document.getElementById('flashTimer');
-  if (!el) return;
-  const endStr = el.dataset.end;
-  if (!endStr) { el.textContent = 'ENDED'; return; }
-  const endMs = new Date(endStr.replace(' ', 'T') + (endStr.includes('Z') ? '' : 'Z')).getTime();
-  function tick() {
-    const diff = endMs - Date.now();
-    if (diff <= 0) {
-      el.textContent = 'ENDED';
-      const banner = document.getElementById('flashSaleBanner');
-      if (banner) banner.style.opacity = '.4';
-      return;
     }
-    const h = Math.floor(diff / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    el.textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-  }
-  tick();
-  setInterval(tick, 1000);
-})();
-
-(function() {
-  if (sessionStorage.getItem('spShown')) return;
-  fetch('/api/social-proof')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.success || !data.purchases || data.purchases.length < 2) return;
-      const purchases = data.purchases;
-      let idx = Math.floor(Math.random() * purchases.length);
-      function popup() {
-        const p = purchases[idx % purchases.length];
-        if (!p) return;
-        const toast = document.createElement('div');
-        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#080812;border:1px solid rgba(59,130,246,.25);border-radius:12px;padding:14px 18px;color:#fff;font-size:12px;z-index:9999;max-width:280px;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:slideIn .4s ease-out;cursor:pointer;';
-        toast.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:16px;">🎉</span><div><strong>' + (p.name||'Someone') + '</strong> just bought<br><span style="color:#3b82f6;font-weight:600;">' + (p.package_name||'a package') + (p.amount_usd?' $'+parseFloat(p.amount_usd).toFixed(2):'') + '</span></div><button class="btn" onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:14px;">✕</button></div>';
-        document.body.appendChild(toast);
-        setTimeout(function() { toast.style.opacity='0'; toast.style.transition='opacity .4s'; setTimeout(function(){ toast.remove(); }, 400); }, 5000);
-        idx++;
-      }
-      sessionStorage.setItem('spShown', '1');
-      setTimeout(popup, 4000);
-    })
-    .catch(function() {});
-})();
-
-function copyShareLink() {
-  fetch('/api/v1/share-link')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.share_url) {
-        navigator.clipboard.writeText(data.share_url)
-          .then(function() { showToast('Link copied!'); })
-          .catch(function() { prompt('Copy:', data.share_url); });
-      }
-    })
-    .catch(function() { showToast('Error', 'error'); });
-}
-
-function copyReferral() {
-  const box = document.getElementById('refLinkBox');
-  if (!box) return;
-  navigator.clipboard.writeText(box.textContent.trim())
-    .then(function() { showToast('Referral link copied!'); })
-    .catch(function() { prompt('Your referral link:', box.textContent.trim()); });
-}
-
-function generateGoldenTicket() {
-  const btn = document.getElementById('gtBtn');
-  btn.innerHTML = '⏳ Generating...';
-  fetch('/api/viral/generate', { method: 'POST' })
-  .then(r => r.json())
-  .then(data => {
-      if(data.success) {
-          navigator.clipboard.writeText(data.message);
-          btn.innerHTML = '✅ Link Copied!';
-          setTimeout(() => btn.innerHTML = '🎁 Generate Ticket', 3000);
-      } else {
-          btn.innerHTML = '❌ Failed';
-      }
-  }).catch(() => {
-      btn.innerHTML = '❌ Error';
   });
-}
+});
 </script>

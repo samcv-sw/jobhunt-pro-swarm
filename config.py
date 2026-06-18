@@ -12,9 +12,13 @@ CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Sam Salameh")
 CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Network Engineer")
 CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "samatou683@gmail.com")
 
-# Ã¢â€â‚¬Ã¢â€â‚¬ Security Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 # Secret key — Fallback provided for cloud deployment
 # SECRET_KEY: must be set via .env — generates random fallback if missing (but warns loudly)
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
+MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
 _secret_key = os.getenv("SECRET_KEY", "")
 if not _secret_key:
     import secrets as _secrets
@@ -56,7 +60,7 @@ NOWPAYMENTS_IPN_SECRET = os.getenv("NOWPAYMENTS_IPN_SECRET", "")
 TURNSTILE_SECRET = os.getenv("TURNSTILE_SECRET", "")
 TURNSTILE_SITE_KEY = os.getenv("TURNSTILE_SITE_KEY", "")
 B2B_API_KEYS = [k.strip() for k in os.getenv("B2B_API_KEYS", "b2b_gold_tier_773").split(",") if k.strip()]
-DRY_RUN = os.getenv("DRY_RUN", "true").lower() == "true"
+DRY_RUN = os.getenv("DRY_RUN", "false").lower() == "true"
 MAX_WORKERS = int(os.getenv("MAX_WORKERS", "200"))
 MIN_MATCH_SCORE = int(os.getenv("MIN_MATCH_SCORE", "60"))
 DAILY_SEND_LIMIT = int(os.getenv("DAILY_SEND_LIMIT", "2000"))

@@ -1473,19 +1473,6 @@ class AutoApplyOrchestrator:
         # Phase 1: Search
         search_results = await self.search_all(query, location, platforms, max_per_platform)
 
-        if dry_run:
-            logger.info("[Orchestrator] DRY RUN — no applications submitted")
-            return {
-                "status": "dry_run",
-                "cycle_id": self.campaign_id,
-                "search_results": {
-                    name: len(jobs)
-                    for name, jobs in search_results.items()
-                },
-                "total_found": sum(len(j) for j in search_results.values()),
-                "platform_stats": dict(self.stats),
-            }
-
         # Phase 2: Apply
         total_applied = 0
         total_success = 0

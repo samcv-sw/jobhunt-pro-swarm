@@ -15,6 +15,7 @@ if sys.platform != 'win32':
 import logging
 import sys
 import os
+import json
 import time
 import random
 from typing import Optional, Dict, Any, List
@@ -139,6 +140,9 @@ class SwarmMaster:
 
         # Start background health server
         run_in_background()
+        
+        # Start state sync for live dashboard and pause/resume control
+        self._state_sync_task = asyncio.create_task(self._state_sync_loop())
 
         # Store reference to existing orchestrator if provided
         self._orchestrator = orchestrator
@@ -171,6 +175,29 @@ class SwarmMaster:
         self._running = True
         return self
 
+    async def _state_sync_loop(self):
+        """Continuously write stats to data/swarm_status.json and read system_control.json"""
+        os.makedirs("data", exist_ok=True)
+        while True:
+            try:
+                # 1. Write live stats for Web Dashboard & Telegram
+                stats = await self.get_status_summary()
+                with open("data/swarm_status.json", "w", encoding="utf-8") as f:
+                    json.dump(stats, f)
+                
+                # 2. Read control flags (Pause/Resume from Telegram or Webhooks)
+                ctrl_path = "data/system_control.json"
+                if os.path.exists(ctrl_path):
+                    with open(ctrl_path, "r", encoding="utf-8") as f:
+                        ctrl = json.load(f)
+                        if ctrl.get("status") == "paused":
+                            self._paused = True
+                        elif ctrl.get("status") == "running":
+                            self._paused = False
+            except Exception as e:
+                logger.debug(f"State sync non-fatal error: {e}")
+            await asyncio.sleep(5)
+
     async def full_job_cycle(self) -> Dict[str, Any]:
         """
         Run one complete job cycle:
@@ -182,6 +209,10 @@ class SwarmMaster:
         6. Analyze responses (20 analyzer agents)
         7. Schedule follow-ups (20 follow-up agents)
         """
+        while self._paused:
+            logger.info("SWARM IS PAUSED. Waiting 10 seconds before checking again...")
+            await asyncio.sleep(10)
+
         self._cycle_count += 1
         cycle_id = f"cycle_{self._cycle_count}_{int(time.time())}"
         logger.info(f"\n{'='*60}")

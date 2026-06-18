@@ -439,15 +439,26 @@ class Orchestrator:
             logger.info("  RESUMING CAMPAIGNS")
             logger.info("=" * 60)
             from core.campaign_runner import run_campaign
-            from core.db_manager import get_db
+            import sqlite3
+            import os
+            def local_get_db():
+                c = sqlite3.connect(os.environ.get('DB_PATH', 'jobhunt_saas_v2.db'), timeout=30)
+                c.row_factory = sqlite3.Row
+                return c
             import config
             
-            conn = get_db()
+            conn = local_get_db()
+            try:
+                import pa_fix
+                pa_fix.run_fix()
+            except Exception as fix_e:
+                logger.error(f"Failed to run pa_fix: {fix_e}")
+                
             active_camps = conn.execute("SELECT campaign_id FROM campaigns WHERE status IN ('pending', 'running')").fetchall()
             for c_row in active_camps:
                 cid = c_row["campaign_id"]
                 logger.info(f"  [CAMPAIGN] Resuming {cid}...")
-                await run_campaign(cid, get_db, config)
+                await run_campaign(cid, local_get_db, config)
         except Exception as camp_err:
             logger.exception("Campaign resume failed: %s", camp_err)
             

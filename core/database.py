@@ -1,4 +1,9 @@
-import asyncpg
+try:
+    import asyncpg
+    ASYNC_PG_AVAILABLE = True
+except ImportError:
+    ASYNC_PG_AVAILABLE = False
+
 import asyncio
 import os
 import logging
@@ -179,7 +184,10 @@ class Database:
     async def reset_failed_jobs(self, limit):
         def _reset():
             with self._get_conn() as conn:
-                cur = conn.execute("UPDATE jobs SET status='new' WHERE status='failed' LIMIT ?", (limit,))
+                cur = conn.execute(
+                    "UPDATE jobs SET status='new' WHERE rowid IN (SELECT rowid FROM jobs WHERE status='failed' LIMIT ?)", 
+                    (limit,)
+                )
                 conn.commit()
                 return cur.rowcount
         return await asyncio.to_thread(_reset)

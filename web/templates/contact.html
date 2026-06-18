@@ -159,6 +159,15 @@ textarea.glass-input{min-height:140px;resize:vertical;line-height:1.6}
                         <span class="time">Limited availability</span>
                     </div>
                 </div>
+
+                {% if is_admin %}
+                <!-- Admin Logs Button -->
+                <a href="/admin/logs" class="support-card" style="border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.05); margin-top: 10px;">
+                    <span class="sc-icon">&#x1F5A5;&#xFE0F;</span>
+                    <h3 style="color: #f87171;">System Logs (Admin Only)</h3>
+                    <p>View server and error logs to debug PythonAnywhere unhandled exceptions.</p>
+                </a>
+                {% endif %}
             </div>
         </div>
     </div>
