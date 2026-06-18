@@ -440,7 +440,9 @@ class EmailEngine:
         self._register_active_providers()
 
     def _register_active_providers(self):
-        """Register providers that have valid credentials."""
+        """Register providers that have valid credentials.
+        Hotmail pool gets priority — its ProviderState is pre-configured with
+        25,000/day capacity so weighted rotation uses it ~90% of the time."""
         for p in config.EMAIL_PROVIDERS:
             if p.get("user") and p.get("password"):
                 self.scheduler.register_provider(p["name"])

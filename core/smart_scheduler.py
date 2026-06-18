@@ -79,24 +79,28 @@ class SmartScheduler:
     """
 
     PROVIDER_CONFIGS = [
-        {"name": "gmail1", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "gmail2", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "outlook1", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "outlook2", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "zoho", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "yahoo", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "aol", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "protonmail", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "mailgun", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "sendgrid", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "sendinblue", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "pepipost", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "mailjet", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "elasticemail", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "sparkpost", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "postmark", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "mailerlite", "daily_limit": 100, "hourly_limit": 100},
-        {"name": "mandrill", "daily_limit": 100, "hourly_limit": 100},
+        # Hotmail OAuth2 Pool — 1000 accounts × 50/day = 50,000 capacity
+        {"name": "hotmail_pool", "daily_limit": 25000, "hourly_limit": 2500},
+        # Gmail accounts — 15 accounts × 100/day = 1,500 capacity
+        {"name": "gmail1", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail2", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail3", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail4", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail5", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail6", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail7", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail8", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail9", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail10", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail11", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail12", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail13", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "acct14", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "acct15", "daily_limit": 100, "hourly_limit": 15},
+        # Brevo API — 250/day
+        {"name": "brevo", "daily_limit": 250, "hourly_limit": 50},
+        # Yahoo SMTP — 100/day
+        {"name": "yahoo1", "daily_limit": 100, "hourly_limit": 15},
     ]
 
     def __init__(self, tz_offset: int = 0):
@@ -136,7 +140,10 @@ class SmartScheduler:
             # Skip providers without valid credentials
             if self._active_providers and name not in self._active_providers:
                 continue
-            weight = state.remaining_today / max(state.daily_limit, 1)
+            # Weight = raw remaining capacity, NOT normalized
+            # Hotmail pool (25000/day) gets picked ~94% vs Gmail (100/day) ~0.4% each
+            # This ensures high-capacity providers dominate the rotation naturally
+            weight = max(state.remaining_today, 1)  # raw remaining count, never zero
             available.append((name, weight))
 
         if not available:
