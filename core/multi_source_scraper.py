@@ -30,14 +30,25 @@ BLOCKED_EMAILS = [
 ]
 
 USER_AGENTS = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1',
+    # Desktop Chrome
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0',
+    # Desktop Firefox
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:126.0) Gecko/20100101 Firefox/126.0',
+    'Mozilla/5.0 (X11; Linux x86_64; rv:126.0) Gecko/20100101 Firefox/126.0',
+    # Desktop Safari
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15',
+    # Mobile iPhone (rarely blocked)
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1',
+    # Mobile Android Chrome (rarely blocked)
+    'Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.165 Mobile Safari/537.36',
+    'Mozilla/5.0 (Linux; Android 14; Samsung SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.165 Mobile Safari/537.36',
+    # Googlebot (highest chance of not being blocked)
+    'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
 ]
 
 # ── Helpers ─────────────────────────────────────────────────────
@@ -126,6 +137,11 @@ class BaseScraper:
             try:
                 self._rate_limit()
                 headers = _get_headers(extra_headers)
+                headers['Accept-Language'] = random.choice([
+                    'en-US,en;q=0.9,ar;q=0.8', 'en-GB,en;q=0.9,ar;q=0.8',
+                    'en-US,en;q=0.9', 'en;q=0.9,ar;q=0.8', 'en-US,en-GB;q=0.9,en;q=0.8'
+                ])
+                headers['Sec-Fetch-Site'] = random.choice(['none', 'same-origin', 'cross-site'])
                 resp = self._session.get(url, headers=headers)
                 if resp.status_code in (429, 503):
                     delay = min(30, (attempt + 1) * 5)
@@ -134,8 +150,17 @@ class BaseScraper:
                     continue
                 if resp.status_code == 200:
                     return resp
-                if resp.status_code == 403:
-                    logger.debug(f"{self.source_name}: 403 forbidden")
+                if resp.status_code == 403 and attempt < max_retries:
+                    mobile_ua = random.choice([u for u in USER_AGENTS if 'Mobile' in u or 'Googlebot' in u])
+                    headers['User-Agent'] = mobile_ua
+                    headers['Sec-Ch-Ua-Mobile'] = '?1'
+                    delay = (attempt + 1) * 3
+                    logger.debug(f"{self.source_name}: 403 -> retry with mobile UA, attempt {attempt+2}")
+                    time.sleep(delay)
+                    resp = self._session.get(url, headers=headers)
+                    if resp.status_code == 200:
+                        return resp
+                    logger.debug(f"{self.source_name}: 403 forbidden after {attempt+1} attempts")
                     return resp
             except Exception as e:
                 logger.debug(f"{self.source_name}: request error: {e}")
@@ -434,18 +459,25 @@ class IndeedScraper(BaseScraper):
     
     # Domain mapping for regional Indeed sites
     DOMAINS = {
-        "lebanon": "www.indeed.com.lb",
-        "uae": "www.indeed.ae",
-        "saudi": "www.indeed.com.sa",
-        "qatar": "www.indeed.qa",
-        "kuwait": "www.indeed.com.kw",
+        "lebanon": "www.indeed.com",
+        "uae": "www.indeed.com",
+        "saudi": "www.indeed.com",
+        "qatar": "www.indeed.com",
+        "kuwait": "www.indeed.com",
         "remote": "www.indeed.com",
         "default": "www.indeed.com",
+    }
+    # Indeed regional sites use ?l= parameter instead of separate domains
+    REGION_CODES = {
+        "lebanon": "LB", "uae": "AE", "saudi": "SA", "qatar": "QA",
+        "kuwait": "KW", "bahrain": "BH", "oman": "OM", "jordan": "JO",
+        "egypt": "EG", "iraq": "IQ", "remote": "", "default": "",
     }
     
     def __init__(self, country: str = "default", **kwargs):
         super().__init__(**kwargs)
         self.domain = self.DOMAINS.get(country.lower(), self.DOMAINS["default"])
+        self.region_code = self.REGION_CODES.get(country.lower(), "")
     
     def search(self, query: str, location: str = "", limit: int = 10) -> List[Dict]:
         jobs = []
@@ -456,6 +488,9 @@ class IndeedScraper(BaseScraper):
             try:
                 q = quote_plus(query)
                 loc_q = quote_plus(loc) if loc else ""
+                # Use country/region as location suffix for Indeed global search
+                if loc_q and self.region_code:
+                    loc_q = quote_plus(f"{loc}, {self.region_code}")
                 url = f"https://{self.domain}/jobs?q={q}&l={loc_q}"
                 
                 resp = self._get(url)

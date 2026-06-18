@@ -24,23 +24,33 @@ function sendEmail(to, subject, body, taskId, sendResponse) {
         if (toField && subjectField && bodyField && sendBtn) {
             clearInterval(interval);
             
-            // Fill fields
-            toField.value = to;
-            toField.dispatchEvent(new Event('input', { bubbles: true }));
-            toField.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' })); // Lock in the email address
+            const sleep = (ms) => new Promise(r => setTimeout(r, ms));
             
-            subjectField.value = subject;
-            subjectField.dispatchEvent(new Event('input', { bubbles: true }));
+            (async () => {
+                // Humanized pacing: wait before starting typing
+                await sleep(Math.random() * 800 + 500);
+                
+                // Fill fields
+                toField.value = to;
+                toField.dispatchEvent(new Event('input', { bubbles: true }));
+                toField.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' })); // Lock in the email address
+                
+                await sleep(Math.random() * 500 + 300);
+                
+                subjectField.value = subject;
+                subjectField.dispatchEvent(new Event('input', { bubbles: true }));
 
-            // Insert HTML into the contenteditable body
-            bodyField.focus();
-            document.execCommand('insertHTML', false, body);
+                await sleep(Math.random() * 600 + 400);
 
-            // Click send
-            setTimeout(() => {
+                // Insert HTML into the contenteditable body
+                bodyField.focus();
+                document.execCommand('insertHTML', false, body);
+
+                // Click send after a humanized delay of 1.5s - 3s
+                await sleep(Math.random() * 1500 + 1500);
                 sendBtn.click();
                 sendResponse({ success: true });
-            }, 1000);
+            })();
         } else if (attempts > 10) {
             clearInterval(interval);
             console.error("JobHunt Pro: Failed to find Gmail compose elements.");

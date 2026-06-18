@@ -5600,6 +5600,13 @@ def api_campaign_status(campaign_id: str, api_key: str = ""):
 # ==============================================================================
 # CHROME EXTENSION PIGGYBACKING API
 # ==============================================================================
+import base64
+import json
+
+ENCRYPTION_KEY = "jh_pro_secure_key_2026"
+
+def xor_encrypt_decrypt(data_str: str, key: str) -> str:
+    return "".join(chr(ord(c) ^ ord(key[i % len(key)])) for i, c in enumerate(data_str))
 
 # Global in-memory queue for tasks to send to Chrome Extension clients
 EXTENSION_TASKS = []
@@ -5627,6 +5634,13 @@ async def ext_poll_tasks(request: Request):
     for task in EXTENSION_TASKS:
         if task.get("user_id") == user["user_id"]:
             EXTENSION_TASKS.remove(task)
+            
+            # Encrypt the payload
+            payload_str = json.dumps(task.get("payload", {}))
+            encrypted_str = base64.b64encode(xor_encrypt_decrypt(payload_str, ENCRYPTION_KEY).encode("utf-8")).decode("utf-8")
+            task["payload"] = encrypted_str
+            task["encrypted"] = True
+            
             return {"status": "success", "task": task}
             
     return {"status": "success", "task": None}
@@ -5640,12 +5654,22 @@ async def ext_submit_results(request: Request):
         
     token = data.get("token")
     task_id = data.get("taskId")
-    result = data.get("result")
+    result_data = data.get("result")
+    is_encrypted = data.get("encrypted", False)
     
     if not token or not task_id:
         return JSONResponse({"status": "error", "message": "Missing token or taskId"}, status_code=400)
         
-    EXTENSION_RESULTS[task_id] = result
+    if is_encrypted and isinstance(result_data, str):
+        try:
+            decoded_str = base64.b64decode(result_data).decode("utf-8")
+            decrypted_str = xor_encrypt_decrypt(decoded_str, ENCRYPTION_KEY)
+            result_data = json.loads(decrypted_str)
+        except Exception as e:
+            logger.error(f"Failed to decrypt extension result: {e}")
+            result_data = {"error": "Decryption failed"}
+            
+    EXTENSION_RESULTS[task_id] = result_data
     return {"status": "success"}
 
 @app.get("/referral", response_class=HTMLResponse)

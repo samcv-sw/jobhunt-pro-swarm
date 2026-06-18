@@ -22,7 +22,8 @@ function injectPromptAndSubmit(promptText, taskId, tabId) {
         textarea.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
-    // Find and click the submit button
+    // Humanized pacing: Wait randomly between 1.5s and 3s before clicking send
+    const delay = Math.random() * 1500 + 1500;
     setTimeout(() => {
         const submitBtn = document.querySelector('button[data-testid="send-button"]');
         if (submitBtn) {
@@ -32,7 +33,7 @@ function injectPromptAndSubmit(promptText, taskId, tabId) {
             console.error("JobHunt Pro: Could not find ChatGPT submit button.");
             isGenerating = false;
         }
-    }, 500);
+    }, delay);
 }
 
 function monitorGeneration(taskId, tabId) {

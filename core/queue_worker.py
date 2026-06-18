@@ -18,6 +18,16 @@ class PostgresQueueWorker:
         logger.info("Started PostgreSQL Task Queue Worker")
         while self._running:
             try:
+                # Check if PG backend is actually available
+                try:
+                    from core.pg_sqlite_shim import BACKEND
+                    if BACKEND != "pg":
+                        await asyncio.sleep(30)  # PG not available, sleep longer
+                        continue
+                except Exception:
+                    await asyncio.sleep(30)
+                    continue
+                    
                 await self.process_next_batch()
             except Exception as e:
                 logger.error(f"Queue Worker Error: {e}")

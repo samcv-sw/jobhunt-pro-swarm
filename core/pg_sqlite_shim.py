@@ -23,7 +23,12 @@ class OperationalError(Exception):
 class IntegrityError(Exception):
     pass
 
+import re
+
 def convert_sql(query):
+    """Convert SQLite SQL to PostgreSQL-compatible SQL.
+    Handles: ? → %s, AUTOINCREMENT → SERIAL, datetime() → PG timestamp ops, PRAGMA → skip.
+    """
     result = []
     in_single = False
     in_double = False
@@ -41,6 +46,33 @@ def convert_sql(query):
             
     sql = "".join(result)
     sql = sql.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
+    
+    # SQLite datetime('now', offset) → PostgreSQL compatible
+    # datetime('now', '-10 minutes') → NOW() - INTERVAL '10 minutes'
+    # datetime('now', '+24 hours') → NOW() + INTERVAL '24 hours'
+    # datetime('now') → NOW()
+    # datetime(started_at, '+24 hours') < datetime('now') → started_at + INTERVAL '24 hours' < NOW()
+    
+    # Replace: datetime('now', '...offset...') → NOW() +/- INTERVAL '...offset...'
+    def _fix_datetime(m):
+        inner = m.group(1)
+        parts = [p.strip().strip("'\"") for p in inner.split(',')]
+        if len(parts) == 1:
+            return "NOW()"
+        col = parts[0]
+        offset = parts[1]
+        if offset.startswith('+'):
+            return f"{col} + INTERVAL '{offset[1:]}'"
+        elif offset.startswith('-'):
+            return f"{col} - INTERVAL '{offset[1:]}'"
+        else:
+            return f"{col} + INTERVAL '{offset}'"
+    
+    # Handle datetime() function calls
+    sql = re.sub(r"datetime\(([^)]+)\)", _fix_datetime, sql, flags=re.IGNORECASE)
+    
+    # Handle CURRENT_TIMESTAMP → NOW() (safe for both, but PG prefers NOW())
+    sql = re.sub(r"\bCURRENT_TIMESTAMP\b", "NOW()", sql, flags=re.IGNORECASE)
     
     if sql.strip().upper().startswith("PRAGMA"):
         return ""

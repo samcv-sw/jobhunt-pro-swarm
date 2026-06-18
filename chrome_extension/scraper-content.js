@@ -98,21 +98,35 @@ setTimeout(injectButton, 2000);
 // Listen for background tasks (Piggybacking)
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "DO_SCRAPE") {
-        // Scrape list of jobs from the search page
-        const jobCards = document.querySelectorAll('.job-card-container');
-        const jobs = [];
+        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
         
-        jobCards.forEach(card => {
-            const title = card.querySelector('.job-card-list__title')?.innerText?.trim();
-            const company = card.querySelector('.job-card-container__primary-description')?.innerText?.trim();
-            const location = card.querySelector('.job-card-container__metadata-item')?.innerText?.trim();
+        async function humanScrape() {
+            const jobCards = document.querySelectorAll('.job-card-container');
+            const jobs = [];
             
-            if (title && company) {
-                jobs.push({ title, company, location });
+            // Scrape up to 5 jobs per poll to stay stealthy
+            for (let i = 0; i < Math.min(jobCards.length, 5); i++) {
+                const card = jobCards[i];
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                await sleep(Math.random() * 1000 + 500); // 500ms - 1500ms human delay
+                
+                card.click();
+                await sleep(Math.random() * 1500 + 1000); // Wait for description to load
+                
+                const title = card.querySelector('.job-card-list__title')?.innerText?.trim();
+                const company = card.querySelector('.job-card-container__primary-description')?.innerText?.trim();
+                const location = card.querySelector('.job-card-container__metadata-item')?.innerText?.trim();
+                const description = document.querySelector('#job-details')?.innerText?.trim() || "";
+                
+                if (title && company) {
+                    jobs.push({ title, company, location, description });
+                }
             }
-        });
+            
+            sendResponse({ status: "success", jobs: jobs });
+        }
         
-        sendResponse({ status: "success", jobs: jobs });
+        humanScrape();
     }
     return true;
 });

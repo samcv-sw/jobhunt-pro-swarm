@@ -5,7 +5,7 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-VERSION = "16.322"
+VERSION = "16.323"
 APP_NAME = "JobHunt Pro"
 
 CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Sam Salameh")
