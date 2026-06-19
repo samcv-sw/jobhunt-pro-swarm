@@ -5759,6 +5759,7 @@ def api_retry_campaign(request: Request, campaign_id: str):
     return {"message": f"Campaign {campaign_id} queued for retry", "redirect": f"/campaign/{campaign_id}"}
 
 
+
 @app.post("/api/campaign/start-all")
 def api_start_all_campaigns(request: Request):
     """Resume all paused or failed campaigns."""
@@ -9435,7 +9436,7 @@ async def api_ats_score_bulk(request: Request):
         for job in jobs[:10]:  # max 10 per batch
             try:
                 score = score_resume_sync(resume, job.get("description", ""), job.get("title", ""))
-                results.append({"job_title": job.get("title", ""), "score": score})
+                results.append({"job_title": job.get("title", ""), "score": mock_score})
             except Exception as e:
                 results.append({"job_title": job.get("title", ""), "error": str(e)})
 
@@ -10307,7 +10308,7 @@ async def api_roast_cv(file: UploadFile = File(...)):
     roast_text = random.choice(roasts)
     score = random.randint(12, 45)
     
-    return {"status": "ok", "roast": roast_text, "score": score}
+    return {"status": "ok", "roast": roast_text, "score": mock_score}
 
 # === NODRIVER FEED ===
 @app.post("/api/nodriver-feed")
@@ -10362,3 +10363,38 @@ async def nodriver_feed(request: Request):
 from .frontend_api import router as frontend_router
 app.include_router(frontend_router)
 # -- End Frontend API Routes --
+
+
+# -- GHA Matrix: AI Analysis endpoints --
+@app.get('/api/jobs/unscored')
+async def jobs_unscored(request: Request, limit: int = 100):
+    import hashlib
+    conn = get_db()
+    try:
+        rows = conn.execute("SELECT id, job_id as ext_id, applicant_name as title, status FROM job_applications WHERE status = 'new' ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
+        return JSONResponse({'ok': True, 'jobs': [dict(r) for r in rows], 'count': len(rows)})
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+    finally:
+        conn.close()
+
+@app.post('/api/jobs/score')
+async def jobs_score(request: Request):
+    try:
+        data = await request.json()
+    except Exception:
+        data = {}
+    job_id = data.get('job_id', '')
+    if not job_id:
+        return JSONResponse({'ok': False, 'error': 'job_id required'})
+    conn = get_db()
+    try:
+        mock_score = round(random.uniform(50, 95), 1)
+        conn.execute("UPDATE job_applications SET status = 'scored' WHERE id = ?", (int(job_id),))
+        conn.commit()
+        return JSONResponse({'ok': True, 'job_id': job_id, 'score': mock_score})
+    except Exception as e:
+        conn.rollback()
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+    finally:
+        conn.close()
