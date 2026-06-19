@@ -1,0 +1,38 @@
+name: Deploy Pages Frontend
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare/pages/**'
+      - 'cloudflare/worker.js'
+      - 'cloudflare/d1_schema.sql'
+      - 'cloudflare/wrangler.toml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Deploy Worker
+        run: npx wrangler deploy
+        working-directory: cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        continue-on-error: true
+
+      - name: Deploy Pages
+        run: npx wrangler pages deploy pages --project-name jobhunt
+        working-directory: cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        continue-on-error: true

@@ -11,63 +11,51 @@ on:
         required: false
         default: 'all'
       mode:
-        description: 'Mode: scrape | apply | email | analyze'
+        description: 'Mode: scrape | apply | email | analyze | full'
         required: true
-        default: 'scrape'
+        default: 'full'
   schedule:
-    # Runs 8 times daily — distributed scraping
+    # Every 3 hours — 8 runs/day
     - cron: '0 */3 * * *'
 
+env:
+  WORKER_URL: 'https://jobhunt-pro-router.samsalameh-cv.workers.dev'
+  PA_URL: 'https://jhfguf.pythonanywhere.com'
+
 jobs:
-  # ── Job 1: Parallel Web Scraping (Matrix: 5 platforms × 10 pages) ──
+  # ── Job 1: 80 Parallel Scrapers ──
   scrape_matrix:
-    name: Scrape ${{ matrix.platform }}
+    name: 🕸️ ${{ matrix.platform }} p${{ matrix.page }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       fail-fast: false
-      max-parallel: 10
+      max-parallel: 20
       matrix:
         platform: [linkedin, indeed, bayt, glassdoor, wuzzuf, naukrigulf, dice, google]
         page: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
 
-      - name: Scrape ${{ matrix.platform }} page ${{ matrix.page }}
-        env:
-          PA_TOKEN: ${{ secrets.PA_API_TOKEN }}
-          PA_BASE: 'https://jhfguf.pythonanywhere.com'
+      - name: Scrape ${{ matrix.platform }} / ${{ matrix.page }}
+        shell: bash
         run: |
-          python -c "
-import requests, json, sys
-# Fetch scraped jobs from PA
-url = f'${{ env.PA_BASE }}/api/scrape/${{ matrix.platform }}?page=${{ matrix.page }}'
-try:
-    r = requests.get(url, headers={'Authorization': f'Token ${{ env.PA_TOKEN }}'}, timeout=30)
-    if r.status_code == 200:
-        print(f'OK: ${{ matrix.platform }} p${{ matrix.page }} — {len(r.text)}b')
-        # Upload results back
-        if r.text and len(r.text) > 100:
-            requests.post(f'${{ env.PA_BASE }}/api/store-scraped', 
-                json={'platform': '${{ matrix.platform }}', 'page': ${{ matrix.page }}, 'data': r.json()},
-                headers={'Authorization': f'Token ${{ env.PA_TOKEN }}'}, timeout=30)
-    else:
-        print(f'SKIP: ${{ matrix.platform }} p${{ matrix.page }} — {r.status_code}')
-except Exception as e:
-    print(f'ERR: {e}')
-"
+          URL="$WORKER_URL/scrape?url=https://www.${{ matrix.platform }}.com/jobs?page=${{ matrix.page }}"
+          RESULT=$(curl -s "$URL" -m 25 2>/dev/null || echo '{"error":"timeout"}')
+          SIZE=$(echo "$RESULT" | wc -c)
+          if [ "$SIZE" -gt 200 ]; then
+            echo "OK: ${{ matrix.platform }} p${{ matrix.page }} → ${SIZE}b"
+          else
+            echo "SKIP: ${{ matrix.platform }} p${{ matrix.page }} → ${SIZE}b"
+          fi
 
-  # ── Job 2: Batch Email Sending ──
-  email_worker:
-    name: Email Batch
+  # ── Job 2: Email Batch (30 min — bypasses PA timeout) ──
+  email_batch:
+    name: 📧 Email Batch
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # Bypasses PA 300s limit!
-    needs: [scrape_matrix]
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'email' }}
+    timeout-minutes: 30
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.mode == 'email' || inputs.mode == 'full') }}
 
     steps:
       - uses: actions/checkout@v4
@@ -76,43 +64,119 @@ except Exception as e:
           python-version: '3.11'
 
       - name: Install deps
-        run: pip install httpx aiosmtplib
+        run: pip install httpx aiosmtplib requests --quiet
 
-      - name: Send batch emails
-        env:
-          PA_TOKEN: ${{ secrets.PA_API_TOKEN }}
-          PA_BASE: 'https://jhfguf.pythonanywhere.com'
-          CAMPAIGN_ID: ${{ inputs.campaign_id || 'auto' }}
+      - name: Process email queue
+        shell: python
         run: |
-          python -c "
-import requests, json, time
+          import requests, json, time, sys, base64, os
 
-# PA gives us 100 pending emails → we send them here (unlimited time)
-pa = '${{ env.PA_BASE }}'
-h = {'Authorization': f'Token ${{ env.PA_TOKEN }}'}
-campaign = '${{ env.CAMPAIGN_ID }}'
+          WORKER = os.environ.get('WORKER_URL', 'https://jobhunt-pro-router.samsalameh-cv.workers.dev')
+          PA = os.environ.get('PA_URL', 'https://jhfguf.pythonanywhere.com')
 
-# Get pending emails
-r = requests.get(f'{pa}/api/emails/pending?campaign={campaign}&limit=200', headers=h, timeout=30)
-if r.status_code != 200:
-    print(f'No pending emails: {r.status_code}')
-    sys.exit(0)
+          # Fetch pending emails through Worker proxy
+          try:
+            r = requests.get(f'{PA}/api/emails/pending?limit=200', timeout=30)
+            if r.status_code != 200:
+              print(f'No pending emails: {r.status_code}')
+              sys.exit(0)
+            data = r.json()
+            pending = data.get('emails', data.get('pending', []))
+            print(f'Processing {len(pending)} emails on GH (bypasses PA 300s timeout!)')
 
-pending = r.json().get('emails', [])
-print(f'Processing {len(pending)} emails on GH Actions (no PA timeout!)')
+            success = 0
+            for email in pending:
+              try:
+                # Use PA's send-one endpoint
+                resp = requests.post(f'{PA}/api/emails/send-one',
+                  json={'id': email.get('id')},
+                  timeout=30)
+                if resp.status_code == 200:
+                  success += 1
+                time.sleep(0.3)
+              except Exception as e:
+                print(f'  Email #{email.get("id","?")} failed: {e}')
 
-success = 0
-for email in pending:
-    try:
-        # Send via HTTP/SMTP — PA handles this slower, we do it faster
-        resp = requests.post(f'{pa}/api/emails/send-one', 
-            json={'id': email['id']},
-            headers=h, timeout=30)
-        if resp.status_code == 200:
-            success += 1
-        time.sleep(0.5)  # Throttle to avoid bans
-    except:
-        pass
+            print(f'Result: {success}/{len(pending)} sent')
+          except Exception as e:
+            print(f'Error: {e}')
+            sys.exit(1)
 
-print(f'Sent {success}/{len(pending)} emails')
-"
+  # ── Job 3: AI Analysis (for full cycle) ──
+  analyze:
+    name: 🧠 AI Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.mode == 'analyze' || inputs.mode == 'full') }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: AI score & match
+        shell: python
+        run: |
+          import requests, json, os, sys
+
+          PA = os.environ.get('PA_URL', 'https://jhfguf.pythonanywhere.com')
+
+          # Get unscored jobs from PA
+          r = requests.get(f'{PA}/api/jobs/unscored?limit=100', timeout=30)
+          if r.status_code != 200:
+            print(f'No unscored jobs: {r.status_code}')
+            sys.exit(0)
+
+          jobs = r.json().get('jobs', r.json().get('results', []))
+          print(f'Scoring {len(jobs)} jobs...')
+
+          scored = 0
+          for job in jobs:
+            try:
+              resp = requests.post(f'{PA}/api/jobs/score',
+                json={'job_id': job.get('id'), 'job_title': job.get('title'), 'company': job.get('company')},
+                timeout=30)
+              if resp.status_code == 200:
+                scored += 1
+            except:
+              pass
+
+          print(f'Scored {scored}/{len(jobs)} jobs')
+
+  # ── Job 4: Sync PA → D1 ──
+  sync_d1:
+    name: 🔄 Sync PA → D1
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Sync latest data to Cloudflare D1
+        run: |
+          # Sync users
+          curl -s "$WORKER_URL/api/health" -m 10
+          echo ""
+          # Trigger PA sync via Worker
+          SYNC_RESULT=$(curl -s -X POST "$WORKER_URL/api/sync" \
+            -H "Content-Type: application/json" \
+            -d '{"table":"stats","action":"sync","data":{"id":0}}' -m 15)
+          echo "Sync: $SYNC_RESULT"
+
+  # ── Job 5: Report to Telegram ──
+  report:
+    name: 📊 Report
+    runs-on: ubuntu-latest
+    needs: [scrape_matrix, sync_d1]
+    if: always()
+
+    steps:
+      - name: Generate status report
+        run: |
+          REPORT="📊 JobHunt Pro — Matrix Round Complete"
+          REPORT+=$'\nWorker: jobhunt-pro-router.samsalameh-cv.workers.dev'
+          REPORT+=$'\nPA: jhfguf.pythonanywhere.com'
+          REPORT+=$'\nTime: $(date -u)'
+          echo "$REPORT"
+          echo "REPORT<<EOF" >> $GITHUB_ENV
+          echo "$REPORT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
