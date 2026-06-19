@@ -12,54 +12,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Test PA API
-        env:
-          PA_TOKEN: ${{ secrets.PA_TOKEN }}
+      - name: Upload files & Reload PA
         run: |
           set -e
-          echo "=== API V0: Getting webapps list ==="
-          curl -sv "https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/" \
-            -H "Authorization: Token ${PA_TOKEN}" \
-            --max-time 15 2>&1 | head -50
-          echo ""
-          echo "=== API V0: Files tree ==="
-          curl -s "https://www.pythonanywhere.com/api/v0/user/jhfguf/files/" \
-            -H "Authorization: Token ${PA_TOKEN}" \
-            --max-time 15 2>&1 | head -20
-          echo ""
-          echo "=== API V0: User info ==="
-          curl -s "https://www.pythonanywhere.com/api/v0/user/jhfguf/" \
-            -H "Authorization: Token ${PA_TOKEN}" \
-            --max-time 15 2>&1 | head -20
-
-      - name: Upload files to PA
-        env:
-          PA_TOKEN: ${{ secrets.PA_TOKEN }}
-        run: |
-          set -e
-          API="https://www.pythonanywhere.com/api/v0/user/jhfguf/files/path"
+          TOKEN="${{ secrets.PA_TOKEN }}"
+          API="https://www.pythonanywhere.com/api/v0/user/jhfguf"
           
-          for f in "web/frontend_api.py"; do
+          # Upload each file
+          for f in "web/frontend_api.py" "web/app_v2.py"; do
             if [ -f "$f" ]; then
               echo "=== Uploading $f ==="
               HTTP_CODE=$(curl -s -o /tmp/upload_resp.txt -w "%{http_code}" -X PUT \
-                "${API}/${f}" \
-                -H "Authorization: Token ${PA_TOKEN}" \
+                "${API}/files/path/$f" \
+                -H "Authorization: Token ${TOKEN}" \
                 --data-binary "@${f}" \
                 --max-time 30)
               echo "HTTP Code: ${HTTP_CODE}"
-              echo "Response: $(cat /tmp/upload_resp.txt)"
+              if [ "$HTTP_CODE" = "200" ]; then
+                echo "SUCCESS: $f uploaded"
+              else
+                echo "Response: $(cat /tmp/upload_resp.txt)"
+              fi
             fi
           done
 
-      - name: Reload PA
-        env:
-          PA_TOKEN: ${{ secrets.PA_TOKEN }}
-        run: |
+          # Reload
           echo "=== Reloading PA ==="
           HTTP_CODE=$(curl -s -o /tmp/reload_resp.txt -w "%{http_code}" -X POST \
-            "https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/jhfguf.pythonanywhere.com/reload/" \
-            -H "Authorization: Token ${PA_TOKEN}" \
+            "${API}/webapps/jhfguf.pythonanywhere.com/reload/" \
+            -H "Authorization: Token ${TOKEN}" \
             --max-time 30)
           echo "HTTP Code: ${HTTP_CODE}"
-          echo "Response: $(cat /tmp/reload_resp.txt)"
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "SUCCESS: PA reloaded!"
+          else
+            echo "Response: $(cat /tmp/reload_resp.txt)"
+          fi
