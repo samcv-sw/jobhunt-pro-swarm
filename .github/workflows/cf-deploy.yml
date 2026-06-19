@@ -31,8 +31,15 @@ jobs:
         continue-on-error: true
 
       - name: Deploy Pages
-        run: npx wrangler pages deploy pages --project-name jobhunt
+        run: npx wrangler pages deploy pages --project-name jobhunt --branch main
         working-directory: cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        continue-on-error: true
+
+      - name: Reload PythonAnywhere Web App
+        run: |
+          curl -s -X POST "https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/jhfguf.pythonanywhere.com/reload/" \
+            -H "Authorization: Token ${{ secrets.PA_TOKEN }}" \
+            --max-time 30
         continue-on-error: true

@@ -1,0 +1,22 @@
+name: Reload PA Web App
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - 'core/**'
+      - '.github/pa_autorenew.py'
+  workflow_dispatch:
+
+jobs:
+  reload-pa:
+    name: Reload PA
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reload PythonAnywhere
+        run: |
+          RESULT=$(curl -s -X POST \
+            "https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/jhfguf.pythonanywhere.com/reload/" \
+            -H "Authorization: Token ${{ secrets.PA_TOKEN }}" \
+            --max-time 30)
+          echo "PA Reload: $RESULT"
