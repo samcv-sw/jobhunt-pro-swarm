@@ -372,7 +372,187 @@ async def stats_daily(days: int = 30):
         conn.close()
 
 
-# ── 7. Health ──
+# ── 7. Campaign — Create ──
+
+@router.post("/api/campaign/create")
+async def campaign_create(request: Request):
+    """Create a campaign for a user. Uses existing PA campaigns table."""
+    try:
+        data = await request.json()
+    except Exception:
+        data = {}
+    user_id = data.get("user_id", "").strip()
+    if not user_id:
+        return JSONResponse({"error": "user_id required"}, status_code=400)
+
+    import uuid
+    ensure_tables()
+    conn = get_db()
+    try:
+        # Check existing active campaigns
+        existing = conn.execute(
+            "SELECT id, status FROM campaigns WHERE user_id = ? AND status = 'active' ORDER BY id DESC LIMIT 1",
+            (user_id,)
+        ).fetchone()
+        if existing:
+            return JSONResponse({
+                "ok": True, "campaign_id": existing["id"],
+                "message": "Campaign already active", "existing": True,
+            })
+
+        campaign_id = "camp_" + uuid.uuid4().hex[:10]
+        conn.execute('''
+            INSERT INTO campaigns (campaign_id, user_id, status, sent_count, total_attempted, created_at, started_at)
+            VALUES (?, ?, 'active', 0, 0, datetime('now'), datetime('now'))
+        ''', (campaign_id, user_id))
+        conn.commit()
+        return JSONResponse({
+            "ok": True,
+            "campaign_id": campaign_id,
+            "user_id": user_id,
+            "message": "Auto-Pilot campaign started! 200 AI agents engaged.",
+        })
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+    finally:
+        conn.close()
+
+
+# ── 8. Campaign — List ──
+
+@router.get("/api/campaign/list")
+async def campaign_list(user_id: str = ""):
+    """List user campaigns with stats."""
+    if not user_id:
+        return JSONResponse({"error": "user_id required"}, status_code=400)
+
+    conn = get_db()
+    try:
+        rows = conn.execute('''
+            SELECT id, campaign_id, status, sent_count, total_attempted, open_count,
+                   response_count, created_at, started_at, completed_at
+            FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 10
+        ''', (user_id,)).fetchall()
+
+        # Count jobs found for user
+        try:
+            user_email = conn.execute(
+                "SELECT email FROM users WHERE user_id = ?", (user_id,)
+            ).fetchone()
+            user_email_val = user_email["email"] if user_email else ""
+            jobs_found = conn.execute(
+                "SELECT COUNT(*) as c FROM applications WHERE email = ?", (user_email_val,)
+            ).fetchone()["c"]
+        except Exception:
+            jobs_found = 0
+
+        campaigns = []
+        for row in rows:
+            campaigns.append({
+                "id": row["id"],
+                "campaign_id": row["campaign_id"],
+                "name": "Auto-Pilot Campaign #" + str(row["id"]),
+                "status": row["status"],
+                "apps_sent": row["sent_count"] or 0,
+                "total_attempted": row["total_attempted"] or 0,
+                "open_count": row["open_count"] or 0,
+                "response_count": row["response_count"] or 0,
+                "jobs_found": jobs_found,
+                "created_at": row["created_at"],
+            })
+
+        return JSONResponse({"campaigns": campaigns, "total": len(campaigns)})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+    finally:
+        conn.close()
+
+
+# ── 9. Jobs — User ──
+
+@router.get("/api/jobs/user")
+async def jobs_user(user_id: str = "", limit: int = 20):
+    """Get jobs matched/applied for a user."""
+    if not user_id:
+        return JSONResponse({"error": "user_id required"}, status_code=400)
+
+    conn = get_db()
+    try:
+        user_email = conn.execute(
+            "SELECT email FROM users WHERE user_id = ?", (user_id,)
+        ).fetchone()
+        if not user_email:
+            return JSONResponse({"jobs": [], "total": 0})
+
+        email_val = user_email["email"]
+
+        # Get from applications table (sent/applied-to jobs)
+        try:
+            rows = conn.execute('''
+                SELECT id, job_id, company, title, status, sent_at, responded_at
+                FROM applications WHERE email = ?
+                ORDER BY id DESC LIMIT ?
+            ''', (email_val, limit)).fetchall()
+        except Exception:
+            rows = []
+
+        jobs = []
+        for row in rows:
+            jobs.append({
+                "id": row["id"],
+                "title": row["title"],
+                "company": row["company"],
+                "source": "applications",
+                "score": 100,  # Applied = 100% match
+                "status": row["status"],
+                "sent_at": row["sent_at"],
+            })
+
+        # Also get from jobs table (scored but not yet applied)
+        try:
+            job_rows = conn.execute('''
+                SELECT id, title, company, source, match_score
+                FROM jobs WHERE email = ? AND (applied_at IS NULL OR applied_at = '')
+                ORDER BY match_score DESC LIMIT ?
+            ''', (email_val, max(limit - len(jobs), 5))).fetchall()
+            for row in job_rows:
+                jobs.append({
+                    "id": row["id"],
+                    "title": row["title"],
+                    "company": row["company"],
+                    "source": row["source"] or "web",
+                    "score": (row["match_score"] or 0) * 100,
+                    "status": "matched",
+                })
+        except Exception:
+            pass
+
+        # Also try posted_jobs
+        try:
+            pj_rows = conn.execute('''
+                SELECT id, title, company, source, match_score
+                FROM posted_jobs WHERE email = ? ORDER BY id DESC LIMIT ?
+            ''', (email_val, max(limit - len(jobs), 5))).fetchall()
+            for row in pj_rows:
+                jobs.append({
+                    "id": row["id"],
+                    "title": row["title"],
+                    "company": row["company"],
+                    "source": row["source"] or "web",
+                    "score": (row["match_score"] or 0) * 100,
+                    "status": "matched",
+                })
+        except Exception:
+            pass
+
+        return JSONResponse({"jobs": jobs[:limit], "total": len(jobs)})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+    finally:
+        conn.close()
+
+
+# ── 10. Health ──
 
 @router.get("/api/cloud-health")
 async def cloud_health():
