@@ -161,6 +161,7 @@
     <div class="wr-card">
         <div class="wr-card-head"><span class="wr-company">{{ cv.company }}</span><span class="wr-role">{{ cv.job_title }}</span><span class="wr-status {{ cv.status_cls }}">{{ cv.status }}</span></div>
         <div class="wr-card-body terminal cover-preview" style="display:{{ 'block' if cv.has_preview else 'none' }};max-height:160px;overflow:hidden;">{{ cv.html[:800] if cv.html else '' }}</div>
+        <textarea class="raw-html-data" style="display:none;">{{ cv.raw_html }}</textarea>
         <button class="wr-btn-copy" onclick="copyHtml(this)"><span class="copy-icon">📋</span> COPY HTML</button>
     </div>
 {% endfor %}
@@ -180,26 +181,59 @@
 </div>
 
 <script>
+function fallbackCopyTextToClipboard(text, btn, originalText) {
+  var textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.style.top = "0";
+  textArea.style.left = "0";
+  textArea.style.position = "fixed";
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try {
+    var successful = document.execCommand('copy');
+    if(successful) {
+        btn.innerHTML = '<span class="copy-icon">✅</span> COPIED!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.innerHTML = originalText; btn.classList.remove('copied'); }, 2000);
+    }
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
+  document.body.removeChild(textArea);
+}
+
+function copyToClipboard(text, btn, originalText) {
+    if (!text) return;
+    if (!navigator.clipboard) {
+        fallbackCopyTextToClipboard(text, btn, originalText);
+        return;
+    }
+    navigator.clipboard.writeText(text).then(function() {
+        btn.innerHTML = '<span class="copy-icon">✅</span> COPIED!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.innerHTML = originalText; btn.classList.remove('copied'); }, 2000);
+    }, function(err) {
+        fallbackCopyTextToClipboard(text, btn, originalText);
+    });
+}
+
 function copyText(btn) {
     var card = btn.closest('.wr-card');
     var body = card ? card.querySelector('.wr-card-body') : null;
     var text = body ? body.innerText : '';
-    if (!text) return;
-    navigator.clipboard.writeText(text).then(function() {
-        btn.innerHTML = '<span class="copy-icon">✅</span> COPIED!';
-        btn.classList.add('copied');
-        setTimeout(function() { btn.innerHTML = '<span class="copy-icon">📋</span> COPY TO CLIPBOARD'; btn.classList.remove('copied'); }, 2000);
-    });
+    copyToClipboard(text, btn, '<span class="copy-icon">📋</span> COPY TO CLIPBOARD');
+}
+function copyGuide(btn) {
+    var card = btn.closest('.wr-card');
+    var body = card ? card.querySelector('.wr-card-body') : null;
+    var text = body ? body.innerText : '';
+    copyToClipboard(text, btn, '<span class="copy-icon">📋</span> COPY GUIDE');
 }
 function copyHtml(btn) {
     var card = btn.closest('.wr-card');
-    var body = card ? card.querySelector('.cover-preview') : null;
-    var text = body ? body.innerHTML : '';
-    if (!text) return;
-    navigator.clipboard.writeText(text).then(function() {
-        btn.innerHTML = '<span class="copy-icon">✅</span> COPIED!';
-        btn.classList.add('copied');
-        setTimeout(function() { btn.innerHTML = '<span class="copy-icon">📋</span> COPY HTML'; btn.classList.remove('copied'); }, 2000);
-    });
+    var ta = card ? card.querySelector('.raw-html-data') : null;
+    var text = ta ? ta.value : '';
+    copyToClipboard(text, btn, '<span class="copy-icon">📋</span> COPY HTML');
 }
 </script>

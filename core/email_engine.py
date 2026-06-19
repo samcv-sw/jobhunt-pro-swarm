@@ -30,8 +30,12 @@ from core.smart_scheduler import scheduler, SmartScheduler
 
 logger = logging.getLogger(__name__)
 
-
-
+_HAS_AIOSMTPLIB = True
+try:
+    import aiosmtplib
+except ImportError:
+    _HAS_AIOSMTPLIB = False
+    logger.info('[EmailEngine] aiosmtplib not available - will use HTTP fallbacks directly')
 
 
 def _extract_highlight_title(text: str) -> str:
@@ -691,31 +695,35 @@ class EmailEngine:
             logger.warning(f"Circuit OPEN for {provider} - skipping immediately")
             return False, f"circuit_open:{provider}"
 
-        for attempt in range(max_retries):
-            try:
-                success = await self._send_via_smtp(provider, msg)
-                if success:
-                    self.circuit_breaker.record_success(provider)
-                    self.scheduler.record_send(provider)
-                    await self.rate_limiter.record_send(provider)
-                    return True, provider
+        # PA optimization: skip SMTP entirely if aiosmtplib is missing
+        if not _HAS_AIOSMTPLIB:
+            logger.info(f"[EmailEngine] Skipping SMTP ({provider}) - aiosmtplib not installed, going directly to HTTP fallback")
+        else:
+            for attempt in range(max_retries):
+                try:
+                    success = await self._send_via_smtp(provider, msg)
+                    if success:
+                        self.circuit_breaker.record_success(provider)
+                        self.scheduler.record_send(provider)
+                        await self.rate_limiter.record_send(provider)
+                        return True, provider
 
-                self.circuit_breaker.record_failure(provider)
-                self.scheduler.record_failure(provider)
+                    self.circuit_breaker.record_failure(provider)
+                    self.scheduler.record_failure(provider)
 
-                if attempt < max_retries - 1:
-                    delay = (2 ** attempt) * 5 + random.uniform(0, 5)
-                    logger.info(f"Retry {attempt + 1}/{max_retries} after {delay:.1f}s")
-                    await asyncio.sleep(delay)
+                    if attempt < max_retries - 1:
+                        delay = (2 ** attempt) * 5 + random.uniform(0, 5)
+                        logger.info(f"Retry {attempt + 1}/{max_retries} after {delay:.1f}s")
+                        await asyncio.sleep(delay)
 
-            except Exception as e:
-                logger.error(f"Send attempt {attempt + 1} failed: {e}")
-                if "No module named" in str(e) or "aiosmtplib" in str(e):
-                    break
-                if attempt < max_retries - 1:
-                    await asyncio.sleep(2 ** attempt * 5)
+                except Exception as e:
+                    logger.error(f"Send attempt {attempt + 1} failed: {e}")
+                    if "No module named" in str(e) or "aiosmtplib" in str(e):
+                        break
+                    if attempt < max_retries - 1:
+                        await asyncio.sleep(2 ** attempt * 5)
 
-        logger.error(f"All SMTP retries failed for {provider}. Cascading to Triple Redundancy HTTP fallbacks...")
+        logger.info(f"[EmailEngine] SMTP skipped/expired. Falling to Brevo HTTP...")
         
         # Extract payload from msg for HTTP APIs
         to_email = msg.get("To", "")
@@ -744,7 +752,12 @@ class EmailEngine:
                         
             # Fallback 1: Brevo HTTP
             logger.info(f"[CASCADE] Attempting Brevo HTTP Fallback for {to_email}...")
-            brevo_success = await asyncio.to_thread(send_email_via_brevo_http, to_email, subject, body_html, body_text)
+            brevo_success = await asyncio.to_thread(
+                send_email_via_brevo_http, 
+                to_email=to_email, 
+                subject=subject, 
+                custom_body=body_html or body_text
+            )
             if brevo_success:
                 return True, "brevo_http_fallback"
                 
@@ -1190,11 +1203,27 @@ def send_email_via_brevo_http(
         )
 
     payload = {
-        "sender": {"email": sender_email, "name": sender_name},
+        "sender": {"email": sender_email, "name": sender_name.strip()},
         "to": [{"email": to_email}],
-        "subject": subject,
+        "subject": subject.strip() if subject else "Application Update",
         "htmlContent": html_body,
     }
+    
+    # Attach CV if available
+    try:
+        cv_path = config.CV_PATH
+        if cv_path and os.path.exists(cv_path):
+            import base64
+            with open(cv_path, "rb") as f:
+                cv_b64 = base64.b64encode(f.read()).decode('utf-8')
+            payload["attachment"] = [
+                {
+                    "content": cv_b64,
+                    "name": os.path.basename(cv_path)
+                }
+            ]
+    except Exception as e:
+        logger.warning(f"[BREVO-HTTP] Failed to attach CV: {e}")
 
     url = "https://api.brevo.com/v3/smtp/email"
     headers = {

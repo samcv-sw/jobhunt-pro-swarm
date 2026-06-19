@@ -4039,6 +4039,7 @@ def campaign_war_room(request: Request, campaign_id: str):
         cover_rows.append({"company": e.get("company_name", "?"), "job_title": e.get("job_title", ""),
             "status": status, "status_cls": "sent" if status == "SENT" else "failed",
             "html": ch.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") if ch else "",
+            "raw_html": ch if ch else "",
             "has_preview": bool(ch)})
 
     # Actions

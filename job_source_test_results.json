@@ -1,0 +1,329 @@
+{
+  "tested_at": "2026-06-18T23:06:21.078757",
+  "sources": [
+    {
+      "name": "2. Glassdoor",
+      "url": "https://www.glassdoor.com/Job/dubai-network-engineer-jobs-SRCH_IL.0,5_IC2249427_KO6,22.htm",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "3. Monster.com",
+      "url": "https://www.monster.com/jobs/search/?q=network-engineer&where=Dubai",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "4. Dice.com",
+      "url": "https://www.dice.com/jobs?q=network+engineer&location=Dubai",
+      "http_code": 200,
+      "content_length": 55636,
+      "has_job_content": false,
+      "snippet": "�\b\u0000\u0000\u0000\u0000\u0000\u0000\u0003\u0000\u0000\u0000����vܶ�.�*XZkΑ�mP�\u0003tl��Ȏ�,9�d'\u0019\u0019\u001a ���&�$[R{�\u001f�5���h�I�(��f_d)��(23�\u0016/ ��B����x����__=E�z�=z\u0000�(������P�٪z��F��Y�Ύ+�W�Fi�(\u001f�i��3w|���ɯ�/��'�Lm�94��y��h��y9��Õ��<��\u0002���Ɛ\u000f��Y�GE��e1�\u0013<+�)��y��,��K�\u001e=�8�<z0u�E�ĖG�~�7�G�����s;u\u000f�NRw:+�z\u000f�E^��~�w�&��a�N��as\u000f�y ��*��{H!�,�ߡ�e\u000f�f�� ��!\u000b��ڱ�C�ҍ",
+      "error": null,
+      "verdict": "HTTP 200 but job keywords weak - needs inspection"
+    },
+    {
+      "name": "5. CareerBuilder",
+      "url": "https://www.careerbuilder.com/jobs-network-engineer-in-dubai",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "6. Google Jobs",
+      "url": "https://www.google.com/search?q=network+engineer+in+Dubai+jobs&ibp=htl;jobs",
+      "http_code": 429,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 429: Too Many Requests",
+      "error": "HTTP Error 429: Too Many Requests",
+      "verdict": "FAILED - HTTP 429"
+    },
+    {
+      "name": "7. Bing Jobs",
+      "url": "https://www.bing.com/jobs?q=network+engineer+Dubai",
+      "http_code": 200,
+      "content_length": 68238,
+      "has_job_content": false,
+      "snippet": "+��R\u0015\u0002\u001b\u0007\u0000��|�,�i�\u0017\u000f�\u0011z�j�\u0000�j�\u0010w��*~���?����`�\u0001\u0000a2[�6���r{�>��m?뾟Ý�@a�\bjдϪ�Ϊu�~���\u0005\b�\u001a\u0012&\tҎ����ƪ}z�C`�F��y'æ0�\u0006�bɥ��e3��j}�b���j@\u0004\u0000A���4\u0017�ͭ��l��>^�y��\u0002(\u0000It9���?�����u��Ʊy��QX\tIf2MfҐv�R\u000eK�\u0012�`$\u001fI\u000e��;�i���o\u0007y\u000f\\C\u0011V��Aދ�\u0002oP$E\u0001\u0014/�j\u0000��\u0006\u001a�n���*�N]�\\�S�������6�+JU�z�\"��s������h1\u0002��m�_]��$@X �\u0004\u0018��A<A>5�\u0005��",
+      "error": null,
+      "verdict": "HTTP 200 but job keywords weak - needs inspection"
+    },
+    {
+      "name": "8. Wuzzuf.net",
+      "url": "https://wuzzuf.net/search/jobs/?q=network+engineer&country=AE",
+      "http_code": 200,
+      "content_length": 116453,
+      "has_job_content": false,
+      "snippet": "+b�Se����\u001e>\u0013a�j/\u001fN�ГV�\u0003��UB�\u001d�����_���'\u0004\u0006pL\u0000�\u0007��l���\u000e�������}�fU�8V\u001cV��\fFd�b\u0017w����̲G�:!\u0013@� E\u0014\u0012\u0004P��w/����L��w�Y�������^�o�@,�Tzlg�{�T�xҳl\u001f\u0010 [H�$�R�n�9\u001c�^�V���aRy\u001a�\u0003�ș�]9T���*��vo��O�B\u001b\u0004�\u0000hY��N麧�grm���M����M���t?\u000f��w%\u0016��~�1N�k\u0013�!�kx�A:�S\u0011:<I�E��Ze\f����G�w�+\u0011��\u0004c�E�\u001f�O&{O��ٟ���'�v���\u001f�\f�L�����>�R�P\u0003cK",
+      "error": null,
+      "verdict": "HTTP 200 but job keywords weak - needs inspection"
+    },
+    {
+      "name": "9a. Akkodis",
+      "url": "https://www.akkodis.com/search?q=network+engineer+Dubai",
+      "http_code": 404,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 404: Not Found",
+      "error": "HTTP Error 404: Not Found",
+      "verdict": "FAILED - HTTP 404"
+    },
+    {
+      "name": "9b. Experis",
+      "url": "https://www.experis.com/jobs?keywords=network+engineer&location=Dubai",
+      "http_code": 404,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 404: Not Found",
+      "error": "HTTP Error 404: Not Found",
+      "verdict": "FAILED - HTTP 404"
+    },
+    {
+      "name": "10a. SimplyHired",
+      "url": "https://www.simplyhired.com/search?q=network+engineer&l=Dubai",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "10b. SimplyHired sitemap",
+      "url": "https://www.simplyhired.com/robots.txt",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "B1. Indeed",
+      "url": "https://www.indeed.com/q-network-engineer-l-Dubai-jobs.html",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "B2. Bayt.com",
+      "url": "https://www.bayt.com/en/uae/jobs/network-engineer-jobs/",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "B3. LinkedIn Jobs",
+      "url": "https://www.linkedin.com/jobs/search/?keywords=network%20engineer&location=Dubai",
+      "http_code": 200,
+      "content_length": 26701,
+      "has_job_content": false,
+      "snippet": "�\b\u0000\u0000\u0000\u0000\u0000\u0000\u0000�Y[��6\u0016~�_���\"\u0001J�f&s�t�&\u0005�\u001b�M�n� ��(��DjHʲ��ߏ�dK�L����\u000f\u001e�:<<���8��^}�͇_~xM�6M�NN\b>ǿ�o���8�09������E��Y�<�1�\u0011�R>�el����\u001e\t��\\�I/�.T`���\u001b;5��p���m\u000ej��*Pִ8�lME �4�|%xq�0=�_\u0010�\u001c7��5�6�@�\u0019�<�M����3���V�6�D�%���vj~`�\u0016�\\'\u001fʌO\u0016��l\u001a�ƪ􆧙-�&O�$f���VKT�\u0012������� ޑ��#�I\u000f����\u0011���,�+��Pr�\u001b������q�\u000e�\u0013j5��m�",
+      "error": null,
+      "verdict": "HTTP 200 but job keywords weak - needs inspection"
+    },
+    {
+      "name": "B4. Naukri Gulf",
+      "url": "https://www.naukrigulf.com/network-engineer-jobs-in-dubai",
+      "http_code": 0,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "The read operation timed out",
+      "error": "The read operation timed out",
+      "verdict": "FAILED - TimeoutError"
+    },
+    {
+      "name": "B5. Gulftalent",
+      "url": "https://www.gulftalent.com/en/jobs?keywords=network+engineer&location=Dubai",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    }
+  ],
+  "working": [
+    {
+      "name": "4. Dice.com",
+      "url": "https://www.dice.com/jobs?q=network+engineer&location=Dubai",
+      "http_code": 200,
+      "content_length": 55636,
+      "has_job_content": false,
+      "snippet": "�\b\u0000\u0000\u0000\u0000\u0000\u0000\u0003\u0000\u0000\u0000����vܶ�.�*XZkΑ�mP�\u0003tl��Ȏ�,9�d'\u0019\u0019\u001a ���&�$[R{�\u001f�5���h�I�(��f_d)��(23�\u0016/ ��B����x����__=E�z�=z\u0000�(������P�٪z��F��Y�Ύ+�W�Fi�(\u001f�i��3w|���ɯ�/��'�Lm�94��y��h��y9��Õ��<��\u0002���Ɛ\u000f��Y�GE��e1�\u0013<+�)��y��,��K�\u001e=�8�<z0u�E�ĖG�~�7�G�����s;u\u000f�NRw:+�z\u000f�E^��~�w�&��a�N��as\u000f�y ��*��{H!�,�ߡ�e\u000f�f�� ��!\u000b��ڱ�C�ҍ",
+      "error": null,
+      "verdict": "HTTP 200 but job keywords weak - needs inspection"
+    },
+    {
+      "name": "7. Bing Jobs",
+      "url": "https://www.bing.com/jobs?q=network+engineer+Dubai",
+      "http_code": 200,
+      "content_length": 68238,
+      "has_job_content": false,
+      "snippet": "+��R\u0015\u0002\u001b\u0007\u0000��|�,�i�\u0017\u000f�\u0011z�j�\u0000�j�\u0010w��*~���?����`�\u0001\u0000a2[�6���r{�>��m?뾟Ý�@a�\bjдϪ�Ϊu�~���\u0005\b�\u001a\u0012&\tҎ����ƪ}z�C`�F��y'æ0�\u0006�bɥ��e3��j}�b���j@\u0004\u0000A���4\u0017�ͭ��l��>^�y��\u0002(\u0000It9���?�����u��Ʊy��QX\tIf2MfҐv�R\u000eK�\u0012�`$\u001fI\u000e��;�i���o\u0007y\u000f\\C\u0011V��Aދ�\u0002oP$E\u0001\u0014/�j\u0000��\u0006\u001a�n���*�N]�\\�S�������6�+JU�z�\"��s������h1\u0002��m�_]��$@X �\u0004\u0018��A<A>5�\u0005��",
+      "error": null,
+      "verdict": "HTTP 200 but job keywords weak - needs inspection"
+    },
+    {
+      "name": "8. Wuzzuf.net",
+      "url": "https://wuzzuf.net/search/jobs/?q=network+engineer&country=AE",
+      "http_code": 200,
+      "content_length": 116453,
+      "has_job_content": false,
+      "snippet": "+b�Se����\u001e>\u0013a�j/\u001fN�ГV�\u0003��UB�\u001d�����_���'\u0004\u0006pL\u0000�\u0007��l���\u000e�������}�fU�8V\u001cV��\fFd�b\u0017w����̲G�:!\u0013@� E\u0014\u0012\u0004P��w/����L��w�Y�������^�o�@,�Tzlg�{�T�xҳl\u001f\u0010 [H�$�R�n�9\u001c�^�V���aRy\u001a�\u0003�ș�]9T���*��vo��O�B\u001b\u0004�\u0000hY��N麧�grm���M����M���t?\u000f��w%\u0016��~�1N�k\u0013�!�kx�A:�S\u0011:<I�E��Ze\f����G�w�+\u0011��\u0004c�E�\u001f�O&{O��ٟ���'�v���\u001f�\f�L�����>�R�P\u0003cK",
+      "error": null,
+      "verdict": "HTTP 200 but job keywords weak - needs inspection"
+    },
+    {
+      "name": "B3. LinkedIn Jobs",
+      "url": "https://www.linkedin.com/jobs/search/?keywords=network%20engineer&location=Dubai",
+      "http_code": 200,
+      "content_length": 26701,
+      "has_job_content": false,
+      "snippet": "�\b\u0000\u0000\u0000\u0000\u0000\u0000\u0000�Y[��6\u0016~�_���\"\u0001J�f&s�t�&\u0005�\u001b�M�n� ��(��DjHʲ��ߏ�dK�L����\u000f\u001e�:<<���8��^}�͇_~xM�6M�NN\b>ǿ�o���8�09������E��Y�<�1�\u0011�R>�el����\u001e\t��\\�I/�.T`���\u001b;5��p���m\u000ej��*Pִ8�lME �4�|%xq�0=�_\u0010�\u001c7��5�6�@�\u0019�<�M����3���V�6�D�%���vj~`�\u0016�\\'\u001fʌO\u0016��l\u001a�ƪ􆧙-�&O�$f���VKT�\u0012������� ޑ��#�I\u000f����\u0011���,�+��Pr�\u001b������q�\u000e�\u0013j5��m�",
+      "error": null,
+      "verdict": "HTTP 200 but job keywords weak - needs inspection"
+    }
+  ],
+  "failed": [
+    {
+      "name": "2. Glassdoor",
+      "url": "https://www.glassdoor.com/Job/dubai-network-engineer-jobs-SRCH_IL.0,5_IC2249427_KO6,22.htm",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "3. Monster.com",
+      "url": "https://www.monster.com/jobs/search/?q=network-engineer&where=Dubai",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "5. CareerBuilder",
+      "url": "https://www.careerbuilder.com/jobs-network-engineer-in-dubai",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "6. Google Jobs",
+      "url": "https://www.google.com/search?q=network+engineer+in+Dubai+jobs&ibp=htl;jobs",
+      "http_code": 429,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 429: Too Many Requests",
+      "error": "HTTP Error 429: Too Many Requests",
+      "verdict": "FAILED - HTTP 429"
+    },
+    {
+      "name": "9a. Akkodis",
+      "url": "https://www.akkodis.com/search?q=network+engineer+Dubai",
+      "http_code": 404,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 404: Not Found",
+      "error": "HTTP Error 404: Not Found",
+      "verdict": "FAILED - HTTP 404"
+    },
+    {
+      "name": "9b. Experis",
+      "url": "https://www.experis.com/jobs?keywords=network+engineer&location=Dubai",
+      "http_code": 404,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 404: Not Found",
+      "error": "HTTP Error 404: Not Found",
+      "verdict": "FAILED - HTTP 404"
+    },
+    {
+      "name": "10a. SimplyHired",
+      "url": "https://www.simplyhired.com/search?q=network+engineer&l=Dubai",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "10b. SimplyHired sitemap",
+      "url": "https://www.simplyhired.com/robots.txt",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "B1. Indeed",
+      "url": "https://www.indeed.com/q-network-engineer-l-Dubai-jobs.html",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "B2. Bayt.com",
+      "url": "https://www.bayt.com/en/uae/jobs/network-engineer-jobs/",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    },
+    {
+      "name": "B4. Naukri Gulf",
+      "url": "https://www.naukrigulf.com/network-engineer-jobs-in-dubai",
+      "http_code": 0,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "The read operation timed out",
+      "error": "The read operation timed out",
+      "verdict": "FAILED - TimeoutError"
+    },
+    {
+      "name": "B5. Gulftalent",
+      "url": "https://www.gulftalent.com/en/jobs?keywords=network+engineer&location=Dubai",
+      "http_code": 403,
+      "content_length": 0,
+      "has_job_content": false,
+      "snippet": "HTTP Error 403: Forbidden",
+      "error": "HTTP Error 403: Forbidden",
+      "verdict": "FAILED - HTTP 403"
+    }
+  ]
+}

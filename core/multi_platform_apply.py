@@ -29,6 +29,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import quote_plus, urlencode, urlparse
 
 import httpx
+from core.stealth import stealth
 from bs4 import BeautifulSoup
 
 import config
@@ -386,7 +387,7 @@ class LinkedInScraper(PlatformBase):
                 if api_type == "openwebninja":
                     params["limit"] = max_results
 
-                async with httpx.AsyncClient(timeout=30.0) as client:
+                async with stealth.get_async_client(timeout=30.0) as client:
                     resp = await client.get(f"{base}/search", params=params, headers=headers)
                     if resp.status_code != 200:
                         logger.debug(f"[LinkedIn] {api_type} returned {resp.status_code}")
@@ -425,7 +426,7 @@ class LinkedInScraper(PlatformBase):
 
         # Try generic Easy Apply flow via LinkedIn API simulation
         try:
-            async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(timeout=15.0, follow_redirects=True) as client:
                 # Step 1: GET job page to find Easy Apply URL
                 headers = self.make_headers()
                 headers["Accept"] = "application/json"
@@ -531,7 +532,7 @@ class IndeedScraper(PlatformBase):
         url = f"https://www.indeed.com/rss?q={q}"
 
         headers = self.make_headers()
-        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+        async with stealth.get_async_client(timeout=20.0, follow_redirects=True) as client:
             resp = await client.get(url, headers=headers)
             if resp.status_code != 200:
                 logger.warning(f"[Indeed RSS] HTTP {resp.status_code}")
@@ -578,7 +579,7 @@ class IndeedScraper(PlatformBase):
         url = f"https://www.indeed.com/jobs?{urlencode(params)}"
 
         headers = self.make_headers()
-        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+        async with stealth.get_async_client(timeout=20.0, follow_redirects=True) as client:
             resp = await client.get(url, headers=headers)
             if resp.status_code != 200:
                 return []
@@ -653,7 +654,7 @@ class IndeedScraper(PlatformBase):
             return False, "No job URL available for Indeed application"
 
         try:
-            async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(timeout=15.0, follow_redirects=True) as client:
                 headers = self.make_headers()
                 # Step 1: GET job page to discover apply URL
                 resp = await client.get(url, headers=headers, timeout=15.0)
@@ -767,7 +768,7 @@ class BaytScraper(PlatformBase):
         headers["Referer"] = "https://www.bayt.com/"
 
         try:
-            async with httpx.AsyncClient(timeout=25.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(timeout=25.0, follow_redirects=True) as client:
                 # First hit home page to set cookies
                 await client.get("https://www.bayt.com/", headers=headers, timeout=15.0)
                 resp = await client.get(url, headers=headers, timeout=25.0)
@@ -870,7 +871,7 @@ class BaytScraper(PlatformBase):
             return False, "No job URL available for Bayt application"
 
         try:
-            async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(timeout=20.0, follow_redirects=True) as client:
                 headers = self.make_headers()
                 headers["Referer"] = "https://www.bayt.com/"
 
@@ -962,7 +963,7 @@ class NaukriGulfScraper(PlatformBase):
         headers["Referer"] = "https://www.naukrigulf.com/"
 
         try:
-            async with httpx.AsyncClient(timeout=25.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(timeout=25.0, follow_redirects=True) as client:
                 resp = await client.get(url, headers=headers, timeout=25.0)
 
                 if resp.status_code != 200:
@@ -1069,7 +1070,7 @@ class NaukriGulfScraper(PlatformBase):
             return False, "No job URL available for NaukriGulf application"
 
         try:
-            async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(timeout=20.0, follow_redirects=True) as client:
                 headers = self.make_headers()
                 headers["Referer"] = "https://www.naukrigulf.com/"
 
@@ -1146,7 +1147,7 @@ class GulftalentScraper(PlatformBase):
         headers["Referer"] = "https://www.gulftalent.com/"
 
         try:
-            async with httpx.AsyncClient(timeout=25.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(timeout=25.0, follow_redirects=True) as client:
                 resp = await client.get(url, headers=headers, timeout=25.0)
 
                 if resp.status_code != 200:
@@ -1224,7 +1225,7 @@ class GulftalentScraper(PlatformBase):
             return False, "No job URL available for Gulftalent application"
 
         try:
-            async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(timeout=20.0, follow_redirects=True) as client:
                 headers = self.make_headers()
                 headers["Referer"] = "https://www.gulftalent.com/"
 

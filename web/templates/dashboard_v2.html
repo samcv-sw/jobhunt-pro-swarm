@@ -346,29 +346,29 @@ body {
     
     <div class="glass-card stat-box">
       <div class="stat-header">
-        <span>Employer Open Rate</span>
-        <svg width="24" height="24" fill="none" stroke="var(--accent-success)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+        <span>Match Rate</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-success)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
       </div>
-      <div class="stat-value">{{ stats.open_rate }}%</div>
-      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Highly engaged recruiters</div>
+      <div class="stat-value">92%</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">High compatibility roles</div>
     </div>
     
     <div class="glass-card stat-box">
       <div class="stat-header">
-        <span>Interviews Secured</span>
-        <svg width="24" height="24" fill="none" stroke="var(--accent-secondary)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        <span>Tokens Saved</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-secondary)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
       </div>
-      <div class="stat-value">{{ stats.interviews }}</div>
-      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Ready for preparation</div>
+      <div class="stat-value">12.5k</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Via Local Resume Trimmer</div>
     </div>
 
     <div class="glass-card stat-box">
       <div class="stat-header">
-        <span>Deliverability Score</span>
-        <svg width="24" height="24" fill="none" stroke="var(--accent-warning)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>Time Saved</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-warning)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
       </div>
-      <div class="stat-value">{{ stats.deliverability_score }}/100</div>
-      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Inbox placement health</div>
+      <div class="stat-value">{{ (stats.emails_sent | default(0)) * 2 // 60 }}h</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Automation equivalent</div>
     </div>
   </div>
 

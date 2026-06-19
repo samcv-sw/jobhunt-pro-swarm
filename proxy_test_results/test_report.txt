@@ -1,0 +1,173 @@
+======================================================================
+INDEED PROXY TEST REPORT
+Date: 2026-06-18 23:06:00
+Working Directory: C:\Users\samde\Desktop\cv sam new ma3 kimi
+Total Tests: 26 | Passed: 7 | Failed: 19
+======================================================================
+
+WORKING APPROACHES:
+----------------------------------------
+  [PASS] 04_JinaAI_NoHTTPPrefix
+         URL: https://r.jina.ai/www.indeed.com/rss?q=network+engineer&sort=date
+         HTTP 200
+         Preview: Title: Just a moment...
+
+URL Source: http://www.indeed.com/rss?q=network+engineer&sort=date
+
+Markdown Content:
+# Just a moment...
+![Image 1: Indeed logo](blob:http://localhost/275bd1d4649c2e1129eb5f4f
+
+  [PASS] 04b_JinaAI_WithHTTPPrefix
+         URL: https://r.jina.ai/http://www.indeed.com/rss?q=network+engineer&sort=date
+         HTTP 200
+         Preview: Title: Just a moment...
+
+URL Source: http://www.indeed.com/rss?q=network+engineer&sort=date
+
+Markdown Content:
+# Just a moment...
+![Image 1: Indeed logo](blob:http://localhost/275bd1d4649c2e1129eb5f4f
+
+  [PASS] 06_Bing_SearchIndeedJobs
+         URL: https://www.bing.com/search?q=site:indeed.com+network+engineer+Dubai+2025&count=10
+         HTTP 200
+         Preview: <!DOCTYPE html><html dir="ltr" lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:Web="http://schemas.live.com/Web/"><script type="text/javascript" nonce="fuoeUar1Q5RdFdMd75mPvA4K6Y48G
+
+  [PASS] 06b_Bing_HasResults
+         URL: https://www.bing.com/search?q=site:indeed.com+network+engineer+Dubai+2025&count=10
+         HTTP 200
+         Preview: Found relevant results
+
+  [PASS] 08_Dice_Direct
+         URL: https://www.dice.com/jobs?q=network+engineer&location=Dubai,%20United%20Arab%20Emirates
+         HTTP 200
+         Preview: <!DOCTYPE html><html lang="en" class="ibm_plex_sans_867ae13f-module__qQdYlW__variable h-full bg-surface-secondary font-sans text-foreground-primary antialiased"><head><meta charSet="utf-8"/><meta name
+
+  [PASS] 08b_Dice_ContentCheck
+         URL: https://www.dice.com/jobs?q=network+engineer&location=Dubai,%20United%20Arab%20Emirates
+         HTTP 200
+         Preview: Has job content
+
+  [PASS] 08c_Dice_HTMLSearch
+         URL: https://www.dice.com/jobs/q-network+engineer-l-Dubai,+United+Arab+Emirates-jobs.html
+         HTTP 200
+         Preview: <!DOCTYPE html><html lang="en" class="ibm_plex_sans_867ae13f-module__qQdYlW__variable h-full bg-surface-secondary font-sans text-foreground-primary antialiased"><head><meta charSet="utf-8"/><meta name
+
+----------------------------------------------------------------------
+FULL RESULTS TABLE:
+----------------------------------------------------------------------
+Test Name                           Status     HTTP   Detail
+----------------------------------------------------------------------
+00_IndeedRSS_Direct_Baseline        FAIL       403    <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport"
+00b_IndeedJobs_Direct_Baseline      FAIL       403    <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport"
+02_RSSHub_Standard                  FAIL       403    <!DOCTYPE html><html lang="en-US"><head><title>Just a moment...</title><meta htt
+03_RSSHub_PathStyle                 FAIL       403    <!DOCTYPE html><html lang="en-US"><head><title>Just a moment...</title><meta htt
+03b_RSSHub_Glassdoor                FAIL       403    <!DOCTYPE html><html lang="en-US"><head><title>Just a moment...</title><meta htt
+01_GoogleWebCache_IndeedJobs        FAIL       429    <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><me
+04_JinaAI_NoHTTPPrefix              PASS       200    Title: Just a moment...
+
+URL Source: http://www.indeed.com/rss?q=network+enginee
+04b_JinaAI_WithHTTPPrefix           PASS       200    Title: Just a moment...
+
+URL Source: http://www.indeed.com/rss?q=network+enginee
+05_AllOrigins_CORSProxy             FAIL       522    <!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <!
+05c_AllOrigins_RawFormat            FAIL       522    <!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <!
+05d_AllOrigins_GetEndpoint          FAIL       522    <!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <!
+05e_CORSProxyDotIO                  FAIL       403    {"error":"Free usage is limited to localhost and development environments. Get a
+05f_ThingProxy                      FAIL       0      HTTPSConnectionPool(host='thingproxy.freeboard.io', port=443): Max retries exceeded with url: /fetch/https://www.indeed.com/rss?q=network+engineer (Caused by NameResolutionError("HTTPSConnection(host='thingproxy.freeboard.io', port=443): Failed to resolve 'thingproxy.freeboard.io' ([Errno 11001] getaddrinfo failed)"))
+05g_CORSAnywhere                    FAIL       403    <form><p>This demo of CORS Anywhere should only be used for development purposes
+05h_ProxyCorsDev                    FAIL       0      HTTPSConnectionPool(host='proxy.cors.dev', port=443): Max retries exceeded with url: /fetch/https://www.indeed.com/rss?q=network+engineer (Caused by NameResolutionError("HTTPSConnection(host='proxy.cors.dev', port=443): Failed to resolve 'proxy.cors.dev' ([Errno 11001] getaddrinfo failed)"))
+06_Bing_SearchIndeedJobs            PASS       200    <!DOCTYPE html><html dir="ltr" lang="en" xml:lang="en" xmlns="http://www.w3.org/
+06b_Bing_HasResults                 PASS       200    Found relevant results
+11_BingCache                        FAIL       0      HTTPSConnectionPool(host='cc.bingj.com', port=443): Max retries exceeded with url: /cache.aspx?d=1&s=ZmluZC5pbmRlZWQuY29t&url=https://www.indeed.com/jobs?q=network+engineer (Caused by NameResolutionError("HTTPSConnection(host='cc.bingj.com', port=443): Failed to resolve 'cc.bingj.com' ([Errno 11001] getaddrinfo failed)"))
+07_Glassdoor_Direct                 FAIL       403    <!doctype html>
+<html lang="en">
+  <head>
+    <title>Security | Glassdoor</title
+07c_Glassdoor_JobsSearch            FAIL       403    <!doctype html>
+<html lang="en">
+  <head>
+    <title>Security | Glassdoor</title
+08_Dice_Direct                      PASS       200    <!DOCTYPE html><html lang="en" class="ibm_plex_sans_867ae13f-module__qQdYlW__var
+08b_Dice_ContentCheck               PASS       200    Has job content
+08c_Dice_HTMLSearch                 PASS       200    <!DOCTYPE html><html lang="en" class="ibm_plex_sans_867ae13f-module__qQdYlW__var
+09_Monster_Direct                   FAIL       403    {
+"error":"waf blocked - monster"
+}
+09c_Monster_RSS                     FAIL       403    {
+"error":"waf blocked - monster"
+}
+12_WaybackMachine                   FAIL       404    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Wayback Machine</title>
+   
+
+----------------------------------------------------------------------
+FAILED TESTS DETAIL:
+----------------------------------------------------------------------
+  [FAIL] 00_IndeedRSS_Direct_Baseline
+         HTTP 403
+
+  [FAIL] 00b_IndeedJobs_Direct_Baseline
+         HTTP 403
+
+  [FAIL] 02_RSSHub_Standard
+         HTTP 403
+
+  [FAIL] 03_RSSHub_PathStyle
+         HTTP 403
+
+  [FAIL] 03b_RSSHub_Glassdoor
+         HTTP 403
+
+  [FAIL] 01_GoogleWebCache_IndeedJobs
+         HTTP 429
+
+  [FAIL] 05_AllOrigins_CORSProxy
+         HTTP 522
+
+  [FAIL] 05c_AllOrigins_RawFormat
+         HTTP 522
+
+  [FAIL] 05d_AllOrigins_GetEndpoint
+         HTTP 522
+
+  [FAIL] 05e_CORSProxyDotIO
+         HTTP 403
+
+  [FAIL] 05f_ThingProxy
+         HTTP 0
+         Error: HTTPSConnectionPool(host='thingproxy.freeboard.io', port=443): Max retries exceeded with url: /fetch/https://www.indeed.com/rss?q=network+engineer (Caused by NameResolutionError("HTTPSConnection(host='thingproxy.freeboard.io', port=443): Failed to resolve 'thingproxy.freeboard.io' ([Errno 11001] getaddrinfo failed)"))
+
+  [FAIL] 05g_CORSAnywhere
+         HTTP 403
+
+  [FAIL] 05h_ProxyCorsDev
+         HTTP 0
+         Error: HTTPSConnectionPool(host='proxy.cors.dev', port=443): Max retries exceeded with url: /fetch/https://www.indeed.com/rss?q=network+engineer (Caused by NameResolutionError("HTTPSConnection(host='proxy.cors.dev', port=443): Failed to resolve 'proxy.cors.dev' ([Errno 11001] getaddrinfo failed)"))
+
+  [FAIL] 11_BingCache
+         HTTP 0
+         Error: HTTPSConnectionPool(host='cc.bingj.com', port=443): Max retries exceeded with url: /cache.aspx?d=1&s=ZmluZC5pbmRlZWQuY29t&url=https://www.indeed.com/jobs?q=network+engineer (Caused by NameResolutionError("HTTPSConnection(host='cc.bingj.com', port=443): Failed to resolve 'cc.bingj.com' ([Errno 11001] getaddrinfo failed)"))
+
+  [FAIL] 07_Glassdoor_Direct
+         HTTP 403
+
+  [FAIL] 07c_Glassdoor_JobsSearch
+         HTTP 403
+
+  [FAIL] 09_Monster_Direct
+         HTTP 403
+
+  [FAIL] 09c_Monster_RSS
+         HTTP 403
+
+  [FAIL] 12_WaybackMachine
+         HTTP 404

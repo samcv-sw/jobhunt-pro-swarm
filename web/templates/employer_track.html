@@ -1,17 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📊 Track Your Job — JobHunt Pro</title>
+
 <style>
 :root { --gold:#f59e0b; --purple:#8b5cf6; --pink:#ec4899; --dark:#0f0f23; --card:rgba(30,30,50,.6); --border:rgba(255,255,255,.08); --green:#22c55e; --red:#ef4444; }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--dark); color:#e2e8f0; min-height:100vh; }
-.layout { display:flex; min-height:100vh; }
-.main { flex:1; margin-left:240px; padding:20px 30px; max-width:1100px; }
 
 .hero { text-align:center; padding:35px 20px 25px; border-radius:20px; background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(236,72,153,.08)); border:1px solid rgba(139,92,246,.2); margin-bottom:25px; }
 .hero h1 { font-size:2em; background:linear-gradient(90deg,var(--gold),var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px; }
@@ -68,16 +58,12 @@ body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--dark); colo
 .copy-btn { font-size:.7em; padding:2px 8px; border-radius:5px; background:rgba(59,130,246,.2); color:#60a5fa; border:none; cursor:pointer; margin-left:6px; }
 
 @media (max-width:768px) {
-  .main { margin-left:0; padding:15px; }
   .job-card-header { flex-direction:column; }
   .detail-grid { grid-template-columns:1fr; }
 }
 </style>
-</head>
-<body class="cyberpunk-body">
-<div class="layout">
 
-
+<div style="max-width: 1200px; margin: 0 auto; padding: 30px;">
 <!-- HERO -->
 <div class="hero">
   <h1>📊 Track Your Job Postings</h1>
@@ -112,9 +98,6 @@ body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--dark); colo
 
 <!-- RESULTS -->
 <div id="resultsArea"></div>
-
-</div>
-</div>
 
 <!-- SCRIPTS -->
 <script>
@@ -408,6 +391,5 @@ function showMsg(text, color) {
     trackJobs();
   }
 })();
+</div>
 </script>
-</body>
-</html>

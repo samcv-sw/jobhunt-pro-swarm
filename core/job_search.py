@@ -12,6 +12,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional, Set, Callable, Any, Dict, Final, Tuple
 
 import httpx
+from core.stealth import stealth
 from bs4 import BeautifulSoup
 from pydantic import BaseModel, HttpUrl, Field
 
@@ -232,11 +233,7 @@ def generate_job_id(title: str, company: str, url: str) -> str:
     return hashlib.md5(raw.encode()).hexdigest()[:12]
 
 # ── 8. Global Connection Pooling ────────────────────────────────────────────
-_shared_client = httpx.AsyncClient(
-    timeout=httpx.Timeout(15.0, connect=5.0),
-    limits=httpx.Limits(max_keepalive_connections=20, max_connections=100),
-    follow_redirects=True
-)
+_shared_client = stealth.get_async_client(timeout=15.0)
 
 # ── 9. Abstract Base Scraper (Clean Architecture) ───────────────────────────
 class BaseJobScraper(ABC):
@@ -253,7 +250,7 @@ class LinkedInScraper(BaseJobScraper):
         url = f"https://www.linkedin.com/jobs/search/?keywords={search_q.replace(' ', '%20')}"
         
         proxy = get_random_proxy()
-        client = httpx.AsyncClient(proxies=proxy) if proxy else _shared_client
+        client = stealth.get_async_client() if proxy else _shared_client
 
         try:
             resp = await client.get(url, headers=get_dynamic_headers())
@@ -501,7 +498,10 @@ class MultiSourceSearch:
             from core.multi_source_scraper import (
                 BaytScraper, NaukriScraper, WuzzufScraper,
                 IndeedScraper, GoogleJobsScraper, LinkedInScraper,
-                GlassdoorScraper
+                GlassdoorScraper, WellfoundScraper, DiceScraper,
+                SeekScraper, StepStoneScraper, WWRScraper,
+                ZipRecruiterScraper, XingScraper, NaukriIndiaScraper,
+                JoobleScraper, UpworkScraper
             )
             self._scrapers = [
                 LinkedInScraper(),
@@ -511,6 +511,16 @@ class MultiSourceSearch:
                 WuzzufScraper(),
                 GoogleJobsScraper(),
                 GlassdoorScraper(),
+                WellfoundScraper(),
+                DiceScraper(),
+                SeekScraper(),
+                StepStoneScraper(),
+                WWRScraper(),
+                ZipRecruiterScraper(),
+                XingScraper(),
+                NaukriIndiaScraper(),
+                JoobleScraper(),
+                UpworkScraper(),
             ]
             # Add Indeed RSS scraper (never gets 403 since it uses XML feed)
             try:

@@ -54,16 +54,33 @@ class AITailor:
 
     # ── Public API ───────────────────────────────────────────────────────────
 
+    @staticmethod
+    def trim_cv_text(cv_text: str) -> str:
+        """Strips filler words and reduces token usage for AI processing."""
+        if not cv_text:
+            return ""
+        stop_words = {"a", "an", "the", "and", "or", "but", "if", "because", "as", "what",
+                      "when", "where", "how", "then", "so", "than", "is", "are", "was", "were",
+                      "be", "been", "being", "have", "has", "had", "do", "does", "did", "to",
+                      "from", "in", "out", "on", "off", "over", "under", "again", "further",
+                      "then", "once"}
+        words = cv_text.split()
+        trimmed = [w for w in words if w.lower() not in stop_words]
+        return " ".join(trimmed)
+
     async def score_job_relevance(self, title: str, description: str, company: str = "") -> dict:
         """Score job relevance 0-100 before applying. Returns {score, reasons, recommendation}."""
+        cv_text = self.get_dynamic_cv_context(title)
+        cv_text = self.trim_cv_text(cv_text)
+        
         prompt = f"""You are a job-matching AI. Score how well this candidate matches the job.
+Candidate CV summary:
+{cv_text[:3000]}
 
 CANDIDATE: {CANDIDATE_PROFILE['name']} — {CANDIDATE_PROFILE['title']}, {CANDIDATE_PROFILE['years']} years experience.
 Core skills: {', '.join(CANDIDATE_PROFILE['core_skills'])}
 Protocols: {', '.join(CANDIDATE_PROFILE['protocols'])}
 Automation: {', '.join(CANDIDATE_PROFILE['automation'])}
-Cloud: {', '.join(CANDIDATE_PROFILE['cloud'])}
-Certifications: {', '.join(CANDIDATE_PROFILE['certs'])}
 
 JOB: {title} at {company}
 Description: {description[:2000]}
@@ -113,18 +130,31 @@ COMPANY RESEARCH:
         elif language == "bilingual":
             lang_instruction = "\nWrite the cover letter in BOTH Arabic and English. Arabic version first, then English version below it, separated by a horizontal line."
 
+        # Dynamic RAG: Only send relevant CV chunks to save tokens and speed up generation
+        cv_subset = []
+        cv_subset.append(f"- Title: {CANDIDATE_PROFILE['title']}, {CANDIDATE_PROFILE['years']}+ years experience")
+        
+        job_lower = (title + " " + description).lower()
+        if any(k in job_lower for k in ['network', 'cisco', 'fortinet', 'juniper', 'router', 'switch', 'bgp']):
+            cv_subset.append(f"- Core expertise: {', '.join(CANDIDATE_PROFILE['core_skills'])}")
+            cv_subset.append(f"- Protocols: {', '.join(CANDIDATE_PROFILE['protocols'])}")
+        
+        if any(k in job_lower for k in ['security', 'firewall', 'ips', 'ids', 'zero trust']):
+            cv_subset.append(f"- Security: {', '.join(CANDIDATE_PROFILE['security'])}")
+            
+        if any(k in job_lower for k in ['cloud', 'aws', 'azure', 'gcp', 'vmware']):
+            cv_subset.append(f"- Cloud: {', '.join(CANDIDATE_PROFILE['cloud'])}")
+            
+        if any(k in job_lower for k in ['automation', 'python', 'ansible', 'terraform', 'scripting']):
+            cv_subset.append(f"- Automation: {', '.join(CANDIDATE_PROFILE['automation'])}")
+            
+        cv_subset.append(f"- Certifications: {', '.join(CANDIDATE_PROFILE['certs'])}")
+        cv_subset.append(f"- Key achievements: {'; '.join(CANDIDATE_PROFILE['highlights'][:2])}") # Only top 2 achievements
+
         prompt = f"""Write a highly personalized, professional cover letter for {CANDIDATE_PROFILE['name']} applying for {title} at {company}.
 
-CANDIDATE PROFILE:
-- Title: {CANDIDATE_PROFILE['title']}, {CANDIDATE_PROFILE['years']}+ years experience
-- Core expertise: {', '.join(CANDIDATE_PROFILE['core_skills'])}
-- Protocols: {', '.join(CANDIDATE_PROFILE['protocols'])}
-- Security: {', '.join(CANDIDATE_PROFILE['security'])}
-- Monitoring: {', '.join(CANDIDATE_PROFILE['monitoring'])}
-- Cloud: {', '.join(CANDIDATE_PROFILE['cloud'])}
-- Automation: {', '.join(CANDIDATE_PROFILE['automation'])}
-- Certifications: {', '.join(CANDIDATE_PROFILE['certs'])}
-- Key achievements: {'; '.join(CANDIDATE_PROFILE['highlights'])}
+CANDIDATE PROFILE (RAG Sub-selection):
+{chr(10).join(cv_subset)}
 
 JOB DESCRIPTION:
 {description[:2500]}

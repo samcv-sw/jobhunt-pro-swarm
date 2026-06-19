@@ -5,12 +5,16 @@ No QClaw/PC dependency. Works 24/7 on PA.
 v16.315: PA-aware fast mode — LinkedIn-only search, 200-word cover letters, no PDF.
 """
 import asyncio
+import json
 import logging
 import os
 import random
 import time
 import uuid
 import hashlib
+import httpx
+from urllib.parse import quote_plus
+from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +29,45 @@ def is_pythonanywhere() -> bool:
         'pythonanywhere' in os.environ.get('HOME', '').lower() or
         'pythonanywhere' in os.environ.get('HOSTNAME', '').lower()
     )
+
+
+# ── Smart Scraper Cache (saves ~40s per tick by reusing recent results) ──
+
+_CACHE_FILE = os.path.join(os.path.dirname(__file__), '..', '_search_cache.json')
+_CACHE_TTL = 7200  # 2 hours
+
+
+def _load_search_cache():
+    """Load cached jobs. Returns (timestamp, [jobs]) or (0, [])."""
+    try:
+        if os.path.exists(_CACHE_FILE):
+            with open(_CACHE_FILE, 'r') as f:
+                data = json.load(f)
+            return data.get("ts", 0), data.get("jobs", [])
+    except Exception:
+        pass
+    return 0, []
+
+
+def _save_search_cache(jobs, timestamp=None):
+    """Save jobs to cache file."""
+    try:
+        dirname = os.path.dirname(_CACHE_FILE)
+        if dirname and not os.path.exists(dirname):
+            os.makedirs(dirname, exist_ok=True)
+        with open(_CACHE_FILE, 'w') as f:
+            json.dump({"ts": timestamp or time.time(), "jobs": jobs}, f)
+    except Exception:
+        pass
+
+
+def _cached_jobs_valid(cached_ts, cached_jobs, already_sent_companies, min_needed=10):
+    """Check if cached jobs are fresh enough and have enough unseen results."""
+    age = time.time() - cached_ts
+    if age > _CACHE_TTL:
+        return False
+    unseen = [j for j in cached_jobs if j.get("company", "").lower() not in already_sent_companies]
+    return len(unseen) >= min_needed
 
 
 async def run_campaign(campaign_id: str, get_db_fn, config):
@@ -129,36 +172,9 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
         # ── PA Detection: fast mode for free-tier ──
         pa_mode = is_pythonanywhere()
         if pa_mode:
-            logger.info(f"[CampaignRunner] ⚡ PA MODE DETECTED — using fast search (LinkedIn-only, ~40s)")
+            logger.info(f"[CampaignRunner] ⚡ PA MODE DETECTED — MEGA search (LinkedIn XHR + Dice + Wuzzuf + Bayt)")
 
-        if pa_mode:
-            # FAST: LinkedIn-only via global_scraper.fast_search (~40s vs ~180s)
-            from core.global_scraper import GlobalJobScraper
-            gs = GlobalJobScraper()
-            try:
-                location_lower = job_location.lower()
-                country_key = "remote"
-                for ck in ("lebanon", "uae", "saudi", "qatar", "kuwait"):
-                    if ck in location_lower:
-                        country_key = ck
-                        break
-                jobs = await asyncio.to_thread(
-                    gs.fast_search, country_key, job_title,
-                    limit=campaign["total_companies"] * 3,
-                    max_search_secs=90
-                )
-            finally:
-                gs.close()
-            logger.info(f"[CampaignRunner] ⚡ Fast search returned {len(jobs)} jobs in ~40s")
-        else:
-            jobs = await asyncio.to_thread(
-                search.search_all_sources,
-                query=job_title,
-                location=job_location,
-                limit=campaign["total_companies"] * 3
-            )
-
-        # Load already-sent emails and companies for this campaign
+        # ── Load already-sent emails BEFORE scraper (needed for cache filtering) ──
         already_sent_emails = set()
         already_sent_companies = set()
         for row in conn.execute(
@@ -166,8 +182,179 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
             (campaign_id,)
         ).fetchall():
             already_sent_emails.add(row["email_address"].lower())
-            if row.get("company_name"):
-                already_sent_companies.add(row["company_name"].lower())
+            company = row["company_name"] if row["company_name"] else ""
+            if company:
+                already_sent_companies.add(company.lower())
+        
+        if pa_mode:
+            # Try cache first
+            cached_ts, cached_jobs = _load_search_cache()
+            if _cached_jobs_valid(cached_ts, cached_jobs, already_sent_companies, min_needed=15):
+                jobs = cached_jobs
+                logger.info(f"[CampaignRunner] 📦 Cache hit: {len(jobs)} jobs, {int(time.time()-cached_ts)}s old")
+            else:
+                # ⚡ MEGA SCRAPER: LinkedIn XHR + Dice + Wuzzuf + Bayt
+                # All PA-friendly (httpx-based, cloudscraper opt for Bayt)
+                all_jobs = []
+                seen = set()
+                seen_urls = set()
+                
+                _CITY_MAP = {
+                    "lebanon": "Beirut",
+                    "uae": "Dubai",
+                    "saudi": "Riyadh",
+                    "qatar": "Doha",
+                    "kuwait": "Kuwait",
+                }
+                _TITLES = [
+                    "network engineer",
+                    "network administrator",
+                    "network technician",
+                    "it support engineer",
+                    "system administrator",
+                    "network architect",
+                    "network security",
+                    "infrastructure engineer",
+                    "telecom engineer",
+                    "it manager",
+                ]
+                _XHR_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+                _XHR_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
+                
+                # ═══ SOURCE 1: LinkedIn XHR API (Paginated) ═══
+                # Limit to random 15 combinations to respect PA timeout
+                titles_to_use = list(_TITLES)
+                cities_to_use = list(_CITY_MAP.items())
+                if pa_mode:
+                    random.shuffle(titles_to_use)
+                    random.shuffle(cities_to_use)
+                    titles_to_use = titles_to_use[:2]
+                    cities_to_use = cities_to_use[:2]
+                
+                for title in titles_to_use:
+                    for country_key, city in cities_to_use:
+                        if len(all_jobs) >= 300:
+                            break
+                        # Paginate through results
+                        max_pages = 20 if pa_mode else 50
+                        for start_idx in range(0, max_pages, 10):
+                            if len(all_jobs) >= 300:
+                                break
+                            try:
+                                url = f"{_XHR_URL}?keywords={quote_plus(title)}&location={quote_plus(city)}&start={start_idx}&count=10"
+                                resp = await asyncio.to_thread(
+                                    lambda u=url: httpx.get(u, headers=_XHR_HEADERS, timeout=10)
+                                )
+                                if resp.status_code != 200:
+                                    await asyncio.sleep(0.1)
+                                    break # Stop paginating if rate limited or error
+                                soup = BeautifulSoup(resp.text, "html.parser")
+                                cards = soup.select("li")
+                                if not cards:
+                                    break # No more results
+                                
+                                added_in_page = 0
+                                for card in cards:
+                                    t_el = card.select_one(".base-search-card__title")
+                                    c_el = card.select_one(".base-search-card__subtitle")
+                                    l_el = card.select_one(".job-search-card__location")
+                                    a_el = card.select_one("a[href*=jobs]")
+                                    t = t_el.get_text(strip=True) if t_el else ""
+                                    comp = c_el.get_text(strip=True) if c_el else ""
+                                    loc = l_el.get_text(strip=True) if l_el else city
+                                    href = (a_el.get("href", "") if a_el else "").strip()
+                                    key = (comp.lower().strip(), t.lower().strip())
+                                    if t and comp and key not in seen:
+                                        seen.add(key)
+                                        added_in_page += 1
+                                        all_jobs.append({
+                                            "id": str(len(all_jobs)),
+                                            "title": t[:100],
+                                            "company": comp[:80],
+                                            "location": str(loc or city)[:60],
+                                            "source": "linkedin_xhr",
+                                            "url": href,
+                                        })
+                                await asyncio.sleep(0.2)
+                                if added_in_page == 0:
+                                    break # If all jobs on this page were already seen, move to next city
+                            except Exception:
+                                await asyncio.sleep(0.1)
+                                break
+                    if len(all_jobs) >= 300:
+                        break
+                
+                # ═══ SOURCE 2: Dice.com (via httpx, PA-friendly) ═══
+                try:
+                    from core.dice_scraper import search_dice_sync
+                    _dice = search_dice_sync(
+                        titles=["network+engineer", "network+administrator", "network+architect", "system+administrator", "it+support+engineer"],
+                        locations=["dubai", "abu-dhabi", "riyadh", "doha", "kuwait", "beirut"],
+                        rate_limit=0.5
+                    )
+                    for j in _dice:
+                        k = (j.get("company","").lower().strip(), j.get("title","").lower().strip())
+                        u = j.get("url","").strip()
+                        if k not in seen and u not in seen_urls:
+                            seen.add(k)
+                            if u: seen_urls.add(u)
+                            all_jobs.append(j)
+                    logger.info(f"[CampaignRunner] Dice: {len(_dice)} jobs")
+                except Exception as de:
+                    logger.info(f"[CampaignRunner] Dice skip: {de}")
+                
+                # ═══ SOURCE 3: Wuzzuf (via httpx, PA-friendly) ═══
+                try:
+                    from core.wuzzuf_scraper import search_wuzzuf_sync
+                    _wuzzuf = search_wuzzuf_sync(
+                        titles=["network+engineer", "network+administrator", "it+support+engineer", "system+administrator", "network+security"],
+                        locations=["uae", "saudi-arabia", "qatar", "kuwait", "lebanon"],
+                        rate_limit=0.5
+                    )
+                    for j in _wuzzuf:
+                        k = (j.get("company","").lower().strip(), j.get("title","").lower().strip())
+                        u = j.get("url","").strip()
+                        if k not in seen and u not in seen_urls:
+                            seen.add(k)
+                            if u: seen_urls.add(u)
+                            all_jobs.append(j)
+                    logger.info(f"[CampaignRunner] Wuzzuf: {len(_wuzzuf)} jobs")
+                except Exception as we:
+                    logger.info(f"[CampaignRunner] Wuzzuf skip: {we}")
+                
+                # ═══ SOURCE 4: Bayt from nodriver DB feed (uploaded by local collector) ═══
+                try:
+                    bayt_rows = conn.execute(
+                        "SELECT DISTINCT title, company, url, location, source FROM jobs WHERE source IN ('bayt', 'nodriver') AND status='new' ORDER BY created_at DESC LIMIT 100"
+                    ).fetchall()
+                    for row in bayt_rows:
+                        k = (row["company"].lower().strip(), row["title"].lower().strip())
+                        u = (row["url"] or "").strip()
+                        if k not in seen and u not in seen_urls:
+                            seen.add(k)
+                            if u: seen_urls.add(u)
+                            all_jobs.append({
+                                "id": str(len(all_jobs)),
+                                "title": row["title"],
+                                "company": row["company"],
+                                "location": row["location"] or "",
+                                "source": "bayt_feed",
+                                "url": row["url"],
+                            })
+                    logger.info(f"[CampaignRunner] Bayt DB feed: {len(bayt_rows)} jobs")
+                except Exception as be:
+                    logger.info(f"[CampaignRunner] Bayt DB skip: {be}")
+                
+                logger.info(f"[CampaignRunner] ⚡ MEGA: {len(all_jobs)} jobs (LI+Dice+Wuzzuf+Bayt)")
+                jobs = all_jobs
+                _save_search_cache(jobs)
+        else:
+            jobs = await asyncio.to_thread(
+                search.search_all_sources,
+                query=job_title,
+                location=job_location,
+                limit=campaign["total_companies"] * 3
+            )
         
         sent_count = len(already_sent_emails)
         failed_count = 0
@@ -178,9 +365,11 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
         jobs_available_this_cycle = len(jobs)
 
         if pa_mode:
-            # We can only safely process ~15-20 jobs in a 5-min PA worker window 
-            # considering EmailFinder + AI Tailor + 10s delay per email.
-            jobs = jobs[:25]
+            # v16.330: scraper cache saves 40s/tick, faster delays, more jobs per cycle
+            # LIMIT TO 15 to ensure enrichment and sending complete within the 250s PA limit
+            jobs = jobs[:15]
+
+        logger.info(f"[CampaignRunner] Scraping completed in {time.time() - start_time:.1f}s. Enqueueing {len(jobs)} jobs for enrichment.")
 
         # ── EmailFinder enrichment: replace placeholder emails with verified ones ──
         original_emails = {j.get("company", ""): j.get("email", "") for j in jobs}
@@ -192,6 +381,8 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
         except Exception as ef_err:
             logger.warning(f"[CampaignRunner] EmailFinder.enrich_jobs failed: {ef_err}")
 
+        logger.info(f"[CampaignRunner] Enrichment completed. Total time so far: {time.time() - start_time:.1f}s")
+
         enriched = sum(
             1 for j in jobs
             if j.get("email") and j.get("email") != original_emails.get(j.get("company", ""), "")
@@ -199,9 +390,10 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
         if enriched > 0:
             logger.info(f"[CampaignRunner] EmailFinder enriched {enriched} of {len(jobs)} jobs")
 
+        sent_this_cycle = 0
         for job in jobs:
-            if pa_mode and (time.time() - start_time) > 240:
-                logger.info(f"[CampaignRunner] ⏱️ PA Timeout approaching (240s)! Yielding to next cycle.")
+            if pa_mode and (time.time() - start_time) > 252:
+                logger.info(f"[CampaignRunner] ⏱️ PA Timeout approaching (240s)! Yielding to next cycle (Sent {sent_this_cycle} this cycle. Total: {sent_count}/{campaign['total_companies']}).")
                 conn.execute("UPDATE campaigns SET started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (campaign_id,))
                 conn.commit()
                 return {"status": "running", "campaign_id": campaign_id, "sent": sent_count, "failed": failed_count, "message": "Chunk completed"}
@@ -252,7 +444,7 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
                     cover_html = CoverLetterWriter.write_html(company, title, user_details)
 
             # Send with BanShield delay
-            if get_provider_delay:
+            if get_provider_delay and not pa_mode:
                 provider = "gmail" if "gmail" in str(config.EMAIL_PROVIDERS[0].get("server","")) else "gmail"
                 await asyncio.to_thread(get_provider_delay, provider)
 
@@ -266,8 +458,6 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
                     user_details["tailored_cv"] = f"Tailored for {title}:\n\n" + user_details["cv_text"]
                 except Exception:
                     pass
-            elif pa_mode:
-                cv_path = None
                 
             # ── 4. THE GLOBAL GOD MODE SUITE ──
             if "god-mode" in unlocked_weapons:
@@ -335,11 +525,22 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
                     VALUES (?, ?, ?, ?, 'sent', ?, CURRENT_TIMESTAMP, ?)
                 """, (campaign_id, company, title, email_addr, tracking_id, msg_id))
                 sent_count += 1
+                sent_this_cycle += 1
+                already_sent_emails.add(email_addr.lower())
+                already_sent_companies.add(company.lower())
                 conn.execute(
                     "UPDATE campaigns SET sent_count=? WHERE campaign_id=?",
                     (sent_count, campaign_id)
                 )
                 conn.commit()
+                # Also recalc from real table to catch any missed updates
+                real = conn.execute(
+                    "SELECT COUNT(*) FROM campaign_emails WHERE campaign_id=? AND status='sent'",
+                    (campaign_id,)
+                ).fetchone()[0]
+                if real != sent_count:
+                    conn.execute("UPDATE campaigns SET sent_count=? WHERE campaign_id=?", (real, campaign_id))
+                    conn.commit()
                 logger.info(f"[CampaignRunner] Sent {sent_count}/{campaign['total_companies']}: {company} | {title}")
 
                 # ── Telegram Alert: Email Sent (every 10th) ──
@@ -355,9 +556,9 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
                 failed_count += 1
                 logger.warning(f"[CampaignRunner] Failed: {company} | {result}")
 
-            # PA-optimized pacing: faster on PA (5-10s), normal on local (8-15s)
+            # PA-optimized pacing: v16.330 aggressive but safe (2-5s), normal on local (8-15s)
             if pa_mode:
-                delay = random.uniform(5, 10)
+                delay = random.uniform(2, 5)
             else:
                 delay = random.uniform(8, 15)
             await asyncio.sleep(delay)
@@ -412,6 +613,18 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
             pass
 
         return {"status": "ok", "campaign_id": campaign_id, "sent": sent_count, "failed": failed_count}
+
+    except asyncio.CancelledError:
+        logger.info(f"[CampaignRunner] ⏱️ Campaign {campaign_id} cancelled (tick timeout), saving progress")
+        try:
+            conn.execute(
+                "UPDATE campaigns SET status='pending' WHERE campaign_id=?",
+                (campaign_id,)
+            )
+            conn.commit()
+        except Exception:
+            pass
+        return {"status": "timeout", "campaign_id": campaign_id, "sent": sent_count}
 
     except Exception as e:
         logger.error(f"[CampaignRunner] ❌ Campaign {campaign_id} failed: {e}")

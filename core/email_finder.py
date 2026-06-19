@@ -1083,7 +1083,7 @@ class EmailFinder:
                     # v16.321: In fast mode, only replace placeholder if we found REAL emails
                     # (google_dork or website_scrape or smtp_verified).
                     # Pattern guesses are the same quality as the original placeholder.
-                    if fast and source == "pattern_guess":
+                    if fast and source == "pattern_guess" and job.get("email"):
                         # Keep original placeholder — it's as good as our pattern guess
                         logger.debug(f"[EmailFinder] Keeping placeholder for {company} (fast pattern_guess)")
                         continue

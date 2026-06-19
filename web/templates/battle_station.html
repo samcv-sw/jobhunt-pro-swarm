@@ -161,10 +161,26 @@
            </div>
          </div>
          <div class="bs-prog-wrap">
-           <div class="bs-prog-info">
-             <span>Progress</span>
-             <span>{{ '%.0f'|format(progress) }}%</span>
-           </div>
+            <div class="bs-prog-info">
+              <span>Progress
+                {% if status in ['running', 'pending'] %}
+                  {% set remaining = total - sent %}
+                  {% if remaining > 0 %}
+                    {% set eta_minutes = remaining * 2 %}
+                    {% if eta_minutes < 60 %}
+                      · Time Left: ~{{ eta_minutes }} mins
+                    {% else %}
+                      · Time Left: ~{{ (eta_minutes / 60)|round(1) }} hours
+                    {% endif %}
+                  {% else %}
+                    · Time Left: Calculating...
+                  {% endif %}
+                {% elif status == 'completed' %}
+                  · Done
+                {% endif %}
+              </span>
+              <span>{{ '%.0f'|format(progress) }}%</span>
+            </div>
            <div class="bs-prog-bar">
              <div class="bs-prog-fill{% if progress >= 100 %} done{% endif %}" style="width:{{ progress }}%"></div>
            </div>
@@ -272,6 +288,31 @@ function bsShowToast(msg, type) {
   t.className = 'toast show' + (type === 'error' ? ' error' : type === 'info' ? ' info' : '');
   setTimeout(function() { t.classList.remove('show'); }, 3500);
 }
-function bsStartAll() { bsShowToast('Start All feature coming soon! Use individual campaign War Rooms.'); }
-function bsStopAll() { bsShowToast('Stop All feature coming soon! Use individual campaign War Rooms.'); }
+function bsStartAll() {
+  bsShowToast('Starting all campaigns...', 'info');
+  fetch('/api/campaign/start-all', { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if(data.success) {
+        bsShowToast('✅ ' + data.message);
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        bsShowToast('❌ Error: ' + data.error, 'error');
+      }
+    }).catch(e => bsShowToast('❌ Network error', 'error'));
+}
+
+function bsStopAll() {
+  bsShowToast('Pausing all campaigns...', 'info');
+  fetch('/api/campaign/stop-all', { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if(data.success) {
+        bsShowToast('✅ ' + data.message);
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        bsShowToast('❌ Error: ' + data.error, 'error');
+      }
+    }).catch(e => bsShowToast('❌ Network error', 'error'));
+}
 </script>
