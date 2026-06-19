@@ -1,0 +1,20 @@
+# JobHunt Pro — wrangler.toml
+# Cloudflare Workers + D1 + Pages configuration
+# Deploy: `npx wrangler deploy`
+
+name = "jobhunt-pro-router"
+main = "worker.js"
+compatibility_date = "2026-06-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ── D1 Database Binding ──
+[[d1_databases]]
+binding = "DB"              # Available as env.DB in worker
+database_name = "jobhunt-pro-db"
+database_id = "c477bda2-1ca3-400c-ba1a-a85716b63274"
+
+# ── Variables ──
+[vars]
+PA_BASE = "https://jhfguf.pythonanywhere.com"
+PA_TOKEN = ""               # Set via `npx wrangler secret put PA_TOKEN`
+ENVIRONMENT = "production"

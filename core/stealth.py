@@ -10,6 +10,13 @@ import re
 from typing import Dict, List, Optional
 import logging
 
+try:
+    from curl_cffi import requests as cffi_requests
+    HAS_CFFI = True
+except ImportError:
+    import httpx
+    HAS_CFFI = False
+
 logger = logging.getLogger(__name__)
 
 
@@ -23,28 +30,50 @@ class StealthScraper:
         self.fingerprints = self._generate_fingerprints()
     
     def _load_user_agents(self) -> List[str]:
-        """Real browser fingerprints from around the world"""
+        """Real browser fingerprints from around the world + Googlebot"""
         return [
             # Chrome Windows
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
             
             # Safari Mac
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
             
             # Firefox Windows
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0",
             
             # Edge
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0",
             
+            # ====== MOBILE UAs (bypass desktop detection) ======
             # Mobile iPhone
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1",
-            
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1",
             # Mobile Android
-            "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.144 Mobile Safari/537.36",
+            "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.165 Mobile Safari/537.36",
+            "Mozilla/5.0 (Linux; Android 14; Samsung Galaxy S24) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.165 Mobile Safari/537.36",
+            "Mozilla/5.0 (Linux; Android 13; OnePlus 11) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.179 Mobile Safari/537.36",
+            "Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.113 Mobile Safari/537.36",
+            # Mobile iPad
+            "Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
+            
+            # ====== GOOGLEBOT UAs (highest trust, 0% block) ======
+            "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+            "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Chrome/125.0.6422.168 Safari/537.36",
+            "Googlebot-Image/1.0",
+            
+            # ====== BINGBOT ======
+            "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)",
+            
+            # ====== CHINESE SEARCH ENGINES (trusted by .lb sites) ======
+            "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)",
+            "Sogou web spider/4.0(+http://www.sogou.com/docs/help/webmaster.htm)",
         ]
     
     def _generate_fingerprints(self) -> List[Dict]:
@@ -77,19 +106,28 @@ class StealthScraper:
         """Get a random user agent"""
         return random.choice(self.user_agents)
     
+    def get_mobile_user_agent(self) -> str:
+        """Get only mobile user agents for 403 bypass"""
+        mobile_agents = [ua for ua in self.user_agents if 'Mobile' in ua or 'iPhone' in ua or 'iPad' in ua]
+        return random.choice(mobile_agents) if mobile_agents else self.get_random_user_agent()
+    
+    def get_googlebot_user_agent(self) -> str:
+        """Get Googlebot user agent (highest trust)"""
+        return random.choice([ua for ua in self.user_agents if 'Googlebot' in ua or 'bingbot' in ua or 'Baiduspider' in ua] or self.user_agents)
+    
     def get_random_fingerprint(self) -> Dict:
         """Get a random browser fingerprint"""
         return random.choice(self.fingerprints)
     
-    def get_headers(self) -> Dict[str, str]:
-        """Get realistic browser headers"""
+    def get_headers(self, mobile: bool = False, googlebot: bool = False) -> Dict[str, str]:
+        """Get realistic browser headers. Use mobile=True for 403 bypass."""
         fingerprint = self.get_random_fingerprint()
+        ua = self.get_googlebot_user_agent() if googlebot else (self.get_mobile_user_agent() if mobile else self.get_random_user_agent())
         
         headers = {
-            "User-Agent": self.get_random_user_agent(),
+            "User-Agent": ua,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Language": "en-US,en;q=0.9,ar;q=0.8" if not googlebot else "en-US,en;q=0.9",
             "DNT": "1",
             "Connection": "keep-alive",
             "Upgrade-Insecure-Requests": "1",
@@ -135,6 +173,27 @@ class StealthScraper:
         data = f"{time.time()}{random.random()}"
         return hashlib.md5(data.encode()).hexdigest()[:16]
 
+    def get_async_client(self, timeout: float = 30.0, follow_redirects: bool = True):
+        """
+        [NEW TIER 1 STEALTH] Returns an AsyncSession that natively spoofs TLS and HTTP/2.
+        If curl_cffi is missing, it falls back to httpx (not recommended).
+        """
+        if HAS_CFFI:
+            # impersonate="chrome120" handles JA3/TLS and HTTP/2 headers natively!
+            return cffi_requests.AsyncSession(impersonate="chrome120", timeout=timeout)
+        else:
+            logger.warning("[STEALTH] curl_cffi is missing! Falling back to raw httpx. Cloudflare may block you.")
+            import httpx
+            return httpx.AsyncClient(timeout=timeout, follow_redirects=follow_redirects)
+
+    def get_sync_client(self, timeout: float = 30.0, follow_redirects: bool = True):
+        """Synchronous version of Tier 1 stealth client."""
+        if HAS_CFFI:
+            return cffi_requests.Session(impersonate="chrome120", timeout=timeout)
+        else:
+            import httpx
+            return httpx.Client(timeout=timeout, follow_redirects=follow_redirects)
+
     def get_canvas_spoofing_script(self) -> str:
         """[RUSSIAN STEALTH] Injectable JS to spoof Canvas fingerprint"""
         noise = random.randint(1, 5)
@@ -169,6 +228,84 @@ class StealthScraper:
         }};
         """
 
+        # ═══════════════════════════════════════════════════════════════════════════
+    # 403 RETRY WITH MOBILE/GOOGLEBOT UA (TIER 6 STEALTH)
+    # ═══════════════════════════════════════════════════════════════════════════
+    
+    async def smart_fetch(self, url: str, timeout: float = 30.0) -> Optional[str]:
+        """
+        Fetch URL with automatic 403 retry using mobile → Googlebot fallback.
+        Strategy: Try desktop → mobile → Googlebot → Google Cache.
+        """
+        strategies = [
+            ('desktop', False, False),
+            ('mobile', True, False),
+            ('googlebot', False, True),
+        ]
+        
+        for name, mobile, googlebot in strategies:
+            try:
+                logger.info(f"[STEALTH] Trying {name} UA for {url}")
+                resp = await self._fetch_with_headers(url, mobile=mobile, googlebot=googlebot, timeout=timeout)
+                import asyncio
+                await asyncio.sleep(random.uniform(0.5, 1.5))
+                
+                if resp and len(resp) > 500:
+                    logger.info(f"[STEALTH] {name} UA succeeded ({len(resp)} bytes)")
+                    return resp
+                elif resp:
+                    logger.warning(f"[STEALTH] {name} UA: response too short ({len(resp)} bytes), trying next")
+            except Exception as e:
+                logger.warning(f"[STEALTH] {name} UA failed: {e}")
+                continue
+        
+        # Last resort: Google Cache
+        logger.info(f"[STEALTH] All UA strategies failed, trying Google Cache for {url}")
+        return await self.fetch_google_cache(url, timeout)
+    
+    async def _fetch_with_headers(self, url: str, mobile: bool = False, googlebot: bool = False, timeout: float = 30.0) -> Optional[str]:
+        """Internal fetch with specific UA profile."""
+        import httpx
+        headers = self.get_headers(mobile=mobile, googlebot=googlebot)
+        
+        # Extra security headers for Googlebot
+        if googlebot:
+            headers['X-Forwarded-For'] = '66.249.66.1'  # Google IP range
+            headers['Via'] = '1.1 google'
+        
+        async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+            # Add jitter (random delay 0.3-1.2s)
+            import asyncio
+            await asyncio.sleep(random.uniform(0.3, 1.2))
+            resp = await client.get(url, headers=headers)
+            
+            if resp.status_code == 200 and len(resp.text) > 500:
+                return resp.text
+            elif resp.status_code == 403:
+                logger.info(f"[STEALTH] 403 on {url} with {mobile=} {googlebot=}")
+                return None
+            else:
+                logger.info(f"[STEALTH] {resp.status_code} on {url}")
+                return None
+    
+    async def fetch_google_cache(self, url: str, timeout: float = 30.0) -> Optional[str]:
+        """Fetch page from Google Cache (bypasses Cloudflare entirely)."""
+        import httpx
+        cache_url = f"https://webcache.googleusercontent.com/search?q=cache:{url}"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        }
+        try:
+            async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+                resp = await client.get(cache_url, headers=headers)
+                if resp.status_code == 200 and len(resp.text) > 1000:
+                    logger.info(f"[STEALTH] Google Cache success for {url}")
+                    return resp.text
+        except Exception as e:
+            logger.warning(f"[STEALTH] Google Cache failed for {url}: {e}")
+        return None
+    
     # ── PORTED FROM CHRONOS ──────────────────────────────────────────────────
 
     def bypass_cloudflare(self) -> Dict[str, str]:
@@ -177,7 +314,6 @@ class StealthScraper:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "en-US,en;q=0.5",
-            "Accept-Encoding": "gzip, deflate, br",
             "Connection": "keep-alive",
             "Upgrade-Insecure-Requests": "1",
             "Sec-Fetch-Dest": "document",
@@ -281,6 +417,60 @@ class AntiDetectionTricks:
                 logger.warning("Honeypot detected on page")
                 return True
         return False
+
+
+class NodriverFallback:
+    """
+    [TIER 2 STEALTH] Browser Automation Fallback.
+    Used when curl_cffi hits a strong challenge (like Turnstile).
+    """
+    @staticmethod
+    async def get_page_content(url: str, timeout_seconds: int = 20) -> str:
+        try:
+            import nodriver as uc
+            import asyncio
+            # On some environments headless=True may be detected, but usually Nodriver handles it well
+            browser = await uc.start(headless=True)
+            page = await browser.get(url)
+            await asyncio.sleep(5)  # Wait for Cloudflare/JS
+            html = await page.get_content()
+            browser.stop()
+            return html
+        except Exception as e:
+            logger.error(f"[Nodriver] Fallback failed for {url}: {e}")
+            return ""
+
+
+class ApexCamoufoxFallback:
+    """
+    [THE APEX TIER 3 STEALTH] C++ Engine-Level Firefox Modification.
+    Completely replaces Nodriver when maximum stealth is needed.
+    """
+    @staticmethod
+    async def get_page_content(url: str, proxy: str = None) -> str:
+        try:
+            from camoufox.async_api import AsyncCamoufox
+            import asyncio
+            from core.human_mouse import HumanMouse
+            
+            # Using Camoufox which intercepts and overrides WebGL/Canvas natively
+            async with AsyncCamoufox(headless=True, proxy=proxy) as browser:
+                page = await browser.new_page()
+                await page.goto(url)
+                
+                # Simulate human interaction before extraction
+                # Move from an arbitrary start point to an arbitrary center point
+                await HumanMouse.simulate_mouse_movement(page, 10, 10, 500, 400)
+                
+                await asyncio.sleep(4)  # Allow Datadome to track the mouse movement
+                html = await page.content()
+                return html
+        except ImportError:
+            logger.error("[Apex] Camoufox not installed. Please pip install camoufox")
+            return ""
+        except Exception as e:
+            logger.error(f"[Apex] Camoufox Fallback failed for {url}: {e}")
+            return ""
 
 
 # Global instance

@@ -1,0 +1,118 @@
+name: JobHunt Pro — Matrix Compute Workers
+on:
+  workflow_dispatch:
+    inputs:
+      campaign_id:
+        description: 'Campaign ID to process'
+        required: false
+        default: 'auto'
+      user_id:
+        description: 'User ID (optional)'
+        required: false
+        default: 'all'
+      mode:
+        description: 'Mode: scrape | apply | email | analyze'
+        required: true
+        default: 'scrape'
+  schedule:
+    # Runs 8 times daily — distributed scraping
+    - cron: '0 */3 * * *'
+
+jobs:
+  # ── Job 1: Parallel Web Scraping (Matrix: 5 platforms × 10 pages) ──
+  scrape_matrix:
+    name: Scrape ${{ matrix.platform }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        platform: [linkedin, indeed, bayt, glassdoor, wuzzuf, naukrigulf, dice, google]
+        page: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Scrape ${{ matrix.platform }} page ${{ matrix.page }}
+        env:
+          PA_TOKEN: ${{ secrets.PA_API_TOKEN }}
+          PA_BASE: 'https://jhfguf.pythonanywhere.com'
+        run: |
+          python -c "
+import requests, json, sys
+# Fetch scraped jobs from PA
+url = f'${{ env.PA_BASE }}/api/scrape/${{ matrix.platform }}?page=${{ matrix.page }}'
+try:
+    r = requests.get(url, headers={'Authorization': f'Token ${{ env.PA_TOKEN }}'}, timeout=30)
+    if r.status_code == 200:
+        print(f'OK: ${{ matrix.platform }} p${{ matrix.page }} — {len(r.text)}b')
+        # Upload results back
+        if r.text and len(r.text) > 100:
+            requests.post(f'${{ env.PA_BASE }}/api/store-scraped', 
+                json={'platform': '${{ matrix.platform }}', 'page': ${{ matrix.page }}, 'data': r.json()},
+                headers={'Authorization': f'Token ${{ env.PA_TOKEN }}'}, timeout=30)
+    else:
+        print(f'SKIP: ${{ matrix.platform }} p${{ matrix.page }} — {r.status_code}')
+except Exception as e:
+    print(f'ERR: {e}')
+"
+
+  # ── Job 2: Batch Email Sending ──
+  email_worker:
+    name: Email Batch
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # Bypasses PA 300s limit!
+    needs: [scrape_matrix]
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'email' }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install httpx aiosmtplib
+
+      - name: Send batch emails
+        env:
+          PA_TOKEN: ${{ secrets.PA_API_TOKEN }}
+          PA_BASE: 'https://jhfguf.pythonanywhere.com'
+          CAMPAIGN_ID: ${{ inputs.campaign_id || 'auto' }}
+        run: |
+          python -c "
+import requests, json, time
+
+# PA gives us 100 pending emails → we send them here (unlimited time)
+pa = '${{ env.PA_BASE }}'
+h = {'Authorization': f'Token ${{ env.PA_TOKEN }}'}
+campaign = '${{ env.CAMPAIGN_ID }}'
+
+# Get pending emails
+r = requests.get(f'{pa}/api/emails/pending?campaign={campaign}&limit=200', headers=h, timeout=30)
+if r.status_code != 200:
+    print(f'No pending emails: {r.status_code}')
+    sys.exit(0)
+
+pending = r.json().get('emails', [])
+print(f'Processing {len(pending)} emails on GH Actions (no PA timeout!)')
+
+success = 0
+for email in pending:
+    try:
+        # Send via HTTP/SMTP — PA handles this slower, we do it faster
+        resp = requests.post(f'{pa}/api/emails/send-one', 
+            json={'id': email['id']},
+            headers=h, timeout=30)
+        if resp.status_code == 200:
+            success += 1
+        time.sleep(0.5)  # Throttle to avoid bans
+    except:
+        pass
+
+print(f'Sent {success}/{len(pending)} emails')
+"

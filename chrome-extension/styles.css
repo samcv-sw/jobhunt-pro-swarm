@@ -1,0 +1,14 @@
+/* JobHunt Pro v2.0 — Minimal styles for injected UI */
+#jh-pro-floating-btn, #jh-pro-bulk-btn, #jh-pro-progress, #jh-pro-connector,
+#jh-pro-toast, #jh-pro-quick-menu, #jh-pro-tease-modal, #jh-pro-quick-menu > div {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+#jh-pro-progress, #jh-pro-connector {
+  animation: jhPulse 2s ease-in-out infinite;
+}
+
+@keyframes jhPulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(0,240,255,0.3); }
+  50% { box-shadow: 0 0 15px rgba(0,240,255,0.6); }
+}

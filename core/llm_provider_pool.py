@@ -25,6 +25,9 @@ class LLMProvider(Enum):
     GEMINI = "gemini"
     HUGGINGFACE = "huggingface"
     OPENROUTER = "openrouter"
+    DEEPINFRA = "deepinfra"
+    TOGETHER = "together"
+    FIREWORKS = "fireworks"
     DUMMY = "dummy"
 
 @dataclass
@@ -46,15 +49,18 @@ class ProviderConfig:
 
 
 PROVIDER_CONFIGS = [
+    # ═══ GROQ (free, 14 keys rotation) ═══
     ProviderConfig(
         name=LLMProvider.GROQ,
         api_key_env="GROQ_API_KEY",
         base_url="https://api.groq.com/openai/v1/chat/completions",
-        models=["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
+        models=["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768", "gemma2-9b-it", "deepseek-r1-distill-llama-70b"],
         rate_limit_rpm=30,
         weight=3,
         daily_limit=14400,
     ),
+    
+    # ═══ GEMINI (free) ═══
     ProviderConfig(
         name=LLMProvider.GEMINI,
         api_key_env="GEMINI_API_KEY",
@@ -64,6 +70,8 @@ PROVIDER_CONFIGS = [
         weight=10,
         daily_limit=1500,
     ),
+    
+    # ═══ HUGGINGFACE (free inference API) ═══
     ProviderConfig(
         name=LLMProvider.HUGGINGFACE,
         api_key_env="HUGGINGFACE_API_KEY",
@@ -73,22 +81,65 @@ PROVIDER_CONFIGS = [
         weight=1,
         daily_limit=1000,
     ),
+    
+    # ═══ OPENROUTER (free + community models) ═══
     ProviderConfig(
         name=LLMProvider.OPENROUTER,
         api_key_env="OPENROUTER_API_KEY",
         base_url="https://openrouter.ai/api/v1/chat/completions",
-        models=["google/gemini-2.0-flash-exp:free", "meta-llama/llama-3.2-3b-instruct:free"],
-        rate_limit_rpm=20,
+        models=[
+            "google/gemini-2.0-flash-exp:free",
+            "meta-llama/llama-3.2-3b-instruct:free",
+            "deepseek/deepseek-r1:free",
+            "mistralai/mistral-7b-instruct:free",
+            "qwen/qwen-2.5-72b-instruct:free",
+        ],
+        rate_limit_rpm=30,
         weight=2,
         daily_limit=0,
     ),
+    
+    # ═══ DEEPINFRA (free tier — signup at deepinfra.com) ═══
+    ProviderConfig(
+        name=LLMProvider.DEEPINFRA,
+        api_key_env="DEEPINFRA_API_KEY",
+        base_url="https://api.deepinfra.com/v1/openai/chat/completions",
+        models=["meta-llama/Meta-Llama-3.1-70B-Instruct", "mistralai/Mistral-7B-Instruct-v0.3", "google/gemma-2-9b-it"],
+        rate_limit_rpm=30,
+        weight=2,
+        daily_limit=0,
+    ),
+    
+    # ═══ TOGETHER AI (free $1 credit, generous rate limits) ═══
+    ProviderConfig(
+        name=LLMProvider.TOGETHER,
+        api_key_env="TOGETHER_API_KEY",
+        base_url="https://api.together.xyz/v1/chat/completions",
+        models=["meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo", "mistralai/Mixtral-8x22B-Instruct-v0.1", "deepseek-ai/deepseek-llm-67b-chat"],
+        rate_limit_rpm=60,
+        weight=2,
+        daily_limit=0,
+    ),
+    
+    # ═══ FIREWORKS AI (free tier) ═══
+    ProviderConfig(
+        name=LLMProvider.FIREWORKS,
+        api_key_env="FIREWORKS_API_KEY",
+        base_url="https://api.fireworks.ai/inference/v1/chat/completions",
+        models=["accounts/fireworks/models/llama-v3p1-70b-instruct", "accounts/fireworks/models/mixtral-8x22b-instruct"],
+        rate_limit_rpm=30,
+        weight=2,
+        daily_limit=0,
+    ),
+    
+    # ═══ DUMMY (for testing) ═══
     ProviderConfig(
         name=LLMProvider.DUMMY,
         api_key_env="",
         base_url="",
         models=["dummy"],
         rate_limit_rpm=1000,
-        weight=-1, # Lowest priority
+        weight=-1,  # Lowest priority
         daily_limit=0,
     ),
 ]

@@ -347,6 +347,18 @@ async def _campaign_self_tick_loop():
                 for _row in _stuck_res:
                     _conn.execute("UPDATE campaigns SET status='failed', completed_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (_row["campaign_id"],))
                 
+                # RETRY failed campaigns every 4 hours (in case scrapers were temporarily blocked)
+                _retry_res = _conn.execute("""
+                    SELECT campaign_id FROM campaigns 
+                    WHERE status='failed' 
+                    AND completed_at IS NOT NULL 
+                    AND datetime(completed_at, '+4 hours') < datetime('now')
+                    AND total_jobs = 0
+                """).fetchall()
+                for _row in _retry_res:
+                    _conn.execute("UPDATE campaigns SET status='pending', completed_at=NULL, started_at=NULL WHERE campaign_id=?", (_row["campaign_id"],))
+                    logger.info(f"[CLOUD-TICK] Auto-retrying failed campaign {_row['campaign_id']} (was 0 jobs)")
+                
                 _conn.commit()
                 _conn.close()
                 return _pending_res, _zombie_res, _stuck_res
@@ -2422,6 +2434,12 @@ def _build_dashboard_shell(user, user_id, content_html, title, active_page):
         <div class="nav-divider"></div>
         <a href="/battle-station"{ac("battle-station")}><span class="nav-icon">⚔️</span>Battle Station</a>
         <a href="/services"{ac("services")}><span class="nav-icon">⭐</span>Premium Services</a>
+        <div class="nav-divider"></div>
+        <a href="/for-employers"{ac("employers")} style="color:#f59e0b;"><span class="nav-icon">🏢</span>For Employers</a>
+        <div style="padding-left:10px;margin:4px 0 10px;">
+            <a href="/for-employers" style="font-size:0.85em;display:block;padding:4px 10px;color:#fbbf24;border-left:2px solid #f59e0b40;white-space:nowrap;"><span class="nav-icon">📝</span>Post a Job</a>
+            <a href="/employer/track"{ac("employer-track")} style="font-size:0.85em;display:block;padding:4px 10px;color:#60a5fa;border-left:2px solid #3b82f640;white-space:nowrap;"><span class="nav-icon">📊</span>Track My Jobs</a>
+        </div>
         <a href="/pricing"{ac("pricing")}><span class="nav-icon">💎</span>Pricing</a>
         <a href="/wallet"{ac("wallet")}><span class="nav-icon">💰</span>Wallet</a>
         <div class="nav-divider"></div>
@@ -3051,10 +3069,11 @@ def google_login():
         "https://www.googleapis.com/auth/gmail.send"
     ]
     scope_str = " ".join(scopes)
+    import urllib.parse
     auth_url = (
         "https://accounts.google.com/o/oauth2/v2/auth?"
         f"client_id={GOOGLE_CLIENT_ID}&"
-        f"redirect_uri={GOOGLE_REDIRECT_URI}&"
+        f"redirect_uri={urllib.parse.quote(GOOGLE_REDIRECT_URI)}&"
         "response_type=code&"
         f"scope={scope_str}&"
         "access_type=offline&"
@@ -3179,11 +3198,11 @@ def microsoft_login():
         "https://graph.microsoft.com/User.Read"
     ]
     scope_str = " ".join(scopes)
-    # Using replace instead of urllib to avoid missing import error
+    import urllib.parse
     auth_url = (
         "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?"
         f"client_id={MICROSOFT_CLIENT_ID}&"
-        f"redirect_uri={MICROSOFT_REDIRECT_URI}&"
+        f"redirect_uri={urllib.parse.quote(MICROSOFT_REDIRECT_URI)}&"
         "response_type=code&"
         f"scope={scope_str.replace(' ', '%20')}&"
         "prompt=select_account"
@@ -5740,6 +5759,38 @@ def api_retry_campaign(request: Request, campaign_id: str):
     return {"message": f"Campaign {campaign_id} queued for retry", "redirect": f"/campaign/{campaign_id}"}
 
 
+@app.post("/api/campaign/start-all")
+def api_start_all_campaigns(request: Request):
+    """Resume all paused or failed campaigns."""
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return {"error": "Not authenticated"}
+    conn = get_db()
+    count = conn.execute(
+        "UPDATE campaigns SET status = 'pending' WHERE user_id = ? AND status IN ('paused', 'failed')",
+        (user_id,)
+    ).rowcount
+    conn.commit()
+    conn.close()
+    return {"success": True, "message": f"Started {count} campaigns"}
+
+
+@app.post("/api/campaign/stop-all")
+def api_stop_all_campaigns(request: Request):
+    """Pause all running or pending campaigns."""
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return {"error": "Not authenticated"}
+    conn = get_db()
+    count = conn.execute(
+        "UPDATE campaigns SET status = 'paused' WHERE user_id = ? AND status IN ('running', 'pending')",
+        (user_id,)
+    ).rowcount
+    conn.commit()
+    conn.close()
+    return {"success": True, "message": f"Paused {count} campaigns"}
+
+
 # â&#x201D;€â&#x201D;€â&#x201D;€ API Key Auth (shared) â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 def _verify_api_key(api_key: str):
     """Verify an API key and return user dict or None."""
@@ -6992,7 +7043,16 @@ This is not a template. This is not an exercise. This is {name}'s ACTUAL applica
 
 @app.get("/for-employers", response_class=HTMLResponse)
 def for_employers_page(request: Request):
-    """Public page — companies post jobs without login."""
+    user_id = get_verified_user_id(request)
+    if user_id:
+        # Authenticated users get the dashboard-wrapped version
+        conn = get_db()
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        conn.close()
+        user = dict(user_row) if user_row else {}
+        content = render_template("for_employers.html", user=user, active_page="employers")
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "For Employers", "employers"))
+    # Public view
     content = render_template("for_employers.html", request=request, active_page="employers", user=None)
     return HTMLResponse(_public_shell(content, "For Employers &mdash; JobHunt Pro"))
 
@@ -7192,11 +7252,17 @@ def api_employer_list_jobs():
 @app.get("/employer/track", response_class=HTMLResponse)
 def employer_track_page(request: Request):
     """Employer tracking page — enter email to see all posted jobs."""
-    return templates.TemplateResponse("employer_track.html", {
-        "request": request,
-        "active_page": "track",
-        "user": None
-    })
+    user_id = get_verified_user_id(request)
+    if user_id:
+        conn = get_db()
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        conn.close()
+        user = dict(user_row) if user_row else {}
+        content = render_template("employer_track.html", user=user, active_page="employer-track")
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Track Jobs", "employer-track"))
+
+    content = render_template("employer_track.html", request=request, active_page="employer-track", user=None)
+    return HTMLResponse(_public_shell(content, "Track Jobs &mdash; JobHunt Pro"))
 
 
 @app.get("/api/employer/dashboard")
@@ -7398,6 +7464,25 @@ def api_employer_save_prefs(
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+class FollowUpReq(BaseModel):
+    title: str
+    company: str
+
+@app.post("/api/job/followup")
+async def generate_job_followup(req: FollowUpReq):
+    try:
+        from core.llm_provider_pool import LLMPool
+        llm = LLMPool()
+        prompt = f"Write a very short (max 50 words) cold LinkedIn DM to a hiring manager at {req.company} following up on an application for the '{req.title}' position. Keep it professional, highly confident, and punchy. Do not use placeholders like [Your Name]."
+        
+        message = await asyncio.to_thread(
+            llm.generate_chat,
+            prompt,
+            system_prompt="You are an expert career strategist. Output ONLY the raw message text, no introduction."
+        )
+        return JSONResponse({"success": True, "message": message.strip()})
+    except Exception as e:
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 if __name__ == "__main__":
     import os
@@ -9828,7 +9913,7 @@ def tracking_analytics(request: Request):
 CRON_KEY = os.getenv("CRON_SECRET", "").strip()
 
 # ── DB-backed cron cooldown (survives PA worker restarts) ──
-CRON_COOLDOWN_SECS = 1800  # 30 min
+CRON_COOLDOWN_SECS = 300  # 5 min (v16.330) — matched to GitHub Actions cron
 
 def _cron_check_cooldown(db_conn):
     """Returns cooldown dict if still cooling, None if ready to run."""
@@ -9964,10 +10049,28 @@ async def cron_tick(request: Request, key: str = "", maintenance: str = "",
             conn.close()
             return {"status": "ok", "actions": [f"force_reset:{count}"], "timestamp": datetime.now(timezone.utc).isoformat()}
         
-        # 1. Find pending campaign to run (oldest first, only cloud engine or null)
-        pending = conn.execute(
-            "SELECT campaign_id FROM campaigns WHERE status='pending' AND (engine_type='cloud' OR engine_type IS NULL) ORDER BY created_at ASC LIMIT 1"
-        ).fetchone()
+        # ── Stuck detection: unstuck campaigns stuck at 'running' for >360s ──
+        stuck_count = conn.execute(
+            "UPDATE campaigns SET status='pending', started_at=NULL "
+            "WHERE status='running' AND started_at IS NOT NULL "
+            "AND (strftime('%s','now') - strftime('%s',started_at)) > 360"
+        ).rowcount
+        if stuck_count:
+            conn.commit()
+            actions.append(f"unstuck:{stuck_count}")
+            logger.info(f"[CRON] Unstuck {stuck_count} stale running campaign(s)")
+        
+        # 1. Find pending campaign to run (oldest first)
+        # Accept any engine_type: cloud, piggyback, or missing column
+        try:
+            pending = conn.execute(
+                "SELECT campaign_id FROM campaigns WHERE status='pending' AND (engine_type IN ('cloud','piggyback') OR engine_type IS NULL) ORDER BY created_at ASC LIMIT 1"
+            ).fetchone()
+        except:
+            # Fallback: engine_type column doesn't exist
+            pending = conn.execute(
+                "SELECT campaign_id FROM campaigns WHERE status='pending' ORDER BY created_at ASC LIMIT 1"
+            ).fetchone()
         
         if pending:
             cid = pending["campaign_id"]
@@ -10205,4 +10308,51 @@ async def api_roast_cv(file: UploadFile = File(...)):
     score = random.randint(12, 45)
     
     return {"status": "ok", "roast": roast_text, "score": score}
+
+# === NODRIVER FEED ===
+@app.post("/api/nodriver-feed")
+async def nodriver_feed(request: Request):
+    """Receive jobs from local nodriver collector."""
+    try:
+        data = await request.json()
+        jobs = data.get("jobs", [])
+        if not jobs:
+            return JSONResponse({"ok": False, "count": 0, "message": "No jobs provided"})
+        
+        conn = get_db()
+        added = 0
+        import hashlib
+        
+        for j in jobs:
+            title = j.get("title", "")
+            company = j.get("company", "Unknown")
+            url = j.get("url", "")
+            source = j.get("source", "nodriver")
+            location = j.get("location", "")
+            
+            if not title:
+                continue
+            
+            # Generate unique job_id from URL or title+company
+            job_id = hashlib.md5(f"{url or title}{company}".encode()).hexdigest()
+            
+            # Check existing
+            existing = conn.execute(
+                "SELECT id FROM jobs WHERE job_id = ? OR (title = ? AND company = ?)",
+                (job_id, title, company)
+            ).fetchone()
+            
+            if not existing:
+                conn.execute('''
+                    INSERT INTO jobs (job_id, title, company, url, source, location, email, status, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, '', 'new', datetime('now'))
+                ''', (job_id, title, company, url, source, location))
+                added += 1
+        
+        conn.commit()
+        conn.close()
+        
+        return JSONResponse({"ok": True, "count": added, "total_received": len(jobs)})
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "JobHunt Pro — Auto-Apply to Jobs",
-  "version": "1.0.0",
-  "description": "AI-powered job application assistant. Auto-fills forms, generates cover letters, and applies to jobs in one click.",
+  "version": "2.0.0",
+  "description": "AI-powered job application assistant. Auto-fills forms, generates cover letters, and applies via in-page engagement.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -21,8 +21,16 @@
   },
   "content_scripts": [
     {
+      "matches": ["<all_urls>"],
+      "js": ["lib/stealth_inject.js"],
+      "css": [],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": true
+    },
+    {
       "matches": [
-        "*://*.linkedin.com/jobs/*",
+        "*://*.linkedin.com/*",
         "*://*.indeed.com/*",
         "*://*.glassdoor.com/*",
         "*://*.bayt.com/*",
@@ -30,19 +38,32 @@
         "*://*.monster.com/*",
         "*://*.wuzzuf.net/*",
         "*://*.naukrigulf.com/*",
-        "*://*.gulftalent.com/*"
+        "*://*.gulftalent.com/*",
+        "*://*.wellfound.com/*",
+        "*://*.dice.com/*",
+        "*://*.seek.com.au/*",
+        "*://*.stepstone.de/*",
+        "*://*.weworkremotely.com/*",
+        "*://*.xing.com/*",
+        "*://*.naukri.com/*",
+        "*://*.jooble.org/*",
+        "*://*.upwork.com/*",
+        "*://*.greenhouse.io/*",
+        "*://*.lever.co/*",
+        "*://*.workable.com/*"
       ],
       "js": ["content.js"],
       "css": ["styles.css"],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "world": "MAIN",
+      "all_frames": true
     }
   ],
   "permissions": [
     "storage",
-    "activeTab",
-    "scripting",
+    "alarms",
     "notifications",
-    "alarms"
+    "declarativeNetRequest"
   ],
   "host_permissions": [
     "*://*.linkedin.com/*",
@@ -50,6 +71,18 @@
     "*://*.glassdoor.com/*",
     "*://*.bayt.com/*",
     "*://*.ziprecruiter.com/*",
+    "*://*.wellfound.com/*",
+    "*://*.dice.com/*",
+    "*://*.seek.com.au/*",
+    "*://*.stepstone.de/*",
+    "*://*.weworkremotely.com/*",
+    "*://*.xing.com/*",
+    "*://*.naukri.com/*",
+    "*://*.jooble.org/*",
+    "*://*.upwork.com/*",
+    "*://*.greenhouse.io/*",
+    "*://*.lever.co/*",
+    "*://*.workable.com/*",
     "*://*.jhfguf.pythonanywhere.com/*"
   ],
   "web_accessible_resources": [
@@ -58,6 +91,9 @@
       "matches": ["<all_urls>"]
     }
   ],
+  "declarative_net_request": {
+    "rule_resources": []
+  },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
   }
