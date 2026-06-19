@@ -325,6 +325,58 @@ export default {
         return json({ stats: rows.results, period_days: days });
       }
 
+      // ═══════════ API: OUTBOX CLAIM ═══════════
+      if (path === '/api/email/outbox/claim' && method === 'GET') {
+        const workerId = parseInt(url.searchParams.get('worker') || '0');
+        const limit = parseInt(url.searchParams.get('limit') || '5');
+        
+        // Use modulo to distribute across workers
+        await db.prepare(
+          "UPDATE email_outbox SET status = 'claimed', sent_at = datetime('now') WHERE id IN (SELECT id FROM email_outbox WHERE status = 'queued' AND id % 16 = ? ORDER BY id ASC LIMIT ?)"
+        ).bind(workerId, limit).run();
+        
+        const claimed = await db.prepare(
+          "SELECT eo.id, eo.to_email, eo.to_name, eo.subject, eo.body, u.byo_smtp_email, u.byo_smtp_token, u.email as user_email FROM email_outbox eo JOIN users u ON eo.user_id = u.id WHERE eo.status = 'claimed' AND eo.id % 16 = ? ORDER BY eo.id ASC"
+        ).bind(workerId).all();
+        
+        // Decode SMTP credentials
+        const emails = claimed.results.map(e => {
+          let smtpInfo = { email: '', password: '' };
+          if (e.byo_smtp_token) {
+            const decoded = Array.from(e.byo_smtp_token).map(c => String.fromCharCode(c.charCodeAt(0) - 13)).join('');
+            const parts = decoded.split(':');
+            smtpInfo = { email: parts[0] || '', password: parts.slice(1).join(':') || '' };
+          } else {
+            smtpInfo = { email: e.user_email || '', password: '' };
+          }
+          return {
+            id: e.id, to_email: e.to_email, to_name: e.to_name || '',
+            subject: e.subject || 'Job Application', body: e.body || '',
+            smtp_email: smtpInfo.email, smtp_password: smtpInfo.password,
+          };
+        });
+        
+        return json({ emails, worker: workerId });
+      }
+
+      // ═══════════ API: OUTBOX UPDATE ═══════════
+      if (path === '/api/email/outbox/update' && method === 'POST') {
+        const body = await request.json();
+        const { id, status: es, error } = body;
+        if (!id || !es) return error('id and status required');
+        
+        await db.prepare(
+          "UPDATE email_outbox SET status = ?, error = ?, sent_at = datetime('now') WHERE id = ?"
+        ).bind(es === 'sent' ? 'sent' : 'failed', error || '', id).run();
+        
+        // Update campaign sent count
+        await db.prepare(
+          "UPDATE campaigns SET sent_count = (SELECT COUNT(*) FROM email_outbox WHERE status = 'sent' AND campaign_id = (SELECT campaign_id FROM email_outbox WHERE id = ?)) WHERE id = (SELECT campaign_id FROM email_outbox WHERE id = ?)"
+        ).bind(id, id).run();
+        
+        return json({ ok: true, message: 'Email ' + id + ' marked as ' + es });
+      }
+
       // ═══════════ API: AI GENERATE COVER LETTER ═══════════
       if (path === '/api/ai/cover-letter' && method === 'POST') {
         const body = await request.json();
@@ -415,6 +467,14 @@ async function processCampaign(env, camp) {
           'INSERT INTO applications (user_id, job_id, status, cover_letter, email_sent) VALUES (?, ?, ?, ?, 0)'
         ).bind(camp.user_id, job.id, 'matched', letter.substring(0, 2000)).run();
         
+        // Queue email in outbox
+        const toEmail = job.email || '';
+        if (toEmail) {
+          await db.prepare(
+            "INSERT INTO email_outbox (campaign_id, user_id, to_email, to_name, subject, body, status, created_at) VALUES (?, ?, ?, ?, ?, ?, 'queued', datetime('now'))"
+          ).bind(camp.id, camp.user_id, toEmail, job.company, 'Application for ' + job.title + ' at ' + job.company, letter.substring(0, 1000)).run();
+          console.log(`  Queued email for job ${job.id}: ${job.title}`);
+        }
         console.log(`  Matched job ${job.id}: ${job.title} at ${job.company}`);
       }
     }
