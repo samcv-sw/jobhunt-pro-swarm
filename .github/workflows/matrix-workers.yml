@@ -115,6 +115,9 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install deps
+        run: pip install requests --quiet
+
       - name: AI score & match
         shell: python
         run: |
