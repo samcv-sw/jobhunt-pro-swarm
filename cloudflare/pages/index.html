@@ -185,7 +185,9 @@
 
   <script>
     // ── Config ──
+    // Use Worker API directly (no PA dependency for core routes)
     const API = '';
+    const WORKER_API = '/api';
 
     // ── Tab Switching (CDP-safe) ──
     document.addEventListener('click', function(e) {
@@ -214,7 +216,7 @@
     // ── Global Stats ──
     async function loadGlobalStats() {
       try {
-        var r = await fetch(API + '/_/pa/api/stats/daily?days=30');
+        var r = await fetch(API + '/api/stats/daily?days=30');
         var d = await r.json();
         var stats = d.stats || [];
         var total = { apps: 0, interviews: 0 };
