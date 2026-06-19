@@ -1,20 +1,31 @@
-# JobHunt Pro — wrangler.toml
-# Cloudflare Workers + D1 + Pages configuration
-# Deploy: `npx wrangler deploy`
+# JobHunt Pro — wrangler.toml v4.0
+# Cloudflare Workers + D1 + KV + AI + Cron configuration
 
 name = "jobhunt-pro-router"
 main = "worker.js"
 compatibility_date = "2026-06-01"
 compatibility_flags = ["nodejs_compat"]
 
-# ── D1 Database Binding ──
+# ── D1 Database ──
 [[d1_databases]]
-binding = "DB"              # Available as env.DB in worker
+binding = "DB"
 database_name = "jobhunt-pro-db"
 database_id = "c477bda2-1ca3-400c-ba1a-a85716b63274"
+
+# ── KV Cache ──
+[[kv_namespaces]]
+binding = "CACHE"
+id = "0b117064b13d4325ba27fa7bf12c1ed6"
+
+# ── Workers AI (free edge inference) ──
+[ai]
+binding = "AI"
+
+# ── Cron Triggers (campaign processor every 30 min) ──
+[[triggers]]
+crons = ["*/30 * * * *"]
 
 # ── Variables ──
 [vars]
 PA_BASE = "https://jhfguf.pythonanywhere.com"
-PA_TOKEN = ""               # Set via `npx wrangler secret put PA_TOKEN`
 ENVIRONMENT = "production"
