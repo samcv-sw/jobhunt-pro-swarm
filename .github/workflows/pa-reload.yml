@@ -1,43 +1,65 @@
-name: Reload PA Web App
+name: Deploy to PA
 on:
   push:
     branches: [main]
     paths:
       - 'web/**'
-      - 'core/**'
   workflow_dispatch:
 
 jobs:
-  reload-pa:
-    name: Deploy & Reload
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Upload files to PythonAnywhere
+      - name: Test PA API
         env:
           PA_TOKEN: ${{ secrets.PA_TOKEN }}
         run: |
-          # Files API - try raw content body first
-          for f in "web/frontend_api.py" "web/app_v2.py"; do
+          set -e
+          echo "=== API V0: Getting webapps list ==="
+          curl -sv "https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/" \
+            -H "Authorization: Token ${PA_TOKEN}" \
+            --max-time 15 2>&1 | head -50
+          echo ""
+          echo "=== API V0: Files tree ==="
+          curl -s "https://www.pythonanywhere.com/api/v0/user/jhfguf/files/" \
+            -H "Authorization: Token ${PA_TOKEN}" \
+            --max-time 15 2>&1 | head -20
+          echo ""
+          echo "=== API V0: User info ==="
+          curl -s "https://www.pythonanywhere.com/api/v0/user/jhfguf/" \
+            -H "Authorization: Token ${PA_TOKEN}" \
+            --max-time 15 2>&1 | head -20
+
+      - name: Upload files to PA
+        env:
+          PA_TOKEN: ${{ secrets.PA_TOKEN }}
+        run: |
+          set -e
+          API="https://www.pythonanywhere.com/api/v0/user/jhfguf/files/path"
+          
+          for f in "web/frontend_api.py"; do
             if [ -f "$f" ]; then
-              FILEPATH="home/jhfguf/$f"
-              echo "=== Uploading $f -> /$FILEPATH ==="
-              RESP=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST \
-                "https://www.pythonanywhere.com/api/v0/user/jhfguf/files/path/$FILEPATH" \
+              echo "=== Uploading $f ==="
+              HTTP_CODE=$(curl -s -o /tmp/upload_resp.txt -w "%{http_code}" -X PUT \
+                "${API}/${f}" \
                 -H "Authorization: Token ${PA_TOKEN}" \
-                --data-binary "@$f" \
+                --data-binary "@${f}" \
                 --max-time 30)
-              echo "$RESP"
+              echo "HTTP Code: ${HTTP_CODE}"
+              echo "Response: $(cat /tmp/upload_resp.txt)"
             fi
           done
 
-      - name: Reload
+      - name: Reload PA
         env:
           PA_TOKEN: ${{ secrets.PA_TOKEN }}
         run: |
-          RESULT=$(curl -s -X POST \
+          echo "=== Reloading PA ==="
+          HTTP_CODE=$(curl -s -o /tmp/reload_resp.txt -w "%{http_code}" -X POST \
             "https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/jhfguf.pythonanywhere.com/reload/" \
             -H "Authorization: Token ${PA_TOKEN}" \
             --max-time 30)
-          echo "Reload: $RESULT"
+          echo "HTTP Code: ${HTTP_CODE}"
+          echo "Response: $(cat /tmp/reload_resp.txt)"
