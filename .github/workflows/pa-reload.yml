@@ -5,18 +5,39 @@ on:
     paths:
       - 'web/**'
       - 'core/**'
-      - '.github/pa_autorenew.py'
   workflow_dispatch:
 
 jobs:
   reload-pa:
-    name: Reload PA
+    name: Deploy & Reload
     runs-on: ubuntu-latest
     steps:
-      - name: Reload PythonAnywhere
+      - uses: actions/checkout@v4
+
+      - name: Upload files to PythonAnywhere
+        env:
+          PA_TOKEN: ${{ secrets.PA_TOKEN }}
+        run: |
+          # Files API - try raw content body first
+          for f in "web/frontend_api.py" "web/app_v2.py"; do
+            if [ -f "$f" ]; then
+              FILEPATH="home/jhfguf/$f"
+              echo "=== Uploading $f -> /$FILEPATH ==="
+              RESP=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST \
+                "https://www.pythonanywhere.com/api/v0/user/jhfguf/files/path/$FILEPATH" \
+                -H "Authorization: Token ${PA_TOKEN}" \
+                --data-binary "@$f" \
+                --max-time 30)
+              echo "$RESP"
+            fi
+          done
+
+      - name: Reload
+        env:
+          PA_TOKEN: ${{ secrets.PA_TOKEN }}
         run: |
           RESULT=$(curl -s -X POST \
             "https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/jhfguf.pythonanywhere.com/reload/" \
-            -H "Authorization: Token ${{ secrets.PA_TOKEN }}" \
+            -H "Authorization: Token ${PA_TOKEN}" \
             --max-time 30)
-          echo "PA Reload: $RESULT"
+          echo "Reload: $RESULT"
