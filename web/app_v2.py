@@ -10356,3 +10356,9 @@ async def nodriver_feed(request: Request):
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 
+
+
+# -- Frontend API Routes (Cloudflare Pages) --
+from .frontend_api import router as frontend_router
+app.include_router(frontend_router)
+# -- End Frontend API Routes --
