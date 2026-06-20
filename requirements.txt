@@ -37,4 +37,3 @@ PyJWT
 camoufox
 cloudscraper
 reportlab
-libsql-experimental==0.0.55
