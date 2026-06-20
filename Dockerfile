@@ -1,7 +1,7 @@
 FROM python:3.12-slim
 
-# Install dependencies and Supervisor to run both FastAPI and the Worker
-RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/*
+# Install dependencies and Supervisor
+RUN apt-get update && apt-get install -y supervisor build-essential wget curl unzip xvfb libxi6 libgconf-2-4 libnss3 libasound2t64 libatk-bridge2.0-0 libgtk-3-0 libgbm1 && rm -rf /var/lib/apt/lists/*
 
 # Set up working directory
 WORKDIR /app
