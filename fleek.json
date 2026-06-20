@@ -1,0 +1,13 @@
+{
+  "site": {
+    "name": "jobhunt-pro-omni",
+    "distDir": "public"
+  },
+  "build": {
+    "command": "mkdir -p public && cp cloudflare_pages_index.html public/index.html && cp ai_parasite_router.js public/"
+  },
+  "hosting": {
+    "provider": "ipfs",
+    "domain": "jobhunt-pro.eth"
+  }
+}

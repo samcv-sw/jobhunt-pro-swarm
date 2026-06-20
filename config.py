@@ -45,9 +45,11 @@ CV_PATH = os.getenv("CV_PATH", "assets/Sam_Salameh_CV.pdf")
 if not os.path.exists(CV_PATH):
     logger.warning(f"CV file not found at {CV_PATH}, will send without attachment")
     CV_PATH = None
-DB_PATH = os.getenv("DB_PATH", "jobhunt_saas_v2.db")  # Always use v2 DB — jobhunt_saas.db is the old legacy database, do not use it
+# PROJECT APEX: Turso Edge SQLite Database
+DB_PATH = None # Disabled local SQLite fallback
 TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL", "libsql://jobhunt-pro-sadgv.aws-ap-northeast-1.turso.io")
 TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN", "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3ODE5ODQxMzEsImlkIjoiMDE5ZWU2ODctYWMwMS03NWYzLWFjNWYtMzc2M2NkMjFhMjZmIiwicmlkIjoiZjYwZDQ4MGQtYjA4Zi00ZGRkLTliMGItYTIwYjkyMzY1ZWQyIn0.rBfLkCjfLzOVZKLzJ-1VX2UBmQj5-iAdGulAZ-EEw0Nz84F1RaazKjQ3sLXz6mrFHJPKDWpygAup1F-6TMWjDQ")
+os.environ["DATABASE_URL"] = TURSO_DATABASE_URL
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 PA_API_TOKEN = os.getenv("PA_API_TOKEN", "")

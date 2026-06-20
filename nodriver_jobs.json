@@ -1,7 +1,7 @@
 {
-  "collected_at": "2026-06-20T22:38:17.286050",
-  "total": 590,
-  "elapsed_seconds": 130.738823,
+  "collected_at": "2026-06-21T02:38:04.302810",
+  "total": 592,
+  "elapsed_seconds": 119.403005,
   "jobs": [
     {
       "title": "Lead - Security Engineer (Network Infrastructure)",
@@ -93,6 +93,34 @@
       "url": "https://www.bayt.com/en/uae/jobs/network-administrator-for-uae-74455539/",
       "source": "bayt",
       "location": "UAE"
+    },
+    {
+      "title": "NOC Engineer",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/saudi-arabia/jobs/noc-engineer-5453456/",
+      "source": "bayt",
+      "location": "Saudi Arabia"
+    },
+    {
+      "title": "Network Technician",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/saudi-arabia/jobs/network-technician-5455287/",
+      "source": "bayt",
+      "location": "Saudi Arabia"
+    },
+    {
+      "title": "Data Center Engineer",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/saudi-arabia/jobs/data-center-engineer-5453442/",
+      "source": "bayt",
+      "location": "Saudi Arabia"
+    },
+    {
+      "title": "Career Opportunities: Network Team Leader (Corporate) (88927)",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/saudi-arabia/jobs/career-opportunities-network-team-leader-corporate-88927-74764610/",
+      "source": "bayt",
+      "location": "Saudi Arabia"
     },
     {
       "title": "Network Specialist",
@@ -527,13 +555,6 @@
       "url": "https://www.bayt.com/en/uae/jobs/operations-manager-moe-74489656/",
       "source": "bayt",
       "location": "UAE"
-    },
-    {
-      "title": "Network Technician",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/saudi-arabia/jobs/network-technician-5455287/",
-      "source": "bayt",
-      "location": "Saudi Arabia"
     },
     {
       "title": "General Manager - Operations",
@@ -2482,6 +2503,13 @@
       "location": "UAE"
     },
     {
+      "title": "Manager School Operations (July/Aug 2026 Start)-GEMS Cambridge International School, Abu Dhabi",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/manager-school-operations-july-aug-2026-start-gems-cambridge-international-school-abu-dhabi-74757101/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
       "title": "Head of UAE Procurement Ops, GPO - SPO (Site Procurement Operations), GPO - SPO (Site Procurement Operations)",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/uae/jobs/head-of-uae-procurement-ops-gpo-spo-site-procurement-operations-gpo-spo-site-procurement-operations-74753425/",
@@ -2499,13 +2527,6 @@
       "title": "Senior Cyber Security Specialist (m/f/d)",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/uae/jobs/senior-cyber-security-specialist-m-f-d-74755036/",
-      "source": "bayt",
-      "location": "UAE"
-    },
-    {
-      "title": "Manager School Operations (July/Aug 2026 Start)-GEMS Cambridge International School, Abu Dhabi",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/manager-school-operations-july-aug-2026-start-gems-cambridge-international-school-abu-dhabi-74757101/",
       "source": "bayt",
       "location": "UAE"
     },
@@ -4006,13 +4027,6 @@
       "url": "https://www.bayt.com/en/uae/jobs/electrical-mechanical-engineering-operations-trainee-aws-data-centers-uae-national-only-6-month-contract-leading-to-full-time-employment-aws-74695121/",
       "source": "bayt",
       "location": "UAE"
-    },
-    {
-      "title": "NOC Engineer",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/saudi-arabia/jobs/noc-engineer-5453456/",
-      "source": "bayt",
-      "location": "Saudi Arabia"
     },
     {
       "title": "Jeddah",

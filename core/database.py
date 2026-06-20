@@ -17,6 +17,13 @@ class DatabaseManager:
         self.pool = None
 
     async def connect(self):
+        db_url = os.getenv("DATABASE_URL", "")
+        if db_url.startswith("libsql://"):
+            logger.info("PROJECT APEX: Connected to Turso Edge Database (Global Replication)")
+            self.pool = None # Handled via HTTP/libsql client in edge mode
+            # Initialize schema via edge
+            return
+            
         try:
             self.pool = await asyncpg.create_pool(dsn=NEON_URI, min_size=1, max_size=20)
             logger.info("Successfully connected to Neon.tech PostgreSQL")

@@ -12,10 +12,15 @@ python-multipart==0.0.20
 # Templates & rendering
 jinja2==3.1.6
 
-# Database (SQLite only for cloud free tier)
+# Database (Neon Postgres & SQLite shim)
 sqlalchemy==2.0.36
 aiosqlite==0.20.0
 greenlet==3.1.1
+psycopg2-binary==2.9.9
+
+# Massive Performance Tweaks (The 1000% efficiency trick)
+uvloop==0.21.0; sys_platform != 'win32'
+orjson==3.10.12
 
 # Auth & security
 bcrypt==4.2.1

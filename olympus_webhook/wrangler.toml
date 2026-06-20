@@ -1,0 +1,6 @@
+name = "olympus-webhook"
+main = "src/index.js"
+compatibility_date = "2024-06-20"
+
+[vars]
+IPN_SECRET = "hCGQjbcilPsaJQkW073hfzg5ziDyszfl"

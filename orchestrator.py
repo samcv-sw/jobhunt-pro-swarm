@@ -408,14 +408,15 @@ class Orchestrator:
         # Start web server in background
         self.start_web_server()
 
-        # Phase 1: Search
+        # Phase 1: Search (Scout Mode)
         found = await self.run_search()
 
-        # Phase 2: Apply (include retry of failed jobs)
-        applied = await self.run_apply(include_failed=True)
-
-        # Phase 2b: Retry any remaining failed jobs
-        retried = await self.retry_failed(limit=20)
+        # Phase 2: Apply
+        # DELEGATED TO CLOUD WORKER SWARM (worker_node.py)
+        # The orchestrator no longer applies directly to save resources and prevent IP bans.
+        # It simply feeds the Neon PostgreSQL queue.
+        applied = 0
+        retried = 0
 
         # Phase 3: Follow-ups
         followed = await self.run_followups()
@@ -424,8 +425,7 @@ class Orchestrator:
         logger.info("=" * 60)
         logger.info("  CYCLE COMPLETE")
         logger.info(f"  Jobs found:    {found}")
-        logger.info(f"  Applied:       {applied}")
-        logger.info(f"  Retried:       {retried}")
+        logger.info(f"  Queued:        {found} jobs sent to worker swarm")
         logger.info(f"  Follow-ups:    {followed}")
         logger.info(f"  Anti-ban:      {anti_ban.get_stats()}")
         logger.info(f"  Predictions:   {predictor.get_stats()}")

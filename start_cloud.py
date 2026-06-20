@@ -70,21 +70,21 @@ def configure_cloud_env():
     # Cloud mode flag
     os.environ["CLOUD_MODE"] = "true"
 
-    # Reduce workers on free tier (limited RAM)
+    # [PROJECT APEX] MAXIMIZE ORACLE ARM 24GB RAM
     if not os.getenv("MAX_WORKERS"):
-        os.environ["MAX_WORKERS"] = "50"
+        os.environ["MAX_WORKERS"] = "5000" # Unlocked from 50 to 5000 for 24GB RAM
 
-    # Default to dry run on cloud for safety
+    # Disable dry run by default for production APEX mode
     if not os.getenv("DRY_RUN"):
-        os.environ["DRY_RUN"] = "true"
+        os.environ["DRY_RUN"] = "false"
 
     # CV path
     if not os.getenv("CV_PATH"):
         os.environ["CV_PATH"] = "assets/Sam_Salameh_CV.pdf"
 
-    # Background cycle interval (minutes)
+    # Background cycle interval (minutes) - APEX mode runs constantly
     if not os.getenv("CYCLE_INTERVAL"):
-        os.environ["CYCLE_INTERVAL"] = "60"
+        os.environ["CYCLE_INTERVAL"] = "15"
 
     logger.info("Cloud environment configured:")
     logger.info("  DRY_RUN=%s", os.getenv("DRY_RUN"))
@@ -314,9 +314,9 @@ def main():
         host=host,
         port=port,
         log_level="info",
-        access_log=True,
-        timeout_keep_alive=5,
-        limit_concurrency=100,
+        access_log=False, # Disable access logs for performance
+        timeout_keep_alive=15,
+        limit_concurrency=2000, # Massive concurrency for APEX 24GB RAM
     )
     server = uvicorn.Server(config_data)
 

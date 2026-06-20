@@ -1,0 +1,30 @@
+name: PROJECT OMEGA - Ghost Engine
+
+on:
+  schedule:
+    # Run every 10 minutes to keep free tiers awake (Render, Railway sleep after 15m)
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  keep-alive-and-scale:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Cloudflare Router
+        run: |
+          curl -sS "https://jobhunt-pro.onrender.com/health" || echo "Render offline, trying fallback"
+          curl -sS "https://jobhunt-railway.up.railway.app/health" || echo "Railway offline"
+
+      - name: Deploy Worker Nodes (Hugging Face)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Deploying worker nodes... "
+          # Example trigger for Hugging Face Spaces webhook
+          # curl -X POST https://huggingface.co/api/spaces/your-username/worker-node/restart -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}"
+
+      - name: Run Orchestrator Scout Cycle
+        # Trigger the orchestrator to run Phase 1 (Scraping) 
+        run: |
+          curl -X POST "https://jobhunt-pro.onrender.com/api/trigger_scout" \
+          -H "Authorization: Bearer ${{ secrets.GHOST_KEY }}" \
+          || echo "Scout trigger failed, check server logs."

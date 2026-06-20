@@ -171,6 +171,12 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;point
     </div>
 
     <form method="POST" action="/register">
+    <!-- PROJECT AEGIS: Invisible Bot Honeypot -->
+    <div style="display:none; visibility:hidden;">
+        <label>Leave this empty if you are human</label>
+        <input type="text" name="aegis_honeypot" id="aegis_honeypot" tabindex="-1" autocomplete="off">
+    </div>
+
     <input type="hidden" name="selected_plan" id="selected-plan" value="starter">
     <input type="hidden" name="ref" value="{{ ref }}">
     <div class="form-group">
@@ -190,7 +196,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;point
       <input type="password" name="password" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password">
     </div>
     <div class="turnstile-wrap">
-      <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="dark"></div>
+      <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key | default('1x00000000000000000000AA') }}" data-theme="dark"></div>
     </div>
     <button type="submit" class="btn-submit">🚀 Create Free Account</button>
     </form>

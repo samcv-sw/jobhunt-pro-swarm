@@ -1,0 +1,72 @@
+name: PROJECT NEBULA - 24/7 Cloud Automation
+
+on:
+  schedule:
+    # Run every 6 hours automatically (4 times a day)
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    # Allows manual trigger from GitHub UI
+
+jobs:
+  kronos-engines:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install feedparser httpx fastapi uvicorn sqlite3
+
+      - name: Engine 1 - The Ghost Agency
+        run: |
+          echo "Starting Ghost Agency outreach..."
+          python ghost_agency.py
+        env:
+          # Add any needed secrets here from GitHub Secrets
+          QCLAW_EMAIL: ${{ secrets.QCLAW_EMAIL }}
+          QCLAW_PASSWORD: ${{ secrets.QCLAW_PASSWORD }}
+          NOWPAYMENTS_API_KEY: ${{ secrets.NOWPAYMENTS_API_KEY }}
+          NOWPAYMENTS_IPN_SECRET: ${{ secrets.NOWPAYMENTS_IPN_SECRET }}
+
+      - name: Engine 2 - The Freelance Swarm
+        run: |
+          echo "Bidding on Upwork/Freelancer projects..."
+          python freelance_swarm.py
+
+      - name: Engine 3 - The SEO Matrix
+        run: |
+          echo "Generating 1000s of SEO pages..."
+          python seo_matrix_generator.py
+
+      - name: Engine 4 - The Data Broker
+        run: |
+          echo "Extracting B2B Leads to CSV..."
+          python data_broker_export.py
+
+      - name: Engine 5 - The Reverse Recruiter
+        run: |
+          echo "Pitching companies to sell CV databases..."
+          python reverse_recruiter.py
+        env:
+          QCLAW_EMAIL: ${{ secrets.QCLAW_EMAIL }}
+          QCLAW_PASSWORD: ${{ secrets.QCLAW_PASSWORD }}
+          NOWPAYMENTS_API_KEY: ${{ secrets.NOWPAYMENTS_API_KEY }}
+          NOWPAYMENTS_IPN_SECRET: ${{ secrets.NOWPAYMENTS_IPN_SECRET }}
+
+      - name: Commit and Push SEO Pages and Databases
+        run: |
+          git config --global user.name "Project Nebula Bot"
+          git config --global user.email "bot@nebula.ai"
+          git add static_webapp/seo_matrix/
+          git add freelance_bids.db kronos_exports/
+          git commit -m "chore: Auto-update SEO pages and B2B leads via KRONOS" || echo "No changes to commit"
+          git push origin main || echo "No changes to push"

@@ -274,29 +274,12 @@ class MegaAgentPool:
     """
 
     def __init__(self):
-        # Workers
-        self.workers: Dict[str, VirtualAgent] = {}
-        self.workers_by_type: Dict[AgentType, List[VirtualAgent]] = {t: [] for t in AgentType}
-
-        # Squad leaders (sub-of-sub)
-        self.squad_leaders: Dict[str, SquadLeaderAgent] = {}
-        self.squad_leaders_by_type: Dict[AgentType, List[SquadLeaderAgent]] = {t: [] for t in AgentType}
-
-        # Team managers (sub-agent)
-        self.team_managers: Dict[str, TeamManagerAgent] = {}
-        self.team_managers_by_type: Dict[AgentType, List[TeamManagerAgent]] = {t: [] for t in AgentType}
-
-        self._build_worker_pool()
-        self._build_squad_leaders()
-        self._build_team_managers()
-
-        logger.info(
-            "MegaAgentPool built: %d workers + %d squad leaders + %d team managers = %d",
-            len(self.workers), len(self.squad_leaders), len(self.team_managers),
-            len(self.workers) + len(self.squad_leaders) + len(self.team_managers)
-        )
+        # We no longer build 20,000 in-memory agents.
+        # The MegaAgentPool is now a virtual interface to the Postgres job_queue.
+        logger.info("MegaAgentPool initialized in Distributed Queue mode.")
 
     def _build_worker_pool(self):
+        pass
         """Build 18,000 worker agents across 7 types."""
         agent_id = 0
         for agent_type, count in sorted(MEGA_WORKER_DISTRIBUTION.items(), key=lambda x: x[0].value):
@@ -308,43 +291,13 @@ class MegaAgentPool:
                 agent_id += 1
 
     def _build_squad_leaders(self):
-        """Build 1,500 squad leaders, each assigned ~12 workers."""
-        for agent_type, count in sorted(MEGA_SQUAD_LEADER_DISTRIBUTION.items(), key=lambda x: x[0].value):
-            workers = self.workers_by_type.get(agent_type, [])
-            if not workers:
-                continue
-            workers_per_squad = max(1, len(workers) // count)
-            for i in range(count):
-                lid = f"squad_{agent_type.value}_{i:03d}"
-                start = i * workers_per_squad
-                end = start + workers_per_squad if i < count - 1 else len(workers)
-                squad_workers = workers[start:end]
-                sl = SquadLeaderAgent(lid, agent_type, squad_workers)
-                self.squad_leaders[lid] = sl
-                self.squad_leaders_by_type[agent_type].append(sl)
+        pass
 
     def _build_team_managers(self):
-        """Build 500 team managers, each managing ~3 squad leaders."""
-        for agent_type, count in sorted(MEGA_TEAM_MANAGER_DISTRIBUTION.items(), key=lambda x: x[0].value):
-            squad_leaders = self.squad_leaders_by_type.get(agent_type, [])
-            if not squad_leaders:
-                continue
-            squads_per_manager = max(1, len(squad_leaders) // count)
-            for i in range(count):
-                mid = f"team_{agent_type.value}_{i:03d}"
-                start = i * squads_per_manager
-                end = start + squads_per_manager if i < count - 1 else len(squad_leaders)
-                manager_squads = squad_leaders[start:end]
-                tm = TeamManagerAgent(mid, agent_type, manager_squads)
-                self.team_managers[mid] = tm
-                self.team_managers_by_type[agent_type].append(tm)
+        pass
 
     def get_team_manager(self, agent_type: AgentType) -> Optional[TeamManagerAgent]:
-        """Get a team manager for the given agent type (round-robin)."""
-        managers = self.team_managers_by_type.get(agent_type, [])
-        if not managers:
-            return None
-        return managers[random.randint(0, len(managers) - 1)]
+        return None
 
     def get_squad_leader(self, agent_type: AgentType) -> Optional[SquadLeaderAgent]:
         """Get a squad leader for the given agent type."""
@@ -361,16 +314,19 @@ class MegaAgentPool:
         result_callback: Optional[Callable] = None,
     ) -> int:
         """
-        Hierarchical dispatch: TeamManager -> SquadLeader -> Worker.
-        args_batches is a list of batches, each batch goes to one squad via a team manager.
-        Returns total number of dispatched tasks.
+        Distributed dispatch: Enqueue tasks to the job_queue natively.
         """
-        tm = self.get_team_manager(agent_type)
-        if tm is None:
-            logger.error("No team manager available for type %s", agent_type.value)
-            return 0
-        results = await tm.delegate(task_func, args_batches, result_callback)
-        return len(results)
+        from core.job_queue import enqueue_bulk_tasks
+        tasks_to_enqueue = []
+        for batch in args_batches:
+            for args in batch:
+                tasks_to_enqueue.append({
+                    "task_type": f"mega_task_{agent_type.name.lower()}",
+                    "payload": {"args": args}
+                })
+                
+        count = enqueue_bulk_tasks(tasks_to_enqueue)
+        return count
 
     async def broadcast(
         self,
@@ -379,10 +335,7 @@ class MegaAgentPool:
         args: tuple = (),
     ) -> int:
         """Broadcast a task to ALL workers of a given type via hierarchy."""
-        total = 0
-        for tm in self.team_managers_by_type.get(agent_type, []):
-            total += await tm.broadcast_to_squads(task_func, args)
-        return total
+        return 0 # Deprecated in distributed mode
 
     def get_pool_stats(self) -> Dict[str, Any]:
         """Get comprehensive stats for the entire 20,000 agent pool."""

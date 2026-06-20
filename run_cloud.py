@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 JobHunt Pro — Unified Cloud Entrypoint
 ========================================
@@ -95,26 +95,21 @@ def configure_platform(platform: str):
     )
     is_postgres = pg_url.startswith("postgresql") or pg_url.startswith("postgres")
 
-    if is_postgres:
-        # Use PostgreSQL (Neon.tech on any platform)
-        logger.info("Database: PostgreSQL (Neon.tech)")
-        os.environ["DATABASE_URL"] = pg_url
-        sync_url = pg_url.replace("+asyncpg://", "://").replace(
-            "postgresql+asyncpg://", "postgresql://"
-        )
-        os.environ["DATABASE_URL_SYNC"] = sync_url
-    else:
-        # SQLite fallback — works everywhere
-        data_dir = ROOT_DIR / "data"
-        db_path = data_dir / "jobhunt_saas_v2.db"
-        os.environ["DATABASE_URL"] = f"sqlite:///{db_path}"
-        os.environ["DATABASE_URL_SYNC"] = f"sqlite:///{db_path}"
-        os.environ["FORCE_SQLITE"] = "true"
-        logger.info("Database: SQLite (%s)", db_path)
+    if not is_postgres:
+        logger.warning("No Postgres URL found, using default Neon DB for Project Omega")
+        pg_url = "postgresql://neondb_owner:npg_yXkT42fDuPUc@ep-steep-cake-ap2mtmij.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require"
+    
+    # Use PostgreSQL (Neon.tech on any platform)
+    logger.info("Database: PostgreSQL (Neon.tech)")
+    os.environ["DATABASE_URL"] = pg_url
+    sync_url = pg_url.replace("+asyncpg://", "://").replace(
+        "postgresql+asyncpg://", "postgresql://"
+    )
+    os.environ["DATABASE_URL_SYNC"] = sync_url
 
-    # ── DB_PATH for legacy code ───────────────────────────
-    if not os.getenv("DB_PATH"):
-        os.environ["DB_PATH"] = str(ROOT_DIR / "data" / "sam_max.db")
+    # ── DB_PATH for legacy code ──
+    # Disabled for Project Omega
+    os.environ["DB_PATH"] = ""
 
     # ── Cloud mode ────────────────────────────────────────
     os.environ["CLOUD_MODE"] = "true"

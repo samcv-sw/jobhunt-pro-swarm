@@ -1,0 +1,12 @@
+{
+  "name": "olympus-webhook",
+  "version": "1.0.0",
+  "description": "NOWPayments IPN Webhook",
+  "main": "src/index.js",
+  "scripts": {
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

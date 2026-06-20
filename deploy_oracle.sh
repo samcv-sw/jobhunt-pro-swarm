@@ -47,12 +47,12 @@ if [ ! -f .env ]; then
     cat > .env << 'EOF'
 # ============================================#
 # JobHunt Pro v16.7 - Environment Config
-# Oracle Cloud Backup Instance
+# Oracle Cloud Backup Instance (APEX QUEEN BEE)
 # ============================================#
 CLOUD_MODE=true
-DRY_RUN=true
-MAX_WORKERS=50
-CYCLE_INTERVAL=60
+DRY_RUN=false
+MAX_WORKERS=5000
+CYCLE_INTERVAL=15
 
 # --- AI Provider ---
 GROQ_API_KEY=

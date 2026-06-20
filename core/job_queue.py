@@ -80,3 +80,43 @@ def fail_task(task_id: int, error_msg: str):
             )
     except Exception as e:
         logger.error(f"Failed to fail task {task_id}: {e}")
+
+def enqueue_bulk_tasks(tasks: list):
+    """
+    Atomically enqueues a large list of tasks in a single transaction.
+    tasks: list of dicts [{"task_type": "...", "payload": {...}}, ...]
+    """
+    if not tasks:
+        return 0
+    try:
+        with connect() as conn:
+            # We use executemany for bulk inserts
+            data = [(t["task_type"], json.dumps(t["payload"]), 'pending') for t in tasks]
+            conn.executemany(
+                "INSERT INTO job_queue (task_type, payload, status) VALUES (?, ?, ?)",
+                data
+            )
+            # The context manager auto-commits
+            logger.info(f"Enqueued {len(tasks)} bulk tasks.")
+            return len(tasks)
+    except Exception as e:
+        logger.error(f"Failed to enqueue bulk tasks: {e}")
+        return 0
+
+def cleanup_completed_tasks(keep_days: int = 7):
+    """
+    Removes completed tasks older than `keep_days` to prevent DB bloat.
+    """
+    try:
+        with connect() as conn:
+            cur = conn.execute(
+                "DELETE FROM job_queue WHERE status = 'completed' AND updated_at < datetime('now', ?)",
+                (f"-{keep_days} days",)
+            )
+            count = cur.rowcount
+            logger.info(f"Cleaned up {count} old completed tasks from job_queue.")
+            return count
+    except Exception as e:
+        logger.error(f"Failed to cleanup completed tasks: {e}")
+        return 0
+

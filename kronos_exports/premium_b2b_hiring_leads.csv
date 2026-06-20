@@ -1,0 +1,188 @@
+Job ID,Role,Company,Location,Estimated HR Email (Format)
+1,Network Engineer,Ogero Telecom,"Beirut, Lebanon",careers@ogerotelecom.com
+2,Senior Network Engineer,Touch (Zain),"Beirut, Lebanon",careers@touch(zain).com
+3,Network Infrastructure Engineer,Alfa (MTN),"Beirut, Lebanon",careers@alfa(mtn).com
+4,IT Network Engineer,Bank Audi,"Beirut, Lebanon",careers@bankaudi.com
+5,Network Administrator,Byblos Bank,"Beirut, Lebanon",careers@byblosbank.com
+6,IT Infrastructure Engineer,BLOM Bank,"Beirut, Lebanon",careers@blombank.com
+7,Network Engineer,Fransabank,"Beirut, Lebanon",careers@fransabank.com
+8,NOC Engineer,Credit Libanais,"Beirut, Lebanon",careers@creditlibanais.com
+9,Network Specialist,IM Bank (Ibn Sina),"Beirut, Lebanon",careers@imbank(ibnsina).com
+10,Network Engineer,Mobi,"Beirut, Lebanon",careers@mobi.com
+11,Senior Network Engineer,Multilink,"Beirut, Lebanon",careers@multilink.com
+12,Network Infrastructure Engineer,Data Management,"Beirut, Lebanon",careers@datamanagement.com
+13,Network Consultant,INFOGATE,"Beirut, Lebanon",careers@infogate.com
+14,IT Network Engineer,Sodigital,"Beirut, Lebanon",careers@sodigital.com
+15,Network Engineer,IDM (Internet Diamond),"Beirut, Lebanon",careers@idm(internetdiamond).com
+16,Network Specialist,Cyberia,"Beirut, Lebanon",careers@cyberia.com
+17,Network Engineer,Broadband Plus,"Beirut, Lebanon",careers@broadbandplus.com
+18,Network Infrastructure Engineer,Sodetel,"Beirut, Lebanon",careers@sodetel.com
+19,IT Infrastructure Engineer,Solidere,"Beirut, Lebanon",careers@solidere.com
+20,IT Infrastructure Engineer,Khatib & Alami,"Beirut, Lebanon",careers@khatib&alami.com
+21,Senior Network Engineer,Etisalat,"Abu Dhabi, UAE",careers@etisalat.com
+22,Network Architect,du (Emirates Telecom),"Dubai, UAE",careers@du(emiratestelecom).com
+23,Network Engineer,Emirates NBD,"Dubai, UAE",careers@emiratesnbd.com
+24,IT Infrastructure Engineer,ADNOC,"Abu Dhabi, UAE",careers@adnoc.com
+25,Network Security Engineer,DIFC,"Dubai, UAE",careers@difc.com
+26,Network Engineer,Mashreq Bank,"Dubai, UAE",careers@mashreqbank.com
+27,Network Administrator,RAK Group,"Ras Al Khaimah, UAE",careers@rakgroup.com
+28,Senior Network Engineer,STC,"Riyadh, Saudi Arabia",careers@stc.com
+29,Network Architect,Mobily,"Riyadh, Saudi Arabia",careers@mobily.com
+30,IT Network Engineer,SABIC,"Dhahran, Saudi Arabia",careers@sabic.com
+31,Network Infrastructure Engineer,Saudi Aramco,"Dhahran, Saudi Arabia",careers@saudiaramco.com
+32,Network Engineer,Al Rajhi Bank,"Riyadh, Saudi Arabia",careers@alrajhibank.com
+33,Senior Network Engineer,Ooredoo,"Doha, Qatar",careers@ooredoo.com
+34,Network Engineer,QNB,"Doha, Qatar",careers@qnb.com
+35,IT Network Engineer,Qatar Airways,"Doha, Qatar",careers@qatarairways.com
+36,Network Engineer,Zain Kuwait,"Kuwait City, Kuwait",careers@zainkuwait.com
+37,Senior Network Engineer,Ooredoo Kuwait,"Kuwait City, Kuwait",careers@ooredookuwait.com
+38,Network Infrastructure Engineer,Kuwait Finance House,"Kuwait City, Kuwait",careers@kuwaitfinancehouse.com
+39,Network Engineer,Batelco,"Manama, Bahrain",careers@batelco.com
+40,Network Administrator,Bahrain Tel,"Manama, Bahrain",careers@bahraintel.com
+41,Senior Network Engineer,Vodafone Egypt,"Cairo, Egypt",careers@vodafoneegypt.com
+42,Network Engineer,Orange Egypt,"Cairo, Egypt",careers@orangeegypt.com
+43,Network Infrastructure Engineer,WE (Telecom Egypt),"Cairo, Egypt",careers@we(telecomegypt).com
+44,Network Engineer,Zain Jordan,"Amman, Jordan",careers@zainjordan.com
+45,Senior Network Engineer,Orange Jordan,"Amman, Jordan",careers@orangejordan.com
+46,Network Engineer,Zain Iraq,"Baghdad, Iraq",careers@zainiraq.com
+47,Network Engineer,Korek Telecom,"Erbil, Iraq",careers@korektelecom.com
+48,Senior Network Engineer,Remote.com,Remote,careers@remote.com.com
+49,Network Consultant,Toptal,Remote,careers@toptal.com
+50,Senior Network Engineer,Turing,Remote,careers@turing.com
+51,Cloud Network Engineer,Emirates Cloud,"Dubai, UAE",careers@emiratescloud.com
+52,Network Engineer,Khazna,"Abu Dhabi, UAE",careers@khazna.com
+53,Senior Network Engineer,Gulf Business Machines,"Dubai, UAE",careers@gulfbusinessmachines.com
+54,Network Engineer,Equinix MENA,"Dubai, UAE",careers@equinixmena.com
+55,Network Engineer,Global Cloud Exchange,"Dubai, UAE",careers@globalcloudexchange.com
+56,IT Support Engineer,Berytech,"Beirut, Lebanon",careers@berytech.com
+57,IT Network Engineer,MEA Airlines,"Beirut, Lebanon",careers@meaairlines.com
+58,IT Engineer,Whouse,"Beirut, Lebanon",careers@whouse.com
+59,IT Infrastructure Engineer,Emaar Properties,"Dubai, UAE",careers@emaarproperties.com
+60,Senior Network Engineer,Mubadala Investment,"Abu Dhabi, UAE",careers@mubadalainvestment.com
+61,IT Network Engineer,Aldar Properties,"Abu Dhabi, UAE",careers@aldarproperties.com
+62,IT Infrastructure Engineer,Dubai Holding,"Dubai, UAE",careers@dubaiholding.com
+63,IT Network Engineer,Jumeirah Group,"Dubai, UAE",careers@jumeirahgroup.com
+64,IT Infrastructure Engineer,Majid Al Futtaim,"Dubai, UAE",careers@majidalfuttaim.com
+65,Network Engineer,Nakheel Properties,"Dubai, UAE",careers@nakheelproperties.com
+66,Senior Network Engineer,NEOM,"NEOM, Saudi Arabia",careers@neom.com
+67,IT Network Engineer,ACWA Power,"Riyadh, Saudi Arabia",careers@acwapower.com
+68,IT Infrastructure Engineer,Maaden Mining,"Riyadh, Saudi Arabia",careers@maadenmining.com
+69,Network Engineer,Zain KSA,"Riyadh, Saudi Arabia",careers@zainksa.com
+70,Network Engineer,Etisalat Misr,"Cairo, Egypt",careers@etisalatmisr.com
+71,IT Infrastructure Engineer,CIB Bank Egypt,"Cairo, Egypt",careers@cibbankegypt.com
+72,IT Network Engineer,Fawry Payments,"Cairo, Egypt",careers@fawrypayments.com
+73,IT Network Engineer,QNB ALAHLI,"Cairo, Egypt",careers@qnbalahli.com
+74,IT Infrastructure Engineer,Qatar Foundation,"Doha, Qatar",careers@qatarfoundation.com
+75,IT Network Engineer,KIPCO,"Kuwait City, Kuwait",careers@kipco.com
+76,IT Network Engineer,Arab Bank,"Amman, Jordan",careers@arabbank.com
+77,IT Infrastructure Engineer,Arab Electric Engineers,"Amman, Jordan",careers@arabelectricengineers.com
+78,Network Engineer,Asia Cell Iraq,"Baghdad, Iraq",careers@asiacelliraq.com
+79,Network Engineer (Remote),Cloudflare,Remote,careers@cloudflare.com
+80,Network Security Engineer,Palo Alto Networks,Remote,careers@paloaltonetworks.com
+81,Senior Network Engineer,Juniper Networks,Remote,careers@junipernetworks.com
+82,Network Engineer,Arista Networks,Remote,careers@aristanetworks.com
+83,Senior Network Engineer,Cisco Systems,Remote,careers@ciscosystems.com
+84,Network Architect,Huawei MENA,Remote,careers@huaweimena.com
+85,Network Engineer,Cedarcom Group,"Beirut, LB",careers@cedarcomgroup.com
+86,Network Support Engineer,CIS Group,"Beirut, LB",careers@cisgroup.com
+87,Junior Telecom Technician,Jobs for Humanity,"Beirut, LB",careers@jobsforhumanity.com
+88,NOC Engineer/specialist,Jobs for Lebanon,"Beirut, LB",careers@jobsforlebanon.com
+89,Network Engineer II,Baton Rouge General Medical Center,"Baton Rouge, LA",careers@batonrougegeneralmedicalcenter.com
+90,Network Engineer III,Tulane University,"New Orleans, LA",careers@tulaneuniversity.com
+91,Network Engineer,Covia,"Independence, OH",careers@covia.com
+92,Network Engineer,Tennessee Board of Regents (TBR),"Memphis, TN",careers@tennesseeboardofregents(tbr).com
+93,OT Network Engineer,Delta Faucet Company,"Jackson, TN",careers@deltafaucetcompany.com
+94,Network Engineer,Blue Cross & Blue Shield of Mississippi,"Flowood, MS",careers@bluecross&blueshieldofmississippi.com
+95,IT Senior Network Engineer,"Tennessee Valley Public Power Association, Inc.","Shelbyville, TN",careers@tennesseevalleypublicpowerassociationinc..com
+96,Network Engineer,City of Pittsburgh,"Pittsburgh, PA",careers@cityofpittsburgh.com
+97,Network Operations Engineer (Tier II),"ActioNet, Inc.","Alcoa, TN",careers@actionetinc..com
+98,Network Engineer II,REV,"Gonzales, LA",careers@rev.com
+99,Network Engineer,ENTEK Manufacturing LLC,"Lebanon, OR",careers@entekmanufacturingllc.com
+100,"Network Engineer, Deployment & Support",Meta,"Lebanon, IN",careers@meta.com
+101,Network Escalation Engineer,"Konica Minolta Business Solutions U.S.A., Inc.","Westbrook, ME",careers@konicaminoltabusinesssolutionsu.s.a.inc..com
+102,Network Escalation Engineer,Konica Minolta Business Solutions Canada,"West Lebanon, NH",careers@konicaminoltabusinesssolutionscanada.com
+103,"Network (DDI, Load Balancer & GTM )Engineer",Tata Consultancy Services,"Lebanon, NJ",careers@tataconsultancyservices.com
+104,Software Engineer.,Dartmouth College,"Lebanon, NH",careers@dartmouthcollege.com
+105,Engineer - Automation Engineering – Control System Data Analyst- Lilly Medicine Foundry,BioSpace,"Lebanon, IN",careers@biospace.com
+106,Prof Services Engineer,"Konica Minolta Business Solutions U.S.A., Inc.","West Lebanon, NH",careers@konicaminoltabusinesssolutionsu.s.a.inc..com
+107,Engineer - Automation Engineering – Control System Data Analyst- Lilly Medicine Foundry,Eli Lilly and Company,"Lebanon, IN",careers@elilillyandcompany.com
+108,Network Administrator,First Horizon Bank,"Memphis, TN",careers@firsthorizonbank.com
+109,Network Engineer II,The Fresh Market,"Greensboro, NC",careers@thefreshmarket.com
+110,Senior Network Engineer,Cisco Systems,Beirut,careers@ciscosystems.com
+111,Network Security Engineer,Fortinet,Dubai,careers@fortinet.com
+112,Cloud Network Architect,AWS,Remote,careers@aws.com
+113,IT Infrastructure Manager,Bank Audi,Beirut,careers@bankaudi.com
+114,Network Ops Lead,STC,Riyadh,careers@stc.com
+115,Security Ops Analyst,Qatar Telecom,Doha,careers@qatartelecom.com
+116,Systems Engineer,Microsoft,Remote,careers@microsoft.com
+117,Network Engineer,DataTech,Beirut,careers@datatech.com
+118,SOC Team Lead,Mobily,Jeddah,careers@mobily.com
+119,Infrastructure Architect,Emirates NBD,Dubai,careers@emiratesnbd.com
+120,Network Admin,Alfa Telecom,Beirut,careers@alfatelecom.com
+121,IT Security Manager,Blom Bank,Beirut,careers@blombank.com
+122,Cloud Engineer,Google Cloud,Remote,careers@googlecloud.com
+123,Network Analyst,Ooredoo,Kuwait City,careers@ooredoo.com
+124,Data Center Engineer,Equinix,Dubai,careers@equinix.com
+125,Telecom Specialist,Touch Lebanon,Beirut,careers@touchlebanon.com
+126,Security Consultant,Kaspersky,Remote,careers@kaspersky.com
+127,IT Ops Manager,Murex,Beirut,careers@murex.com
+128,DevOps Engineer,Oracle,Remote,careers@oracle.com
+129,Wireless Engineer,Etisalat,Abu Dhabi,careers@etisalat.com
+130,Cybersecurity Engineer,DarkMatter,Dubai,careers@darkmatter.com
+131,Network Planning Engineer,Zain,Kuwait City,careers@zain.com
+132,IT Consultant,PwC,Dubai,careers@pwc.com
+133,Infrastructure Lead,Byblos Bank,Beirut,careers@byblosbank.com
+134,Platform Engineer,Salesforce,Remote,careers@salesforce.com
+135,Network Engineer,Strategic Systems Inc,"Midway, TN",careers@strategicsystemsinc.com
+136,Network Administrator,"Q&B Foods, Inc.","Clarksville, TN",careers@q&bfoodsinc..com
+137,"(Remote) Network Engineer - Information Technology Services, Network Services",West Virginia University,"Morgantown, WV",careers@westvirginiauniversity.com
+138,Test Job 0,Test Inc,,careers@testinc.com
+139,Test Job 8,Test Inc,,careers@testinc.com
+140,Test Job 16,Test Inc,,careers@testinc.com
+141,Test Job 17,Test Inc,,careers@testinc.com
+142,Test Job 18,Test Inc,,careers@testinc.com
+143,Test Job 19,Test Inc,,careers@testinc.com
+144,Test Job 11,Test Inc,,careers@testinc.com
+145,Test Job 20,Test Inc,,careers@testinc.com
+146,Test Job 22,Test Inc,,careers@testinc.com
+147,Test Job 23,Test Inc,,careers@testinc.com
+148,Test Job 24,Test Inc,,careers@testinc.com
+149,Test Job 25,Test Inc,,careers@testinc.com
+150,Test Job 26,Test Inc,,careers@testinc.com
+151,Test Job 27,Test Inc,,careers@testinc.com
+152,Test Job 28,Test Inc,,careers@testinc.com
+153,Test Job 29,Test Inc,,careers@testinc.com
+154,Test Job 30,Test Inc,,careers@testinc.com
+155,Test Job 21,Test Inc,,careers@testinc.com
+156,Test Job 31,Test Inc,,careers@testinc.com
+157,Test Job 32,Test Inc,,careers@testinc.com
+158,Test Job 2,Test Inc,,careers@testinc.com
+159,Test Job 34,Test Inc,,careers@testinc.com
+160,Test Job 35,Test Inc,,careers@testinc.com
+161,Test Job 36,Test Inc,,careers@testinc.com
+162,Test Job 33,Test Inc,,careers@testinc.com
+163,Test Job 39,Test Inc,,careers@testinc.com
+164,Test Job 40,Test Inc,,careers@testinc.com
+165,Test Job 10,Test Inc,,careers@testinc.com
+166,Test Job 41,Test Inc,,careers@testinc.com
+167,Test Job 43,Test Inc,,careers@testinc.com
+168,Test Job 44,Test Inc,,careers@testinc.com
+169,Test Job 45,Test Inc,,careers@testinc.com
+170,Test Job 46,Test Inc,,careers@testinc.com
+171,Test Job 47,Test Inc,,careers@testinc.com
+172,Test Job 48,Test Inc,,careers@testinc.com
+173,Test Job 49,Test Inc,,careers@testinc.com
+174,Test Job 42,Test Inc,,careers@testinc.com
+175,Test Job 38,Test Inc,,careers@testinc.com
+176,Test Job 4,Test Inc,,careers@testinc.com
+177,Test Job 12,Test Inc,,careers@testinc.com
+178,Test Job 13,Test Inc,,careers@testinc.com
+179,Test Job 15,Test Inc,,careers@testinc.com
+180,Test Job 37,Test Inc,,careers@testinc.com
+181,Test Job 1,Test Inc,,careers@testinc.com
+182,Test Job 9,Test Inc,,careers@testinc.com
+183,Test Job 5,Test Inc,,careers@testinc.com
+184,Test Job 14,Test Inc,,careers@testinc.com
+185,Test Job 7,Test Inc,,careers@testinc.com
+186,Test Job 6,Test Inc,,careers@testinc.com
+187,Test Job 3,Test Inc,,careers@testinc.com
