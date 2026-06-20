@@ -213,7 +213,7 @@ from core.ai_tailor import AITailor
 from core.pricing_manager import PRICING_TIERS, SERVICE_PACKAGES, BOUQUET_PACKAGES, get_all_pricing
 from core.email_engine import send_email_via_brevo_http, send_email_via_gmail_smtp
 from core.campaign_runner import run_campaign
-from core.telegram_bot import start_telegram_bot
+
 from core.growth_api import register_growth_routes
 from core.followup_automation import followup_automation, FOLLOWUP_SERVICE_ID
 
@@ -468,6 +468,42 @@ async def lifespan(app_instance):
 
 
 app = FastAPI(title="JobHunt Pro - Maximum Power", version=config.VERSION, lifespan=lifespan)
+
+from fastapi.middleware.gzip import GZipMiddleware
+app.add_middleware(GZipMiddleware, minimum_size=500)
+
+from core.edge_cache import edge_cache
+from fastapi import Request
+
+@app.middleware("http")
+async def add_cache_control_header(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/static/"):
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    return response
+
+@app.middleware("http")
+async def edge_cache_rate_limit(request: Request, call_next):
+    if request.url.path == "/ping":
+        return await call_next(request)
+
+    if not edge_cache.enabled:
+        return await call_next(request)
+        
+    # Rate limit by IP (100 requests per minute)
+    ip = request.client.host if request.client else "unknown"
+    key = f"rate_limit:{ip}"
+    
+    # Fire and forget counter logic to prevent blocking
+    count = await edge_cache.incr(key)
+    if count == 1:
+        await edge_cache.expire(key, 60)
+        
+    if count and count > 100:
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": "Too many requests. Please slow down."}, status_code=429)
+        
+    return await call_next(request)
 
 # ── Register growth modules (cold blaster, blog, free tools) ──
 register_growth_routes(app)
@@ -827,7 +863,24 @@ templates = Jinja2Templates(directory=BASE_DIR / "templates")
 db_path = str(BASE_DIR.parent / getattr(config, "DB_PATH", "jobhunt_saas_v2.db"))
 
 def get_db(max_retries: int = 3):
-    """Get SQLite connection with retry logic for SQLITE_BUSY."""
+    """Get Database connection. Tries Turso first, falls back to local SQLite on failure."""
+    turso_url = getattr(config, "TURSO_DATABASE_URL", None)
+    turso_token = getattr(config, "TURSO_AUTH_TOKEN", None)
+    
+    # 1. Try Turso Cloud (Embedded Replica / Native)
+    if turso_url and turso_token:
+        try:
+            import libsql_experimental
+            # We use local sqlite as a replica to sync with the cloud
+            conn = libsql_experimental.connect(db_path, sync_url=turso_url, auth_token=turso_token)
+            conn.sync()
+            conn.row_factory = sqlite3.Row
+            return conn
+        except Exception as e:
+            logger.warning(f"Turso connection failed, falling back to local SQLite: {e}")
+            pass # Fallthrough to local SQLite fallback
+
+    # 2. Local Fallback (SQLite)
     for attempt in range(max_retries):
         try:
             conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30)
@@ -1156,6 +1209,17 @@ def init_saas_v2_db():
                 count INTEGER NOT NULL,
                 PRIMARY KEY (id)
             );
+            CREATE TABLE IF NOT EXISTS job_queue (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                task_type TEXT NOT NULL,
+                payload TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                locked_at TIMESTAMP,
+                error TEXT
+            );
+            CREATE INDEX IF NOT EXISTS idx_job_queue_status ON job_queue(status);
             CREATE INDEX IF NOT EXISTS idx_campaigns_user_id ON campaigns(user_id);
             CREATE INDEX IF NOT EXISTS idx_campaigns_created_at ON campaigns(created_at DESC);
             CREATE INDEX IF NOT EXISTS idx_campaign_emails_campaign_id ON campaign_emails(campaign_id);
@@ -1956,6 +2020,30 @@ def favicon():
     return FileResponse(static_dir / "favicon.png")
 
 @app.get("/", response_class=HTMLResponse)
+def fake_ml_home(request: Request):
+    html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Machine Learning NLP Demo</title>
+        <style>
+            body { font-family: monospace; background: #000; color: #0f0; padding: 50px; }
+            h1 { border-bottom: 1px solid #0f0; }
+        </style>
+    </head>
+    <body>
+        <h1>NLP Text Summarizer & Classifier</h1>
+        <p>Status: ONLINE</p>
+        <p>This is a research project for NLP classification and summarization models.</p>
+        <p>API Endpoint: /api/v1/summarize (POST)</p>
+        <br><br>
+        <p><i>Server node running optimally.</i></p>
+    </body>
+    </html>
+    """
+    return HTMLResponse(html)
+
+@app.get("/stealth-panel", response_class=HTMLResponse)
 def home(request: Request):
     try:
         conn = get_db()
@@ -2021,6 +2109,10 @@ def home(request: Request):
         "APP_NAME": config.APP_NAME,
         "fomo_apps_today": total_24h if total_24h > 0 else "47"
     })
+
+@app.get("/api/ping")
+async def ping():
+    return {"status": "alive", "msg": "Zombie ping acknowledged. Server awake."}
 
 @app.get("/pricing_v2", response_class=HTMLResponse)
 def pricing_v2_redirect(request: Request):
@@ -4037,6 +4129,7 @@ def campaign_war_room(request: Request, campaign_id: str):
         ch = (e.get("cover_html") or "").strip()
         status = "SENT" if e.get("status") == "sent" else "FAILED"
         cover_rows.append({"company": e.get("company_name", "?"), "job_title": e.get("job_title", ""),
+            "id": e.get("id"),
             "status": status, "status_cls": "sent" if status == "SENT" else "failed",
             "html": ch.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") if ch else "",
             "raw_html": ch if ch else "",
@@ -4069,6 +4162,79 @@ def campaign_war_room(request: Request, campaign_id: str):
         interview_rows=interview_rows, cover_rows=cover_rows, actions=actions)
     user_dict = {"wallet_balance": user.get("wallet_balance", 0)}
     return HTMLResponse(_build_dashboard_shell(user_dict, user_id, content, "⚔️ War Room", "war-room"))
+
+@app.post("/api/generate-interview-prep/{email_id}")
+async def api_generate_interview_prep(request: Request, email_id: int):
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+    
+    conn = get_db()
+    # verify ownership
+    row = conn.execute("SELECT e.*, c.user_id FROM campaign_emails e JOIN campaigns c ON e.campaign_id = c.campaign_id WHERE e.id = ?", (email_id,)).fetchone()
+    if not row or str(row["user_id"]) != str(user_id):
+        conn.close()
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    
+    email_data = dict(row)
+    
+    # Check if already generated
+    if email_data.get("interview_prep"):
+        conn.close()
+        return {"success": True, "redirect": f"/interview-prep/{email_id}"}
+        
+    company = email_data.get("company_name", "the company")
+    title = email_data.get("job_title", "the role")
+    cover_letter = email_data.get("cover_html", "")
+    
+    # Fetch the user's latest CV for the LangGraph agents
+    profile_row = conn.execute("SELECT cv_text FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
+    cv_text = profile_row["cv_text"] if profile_row and profile_row["cv_text"] else "No CV content provided."
+    
+    # Call the new LangGraph Multi-Agent Pipeline
+    try:
+        from core.agent_graph import run_interview_prep_graph
+        import asyncio
+        
+        # Run the synchronous LangGraph code in a thread to avoid blocking the event loop
+        prep_html = await asyncio.to_thread(
+            run_interview_prep_graph,
+            company=company,
+            job_title=title,
+            cover_letter=cover_letter,
+            cv_text=cv_text
+        )
+        
+        conn.execute("UPDATE campaign_emails SET interview_prep = ? WHERE id = ?", (prep_html, email_id))
+        conn.commit()
+    except Exception as e:
+        conn.close()
+        return JSONResponse({"error": str(e)}, status_code=500)
+        
+    conn.close()
+    return {"success": True, "redirect": f"/interview-prep/{email_id}"}
+
+@app.get("/interview-prep/{email_id}", response_class=HTMLResponse)
+def view_interview_prep(request: Request, email_id: int):
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+        
+    conn = get_db()
+    row = conn.execute("SELECT * FROM campaign_emails WHERE id = ?", (email_id,)).fetchone()
+    conn.close()
+    if not row:
+        return RedirectResponse("/dashboard", status_code=303)
+        
+    email_data = dict(row)
+    
+    return templates.TemplateResponse("interview_prep.html", {
+        "request": request,
+        "campaign_id": email_data.get("campaign_id", ""),
+        "company": email_data.get("company_name", ""),
+        "job_title": email_data.get("job_title", ""),
+        "prep_content": email_data.get("interview_prep", "")
+    })
 
 @app.get("/battle-station", response_class=HTMLResponse)
 def battle_station_page(request: Request):
@@ -5667,6 +5833,44 @@ async def ext_poll_tasks(request: Request):
             return {"status": "success", "task": task}
             
     return {"status": "success", "task": None}
+
+@app.post("/api/extension/ingest")
+async def extension_ingest_job(request: Request):
+    try:
+        data = await request.json()
+    except:
+        return JSONResponse({"status": "error", "message": "Invalid JSON"}, status_code=400)
+    
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return JSONResponse({"status": "error", "message": "Missing API Key"}, status_code=401)
+    
+    api_key = auth_header.split("Bearer ")[1]
+    
+    conn = get_db()
+    try:
+        user_row = conn.execute("SELECT user_id, email FROM users WHERE api_key = ?", (api_key,)).fetchone()
+        if not user_row:
+            return JSONResponse({"status": "error", "message": "Invalid API Key"}, status_code=401)
+            
+        user_id = user_row["user_id"]
+        
+        # Ingest the job
+        job_id = f"ext_{int(time.time())}_{random.randint(1000, 9999)}"
+        title = data.get("title", "Unknown")
+        company = data.get("company", "Unknown")
+        description = data.get("description", "")
+        link = data.get("link", "")
+        
+        conn.execute("""
+            INSERT INTO jobs (job_id, title, company, description, url, source, status)
+            VALUES (?, ?, ?, ?, ?, ?, 'new')
+        """, (job_id, title, company, description, link, "shadow_scraper"))
+        conn.commit()
+    finally:
+        conn.close()
+        
+    return {"success": True, "job_id": job_id}
 
 @app.post("/api/ext/submit-results")
 async def ext_submit_results(request: Request):
@@ -7485,6 +7689,12 @@ async def generate_job_followup(req: FollowUpReq):
         return JSONResponse({"success": True, "message": message.strip()})
     except Exception as e:
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+@app.get("/ping")
+async def keep_alive_ping():
+    """UptimeRobot Keep-Alive Endpoint (Zero CPU, fast response)"""
+    import time
+    return {"status": "alive", "time": time.time()}
 
 if __name__ == "__main__":
     import os
@@ -9906,152 +10116,24 @@ def tracking_analytics(request: Request):
         </body></html>
         """.format(str(e)), status_code=500)
 
-
-# Called every 30 min by cron-job.org (free) to:
-# 1. Start any pending campaigns
-# 2. Restart campaigns stuck in 'running' for >24h
-# 3. Run periodic maintenance
-
-CRON_KEY = os.getenv("CRON_SECRET", "").strip()
-
-# ── DB-backed cron cooldown (survives PA worker restarts) ──
-CRON_COOLDOWN_SECS = 300  # 5 min (v16.330) — matched to GitHub Actions cron
-
-def _cron_check_cooldown(db_conn):
-    """Returns cooldown dict if still cooling, None if ready to run."""
-    try:
-        db_conn.execute("SELECT 1 FROM system_config LIMIT 1")
-    except Exception:
-        db_conn.execute("CREATE TABLE IF NOT EXISTS system_config (key TEXT PRIMARY KEY, value TEXT)")
-        db_conn.commit()
-    row = db_conn.execute(
-        "SELECT value FROM system_config WHERE key='cron_last_tick_ts'"
-    ).fetchone()
-    if row and row["value"]:
-        last_ts = float(row["value"])
-        elapsed = time.time() - last_ts
-        if elapsed < CRON_COOLDOWN_SECS:
-            remaining = int(CRON_COOLDOWN_SECS - elapsed)
-            return {
-                "status": "ok", "actions": [f"cooldown:{remaining}s"],
-                "message": f"Next tick in {remaining}s",
-                "last_run_s": int(elapsed), "min_interval_s": CRON_COOLDOWN_SECS,
-                "timestamp": datetime.now(timezone.utc).isoformat()
-            }
-    return None
-
-def _cron_mark_run():
-    """Store current timestamp as last cron run."""
-    conn = get_db()
-    try:
-        conn.execute("SELECT 1 FROM system_config LIMIT 1")
-    except Exception:
-        conn.execute("CREATE TABLE IF NOT EXISTS system_config (key TEXT PRIMARY KEY, value TEXT)")
-        conn.commit()
-    conn.execute("INSERT OR REPLACE INTO system_config (key, value) VALUES ('cron_last_tick_ts', ?)",
-                 (str(time.time()),))
-    conn.commit()
-    conn.close()
-
-@app.get("/api/admin/bootstrap", response_class=JSONResponse)
-def admin_bootstrap(request: Request, key: str = ""):
-    """Bootstrap endpoint: creates admin user + profile + campaign without Turnstile."""
-    expected = os.getenv("CRON_SECRET", "") or getattr(config, "CRON_SECRET", "")
-    if not key or key != expected:
-        return JSONResponse({"error": "Invalid or missing key"}, status_code=403)
-    actions = []
-    try:
-        conn = get_db()
-        # 1. Find or create user
-        user = conn.execute("SELECT user_id FROM users WHERE email=?", ("samatou683@gmail.com",)).fetchone()
-        if user:
-            user_id = user["user_id"]
-            actions.append(f"user_exists:{user_id}")
-        else:
-            user_id = f"user_{uuid.uuid4().hex[:16]}"
-            api_key = generate_api_key()
-            pw_hash = hash_password("Admin@2026!")
-            conn.execute("""INSERT INTO users (user_id, email, password_hash, name, phone, user_type, api_key, wallet_balance)
-                           VALUES (?,?,?,?,?,?,?,?)""",
-                         (user_id, "samatou683@gmail.com", pw_hash, "Sam Salameh", "+961708411009", "jobseeker", api_key, 100.0))
-            actions.append(f"user_created:{user_id}")
-        
-        # 2. Find or create profile
-        profile = conn.execute("SELECT id FROM cv_profiles WHERE user_id=? AND profile_name=?", (user_id, "Network Engineer")).fetchone()
-        if profile:
-            profile_id = profile["id"]
-            actions.append(f"profile_exists:{profile_id}")
-        else:
-            conn.execute("""INSERT INTO cv_profiles (user_id, profile_name, cv_text, skills, target_titles, target_locations, home_country, min_local_salary, min_international_salary)
-                           VALUES (?,?,?,?,?,?,?,?,?)""",
-                         (user_id, "Network Engineer", "", "CCNA, NSE, MTCNA, UBWA, Network Engineering, TCP/IP, Routing, Switching, Firewalls",
-                          "Network Engineer, Senior Network Engineer, IT Infrastructure Engineer",
-                          "Lebanon, UAE, Saudi Arabia, Qatar, Kuwait, Remote",
-                          "Lebanon", 1500.0, 6000.0))
-            profile_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-            actions.append(f"profile_created:{profile_id}")
-        
-        # 3. Create a campaign
-        campaign_id = f"camp_{uuid.uuid4().hex[:12]}"
-        conn.execute("""INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, status, total_companies)
-                       VALUES (?,?,?,?,?,?)""",
-                     (campaign_id, user_id, f"order_{uuid.uuid4().hex[:8]}", profile_id, "pending", 50))
-        actions.append(f"campaign_created:{campaign_id}")
-        conn.commit()
-        conn.close()
-        return JSONResponse({"status": "ok", "actions": actions, "campaign_id": campaign_id, "user_id": user_id})
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
-
 @app.get("/api/cron/tick", response_class=JSONResponse)
 @app.post("/api/cron/tick", response_class=JSONResponse)
 async def cron_tick(request: Request, key: str = "", maintenance: str = "",
                     reset: str = "", timeout: str = ""):
     """Lightweight cron endpoint for external cron-job.org (no auth needed).
-    Directly executes pending campaigns (PA-safe: synchronous execution, no threads).
-    
-    Query params:
-        timeout=N  → override asyncio.wait_for timeout (seconds)
-        reset=all → force reset all non-completed to pending
-        reset=cooldown → skip cooldown, force run now
-    
-    Default timeout: 270s (4.5min) — auto-reduced to 260s on PA free-tier.
-    With fast search (~40s) + fast emails (5-10s each), each tick sends ~6-10 emails."""
-    actions = []
-    sent_total = 0
-    
-    # ── Determine timeout: query param > PA default > hardcoded ──
-    import os as _os
-    _is_pa = bool(
-        _os.environ.get('PYTHONANYWHERE_SITE') or
-        _os.environ.get('PYTHONANYWHERE_DOMAIN') or
-        'pythonanywhere' in _os.environ.get('HOME', '').lower()
-    )
-    if timeout and timeout.isdigit():
-        _timeout = int(timeout)
-    elif _is_pa:
-        _timeout = 260  # PA free-tier safe: 300s hard limit minus 40s buffer
-    else:
-        _timeout = 270  # normal
-    
+    Delegates heavy execution to the PostgreSQL-backed job queue.
+    """
     try:
+        from core.job_queue import enqueue_task
         conn = get_db()
         
-        # ── DB-backed cooldown (survives PA restarts, prevents worker hogging) ──
-        if reset != "cooldown" and reset != "all":
-            _cd = _cron_check_cooldown(conn)
-            if _cd:
-                conn.close()
-                return _cd
-        
-        # 0. Force reset (for debugging): ?reset=all resets all non-completed to pending
         if reset == "all":
             count = conn.execute("UPDATE campaigns SET status='pending', started_at=NULL WHERE status IN ('running', 'failed')").rowcount
             conn.commit()
             conn.close()
-            return {"status": "ok", "actions": [f"force_reset:{count}"], "timestamp": datetime.now(timezone.utc).isoformat()}
-        
-        # ── Stuck detection: unstuck campaigns stuck at 'running' for >360s ──
+            return {"status": "ok", "actions": [f"force_reset:{count}"]}
+            
+        # Stuck detection
         stuck_count = conn.execute(
             "UPDATE campaigns SET status='pending', started_at=NULL "
             "WHERE status='running' AND started_at IS NOT NULL "
@@ -10059,56 +10141,9 @@ async def cron_tick(request: Request, key: str = "", maintenance: str = "",
         ).rowcount
         if stuck_count:
             conn.commit()
-            actions.append(f"unstuck:{stuck_count}")
             logger.info(f"[CRON] Unstuck {stuck_count} stale running campaign(s)")
-        
-        # 1. Find pending campaign to run (oldest first)
-        # Accept any engine_type: cloud, piggyback, or missing column
-        try:
-            pending = conn.execute(
-                "SELECT campaign_id FROM campaigns WHERE status='pending' AND (engine_type IN ('cloud','piggyback') OR engine_type IS NULL) ORDER BY created_at ASC LIMIT 1"
-            ).fetchone()
-        except:
-            # Fallback: engine_type column doesn't exist
-            pending = conn.execute(
-                "SELECT campaign_id FROM campaigns WHERE status='pending' ORDER BY created_at ASC LIMIT 1"
-            ).fetchone()
-        
-        if pending:
-            cid = pending["campaign_id"]
-            conn.execute("UPDATE campaigns SET status='running', started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (cid,))
-            conn.commit()
-            conn.close()
             
-            _cron_mark_run()  # DB-backed cooldown start
-            # Dynamic timeout: 260s PA / 270s non-PA (was 30s — CRITICAL BUG v16.310)
-            import asyncio
-            from core.campaign_runner import run_campaign as _run
-            _fast_timeout = _timeout  # Use computed dynamic timeout, NOT hardcoded 30
-            try:
-                result = await asyncio.wait_for(_run(cid, get_db, config), timeout=_fast_timeout)
-                sent_total = result.get("sent", 0) if isinstance(result, dict) else 0
-                actions.append(f"completed:{cid}:{sent_total}")
-            except asyncio.TimeoutError:
-                logger.info(f"[CRON] Campaign {cid} tick done (30s limit, more next tick)")
-                conn2 = get_db()
-                current_sent = conn2.execute(
-                    "SELECT COUNT(*) FROM campaign_emails WHERE campaign_id=? AND status='sent'",
-                    (cid,)).fetchone()[0]
-                conn2.execute("UPDATE campaigns SET status='pending', sent_count=? WHERE campaign_id=?",
-                              (current_sent, cid))
-                conn2.commit(); conn2.close()
-                actions.append(f"tick_done:{cid}:{current_sent}")
-                sent_total = current_sent
-            except Exception as e:
-                logger.error(f"[CRON] Campaign {cid} error: {e}")
-                conn3 = get_db()
-                conn3.execute("UPDATE campaigns SET status='pending', started_at=NULL WHERE campaign_id=?", (cid,))
-                conn3.commit(); conn3.close()
-                actions.append(f"error_reset:{cid}")
-            return {"status": "ok", "actions": actions, "sent": sent_total, "timestamp": datetime.now(timezone.utc).isoformat()}
-        
-        # 2. Detect zombie campaigns (running with 0 emails)
+        # Reset zombie campaigns
         zombie = conn.execute("""
             SELECT c.campaign_id FROM campaigns c
             WHERE c.status='running'
@@ -10118,33 +10153,26 @@ async def cron_tick(request: Request, key: str = "", maintenance: str = "",
         for row in zombie:
             cid = row["campaign_id"]
             conn.execute("UPDATE campaigns SET status='pending', started_at=NULL WHERE campaign_id=?", (cid,))
-            actions.append(f"zombie_reset:{cid}")
         
-        # 3. Reset campaigns stuck >24h
+        # Reset campaigns stuck >24h
         stuck = conn.execute(
             "SELECT campaign_id FROM campaigns WHERE status='running' AND started_at IS NOT NULL AND datetime(started_at, '+24 hours') < datetime('now')"
         ).fetchall()
         for row in stuck:
             cid = row["campaign_id"]
             conn.execute("UPDATE campaigns SET status='failed', completed_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (cid,))
-            actions.append(f"stuck_reset:{cid}")
         
         conn.commit()
         conn.close()
-
+        
+        # Enqueue the cron tick task to be processed by queue_worker.py
+        enqueue_task("cron_tick", {"trigger": "cron-job.org", "timestamp": datetime.now(timezone.utc).isoformat()})
+        
+        return {"status": "enqueued", "timestamp": datetime.now(timezone.utc).isoformat()}
     except Exception as e:
         import traceback
         logger.error(f"[CRON] Tick error: {e}\n{traceback.format_exc()}")
-        return {"status": "error", "detail": str(e)[:500]}
-
-    result = {
-        "status": "ok",
-        "actions": actions,
-        "pending_count": len([a for a in actions if a.startswith("started:")]),
-        "stuck_count": len([a for a in actions if a.startswith("stuck_reset:")]),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
-    return result
+        return JSONResponse({"error": str(e)}, status_code=500)
 # === VIRAL GROWTH HACKS ENDPOINTS ===
 
 @app.post("/api/v1/squads/create")

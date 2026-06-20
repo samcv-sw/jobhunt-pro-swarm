@@ -391,7 +391,47 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
             logger.info(f"[CampaignRunner] EmailFinder enriched {enriched} of {len(jobs)} jobs")
 
         sent_this_cycle = 0
+        
+        # --- PRE-DRAFTING COVER LETTERS WITH PARALLEL ASYNC AI ---
+        valid_jobs = []
         for job in jobs:
+            email_addr = job.get("email", "")
+            if email_addr and "@" in email_addr and email_addr.lower() not in already_sent_emails:
+                valid_jobs.append(job)
+                
+        # Limit to remaining quota
+        remaining_quota = campaign["total_companies"] - sent_count
+        valid_jobs = valid_jobs[:remaining_quota]
+        
+        if "penetration-letter" in unlocked_weapons and valid_jobs:
+            logger.info(f"[CampaignRunner] Parallel Async AI: Drafting {len(valid_jobs)} cover letters via AI...")
+            try:
+                from core.ai_tailor import AITailor
+                ai_tailor = AITailor()
+                
+                async def draft_cover(j):
+                    c = j.get("company", "Unknown")
+                    t = j.get("title", "Position")
+                    c_intel = f"Recent growth and technical expansions at {c}" if "the-insider" in unlocked_weapons else ""
+                    try:
+                        html = await ai_tailor.tailor_cover_letter(c, f"{t} at {c}", c_intel)
+                        return "".join([f"<p>{p}</p>" for p in html.split("\n\n") if p.strip()])
+                    except Exception as e:
+                        logger.error(f"AI draft failed for {c}: {e}")
+                        return CoverLetterWriter.write_html_pa(c, t, user_details) if pa_mode else CoverLetterWriter.write_html(c, t, user_details)
+                
+                sem = asyncio.Semaphore(10)
+                async def bound_draft_cover(j):
+                    async with sem:
+                        return await draft_cover(j)
+                        
+                drafts = await asyncio.gather(*(bound_draft_cover(j) for j in valid_jobs))
+                for i, j in enumerate(valid_jobs):
+                    j["pre_drafted_cover"] = drafts[i]
+            except Exception as e:
+                logger.error(f"Parallel AI drafting failed: {e}")
+
+        for job in valid_jobs:
             if pa_mode and (time.time() - start_time) > 252:
                 logger.info(f"[CampaignRunner] ⏱️ PA Timeout approaching (240s)! Yielding to next cycle (Sent {sent_this_cycle} this cycle. Total: {sent_count}/{campaign['total_companies']}).")
                 conn.execute("UPDATE campaigns SET started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (campaign_id,))
@@ -402,13 +442,6 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
                 break
 
             email_addr = job.get("email", "")
-            if not email_addr or "@" not in email_addr:
-                continue
-            
-            # Skip if already sent to this email
-            if email_addr.lower() in already_sent_emails:
-                continue
-
             company = job.get("company", "Unknown Company")
             title = job.get("title", "Position")
 
@@ -420,23 +453,11 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
                 get_provider_delay = None
 
             # ── 1. The Insider (Company Enrichment) ──
-            company_intel = ""
-            if "the-insider" in unlocked_weapons:
-                # Basic placeholder for company intel (in a real app, this would hit a news/company API)
-                company_intel = f"Recent growth and technical expansions at {company}"
+            # Handled in pre-drafting
 
             # ── 2. Penetration Letter ──
-            if "penetration-letter" in unlocked_weapons:
-                try:
-                    from core.ai_tailor import AITailor
-                    ai_tailor = AITailor()
-                    # tailor_cover_letter is async, must await
-                    cover_html = await ai_tailor.tailor_cover_letter(company, f"{title} at {company}", company_intel)
-                    # Convert plain text to simple HTML
-                    cover_html = "".join([f"<p>{p}</p>" for p in cover_html.split("\n\n") if p.strip()])
-                except Exception as e:
-                    logger.error(f"[CampaignRunner] Penetration letter failed: {e}")
-                    cover_html = CoverLetterWriter.write_html_pa(company, title, user_details) if pa_mode else CoverLetterWriter.write_html(company, title, user_details)
+            if "penetration-letter" in unlocked_weapons and "pre_drafted_cover" in job:
+                cover_html = job["pre_drafted_cover"]
             else:
                 if pa_mode:
                     cover_html = CoverLetterWriter.write_html_pa(company, title, user_details)

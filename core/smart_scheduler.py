@@ -106,10 +106,10 @@ class SmartScheduler:
     def __init__(self, tz_offset: int = 0):
         """tz_offset: hours to add to UTC to get local time (Lebanon = +3)"""
         self.providers: Dict[str, ProviderState] = {}
-        self.base_delay = 5  # Reduced from 30s to 5s for faster sends
-        self.jitter_range = 0.3
-        self.min_delay = 2
-        self.max_delay = 30
+        self.base_delay = 20  # Increased for Stealth Mode (evade DDoS monitors)
+        self.jitter_range = 0.5
+        self.min_delay = 15
+        self.max_delay = 60
         self.send_start_hour = 6  # Allow sending from 6AM
         self.send_end_hour = 23   # Until 11PM (was 20, blocking evening sends)
         self.tz_offset = tz_offset

@@ -1,19 +1,43 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
-RUN apt-get update && apt-get install -y \
-    chromium chromium-driver xvfb ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+# Install dependencies and Supervisor to run both FastAPI and the Worker
+RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/*
 
+# Set up working directory
 WORKDIR /app
+COPY . /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir --prefer-binary -r requirements.txt
+# Install Python packages
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install uvicorn
 
-COPY . .
+# Configure Supervisor for Monolith Mode
+RUN echo "[supervisord]" > /etc/supervisor/conf.d/supervisord.conf && \
+    echo "nodaemon=true" >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo "[program:fastapi]" >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo "command=gunicorn web.app_v2:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:7860 --timeout 120" >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo "autostart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo "autorestart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo "[program:worker]" >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo "command=python core/queue_worker.py" >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo "autostart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo "autorestart=true" >> /etc/supervisor/conf.d/supervisord.conf
 
-ENV CHROME_BIN=/usr/bin/chromium
-ENV DISPLAY=:99
-ENV HEALTH_PORT=10000
+# Create Cluster Entrypoint
+RUN echo '#!/bin/bash\n\
+if [ "$MODE" = "WORKER" ]; then\n\
+    echo "🚀 Starting in WORKER ONLY mode..."\n\
+    python core/queue_worker.py\n\
+elif [ "$MODE" = "API" ]; then\n\
+    echo "🚀 Starting in API ONLY mode..."\n\
+    gunicorn web.app_v2:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:7860 --timeout 120\n\
+else\n\
+    echo "🚀 Starting in MONOLITH mode (API + WORKER)..."\n\
+    supervisord -c /etc/supervisor/conf.d/supervisord.conf\n\
+fi' > /app/start.sh && chmod +x /app/start.sh
 
-EXPOSE 10000
-CMD ["sh", "-c", "Xvfb :99 -screen 0 1280x1024x24 & sleep 2 && python -m core.swarm_master"]
+# Expose port 7860 for Hugging Face Spaces
+EXPOSE 7860
+
+# Run the Cluster Entrypoint
+CMD ["bash", "/app/start.sh"]

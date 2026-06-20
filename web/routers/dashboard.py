@@ -72,6 +72,35 @@ async def dashboard(request: Request):
         "applications": [dict(app) for app in applications]
     })
 
+@router.get("/dashboard/kanban")
+async def dashboard_kanban(request: Request):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return RedirectResponse(url="/login")
+        
+    async with db.pool.acquire() as conn:
+        applications = await conn.fetch("""
+            SELECT * FROM applications 
+            WHERE user_id = $1 
+            ORDER BY created_at DESC LIMIT 100
+        """, user_id)
+        
+    return templates.TemplateResponse(request, "kanban_board.html", {
+        "jobs": [dict(app) for app in applications]
+    })
+
+from fastapi import Form
+@router.post("/api/htmx/update_status")
+async def update_status(request: Request, id: str = Form(...), status: str = Form(...)):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return {"error": "unauthorized"}
+        
+    async with db.pool.acquire() as conn:
+        await conn.execute("UPDATE applications SET status = $1 WHERE id = $2 AND user_id = $3", status, int(id), user_id)
+    return {"success": True}
+
+
 @router.websocket("/ws/live")
 async def websocket_endpoint(websocket: WebSocket):
     user_id = websocket.session.get("user_id") if hasattr(websocket, "session") else None

@@ -46,13 +46,6 @@ def convert_sql(query):
             
     sql = "".join(result)
     sql = sql.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
-    
-    # SQLite datetime('now', offset) → PostgreSQL compatible
-    # datetime('now', '-10 minutes') → NOW() - INTERVAL '10 minutes'
-    # datetime('now', '+24 hours') → NOW() + INTERVAL '24 hours'
-    # datetime('now') → NOW()
-    # datetime(started_at, '+24 hours') < datetime('now') → started_at + INTERVAL '24 hours' < NOW()
-    
     # Replace: datetime('now', '...offset...') → NOW() +/- INTERVAL '...offset...'
     def _fix_datetime(m):
         inner = m.group(1)
@@ -60,6 +53,8 @@ def convert_sql(query):
         if len(parts) == 1:
             return "NOW()"
         col = parts[0]
+        if col.lower() == 'now':
+            col = "NOW()"
         offset = parts[1]
         if offset.startswith('+'):
             return f"{col} + INTERVAL '{offset[1:]}'"
@@ -70,6 +65,9 @@ def convert_sql(query):
     
     # Handle datetime() function calls
     sql = re.sub(r"datetime\(([^)]+)\)", _fix_datetime, sql, flags=re.IGNORECASE)
+    
+    # Now replace standalone DATETIME types with TIMESTAMP
+    sql = re.sub(r"\bDATETIME\b", "TIMESTAMP", sql, flags=re.IGNORECASE)
     
     # Handle CURRENT_TIMESTAMP → NOW() (safe for both, but PG prefers NOW())
     sql = re.sub(r"\bCURRENT_TIMESTAMP\b", "NOW()", sql, flags=re.IGNORECASE)
@@ -220,16 +218,7 @@ def connect(db_path=None, **kwargs):
         elif db_path:
             return SqliteConnectionWrapper(db_path)
     
-    try:
-        return PgConnectionWrapper()
-    except OperationalError:
-        logger.warning("[DB] Neon PG unreachable (PA free tier?), falling back to SQLite")
-        if FALLBACK_DB_PATH and os.path.exists(FALLBACK_DB_PATH):
-            return SqliteConnectionWrapper(FALLBACK_DB_PATH)
-        elif db_path:
-            return SqliteConnectionWrapper(db_path)
-        else:
-            raise OperationalError("No database available: PG unreachable and no SQLite path")
+    return PgConnectionWrapper()
 
 class Row:
     pass

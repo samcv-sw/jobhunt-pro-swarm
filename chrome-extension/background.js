@@ -107,6 +107,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return;
   }
 
+  if (request.action === 'check_robots') {
+    checkRobotsTxt(request.url).then(allowed => sendResponse({ allowed }));
+    return true;
+  }
+
   // Default response
   sendResponse({ success: false, error: 'unknown_action' });
 });
@@ -153,4 +158,60 @@ async function updateStats() {
 
 function getDefaultStats() {
   return { apps: 0, matchRate: 0, coverLetters: 0, timeSaved: 0 };
+}
+
+// ── Compliance: robots.txt ──
+const robotsCache = {};
+
+async function checkRobotsTxt(targetUrl) {
+  try {
+    const url = new URL(targetUrl);
+    const robotsUrl = `${url.origin}/robots.txt`;
+    
+    if (robotsCache[robotsUrl] && (Date.now() - robotsCache[robotsUrl].timestamp < 3600000)) {
+      return isAllowedByRobots(url.pathname, robotsCache[robotsUrl].rules);
+    }
+    
+    const resp = await fetch(robotsUrl);
+    if (!resp.ok) return true; // If 404, assume allowed
+    
+    const text = await resp.text();
+    const rules = parseRobotsTxt(text);
+    robotsCache[robotsUrl] = { timestamp: Date.now(), rules };
+    return isAllowedByRobots(url.pathname, rules);
+  } catch (e) {
+    return true; // Fallback to allowed if fetch fails
+  }
+}
+
+function parseRobotsTxt(text) {
+  const rules = { allow: [], disallow: [] };
+  let isUserAgentMatch = false;
+  
+  const lines = text.split('\n');
+  for (const line of lines) {
+    const cleanLine = line.split('#')[0].trim();
+    if (!cleanLine) continue;
+    
+    const [key, ...valueParts] = cleanLine.split(':');
+    const value = valueParts.join(':').trim();
+    
+    if (key.toLowerCase() === 'user-agent') {
+      isUserAgentMatch = value === '*' || value.toLowerCase().includes('jobhunt');
+    } else if (isUserAgentMatch) {
+      if (key.toLowerCase() === 'disallow' && value) rules.disallow.push(value);
+      if (key.toLowerCase() === 'allow' && value) rules.allow.push(value);
+    }
+  }
+  return rules;
+}
+
+function isAllowedByRobots(path, rules) {
+  for (const allow of rules.allow) {
+    if (path.startsWith(allow)) return true;
+  }
+  for (const disallow of rules.disallow) {
+    if (path.startsWith(disallow)) return false;
+  }
+  return true;
 }

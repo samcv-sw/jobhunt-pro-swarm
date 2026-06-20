@@ -821,8 +821,8 @@ class EmailEngine:
         cover_pdf_path = None
         if generate_cover_pdf:
             try:
-                from core.cover_pdf import generate_cover_pdf as gen_pdf
-                cover_pdf_path = gen_pdf(company, title)
+                from core.pdf_generator import generate_cover_letter_pdf
+                cover_pdf_path = generate_cover_letter_pdf(cover_html)
             except Exception as e:
                 logger.warning(f"Cover PDF generation failed: {e}")
 
@@ -832,6 +832,25 @@ class EmailEngine:
             attachment_paths.append(cv_path or self.cv_path)
         if cover_pdf_path:
             attachment_paths.append(cover_pdf_path)
+
+        # SMTP Swarm Optimization: Try User's SMTP First
+        if user_details and user_details.get("smtp_user") and user_details.get("smtp_pass"):
+            try:
+                success = send_email_via_gmail_smtp(
+                    to_email=to_email,
+                    company_name=company,
+                    job_title=title,
+                    custom_body=cover_html,
+                    sender_name=user_details.get("name", config.CANDIDATE_NAME),
+                    subject=f"Application: {title} at {company}",
+                    smtp_user=user_details["smtp_user"],
+                    smtp_pass=user_details["smtp_pass"],
+                    attachment_paths=attachment_paths
+                )
+                if success:
+                    return True, "smtp_swarm"
+            except Exception as e:
+                logger.warning(f"SMTP Swarm failed, falling back to centralized APIs: {e}")
 
         # Get candidate profile highlights for the email
         highlights = None
@@ -1308,6 +1327,7 @@ def send_email_via_gmail_smtp(
     sender_email: str = None,
     smtp_user: str = None,
     smtp_pass: str = None,
+    attachment_paths: list = None
 ) -> bool:
     """Send via Gmail SMTP with app password. 15s timeout, TLS."""
     import smtplib, ssl

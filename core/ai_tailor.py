@@ -13,6 +13,7 @@ import config
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+import core.semantic_cache as semantic_cache
 
 logger = logging.getLogger(__name__)
 
@@ -352,16 +353,25 @@ Include a mix of:
 
     # ── AI Call Layer (Groq primary, Gemini fallback) ────────────────────────
     
-    _SEMANTIC_CACHE = {} # $0 Semantic Cache to save tokens
+    _SEMANTIC_CACHE = {} # Local memory fallback
 
     async def _call_ai(self, prompt: str, max_tokens: int = 1000, temperature: float = 0.7) -> str | None:
-        """Call AI with Semantic Caching → Groq (primary) → Gemini (fallback) → None."""
+        """Call AI with pgvector Semantic Caching → Groq (primary) → Gemini (fallback) → None."""
         
-        # 1. $0 Semantic Caching Layer
+        # 1. $0 pgvector Semantic Caching Layer
+        try:
+            cached_res = semantic_cache.get_cached_response(prompt)
+            if cached_res:
+                logger.info(f"[$0 PGVECTOR SEMANTIC CACHE HIT] Saved {max_tokens} tokens.")
+                return cached_res
+        except Exception as e:
+            logger.warning(f"Semantic cache lookup failed: {e}")
+
+        # Local cache fallback
         cache_key = hashlib.md5(prompt.encode()).hexdigest()
         if cache_key in self._SEMANTIC_CACHE:
-            logger.info(f"[$0 SEMANTIC CACHE HIT] Saved {max_tokens} tokens.")
             return self._SEMANTIC_CACHE[cache_key]
+
         # Try Groq first (fast, free tier)
         if self.groq_key:
             for model in self.MODELS:
@@ -369,6 +379,9 @@ Include a mix of:
                     result = await self._call_groq(prompt, model, max_tokens, temperature)
                     if result:
                         self._SEMANTIC_CACHE[cache_key] = result
+                        try:
+                            semantic_cache.save_to_cache(prompt, result)
+                        except: pass
                         return result
                 except Exception as e:
                     logger.warning(f"Groq {model} failed: {e}")
@@ -380,6 +393,9 @@ Include a mix of:
                 result = await self._call_gemini(prompt, max_tokens)
                 if result:
                     self._SEMANTIC_CACHE[cache_key] = result
+                    try:
+                        semantic_cache.save_to_cache(prompt, result)
+                    except: pass
                     return result
             except Exception as e:
                 logger.warning(f"Gemini failed: {e}")
@@ -415,14 +431,13 @@ Include a mix of:
                 content = data["choices"][0]["message"]["content"]
                 return content.strip() if content else None
             elif resp.status_code == 429:
-                error_text = resp.text[:300]
-                # Check if this is a TPD (tokens-per-day) limit — won't recover with retry
-                if "tokens per day" in error_text or "TPD" in error_text:
+                error_text = resp.text.lower()
+                if "tpd" in error_text or "tokens per day" in error_text:
                     logger.warning(f"Groq {model} TPD limit exhausted, skipping retry: {error_text[:100]}")
                     raise Exception(f"Groq {model} TPD exhausted — {error_text[:100]}")
-                # Non-TPD rate limit — wait briefly and retry once
-                logger.warning(f"Groq rate limited on {model}, waiting 5s...")
-                await asyncio.sleep(5)
+                
+                logger.warning(f"Groq rate limited on {model}, waiting 60s (ANTI-BAN)...")
+                await asyncio.sleep(60) # ANTI-BAN: 60 seconds delay to prevent permanent API key ban
                 resp = await client.post(url, headers=headers, json=payload)
                 if resp.status_code == 200:
                     data = resp.json()

@@ -193,8 +193,13 @@ def _scrape_location_title(title: str, location_key: str) -> List[Dict]:
     url = _build_url(title, location_key)
 
     try:
-        with httpx.Client(timeout=REQUEST_TIMEOUT, follow_redirects=True) as client:
-            resp = client.get(url, headers=HEADERS)
+        import cloudscraper
+        scraper = cloudscraper.create_scraper(browser={
+            'browser': 'chrome',
+            'platform': 'windows',
+            'desktop': True
+        })
+        resp = scraper.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
 
         if resp.status_code != 200:
             logger.warning(f"Dice [{location_key}/{title}] HTTP {resp.status_code}")

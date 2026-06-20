@@ -63,8 +63,11 @@
     </style>
 </head>
 <body>
-    <h2>JobHunt Pro - AI Settings</h2>
+    <h2>JobHunt Pro - Shadow Scraper</h2>
     
+    <label for="apiKey">Your API Key (Backend)</label>
+    <input type="password" id="apiKey" placeholder="secret-key">
+
     <label for="profession">Target Profession</label>
     <input type="text" id="profession" placeholder="e.g., Senior Frontend Engineer">
 
@@ -72,6 +75,8 @@
     <textarea id="baseCv" placeholder="Paste your full resume text here..."></textarea>
 
     <button id="saveBtn">Save Settings</button>
+    <br><br>
+    <button id="scrapeBtn" style="background:#10b981;">⚡ Scrape Current Job</button>
     <div id="status" class="status">Settings Saved Successfully!</div>
 
     <script src="popup.js"></script>

@@ -162,7 +162,10 @@
         <div class="wr-card-head"><span class="wr-company">{{ cv.company }}</span><span class="wr-role">{{ cv.job_title }}</span><span class="wr-status {{ cv.status_cls }}">{{ cv.status }}</span></div>
         <div class="wr-card-body terminal cover-preview" style="display:{{ 'block' if cv.has_preview else 'none' }};max-height:160px;overflow:hidden;">{{ cv.html[:800] if cv.html else '' }}</div>
         <textarea class="raw-html-data" style="display:none;">{{ cv.raw_html }}</textarea>
-        <button class="wr-btn-copy" onclick="copyHtml(this)"><span class="copy-icon">📋</span> COPY HTML</button>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+            <button class="wr-btn-copy" onclick="copyHtml(this)"><span class="copy-icon">📋</span> COPY HTML</button>
+            <button class="wr-btn-copy" style="background:#2d3748;color:#e2e8f0;border-color:#4a5568;" onclick="generateInterviewPrep({{ cv.id }}, this)">🧠 INTERVIEW PREP</button>
+        </div>
     </div>
 {% endfor %}
 </div>
@@ -235,5 +238,28 @@ function copyHtml(btn) {
     var ta = card ? card.querySelector('.raw-html-data') : null;
     var text = ta ? ta.value : '';
     copyToClipboard(text, btn, '<span class="copy-icon">📋</span> COPY HTML');
+}
+
+async function generateInterviewPrep(emailId, btn) {
+    var originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ GENERATING...';
+    btn.disabled = true;
+    try {
+        const response = await fetch(`/api/generate-interview-prep/${emailId}`, {
+            method: 'POST'
+        });
+        const data = await response.json();
+        if (data.success && data.redirect) {
+            window.location.href = data.redirect;
+        } else {
+            alert("Error: " + (data.error || "Failed to generate"));
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    } catch (e) {
+        alert("Network error occurred.");
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
 }
 </script>

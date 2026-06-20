@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="JobHunt Pro - Enterprise AI Job Application Automator">
     <meta name="theme-color" content="#3b82f6">
-    <title>{% block title %}JobHunt Pro{% end block %}</title>
+    <title>{% block title %}JobHunt Pro{% endblock %}</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="{{ url_for('static', path='manifest.json') }}">
@@ -31,11 +31,11 @@
       "operatingSystem": "Any"
     }
     </script>
-    {% block head %}{% end block %}
+    {% block head %}{% endblock %}
 </head>
 <body class="cyberpunk-body">
     
-    {% block content %}{% end block %}
+    {% block content %}{% endblock %}
 
     <!-- PWA Service Worker Registration -->
     <script>
@@ -105,6 +105,6 @@
         connectWebSocket();
     </script>
     
-    {% block scripts %}{% end block %}
+    {% block scripts %}{% endblock %}
 </body>
 </html>
