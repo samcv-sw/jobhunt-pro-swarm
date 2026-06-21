@@ -67,7 +67,15 @@ def process_queue():
         logger.error(f"Error checking queue: {e}")
 
 if __name__ == "__main__":
-    logger.info("🤖 JobHunt Pro - CLOUD Queue Worker Started on Hugging Face...")
+    import sys
+    logger.info("🤖 JobHunt Pro - CLOUD Queue Worker Started on Ghost Swarm...")
+    
+    if "--one-shot" in sys.argv:
+        logger.info("Executing ONE-SHOT mode (GitHub Actions Event-Driven)")
+        process_queue()
+        logger.info("One-shot complete. Ghost server terminating.")
+        sys.exit(0)
+
     # Setup dummy web server to satisfy Hugging Face health checks
     import threading
     from http.server import BaseHTTPRequestHandler, HTTPServer

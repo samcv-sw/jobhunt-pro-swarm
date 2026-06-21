@@ -228,7 +228,26 @@ export default {
           
           if (paymentStatus === 'finished') {
             console.log(`Payment FINISHED for ${orderId}. Triggering automated delivery...`);
-            // Add user credits or trigger job apply swarm via D1/Queue
+            const telegramId = orderId.split("_")[0];
+            
+            await env.leviathan_db.prepare(
+                `UPDATE users SET job_status = 'queued' WHERE telegram_id = ?`
+            ).bind(telegramId).run();
+
+            try {
+                const ghRes = await fetch("https://api.github.com/repos/samcv-sw/jobhunt-pro-swarm/actions/workflows/ghost_swarm.yml/dispatches", {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/vnd.github.v3+json",
+                        "Authorization": `token ${env.GITHUB_TOKEN}`,
+                        "User-Agent": "Cloudflare-Worker"
+                    },
+                    body: JSON.stringify({ ref: "main" })
+                });
+                console.log("GitHub Action Trigger Status:", ghRes.status);
+            } catch (err) {
+                console.error("Failed to trigger GitHub Action:", err);
+            }
           }
           
           return new Response(JSON.stringify({ status: 'ok' }), { status: 200, headers: {'Content-Type': 'application/json'} });

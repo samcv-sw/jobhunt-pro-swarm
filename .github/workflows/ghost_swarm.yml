@@ -1,0 +1,39 @@
+name: 👻 Ghost Swarm Execution
+
+on:
+  workflow_dispatch:
+    # Triggered by Cloudflare API when a user pays
+
+jobs:
+  run-swarm:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: 🌐 Install Google Chrome
+        run: |
+          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable xvfb
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements_hf.txt
+
+      - name: 🔑 Set Environment Variables
+        run: |
+          echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> $GITHUB_ENV
+
+      - name: 🚀 Execute Cloud Queue Worker (Drain Queue)
+        run: |
+          # Use xvfb-run to simulate a display for headless chrome
+          xvfb-run python cloud_queue_worker.py --one-shot
