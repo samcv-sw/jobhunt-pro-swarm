@@ -209,6 +209,13 @@ class AutoPilot:
             except Exception as e:
                 logger.error(f"[PHASE 11 ERROR] {e}")
 
+            logger.info("\n[PHASE 12] Generating Genesis Protocol (Talent Stock Exchange)...")
+            try:
+                from core.generate_exchange import generate_stock_exchange
+                generate_stock_exchange()
+            except Exception as e:
+                logger.error(f"[PHASE 12 ERROR] {e}")
+
             return True
 
         except Exception as e:
