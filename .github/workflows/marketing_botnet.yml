@@ -50,6 +50,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add leads.db
+          git add -f leads.db
           git commit -m "🤖 Auto-update leads database" || exit 0
           git push

@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Render Deployment
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_URL != '' }}
         uses: fjogeleit/http-request-action@v1
         with:
           url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
