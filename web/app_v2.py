@@ -10291,13 +10291,32 @@ async def cron_tick(request: Request, key: str = "", maintenance: str = "",
             cid = row["campaign_id"]
             conn.execute("UPDATE campaigns SET status='failed', completed_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (cid,))
         
+        # --- SERVERLESS CRON EXECUTION (For PythonAnywhere Free Tier) ---
+        pending = conn.execute(
+            "SELECT campaign_id FROM campaigns WHERE status='pending' ORDER BY created_at ASC LIMIT 1"
+        ).fetchone()
+        
+        cid = pending["campaign_id"] if pending else None
+        
+        if cid:
+            conn.execute("UPDATE campaigns SET status='running', started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (cid,))
+            
         conn.commit()
         conn.close()
         
-        # Enqueue the cron tick task to be processed by queue_worker.py
-        enqueue_task("cron_tick", {"trigger": "cron-job.org", "timestamp": datetime.now(timezone.utc).isoformat()})
+        res = {"status": "ok", "actions": []}
         
-        return {"status": "enqueued", "timestamp": datetime.now(timezone.utc).isoformat()}
+        if cid:
+            try:
+                logger.info(f"[CRON] Picked up pending campaign {cid} to run inline")
+                from core.campaign_runner import run_campaign
+                camp_res = await run_campaign(cid, get_db, config)
+                res["actions"].append({"campaign": cid, "result": camp_res})
+            except Exception as ce:
+                logger.error(f"[CRON] Inline execution error for {cid}: {ce}")
+                res["actions"].append({"campaign": cid, "error": str(ce)})
+                
+        return res
     except Exception as e:
         import traceback
         logger.error(f"[CRON] Tick error: {e}\n{traceback.format_exc()}")
