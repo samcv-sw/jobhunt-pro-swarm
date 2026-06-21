@@ -29,156 +29,156 @@ def _isolated_campaign_runner(campaign_id):
 
 async def process_queue():
     """Continuously poll and process tasks from the queue with Fork Isolation."""
-        logger.info("[ML-SYSTEM] Starting background inference worker with Fork Isolation...")
+    logger.info("[ML-SYSTEM] Starting background inference worker with Fork Isolation...")
         
-        while True:
-            try:
-                task = dequeue_task()
-                if not task:
-                    await asyncio.sleep(5)  # Wait 5 seconds before polling again
-                    continue
+    while True:
+        try:
+            task = dequeue_task()
+            if not task:
+                await asyncio.sleep(5)  # Wait 5 seconds before polling again
+                continue
                     
-                task_id = task["id"]
-                task_type = task["task_type"]
-                payload = task["payload"]
+            task_id = task["id"]
+            task_type = task["task_type"]
+            payload = task["payload"]
                 
-                logger.info(f"[ML-SYSTEM] Processing task {task_id}: {task_type}")
+            logger.info(f"[ML-SYSTEM] Processing task {task_id}: {task_type}")
                 
-                # Check for mega tasks (run inline for speed)
-                if task_type.startswith("mega_task_"):
-                    # Process fast mega-tasks directly to avoid process overhead
-                    try:
-                        # Depending on payload, we would execute the specific logic here
-                        # We simulate the worker logic based on task_type
-                        await asyncio.sleep(0.05) # simulate work
-                        complete_task(task_id)
-                    except Exception as e:
-                        fail_task(task_id, str(e))
+            # Check for mega tasks (run inline for speed)
+            if task_type.startswith("mega_task_"):
+                # Process fast mega-tasks directly to avoid process overhead
+                try:
+                    # Depending on payload, we would execute the specific logic here
+                    # We simulate the worker logic based on task_type
+                    await asyncio.sleep(0.05) # simulate work
+                    complete_task(task_id)
+                except Exception as e:
+                    fail_task(task_id, str(e))
                         
-                elif task_type == "run_campaign":
-                    campaign_id = payload.get("campaign_id")
-                    if campaign_id:
-                        # Run the campaign with FORK ISOLATION (Protects against LLM OOM crashes)
-                        p = multiprocessing.Process(target=_isolated_campaign_runner, args=(campaign_id,))
+            elif task_type == "run_campaign":
+                campaign_id = payload.get("campaign_id")
+                if campaign_id:
+                    # Run the campaign with FORK ISOLATION (Protects against LLM OOM crashes)
+                    p = multiprocessing.Process(target=_isolated_campaign_runner, args=(campaign_id,))
+                    p.start()
+                    p.join(timeout=260)
+                        
+                    if p.is_alive():
+                        logger.error(f"Task {task_id} exceeded 260s. Terminating isolated fork.")
+                        p.terminate()
+                        p.join()
+                        fail_task(task_id, "Fork timeout")
+                    else:
+                        complete_task(task_id)
+                else:
+                    fail_task(task_id, "Missing batch_id")
+                        
+            elif task_type == "growth_seo":
+                logger.info(f"[GROWTH-AI] Processing SEO Task: {payload.get('topic')}")
+                # Simulate SEO blog farming
+                await asyncio.sleep(2.5) 
+                complete_task(task_id)
+                logger.info("[GROWTH-AI] SEO Blog Generated and Published!")
+                    
+            elif task_type == "growth_b2b":
+                logger.info(f"[GROWTH-AI] Processing B2B Outreach Task targeting {payload.get('target')}")
+                # Simulate scraping and email sending
+                await asyncio.sleep(3.0)
+                complete_task(task_id)
+                logger.info("[GROWTH-AI] 50 B2B Cold Emails Sent Successfully!")
+                    
+            elif task_type == "growth_social":
+                logger.info(f"[GROWTH-AI] Processing Social AI Sniper Task on {payload.get('platform')}")
+                # Simulate social media auto-replying
+                await asyncio.sleep(2.0)
+                complete_task(task_id)
+                logger.info("[GROWTH-AI] 15 Empathic Replies Posted with Links!")
+                    
+            elif task_type == "growth_viral_video":
+                logger.info(f"[GROWTH-AI] Processing Viral Factory Task: Generating {payload.get('count', 5)} videos")
+                try:
+                    from core.viral_factory import viral_factory
+                    for i in range(payload.get('count', 5)):
+                        await viral_factory.create_viral_video()
+                    complete_task(task_id)
+                    logger.info(f"[GROWTH-AI] Successfully generated viral MP4 videos!")
+                except Exception as e:
+                    fail_task(task_id, str(e))
+                    logger.error(f"[GROWTH-AI] Viral Factory failed: {e}")
+                        
+            elif task_type == "growth_influencer":
+                logger.info(f"[GROWTH-AI] Processing Influencer Outreach on {payload.get('platform')}")
+                # Simulate scraping and sending affiliate pitches
+                await asyncio.sleep(3.0)
+                complete_task(task_id)
+                logger.info("[GROWTH-AI] 50 Micro-influencers pitched with 50% Rev-Share!")
+                        
+            elif task_type == "cron_tick":
+                # Check for pending campaigns directly
+                conn = get_db()
+                try:
+                    pending = conn.execute(
+                        "SELECT campaign_id FROM campaigns WHERE status='pending' ORDER BY created_at ASC LIMIT 1"
+                    ).fetchone()
+                    if pending:
+                        cid = pending["campaign_id"]
+                        conn.execute("UPDATE campaigns SET status='running', started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (cid,))
+                        conn.commit()
+                        logger.info(f"[ML-SYSTEM] Cron tick picked up batch {cid}")
+                            
+                        p = multiprocessing.Process(target=_isolated_campaign_runner, args=(cid,))
                         p.start()
                         p.join(timeout=260)
-                        
+                            
                         if p.is_alive():
-                            logger.error(f"Task {task_id} exceeded 260s. Terminating isolated fork.")
+                            logger.error(f"[ML-SYSTEM] Cron tick batch {cid} timed out. Terminating fork.")
                             p.terminate()
                             p.join()
-                            fail_task(task_id, "Fork timeout")
-                        else:
-                            complete_task(task_id)
-                    else:
-                        fail_task(task_id, "Missing batch_id")
-                        
-                elif task_type == "growth_seo":
-                    logger.info(f"[GROWTH-AI] Processing SEO Task: {payload.get('topic')}")
-                    # Simulate SEO blog farming
-                    await asyncio.sleep(2.5) 
-                    complete_task(task_id)
-                    logger.info("[GROWTH-AI] SEO Blog Generated and Published!")
-                    
-                elif task_type == "growth_b2b":
-                    logger.info(f"[GROWTH-AI] Processing B2B Outreach Task targeting {payload.get('target')}")
-                    # Simulate scraping and email sending
-                    await asyncio.sleep(3.0)
-                    complete_task(task_id)
-                    logger.info("[GROWTH-AI] 50 B2B Cold Emails Sent Successfully!")
-                    
-                elif task_type == "growth_social":
-                    logger.info(f"[GROWTH-AI] Processing Social AI Sniper Task on {payload.get('platform')}")
-                    # Simulate social media auto-replying
-                    await asyncio.sleep(2.0)
-                    complete_task(task_id)
-                    logger.info("[GROWTH-AI] 15 Empathic Replies Posted with Links!")
-                    
-                elif task_type == "growth_viral_video":
-                    logger.info(f"[GROWTH-AI] Processing Viral Factory Task: Generating {payload.get('count', 5)} videos")
-                    try:
-                        from core.viral_factory import viral_factory
-                        for i in range(payload.get('count', 5)):
-                            await viral_factory.create_viral_video()
-                        complete_task(task_id)
-                        logger.info(f"[GROWTH-AI] Successfully generated viral MP4 videos!")
-                    except Exception as e:
-                        fail_task(task_id, str(e))
-                        logger.error(f"[GROWTH-AI] Viral Factory failed: {e}")
-                        
-                elif task_type == "growth_influencer":
-                    logger.info(f"[GROWTH-AI] Processing Influencer Outreach on {payload.get('platform')}")
-                    # Simulate scraping and sending affiliate pitches
-                    await asyncio.sleep(3.0)
-                    complete_task(task_id)
-                    logger.info("[GROWTH-AI] 50 Micro-influencers pitched with 50% Rev-Share!")
-                        
-                elif task_type == "cron_tick":
-                    # Check for pending campaigns directly
-                    conn = get_db()
-                    try:
-                        pending = conn.execute(
-                            "SELECT campaign_id FROM campaigns WHERE status='pending' ORDER BY created_at ASC LIMIT 1"
-                        ).fetchone()
-                        if pending:
-                            cid = pending["campaign_id"]
-                            conn.execute("UPDATE campaigns SET status='running', started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (cid,))
-                            conn.commit()
-                            logger.info(f"[ML-SYSTEM] Cron tick picked up batch {cid}")
-                            
-                            p = multiprocessing.Process(target=_isolated_campaign_runner, args=(cid,))
-                            p.start()
-                            p.join(timeout=260)
-                            
-                            if p.is_alive():
-                                logger.error(f"[ML-SYSTEM] Cron tick batch {cid} timed out. Terminating fork.")
-                                p.terminate()
-                                p.join()
                                 
-                    except Exception as e:
-                        logger.error(f"Error in cron_tick task: {e}")
-                    finally:
-                        conn.close()
+                except Exception as e:
+                    logger.error(f"Error in cron_tick task: {e}")
+                finally:
+                    conn.close()
 
-                    # --- Drip Engine (Renamed to Sync Engine) ---
-                    conn = get_db()
+                # --- Drip Engine (Renamed to Sync Engine) ---
+                conn = get_db()
+                try:
+                    from core.email_engine import EmailEngine
+                    engine = EmailEngine(config)
+                    logger.info("[ML-SYSTEM] Triggering automated Data Sync Engine...")
+                    send_telegram_message_sync("⏳ [NODE-WORKER] Running Automated Sync Engine...")
+                    asyncio.run(engine.check_and_send_followups(conn))
+                except Exception as e:
+                    logger.error(f"Error in sync engine: {e}")
+                finally:
+                    conn.close()
+                        
+                # --- Ghost Hunter (Renamed to Dataset Fetcher) ---
+                global last_ghost_hunt_time
+                if 'last_ghost_hunt_time' not in globals():
+                    last_ghost_hunt_time = 0
+                    
+                if time.time() - last_ghost_hunt_time > 3600: # Run every 1 hour
+                    logger.info("[ML-SYSTEM] Triggering Autonomous Dataset Fetcher...")
+                    send_telegram_message_sync("👻 [NODE-WORKER] Deploying Cloud-Native Dataset Fetcher...")
                     try:
-                        from core.email_engine import EmailEngine
-                        engine = EmailEngine(config)
-                        logger.info("[ML-SYSTEM] Triggering automated Data Sync Engine...")
-                        send_telegram_message_sync("⏳ [NODE-WORKER] Running Automated Sync Engine...")
-                        asyncio.run(engine.check_and_send_followups(conn))
+                        from core.ghost_hunter import GhostHunter
+                        hunter = GhostHunter()
+                        hunter.run_all_users()
+                        last_ghost_hunt_time = time.time()
                     except Exception as e:
-                        logger.error(f"Error in sync engine: {e}")
-                    finally:
-                        conn.close()
+                        logger.error(f"Error in Dataset Fetcher: {e}")
                         
-                    # --- Ghost Hunter (Renamed to Dataset Fetcher) ---
-                    global last_ghost_hunt_time
-                    if 'last_ghost_hunt_time' not in globals():
-                        last_ghost_hunt_time = 0
+                complete_task(task_id)
+            else:
+                fail_task(task_id, f"Unknown task_type: {task_type}")
                     
-                    if time.time() - last_ghost_hunt_time > 3600: # Run every 1 hour
-                        logger.info("[ML-SYSTEM] Triggering Autonomous Dataset Fetcher...")
-                        send_telegram_message_sync("👻 [NODE-WORKER] Deploying Cloud-Native Dataset Fetcher...")
-                        try:
-                            from core.ghost_hunter import GhostHunter
-                            hunter = GhostHunter()
-                            hunter.run_all_users()
-                            last_ghost_hunt_time = time.time()
-                        except Exception as e:
-                            logger.error(f"Error in Dataset Fetcher: {e}")
-                        
-                    complete_task(task_id)
-                else:
-                    fail_task(task_id, f"Unknown task_type: {task_type}")
-                    
-                # Do not sleep if we found a task, to rapidly drain queue
-                await asyncio.sleep(0.01)
+            # Do not sleep if we found a task, to rapidly drain queue
+            await asyncio.sleep(0.01)
                 
-            except Exception as e:
-                logger.error(f"Worker loop error: {e}\n{traceback.format_exc()}")
-                await asyncio.sleep(5)
+        except Exception as e:
+            logger.error(f"Worker loop error: {e}\n{traceback.format_exc()}")
+            await asyncio.sleep(5)
 
 if __name__ == "__main__":
     asyncio.run(process_queue())
