@@ -193,10 +193,30 @@ I look forward to the opportunity to discuss how my skills align with your team'
 
     # CV attachment message
     attach_html = ""
+    
+    # TROJAN HORSE PORTFOLIO LINK INJECTION
+    portfolio_url = ""
+    safe_id = "demo123"
+    if user_details and user_details.get("id"):
+        import re
+        safe_id = re.sub(r'[^a-zA-Z0-9_]', '', str(user_details.get("id")))
+    portfolio_url = f"https://samcv-sw.github.io/jobhunt-pro-swarm/portfolios/{safe_id}.html"
+    
+    portfolio_html = f"""
+    <div style="margin: 25px 0; padding: 15px; background: #1a1a2e; border-left: 4px solid #00ff88; border-radius: 4px;">
+        <p style="margin:0; font-size: 15px; color: #e2e8f0;">
+            🌐 <strong>Interactive Web Portfolio:</strong><br>
+            <a href="{portfolio_url}" style="color: #00ff88; text-decoration: none; font-weight: bold;">View my full projects and interactive CV here &rarr;</a>
+        </p>
+    </div>
+    """
+    
     if cv_path:
-        attach_html = "<p style=\"margin:20px 0;font-size:14px;color:#94a3b8;\">📎 I have attached my CV for your review.</p>\n"
+        attach_html = f"{portfolio_html}<p style=\"margin:20px 0;font-size:14px;color:#94a3b8;\">📎 I have also attached my PDF CV for your ATS.</p>\n"
     elif user_details and user_details.get("tailored_cv"):
-        attach_html = f"<pre style='font-family: Arial, sans-serif; white-space: pre-wrap; font-size:13px;color:#94a3b8;'>{user_details['tailored_cv']}</pre>\n"
+        attach_html = f"{portfolio_html}<pre style='font-family: Arial, sans-serif; white-space: pre-wrap; font-size:13px;color:#94a3b8;'>{user_details['tailored_cv']}</pre>\n"
+    else:
+        attach_html = portfolio_html
 
     # Tracking pixel (configurable, spam-safe CSS background-image instead of img tag)
     tracking_pixel_html = ""

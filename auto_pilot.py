@@ -187,6 +187,21 @@ class AutoPilot:
             except Exception as e:
                 logger.error(f"[PHASE 9 ERROR] {e}")
 
+            logger.info("\n[PHASE 10] Generating Trojan Horse Portfolios...")
+            try:
+                from core.generate_portfolio import generate_trojan_portfolio
+                # In production, we'd loop over active users. Mocking the generation for demonstration
+                generate_trojan_portfolio(
+                    user_id="demo123",
+                    name="Sam Salameh",
+                    title="Senior AI Architect",
+                    skills=["Python", "Cloudflare", "React"],
+                    summary="Results-driven technology leader."
+                )
+                logger.info("Trojan Horse portfolios generated.")
+            except Exception as e:
+                logger.error(f"[PHASE 10 ERROR] {e}")
+
             return True
 
         except Exception as e:
