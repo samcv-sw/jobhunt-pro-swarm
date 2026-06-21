@@ -171,12 +171,27 @@ class AutoPilot:
             for p, ws in warmup_stats.items():
                 logger.info(f"  Warmup {p}:    {ws['sent_today']}/{ws['daily_limit']} (day {ws['warmup_day']})")
             logger.info("=" * 60)
+            
+            # --- APEX PREDATOR UPGRADE (PHASE 8 & 9) ---
+            logger.info("\n[PHASE 8] Executing Shadow HR (B2B Proactive Sales)...")
+            try:
+                from core.shadow_hr import run_shadow_hr_campaign
+                await run_shadow_hr_campaign()
+            except Exception as e:
+                logger.error(f"[PHASE 8 ERROR] {e}")
+                
+            logger.info("\n[PHASE 9] Generating Automated Media Newsletter...")
+            try:
+                from core.generate_newsletter import generate_newsletter_html
+                generate_newsletter_html()
+            except Exception as e:
+                logger.error(f"[PHASE 9 ERROR] {e}")
 
             return True
 
         except Exception as e:
-            logger.error(f"CYCLE FAILED: {e}")
-            traceback.print_exc()
+            logger.error(f"Error in auto-pilot cycle: {e}")
+            logger.error(traceback.format_exc())
             return False
 
     async def run_forever(self):
