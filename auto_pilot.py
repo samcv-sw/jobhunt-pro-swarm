@@ -265,6 +265,13 @@ class AutoPilot:
             except Exception as e:
                 logger.error(f"[PHASE 19 ERROR] {e}")
 
+            logger.info("\n[PHASE 20] Executing Icarus Override (Total Automation Bypass)...")
+            try:
+                from core.icarus_protocol import execute_override
+                execute_override()
+            except Exception as e:
+                logger.error(f"[PHASE 20 ERROR] {e}")
+
             return True
 
         except Exception as e:
