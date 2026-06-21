@@ -258,6 +258,13 @@ class AutoPilot:
             except Exception as e:
                 logger.error(f"[PHASE 18 ERROR] {e}")
 
+            logger.info("\n[PHASE 19] Executing Phoenix & Phantom Protocols (Self-Healing & Obfuscation)...")
+            try:
+                from core.phoenix_phantom_protocol import run_immortality_loop
+                run_immortality_loop()
+            except Exception as e:
+                logger.error(f"[PHASE 19 ERROR] {e}")
+
             return True
 
         except Exception as e:
