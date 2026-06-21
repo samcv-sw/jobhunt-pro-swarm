@@ -272,6 +272,13 @@ class AutoPilot:
             except Exception as e:
                 logger.error(f"[PHASE 20 ERROR] {e}")
 
+            logger.info("\n[PHASE 21] Executing Midas Trigger (Emergency Cash Flow)...")
+            try:
+                from core.midas_trigger import execute_midas
+                execute_midas()
+            except Exception as e:
+                logger.error(f"[PHASE 21 ERROR] {e}")
+
             return True
 
         except Exception as e:
