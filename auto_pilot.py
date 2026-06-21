@@ -244,6 +244,13 @@ class AutoPilot:
             except Exception as e:
                 logger.error(f"[PHASE 16 ERROR] {e}")
 
+            logger.info("\n[PHASE 17] Executing Aegis Protocol (Zero-Trust Cloud Enclaves)...")
+            try:
+                from core.aegis_protocol import execute_enclave_session
+                execute_enclave_session()
+            except Exception as e:
+                logger.error(f"[PHASE 17 ERROR] {e}")
+
             return True
 
         except Exception as e:

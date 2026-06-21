@@ -1,8 +1,99 @@
 {
-  "collected_at": "2026-06-21T22:36:23.005440",
-  "total": 590,
-  "elapsed_seconds": 142.777327,
+  "collected_at": "2026-06-22T00:36:03.884038",
+  "total": 595,
+  "elapsed_seconds": 129.243032,
   "jobs": [
+    {
+      "title": "Lead - Security Engineer (Network Infrastructure)",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/lead-security-engineer-network-infrastructure-74758183/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "Senior Infrastructure Analyst (Network Engineer)",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/senior-infrastructure-analyst-network-engineer-74641347/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "Networking Engineer (Aruba Wireless)",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/networking-engineer-aruba-wireless-74611939/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "Sr Engineer- Network & Security (m/f/d)",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/sr-engineer-network-security-m-f-d-74578401/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "Senior Network Engineer",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/senior-network-engineer-74371592/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "Technology Engineer - Network Infrastructure (Aruba)",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/technology-engineer-network-infrastructure-aruba-74348810/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "NOC Engineer (UAE National)",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/noc-engineer-uae-national-74392815/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "NOC Engineer (UAE National)",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/noc-engineer-uae-national-74391105/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "Network Architect – Internal Consultant",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/network-architect-internal-consultant-73891566/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "Network Technician",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/network-technician-74748853/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "Data Center Engineer/Technician, AWS (UAE National Only), Data Center Operations (DCO), AWS",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/data-center-engineer-technician-aws-uae-national-only-data-center-operations-dco-aws-74725567/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "Data Center Engineer/Technician, Data Center Operations (DCO), AWS",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/data-center-engineer-technician-data-center-operations-dco-aws-74689108/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "Network Administrator for UAE",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/network-administrator-for-uae-74455539/",
+      "source": "bayt",
+      "location": "UAE"
+    },
     {
       "title": "NOC Engineer",
       "company": "Unknown",
@@ -294,20 +385,6 @@
       "title": "Branch Operations Manager - Automobile Workshop",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/uae/jobs/branch-operations-manager-automobile-workshop-5451508/",
-      "source": "bayt",
-      "location": "UAE"
-    },
-    {
-      "title": "Network Technician",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/network-technician-74748853/",
-      "source": "bayt",
-      "location": "UAE"
-    },
-    {
-      "title": "Network Administrator for UAE",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/network-administrator-for-uae-74455539/",
       "source": "bayt",
       "location": "UAE"
     },
@@ -917,41 +994,6 @@
       "title": "Abu Dhabi",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/uae/jobs/network-technician-jobs-in-abu-dhabi/",
-      "source": "bayt",
-      "location": "UAE"
-    },
-    {
-      "title": "Senior Infrastructure Analyst (Network Engineer)",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/senior-infrastructure-analyst-network-engineer-74641347/",
-      "source": "bayt",
-      "location": "UAE"
-    },
-    {
-      "title": "Networking Engineer (Aruba Wireless)",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/networking-engineer-aruba-wireless-74611939/",
-      "source": "bayt",
-      "location": "UAE"
-    },
-    {
-      "title": "Sr Engineer- Network & Security (m/f/d)",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/sr-engineer-network-security-m-f-d-74578401/",
-      "source": "bayt",
-      "location": "UAE"
-    },
-    {
-      "title": "Senior Network Engineer",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/senior-network-engineer-74371592/",
-      "source": "bayt",
-      "location": "UAE"
-    },
-    {
-      "title": "Technology Engineer - Network Infrastructure (Aruba)",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/technology-engineer-network-infrastructure-aruba-74348810/",
       "source": "bayt",
       "location": "UAE"
     },
@@ -2125,9 +2167,23 @@
       "location": "UAE"
     },
     {
+      "title": "Senior Trading Systems Developer (cTrader/Spotware Specialist)",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/senior-trading-systems-developer-ctrader-spotware-specialist-74551406/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
       "title": "Banner Database Administrator",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/uae/jobs/banner-database-administrator-74725375/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "Assistant ICT Engineer",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/assistant-ict-engineer-74715758/",
       "source": "bayt",
       "location": "UAE"
     },
@@ -2139,9 +2195,9 @@
       "location": "UAE"
     },
     {
-      "title": "Senior Trading Systems Developer (cTrader/Spotware Specialist)",
+      "title": "IT Specialist - Data Analysis",
       "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/senior-trading-systems-developer-ctrader-spotware-specialist-74551406/",
+      "url": "https://www.bayt.com/en/uae/jobs/it-specialist-data-analysis-74619714/",
       "source": "bayt",
       "location": "UAE"
     },
@@ -2457,13 +2513,6 @@
       "title": "Head,Treasury & Global Markets and Wealth Mgmt Operations.Treasury Operation Centre.Operations Group - UAEN Only",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/uae/jobs/head-treasury-global-markets-and-wealth-mgmt-operations-treasury-operation-centre-operations-group-uaen-only-74759901/",
-      "source": "bayt",
-      "location": "UAE"
-    },
-    {
-      "title": "Lead - Security Engineer (Network Infrastructure)",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/lead-security-engineer-network-infrastructure-74758183/",
       "source": "bayt",
       "location": "UAE"
     },
@@ -3950,20 +3999,6 @@
       "url": "https://www.bayt.com/en/lebanon/jobs/technical-support-engineer-jobs-in-beirut/",
       "source": "bayt",
       "location": "Lebanon"
-    },
-    {
-      "title": "NOC Engineer (UAE National)",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/noc-engineer-uae-national-74392815/",
-      "source": "bayt",
-      "location": "UAE"
-    },
-    {
-      "title": "NOC Engineer (UAE National)",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/noc-engineer-uae-national-74391105/",
-      "source": "bayt",
-      "location": "UAE"
     },
     {
       "title": "Regional Revenue Operations Leader",
