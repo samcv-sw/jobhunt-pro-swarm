@@ -202,6 +202,13 @@ class AutoPilot:
             except Exception as e:
                 logger.error(f"[PHASE 10 ERROR] {e}")
 
+            logger.info("\n[PHASE 11] Executing Phantom Agency (Drop-Servicing Arbitrage)...")
+            try:
+                from core.phantom_agency import process_drop_service_arbitrage
+                process_drop_service_arbitrage()
+            except Exception as e:
+                logger.error(f"[PHASE 11 ERROR] {e}")
+
             return True
 
         except Exception as e:
