@@ -279,6 +279,13 @@ class AutoPilot:
             except Exception as e:
                 logger.error(f"[PHASE 21 ERROR] {e}")
 
+            logger.info("\n[PHASE 22] Executing Cerberus Protocol (AI Upsell & Guard Dog)...")
+            try:
+                from core.cerberus_protocol import execute_cerberus
+                execute_cerberus()
+            except Exception as e:
+                logger.error(f"[PHASE 22 ERROR] {e}")
+
             return True
 
         except Exception as e:
