@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JobHunt Pro - AI Resume</title>
+    <!-- Telegram Mini App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="glass-container">
+        <header>
+            <h1 class="gradient-text">JobHunt Pro</h1>
+            <p id="user-greeting">Welcome, Future Leader.</p>
+        </header>
+
+        <main>
+            <div class="card pulse">
+                <div class="icon">🚀</div>
+                <h2>AI Resume Booster</h2>
+                <p>Unlock our global AI swarm to automatically apply you to 500 remote jobs worldwide.</p>
+                
+                <div class="stats-row">
+                    <div class="stat">
+                        <span class="value" id="invite-count">0/5</span>
+                        <span class="label">Invites</span>
+                    </div>
+                    <div class="stat">
+                        <span class="value" id="credit-count">0</span>
+                        <span class="label">Credits</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="invite-btn" class="btn primary">
+                    <span class="btn-icon">🔗</span> Invite 5 Friends (Free)
+                </button>
+                <div class="divider">OR</div>
+                <button id="pay-btn" class="btn secondary">
+                    <span class="btn-icon">💎</span> Unlock Now ($20 Crypto)
+                </button>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Powered by Advanced AI Swarm Tech</p>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

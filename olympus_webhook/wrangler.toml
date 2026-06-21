@@ -4,3 +4,9 @@ compatibility_date = "2024-06-20"
 
 [vars]
 IPN_SECRET = "hCGQjbcilPsaJQkW073hfzg5ziDyszfl"
+NOWPAYMENTS_API_KEY = "3C4BHM5-V7641D9-KHBEJY7-865AFER"
+
+[[d1_databases]]
+binding = "leviathan_db"
+database_name = "leviathan-db"
+database_id = "e2b4485f-2d47-4ef8-bbaf-1d5cd91bd758"
