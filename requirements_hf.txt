@@ -1,2 +1,2 @@
 requests==2.31.0
-nodriver==0.28
+nodriver
