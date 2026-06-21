@@ -237,6 +237,13 @@ class AutoPilot:
             except Exception as e:
                 logger.error(f"[PHASE 15 ERROR] {e}")
 
+            logger.info("\n[PHASE 16] Executing Leviathan API (Programmable Workforce Endpoints)...")
+            try:
+                from core.leviathan_api import process_webhook
+                process_webhook()
+            except Exception as e:
+                logger.error(f"[PHASE 16 ERROR] {e}")
+
             return True
 
         except Exception as e:
