@@ -251,6 +251,13 @@ class AutoPilot:
             except Exception as e:
                 logger.error(f"[PHASE 17 ERROR] {e}")
 
+            logger.info("\n[PHASE 18] Executing Chronos Protocol (Zero-Second Algorithmic Hijack)...")
+            try:
+                from core.chronos_protocol import hijack_algorithm
+                hijack_algorithm()
+            except Exception as e:
+                logger.error(f"[PHASE 18 ERROR] {e}")
+
             return True
 
         except Exception as e:
