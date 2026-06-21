@@ -167,6 +167,55 @@ export default {
         }
     }
     
+    // --- USER PROFILE API ---
+    if (url.pathname.startsWith('/api/v1/user/') && request.method === 'GET') {
+        try {
+            const telegramId = url.pathname.split('/').pop();
+            const { results } = await env.leviathan_db.prepare(
+                `SELECT credits, job_status FROM users WHERE telegram_id = ?`
+            ).bind(telegramId).all();
+            
+            if (results && results.length > 0) {
+                return new Response(JSON.stringify(results[0]), { 
+                    status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+                });
+            } else {
+                return new Response(JSON.stringify({ credits: 0, job_status: null }), { 
+                    status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+                });
+            }
+        } catch (e) {
+            return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: corsHeaders });
+        }
+    }
+    
+    // --- B2B RECRUITER API (DATA BROKER) ---
+    if (url.pathname === '/api/v1/b2b/candidates' && request.method === 'GET') {
+        try {
+            const apiKey = request.headers.get('x-b2b-key');
+            // Hardcoded B2B key for MVP. In production, check against a recruiters table.
+            if (apiKey !== env.B2B_API_KEY) {
+                return new Response(JSON.stringify({ error: "Unauthorized B2B Access" }), { status: 403, headers: corsHeaders });
+            }
+            
+            // Return anonymous stats: total candidates, grouped by status
+            const totalQuery = await env.leviathan_db.prepare(`SELECT COUNT(*) as total FROM users`).all();
+            const statusQuery = await env.leviathan_db.prepare(`SELECT job_status, COUNT(*) as count FROM users GROUP BY job_status`).all();
+            
+            const report = {
+                total_candidates_pool: totalQuery.results[0].total,
+                candidates_by_status: statusQuery.results,
+                pricing: "Contact sales@jobhuntpro.ai to unlock full candidate contact details. $500/mo."
+            };
+            
+            return new Response(JSON.stringify(report), { 
+                status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            });
+        } catch (e) {
+            return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: corsHeaders });
+        }
+    }
+    
     // --- MARK JOB AS IN_PROGRESS / DONE ---
     if (url.pathname === '/api/v1/queue/status' && request.method === 'POST') {
         try {
@@ -235,18 +284,60 @@ export default {
             ).bind(telegramId).run();
 
             try {
-                const ghRes = await fetch("https://api.github.com/repos/samcv-sw/jobhunt-pro-swarm/actions/workflows/ghost_swarm.yml/dispatches", {
-                    method: "POST",
-                    headers: {
-                        "Accept": "application/vnd.github.v3+json",
-                        "Authorization": `token ${env.GITHUB_TOKEN}`,
-                        "User-Agent": "Cloudflare-Worker"
-                    },
-                    body: JSON.stringify({ ref: "main" })
-                });
-                console.log("GitHub Action Trigger Status:", ghRes.status);
+                // Round-Robin Multi-Cloud Trigger Strategy
+                const { results } = await env.leviathan_db.prepare(
+                    `SELECT value FROM global_registry WHERE key = 'current_cloud_provider'`
+                ).all();
+                
+                let provider = results.length > 0 ? results[0].value : 'github';
+                
+                console.log(`Triggering Swarm on Cloud Provider: ${provider}`);
+                
+                if (provider === 'github') {
+                    const ghRes = await fetch("https://api.github.com/repos/samcv-sw/jobhunt-pro-swarm/actions/workflows/ghost_swarm.yml/dispatches", {
+                        method: "POST",
+                        headers: {
+                            "Accept": "application/vnd.github.v3+json",
+                            "Authorization": `token ${env.GITHUB_TOKEN}`,
+                            "User-Agent": "Cloudflare-Worker"
+                        },
+                        body: JSON.stringify({ ref: "main" })
+                    });
+                    
+                    if (ghRes.status === 403 || ghRes.status === 429) {
+                        console.log("GitHub limits reached. Failing over to GitLab...");
+                        await env.leviathan_db.prepare(`INSERT OR REPLACE INTO global_registry (key, value) VALUES ('current_cloud_provider', 'gitlab')`).run();
+                    }
+                } else if (provider === 'gitlab') {
+                    // GitLab CI/CD execution payload
+                    const glRes = await fetch("https://gitlab.com/api/v4/projects/YOUR_PROJECT_ID/trigger/pipeline", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ token: env.GITLAB_TOKEN, ref: "main" })
+                    });
+                    
+                    if (glRes.status === 403 || glRes.status === 429) {
+                        console.log("GitLab limits reached. Failing over to Bitbucket...");
+                        await env.leviathan_db.prepare(`INSERT OR REPLACE INTO global_registry (key, value) VALUES ('current_cloud_provider', 'bitbucket')`).run();
+                    }
+                } else {
+                    // Bitbucket execution payload
+                    const bbRes = await fetch("https://api.bitbucket.org/2.0/repositories/YOUR_WORKSPACE/YOUR_REPO/pipelines/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${env.BITBUCKET_TOKEN}`
+                        },
+                        body: JSON.stringify({ target: { ref_type: "branch", type: "pipeline_ref_target", ref_name: "main" } })
+                    });
+                    
+                    if (bbRes.status === 403 || bbRes.status === 429) {
+                        console.log("Bitbucket limits reached. Resetting to GitHub...");
+                        await env.leviathan_db.prepare(`INSERT OR REPLACE INTO global_registry (key, value) VALUES ('current_cloud_provider', 'github')`).run();
+                    }
+                }
             } catch (err) {
-                console.error("Failed to trigger GitHub Action:", err);
+                console.error("Failed to trigger Multi-Cloud Action:", err);
             }
           }
           

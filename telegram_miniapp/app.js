@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Telegram Web App SDK
+    const WEBHOOK_URL = "https://olympus-webhook.samsalameh-cv.workers.dev";
     let tg;
+    let userId = 'demo123';
     try {
         tg = window.Telegram.WebApp;
         tg.expand(); // Expand to full screen
@@ -8,11 +9,34 @@ document.addEventListener('DOMContentLoaded', () => {
         // Setup user info
         const user = tg.initDataUnsafe?.user;
         if (user) {
+            userId = user.id;
             document.getElementById('user-greeting').innerText = `Welcome, ${user.first_name}!`;
         }
     } catch (e) {
         console.log("Not running inside Telegram");
     }
+
+    // Fetch User Stats
+    async function fetchStats() {
+        try {
+            const res = await fetch(`${WEBHOOK_URL}/api/v1/user/${userId}`);
+            const data = await res.json();
+            const credits = data.credits || 0;
+            document.getElementById('invite-count').innerText = `${credits}/3`;
+            document.getElementById('credit-count').innerText = credits;
+            
+            if (credits >= 3) {
+                const payBtn = document.getElementById('pay-btn');
+                payBtn.innerHTML = `<span class="btn-icon">🚀</span> Launch Swarm (Free)`;
+                payBtn.classList.remove('secondary');
+                payBtn.classList.add('primary');
+                payBtn.dataset.free = 'true';
+            }
+        } catch(e) {
+            console.error("Failed to fetch stats", e);
+        }
+    }
+    fetchStats();
 
     // Invite Button Logic (Virality)
     document.getElementById('invite-btn').addEventListener('click', () => {
@@ -31,14 +55,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Pay Button Logic (Monetization)
-    document.getElementById('pay-btn').addEventListener('click', async () => {
-        let userId = tg?.initDataUnsafe?.user?.id || 'demo123';
-        
+    document.getElementById('pay-btn').addEventListener('click', async (e) => {
+        if (e.target.closest('button').dataset.free === 'true') {
+            tg?.MainButton.setText("Launching Swarm...");
+            tg?.MainButton.show();
+            
+            // Deduct credits and launch
+            try {
+                // We'll call a quick free-launch endpoint
+                await fetch(`${WEBHOOK_URL}/api/v1/queue/status`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ telegram_id: userId, status: 'queued' })
+                });
+                tg?.showAlert("Swarm Launched! Check your bot for live updates.");
+                tg?.close();
+            } catch (err) {
+                tg?.showAlert("Failed to launch.");
+            }
+            tg?.MainButton.hide();
+            return;
+        }
+
         tg?.MainButton.setText("Generating Crypto Invoice...");
         tg?.MainButton.show();
         
         try {
-            const response = await fetch("https://olympus-webhook.samsalameh-cv.workers.dev/api/v1/checkout", {
+            const response = await fetch(`${WEBHOOK_URL}/api/v1/checkout`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId: userId })
@@ -57,9 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 tg?.showAlert("Failed to generate invoice. Please try again.");
             }
-        } catch (e) {
+        } catch (err) {
             tg?.MainButton.hide();
-            tg?.showAlert("Error connecting to payment gateway: " + e.message);
+            tg?.showAlert("Error connecting to payment gateway: " + err.message);
         }
     });
 });

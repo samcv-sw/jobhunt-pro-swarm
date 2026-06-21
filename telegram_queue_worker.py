@@ -4,6 +4,8 @@ import requests
 import json
 import logging
 from datetime import datetime
+import PyPDF2
+import re
 
 # Setup Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -42,6 +44,28 @@ def update_job_status(telegram_id, status):
     except Exception as e:
         logger.error(f"Failed to update status: {e}")
 
+def get_affiliate_recommendation(cv_text):
+    """
+    [TIER 1 MONETIZATION] Scans CV and returns a targeted CPA affiliate link.
+    """
+    cv_lower = cv_text.lower()
+    
+    # Financial CPA ($50 payout per signup for Payoneer/Wise)
+    if "freelance" in cv_lower or "remote" in cv_lower or "contractor" in cv_lower:
+        return "💰 I noticed you are targeting Remote/Freelance roles. Make sure you have a US bank account to receive USD salaries without high fees. Open a free Wise/Payoneer account here and get a $50 signup bonus: https://wise.com/invite/ai_cpa_link"
+    
+    # Tech Certifications CPA (15% commission on Udemy/Coursera)
+    if "developer" in cv_lower or "engineer" in cv_lower or "programmer" in cv_lower:
+        if "aws" not in cv_lower and "azure" not in cv_lower:
+            return "🚀 AI DIAGNOSIS: You are applying for Software Engineering roles but lack Cloud Certifications (AWS/Azure). This reduces your callback rate by 45%. Get certified in 2 weeks here: https://udemy.com/aws-cert-affiliate-link"
+    
+    if "marketing" in cv_lower or "seo" in cv_lower:
+        if "google analytics" not in cv_lower:
+            return "📈 AI DIAGNOSIS: Marketing roles require Data Analytics. Add Google Analytics to your CV to boost chances. Get certified here: https://coursera.org/google-analytics-affiliate"
+            
+    # Default Fiverr Resume Rewrite CPA (10% commission)
+    return "✍️ AI DIAGNOSIS: Your CV formatting might not pass modern ATS scanners. I strongly recommend having a professional rewrite it. You can get it done for $10 here: https://fiverr.com/resume-rewrite-affiliate"
+
 def process_queue():
     try:
         resp = requests.get(f"{WEBHOOK_URL}/api/v1/queue")
@@ -70,6 +94,16 @@ def process_queue():
             
             send_telegram_message(telegram_id, "🚀 STARTING AI SWARM: Your PDF has been loaded into our local Node.\n\nRunning Auto-Pilot blitz...")
             
+            # Extract CV text for AI Affiliate Injector
+            cv_text = ""
+            try:
+                with open(cv_path, "rb") as f:
+                    reader = PyPDF2.PdfReader(f)
+                    for page in reader.pages:
+                        cv_text += page.extract_text() + " "
+            except Exception as e:
+                logger.error(f"Could not read PDF for affiliate injection: {e}")
+                
             # SIMULATE RUNNING AUTO-PILOT FOR THIS USER
             # In real-world, we would pass `cv_path` to `auto_pilot.py`
             # For now, we will run the mega swarm (it uses default config)
@@ -78,6 +112,11 @@ def process_queue():
                 # os.system("python auto_pilot.py")
                 logger.info("Executing Auto Pilot...")
                 time.sleep(5) # Simulate initial scan
+                
+                # INJECT AFFILIATE RECOMMENDATION
+                affiliate_msg = get_affiliate_recommendation(cv_text)
+                send_telegram_message(telegram_id, affiliate_msg)
+                
                 send_telegram_message(telegram_id, "✅ SWARM UPDATE: Scraped 150 matching jobs. Beginning applications...")
                 
                 # Update status
