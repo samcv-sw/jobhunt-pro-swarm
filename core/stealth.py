@@ -21,13 +21,41 @@ logger = logging.getLogger(__name__)
 
 
 class StealthScraper:
-    """Advanced scraping techniques to avoid detection."""
+    """Advanced scraping techniques to avoid detection with Ghost Proxy Support."""
     
     def __init__(self):
         self.request_count = 0
         self.last_request_time = 0
         self.user_agents = self._load_user_agents()
         self.fingerprints = self._generate_fingerprints()
+        self.proxies = []
+        self.last_proxy_fetch = 0
+        
+    def _fetch_free_proxies(self) -> List[str]:
+        """[GHOST PROXY] Fetch 10,000+ free residential/datacenter proxies dynamically"""
+        if time.time() - self.last_proxy_fetch < 3600 and self.proxies:
+            return self.proxies
+            
+        try:
+            logger.info("[GHOST PROXY] Fetching fresh proxies from global network...")
+            # Using multiple zero-investment proxy sources
+            import requests
+            res = requests.get("https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=elite")
+            if res.status_code == 200:
+                self.proxies = [p.strip() for p in res.text.split("\n") if p.strip()]
+                self.last_proxy_fetch = time.time()
+                logger.info(f"[GHOST PROXY] Successfully harvested {len(self.proxies)} elite stealth IPs.")
+            return self.proxies
+        except Exception as e:
+            logger.warning(f"[GHOST PROXY] Failed to fetch proxies: {e}")
+            return []
+
+    def get_random_proxy(self) -> Optional[str]:
+        proxies = self._fetch_free_proxies()
+        if proxies:
+            import random
+            return f"http://{random.choice(proxies)}"
+        return None
     
     def _load_user_agents(self) -> List[str]:
         """Real browser fingerprints from around the world + Googlebot"""
@@ -178,21 +206,27 @@ class StealthScraper:
         [NEW TIER 1 STEALTH] Returns an AsyncSession that natively spoofs TLS and HTTP/2.
         If curl_cffi is missing, it falls back to httpx (not recommended).
         """
+        proxy = self.get_random_proxy()
+        proxies = {"http": proxy, "https": proxy} if proxy else None
+        
         if HAS_CFFI:
             # impersonate="chrome120" handles JA3/TLS and HTTP/2 headers natively!
-            return cffi_requests.AsyncSession(impersonate="chrome120", timeout=timeout)
+            return cffi_requests.AsyncSession(impersonate="chrome120", timeout=timeout, proxies=proxies)
         else:
             logger.warning("[STEALTH] curl_cffi is missing! Falling back to raw httpx. Cloudflare may block you.")
             import httpx
-            return httpx.AsyncClient(timeout=timeout, follow_redirects=follow_redirects)
+            return httpx.AsyncClient(timeout=timeout, follow_redirects=follow_redirects, proxies=proxy if proxy else None)
 
     def get_sync_client(self, timeout: float = 30.0, follow_redirects: bool = True):
         """Synchronous version of Tier 1 stealth client."""
+        proxy = self.get_random_proxy()
+        proxies = {"http": proxy, "https": proxy} if proxy else None
+        
         if HAS_CFFI:
-            return cffi_requests.Session(impersonate="chrome120", timeout=timeout)
+            return cffi_requests.Session(impersonate="chrome120", timeout=timeout, proxies=proxies)
         else:
             import httpx
-            return httpx.Client(timeout=timeout, follow_redirects=follow_redirects)
+            return httpx.Client(timeout=timeout, follow_redirects=follow_redirects, proxies=proxy if proxy else None)
 
     def get_canvas_spoofing_script(self) -> str:
         """[RUSSIAN STEALTH] Injectable JS to spoof Canvas fingerprint"""
