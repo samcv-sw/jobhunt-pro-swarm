@@ -9,10 +9,10 @@ logger = logging.getLogger(__name__)
 # Config
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8722842310:AAHkdje5I8EF2tO-t-DQ4rKrQNj77bn5lOA")
 WEBHOOK_URL = "https://olympus-webhook.samsalameh-cv.workers.dev"
-CV_DIR = "/home/user/app/downloaded_cvs"
+CV_DIR = "downloaded_cvs"
 
 if not os.path.exists(CV_DIR):
-    os.makedirs(CV_DIR)
+    os.makedirs(CV_DIR, exist_ok=True)
 
 def send_telegram_message(chat_id, text):
     try:
