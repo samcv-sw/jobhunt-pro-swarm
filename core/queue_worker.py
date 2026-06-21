@@ -17,18 +17,18 @@ from web.app_v2 import get_db, config
 logging.basicConfig(level=logging.INFO, format="%(asctime)s: [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
-    def _isolated_campaign_runner(campaign_id):
-        """Executes the campaign inside a fully isolated fork (OS process)."""
-        try:
-            send_telegram_message_sync(f"🚀 [NODE-WORKER] Batch task {campaign_id} started processing.")
-            asyncio.run(run_campaign(campaign_id, get_db, config))
-            send_telegram_message_sync(f"✅ [NODE-WORKER] Batch task {campaign_id} completed successfully.")
-        except Exception as e:
-            logger.error(f"Isolated process crashed: {e}")
-            send_telegram_message_sync(f"❌ [NODE-WORKER] Batch task {campaign_id} crashed: {str(e)}")
+def _isolated_campaign_runner(campaign_id):
+    """Executes the campaign inside a fully isolated fork (OS process)."""
+    try:
+        send_telegram_message_sync(f"🚀 [NODE-WORKER] Batch task {campaign_id} started processing.")
+        asyncio.run(run_campaign(campaign_id, get_db, config))
+        send_telegram_message_sync(f"✅ [NODE-WORKER] Batch task {campaign_id} completed successfully.")
+    except Exception as e:
+        logger.error(f"Isolated process crashed: {e}")
+        send_telegram_message_sync(f"❌ [NODE-WORKER] Batch task {campaign_id} crashed: {str(e)}")
 
-    async def process_queue():
-        """Continuously poll and process tasks from the queue with Fork Isolation."""
+async def process_queue():
+    """Continuously poll and process tasks from the queue with Fork Isolation."""
         logger.info("[ML-SYSTEM] Starting background inference worker with Fork Isolation...")
         
         while True:

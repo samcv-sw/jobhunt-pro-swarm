@@ -1,0 +1,59 @@
+2026-06-22 01:13:45,155 [INFO] ============================================================
+2026-06-22 01:13:45,156 [INFO]   JOBHUNT PRO v16.325 - AUTO-PILOT MODE
+2026-06-22 01:13:45,156 [INFO]   Started at: 2026-06-22 01:13:45
+2026-06-22 01:13:45,156 [INFO]   Working hours: 8:00 - 20:00 Beirut time
+2026-06-22 01:13:45,157 [INFO]   Cycle interval: 30 minutes
+2026-06-22 01:13:45,157 [INFO] ============================================================
+2026-06-22 01:13:45,158 [INFO] ============================================================
+2026-06-22 01:13:45,159 [INFO]   AUTO-PILOT CYCLE #1 - 2026-06-22 01:13:45 Beirut
+2026-06-22 01:13:45,159 [INFO] ============================================================
+2026-06-22 01:13:49,572 [INFO] [GHOST PROXY] Fetching fresh proxies from global network...
+2026-06-22 01:13:50,621 [INFO] [GHOST PROXY] Successfully harvested 255 elite stealth IPs.
+2026-06-22 01:13:50,734 [INFO] Provider registered: gmail1
+2026-06-22 01:13:50,734 [INFO] Active provider: gmail1
+2026-06-22 01:13:50,734 [INFO] Provider registered: gmail2
+2026-06-22 01:13:50,734 [INFO] Active provider: gmail2
+2026-06-22 01:13:50,734 [INFO] Provider registered: gmail3
+2026-06-22 01:13:50,734 [INFO] Active provider: gmail3
+2026-06-22 01:13:50,734 [INFO] Provider registered: gmail4
+2026-06-22 01:13:50,735 [INFO] Active provider: gmail4
+2026-06-22 01:13:50,735 [INFO] Provider registered: gmail5
+2026-06-22 01:13:50,735 [INFO] Active provider: gmail5
+2026-06-22 01:13:50,735 [INFO] Provider registered: gmail6
+2026-06-22 01:13:50,736 [INFO] Active provider: gmail6
+2026-06-22 01:13:50,736 [INFO] Provider registered: gmail7
+2026-06-22 01:13:50,736 [INFO] Active provider: gmail7
+2026-06-22 01:13:50,736 [INFO] Provider registered: gmail8
+2026-06-22 01:13:50,736 [INFO] Active provider: gmail8
+2026-06-22 01:13:50,736 [INFO] Provider registered: gmail9
+2026-06-22 01:13:50,737 [INFO] Active provider: gmail9
+2026-06-22 01:13:50,737 [INFO] Provider registered: gmail10
+2026-06-22 01:13:50,737 [INFO] Active provider: gmail10
+2026-06-22 01:13:50,737 [INFO] Provider registered: gmail11
+2026-06-22 01:13:50,737 [INFO] Active provider: gmail11
+2026-06-22 01:13:50,738 [INFO] Provider registered: gmail12
+2026-06-22 01:13:50,738 [INFO] Active provider: gmail12
+2026-06-22 01:13:50,738 [INFO] Provider registered: gmail13
+2026-06-22 01:13:50,738 [INFO] Active provider: gmail13
+2026-06-22 01:13:50,738 [INFO] Provider registered: acct14
+2026-06-22 01:13:50,738 [INFO] Active provider: acct14
+2026-06-22 01:13:50,738 [INFO] Provider registered: acct15
+2026-06-22 01:13:50,738 [INFO] Active provider: acct15
+2026-06-22 01:13:50,739 [INFO] Provider registered: yahoo1
+2026-06-22 01:13:50,739 [INFO] Active provider: yahoo1
+2026-06-22 01:13:50,739 [INFO] Provider registered: hotmail_pool
+2026-06-22 01:13:50,739 [INFO] Active provider: hotmail_pool
+2026-06-22 01:13:57,477 [ERROR] Error in auto-pilot cycle: unsupported operand type(s) for /: 'WindowsPath' and 'NoneType'
+2026-06-22 01:13:57,479 [ERROR] Traceback (most recent call last):
+  File "C:\Users\samde\Desktop\cv sam new ma3 kimi\auto_pilot.py", line 69, in run_cycle
+    orch = Orchestrator()
+           ^^^^^^^^^^^^^^
+  File "C:\Users\samde\Desktop\cv sam new ma3 kimi\orchestrator.py", line 44, in __init__
+    self.db = Database()
+              ^^^^^^^^^^
+  File "C:\Users\samde\Desktop\cv sam new ma3 kimi\core\database.py", line 138, in __init__
+    self.db_path = str(base_dir / getattr(config, "DB_PATH", "jobhunt_saas_v2.db"))
+                       ~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for /: 'WindowsPath' and 'NoneType'
+
+2026-06-22 01:13:57,479 [INFO] Outside working hours. Sleeping until 08:00 Beirut time (6.8h)...
