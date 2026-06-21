@@ -20,7 +20,7 @@ jobs:
 
       - name: Process outbox (worker ${{ matrix.worker }})
         run: |
-          python3 -c "
+          cat << 'EOF' > send.py
 import requests, smtplib, json, ssl, time
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -74,10 +74,11 @@ for e in emails:
     result = send_via_smtp(e)
     if result.get('ok'):
         mark_sent(eid, True)
-        print(f'  Sent email #{eid} to {e.get(\"to_email\",\"\")}')
+        print(f'  Sent email #{eid} to {e.get("to_email","")}')
     else:
         mark_sent(eid, False, result.get('error', 'unknown'))
-        print(f'  FAILED email #{eid}: {result.get(\"error\",\"\")[:80]}')
+        print(f'  FAILED email #{eid}: {result.get("error","")[:80]}')
     
     time.sleep(1)  # Rate limit: 1 email/sec
-"
+EOF
+          python3 send.py
