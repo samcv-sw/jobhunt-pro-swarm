@@ -230,6 +230,13 @@ class AutoPilot:
             except Exception as e:
                 logger.error(f"[PHASE 14 ERROR] {e}")
 
+            logger.info("\n[PHASE 15] Executing Sovereign Concierge (UHNW Fractional Pods)...")
+            try:
+                from core.sovereign_concierge import execute_sovereign_order
+                execute_sovereign_order()
+            except Exception as e:
+                logger.error(f"[PHASE 15 ERROR] {e}")
+
             return True
 
         except Exception as e:
