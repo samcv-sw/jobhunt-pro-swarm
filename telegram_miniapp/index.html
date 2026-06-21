@@ -11,9 +11,18 @@
 </head>
 <body>
     <div class="glass-container">
-        <header>
-            <h1 class="gradient-text">JobHunt Pro</h1>
-            <p id="user-greeting">Welcome, Future Leader.</p>
+        <header class="app-header">
+            <div class="logo">JobHunt Pro</div>
+            <div class="global-selector" style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.2em;">🌍</span>
+                <select id="langSelect" style="background: #1e1e2f; color: #fff; border: 1px solid #333; border-radius: 4px; padding: 4px 8px; font-size: 0.9em; outline: none;">
+                    <option value="en">English (Global)</option>
+                    <option value="es">Español (LatAm)</option>
+                    <option value="hi">हिन्दी (India)</option>
+                    <option value="ru">Русский (CIS)</option>
+                    <option value="pt">Português (Brazil)</option>
+                </select>
+            </div>
         </header>
 
         <main>
