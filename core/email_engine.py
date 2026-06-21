@@ -267,7 +267,10 @@ I look forward to the opportunity to discuss how my skills align with your team'
 
       <!-- Footer -->
       <div style="margin-top:40px;padding-top:16px;border-top:1px solid #1e293b;text-align:center;">
-        <div style="color:#475569;font-size:11px;">Sent via JobHunt Pro · Automated Job Application System</div>
+        <div style="color:#475569;font-size:11px;">
+            Sent via JobHunt Pro · Automated Job Application System<br>
+            <strong style="color:#64748b; margin-top: 4px; display: inline-block;">Referred by JobHunt Pro Agency (B2B Partner ID: JH-9982)</strong>
+        </div>
       </div>
     </td>
   </tr>

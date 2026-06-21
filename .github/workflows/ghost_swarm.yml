@@ -36,4 +36,15 @@ jobs:
       - name: 🚀 Execute Cloud Queue Worker (Drain Queue)
         run: |
           # Use xvfb-run to simulate a display for headless chrome
-          xvfb-run python cloud_queue_worker.py --one-shot
+          xvfb-run python cloud_queue_worker.py --one-shot || true
+
+      - name: 🌐 Generate SEO Job Board
+        run: python generate_seo_job_board.py
+
+      - name: 💾 Commit Job Board to Repository
+        run: |
+          git config --global user.name "Omega-Swarm-Bot"
+          git config --global user.email "bot@jobhuntpro.ai"
+          git add docs/
+          git commit -m "Auto-update SEO Job Board [skip ci]" || echo "No changes to commit"
+          git push origin main || echo "Push failed or nothing to push"
