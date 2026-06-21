@@ -223,6 +223,13 @@ class AutoPilot:
             except Exception as e:
                 logger.error(f"[PHASE 13 ERROR] {e}")
 
+            logger.info("\n[PHASE 14] Executing Cassandra Protocol (QA Proof of Destruction)...")
+            try:
+                from core.cassandra_protocol import execute_cassandra_protocol
+                execute_cassandra_protocol()
+            except Exception as e:
+                logger.error(f"[PHASE 14 ERROR] {e}")
+
             return True
 
         except Exception as e:
