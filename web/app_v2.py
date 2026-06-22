@@ -923,7 +923,8 @@ def get_db(max_retries: int = 3):
             # We use local sqlite as a replica to sync with the cloud
             conn = libsql_experimental.connect(db_path, sync_url=turso_url, auth_token=turso_token)
             conn.sync()
-            conn.row_factory = sqlite3.Row
+            try: conn.row_factory = sqlite3.Row
+            except Exception: pass
             return conn
         except Exception as e:
             logger.warning(f"Turso connection failed, falling back to local SQLite: {e}")
@@ -933,9 +934,12 @@ def get_db(max_retries: int = 3):
     for attempt in range(max_retries):
         try:
             conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30)
-            conn.row_factory = sqlite3.Row
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=5000")
+            try: conn.row_factory = sqlite3.Row
+            except Exception: pass
+            try:
+                conn.execute("PRAGMA journal_mode=WAL")
+                conn.execute("PRAGMA busy_timeout=5000")
+            except Exception: pass
             return conn
         except sqlite3.OperationalError as e:
             if "database is locked" in str(e).lower() or "SQLITE_BUSY" in str(e).upper():
