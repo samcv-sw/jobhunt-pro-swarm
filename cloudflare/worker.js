@@ -390,22 +390,27 @@ export default {
         return json({ ok: true, cover_letter: letter });
       }
 
-      // ═══════════ API: CV UPLOAD (R2) ═══════════
+      // ═══════════ API: CV UPLOAD (R2 or KV fallback) ═══════════
       if (path === '/api/cv/upload' && method === 'POST') {
-        if (!r2) return error('File storage not available', 503);
-        
         const body = await request.json();
-        const { user_id, filename, content } = body;  // content is base64
+        const { user_id, filename, content } = body;
         if (!user_id || !content) return error('user_id and content required');
         
         const key = 'cv/' + user_id + '/' + (filename || 'resume.pdf');
         const binary = Uint8Array.from(atob(content), c => c.charCodeAt(0));
-        await r2.put(key, binary, { httpMetadata: { contentType: 'application/pdf' } });
         
-        // Update user record
+        if (r2) {
+          // Use R2 (preferred)
+          await r2.put(key, binary, { httpMetadata: { contentType: 'application/pdf' } });
+        } else if (kv) {
+          // Fallback to KV storage (25MB limit)
+          await kv.put(key, binary, { expirationTtl: 86400 * 30, metadata: { contentType: 'application/pdf', user_id } });
+        } else {
+          return error('No storage available', 503);
+        }
+        
         await db.prepare('UPDATE users SET cv_url = ? WHERE id = ?').bind(key, user_id).run();
-        
-        return json({ ok: true, url: key, message: 'CV uploaded!' });
+        return json({ ok: true, url: key, message: 'CV uploaded!', storage: r2 ? 'r2' : 'kv' });
       }
 
       // ═══════════ API: SCRAPE ═══════════
