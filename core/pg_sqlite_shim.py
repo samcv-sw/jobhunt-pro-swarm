@@ -72,6 +72,12 @@ def convert_sql(query):
     # Handle CURRENT_TIMESTAMP → NOW() (safe for both, but PG prefers NOW())
     sql = re.sub(r"\bCURRENT_TIMESTAMP\b", "NOW()", sql, flags=re.IGNORECASE)
     
+    if sql.strip().upper().startswith("PRAGMA TABLE_INFO"):
+        match = re.search(r"PRAGMA\s+table_info\s*\(\s*['\"]?(\w+)['\"]?\s*\)", sql, re.IGNORECASE)
+        if match:
+            table_name = match.group(1)
+            return f"SELECT ordinal_position, column_name, data_type, is_nullable, column_default, 0 FROM information_schema.columns WHERE table_name = '{table_name}'"
+            
     if sql.strip().upper().startswith("PRAGMA"):
         return ""
     return sql
