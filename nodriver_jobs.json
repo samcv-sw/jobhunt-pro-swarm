@@ -1,7 +1,7 @@
 {
-  "collected_at": "2026-06-22T12:37:51.184775",
-  "total": 593,
-  "elapsed_seconds": 121.316172,
+  "collected_at": "2026-06-22T23:51:50.812417",
+  "total": 596,
+  "elapsed_seconds": 138.692108,
   "jobs": [
     {
       "title": "Lead - Security Engineer (Network Infrastructure)",
@@ -382,13 +382,6 @@
       "location": "UAE"
     },
     {
-      "title": "Branch Operations Manager - Automobile Workshop",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/branch-operations-manager-automobile-workshop-5451508/",
-      "source": "bayt",
-      "location": "UAE"
-    },
-    {
       "title": "Clinic Operations Manager",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/uae/jobs/clinic-operations-manager-74764015/",
@@ -560,6 +553,13 @@
       "title": "Operations Manager - MOE",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/uae/jobs/operations-manager-moe-74489656/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
+      "title": "Investment Operations Manager - UAEN Role",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/investment-operations-manager-uaen-role-74488520/",
       "source": "bayt",
       "location": "UAE"
     },
@@ -853,14 +853,14 @@
     {
       "title": "Sr. Manager Operations - tmart",
       "company": "Unknown",
-      "url": "https://www.bayt.com/en/oman/jobs/sr-manager-operations-tmart-74768015/",
+      "url": "https://www.bayt.com/en/oman/jobs/sr-manager-operations-tmart-74769806/",
       "source": "bayt",
       "location": "Oman"
     },
     {
       "title": "Sr. Manager Operations - tmart",
       "company": "Unknown",
-      "url": "https://www.bayt.com/en/oman/jobs/sr-manager-operations-tmart-74769806/",
+      "url": "https://www.bayt.com/en/oman/jobs/sr-manager-operations-tmart-74768015/",
       "source": "bayt",
       "location": "Oman"
     },
@@ -1068,6 +1068,13 @@
       "location": "Saudi Arabia"
     },
     {
+      "title": "Inspection Technician",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/saudi-arabia/jobs/inspection-technician-74772416/",
+      "source": "bayt",
+      "location": "Saudi Arabia"
+    },
+    {
       "title": "Career Opportunities: Dairy Technologist - CIT (Manufacturing) (88065)",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/saudi-arabia/jobs/career-opportunities-dairy-technologist-cit-manufacturing-88065-74770905/",
@@ -1152,13 +1159,6 @@
       "location": "Saudi Arabia"
     },
     {
-      "title": "Senior Quality Control Technician",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/saudi-arabia/jobs/senior-quality-control-technician-74720308/",
-      "source": "bayt",
-      "location": "Saudi Arabia"
-    },
-    {
       "title": "Paint Technician | Al-Futtaim Automotive | DOMASCO",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/qatar/jobs/paint-technician-al-futtaim-automotive-domasco-5463911/",
@@ -1201,16 +1201,16 @@
       "location": "Qatar"
     },
     {
-      "title": "Senior Shops Technician",
+      "title": "Senior HVAC & Lighting Technician",
       "company": "Unknown",
-      "url": "https://www.bayt.com/en/qatar/jobs/senior-shops-technician-74758181/",
+      "url": "https://www.bayt.com/en/qatar/jobs/senior-hvac-lighting-technician-74758232/",
       "source": "bayt",
       "location": "Qatar"
     },
     {
-      "title": "Senior HVAC & Lighting Technician",
+      "title": "Senior Shops Technician",
       "company": "Unknown",
-      "url": "https://www.bayt.com/en/qatar/jobs/senior-hvac-lighting-technician-74758232/",
+      "url": "https://www.bayt.com/en/qatar/jobs/senior-shops-technician-74758181/",
       "source": "bayt",
       "location": "Qatar"
     },
@@ -1801,6 +1801,13 @@
       "url": "https://www.bayt.com/en/saudi-arabia/jobs/it-help-desk-agent-saudi-73046540/",
       "source": "bayt",
       "location": "Saudi Arabia"
+    },
+    {
+      "title": "Hotel Maintenance Technician",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/qatar/jobs/hotel-maintenance-technician-5464095/",
+      "source": "bayt",
+      "location": "Qatar"
     },
     {
       "title": "Urgent Required Help Desk /Technical Support Engineer for Qatar",
@@ -2517,16 +2524,16 @@
       "location": "UAE"
     },
     {
-      "title": "Manager, Gas Operations",
+      "title": "Head of UAE Procurement Ops, GPO - SPO (Site Procurement Operations), GPO - SPO (Site Procurement Operations)",
       "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/manager-gas-operations-74751061/",
+      "url": "https://www.bayt.com/en/uae/jobs/head-of-uae-procurement-ops-gpo-spo-site-procurement-operations-gpo-spo-site-procurement-operations-74753425/",
       "source": "bayt",
       "location": "UAE"
     },
     {
-      "title": "Head of UAE Procurement Ops, GPO - SPO (Site Procurement Operations), GPO - SPO (Site Procurement Operations)",
+      "title": "Manager, Gas Operations",
       "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/head-of-uae-procurement-ops-gpo-spo-site-procurement-operations-gpo-spo-site-procurement-operations-74753425/",
+      "url": "https://www.bayt.com/en/uae/jobs/manager-gas-operations-74751061/",
       "source": "bayt",
       "location": "UAE"
     },
@@ -2566,6 +2573,13 @@
       "location": "UAE"
     },
     {
+      "title": "Specialist, Operating Integrity",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/specialist-operating-integrity-74730139/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
       "title": "Sr. Specialist Workforce Operations & Experience",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/uae/jobs/sr-specialist-workforce-operations-experience-74730242/",
@@ -2583,13 +2597,6 @@
       "title": "Sr. Specialist Workforce Operations & Experience",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/uae/jobs/sr-specialist-workforce-operations-experience-74733650/",
-      "source": "bayt",
-      "location": "UAE"
-    },
-    {
-      "title": "Specialist, Operating Integrity",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/uae/jobs/specialist-operating-integrity-74730139/",
       "source": "bayt",
       "location": "UAE"
     },
@@ -2825,6 +2832,13 @@
       "location": "Qatar"
     },
     {
+      "title": "Project Manager for our Qatar operations",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/qatar/jobs/project-manager-for-our-qatar-operations-74457895/",
+      "source": "bayt",
+      "location": "Qatar"
+    },
+    {
       "title": "IT Security Engineer for Qatar",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/qatar/jobs/it-security-engineer-for-qatar-74454974/",
@@ -2835,13 +2849,6 @@
       "title": "POS (Point of Sale) Device Technicians for our Qatar operations",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/qatar/jobs/pos-point-of-sale-device-technicians-for-our-qatar-operations-74457707/",
-      "source": "bayt",
-      "location": "Qatar"
-    },
-    {
-      "title": "Project Manager for our Qatar operations",
-      "company": "Unknown",
-      "url": "https://www.bayt.com/en/qatar/jobs/project-manager-for-our-qatar-operations-74457895/",
       "source": "bayt",
       "location": "Qatar"
     },
@@ -3672,6 +3679,13 @@
       "location": "UAE"
     },
     {
+      "title": "Program Manager - UAE National, Amazon Now",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/uae/jobs/program-manager-uae-national-amazon-now-74516461/",
+      "source": "bayt",
+      "location": "UAE"
+    },
+    {
       "title": "IT Manager",
       "company": "Unknown",
       "url": "https://www.bayt.com/en/saudi-arabia/jobs/it-manager-5386700/",
@@ -3929,6 +3943,13 @@
       "url": "https://www.bayt.com/en/lebanon/jobs/head-of-information-technology-74333151/",
       "source": "bayt",
       "location": "Lebanon"
+    },
+    {
+      "title": "Information Technology Manager",
+      "company": "Unknown",
+      "url": "https://www.bayt.com/en/bahrain/jobs/information-technology-manager-74772428/",
+      "source": "bayt",
+      "location": "Bahrain"
     },
     {
       "title": "Senior Marketing Program Manager (IMEA Region)",

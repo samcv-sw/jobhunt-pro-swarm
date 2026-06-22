@@ -144,7 +144,13 @@ class Database:
     def _get_conn(self):
         conn = sqlite3_sync.connect(self.db_path, timeout=30)
         conn.row_factory = sqlite3_sync.Row
-        conn.execute("PRAGMA journal_mode=WAL")
+        try:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA synchronous=NORMAL")
+            conn.execute("PRAGMA cache_size=-64000")
+            conn.execute("PRAGMA temp_store=MEMORY")
+            conn.execute("PRAGMA mmap_size=3000000000")
+        except Exception: pass
         return conn
 
     async def save_job(self, job):

@@ -41,7 +41,11 @@ class ProviderConfig:
     daily_limit: int = 0  # 0 = unlimited
 
     def get_api_key(self) -> str:
-        return os.getenv(self.api_key_env, "")
+        keys_str = os.getenv(self.api_key_env, "")
+        if "," in keys_str:
+            keys = [k.strip() for k in keys_str.split(",") if k.strip()]
+            return random.choice(keys) if keys else ""
+        return keys_str.strip()
 
     @property
     def is_configured(self) -> bool:
@@ -247,12 +251,12 @@ class ProviderInstance:
 
             if response.status_code == 429:
                 retry_after = int(response.headers.get("retry-after", 5))
-                self._consecutive_failures += 1
-                if self._consecutive_failures > 3:
-                    self._available = False
                 logger.warning(
-                    f"Provider {self.config.name.value} 429, retry-after={retry_after}s"
+                    f"Provider {self.config.name.value} 429, rate limited. Switching keys on next request if available."
                 )
+                # Temporarily add fake requests to trigger the rate limit wait logic for next calls
+                for _ in range(self.config.rate_limit_rpm):
+                    self._request_times.append(time.time() + retry_after)
                 return None
 
             if response.status_code != 200:

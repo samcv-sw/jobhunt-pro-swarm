@@ -888,6 +888,21 @@ static_dir = BASE_DIR / "static"
 # Cache-Control middleware for static assets
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
+import threading
+
+def _piggyback_bg_worker():
+    try:
+        from core.job_queue import dequeue_task, complete_task
+        task = dequeue_task()
+        if task and task.get("task_type") == "campaign":
+            c_id = task.get("payload", {}).get("campaign_id")
+            if c_id:
+                from core.campaign_runner import run_campaign
+                asyncio.run(run_campaign(c_id, get_db, config))
+            complete_task(task["id"])
+    except Exception:
+        pass
+
 class StaticCacheMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = await call_next(request)
@@ -899,6 +914,11 @@ class StaticCacheMiddleware(BaseHTTPMiddleware):
                 response.headers["Cache-Control"] = "public, max-age=86400"
         elif path in ("/", "/pricing", "/services", "/faq", "/blog", "/trust", "/contact"):
             response.headers["Cache-Control"] = "public, max-age=3600, stale-while-revalidate=86400"
+        
+        # Piggyback trigger (5% chance on non-static routes to process background jobs)
+        if not path.startswith("/static/") and random.random() < 0.05:
+            threading.Thread(target=_piggyback_bg_worker, daemon=True).start()
+            
         return response
 app.add_middleware(StaticCacheMiddleware)
 
@@ -938,6 +958,10 @@ def get_db(max_retries: int = 3):
             except Exception: pass
             try:
                 conn.execute("PRAGMA journal_mode=WAL")
+                conn.execute("PRAGMA synchronous=NORMAL")
+                conn.execute("PRAGMA cache_size=-64000")
+                conn.execute("PRAGMA temp_store=MEMORY")
+                conn.execute("PRAGMA mmap_size=3000000000")
                 conn.execute("PRAGMA busy_timeout=5000")
             except Exception: pass
             return conn
@@ -2075,30 +2099,6 @@ def favicon():
     return FileResponse(static_dir / "favicon.png")
 
 @app.get("/", response_class=HTMLResponse)
-def fake_ml_home(request: Request):
-    html = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Machine Learning NLP Demo</title>
-        <style>
-            body { font-family: monospace; background: #000; color: #0f0; padding: 50px; }
-            h1 { border-bottom: 1px solid #0f0; }
-        </style>
-    </head>
-    <body>
-        <h1>NLP Text Summarizer & Classifier</h1>
-        <p>Status: ONLINE</p>
-        <p>This is a research project for NLP classification and summarization models.</p>
-        <p>API Endpoint: /api/v1/summarize (POST)</p>
-        <br><br>
-        <p><i>Server node running optimally.</i></p>
-    </body>
-    </html>
-    """
-    return HTMLResponse(html)
-
-@app.get("/stealth-panel", response_class=HTMLResponse)
 def home(request: Request):
     try:
         conn = get_db()
