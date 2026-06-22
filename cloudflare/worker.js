@@ -152,7 +152,7 @@ export default {
     const method = request.method;
     const db = env.DB;
     const kv = env.CACHE;
-    const r2 = env.FILES;
+    const r2 = env.BUCKET;
     const ai = env.AI;
 
     if (method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
