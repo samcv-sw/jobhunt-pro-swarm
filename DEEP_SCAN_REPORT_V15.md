@@ -98,14 +98,14 @@ The docstring is placed AFTER executable code (which is valid Python but bad pra
 **Severity:** 🔴 CRITICAL — Admin panel unprotected without explicit ADMIN_EMAIL
 
 **Problem:**  
-- `app_v2.py` uses `os.getenv("ADMIN_EMAIL", "samatou683@gmail.com")` — works via default
+- `app_v2.py` uses `os.getenv("ADMIN_EMAIL", "samsalameh.cv@gmail.com")` — works via default
 - `app_v2.py` uses `os.getenv("CRON_SECRET", "")` — cron endpoint is unprotected
 - Neither variable was in `.env`
 - Cron endpoint `/cron/run-cycle` requires `key=CRON_SECRET` param, but with empty default, anyone can trigger it
 
 **Fix:** Added to `.env`:
 ```
-ADMIN_EMAIL=samatou683@gmail.com
+ADMIN_EMAIL=samsalameh.cv@gmail.com
 CRON_SECRET=jobhunt-cron-secret-2026
 ```
 
@@ -146,7 +146,7 @@ While the table names come from a hardcoded whitelist `["users", "campaigns", "o
 **Severity:** 🟠 HIGH
 
 **Problem:**  
-The forgot-password email sending hardcodes `samatou683@gmail.com` as the FROM address. This should use the candidate email from config.
+The forgot-password email sending hardcodes `samsalameh.cv@gmail.com` as the FROM address. This should use the candidate email from config.
 
 **Impact:** Works but if Sam uses a different email, password reset emails won't reflect correct sender.
 

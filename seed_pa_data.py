@@ -44,7 +44,7 @@ def seed():
 
     # 1. user
     c.execute("INSERT INTO users(user_id,email,password_hash,name,phone,is_active,created_at) VALUES(?,?,?,?,?,?,?)",
-              (uid,"samatou683@gmail.com","*SEEDED*","Sam Salameh","+96171019053",1,now))
+              (uid,"samsalameh.cv@gmail.com","*SEEDED*","Sam Salameh","+96171019053",1,now))
 
     # 2. jobs
     for jid,title,company,email,loc,sal in JOBS:

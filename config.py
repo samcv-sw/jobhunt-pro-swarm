@@ -10,7 +10,7 @@ APP_NAME = "JobHunt Pro"
 
 CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Sam Salameh")
 CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Network Engineer")
-CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "samatou683@gmail.com")
+CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "samsalameh.cv@gmail.com")
 
 # ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 # Secret key — Fallback provided for cloud deployment

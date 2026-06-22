@@ -58,8 +58,8 @@ CYCLE_INTERVAL=15
 GROQ_API_KEY=
 
 # --- Email Providers ---
-GMAIL_SMTP_USER_1=
-GMAIL_APP_PASSWORD_1=
+GMAIL_SMTP_USER_1=samsalameh.cv@gmail.com
+GMAIL_APP_PASSWORD_1=iksu suij cnrw vmok
 BREVO_API_KEY=
 
 # --- Job Search ---

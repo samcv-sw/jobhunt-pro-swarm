@@ -35,7 +35,7 @@
 - **Brevo/Mailgun/SendGrid/Mailjet** — fallback providers
 - **Target:** 2000+ emails/day with zero spam folder
 
-> **Key Rule:** Each sender domain needs its own SPF record. If you're sending `samatou683@gmail.com`, Gmail handles SPF — but if you use a custom domain, YOU must set it up.
+> **Key Rule:** Each sender domain needs its own SPF record. If you're sending `samsalameh.cv@gmail.com`, Gmail handles SPF — but if you use a custom domain, YOU must set it up.
 
 ---
 
@@ -51,7 +51,7 @@
 | 3 | aurorafuture8@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
 | 4 | luxurystoresvvip@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
 | 5 | wyn27xauit@bbyuopsch.it.com | Disposable | smtp.gmail.com:587 | 100 | ⚠️ Custom domain → SPF needed |
-| 6 | samatou683@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
+| 6 | samsalameh.cv@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
 | 7 | luxurystores888@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
 | 8 | samsalameh.cv@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
 | 9 | jrodriguez7476@live.hccc.edu | Outlook/EDU | smtp-mail.outlook.com:587 | 100 | ✅ Outlook auto-SPF |

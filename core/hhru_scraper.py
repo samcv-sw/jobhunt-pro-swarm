@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 HHRU_API_BASE = "https://api.hh.ru"
-HHRU_USER_AGENT = "JobHuntPro/16.0 (samatou683@gmail.com)"  # Required by hh.ru TOS
+HHRU_USER_AGENT = "JobHuntPro/16.0 (samsalameh.cv@gmail.com)"  # Required by hh.ru TOS
 
 # API limit: per_page max 100, max 2000 results total (pages 0-19)
 HHRU_PER_PAGE = 100

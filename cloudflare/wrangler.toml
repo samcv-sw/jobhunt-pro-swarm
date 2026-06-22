@@ -29,3 +29,8 @@ crons = ["*/30 * * * *"]
 [vars]
 PA_BASE = "https://jhfguf.pythonanywhere.com"
 ENVIRONMENT = "production"
+
+# ── R2 Storage (For CV Uploads) ──
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "jobhunt-files"

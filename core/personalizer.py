@@ -24,7 +24,7 @@ class EmailPersonalizer:
         return {
             "name": os.getenv("CANDIDATE_NAME", "Sam Salameh"),
             "phone": os.getenv("CANDIDATE_PHONE", "+961 71 019 053"),
-            "email": os.getenv("SENDER_EMAIL", "samatou683@gmail.com"),
+            "email": os.getenv("SENDER_EMAIL", "samsalameh.cv@gmail.com"),
             "linkedin": os.getenv("LINKEDIN_URL", "https://www.linkedin.com/in/sam-salameh"),
             "profession": os.getenv("CANDIDATE_PROFESSION", "Senior Network Engineer"),
             

@@ -649,7 +649,7 @@ def health_check():
 def security_txt():
     """Security.txt — White-hat standard for vulnerability disclosure (RFC 9116)."""
     site = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
-    txt = f"""Contact: mailto:samatou683@gmail.com
+    txt = f"""Contact: mailto:samsalameh.cv@gmail.com
 Contact: https://jhfguf.pythonanywhere.com/contact
 Expires: 2027-12-31T23:59:59Z
 Encryption: https://jhfguf.pythonanywhere.com/.well-known/pgp-key.txt
@@ -908,7 +908,8 @@ except Exception as e:
     logger.warning(f"Warning: static dir mount failed ({e})")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
-db_path = str(BASE_DIR.parent / getattr(config, "DB_PATH", "jobhunt_saas_v2.db"))
+_db_val = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+db_path = str(BASE_DIR.parent / _db_val)
 
 def get_db(max_retries: int = 3):
     """Get Database connection. Tries Turso first, falls back to local SQLite on failure."""
@@ -4622,7 +4623,7 @@ async def api_generate_redeem_code(request: Request):
     """API endpoint for Telegram bot to sync redeem codes to PA DB."""
     # Security: only admins can generate redeem codes
     session_user = request.session.get("user")
-    admin_emails = ["samatou683@gmail.com"]
+    admin_emails = ["samsalameh.cv@gmail.com"]
     if not session_user or session_user.get("email") not in admin_emails:
         return JSONResponse({"ok": False, "error": "Admin access required"}, status_code=403)
     try:
@@ -7832,7 +7833,7 @@ if __name__ == "__main__":
 
 
 # ============================================================
-# ADMIN PANEL &#x2014; Only for Sam (samatou683@gmail.com)
+# ADMIN PANEL &#x2014; Only for Sam (samsalameh.cv@gmail.com)
 # ============================================================
 
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "")
@@ -7967,11 +7968,11 @@ def admin_reset_pw(token: str = ""):
         return JSONResponse({"error": "ADMIN_PW_HASH not set in env"}, status_code=503)
     conn = get_db()
     conn.execute("UPDATE users SET password_hash = ? WHERE email = ?",
-                 (admin_hash, "samatou683@gmail.com"))
+                 (admin_hash, "samsalameh.cv@gmail.com"))
     conn.commit()
     conn.close()
-    logger.info("Password reset for samatou683@gmail.com via admin-reset-pw")
-    return {"status": "password updated for samatou683@gmail.com"}
+    logger.info("Password reset for samsalameh.cv@gmail.com via admin-reset-pw")
+    return {"status": "password updated for samsalameh.cv@gmail.com"}
     try:
         payment_stats = get_payment_stats()
     except Exception:
@@ -8451,7 +8452,7 @@ async def api_debug_test_email():
         from core.email_engine import EmailEngine
         engine = EmailEngine()
         success, result = await engine.send_application(
-            to_email="samatou683@gmail.com",
+            to_email="samsalameh.cv@gmail.com",
             company="DebugTest",
             title="Network Engineer v16.322",
             cover_html="<p>Debug test email from PA pipeline</p>",

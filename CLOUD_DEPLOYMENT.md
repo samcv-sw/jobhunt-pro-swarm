@@ -92,7 +92,7 @@ In Render Dashboard → your app → **Environment** tab, add these **Secret Fil
 |----------|-------------|----------|
 | `GROQ_API_KEY` | AI scoring + cover letters | ✅ Yes |
 | `JSEARCH_API_KEY` | Job search from RapidAPI | ✅ Yes |
-| `GMAIL_SMTP_USER_1` | samatou683@gmail.com | ✅ Yes |
+| `GMAIL_SMTP_USER_1` | samsalameh.cv@gmail.com | ✅ Yes |
 | `GMAIL_APP_PASSWORD_1` | Gmail app password | ✅ Yes |
 | `BREVO_API_KEY` | Brevo REST API key for email fallback | Optional |
 | `BREVO_ACCOUNT_EMAIL` | Brevo sender email address | Optional |

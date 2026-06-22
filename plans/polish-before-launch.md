@@ -105,14 +105,14 @@ CHAT_ID = "6639482672"
 **File:** [`web/app_v2.py`](web/app_v2.py:1130-1185)
 
 **Problem:** The forgot-password endpoint:
-1. Uses **hardcoded fallback Gmail SMTP** with `samatou683@gmail.com`
+1. Uses **hardcoded fallback Gmail SMTP** with `samsalameh.cv@gmail.com`
 2. Does NOT go through the EmailEngine with its 20-provider pool
 3. Hardcoded reset link: `https://jobhunt-pro.onrender.com/`
 
 ```python
 # Line ~1147-1148 — Direct SMTP, not using EmailEngine
 server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-server.login("samatou683@gmail.com", app_password)
+server.login("samsalameh.cv@gmail.com", app_password)
 ```
 
 **Impact:** 
@@ -166,7 +166,7 @@ SECRET_KEY = os.getenv("SECRET_KEY") or secrets.token_hex(32)
 
 **Problem:**
 ```python
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "samatou683@gmail.com")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "samsalameh.cv@gmail.com")
 ```
 
 **Impact:** Single-admin model. No role-based access control. If someone guesses or discovers this email, they can potentially escalate privileges.
