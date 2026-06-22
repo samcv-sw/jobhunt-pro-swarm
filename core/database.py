@@ -135,7 +135,9 @@ class Database:
         self.db_path = str(base_dir / "jobhunt_saas_v2.db")
         try:
             import config
-            self.db_path = str(base_dir / getattr(config, "DB_PATH", "jobhunt_saas_v2.db"))
+            db_path_val = getattr(config, "DB_PATH", None)
+            if db_path_val is not None:
+                self.db_path = str(base_dir / db_path_val)
         except ImportError:
             pass
 
