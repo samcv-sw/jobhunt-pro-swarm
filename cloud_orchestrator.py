@@ -181,7 +181,7 @@ class CloudOrchestrator:
                 cid = row["campaign_id"]
                 try:
                     from core.campaign_runner import run_campaign
-                    await run_campaign(cid, lambda db=db_path: sqlite3.connect(db, timeout=30), config)
+                    await run_campaign(cid, lambda db=db_path: sqlite3.connect(db, timeout=30, check_same_thread=False), config)
                     results.append(cid)
                     logger.info(f"  Campaign {cid} processed")
                 except Exception as e:

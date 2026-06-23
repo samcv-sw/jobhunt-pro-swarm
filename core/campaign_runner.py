@@ -86,6 +86,7 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
 
     conn = get_db_fn()
     try:
+        conn.row_factory = sqlite3.Row
         campaign_row = conn.execute(
             "SELECT * FROM campaigns WHERE campaign_id = ?", (campaign_id,)
         ).fetchone()
