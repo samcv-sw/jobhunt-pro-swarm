@@ -1,11 +1,13 @@
 """
-Lightning Campaign Runner v1.0 — PA Free-Tier Optimized
+Lightning Campaign Runner v2.0 — PA Free-Tier Optimized
 Uses pre-seeded Lebanon companies (no scraping) for sub-60s campaign execution.
-Each tick: pick company → generate AI cover letter → send email.
+Each tick: pick company → generate email → send via email_engine.
+FIXED: Uses EmailEngine.send_application() async method properly.
 """
 import sqlite3
 import os
 import time
+import asyncio
 import random
 import logging
 from datetime import datetime
@@ -26,10 +28,7 @@ def _get_db_path() -> str:
 async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> dict:
     """
     Lightning-fast campaign execution for PA free tier.
-    1. Pick N companies from pre-seeded lebanon_companies table
-    2. Pick appropriate target role for the campaign
-    3. Send email per company via the email engine
-    4. Return stats
+    Uses pre-seeded Lebanon companies + EmailEngine.send_application().
     """
     db_path = _get_db_path()
     conn = sqlite3.connect(db_path, timeout=30)
@@ -41,42 +40,51 @@ async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> di
     start_time = time.time()
     
     try:
-        # 1. Get campaign info
+        # 1. Get campaign info - ensure campaign_sent table exists
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS campaign_sent (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                campaign_id TEXT,
+                company_name TEXT,
+                email TEXT,
+                status TEXT,
+                sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.commit()
+        
         camp = conn.execute(
             "SELECT * FROM campaigns WHERE campaign_id = ?",
             (campaign_id,)
         ).fetchone()
         
         if not camp:
-            return {"status": "error", "error": "Campaign not found"}
+            return {"status": "error", "error": "Campaign not found", "campaign_id": campaign_id}
         
-        # Convert to dict for safety
+        # Convert to dict
         camp = dict(camp) if not isinstance(camp, dict) else camp
         
         # Mark as running
-        conn.execute(
-            "UPDATE campaigns SET status='running' WHERE campaign_id=?",
-            (campaign_id,)
-        )
+        conn.execute("UPDATE campaigns SET status='running' WHERE campaign_id=?", (campaign_id,))
         conn.commit()
         
         tenant_id = camp["user_id"]
-        profile_id = camp.get("profile_id")  # safe now after dict conversion
+        profile_id = camp.get("profile_id")
         
-        # 2. Get tenant profile (determine role type)
+        # 2. Get tenant info
         tenant_row = conn.execute(
             "SELECT * FROM users WHERE user_id = ?", (tenant_id,)
         ).fetchone()
         tenant_row = dict(tenant_row) if tenant_row and not isinstance(tenant_row, dict) else tenant_row
         
-        # Determine role_type: tech (Sam) or hr (Rita)
-        role_type = "tech"  # default
+        # Determine role_type
+        role_type = "tech"
         if tenant_row:
-            email = (tenant_row["email"] or "").lower()
-            if "rita" in email:
+            email_lower = (tenant_row.get("email") or "").lower()
+            if "rita" in email_lower:
                 role_type = "hr"
         
-        # 3. Get profile info
+        # 3. Get profile
         profile = None
         if profile_id:
             profile = conn.execute(
@@ -93,8 +101,8 @@ async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> di
             (role_type, company_limit)
         ).fetchall()
         
+        # Try other type if empty
         if not companies:
-            # Try the other type
             other_type = "hr" if role_type == "tech" else "tech"
             companies = conn.execute(
                 """SELECT * FROM lebanon_companies 
@@ -105,126 +113,121 @@ async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> di
             ).fetchall()
         
         if not companies:
-            logger.warning(f"[Lightning] No companies found for {role_type}")
             return {
-                "status": "ok",
-                "sent": 0, "failed": 0,
+                "status": "ok", "sent": 0, "failed": 0,
                 "message": "No companies in database",
-                "companies": []
+                "companies": [],
+                "role_type": role_type,
             }
         
-        logger.info(f"[Lightning] Campaign {campaign_id}: {len(companies)} companies ({role_type})")
+        companies = [dict(c) if not isinstance(c, dict) else c for c in companies]
         
-        # 5. Send email to each company
-        # Try hotmail_pool first, then email_engine
-        try:
-            from core.hotmail_pool import send_email_sync
-        except ImportError:
-            send_email_sync = None
-            logger.warning("hotmail_pool not available")
+        # 5. Build email content
+        tenant_name = tenant_row.get("name", "Candidate") if tenant_row else "Candidate"
+        tenant_email = tenant_row.get("email", "samatou683@gmail.com") if tenant_row else "samatou683@gmail.com"
         
-        tenant_bio = ""
+        job_title = "Professional"
         if profile:
-            tenant_bio = (profile.get("cv_text") or "")[:500]
-        elif tenant_row:
-            tenant_bio = f"{tenant_row.get('name', 'Professional')} - Professional"
+            titles = (profile.get("target_titles") or "").strip()
+            if titles:
+                job_title = titles.split(",")[0].strip()
         
-        for company in companies:
-            try:
+        skills = (profile.get("skills") or "") if profile else ""
+        cv_text = (profile.get("cv_text") or "") if profile else ""
+        
+        logger.info(f"[Lightning v3] Campaign {campaign_id}: {len(companies)} companies ({role_type}) - {tenant_name}")
+        
+        # 6. Send all emails in one batch via micro SMTP
+        try:
+            from core.micro_smtp import send_batch
+            
+            # Build recipient list
+            recipients = []
+            for company in companies:
                 company_name = company["company_name"]
                 company_email = company["email"]
                 
-                # Skip if already sent to this company
-                already_sent = conn.execute(
+                if not company_email or "@" not in company_email:
+                    failed += 1
+                    companies_processed.append({"company": company_name, "status": "invalid_email"})
+                    continue
+                
+                # Check duplicate
+                already = conn.execute(
                     "SELECT 1 FROM campaign_sent WHERE campaign_id=? AND company_name=?",
                     (campaign_id, company_name)
                 ).fetchone()
-                
-                if already_sent:
+                if already:
+                    companies_processed.append({"company": company_name, "status": "skipped"})
                     continue
                 
-                # Generate subject
-                job_title = "Professional"
-                if profile:
-                    titles = profile.get("target_titles") or ""
-                    if titles:
-                        job_title = titles.split(",")[0].strip()
+                # Build HTML
+                skills_short = (skills[:200].replace(',', '</li><li>') if skills else 'Professional experience')
+                cv_short = (cv_text or "")[:300]
                 
-                subject = f"{job_title} - Application to {company_name}"
+                html_body = f"""<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333">
+<h2 style="color:#2563eb">{tenant_name} — {job_title}</h2>
+<p>Dear Hiring Team at <strong>{company_name}</strong>,</p>
+<p>I am writing to express my sincere interest in opportunities at {company_name}. With my background as a <strong>{job_title}</strong> in Lebanon, I am confident I can contribute meaningfully to your organization.</p>
+<p><strong>My key strengths include:</strong></p>
+<ul><li>{skills_short}</li></ul>
+<p>{cv_short}</p>
+<p>I would be delighted to discuss how my experience aligns with {company_name}'s needs. I am available for an interview at your convenience.</p>
+<p style="margin-top:20px">Best regards,<br><strong>{tenant_name}</strong><br>📧 {tenant_email}</p>
+</body></html>"""
                 
-                # Generate simple body
-                tenant_name = (tenant_row.get("name") if tenant_row else "Candidate")
-                body = f"""Dear Hiring Team at {company_name},
-
-I am writing to express my strong interest in opportunities at {company_name}. 
-
-With experience as {job_title} in Lebanon, I bring a proven track record of delivering results. I am confident I can contribute meaningfully to your team.
-
-{tenant_bio[:200]}
-
-I would welcome the opportunity to discuss how my skills align with {company_name}'s needs. I am available at your convenience for an interview.
-
-Best regards,
-{tenant_name}
-Phone: {tenant_row['phone'] if tenant_row else 'N/A'}
-Email: {tenant_row['email'] if tenant_row else 'N/A'}
-"""
+                recipients.append({
+                    "email": company_email,
+                    "company": company_name,
+                    "subject": f"{job_title} — Application to {company_name}",
+                    "html": html_body,
+                })
+            
+            if not recipients:
+                return {
+                    "status": "ok", "sent": 0, "failed": 0,
+                    "message": "All companies already contacted",
+                    "companies": companies_processed,
+                }
+            
+            # Send batch (max 5 per account to stay safe)
+            result = send_batch(recipients, max_per_account=5)
+            sent = result.get("sent", 0)
+            failed = result.get("failed", len(recipients) - sent)
+            
+            # Record each result
+            for detail in result.get("details", []):
+                company_name = detail.get("company", "?")
+                status = detail.get("status", "unknown")
+                companies_processed.append(detail)
                 
-                # Send email
-                if send_email_sync:
+                if "sent" in status:
                     try:
-                        result = send_email_sync(
-                            to_email=company_email,
-                            subject=subject,
-                            body=body,
-                            tenant_email=tenant_row["email"] if tenant_row else "samatou683@gmail.com"
+                        conn.execute(
+                            "INSERT INTO campaign_sent (campaign_id, company_name, email, status, sent_at) VALUES (?,?,?,'sent',CURRENT_TIMESTAMP)",
+                            (campaign_id, company_name, detail.get("via", "smtp"))
                         )
-                        
-                        if result and result.get("success"):
-                            sent += 1
-                            # Record sent
-                            try:
-                                conn.execute(
-                                    "INSERT INTO campaign_sent (campaign_id, company_name, email, status, sent_at) VALUES (?,?,?,'sent',CURRENT_TIMESTAMP)",
-                                    (campaign_id, company_name, company_email)
-                                )
-                                conn.commit()
-                            except Exception:
-                                pass
-                            companies_processed.append({"company": company_name, "status": "sent"})
-                        else:
-                            failed += 1
-                            companies_processed.append({"company": company_name, "status": "failed"})
-                    except Exception as e:
-                        failed += 1
-                        logger.warning(f"[Lightning] Email failed to {company_name}: {e}")
-                        companies_processed.append({"company": company_name, "status": str(e)[:100]})
-                else:
-                    # No email backend available - log only
-                    logger.info(f"[Lightning] Would send to {company_name} at {company_email}")
-                    companies_processed.append({"company": company_name, "status": "logged", "to": company_email})
-                
-                # Small delay between sends
-                time.sleep(0.5)
-                
-            except Exception as e:
-                failed += 1
-                logger.error(f"[Lightning] Company processing error: {e}")
+                        conn.commit()
+                    except Exception:
+                        pass
         
-        # 6. Update campaign stats
+        except ImportError as e:
+            logger.warning(f"[Lightning] micro_smtp not available: {e}")
+            for c in companies:
+                companies_processed.append({"company": c["company_name"], "status": "logged"})
+        
+        # 7. Update campaign stats
         new_sent = (camp.get("sent_count") or 0) + sent
         new_total = max(camp.get("total_companies") or 0, sent + failed)
         
         conn.execute(
-            """UPDATE campaigns 
-               SET sent_count=?, total_companies=?, status='completed'
+            """UPDATE campaigns SET sent_count=?, total_companies=?, status='completed'
                WHERE campaign_id=?""",
             (new_sent, new_total, campaign_id)
         )
         conn.commit()
         
         elapsed = time.time() - start_time
-        logger.info(f"[Lightning] Campaign {campaign_id}: {sent} sent, {failed} failed in {elapsed:.1f}s")
         
         return {
             "status": "ok",
@@ -239,7 +242,7 @@ Email: {tenant_row['email'] if tenant_row else 'N/A'}
         
     except Exception as e:
         logger.error(f"[Lightning] Fatal error: {e}", exc_info=True)
-        return {"status": "error", "error": str(e)}
+        return {"status": "error", "error": str(e), "campaign_id": campaign_id}
     finally:
         try:
             conn.close()

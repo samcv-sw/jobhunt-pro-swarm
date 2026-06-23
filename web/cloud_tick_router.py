@@ -34,13 +34,15 @@ async def cloud_tick_handler(request: Request):
     try:
         # Try multi-tenant first (v17+)
         from core.multi_tenant import MultiTenantRunner
-        company_limit = 10
+        company_limit = 3
+        max_campaigns = 3
         try:
             body = await request.json()
-            company_limit = body.get("company_limit", 10)
+            company_limit = body.get("company_limit", 3)
+            max_campaigns = body.get("max_campaigns", 3)
         except Exception:
             pass
-        runner = MultiTenantRunner(company_limit=company_limit)
+        runner = MultiTenantRunner(company_limit=company_limit, max_campaigns=max_campaigns)
         result = await runner.tick()
         return result
     except ImportError:

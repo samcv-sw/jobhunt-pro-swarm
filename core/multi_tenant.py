@@ -300,8 +300,9 @@ class MultiTenantRunner:
     concurrently with full isolation per tenant.
     """
 
-    def __init__(self, company_limit: int = 3):
+    def __init__(self, company_limit: int = 3, max_campaigns: int = 3):
         self.company_limit = company_limit
+        self.max_campaigns = max_campaigns
         self.tenant_stats: Dict[str, Dict[str, Any]] = {}
 
     async def tick(self) -> Dict[str, Any]:
@@ -335,6 +336,11 @@ class MultiTenantRunner:
             return results
 
         logger.info(f"[MultiTenant] Found {len(campaigns)} active campaign(s) across tenants.")
+        
+        # Limit campaigns processed per tick (PA free tier safety)
+        if len(campaigns) > self.max_campaigns:
+            campaigns = campaigns[:self.max_campaigns]
+            logger.info(f"[MultiTenant] Limiting to {self.max_campaigns} campaigns per tick (PA safety)")
 
         # ── Step 2: Group campaigns by tenant_id ──
         tenant_campaigns: Dict[str, List[Dict]] = {}
