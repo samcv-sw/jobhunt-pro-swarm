@@ -10745,6 +10745,15 @@ async def companies_count():
         return {"status": "error", "error": str(e)}
 
 
+@app.post("/api/system/force-rita-campaign")
+async def force_rita_campaign():
+    try:
+        from scripts.force_rita_campaign import force_rita_campaign
+        return force_rita_campaign()
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
 @app.post("/api/multi-tenant/add-tenant")
 async def add_tenant(request: Request):
     """Add a new tenant via API."""
