@@ -13,6 +13,7 @@ import time
 import uuid
 import hashlib
 import httpx
+import urllib.request
 from urllib.parse import quote_plus
 from bs4 import BeautifulSoup
 
@@ -172,7 +173,7 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
         # ── PA Detection: fast mode for free-tier ──
         pa_mode = is_pythonanywhere()
         if pa_mode:
-            logger.info(f"[CampaignRunner] ⚡ PA MODE DETECTED — MEGA search (LinkedIn XHR + Dice + Wuzzuf + Bayt)")
+            logger.info(f"[CampaignRunner] ⚡ PA MODE — using PAJobScraper (JSearch API + LinkedIn XHR)")
 
         # ── Load already-sent emails BEFORE scraper (needed for cache filtering) ──
         already_sent_emails = set()
@@ -187,167 +188,48 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
                 already_sent_companies.add(company.lower())
         
         if pa_mode:
+            logger.info(f"[CampaignRunner] ⚡ PA MODE — using PAJobScraper (JSearch + LinkedIn XHR)")
             # Try cache first
             cached_ts, cached_jobs = _load_search_cache()
             if _cached_jobs_valid(cached_ts, cached_jobs, already_sent_companies, min_needed=15):
                 jobs = cached_jobs
                 logger.info(f"[CampaignRunner] 📦 Cache hit: {len(jobs)} jobs, {int(time.time()-cached_ts)}s old")
             else:
-                # ⚡ MEGA SCRAPER: LinkedIn XHR + Dice + Wuzzuf + Bayt
-                # All PA-friendly (httpx-based, cloudscraper opt for Bayt)
-                all_jobs = []
-                seen = set()
-                seen_urls = set()
-                
-                _CITY_MAP = {
-                    "lebanon": "Beirut",
-                    "uae": "Dubai",
-                    "saudi": "Riyadh",
-                    "qatar": "Doha",
-                    "kuwait": "Kuwait",
-                }
-                _TITLES = [
-                    "network engineer",
-                    "network administrator",
-                    "network technician",
-                    "it support engineer",
-                    "system administrator",
-                    "network architect",
-                    "network security",
-                    "infrastructure engineer",
-                    "telecom engineer",
-                    "it manager",
-                ]
-                _XHR_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-                _XHR_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
-                
-                # ═══ SOURCE 1: LinkedIn XHR API (Paginated) ═══
-                # Limit to random 15 combinations to respect PA timeout
-                titles_to_use = list(_TITLES)
-                cities_to_use = list(_CITY_MAP.items())
-                if pa_mode:
-                    random.shuffle(titles_to_use)
-                    random.shuffle(cities_to_use)
-                    titles_to_use = titles_to_use[:2]
-                    cities_to_use = cities_to_use[:2]
-                
-                for title in titles_to_use:
-                    for country_key, city in cities_to_use:
-                        if len(all_jobs) >= 300:
-                            break
-                        # Paginate through results
-                        max_pages = 20 if pa_mode else 50
-                        for start_idx in range(0, max_pages, 10):
-                            if len(all_jobs) >= 300:
-                                break
-                            try:
-                                url = f"{_XHR_URL}?keywords={quote_plus(title)}&location={quote_plus(city)}&start={start_idx}&count=10"
-                                resp = await asyncio.to_thread(
-                                    lambda u=url: httpx.get(u, headers=_XHR_HEADERS, timeout=10)
-                                )
-                                if resp.status_code != 200:
-                                    await asyncio.sleep(0.1)
-                                    break # Stop paginating if rate limited or error
+                try:
+                    from core.pa_job_scraper import PAJobScraper
+                    pa = PAJobScraper()
+                    all_jobs = pa.search_all(max_jobs=campaign["total_companies"])
+                    jobs = all_jobs
+                    _save_search_cache(jobs)
+                    logger.info(f"[CampaignRunner] PAJobScraper: {len(jobs)} jobs")
+                except Exception as pae:
+                    logger.error(f"[CampaignRunner] PAJobScraper failed: {pae}. Falling back to original scraper.")
+                    # Original fallback: LinkedIn XHR only
+                    all_jobs = []
+                    seen = set()
+                    import httpx
+                    _XHR_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+                    _XHR_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
+                    city_combos = [("uae","Dubai"),("saudi","Riyadh"),("qatar","Doha"),("kuwait","Kuwait"),("lebanon","Beirut")]
+                    for _, city in city_combos:
+                        try:
+                            url = f"{_XHR_URL}?keywords=network+engineer&location={urllib.request.quote(city)}&start=0&count=10"
+                            resp = httpx.get(url, headers=_XHR_HEADERS, timeout=10)
+                            if resp.status_code == 200:
+                                from bs4 import BeautifulSoup
                                 soup = BeautifulSoup(resp.text, "html.parser")
-                                cards = soup.select("li")
-                                if not cards:
-                                    break # No more results
-                                
-                                added_in_page = 0
-                                for card in cards:
+                                for card in soup.select("li"):
                                     t_el = card.select_one(".base-search-card__title")
                                     c_el = card.select_one(".base-search-card__subtitle")
-                                    l_el = card.select_one(".job-search-card__location")
-                                    a_el = card.select_one("a[href*=jobs]")
-                                    t = t_el.get_text(strip=True) if t_el else ""
-                                    comp = c_el.get_text(strip=True) if c_el else ""
-                                    loc = l_el.get_text(strip=True) if l_el else city
-                                    href = (a_el.get("href", "") if a_el else "").strip()
-                                    key = (comp.lower().strip(), t.lower().strip())
-                                    if t and comp and key not in seen:
-                                        seen.add(key)
-                                        added_in_page += 1
-                                        all_jobs.append({
-                                            "id": str(len(all_jobs)),
-                                            "title": t[:100],
-                                            "company": comp[:80],
-                                            "location": str(loc or city)[:60],
-                                            "source": "linkedin_xhr",
-                                            "url": href,
-                                        })
-                                await asyncio.sleep(0.2)
-                                if added_in_page == 0:
-                                    break # If all jobs on this page were already seen, move to next city
-                            except Exception:
-                                await asyncio.sleep(0.1)
-                                break
-                    if len(all_jobs) >= 300:
-                        break
-                
-                # ═══ SOURCE 2: Dice.com (via httpx, PA-friendly) ═══
-                try:
-                    from core.dice_scraper import search_dice_sync
-                    _dice = search_dice_sync(
-                        titles=["network+engineer", "network+administrator", "network+architect", "system+administrator", "it+support+engineer"],
-                        locations=["dubai", "abu-dhabi", "riyadh", "doha", "kuwait", "beirut"],
-                        rate_limit=0.5
-                    )
-                    for j in _dice:
-                        k = (j.get("company","").lower().strip(), j.get("title","").lower().strip())
-                        u = j.get("url","").strip()
-                        if k not in seen and u not in seen_urls:
-                            seen.add(k)
-                            if u: seen_urls.add(u)
-                            all_jobs.append(j)
-                    logger.info(f"[CampaignRunner] Dice: {len(_dice)} jobs")
-                except Exception as de:
-                    logger.info(f"[CampaignRunner] Dice skip: {de}")
-                
-                # ═══ SOURCE 3: Wuzzuf (via httpx, PA-friendly) ═══
-                try:
-                    from core.wuzzuf_scraper import search_wuzzuf_sync
-                    _wuzzuf = search_wuzzuf_sync(
-                        titles=["network+engineer", "network+administrator", "it+support+engineer", "system+administrator", "network+security"],
-                        locations=["uae", "saudi-arabia", "qatar", "kuwait", "lebanon"],
-                        rate_limit=0.5
-                    )
-                    for j in _wuzzuf:
-                        k = (j.get("company","").lower().strip(), j.get("title","").lower().strip())
-                        u = j.get("url","").strip()
-                        if k not in seen and u not in seen_urls:
-                            seen.add(k)
-                            if u: seen_urls.add(u)
-                            all_jobs.append(j)
-                    logger.info(f"[CampaignRunner] Wuzzuf: {len(_wuzzuf)} jobs")
-                except Exception as we:
-                    logger.info(f"[CampaignRunner] Wuzzuf skip: {we}")
-                
-                # ═══ SOURCE 4: Bayt from nodriver DB feed (uploaded by local collector) ═══
-                try:
-                    bayt_rows = conn.execute(
-                        "SELECT DISTINCT title, company, url, location, source FROM jobs WHERE source IN ('bayt', 'nodriver') AND status='new' ORDER BY created_at DESC LIMIT 100"
-                    ).fetchall()
-                    for row in bayt_rows:
-                        k = (row["company"].lower().strip(), row["title"].lower().strip())
-                        u = (row["url"] or "").strip()
-                        if k not in seen and u not in seen_urls:
-                            seen.add(k)
-                            if u: seen_urls.add(u)
-                            all_jobs.append({
-                                "id": str(len(all_jobs)),
-                                "title": row["title"],
-                                "company": row["company"],
-                                "location": row["location"] or "",
-                                "source": "bayt_feed",
-                                "url": row["url"],
-                            })
-                    logger.info(f"[CampaignRunner] Bayt DB feed: {len(bayt_rows)} jobs")
-                except Exception as be:
-                    logger.info(f"[CampaignRunner] Bayt DB skip: {be}")
-                
-                logger.info(f"[CampaignRunner] ⚡ MEGA: {len(all_jobs)} jobs (LI+Dice+Wuzzuf+Bayt)")
-                jobs = all_jobs
-                _save_search_cache(jobs)
+                                    if t_el and c_el:
+                                        k = (c_el.get_text(strip=True).lower(), t_el.get_text(strip=True).lower())
+                                        if k not in seen:
+                                            seen.add(k)
+                                            all_jobs.append({"title": t_el.get_text(strip=True), "company": c_el.get_text(strip=True), "source": "linkedin_xhr"})
+                        except Exception:
+                            pass
+                    jobs = all_jobs
+                    _save_search_cache(jobs)
         else:
             jobs = await asyncio.to_thread(
                 search.search_all_sources,
