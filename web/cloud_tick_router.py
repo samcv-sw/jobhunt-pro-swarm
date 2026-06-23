@@ -180,12 +180,15 @@ async def create_quick_campaign(request: Request):
         import uuid
         camp_id = f"camp_{uuid.uuid4().hex[:12]}"
 
+        import uuid
+        order_id = body.get("order_id", f"ord_{uuid.uuid4().hex[:16]}")
+
         db_path = _get_db_path()
         conn = sqlite3.connect(db_path, timeout=30)
         conn.execute("""
-            INSERT INTO campaigns (campaign_id, user_id, profile_id, status, total_companies, sent_count, open_count, response_count, bouquets, created_at)
-            VALUES (?, ?, ?, 'pending', ?, 0, 0, 0, ?, datetime('now'))
-        """, (camp_id, user_id, profile_id, total, bouquets))
+            INSERT INTO campaigns (campaign_id, user_id, profile_id, order_id, status, total_companies, sent_count, open_count, response_count, bouquets, created_at)
+            VALUES (?, ?, ?, ?, 'pending', ?, 0, 0, 0, ?, datetime('now'))
+        """, (camp_id, user_id, profile_id, order_id, total, bouquets))
         conn.commit()
         conn.close()
 
