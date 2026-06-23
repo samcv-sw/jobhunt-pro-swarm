@@ -86,9 +86,16 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
 
     conn = get_db_fn()
     try:
-        campaign = dict(conn.execute(
+        campaign_row = conn.execute(
             "SELECT * FROM campaigns WHERE campaign_id = ?", (campaign_id,)
-        ).fetchone())
+        ).fetchone()
+        
+        if not campaign_row:
+            logger.error(f"[CampaignRunner] Campaign {campaign_id} not found in DB!")
+            raise ValueError(f"Campaign {campaign_id} not found")
+        
+        campaign = dict(campaign_row)
+        
         profile_row = conn.execute(
             "SELECT * FROM cv_profiles WHERE id = ?", (campaign["profile_id"],)
         ).fetchone()
