@@ -32,6 +32,7 @@ jobs:
             "core/upstash_rate_limiter.py:/home/JHFGUF/jobhunt/core/upstash_rate_limiter.py"
             "core/pa_job_scraper.py:/home/JHFGUF/jobhunt/core/pa_job_scraper.py"
             "cloud_orchestrator.py:/home/JHFGUF/jobhunt/cloud_orchestrator.py"
+            "core/campaign_runner.py:/home/JHFGUF/jobhunt/core/campaign_runner.py"
           )
           for entry in "${FILES[@]}"; do
             local="${entry%%:*}"
