@@ -1,0 +1,52 @@
+name: Deploy Core Files to PA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cloud_orchestrator.py'
+      - 'payments/**'
+      - 'core/**'
+      - 'web/app_v2.py'
+      - '.env'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PA deploy tool
+        run: pip install python-anywhere --quiet 2>/dev/null || true
+
+      - name: Upload core files
+        env:
+          PA_TOKEN: ${{ secrets.PA_API_TOKEN }}
+        run: |
+          FILES=(
+            "cloud_orchestrator.py:/home/JHFGUF/jobhunt/cloud_orchestrator.py"
+            "payments/__init__.py:/home/JHFGUF/jobhunt/payments/__init__.py"
+          )
+          for entry in "${FILES[@]}"; do
+            local="${entry%%:*}"
+            remote="${entry##*:}"
+            if [ -f "$local" ]; then
+              echo "Uploading $local..."
+              curl -s --max-time 30 \
+                -X POST "https://www.pythonanywhere.com/api/v0/user/jhfguf/files/path$remote" \
+                -H "Authorization: Token $PA_TOKEN" \
+                -F "content=@$local" \
+                -w "\nHTTP: %{http_code}"
+            fi
+          done
+
+      - name: Reload PA webapp
+        env:
+          PA_TOKEN: ${{ secrets.PA_API_TOKEN }}
+        run: |
+          echo "Reloading PA..."
+          curl -s --max-time 30 \
+            -X POST "https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/jhfguf.pythonanywhere.com/reload/" \
+            -H "Authorization: Token $PA_TOKEN" \
+            -w "\nHTTP: %{http_code}"

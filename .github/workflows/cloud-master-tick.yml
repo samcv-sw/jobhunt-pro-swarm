@@ -1,0 +1,61 @@
+name: Cloud Master Tick
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      force_mode:
+        description: 'Force mode (normal/heal/hyper)'
+        required: false
+        default: 'normal'
+
+jobs:
+  master-tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Tick PA API (primary cron endpoint)
+        id: pa-tick
+        continue-on-error: true
+        run: |
+          curl -s --max-time 60 \
+            -X POST "https://jhfguf.pythonanywhere.com/api/v2/cron_tick" \
+            -H "Content-Type: application/json" \
+            -d '{"action":"cloud_tick","source":"gh-actions"}' \
+            -w "\nHTTP: %{http_code}"
+
+      - name: Tick Cloudflare Worker (fallback proxy)
+        id: worker-tick
+        continue-on-error: true
+        run: |
+          curl -s --max-time 10 \
+            "https://jobhunt-pro-router.samsalameh-cv.workers.dev/api/cron/tick" \
+            -w "\nHTTP: %{http_code}"
+
+      - name: Check PA health
+        id: pa-health
+        continue-on-error: true
+        run: |
+          STATUS=$(curl -s --max-time 15 -o /dev/null -w "%{http_code}" "https://jhfguf.pythonanywhere.com/api/ping")
+          echo "PA status: $STATUS"
+          echo "pa_status=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Attempt PA restart if unhealthy
+        if: steps.pa-health.outputs.pa_status != '200'
+        env:
+          PA_TOKEN: ${{ secrets.PA_API_TOKEN }}
+        run: |
+          echo "PA is down (${{ steps.pa-health.outputs.pa_status }}). Attempting restart..."
+          curl -s --max-time 15 \
+            -X POST "https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/jhfguf.pythonanywhere.com/reload/" \
+            -H "Authorization: Token ${{ secrets.PA_API_TOKEN }}"
+
+      - name: Upload status artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cloud-tick-status
+          path: /dev/null
