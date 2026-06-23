@@ -1,21 +1,45 @@
 name: Email Outbox Processor
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '*/20 * * * *'
   workflow_dispatch:
 
 jobs:
-  trigger-pa-tick:
+  process-email-queue:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     steps:
-      - name: Trigger PA cron tick (processes email outbox)
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install minimal deps
+        run: pip install requests --quiet
+
+      - name: Process email outbox via PA API
+        env:
+          PA_TOKEN: ${{ secrets.PA_API_TOKEN }}
         run: |
-          curl -s --max-time 60 -X POST \
-            "https://jhfguf.pythonanywhere.com/api/cron/tick" \
-            -H "Content-Type: application/json" \
-            -d '{"action":"process_outbox"}' \
-            -w "\nHTTP: %{http_code}"
-      - name: Trigger Worker network
-        run: |
-          curl -s --max-time 10 "https://jobhunt-pro-router.samsalameh-cv.workers.dev/api/cron/tick" -w "\nHTTP: %{http_code}"
+          python -c "
+import requests, json
+tok = '${{ secrets.PA_API_TOKEN }}'
+url = 'https://jhfguf.pythonanywhere.com/api/cron/tick'
+payload = {'action': 'process_outbox', 'source': 'gh-email'}
+try:
+    r = requests.post(url, json=payload, timeout=60)
+    print(f'PA: {r.status_code} -> {r.text[:200]}')
+except Exception as e:
+    print(f'PA FAIL: {e}')
+    # Fallback: notify Telegram
+    try:
+        requests.post(
+            'https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage',
+            json={'chat_id': '6639482672', 'text': f'🚨 Email cron FAILED: {e}'},
+            timeout=10
+        )
+    except: pass
+"

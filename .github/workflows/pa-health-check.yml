@@ -2,82 +2,48 @@ name: PA Health Check
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '*/10 * * * *'
   workflow_dispatch:
 
 jobs:
   health-check:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: Check Main App
-        id: check_app
+      - name: Check PA main app
+        id: check_main
         run: |
           CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 \
-            https://jhfguf.pythonanywhere.com/api/v1/health 2>&1 || echo "000")
-          echo "http_code=$CODE" >> $GITHUB_OUTPUT
+            https://jhfguf.pythonanywhere.com/api/cloud-health 2>&1 || echo "000")
+          echo "pa_code=$CODE" >> $GITHUB_OUTPUT
+          echo "PA health: $CODE"
 
-      - name: Check Database
+      - name: Check PA DB
         id: check_db
         run: |
-          CODE=$(curl -s --max-time 15 -o /tmp/db_resp.json -w '%{http_code}' \
-            -H 'Content-Type: application/json' \
-            -d '{"username":"hc","page":1,"page_size":1}' \
-            https://jhfguf.pythonanywhere.com/api/v1/jobs 2>&1 || echo "000")
-          echo "db_code=$CODE" >> $GITHUB_OUTPUT
+          if curl -s --max-time 15 -o /tmp/health.json -w '%{http_code}' \
+            "https://jhfguf.pythonanywhere.com/api/ping" > /tmp/ping_code.txt 2>&1; then
+            CODE=$(cat /tmp/ping_code.txt)
+            echo "db_code=$CODE" >> $GITHUB_OUTPUT
+          else
+            echo "db_code=000" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Check Groq Proxy
-        id: check_groq
+      - name: Alert if unhealthy
+        if: steps.check_main.outputs.pa_code != '200'
         run: |
-          CODE=$(curl -s --max-time 15 -o /tmp/groq_resp.json -w '%{http_code}' \
-            -H 'Content-Type: application/json' \
-            -d '{"messages":[{"role":"user","content":"ping"}]}' \
-            https://jhfguf.pythonanywhere.com/api/v1/groq-proxy 2>&1 || echo "000")
-          echo "groq_code=$CODE" >> $GITHUB_OUTPUT
+          echo "🚨 PA UNHEALTHY (code=${{ steps.check_main.outputs.pa_code }})"
+          curl -s --max-time 10 -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=6639482672" \
+            -d "text=🚨 PA HEALTH FAILED: ${{ steps.check_main.outputs.pa_code }}" \
+            -o /dev/null -w "%{http_code}"
 
-      - name: Check Email Service
-        id: check_email
+      - name: Attempt PA restart if dead
+        if: steps.check_main.outputs.pa_code != '200'
         run: |
-          CODE=$(curl -s --max-time 15 -o /tmp/email_resp.json -w '%{http_code}' \
-            https://jhfguf.pythonanywhere.com/api/v1/email-health 2>&1 || echo "000")
-          echo "mail_code=$CODE" >> $GITHUB_OUTPUT
-
-      - name: Check PA Runtime
-        id: check_pa_api
-        run: |
-          CODE=$(curl -s --max-time 15 -o /tmp/pa_resp.json -w '%{http_code}' \
-            -H "Authorization: Token ${{ secrets.PA_TOKEN }}" \
-            https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/jhfguf.pythonanywhere.com/ \
-            2>&1 || echo "000")
-          echo "pa_code=$CODE" >> $GITHUB_OUTPUT
-
-      - name: Build Summary
-        id: summary
-        run: |
-          echo "app=${{ steps.check_app.outputs.http_code }}" >> $GITHUB_OUTPUT
-          echo "db=${{ steps.check_db.outputs.db_code }}" >> $GITHUB_OUTPUT
-          echo "groq=${{ steps.check_groq.outputs.groq_code }}" >> $GITHUB_OUTPUT
-          echo "email=${{ steps.check_email.outputs.mail_code }}" >> $GITHUB_OUTPUT
-          echo "pa=${{ steps.check_pa_api.outputs.pa_code }}" >> $GITHUB_OUTPUT
-          ALL_OK=true
-          [ "${{ steps.check_app.outputs.http_code }}" != "200" ] && ALL_OK=false
-          [ "${{ steps.check_db.outputs.db_code }}" != "200" ] && ALL_OK=false
-          if $ALL_OK; then echo "status=healthy" >> $GITHUB_OUTPUT
-          else echo "status=degraded" >> $GITHUB_OUTPUT; fi
-
-      - name: Send Telegram Alert
-        if: steps.summary.outputs.status == 'degraded'
-        env:
-          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          APP: ${{ steps.check_app.outputs.http_code }}
-          DB: ${{ steps.check_db.outputs.db_code }}
-          GROQ: ${{ steps.check_groq.outputs.groq_code }}
-          EMAIL: ${{ steps.check_email.outputs.mail_code }}
-          PA: ${{ steps.check_pa_api.outputs.pa_code }}
-          RUN_URL: https://github.com/samcv-sw/jobhunt-pro/actions/runs/${{ github.run_id }}
-        run: |
-          M=$(printf 'JHP Alert - Degraded - App:%s DB:%s Groq:%s Email:%s PA:%s - %s' "$APP" "$DB" "$GROQ" "$EMAIL" "$PA" "$RUN_URL")
-          curl -s --max-time 10 -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
-            -d "chat_id=${CHAT_ID}" \
-            -d "text=${M}" \
-            -d "disable_web_page_preview=true"
+          echo "Attempting PA restart..."
+          curl -s --max-time 15 -X POST \
+            "https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/jhfguf.pythonanywhere.com/reload/" \
+            -H "Authorization: Token ${{ secrets.PA_API_TOKEN }}" \
+            -w "\nRestart: %{http_code}"

@@ -570,6 +570,13 @@ try:
     app.include_router(voice_swarm.router)
 except ImportError as e:
     logger.warning(f"Router import skipped (PA compatibility): {e}")
+
+# --- CLOUD TICK ROUTER (GH Actions cron integration) ---
+try:
+    from web.cloud_tick_router import router as cloud_tick_router
+    app.include_router(cloud_tick_router, prefix="/api/v2")
+except ImportError as e:
+    logger.warning(f"Cloud tick router skipped: {e}")
 # -----------------------------------------
 
 # Session middleware for API login
@@ -10609,3 +10616,31 @@ async def jobs_score(request: Request):
         return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
     finally:
         conn.close()
+
+
+# === CLOUD TICK ENDPOINT (PA → GH Actions cron) ===
+@app.post("/api/v2/cloud-tick")
+async def cloud_tick_endpoint():
+    """Called by GH Actions cloud-master-tick.yml every 15 min."""
+    try:
+        from cloud_orchestrator import CloudOrchestrator
+        orch = CloudOrchestrator()
+        result = await orch.tick()
+        return result
+    except ImportError:
+        return {"status": "error", "error": "CloudOrchestrator not available"}
+    except Exception as e:
+        logger.error(f"cloud-tick: {e}")
+        return {"status": "error", "error": str(e)}
+
+
+@app.get("/api/v2/cloud-tick/status")
+async def cloud_tick_status():
+    return {
+        "status": "ok",
+        "pa_token": bool(os.getenv("PA_API_TOKEN")),
+        "groq": bool(os.getenv("GROQ_API_KEY")),
+        "nowpayments": bool(os.getenv("NOWPAYMENTS_API_KEY")),
+        "time": datetime.now().isoformat(),
+        "version": "v2.0"
+    }
