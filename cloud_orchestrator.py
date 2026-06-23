@@ -176,8 +176,15 @@ class CloudOrchestrator:
             all_campaigns = list(active) + list(stuck)
             conn.close()
 
+            # PA FREE TIER LIMIT: process at most 2 campaigns per tick
+            # Each campaign takes 60-120s on PA. Web requests have 250s timeout.
+            # Processing more will crash PA and waste the remaining campaigns.
+            max_per_tick = 2
             results = []
-            for row in all_campaigns:
+            for idx, row in enumerate(all_campaigns):
+                if idx >= max_per_tick:
+                    logger.info(f"  PA budget: processed {max_per_tick}, leaving rest for next tick")
+                    break
                 cid = row["campaign_id"]
                 try:
                     from core.campaign_runner import run_campaign
