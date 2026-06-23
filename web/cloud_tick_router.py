@@ -1,19 +1,27 @@
 """
 JobHunt Pro — Cloud Tick API Endpoint
-Add this route to web/app_v2.py to enable GH Actions cron.
+Mounted in app_v2.py as:
+  from web.cloud_tick_router import router
+  app.include_router(router, prefix="/api/v2")
 """
 import json
 import logging
+import os
+import sqlite3
 from datetime import datetime
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException
 
 logger = logging.getLogger(__name__)
 
-# This router should be mounted in app_v2.py as:
-# from cloud_tick_router import router
-# app.include_router(router, prefix="/api/v2")
-
 router = APIRouter(tags=["cloud-tick"])
+
+
+def _get_db_path():
+    db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")
+    if not os.path.exists(db_path):
+        base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        db_path = os.path.join(base, "jobhunt_saas_v2.db")
+    return db_path
 
 
 @router.post("/cloud-tick")
@@ -23,7 +31,6 @@ async def cloud_tick_handler(request: Request):
     Runs CloudOrchestrator.tick() and returns status.
     """
     try:
-        # Import and run cloud orchestrator
         from cloud_orchestrator import CloudOrchestrator
         orch = CloudOrchestrator()
         result = await orch.tick()
@@ -41,12 +48,75 @@ async def cloud_tick_handler(request: Request):
 @router.get("/cloud-tick/status")
 async def cloud_tick_status():
     """Quick health check for the tick system itself."""
-    import os
     return {
         "status": "ok",
         "pa_token": bool(os.getenv("PA_API_TOKEN")),
         "groq": bool(os.getenv("GROQ_API_KEY")),
-        "nowpayments": bool(os.getenv("NOWPAYMENTS_API_KEY")),
+        "dry_run": os.getenv("DRY_RUN", "false"),
         "time": datetime.now().isoformat(),
-        "version": "v2.0"
+        "version": "v2.1"
     }
+
+
+@router.post("/cloud-tick/reset-stuck")
+async def reset_stuck_campaigns():
+    """
+    Reset all 'completed' campaigns that have 0 sent_count back to 'pending'
+    so they can be re-processed by the next cloud tick.
+    This fixes campaigns that got stuck because DRY_RUN was accidentally enabled.
+    """
+    try:
+        db_path = _get_db_path()
+        conn = sqlite3.connect(db_path, timeout=30)
+        conn.row_factory = sqlite3.Row
+
+        # Find stuck campaigns: completed but sent_count = 0
+        stuck = conn.execute("""
+            SELECT campaign_id, user_id, total_companies, sent_count, status
+            FROM campaigns
+            WHERE status = 'completed'
+            AND (sent_count = 0 OR sent_count IS NULL)
+            AND total_companies > 0
+        """).fetchall()
+
+        reset_ids = []
+        for row in stuck:
+            cid = dict(row)["campaign_id"]
+            conn.execute(
+                "UPDATE campaigns SET status='pending', completed_at=NULL WHERE campaign_id=?",
+                (cid,)
+            )
+            reset_ids.append(cid)
+
+        conn.commit()
+        conn.close()
+
+        return {
+            "status": "ok",
+            "reset_count": len(reset_ids),
+            "campaigns": reset_ids,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Reset stuck failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/cloud-tick/campaigns")
+async def list_campaigns():
+    """List all campaigns with their status and sent counts."""
+    try:
+        db_path = _get_db_path()
+        conn = sqlite3.connect(db_path, timeout=30)
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute("""
+            SELECT campaign_id, user_id, status, total_companies, sent_count,
+                   open_count, response_count, created_at, completed_at
+            FROM campaigns
+            ORDER BY created_at DESC
+            LIMIT 50
+        """).fetchall()
+        conn.close()
+        return {"campaigns": [dict(r) for r in rows], "count": len(rows)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -28,6 +28,7 @@ jobs:
             "cloud_orchestrator.py:/home/JHFGUF/jobhunt/cloud_orchestrator.py"
             "payments/__init__.py:/home/JHFGUF/jobhunt/payments/__init__.py"
             "core/email_engine.py:/home/JHFGUF/jobhunt/core/email_engine.py"
+            "web/cloud_tick_router.py:/home/JHFGUF/jobhunt/web/cloud_tick_router.py"
           )
           for entry in "${FILES[@]}"; do
             local="${entry%%:*}"
