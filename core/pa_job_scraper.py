@@ -1,7 +1,8 @@
 """
-PAJobScraper — Zero-Dependency Job Scraper for PythonAnywhere
-Uses ONLY JSearch API (guaranteed to work) + LinkedIn XHR (PA-approved).
-No BeautifulSoup, no Selenium, no cloudscraper.
+PAJobScraper v2 — Optimized for PA Free Tier
+- JSearch API with smart caching (2h TTL) to conserve 300/month quota
+- LinkedIn XHR as fallback
+- Reduces API calls from 15/tick to ~3/tick (with cache)
 """
 
 import logging
@@ -47,14 +48,34 @@ TITLES = [
     "it manager",
 ]
 
+# ── Smart Cache ──────────────────────────────────────────────────────────
+_CACHE_FILE = os.path.join(os.path.dirname(__file__), '..', '_scraper_cache.json')
+_CACHE_TTL = 7200  # 2 hours
+
+
+def _load_cache():
+    try:
+        if os.path.exists(_CACHE_FILE):
+            with open(_CACHE_FILE, 'r') as f:
+                data = json.load(f)
+            return data.get("ts", 0), data.get("jobs", [])
+    except Exception:
+        pass
+    return 0, []
+
+
+def _save_cache(jobs):
+    try:
+        dirname = os.path.dirname(_CACHE_FILE)
+        if dirname and not os.path.exists(dirname):
+            os.makedirs(dirname, exist_ok=True)
+        with open(_CACHE_FILE, 'w') as f:
+            json.dump({"ts": time.time(), "jobs": jobs}, f)
+    except Exception:
+        pass
+
 
 class PAJobScraper:
-    """
-    Lightweight job scraper that works on PythonAnywhere free tier.
-    Uses JSearch API (primary) + LinkedIn XHR (secondary).
-    No external dependencies beyond stdlib + httpx (available on PA).
-    """
-
     def __init__(self):
         self.jsearch_keys = [JSEARCH_KEY, JSEARCH_BACKUP]
         self._key_idx = 0
@@ -64,12 +85,10 @@ class PAJobScraper:
         for attempt in range(len(self.jsearch_keys)):
             key = self.jsearch_keys[self._key_idx % len(self.jsearch_keys)]
             self._key_idx += 1
-
             try:
                 url = f"https://jsearch.p.rapidapi.com/search?query={urllib.request.quote(query)}&page={page}&num_pages=1"
                 if country_code:
                     url += f"&country={country_code}"
-
                 req = urllib.request.Request(url, headers={
                     "X-RapidAPI-Key": key,
                     "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
@@ -77,7 +96,6 @@ class PAJobScraper:
                 })
                 with urllib.request.urlopen(req, timeout=15) as resp:
                     data = json.loads(resp.read())
-
                 jobs = []
                 for j in data.get("data", []):
                     employer = j.get("employer_name", "") or ""
@@ -86,7 +104,6 @@ class PAJobScraper:
                     country = j.get("job_country", "") or ""
                     apply_link = j.get("job_apply_link", "") or ""
                     description = j.get("job_description", "") or ""
-                    # Generate an email placeholder — employer website or apply link domain
                     employer_website = j.get("employer_website", "") or ""
                     email = ""
                     if employer_website:
@@ -95,7 +112,6 @@ class PAJobScraper:
                         from urllib.parse import urlparse
                         domain = urlparse(apply_link).netloc
                         email = f"careers@{domain}"
-
                     if employer and title:
                         jobs.append({
                             "id": f"jsearch_{j.get('job_id', str(time.time()))}",
@@ -115,14 +131,28 @@ class PAJobScraper:
         return []
 
     def search_jsearch(self, targets: Dict[str, List[str]] = None, max_total: int = 100) -> List[Dict]:
-        """
-        Search JSearch API for multiple countries and titles.
-        targets: {country_key: [title1, title2]} or None for defaults
-        """
+        """Search JSearch API — OPTIMIZED: only 3 queries per call (not 15)."""
         if targets is None:
+            # Reduced from 15 queries to 3 to conserve JSearch API quota (300/month)
+            # Rotate titles each call to eventually cover all titles
+            import random
+            all_country_title_pairs = [
+                ("uae", "network engineer"),
+                ("uae", "network administrator"),
+                ("uae", "it support engineer"),
+                ("saudi", "network engineer"),
+                ("saudi", "system administrator"),
+                ("qatar", "network engineer"),
+                ("kuwait", "network engineer"),
+                ("lebanon", "network engineer"),
+                ("remote", "network engineer"),
+                ("remote", "network administrator"),
+            ]
+            # Pick 3 random pairs each time → covers all over ~10 ticks (50 min)
+            selected = random.sample(all_country_title_pairs, min(3, len(all_country_title_pairs)))
             targets = {}
-            for ck in ("uae", "saudi", "qatar", "kuwait", "lebanon", "remote"):
-                targets[ck] = TITLES[:3]
+            for ck, title in selected:
+                targets.setdefault(ck, []).append(title)
 
         all_jobs = []
         seen = set()
@@ -146,22 +176,24 @@ class PAJobScraper:
                                 seen_urls.add(u)
                             all_jobs.append(j)
                     logger.info(f"JSearch [{country_key}/{title}]: {len(jobs)} jobs")
-                    time.sleep(0.5)  # Rate limit
+                    time.sleep(0.3)  # Rate limit
                 except Exception as e:
                     logger.warning(f"JSearch [{country_key}/{title}] error: {e}")
 
-        logger.info(f"JSearch total: {len(all_jobs)} unique jobs")
+        logger.info(f"JSearch total: {len(all_jobs)} unique jobs (3 queries)")
         return all_jobs[:max_total]
 
     def search_linkedin_xhr(self, max_jobs: int = 50) -> List[Dict]:
-        """
-        Search LinkedIn XHR API (works on PA, no auth needed).
-        """
-        import httpx
+        """Search LinkedIn XHR API (works on PA, no auth needed)."""
+        try:
+            import httpx
+            from bs4 import BeautifulSoup
+        except ImportError:
+            logger.warning("httpx or BeautifulSoup not available")
+            return []
 
         all_jobs = []
         seen = set()
-
         cities_to_use = list(CITIES.items())
         titles_to_use = TITLES[:3]
 
@@ -183,11 +215,8 @@ class PAJobScraper:
                         })
                         if resp.status_code != 200:
                             continue
-
-                    from bs4 import BeautifulSoup
                     soup = BeautifulSoup(resp.text, "html.parser")
                     cards = soup.select("li")
-
                     for card in cards:
                         t_el = card.select_one(".base-search-card__title")
                         c_el = card.select_one(".base-search-card__subtitle")
@@ -218,30 +247,27 @@ class PAJobScraper:
 
     def search_all(self, max_jobs: int = 100) -> List[Dict]:
         """
-        Primary: JSearch API (guaranteed results).
-        Fallback: LinkedIn XHR.
-        Returns deduplicated job list.
+        Primary: Check cache (2h TTL) → JSearch API (3 queries only) → LinkedIn XHR
+        Cache saves 12+ JSearch API calls per tick = 300/month quota lasts 100 ticks.
         """
+        # Check cache first
+        cached_ts, cached_jobs = _load_cache()
+        if cached_jobs and (time.time() - cached_ts) < _CACHE_TTL:
+            logger.info(f"📦 Cache hit: {len(cached_jobs)} jobs, {int(time.time()-cached_ts)}s old")
+            return cached_jobs[:max_jobs]
+
         all_jobs = []
         seen = set()
 
-        # Phase 1: JSearch
-        targets = {
-            "uae": TITLES[:5],
-            "saudi": TITLES[:3],
-            "qatar": TITLES[:3],
-            "kuwait": TITLES[:2],
-            "lebanon": TITLES[:2],
-            "remote": ["network engineer", "network administrator"],
-        }
-        jsearch_jobs = self.search_jsearch(targets, max_total=max_jobs)
+        # Phase 1: JSearch (only 3 queries to conserve API quota)
+        jsearch_jobs = self.search_jsearch(max_total=max_jobs)
         for j in jsearch_jobs:
             key = (j["company"].lower(), j["title"].lower())
             if key not in seen:
                 seen.add(key)
                 all_jobs.append(j)
 
-        # Phase 2: LinkedIn XHR (fill remaining)
+        # Phase 2: LinkedIn XHR (fill remaining, free unlimited)
         if len(all_jobs) < max_jobs:
             li_jobs = self.search_linkedin_xhr(max_jobs=max_jobs - len(all_jobs))
             for j in li_jobs:
@@ -250,5 +276,10 @@ class PAJobScraper:
                     seen.add(key)
                     all_jobs.append(j)
 
-        logger.info(f"PAJobScraper: total {len(all_jobs)} jobs")
+        # Save to cache
+        if all_jobs:
+            _save_cache(all_jobs)
+            logger.info(f"💾 Cache saved: {len(all_jobs)} jobs")
+
+        logger.info(f"PAJobScraper v2: total {len(all_jobs)} jobs")
         return all_jobs[:max_jobs]

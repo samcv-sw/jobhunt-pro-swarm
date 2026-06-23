@@ -1,4 +1,4 @@
-﻿name: PA Cron Tick
+name: PA Cron Tick
 on:
   schedule:
     - cron: "*/5 * * * *"
@@ -8,8 +8,7 @@ jobs:
   ping-pa:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping PA Cron Tick
-        run: curl -sSf -o /dev/null -w "%{http_code}" "https://jhfguf.pythonanywhere.com/api/cron/tick?reset=cooldown"
+      - name: Trigger Cloud Tick (v2 endpoint with company_limit)
+        run: curl -sS --max-time 240 -o /dev/null -w "%{http_code}" "https://jhfguf.pythonanywhere.com/api/v2/cloud-tick"
       - name: Check PA Health
         run: curl -sSf "https://jhfguf.pythonanywhere.com/" > /dev/null 2>&1 && echo "PA HEALTHY" || echo "PA UNHEALTHY"
-

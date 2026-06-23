@@ -19,7 +19,7 @@ jobs:
         continue-on-error: true
         run: |
           echo "=== CLOUD TICK v2 ==="
-          RESPONSE=$(curl -s --max-time 60 \
+          RESPONSE=$(curl -s --max-time 240 \
             -X POST "https://jhfguf.pythonanywhere.com/api/v2/cloud-tick" \
             -H "Content-Type: application/json" \
             -d '{"action":"cloud_tick","source":"gh-actions"}')

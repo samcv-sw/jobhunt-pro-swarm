@@ -67,7 +67,9 @@ class CloudOrchestrator:
         except Exception as e:
             logger.warning(f"Health check: {e}")
 
-        # ── Phase 2: Resume pending campaigns ──
+        # ── Phase 2: Resume pending campaigns (includes scrape + AI + send) ──
+        # NOTE: Standalone Phase 3 scrape REMOVED — campaign_runner does its own
+        # scraping via PAJobScraper. Double-scraping wasted 30-60s per tick.
         try:
             campaigns = await self._resume_campaigns()
             results["campaigns"] = len(campaigns)
@@ -76,36 +78,7 @@ class CloudOrchestrator:
         except Exception as e:
             logger.warning(f"Campaign resume: {e}")
 
-        # ── Phase 3: Scrape jobs using PA-approved scraper (JSearch + LinkedIn XHR) ──
-        try:
-            from core.pa_job_scraper import PAJobScraper
-            pa_scraper = PAJobScraper()
-            jobs = pa_scraper.search_all(max_jobs=50)
-            results["jobs_found"] = len(jobs)
-            logger.info(f"PA scraper found {len(jobs)} jobs")
-            
-            # Store jobs in DB for campaign processing
-            if jobs:
-                try:
-                    db_path = self._get_db_path()
-                    conn = sqlite3.connect(db_path, timeout=30)
-                    for j in jobs:
-                        try:
-                            conn.execute(
-                                "INSERT INTO jobs (title, company, location, url, source, email, snippet, status) VALUES (?,?,?,?,?,?,?,'new')",
-                                (j.get('title',''), j.get('company',''), j.get('location',''),
-                                 j.get('url',''), j.get('source','jsearch'), j.get('email',''), j.get('snippet',''))
-                            )
-                        except Exception:
-                            pass
-                    conn.commit()
-                    conn.close()
-                except Exception as dbe:
-                    logger.warning(f"Store jobs in DB: {dbe}")
-        except Exception as e:
-            logger.warning(f"PA scraper error: {e}")
-
-        # ── Phase 4: Send queued emails ──
+        # ── Phase 3: Send queued emails (if any remain) ──
         try:
             sent = await self._drain_email_queue(max_emails=50)
             results["emails_sent"] = sent
@@ -176,14 +149,11 @@ class CloudOrchestrator:
             all_campaigns = list(active) + list(stuck)
             conn.close()
 
-            # PA FREE TIER LIMIT: process at most 2 campaigns per tick
-            # Each campaign takes 60-120s on PA. Web requests have 250s timeout.
-            # Processing more will crash PA and waste the remaining campaigns.
-            # PA FREE TIER LIMIT: process at most 1 campaign OR max 20 companies total per tick
-            # PA's 250s WSGI timeout kills any request running longer.
-            # Each email takes 3-8s (AI cover letter + SMTP). 20 companies = ~120s safe zone.
+            # PA FREE TIER LIMIT: 1 campaign per tick, 10 companies per campaign
+            # With double-scraping removed, we save 30-60s → can afford 10 companies
+            # Budget: 30s scrape + 10×8s (AI+SMTP) = ~110s (well within 250s)
             max_campaigns_per_tick = 1
-            max_companies_per_tick = 5   # ~30s on PA (250s timeout - safe margin)
+            max_companies_per_tick = 10   # ~30s on PA (250s timeout - safe margin)
             results = []
             for idx, row in enumerate(all_campaigns):
                 if idx >= max_campaigns_per_tick:
@@ -198,14 +168,7 @@ class CloudOrchestrator:
                     logger.info(f"  Campaign {cid} processed (max {max_companies_per_tick} companies)")
                 except Exception as e:
                     logger.error(f"Campaign {cid} failed: {e}")
-                cid = row["campaign_id"]
-                try:
-                    from core.campaign_runner import run_campaign
-                    await run_campaign(cid, lambda db=db_path: sqlite3.connect(db, timeout=30, check_same_thread=False), config)
-                    results.append(cid)
-                    logger.info(f"  Campaign {cid} processed")
-                except Exception as e:
-                    logger.error(f"Campaign {cid} failed: {e}")
+
             return results
         except Exception as e:
             logger.error(f"DB error: {e}")
