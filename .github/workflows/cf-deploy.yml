@@ -30,6 +30,13 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
         continue-on-error: true
 
+      - name: Deploy Olympus Webhook
+        run: npx wrangler deploy
+        working-directory: olympus_webhook
+        env:
+          CLOUDFLARE_API_TOKEN: \${{ secrets.CF_API_TOKEN }}
+        continue-on-error: true
+
       - name: Deploy Pages
         run: npx wrangler pages deploy pages --project-name jobhunt --branch main
         working-directory: cloudflare
