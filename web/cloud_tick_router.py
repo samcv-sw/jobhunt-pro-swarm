@@ -120,3 +120,83 @@ async def list_campaigns():
         return {"campaigns": [dict(r) for r in rows], "count": len(rows)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/cloud-tick/retry-all")
+async def retry_all_completed_campaigns():
+    """
+    Reset ALL completed campaigns back to 'pending' so the next cloud tick
+    re-processes them.  Use this after fixing email engine bugs to re-send
+    emails for campaigns that completed with 0 or few sends.
+    """
+    try:
+        db_path = _get_db_path()
+        conn = sqlite3.connect(db_path, timeout=30)
+        conn.row_factory = sqlite3.Row
+
+        rows = conn.execute("""
+            SELECT campaign_id FROM campaigns
+            WHERE status = 'completed'
+        """).fetchall()
+
+        ids = [r["campaign_id"] for r in rows]
+        if ids:
+            placeholders = ",".join("?" * len(ids))
+            conn.execute(
+                f"UPDATE campaigns SET status='pending', completed_at=NULL WHERE campaign_id IN ({placeholders})",
+                ids
+            )
+            conn.commit()
+
+        conn.close()
+        return {
+            "status": "ok",
+            "reset_count": len(ids),
+            "campaigns": ids,
+            "message": "All completed campaigns reset to pending. Next cloud-tick will process them.",
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Retry-all failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/cloud-tick/create-campaign")
+async def create_quick_campaign(request: Request):
+    """
+    Create a new campaign via API (no browser needed).
+    Body JSON: {"user_id": "admin-xxx", "profile_id": 1, "bouquets": "network_engineer_lebanon"}
+    """
+    try:
+        body = await request.json()
+        user_id = body.get("user_id")
+        profile_id = body.get("profile_id", 1)
+        bouquets = body.get("bouquets", "network_engineer_lebanon")
+        total = body.get("total_companies", 100)
+
+        if not user_id:
+            raise HTTPException(400, "user_id required")
+
+        import uuid
+        camp_id = f"camp_{uuid.uuid4().hex[:12]}"
+
+        db_path = _get_db_path()
+        conn = sqlite3.connect(db_path, timeout=30)
+        conn.execute("""
+            INSERT INTO campaigns (campaign_id, user_id, profile_id, status, total_companies, sent_count, open_count, response_count, bouquets, created_at)
+            VALUES (?, ?, ?, 'pending', ?, 0, 0, 0, ?, datetime('now'))
+        """, (camp_id, user_id, profile_id, total, bouquets))
+        conn.commit()
+        conn.close()
+
+        return {
+            "status": "ok",
+            "campaign_id": camp_id,
+            "message": f"Campaign created with {total} companies. Cloud-tick will process it.",
+            "timestamp": datetime.now().isoformat()
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Create campaign failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
