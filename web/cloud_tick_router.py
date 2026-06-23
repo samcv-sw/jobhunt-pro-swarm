@@ -200,3 +200,53 @@ async def create_quick_campaign(request: Request):
     except Exception as e:
         logger.error(f"Create campaign failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/cloud-tick/force-reset")
+async def force_reset_all():
+    """
+    FORCE reset ALL campaigns — delete ALL campaign_emails, reset sent_count to 0,
+    and set status to 'pending'.  Use this when fixing email engine bugs to
+    ensure campaigns re-process completely from scratch.
+    WARNING: This deletes ALL existing email send records!
+    """
+    try:
+        db_path = _get_db_path()
+        conn = sqlite3.connect(db_path, timeout=30)
+
+        # Count before reset
+        camp_count = conn.execute("SELECT COUNT(*) FROM campaigns").fetchone()[0]
+        email_count = conn.execute("SELECT COUNT(*) FROM campaign_emails").fetchone()[0]
+
+        # Delete all campaign emails
+        conn.execute("DELETE FROM campaign_emails")
+
+        # Reset all campaigns
+        conn.execute("""
+            UPDATE campaigns SET
+                status = 'pending',
+                sent_count = 0,
+                open_count = 0,
+                response_count = 0,
+                completed_at = NULL
+        """)
+
+        # Also clean email_queue if it exists
+        try:
+            conn.execute("DELETE FROM email_queue")
+        except Exception:
+            pass
+
+        conn.commit()
+        conn.close()
+
+        return {
+            "status": "ok",
+            "campaigns_reset": camp_count,
+            "emails_deleted": email_count,
+            "message": f"Reset {camp_count} campaigns, deleted {email_count} email records.",
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Force reset failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
