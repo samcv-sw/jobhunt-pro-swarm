@@ -30,6 +30,8 @@ jobs:
             "core/email_engine.py:/home/JHFGUF/jobhunt/core/email_engine.py"
             "web/cloud_tick_router.py:/home/JHFGUF/jobhunt/web/cloud_tick_router.py"
             "core/upstash_rate_limiter.py:/home/JHFGUF/jobhunt/core/upstash_rate_limiter.py"
+            "core/pa_job_scraper.py:/home/JHFGUF/jobhunt/core/pa_job_scraper.py"
+            "cloud_orchestrator.py:/home/JHFGUF/jobhunt/cloud_orchestrator.py"
           )
           for entry in "${FILES[@]}"; do
             local="${entry%%:*}"
