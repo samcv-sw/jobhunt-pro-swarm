@@ -64,6 +64,7 @@ import secrets
 import config
 from core.auto_install import ensure_packages
 from core.email_marketing import email_marketing_loop, get_campaign_stats, send_welcome_email
+from core import auto_heal as _autoheal
 
 # Server start time for accurate uptime
 APP_START_TIME = __import__('time').time()
@@ -2198,8 +2199,17 @@ def home(request: Request):
     })
 
 @app.get("/api/ping")
-async def ping():
-    return {"status": "alive", "msg": "Zombie ping acknowledged. Server awake."}
+async def api_ping_v1():
+    """
+    Fast health check (<100ms target).
+    Just confirms the app is alive — no DB or external calls.
+    Used by GH Actions self-heal.yml every 5 minutes.
+    """
+    return {
+        "status": "alive",
+        "uptime_seconds": round(time.time() - APP_START_TIME, 1),
+        "time": datetime.now(timezone.utc).isoformat(),
+    }
 
 @app.get("/pricing_v2", response_class=HTMLResponse)
 def pricing_v2_redirect(request: Request):
@@ -10637,9 +10647,29 @@ async def jobs_score(request: Request):
 
 # === CLOUD TICK ENDPOINT (PA → GH Actions cron) ===
 @app.post("/api/v2/cloud-tick")
-async def cloud_tick_endpoint():
-    """Called by GH Actions cloud-master-tick.yml every 15 min."""
+async def cloud_tick_endpoint(request: Request = None):
+    """Called by GH Actions - now supports multi-tenant for Sam+Rita."""
     try:
+        # Try multi-tenant first (v17+)
+        try:
+            from core.multi_tenant import MultiTenantRunner
+            runner = MultiTenantRunner()
+            
+            # Parse request body for options
+            company_limit = 10
+            if request:
+                try:
+                    body = await request.json()
+                    company_limit = body.get("company_limit", 10)
+                except Exception:
+                    pass
+            
+            result = await runner.run_all_tenants(company_limit=company_limit)
+            return result
+        except ImportError:
+            pass
+        
+        # Fallback to CloudOrchestrator
         from cloud_orchestrator import CloudOrchestrator
         orch = CloudOrchestrator()
         result = await orch.tick()
@@ -10659,5 +10689,121 @@ async def cloud_tick_status():
         "groq": bool(os.getenv("GROQ_API_KEY")),
         "nowpayments": bool(os.getenv("NOWPAYMENTS_API_KEY")),
         "time": datetime.now().isoformat(),
-        "version": "v2.0"
+        "version": "v17.0-multi-tenant"
     }
+
+
+# ═══════════════════════════════════════════════════════════════
+# MULTI-TENANT ENDPOINTS (v17)
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/multi-tenant/status")
+async def multi_tenant_status():
+    """Get all tenants and their stats."""
+    try:
+        from core.multi_tenant import TenantManager
+        return TenantManager.list_tenants()
+    except ImportError:
+        return {"status": "error", "error": "multi_tenant module not loaded"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+@app.get("/api/multi-tenant/rita")
+async def rita_status():
+    """Get Rita's profile and stats."""
+    try:
+        from core.multi_tenant import TenantManager
+        return TenantManager.get_tenant_stats("ritacordahi2@gmail.com")
+    except ImportError:
+        return {"status": "error", "error": "multi_tenant module not loaded"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+@app.post("/api/multi-tenant/add-tenant")
+async def add_tenant(request: Request):
+    """Add a new tenant via API."""
+    try:
+        from core.multi_tenant import TenantManager
+        data = await request.json()
+        return TenantManager.ensure_tenant(
+            email=data.get("email"),
+            name=data.get("name"),
+            phone=data.get("phone", ""),
+            profession=data.get("profession", "Professional"),
+            skills=data.get("skills", ""),
+            target_titles=data.get("target_titles", ""),
+            target_locations=data.get("target_locations", "Lebanon"),
+            experience_years=data.get("experience_years", 3)
+        )
+    except ImportError:
+        return {"status": "error", "error": "multi_tenant module not loaded"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+# ═══════════════════════════════════════════════════════════════
+# SELF-HEALING ENDPOINTS (for GH Actions self-heal workflow)
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/system/status")
+async def system_status():
+    """
+    Full system status — RAM, CPU, running campaigns, SMTP health, API keys.
+    Uses auto_heal.get_system_health_snapshot() for comprehensive health view.
+    Designed for monitoring dashboards and hourly Telegram summaries.
+    """
+    try:
+        snapshot = _autoheal.get_system_health_snapshot()
+    except Exception as e:
+        logger.error(f"system_status: {e}")
+        snapshot = {"status": "error", "error": str(e)}
+
+    # Add server-level info
+    snapshot["server"] = {
+        "uptime_seconds": round(time.time() - APP_START_TIME, 1),
+        "uptime_human": f"{int((time.time() - APP_START_TIME) / 3600)}h {int(((time.time() - APP_START_TIME) % 3600) / 60)}m",
+        "host": os.getenv("HOSTNAME", "PA"),
+        "python_version": sys.version.split()[0] if hasattr(sys, 'version') else "unknown",
+        "platform": sys.platform,
+    }
+
+    return snapshot
+
+
+@app.post("/api/system/auto-heal")
+async def trigger_auto_heal(request: Request):
+    """
+    Trigger a self-healing cycle manually or via GH Actions.
+    Accepts optional JSON body: {"source": "gh-actions", "force": false}
+    Runs all heal checks: stuck campaigns, dead locks, SMTP rotation,
+    RAM check, Groq API health.
+    """
+    try:
+        data = await request.json()
+    except Exception:
+        data = {}
+
+    force = data.get("force", False)
+    if isinstance(force, str):
+        force = force.lower() in ("true", "1", "yes")
+
+    source = data.get("source", "manual")
+
+    try:
+        result = await _autoheal.run_heal_cycle(force=force)
+
+        return {
+            "status": "ok",
+            "source": source,
+            "force": force,
+            "result": result,
+        }
+    except Exception as e:
+        logger.error(f"auto-heal trigger failed: {e}", exc_info=True)
+        return {
+            "status": "error",
+            "source": source,
+            "error": str(e),
+        }
