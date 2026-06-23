@@ -183,7 +183,7 @@ class CloudOrchestrator:
             # PA's 250s WSGI timeout kills any request running longer.
             # Each email takes 3-8s (AI cover letter + SMTP). 20 companies = ~120s safe zone.
             max_campaigns_per_tick = 1
-            max_companies_per_tick = 20  # ~2 min on PA
+            max_companies_per_tick = 5   # ~30s on PA (250s timeout - safe margin)
             results = []
             for idx, row in enumerate(all_campaigns):
                 if idx >= max_campaigns_per_tick:
