@@ -94,7 +94,9 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
             logger.error(f"[CampaignRunner] Campaign {campaign_id} not found in DB!")
             raise ValueError(f"Campaign {campaign_id} not found")
         
-        campaign = dict(campaign_row)
+        campaign = {}
+        for key in campaign_row.keys():
+            campaign[key] = campaign_row[key]
         
         profile_row = conn.execute(
             "SELECT * FROM cv_profiles WHERE id = ?", (campaign["profile_id"],)
@@ -110,12 +112,12 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
             if not profile_row:
                 raise Exception(f"No active CV profile found for user {campaign['user_id']}.")
                 
-        profile = dict(profile_row)
+        profile = {k: profile_row[k] for k in profile_row.keys()}
 
         user_row = conn.execute(
             "SELECT * FROM users WHERE user_id = ?", (campaign["user_id"],)
         ).fetchone()
-        user = dict(user_row) if user_row else {}
+        user = {k: user_row[k] for k in user_row.keys()} if user_row else {}
 
         profession = "Professional"
         if profile.get("target_titles"):
