@@ -1,0 +1,191 @@
+name: Render Fallback
+
+# ═══════════════════════════════════════════════════════════════════
+# JobHunt Pro — RENDER.COM FALLBACK DEPLOYMENT
+# Deploys when PA is down or GHA quota exceeded.
+# Auto-scales with Render free tier. Falls back to PA when recovered.
+# ═══════════════════════════════════════════════════════════════════
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for fallback activation'
+        required: false
+        default: 'PA down'
+  repository_dispatch:
+    types: [render-fallback]
+
+jobs:
+  deploy-render-fallback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ─── Step 1: Verify PA is actually down ───
+      - name: Verify PA status
+        id: verify_pa
+        run: |
+          PA_CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 \
+            "https://jhfguf.pythonanywhere.com/api/ping" 2>/dev/null || echo "000")
+          echo "pa_code=$PA_CODE" >> $GITHUB_OUTPUT
+
+          if [ "$PA_CODE" = "200" ]; then
+            echo "✅ PA is UP — fallback NOT needed. Exiting."
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ PA is DOWN (HTTP $PA_CODE) — deploying render fallback"
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          fi
+
+      # ─── Step 2: Check if render.yaml exists ───
+      - name: Verify render.yaml config
+        id: verify_config
+        if: steps.verify_pa.outputs.should_deploy == 'true'
+        run: |
+          if [ -f "render.yaml" ]; then
+            echo "✅ render.yaml found"
+            cat render.yaml
+            echo "config_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ render.yaml NOT found — creating minimal deployment"
+            echo "config_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      # ─── Step 3: Create render.yaml if missing ───
+      - name: Create render.yaml
+        if: steps.verify_pa.outputs.should_deploy == 'true' && steps.verify_config.outputs.config_exists != 'true'
+        run: |
+          cat > render.yaml << 'RENDEREOF'
+services:
+  - type: web
+    name: jobhunt-pro-fallback
+    env: python
+    region: frankfurt
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn web.app_v2:app --host 0.0.0.0 --port $PORT
+    autoDeploy: false
+    plan: free
+    healthCheckPath: /api/ping
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        value: sqlite:///jobhunt.db
+      - key: RENDER_FALLBACK
+        value: "true"
+      - key: GROQ_API_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: NOWPAYMENTS_API_KEY
+        sync: false
+      - key: PA_API_TOKEN
+        sync: false
+      - key: PYTHON_VERSION
+        value: "3.12"
+    scaling:
+      minInstances: 0
+      maxInstances: 1
+RENDEREOF
+
+          echo "✅ render.yaml created"
+
+      # ─── Step 4: Deploy to Render via API ───
+      - name: Deploy to Render
+        if: steps.verify_pa.outputs.should_deploy == 'true'
+        id: deploy_render
+        run: |
+          RENDER_API_KEY="${{ secrets.RENDER_API_KEY }}"
+          RENDER_SERVICE_ID="${{ secrets.RENDER_SERVICE_ID }}"
+          
+          if [ -z "$RENDER_API_KEY" ]; then
+            echo "⚠️ RENDER_API_KEY not set — attempting deploy via git push"
+            
+            # Alternative: push to render's connected repo
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            
+            # Trigger Render deploy via deploy hook if configured
+            DEPLOY_HOOK="${{ secrets.RENDER_DEPLOY_HOOK }}"
+            if [ -n "$DEPLOY_HOOK" ]; then
+              curl -s -X POST "$DEPLOY_HOOK" -w "Render deploy hook: HTTP %{http_code}"
+            else
+              echo "⚠️ No Render deploy hook configured. Manual deploy needed."
+            fi
+          else
+            if [ -n "$RENDER_SERVICE_ID" ]; then
+              echo "Deploying to Render service: $RENDER_SERVICE_ID"
+              curl -s -X POST \
+                "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
+                -H "Authorization: Bearer $RENDER_API_KEY" \
+                -H "Accept: application/json" \
+                -d '{}' \
+                -w "Render deploy: HTTP %{http_code}"
+            else
+              echo "⚠️ RENDER_SERVICE_ID not configured"
+            fi
+          fi
+
+      # ─── Step 5: Notify Telegram about fallback activation ───
+      - name: Notify fallback activation
+        if: steps.verify_pa.outputs.should_deploy == 'true'
+        run: |
+          REASON="${{ github.event.inputs.reason || 'PA down' }}"
+          NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          curl -s --max-time 10 -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d "text=🔄 <b>RENDER FALLBACK ACTIVATED</b>%0A%0A📅 ${NOW}%0A🔴 Reason: ${REASON}%0A%0A<i>PA: DOWN | Render: deploying...%0AAll traffic → Render & Cloudflare</i>" \
+            -d "parse_mode=HTML" \
+            -o /dev/null -w "Telegram: HTTP %{http_code}"
+
+      # ─── Step 6: Wait for Render to come up & verify ───
+      - name: Wait & verify Render deployment
+        if: steps.verify_pa.outputs.should_deploy == 'true'
+        run: |
+          RENDER_URL="https://jobhunt-pro.onrender.com"
+          echo "Waiting for Render to come up (sleep 30s)..."
+          sleep 30
+          
+          for i in 1 2 3 4 5; do
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$RENDER_URL/api/ping" 2>/dev/null || echo "000")
+            echo "Render check $i: HTTP $CODE"
+            if [ "$CODE" = "200" ]; then
+              echo "✅ Render fallback is LIVE!"
+              
+              curl -s --max-time 10 -X POST \
+                "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+                -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+                -d "text=✅ <b>RENDER FALLBACK IS LIVE!</b>%0A%0AURL: ${RENDER_URL}%0A%0A<i>Serving traffic until PA recovers.</i>" \
+                -d "parse_mode=HTML" \
+                -o /dev/null
+              
+              exit 0
+            fi
+            echo "Waiting 15s..."
+            sleep 15
+          done
+          
+          echo "⚠️ Render didn't come up after 5 tries"
+
+      # ─── Step 7: Monitor PA recovery ───
+      - name: Check if PA recovered
+        if: steps.verify_pa.outputs.should_deploy != 'true'
+        run: |
+          echo "PA was already up — no fallback needed."
+          
+          # Check Render status too
+          RENDER_CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 \
+            "https://jobhunt-pro.onrender.com/api/ping" 2>/dev/null || echo "000")
+          
+          if [ "$RENDER_CODE" = "200" ]; then
+            echo "ℹ️ Render is still running (can be idle on free tier)"
+          else
+            echo "ℹ️ Render is idle/sleeping (free tier cold start)"
+          fi

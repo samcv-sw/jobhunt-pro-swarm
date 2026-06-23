@@ -578,6 +578,15 @@ try:
     app.include_router(cloud_tick_router, prefix="/api/v2")
 except ImportError as e:
     logger.warning(f"Cloud tick router skipped: {e}")
+
+# Mount multi-tenant router for secondary endpoints ONLY
+# The /api/v2/cloud-tick POST is handled directly in app_v2 below
+try:
+    from core.multi_tenant import router as mt_router
+    app.include_router(mt_router, prefix="/api")
+    logger.info("[v17] Multi-tenant router mounted for status/management endpoints")
+except ImportError as e:
+    logger.warning(f"[v17] Multi-tenant router skipped: {e}")
 # -----------------------------------------
 
 # Session middleware for API login
@@ -10646,36 +10655,32 @@ async def jobs_score(request: Request):
 
 
 # === CLOUD TICK ENDPOINT (PA → GH Actions cron) ===
+# ═══════════════════════════════════════════════════════════════
+# CLOUD-TICK ENDPOINT (v17: Multi-Tenant)
+# ═══════════════════════════════════════════════════════════════
+
 @app.post("/api/v2/cloud-tick")
-async def cloud_tick_endpoint(request: Request = None):
-    """Called by GH Actions - now supports multi-tenant for Sam+Rita."""
+async def cloud_tick_endpoint(request: Request):
+    """Multi-tenant cloud tick - runs campaigns for ALL users in parallel."""
     try:
-        # Try multi-tenant first (v17+)
+        from core.multi_tenant import MultiTenantRunner
+        company_limit = 10
         try:
-            from core.multi_tenant import MultiTenantRunner
-            runner = MultiTenantRunner()
-            
-            # Parse request body for options
-            company_limit = 10
-            if request:
-                try:
-                    body = await request.json()
-                    company_limit = body.get("company_limit", 10)
-                except Exception:
-                    pass
-            
-            result = await runner.run_all_tenants(company_limit=company_limit)
-            return result
-        except ImportError:
+            body = await request.json()
+            company_limit = body.get("company_limit", 10)
+        except Exception:
             pass
-        
-        # Fallback to CloudOrchestrator
-        from cloud_orchestrator import CloudOrchestrator
-        orch = CloudOrchestrator()
-        result = await orch.tick()
+        runner = MultiTenantRunner(company_limit=company_limit)
+        result = await runner.tick()
         return result
     except ImportError:
-        return {"status": "error", "error": "CloudOrchestrator not available"}
+        logger.warning("MultiTenantRunner not available, falling back")
+        try:
+            from cloud_orchestrator import CloudOrchestrator
+            orch = CloudOrchestrator()
+            return await orch.tick()
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
     except Exception as e:
         logger.error(f"cloud-tick: {e}")
         return {"status": "error", "error": str(e)}
@@ -10687,7 +10692,6 @@ async def cloud_tick_status():
         "status": "ok",
         "pa_token": bool(os.getenv("PA_API_TOKEN")),
         "groq": bool(os.getenv("GROQ_API_KEY")),
-        "nowpayments": bool(os.getenv("NOWPAYMENTS_API_KEY")),
         "time": datetime.now().isoformat(),
         "version": "v17.0-multi-tenant"
     }

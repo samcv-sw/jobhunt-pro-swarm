@@ -307,6 +307,7 @@ class MultiTenantRunner:
     async def tick(self) -> Dict[str, Any]:
         """
         Main multi-tenant tick:
+        0. Auto-create campaigns for tenants with profiles but no active campaign
         1. Fetch ALL active campaigns across ALL users
         2. Group by tenant
         3. Run in parallel with asyncio.gather
@@ -322,6 +323,9 @@ class MultiTenantRunner:
             "tenants": {},
             "status": "ok",
         }
+        
+        # ── Step 0: Auto-create campaigns for tenants without one ──
+        self._auto_create_campaigns()
 
         # ── Step 1: Fetch all active campaigns ──
         campaigns = self._fetch_all_active_campaigns()
@@ -422,6 +426,43 @@ class MultiTenantRunner:
                 ORDER BY created_at ASC
             """).fetchall()
             return [dict(r) for r in rows]
+        finally:
+            conn.close()
+    
+    def _auto_create_campaigns(self):
+        """Auto-create campaigns for tenants that have a profile but no active campaign."""
+        conn = _get_conn()
+        try:
+            # Find tenants (users with profiles) that have no active campaign
+            rows = conn.execute("""
+                SELECT u.user_id, u.name, p.id AS profile_id, p.target_titles, p.target_locations
+                FROM users u
+                INNER JOIN cv_profiles p ON p.user_id = u.user_id
+                LEFT JOIN campaigns c ON c.user_id = u.user_id AND c.status IN ('pending','running')
+                WHERE c.campaign_id IS NULL
+                GROUP BY u.user_id
+            """).fetchall()
+            
+            for row in rows:
+                tid = row["user_id"]
+                profile_id = row["profile_id"]
+                name = row["name"]
+                titles = row.get("target_titles") or "Professional"
+                location = row.get("target_locations") or "Lebanon"
+                
+                # Create a default campaign
+                campaign_id = f"auto_{uuid.uuid4().hex[:12]}"
+                job_title = titles.split(",")[0].strip() if titles else "Professional"
+                
+                conn.execute("""
+                    INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, 
+                    status, total_companies, sent_count, created_at, bouquets)
+                    VALUES (?, ?, ?, ?, 'pending', 100, 0, CURRENT_TIMESTAMP, 'Priority Shield')
+                """, (campaign_id, tid, f"auto_{tid[:8]}", profile_id))
+                conn.commit()
+                logger.info(f"[MultiTenant] Auto-created campaign {campaign_id} for {name} ({job_title})")
+        except Exception as e:
+            logger.error(f"[MultiTenant] Auto-create campaigns error: {e}")
         finally:
             conn.close()
 

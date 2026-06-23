@@ -27,9 +27,28 @@ def _get_db_path():
 @router.post("/cloud-tick")
 async def cloud_tick_handler(request: Request):
     """
-    Main cron endpoint called by GH Actions every 15 min.
-    Runs CloudOrchestrator.tick() and returns status.
+    Main cron endpoint - v17 Multi-Tenant.
+    Runs campaigns for ALL users (Sam + Rita + future tenants) in parallel.
+    Falls back to CloudOrchestrator if MultiTenantRunner unavailable.
     """
+    try:
+        # Try multi-tenant first (v17+)
+        from core.multi_tenant import MultiTenantRunner
+        company_limit = 10
+        try:
+            body = await request.json()
+            company_limit = body.get("company_limit", 10)
+        except Exception:
+            pass
+        runner = MultiTenantRunner(company_limit=company_limit)
+        result = await runner.tick()
+        return result
+    except ImportError:
+        logger.info("MultiTenantRunner not available, using CloudOrchestrator")
+    except Exception as e:
+        logger.warning(f"MultiTenantRunner failed: {e}, falling back")
+    
+    # Fallback to single-tenant CloudOrchestrator
     try:
         from cloud_orchestrator import CloudOrchestrator
         orch = CloudOrchestrator()
