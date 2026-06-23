@@ -2,13 +2,18 @@ name = "olympus-webhook"
 main = "src/index.js"
 compatibility_date = "2024-06-20"
 
-[vars]
-# ✅ Synced with .env — both PA and Worker use same IPN_SECRET
-IPN_SECRET = "JhP-IPN-v16-!2026-secure-hmac-key"
-# ⚠️ OLD/EXPIRED key — Sam needs to generate new one at nowpayments.io
-NOWPAYMENTS_API_KEY = ""
-
+# D1 Database
 [[d1_databases]]
-binding = "leviathan_db"
-database_name = "leviathan-db"
-database_id = "e2b4485f-2d47-4ef8-bbaf-1d5cd91bd758"
+binding = "DB"
+database_name = "jobhunt-pro-db"
+database_id = "c477bda2-1ca3-400c-ba1a-a85716b63274"
+
+# R2 Storage
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "jobhunt-files"
+
+[vars]
+IPN_SECRET = "OE+zU1NbfNNlySwH3zrUthqQWZtGqrJa"
+NOWPAYMENTS_API_KEY = "VA1FDVQ-JBJ41KM-QN6MVGF-TTR80X4"
+PA_BASE = "https://jhfguf.pythonanywhere.com"
