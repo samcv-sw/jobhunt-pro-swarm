@@ -894,12 +894,20 @@ def _piggyback_bg_worker():
     try:
         from core.job_queue import dequeue_task, complete_task
         task = dequeue_task()
-        if task and task.get("task_type") == "campaign":
+        if not task: return
+        t_type = task.get("task_type", "")
+        if t_type in ("campaign", "run_campaign"):
             c_id = task.get("payload", {}).get("campaign_id")
             if c_id:
                 from core.campaign_runner import run_campaign
+                # app_v2 already imports config globally, but if we need it in thread scope:
+                import config
                 asyncio.run(run_campaign(c_id, get_db, config))
             complete_task(task["id"])
+        else:
+            # Mark unknown tasks as failed to prevent them from blocking the queue
+            from core.job_queue import fail_task
+            fail_task(task["id"], "Unknown task type for piggyback worker")
     except Exception:
         pass
 
@@ -4095,6 +4103,13 @@ def create_campaign(request: Request, profile_id: int = Form(...),
     finally:
         conn.close()
 
+    # Enqueue to distributed queue for piggyback worker
+    from core.job_queue import enqueue_task
+    try:
+        enqueue_task("run_campaign", {"campaign_id": campaign_id})
+    except Exception as e:
+        logger.error(f"[QUEUE] Error enqueuing campaign {campaign_id}: {e}")
+
     # v16.307: Don't launch thread on PA (gets killed by uWSGI).
     # Cloud tick loop picks up pending campaigns every 30 min.
     # Use /api/cron-tick to run instantly.
@@ -5886,6 +5901,13 @@ def api_create_campaign(api_key: str = Form(...), profile_cv: str = Form(...),
 
     conn.commit()
     conn.close()
+
+    # Enqueue to distributed queue for piggyback worker
+    from core.job_queue import enqueue_task
+    try:
+        enqueue_task("run_campaign", {"campaign_id": campaign_id})
+    except Exception as e:
+        logger.error(f"[QUEUE] Error enqueuing campaign {campaign_id}: {e}")
 
     # PA-safe: cloud tick loop picks up pending campaigns
     return {"campaign_id": campaign_id, "status": "pending", "companies": company_count, "price": total_price}
@@ -8116,6 +8138,13 @@ def admin_free_campaign(
     )
     conn.commit()
     conn.close()
+
+    from core.job_queue import enqueue_task
+    try:
+        enqueue_task("run_campaign", {"campaign_id": campaign_id})
+    except Exception as e:
+        logger.error(f"[QUEUE] Error enqueuing admin campaign {campaign_id}: {e}")
+
 
     return RedirectResponse(f"/admin?success=Free+campaign+created+for+{target_email}", status_code=303)
 

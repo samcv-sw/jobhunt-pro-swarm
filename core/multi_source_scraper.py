@@ -16,6 +16,7 @@ from urllib.parse import quote_plus
 import httpx
 from core.stealth import stealth
 from bs4 import BeautifulSoup
+from core.job_search import JobListing
 
 logger = logging.getLogger(__name__)
 
