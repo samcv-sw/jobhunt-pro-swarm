@@ -966,10 +966,10 @@ I remain very interested in this opportunity.</p>
 <p>Best regards,<br><strong>{config.CANDIDATE_NAME}</strong><br>{config.CANDIDATE_EMAIL}<br>{config.CANDIDATE_PHONE}</p>
 <img src="https://jhfguf.pythonanywhere.com/api/v2/campaign/track/{tracking_id}" width="1" height="1" style="display:none" alt=""/>"""
         msg = MIMEMultipart()
-        msg["From"] = f"{user_details.get('name', config.CANDIDATE_NAME)} <{config.CANDIDATE_EMAIL}>"
+        msg["From"] = f"{config.CANDIDATE_NAME} <{config.CANDIDATE_EMAIL}>"
         msg["To"] = to_email
         msg["Subject"] = subject
-        msg["Reply-To"] = f"{user_details.get('name', config.CANDIDATE_NAME)} <{config.CANDIDATE_EMAIL}>"
+        msg["Reply-To"] = f"{config.CANDIDATE_NAME} <{config.CANDIDATE_EMAIL}>"
         msg["Message-ID"] = f"<{tracking_id}.followup@jobhuntpro.com>"
 
         msg.attach(MIMEText(body, "html", "utf-8"))
@@ -1029,7 +1029,7 @@ I remain very interested in this opportunity.</p>
         """
         try:
             msg = MIMEMultipart("alternative")
-            msg["From"] = f"{from_name or user_details.get('name', config.CANDIDATE_NAME)} <{config.CANDIDATE_EMAIL}>"
+            msg["From"] = f"{from_name or config.CANDIDATE_NAME} <{config.CANDIDATE_EMAIL}>"
             msg["To"] = to_email
             msg["Subject"] = subject
             msg["Reply-To"] = config.CANDIDATE_EMAIL
@@ -1269,10 +1269,10 @@ class AntiGhostingEngine:
 
     def _build_reply_message(self, to_email: str, company: str, body: str) -> MIMEMultipart:
         msg = MIMEMultipart()
-        msg["From"] = f"{user_details.get('name', config.CANDIDATE_NAME)} <{config.CANDIDATE_EMAIL}>"
+        msg["From"] = f"{config.CANDIDATE_NAME} <{config.CANDIDATE_EMAIL}>"
         msg["To"] = to_email
         msg["Subject"] = f"Re: Interview Scheduling - {company}"
-        msg["Reply-To"] = f"{user_details.get('name', config.CANDIDATE_NAME)} <{config.CANDIDATE_EMAIL}>"
+        msg["Reply-To"] = f"{config.CANDIDATE_NAME} <{config.CANDIDATE_EMAIL}>"
         msg.attach(MIMEText(body, "html", "utf-8"))
         return msg
 

@@ -38,13 +38,38 @@ def _save_payments(data: Dict[str, Any]):
         json.dump(data, f, indent=2)
 
 
+_dotenv_loaded = False
+
+
+def _try_load_dotenv():
+    """Force-reload .env so env vars injected by PA are picked up."""
+    global _dotenv_loaded
+    if _dotenv_loaded:
+        return
+    try:
+        from dotenv import load_dotenv
+        import os.path as _p
+        for p in [_p.join(_p.dirname(__file__), '..', '.env'),
+                   '/home/JHFGUF/jobhunt/.env',
+                   '.env']:
+            if _p.exists(p):
+                load_dotenv(p, override=True)
+                break
+    except Exception:
+        pass
+    _dotenv_loaded = True
+
+
 def get_payment_addresses() -> Dict[str, str]:
-    """Get all configured crypto wallet addresses."""
+    """Get all configured crypto wallet addresses.
+    Tries direct env first (covers PA web env injection), falls back to config.
+    """
+    _try_load_dotenv()
     return {
-        "BTC": config.CRYPTO_BTC_ADDRESS,
-        "ETH": config.CRYPTO_ETH_ADDRESS,
-        "USDT": config.CRYPTO_USDT_ADDRESS,
-        "LTC": config.CRYPTO_LTC_ADDRESS,
+        "BTC": os.getenv("CRYPTO_BTC_ADDRESS", "") or config.CRYPTO_BTC_ADDRESS,
+        "ETH": os.getenv("CRYPTO_ETH_ADDRESS", "") or config.CRYPTO_ETH_ADDRESS,
+        "USDT": os.getenv("CRYPTO_USDT_ADDRESS", "") or config.CRYPTO_USDT_ADDRESS,
+        "LTC": os.getenv("CRYPTO_LTC_ADDRESS", "") or config.CRYPTO_LTC_ADDRESS,
     }
 
 

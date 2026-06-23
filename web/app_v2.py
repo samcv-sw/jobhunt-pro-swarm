@@ -1320,6 +1320,23 @@ def init_saas_v2_db():
             CREATE INDEX IF NOT EXISTS idx_campaign_emails_sent_at ON campaign_emails(sent_at DESC);
             CREATE INDEX IF NOT EXISTS idx_wallet_transactions_user_id ON wallet_transactions(user_id);
             CREATE INDEX IF NOT EXISTS idx_manual_emails_user_id ON manual_emails(user_id);
+            
+            CREATE TABLE IF NOT EXISTS email_queue (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                campaign_id TEXT,
+                to_email TEXT NOT NULL,
+                company TEXT,
+                title TEXT,
+                subject TEXT,
+                body_html TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                sent_at TIMESTAMP,
+                error TEXT,
+                attempts INTEGER DEFAULT 0
+            );
+            CREATE INDEX IF NOT EXISTS idx_email_queue_status ON email_queue(status);
+            CREATE INDEX IF NOT EXISTS idx_email_queue_created ON email_queue(created_at ASC);
         """)
 
         # Helper for migrations

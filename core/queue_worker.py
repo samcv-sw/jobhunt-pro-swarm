@@ -144,7 +144,7 @@ async def process_queue():
                 conn = get_db()
                 try:
                     from core.email_engine import EmailEngine
-                    engine = EmailEngine(config)
+                    engine = EmailEngine()
                     logger.info("[ML-SYSTEM] Triggering automated Data Sync Engine...")
                     send_telegram_message_sync("⏳ [NODE-WORKER] Running Automated Sync Engine...")
                     asyncio.run(engine.check_and_send_followups(conn))
