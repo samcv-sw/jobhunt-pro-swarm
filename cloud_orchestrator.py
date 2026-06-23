@@ -2,6 +2,7 @@ import asyncio
 import logging
 import sys
 import os
+import sqlite3
 from datetime import datetime
 from typing import List, Dict, Optional
 
@@ -75,12 +76,34 @@ class CloudOrchestrator:
         except Exception as e:
             logger.warning(f"Campaign resume: {e}")
 
-        # ── Phase 3: Scrape jobs (if capacity) ──
+        # ── Phase 3: Scrape jobs using PA-approved scraper (JSearch + LinkedIn XHR) ──
         try:
-            jobs = await self.search.search_all(max_results=20)
+            from core.pa_job_scraper import PAJobScraper
+            pa_scraper = PAJobScraper()
+            jobs = pa_scraper.search_all(max_jobs=50)
             results["jobs_found"] = len(jobs)
+            logger.info(f"PA scraper found {len(jobs)} jobs")
+            
+            # Store jobs in DB for campaign processing
+            if jobs:
+                try:
+                    db_path = self._get_db_path()
+                    conn = sqlite3.connect(db_path, timeout=30)
+                    for j in jobs:
+                        try:
+                            conn.execute(
+                                "INSERT INTO jobs (title, company, location, url, source, email, snippet, status) VALUES (?,?,?,?,?,?,?,'new')",
+                                (j.get('title',''), j.get('company',''), j.get('location',''),
+                                 j.get('url',''), j.get('source','jsearch'), j.get('email',''), j.get('snippet',''))
+                            )
+                        except Exception:
+                            pass
+                    conn.commit()
+                    conn.close()
+                except Exception as dbe:
+                    logger.warning(f"Store jobs in DB: {dbe}")
         except Exception as e:
-            logger.warning(f"Search: {e}")
+            logger.warning(f"PA scraper error: {e}")
 
         # ── Phase 4: Send queued emails ──
         try:
@@ -167,6 +190,16 @@ class CloudOrchestrator:
         except Exception as e:
             logger.error(f"DB error: {e}")
             return []
+
+    def _get_db_path(self) -> str:
+        """Get the database file path."""
+        db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")
+        if not os.path.exists(db_path):
+            base = os.path.dirname(os.path.abspath(__file__))
+            db_path = os.path.join(base, "jobhunt_saas_v2.db")
+        if not os.path.exists(db_path):
+            db_path = os.path.join(os.getcwd(), "jobhunt_saas_v2.db")
+        return db_path
 
     async def _drain_email_queue(self, max_emails: int = 50) -> int:
         """Send pending emails from the email_queue table."""
