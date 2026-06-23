@@ -10754,6 +10754,16 @@ async def force_rita_campaign():
         return {"status": "error", "error": str(e)}
 
 
+@app.post("/api/system/force-reset-all")
+async def force_reset_all():
+    """Reset ALL completed campaigns to pending for both tenants."""
+    try:
+        from scripts.force_reset_all import force_reset_all_campaigns
+        return force_reset_all_campaigns()
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
 @app.post("/api/multi-tenant/add-tenant")
 async def add_tenant(request: Request):
     """Add a new tenant via API."""

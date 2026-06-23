@@ -92,24 +92,30 @@ async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> di
             ).fetchone()
             profile = dict(profile) if profile and not isinstance(profile, dict) else profile
         
-        # 4. Pick companies from pre-seeded table
+        # 4. Pick companies NOT yet contacted by this campaign
         companies = conn.execute(
-            """SELECT * FROM lebanon_companies 
-               WHERE target_role_type = ? 
-               ORDER BY relevance_score DESC 
+            """SELECT lc.* FROM lebanon_companies lc
+               WHERE lc.target_role_type = ? 
+               AND lc.company_name NOT IN (
+                   SELECT company_name FROM campaign_sent WHERE campaign_id = ?
+               )
+               ORDER BY lc.relevance_score DESC 
                LIMIT ?""",
-            (role_type, company_limit)
+            (role_type, campaign_id, company_limit)
         ).fetchall()
         
         # Try other type if empty
         if not companies:
             other_type = "hr" if role_type == "tech" else "tech"
             companies = conn.execute(
-                """SELECT * FROM lebanon_companies 
-                   WHERE target_role_type = ? 
-                   ORDER BY relevance_score DESC 
+                """SELECT lc.* FROM lebanon_companies lc
+                   WHERE lc.target_role_type = ?
+                   AND lc.company_name NOT IN (
+                       SELECT company_name FROM campaign_sent WHERE campaign_id = ?
+                   )
+                   ORDER BY lc.relevance_score DESC
                    LIMIT ?""",
-                (other_type, company_limit)
+                (other_type, campaign_id, company_limit)
             ).fetchall()
         
         if not companies:
@@ -150,15 +156,6 @@ async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> di
                 if not company_email or "@" not in company_email:
                     failed += 1
                     companies_processed.append({"company": company_name, "status": "invalid_email"})
-                    continue
-                
-                # Check duplicate
-                already = conn.execute(
-                    "SELECT 1 FROM campaign_sent WHERE campaign_id=? AND company_name=?",
-                    (campaign_id, company_name)
-                ).fetchone()
-                if already:
-                    companies_processed.append({"company": company_name, "status": "skipped"})
                     continue
                 
                 # Build HTML

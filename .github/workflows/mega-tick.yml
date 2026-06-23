@@ -7,7 +7,7 @@ on:
       company_limit:
         description: 'Companies per tenant per tick'
         required: false
-        default: '10'
+        default: '3'
 
 jobs:
   mega-tick:
@@ -27,7 +27,7 @@ jobs:
             RESPONSE=$(curl -s --max-time 240 \
               -X POST "https://jhfguf.pythonanywhere.com/api/v2/cloud-tick" \
               -H "Content-Type: application/json" \
-              -d "{\"action\":\"mega_tick\",\"source\":\"gh-actions-mega\",\"company_limit\":${{ github.event.inputs.company_limit || '10' }}}")
+              -d "{\"company_limit\":${{ github.event.inputs.company_limit || '3' }},\"max_campaigns\":${{ github.event.inputs.max_campaigns || '5' }}}")
             echo "Response: $RESPONSE"
             STATUS=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status','error'))" 2>/dev/null || echo "parse_error")
             if [ "$STATUS" = "ok" ]; then
@@ -57,7 +57,9 @@ jobs:
             -H "Authorization: Token ${{ secrets.PA_API_TOKEN }}"
 
       - name: Telegram Notification
-        if: always()
+        if: always() && env.TELEGRAM_BOT_TOKEN != ''
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: |
           STATUS_MSG="MEGA TICK: ${{ steps.tick.outputs.tick_status || 'failed' }}"
           curl -s --max-time 10 -X POST \
