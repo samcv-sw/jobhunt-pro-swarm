@@ -10725,6 +10725,26 @@ async def rita_status():
         return {"status": "error", "error": str(e)}
 
 
+@app.post("/api/system/seed-companies")
+async def seed_companies():
+    """Seed Lebanon company database on PA."""
+    try:
+        from core.lebanon_company_seeder import seed_all_companies
+        result = seed_all_companies()
+        return result
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+@app.get("/api/system/companies-count")
+async def companies_count():
+    try:
+        from core.lebanon_company_seeder import get_companies_count
+        return get_companies_count()
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
 @app.post("/api/multi-tenant/add-tenant")
 async def add_tenant(request: Request):
     """Add a new tenant via API."""

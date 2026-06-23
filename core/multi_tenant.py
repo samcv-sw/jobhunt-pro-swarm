@@ -300,7 +300,7 @@ class MultiTenantRunner:
     concurrently with full isolation per tenant.
     """
 
-    def __init__(self, company_limit: int = 10):
+    def __init__(self, company_limit: int = 3):
         self.company_limit = company_limit
         self.tenant_stats: Dict[str, Dict[str, Any]] = {}
 
@@ -346,7 +346,7 @@ class MultiTenantRunner:
 
         results["tenant_count"] = len(tenant_campaigns)
 
-        # ── Step 3: Run each tenant's campaigns in parallel ──
+        # ── Step 3: Run each tenant's campaigns SEQUENTIALLY (PA-safe) ──
         async def run_tenant(tid: str, t_campaigns: List[Dict]) -> Dict[str, Any]:
             tenant_result = {
                 "tenant_id": tid,
@@ -357,13 +357,10 @@ class MultiTenantRunner:
             for camp in t_campaigns:
                 cid = camp["campaign_id"]
                 try:
-                    from core.campaign_runner import run_campaign
-                    camp_result = await run_campaign(
+                    # Use lightning runner for PA free tier (fast, no scraping)
+                    from core.lightning_runner import run_campaign_lightning
+                    camp_result = await run_campaign_lightning(
                         campaign_id=cid,
-                        get_db_fn=lambda cp=_get_db_path(): sqlite3.connect(
-                            cp, timeout=30, check_same_thread=False
-                        ),
-                        config=__import__("config"),
                         company_limit=self.company_limit,
                     )
                     tenant_result["campaigns"].append({
@@ -373,6 +370,31 @@ class MultiTenantRunner:
                     if isinstance(camp_result, dict):
                         tenant_result["total_sent"] += camp_result.get("sent", 0)
                         tenant_result["total_failed"] += camp_result.get("failed", 0)
+                except ImportError:
+                    # Fallback to full campaign runner
+                    try:
+                        from core.campaign_runner import run_campaign
+                        camp_result = await run_campaign(
+                            campaign_id=cid,
+                            get_db_fn=lambda cp=_get_db_path(): sqlite3.connect(
+                                cp, timeout=30, check_same_thread=False
+                            ),
+                            config=__import__("config"),
+                            company_limit=self.company_limit,
+                        )
+                        tenant_result["campaigns"].append({
+                            "campaign_id": cid,
+                            "result": camp_result,
+                        })
+                        if isinstance(camp_result, dict):
+                            tenant_result["total_sent"] += camp_result.get("sent", 0)
+                            tenant_result["total_failed"] += camp_result.get("failed", 0)
+                    except Exception as e2:
+                        logger.error(f"[MultiTenant] Both runners failed for {cid}: {e2}")
+                        tenant_result["campaigns"].append({
+                            "campaign_id": cid,
+                            "error": str(e2),
+                        })
                 except Exception as e:
                     logger.error(f"[MultiTenant] Campaign {cid} (tenant {tid}) failed: {e}")
                     tenant_result["campaigns"].append({
@@ -381,13 +403,16 @@ class MultiTenantRunner:
                     })
             return tenant_result
 
-        # Execute all tenants in parallel
-        tasks = [
-            run_tenant(tid, t_campaigns)
-            for tid, t_campaigns in tenant_campaigns.items()
-        ]
-        tenant_results = await asyncio.gather(*tasks, return_exceptions=True)
-
+        # Execute tenants SEQUENTIALLY (PA free tier - avoid timeout)
+        tenant_results = []
+        for tid, t_campaigns in tenant_campaigns.items():
+            try:
+                tr = await run_tenant(tid, t_campaigns)
+                tenant_results.append(tr)
+            except Exception as e:
+                logger.error(f"[MultiTenant] Tenant {tid} crashed: {e}")
+                tenant_results.append(e)
+        
         # ── Step 4: Aggregate ──
         for tr in tenant_results:
             if isinstance(tr, Exception):
@@ -456,8 +481,8 @@ class MultiTenantRunner:
                 
                 conn.execute("""
                     INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, 
-                    status, total_companies, sent_count, created_at, bouquets)
-                    VALUES (?, ?, ?, ?, 'pending', 100, 0, CURRENT_TIMESTAMP, 'Priority Shield')
+                    status, total_companies, sent_count, created_at, bouquets, engine_type)
+                    VALUES (?, ?, ?, ?, 'pending', 100, 0, CURRENT_TIMESTAMP, 'Priority Shield', 'cloud-tick')
                 """, (campaign_id, tid, f"auto_{tid[:8]}", profile_id))
                 conn.commit()
                 logger.info(f"[MultiTenant] Auto-created campaign {campaign_id} for {name} ({job_title})")
