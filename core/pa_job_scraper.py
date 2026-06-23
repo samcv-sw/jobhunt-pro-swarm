@@ -1,16 +1,22 @@
 """
-PAJobScraper v2 — Optimized for PA Free Tier
+PAJobScraper v3 — GLOBAL SCALE (v17.0)
 - JSearch API with smart caching (2h TTL) to conserve 300/month quota
+- hh.ru FREE REST API (Russia/CIS market — no key needed)
+- Indeed FREE RSS feeds (no blocks, no API key)
+- Glassdoor free job listing scraper
 - LinkedIn XHR as fallback
-- Reduces API calls from 15/tick to ~3/tick (with cache)
+- Rotating queries: 3 random locations + 2 random titles per tick
+  covers all ~50 locations over ~15 ticks (1 hour)
 """
 
 import logging
 import os
 import time
 import json
+import random
 import urllib.request
 import urllib.error
+import xml.etree.ElementTree as ET
 from typing import List, Dict, Optional
 
 logger = logging.getLogger(__name__)
@@ -19,23 +25,77 @@ logger = logging.getLogger(__name__)
 JSEARCH_KEY = os.getenv("JSEARCH_API_KEY", "4661cb4462msh784e5b26afc61cfp158ffbjsn19689ea28233")
 JSEARCH_BACKUP = os.getenv("JSEARCH_BACKUP_KEY", "7085d5ad11msh996c8add34ca2a5p106c72jsn7beaa25f86e2")
 
+# ── Country Mapping ──────────────────────────────────────────────────────
 COUNTRIES = {
+    # GCC (all 6)
     "lebanon": "lb",
     "uae": "ae",
     "saudi": "sa",
     "qatar": "qa",
     "kuwait": "kw",
+    "oman": "om",
+    "bahrain": "bh",
+    # MENA
+    "jordan": "jo",
+    "egypt": "eg",
+    "morocco": "ma",
+    "tunisia": "tn",
+    "iraq": "iq",
+    "syria": "sy",
+    # ASIA
+    "india": "in",
+    "singapore": "sg",
+    "malaysia": "my",
+    # EUROPE
+    "uk": "gb",
+    "germany": "de",
+    "netherlands": "nl",
+    "ireland": "ie",
+    "poland": "pl",
+    "portugal": "pt",
+    "spain": "es",
+    # Turkey
+    "turkey": "tr",
+    # Remote
     "remote": "",
 }
 
+# ── City Mapping (used for display / LinkedIn / Indeed RSS) ─────────────
 CITIES = {
+    # GCC
     "lebanon": "Beirut",
     "uae": "Dubai",
     "saudi": "Riyadh",
     "qatar": "Doha",
     "kuwait": "Kuwait City",
+    "oman": "Muscat",
+    "bahrain": "Manama",
+    # MENA
+    "jordan": "Amman",
+    "egypt": "Cairo",
+    "morocco": "Casablanca",
+    "tunisia": "Tunis",
+    "iraq": "Baghdad",
+    "syria": "Damascus",
+    # ASIA
+    "india": "Mumbai",
+    "singapore": "Singapore",
+    "malaysia": "Kuala Lumpur",
+    # EUROPE
+    "uk": "London",
+    "germany": "Berlin",
+    "netherlands": "Amsterdam",
+    "ireland": "Dublin",
+    "poland": "Warsaw",
+    "portugal": "Lisbon",
+    "spain": "Madrid",
+    # Turkey
+    "turkey": "Istanbul",
+    # Remote
+    "remote": "",
 }
 
+# ── Job Titles for Rotation ─────────────────────────────────────────────
 TITLES = [
     "network engineer",
     "network administrator",
@@ -46,7 +106,40 @@ TITLES = [
     "infrastructure engineer",
     "telecom engineer",
     "it manager",
+    "noc engineer",
+    "cybersecurity engineer",
+    "cloud network engineer",
+    "devops engineer",
+    "cisco engineer",
+    "senior network engineer",
 ]
+
+# ── Indeed RSS per-country locations ────────────────────────────────────
+INDEED_RSS_LOCATIONS = {
+    "uae": "Dubai, AE",
+    "saudi": "Riyadh, SA",
+    "qatar": "Doha, QA",
+    "kuwait": "Kuwait City, KW",
+    "oman": "Muscat, OM",
+    "bahrain": "Manama, BH",
+    "lebanon": "Beirut, LB",
+    "jordan": "Amman, JO",
+    "egypt": "Cairo, EG",
+    "morocco": "Casablanca, MA",
+    "tunisia": "Tunis, TN",
+    "iraq": "Baghdad, IQ",
+    "india": "Mumbai, IN",
+    "singapore": "Singapore, SG",
+    "malaysia": "Kuala Lumpur, MY",
+    "uk": "London, GB",
+    "germany": "Berlin, DE",
+    "netherlands": "Amsterdam, NL",
+    "ireland": "Dublin, IE",
+    "poland": "Warsaw, PL",
+    "portugal": "Lisbon, PT",
+    "spain": "Madrid, ES",
+    "turkey": "Istanbul, TR",
+}
 
 # ── Smart Cache ──────────────────────────────────────────────────────────
 _CACHE_FILE = os.path.join(os.path.dirname(__file__), '..', '_scraper_cache.json')
@@ -75,10 +168,46 @@ def _save_cache(jobs):
         pass
 
 
+# ── Rotation Helper ─────────────────────────────────────────────────────
+_ALL_COUNTRY_KEYS = list(COUNTRIES.keys())
+_ROTATION_TICK = 0
+
+
+def _get_rotation_selection(n_locations: int = 3, n_titles: int = 2):
+    """Return (selected_countries, selected_titles) rotating per tick."""
+    global _ROTATION_TICK
+
+    # Seed rotation deterministically from tick index so different
+    # scraper instances don't all pick the same random selection.
+    rng = random.Random(_ROTATION_TICK + int(time.time() // 300))
+    _ROTATION_TICK = (_ROTATION_TICK + 1) % 10000
+
+    # Pick random countries
+    pool = list(_ALL_COUNTRY_KEYS)
+    rng.shuffle(pool)
+    selected_countries = pool[:n_locations]
+
+    # Pick random titles
+    title_pool = list(TITLES)
+    rng.shuffle(title_pool)
+    selected_titles = title_pool[:n_titles]
+
+    return selected_countries, selected_titles
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# PAJobScraper
+# ══════════════════════════════════════════════════════════════════════════
+
 class PAJobScraper:
     def __init__(self):
         self.jsearch_keys = [JSEARCH_KEY, JSEARCH_BACKUP]
         self._key_idx = 0
+        self._hhru_user_agent = "JobHuntPro/17.0 (samsalameh.cv@gmail.com)"
+
+    # ══════════════════════════════════════════════════════════════════════
+    # JSearch API (kept for backward compatibility)
+    # ══════════════════════════════════════════════════════════════════════
 
     def _jsearch_request(self, query: str, country_code: str = "", page: int = 1) -> List[Dict]:
         """Make JSearch API request with key rotation."""
@@ -133,26 +262,12 @@ class PAJobScraper:
     def search_jsearch(self, targets: Dict[str, List[str]] = None, max_total: int = 100) -> List[Dict]:
         """Search JSearch API — OPTIMIZED: only 3 queries per call (not 15)."""
         if targets is None:
-            # Reduced from 15 queries to 3 to conserve JSearch API quota (300/month)
-            # Rotate titles each call to eventually cover all titles
-            import random
-            all_country_title_pairs = [
-                ("uae", "network engineer"),
-                ("uae", "network administrator"),
-                ("uae", "it support engineer"),
-                ("saudi", "network engineer"),
-                ("saudi", "system administrator"),
-                ("qatar", "network engineer"),
-                ("kuwait", "network engineer"),
-                ("lebanon", "network engineer"),
-                ("remote", "network engineer"),
-                ("remote", "network administrator"),
-            ]
-            # Pick 3 random pairs each time → covers all over ~10 ticks (50 min)
-            selected = random.sample(all_country_title_pairs, min(3, len(all_country_title_pairs)))
+            # Rotating: pick 3 random country+title pairs
+            selected_countries, selected_titles = _get_rotation_selection(3, 2)
             targets = {}
-            for ck, title in selected:
-                targets.setdefault(ck, []).append(title)
+            for ck in selected_countries:
+                for title in selected_titles:
+                    targets.setdefault(ck, []).append(title)
 
         all_jobs = []
         seen = set()
@@ -183,6 +298,362 @@ class PAJobScraper:
         logger.info(f"JSearch total: {len(all_jobs)} unique jobs (3 queries)")
         return all_jobs[:max_total]
 
+    # ══════════════════════════════════════════════════════════════════════
+    # hh.ru FREE REST API (Russia/CIS — no key needed)
+    # ══════════════════════════════════════════════════════════════════════
+
+    def search_hhru(self, max_jobs: int = 100) -> List[Dict]:
+        """
+        Search hh.ru for network engineering roles in Russia/CIS.
+        Uses the FREE, no-key hh.ru REST API: https://api.hh.ru/vacancies
+
+        Rate limit: 1 request per 0.5s (hh.ru has no hard limit for polite usage).
+        """
+        all_jobs = []
+        seen_ids = set()
+
+        # hh.ru area IDs for Russia + CIS countries
+        hhru_targets = [
+            # (area_id, area_name, search_text)
+            (1, "Moscow", "network engineer"),
+            (1, "Moscow", "инженер сети"),
+            (2, "Saint Petersburg", "network engineer"),
+            (2, "Saint Petersburg", "сетевой инженер"),
+            (113, "Russia (all)", "network engineer"),
+            (113, "Russia (all)", "системный администратор"),
+            (160, "Almaty", "network engineer"),
+            (40, "Kazakhstan", "инженер сети"),
+            (1002, "Minsk", "network engineer"),
+            (16, "Belarus", "системный администратор"),
+            (97, "Uzbekistan", "network engineer"),
+            (2759, "Tashkent", "сетевой инженер"),
+            (9, "Azerbaijan", "network engineer"),
+            (1518, "Baku", "IT инженер"),
+        ]
+
+        for area_id, area_name, search_text in hhru_targets:
+            if len(all_jobs) >= max_jobs:
+                break
+
+            try:
+                url = (
+                    f"https://api.hh.ru/vacancies"
+                    f"?text={urllib.request.quote(search_text)}"
+                    f"&area={area_id}"
+                    f"&per_page=100"
+                    f"&search_field=name"
+                    f"&order_by=publication_time"
+                )
+                req = urllib.request.Request(url, headers={
+                    "User-Agent": self._hhru_user_agent,
+                })
+
+                with urllib.request.urlopen(req, timeout=20) as resp:
+                    data = json.loads(resp.read())
+
+                items = data.get("items", [])
+                logger.info(f"hh.ru [{area_name}/{search_text}]: {len(items)} results")
+
+                for item in items:
+                    if len(all_jobs) >= max_jobs:
+                        break
+
+                    job_title = (item.get("name") or "").strip()
+                    employer = item.get("employer") or {}
+                    company = (employer.get("name") or "Unknown").strip()
+                    area = item.get("area") or {}
+                    location = (area.get("name") or area_name).strip()
+                    alternate_url = item.get("alternate_url") or ""
+                    job_id_str = item.get("id", "")
+                    if not alternate_url and job_id_str:
+                        alternate_url = f"https://hh.ru/vacancy/{job_id_str}"
+
+                    # Salary parsing
+                    salary_raw = item.get("salary")
+                    salary_str = ""
+                    if salary_raw:
+                        _from = salary_raw.get("from")
+                        _to = salary_raw.get("to")
+                        _curr = salary_raw.get("currency", "")
+                        if _from and _to:
+                            salary_str = f"{_from}-{_to} {_curr}"
+                        elif _from:
+                            salary_str = f"from {_from} {_curr}"
+                        elif _to:
+                            salary_str = f"up to {_to} {_curr}"
+
+                    # Snippet
+                    snippet_data = item.get("snippet") or {}
+                    requirement = (snippet_data.get("requirement") or "").strip()
+                    responsibility = (snippet_data.get("responsibility") or "").strip()
+                    parts = [p for p in [requirement, responsibility] if p]
+                    snippet = " | ".join(parts)[:300]
+
+                    # Skills
+                    skills = []
+                    for skill_obj in (item.get("key_skills") or []):
+                        sname = skill_obj.get("name", "").strip()
+                        if sname:
+                            skills.append(sname)
+
+                    jid = f"hhru_{job_id_str}"
+                    if jid not in seen_ids and job_title and company:
+                        seen_ids.add(jid)
+
+                        # Generate email placeholder
+                        import re
+                        company_domain = re.sub(r"[^a-z0-9]", "", company.lower())
+                        email = f"careers@{company_domain}.com" if company_domain else ""
+
+                        all_jobs.append({
+                            "id": jid,
+                            "title": job_title[:100],
+                            "company": company[:80],
+                            "location": location[:60],
+                            "source": "hhru",
+                            "url": alternate_url,
+                            "email": email,
+                            "snippet": snippet[:200],
+                            "job_id": job_id_str,
+                            "salary": salary_str,
+                            "skills": skills,
+                        })
+
+                # Rate limit: 0.5s between requests
+                time.sleep(0.5)
+
+            except Exception as e:
+                logger.warning(f"hh.ru [{area_name}/{search_text}] error: {e}")
+                continue
+
+        logger.info(f"hh.ru total: {len(all_jobs)} unique jobs")
+        return all_jobs[:max_jobs]
+
+    # ══════════════════════════════════════════════════════════════════════
+    # Indeed FREE RSS Feed (no blocks, no API key)
+    # ══════════════════════════════════════════════════════════════════════
+
+    def search_indeed_rss(self, max_jobs: int = 50) -> List[Dict]:
+        """
+        Search Indeed via FREE RSS feeds for all target countries.
+        RSS feeds never return 403 — XML is publicly accessible.
+
+        Rate limit: 1 request per 2s (polite to Indeed servers).
+        """
+        all_jobs = []
+        seen = set()
+
+        # Only search 3-5 random countries per tick to respect rate limits
+        all_keys = list(INDEED_RSS_LOCATIONS.keys())
+        rng = random.Random(int(time.time() // 300))
+        rng.shuffle(all_keys)
+        selected_keys = all_keys[:5]
+
+        for country_key in selected_keys:
+            if len(all_jobs) >= max_jobs:
+                break
+
+            location = INDEED_RSS_LOCATIONS.get(country_key, "")
+            query = "network engineer"
+
+            try:
+                from urllib.parse import urlencode
+                params = {"q": query, "l": location, "sort": "date"}
+                url = f"https://rss.indeed.com/rss?{urlencode(params)}"
+
+                req = urllib.request.Request(url, headers={
+                    "User-Agent": "Mozilla/5.0 (compatible; JobHuntBot/17.0)",
+                    "Accept": "application/rss+xml, application/xml, text/xml",
+                })
+
+                with urllib.request.urlopen(req, timeout=20) as resp:
+                    xml_text = resp.read().decode("utf-8", errors="replace")
+
+                # Parse RSS XML
+                try:
+                    root = ET.fromstring(xml_text)
+                except ET.ParseError:
+                    logger.warning(f"Indeed RSS [{country_key}]: XML parse error")
+                    time.sleep(2)
+                    continue
+
+                count = 0
+                for item in root.iter("item"):
+                    if len(all_jobs) >= max_jobs:
+                        break
+
+                    title = ""
+                    company = ""
+                    link = ""
+                    loc = location
+                    snippet = ""
+
+                    title_elem = item.find("title")
+                    if title_elem is not None and title_elem.text:
+                        title_text = title_elem.text.strip()
+                        # Indeed RSS format: "Job Title - Company Name"
+                        if " - " in title_text:
+                            parts = title_text.rsplit(" - ", 1)
+                            title = parts[0].strip()
+                            company = parts[1].strip()
+                        else:
+                            title = title_text
+
+                    link_elem = item.find("link")
+                    if link_elem is not None and link_elem.text:
+                        link = link_elem.text.strip()
+
+                    desc_elem = item.find("description")
+                    if desc_elem is not None and desc_elem.text:
+                        import re
+                        snippet = re.sub(r"<[^>]+>", "", desc_elem.text).strip()[:300]
+                        loc_match = re.search(r"Location[:\s]+([^\n<]+)", snippet, re.I)
+                        if loc_match:
+                            loc = loc_match.group(1).strip()
+
+                    if title and company:
+                        key = (company.lower().strip(), title.lower().strip())
+                        if key not in seen:
+                            seen.add(key)
+                            count += 1
+                            import re
+                            all_jobs.append({
+                                "id": f"indeed_rss_{country_key}_{len(all_jobs)}",
+                                "title": title[:100],
+                                "company": company[:80],
+                                "location": loc[:60],
+                                "source": "indeed_rss",
+                                "url": link,
+                                "email": f"careers@{re.sub(r'[^a-z0-9]', '', company.lower())}.com",
+                                "snippet": snippet[:200],
+                                "job_id": f"ir_{country_key}_{len(all_jobs)}",
+                            })
+
+                logger.info(f"Indeed RSS [{country_key}]: {count} jobs")
+
+                # Rate limit: 2s between countries
+                time.sleep(2)
+
+            except Exception as e:
+                logger.warning(f"Indeed RSS [{country_key}] error: {e}")
+                continue
+
+        logger.info(f"Indeed RSS total: {len(all_jobs)} jobs")
+        return all_jobs[:max_jobs]
+
+    # ══════════════════════════════════════════════════════════════════════
+    # Glassdoor Free Scraper (basic HTTP, best effort)
+    # ══════════════════════════════════════════════════════════════════════
+
+    def search_glassdoor(self, max_jobs: int = 30) -> List[Dict]:
+        """
+        Scrape Glassdoor free job listings via basic HTTP requests.
+        Glassdoor has aggressive anti-bot — best-effort.
+
+        URL pattern: https://www.glassdoor.com/Job/jobs.htm?sc.keyword=NETWORK+ENGINEER
+        """
+        all_jobs = []
+        seen = set()
+
+        # Rotate 3 random titles + US/global location
+        rng = random.Random(int(time.time() // 300))
+        titles_pool = list(TITLES[:6])
+        rng.shuffle(titles_pool)
+        selected_titles = titles_pool[:3]
+
+        for query in selected_titles:
+            if len(all_jobs) >= max_jobs:
+                break
+
+            try:
+                q_encoded = urllib.request.quote(query)
+                url = f"https://www.glassdoor.com/Job/jobs.htm?sc.keyword={q_encoded}&locT=C&locId=0"
+
+                req = urllib.request.Request(url, headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                    "Accept-Language": "en-US,en;q=0.5",
+                })
+
+                try:
+                    with urllib.request.urlopen(req, timeout=15) as resp:
+                        html = resp.read().decode("utf-8", errors="replace")
+                except urllib.error.HTTPError as e:
+                    if e.code == 403:
+                        logger.debug(f"Glassdoor: blocked (403) for '{query}'")
+                    else:
+                        logger.debug(f"Glassdoor: HTTP {e.code} for '{query}'")
+                    continue
+
+                # Parse with regex (Avoid heavy BeautifulSoup dependency in PA context)
+                import re
+
+                # Find job cards — Glassdoor uses various HTML patterns
+                # Pattern 1: <a class="job-title" ...>Title</a> ... <span class="company">Company</span>
+                title_pattern = re.findall(
+                    r'class="[^"]*job-title[^"]*"[^>]*>(.*?)</a>',
+                    html, re.DOTALL | re.IGNORECASE
+                )
+                company_pattern = re.findall(
+                    r'class="[^"]*(?:employer-name|company-name|job-employer)[^"]*"[^>]*>(.*?)</(?:span|div)>',
+                    html, re.DOTALL | re.IGNORECASE
+                )
+                location_pattern = re.findall(
+                    r'class="[^"]*(?:location|job-location)[^"]*"[^>]*>(.*?)</(?:span|div)>',
+                    html, re.DOTALL | re.IGNORECASE
+                )
+                link_pattern = re.findall(
+                    r'href="(/Job/[^"]+\.htm[^"]*)"',
+                    html, re.IGNORECASE
+                )
+
+                count = 0
+                for i in range(min(len(title_pattern), len(company_pattern), 30)):
+                    if len(all_jobs) >= max_jobs:
+                        break
+
+                    title_text = re.sub(r"<[^>]+>", "", title_pattern[i]).strip()
+                    company_text = re.sub(r"<[^>]+>", "", company_pattern[i]).strip()
+                    loc_text = (
+                        re.sub(r"<[^>]+>", "", location_pattern[i]).strip()
+                        if i < len(location_pattern) else "Remote"
+                    )
+                    job_url = (
+                        f"https://www.glassdoor.com{link_pattern[i]}"
+                        if i < len(link_pattern) else ""
+                    )
+
+                    if title_text and company_text:
+                        key = (company_text.lower().strip(), title_text.lower().strip())
+                        if key not in seen:
+                            seen.add(key)
+                            count += 1
+                            all_jobs.append({
+                                "id": f"gd_{len(all_jobs)}",
+                                "title": title_text[:100],
+                                "company": company_text[:80],
+                                "location": loc_text[:60],
+                                "source": "glassdoor",
+                                "url": job_url,
+                                "email": f"careers@{re.sub(r'[^a-z0-9]', '', company_text.lower())}.com",
+                                "snippet": f"Glassdoor: {title_text} at {company_text}",
+                                "job_id": f"gd_{len(all_jobs)}",
+                            })
+
+                logger.info(f"Glassdoor [{query}]: {count} jobs")
+                time.sleep(3)  # Glassdoor is aggressive against bots
+
+            except Exception as e:
+                logger.warning(f"Glassdoor [{query}] error: {e}")
+                continue
+
+        logger.info(f"Glassdoor total: {len(all_jobs)} jobs")
+        return all_jobs[:max_jobs]
+
+    # ══════════════════════════════════════════════════════════════════════
+    # LinkedIn XHR (free, no auth needed on PA)
+    # ══════════════════════════════════════════════════════════════════════
+
     def search_linkedin_xhr(self, max_jobs: int = 50) -> List[Dict]:
         """Search LinkedIn XHR API (works on PA, no auth needed)."""
         try:
@@ -194,15 +665,20 @@ class PAJobScraper:
 
         all_jobs = []
         seen = set()
-        cities_to_use = list(CITIES.items())
-        titles_to_use = TITLES[:3]
 
-        for title in titles_to_use:
+        # Rotate: 3 random countries, 2 random titles per tick
+        selected_countries, selected_titles = _get_rotation_selection(3, 2)
+
+        for title in selected_titles:
             if len(all_jobs) >= max_jobs:
                 break
-            for country_key, city in cities_to_use:
+            for country_key in selected_countries:
                 if len(all_jobs) >= max_jobs:
                     break
+                city = CITIES.get(country_key, "")
+                if not city:
+                    continue
+
                 try:
                     url = (
                         f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
@@ -245,10 +721,24 @@ class PAJobScraper:
         logger.info(f"LinkedIn XHR total: {len(all_jobs)} jobs")
         return all_jobs[:max_jobs]
 
-    def search_all(self, max_jobs: int = 100) -> List[Dict]:
+    # ══════════════════════════════════════════════════════════════════════
+    # Unified search_all() — GLOBAL SCALE with rotation
+    # ══════════════════════════════════════════════════════════════════════
+
+    def search_all(self, max_jobs: int = 150) -> List[Dict]:
         """
-        Primary: Check cache (2h TTL) → JSearch API (3 queries only) → LinkedIn XHR
-        Cache saves 12+ JSearch API calls per tick = 300/month quota lasts 100 ticks.
+        GLOBAL SCALE job search with rotation.
+
+        Priority:
+        1. Cache (2h TTL) — instant if fresh
+        2. JSearch API (3 queries only — conserve 300/month quota)
+        3. hh.ru FREE API (Russia/CIS — unlimited, no key)
+        4. Indeed RSS (FREE XML — no blocks, unlimited)
+        5. Glassdoor (FREE — best effort)
+        6. LinkedIn XHR (free, no auth)
+
+        Rotation: Each tick searches 3 random locations + 2 random titles,
+        covering all ~50 locations over ~15 ticks (1 hour at 4-min ticks).
         """
         # Check cache first
         cached_ts, cached_jobs = _load_cache()
@@ -259,27 +749,58 @@ class PAJobScraper:
         all_jobs = []
         seen = set()
 
-        # Phase 1: JSearch (only 3 queries to conserve API quota)
-        jsearch_jobs = self.search_jsearch(max_total=max_jobs)
-        for j in jsearch_jobs:
-            key = (j["company"].lower(), j["title"].lower())
-            if key not in seen:
-                seen.add(key)
-                all_jobs.append(j)
-
-        # Phase 2: LinkedIn XHR (fill remaining, free unlimited)
-        if len(all_jobs) < max_jobs:
-            li_jobs = self.search_linkedin_xhr(max_jobs=max_jobs - len(all_jobs))
-            for j in li_jobs:
-                key = (j["company"].lower(), j["title"].lower())
+        def _add_jobs(jobs, label):
+            added = 0
+            for j in jobs:
+                key = (j.get("company", "").lower(), j.get("title", "").lower())
                 if key not in seen:
                     seen.add(key)
                     all_jobs.append(j)
+                    added += 1
+            logger.info(f"  [{label}] +{added} jobs (total: {len(all_jobs)})")
+            return added
+
+        # Phase 1: JSearch API (3 queries — conserve quota)
+        logger.info("=== PAJobScraper v3 GLOBAL: Phase 1 — JSearch ===")
+        jsearch_jobs = self.search_jsearch(max_total=max_jobs)
+        _add_jobs(jsearch_jobs, "JSearch")
+
+        # Phase 2: hh.ru FREE REST API (Russia/CIS — unlimited, no key)
+        logger.info("=== PAJobScraper v3 GLOBAL: Phase 2 — hh.ru ===")
+        try:
+            hhru_jobs = self.search_hhru(max_jobs=80)
+            _add_jobs(hhru_jobs, "hhru")
+        except Exception as e:
+            logger.warning(f"hh.ru search failed: {e}")
+
+        # Phase 3: Indeed RSS (FREE XML — no blocks)
+        logger.info("=== PAJobScraper v3 GLOBAL: Phase 3 — Indeed RSS ===")
+        try:
+            indeed_jobs = self.search_indeed_rss(max_jobs=50)
+            _add_jobs(indeed_jobs, "IndeedRSS")
+        except Exception as e:
+            logger.warning(f"Indeed RSS search failed: {e}")
+
+        # Phase 4: Glassdoor (FREE — best effort)
+        logger.info("=== PAJobScraper v3 GLOBAL: Phase 4 — Glassdoor ===")
+        try:
+            glassdoor_jobs = self.search_glassdoor(max_jobs=30)
+            _add_jobs(glassdoor_jobs, "Glassdoor")
+        except Exception as e:
+            logger.warning(f"Glassdoor search failed: {e}")
+
+        # Phase 5: LinkedIn XHR (free, no auth)
+        logger.info("=== PAJobScraper v3 GLOBAL: Phase 5 — LinkedIn XHR ===")
+        try:
+            li_jobs = self.search_linkedin_xhr(max_jobs=50)
+            _add_jobs(li_jobs, "LinkedInXHR")
+        except Exception as e:
+            logger.warning(f"LinkedIn XHR search failed: {e}")
 
         # Save to cache
         if all_jobs:
             _save_cache(all_jobs)
             logger.info(f"💾 Cache saved: {len(all_jobs)} jobs")
 
-        logger.info(f"PAJobScraper v2: total {len(all_jobs)} jobs")
+        logger.info(f"PAJobScraper v3 GLOBAL: total {len(all_jobs)} jobs from 5 sources")
         return all_jobs[:max_jobs]

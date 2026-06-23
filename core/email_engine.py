@@ -1005,6 +1005,63 @@ I remain very interested in this opportunity.</p>
 
         return results
 
+    async def send_bulk_parallel(self, jobs: List[Dict], campaign_id: str,
+                                  conn, sent_count: int, already_sent_emails: set,
+                                  cv_path: Optional[str] = None,
+                                  user_details: Optional[dict] = None,
+                                  max_concurrent: int = 10) -> Tuple[int, int, List[Dict]]:
+        """
+        NON-BLOCKING ASYNC: Send ALL emails in parallel using asyncio.gather.
+        Uses a semaphore to cap concurrent SMTP connections at max_concurrent.
+        Returns (sent_count, failed_count, results_list).
+        """
+        sem = asyncio.Semaphore(max_concurrent)
+        
+        async def send_one(job: Dict) -> Dict:
+            async with sem:
+                email_addr = job.get("email", "")
+                company = job.get("company", "Unknown Company")
+                title = job.get("title", "Position")
+                cover_html = job.get("pre_drafted_cover", job.get("cover_html", ""))
+                
+                if not email_addr or "@" not in email_addr:
+                    return {"company": company, "status": "skipped", "reason": "invalid_email"}
+                
+                if email_addr.lower() in already_sent_emails:
+                    return {"company": company, "status": "skipped", "reason": "duplicate"}
+                
+                try:
+                    success, result = await self.send_application(
+                        email_addr, company, title, cover_html, cv_path,
+                        generate_cover_pdf=False,
+                        user_details=user_details
+                    )
+                    if success:
+                        already_sent_emails.add(email_addr.lower())
+                        # Record in DB immediately
+                        parts = result.split("|")
+                        tracking_id = parts[0] if len(parts) > 0 else str(uuid.uuid4())[:12]
+                        msg_id = parts[1] if len(parts) > 1 else ""
+                        try:
+                            conn.execute("""
+                                INSERT INTO campaign_emails
+                                (campaign_id, company_name, job_title, email_address, status, tracking_id, sent_at, message_id)
+                                VALUES (?, ?, ?, ?, 'sent', ?, CURRENT_TIMESTAMP, ?)
+                            """, (campaign_id, company, title, email_addr, tracking_id, msg_id))
+                            conn.commit()
+                        except Exception:
+                            pass
+                        return {"company": company, "status": "sent", "tracking_id": tracking_id}
+                    else:
+                        return {"company": company, "status": "failed", "reason": result}
+                except Exception as e:
+                    return {"company": company, "status": "error", "reason": str(e)}
+        
+        results_list = await asyncio.gather(*(send_one(j) for j in jobs))
+        sent = sum(1 for r in results_list if r.get("status") == "sent")
+        failed = sum(1 for r in results_list if r.get("status") in ("failed", "error"))
+        return sent, failed, results_list
+
     def get_stats(self) -> Dict:
         return {
             "scheduler": self.scheduler.get_stats(),

@@ -1,0 +1,129 @@
+name: Smart Tick (Consolidated)
+
+on:
+  schedule:
+    - cron: '*/4 * * * *'   # Every 4 minutes
+  workflow_dispatch:
+    inputs:
+      force_mode:
+        description: 'Mode (normal/heal/hyper)'
+        required: false
+        default: 'normal'
+      company_limit:
+        description: 'Companies per tenant per tick'
+        required: false
+        default: '3'
+
+jobs:
+  smart-tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5            # 250s PA free tier limit fits in 5 min
+    steps:
+      # ── Step 1: Cloud Tick with smart retry ──
+      - name: Cloud Tick (POST /api/v2/cloud-tick)
+        id: tick
+        continue-on-error: true
+        run: |
+          echo "=== SMART TICK ==="
+          ATTEMPT=0
+          MAX_ATTEMPTS=3
+          TICK_OK=false
+          DELAY=5   # base seconds for exponential backoff
+
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ] && [ "$TICK_OK" = false ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "[$(date -u +%T)] Attempt $ATTEMPT/$MAX_ATTEMPTS..."
+
+            RESPONSE=$(curl -s --max-time 240 \
+              -X POST "https://jhfguf.pythonanywhere.com/api/v2/cloud-tick" \
+              -H "Content-Type: application/json" \
+              -d "{\"action\":\"cloud_tick\",\"source\":\"gh-actions\",\"company_limit\":${{ github.event.inputs.company_limit || '3' }},\"mode\":\"${{ github.event.inputs.force_mode || 'normal' }}\"}")
+
+            echo "Response: $RESPONSE"
+
+            STATUS=$(echo "$RESPONSE" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    print(d.get('status', 'error'))
+except:
+    print('parse_error')
+" 2>/dev/null || echo "parse_error")
+
+            echo "Parsed status: $STATUS"
+
+            if [ "$STATUS" = "ok" ]; then
+              echo "✓ Tick successful"
+              TICK_OK=true
+              echo "tick_status=ok" >> $GITHUB_OUTPUT
+              echo "tick_response=$RESPONSE" >> $GITHUB_OUTPUT
+              break
+            fi
+
+            echo "✗ Tick attempt $ATTEMPT failed (status: $STATUS)"
+            if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+              WAIT=$((DELAY * (2 ** (ATTEMPT - 1))))   # 5s, 10s, 20s
+              echo "Retrying in ${WAIT}s..."
+              sleep $WAIT
+            fi
+          done
+
+          if [ "$TICK_OK" = false ]; then
+            echo "tick_status=failed" >> $GITHUB_OUTPUT
+            echo "::warning::All $MAX_ATTEMPTS tick attempts failed"
+          fi
+
+      # ── Step 2: Health check after tick ──
+      - name: Health Check
+        id: health
+        continue-on-error: true
+        run: |
+          echo "=== HEALTH CHECK ==="
+          CODE=$(curl -s --max-time 10 -o /dev/null -w "%{http_code}" "https://jhfguf.pythonanywhere.com/api/ping")
+          echo "PA ping HTTP: $CODE"
+          echo "pa_code=$CODE" >> $GITHUB_OUTPUT
+
+          if [ "$CODE" = "200" ]; then
+            echo "✓ PA healthy"
+          else
+            echo "✗ PA unhealthy (code: $CODE)"
+          fi
+
+      # ── Step 3: Reload PA only on 2 consecutive failures ──
+      - name: Reload PA (2 consecutive failures)
+        id: reload
+        if: |
+          steps.health.outputs.pa_code != '200' &&
+          steps.tick.outputs.tick_status != 'ok'
+        continue-on-error: true
+        run: |
+          echo "=== PA RELOAD TRIGGERED ==="
+          echo "Both tick AND health check failed. Reloading PA..."
+
+          RELOAD_RESPONSE=$(curl -s --max-time 30 -X POST \
+            "https://www.pythonanywhere.com/api/v0/user/JHFGUF/webapps/jhfguf.pythonanywhere.com/reload/" \
+            -H "Authorization: Token ${{ secrets.PA_API_TOKEN }}")
+
+          echo "Reload response: $RELOAD_RESPONSE"
+          echo "reload_status=triggered" >> $GITHUB_OUTPUT
+
+      # ── Step 4: Telegram alert only on CRITICAL failure ──
+      - name: Telegram Alert (Critical)
+        if: |
+          steps.reload.outcome == 'failure' ||
+          (steps.tick.outputs.tick_status != 'ok' &&
+           steps.health.outputs.pa_code != '200')
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          echo "=== CRITICAL ALERT ==="
+
+          TICK_ST="${{ steps.tick.outputs.tick_status || 'unknown' }}"
+          PA_CODE="${{ steps.health.outputs.pa_code || 'unknown' }}"
+
+          MSG="🚨 SMART TICK CRITICAL: tick=${TICK_ST}, pa_http=${PA_CODE}"
+
+          curl -s --max-time 10 -X POST \
+            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d "chat_id=6639482672" \
+            -d "text=${MSG}"

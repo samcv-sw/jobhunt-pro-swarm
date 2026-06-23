@@ -10659,9 +10659,26 @@ async def jobs_score(request: Request):
 # CLOUD-TICK ENDPOINT (v17: Multi-Tenant)
 # ═══════════════════════════════════════════════════════════════
 
+# ── REQUEST DEDUP CACHE: prevent overlapping cron schedules from double-ticking ──
+_tick_cache: dict = {"last_tick": 0, "last_result": None, "pending": False}
+_tick_cache_lock = asyncio.Lock()
+
 @app.post("/api/v2/cloud-tick")
 async def cloud_tick_endpoint(request: Request):
-    """Multi-tenant cloud tick - runs campaigns for ALL users in parallel."""
+    """Multi-tenant cloud tick - runs campaigns for ALL users in parallel.
+    Deduplicates overlapping requests from cron schedules with 60s cache."""
+    async with _tick_cache_lock:
+        now = time.time()
+        # If we have a cached result from the last 60s, return it immediately
+        if _tick_cache.get("last_result") and (now - _tick_cache.get("last_tick", 0)) < 60:
+            logger.info("[CloudTick] 📦 Returning cached result (dedup)")
+            return _tick_cache["last_result"]
+        # If a tick is already in progress, return the pending status
+        if _tick_cache.get("pending"):
+            logger.info("[CloudTick] 🔄 Tick already in progress, returning pending")
+            return {"status": "pending", "message": "Tick already running", "cached": True}
+        _tick_cache["pending"] = True
+    
     try:
         from core.multi_tenant import MultiTenantRunner
         company_limit = 10
@@ -10672,17 +10689,52 @@ async def cloud_tick_endpoint(request: Request):
             pass
         runner = MultiTenantRunner(company_limit=company_limit)
         result = await runner.tick()
-        return result
+        
+        # ── COMPRESS RESPONSE: return minimal stats, no verbose details ──
+        compact = {
+            "status": result.get("status", "ok"),
+            "tenants": result.get("tenant_count", 0),
+            "campaigns": result.get("campaigns_processed", 0),
+            "sent": result.get("emails_sent", 0),
+            "errors": result.get("errors", 0),
+            "elapsed": result.get("elapsed_sec", 0),
+            "version": "v17.1-optimized",
+        }
+        
+        async with _tick_cache_lock:
+            _tick_cache["last_tick"] = time.time()
+            _tick_cache["last_result"] = compact
+            _tick_cache["pending"] = False
+        
+        return compact
     except ImportError:
         logger.warning("MultiTenantRunner not available, falling back")
         try:
             from cloud_orchestrator import CloudOrchestrator
             orch = CloudOrchestrator()
-            return await orch.tick()
+            result = await orch.tick()
+            compact = {
+                "status": result.get("status", "error"),
+                "tenants": result.get("tenant_count", 0),
+                "campaigns": result.get("campaigns_processed", 0),
+                "sent": result.get("emails_sent", 0),
+                "errors": result.get("errors", 0),
+                "elapsed": result.get("elapsed_sec", 0),
+                "version": "v17.1-optimized",
+            }
+            async with _tick_cache_lock:
+                _tick_cache["last_tick"] = time.time()
+                _tick_cache["last_result"] = compact
+                _tick_cache["pending"] = False
+            return compact
         except Exception as e:
+            async with _tick_cache_lock:
+                _tick_cache["pending"] = False
             return {"status": "error", "error": str(e)}
     except Exception as e:
         logger.error(f"cloud-tick: {e}")
+        async with _tick_cache_lock:
+            _tick_cache["pending"] = False
         return {"status": "error", "error": str(e)}
 
 
@@ -10693,7 +10745,7 @@ async def cloud_tick_status():
         "pa_token": bool(os.getenv("PA_API_TOKEN")),
         "groq": bool(os.getenv("GROQ_API_KEY")),
         "time": datetime.now().isoformat(),
-        "version": "v17.0-multi-tenant"
+        "version": "v17.1-optimized"
     }
 
 

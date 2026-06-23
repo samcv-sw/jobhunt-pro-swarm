@@ -5,7 +5,7 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-VERSION = "16.325"
+VERSION = "17.0"
 APP_NAME = "JobHunt Pro"
 
 CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Sam Salameh")
@@ -32,9 +32,78 @@ YEARS_EXPERIENCE = 15
 
 SKILLS = ["cisco", "mikrotik", "ubiquiti", "fortinet", "juniper", "tcp/ip", "vpn", "firewalls", "routing", "switching", "ospf", "bgp", "mpls", "vlan", "wlan", "wan", "lan", "dhcp", "dns", "network security", "wireshark", "network monitoring", "prtg", "nagios", "zabbix", "solarwinds", "it infrastructure", "data center", "cloud networking", "aws", "azure", "gcp", "vmware", "hyper-v", "linux", "windows server", "active directory", "powershell", "python", "bash", "automation", "ansible", "terraform", "git", "ci/cd", "fiber optic", "structured cabling", "wireless networks", "ccna", "ccnp", "ccie", "mikrotik mtcna", "mikrotik mtcre", "fortinet nse", "comptia network+", "palo alto", "sonicwall", "checkpoint"]
 
-JOB_TITLES = ["network engineer", "senior network engineer", "network administrator", "network specialist", "network consultant", "network architect", "network infrastructure engineer", "network support engineer", "network technician", "network analyst", "network manager", "noc engineer", "noc manager", "network operations engineer", "network security engineer", "security engineer", "cybersecurity engineer", "firewall engineer", "security administrator", "security analyst", "it infrastructure engineer", "infrastructure engineer", "systems engineer", "systems administrator", "sysadmin", "it administrator", "it manager", "it director", "it specialist", "it support engineer", "it operations", "technical operations", "telecom engineer", "telecommunications engineer", "fiber optic technician", "fiber optic engineer", "cisco engineer", "mikrotik engineer", "ubiquiti engineer", "fortinet engineer", "juniper engineer", "palo alto engineer", "cloud engineer", "cloud network engineer", "head of network", "head of infrastructure", "head of it", "director of network", "technical manager", "pre-sales engineer", "solutions engineer", "technical consultant", "site reliability engineer", "devops engineer", "platform engineer"]
+JOB_TITLES = [
+    # ── Core Network Engineering ──
+    "network engineer", "senior network engineer", "network administrator", "network specialist",
+    "network consultant", "network architect", "network infrastructure engineer",
+    "network support engineer", "network technician", "network analyst", "network manager",
+    # ── NOC / Operations ──
+    "noc engineer", "noc manager", "network operations engineer", "network operations center",
+    # ── Security ──
+    "network security engineer", "security engineer", "cybersecurity engineer",
+    "firewall engineer", "security administrator", "security analyst",
+    # ── Infrastructure ──
+    "it infrastructure engineer", "infrastructure engineer", "systems engineer",
+    "systems administrator", "sysadmin", "it administrator",
+    # ── IT Management ──
+    "it manager", "it director", "it specialist", "it support engineer",
+    "it operations", "technical operations", "head of network", "head of infrastructure",
+    "head of it", "director of network", "technical manager",
+    # ── Telecom ──
+    "telecom engineer", "telecommunications engineer",
+    "fiber optic technician", "fiber optic engineer",
+    # ── Vendor-Specific ──
+    "cisco engineer", "mikrotik engineer", "ubiquiti engineer",
+    "fortinet engineer", "juniper engineer", "palo alto engineer",
+    # ── Cloud / DevOps ──
+    "cloud engineer", "cloud network engineer", "site reliability engineer",
+    "devops engineer", "platform engineer",
+    # ── Pre-Sales / Solutions ──
+    "pre-sales engineer", "solutions engineer", "technical consultant",
+    # ── International titles (for Europe/Germany/Turkey) ──
+    "netzwerktechniker", "netzwerkadministrator", "systemadministrator",  # German
+    "ingénieur réseau", "administrateur réseau",  # French
+    "ingeniero de redes", "administrador de redes",  # Spanish
+    "ağ mühendisi", "sistem yöneticisi",  # Turkish
+    "inżynier sieci", "administrator sieci",  # Polish
+]
 
-LOCATIONS = ["lebanon", "beirut", "tripoli", "sidon", "tyre", "jounieh", "zahle", "keserwan", "metn", "mount lebanon", "uae", "dubai", "abu dhabi", "sharjah", "ajman", "ras al khaimah", "al ain", "qatar", "doha", "al wakrah", "lusail", "saudi arabia", "riyadh", "jeddah", "mecca", "medina", "dammam", "khobar", "dhahran", "tabuk", "taif", "buraidah", "kuwait", "kuwait city", "hawalli", "salmiya", "oman", "muscat", "salalah", "sohar", "nizwa", "bahrain", "manama", "muharraq", "rifa", "jordan", "amman", "zarqa", "irbid", "aqaba", "iraq", "baghdad", "basra", "erbil", "egypt", "cairo", "alexandria", "giza", "remote", "worldwide", "anywhere", "global", "work from home", "wfh", "gcc", "gulf", "middle east", "mena", "visa sponsorship", "relocation", "relocation assistance"]
+LOCATIONS = [
+    # ── GCC (all 6) ──
+    "uae", "dubai", "abu dhabi", "sharjah", "ajman", "ras al khaimah", "al ain",
+    "saudi arabia", "riyadh", "jeddah", "mecca", "medina", "dammam", "khobar", "dhahran", "tabuk", "taif", "buraidah",
+    "qatar", "doha", "al wakrah", "lusail",
+    "kuwait", "kuwait city", "hawalli", "salmiya",
+    "oman", "muscat", "salalah", "sohar", "nizwa",
+    "bahrain", "manama", "muharraq", "rifa",
+    # ── Lebanon ──
+    "lebanon", "beirut", "tripoli", "sidon", "tyre", "jounieh", "zahle", "keserwan", "metn", "mount lebanon",
+    # ── MENA ──
+    "jordan", "amman", "zarqa", "irbid", "aqaba",
+    "egypt", "cairo", "alexandria", "giza",
+    "morocco", "casablanca", "rabat", "marrakech", "tangier",
+    "tunisia", "tunis", "sfax", "sousse",
+    "iraq", "baghdad", "basra", "erbil",
+    "syria", "damascus", "aleppo",
+    # ── ASIA ──
+    "india", "mumbai", "bangalore", "bengaluru", "delhi", "new delhi", "hyderabad", "pune", "chennai",
+    "singapore",
+    "malaysia", "kuala lumpur", "penang",
+    # ── EUROPE ──
+    "united kingdom", "uk", "london", "manchester", "birmingham",
+    "germany", "berlin", "munich", "frankfurt", "hamburg",
+    "netherlands", "amsterdam", "rotterdam", "the hague",
+    "ireland", "dublin", "cork",
+    "poland", "warsaw", "krakow", "wroclaw",
+    "portugal", "lisbon", "porto",
+    "spain", "madrid", "barcelona", "valencia",
+    # ── Turkey ──
+    "turkey", "istanbul", "ankara", "izmir",
+    # ── Remote / Global ──
+    "remote", "worldwide", "anywhere", "global", "work from home", "wfh",
+    "gcc", "gulf", "middle east", "mena",
+    "visa sponsorship", "relocation", "relocation assistance",
+]
 
 TARGET_COMPANIES = ["cisco", "juniper", "fortinet", "palo alto networks", "arista", "huawei", "h3c", "ubiquiti", "mikrotik", "ruckus", "extreme networks", "hp enterprise", "hpe", "dell", "lenovo", "ibm", "oracle", "orange", "alfa", "touch", "ooredoo", "vodafone", "etisalat", "du", "stc", "mobily", "zain", "batelco", "omantel", "bank", "government", "ministry", "aramco", "adnoc", "emirates", "etihad", "qatar airways", "accenture", "deloitte", "pwc", "kpmg", "ey", "google", "microsoft", "amazon", "meta", "apple"]
 
@@ -71,6 +140,60 @@ DAILY_SEND_LIMIT = int(os.getenv("DAILY_SEND_LIMIT", "2000"))
 FOLLOW_UP_DAYS = int(os.getenv("FOLLOW_UP_DAYS", "7"))
 FOLLOW_UP_SECOND_DAYS = int(os.getenv("FOLLOW_UP_SECOND_DAYS", "14"))
 
+# ═══ SCRAPER CITIES MAP (v17 GLOBAL SCALE) ═══
+# Used by pa_job_scraper.py and other scrapers for location↔city mapping
+CITIES = {
+    # ── GCC ──
+    "uae": "Dubai",
+    "saudi": "Riyadh",
+    "qatar": "Doha",
+    "kuwait": "Kuwait City",
+    "oman": "Muscat",
+    "bahrain": "Manama",
+    # ── Lebanon ──
+    "lebanon": "Beirut",
+    # ── MENA ──
+    "jordan": "Amman",
+    "egypt": "Cairo",
+    "morocco": "Casablanca",
+    "tunisia": "Tunis",
+    "iraq": "Baghdad",
+    "syria": "Damascus",
+    # ── ASIA ──
+    "india": "Mumbai",
+    "singapore": "Singapore",
+    "malaysia": "Kuala Lumpur",
+    # ── EUROPE ──
+    "uk": "London",
+    "germany": "Berlin",
+    "netherlands": "Amsterdam",
+    "ireland": "Dublin",
+    "poland": "Warsaw",
+    "portugal": "Lisbon",
+    "spain": "Madrid",
+    # ── Turkey ──
+    "turkey": "Istanbul",
+    # ── Remote ──
+    "remote": "",
+}
+
+# ═══ SCRAPER ROTATION CONFIG (v17 GLOBAL SCALE) ═══
+# Instead of searching all locations every tick (wastes API quota), rotate:
+# search 3 random locations per tick, covering all over ~15 ticks (1 hour).
+SCRAPER_LOCATIONS_PER_TICK = int(os.getenv("SCRAPER_LOCATIONS_PER_TICK", "3"))
+SCRAPER_TITLES_PER_TICK = int(os.getenv("SCRAPER_TITLES_PER_TICK", "2"))
+SCRAPER_FULL_ROTATION_TICKS = int(os.getenv("SCRAPER_FULL_ROTATION_TICKS", "15"))
+# Rotation state (persists across ticks)
+_rotation_tick = 0
+_rotation_seeded = False
+
+def next_rotation_tick() -> int:
+    """Return current rotation tick index and increment."""
+    global _rotation_tick
+    tick = _rotation_tick
+    _rotation_tick = (_rotation_tick + 1) % SCRAPER_FULL_ROTATION_TICKS
+    return tick
+
 # hh.ru Scraper (Russia/CIS job market — free REST API, no key needed)
 HHRU_ENABLED = os.getenv("HHRU_ENABLED", "true").lower() == "true"
 HHRU_INTER_PAGE_DELAY = float(os.getenv("HHRU_INTER_PAGE_DELAY", "0.5"))
@@ -92,11 +215,22 @@ HHRU_JOB_TITLES = [
     "администратор сетей",
     "специалист по информационной безопасности",
 ]
-# hh.ru target locations (Russia + CIS)
+# hh.ru target locations (Russia + CIS — expanded for global coverage)
 HHRU_LOCATIONS = [
+    # Russia — major cities
     "Moscow", "Saint Petersburg", "Novosibirsk", "Yekaterinburg",
-    "Kazan", "Nizhny Novgorod", "Russia", "Almaty", "Kazakhstan",
-    "Minsk", "Belarus", "remote", "Tashkent", "Baku",
+    "Kazan", "Nizhny Novgorod", "Russia", "Chelyabinsk", "Samara",
+    "Omsk", "Rostov-on-Don", "Ufa", "Krasnoyarsk", "Voronezh",
+    "Perm", "Volgograd", "Krasnodar", "Tyumen", "Vladivostok",
+    "Sochi", "Kaliningrad",
+    # Kazakhstan
+    "Almaty", "Kazakhstan", "Nur-Sultan", "Astana", "Shymkent",
+    # Belarus
+    "Minsk", "Belarus", "Gomel", "Brest",
+    # Other CIS
+    "Tashkent", "Baku", "Yerevan", "Tbilisi", "Bishkek", "Chisinau",
+    # Remote
+    "remote",
 ]
 OPTIMAL_SEND_HOUR = int(os.getenv("OPTIMAL_SEND_HOUR", "10"))
 UNSUBSCRIBE_EMAIL = os.getenv("UNSUBSCRIBE_EMAIL", "unsubscribe@sam-salameh.com")

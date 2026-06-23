@@ -1,6 +1,7 @@
 """
-JobHunt Pro - Enterprise Job Search Architecture (Omniscient Principal Engineer Refactor)
-100% Asynchronous, Pydantic Validated, Caching, Proxies, Anti-Bot Evasion, Resilient.
+JobHunt Pro v17.0 — GLOBAL Enterprise Job Search Architecture
+25+ countries | 20+ scrapers | 100% Async | Pydantic Validated | Anti-Bot Evasion
+Covers GCC, MENA, ASIA, EUROPE, CIS, Turkey — FREE sources only
 """
 import asyncio
 import hashlib
@@ -608,3 +609,83 @@ class MultiSourceSearch:
                       limit: int = 10) -> List[Dict]:
         """Lightweight single search — returns up to `limit` results."""
         return self.search_all_sources(query, location, limit=limit)
+
+    def search_rotation_tick(self, tick_index: int = None, max_total: int = 200) -> List[Dict]:
+        """
+        GLOBAL ROTATION: Search 3 random locations + 2 random titles per tick.
+        Covers all 25+ countries over ~15 ticks (1 hour at 4-min ticks).
+
+        This prevents API quota exhaustion by not searching all locations
+        every single tick. Instead, each tick gets a fresh random subset.
+
+        Args:
+            tick_index: Optional rotation tick index (auto-increments if None)
+            max_total: Maximum total results to return
+
+        Returns:
+            Deduplicated list of job dicts from rotated search
+        """
+        import random as _random
+        import time as _time
+
+        all_locations = [
+            # GCC
+            "Dubai, UAE", "Abu Dhabi, UAE", "Riyadh, Saudi Arabia", "Jeddah, Saudi Arabia",
+            "Doha, Qatar", "Kuwait City, Kuwait", "Muscat, Oman", "Manama, Bahrain",
+            # MENA
+            "Beirut, Lebanon", "Amman, Jordan", "Cairo, Egypt", "Casablanca, Morocco",
+            "Tunis, Tunisia", "Baghdad, Iraq", "Damascus, Syria",
+            # ASIA
+            "Mumbai, India", "Bangalore, India", "Delhi, India", "Singapore", "Kuala Lumpur, Malaysia",
+            # EUROPE
+            "London, UK", "Berlin, Germany", "Amsterdam, Netherlands", "Dublin, Ireland",
+            "Warsaw, Poland", "Lisbon, Portugal", "Madrid, Spain",
+            # Turkey
+            "Istanbul, Turkey", "Ankara, Turkey",
+            # Remote
+            "Remote", "Worldwide",
+        ]
+
+        all_titles = [
+            "network engineer", "senior network engineer", "network administrator",
+            "network security engineer", "infrastructure engineer", "system administrator",
+            "network architect", "noc engineer", "telecom engineer",
+            "cybersecurity engineer", "cloud network engineer", "devops engineer",
+            "cisco engineer", "it manager", "network operations engineer",
+        ]
+
+        # Deterministic rotation based on tick index
+        if tick_index is None:
+            tick_index = int(_time.time() // 240)  # 4-min tick
+
+        rng = _random.Random(tick_index)
+        selected_locations = rng.sample(all_locations, min(3, len(all_locations)))
+        selected_titles = rng.sample(all_titles, min(2, len(all_titles)))
+
+        logger.info(
+            f"Rotation tick #{tick_index}: {len(selected_locations)} locations, "
+            f"{len(selected_titles)} titles"
+        )
+
+        all_jobs = []
+        seen_ids = set()
+
+        for location in selected_locations:
+            for title in selected_titles:
+                if len(all_jobs) >= max_total:
+                    break
+                try:
+                    jobs = self.search_all_sources(query=title, location=location, limit=30)
+                    for j in jobs:
+                        jid = j.get("job_id", "")
+                        if jid and jid not in seen_ids:
+                            seen_ids.add(jid)
+                            all_jobs.append(j)
+                    logger.debug(f"  [{title} @ {location}]: {len(jobs)} results")
+                    _time.sleep(0.5)  # Polite delay
+                except Exception as e:
+                    logger.warning(f"Rotation search [{title} @ {location}] error: {e}")
+                    continue
+
+        logger.info(f"Rotation tick #{tick_index} complete: {len(all_jobs)} total jobs")
+        return all_jobs[:max_total]

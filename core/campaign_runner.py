@@ -10,6 +10,7 @@ import logging
 import os
 import random
 import sqlite3
+from collections import defaultdict
 import time
 import uuid
 import hashlib
@@ -68,6 +69,7 @@ def _cached_jobs_valid(cached_ts, cached_jobs, already_sent_companies, min_neede
     age = time.time() - cached_ts
     if age > _CACHE_TTL:
         return False
+    # Check against the union of this campaign's sent + global sent (cross-campaign dedup)
     unseen = [j for j in cached_jobs if j.get("company", "").lower() not in already_sent_companies]
     return len(unseen) >= min_needed
 
@@ -189,11 +191,11 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
         # ── PA Detection: fast mode for free-tier ──
         pa_mode = is_pythonanywhere()
         if pa_mode:
-            logger.info(f"[CampaignRunner] ⚡ PA MODE — using PAJobScraper (JSearch API + LinkedIn XHR)")
-
-        # ── Load already-sent emails BEFORE scraper (needed for cache filtering) ──
+            logger.info(f"[CampaignRunner] ⚡ PA MODE — using PAJobScraper (JSearch + LinkedIn XHR)")
+        # ── CROSS-CAMPAIGN DEDUP: also load companies sent by ANY campaign ──
         already_sent_emails = set()
         already_sent_companies = set()
+        # This campaign's sent
         for row in conn.execute(
             "SELECT email_address, company_name FROM campaign_emails WHERE campaign_id=? AND status='sent'",
             (campaign_id,)
@@ -202,14 +204,27 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
             company = row["company_name"] if row["company_name"] else ""
             if company:
                 already_sent_companies.add(company.lower())
+
+        # ── GLOBAL SENT COMPANIES: load from ALL campaigns (cross-campaign dedup) ──
+        global_sent_companies = set()
+        for row in conn.execute(
+            "SELECT DISTINCT LOWER(company_name) AS cn FROM campaign_emails WHERE status='sent' AND company_name IS NOT NULL AND company_name != ''"
+        ).fetchall():
+            global_sent_companies.add(row["cn"])
+        logger.info(f"[CampaignRunner] Global dedup: {len(global_sent_companies)} companies already sent across all campaigns")
         
+        # ── Combined dedup: this campaign + global (all campaigns) ──
+        all_sent_companies = already_sent_companies | global_sent_companies
+        logger.info(f"[CampaignRunner] Dedup: {len(already_sent_companies)} campaign + {len(global_sent_companies)} global = {len(all_sent_companies)} total excluded")
+
         if pa_mode:
             logger.info(f"[CampaignRunner] ⚡ PA MODE — using PAJobScraper (JSearch + LinkedIn XHR)")
-            # Try cache first
+            # Try cache first (filtered against ALL sent companies, not just this campaign)
             cached_ts, cached_jobs = _load_search_cache()
-            if _cached_jobs_valid(cached_ts, cached_jobs, already_sent_companies, min_needed=15):
-                jobs = cached_jobs
-                logger.info(f"[CampaignRunner] 📦 Cache hit: {len(jobs)} jobs, {int(time.time()-cached_ts)}s old")
+            if _cached_jobs_valid(cached_ts, cached_jobs, all_sent_companies, min_needed=15):
+                # Filter cached jobs against global dedup set
+                jobs = [j for j in cached_jobs if j.get("company", "").lower() not in all_sent_companies]
+                logger.info(f"[CampaignRunner] 📦 Cache hit: {len(cached_jobs)} raw → {len(jobs)} after dedup, {int(time.time()-cached_ts)}s old")
             else:
                 try:
                     from core.pa_job_scraper import PAJobScraper
@@ -227,6 +242,7 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
                     _XHR_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
                     _XHR_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
                     city_combos = [("uae","Dubai"),("saudi","Riyadh"),("qatar","Doha"),("kuwait","Kuwait"),("lebanon","Beirut")]
+                    random.shuffle(city_combos)  # Randomize city order for freshness
                     for _, city in city_combos:
                         try:
                             url = f"{_XHR_URL}?keywords=network+engineer&location={urllib.request.quote(city)}&start=0&count=10"
@@ -247,18 +263,44 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
                     jobs = all_jobs
                     _save_search_cache(jobs)
         else:
-            jobs = await asyncio.to_thread(
+            # Non-PA mode: MultiSource search with limit
+            raw_jobs = await asyncio.to_thread(
                 search.search_all_sources,
                 query=job_title,
                 location=job_location,
                 limit=campaign["total_companies"] * 3
             )
+            # Apply cross-campaign dedup after search, before other processing
+            jobs = [j for j in raw_jobs if j.get("company", "Unknown Company").lower() not in all_sent_companies]
         
         sent_count = len(already_sent_emails)
         failed_count = 0
 
-        # Filter out jobs we already sent to
-        jobs = [j for j in jobs if j.get("company", "Unknown Company").lower() not in already_sent_companies]
+        # ── Apply cross-campaign dedup for PA fresh-scraped jobs (cache hits already filtered inline) ──
+        if pa_mode:
+            before_dedup = len(jobs)
+            jobs = [j for j in jobs if j.get("company", "Unknown Company").lower() not in all_sent_companies]
+            if before_dedup != len(jobs):
+                logger.info(f"[CampaignRunner] PA dedup: {before_dedup} → {len(jobs)} jobs (removed {before_dedup - len(jobs)} duplicates)")
+
+        # ── BETTER SOURCE DISTRIBUTION: interleave sources instead of JSearch-then-LinkedIn ──
+        jobs_by_source = defaultdict(list)
+        for j in jobs:
+            src = j.get("source", "unknown")
+            jobs_by_source[src].append(j)
+        # Interleave: pick 1 from each source in round-robin to avoid top-heavy bias
+        interleaved = []
+        max_per_source = max(len(v) for v in jobs_by_source.values()) if jobs_by_source else 0
+        for i in range(max_per_source):
+            for src in sorted(jobs_by_source.keys()):
+                src_jobs = jobs_by_source[src]
+                if i < len(src_jobs):
+                    interleaved.append(src_jobs[i])
+        jobs = interleaved
+        logger.info(f"[CampaignRunner] Source distribution: {dict((s, len(v)) for s, v in jobs_by_source.items())}")
+
+        # ── RANDOMIZE company order for fairness (no more same top 5 every time) ──
+        random.shuffle(jobs)
         
         jobs_available_this_cycle = len(jobs)
 
@@ -329,36 +371,11 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
             except Exception as e:
                 logger.error(f"Parallel AI drafting failed: {e}")
 
+        # ── Prepare valid_jobs covers (resolve pre-drafted or fallback) ──
         for job in valid_jobs:
-            if company_limit > 0 and sent_count >= company_limit:
-                logger.info(f"[CampaignRunner] Company limit reached ({company_limit}). Yielding to next tick.")
-                conn.execute("UPDATE campaigns SET started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (campaign_id,))
-                conn.commit()
-                return {"status": "running", "campaign_id": campaign_id, "sent": sent_count, "failed": failed_count, "message": f"Limit {company_limit}"}
-
-            if pa_mode and (time.time() - start_time) > 252:
-                logger.info(f"[CampaignRunner] ⏱️ PA Timeout approaching (240s)! Yielding to next cycle (Sent {sent_this_cycle} this cycle. Total: {sent_count}/{campaign['total_companies']}).")
-                conn.execute("UPDATE campaigns SET started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (campaign_id,))
-                conn.commit()
-                return {"status": "running", "campaign_id": campaign_id, "sent": sent_count, "failed": failed_count, "message": "Chunk completed"}
-
-            if sent_count >= campaign["total_companies"]:
-                break
-
-            email_addr = job.get("email", "")
             company = job.get("company", "Unknown Company")
             title = job.get("title", "Position")
-
-            # BanShield: check per-provider availability before sending
-            try:
-                from core.ban_shield import record_provider_send, get_provider_delay
-            except ImportError:
-                record_provider_send = None
-                get_provider_delay = None
-
-            # ── 1. The Insider (Company Enrichment) ──
-            # Handled in pre-drafting
-
+            
             # ── 2. Penetration Letter ──
             if "penetration-letter" in unlocked_weapons and "pre_drafted_cover" in job:
                 cover_html = job["pre_drafted_cover"]
@@ -367,126 +384,97 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
                     cover_html = CoverLetterWriter.write_html_pa(company, title, user_details)
                 else:
                     cover_html = CoverLetterWriter.write_html(company, title, user_details)
-
-            # Send with BanShield delay
-            if get_provider_delay and not pa_mode:
-                provider = "gmail" if "gmail" in str(config.EMAIL_PROVIDERS[0].get("server","")) else "gmail"
-                await asyncio.to_thread(get_provider_delay, provider)
-
-            # ── 3. ATS Dominator (Dynamic CV) ──
-            cv_path = config.CV_PATH
-            if "ats-dominator" in unlocked_weapons and user_details.get("cv_text"):
-                try:
-                    # Generate a customized text/PDF version of the CV here
-                    # For PA mode, we just pass the tailored CV text into the email body or generate a temporary PDF
-                    # To keep it simple and robust on PA, we instruct email_engine to inject it
-                    user_details["tailored_cv"] = f"Tailored for {title}:\n\n" + user_details["cv_text"]
-                except Exception:
-                    pass
-                
+            
             # ── 4. THE GLOBAL GOD MODE SUITE ──
             if "god-mode" in unlocked_weapons:
                 try:
                     from core.god_mode_hacks import inject_stealth_payload, inject_bgp_hijack_spoof, get_bgp_hijack_subject, generate_proof_of_work_link
-                    
-                    # 🇨🇳 Chinese ATS Hack (Invisible Payload)
                     cover_html = inject_stealth_payload(cover_html, company, title)
-                    
-                    # 🇷🇺 Russian Spoof (Forward Thread)
-                    # Spoof from CEO, we can extract from target info if available, else 'CEO'
                     cover_html = inject_bgp_hijack_spoof(cover_html, company)
                     title = get_bgp_hijack_subject(title)
-                    
-                    # 🇺🇸 Silicon Valley Hack (Pre-Crime Link)
                     pow_link = generate_proof_of_work_link(company, user_details.get("name", config.CANDIDATE_NAME))
-                    # Inject link at the bottom before tracking pixel
                     cover_html += f'<br><p>Also, I put together a quick predictive audit for the team here: <a href="{pow_link}">{pow_link}</a></p>'
-                    
                 except Exception as e:
                     logger.error(f"[GOD MODE] Failed to apply global hacks: {e}")
-                
-            success = False
-            result = "Max retries exceeded"
             
-            for attempt in range(3):
-                success, result = await email_engine.send_application(
-                    email_addr, company, title, cover_html, cv_path,
-                    user_details=user_details
-                )
-                if success:
-                    break
-                logger.warning(f"[CampaignRunner] Email attempt {attempt + 1} failed for {email_addr}: {result}. Retrying...")
-                await asyncio.sleep(2 ** attempt) # Exponential backoff: 1s, 2s, 4s
+            job["cover_html"] = cover_html
+            job["resolved_title"] = title
 
-            if success:
-                if record_provider_send:
-                    record_provider_send("gmail")
-                
-                # [SILICON VALLEY TRICK] Upload to Hive Mind if successful
-                try:
-                    from core.predictive_engine import predictive_engine
-                    asyncio.create_task(
-                        predictive_engine.record_interview_success(
-                            company=company,
-                            keywords=f"{title} specialist, {company} network automation"
+        # ── SMART PA PACING: track time and adjust batch size dynamically ──
+        elapsed = time.time() - start_time
+        if pa_mode:
+            if elapsed > 200:
+                # Almost out of time: process only 1 more
+                valid_jobs = valid_jobs[:1]
+                logger.info(f"[CampaignRunner] ⏱️ PA pacing: {elapsed:.0f}s elapsed, reducing to 1 company")
+            elif elapsed > 120:
+                # Halfway: process remaining with buffer
+                max_in_remaining = max(1, int((250 - elapsed) / 15))
+                valid_jobs = valid_jobs[:max_in_remaining]
+                logger.info(f"[CampaignRunner] ⏱️ PA pacing: {elapsed:.0f}s elapsed, limiting to {max_in_remaining} companies")
+        
+        if company_limit > 0 and len(valid_jobs) > company_limit:
+            valid_jobs = valid_jobs[:company_limit]
+
+        # ── NON-BLOCKING ASYNC BATCH SEND (cuts email time from N*d to ~2s) ──
+        if valid_jobs:
+            logger.info(f"[CampaignRunner] ⚡ Parallel async batch: sending {len(valid_jobs)} emails via asyncio.gather")
+            
+            batch_sent, batch_failed, batch_results = await email_engine.send_bulk_parallel(
+                jobs=valid_jobs,
+                campaign_id=campaign_id,
+                conn=conn,
+                sent_count=sent_count,
+                already_sent_emails=already_sent_emails,
+                cv_path=config.CV_PATH,
+                user_details=user_details,
+                max_concurrent=10
+            )
+            
+            sent_count += batch_sent
+            sent_this_cycle += batch_sent
+            failed_count += batch_failed
+            
+            # Update company dedup sets from results
+            for j, r in zip(valid_jobs, batch_results):
+                if r.get("status") == "sent":
+                    already_sent_companies.add(j.get("company", "").lower())
+                    logger.info(f"[CampaignRunner] Sent {sent_count}/{campaign['total_companies']}: {j.get('company')} | {j.get('title')}")
+                    # Telegram alert per sent
+                    try:
+                        tg_alerts.alert_email_sent(
+                            company=j.get("company", ""), job_title=j.get("title", ""),
+                            email_addr=j.get("email", ""), campaign_id=campaign_id,
+                            sent_count=sent_count, total=campaign["total_companies"]
                         )
-                    )
-                except Exception:
-                    pass
-                
-                parts = result.split("|")
-                tracking_id = parts[0] if len(parts) > 0 else f"trk_{uuid.uuid4().hex[:12]}"
-                msg_id = parts[1] if len(parts) > 1 else ""
-
-                try:
-                    conn.execute("ALTER TABLE campaign_emails ADD COLUMN message_id TEXT")
-                    conn.commit()
-                except Exception:
-                    pass
-
-                conn.execute("""
-                    INSERT INTO campaign_emails
-                    (campaign_id, company_name, job_title, email_address, status, tracking_id, sent_at, message_id)
-                    VALUES (?, ?, ?, ?, 'sent', ?, CURRENT_TIMESTAMP, ?)
-                """, (campaign_id, company, title, email_addr, tracking_id, msg_id))
-                sent_count += 1
-                sent_this_cycle += 1
-                already_sent_emails.add(email_addr.lower())
-                already_sent_companies.add(company.lower())
-                conn.execute(
-                    "UPDATE campaigns SET sent_count=? WHERE campaign_id=?",
-                    (sent_count, campaign_id)
-                )
+                    except Exception:
+                        pass
+                elif r.get("status") == "failed":
+                    logger.warning(f"[CampaignRunner] Failed: {j.get('company')} | {r.get('reason', '')}")
+            
+            # Update sent_count in DB
+            conn.execute(
+                "UPDATE campaigns SET sent_count=? WHERE campaign_id=?",
+                (sent_count, campaign_id)
+            )
+            conn.commit()
+            # Recalc from real table to catch any missed updates
+            real = conn.execute(
+                "SELECT COUNT(*) FROM campaign_emails WHERE campaign_id=? AND status='sent'",
+                (campaign_id,)
+            ).fetchone()[0]
+            if real != sent_count:
+                conn.execute("UPDATE campaigns SET sent_count=? WHERE campaign_id=?", (real, campaign_id))
                 conn.commit()
-                # Also recalc from real table to catch any missed updates
-                real = conn.execute(
-                    "SELECT COUNT(*) FROM campaign_emails WHERE campaign_id=? AND status='sent'",
-                    (campaign_id,)
-                ).fetchone()[0]
-                if real != sent_count:
-                    conn.execute("UPDATE campaigns SET sent_count=? WHERE campaign_id=?", (real, campaign_id))
-                    conn.commit()
-                logger.info(f"[CampaignRunner] Sent {sent_count}/{campaign['total_companies']}: {company} | {title}")
-
-                # ── Telegram Alert: Email Sent (every 10th) ──
-                try:
-                    tg_alerts.alert_email_sent(
-                        company=company, job_title=title,
-                        email_addr=email_addr, campaign_id=campaign_id,
-                        sent_count=sent_count, total=campaign["total_companies"]
-                    )
-                except Exception:
-                    pass
-            else:
-                failed_count += 1
-                logger.warning(f"[CampaignRunner] Failed: {company} | {result}")
-
-            # PA-optimized pacing: v16.330 aggressive but safe (2-5s), normal on local (8-15s)
-            if pa_mode:
-                delay = random.uniform(2, 5)
-            else:
-                delay = random.uniform(8, 15)
-            await asyncio.sleep(delay)
+            
+            logger.info(f"[CampaignRunner] ⚡ Batch complete in {time.time() - start_time - elapsed:.1f}s: {batch_sent} sent, {batch_failed} failed")
+            
+            # Check if PA timeout is near after batch
+            if pa_mode and (time.time() - start_time) > 240:
+                logger.info(f"[CampaignRunner] ⏱️ PA Timeout approaching after batch! Yielding.")
+                conn.execute("UPDATE campaigns SET started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (campaign_id,))
+                conn.commit()
+                return {"status": "running", "campaign_id": campaign_id, "sent": sent_count, "failed": failed_count, "message": "Chunk completed"}
 
         # ── Check if we actually finished the campaign or just chunked ──
         if sent_count < campaign["total_companies"] and jobs_available_this_cycle > 0:

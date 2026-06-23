@@ -1,8 +1,10 @@
 """
-JobHunt Pro - Global Network Engineer Job Scraper
+JobHunt Pro v17.0 — GLOBAL Network Engineer Job Scraper
 Multi-source, multi-country job scraper using only free web scraping (no paid APIs).
-Countries: Lebanon, UAE, Saudi Arabia, Qatar, Kuwait, Remote, Russia, Kazakhstan, Belarus
-Sources: LinkedIn, Google Jobs, Indeed, Glassdoor, Bayt.com, NaukriGulf, Wuzzuf, hh.ru (free REST API)
+
+Countries (25+): GCC-6, MENA-7, CIS-3, ASIA-3, EUROPE-7, Turkey, Remote
+Sources: LinkedIn, Indeed, Google Jobs, Glassdoor, Bayt.com, NaukriGulf, Wuzzuf,
+         hh.ru FREE REST API, Indeed RSS, StepStone, Naukri India
 """
 import logging
 import os
@@ -214,6 +216,247 @@ COUNTRY_CONFIGS = {
         },
         "exclude_patterns": [],
     },
+    # ── GCC Expansion (Oman, Bahrain) ──
+    "oman": {
+        "name": "Oman",
+        "code": "OM",
+        "currency": "OMR",
+        "min_salary_usd": None,
+        "cities": ["Muscat", "Salalah", "Sohar", "Nizwa"],
+        "domains": {
+            "indeed": "www.indeed.com.om",
+            "linkedin": "www.linkedin.com",
+            "bayt": "www.bayt.com",
+            "naukrigulf": "www.naukrigulf.com",
+        },
+        "exclude_patterns": [],
+    },
+    "bahrain": {
+        "name": "Bahrain",
+        "code": "BH",
+        "currency": "BHD",
+        "min_salary_usd": None,
+        "cities": ["Manama", "Muharraq", "Rifa"],
+        "domains": {
+            "indeed": "www.indeed.com.bh",
+            "linkedin": "www.linkedin.com",
+            "bayt": "www.bayt.com",
+            "naukrigulf": "www.naukrigulf.com",
+        },
+        "exclude_patterns": [],
+    },
+    # ── MENA Expansion ──
+    "jordan": {
+        "name": "Jordan",
+        "code": "JO",
+        "currency": "JOD",
+        "min_salary_usd": None,
+        "cities": ["Amman", "Zarqa", "Irbid", "Aqaba"],
+        "domains": {
+            "indeed": "www.indeed.com",
+            "linkedin": "www.linkedin.com",
+            "bayt": "www.bayt.com",
+        },
+        "exclude_patterns": [],
+    },
+    "egypt": {
+        "name": "Egypt",
+        "code": "EG",
+        "currency": "EGP",
+        "min_salary_usd": None,
+        "cities": ["Cairo", "Alexandria", "Giza", "Port Said"],
+        "domains": {
+            "indeed": "www.indeed.com",
+            "linkedin": "www.linkedin.com",
+            "wuzzuf": "wuzzuf.net",
+        },
+        "exclude_patterns": [],
+    },
+    "morocco": {
+        "name": "Morocco",
+        "code": "MA",
+        "currency": "MAD",
+        "min_salary_usd": None,
+        "cities": ["Casablanca", "Rabat", "Marrakech", "Tangier"],
+        "domains": {
+            "indeed": "www.indeed.com",
+            "linkedin": "www.linkedin.com",
+        },
+        "exclude_patterns": [],
+    },
+    "tunisia": {
+        "name": "Tunisia",
+        "code": "TN",
+        "currency": "TND",
+        "min_salary_usd": None,
+        "cities": ["Tunis", "Sfax", "Sousse"],
+        "domains": {
+            "indeed": "www.indeed.com",
+            "linkedin": "www.linkedin.com",
+        },
+        "exclude_patterns": [],
+    },
+    "iraq": {
+        "name": "Iraq",
+        "code": "IQ",
+        "currency": "IQD",
+        "min_salary_usd": None,
+        "cities": ["Baghdad", "Basra", "Erbil"],
+        "domains": {
+            "indeed": "www.indeed.com",
+            "linkedin": "www.linkedin.com",
+        },
+        "exclude_patterns": [],
+    },
+    "syria": {
+        "name": "Syria",
+        "code": "SY",
+        "currency": "SYP",
+        "min_salary_usd": None,
+        "cities": ["Damascus", "Aleppo"],
+        "domains": {
+            "linkedin": "www.linkedin.com",
+        },
+        "exclude_patterns": [],
+    },
+    # ── ASIA ──
+    "india": {
+        "name": "India",
+        "code": "IN",
+        "currency": "INR",
+        "min_salary_usd": None,
+        "cities": ["Mumbai", "Bangalore", "Delhi", "Hyderabad", "Pune", "Chennai"],
+        "domains": {
+            "indeed": "www.indeed.co.in",
+            "linkedin": "www.linkedin.com",
+            "naukri": "www.naukri.com",
+        },
+        "exclude_patterns": [],
+    },
+    "singapore": {
+        "name": "Singapore",
+        "code": "SG",
+        "currency": "SGD",
+        "min_salary_usd": None,
+        "cities": ["Singapore"],
+        "domains": {
+            "indeed": "www.indeed.com.sg",
+            "linkedin": "www.linkedin.com",
+        },
+        "exclude_patterns": [],
+    },
+    "malaysia": {
+        "name": "Malaysia",
+        "code": "MY",
+        "currency": "MYR",
+        "min_salary_usd": None,
+        "cities": ["Kuala Lumpur", "Penang"],
+        "domains": {
+            "indeed": "www.indeed.com.my",
+            "linkedin": "www.linkedin.com",
+        },
+        "exclude_patterns": [],
+    },
+    # ── EUROPE ──
+    "uk": {
+        "name": "United Kingdom",
+        "code": "GB",
+        "currency": "GBP",
+        "min_salary_usd": None,
+        "cities": ["London", "Manchester", "Birmingham", "Edinburgh"],
+        "domains": {
+            "indeed": "www.indeed.co.uk",
+            "linkedin": "www.linkedin.com",
+            "glassdoor": "www.glassdoor.co.uk",
+        },
+        "exclude_patterns": [],
+    },
+    "germany": {
+        "name": "Germany",
+        "code": "DE",
+        "currency": "EUR",
+        "min_salary_usd": None,
+        "cities": ["Berlin", "Munich", "Frankfurt", "Hamburg"],
+        "domains": {
+            "indeed": "www.indeed.de",
+            "linkedin": "www.linkedin.com",
+            "stepstone": "www.stepstone.de",
+        },
+        "exclude_patterns": [],
+    },
+    "netherlands": {
+        "name": "Netherlands",
+        "code": "NL",
+        "currency": "EUR",
+        "min_salary_usd": None,
+        "cities": ["Amsterdam", "Rotterdam", "The Hague"],
+        "domains": {
+            "indeed": "www.indeed.nl",
+            "linkedin": "www.linkedin.com",
+        },
+        "exclude_patterns": [],
+    },
+    "ireland": {
+        "name": "Ireland",
+        "code": "IE",
+        "currency": "EUR",
+        "min_salary_usd": None,
+        "cities": ["Dublin", "Cork"],
+        "domains": {
+            "indeed": "www.indeed.ie",
+            "linkedin": "www.linkedin.com",
+        },
+        "exclude_patterns": [],
+    },
+    "poland": {
+        "name": "Poland",
+        "code": "PL",
+        "currency": "PLN",
+        "min_salary_usd": None,
+        "cities": ["Warsaw", "Krakow", "Wroclaw"],
+        "domains": {
+            "indeed": "www.indeed.pl",
+            "linkedin": "www.linkedin.com",
+        },
+        "exclude_patterns": [],
+    },
+    "portugal": {
+        "name": "Portugal",
+        "code": "PT",
+        "currency": "EUR",
+        "min_salary_usd": None,
+        "cities": ["Lisbon", "Porto"],
+        "domains": {
+            "indeed": "www.indeed.pt",
+            "linkedin": "www.linkedin.com",
+        },
+        "exclude_patterns": [],
+    },
+    "spain": {
+        "name": "Spain",
+        "code": "ES",
+        "currency": "EUR",
+        "min_salary_usd": None,
+        "cities": ["Madrid", "Barcelona", "Valencia"],
+        "domains": {
+            "indeed": "www.indeed.es",
+            "linkedin": "www.linkedin.com",
+        },
+        "exclude_patterns": [],
+    },
+    # ── Turkey (massive IT hub) ──
+    "turkey": {
+        "name": "Turkey",
+        "code": "TR",
+        "currency": "TRY",
+        "min_salary_usd": None,
+        "cities": ["Istanbul", "Ankara", "Izmir"],
+        "domains": {
+            "indeed": "www.indeed.com",
+            "linkedin": "www.linkedin.com",
+        },
+        "exclude_patterns": [],
+    },
 }
 
 # ── User Agent Rotation ─────────────────────────────────────────────────────
@@ -360,10 +603,20 @@ def _rate_limit_domain(last_times: Dict[str, float], domain: str, delay: float =
 
 class GlobalJobScraper:
     """
-    Multi-source, multi-country job scraper for network engineers.
-    Supports: Lebanon, UAE, Saudi Arabia, Qatar, Kuwait, Remote.
-    Sources: LinkedIn, Indeed, Bayt, NaukriGulf, Wuzzuf, Glassdoor, Google Jobs.
-    Uses only FREE web scraping (requests + BeautifulSoup). No paid APIs.
+    GLOBAL multi-source, multi-country job scraper for network engineers (v17.0).
+    
+    Covers 25+ countries across GCC, MENA, ASIA, EUROPE, and CIS:
+      GCC: UAE, Saudi, Qatar, Kuwait, Oman, Bahrain (all 6)
+      MENA: Lebanon, Jordan, Egypt, Morocco, Tunisia, Iraq, Syria
+      CIS: Russia, Kazakhstan, Belarus (+ hh.ru for all CIS)
+      ASIA: India, Singapore, Malaysia
+      EUROPE: UK, Germany, Netherlands, Ireland, Poland, Portugal, Spain
+      TURKEY: Istanbul, Ankara, Izmir
+      REMOTE: worldwide
+    
+    Sources: LinkedIn, Indeed, Bayt, NaukriGulf, Wuzzuf, Glassdoor, Google Jobs,
+             hh.ru FREE REST API (Russia/CIS).
+    Uses only FREE scraping (requests + BeautifulSoup + RSS). No paid APIs.
     """
 
     def __init__(self, rate_limit_delay: float = 3.0):
