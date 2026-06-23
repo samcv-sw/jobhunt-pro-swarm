@@ -179,12 +179,25 @@ class CloudOrchestrator:
             # PA FREE TIER LIMIT: process at most 2 campaigns per tick
             # Each campaign takes 60-120s on PA. Web requests have 250s timeout.
             # Processing more will crash PA and waste the remaining campaigns.
-            max_per_tick = 2
+            # PA FREE TIER LIMIT: process at most 1 campaign OR max 20 companies total per tick
+            # PA's 250s WSGI timeout kills any request running longer.
+            # Each email takes 3-8s (AI cover letter + SMTP). 20 companies = ~120s safe zone.
+            max_campaigns_per_tick = 1
+            max_companies_per_tick = 20  # ~2 min on PA
             results = []
             for idx, row in enumerate(all_campaigns):
-                if idx >= max_per_tick:
-                    logger.info(f"  PA budget: processed {max_per_tick}, leaving rest for next tick")
+                if idx >= max_campaigns_per_tick:
+                    logger.info(f"  PA budget: processed 1 campaign, leaving rest for next tick")
                     break
+                cid = row["campaign_id"]
+                try:
+                    from core.campaign_runner import run_campaign
+                    # Pass company limit to campaign_runner for PA's 250s timeout
+                    await run_campaign(cid, lambda db=db_path: sqlite3.connect(db, timeout=30, check_same_thread=False), config, company_limit=max_companies_per_tick)
+                    results.append(cid)
+                    logger.info(f"  Campaign {cid} processed (max {max_companies_per_tick} companies)")
+                except Exception as e:
+                    logger.error(f"Campaign {cid} failed: {e}")
                 cid = row["campaign_id"]
                 try:
                     from core.campaign_runner import run_campaign

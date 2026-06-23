@@ -72,9 +72,14 @@ def _cached_jobs_valid(cached_ts, cached_jobs, already_sent_companies, min_neede
     return len(unseen) >= min_needed
 
 
-async def run_campaign(campaign_id: str, get_db_fn, config):
+async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int = 0):
     """Cloud-native campaign runner for PA.
-    Uses BanShield v3 per-provider tracking + 15-account rotation."""
+    Uses BanShield v3 per-provider tracking + 15-account rotation.
+    
+    Args:
+        company_limit: Maximum companies to process (0 = all).
+                       PA free tier: set to 20 to avoid 250s timeout.
+    """
     start_time = time.time()
     try:
         from core.email_engine import EmailEngine
@@ -325,6 +330,12 @@ async def run_campaign(campaign_id: str, get_db_fn, config):
                 logger.error(f"Parallel AI drafting failed: {e}")
 
         for job in valid_jobs:
+            if company_limit > 0 and sent_count >= company_limit:
+                logger.info(f"[CampaignRunner] Company limit reached ({company_limit}). Yielding to next tick.")
+                conn.execute("UPDATE campaigns SET started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (campaign_id,))
+                conn.commit()
+                return {"status": "running", "campaign_id": campaign_id, "sent": sent_count, "failed": failed_count, "message": f"Limit {company_limit}"}
+
             if pa_mode and (time.time() - start_time) > 252:
                 logger.info(f"[CampaignRunner] ⏱️ PA Timeout approaching (240s)! Yielding to next cycle (Sent {sent_this_cycle} this cycle. Total: {sent_count}/{campaign['total_companies']}).")
                 conn.execute("UPDATE campaigns SET started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (campaign_id,))
