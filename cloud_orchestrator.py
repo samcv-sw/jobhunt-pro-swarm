@@ -117,24 +117,50 @@ class CloudOrchestrator:
         )
 
     async def _resume_campaigns(self) -> List[str]:
-        """Resume any pending/running campaigns."""
+        """Resume any pending/running campaigns.
+        Also reprocess campaigns that are stuck (completed but 0 emails sent).
+        """
         import sqlite3
         db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")
+        if not db_path or not os.path.exists(db_path):
+            base = os.path.dirname(os.path.abspath(__file__))
+            db_path = os.path.join(base, "jobhunt_saas_v2.db")
         try:
             conn = sqlite3.connect(db_path, timeout=30)
             conn.row_factory = sqlite3.Row
+
+            # Active campaigns to process
             active = conn.execute(
                 "SELECT campaign_id FROM campaigns WHERE status IN ('pending', 'running')"
             ).fetchall()
+
+            # Stuck campaigns: completed but with 0 sent emails
+            stuck = conn.execute("""
+                SELECT c.campaign_id
+                FROM campaigns c
+                LEFT JOIN campaign_emails ce ON c.campaign_id = ce.campaign_id AND ce.status = 'sent'
+                WHERE c.status = 'completed'
+                GROUP BY c.campaign_id
+                HAVING COUNT(ce.id) = 0
+                UNION ALL
+                SELECT c.campaign_id
+                FROM campaigns c
+                WHERE c.status = 'completed'
+                AND c.sent_count = 0
+                AND c.total_companies > 0
+            """).fetchall()
+
+            all_campaigns = list(active) + list(stuck)
             conn.close()
 
             results = []
-            for row in active:
+            for row in all_campaigns:
                 cid = row["campaign_id"]
                 try:
                     from core.campaign_runner import run_campaign
-                    await run_campaign(cid, lambda: sqlite3.connect(db_path, timeout=30), config)
+                    await run_campaign(cid, lambda db=db_path: sqlite3.connect(db, timeout=30), config)
                     results.append(cid)
+                    logger.info(f"  Campaign {cid} processed")
                 except Exception as e:
                     logger.error(f"Campaign {cid} failed: {e}")
             return results
@@ -143,21 +169,35 @@ class CloudOrchestrator:
             return []
 
     async def _drain_email_queue(self, max_emails: int = 50) -> int:
-        """Send pending emails from the queue."""
+        """Send pending emails from the email_queue table."""
         sent = 0
         try:
-            from core.email_engine import EmailEngine
             engine = EmailEngine()
-            # Get queued emails
-            queue = engine.get_queue(limit=max_emails) if hasattr(engine, 'get_queue') else []
-            for item in queue[:max_emails]:
+            queue = engine.get_queue(limit=max_emails)
+            if not queue:
+                logger.info(f"  No pending emails in queue (checked {max_emails})")
+                return 0
+            logger.info(f"  Found {len(queue)} emails in queue")
+            for item in queue:
                 try:
-                    engine.send_sync(
-                        to=item.get("to", ""),
-                        subject=item.get("subject", ""),
-                        body=item.get("body", ""),
-                    )
-                    sent += 1
+                    success = await engine.send_from_queue_item(item)
+                    if success:
+                        sent += 1
+                        # Mark as sent
+                        import sqlite3, os
+                        db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")
+                        if not os.path.exists(db_path):
+                            db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jobhunt_saas_v2.db")
+                        try:
+                            qid = item.get("id")
+                            if qid:
+                                conn = sqlite3.connect(db_path, timeout=10)
+                                conn.execute("UPDATE email_queue SET status='sent', sent_at=CURRENT_TIMESTAMP WHERE id=?", (qid,))
+                                conn.commit()
+                                conn.close()
+                        except Exception:
+                            pass
+                    await asyncio.sleep(2)  # Rate limit between queue emails
                 except Exception as e:
                     logger.warning(f"Queue item failed: {e}")
         except Exception as e:

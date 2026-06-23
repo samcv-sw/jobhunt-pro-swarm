@@ -27,6 +27,7 @@ jobs:
           FILES=(
             "cloud_orchestrator.py:/home/JHFGUF/jobhunt/cloud_orchestrator.py"
             "payments/__init__.py:/home/JHFGUF/jobhunt/payments/__init__.py"
+            "core/email_engine.py:/home/JHFGUF/jobhunt/core/email_engine.py"
           )
           for entry in "${FILES[@]}"; do
             local="${entry%%:*}"

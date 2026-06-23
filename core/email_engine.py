@@ -709,7 +709,7 @@ class EmailEngine:
                                max_retries: int = 3) -> Tuple[bool, str]:
         """Send email with exponential backoff retry."""
         # DRY RUN MODE: Save to file instead of sending
-        dry_run = getattr(config, 'DRY_RUN', os.getenv("DRY_RUN", "true").lower() == "true")
+        dry_run = getattr(config, 'DRY_RUN', os.getenv("DRY_RUN", "false").lower() == "true")
         if dry_run:
             return await self._dry_run_send(provider, msg)
 
@@ -1056,6 +1056,81 @@ I remain very interested in this opportunity.</p>
 
         except Exception as e:
             logger.error(f"send_email failed: {e}")
+            return False
+
+    def get_queue(self, limit: int = 50) -> List[Dict]:
+        """
+        Get pending emails from the email_queue table for batch sending.
+        Called by CloudOrchestrator._drain_email_queue().
+        """
+        try:
+            import sqlite3, os
+            db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")
+            if not os.path.exists(db_path):
+                # Try project data dir
+                base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                db_path = os.path.join(base, db_path)
+            if not os.path.exists(db_path):
+                return []
+            conn = sqlite3.connect(db_path, timeout=30)
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT * FROM email_queue WHERE status='pending' ORDER BY created_at ASC LIMIT ?",
+                (limit,)
+            ).fetchall()
+            conn.close()
+            return [dict(r) for r in rows]
+        except Exception as e:
+            logger.warning(f"get_queue failed: {e}")
+            return []
+
+    async def send_from_queue_item(self, item: Dict) -> bool:
+        """Send a single email from the email_queue table."""
+        try:
+            to_email = item.get("to_email") or item.get("email") or item.get("to", "")
+            subject = item.get("subject", "")
+            body_html = item.get("body_html") or item.get("html_body") or item.get("body", "")
+            if not to_email or not body_html:
+                return False
+            success, _ = await self.send_application(
+                to_email=to_email,
+                company=item.get("company", ""),
+                title=item.get("title", item.get("job_title", "")),
+                cover_html=body_html,
+                cv_path=self.cv_path,
+                generate_cover_pdf=False,
+                user_details={}
+            )
+            return success
+        except Exception as e:
+            logger.warning(f"send_from_queue_item failed: {e}")
+            return False
+
+    def send_sync(self, to: str, subject: str, body: str = "") -> bool:
+        """Sync wrapper for queue draining — creates a minimal asyncio run."""
+        try:
+            import asyncio
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                msg = MIMEMultipart("alternative")
+                msg["From"] = f"{config.CANDIDATE_NAME} <{config.CANDIDATE_EMAIL}>"
+                msg["To"] = to
+                msg["Subject"] = subject
+                msg.attach(MIMEText(body, "html", "utf-8"))
+                result = loop.run_until_complete(
+                    self.scheduler.wait_for_send_slot()
+                )
+                if not result:
+                    return False
+                success, _ = loop.run_until_complete(
+                    self.send_with_retry(result, msg)
+                )
+                return success
+            finally:
+                loop.close()
+        except Exception as e:
+            logger.warning(f"send_sync failed: {e}")
             return False
 
 
