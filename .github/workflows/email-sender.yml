@@ -5,80 +5,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  send-queued-emails:
+  trigger-pa-tick:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        worker: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    timeout-minutes: 3
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Process outbox (worker ${{ matrix.worker }})
+      - name: Trigger PA cron tick (processes email outbox)
         run: |
-          cat << 'EOF' > send.py
-          import requests, smtplib, json, ssl, time
-          from email.mime.text import MIMEText
-          from email.mime.multipart import MIMEMultipart
-
-          WORKER = 'https://jobhunt-pro-router.samsalameh-cv.workers.dev'
-          BATCH_SIZE = 5
-          WORKER_ID = ${{ matrix.worker }}
-
-          def claim_emails():
-              r = requests.get(WORKER + '/api/email/outbox/claim?worker=' + str(WORKER_ID) + '&limit=' + str(BATCH_SIZE), timeout=15)
-              return r.json() if r.status_code == 200 else {'emails': []}
-
-          def send_via_smtp(email_data):
-              try:
-                  # Decode credentials
-                  parts = email_data['smtp_email'].split(':')
-                  smtp_user = parts[0] if len(parts) > 1 else email_data['smtp_email']
-                  
-                  # Gmail SMTP
-                  msg = MIMEMultipart('alternative')
-                  msg['From'] = smtp_user
-                  msg['To'] = email_data['to_email']
-                  msg['Subject'] = email_data['subject']
-                  msg.attach(MIMEText(email_data['body'], 'plain', 'utf-8'))
-                  
-                  context = ssl.create_default_context()
-                  with smtplib.SMTP('smtp.gmail.com', 587) as server:
-                      server.starttls(context=context)
-                      server.login(smtp_user, email_data['smtp_password'])
-                      server.sendmail(smtp_user, [email_data['to_email']], msg.as_string())
-                  
-                  return {'ok': True}
-              except Exception as e:
-                  return {'ok': False, 'error': str(e)}
-
-          def mark_sent(email_id, ok, error=''):
-              method = 'POST'
-              data = {'id': email_id, 'status': 'sent' if ok else 'failed', 'error': error}
-              requests.post(WORKER + '/api/email/outbox/update', json=data, timeout=10)
-
-          # Main
-          claimed = claim_emails()
-          emails = claimed.get('emails', [])
-          print(f'Worker {WORKER_ID}: Claimed {len(emails)} emails')
-
-          for e in emails:
-              eid = e.get('id')
-              if not eid:
-                  continue
-              
-              result = send_via_smtp(e)
-              if result.get('ok'):
-                  mark_sent(eid, True)
-                  print(f'  Sent email #{eid} to {e.get("to_email","")}')
-              else:
-                  mark_sent(eid, False, result.get('error', 'unknown'))
-                  print(f'  FAILED email #{eid}: {result.get("error","")[:80]}')
-              
-              time.sleep(1)  # Rate limit: 1 email/sec
-          EOF
-          python3 send.py
+          curl -s --max-time 60 -X POST \
+            "https://jhfguf.pythonanywhere.com/api/cron/tick" \
+            -H "Content-Type: application/json" \
+            -d '{"action":"process_outbox"}' \
+            -w "\nHTTP: %{http_code}"
+      - name: Trigger Worker network
+        run: |
+          curl -s --max-time 10 "https://jobhunt-pro-router.samsalameh-cv.workers.dev/api/cron/tick" -w "\nHTTP: %{http_code}"

@@ -3,8 +3,10 @@ main = "src/index.js"
 compatibility_date = "2024-06-20"
 
 [vars]
-IPN_SECRET = "hCGQjbcilPsaJQkW073hfzg5ziDyszfl"
-NOWPAYMENTS_API_KEY = "3C4BHM5-V7641D9-KHBEJY7-865AFER"
+# ✅ Synced with .env — both PA and Worker use same IPN_SECRET
+IPN_SECRET = "JhP-IPN-v16-!2026-secure-hmac-key"
+# ⚠️ OLD/EXPIRED key — Sam needs to generate new one at nowpayments.io
+NOWPAYMENTS_API_KEY = ""
 
 [[d1_databases]]
 binding = "leviathan_db"
