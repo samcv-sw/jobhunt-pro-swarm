@@ -98,6 +98,13 @@ def main():
                     log(f"Skipping email {email_id}: missing fields")
                     continue
                 
+                # Add random human-like delay between sends (e.g. 15-45 seconds)
+                # to prevent SMTP spam detection
+                if total_sent > 0:
+                    delay = random.randint(15, 45)
+                    log(f"Waiting {delay} seconds before next send to mimic human behavior (Stealth)...")
+                    time.sleep(delay)
+                
                 # Send email
                 success, error_msg = send_smtp_email(to_email, subject, body, smtp_email, smtp_password)
                 
