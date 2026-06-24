@@ -134,6 +134,17 @@
         
         <label>Minimum Salary ($/month)</label>
         <input type="number" id="regSalary" value="1500" min="0" />
+
+        <label>BYO AI Provider (Optional)</label>
+        <select id="regAiProvider">
+          <option value="groq">Groq (Llama-3.1-8b-instant - Fast & Free)</option>
+          <option value="openai">OpenAI (GPT-4o-mini - High Quality)</option>
+          <option value="gemini">Google Gemini (Gemini 1.5 Flash)</option>
+          <option value="anthropic">Anthropic (Claude 3.5 Sonnet)</option>
+        </select>
+
+        <label>AI API Key (Optional)</label>
+        <input type="password" id="regAiKey" placeholder="Paste your API key here" />
         
         <label>Upload CV (PDF)</label>
         <input type="file" id="regCv" accept=".pdf" />
@@ -250,6 +261,8 @@
       var roles = document.getElementById('regRoles').value.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
       var locations = document.getElementById('regLocations').value.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
       var salary = parseInt(document.getElementById('regSalary').value) || 1500;
+      var aiProvider = document.getElementById('regAiProvider').value;
+      var aiKey = document.getElementById('regAiKey').value.trim();
 
       if (!name || !email) {
         status.className = 'status err';
@@ -263,7 +276,7 @@
         var r = await fetch(API + '/api/register-fast', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name, email: email, phone: phone, roles: roles, locations: locations, salary: salary }),
+          body: JSON.stringify({ name: name, email: email, phone: phone, roles: roles, locations: locations, salary: salary, ai_provider: aiProvider, ai_key: aiKey }),
         });
         var result = await r.json();
         if (r.ok) {

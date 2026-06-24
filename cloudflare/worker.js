@@ -43,40 +43,88 @@ async function cacheSet(kv, key, value, ttl = 300) {
 }
 
 // ── AI COVER LETTER GENERATION ──
-async function generateCoverLetter(ai, jobTitle, company, userName, userRoles, aiKey) {
-  // Three-tier AI: 1) User's own key, 2) Workers AI (free), 3) Template fallback
+async function generateCoverLetter(ai, jobTitle, company, userName, userRoles, aiKey, aiProvider) {
+  // Three-tier AI: 1) User's own key (Groq/OpenAI/Gemini/Anthropic), 2) Workers AI (free), 3) Template fallback
   const prompt = `Write a professional cover letter email for ${userName} applying for ${jobTitle} at ${company}. 
 Skills: ${userRoles || 'IT professional'}. Keep it 3-4 sentences, professional but warm. 
 Start with "Dear Hiring Manager," and end with "Best regards, ${userName}"`;
 
-  // Tier 1: User's BYO AI key (OpenAI/Groq/Anthropic)
+  const provider = (aiProvider || 'groq').toLowerCase().trim();
+
+  // Tier 1: User's BYO AI key
   if (aiKey) {
     try {
-      const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + aiKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'llama-3.1-8b-instant',
-          messages: [{ role: 'user', content: prompt }],
-          max_tokens: 300, temperature: 0.7,
-        }),
-      });
-      const data = await resp.json();
-      if (data?.choices?.[0]?.message?.content) return data.choices[0].message.content.trim();
-    } catch (e) { /* fall through */ }
+      if (provider === 'groq') {
+        const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + aiKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'llama-3.1-8b-instant',
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 300, temperature: 0.7,
+          }),
+        });
+        const data = await resp.json();
+        if (data?.choices?.[0]?.message?.content) return data.choices[0].message.content.trim();
+      }
+      else if (provider === 'openai') {
+        const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + aiKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 300, temperature: 0.7,
+          }),
+        });
+        const data = await resp.json();
+        if (data?.choices?.[0]?.message?.content) return data.choices[0].message.content.trim();
+      }
+      else if (provider === 'gemini') {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+          }),
+        });
+        const data = await resp.json();
+        if (data?.candidates?.[0]?.content?.parts?.[0]?.text) return data.candidates[0].content.parts[0].text.trim();
+      }
+      else if (provider === 'anthropic') {
+        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 
+            'x-api-key': aiKey, 
+            'anthropic-version': '2023-06-01',
+            'Content-Type': 'application/json' 
+          },
+          body: JSON.stringify({
+            model: 'claude-3-5-sonnet-20240620',
+            max_tokens: 300,
+            messages: [{ role: 'user', content: prompt }]
+          }),
+        });
+        const data = await resp.json();
+        if (data?.content?.[0]?.text) return data.content[0].text.trim();
+      }
+    } catch (e) {
+      console.error(`BYO AI (${provider}) failed, falling back to Workers AI:`, e.message);
+    }
   }
 
-  // Tier 2: Cloudflare Workers AI (free, no key needed if binding exists)
+  // Tier 2: Cloudflare Workers AI (free fallback)
   if (ai) {
     try {
       const resp = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 300, temperature: 0.7,
       });
-      // Workers AI returns { response: "..." } for text gen, or { choices: [...] } for chat
       if (resp?.response) return resp.response.trim();
       if (resp?.choices?.[0]?.message?.content) return resp.choices[0].message.content.trim();
-    } catch (e) { /* fall through */ }
+    } catch (e) {
+      console.error("Workers AI failed, falling back to template:", e.message);
+    }
   }
 
   // Tier 3: Template
@@ -220,7 +268,7 @@ export default {
     // 2. In addition, run the D1 campaign processor
     try {
       const campaigns = await env.DB.prepare(
-        "SELECT c.id, c.user_id, c.sent_count, c.target_count, u.email, u.name, u.target_roles, u.target_locations, u.byo_smtp_email, u.byo_smtp_token, u.byo_ai_key FROM campaigns c JOIN users u ON c.user_id = u.id WHERE c.status = 'active' AND u.status = 'active'"
+        "SELECT c.id, c.user_id, c.sent_count, c.target_count, u.email, u.name, u.target_roles, u.target_locations, u.byo_smtp_email, u.byo_smtp_token, u.byo_ai_key, u.byo_ai_provider, u.daily_limit FROM campaigns c JOIN users u ON c.user_id = u.id WHERE c.status = 'active' AND u.status = 'active'"
       ).all();
       
       console.log(`Found ${campaigns.results.length} active campaigns in D1`);
@@ -281,7 +329,7 @@ export default {
         const hash = 'auto_' + email.split('@')[0] + '_' + Date.now();
 
         const res = await db.prepare(
-          'INSERT INTO users (email, name, password_hash, target_roles, target_locations, target_salary_min, byo_ai_key, byo_ai_provider, created_at, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime(\"now\"), \"active\")'
+          'INSERT INTO users (email, name, password_hash, target_roles, target_locations, target_salary_min, byo_ai_key, byo_ai_provider, created_at, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime("now"), "active")'
         ).bind(email, name, hash, roles, locations, salary, body.ai_key || '', body.ai_provider || 'groq').run();
         
         await cacheSet(kv, 'user_' + email, { id: res.meta.last_row_id }, 3600);
@@ -541,10 +589,10 @@ export default {
         const { user_id, job_title, company } = body;
         if (!user_id || !job_title || !company) return error('user_id, job_title, company required');
         
-        const user = await db.prepare('SELECT name, target_roles, byo_ai_key FROM users WHERE id = ?').bind(user_id).first();
+        const user = await db.prepare('SELECT name, target_roles, byo_ai_key, byo_ai_provider FROM users WHERE id = ?').bind(user_id).first();
         if (!user) return error('User not found', 404);
         
-        const letter = await generateCoverLetter(ai, job_title, company, user.name || 'Applicant', user.target_roles || '', user.byo_ai_key || '');
+        const letter = await generateCoverLetter(ai, job_title, company, user.name || 'Applicant', user.target_roles || '', user.byo_ai_key || '', user.byo_ai_provider || 'groq');
         return json({ ok: true, cover_letter: letter });
       }
 
@@ -623,7 +671,18 @@ async function processCampaign(env, camp) {
       return;
     }
 
-    const maxBinds = targetLimit - currentSent;
+    // 1b. Quota Shield Check: Check how many emails the user has already sent today
+    const sentToday = await db.prepare(
+      "SELECT COUNT(*) as c FROM email_outbox WHERE user_id = ? AND status = 'sent' AND date(sent_at) = date('now')"
+    ).bind(camp.user_id).first();
+    const dailyLimit = camp.daily_limit || 50;
+    if (sentToday && sentToday.c >= dailyLimit) {
+      console.log(`User ${camp.user_id} has reached their daily SMTP sending limit (${sentToday.c}/${dailyLimit}). Skipping for today.`);
+      return;
+    }
+
+    const maxBinds = Math.min(targetLimit - currentSent, dailyLimit - (sentToday?.c || 0));
+    if (maxBinds <= 0) return;
 
     // Find unscored jobs matching user's target roles and locations
     if (camp.target_roles) {
@@ -656,7 +715,7 @@ async function processCampaign(env, camp) {
         
         for (const job of jobs.results) {
           // Generate cover letter
-          const letter = await generateCoverLetter(ai, job.title, job.company, camp.name, camp.target_roles, camp.byo_ai_key);
+          const letter = await generateCoverLetter(ai, job.title, job.company, camp.name, camp.target_roles, camp.byo_ai_key, camp.byo_ai_provider);
           
           // Create application record with campaign_id association
           await db.prepare(

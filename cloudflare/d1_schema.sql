@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
     byo_smtp_token TEXT,      -- Encrypted SMTP password
     byo_ai_key TEXT,          -- User's own Groq/Gemini key
     byo_ai_provider TEXT DEFAULT 'groq',
+    daily_limit INTEGER DEFAULT 50, -- Daily SMTP email limits (Anti-Ban)
     created_at TEXT DEFAULT (datetime('now')),
     last_active TEXT DEFAULT (datetime('now')),
     status TEXT DEFAULT 'active'  -- active | paused | banned
