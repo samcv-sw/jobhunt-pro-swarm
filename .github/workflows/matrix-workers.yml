@@ -69,7 +69,14 @@ jobs:
           import requests, json, time, sys, base64, os
 
           WORKER = os.environ.get('WORKER_URL', 'https://jobhunt-pro-router.samsalameh-cv.workers.dev')
-          PA = os.environ.get('PA_URL', 'https://jhfguf.pythonanywhere.com')
+          try:
+            import sys
+            sys.path.insert(0, '.')
+            import config
+            default_site = getattr(config, 'SITE_URL', 'https://jhfguf.pythonanywhere.com')
+          except Exception:
+            default_site = 'https://jhfguf.pythonanywhere.com'
+          PA = os.environ.get('SITE_URL', os.environ.get('PA_URL', default_site))
 
           # Fetch pending emails through Worker proxy
           try:
@@ -120,7 +127,14 @@ jobs:
         run: |
           import requests, json, os, sys
 
-          PA = os.environ.get('PA_URL', 'https://jhfguf.pythonanywhere.com')
+          try:
+            import sys
+            sys.path.insert(0, '.')
+            import config
+            default_site = getattr(config, 'SITE_URL', 'https://jhfguf.pythonanywhere.com')
+          except Exception:
+            default_site = 'https://jhfguf.pythonanywhere.com'
+          PA = os.environ.get('SITE_URL', os.environ.get('PA_URL', default_site))
 
           # Get unscored jobs from PA
           r = requests.get(f'{PA}/api/jobs/unscored?limit=100', timeout=30)

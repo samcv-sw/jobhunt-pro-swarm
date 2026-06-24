@@ -35,6 +35,18 @@ _daily_counts = {}
 _token_cache = {}
 _rotation = 0
 
+import sys
+from pathlib import Path
+_ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(_ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(_ROOT_DIR))
+try:
+    import config
+    SITE_URL = getattr(config, 'SITE_URL', 'https://jhfguf.pythonanywhere.com').rstrip('/')
+except Exception:
+    import os
+    SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip('/')
+
 
 def init(data_dir: str = None):
     global _data_dir, _accounts
@@ -357,12 +369,12 @@ def _get_ai_template(recipient: dict, campaign: str) -> str:
   </div>
   
   <div style="text-align:center;margin:20px 0">
-    <a href="https://jhfguf.pythonanywhere.com/register?ref={campaign}" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#00f0ff,#0088ff);color:#000;border-radius:25px;font-weight:700;font-size:16px;text-decoration:none;box-shadow:0 0 20px #00f0ff33">🚀 Start Auto-Applying — $2</a>
+    <a href="{SITE_URL}/register?ref={campaign}" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#00f0ff,#0088ff);color:#000;border-radius:25px;font-weight:700;font-size:16px;text-decoration:none;box-shadow:0 0 20px #00f0ff33">🚀 Start Auto-Applying — $2</a>
   </div>
   
   <p style="color:#555;font-size:11px;text-align:center;margin-top:20px">
     No credit card. No commitment. Just faster job applications.<br>
-    <a href="https://jhfguf.pythonanywhere.com/unsubscribe" style="color:#555">Unsubscribe</a> | Beirut, Lebanon
+    <a href="{SITE_URL}/unsubscribe" style="color:#555">Unsubscribe</a> | Beirut, Lebanon
   </p>
 </div>
 </body></html>"""

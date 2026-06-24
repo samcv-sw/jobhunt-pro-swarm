@@ -24,15 +24,19 @@ jobs:
         env:
           PA_TOKEN: ${{ secrets.PA_API_TOKEN }}
         run: |
+          USER_UPPER=$(echo "${{ vars.PA_USER }}" | tr '[:lower:]' '[:upper:]')
+          USER_UPPER="${USER_UPPER:-JHFGUF}"
+          USER_LOWER=$(echo "${{ vars.PA_USER }}" | tr '[:upper:]' '[:lower:]')
+          USER_LOWER="${USER_LOWER:-jhfguf}"
           FILES=(
-            "cloud_orchestrator.py:/home/JHFGUF/jobhunt/cloud_orchestrator.py"
-            "payments/__init__.py:/home/JHFGUF/jobhunt/payments/__init__.py"
-            "core/email_engine.py:/home/JHFGUF/jobhunt/core/email_engine.py"
-            "web/cloud_tick_router.py:/home/JHFGUF/jobhunt/web/cloud_tick_router.py"
-            "core/upstash_rate_limiter.py:/home/JHFGUF/jobhunt/core/upstash_rate_limiter.py"
-            "core/pa_job_scraper.py:/home/JHFGUF/jobhunt/core/pa_job_scraper.py"
-            "cloud_orchestrator.py:/home/JHFGUF/jobhunt/cloud_orchestrator.py"
-            "core/campaign_runner.py:/home/JHFGUF/jobhunt/core/campaign_runner.py"
+            "cloud_orchestrator.py:/home/${USER_UPPER}/jobhunt/cloud_orchestrator.py"
+            "payments/__init__.py:/home/${USER_UPPER}/jobhunt/payments/__init__.py"
+            "core/email_engine.py:/home/${USER_UPPER}/jobhunt/core/email_engine.py"
+            "web/cloud_tick_router.py:/home/${USER_UPPER}/jobhunt/web/cloud_tick_router.py"
+            "core/upstash_rate_limiter.py:/home/${USER_UPPER}/jobhunt/core/upstash_rate_limiter.py"
+            "core/pa_job_scraper.py:/home/${USER_UPPER}/jobhunt/core/pa_job_scraper.py"
+            "cloud_orchestrator.py:/home/${USER_UPPER}/jobhunt/cloud_orchestrator.py"
+            "core/campaign_runner.py:/home/${USER_UPPER}/jobhunt/core/campaign_runner.py"
           )
           for entry in "${FILES[@]}"; do
             local="${entry%%:*}"
@@ -40,7 +44,7 @@ jobs:
             if [ -f "$local" ]; then
               echo "Uploading $local..."
               curl -s --max-time 30 \
-                -X POST "https://www.pythonanywhere.com/api/v0/user/jhfguf/files/path$remote" \
+                -X POST "https://www.pythonanywhere.com/api/v0/user/${USER_LOWER}/files/path$remote" \
                 -H "Authorization: Token $PA_TOKEN" \
                 -F "content=@$local" \
                 -w "\nHTTP: %{http_code}"
@@ -52,7 +56,11 @@ jobs:
           PA_TOKEN: ${{ secrets.PA_API_TOKEN }}
         run: |
           echo "Reloading PA..."
+          USER_LOWER=$(echo "${{ vars.PA_USER }}" | tr '[:upper:]' '[:lower:]')
+          USER_LOWER="${USER_LOWER:-jhfguf}"
+          DOMAIN="${{ vars.PA_DOMAIN }}"
+          DOMAIN="${DOMAIN:-jhfguf.pythonanywhere.com}"
           curl -s --max-time 30 \
-            -X POST "https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/jhfguf.pythonanywhere.com/reload/" \
+            -X POST "https://www.pythonanywhere.com/api/v0/user/${USER_LOWER}/webapps/${DOMAIN}/reload/" \
             -H "Authorization: Token $PA_TOKEN" \
             -w "\nHTTP: %{http_code}"

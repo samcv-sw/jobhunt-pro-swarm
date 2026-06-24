@@ -22,6 +22,18 @@ logger = logging.getLogger(__name__)
 DATA_DIR = None
 USAGE_FILE = None
 
+import sys
+from pathlib import Path
+_ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(_ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(_ROOT_DIR))
+try:
+    import config
+    SITE_URL = getattr(config, 'SITE_URL', 'https://jhfguf.pythonanywhere.com').rstrip('/')
+except Exception:
+    import os
+    SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip('/')
+
 
 def init(data_dir: Optional[str] = None):
     global DATA_DIR, USAGE_FILE
@@ -126,7 +138,7 @@ def check_ats_resume(resume_text: str, target_role: str = "general") -> Dict:
     if missing_sections:
         results["recommendations"].append(f"Add: {', '.join(missing_sections)}")
 
-    results["recommendations"].append("💡 Use JobHunt Pro to auto-apply with a perfectly optimized resume → https://jhfguf.pythonanywhere.com")
+    results["recommendations"].append(f"💡 Use JobHunt Pro to auto-apply with a perfectly optimized resume → {SITE_URL}")
 
     # Track usage
     _track_usage("ats_checks")

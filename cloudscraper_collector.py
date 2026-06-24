@@ -6,7 +6,18 @@ import cloudscraper, re, json, os, time
 from datetime import datetime
 
 OUTPUT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nodriver_jobs.json")
-PA_API = "https://jhfguf.pythonanywhere.com/api/nodriver-feed"
+import sys
+from pathlib import Path
+_ROOT_DIR = Path(__file__).resolve().parent
+if str(_ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(_ROOT_DIR))
+try:
+    import config
+    SITE_URL = getattr(config, 'SITE_URL', 'https://jhfguf.pythonanywhere.com').rstrip('/')
+except Exception:
+    SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip('/')
+PA_API = f"{SITE_URL}/api/nodriver-feed"
+
 
 TITLES = ["network engineer", "network administrator", "network technician", 
           "it support engineer", "system administrator", "network security engineer",

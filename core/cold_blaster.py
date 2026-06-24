@@ -32,7 +32,18 @@ BLAST_HOURLY_CAP = 4800
 MIN_DELAY_SEC = 2.0        # minimum between sends
 MAX_DELAY_SEC = 5.0        # maximum randomized delay
 TRACKING_ENABLED = True
-UNSUBSCRIBE_URL = "https://jhfguf.pythonanywhere.com/unsubscribe"
+import sys
+from pathlib import Path
+_ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(_ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(_ROOT_DIR))
+try:
+    import config
+    SITE_URL = getattr(config, 'SITE_URL', 'https://jhfguf.pythonanywhere.com').rstrip('/')
+except Exception:
+    import os
+    SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip('/')
+UNSUBSCRIBE_URL = f"{SITE_URL}/unsubscribe"
 PHYSICAL_ADDRESS = "Beirut, Lebanon"
 
 # ── AI-Generated Subject Line Pool (A/B tested variants) ──────
@@ -273,7 +284,7 @@ def send_blast(
             subject = random.choice(SUBJECT_VARIANTS)
             body = random.choice(BODY_TEMPLATES).format(
                 name=name,
-                site_url="https://jhfguf.pythonanywhere.com",
+                site_url=SITE_URL,
                 unsubscribe_url=f"{UNSUBSCRIBE_URL}?email={to_email}",
                 tracking_pixel=_tracking_pixel_html() if TRACKING_ENABLED else ""
             )
@@ -342,7 +353,7 @@ def send_blast(
 def _tracking_pixel_html() -> str:
     """Generate tracking pixel for open detection."""
     tid = uuid.uuid4().hex[:12]
-    return f'<img src="https://jhfguf.pythonanywhere.com/api/track/o/{tid}" width="1" height="1" alt="" style="display:none">'
+    return f'<img src="{SITE_URL}/api/track/o/{tid}" width="1" height="1" alt="" style="display:none">'
 
 
 def _ai_personalize(to_email: str, name: str, subject: str, body: str) -> Tuple[str, str]:

@@ -30,6 +30,9 @@ from core.smart_scheduler import scheduler, SmartScheduler
 
 logger = logging.getLogger(__name__)
 
+SITE_URL = getattr(config, 'SITE_URL', 'https://jhfguf.pythonanywhere.com').rstrip('/')
+
+
 _HAS_AIOSMTPLIB = True
 try:
     import aiosmtplib
@@ -221,7 +224,7 @@ I look forward to the opportunity to discuss how my skills align with your team'
     # Tracking pixel (configurable, spam-safe CSS background-image instead of img tag)
     tracking_pixel_html = ""
     if email_log_id and getattr(config, 'TRACKING_PIXEL_ENABLED', False):
-        track_url = f"https://jhfguf.pythonanywhere.com/api/v2/campaign/track/{email_log_id}?px=1"
+        track_url = f"{SITE_URL}/api/v2/campaign/track/{email_log_id}?px=1"
         tracking_pixel_html = f"<div style='width:0;height:0;overflow:hidden;background-image:url({track_url})'></div>"
 
     # Build the complete HTML document
@@ -290,7 +293,7 @@ I look forward to the opportunity to discuss how my skills align with your team'
         <div style="color:#475569;font-size:11px;">
             This application was sent via JobHunt Pro on behalf of Sam Salameh<br>
             📫 1084 Rue 54, Jnah, Beirut, Lebanon<br>
-            <a href="https://jhfguf.pythonanywhere.com/unsubscribe" style="color:#475569;">Unsubscribe</a> &bull; Not the right contact? Reply and we'll remove you.
+            <a href="{SITE_URL}/unsubscribe" style="color:#475569;">Unsubscribe</a> &bull; Not the right contact? Reply and we'll remove you.
         </div>
       </div>
     </td>
@@ -433,7 +436,7 @@ Tracking ID: {tracking_id}"""
         msg["Reply-To"] = f"{name} <{candidate_email}>"
         msg["Message-ID"] = f"<{tracking_id}.jobhuntpro@jobhuntpro.com>"
         msg["X-Mailer"] = "JobHuntPro/3.0"
-        msg["List-Unsubscribe"] = "<https://jhfguf.pythonanywhere.com/unsubscribe>"
+        msg["List-Unsubscribe"] = f"<{SITE_URL}/unsubscribe>"
         msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
         msg["Precedence"] = "bulk"
 
@@ -968,7 +971,7 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
 I remain very interested in this opportunity.</p>
 <p>I would appreciate any update regarding the status of my application.</p>
 <p>Best regards,<br><strong>{config.CANDIDATE_NAME}</strong><br>{config.CANDIDATE_EMAIL}<br>{config.CANDIDATE_PHONE}</p>
-<img src="https://jhfguf.pythonanywhere.com/api/v2/campaign/track/{tracking_id}" width="1" height="1" style="display:none" alt=""/>"""
+<img src="{SITE_URL}/api/v2/campaign/track/{tracking_id}" width="1" height="1" style="display:none" alt=""/>"""
         msg = MIMEMultipart()
         msg["From"] = f"{config.CANDIDATE_NAME} <{config.CANDIDATE_EMAIL}>"
         msg["To"] = to_email

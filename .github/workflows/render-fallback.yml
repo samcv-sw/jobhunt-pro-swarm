@@ -28,8 +28,10 @@ jobs:
       - name: Verify PA status
         id: verify_pa
         run: |
+          DOMAIN="${{ vars.PA_DOMAIN }}"
+          DOMAIN="${DOMAIN:-jhfguf.pythonanywhere.com}"
           PA_CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 \
-            "https://jhfguf.pythonanywhere.com/api/ping" 2>/dev/null || echo "000")
+            "https://${DOMAIN}/api/ping" 2>/dev/null || echo "000")
           echo "pa_code=$PA_CODE" >> $GITHUB_OUTPUT
 
           if [ "$PA_CODE" = "200" ]; then

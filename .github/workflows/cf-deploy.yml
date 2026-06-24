@@ -60,7 +60,11 @@ jobs:
 
       - name: Reload PythonAnywhere Web App
         run: |
-          curl -s -X POST "https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/jhfguf.pythonanywhere.com/reload/" \
+          USER="${{ vars.PA_USER }}"
+          USER="${USER:-jhfguf}"
+          DOMAIN="${{ vars.PA_DOMAIN }}"
+          DOMAIN="${DOMAIN:-jhfguf.pythonanywhere.com}"
+          curl -s -X POST "https://www.pythonanywhere.com/api/v0/user/${USER}/webapps/${DOMAIN}/reload/" \
             -H "Authorization: Token ${{ secrets.PA_TOKEN }}" \
             --max-time 30
         continue-on-error: true

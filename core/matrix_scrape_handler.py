@@ -111,7 +111,13 @@ def main():
     page = args.page
 
     worker_url = os.environ.get("WORKER_URL", "https://jobhunt-pro-router.samsalameh-cv.workers.dev")
-    pa_url = os.environ.get("PA_URL", "https://jhfguf.pythonanywhere.com")
+    try:
+        import config
+        default_site = config.SITE_URL
+    except Exception:
+        default_site = "https://jhfguf.pythonanywhere.com"
+    site_url = os.environ.get("SITE_URL", os.environ.get("PA_URL", default_site))
+
 
     # Install monkey patch
     monkey_patch_scraper(worker_url)
@@ -173,7 +179,7 @@ def main():
                 logger.error(f"Failed to upload to Cloudflare Worker D1: {cf_err}")
 
             # 2. Upload to PythonAnywhere's feed (Legacy Backup)
-            feed_url = f"{pa_url.rstrip('/')}/api/nodriver-feed"
+            feed_url = f"{site_url.rstrip('/')}/api/nodriver-feed"
             logger.info(f"Uploading {len(feed_jobs)} jobs to PythonAnywhere: {feed_url}...")
             try:
                 resp = requests.post(feed_url, json={"jobs": feed_jobs}, timeout=30)

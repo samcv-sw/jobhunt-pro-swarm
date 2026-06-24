@@ -8,16 +8,19 @@
  * Deploy: Copy this into https://workers.cloudflare.com
  */
 
-// Your free tier backend URLs ordered by priority
-const BACKENDS = [
-  "https://jhfguf.pythonanywhere.com",     // Primary Node (PythonAnywhere)
-  "https://jobhunt-pro.fly.dev",           // Backup Node 1 (Fly.io)
-  "https://jobhunt-pro.zeabur.app",        // Backup Node 2 (Zeabur - replace with actual Zeabur URL)
-  "https://jobhunt-pro.onrender.com"       // Backup Node 3 (Render)
-];
-
 export default {
   async fetch(request, env, ctx) {
+    const paBase = (env && env.PA_BASE) || "https://jhfguf.pythonanywhere.com";
+    const flyBase = (env && env.FLY_BASE) || "https://jobhunt-pro.fly.dev";
+    const zeaburBase = (env && env.ZEABUR_BASE) || "https://jobhunt-pro.zeabur.app";
+    const renderBase = (env && env.RENDER_BASE) || "https://jobhunt-pro.onrender.com";
+
+    const BACKENDS = [
+      paBase,
+      flyBase,
+      zeaburBase,
+      renderBase
+    ];
     // 1. Handle CORS for Frontend API access
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',

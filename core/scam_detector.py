@@ -88,7 +88,18 @@ SCAM_SALARY_FLAGS = [
 ]
 
 PHYSICAL_ADDRESS = "1084 Rue 54, Jnah, Beirut, Lebanon"
-UNSUBSCRIBE_URL = "https://jhfguf.pythonanywhere.com/unsubscribe"
+import sys
+from pathlib import Path
+_ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(_ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(_ROOT_DIR))
+try:
+    import config
+    SITE_URL = getattr(config, 'SITE_URL', 'https://jhfguf.pythonanywhere.com').rstrip('/')
+except Exception:
+    import os
+    SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip('/')
+UNSUBSCRIBE_URL = f"{SITE_URL}/unsubscribe"
 
 
 class ScamDetector:

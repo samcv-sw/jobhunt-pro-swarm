@@ -16,7 +16,11 @@ jobs:
         run: |
           set -e
           TOKEN="${{ secrets.PA_TOKEN }}"
-          API="https://www.pythonanywhere.com/api/v0/user/jhfguf"
+          USER="${{ vars.PA_USER }}"
+          USER="${USER:-jhfguf}"
+          DOMAIN="${{ vars.PA_DOMAIN }}"
+          DOMAIN="${DOMAIN:-jhfguf.pythonanywhere.com}"
+          API="https://www.pythonanywhere.com/api/v0/user/${USER}"
           
           # Upload each file
           for f in "web/frontend_api.py" "web/app_v2.py"; do
@@ -39,7 +43,7 @@ jobs:
           # Reload
           echo "=== Reloading PA ==="
           HTTP_CODE=$(curl -s -o /tmp/reload_resp.txt -w "%{http_code}" -X POST \
-            "${API}/webapps/jhfguf.pythonanywhere.com/reload/" \
+            "${API}/webapps/${DOMAIN}/reload/" \
             -H "Authorization: Token ${TOKEN}" \
             --max-time 30)
           echo "HTTP Code: ${HTTP_CODE}"

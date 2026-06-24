@@ -204,7 +204,7 @@ export default {
     console.log('Running campaign processor and Hydra tick...');
     
     const BACKENDS = [
-      "https://jhfguf.pythonanywhere.com",
+      env.PA_BASE || "https://jhfguf.pythonanywhere.com",
       "https://jobhunt-pro.fly.dev",
       "https://jobhunt-pro.zeabur.app",
       "https://jobhunt-pro.onrender.com"
@@ -262,7 +262,10 @@ export default {
       if (paFailed && env.PA_API_TOKEN) {
         console.log("=== PA RELOAD TRIGGERED VIA CF WORKER ===");
         try {
-          const reloadResp = await fetch("https://www.pythonanywhere.com/api/v0/user/jhfguf/webapps/jhfguf.pythonanywhere.com/reload/", {
+          const paUser = env.PA_USER || "jhfguf";
+          const paDomain = env.PA_DOMAIN || "jhfguf.pythonanywhere.com";
+          const reloadUrl = `https://www.pythonanywhere.com/api/v0/user/${paUser}/webapps/${paDomain}/reload/`;
+          const reloadResp = await fetch(reloadUrl, {
             method: 'POST',
             headers: { 'Authorization': `Token ${env.PA_API_TOKEN}` },
             signal: AbortSignal.timeout(30000)
@@ -661,7 +664,8 @@ export default {
       // ═══════════ PA PROXY (backward compat) ═══════════
       if (path.startsWith('/_/pa/')) {
         const targetPath = path.replace('/_/pa/', '/');
-        const targetUrl = CONFIG.PA_BASE + targetPath + url.search;
+        const paBase = env.PA_BASE || CONFIG.PA_BASE;
+        const targetUrl = paBase.replace(/\/$/, '') + targetPath + url.search;
         const resp = await fetch(targetUrl, {
           method: method,
           headers: { 'User-Agent': 'JobHuntPro-CFWorker/4.0', 'Accept': 'application/json', 'Content-Type': request.headers.get('Content-Type') || 'application/json' },
