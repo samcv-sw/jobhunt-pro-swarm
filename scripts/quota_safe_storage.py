@@ -32,7 +32,7 @@ def get_access_token(client_id, client_secret, refresh_token):
         return None
 
 def check_quota_and_clean(access_token, folder_id):
-    """Query Google Drive quota. If storage is tight (< 5GB free), purge oldest files in folder_id."""
+    """Query Google Drive quota. If storage is tight, purge oldest files in folder_id."""
     headers = {"Authorization": f"Bearer {access_token}"}
     
     # 1. Check storage quota
@@ -51,13 +51,21 @@ def check_quota_and_clean(access_token, folder_id):
         
         log(f"Current storage: {usage_gb:.2f} GB / {limit_gb:.2f} GB ({free_gb:.2f} GB Free)")
         
-        # 2. Trigger clean up if free space is less than 5 GB
-        if free_gb < 5.0:
-            log("⚠️ STORAGE WARNING: Less than 5GB free space. Starting safe-purge...")
-            purge_old_files(access_token, folder_id, safety_target_gb=8.0, current_free_gb=free_gb)
-        else:
-            log("✓ Storage level is safe.")
-            
+        # 2. Trigger clean up based on quota tier
+        if limit_gb <= 20.0:  # Free tier (15 GB)
+            if usage_gb >= 1.0:
+                log("⚠️ STORAGE WARNING (15GB Free Tier): Usage exceeds 1.0 GB. Starting safe-purge...")
+                # We want to delete files until l-remaining free space is at least limit_gb - 1.0 GB (meaning usage < 1.0 GB)
+                purge_old_files(access_token, folder_id, safety_target_gb=limit_gb - 1.0, current_free_gb=free_gb)
+            else:
+                log("✓ Usage is under 1.0 GB. Storage level is safe.")
+        else:  # Active 5 TB Subscription (or other paid tier)
+            if free_gb < 10.0:  # If we have less than 10 GB free on 5 TB, clean up
+                log("⚠️ STORAGE WARNING (Paid Tier): Less than 10GB free space. Starting safe-purge...")
+                purge_old_files(access_token, folder_id, safety_target_gb=limit_gb - 5.0, current_free_gb=free_gb)
+            else:
+                log("✓ Storage level is safe.")
+                
     except Exception as e:
         log(f"Error checking storage quota: {e}")
 
