@@ -52,6 +52,43 @@ logger = logging.getLogger(__name__)
 _shutdown = False
 
 
+def get_memory_limit_bytes() -> int:
+    """Detect the maximum memory limit allowed for the system/container."""
+    # Try cgroup v2 limit first
+    try:
+        limit_path = Path("/sys/fs/cgroup/memory.max")
+        if limit_path.exists():
+            val = limit_path.read_text().strip()
+            if val.isdigit():
+                limit = int(val)
+                if limit < 9000000000000000000:
+                    return limit
+    except Exception:
+        pass
+        
+    # Try cgroup v1 limit
+    try:
+        limit_path = Path("/sys/fs/cgroup/memory/memory.limit_in_bytes")
+        if limit_path.exists():
+            val = limit_path.read_text().strip()
+            if val.isdigit():
+                limit = int(val)
+                if limit < 9000000000000000000:
+                    return limit
+    except Exception:
+        pass
+        
+    # Fallback to system-wide total memory
+    try:
+        import psutil
+        return psutil.virtual_memory().total
+    except Exception:
+        pass
+        
+    # Default to 1 GB if undetected
+    return 1024 * 1024 * 1024
+
+
 def configure_cloud_env():
     """Set up environment variables for cloud deployment."""
     # Railway/Render set PORT automatically
@@ -82,9 +119,18 @@ def configure_cloud_env():
     # Cloud mode flag
     os.environ["CLOUD_MODE"] = "true"
 
-    # [PROJECT APEX] MAXIMIZE ORACLE ARM 24GB RAM
+    # Dynamic concurrency tuning based on memory capacity (OOM prevention on free tiers)
     if not os.getenv("MAX_WORKERS"):
-        os.environ["MAX_WORKERS"] = "5000" # Unlocked from 50 to 5000 for 24GB RAM
+        try:
+            mem_limit = get_memory_limit_bytes()
+            if mem_limit < 1.5 * 1024 * 1024 * 1024:
+                os.environ["MAX_WORKERS"] = "50"
+                logger.info("[TUNING] Low-RAM container detected (<1.5GB). Restricting MAX_WORKERS to 50 for safety.")
+            else:
+                os.environ["MAX_WORKERS"] = "5000"
+                logger.info("[TUNING] High-RAM environment detected. Unlocking MAX_WORKERS to 5000.")
+        except Exception:
+            os.environ["MAX_WORKERS"] = "50"
 
     # Disable dry run by default for production APEX mode
     if not os.getenv("DRY_RUN"):

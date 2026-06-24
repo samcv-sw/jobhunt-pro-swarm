@@ -13,6 +13,7 @@ import time
 import json
 import threading
 import sys
+import gc
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Any
 from pathlib import Path
@@ -49,6 +50,9 @@ _state_lock = threading.Lock()
 _last_groq_check_time = 0.0
 _last_groq_result = None
 _groq_alerted_unhealthy = False
+
+# Database pruning schedule tracker (to keep Neon DB within 500MB free cap)
+_last_prune_time = 0.0
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -346,6 +350,70 @@ def _clear_dead_locks() -> int:
             pass
 
 
+def _prune_old_db_records() -> int:
+    """
+    Delete old crawled jobs and log entries that are no longer needed
+    to prevent database storage exhaustion on Neon/PostgreSQL free tier (500MB cap).
+    Returns total pruned records count.
+    """
+    conn = _get_db()
+    if not conn:
+        return 0
+    pruned = 0
+    try:
+        # 1. Prune jobs that were not applied to and are older than 14 days
+        cutoff_jobs = (datetime.now(timezone.utc) - timedelta(days=14)).isoformat()
+        try:
+            # We use standard SQLite syntax compatible with our PG shim translation
+            result = conn.execute(
+                "DELETE FROM jobs WHERE created_at < ? AND status NOT IN ('applied', 'followed_up')",
+                (cutoff_jobs,)
+            )
+            pruned += result.rowcount or 0
+        except Exception:
+            pass
+            
+        # 2. Prune campaign emails log history older than 90 days
+        cutoff_logs = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
+        for table in ["campaign_emails", "sent_emails"]:
+            try:
+                result = conn.execute(
+                    f"DELETE FROM {table} WHERE created_at < ?",
+                    (cutoff_logs,)
+                )
+                pruned += result.rowcount or 0
+            except Exception:
+                pass
+                
+        # 3. Clean up resolved/stale rate-limited SMTP entries older than 7 days
+        cutoff_smtp = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+        try:
+            result = conn.execute(
+                "DELETE FROM smtp_rotation WHERE limited_at < ?",
+                (cutoff_smtp,)
+            )
+            pruned += result.rowcount or 0
+        except Exception:
+            pass
+            
+        if pruned > 0:
+            logger.info(f"Database pruning completed: removed {pruned} stale records to conserve storage")
+            conn.commit()
+        return pruned
+    except Exception as e:
+        logger.error(f"Failed to prune database: {e}")
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        return 0
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+
 def _rotate_rate_limited_smtp() -> Dict[str, Any]:
     """
     Check SMTP accounts for rate limiting and rotate if needed.
@@ -624,6 +692,23 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
         result["errors"].append(f"Groq check: {e}")
         logger.error(f"Groq check error: {e}")
     
+    # 6. Database Pruning (keep Neon DB size within 500MB free cap)
+    try:
+        global _last_prune_time
+        now = time.time()
+        # Run pruning once every 24 hours (86400 seconds)
+        if force or (now - _last_prune_time > 86400) or _last_prune_time == 0.0:
+            pruned_count = _prune_old_db_records()
+            _last_prune_time = now
+            if pruned_count > 0:
+                _save_history({"action": "database_pruning", "pruned_records": pruned_count})
+    except Exception as e:
+        result["errors"].append(f"DB pruning: {e}")
+        logger.error(f"DB pruning error: {e}")
+
+    # Explicit garbage collection to release memory back to OS in memory-constrained cloud environments
+    gc.collect()
+
     return result
 
 
