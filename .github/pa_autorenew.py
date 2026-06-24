@@ -12,6 +12,7 @@ import pyotp
 from datetime import datetime, timezone
 
 PA_HOST = "www.pythonanywhere.com"
+USERNAME = os.environ.get("PA_USERNAME", "jhfguf")
 PASSWORD = os.environ.get("PA_PASSWORD")
 TOTP_SECRET = os.environ.get("PA_TOTP_SECRET")
 
