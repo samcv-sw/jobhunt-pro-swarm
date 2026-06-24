@@ -45,6 +45,11 @@ _heal_state = {
 # Lock for thread safety
 _state_lock = threading.Lock()
 
+# Throttle tracking for Groq API checks to prevent rate limits and Telegram spam
+_last_groq_check_time = 0.0
+_last_groq_result = None
+_groq_alerted_unhealthy = False
+
 
 # ═══════════════════════════════════════════════════════════════
 # History Persistence
@@ -136,8 +141,56 @@ def _get_db():
 # Health Checks
 # ═══════════════════════════════════════════════════════════════
 
+def _get_cgroup_memory_usage() -> Optional[float]:
+    """
+    Attempt to read Docker cgroup memory metrics (v1 and v2) to get 
+    accurate container-specific RAM usage on Render/Fly.io.
+    Returns the percentage (0.0 to 100.0) if successful, otherwise None.
+    """
+    try:
+        # Check Cgroup v2 (typically on modern Linux / Docker hosts)
+        cgroup_v2_usage_path = Path("/sys/fs/cgroup/memory.current")
+        cgroup_v2_limit_path = Path("/sys/fs/cgroup/memory.max")
+        
+        if cgroup_v2_usage_path.exists() and cgroup_v2_limit_path.exists():
+            usage_str = cgroup_v2_usage_path.read_text().strip()
+            limit_str = cgroup_v2_limit_path.read_text().strip()
+            
+            if usage_str.isdigit():
+                usage = int(usage_str)
+                if limit_str.isdigit():
+                    limit = int(limit_str)
+                    # Limit must be valid and not default "max" (represented as a very high integer on some kernels, e.g. >922337203685477)
+                    if 0 < limit < 9000000000000000000:
+                        return round((usage / limit) * 100.0, 1)
+
+        # Check Cgroup v1
+        cgroup_v1_usage_path = Path("/sys/fs/cgroup/memory/memory.usage_in_bytes")
+        cgroup_v1_limit_path = Path("/sys/fs/cgroup/memory/memory.limit_in_bytes")
+        
+        if cgroup_v1_usage_path.exists() and cgroup_v1_limit_path.exists():
+            usage_str = cgroup_v1_usage_path.read_text().strip()
+            limit_str = cgroup_v1_limit_path.read_text().strip()
+            
+            if usage_str.isdigit():
+                usage = int(usage_str)
+                if limit_str.isdigit():
+                    limit = int(limit_str)
+                    if 0 < limit < 9000000000000000000:
+                        return round((usage / limit) * 100.0, 1)
+    except Exception as e:
+        logger.debug(f"Failed to read cgroup memory metrics: {e}")
+    return None
+
+
 def _check_ram_usage() -> float:
-    """Get current RAM usage percentage. Works on Linux/PA."""
+    """Get current RAM usage percentage. Checks cgroups first, then psutil/meminfo."""
+    # 1. Try container/cgroups memory first (Render/Fly.io container limits)
+    cgroup_pct = _get_cgroup_memory_usage()
+    if cgroup_pct is not None:
+        return cgroup_pct
+
+    # 2. Fall back to host VM memory if cgroups is not restricted or fails
     try:
         import psutil
         return psutil.virtual_memory().percent
@@ -382,37 +435,43 @@ def _auto_reload_pa_if_ram_high(ram_pct: float) -> bool:
     """
     Auto-reload PA webapp if RAM > threshold.
     Uses PA API (no subprocess needed).
+    For non-PA container clouds (Render/Fly.io), exits the process to trigger a platform container restart.
     """
     if ram_pct <= _RAM_THRESHOLD_PCT:
         return False
     
-    logger.critical(f"RAM at {ram_pct}% (> {_RAM_THRESHOLD_PCT}%) — auto-reloading PA webapp")
+    logger.critical(f"RAM at {ram_pct}% (> {_RAM_THRESHOLD_PCT}%) — triggering auto-heal reload/restart")
     
     pa_token = os.getenv("PA_API_TOKEN", "")
-    pa_user = os.getenv("PA_USERNAME", "jhfguf")
-    pa_domain = os.getenv("PA_DOMAIN", "jhfguf.pythonanywhere.com")
+    if pa_token:
+        pa_user = os.getenv("PA_USERNAME", "jhfguf")
+        pa_domain = os.getenv("PA_DOMAIN", "jhfguf.pythonanywhere.com")
+        try:
+            import httpx
+            url = f"https://www.pythonanywhere.com/api/v0/user/{pa_user}/webapps/{pa_domain}/reload/"
+            resp = httpx.post(
+                url,
+                headers={"Authorization": f"Token {pa_token}"},
+                timeout=30,
+            )
+            if resp.status_code == 200:
+                logger.info("PA webapp reloaded successfully (high RAM)")
+                return True
+            else:
+                logger.error(f"PA reload failed: HTTP {resp.status_code} — {resp.text[:200]}")
+        except Exception as e:
+            logger.error(f"PA reload exception: {e}")
+
+    # Fallback/Cloud mode: Exit process to trigger Docker/Render/Fly.io auto-restart
+    logger.critical("CLOUD AUTO-HEAL: Exiting process to trigger container restart under memory pressure")
     
-    if not pa_token:
-        logger.error("Cannot auto-reload: PA_API_TOKEN not set")
-        return False
-    
-    try:
-        import httpx
-        url = f"https://www.pythonanywhere.com/api/v0/user/{pa_user}/webapps/{pa_domain}/reload/"
-        resp = httpx.post(
-            url,
-            headers={"Authorization": f"Token {pa_token}"},
-            timeout=30,
-        )
-        if resp.status_code == 200:
-            logger.info("PA webapp reloaded successfully (high RAM)")
-            return True
-        else:
-            logger.error(f"PA reload failed: HTTP {resp.status_code} — {resp.text[:200]}")
-            return False
-    except Exception as e:
-        logger.error(f"PA reload exception: {e}")
-        return False
+    # Run shutdown gracefully by exiting the process after a brief sleep to allow logs to flush
+    def exit_process():
+        time.sleep(2)
+        os._exit(1)
+        
+    threading.Thread(target=exit_process, daemon=True).start()
+    return True
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -529,17 +588,38 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
     
     # 5. Groq API Key Health
     try:
-        groq_result = await _check_groq_api_async()
+        global _last_groq_check_time, _last_groq_result, _groq_alerted_unhealthy
+        now = time.time()
+        
+        # Only check every 30 minutes (1800s) if healthy, or every 5 minutes (300s) if unhealthy
+        check_interval = 1800
+        if _last_groq_result and not _last_groq_result.get("healthy"):
+            check_interval = 300
+            
+        if force or (now - _last_groq_check_time > check_interval) or _last_groq_result is None:
+            groq_result = await _check_groq_api_async()
+            _last_groq_check_time = now
+            _last_groq_result = groq_result
+        else:
+            groq_result = _last_groq_result
+            
         result["groq_check"] = groq_result
+        
         if not groq_result.get("healthy"):
-            await _telegram_alert(
-                f"🔑 <b>GROQ API KEY ISSUE</b>\n\n"
-                f"<b>Status:</b> {groq_result.get('status', 'unknown')}\n"
-                f"<b>Error:</b> {groq_result.get('error', 'Unknown')}\n\n"
-                f"<i>AI features may be degraded. Check your Groq API key.</i>"
-            )
-            result["alerts_sent"].append("groq_issue")
-            _save_history({"action": "groq_alert", "status": groq_result.get("status")})
+            # Only alert if we haven't alerted yet about this failure transition
+            if not _groq_alerted_unhealthy or force:
+                _groq_alerted_unhealthy = True
+                await _telegram_alert(
+                    f"🔑 <b>GROQ API KEY ISSUE</b>\n\n"
+                    f"<b>Status:</b> {groq_result.get('status', 'unknown')}\n"
+                    f"<b>Error:</b> {groq_result.get('error', 'Unknown')}\n\n"
+                    f"<i>AI features may be degraded. Check your Groq API key.</i>"
+                )
+                result["alerts_sent"].append("groq_issue")
+                _save_history({"action": "groq_alert", "status": groq_result.get("status")})
+        else:
+            # Reset the alert flag if it's back to healthy
+            _groq_alerted_unhealthy = False
     except Exception as e:
         result["errors"].append(f"Groq check: {e}")
         logger.error(f"Groq check error: {e}")

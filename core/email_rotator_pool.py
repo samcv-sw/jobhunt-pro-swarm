@@ -22,6 +22,59 @@ import config
 
 logger = logging.getLogger(__name__)
 
+# Database rate-limiting synchronization cache
+_db_rate_limited_hosts = {}
+_last_db_rate_limit_check = 0.0
+
+def _load_db_rate_limits():
+    """Load rate-limited SMTP hosts from the database to synchronize state across instances."""
+    global _db_rate_limited_hosts, _last_db_rate_limit_check
+    now = time.time()
+    if now - _last_db_rate_limit_check < 60.0:  # Cache for 60 seconds
+        return
+        
+    _last_db_rate_limit_check = now
+    new_limits = {}
+    conn = None
+    try:
+        # Try importing from the FastAPI app instance first
+        from web.app_v2 import get_db
+        conn = get_db()
+    except Exception:
+        try:
+            # Fallback to direct sqlite3 connector (which uses pg_sqlite_shim under CLOUD_MODE)
+            import sqlite3
+            db_path = os.getenv("DB_PATH", "data/jobhunt_saas_v2.db")
+            conn = sqlite3.connect(db_path, timeout=10)
+            conn.row_factory = sqlite3.Row
+        except Exception:
+            pass
+
+    if conn:
+        try:
+            # Check for SMTP accounts flagged as rate limited within the last 1 hour
+            rows = conn.execute(
+                "SELECT smtp_host FROM smtp_rotation WHERE rate_limited = 1 AND limited_at > datetime('now', '-1 hour')"
+            ).fetchall()
+            for r in rows:
+                if isinstance(r, dict):
+                    host = r.get("smtp_host")
+                elif hasattr(r, "keys") and "smtp_host" in r.keys():
+                    host = r["smtp_host"]
+                else:
+                    host = r[0]
+                if host:
+                    new_limits[host] = True
+        except Exception as e:
+            logger.debug(f"[RotatorPool] Failed to query smtp_rotation: {e}")
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+                
+    _db_rate_limited_hosts = new_limits
+
 
 @dataclass
 class EmailAccount:
@@ -108,6 +161,16 @@ class EmailSenderClient:
         self._reset_daily_if_needed()
         if not self._available:
             return False
+            
+        # Check database rate-limiting state
+        try:
+            _load_db_rate_limits()
+            if self.account.server in _db_rate_limited_hosts:
+                logger.warning(f"SMTP account {self.account.name} ({self.account.server}) bypassed: marked rate-limited in DB.")
+                return False
+        except Exception as e:
+            logger.debug(f"Failed to check db rate limits: {e}")
+            
         return self._sent_today < self.account.daily_limit
 
     def quota_remaining(self) -> int:

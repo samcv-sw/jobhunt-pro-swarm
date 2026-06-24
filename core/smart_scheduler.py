@@ -103,8 +103,13 @@ class SmartScheduler:
         {"name": "yahoo1", "daily_limit": 100, "hourly_limit": 15},
     ]
 
-    def __init__(self, tz_offset: int = 0):
+    def __init__(self, tz_offset: Optional[int] = None):
         """tz_offset: hours to add to UTC to get local time (Lebanon = +3)"""
+        if tz_offset is None:
+            try:
+                tz_offset = int(os.environ.get("TZ_OFFSET", os.environ.get("TIMEZONE_OFFSET", "3")))
+            except ValueError:
+                tz_offset = 3
         self.providers: Dict[str, ProviderState] = {}
         self.base_delay = 20  # Increased for Stealth Mode (evade DDoS monitors)
         self.jitter_range = 0.5
@@ -320,6 +325,9 @@ class SmartScheduler:
             return 100
 
 
-# Detect PA environment (UTC server) -> apply Lebanon timezone offset
-_tz_offset = 3 if os.environ.get("PYTHONANYWHERE_DOMAIN") else 0
+# Detect dynamic timezone offset from environment, default to Lebanon (UTC+3) for cloud deployments
+try:
+    _tz_offset = int(os.environ.get("TZ_OFFSET", os.environ.get("TIMEZONE_OFFSET", "3")))
+except ValueError:
+    _tz_offset = 3
 scheduler = SmartScheduler(tz_offset=_tz_offset)

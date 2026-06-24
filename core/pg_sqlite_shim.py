@@ -296,10 +296,18 @@ class PgConnectionWrapper:
         return wrapper.executemany(query, seq_of_params)
         
     def commit(self):
-        self.conn.commit()
+        try:
+            if self.conn and not getattr(self.conn, "autocommit", False):
+                self.conn.commit()
+        except Exception:
+            pass
         
     def rollback(self):
-        self.conn.rollback()
+        try:
+            if self.conn and not getattr(self.conn, "autocommit", False):
+                self.conn.rollback()
+        except Exception:
+            pass
 
     def cursor(self):
         cur = self.conn.cursor()
