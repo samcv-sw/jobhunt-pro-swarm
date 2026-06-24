@@ -13,6 +13,15 @@ Architecture:
 """
 import os
 import sys
+
+# Hijack sqlite3 globally with core.pg_sqlite_shim to transparently use Neon PG
+try:
+    import core.pg_sqlite_shim as pg_sqlite_shim
+    sys.modules['sqlite3'] = pg_sqlite_shim
+    print("[HYDRA] Successfully hijacked sqlite3 globally with pg_sqlite_shim")
+except Exception as shim_err:
+    print(f"[HYDRA] Failed to hijack sqlite3: {shim_err}")
+
 import asyncio
 import logging
 import signal
@@ -283,28 +292,95 @@ def handle_sigterm(signum, frame):
         logger.info("Received signal %s - shutting down gracefully...", signum)
         _shutdown = True
 
+_sender_running = False
+
+async def run_queue_worker_loop():
+    """Continuously poll and process tasks from the database job_queue.
+    Enables zero-traffic execution of campaigns and background automation tasks.
+    """
+    global _shutdown
+    logger.info("[QUEUE-WORKER] Starting background queue worker loop...")
+    
+    # Wait 20 seconds for web server to boot up
+    await asyncio.sleep(20)
+    
+    while not _shutdown:
+        try:
+            from core.job_queue import dequeue_task, complete_task, fail_task
+            task = dequeue_task()
+            if not task:
+                await asyncio.sleep(5)
+                continue
+                
+            task_id = task["id"]
+            task_type = task["task_type"]
+            payload = task["payload"]
+            
+            logger.info("[QUEUE-WORKER] Processing task %d: %s", task_id, task_type)
+            
+            if task_type == "run_campaign":
+                campaign_id = payload.get("campaign_id")
+                if campaign_id:
+                    from core.campaign_runner import run_campaign
+                    import config
+                    
+                    def _run():
+                        # We use local sqlite connect which is shimmed globally to Postgres
+                        import sqlite3
+                        def local_get_db():
+                            import os
+                            c = sqlite3.connect(os.environ.get('DB_PATH', 'jobhunt_saas_v2.db'), timeout=30)
+                            c.row_factory = sqlite3.Row
+                            return c
+                        asyncio.run(run_campaign(campaign_id, local_get_db, config))
+                        
+                    loop = asyncio.get_running_loop()
+                    await loop.run_in_executor(None, _run)
+                    complete_task(task_id)
+                    logger.info("[QUEUE-WORKER] Task %d completed successfully", task_id)
+                else:
+                    fail_task(task_id, "Missing campaign_id")
+            else:
+                # Mock completion for other growth-autopilot tasks
+                complete_task(task_id)
+                logger.info("[QUEUE-WORKER] Growth task %d of type %s completed (mocked)", task_id, task_type)
+                
+        except Exception as e:
+            logger.error("[QUEUE-WORKER] Error in queue worker loop: %s", e)
+            await asyncio.sleep(5)
+            
+        await asyncio.sleep(1)
+        
+    logger.info("[QUEUE-WORKER] Background queue worker loop stopped")
+
 
 async def run_cloud_email_sender_loop():
     """Run scripts/cloud_email_sender.py main() in a background loop.
     Drains the Cloudflare outbox by sending emails via SMTP.
     Runs 24/7 on Render/Fly.io for free, replacing GHA cron.
     """
-    global _shutdown
+    global _shutdown, _sender_running
     logger.info("[SENDER] Starting background cloud email sender loop...")
     
     # Wait 30 seconds for web server to boot up
     await asyncio.sleep(30)
     
     while not _shutdown:
-        logger.info("[SENDER] Checking Cloudflare outbox for queued emails...")
-        try:
-            from scripts.cloud_email_sender import main as run_sender
-            # Run the synchronous email claim & send cycle in a separate thread
-            # to prevent blocking the async event loop.
-            loop = asyncio.get_running_loop()
-            await loop.run_in_executor(None, run_sender)
-        except Exception as e:
-            logger.error("[SENDER] Cloud email sender execution failed: %s", e)
+        if not _sender_running:
+            logger.info("[SENDER] Checking Cloudflare outbox for queued emails...")
+            try:
+                _sender_running = True
+                from scripts.cloud_email_sender import main as run_sender
+                # Run the synchronous email claim & send cycle in a separate thread
+                # to prevent blocking the async event loop.
+                loop = asyncio.get_running_loop()
+                await loop.run_in_executor(None, run_sender)
+            except Exception as e:
+                logger.error("[SENDER] Cloud email sender execution failed: %s", e)
+            finally:
+                _sender_running = False
+        else:
+            logger.info("[SENDER] Previous sender run is still active. Skipping this cycle.")
             
         if _shutdown:
             break
@@ -379,6 +455,7 @@ def main():
         tasks_to_run.append(background_job_cycle())
         tasks_to_run.append(run_telegram_bot())
         tasks_to_run.append(run_cloud_email_sender_loop())
+        tasks_to_run.append(run_queue_worker_loop())
 
     try:
         if tasks_to_run:

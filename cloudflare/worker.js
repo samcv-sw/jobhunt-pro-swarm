@@ -575,6 +575,12 @@ export default {
 
       // ═══════════ API: OUTBOX UPDATE ═══════════
       if (path === '/api/email/outbox/update' && method === 'POST') {
+        if (env.OUTBOX_SECRET) {
+          const authHeader = request.headers.get('Authorization') || '';
+          if (authHeader !== 'Bearer ' + env.OUTBOX_SECRET) {
+            return error('Unauthorized', 401);
+          }
+        }
         const body = await request.json();
         const { id, status: es, error } = body;
         if (!id || !es) return error('id and status required');

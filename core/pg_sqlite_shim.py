@@ -81,6 +81,8 @@ def convert_sql(query):
             
     if sql.strip().upper().startswith("PRAGMA"):
         return ""
+    # Convert LIKE to ILIKE for case-insensitive behavior matching SQLite
+    sql = re.sub(r"\bLIKE\b", "ILIKE", sql, flags=re.IGNORECASE)
     return sql
 
 class PgCursorWrapper:
@@ -104,27 +106,97 @@ class PgCursorWrapper:
             raise IntegrityError(e)
             
         return self
+
+    def executemany(self, query, seq_of_params):
+        pg_query = convert_sql(query)
+        try:
+            self.cursor.executemany(pg_query, seq_of_params)
+        except psycopg2.OperationalError as e:
+            raise OperationalError(e)
+        except psycopg2.IntegrityError as e:
+            raise IntegrityError(e)
+        return self
         
     def fetchone(self):
-        return self.cursor.fetchone()
+        try:
+            res = self.cursor.fetchone()
+            if res is None:
+                try:
+                    self.cursor.close()
+                except:
+                    pass
+            return res
+        except Exception as e:
+            try:
+                self.cursor.close()
+            except:
+                pass
+            raise e
         
     def fetchall(self):
-        return self.cursor.fetchall()
+        try:
+            return self.cursor.fetchall()
+        finally:
+            try:
+                self.cursor.close()
+            except:
+                pass
         
     def fetchmany(self, size=None):
-        if size is None:
-            return self.cursor.fetchmany()
-        return self.cursor.fetchmany(size)
+        try:
+            if size is None:
+                res = self.cursor.fetchmany()
+            else:
+                res = self.cursor.fetchmany(size)
+            if not res or (size is not None and len(res) < size):
+                try:
+                    self.cursor.close()
+                except:
+                    pass
+            return res
+        except Exception as e:
+            try:
+                self.cursor.close()
+            except:
+                pass
+            raise e
         
     def close(self):
-        self.cursor.close()
+        try:
+            self.cursor.close()
+        except:
+            pass
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        row = self.fetchone()
+        if row is None:
+            raise StopIteration
+        return row
+
+    def __del__(self):
+        try:
+            self.cursor.close()
+        except:
+            pass
+
+    @property
+    def rowcount(self):
+        return self.cursor.rowcount
+
+    @property
+    def description(self):
+        return self.cursor.description
 
 class PgConnectionWrapper:
     def __init__(self):
         global PG_POOL, BACKEND
+        self.row_factory = None
         if PG_POOL is None:
             try:
-                PG_POOL = pool.ThreadedConnectionPool(1, 20, NEON_URI, cursor_factory=DictCursor, connect_timeout=5)
+                PG_POOL = pool.ThreadedConnectionPool(1, 30, NEON_URI, cursor_factory=DictCursor, connect_timeout=5)
             except psycopg2.OperationalError as e:
                 raise OperationalError(e)
         
@@ -144,12 +216,21 @@ class PgConnectionWrapper:
         cur = self.conn.cursor()
         wrapper = PgCursorWrapper(cur)
         return wrapper.execute(script)
+
+    def executemany(self, query, seq_of_params):
+        cur = self.conn.cursor()
+        wrapper = PgCursorWrapper(cur)
+        return wrapper.executemany(query, seq_of_params)
         
     def commit(self):
         self.conn.commit()
         
     def rollback(self):
         self.conn.rollback()
+
+    def cursor(self):
+        cur = self.conn.cursor()
+        return PgCursorWrapper(cur)
         
     def close(self):
         global PG_POOL
@@ -196,12 +277,20 @@ class SqliteConnectionWrapper:
     def executescript(self, script):
         self.conn.executescript(script)
         return self.conn.cursor()
+
+    def executemany(self, query, seq_of_params):
+        cur = self.conn.cursor()
+        cur.executemany(query, seq_of_params)
+        return cur
         
     def commit(self):
         self.conn.commit()
         
     def rollback(self):
         self.conn.rollback()
+
+    def cursor(self):
+        return self.conn.cursor()
         
     def close(self):
         self.conn.close()
@@ -226,25 +315,36 @@ def connect(db_path=None, **kwargs):
     
     if os.getenv("FORCE_SQLITE") == "1":
         logger.info("[DB] FORCE_SQLITE=1, skipping PG")
-        if FALLBACK_DB_PATH and os.path.exists(FALLBACK_DB_PATH):
+        if FALLBACK_DB_PATH:
             return SqliteConnectionWrapper(FALLBACK_DB_PATH)
         if db_path:
             return SqliteConnectionWrapper(db_path)
-        raise OperationalError("FORCE_SQLITE=1 but no fallback db path was provided")
+        return SqliteConnectionWrapper("jobhunt_saas_v2.db")
 
     if not NEON_URI:
-        if FALLBACK_DB_PATH and os.path.exists(FALLBACK_DB_PATH):
-            logger.warning("[DB] No PostgreSQL URL set, using SQLite fallback")
+        logger.warning("[DB] No PostgreSQL URL set, using SQLite fallback")
+        if FALLBACK_DB_PATH:
             return SqliteConnectionWrapper(FALLBACK_DB_PATH)
-        raise OperationalError("No database URL configured")
+        if db_path:
+            return SqliteConnectionWrapper(db_path)
+        return SqliteConnectionWrapper("jobhunt_saas_v2.db")
 
-    return PgConnectionWrapper()
+    try:
+        return PgConnectionWrapper()
+    except Exception as pg_err:
+        logger.error(f"[DB] Failed to connect to Neon PG: {pg_err}. Falling back to SQLite.")
+        if FALLBACK_DB_PATH:
+            return SqliteConnectionWrapper(FALLBACK_DB_PATH)
+        if db_path:
+            return SqliteConnectionWrapper(db_path)
+        return SqliteConnectionWrapper("jobhunt_saas_v2.db")
 
-class Row:
-    pass
-
-class Connection:
-    pass
+# Expose standard SQLite3 properties and error types for compatibility
+Error = real_sqlite3.Error
+DatabaseError = real_sqlite3.DatabaseError
+InterfaceError = real_sqlite3.InterfaceError
+Row = real_sqlite3.Row
+Connection = PgConnectionWrapper
 
 def get_backend():
     """Returns current database backend: 'pg' or 'sqlite'."""
