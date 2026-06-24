@@ -30,6 +30,16 @@ jobs:
           GMAIL_SMTP_USER_1=${{ secrets.GMAIL_SMTP_USER_1 }}
           GMAIL_APP_PASSWORD_1=${{ secrets.GMAIL_APP_PASSWORD_1 }}
           EOF
-      - run: python run_once.py
+      - name: Run JobHunt Pro Single Cycle
+        run: python run_once.py
         env:
           PYTHONUNBUFFERED: 1
+
+      - name: Quota-Safe Google Drive Maintenance
+        run: python scripts/quota_safe_storage.py
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+        continue-on-error: true
