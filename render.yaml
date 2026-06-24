@@ -17,7 +17,7 @@ services:
       - key: DB_PATH
         value: /tmp/jobhunt_saas_v2.db
       - key: FORCE_SQLITE
-        value: "1"
+        value: "0"
       # === ENV VARS TO SET IN RENDER DASHBOARD (secrets, not in git) ===
       # Add these via Render Dashboard → Environment → Environment Variables
       #

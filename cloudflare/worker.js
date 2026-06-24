@@ -138,7 +138,7 @@ Best regards,
 ${userName}`;
 }
 
-// ── SCRAPE JOBS FROM GOOGLE CACHE ──
+// ── SCRAPE JOBS WITH DIRECT FETCH AND GOOGLE CACHE FALLBACK ──
 async function scrapeJobs(env, url) {
   if (!url) return { error: 'Missing url' };
   
@@ -150,9 +150,35 @@ async function scrapeJobs(env, url) {
     if (cached) return { source: 'cache', content: cached.content };
   }
   
+  // 1. Try Direct Fetch first (Modern approach)
+  try {
+    const resp = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+      },
+      signal: AbortSignal.timeout(10000)
+    });
+    
+    if (resp.status === 200) {
+      const text = await resp.text();
+      if (env.DB && text.length < 100000) {
+        env.DB.prepare(
+          "INSERT OR REPLACE INTO scraper_cache (url, platform, content, content_hash, expires_at, status) VALUES (?, ?, ?, ?, datetime('now', '+1 hour'), ?)"
+        ).bind(url, 'direct_fetch', text.substring(0, 50000), String(text.length), resp.status).run().catch(() => {});
+      }
+      return { source: 'direct_fetch', status: 200, content: text.substring(0, 100000) };
+    }
+  } catch (directErr) {
+    console.error("Direct fetch failed, falling back to Google Cache:", directErr.message);
+  }
+  
+  // 2. Fallback to Google Cache (Legacy, might return 404/403 since retired)
   try {
     const resp = await fetch(`https://webcache.googleusercontent.com/search?q=cache:${encodeURIComponent(url)}`, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' },
+      signal: AbortSignal.timeout(10000)
     });
     const text = await resp.text();
     
