@@ -12,9 +12,12 @@ import pyotp
 from datetime import datetime, timezone
 
 PA_HOST = "www.pythonanywhere.com"
-USERNAME = os.environ.get("PA_USERNAME", "jhfguf")
-PASSWORD = os.environ.get("PA_PASSWORD", "JKHgfk^%#FKF6538653YT") # Hardcoded from user prompt
-TOTP_SECRET = "4RQLUKK6XN62I4OH3DTXMORWVABDRZS6"
+PASSWORD = os.environ.get("PA_PASSWORD")
+TOTP_SECRET = os.environ.get("PA_TOTP_SECRET")
+
+if not PASSWORD or not TOTP_SECRET:
+    print("ERROR: PA_PASSWORD and PA_TOTP_SECRET environment variables must be set!")
+    sys.exit(1)
 
 def log(msg):
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")

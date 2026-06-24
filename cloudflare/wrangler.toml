@@ -21,9 +21,9 @@ id = "0b117064b13d4325ba27fa7bf12c1ed6"
 [ai]
 binding = "AI"
 
-# ── Cron Triggers (campaign processor every 30 min) ──
+# ── Cron Triggers (campaign processor & hydra tick every 4 min) ──
 [[triggers]]
-crons = ["*/30 * * * *"]
+crons = ["*/4 * * * *"]
 
 # ── Variables ──
 [vars]

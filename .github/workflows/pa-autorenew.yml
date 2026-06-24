@@ -16,7 +16,8 @@ jobs:
       - run: pip install requests pyotp
       - name: Extend PythonAnywhere account
         env:
-          PA_USERNAME: jhfguf
+          PA_USERNAME: ${{ secrets.PA_USERNAME || 'jhfguf' }}
           PA_PASSWORD: ${{ secrets.PA_PASSWORD }}
+          PA_TOTP_SECRET: ${{ secrets.PA_TOTP_SECRET }}
         run: |
           python .github/pa_autorenew.py
