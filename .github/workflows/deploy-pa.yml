@@ -38,6 +38,10 @@ jobs:
             ["web/cloud_tick_router.py"]="/home/${USER_UPPER}/jobhunt/web/cloud_tick_router.py"
             ["web/frontend_api.py"]="/home/${USER_UPPER}/jobhunt/web/frontend_api.py"
             ["web/app_v2.py"]="/home/${USER_UPPER}/jobhunt/web/app_v2.py"
+            ["web/templates/offers.html"]="/home/${USER_UPPER}/jobhunt/web/templates/offers.html"
+            ["web/templates/_sidebar.html"]="/home/${USER_UPPER}/jobhunt/web/templates/_sidebar.html"
+            ["web/templates/my_purchases.html"]="/home/${USER_UPPER}/jobhunt/web/templates/my_purchases.html"
+            ["check_pa_logs.py"]="/home/${USER_UPPER}/jobhunt/check_pa_logs.py"
           )
           
           for local in "${!FILES[@]}"; do
