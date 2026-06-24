@@ -220,7 +220,7 @@ export default {
     // 2. In addition, run the D1 campaign processor
     try {
       const campaigns = await env.DB.prepare(
-        "SELECT c.id, c.user_id, c.sent_count, u.email, u.name, u.target_roles, u.target_locations, u.byo_smtp_email, u.byo_smtp_token, u.byo_ai_key FROM campaigns c JOIN users u ON c.user_id = u.id WHERE c.status = 'active' AND u.status = 'active'"
+        "SELECT c.id, c.user_id, c.sent_count, c.target_count, u.email, u.name, u.target_roles, u.target_locations, u.byo_smtp_email, u.byo_smtp_token, u.byo_ai_key FROM campaigns c JOIN users u ON c.user_id = u.id WHERE c.status = 'active' AND u.status = 'active'"
       ).all();
       
       console.log(`Found ${campaigns.results.length} active campaigns in D1`);
@@ -614,6 +614,17 @@ async function processCampaign(env, camp) {
   console.log(`Processing campaign ${camp.id} for user ${camp.user_id}`);
   
   try {
+    // 1. Check if campaign has reached target count limit
+    const targetLimit = camp.target_count || 50;
+    const currentSent = camp.sent_count || 0;
+    if (currentSent >= targetLimit) {
+      console.log(`Campaign ${camp.id} reached its limit of ${targetLimit}. Marking completed.`);
+      await db.prepare("UPDATE campaigns SET status = 'completed', completed_at = datetime('now') WHERE id = ?").bind(camp.id).run();
+      return;
+    }
+
+    const maxBinds = targetLimit - currentSent;
+
     // Find unscored jobs matching user's target roles and locations
     if (camp.target_roles) {
       const keywords = camp.target_roles.split(',').map(k => k.trim()).filter(Boolean);
@@ -638,8 +649,8 @@ async function processCampaign(env, camp) {
           locQuery = ` AND (${locLikes.join(" OR ")})`;
         }
         
-        const queryStr = `SELECT id, title, company, location, email FROM jobs WHERE (${likes.join(" OR ")})${locQuery} AND id NOT IN (SELECT job_id FROM applications WHERE user_id = ?) ORDER BY scraped_at ASC LIMIT 20`;
-        binds.push(camp.user_id);
+        const queryStr = `SELECT id, title, company, location, email FROM jobs WHERE (${likes.join(" OR ")})${locQuery} AND id NOT IN (SELECT job_id FROM applications WHERE user_id = ?) ORDER BY scraped_at ASC LIMIT ?`;
+        binds.push(camp.user_id, Math.min(20, maxBinds));
         
         const jobs = await db.prepare(queryStr).bind(...binds).all();
         
@@ -647,10 +658,10 @@ async function processCampaign(env, camp) {
           // Generate cover letter
           const letter = await generateCoverLetter(ai, job.title, job.company, camp.name, camp.target_roles, camp.byo_ai_key);
           
-          // Create application record
+          // Create application record with campaign_id association
           await db.prepare(
-            'INSERT INTO applications (user_id, job_id, status, cover_letter, email_sent) VALUES (?, ?, ?, ?, 0)'
-          ).bind(camp.user_id, job.id, 'matched', letter.substring(0, 2000)).run();
+            'INSERT INTO applications (user_id, job_id, campaign_id, status, cover_letter, email_sent) VALUES (?, ?, ?, ?, ?, 0)'
+          ).bind(camp.user_id, job.id, camp.id, 'matched', letter.substring(0, 2000)).run();
           
           // Queue email in outbox
           const toEmail = job.email || '';
@@ -665,8 +676,8 @@ async function processCampaign(env, camp) {
       }
     }
     
-    // Update campaign stats
-    const sentCount = await db.prepare("SELECT COUNT(*) as c FROM applications WHERE user_id = ? AND email_sent = 1").bind(camp.user_id).first();
+    // Update campaign stats isolated by campaign ID
+    const sentCount = await db.prepare("SELECT COUNT(*) as c FROM applications WHERE campaign_id = ? AND email_sent = 1").bind(camp.id).first();
     await db.prepare("UPDATE campaigns SET sent_count = ? WHERE id = ?").bind(sentCount?.c || 0, camp.id).run();
     
   } catch (e) {

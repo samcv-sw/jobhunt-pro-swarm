@@ -63,15 +63,20 @@ def send_smtp_email(to_email, subject, body, smtp_email, smtp_password):
                 pass
 
 def main():
-    # Loop over multiple random workers to claim and process emails
-    # Since worker claims are modulo 16, we try a few random ones
+    start_time = time.time()
+    # Loop over all 16 worker slots sequentially to ensure no stranded emails.
     worker_ids = list(range(16))
-    random.shuffle(worker_ids)
     
     total_processed = 0
     total_sent = 0
     
-    for worker_id in worker_ids[:4]: # Check 4 random worker slots per GHA run
+    for worker_id in worker_ids:
+        # Check elapsed time (Watchdog Exit: 14 mins limit to prevent overlapping cron runs)
+        elapsed = time.time() - start_time
+        if elapsed > 840:
+            log(f"Watchdog trigger: elapsed time ({elapsed:.1f}s) exceeded 14-minute safety threshold. Exiting cleanly.")
+            break
+
         claim_url = f"{WORKER_URL}/api/email/outbox/claim?worker={worker_id}&limit=10"
         log(f"Claiming emails from: {claim_url}")
         
@@ -92,6 +97,11 @@ def main():
             log(f"Claimed {len(emails)} emails for worker slot {worker_id}")
             
             for item in emails:
+                # Re-check elapsed time inside the loop before processing each email
+                if time.time() - start_time > 840:
+                    log("Watchdog trigger inside claim loop. Exiting cleanly.")
+                    break
+
                 total_processed += 1
                 email_id = item.get("id")
                 to_email = item.get("to_email")

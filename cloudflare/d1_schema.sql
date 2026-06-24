@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS applications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     job_id INTEGER NOT NULL,
+    campaign_id INTEGER,             -- Associated campaign
     status TEXT DEFAULT 'pending',   -- pending | sent | failed | rejected | interview
     email_sent INTEGER DEFAULT 0,
     email_body TEXT,
@@ -69,7 +70,8 @@ CREATE TABLE IF NOT EXISTS applications (
     response_at TEXT,
     notes TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (job_id) REFERENCES jobs(id)
+    FOREIGN KEY (job_id) REFERENCES jobs(id),
+    FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_applications_user ON applications(user_id);

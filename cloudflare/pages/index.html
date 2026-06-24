@@ -260,7 +260,7 @@
       }
 
       try {
-        var r = await fetch(API + '/_/pa/api/register-fast', {
+        var r = await fetch(API + '/api/register-fast', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: name, email: email, phone: phone, roles: roles, locations: locations, salary: salary }),
@@ -332,7 +332,7 @@
 
       try {
         // Step 1: Save SMTP
-        var r1 = await fetch(API + '/_/pa/api/byo-smtp/save', {
+        var r1 = await fetch(API + '/api/byo-smtp/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: email, password: pass, user_id: userId }),
@@ -347,7 +347,7 @@
         }
         
         // Step 2: Auto-create campaign
-        var r2 = await fetch(API + '/_/pa/api/campaign/create', {
+        var r2 = await fetch(API + '/api/campaign/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ user_id: userId }),
@@ -389,7 +389,7 @@
 
       try {
         // Fetch user details
-        var r = await fetch(API + '/_/pa/api/user/by-email?email=' + encodeURIComponent(email));
+        var r = await fetch(API + '/api/user/by-email?email=' + encodeURIComponent(email));
         if (!r.ok) {
           dashContent.innerHTML = '<div class="card"><div class="status err">❌ User not found. Register first.</div></div>';
           return;
@@ -397,16 +397,16 @@
         var user = await r.json();
         
         // Fetch user stats
-        var sr = await fetch(API + '/_/pa/api/user/stats?user_id=' + user.id);
+        var sr = await fetch(API + '/api/user/stats?user_id=' + user.id);
         var stats = sr.ok ? await sr.json() : {};
         
         // Fetch campaigns
-        var campR = await fetch(API + '/_/pa/api/campaign/list?user_id=' + user.id);
+        var campR = await fetch(API + '/api/campaign/list?user_id=' + user.id);
         var campaigns = campR.ok ? await campR.json() : { campaigns: [] };
         var camps = campaigns.campaigns || [];
         
         // Fetch recent jobs
-        var jobR = await fetch(API + '/_/pa/api/jobs/user?user_id=' + user.id + '&limit=20');
+        var jobR = await fetch(API + '/api/jobs/user?user_id=' + user.id + '&limit=20');
         var jobs = jobR.ok ? await jobR.json() : { jobs: [] };
         var jobList = jobs.jobs || [];
 
