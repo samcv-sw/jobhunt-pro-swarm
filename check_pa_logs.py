@@ -1,36 +1,74 @@
-import requests, re, pyotp, sys
+import os
+import sys
+import re
+import requests
+import pyotp
+from datetime import datetime, timezone
+
+# Load local .env variables if present
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 PA_HOST = "www.pythonanywhere.com"
-USERNAME = "JHFGUF"
-PASSWORD = "JKHgfk^%#FKF6538653YT"
-TOTP_SECRET = "4RQLUKK6XN62I4OH3DTXMORWVABDRZS6"
+USERNAME = os.getenv("PA_USERNAME", "JHFGUF")
+PASSWORD = os.getenv("PA_PASSWORD")
+TOTP_SECRET = os.getenv("PA_TOTP_SECRET")
+
+# Enforce security checklist
+if not PASSWORD or not TOTP_SECRET:
+    print("\n[!] ERROR: Security credentials missing!")
+    print("Please set the following environment variables in your local .env file:")
+    print("  PA_PASSWORD=<your_pythonanywhere_password>")
+    print("  PA_TOTP_SECRET=<your_2fa_totp_secret>")
+    print("\n(Never commit or hardcode credentials in your code repository!)\n")
+    sys.exit(1)
 
 s = requests.Session()
-s.headers.update({"User-Agent": "Mozilla/5.0"})
+s.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
 
 print("Logging in to PythonAnywhere...")
-r = s.get(f"https://{PA_HOST}/login/")
-csrf = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', r.text).group(1)
+try:
+    r = s.get(f"https://{PA_HOST}/login/", timeout=15)
+    r.raise_for_status()
+except Exception as e:
+    print(f"Failed to connect to PythonAnywhere: {e}")
+    sys.exit(1)
+
+csrf_match = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', r.text)
+if not csrf_match:
+    print("Error: Could not retrieve CSRF token from login page.")
+    sys.exit(1)
+csrf = csrf_match.group(1)
 
 r = s.post(f"https://{PA_HOST}/login/", data={
     "csrfmiddlewaretoken": csrf,
     "auth-username": USERNAME,
     "auth-password": PASSWORD,
     "login_view-current_step": "auth",
-}, headers={"Referer": f"https://{PA_HOST}/login/"})
+}, headers={"Referer": f"https://{PA_HOST}/login/"}, timeout=15)
 
-if "token" in r.text.lower() or "otp_token" in r.text:
+if "token" in r.text.lower() or "otp_token" in r.text or "authenticator" in r.text.lower():
     print("Submitting 2FA TOTP...")
     totp = pyotp.TOTP(TOTP_SECRET)
     code = totp.now()
-    csrf2 = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', r.text).group(1)
-    r = s.post(r.url, data={
-        "csrfmiddlewaretoken": csrf2,
-        "token-otp_token": code,
-        "login_view-current_step": "token",
-    }, headers={"Referer": r.url})
+    csrf2_match = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', r.text)
+    if csrf2_match:
+        csrf2 = csrf2_match.group(1)
+        r = s.post(r.url, data={
+            "csrfmiddlewaretoken": csrf2,
+            "token-otp_token": code,
+            "login_view-current_step": "token",
+        }, headers={"Referer": r.url}, timeout=15)
 
-print("Fetching webapps page...")
-r = s.get(f"https://{PA_HOST}/user/{USERNAME}/webapps/")
+if "Invalid" in r.text or "Log in" in r.text:
+    print("Error: Login or 2FA verification failed.")
+    sys.exit(1)
+
+print("Login successful! Fetching webapps page...")
+r = s.get(f"https://{PA_HOST}/user/{USERNAME}/webapps/", timeout=15)
 log_url = re.search(r'href="(/user/[^"]+/files/var/log/[^"]+error\.log)"', r.text)
 if log_url:
     err_url = f"https://{PA_HOST}{log_url.group(1)}"

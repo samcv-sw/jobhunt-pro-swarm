@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 JobHunt Pro - Automated Database Backup System
 ================================================

@@ -1,0 +1,79 @@
+name: Deploy Core & Web Files to PA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cloud_orchestrator.py'
+      - 'payments/**'
+      - 'core/**'
+      - 'web/**'
+      - '.env'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload files to PythonAnywhere
+        env:
+          PA_TOKEN: ${{ secrets.PA_API_TOKEN || secrets.PA_TOKEN }}
+        run: |
+          set -e
+          USER_UPPER=$(echo "${{ vars.PA_USER }}" | tr '[:lower:]' '[:upper:]')
+          USER_UPPER="${USER_UPPER:-JHFGUF}"
+          USER_LOWER=$(echo "${{ vars.PA_USER }}" | tr '[:upper:]' '[:lower:]')
+          USER_LOWER="${USER_LOWER:-jhfguf}"
+          
+          # Map of local_path -> remote_path
+          declare -A FILES=(
+            ["cloud_orchestrator.py"]="/home/${USER_UPPER}/jobhunt/cloud_orchestrator.py"
+            ["payments/__init__.py"]="/home/${USER_UPPER}/jobhunt/payments/__init__.py"
+            ["core/email_engine.py"]="/home/${USER_UPPER}/jobhunt/core/email_engine.py"
+            ["core/campaign_runner.py"]="/home/${USER_UPPER}/jobhunt/core/campaign_runner.py"
+            ["core/upstash_rate_limiter.py"]="/home/${USER_UPPER}/jobhunt/core/upstash_rate_limiter.py"
+            ["core/pa_job_scraper.py"]="/home/${USER_UPPER}/jobhunt/core/pa_job_scraper.py"
+            ["web/cloud_tick_router.py"]="/home/${USER_UPPER}/jobhunt/web/cloud_tick_router.py"
+            ["web/frontend_api.py"]="/home/${USER_UPPER}/jobhunt/web/frontend_api.py"
+            ["web/app_v2.py"]="/home/${USER_UPPER}/jobhunt/web/app_v2.py"
+          )
+          
+          for local in "${!FILES[@]}"; do
+            remote="${FILES[$local]}"
+            if [ -f "$local" ]; then
+              echo "Uploading $local to $remote..."
+              HTTP_CODE=$(curl -s -o /tmp/upload_resp.txt -w "%{http_code}" --max-time 30 \
+                -X POST "https://www.pythonanywhere.com/api/v0/user/${USER_LOWER}/files/path$remote" \
+                -H "Authorization: Token $PA_TOKEN" \
+                -F "content=@$local")
+              echo "HTTP Code: ${HTTP_CODE}"
+              if [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "201" ]; then
+                echo "ERROR: Failed uploading $local. Response:"
+                cat /tmp/upload_resp.txt
+                exit 1
+              fi
+            fi
+          done
+
+      - name: Reload PA webapp
+        env:
+          PA_TOKEN: ${{ secrets.PA_API_TOKEN || secrets.PA_TOKEN }}
+        run: |
+          echo "Reloading PA webapp..."
+          USER_LOWER=$(echo "${{ vars.PA_USER }}" | tr '[:upper:]' '[:lower:]')
+          USER_LOWER="${USER_LOWER:-jhfguf}"
+          DOMAIN="${{ vars.PA_DOMAIN }}"
+          DOMAIN="${DOMAIN:-jhfguf.pythonanywhere.com}"
+          HTTP_CODE=$(curl -s -o /tmp/reload_resp.txt -w "%{http_code}" --max-time 30 \
+            -X POST "https://www.pythonanywhere.com/api/v0/user/${USER_LOWER}/webapps/${DOMAIN}/reload/" \
+            -H "Authorization: Token $PA_TOKEN")
+          echo "HTTP Code: ${HTTP_CODE}"
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "SUCCESS: PA webapp reloaded successfully!"
+          else
+            echo "ERROR: Failed to reload webapp. Response:"
+            cat /tmp/reload_resp.txt
+            exit 1
+          fi

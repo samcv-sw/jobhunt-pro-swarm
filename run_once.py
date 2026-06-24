@@ -3,6 +3,14 @@ JobHunt Pro - Single Cycle Run Entrypoint (run_once.py)
 Coordinates search, scoring, applying, and follow-ups in a single run.
 Designed for daily execution via GitHub Actions (job-hunt.yml).
 """
+import sys, os
+if not os.getenv("FORCE_SQLITE"):
+    try:
+        from core import pg_sqlite_shim
+        sys.modules['sqlite3'] = pg_sqlite_shim
+    except Exception:
+        pass
+
 import sys
 import os
 import asyncio

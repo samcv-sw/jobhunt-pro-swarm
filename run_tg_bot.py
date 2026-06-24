@@ -4,6 +4,13 @@ Runs independently from the web app via polling.
 """
 import os
 import sys
+if not os.getenv("FORCE_SQLITE"):
+    try:
+        from core import pg_sqlite_shim
+        sys.modules['sqlite3'] = pg_sqlite_shim
+    except Exception:
+        pass
+
 sys.path.insert(0, '/home/JHFGUF/jobhunt')
 sys.path.insert(0, '/home/JHFGUF/jobhunt/web')
 

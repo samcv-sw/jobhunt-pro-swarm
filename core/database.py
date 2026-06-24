@@ -1,3 +1,11 @@
+import sys, os
+if not os.getenv("FORCE_SQLITE"):
+    try:
+        from core import pg_sqlite_shim
+        sys.modules['sqlite3'] = pg_sqlite_shim
+    except Exception:
+        pass
+
 try:
     import asyncpg
     ASYNC_PG_AVAILABLE = True

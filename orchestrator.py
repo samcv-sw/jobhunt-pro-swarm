@@ -3,6 +3,14 @@ JobHunt Pro - Orchestrator v8
 Coordinates: Search -> Score -> AI Tailor -> Apply -> Follow-up -> Dashboard
 Enhanced with Groq AI Personalization, Anti-Ban, Stealth, and Response Prediction
 """
+import sys, os
+if not os.getenv("FORCE_SQLITE"):
+    try:
+        from core import pg_sqlite_shim
+        sys.modules['sqlite3'] = pg_sqlite_shim
+    except Exception:
+        pass
+
 import asyncio
 import logging
 import sys

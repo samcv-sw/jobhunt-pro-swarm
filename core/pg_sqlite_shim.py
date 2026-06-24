@@ -265,6 +265,7 @@ class PgConnectionWrapper:
     def __init__(self):
         global PG_POOL, BACKEND
         self.row_factory = None
+        self._in_transaction = False
         if PG_POOL is None:
             try:
                 min_conn = int(os.getenv("PG_POOL_MIN", "5"))
@@ -281,6 +282,15 @@ class PgConnectionWrapper:
             raise OperationalError(e)
             
     def execute(self, query, params=None):
+        if query:
+            q_upper = query.strip().upper()
+            if q_upper.startswith("BEGIN"):
+                self._in_transaction = True
+            elif q_upper.startswith("COMMIT"):
+                self._in_transaction = False
+            elif q_upper.startswith("ROLLBACK"):
+                self._in_transaction = False
+                
         cur = self.conn.cursor()
         wrapper = PgCursorWrapper(cur, self)
         return wrapper.execute(query, params)
@@ -297,17 +307,29 @@ class PgConnectionWrapper:
         
     def commit(self):
         try:
-            if self.conn and not getattr(self.conn, "autocommit", False):
-                self.conn.commit()
-        except Exception:
-            pass
+            if self.conn:
+                if getattr(self.conn, "autocommit", False):
+                    if getattr(self, "_in_transaction", False):
+                        with self.conn.cursor() as cur:
+                            cur.execute("COMMIT")
+                        self._in_transaction = False
+                else:
+                    self.conn.commit()
+        except Exception as e:
+            logger.debug(f"Commit failed: {e}")
         
     def rollback(self):
         try:
-            if self.conn and not getattr(self.conn, "autocommit", False):
-                self.conn.rollback()
-        except Exception:
-            pass
+            if self.conn:
+                if getattr(self.conn, "autocommit", False):
+                    if getattr(self, "_in_transaction", False):
+                        with self.conn.cursor() as cur:
+                            cur.execute("ROLLBACK")
+                        self._in_transaction = False
+                else:
+                    self.conn.rollback()
+        except Exception as e:
+            logger.debug(f"Rollback failed: {e}")
 
     def cursor(self):
         cur = self.conn.cursor()

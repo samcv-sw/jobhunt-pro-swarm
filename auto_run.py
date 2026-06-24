@@ -4,6 +4,14 @@ Starts web server + swarm master (200 agents) + telegram bot + legacy orchestrat
 + Service order fulfillment watchdog + healing daemon
 Fully fault-tolerant: if any component crashes, watchdog restarts it within 60s
 """
+import sys, os
+if not os.getenv("FORCE_SQLITE"):
+    try:
+        from core import pg_sqlite_shim
+        sys.modules['sqlite3'] = pg_sqlite_shim
+    except Exception:
+        pass
+
 import asyncio
 import logging
 import sys

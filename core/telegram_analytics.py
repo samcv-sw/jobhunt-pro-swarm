@@ -7,7 +7,15 @@ company intelligence, and comprehensive personal dashboards.
 
 Used by telegram_bot.py handlers: /stats, /trend, /funnel, /companies
 """
-import sqlite3
+import os
+import sys
+if not os.getenv("FORCE_SQLITE"):
+    try:
+        from core import pg_sqlite_shim as sqlite3
+    except ImportError:
+        import sqlite3
+else:
+    import sqlite3
 import time
 import json
 from typing import Dict, List, Any, Optional, Tuple

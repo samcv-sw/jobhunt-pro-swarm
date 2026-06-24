@@ -10,6 +10,13 @@ Runs 24/7 with 20,000 hierarchical swarm agents:
 """
 import sys
 import os
+if not os.getenv("FORCE_SQLITE"):
+    try:
+        from core import pg_sqlite_shim
+        sys.modules['sqlite3'] = pg_sqlite_shim
+    except Exception:
+        pass
+
 import asyncio
 import logging
 import config

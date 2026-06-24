@@ -11,7 +11,15 @@ Monitors DB changes and pushes intelligent alerts:
 """
 import asyncio
 import time
-import sqlite3
+import os
+import sys
+if not os.getenv("FORCE_SQLITE"):
+    try:
+        from core import pg_sqlite_shim as sqlite3
+    except ImportError:
+        import sqlite3
+else:
+    import sqlite3
 import threading
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Callable, Set
