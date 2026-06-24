@@ -284,6 +284,41 @@ def handle_sigterm(signum, frame):
         _shutdown = True
 
 
+async def run_cloud_email_sender_loop():
+    """Run scripts/cloud_email_sender.py main() in a background loop.
+    Drains the Cloudflare outbox by sending emails via SMTP.
+    Runs 24/7 on Render/Fly.io for free, replacing GHA cron.
+    """
+    global _shutdown
+    logger.info("[SENDER] Starting background cloud email sender loop...")
+    
+    # Wait 30 seconds for web server to boot up
+    await asyncio.sleep(30)
+    
+    while not _shutdown:
+        logger.info("[SENDER] Checking Cloudflare outbox for queued emails...")
+        try:
+            from scripts.cloud_email_sender import main as run_sender
+            # Run the synchronous email claim & send cycle in a separate thread
+            # to prevent blocking the async event loop.
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, run_sender)
+        except Exception as e:
+            logger.error("[SENDER] Cloud email sender execution failed: %s", e)
+            
+        if _shutdown:
+            break
+            
+        # Check every 5 minutes (300 seconds)
+        logger.info("[SENDER] Sleeping 5 minutes before next outbox check...")
+        for _ in range(300):
+            if _shutdown:
+                break
+            await asyncio.sleep(1)
+            
+    logger.info("[SENDER] Background cloud email sender loop stopped")
+
+
 def main():
     """Main entry point for cloud deployment.
 
@@ -343,6 +378,7 @@ def main():
         logger.info("Starting Background Swarm Workers (Hydra Compute Head)")
         tasks_to_run.append(background_job_cycle())
         tasks_to_run.append(run_telegram_bot())
+        tasks_to_run.append(run_cloud_email_sender_loop())
 
     try:
         if tasks_to_run:

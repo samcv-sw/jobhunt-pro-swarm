@@ -7,7 +7,7 @@ services:
     plan: free
     region: oregon
     buildCommand: pip install -r requirements_render.txt
-    startCommand: python start_safe.py
+    startCommand: python start_cloud.py
     healthCheckPath: /healthz
     envVars:
       - key: PYTHONUNBUFFERED
