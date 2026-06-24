@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     title TEXT NOT NULL,
     company TEXT NOT NULL,
     location TEXT,
+    email TEXT,                      -- Job contact email
     description TEXT,
     salary_min INTEGER,
     salary_max INTEGER,
@@ -132,3 +133,25 @@ CREATE TABLE IF NOT EXISTS scraper_cache (
 CREATE INDEX IF NOT EXISTS idx_cache_url ON scraper_cache(url);
 CREATE INDEX IF NOT EXISTS idx_cache_platform ON scraper_cache(platform);
 CREATE INDEX IF NOT EXISTS idx_cache_expires ON scraper_cache(expires_at);
+
+-- ── Email Outbox ──
+CREATE TABLE IF NOT EXISTS email_outbox (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    campaign_id INTEGER,
+    user_id INTEGER,
+    job_id INTEGER,
+    to_email TEXT NOT NULL,
+    to_name TEXT,
+    subject TEXT,
+    body TEXT,
+    status TEXT DEFAULT 'queued',
+    error TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    sent_at TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_outbox_status ON email_outbox(status);
+CREATE INDEX IF NOT EXISTS idx_outbox_user ON email_outbox(user_id);
+

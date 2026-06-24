@@ -403,7 +403,7 @@ export default {
         
         let inserted = 0;
         const stmt = db.prepare(
-          'INSERT OR IGNORE INTO jobs (external_id, title, company, location, platform, url, scraped_at, status) VALUES (?, ?, ?, ?, ?, ?, datetime("now"), "active")'
+          'INSERT OR IGNORE INTO jobs (external_id, title, company, location, platform, url, email, scraped_at, status) VALUES (?, ?, ?, ?, ?, ?, ?, datetime("now"), "active")'
         );
         
         const batch = [];
@@ -413,6 +413,7 @@ export default {
           const url = (job.url || '').trim();
           const location = (job.location || '').trim();
           const platform = (job.source || job.platform || 'web').trim();
+          const email = (job.email || '').trim();
           
           if (!title || !url) continue;
           
@@ -420,7 +421,7 @@ export default {
           const externalId = 'hash_' + Array.from(new TextEncoder().encode(url))
             .reduce((hash, val) => (hash * 31 + val) & 0xFFFFFFFF, 0).toString(16);
           
-          batch.push(stmt.bind(externalId, title, company, location, platform, url));
+          batch.push(stmt.bind(externalId, title, company, location, platform, url, email));
         }
         
         if (batch.length > 0) {
@@ -458,6 +459,14 @@ export default {
 
       // ═══════════ API: OUTBOX CLAIM ═══════════
       if (path === '/api/email/outbox/claim' && method === 'GET') {
+        // Optional Bearer token validation for security
+        if (env.OUTBOX_SECRET) {
+          const authHeader = request.headers.get('Authorization') || '';
+          if (authHeader !== 'Bearer ' + env.OUTBOX_SECRET) {
+            return error('Unauthorized', 401);
+          }
+        }
+
         const workerId = parseInt(url.searchParams.get('worker') || '0');
         const limit = parseInt(url.searchParams.get('limit') || '5');
         
@@ -500,6 +509,24 @@ export default {
           "UPDATE email_outbox SET status = ?, error = ?, sent_at = datetime('now') WHERE id = ?"
         ).bind(es === 'sent' ? 'sent' : 'failed', error || '', id).run();
         
+        // Sync application state
+        try {
+          const outboxInfo = await db.prepare("SELECT user_id, job_id FROM email_outbox WHERE id = ?").bind(id).first();
+          if (outboxInfo && outboxInfo.job_id) {
+            if (es === 'sent') {
+              await db.prepare(
+                "UPDATE applications SET email_sent = 1, status = 'sent', sent_at = datetime('now') WHERE user_id = ? AND job_id = ?"
+              ).bind(outboxInfo.user_id, outboxInfo.job_id).run();
+            } else {
+              await db.prepare(
+                "UPDATE applications SET status = 'failed' WHERE user_id = ? AND job_id = ?"
+              ).bind(outboxInfo.user_id, outboxInfo.job_id).run();
+            }
+          }
+        } catch (syncErr) {
+          console.error("Failed to sync application state:", syncErr.message);
+        }
+
         // Update campaign sent count
         await db.prepare(
           "UPDATE campaigns SET sent_count = (SELECT COUNT(*) FROM email_outbox WHERE status = 'sent' AND campaign_id = (SELECT campaign_id FROM email_outbox WHERE id = ?)) WHERE id = (SELECT campaign_id FROM email_outbox WHERE id = ?)"
@@ -587,31 +614,54 @@ async function processCampaign(env, camp) {
   console.log(`Processing campaign ${camp.id} for user ${camp.user_id}`);
   
   try {
-    // Find unscored jobs matching user's target
+    // Find unscored jobs matching user's target roles and locations
     if (camp.target_roles) {
       const keywords = camp.target_roles.split(',').map(k => k.trim()).filter(Boolean);
-      const jobs = await db.prepare(
-        "SELECT id, title, company, location FROM jobs WHERE (title LIKE ? OR company LIKE ?) AND id NOT IN (SELECT job_id FROM applications WHERE user_id = ?) ORDER BY scraped_at ASC LIMIT 20"
-      ).bind('%' + keywords[0] + '%', '%' + keywords[0] + '%', camp.user_id).all();
+      const locations = camp.target_locations ? camp.target_locations.split(',').map(l => l.trim()).filter(Boolean) : [];
       
-      for (const job of jobs.results) {
-        // Generate cover letter
-        const letter = await generateCoverLetter(ai, job.title, job.company, camp.name, camp.target_roles, camp.byo_ai_key);
+      if (keywords.length > 0) {
+        const likes = [];
+        const binds = [];
         
-        // Create application record
-        await db.prepare(
-          'INSERT INTO applications (user_id, job_id, status, cover_letter, email_sent) VALUES (?, ?, ?, ?, 0)'
-        ).bind(camp.user_id, job.id, 'matched', letter.substring(0, 2000)).run();
-        
-        // Queue email in outbox
-        const toEmail = job.email || '';
-        if (toEmail) {
-          await db.prepare(
-            "INSERT INTO email_outbox (campaign_id, user_id, to_email, to_name, subject, body, status, created_at) VALUES (?, ?, ?, ?, ?, ?, 'queued', datetime('now'))"
-          ).bind(camp.id, camp.user_id, toEmail, job.company, 'Application for ' + job.title + ' at ' + job.company, letter.substring(0, 1000)).run();
-          console.log(`  Queued email for job ${job.id}: ${job.title}`);
+        for (const kw of keywords) {
+          likes.push("(title LIKE ? OR company LIKE ?)");
+          binds.push(`%${kw}%`, `%${kw}%`);
         }
-        console.log(`  Matched job ${job.id}: ${job.title} at ${job.company}`);
+        
+        let locQuery = "";
+        if (locations.length > 0) {
+          const locLikes = [];
+          for (const loc of locations) {
+            locLikes.push("location LIKE ?");
+            binds.push(`%${loc}%`);
+          }
+          locQuery = ` AND (${locLikes.join(" OR ")})`;
+        }
+        
+        const queryStr = `SELECT id, title, company, location, email FROM jobs WHERE (${likes.join(" OR ")})${locQuery} AND id NOT IN (SELECT job_id FROM applications WHERE user_id = ?) ORDER BY scraped_at ASC LIMIT 20`;
+        binds.push(camp.user_id);
+        
+        const jobs = await db.prepare(queryStr).bind(...binds).all();
+        
+        for (const job of jobs.results) {
+          // Generate cover letter
+          const letter = await generateCoverLetter(ai, job.title, job.company, camp.name, camp.target_roles, camp.byo_ai_key);
+          
+          // Create application record
+          await db.prepare(
+            'INSERT INTO applications (user_id, job_id, status, cover_letter, email_sent) VALUES (?, ?, ?, ?, 0)'
+          ).bind(camp.user_id, job.id, 'matched', letter.substring(0, 2000)).run();
+          
+          // Queue email in outbox
+          const toEmail = job.email || '';
+          if (toEmail) {
+            await db.prepare(
+              "INSERT INTO email_outbox (campaign_id, user_id, job_id, to_email, to_name, subject, body, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'queued', datetime('now'))"
+            ).bind(camp.id, camp.user_id, job.id, toEmail, job.company, 'Application for ' + job.title + ' at ' + job.company, letter.substring(0, 1000)).run();
+            console.log(`  Queued email for job ${job.id}: ${job.title} to ${toEmail}`);
+          }
+          console.log(`  Matched job ${job.id}: ${job.title} at ${job.company}`);
+        }
       }
     }
     

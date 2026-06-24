@@ -25,3 +25,5 @@ jobs:
       - name: Process Outbox Queue
         run: |
           python scripts/cloud_email_sender.py
+        env:
+          OUTBOX_SECRET: ${{ secrets.OUTBOX_SECRET }}

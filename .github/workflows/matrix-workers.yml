@@ -15,25 +15,19 @@ on:
         required: true
         default: 'full'
   schedule:
-    # Every 3 hours — 8 runs/day
-    - cron: '0 */3 * * *'
+    # Every 12 hours — 2 runs/day (Saves GHA minutes, fits 2000m free tier)
+    - cron: '0 */12 * * *'
 
 env:
   WORKER_URL: 'https://jobhunt-pro-router.samsalameh-cv.workers.dev'
   PA_URL: 'https://jhfguf.pythonanywhere.com'
 
 jobs:
-  # ── Job 1: 256 Parallel Scrapers (max matrix) ──
+  # ── Job 1: Scrapers Matrix (Parallel, optimized depth) ──
   scrape_matrix:
-    name: 🕸️ ${{ matrix.platform }} p${{ matrix.page }}
+    name: 🕸️ Run All Scrapers (Concurrent)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      max-parallel: 40
-      matrix:
-        platform: [linkedin, indeed, bayt, glassdoor, wuzzuf, naukrigulf, dice, google, monster, ziprecruiter, careerjet, jobstreet, grabjobs, trovit, oodle, simplyhired]
-        page: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
@@ -44,14 +38,14 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install httpx beautifulsoup4 requests --quiet
+        run: pip install httpx beautifulsoup4 requests dnspython --quiet
 
-      - name: Scrape and Import
+      - name: Scrape and Import Concurrently
         env:
           WORKER_URL: ${{ env.WORKER_URL }}
           PA_URL: ${{ env.PA_URL }}
         run: |
-          python core/matrix_scrape_handler.py --platform ${{ matrix.platform }} --page ${{ matrix.page }}
+          python scripts/run_all_scrapers.py
 
   # ── Job 2: Email Batch (30 min — bypasses PA timeout) ──
   email_batch:

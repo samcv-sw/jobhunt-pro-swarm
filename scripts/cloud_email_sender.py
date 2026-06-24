@@ -6,6 +6,7 @@ import ssl
 import sys
 import random
 import os
+import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -74,8 +75,13 @@ def main():
         claim_url = f"{WORKER_URL}/api/email/outbox/claim?worker={worker_id}&limit=10"
         log(f"Claiming emails from: {claim_url}")
         
+        headers = {"User-Agent": "JobHuntPro-GHA/1.0"}
+        outbox_secret = os.environ.get("OUTBOX_SECRET")
+        if outbox_secret:
+            headers["Authorization"] = f"Bearer {outbox_secret}"
+            
         try:
-            req = urllib.request.Request(claim_url, headers={"User-Agent": "JobHuntPro-GHA/1.0"})
+            req = urllib.request.Request(claim_url, headers=headers)
             with urllib.request.urlopen(req, timeout=20) as response:
                 data = json.loads(response.read().decode('utf-8'))
                 

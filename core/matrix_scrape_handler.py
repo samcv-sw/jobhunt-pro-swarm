@@ -143,8 +143,22 @@ def main():
                     "company": j.get("company", "Unknown"),
                     "url": j.get("url", ""),
                     "source": platform,
-                    "location": j.get("location", location)
+                    "location": j.get("location", location),
+                    "email": j.get("email", "")
                 })
+
+            # Run EmailFinder inside matrix_scrape_handler.py to find HR contact emails in cloud mode
+            try:
+                import asyncio
+                from core.email_finder import EmailFinder
+                async def enrich():
+                    finder = EmailFinder()
+                    return await finder.enrich_jobs(feed_jobs, fast=True)
+                logger.info(f"Enriching {len(feed_jobs)} jobs with emails...")
+                feed_jobs = asyncio.run(enrich())
+                logger.info(f"Enrichment completed.")
+            except Exception as finder_err:
+                logger.error(f"Failed to enrich jobs with emails: {finder_err}")
 
             # 1. Upload to Cloudflare Worker D1 (Primary Cloud Storage)
             cf_feed_url = f"{worker_url.rstrip('/')}/api/jobs/feed"
