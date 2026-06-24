@@ -3,6 +3,20 @@ import logging
 from dotenv import load_dotenv
 load_dotenv()
 
+# Hijack sqlite3 globally in Cloud/PG Mode to transparently redirect all operations to Neon PG
+if os.getenv("CLOUD_MODE") == "true" or os.getenv("DATABASE_URL", "").startswith(("postgresql", "libsql")):
+    try:
+        import sys
+        from pathlib import Path
+        _root = Path(__file__).resolve().parent
+        if str(_root) not in sys.path:
+            sys.path.insert(0, str(_root))
+        import core.pg_sqlite_shim as pg_sqlite_shim
+        sys.modules['sqlite3'] = pg_sqlite_shim
+        print("[HYDRA-GLOBAL] Successfully hijacked sqlite3 globally with pg_sqlite_shim via config.py")
+    except Exception as shim_err:
+        print(f"[HYDRA-GLOBAL] Failed to hijack sqlite3: {shim_err}")
+
 logger = logging.getLogger(__name__)
 
 VERSION = "17.0"

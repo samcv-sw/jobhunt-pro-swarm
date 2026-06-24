@@ -4,6 +4,7 @@ from psycopg2.extras import DictCursor
 import os
 import logging
 import sqlite3 as real_sqlite3
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -18,17 +19,26 @@ FALLBACK_DB_PATH = None
 # Global Connection Pool
 PG_POOL = None
 
-class OperationalError(Exception):
+# Subclass standard sqlite3 errors for robust catch matching
+class OperationalError(real_sqlite3.OperationalError):
     pass
 
-class IntegrityError(Exception):
+class IntegrityError(real_sqlite3.IntegrityError):
     pass
 
-import re
+class ProgrammingError(real_sqlite3.ProgrammingError):
+    pass
+
+class NotSupportedError(real_sqlite3.NotSupportedError):
+    pass
+
+class InternalError(real_sqlite3.InternalError):
+    pass
 
 def convert_sql(query):
     """Convert SQLite SQL to PostgreSQL-compatible SQL.
-    Handles: ? → %s, AUTOINCREMENT → SERIAL, datetime() → PG timestamp ops, PRAGMA → skip.
+    Handles: ? → %s, AUTOINCREMENT → SERIAL, datetime() → PG timestamp ops, PRAGMA → skip,
+             INSERT OR IGNORE, and INSERT OR REPLACE.
     """
     result = []
     in_single = False
@@ -46,7 +56,34 @@ def convert_sql(query):
             result.append(char)
             
     sql = "".join(result)
+    
+    # 1. Handle INSERT OR REPLACE
+    if "INSERT OR REPLACE" in sql.upper():
+        match = re.search(r"INSERT\s+OR\s+REPLACE\s+INTO\s+(\w+)\s*\(([^)]+)\)\s*(?:VALUES|SELECT)\s*(.*)", sql, re.IGNORECASE)
+        if match:
+            table_name = match.group(1)
+            columns_str = match.group(2)
+            rest_str = match.group(3).strip().rstrip(';')
+            
+            columns = [c.strip() for c in columns_str.split(',')]
+            if columns:
+                key_col = columns[0]
+                update_cols = columns[1:]
+                update_clauses = [f"{col} = EXCLUDED.{col}" for col in update_cols]
+                update_clause_str = ", ".join(update_clauses)
+                sql = f"INSERT INTO {table_name} ({columns_str}) VALUES {rest_str} ON CONFLICT ({key_col}) DO UPDATE SET {update_clause_str}"
+        else:
+            sql = re.sub(r"\bINSERT\s+OR\s+REPLACE\s+INTO\b", "INSERT INTO", sql, flags=re.IGNORECASE)
+
+    # 2. Handle INSERT OR IGNORE
+    if "INSERT OR IGNORE" in sql.upper():
+        sql = re.sub(r"\bINSERT\s+OR\s+IGNORE\s+INTO\b", "INSERT INTO", sql, flags=re.IGNORECASE)
+        sql = sql.strip().rstrip(';')
+        if "ON CONFLICT" not in sql.upper():
+            sql = sql + " ON CONFLICT DO NOTHING"
+
     sql = sql.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
+    
     # Replace: datetime('now', '...offset...') → NOW() +/- INTERVAL '...offset...'
     def _fix_datetime(m):
         inner = m.group(1)
@@ -86,8 +123,9 @@ def convert_sql(query):
     return sql
 
 class PgCursorWrapper:
-    def __init__(self, cursor):
+    def __init__(self, cursor, connection):
         self.cursor = cursor
+        self.connection = connection
         self.lastrowid = None
         
     def execute(self, query, params=None):
@@ -95,11 +133,32 @@ class PgCursorWrapper:
         if not pg_query:
             return self
             
+        tables_with_id = {"users", "cv_profiles", "campaigns", "orders", "wallet_transactions", "job_applications", "job_queue", "email_queue", "user_prefs", "sent_emails"}
+        
+        is_insert = pg_query.strip().upper().startswith("INSERT")
+        table_name = None
+        if is_insert:
+            m = re.search(r"INSERT\s+(?:OR\s+\w+\s+)?INTO\s+(\w+)", pg_query, re.IGNORECASE)
+            if m:
+                table_name = m.group(1).lower()
+                
+        should_return_id = is_insert and table_name in tables_with_id and "RETURNING" not in pg_query.upper()
+        if should_return_id:
+            pg_query = pg_query.strip().rstrip(';') + " RETURNING id"
+            
         try:
             if params is not None:
                 self.cursor.execute(pg_query, params)
             else:
                 self.cursor.execute(pg_query)
+                
+            if should_return_id:
+                try:
+                    row = self.cursor.fetchone()
+                    if row:
+                        self.lastrowid = row[0]
+                except Exception:
+                    pass
         except psycopg2.OperationalError as e:
             raise OperationalError(e)
         except psycopg2.IntegrityError as e:
@@ -125,6 +184,13 @@ class PgCursorWrapper:
                     self.cursor.close()
                 except:
                     pass
+                return None
+            if self.connection.row_factory:
+                try:
+                    row_tuple = tuple(res)
+                    return self.connection.row_factory(self, row_tuple)
+                except Exception as e:
+                    logger.debug(f"Row factory wrapping failed: {e}")
             return res
         except Exception as e:
             try:
@@ -135,7 +201,10 @@ class PgCursorWrapper:
         
     def fetchall(self):
         try:
-            return self.cursor.fetchall()
+            rows = self.cursor.fetchall()
+            if self.connection.row_factory:
+                return [self.connection.row_factory(self, tuple(r)) for r in rows]
+            return rows
         finally:
             try:
                 self.cursor.close()
@@ -145,15 +214,17 @@ class PgCursorWrapper:
     def fetchmany(self, size=None):
         try:
             if size is None:
-                res = self.cursor.fetchmany()
+                rows = self.cursor.fetchmany()
             else:
-                res = self.cursor.fetchmany(size)
-            if not res or (size is not None and len(res) < size):
+                rows = self.cursor.fetchmany(size)
+            if not rows or (size is not None and len(rows) < size):
                 try:
                     self.cursor.close()
                 except:
                     pass
-            return res
+            if self.connection.row_factory:
+                return [self.connection.row_factory(self, tuple(r)) for r in rows]
+            return rows
         except Exception as e:
             try:
                 self.cursor.close()
@@ -196,7 +267,9 @@ class PgConnectionWrapper:
         self.row_factory = None
         if PG_POOL is None:
             try:
-                PG_POOL = pool.ThreadedConnectionPool(1, 30, NEON_URI, cursor_factory=DictCursor, connect_timeout=5)
+                min_conn = int(os.getenv("PG_POOL_MIN", "5"))
+                max_conn = int(os.getenv("PG_POOL_MAX", "80"))
+                PG_POOL = pool.ThreadedConnectionPool(min_conn, max_conn, NEON_URI, cursor_factory=DictCursor, connect_timeout=5)
             except psycopg2.OperationalError as e:
                 raise OperationalError(e)
         
@@ -209,17 +282,17 @@ class PgConnectionWrapper:
             
     def execute(self, query, params=None):
         cur = self.conn.cursor()
-        wrapper = PgCursorWrapper(cur)
+        wrapper = PgCursorWrapper(cur, self)
         return wrapper.execute(query, params)
         
     def executescript(self, script):
         cur = self.conn.cursor()
-        wrapper = PgCursorWrapper(cur)
+        wrapper = PgCursorWrapper(cur, self)
         return wrapper.execute(script)
 
     def executemany(self, query, seq_of_params):
         cur = self.conn.cursor()
-        wrapper = PgCursorWrapper(cur)
+        wrapper = PgCursorWrapper(cur, self)
         return wrapper.executemany(query, seq_of_params)
         
     def commit(self):
@@ -230,7 +303,7 @@ class PgConnectionWrapper:
 
     def cursor(self):
         cur = self.conn.cursor()
-        return PgCursorWrapper(cur)
+        return PgCursorWrapper(cur, self)
         
     def close(self):
         global PG_POOL
@@ -249,6 +322,12 @@ class PgConnectionWrapper:
                 self.rollback()
         finally:
             self.close()
+
+    def __del__(self):
+        try:
+            self.close()
+        except:
+            pass
 
 class SqliteConnectionWrapper:
     """SQLite fallback wrapper with same interface as PgConnectionWrapper."""
@@ -307,37 +386,43 @@ class SqliteConnectionWrapper:
         finally:
             self.close()
 
+def should_use_pg(db_path):
+    if not db_path:
+        return True
+    db_path_str = str(db_path).lower()
+    if ":memory:" in db_path_str:
+        return False
+    if "backup" in db_path_str:
+        return False
+    if "temp" in db_path_str:
+        return False
+    main_db_indicators = ["saas", "sam_max", "jobhunt", "database_v2", "database.db", "database.sqlite3"]
+    return any(indicator in db_path_str for indicator in main_db_indicators)
+
 def connect(db_path=None, **kwargs):
-    """Connect to Neon PG with automatic SQLite fallback on PA."""
+    """Connect to Neon PG with automatic SQLite fallback."""
     global FALLBACK_DB_PATH
     if db_path:
         FALLBACK_DB_PATH = db_path
+        
+    target_db = db_path or FALLBACK_DB_PATH or "jobhunt_saas_v2.db"
+    if not should_use_pg(target_db):
+        logger.info(f"[DB] Bypassing PG for non-main database: {target_db}")
+        return SqliteConnectionWrapper(target_db)
     
     if os.getenv("FORCE_SQLITE") == "1":
         logger.info("[DB] FORCE_SQLITE=1, skipping PG")
-        if FALLBACK_DB_PATH:
-            return SqliteConnectionWrapper(FALLBACK_DB_PATH)
-        if db_path:
-            return SqliteConnectionWrapper(db_path)
-        return SqliteConnectionWrapper("jobhunt_saas_v2.db")
+        return SqliteConnectionWrapper(target_db)
 
     if not NEON_URI:
         logger.warning("[DB] No PostgreSQL URL set, using SQLite fallback")
-        if FALLBACK_DB_PATH:
-            return SqliteConnectionWrapper(FALLBACK_DB_PATH)
-        if db_path:
-            return SqliteConnectionWrapper(db_path)
-        return SqliteConnectionWrapper("jobhunt_saas_v2.db")
+        return SqliteConnectionWrapper(target_db)
 
     try:
         return PgConnectionWrapper()
     except Exception as pg_err:
         logger.error(f"[DB] Failed to connect to Neon PG: {pg_err}. Falling back to SQLite.")
-        if FALLBACK_DB_PATH:
-            return SqliteConnectionWrapper(FALLBACK_DB_PATH)
-        if db_path:
-            return SqliteConnectionWrapper(db_path)
-        return SqliteConnectionWrapper("jobhunt_saas_v2.db")
+        return SqliteConnectionWrapper(target_db)
 
 # Expose standard SQLite3 properties and error types for compatibility
 Error = real_sqlite3.Error
@@ -345,6 +430,12 @@ DatabaseError = real_sqlite3.DatabaseError
 InterfaceError = real_sqlite3.InterfaceError
 Row = real_sqlite3.Row
 Connection = PgConnectionWrapper
+
+OperationalError = OperationalError
+IntegrityError = IntegrityError
+ProgrammingError = ProgrammingError
+NotSupportedError = NotSupportedError
+InternalError = InternalError
 
 def get_backend():
     """Returns current database backend: 'pg' or 'sqlite'."""

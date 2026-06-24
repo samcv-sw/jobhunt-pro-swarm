@@ -456,6 +456,14 @@ def main():
         tasks_to_run.append(run_telegram_bot())
         tasks_to_run.append(run_cloud_email_sender_loop())
         tasks_to_run.append(run_queue_worker_loop())
+        
+        # Start background auto-heal monitor
+        try:
+            from core.auto_heal import start_background_monitor
+            logger.info("Starting Background Auto-Heal Monitor Task...")
+            tasks_to_run.append(start_background_monitor())
+        except Exception as heal_err:
+            logger.error("Failed to start Auto-Heal monitor: %s", heal_err)
 
     try:
         if tasks_to_run:
