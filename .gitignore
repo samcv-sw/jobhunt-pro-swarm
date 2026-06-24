@@ -118,3 +118,16 @@ scratch/
 
 # Backup of old test/scripts
 _backups/
+
+# Secrets and local configurations
+master_hydra.env
+_final_check.py
+_health_test.py
+_status.py
+_verify_syntax.py
+_upload_sce.py
+_count_py.py
+_list_root_py.py
+_bulk_upload.py
+_check_runs.py
+CRYPTO_SECRETS.txt

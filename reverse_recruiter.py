@@ -1,6 +1,7 @@
 import sqlite3
 import asyncio
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -52,9 +53,9 @@ class ReverseRecruiter:
             "price_currency": "usd",
             "order_id": f"b2b_{company_clean}",
             "order_description": f"50 Pre-Vetted Engineers CVs for {company_name}",
-            "ipn_callback_url": "https://YOUR_HUGGINGFACE_SPACE_URL/api/v1/webhook/nowpayments",
-            "success_url": "https://jobhunt-pro.com/success",
-            "cancel_url": "https://jobhunt-pro.com/cancel"
+            "ipn_callback_url": f"{os.getenv('SITE_URL', 'https://jhfguf.pythonanywhere.com')}/api/v1/webhook/nowpayments",
+            "success_url": f"{os.getenv('SITE_URL', 'https://jhfguf.pythonanywhere.com')}/payment/success",
+            "cancel_url": f"{os.getenv('SITE_URL', 'https://jhfguf.pythonanywhere.com')}/payment/cancel"
         }
         
         checkout_link = "[NOWPAYMENTS_LINK_HERE]"

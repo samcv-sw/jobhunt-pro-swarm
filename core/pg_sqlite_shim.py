@@ -4,11 +4,12 @@ from psycopg2.extras import DictCursor
 import os
 import logging
 import sqlite3 as real_sqlite3
-import sqlite3 as real_sqlite3
 
 logger = logging.getLogger(__name__)
 
-NEON_URI = os.getenv("NEON_URL", "postgresql://neondb_owner:npg_yXkT42fDuPUc@ep-steep-cake-ap2mtmij.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require")
+NEON_URI = os.getenv("NEON_URL") or os.getenv("DATABASE_URL") or os.getenv("DATABASE_URL_SYNC") or ""
+if NEON_URI.startswith("postgresql+asyncpg://"):
+    NEON_URI = NEON_URI.replace("postgresql+asyncpg://", "postgresql://", 1)
 
 # Track which backend is active
 BACKEND = None  # "pg" or "sqlite"
@@ -160,10 +161,13 @@ class PgConnectionWrapper:
         return self
         
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is None:
-            self.commit()
-        else:
-            self.rollback()
+        try:
+            if exc_type is None:
+                self.commit()
+            else:
+                self.rollback()
+        finally:
+            self.close()
 
 class SqliteConnectionWrapper:
     """SQLite fallback wrapper with same interface as PgConnectionWrapper."""
@@ -206,10 +210,13 @@ class SqliteConnectionWrapper:
         return self
         
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is None:
-            self.commit()
-        else:
-            self.rollback()
+        try:
+            if exc_type is None:
+                self.commit()
+            else:
+                self.rollback()
+        finally:
+            self.close()
 
 def connect(db_path=None, **kwargs):
     """Connect to Neon PG with automatic SQLite fallback on PA."""
@@ -218,15 +225,25 @@ def connect(db_path=None, **kwargs):
         FALLBACK_DB_PATH = db_path
     
     if os.getenv("FORCE_SQLITE") == "1":
-        logger.info("[DB] FORCE_SQLITE=1, skipping Neon PG")
+        logger.info("[DB] FORCE_SQLITE=1, skipping PG")
         if FALLBACK_DB_PATH and os.path.exists(FALLBACK_DB_PATH):
             return SqliteConnectionWrapper(FALLBACK_DB_PATH)
-        elif db_path:
+        if db_path:
             return SqliteConnectionWrapper(db_path)
-    
+        raise OperationalError("FORCE_SQLITE=1 but no fallback db path was provided")
+
+    if not NEON_URI:
+        if FALLBACK_DB_PATH and os.path.exists(FALLBACK_DB_PATH):
+            logger.warning("[DB] No PostgreSQL URL set, using SQLite fallback")
+            return SqliteConnectionWrapper(FALLBACK_DB_PATH)
+        raise OperationalError("No database URL configured")
+
     return PgConnectionWrapper()
 
 class Row:
+    pass
+
+class Connection:
     pass
 
 def get_backend():

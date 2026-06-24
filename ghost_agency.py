@@ -21,7 +21,7 @@ class GhostAgency:
             'site:linkedin.com "open to work" "gmail.com"',
             'site:twitter.com "looking for my next role" email'
         ]
-        self.huggingface_url = "https://user-jobhunt-ai-1.hf.space/api/generate" # Replace with real endpoint
+        self.huggingface_url = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com") + "/api/v1/generate"
 
     async def search_leads(self):
         leads = []
@@ -66,9 +66,9 @@ class GhostAgency:
             "price_currency": "usd",
             "order_id": f"jobhunt_{email.split('@')[0]}",
             "order_description": "JobHunt Pro 500 AI Applications",
-            "ipn_callback_url": "https://YOUR_HUGGINGFACE_SPACE_URL/api/v1/webhook/nowpayments",
-            "success_url": "https://jobhunt-pro.com/success",
-            "cancel_url": "https://jobhunt-pro.com/cancel"
+            "ipn_callback_url": f"{os.getenv('SITE_URL', 'https://jhfguf.pythonanywhere.com')}/api/v1/webhook/nowpayments",
+            "success_url": f"{os.getenv('SITE_URL', 'https://jhfguf.pythonanywhere.com')}/payment/success",
+            "cancel_url": f"{os.getenv('SITE_URL', 'https://jhfguf.pythonanywhere.com')}/payment/cancel"
         }
         
         checkout_link = "[NOWPAYMENTS_LINK_HERE]"

@@ -2,7 +2,10 @@ import asyncio
 import logging
 import sys
 import os
-import sqlite3
+if os.getenv("SUPABASE_MODE") == "1":
+    import core.supabase_rest_shim as sqlite3
+else:
+    import core.pg_sqlite_shim as sqlite3
 from datetime import datetime
 from typing import List, Dict, Optional
 
@@ -116,7 +119,6 @@ class CloudOrchestrator:
         """Resume any pending/running campaigns.
         Also reprocess campaigns that are stuck (completed but 0 emails sent).
         """
-        import sqlite3
         db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")
         if not db_path or not os.path.exists(db_path):
             base = os.path.dirname(os.path.abspath(__file__))
@@ -200,7 +202,6 @@ class CloudOrchestrator:
                     if success:
                         sent += 1
                         # Mark as sent
-                        import sqlite3, os
                         db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")
                         if not os.path.exists(db_path):
                             db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "jobhunt_saas_v2.db")

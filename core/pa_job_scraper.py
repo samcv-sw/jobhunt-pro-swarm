@@ -141,29 +141,65 @@ INDEED_RSS_LOCATIONS = {
     "turkey": "Istanbul, TR",
 }
 
-# ── Smart Cache ──────────────────────────────────────────────────────────
-_CACHE_FILE = os.path.join(os.path.dirname(__file__), '..', '_scraper_cache.json')
-_CACHE_TTL = 7200  # 2 hours
+# ── Per-Source Smart Cache (OPT#2: individual TTLs) ─────────────────────
+_CACHE_DIR = os.path.join(os.path.dirname(__file__), '..', 'cache')
+# Source-specific TTLs in seconds: JSearch=2h, Indeed=30min, hh.ru=1h, Glassdoor=1h, LinkedIn=3h
+_SOURCE_TTLS = {
+    "jsearch": 7200,
+    "hhru": 3600,
+    "indeed_rss": 1800,
+    "glassdoor": 3600,
+    "linkedin_xhr": 10800,
+}
 
 
 def _load_cache():
+    """Load merged cache from all per-source files (backward compat)."""
     try:
-        if os.path.exists(_CACHE_FILE):
-            with open(_CACHE_FILE, 'r') as f:
-                data = json.load(f)
-            return data.get("ts", 0), data.get("jobs", [])
+        merged = []
+        latest_ts = 0
+        cache_dir = _CACHE_DIR
+        if not os.path.exists(cache_dir):
+            return 0, []
+        now = time.time()
+        for fname in os.listdir(cache_dir):
+            if not fname.endswith('.json'):
+                continue
+            source_key = fname.replace('.json', '')
+            ttl = _SOURCE_TTLS.get(source_key, 7200)
+            fpath = os.path.join(cache_dir, fname)
+            try:
+                with open(fpath, 'r') as f:
+                    data = json.load(f)
+                ts = data.get("ts", 0)
+                if (now - ts) < ttl:
+                    merged.extend(data.get("jobs", []))
+                    if ts > latest_ts:
+                        latest_ts = ts
+            except Exception:
+                pass
+        return latest_ts, merged
     except Exception:
         pass
     return 0, []
 
 
 def _save_cache(jobs):
+    """Save to per-source cache files with individual TTLs."""
     try:
-        dirname = os.path.dirname(_CACHE_FILE)
-        if dirname and not os.path.exists(dirname):
-            os.makedirs(dirname, exist_ok=True)
-        with open(_CACHE_FILE, 'w') as f:
-            json.dump({"ts": time.time(), "jobs": jobs}, f)
+        cache_dir = _CACHE_DIR
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir, exist_ok=True)
+        # Group jobs by source
+        by_source = {}
+        for j in jobs:
+            src = j.get("source", "unknown")
+            by_source.setdefault(src, []).append(j)
+        now = time.time()
+        for src, src_jobs in by_source.items():
+            fpath = os.path.join(cache_dir, f"{src}.json")
+            with open(fpath, 'w') as f:
+                json.dump({"ts": now, "jobs": src_jobs}, f)
     except Exception:
         pass
 
@@ -727,18 +763,19 @@ class PAJobScraper:
 
     def search_all(self, max_jobs: int = 150) -> List[Dict]:
         """
-        GLOBAL SCALE job search with rotation.
+        GLOBAL SCALE job search — 8 sources, zero API keys needed for 7.
 
         Priority:
         1. Cache (2h TTL) — instant if fresh
         2. JSearch API (3 queries only — conserve 300/month quota)
-        3. hh.ru FREE API (Russia/CIS — unlimited, no key)
-        4. Indeed RSS (FREE XML — no blocks, unlimited)
-        5. Glassdoor (FREE — best effort)
-        6. LinkedIn XHR (free, no auth)
+        3. Remotive FREE API (worldwide remote — no key)
+        4. Arbeitnow FREE API (Europe — no key)
+        5. hh.ru FREE API (Russia/CIS — unlimited, no key)
+        6. Indeed RSS (FREE XML — no blocks, unlimited)
+        7. Glassdoor (FREE — best effort)
+        8. LinkedIn XHR (free, no auth)
 
-        Rotation: Each tick searches 3 random locations + 2 random titles,
-        covering all ~50 locations over ~15 ticks (1 hour at 4-min ticks).
+        Early-exit at 15 jobs. Rotation: 3 locations x 2 titles per tick.
         """
         # Check cache first
         cached_ts, cached_jobs = _load_cache()
@@ -765,42 +802,167 @@ class PAJobScraper:
         jsearch_jobs = self.search_jsearch(max_total=max_jobs)
         _add_jobs(jsearch_jobs, "JSearch")
 
-        # Phase 2: hh.ru FREE REST API (Russia/CIS — unlimited, no key)
-        logger.info("=== PAJobScraper v3 GLOBAL: Phase 2 — hh.ru ===")
-        try:
-            hhru_jobs = self.search_hhru(max_jobs=80)
-            _add_jobs(hhru_jobs, "hhru")
-        except Exception as e:
-            logger.warning(f"hh.ru search failed: {e}")
+        # OPT#1: Early-exit if JSearch delivered enough (skip hh.ru, Indeed RSS, Glassdoor)
+        if len(all_jobs) >= 15:
+            logger.info(f"PAJobScraper: JSearch delivered {len(all_jobs)} jobs — skipping remaining sources")
+            if all_jobs:
+                _save_cache(all_jobs)
+            return all_jobs[:max_jobs]
 
-        # Phase 3: Indeed RSS (FREE XML — no blocks)
-        logger.info("=== PAJobScraper v3 GLOBAL: Phase 3 — Indeed RSS ===")
-        try:
-            indeed_jobs = self.search_indeed_rss(max_jobs=50)
-            _add_jobs(indeed_jobs, "IndeedRSS")
-        except Exception as e:
-            logger.warning(f"Indeed RSS search failed: {e}")
+        # Phase 2: Remotive (WORLDWIDE remote jobs — FREE, no key)
+        if len(all_jobs) < 15:
+            logger.info("=== PAJobScraper v3 GLOBAL: Phase 2 — Remotive (worldwide remote) ===")
+            try:
+                remotive_jobs = self.search_remotive(max_jobs=20)
+                _add_jobs(remotive_jobs, "Remotive")
+            except Exception as e:
+                logger.warning(f"Remotive search failed: {e}")
+        else:
+            logger.info(f"=== PAJobScraper v3: Skipping Remotive ({len(all_jobs)} jobs already) ===")
 
-        # Phase 4: Glassdoor (FREE — best effort)
-        logger.info("=== PAJobScraper v3 GLOBAL: Phase 4 — Glassdoor ===")
-        try:
-            glassdoor_jobs = self.search_glassdoor(max_jobs=30)
-            _add_jobs(glassdoor_jobs, "Glassdoor")
-        except Exception as e:
-            logger.warning(f"Glassdoor search failed: {e}")
+        # Phase 2b: Arbeitnow (EUROPE jobs — FREE, no key)
+        if len(all_jobs) < 15:
+            logger.info("=== PAJobScraper v3 GLOBAL: Phase 3 — Arbeitnow (Europe) ===")
+            try:
+                arbeitnow_jobs = self.search_arbeitnow(max_jobs=20)
+                _add_jobs(arbeitnow_jobs, "Arbeitnow")
+            except Exception as e:
+                logger.warning(f"Arbeitnow search failed: {e}")
+        else:
+            logger.info(f"=== PAJobScraper v3: Skipping Arbeitnow ({len(all_jobs)} jobs already) ===")
 
-        # Phase 5: LinkedIn XHR (free, no auth)
-        logger.info("=== PAJobScraper v3 GLOBAL: Phase 5 — LinkedIn XHR ===")
-        try:
-            li_jobs = self.search_linkedin_xhr(max_jobs=50)
-            _add_jobs(li_jobs, "LinkedInXHR")
-        except Exception as e:
-            logger.warning(f"LinkedIn XHR search failed: {e}")
+        # Phase 4: hh.ru FREE REST API (Russia/CIS — unlimited, no key)
+        if len(all_jobs) < 15:
+            logger.info("=== PAJobScraper v3 GLOBAL: Phase 4 — hh.ru ===")
+            try:
+                hhru_jobs = self.search_hhru(max_jobs=80)
+                _add_jobs(hhru_jobs, "hhru")
+            except Exception as e:
+                logger.warning(f"hh.ru search failed: {e}")
+        else:
+            logger.info(f"=== PAJobScraper v3: Skipping hh.ru ({len(all_jobs)} jobs already, target hit) ===")
+
+        # Phase 5: Indeed RSS (FREE XML — no blocks)
+        if len(all_jobs) < 15:
+            logger.info("=== PAJobScraper v3 GLOBAL: Phase 5 — Indeed RSS ===")
+            try:
+                indeed_jobs = self.search_indeed_rss(max_jobs=50)
+                _add_jobs(indeed_jobs, "IndeedRSS")
+            except Exception as e:
+                logger.warning(f"Indeed RSS search failed: {e}")
+        else:
+            logger.info(f"=== PAJobScraper v3: Skipping Indeed RSS ({len(all_jobs)} jobs already) ===")
+
+        # Phase 6: Glassdoor (FREE — best effort)
+        if len(all_jobs) < 15:
+            logger.info("=== PAJobScraper v3 GLOBAL: Phase 6 — Glassdoor ===")
+            try:
+                glassdoor_jobs = self.search_glassdoor(max_jobs=30)
+                _add_jobs(glassdoor_jobs, "Glassdoor")
+            except Exception as e:
+                logger.warning(f"Glassdoor search failed: {e}")
+        else:
+            logger.info(f"=== PAJobScraper v3: Skipping Glassdoor ({len(all_jobs)} jobs already) ===")
+
+        # Phase 7: LinkedIn XHR (free, no auth)
+        if len(all_jobs) < 15:
+            logger.info("=== PAJobScraper v3 GLOBAL: Phase 7 — LinkedIn XHR ===")
+            try:
+                li_jobs = self.search_linkedin_xhr(max_jobs=50)
+                _add_jobs(li_jobs, "LinkedInXHR")
+            except Exception as e:
+                logger.warning(f"LinkedIn XHR search failed: {e}")
+        else:
+            logger.info(f"=== PAJobScraper v3: Skipping LinkedIn XHR ({len(all_jobs)} jobs already) ===")
 
         # Save to cache
         if all_jobs:
             _save_cache(all_jobs)
             logger.info(f"💾 Cache saved: {len(all_jobs)} jobs")
 
-        logger.info(f"PAJobScraper v3 GLOBAL: total {len(all_jobs)} jobs from 5 sources")
+        logger.info(f"PAJobScraper v3 GLOBAL: total {len(all_jobs)} jobs from 7 sources")
         return all_jobs[:max_jobs]
+
+    # ══════════════════════════════════════════════════════════════════════
+    # NEW FREE SOURCES (2026-06-24 Deep Scan — zero API key needed)
+    # ══════════════════════════════════════════════════════════════════════
+
+    def search_remotive(self, max_jobs: int = 30) -> List[Dict]:
+        """Remotive public API — worldwide remote jobs, no key."""
+        import json as _json
+        try:
+            url = "https://remotive.com/api/remote-jobs?search=network%20engineer&limit=30"
+            req = urllib.request.Request(url, headers={
+                "User-Agent": "JobHuntPro/17.0",
+                "Accept": "application/json"
+            })
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = _json.loads(resp.read())
+            jobs = []
+            for j in data.get("jobs", []):
+                title = j.get("title", "")
+                company = j.get("company_name", "")
+                if not title or not company:
+                    continue
+                from bs4 import BeautifulSoup
+                desc = BeautifulSoup(j.get("description", ""), "html.parser").get_text()[:300]
+                jobs.append({
+                    "id": f"remotive_{j.get('id', '')}",
+                    "title": title[:100],
+                    "company": company[:80],
+                    "location": j.get("candidate_required_location", "Remote")[:60],
+                    "source": "remotive",
+                    "url": j.get("url", ""),
+                    "email": f"careers@{company.lower().replace(' ','')}.com",
+                    "snippet": desc[:200],
+                    "salary": j.get("salary", ""),
+                    "job_id": f"rm_{j.get('id', '')}",
+                })
+            logger.info(f"Remotive: {len(jobs)} jobs")
+            return jobs[:max_jobs]
+        except Exception as e:
+            logger.warning(f"Remotive search error: {e}")
+            return []
+
+    def search_arbeitnow(self, max_jobs: int = 30) -> List[Dict]:
+        """Arbeitnow public API — Europe/Germany jobs, no key."""
+        import json as _json
+        try:
+            url = "https://www.arbeitnow.com/api/job-board-api"
+            req = urllib.request.Request(url, headers={
+                "User-Agent": "JobHuntPro/17.0",
+                "Accept": "application/json"
+            })
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = _json.loads(resp.read())
+            jobs = []
+            from bs4 import BeautifulSoup
+            for j in data.get("data", []):
+                title = j.get("title", "")
+                company = j.get("company_name", "")
+                if not title or not company:
+                    continue
+                # Filter: only network/infrastructure/devops roles
+                tl = title.lower()
+                if not any(kw in tl for kw in ["network", "infrastructure", "system",
+                                                  "devops", "security", "cisco", "cloud",
+                                                  "sysadmin", "administrator", "engineer"]):
+                    continue
+                desc = BeautifulSoup(j.get("description", ""), "html.parser").get_text()[:300]
+                slug = j.get("slug", "")
+                jobs.append({
+                    "id": f"arbeitnow_{slug}",
+                    "title": title[:100],
+                    "company": company[:80],
+                    "location": "Germany/Europe",
+                    "source": "arbeitnow",
+                    "url": f"https://www.arbeitnow.com/view/{slug}" if slug else "",
+                    "email": f"careers@{company.lower().replace(' ','')}.com",
+                    "snippet": desc[:200],
+                    "job_id": f"an_{slug}",
+                })
+            logger.info(f"Arbeitnow: {len(jobs)} jobs")
+            return jobs[:max_jobs]
+        except Exception as e:
+            logger.warning(f"Arbeitnow search error: {e}")
+            return []

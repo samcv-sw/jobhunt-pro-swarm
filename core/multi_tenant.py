@@ -24,7 +24,10 @@ import json
 import logging
 import os
 import random
-import sqlite3
+if os.getenv("SUPABASE_MODE") == "1":
+    import core.supabase_rest_shim as sqlite3
+else:
+    import core.pg_sqlite_shim as sqlite3
 import time
 import uuid
 from datetime import datetime

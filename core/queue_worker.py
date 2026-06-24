@@ -12,7 +12,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.job_queue import dequeue_task, complete_task, fail_task
 from core.campaign_runner import run_campaign
 from core.telegram_bot import send_telegram_message_sync
-from web.app_v2 import get_db, config
+from web.app import get_db
+import config
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s: [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)

@@ -1,0 +1,165 @@
+import os
+import sys
+import argparse
+import logging
+import random
+import time
+import requests
+import httpx
+from urllib.parse import quote, quote_plus
+from bs4 import BeautifulSoup
+from pathlib import Path
+from typing import Optional, Dict, List
+
+# Add project root to path
+ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT_DIR))
+
+# Setup logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - [MATRIX-SCRAPER] - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
+# Import scraper classes from multi_source_scraper
+try:
+    from core.multi_source_scraper import (
+        BaseScraper,
+        IndeedScraper,
+        BaytScraper,
+        WuzzufScraper,
+        LinkedInScraper,
+        GlassdoorScraper,
+        NaukriScraper,
+        DiceScraper,
+        SeekScraper,
+        StepStoneScraper,
+        WWRScraper,
+        WellfoundScraper,
+        ZipRecruiterScraper,
+        XingScraper,
+        NaukriIndiaScraper,
+        JoobleScraper,
+        UpworkScraper
+    )
+except ImportError as e:
+    logger.error(f"Failed to import core scrapers: {e}")
+    sys.exit(1)
+
+SCRAPER_MAP = {
+    "indeed": IndeedScraper,
+    "bayt": BaytScraper,
+    "wuzzuf": WuzzufScraper,
+    "linkedin": LinkedInScraper,
+    "glassdoor": GlassdoorScraper,
+    "naukrigulf": NaukriScraper,
+    "dice": DiceScraper,
+    "seek": SeekScraper,
+    "stepstone": StepStoneScraper,
+    "wwr": WWRScraper,
+    "wellfound": WellfoundScraper,
+    "ziprecruiter": ZipRecruiterScraper,
+    "xing": XingScraper,
+    "naukriindia": NaukriIndiaScraper,
+    "jooble": JoobleScraper,
+    "upwork": UpworkScraper
+}
+
+# Default queries & locations
+QUERIES = ["network engineer", "system administrator", "it support engineer", "devops engineer"]
+LOCATIONS = ["Dubai", "Riyadh", "Beirut", "Doha", "Kuwait City", "Manama", "Muscat"]
+
+def monkey_patch_scraper(worker_url: str):
+    """Monkey patch BaseScraper._get to route requests through Cloudflare Worker Google Cache scrape."""
+    
+    def mock_get(self, url: str, extra_headers=None, max_retries=2) -> Optional[httpx.Response]:
+        logger.info(f"Routing request through Cloudflare Worker Scrape: {url}")
+        try:
+            # We fetch via worker router's scrape endpoint
+            scrape_api_url = f"{worker_url.rstrip('/')}/scrape"
+            resp = requests.get(scrape_api_url, params={"url": url}, timeout=30)
+            
+            if resp.status_code == 200:
+                data = resp.json()
+                if "error" in data:
+                    logger.warning(f"Worker scrape returned error for {url}: {data['error']}")
+                    return None
+                
+                content = data.get("content", "")
+                if content:
+                    logger.info(f"Successfully scraped {len(content)} bytes for {url}")
+                    # Return mock httpx.Response object
+                    mock_resp = httpx.Response(
+                        status_code=200,
+                        content=content.encode("utf-8"),
+                        request=httpx.Request("GET", url)
+                    )
+                    return mock_resp
+            logger.warning(f"Worker returned status {resp.status_code} for {url}")
+        except Exception as e:
+            logger.error(f"Error fetching from worker scraper: {e}")
+        return None
+
+    BaseScraper._get = mock_get
+    logger.info("BaseScraper._get successfully monkey-patched to use Cloudflare Worker.")
+
+def main():
+    parser = argparse.ArgumentParser(description="Matrix Scraper Handler")
+    parser.add_argument("--platform", required=True, help="Job platform to scrape (e.g. indeed, bayt)")
+    parser.add_argument("--page", type=int, default=0, help="Page offset/index")
+    args = parser.parse_args()
+
+    platform = args.platform.lower().strip()
+    page = args.page
+
+    worker_url = os.environ.get("WORKER_URL", "https://jobhunt-pro-router.samsalameh-cv.workers.dev")
+    pa_url = os.environ.get("PA_URL", "https://jhfguf.pythonanywhere.com")
+
+    # Install monkey patch
+    monkey_patch_scraper(worker_url)
+
+    # Get scraper class
+    scraper_cls = SCRAPER_MAP.get(platform)
+    if not scraper_cls:
+        logger.warning(f"Platform '{platform}' is not supported by core scrapers. Skipping.")
+        return
+
+    # Choose a query and location randomly or based on page offset to cover all combinations
+    query = QUERIES[page % len(QUERIES)]
+    location = LOCATIONS[(page // len(QUERIES)) % len(LOCATIONS)]
+
+    logger.info(f"Running scraper for Platform: {platform}, Query: '{query}', Location: '{location}', Page: {page}")
+
+    try:
+        scraper = scraper_cls()
+        # Custom search invocation to pass page limit / offset if supported, or standard search
+        jobs = scraper.search(query=query, location=location, limit=15)
+        logger.info(f"Scraper returned {len(jobs)} jobs")
+
+        if jobs:
+            # Format jobs for nodriver-feed endpoint
+            feed_jobs = []
+            for j in jobs:
+                feed_jobs.append({
+                    "title": j.get("title", ""),
+                    "company": j.get("company", "Unknown"),
+                    "url": j.get("url", ""),
+                    "source": platform,
+                    "location": j.get("location", location)
+                })
+
+            # POST to PythonAnywhere's feed
+            feed_url = f"{pa_url.rstrip('/')}/api/nodriver-feed"
+            logger.info(f"Uploading {len(feed_jobs)} jobs to {feed_url}...")
+            
+            resp = requests.post(feed_url, json={"jobs": feed_jobs}, timeout=30)
+            if resp.status_code == 200:
+                logger.info(f"Successfully uploaded: {resp.json()}")
+            else:
+                logger.error(f"Failed to upload to PA. Status: {resp.status_code}, Response: {resp.text}")
+        else:
+            logger.info("No jobs found to upload.")
+
+    except Exception as e:
+        logger.exception(f"Scraper execution failed: {e}")
+
+if __name__ == "__main__":
+    main()

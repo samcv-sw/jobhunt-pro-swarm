@@ -714,39 +714,45 @@ def ban_shield_status():
 WALLET_LOCK = threading.Lock()
 
 def update_wallet(conn, user_id: str, delta: float, desc: str, txn_type: str = "adjustment"):
-    """Thread-safe wallet update. Uses atomic SQL to prevent race conditions.
+    """Process-safe wallet update. Uses atomic SQL to prevent race conditions.
     Returns new_balance or None on failure.
     """
     try:
-        with WALLET_LOCK:
-            # Use atomic UPDATE to avoid read-modify-write race conditions
-            conn.execute("UPDATE users SET wallet_balance = wallet_balance + ? WHERE user_id = ?", (delta, user_id))
-            row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
-            if row:
-                new_bal = row["wallet_balance"]
-                conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-                                VALUES (?, ?, ?, ?, ?)""",
-                             (user_id, txn_type, delta, new_bal, desc))
-                return new_bal
+        # Use atomic UPDATE to avoid read-modify-write race conditions
+        conn.execute("UPDATE users SET wallet_balance = wallet_balance + ? WHERE user_id = ?", (delta, user_id))
+        row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        if row:
+            new_bal = row["wallet_balance"]
+            conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
+                            VALUES (?, ?, ?, ?, ?)""",
+                         (user_id, txn_type, delta, new_bal, desc))
+            return new_bal
     except Exception as e:
         logger.error(f"update_wallet failed for {user_id}: {e}")
     return None
 
 def deduct_wallet(conn, user_id: str, amount: float, desc: str, txn_type: str = "deduction") -> bool:
-    """Thread-safe wallet deduction with balance check.
+    """Process-safe and thread-safe wallet deduction with balance check.
     Returns True if deducted successfully, False if insufficient funds.
     """
     try:
-        with WALLET_LOCK:
-            row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
-            if not row or row["wallet_balance"] < amount:
-                return False
-            conn.execute("UPDATE users SET wallet_balance = wallet_balance - ? WHERE user_id = ?", (amount, user_id))
-            new_bal = row["wallet_balance"] - amount
-            conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-                            VALUES (?, ?, ?, ?, ?)""",
-                         (user_id, txn_type, -amount, new_bal, desc))
-            return True
+        # Atomic deduction directly in database
+        cur = conn.execute(
+            "UPDATE users SET wallet_balance = wallet_balance - ? WHERE user_id = ? AND wallet_balance >= ?",
+            (amount, user_id, amount)
+        )
+        rowcount = getattr(cur, "rowcount", 0)
+        if rowcount == 0:
+            return False
+            
+        # Get the new balance to record the transaction
+        row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        new_bal = row["wallet_balance"] if row else 0.0
+        
+        conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
+                        VALUES (?, ?, ?, ?, ?)""",
+                     (user_id, txn_type, -amount, new_bal, desc))
+        return True
     except Exception as e:
         logger.error(f"deduct_wallet failed for {user_id}: {e}")
     return False

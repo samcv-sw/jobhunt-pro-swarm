@@ -1,8 +1,10 @@
 """
-JobHunt Pro v13 — Multi-Provider LLM Pool
-Rotates across free-tier AI providers to avoid rate limits.
-Supports: Groq, Google Gemini, HuggingFace, OpenRouter.
-All free tiers — $0 cost.
+JobHunt Pro v17.1 — Multi-Provider LLM Pool (17 providers, $0 cost!)
+Rotates across 17 free-tier AI providers to avoid rate limits.
+Supports: Groq, Gemini, HuggingFace, OpenRouter, DeepInfra, Together, Fireworks,
+         Cerebras, SambaNova, Cloudflare Workers AI, Cohere, xAI/Grok,
+         DeepSeek API, GitHub Models, Qwen (Alibaba), +2 backup.
+ALL FREE TIERS — $0 permanent cost.
 """
 import asyncio
 import logging
@@ -28,6 +30,14 @@ class LLMProvider(Enum):
     DEEPINFRA = "deepinfra"
     TOGETHER = "together"
     FIREWORKS = "fireworks"
+    CEREBRAS = "cerebras"
+    SAMBANOVA = "sambanova"
+    CLOUDFLARE = "cloudflare"
+    COHERE = "cohere"
+    XAI = "xai"
+    DEEPSEEK_API = "deepseek_api"
+    GITHUB_MODELS = "github_models"
+    QWEN = "qwen"
     DUMMY = "dummy"
 
 @dataclass
@@ -132,6 +142,94 @@ PROVIDER_CONFIGS = [
         base_url="https://api.fireworks.ai/inference/v1/chat/completions",
         models=["accounts/fireworks/models/llama-v3p1-70b-instruct", "accounts/fireworks/models/mixtral-8x22b-instruct"],
         rate_limit_rpm=30,
+        weight=2,
+        daily_limit=0,
+    ),
+    
+    # ═══ CEREBRAS (30 RPM FREE — fastest inference) ═══
+    ProviderConfig(
+        name=LLMProvider.CEREBRAS,
+        api_key_env="CEREBRAS_API_KEY",
+        base_url="https://api.cerebras.ai/v1/chat/completions",
+        models=["llama3.1-70b", "llama-3.3-70b"],
+        rate_limit_rpm=30,
+        weight=5,
+        daily_limit=14400,
+    ),
+    
+    # ═══ SAMBANOVA (free tier — Llama 405B!) ═══
+    ProviderConfig(
+        name=LLMProvider.SAMBANOVA,
+        api_key_env="SAMBANOVA_API_KEY",
+        base_url="https://api.sambanova.ai/v1/chat/completions",
+        models=["Meta-Llama-3.1-405B-Instruct", "Meta-Llama-3.1-70B-Instruct", "Meta-Llama-3.1-8B-Instruct"],
+        rate_limit_rpm=20,
+        weight=4,
+        daily_limit=0,
+    ),
+    
+    # ═══ CLOUDFLARE WORKERS AI (on your existing CF account — FREE) ═══
+    ProviderConfig(
+        name=LLMProvider.CLOUDFLARE,
+        api_key_env="CLOUDFLARE_AI_GATEWAY_URL",
+        base_url="https://gateway.ai.cloudflare.com/v1/{account_id}/jobhunt/workers-ai/chat/completions",
+        models=["@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b"],
+        rate_limit_rpm=30,
+        weight=3,
+        daily_limit=10000,
+    ),
+    
+    # ═══ COHERE (free trial — 100 calls/min) ═══
+    ProviderConfig(
+        name=LLMProvider.COHERE,
+        api_key_env="COHERE_API_KEY",
+        base_url="https://api.cohere.ai/v1/chat",
+        models=["command-r-plus", "command-r"],
+        rate_limit_rpm=100,
+        weight=2,
+        daily_limit=0,
+    ),
+    
+    # ═══ XAI / GROK (free tier) ═══
+    ProviderConfig(
+        name=LLMProvider.XAI,
+        api_key_env="XAI_API_KEY",
+        base_url="https://api.x.ai/v1/chat/completions",
+        models=["grok-beta"],
+        rate_limit_rpm=30,
+        weight=1,
+        daily_limit=0,
+    ),
+    
+    # ═══ DEEPSEEK API (free tier — DeepSeek-V3, R1) ═══
+    ProviderConfig(
+        name=LLMProvider.DEEPSEEK_API,
+        api_key_env="DEEPSEEK_API_KEY",
+        base_url="https://api.deepseek.com/v1/chat/completions",
+        models=["deepseek-chat", "deepseek-reasoner"],
+        rate_limit_rpm=30,
+        weight=4,
+        daily_limit=0,
+    ),
+    
+    # ═══ GITHUB MODELS (free tier — Azure-hosted) ═══
+    ProviderConfig(
+        name=LLMProvider.GITHUB_MODELS,
+        api_key_env="GITHUB_TOKEN",
+        base_url="https://models.inference.ai.azure.com/chat/completions",
+        models=["gpt-4o-mini", "Phi-3.5-mini-instruct", "Llama-3.3-70B-Instruct"],
+        rate_limit_rpm=15,
+        weight=3,
+        daily_limit=0,
+    ),
+    
+    # ═══ QWEN (Alibaba Cloud Model Studio — free tier) ═══
+    ProviderConfig(
+        name=LLMProvider.QWEN,
+        api_key_env="DASHSCOPE_API_KEY",
+        base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+        models=["qwen-turbo", "qwen-plus", "qwen-max"],
+        rate_limit_rpm=60,
         weight=2,
         daily_limit=0,
     ),

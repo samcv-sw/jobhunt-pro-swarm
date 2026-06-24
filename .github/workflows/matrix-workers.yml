@@ -38,17 +38,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Scrape ${{ matrix.platform }} / ${{ matrix.page }}
-        shell: bash
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install httpx beautifulsoup4 requests --quiet
+
+      - name: Scrape and Import
+        env:
+          WORKER_URL: ${{ env.WORKER_URL }}
+          PA_URL: ${{ env.PA_URL }}
         run: |
-          URL="$WORKER_URL/scrape?url=https://www.${{ matrix.platform }}.com/jobs?page=${{ matrix.page }}"
-          RESULT=$(curl -s "$URL" -m 25 2>/dev/null || echo '{"error":"timeout"}')
-          SIZE=$(echo "$RESULT" | wc -c)
-          if [ "$SIZE" -gt 200 ]; then
-            echo "OK: ${{ matrix.platform }} p${{ matrix.page }} → ${SIZE}b"
-          else
-            echo "SKIP: ${{ matrix.platform }} p${{ matrix.page }} → ${SIZE}b"
-          fi
+          python core/matrix_scrape_handler.py --platform ${{ matrix.platform }} --page ${{ matrix.page }}
 
   # ── Job 2: Email Batch (30 min — bypasses PA timeout) ──
   email_batch:

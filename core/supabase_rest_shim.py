@@ -444,3 +444,4 @@ def get_backend():
 OperationalError = OperationalError
 IntegrityError = IntegrityError
 Row = DictRow
+Connection = SupabaseConnection

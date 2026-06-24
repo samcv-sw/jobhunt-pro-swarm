@@ -34,7 +34,7 @@ Expected output:
 2. Go to **Tasks** tab (in the top navigation bar)
 3. Under "Scheduled tasks" section, set:
    - **Time:** `30` (minutes past the hour → runs at :00 and :30)
-   - **Command:** `python /home/jhfuf/jobhunt/web/cron_trigger.py`
+   - **Command:** `python /home/jhfguf/jobhunt/web/cron_trigger.py`
 4. Click **Create**
 
 ![PA Tasks screenshot description: Use UTC time. PA free tier supports one scheduled task.]

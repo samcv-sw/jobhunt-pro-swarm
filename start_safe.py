@@ -6,10 +6,10 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 def run():
     try:
         import uvicorn
-        import web.app_v2
+        import web.app
         
         print("Imports successful. Starting uvicorn normally...")
-        os.execvp("uvicorn", ["uvicorn", "web.app_v2:app", "--host", "0.0.0.0", "--port", "10000"])
+        os.execvp("uvicorn", ["uvicorn", "web.app:app", "--host", "0.0.0.0", "--port", "10000"])
     except Exception as e:
         err = traceback.format_exc()
         print("FATAL ERROR:\n" + err)

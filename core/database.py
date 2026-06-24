@@ -10,7 +10,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-NEON_URI = os.getenv("NEON_DATABASE_URL") or os.getenv("DATABASE_URL") or os.getenv("DATABASE_URL_SYNC") or ""
+NEON_URI = os.getenv("NEON_DATABASE_URL") or os.getenv("DATABASE_URL") or os.getenv("DATABASE_URL_SYNC") or os.getenv("NEON_URL") or ""
+if NEON_URI.startswith("postgresql+asyncpg://"):
+    NEON_URI = NEON_URI.replace("postgresql+asyncpg://", "postgresql://", 1)
 
 class DatabaseManager:
     def __init__(self):

@@ -114,11 +114,12 @@ CV_PATH = os.getenv("CV_PATH", "assets/Sam_Salameh_CV.pdf")
 if not os.path.exists(CV_PATH):
     logger.warning(f"CV file not found at {CV_PATH}, will send without attachment")
     CV_PATH = None
-# PROJECT APEX: Turso Edge SQLite Database
-DB_PATH = None # Disabled local SQLite fallback
-TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL", "libsql://jobhunt-pro-sadgv.aws-ap-northeast-1.turso.io")
-TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN", "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3ODE5ODQxMzEsImlkIjoiMDE5ZWU2ODctYWMwMS03NWYzLWFjNWYtMzc2M2NkMjFhMjZmIiwicmlkIjoiZjYwZDQ4MGQtYjA4Zi00ZGRkLTliMGItYTIwYjkyMzY1ZWQyIn0.rBfLkCjfLzOVZKLzJ-1VX2UBmQj5-iAdGulAZ-EEw0Nz84F1RaazKjQ3sLXz6mrFHJPKDWpygAup1F-6TMWjDQ")
-os.environ["DATABASE_URL"] = TURSO_DATABASE_URL
+# Database configuration
+DB_PATH = os.getenv("DB_PATH")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+NEON_URL = os.getenv("NEON_URL", DATABASE_URL)
+TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL", "")
+TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 PA_API_TOKEN = os.getenv("PA_API_TOKEN", "")
@@ -134,7 +135,7 @@ TURNSTILE_SECRET = os.getenv("TURNSTILE_SECRET", "")
 TURNSTILE_SITE_KEY = os.getenv("TURNSTILE_SITE_KEY", "")
 B2B_API_KEYS = [k.strip() for k in os.getenv("B2B_API_KEYS", "b2b_gold_tier_773").split(",") if k.strip()]
 DRY_RUN = os.getenv("DRY_RUN", "false").lower() == "true"
-MAX_WORKERS = int(os.getenv("MAX_WORKERS", "200"))
+MAX_WORKERS = int(os.getenv("MAX_WORKERS", "10"))
 MIN_MATCH_SCORE = int(os.getenv("MIN_MATCH_SCORE", "60"))
 DAILY_SEND_LIMIT = int(os.getenv("DAILY_SEND_LIMIT", "2000"))
 FOLLOW_UP_DAYS = int(os.getenv("FOLLOW_UP_DAYS", "7"))
@@ -237,6 +238,10 @@ UNSUBSCRIBE_EMAIL = os.getenv("UNSUBSCRIBE_EMAIL", "unsubscribe@sam-salameh.com"
 MIN_SALARY_EXPECTATION = float(os.getenv("MIN_SALARY_EXPECTATION", "40000"))
 MIN_SALARY = float(os.getenv("MIN_SALARY", "2000"))  # Monthly minimum (USD) used by negotiator_agent
 
+# ═══ Cold Blaster Rate Limits (anti-spam safety) ═══
+COLD_BLAST_MIN_DELAY = float(os.getenv("COLD_BLAST_MIN_DELAY", "30.0"))
+COLD_BLAST_MAX_DELAY = float(os.getenv("COLD_BLAST_MAX_DELAY", "45.0"))
+
 # Crypto wallet addresses (for SaaS deposit feature)
 CRYPTO_BTC_ADDRESS = os.getenv("CRYPTO_BTC_ADDRESS", "")
 CRYPTO_ETH_ADDRESS = os.getenv("CRYPTO_ETH_ADDRESS", "")
@@ -248,7 +253,7 @@ HYPER_MODE_ENABLED = os.getenv("HYPER_MODE_ENABLED", "true").lower() == "true"
 HYPER_TEST_MODE = os.getenv("HYPER_TEST_MODE", "false").lower() == "true"
 HYPER_PARALLEL_WORKERS = int(os.getenv("HYPER_PARALLEL_WORKERS", "20"))
 HYPER_BATCH_SIZE = int(os.getenv("HYPER_BATCH_SIZE", "100"))
-HYPER_SMTP_POOL_SIZE = int(os.getenv("HYPER_SMTP_POOL_SIZE", "50"))
+HYPER_SMTP_POOL_SIZE = int(os.getenv("HYPER_SMTP_POOL_SIZE", "5"))
 
 EMAIL_PROVIDERS = [
     # Only providers with credentials will be used

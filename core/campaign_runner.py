@@ -334,10 +334,25 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
         
         # --- PRE-DRAFTING COVER LETTERS WITH PARALLEL ASYNC AI ---
         valid_jobs = []
+        scam_blocked = 0
         for job in jobs:
             email_addr = job.get("email", "")
             if email_addr and "@" in email_addr and email_addr.lower() not in already_sent_emails:
+                # ── SCAM DETECTION: block known scam patterns ──
+                if pa_mode:
+                    try:
+                        from core.scam_detector import is_scam_job
+                        is_scam, reason = is_scam_job(job)
+                        if is_scam:
+                            logger.info(f"[CampaignRunner] 🚫 SCAM BLOCKED: {job.get('company','?')} — {reason}")
+                            scam_blocked += 1
+                            continue
+                    except ImportError:
+                        pass  # scam_detector not available, proceed
                 valid_jobs.append(job)
+        
+        if scam_blocked:
+            logger.info(f"[CampaignRunner] 🛡️ Scam shield blocked {scam_blocked} jobs")
                 
         # Limit to remaining quota
         remaining_quota = campaign["total_companies"] - sent_count

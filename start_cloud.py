@@ -54,14 +54,17 @@ def configure_cloud_env():
     db_name = "jobhunt_saas_v2.db"
     db_path = data_dir / db_name
 
-    # Override DATABASE_URL if not set or if it points to PostgreSQL
+    # Database Configuration (Hydra Architecture)
+    # Use remote serverless databases (Neon/Turso) if provided, otherwise fallback to local SQLite
     database_url = os.getenv("DATABASE_URL", "")
-    if not database_url or database_url.startswith("postgresql"):
+    
+    if database_url and (database_url.startswith("postgresql") or database_url.startswith("libsql")):
+        logger.info("HYDRA MODE: Using Distributed Edge Database: %s", database_url.split('@')[-1] if '@' in database_url else database_url)
+    else:
+        # Fallback to local SQLite only if no remote DB is provided
         os.environ["DATABASE_URL"] = f"sqlite:///{db_path}"
         os.environ["DATABASE_URL_SYNC"] = f"sqlite:///{db_path}"
-        logger.info("Using SQLite: %s", db_path)
-    else:
-        logger.info("Using configured DATABASE_URL")
+        logger.info("Using Local SQLite (Not Recommended for 1M+ Scale): %s", db_path)
 
     # DB_PATH for legacy code
     if not os.getenv("DB_PATH"):
@@ -295,48 +298,57 @@ def main():
     signal.signal(signal.SIGTERM, handle_sigterm)
     signal.signal(signal.SIGINT, handle_sigterm)
 
+    import argparse
+    parser = argparse.ArgumentParser(description="JobHunt Pro Hydra Startup")
+    parser.add_argument("--api-only", action="store_true", help="Run only the FastAPI web server (For Hugging Face/Koyeb)")
+    parser.add_argument("--worker-only", action="store_true", help="Run only the background swarm workers (For Oracle Cloud)")
+    args, unknown = parser.parse_known_args()
+
     # Configure environment
     configure_cloud_env()
 
-    # Initialize database
-    init_sqlite_db()
+    # Initialize database (only for local SQLite fallback)
+    if not os.getenv("DATABASE_URL", "").startswith(("postgresql", "libsql")):
+        init_sqlite_db()
 
-    # Import the web app
-    from web.app_v2 import app
-    import uvicorn
+    # Create loop
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
+    tasks_to_run = []
 
-    port = int(os.getenv("PORT", "8000"))
-    host = os.getenv("HOST", "0.0.0.0")
+    if not args.worker_only:
+        # Start Web Server (API)
+        from web.app_v2 import app
+        import uvicorn
+        
+        port = int(os.getenv("PORT", "8000"))
+        host = os.getenv("HOST", "0.0.0.0")
+        
+        config_data = uvicorn.Config(
+            app,
+            host=host,
+            port=port,
+            log_level="info",
+            access_log=False,
+            timeout_keep_alive=15,
+            limit_concurrency=2000,
+        )
+        server = uvicorn.Server(config_data)
+        logger.info("Starting web server on %s:%d (Hydra API Head)", host, port)
+        tasks_to_run.append(server.serve())
 
-    # Create uvicorn server config
-    config_data = uvicorn.Config(
-        app,
-        host=host,
-        port=port,
-        log_level="info",
-        access_log=False, # Disable access logs for performance
-        timeout_keep_alive=15,
-        limit_concurrency=2000, # Massive concurrency for APEX 24GB RAM
-    )
-    server = uvicorn.Server(config_data)
-
-    logger.info("Starting web server on %s:%d", host, port)
-    logger.info("Health check: http://%s:%d/health", host, port)
-    logger.info("Background job cycle: every %s minutes", os.getenv("CYCLE_INTERVAL", "60"))
-    logger.info("Telegram bot polling: enabled")
+    if not args.api_only:
+        # Start Background Workers (Swarm)
+        logger.info("Starting Background Swarm Workers (Hydra Compute Head)")
+        tasks_to_run.append(background_job_cycle())
+        tasks_to_run.append(run_telegram_bot())
 
     try:
-        # Run both the web server and background tasks on the same event loop
-        # server.serve() is an async method that runs until the server stops
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-        # Schedule background tasks
-        bg_task = loop.create_task(background_job_cycle())
-        tg_task = loop.create_task(run_telegram_bot())
-
-        # Run the server (blocks until shutdown signal)
-        loop.run_until_complete(server.serve())
+        if tasks_to_run:
+            loop.run_until_complete(asyncio.gather(*tasks_to_run))
+        else:
+            logger.info("No components selected to run. Use either --api-only or --worker-only, or neither to run both.")
 
     except KeyboardInterrupt:
         logger.info("Keyboard interrupt received")

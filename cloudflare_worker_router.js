@@ -1,17 +1,19 @@
 /**
- * OMEGA ROUTER — Cloudflare Worker
+ * OMEGA ROUTER — Cloudflare Worker (Hydra Architecture)
  * 
- * Balances traffic randomly across multiple free-tier cloud deployments.
- * This ensures no single provider hits their monthly limits, achieving "Infinite" scale for $0.
+ * Balances traffic and handles automatic fallbacks for free-tier cloud deployments.
+ * Primary: Hugging Face Spaces (16GB RAM)
+ * Fallback: Koyeb / Render
  *
  * Deploy: Copy this into https://workers.cloudflare.com
  */
 
-// Your free tier backend URLs
+// Your free tier backend URLs ordered by priority
 const BACKENDS = [
-  "https://jobhunt-pro.onrender.com",
-  "https://jobhunt-railway.up.railway.app", // example
-  "https://jobhunt-fly.fly.dev",            // example
+  "https://jhfguf.pythonanywhere.com",     // Primary Node (PythonAnywhere)
+  "https://jobhunt-pro.fly.dev",           // Backup Node 1 (Fly.io)
+  "https://jobhunt-pro.zeabur.app",        // Backup Node 2 (Zeabur - replace with actual Zeabur URL)
+  "https://jobhunt-pro.onrender.com"       // Backup Node 3 (Render)
 ];
 
 export default {
@@ -29,35 +31,41 @@ export default {
 
     const url = new URL(request.url);
 
-    // 2. Select a random backend to spread load
-    const randomBackend = BACKENDS[Math.floor(Math.random() * BACKENDS.length)];
-    const targetUrl = new URL(url.pathname + url.search, randomBackend);
+    // 2. Try backends in order of priority (Fallback mechanism)
+    let lastErr = null;
+    for (const backend of BACKENDS) {
+      const targetUrl = new URL(url.pathname + url.search, backend);
+      try {
+        let response = await fetch(targetUrl, {
+          method: request.method,
+          headers: request.headers,
+          body: request.body
+        });
+        
+        // If the backend returns a 502/503 (sleeping or offline), try the next one
+        if (response.status === 502 || response.status === 503) {
+          lastErr = `Backend ${backend} returned ${response.status}`;
+          continue; 
+        }
 
-    try {
-      // 3. Forward request
-      let response = await fetch(targetUrl, {
-        method: request.method,
-        headers: request.headers,
-        body: request.body
-      });
-
-      // 4. Copy response and inject CORS
-      response = new Response(response.body, response);
-      for (const [key, value] of Object.entries(corsHeaders)) {
-        response.headers.set(key, value);
+        response = new Response(response.body, response);
+        for (const [key, value] of Object.entries(corsHeaders)) {
+          response.headers.set(key, value);
+        }
+        return response;
+      } catch (err) {
+        lastErr = err.message;
+        // Continue to next backend on network error
       }
-
-      return response;
-
-    } catch (err) {
-      return new Response(JSON.stringify({ 
-        error: "All backends offline or unreachable", 
-        detail: err.message,
-        tried: randomBackend
-      }), {
-        status: 502,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
     }
+
+    // 3. If all backends fail
+    return new Response(JSON.stringify({ 
+      error: "All Hydra backends offline or sleeping", 
+      detail: lastErr
+    }), {
+      status: 502,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   }
 };

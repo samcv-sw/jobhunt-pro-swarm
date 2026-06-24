@@ -7,7 +7,10 @@ Mounted in app_v2.py as:
 import json
 import logging
 import os
-import sqlite3
+if os.getenv("SUPABASE_MODE") == "1":
+    import core.supabase_rest_shim as sqlite3
+else:
+    import core.pg_sqlite_shim as sqlite3
 from datetime import datetime
 from fastapi import APIRouter, Request, HTTPException
 

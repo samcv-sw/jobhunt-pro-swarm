@@ -30,6 +30,7 @@ from core.email_engine import EmailEngine
 from core.job_search import MultiSourceSearch
 from core.cover_letter import CoverLetterWriter
 from core.ai_tailor import AITailor
+from core.job_queue import enqueue_task
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -53,10 +54,10 @@ BASE_DIR = Path(__file__).parent
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
-db_path = str(BASE_DIR.parent / "jobhunt_saas_v2.db")
+db_path = os.getenv("DB_PATH") or str(BASE_DIR.parent / "jobhunt_saas_v2.db")
 
 def get_db():
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -250,6 +251,10 @@ def generate_redeem_code() -> str:
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/health")
+async def health():
+    return {"status": "ok", "service": "jobhunt-pro"}
+
 @app.get("/pricing", response_class=HTMLResponse)
 async def pricing(request: Request):
     conn = get_db()
@@ -409,7 +414,7 @@ async def create_campaign(request: Request, profile_id: int = Form(...), company
     conn.commit()
     conn.close()
     
-    asyncio.create_task(run_campaign(campaign_id))
+    enqueue_task("run_campaign", {"campaign_id": campaign_id})
     
     return RedirectResponse(f"/campaign/{campaign_id}", status_code=303)
 
@@ -616,9 +621,9 @@ async def api_create_campaign(api_key: str = Form(...), profile_cv: str = Form(.
     conn.commit()
     conn.close()
     
-    asyncio.create_task(run_campaign(campaign_id))
+    enqueue_task("run_campaign", {"campaign_id": campaign_id})
     
-    return {"campaign_id": campaign_id, "status": "started", "companies": company_count}
+    return {"campaign_id": campaign_id, "status": "queued", "companies": company_count}
 
 @app.get("/api/v1/campaign/{campaign_id}")
 async def api_campaign_status(campaign_id: str, api_key: str = ""):

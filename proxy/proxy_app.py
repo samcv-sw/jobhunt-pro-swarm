@@ -7,7 +7,7 @@ import uvicorn
 app = FastAPI()
 
 HF_TOKEN = os.getenv("HF_TOKEN")
-BACKEND_URL = os.getenv("BACKEND_URL", "https://sam907-jobhunt-backend.hf.space")
+BACKEND_URL = os.getenv("BACKEND_URL", "https://jhfguf.pythonanywhere.com")
 
 client = httpx.AsyncClient(timeout=60.0)
 

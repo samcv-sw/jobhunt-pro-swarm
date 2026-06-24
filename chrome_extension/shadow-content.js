@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         // Get API Key and Backend URL from storage
         chrome.storage.local.get(['apiKey'], async (result) => {
             const apiKey = result.apiKey || '';
-            const backendUrl = "https://sam09423-jobhunt-pro.hf.space"; // Hardcoded to the user's Hugging Face Space
+            const backendUrl = "https://jhfguf.pythonanywhere.com"; // Hardcoded to the user's PythonAnywhere instance
             
             try {
                 const response = await fetch(`${backendUrl}/api/extension/ingest`, {

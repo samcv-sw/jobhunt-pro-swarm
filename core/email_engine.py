@@ -285,11 +285,12 @@ I look forward to the opportunity to discuss how my skills align with your team'
         <div style="color:#94a3b8;font-size:13px;margin-top:4px;">{profession}</div>
       </div>
 
-      <!-- Footer -->
-      <div style="margin-top:40px;padding-top:16px;border-top:1px solid #1e293b;text-align:center;">
+      <!-- CAN-SPAM Footer: Physical address + Unsubscribe (legal requirement) -->
+      <div style="margin-top:32px;padding-top:14px;border-top:1px solid #1e293b;text-align:center;">
         <div style="color:#475569;font-size:11px;">
-            Sent via JobHunt Pro · Automated Job Application System<br>
-            <strong style="color:#64748b; margin-top: 4px; display: inline-block;">Referred by JobHunt Pro Agency (B2B Partner ID: JH-9982)</strong>
+            This application was sent via JobHunt Pro on behalf of Sam Salameh<br>
+            📫 1084 Rue 54, Jnah, Beirut, Lebanon<br>
+            <a href="https://jhfguf.pythonanywhere.com/unsubscribe" style="color:#475569;">Unsubscribe</a> &bull; Not the right contact? Reply and we'll remove you.
         </div>
       </div>
     </td>
@@ -432,6 +433,9 @@ Tracking ID: {tracking_id}"""
         msg["Reply-To"] = f"{name} <{candidate_email}>"
         msg["Message-ID"] = f"<{tracking_id}.jobhuntpro@jobhuntpro.com>"
         msg["X-Mailer"] = "JobHuntPro/3.0"
+        msg["List-Unsubscribe"] = "<https://jhfguf.pythonanywhere.com/unsubscribe>"
+        msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+        msg["Precedence"] = "bulk"
 
         # CRITICAL: alternative wrapping so HTML renders properly
         alt_part = MIMEMultipart("alternative")
@@ -1016,8 +1020,11 @@ I remain very interested in this opportunity.</p>
         Returns (sent_count, failed_count, results_list).
         """
         sem = asyncio.Semaphore(max_concurrent)
+        # OPT#3: Collect tuples then batch commit — avoids per-email SQLite COMMIT overhead
+        _pending_inserts = []
         
         async def send_one(job: Dict) -> Dict:
+            nonlocal _pending_inserts
             async with sem:
                 email_addr = job.get("email", "")
                 company = job.get("company", "Unknown Company")
@@ -1038,19 +1045,11 @@ I remain very interested in this opportunity.</p>
                     )
                     if success:
                         already_sent_emails.add(email_addr.lower())
-                        # Record in DB immediately
+                        # Collect for batch commit
                         parts = result.split("|")
                         tracking_id = parts[0] if len(parts) > 0 else str(uuid.uuid4())[:12]
                         msg_id = parts[1] if len(parts) > 1 else ""
-                        try:
-                            conn.execute("""
-                                INSERT INTO campaign_emails
-                                (campaign_id, company_name, job_title, email_address, status, tracking_id, sent_at, message_id)
-                                VALUES (?, ?, ?, ?, 'sent', ?, CURRENT_TIMESTAMP, ?)
-                            """, (campaign_id, company, title, email_addr, tracking_id, msg_id))
-                            conn.commit()
-                        except Exception:
-                            pass
+                        _pending_inserts.append((campaign_id, company, title, email_addr, tracking_id, msg_id))
                         return {"company": company, "status": "sent", "tracking_id": tracking_id}
                     else:
                         return {"company": company, "status": "failed", "reason": result}
@@ -1058,6 +1057,20 @@ I remain very interested in this opportunity.</p>
                     return {"company": company, "status": "error", "reason": str(e)}
         
         results_list = await asyncio.gather(*(send_one(j) for j in jobs))
+        
+        # OPT#3: Single batch INSERT with one COMMIT
+        if _pending_inserts:
+            try:
+                conn.executemany("""
+                    INSERT INTO campaign_emails
+                    (campaign_id, company_name, job_title, email_address, status, tracking_id, sent_at, message_id)
+                    VALUES (?, ?, ?, ?, 'sent', ?, CURRENT_TIMESTAMP, ?)
+                """, _pending_inserts)
+                conn.commit()
+                logger.info(f"[EmailEngine] Batch committed {len(_pending_inserts)} sent records")
+            except Exception as e:
+                logger.warning(f"[EmailEngine] Batch commit failed: {e}")
+        
         sent = sum(1 for r in results_list if r.get("status") == "sent")
         failed = sum(1 for r in results_list if r.get("status") in ("failed", "error"))
         return sent, failed, results_list
