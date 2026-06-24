@@ -146,15 +146,29 @@ def main():
                     "location": j.get("location", location)
                 })
 
-            # POST to PythonAnywhere's feed
+            # 1. Upload to Cloudflare Worker D1 (Primary Cloud Storage)
+            cf_feed_url = f"{worker_url.rstrip('/')}/api/jobs/feed"
+            logger.info(f"Uploading {len(feed_jobs)} jobs to Cloudflare Worker D1: {cf_feed_url}...")
+            try:
+                resp_cf = requests.post(cf_feed_url, json={"jobs": feed_jobs}, timeout=30)
+                if resp_cf.status_code == 200:
+                    logger.info(f"Successfully uploaded to CF Worker D1: {resp_cf.json()}")
+                else:
+                    logger.warning(f"CF Worker D1 upload returned status: {resp_cf.status_code}")
+            except Exception as cf_err:
+                logger.error(f"Failed to upload to Cloudflare Worker D1: {cf_err}")
+
+            # 2. Upload to PythonAnywhere's feed (Legacy Backup)
             feed_url = f"{pa_url.rstrip('/')}/api/nodriver-feed"
-            logger.info(f"Uploading {len(feed_jobs)} jobs to {feed_url}...")
-            
-            resp = requests.post(feed_url, json={"jobs": feed_jobs}, timeout=30)
-            if resp.status_code == 200:
-                logger.info(f"Successfully uploaded: {resp.json()}")
-            else:
-                logger.error(f"Failed to upload to PA. Status: {resp.status_code}, Response: {resp.text}")
+            logger.info(f"Uploading {len(feed_jobs)} jobs to PythonAnywhere: {feed_url}...")
+            try:
+                resp = requests.post(feed_url, json={"jobs": feed_jobs}, timeout=30)
+                if resp.status_code == 200:
+                    logger.info(f"Successfully uploaded to PA: {resp.json()}")
+                else:
+                    logger.error(f"Failed to upload to PA. Status: {resp.status_code}, Response: {resp.text}")
+            except Exception as pa_err:
+                logger.error(f"Failed to upload to PythonAnywhere: {pa_err}")
         else:
             logger.info("No jobs found to upload.")
 

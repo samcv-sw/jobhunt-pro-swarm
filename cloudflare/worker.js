@@ -395,6 +395,42 @@ export default {
         return json({ jobs: jobs.slice(0, limit), total: jobs.length });
       }
 
+      // ═══════════ API: JOBS FEED (BULK UPLOAD) ═══════════
+      if (path === '/api/jobs/feed' && method === 'POST') {
+        const body = await request.json();
+        const jobs = body.jobs || [];
+        if (!Array.isArray(jobs)) return error('jobs must be an array');
+        
+        let inserted = 0;
+        const stmt = db.prepare(
+          'INSERT OR IGNORE INTO jobs (external_id, title, company, location, platform, url, scraped_at, status) VALUES (?, ?, ?, ?, ?, ?, datetime("now"), "active")'
+        );
+        
+        const batch = [];
+        for (const job of jobs) {
+          const title = (job.title || '').trim();
+          const company = (job.company || 'Unknown').trim();
+          const url = (job.url || '').trim();
+          const location = (job.location || '').trim();
+          const platform = (job.source || job.platform || 'web').trim();
+          
+          if (!title || !url) continue;
+          
+          // Generate a simple unique hash for external_id based on URL
+          const externalId = 'hash_' + Array.from(new TextEncoder().encode(url))
+            .reduce((hash, val) => (hash * 31 + val) & 0xFFFFFFFF, 0).toString(16);
+          
+          batch.push(stmt.bind(externalId, title, company, location, platform, url));
+        }
+        
+        if (batch.length > 0) {
+          const res = await db.batch(batch);
+          inserted = res.reduce((sum, r) => sum + (r.meta?.changes || 0), 0);
+        }
+        
+        return json({ ok: true, received: jobs.length, inserted, message: `Successfully processed ${jobs.length} jobs` });
+      }
+
       // ═══════════ API: SMTP SAVE ═══════════
       if (path === '/api/byo-smtp/save' && method === 'POST') {
         const body = await request.json();
