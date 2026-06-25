@@ -22,14 +22,15 @@ jobs:
 
   deploy-flyio:
     runs-on: ubuntu-latest
-    if: secrets.FLY_API_TOKEN != ''
     steps:
       - uses: actions/checkout@v4
       
       - name: Setup flyctl
+        if: secrets.FLY_API_TOKEN != ''
         uses: superfly/flyctl-actions/setup-flyctl@master
         
       - name: Deploy to Fly.io
+        if: secrets.FLY_API_TOKEN != ''
         run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
