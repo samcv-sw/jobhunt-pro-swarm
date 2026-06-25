@@ -1,8 +1,10 @@
 import os
+import sys
 import time
 import requests
 import json
 import logging
+import subprocess
 from datetime import datetime
 import PyPDF2
 import re
@@ -12,24 +14,34 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger(__name__)
 
 # Config
-TELEGRAM_BOT_TOKEN = "8722842310:AAHkdje5I8EF2tO-t-DQ4rKrQNj77bn5lOA"
-WEBHOOK_URL = "https://olympus-webhook.samsalameh-cv.workers.dev"
+try:
+    import config
+    TELEGRAM_BOT_TOKEN = getattr(config, "TELEGRAM_BOT_TOKEN", None) or os.getenv("TELEGRAM_BOT_TOKEN", "")
+except ImportError:
+    TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+
+WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://olympus-webhook.samsalameh-cv.workers.dev")
 CV_DIR = "downloaded_cvs"
 
 if not os.path.exists(CV_DIR):
     os.makedirs(CV_DIR)
 
 def send_telegram_message(chat_id, text):
+    if not TELEGRAM_BOT_TOKEN:
+        logger.warning(f"Cannot send Telegram message (token missing) to {chat_id}: {text[:50]}...")
+        return
     try:
         url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-        requests.post(url, json={"chat_id": chat_id, "text": text})
+        requests.post(url, json={"chat_id": chat_id, "text": text}, timeout=15)
     except Exception as e:
         logger.error(f"Failed to send TG message: {e}")
 
 def get_telegram_file_url(file_id):
+    if not TELEGRAM_BOT_TOKEN:
+        return None
     try:
         url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getFile?file_id={file_id}"
-        resp = requests.get(url).json()
+        resp = requests.get(url, timeout=15).json()
         if resp.get("ok"):
             file_path = resp["result"]["file_path"]
             return f"https://api.telegram.org/file/bot{TELEGRAM_BOT_TOKEN}/{file_path}"
@@ -40,7 +52,7 @@ def get_telegram_file_url(file_id):
 def update_job_status(telegram_id, status):
     try:
         url = f"{WEBHOOK_URL}/api/v1/queue/status"
-        requests.post(url, json={"telegram_id": telegram_id, "status": status})
+        requests.post(url, json={"telegram_id": telegram_id, "status": status}, timeout=15)
     except Exception as e:
         logger.error(f"Failed to update status: {e}")
 
@@ -68,7 +80,7 @@ def get_affiliate_recommendation(cv_text):
 
 def process_queue():
     try:
-        resp = requests.get(f"{WEBHOOK_URL}/api/v1/queue")
+        resp = requests.get(f"{WEBHOOK_URL}/api/v1/queue", timeout=15)
         if resp.status_code != 200:
             return
 
@@ -86,7 +98,7 @@ def process_queue():
             # Download CV
             file_url = get_telegram_file_url(file_id)
             if file_url:
-                cv_content = requests.get(file_url).content
+                cv_content = requests.get(file_url, timeout=30).content
                 cv_path = os.path.join(CV_DIR, f"{telegram_id}_cv.pdf")
                 with open(cv_path, "wb") as f:
                     f.write(cv_content)
@@ -104,24 +116,20 @@ def process_queue():
             except Exception as e:
                 logger.error(f"Could not read PDF for affiliate injection: {e}")
                 
-            # SIMULATE RUNNING AUTO-PILOT FOR THIS USER
-            # In real-world, we would pass `cv_path` to `auto_pilot.py`
-            # For now, we will run the mega swarm (it uses default config)
             try:
-                # We can call the orchestrator directly or just run a subprocess
-                # os.system("python auto_pilot.py")
-                logger.info("Executing Auto Pilot...")
-                time.sleep(5) # Simulate initial scan
+                # Execute a single-run apply cycle using the real Auto-Pilot engine
+                logger.info("Executing real Auto Pilot cycle...")
+                subprocess.run([sys.executable, "auto_pilot.py", "--once"], check=True)
                 
                 # INJECT AFFILIATE RECOMMENDATION
                 affiliate_msg = get_affiliate_recommendation(cv_text)
                 send_telegram_message(telegram_id, affiliate_msg)
                 
-                send_telegram_message(telegram_id, "✅ SWARM UPDATE: Scraped 150 matching jobs. Beginning applications...")
+                send_telegram_message(telegram_id, "✅ SWARM UPDATE: Scraped matching jobs. Beginning applications...")
                 
                 # Update status
                 update_job_status(telegram_id, "completed")
-                send_telegram_message(telegram_id, "🎉 SWARM COMPLETE: 50+ applications submitted! Check your email inbox for confirmations from employers.")
+                send_telegram_message(telegram_id, "🎉 SWARM COMPLETE: Applications submitted! Check your email inbox for confirmations from employers.")
                 
             except Exception as e:
                 logger.error(f"Error running swarm: {e}")

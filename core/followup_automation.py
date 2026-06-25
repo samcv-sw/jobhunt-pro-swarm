@@ -18,7 +18,7 @@ import logging
 import os
 import hashlib
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple
 
 import httpx
@@ -101,7 +101,7 @@ class FollowUpAutomation:
                 return {"status": "error", "message": "Follow-up automation not purchased. Unlock on /services page."}
 
             # Get eligible emails (sent 3+ days ago, no response/open, < MAX_FOLLOWUPS)
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc).replace(tzinfo=None)
             cutoff = (now - timedelta(days=3)).isoformat()
 
             emails = conn.execute("""
@@ -250,7 +250,7 @@ class FollowUpAutomation:
                 from web.app_v2 import get_db as _get_db
                 conn = _get_db()
 
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc).replace(tzinfo=None)
             cutoff = (now - timedelta(days=3)).isoformat()
 
             # Find active campaigns (running or completed)

@@ -8,6 +8,12 @@ import re
 
 logger = logging.getLogger(__name__)
 
+def _safe_str(val) -> str:
+    """Sanitize string for safe logging in windows environments with default encoding."""
+    if isinstance(val, bytes):
+        return val.decode("utf-8", errors="ignore")
+    return str(val).encode("ascii", errors="replace").decode("ascii")
+
 NEON_URI = os.getenv("NEON_URL") or os.getenv("DATABASE_URL") or os.getenv("DATABASE_URL_SYNC") or ""
 if NEON_URI.startswith("postgresql+asyncpg://"):
     NEON_URI = NEON_URI.replace("postgresql+asyncpg://", "postgresql://", 1)
@@ -84,6 +90,9 @@ def convert_sql(query):
 
     sql = sql.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
     
+    # Translate SQLite last_insert_rowid() to PG lastval()
+    sql = re.sub(r"\blast_insert_rowid\(\)", "lastval()", sql, flags=re.IGNORECASE)
+    
     # Replace: datetime('now', '...offset...') → NOW() +/- INTERVAL '...offset...'
     def _fix_datetime(m):
         inner = m.group(1)
@@ -133,7 +142,7 @@ class PgCursorWrapper:
         if not pg_query:
             return self
             
-        tables_with_id = {"users", "cv_profiles", "campaigns", "orders", "wallet_transactions", "job_applications", "job_queue", "email_queue", "user_prefs", "sent_emails"}
+        tables_with_id = {"users", "cv_profiles", "campaigns", "orders", "wallet_transactions", "job_applications", "job_queue", "email_queue", "user_prefs", "sent_emails", "leads"}
         
         is_insert = pg_query.strip().upper().startswith("INSERT")
         table_name = None
@@ -364,7 +373,7 @@ class SqliteConnectionWrapper:
     def __init__(self, db_path):
         global BACKEND
         self.conn = real_sqlite3.connect(db_path, check_same_thread=False, timeout=30)
-        self.conn.row_factory = real_sqlite3.Row
+        self.conn.row_factory = DictLikeRow
         
         # Performance tuning for extreme scalability on SQLite
         self.conn.execute("PRAGMA journal_mode=WAL")
@@ -373,7 +382,7 @@ class SqliteConnectionWrapper:
         self.conn.execute("PRAGMA busy_timeout=30000")
         
         BACKEND = "sqlite"
-        logger.info(f"[DB] Connected to SQLite fallback: {db_path}")
+        logger.info(f"[DB] Connected to SQLite fallback: {_safe_str(db_path)}")
         
     def execute(self, query, params=None):
         cur = self.conn.cursor()
@@ -417,6 +426,10 @@ class SqliteConnectionWrapper:
             self.close()
 
 def should_use_pg(db_path):
+    # If running inside unit tests/pytest, do NOT use PostgreSQL to keep tests isolated
+    import sys
+    if "unittest" in sys.modules or "pytest" in sys.modules or any("pytest" in arg or "unittest" in arg for arg in sys.argv):
+        return False
     if not db_path:
         return True
     db_path_str = str(db_path).lower()
@@ -426,7 +439,7 @@ def should_use_pg(db_path):
         return False
     if "temp" in db_path_str:
         return False
-    main_db_indicators = ["saas", "sam_max", "jobhunt", "database_v2", "database.db", "database.sqlite3"]
+    main_db_indicators = ["saas", "sam_max", "jobhunt", "database_v2", "database.db", "database.sqlite3", "leads"]
     return any(indicator in db_path_str for indicator in main_db_indicators)
 
 def connect(db_path=None, **kwargs):
@@ -437,7 +450,7 @@ def connect(db_path=None, **kwargs):
         
     target_db = db_path or FALLBACK_DB_PATH or "jobhunt_saas_v2.db"
     if not should_use_pg(target_db):
-        logger.info(f"[DB] Bypassing PG for non-main database: {target_db}")
+        logger.info(f"[DB] Bypassing PG for non-main database: {_safe_str(target_db)}")
         return SqliteConnectionWrapper(target_db)
     
     if os.getenv("FORCE_SQLITE") == "1":
@@ -454,11 +467,19 @@ def connect(db_path=None, **kwargs):
         logger.error(f"[DB] Failed to connect to Neon PG: {pg_err}. Falling back to SQLite.")
         return SqliteConnectionWrapper(target_db)
 
+class DictLikeRow(real_sqlite3.Row):
+    """Subclass of sqlite3.Row that adds dict-style .get() support."""
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except (KeyError, IndexError, TypeError):
+            return default
+
 # Expose standard SQLite3 properties and error types for compatibility
 Error = real_sqlite3.Error
 DatabaseError = real_sqlite3.DatabaseError
 InterfaceError = real_sqlite3.InterfaceError
-Row = real_sqlite3.Row
+Row = DictLikeRow
 Connection = PgConnectionWrapper
 
 OperationalError = OperationalError

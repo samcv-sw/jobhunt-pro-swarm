@@ -179,16 +179,19 @@ def init_saas_db():
             );
         """)
         
-        tiers = conn.execute("SELECT COUNT(*) FROM pricing_tiers").fetchone()[0]
-        if tiers == 0:
-            pricing = [
-                ("starter", 100, 5.00, "100 companies - Perfect to start"),
-                ("basic", 200, 10.00, "200 companies - Best value"),
-                ("pro", 500, 20.00, "500 companies - Serious job seekers"),
-                ("enterprise", 1000, 35.00, "1000 companies - Maximum reach"),
-                ("unlimited", 5000, 100.00, "5000 companies - Full scale"),
-            ]
-            conn.executemany("INSERT INTO pricing_tiers (tier_name, company_count, price_usd, description) VALUES (?, ?, ?, ?)", pricing)
+        try:
+            tiers = conn.execute("SELECT COUNT(*) FROM pricing_tiers").fetchone()[0]
+            if tiers == 0:
+                pricing = [
+                    ("starter", 100, 5.00, "100 companies - Perfect to start"),
+                    ("basic", 200, 10.00, "200 companies - Best value"),
+                    ("pro", 500, 20.00, "500 companies - Serious job seekers"),
+                    ("enterprise", 1000, 35.00, "1000 companies - Maximum reach"),
+                    ("unlimited", 5000, 100.00, "5000 companies - Full scale"),
+                ]
+                conn.executemany("INSERT INTO pricing_tiers (tier_name, company_count, price_usd, description) VALUES (?, ?, ?, ?)", pricing)
+        except Exception as e:
+            logger.warning(f"Failed to seed pricing_tiers (likely schema mismatch): {e}")
         
         conn.commit()
 

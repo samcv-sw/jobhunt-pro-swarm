@@ -52,6 +52,15 @@ class AITailor:
         self.groq_key = config.GROQ_API_KEY
         self.gemini_key = getattr(config, "GEMINI_API_KEY", "")
         self._client = None  # lazy httpx client
+        
+        # Initialize LLM Provider Pool (17 rotating providers, $0 cost)
+        try:
+            from core.llm_provider_pool import LLMProviderPool
+            self.llm_pool = LLMProviderPool().initialize()
+            logger.info("AITailor: LLMProviderPool initialized successfully.")
+        except Exception as e:
+            logger.warning(f"AITailor: Failed to initialize LLMProviderPool: {e}")
+            self.llm_pool = None
 
     # ── Public API ───────────────────────────────────────────────────────────
 
@@ -68,6 +77,68 @@ class AITailor:
         words = cv_text.split()
         trimmed = [w for w in words if w.lower() not in stop_words]
         return " ".join(trimmed)
+
+    def get_dynamic_cv_context(self, title: str) -> str:
+        """Dynamically build CV context based on target job title."""
+        context = [
+            f"Candidate: {CANDIDATE_PROFILE['name']}",
+            f"Target/Current Title: {CANDIDATE_PROFILE['title']}",
+            f"Experience: {CANDIDATE_PROFILE['years']} years",
+            f"Certifications: {', '.join(CANDIDATE_PROFILE['certs'])}",
+            f"Core Skills: {', '.join(CANDIDATE_PROFILE['core_skills'])}",
+            f"Protocols: {', '.join(CANDIDATE_PROFILE['protocols'])}",
+            f"Security: {', '.join(CANDIDATE_PROFILE['security'])}",
+            f"Automation: {', '.join(CANDIDATE_PROFILE['automation'])}",
+            f"Infrastructure: {', '.join(CANDIDATE_PROFILE['infrastructure'])}",
+            "Key Achievements:"
+        ]
+        for highlight in CANDIDATE_PROFILE['highlights']:
+            context.append(f"- {highlight}")
+            
+        # Try to append raw text from the CV PDF if available
+        try:
+            import os
+            import config
+            from core.resume_optimizer import ResumeOptimizer
+            cv_path = getattr(config, "CV_PATH", "")
+            if cv_path and os.path.exists(cv_path):
+                import asyncio
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # If event loop is already running, we can't use asyncio.run.
+                    # Since _load_cv_text is a staticmethod that does blocking I/O anyway (no actual await),
+                    # we can run its synchronous equivalent or run it in an executor.
+                    # Actually, _load_cv_text has no real async calls, it's just async def because of standardizing,
+                    # so we can execute it using a future or a thread.
+                    # Or simpler, we can just call a synchronous helper, or since _load_cv_text is async,
+                    # we can use a thread pool or run_coroutine_threadsafe.
+                    # Wait, let's look at _load_cv_text in resume_optimizer.py:
+                    # It has no await except in the signature: `async def _load_cv_text`. It just reads files.
+                    # So we can run it safely using:
+                    # `raw_text = loop.run_until_complete(ResumeOptimizer._load_cv_text(cv_path))`
+                    # but since the loop is already running (we are in an async method), we can do:
+                    # `raw_text = asyncio.run_coroutine_threadsafe(ResumeOptimizer._load_cv_text(cv_path), loop).result()`
+                    # or just run the file reading synchronously ourselves!
+                    ext = os.path.splitext(cv_path)[1].lower()
+                    if ext in (".txt", ".md", ".rtf"):
+                        with open(cv_path, "r", encoding="utf-8", errors="replace") as f:
+                            raw_text = f.read()
+                    elif ext == ".pdf":
+                        import pdfplumber
+                        with pdfplumber.open(cv_path) as pdf:
+                            raw_text = "\n".join(page.extract_text() or "" for page in pdf.pages)
+                    else:
+                        raw_text = ""
+                else:
+                    raw_text = asyncio.run(ResumeOptimizer._load_cv_text(cv_path))
+                
+                if raw_text:
+                    context.append("\nFull CV Text:")
+                    context.append(raw_text[:2000])
+        except Exception as e:
+            logger.debug(f"Failed to append raw CV text: {e}")
+            
+        return "\n".join(context)
 
     async def score_job_relevance(self, title: str, description: str, company: str = "") -> dict:
         """Score job relevance 0-100 before applying. Returns {score, reasons, recommendation}."""
@@ -356,7 +427,7 @@ Include a mix of:
     _SEMANTIC_CACHE = {} # Local memory fallback
 
     async def _call_ai(self, prompt: str, max_tokens: int = 1000, temperature: float = 0.7) -> str | None:
-        """Call AI with pgvector Semantic Caching → Groq (primary) → Gemini (fallback) → None."""
+        """Call AI with pgvector Semantic Caching → Rotating LLM Provider Pool → Legacy Hardcoded Groq/Gemini fallback."""
         
         # 1. $0 pgvector Semantic Caching Layer
         try:
@@ -372,7 +443,25 @@ Include a mix of:
         if cache_key in self._SEMANTIC_CACHE:
             return self._SEMANTIC_CACHE[cache_key]
 
-        # Try Groq first (fast, free tier)
+        # 2. Try rotating LLM Provider Pool (17 providers, non-blocking, automatic 429 rotation)
+        if self.llm_pool:
+            try:
+                result = await self.llm_pool.complete(
+                    system_prompt="You are a professional career advisor and cover letter writer. Always follow the user's formatting instructions precisely. When asked for JSON, return ONLY valid JSON without markdown code fences.",
+                    user_prompt=prompt,
+                    temperature=temperature,
+                    max_tokens=max_tokens
+                )
+                if result:
+                    self._SEMANTIC_CACHE[cache_key] = result
+                    try:
+                        semantic_cache.save_to_cache(prompt, result)
+                    except: pass
+                    return result
+            except Exception as e:
+                logger.warning(f"Rotating LLM Provider Pool failed: {e}. Falling back to legacy Groq/Gemini...")
+
+        # 3. Legacy Fallback: Try Groq first (fast, free tier)
         if self.groq_key:
             for model in self.MODELS:
                 try:
@@ -387,7 +476,7 @@ Include a mix of:
                     logger.warning(f"Groq {model} failed: {e}")
                     continue
 
-        # Fallback to Gemini
+        # 4. Legacy Fallback: Try Gemini
         if self.gemini_key:
             try:
                 result = await self._call_gemini(prompt, max_tokens)

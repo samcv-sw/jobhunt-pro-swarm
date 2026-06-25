@@ -22,6 +22,7 @@ jobs:
 
   deploy-flyio:
     runs-on: ubuntu-latest
+    if: ${{ secrets.FLY_API_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4
       

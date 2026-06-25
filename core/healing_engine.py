@@ -368,14 +368,16 @@ class HealingEngine:
         if not self.db:
             return (None, None)
 
+        def _check_sync():
+            with self.db._get_conn() as conn:
+                cur = conn.execute("SELECT 1")
+                cur.fetchone()
+
         try:
-            # Test DB by checking if session works
+            # Test DB by checking if connection works
             try:
-                async with self.db.get_session() as session:
-                    from sqlalchemy import text
-                    result = await session.execute(text("SELECT 1"))
-                    result.scalar_one()
-                    # DB is alive
+                await asyncio.to_thread(_check_sync)
+                # DB is alive
             except Exception as db_err:
                 err_str = str(db_err).lower()
 
@@ -437,30 +439,33 @@ class HealingEngine:
 
             # Tables exist — verify a few key ones
             try:
-                async with self.db.get_session() as session:
-                    from sqlalchemy import text
-                    tables = ["jobs", "users", "campaigns", "applications"]
-                    for table in tables:
-                        try:
-                            await session.execute(text(f"SELECT COUNT(*) FROM {table}"))
-                        except Exception:
-                            logger.warning(f"DB integrity: table '{table}' missing, recreating...")
-                            await self.db.create_tables()
-                            return (
-                                {
-                                    "check": f"db_missing_table:{table}",
-                                    "severity": "warning",
-                                    "detail": f"Table '{table}' was missing — recreated",
-                                },
-                                {
-                                    "action": f"db_table_recreated:{table}",
-                                    "detail": f"Recreated missing table '{table}'",
-                                    "auto_fixable": True,
-                                    "applied": True,
-                                },
-                            )
+                def _verify_tables():
+                    tables = ["jobs"]  # Note: legacy schema only has "jobs" table, other tables like users/applications are in the PostgreSQL/DatabaseManager schema
+                    with self.db._get_conn() as conn:
+                        for table in tables:
+                            conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()
+                            
+                await asyncio.to_thread(_verify_tables)
             except Exception as e:
-                logger.debug(f"DB table verification skipped: {e}")
+                err_str = str(e).lower()
+                logger.warning(f"DB integrity: table missing or error ({err_str[:100]}), recreating...")
+                try:
+                    await self.db.create_tables()
+                    return (
+                        {
+                            "check": "db_missing_table",
+                            "severity": "warning",
+                            "detail": "Database table was missing — recreated",
+                        },
+                        {
+                            "action": "db_table_recreated",
+                            "detail": "Recreated missing database table",
+                            "auto_fixable": True,
+                            "applied": True,
+                        },
+                    )
+                except Exception as create_err:
+                    logger.error(f"Failed to recreate tables: {create_err}")
 
         except Exception as e:
             logger.warning(f"DB integrity check error: {e}")

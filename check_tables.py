@@ -1,5 +1,6 @@
 import sqlite3, os
-db = r'C:\Users\samde\Desktop\cv sam new ma3 kimi\campaigns.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db = os.path.join(BASE_DIR, 'campaigns.db')
 print("DB exists:", os.path.exists(db))
 conn = sqlite3.connect(db)
 cur = conn.cursor()

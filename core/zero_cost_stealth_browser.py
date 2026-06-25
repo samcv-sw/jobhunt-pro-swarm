@@ -28,7 +28,7 @@ class ZeroCostStealthScraper:
             
         logger.info(f"Initializing $0 Undetected Chromedriver for {url}...")
         
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         
         def _scrape_sync():
             options = uc.ChromeOptions()

@@ -141,7 +141,6 @@ INDEED_RSS_LOCATIONS = {
     "turkey": "Istanbul, TR",
 }
 
-# ── Per-Source Smart Cache (OPT#2: individual TTLs) ─────────────────────
 _CACHE_DIR = os.path.join(os.path.dirname(__file__), '..', 'cache')
 # Source-specific TTLs in seconds: JSearch=2h, Indeed=30min, hh.ru=1h, Glassdoor=1h, LinkedIn=3h
 _SOURCE_TTLS = {
@@ -151,6 +150,7 @@ _SOURCE_TTLS = {
     "glassdoor": 3600,
     "linkedin_xhr": 10800,
 }
+_CACHE_TTL = 7200  # Default global cache TTL in seconds (2 hours)
 
 
 def _load_cache():
@@ -231,6 +231,43 @@ def _get_rotation_selection(n_locations: int = 3, n_titles: int = 2):
     return selected_countries, selected_titles
 
 
+def _clean_email(company: str, url: str = None) -> str:
+    """Intelligently clean company name or URL to generate a valid domain email,
+    stripping common subdomains (www, careers, jobs, app, portal, etc.).
+    """
+    import re
+    from urllib.parse import urlparse
+    
+    domain = ""
+    # Try parsing domain from URL first if available
+    if url and url.startswith("http"):
+        try:
+            parsed = urlparse(url)
+            netloc = parsed.netloc.lower()
+            for sub in ['www.', 'careers.', 'jobs.', 'recruiting.', 'app.', 'apply.', 'portal.']:
+                if netloc.startswith(sub):
+                    netloc = netloc[len(sub):]
+            if '.' in netloc and len(netloc) > 4:
+                domain = netloc
+        except Exception:
+            pass
+            
+    # Fallback to company name normalization
+    if not domain:
+        clean_name = re.sub(r'[^a-zA-Z0-9]', '', company).lower()
+        if clean_name:
+            domain = f"{clean_name}.com"
+            
+    if domain:
+        # Prevent double-generation of careers@careers.
+        if domain.startswith("careers."):
+            domain = domain[8:]
+        elif domain.startswith("jobs."):
+            domain = domain[5:]
+        return f"careers@{domain}"
+    return ""
+
+
 # ══════════════════════════════════════════════════════════════════════════
 # PAJobScraper
 # ══════════════════════════════════════════════════════════════════════════
@@ -272,11 +309,9 @@ class PAJobScraper:
                     employer_website = j.get("employer_website", "") or ""
                     email = ""
                     if employer_website:
-                        email = f"hr@{employer_website.replace('https://','').replace('http://','').split('/')[0]}"
-                    elif apply_link:
-                        from urllib.parse import urlparse
-                        domain = urlparse(apply_link).netloc
-                        email = f"careers@{domain}"
+                        email = _clean_email(employer, employer_website)
+                    else:
+                        email = _clean_email(employer, apply_link)
                     if employer and title:
                         jobs.append({
                             "id": f"jsearch_{j.get('job_id', str(time.time()))}",
@@ -437,9 +472,7 @@ class PAJobScraper:
                         seen_ids.add(jid)
 
                         # Generate email placeholder
-                        import re
-                        company_domain = re.sub(r"[^a-z0-9]", "", company.lower())
-                        email = f"careers@{company_domain}.com" if company_domain else ""
+                        email = _clean_email(company, alternate_url)
 
                         all_jobs.append({
                             "id": jid,
@@ -560,7 +593,7 @@ class PAJobScraper:
                                 "location": loc[:60],
                                 "source": "indeed_rss",
                                 "url": link,
-                                "email": f"careers@{re.sub(r'[^a-z0-9]', '', company.lower())}.com",
+                                "email": _clean_email(company, link),
                                 "snippet": snippet[:200],
                                 "job_id": f"ir_{country_key}_{len(all_jobs)}",
                             })
@@ -671,7 +704,7 @@ class PAJobScraper:
                                 "location": loc_text[:60],
                                 "source": "glassdoor",
                                 "url": job_url,
-                                "email": f"careers@{re.sub(r'[^a-z0-9]', '', company_text.lower())}.com",
+                                "email": _clean_email(company_text, job_url),
                                 "snippet": f"Glassdoor: {title_text} at {company_text}",
                                 "job_id": f"gd_{len(all_jobs)}",
                             })
@@ -748,7 +781,7 @@ class PAJobScraper:
                                 "location": str(loc or city)[:60],
                                 "source": "linkedin_xhr",
                                 "url": href,
-                                "email": f"hr@{comp.lower().replace(' ','')}.com",
+                                "email": _clean_email(comp, href),
                                 "snippet": "",
                             })
                 except Exception as e:
@@ -913,7 +946,7 @@ class PAJobScraper:
                     "location": j.get("candidate_required_location", "Remote")[:60],
                     "source": "remotive",
                     "url": j.get("url", ""),
-                    "email": f"careers@{company.lower().replace(' ','')}.com",
+                    "email": _clean_email(company, j.get("url", "")),
                     "snippet": desc[:200],
                     "salary": j.get("salary", ""),
                     "job_id": f"rm_{j.get('id', '')}",
@@ -957,7 +990,7 @@ class PAJobScraper:
                     "location": "Germany/Europe",
                     "source": "arbeitnow",
                     "url": f"https://www.arbeitnow.com/view/{slug}" if slug else "",
-                    "email": f"careers@{company.lower().replace(' ','')}.com",
+                    "email": _clean_email(company, j.get("url", "")),
                     "snippet": desc[:200],
                     "job_id": f"an_{slug}",
                 })

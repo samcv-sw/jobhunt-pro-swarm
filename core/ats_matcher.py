@@ -19,7 +19,15 @@ import json
 import logging
 from typing import Dict, List, Tuple, Optional
 from collections import Counter
-from rapidfuzz import fuzz
+try:
+    from rapidfuzz import fuzz
+except ImportError:
+    import difflib
+    class FakeFuzz:
+        @staticmethod
+        def ratio(s1: str, s2: str) -> float:
+            return difflib.SequenceMatcher(None, s1, s2).ratio() * 100.0
+    fuzz = FakeFuzz
 logger = logging.getLogger(__name__)
 
 # ── Config ──────────────────────────────────────────────────────────────────
@@ -191,8 +199,9 @@ class ATSMatcher:
                 best_ratio = 0.0
                 best_rk = None
                 for rk in resume_kw:
-                    # Substring check (fast)
-                    if kw in rk or rk in kw:
+                    # Allow fuzzy matching if length difference is small (e.g. typos, hyphens)
+                    # or if one is a substring of the other (e.g. "vpn" in "vpns")
+                    if abs(len(kw) - len(rk)) <= 4 or kw in rk or rk in kw:
                         ratio = fuzz.ratio(kw, rk) / 100.0
                         if ratio > best_ratio:
                             best_ratio = ratio
@@ -212,15 +221,21 @@ class ATSMatcher:
                         "weight": weight,
                     }
 
-        # Calculate weighted score
-        total_matched_weight = sum(m["weighted_score"] for m in matched.values())
-        total_missing_weight = sum(
-            m["weight"] * m["jd_frequency"] for m in missing.values()
-        )
-        total_available = total_matched_weight + total_missing_weight
+        # Calculate mathematically sound weighted score
+        total_earned_weight = 0.0
+        total_possible_weight = 0.0
+
+        for kw, info in matched.items():
+            max_kw_weight = info["weight"] * info["jd_frequency"]
+            total_possible_weight += max_kw_weight
+            total_earned_weight += info["weighted_score"] * info["jd_frequency"]
+
+        for kw, info in missing.items():
+            max_kw_weight = info["weight"] * info["jd_frequency"]
+            total_possible_weight += max_kw_weight
 
         match_percent = round(
-            (total_matched_weight / max(total_available, 1)) * 100, 1
+            (total_earned_weight / max(total_possible_weight, 1.0)) * 100, 1
         )
 
         # Sort missing by importance (descending)

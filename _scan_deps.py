@@ -1,6 +1,6 @@
 import os, ast, sys
 
-PROJ = r'C:\Users\samde\Desktop\cv sam new ma3 kimi'
+PROJ = os.path.dirname(os.path.abspath(__file__))
 os.chdir(PROJ)
 
 std_lib = {

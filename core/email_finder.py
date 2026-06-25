@@ -204,12 +204,14 @@ class EmailFinder:
     def __init__(self, rate_limit_sec: float = 1.5):
         self._rate_limit_sec = rate_limit_sec
         self._last_request: float = 0.0
+        self._ddg_lock = asyncio.Lock()  # Serializes DDG requests
 
         # Caches
         self._domain_cache: Dict[str, str] = {}  # company_lower → domain
         self._email_cache: Dict[str, List[str]] = {}  # domain → [emails]
         self._verified_cache: Dict[str, bool] = {}  # email → verified
         self._mx_cache: Dict[str, Optional[str]] = {}  # domain → mx_host
+        self._catch_all_cache: Dict[str, bool] = {}  # domain → is_catch_all
 
         # HTTP client (lazy init)
         self._client: Optional[httpx.AsyncClient] = None
@@ -312,6 +314,32 @@ class EmailFinder:
             jitter = random.uniform(0, 0.5)
             await asyncio.sleep(self._rate_limit_sec - elapsed + jitter)
         self._last_request = time.monotonic()
+
+    async def _call_ddg_safe(self, query: str, max_results: int = 10) -> List[Dict]:
+        """Perform a DuckDuckGo search safely, avoiding rate limits and keeping the event loop responsive."""
+        if DDGS is None:
+            return []
+
+        async with self._ddg_lock:
+            # Apply rate limit pacing under the lock
+            now = time.monotonic()
+            elapsed = now - self._last_request
+            if elapsed < self._rate_limit_sec:
+                jitter = random.uniform(0, 0.5)
+                await asyncio.sleep(self._rate_limit_sec - elapsed + jitter)
+
+            # Run the synchronous blocking DDG request in a thread pool
+            def _execute_search():
+                try:
+                    with DDGS() as ddgs:
+                        return list(ddgs.text(query, max_results=max_results))
+                except Exception as e:
+                    logger.debug(f"[EmailFinder] DDG query '{query}' failed: {e}")
+                    return []
+
+            results = await asyncio.to_thread(_execute_search)
+            self._last_request = time.monotonic()
+            return results
 
     # ══════════════════════════════════════════════════════════════════════
     # Bouncify-Style MX Verification (Lightweight, DNS-only)
@@ -478,7 +506,7 @@ class EmailFinder:
             # Quick DDG email dorking (2s timeout)
             try:
                 dork_emails = await asyncio.wait_for(
-                    self._google_dork_emails(company, domain), timeout=3.0
+                    self._google_dork_emails(company, domain), timeout=15.0
                 )
                 if dork_emails:
                     # Bouncify filter: MX + disposable + placeholder check
@@ -632,17 +660,8 @@ class EmailFinder:
 
     async def _search_domain_ddg(self, company: str) -> Optional[str]:
         """Use DuckDuckGo to find the company's official website."""
-        if DDGS is None:
-            return None
-
-        await self._rate_limit()
         query = f"{company} official website"
-        try:
-            with DDGS() as ddgs:
-                results = list(ddgs.text(query, max_results=5))
-        except Exception as e:
-            logger.debug(f"[EmailFinder] DDG search failed: {e}")
-            return None
+        results = await self._call_ddg_safe(query, max_results=5)
 
         if not results:
             return None
@@ -692,46 +711,35 @@ class EmailFinder:
           - site:{domain} email OR "@{domain}"
           - "{company}" "email" "hr" OR "recruitment" OR "careers"
         """
-        await self._rate_limit()
         found_emails: Set[str] = set()
 
         # Dork 1: site:{domain} email
-        try:
-            query1 = f"site:{domain} email OR \"@{domain}\" OR ceo OR founder OR engineering OR contact"
-            with DDGS() as ddgs:
-                results = list(ddgs.text(query1, max_results=10))
-            for result in results:
-                body = result.get('body', '')
-                url = result.get('href', '')
-                emails = _extract_emails(body)
-                # Only keep emails matching the domain
-                for e in emails:
+        query1 = f"site:{domain} email OR \"@{domain}\" OR ceo OR founder OR engineering OR contact"
+        results1 = await self._call_ddg_safe(query1, max_results=10)
+        for result in results1:
+            body = result.get('body', '')
+            url = result.get('href', '')
+            emails = _extract_emails(body)
+            # Only keep emails matching the domain
+            for e in emails:
+                if domain in e:
+                    found_emails.add(e)
+            # Also try to get emails from the result URL snippet
+            snippet = result.get('snippet', '')
+            if snippet:
+                for e in _extract_emails(snippet):
                     if domain in e:
                         found_emails.add(e)
-                # Also try to get emails from the result URL snippet
-                snippet = result.get('snippet', '')
-                if snippet:
-                    for e in _extract_emails(snippet):
-                        if domain in e:
-                            found_emails.add(e)
-        except Exception as e:
-            logger.debug(f"[EmailFinder] DDG dork 1 failed: {e}")
-
-        await self._rate_limit()
 
         # Dork 2: company email ceo cto founder engineering lead
-        try:
-            query2 = f"\"{company}\" email ceo cto founder engineering lead"
-            with DDGS() as ddgs:
-                results = list(ddgs.text(query2, max_results=10))
-            for result in results:
-                body = result.get('body', '')
-                snippet = result.get('snippet', '')
-                for e in _extract_emails(body + ' ' + snippet):
-                    if domain in e:
-                        found_emails.add(e)
-        except Exception as e:
-            logger.debug(f"[EmailFinder] DDG dork 2 failed: {e}")
+        query2 = f"\"{company}\" email ceo cto founder engineering lead"
+        results2 = await self._call_ddg_safe(query2, max_results=10)
+        for result in results2:
+            body = result.get('body', '')
+            snippet = result.get('snippet', '')
+            for e in _extract_emails(body + ' ' + snippet):
+                if domain in e:
+                    found_emails.add(e)
 
         # Sort: HR-related emails first
         result_list = list(found_emails)
@@ -873,6 +881,7 @@ class EmailFinder:
 
         Handles:
           - MX record lookup (cached)
+          - Catch-All domain check (cached)
           - SMTP handshake on port 25
           - MAIL FROM + RCPT TO
           - QUIT (no DATA, no send)
@@ -886,8 +895,29 @@ class EmailFinder:
             logger.debug(f"[EmailFinder] No MX for {domain}")
             return []
 
-        verified: List[str] = []
         sender_domain = "jobhunt.pro"  # From EHLO
+
+        # 1. Perform Catch-All check before testing individual candidates
+        if domain not in self._catch_all_cache:
+            # Generate a highly randomized local part to test catch-all status
+            random_part = f"verify_test_{random.randint(10000, 99999)}_{int(time.time())}"
+            test_email = f"{random_part}@{domain}"
+            try:
+                # Check if the server accepts this completely random address
+                is_catch_all = await self._smtp_check(mx_host, test_email, sender_domain)
+                self._catch_all_cache[domain] = is_catch_all
+                if is_catch_all:
+                    logger.info(f"[EmailFinder] ⚠️ Catch-All domain detected for {domain}. Disabling SMTP validation as it is inconclusive.")
+            except Exception as e:
+                logger.debug(f"[EmailFinder] Catch-All check failed for {domain}: {e}")
+                self._catch_all_cache[domain] = False
+        
+        # 2. If it is a Catch-All domain, SMTP validation is inconclusive.
+        # We return an empty list here so the caller falls back to safer bouncify-filtered candidates.
+        if self._catch_all_cache.get(domain, False):
+            return []
+
+        verified: List[str] = []
 
         for email in emails[:12]:  # Cap at 12 per batch
             # Check cache

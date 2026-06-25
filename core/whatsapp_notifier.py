@@ -6,6 +6,7 @@ import logging
 import urllib.parse
 import requests as _requests
 import asyncio
+import html
 from datetime import datetime
 from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, CANDIDATE_PHONE, CANDIDATE_NAME
 
@@ -34,44 +35,64 @@ def generate_wa_me_link(phone: str = None, message: str = "") -> str:
 
 def notify_application_submitted(company: str, position: str, recipient: str = "") -> str:
     """Notify via Telegram that an application was submitted"""
-    msg = f"✅ Application Submitted!\n🏢 {company}\n💼 {position}"
-    if recipient:
-        msg += f"\n📧 {recipient}"
+    company_esc = html.escape(company)
+    position_esc = html.escape(position)
+    recipient_esc = html.escape(recipient) if recipient else ""
+    msg = f"✅ Application Submitted!\n🏢 {company_esc}\n💼 {position_esc}"
+    if recipient_esc:
+        msg += f"\n📧 {recipient_esc}"
     msg += f"\n\n📱 WhatsApp: {get_whatsapp_contact_url()}"
     _send_telegram(msg)
     return msg
 
 def notify_campaign_started(name: str, total: int) -> str:
     """Notify campaign start"""
-    msg = f"🚀 Campaign Started: {name}\n📊 Total targets: {total}\n\n📱 WhatsApp: {get_whatsapp_contact_url()}"
+    name_esc = html.escape(name)
+    msg = f"🚀 Campaign Started: {name_esc}\n📊 Total targets: {total}\n\n📱 WhatsApp: {get_whatsapp_contact_url()}"
     _send_telegram(msg)
     return msg
 
 def notify_interview_scheduled(company: str, position: str, date: str = "") -> str:
     """Notify interview scheduled"""
-    msg = f"🎯 Interview Scheduled!\n🏢 {company}\n💼 {position}"
-    if date:
-        msg += f"\n📅 {date}"
+    company_esc = html.escape(company)
+    position_esc = html.escape(position)
+    date_esc = html.escape(date) if date else ""
+    msg = f"🎯 Interview Scheduled!\n🏢 {company_esc}\n💼 {position_esc}"
+    if date_esc:
+        msg += f"\n📅 {date_esc}"
     msg += f"\n\n📱 WhatsApp: {get_whatsapp_contact_url()}"
     _send_telegram(msg)
     return msg
 
 def notify_error(source: str, error: str) -> str:
     """Notify error"""
-    msg = f"❌ Error in {source}\n⚠️ {error[:200]}\n\n📱 WhatsApp: {get_whatsapp_contact_url()}"
+    source_esc = html.escape(source)
+    error_esc = html.escape(error[:200])
+    msg = f"❌ Error in {source_esc}\n⚠️ {error_esc}\n\n📱 WhatsApp: {get_whatsapp_contact_url()}"
     _send_telegram(msg)
     return msg
 
 def _send_telegram(message: str) -> bool:
-    """Internal: send Telegram message"""
+    """Internal: send Telegram message (non-blocking if async loop is running)"""
+    def _do_send():
+        try:
+            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+            payload = {"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "HTML"}
+            r = _requests.post(url, json=payload, timeout=15)
+            if r.status_code != 200:
+                logger.error(f"Telegram API error ({r.status_code}): {r.text}")
+                return False
+            return True
+        except Exception as e:
+            logger.error(f"Telegram send failed: {e}")
+            return False
+
     try:
-        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "HTML"}
-        _requests.post(url, json=payload, timeout=15)
+        loop = asyncio.get_running_loop()
+        loop.run_in_executor(None, _do_send)
         return True
-    except Exception as e:
-        logger.error(f"Telegram send failed: {e}")
-        return False
+    except RuntimeError:
+        return _do_send()
 
 def send_wa_link(phone: str, message: str) -> str:
     return generate_wa_me_link(phone, message)

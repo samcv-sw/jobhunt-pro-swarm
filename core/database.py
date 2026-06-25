@@ -228,5 +228,44 @@ class Database:
                 conn.commit()
         await asyncio.to_thread(_mark)
 
+    async def get_stats(self):
+        def _stats():
+            with self._get_conn() as conn:
+                try:
+                    res = {}
+                    for status in ['new', 'applied', 'failed', 'skipped', 'followed_up']:
+                        cur = conn.execute("SELECT COUNT(*) FROM jobs WHERE status=?", (status,))
+                        res[status] = cur.fetchone()[0]
+                    cur = conn.execute("SELECT COUNT(*) FROM jobs")
+                    res["total"] = cur.fetchone()[0]
+                    return res
+                except sqlite3_sync.OperationalError:
+                    return {"total": 0, "new": 0, "applied": 0, "failed": 0, "skipped": 0, "followed_up": 0}
+        return await asyncio.to_thread(_stats)
+
     async def create_tables(self):
-        pass
+        def _create():
+            with self._get_conn() as conn:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS jobs (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                        job_id VARCHAR(64) UNIQUE NOT NULL,
+                        company VARCHAR(255) NOT NULL, 
+                        title VARCHAR(255) NOT NULL,
+                        email VARCHAR(255) NOT NULL, 
+                        location VARCHAR(255),
+                        salary VARCHAR(100), 
+                        url TEXT, 
+                        source VARCHAR(50),
+                        snippet TEXT, 
+                        status VARCHAR(50) NOT NULL,
+                        match_score NUMERIC(5, 2), 
+                        response_type VARCHAR(50),
+                        applied_at VARCHAR(50), 
+                        responded_at VARCHAR(50),
+                        created_at DATETIME, 
+                        updated_at DATETIME
+                    )
+                """)
+                conn.commit()
+        await asyncio.to_thread(_create)

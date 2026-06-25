@@ -3,7 +3,7 @@ BUILD-QUICK-WINS: Update dashboard_v2.html with rich job cards
 """
 import os
 
-DASHBOARD_HTML = r'C:\Users\samde\Desktop\cv sam new ma3 kimi\web\templates\dashboard_v2.html'
+DASHBOARD_HTML = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates', 'dashboard_v2.html')
 
 with open(DASHBOARD_HTML, 'r', encoding='utf-8') as f:
     content = f.read()

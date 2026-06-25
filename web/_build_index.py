@@ -3,7 +3,7 @@ BUILD-QUICK-WINS: Add featured jobs section to index_v3.html
 """
 import os
 
-INDEX_HTML = r'C:\Users\samde\Desktop\cv sam new ma3 kimi\web\templates\index_v3.html'
+INDEX_HTML = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates', 'index_v3.html')
 
 with open(INDEX_HTML, 'r', encoding='utf-8') as f:
     content = f.read()

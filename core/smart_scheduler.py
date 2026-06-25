@@ -7,10 +7,31 @@ import logging
 import os
 import random
 import time
-from datetime import datetime, timedelta
+import sqlite3
+import pathlib
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
+
+# Dynamic SQLite database path configuration
+_base_dir = pathlib.Path(__file__).resolve().parent.parent
+try:
+    import config
+    _db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+    DB_PATH = str(_base_dir / _db_name)
+except Exception:
+    DB_PATH = str(_base_dir / "jobhunt_saas_v2.db")
+
+
+def is_pythonanywhere() -> bool:
+    """Detect if running on PythonAnywhere (free tier or paid)."""
+    return bool(
+        os.environ.get('PYTHONANYWHERE_SITE') or
+        os.environ.get('PYTHONANYWHERE_DOMAIN') or
+        'pythonanywhere' in os.environ.get('HOME', '').lower() or
+        'pythonanywhere' in os.environ.get('HOSTNAME', '').lower()
+    )
 
 
 class ProviderState:
@@ -111,10 +132,19 @@ class SmartScheduler:
             except ValueError:
                 tz_offset = 3
         self.providers: Dict[str, ProviderState] = {}
-        self.base_delay = 20  # Increased for Stealth Mode (evade DDoS monitors)
+        
+        # PA pacing optimization to prevent 250s timeout while preserving local/dedicated stealth delay
+        if is_pythonanywhere():
+            self.base_delay = 2
+            self.min_delay = 1
+            self.max_delay = 5
+            logger.info("[Scheduler] PA detected: using fast pacing (base_delay=2s)")
+        else:
+            self.base_delay = 20  # Increased for Stealth Mode (evade DDoS monitors)
+            self.min_delay = 15
+            self.max_delay = 60
+            
         self.jitter_range = 0.5
-        self.min_delay = 15
-        self.max_delay = 60
         self.send_start_hour = 6  # Allow sending from 6AM
         self.send_end_hour = 23   # Until 11PM (was 20, blocking evening sends)
         self.tz_offset = tz_offset
@@ -127,13 +157,122 @@ class SmartScheduler:
         self._active_providers.add(name)
         logger.info(f"Provider registered: {name}")
 
+    def _init_db(self):
+        """Initialize the smart_scheduler_state table in SQLite."""
+        try:
+            with sqlite3.connect(DB_PATH, timeout=10) as conn:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS smart_scheduler_state (
+                        provider_name TEXT PRIMARY KEY,
+                        sent_today INTEGER DEFAULT 0,
+                        sent_this_hour INTEGER DEFAULT 0,
+                        failures INTEGER DEFAULT 0,
+                        disabled_until REAL DEFAULT 0.0,
+                        last_sent REAL DEFAULT 0.0,
+                        last_reset_day TEXT,
+                        last_reset_hour TEXT
+                    )
+                """)
+                conn.commit()
+        except Exception as e:
+            logger.error(f"[Scheduler] Failed to initialize SQLite state table: {e}")
+
+    def _save_provider_state_to_db(self, state: ProviderState, reset_day: str = None, reset_hour: str = None):
+        """Save a single provider's state to the SQLite database."""
+        try:
+            if not reset_day or not reset_hour:
+                utc_now = datetime.now(timezone.utc)
+                reset_day = utc_now.strftime("%Y-%m-%d")
+                reset_hour = utc_now.strftime("%Y-%m-%d-%H")
+                
+            with sqlite3.connect(DB_PATH, timeout=10) as conn:
+                conn.execute("""
+                    INSERT INTO smart_scheduler_state 
+                    (provider_name, sent_today, sent_this_hour, failures, disabled_until, last_sent, last_reset_day, last_reset_hour)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(provider_name) DO UPDATE SET
+                        sent_today=excluded.sent_today,
+                        sent_this_hour=excluded.sent_this_hour,
+                        failures=excluded.failures,
+                        disabled_until=excluded.disabled_until,
+                        last_sent=excluded.last_sent,
+                        last_reset_day=excluded.last_reset_day,
+                        last_reset_hour=excluded.last_reset_hour
+                """, (
+                    state.name, state.sent_today, state.sent_this_hour,
+                    state.failures, state.disabled_until, state.last_sent,
+                    reset_day, reset_hour
+                ))
+                conn.commit()
+        except Exception as e:
+            logger.error(f"[Scheduler] Failed to save provider {state.name} to SQLite: {e}")
+
+    def _update_db_reset_time(self, name: str, field_name: str, value: str):
+        """Update just a reset time field in DB."""
+        try:
+            with sqlite3.connect(DB_PATH, timeout=10) as conn:
+                conn.execute(f"UPDATE smart_scheduler_state SET {field_name}=? WHERE provider_name=?", (value, name))
+                conn.commit()
+        except Exception as e:
+            logger.error(f"[Scheduler] Failed to update reset time field in SQLite: {e}")
+
     def _init_providers(self):
+        self._init_db()
+        
+        # Load any existing state from SQLite
+        db_states = {}
+        try:
+            with sqlite3.connect(DB_PATH, timeout=10) as conn:
+                cursor = conn.execute("SELECT provider_name, sent_today, sent_this_hour, failures, disabled_until, last_sent, last_reset_day, last_reset_hour FROM smart_scheduler_state")
+                for row in cursor.fetchall():
+                    db_states[row[0]] = {
+                        "sent_today": row[1],
+                        "sent_this_hour": row[2],
+                        "failures": row[3],
+                        "disabled_until": row[4],
+                        "last_sent": row[5],
+                        "last_reset_day": row[6],
+                        "last_reset_hour": row[7]
+                    }
+        except Exception as e:
+            logger.error(f"[Scheduler] Failed to load SQLite state: {e}")
+
+        today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        hour_str = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H")
+
         for config in self.PROVIDER_CONFIGS:
-            self.providers[config["name"]] = ProviderState(
-                name=config["name"],
+            name = config["name"]
+            state = ProviderState(
+                name=name,
                 daily_limit=config["daily_limit"],
                 hourly_limit=config["hourly_limit"]
             )
+            
+            # If state exists in DB, load it and handle daily/hourly resets if the day/hour has changed
+            if name in db_states:
+                db_st = db_states[name]
+                state.failures = db_st["failures"]
+                state.disabled_until = db_st["disabled_until"]
+                state.last_sent = db_st["last_sent"]
+                
+                # Check if daily reset is needed
+                if db_st["last_reset_day"] == today_str:
+                    state.sent_today = db_st["sent_today"]
+                else:
+                    state.sent_today = 0
+                    self._update_db_reset_time(name, "last_reset_day", today_str)
+                
+                # Check if hourly reset is needed
+                if db_st["last_reset_hour"] == hour_str:
+                    state.sent_this_hour = db_st["sent_this_hour"]
+                else:
+                    state.sent_this_hour = 0
+                    self._update_db_reset_time(name, "last_reset_hour", hour_str)
+            else:
+                # Insert initial row in DB
+                self._save_provider_state_to_db(state, today_str, hour_str)
+                
+            self.providers[name] = state
 
     def get_next_provider(self) -> Optional[str]:
         """Get next available provider with weighted rotation.
@@ -191,7 +330,7 @@ class SmartScheduler:
 
     def should_send_now(self) -> Tuple[bool, str]:
         """Check if we should send based on Predictive Open-Rate Engine (Item 6)."""
-        utc_now = datetime.utcnow()
+        utc_now = datetime.now(timezone.utc)
         local_hour = (utc_now.hour + self.tz_offset) % 24
         now = utc_now  # for .weekday() — same day in UTC as local for GMT+3
 
@@ -230,14 +369,17 @@ class SmartScheduler:
     def record_send(self, provider: str):
         if provider in self.providers:
             self.providers[provider].record_send()
+            self._save_provider_state_to_db(self.providers[provider])
 
     def record_failure(self, provider: str):
         if provider in self.providers:
             self.providers[provider].record_failure()
+            self._save_provider_state_to_db(self.providers[provider])
 
     def record_success(self, provider: str):
         if provider in self.providers:
             self.providers[provider].record_success()
+            self._save_provider_state_to_db(self.providers[provider])
 
     def get_stats(self) -> Dict:
         total_sent = sum(p.sent_today for p in self.providers.values())
@@ -262,37 +404,48 @@ class SmartScheduler:
         }
 
     def reset_daily(self):
+        today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         for provider in self.providers.values():
             provider.reset_daily()
+            self._save_provider_state_to_db(provider, reset_day=today_str)
         logger.info("Daily quotas reset")
 
     def reset_hourly(self):
+        hour_str = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H")
         for provider in self.providers.values():
             provider.reset_hourly()
+            self._save_provider_state_to_db(provider, reset_hour=hour_str)
         logger.info("Hourly quotas reset")
 
     async def wait_for_send_slot(self) -> Optional[str]:
         """Wait until we can send and return available provider.
-        Returns None if no provider available after reasonable wait."""
-        max_wait_cycles = 5  # Max 5 minutes wait
-        for _ in range(max_wait_cycles):
-            should, reason = self.should_send_now()
-            if not should:
-                logger.info(f"Waiting: {reason}")
+        Uses a lock to ensure that concurrent tasks do not select the same provider
+        at the same instant or sleep in parallel, preserving the stealth pacing delay.
+        """
+        if not hasattr(self, '_send_lock'):
+            self._send_lock = asyncio.Lock()
+            
+        async with self._send_lock:
+            max_wait_cycles = 5  # Max 5 minutes wait
+            for _ in range(max_wait_cycles):
+                should, reason = self.should_send_now()
+                if not should:
+                    logger.info(f"Waiting: {reason}")
+                    await asyncio.sleep(60)
+                    continue
+
+                provider = self.get_next_provider()
+                if provider:
+                    delay = self.calculate_delay()
+                    logger.info(f"[Scheduler] Pacing delay of {delay:.1f}s before sending via {provider}...")
+                    await asyncio.sleep(delay)
+                    return provider
+
+                logger.info("No active providers with valid credentials, waiting 60s")
                 await asyncio.sleep(60)
-                continue
 
-            provider = self.get_next_provider()
-            if provider:
-                delay = self.calculate_delay()
-                await asyncio.sleep(delay)
-                return provider
-
-            logger.info("No active providers with valid credentials, waiting 60s")
-            await asyncio.sleep(60)
-
-        logger.warning("No providers available after max wait, returning None")
-        return None
+            logger.warning("No providers available after max wait, returning None")
+            return None
 
     def get_warm_up_delay(self, provider: str, day_number: int) -> float:
         """Calculate warm-up delay for new provider."""

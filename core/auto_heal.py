@@ -264,16 +264,19 @@ async def _check_groq_api_async() -> Dict[str, Any]:
 def _clear_stuck_campaigns() -> int:
     """
     Find campaigns stuck in 'running' state for >30 min and reset them.
-    Returns count of cleared campaigns.
+    Implements a resilient retry/recovery mechanism:
+    - If retry_count < 3: increments retry_count and resets to 'pending' to retry.
+    - If retry_count >= 3: marks as 'stalled' (locked out) to prevent infinite loops.
+    Returns count of cleared/rescheduled campaigns.
     """
     conn = _get_db()
     if not conn:
         return 0
     try:
         cutoff = (datetime.now(timezone.utc) - timedelta(minutes=_STUCK_THRESHOLD_MINUTES)).isoformat()
+        stuck_total = 0
         
-        # Try multiple possible column names (schema may vary)
-        stuck = 0
+        # Table list to scan
         for table, status_col, time_col in [
             ("campaigns", "status", "started_at"),
             ("campaigns", "status", "created_at"),
@@ -281,19 +284,79 @@ def _clear_stuck_campaigns() -> int:
             ("job_campaigns", "status", "started_at"),
         ]:
             try:
-                result = conn.execute(
-                    f"UPDATE {table} SET {status_col} = 'stalled' WHERE {status_col} = 'running' AND {time_col} < ?",
-                    (cutoff,)
-                )
-                stuck += result.rowcount or 0
-            except Exception:
-                pass  # Table/column may not exist
-        
-        if stuck > 0:
-            logger.warning(f"Cleared {stuck} stuck campaigns")
-        
+                # 1. Ensure retry_count column exists
+                # Dynamic SQLite migration for auto-heal resilience
+                cols = [r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
+                if "retry_count" not in cols:
+                    try:
+                        conn.execute(f"ALTER TABLE {table} ADD COLUMN retry_count INTEGER DEFAULT 0")
+                        conn.commit()
+                        cols.append("retry_count")
+                    except Exception:
+                        pass
+                
+                id_col = "campaign_id" if "campaign_id" in cols else "id"
+                name_col = "name" if "name" in cols else id_col
+                
+                # 2. Select stuck campaigns
+                query = f"SELECT {id_col}, user_id, retry_count, {name_col} FROM {table} WHERE {status_col} = 'running' AND {time_col} < ?"
+                stuck_rows = conn.execute(query, (cutoff,)).fetchall()
+                
+                for row in stuck_rows:
+                    row_dict = dict(row) if hasattr(row, "keys") else {
+                        id_col: row[0],
+                        "user_id": row[1],
+                        "retry_count": row[2],
+                        name_col: row[3]
+                    }
+                    
+                    cid = row_dict.get(id_col)
+                    user_id = row_dict.get("user_id", "unknown")
+                    retry = row_dict.get("retry_count")
+                    if retry is None:
+                        retry = 0
+                    cname = row_dict.get(name_col, cid)
+                    
+                    if retry < 3:
+                        new_retry = retry + 1
+                        # Reset to pending to retry processing
+                        conn.execute(
+                            f"UPDATE {table} SET {status_col} = 'pending', retry_count = ?, started_at = NULL WHERE {id_col} = ?",
+                            (new_retry, cid)
+                        )
+                        stuck_total += 1
+                        
+                        # Send Telegram notification of resilient auto-recovery
+                        msg = (
+                            f"🔧 <b>Resilient Auto-Healer Alert</b>\n\n"
+                            f"Campaign <b>{cname}</b> (ID: <code>{cid}</code>, User: <code>{user_id}</code>) was stuck in <i>running</i> for >30 minutes.\n"
+                            f"<b>Action:</b> Reset to <code>pending</code> to resume progress.\n"
+                            f"<b>Attempt:</b> {new_retry}/3"
+                        )
+                        _telegram_alert_sync(msg)
+                    else:
+                        # Max retries exceeded - stall it to protect credentials/credits
+                        conn.execute(
+                            f"UPDATE {table} SET {status_col} = 'stalled' WHERE {id_col} = ?",
+                            (cid,)
+                        )
+                        stuck_total += 1
+                        
+                        # Send Telegram notification of stalled lockout
+                        msg = (
+                            f"🚨 <b>Resilient Auto-Healer Lockout</b>\n\n"
+                            f"Campaign <b>{cname}</b> (ID: <code>{cid}</code>, User: <code>{user_id}</code>) has crashed/stuck 3 times in a row.\n"
+                            f"<b>Action:</b> Marked as <code>stalled</code> to prevent infinite loop.\n"
+                            f"<i>Please inspect the worker logs to debug the root cause.</i>"
+                        )
+                        _telegram_alert_sync(msg)
+            except Exception as e:
+                logger.debug(f"Scan table {table} failed: {e}")
+                
         conn.commit()
-        return stuck
+        if stuck_total > 0:
+            logger.warning(f"Resiliently recovered/stalled {stuck_total} stuck campaigns")
+        return stuck_total
     except Exception as e:
         logger.error(f"Failed to clear stuck campaigns: {e}")
         try:
@@ -306,6 +369,7 @@ def _clear_stuck_campaigns() -> int:
             conn.close()
         except Exception:
             pass
+
 
 
 def _clear_dead_locks() -> int:
@@ -771,7 +835,7 @@ def start_background_monitor_sync():
     Creates a background asyncio task.
     """
     try:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
     except RuntimeError:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)

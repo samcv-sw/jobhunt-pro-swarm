@@ -147,6 +147,37 @@ class ResumeOptimizer:
             keys = [os.getenv("GROQ_API_KEY", "")]
         return keys
 
+    @staticmethod
+    def _extract_json(text: str) -> dict:
+        """Robustly extract and parse JSON object from LLM response."""
+        text_clean = (text or "").strip()
+        
+        # 1. Try parsing directly
+        try:
+            return json.loads(text_clean)
+        except json.JSONDecodeError:
+            pass
+            
+        # 2. Try extracting content inside code blocks ```json ... ```
+        code_block_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text_clean, re.IGNORECASE)
+        if code_block_match:
+            try:
+                return json.loads(code_block_match.group(1).strip())
+            except json.JSONDecodeError:
+                pass
+                
+        # 3. Find first '{' and last '}' to extract raw JSON block
+        start_idx = text_clean.find("{")
+        end_idx = text_clean.rfind("}")
+        if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+            try:
+                return json.loads(text_clean[start_idx:end_idx + 1])
+            except json.JSONDecodeError:
+                pass
+                
+        # Fallback to direct json.loads (will raise JSONDecodeError with helpful context)
+        return json.loads(text_clean)
+
     # ── Core AI Call ───────────────────────────────────────────────────────
 
     async def _call_llm(
@@ -234,16 +265,8 @@ class ResumeOptimizer:
             logger.warning("Keyword extraction returned empty, using fallback")
             return self._fallback_extract_keywords(job_description)
 
-        # Clean markdown code fences
-        raw = raw.strip()
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-        raw = raw.strip()
-
         try:
-            result = json.loads(raw)
+            result = self._extract_json(raw)
             # Ensure all categories exist
             categories = ["technical_skills", "soft_skills", "certifications", "tools", "domain_knowledge"]
             for cat in categories:
@@ -265,9 +288,22 @@ class ResumeOptimizer:
             logger.warning(f"Failed to parse keyword JSON: {e}, raw={raw[:200]}")
             return self._fallback_extract_keywords(job_description)
 
+    def _run_sync(self, coro):
+        """Safely run a coroutine synchronously, handling running event loops."""
+        try:
+            asyncio.get_running_loop()
+            # Active event loop running! Run in a separate thread.
+            from concurrent.futures import ThreadPoolExecutor
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(lambda: asyncio.run(coro))
+                return future.result()
+        except RuntimeError:
+            # No running event loop
+            return asyncio.run(coro)
+
     def parse_job_keywords_sync(self, job_description: str, job_title: str = "") -> Dict[str, List[str]]:
         """Synchronous wrapper for parse_job_keywords."""
-        return asyncio.run(self.parse_job_keywords(job_description, job_title))
+        return self._run_sync(self.parse_job_keywords(job_description, job_title))
 
     # ── Fallback Keyword Extraction ───────────────────────────────────────
 
@@ -384,16 +420,8 @@ Track which keywords were injected per section."""
             logger.warning("Resume optimization returned empty, returning original CV")
             return self._fallback_optimize(cv_text, keywords, job_title, company)
 
-        # Clean JSON
-        raw = raw.strip()
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-        raw = raw.strip()
-
         try:
-            data = json.loads(raw)
+            data = self._extract_json(raw)
         except json.JSONDecodeError as e:
             logger.warning(f"Failed to parse optimization JSON: {e}, returning fallback")
             return self._fallback_optimize(cv_text, keywords, job_title, company)
@@ -460,7 +488,7 @@ Track which keywords were injected per section."""
         company: str = "",
     ) -> ATSOptimizationResult:
         """Synchronous wrapper for optimize_resume_sections."""
-        return asyncio.run(self.optimize_resume_sections(
+        return self._run_sync(self.optimize_resume_sections(
             cv_text, keywords, sections_to_optimize, job_title, company
         ))
 
@@ -577,7 +605,7 @@ Track which keywords were injected per section."""
         company: str = "",
     ) -> ATSOptimizationResult:
         """Synchronous wrapper for generate_ats_resume."""
-        return asyncio.run(self.generate_ats_resume(
+        return self._run_sync(self.generate_ats_resume(
             cv_path=cv_path,
             cv_text=cv_text,
             job_description=job_description,

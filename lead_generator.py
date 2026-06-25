@@ -1,6 +1,13 @@
 import os
+import sys
+if not os.getenv("FORCE_SQLITE"):
+    try:
+        from core import pg_sqlite_shim as sqlite3
+    except ImportError:
+        import sqlite3
+else:
+    import sqlite3
 import requests
-import sqlite3
 import time
 import logging
 
@@ -14,7 +21,7 @@ def init_db():
     cursor = conn.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS leads (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             name TEXT,
             email TEXT UNIQUE,
             github_username TEXT,
@@ -39,12 +46,17 @@ def search_github():
     cursor = conn.cursor()
     added_count = 0
 
+    token = os.getenv("GITHUB_TOKEN") or os.getenv("GITHUB_PAT")
+    headers = {"Accept": "application/vnd.github.v3+json"}
+    if token:
+        headers["Authorization"] = f"token {token}"
+        logger.info("Using GITHUB_TOKEN for search requests.")
+
     for query in queries:
         logger.info(f"Searching GitHub for: {query}")
         # Page 1 to 5 to avoid deep pagination rate limits
         for page in range(1, 6):
             url = f"https://api.github.com/search/users?q={requests.utils.quote(query)}&page={page}&per_page=30"
-            headers = {"Accept": "application/vnd.github.v3+json"}
             
             try:
                 resp = requests.get(url, headers=headers)

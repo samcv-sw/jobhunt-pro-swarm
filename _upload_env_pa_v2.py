@@ -4,7 +4,7 @@ PA_TOKEN = '7f8bf3e6ad742bcb9e3c25e446cf664d6710b31d'
 PA_USER = 'jhfguf'
 
 # Build clean .env content from local .env
-local_env = r'C:\Users\samde\Desktop\cv sam new ma3 kimi\.env'
+local_env = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
 with open(local_env, 'r', encoding='utf-8') as f:
     lines = f.readlines()
 

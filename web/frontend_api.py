@@ -9,7 +9,10 @@ import hmac
 import logging
 import os
 import re
-import sqlite3 as sqlite3_module
+if os.getenv("SUPABASE_MODE"):
+    import core.supabase_rest_shim as sqlite3_module
+else:
+    import core.pg_sqlite_shim as sqlite3_module
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any, Tuple
 

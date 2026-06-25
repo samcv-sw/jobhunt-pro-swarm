@@ -6,11 +6,14 @@ offering them access to a perfectly matching candidate from our database
 for a $99 unlock fee.
 """
 
-import sqlite3
 import os
 import json
 import logging
 import random
+if os.getenv("SUPABASE_MODE") == "1":
+    import core.supabase_rest_shim as sqlite3
+else:
+    import core.pg_sqlite_shim as sqlite3
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -43,9 +46,8 @@ def get_target_jobs(limit=10):
             conn.row_factory = sqlite3.Row
             cur = conn.cursor()
             
-            # Look for jobs with emails, or just grab any job to simulate
-            # Assuming 'url' might contain contact info or we scraped HR emails. 
-            cur.execute("SELECT id, title, company, url FROM jobs ORDER BY RANDOM() LIMIT ?", (limit,))
+            # Retrieve jobs with their scraped/generated email and url
+            cur.execute("SELECT id, title, company, url, email FROM jobs ORDER BY RANDOM() LIMIT ?", (limit,))
             jobs = [dict(row) for row in cur.fetchall()]
             conn.close()
         except Exception as e:
@@ -106,9 +108,45 @@ async def run_shadow_hr_campaign():
         
     success_count = 0
     for job in jobs:
-        target_email = job.get('url') # In a real scenario, this would be a scraped HR email
+        # 1. Use the scraped email from the database if available
+        target_email = job.get('email')
+        if target_email and '@' in target_email:
+            # Strip junk subdomains from the scraped email domain
+            try:
+                local_part, domain_part = target_email.split('@', 1)
+                for sub in ['www.', 'careers.', 'jobs.', 'recruiting.', 'app.', 'apply.', 'portal.']:
+                    if domain_part.startswith(sub):
+                        domain_part = domain_part[len(sub):]
+                target_email = f"{local_part}@{domain_part}"
+            except Exception:
+                pass
+        
+        # 2. Fallback to 'url' if it contains an email address
         if not target_email or '@' not in target_email:
-            target_email = f"careers@{job.get('company', '').replace(' ', '').lower()}.com"
+            url = job.get('url', '')
+            if url and '@' in url:
+                target_email = url
+            elif url and url.startswith('http'):
+                # 3. Smart Fallback: Parse company domain from job URL and strip subdomains
+                from urllib.parse import urlparse
+                try:
+                    parsed = urlparse(url)
+                    netloc = parsed.netloc.lower()
+                    for sub in ['www.', 'careers.', 'jobs.', 'recruiting.', 'app.', 'apply.', 'portal.']:
+                        if netloc.startswith(sub):
+                            netloc = netloc[len(sub):]
+                    # Make sure it's a valid-looking domain
+                    if '.' in netloc and len(netloc) > 4:
+                        target_email = f"careers@{netloc}"
+                except Exception:
+                    pass
+                    
+        # 4. Final Fallback: Crude normalization of company name
+        if not target_email or '@' not in target_email:
+            company_clean = job.get('company', '').strip()
+            import re
+            domain_name = re.sub(r'[^a-zA-Z0-9]', '', company_clean).lower()
+            target_email = f"careers@{domain_name}.com"
             
         subject = f"Top Candidate for your {job.get('title')} position"
         body_html = build_sales_email(job.get('title'), job.get('company'))

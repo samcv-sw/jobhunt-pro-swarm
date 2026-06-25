@@ -1,5 +1,6 @@
 import sqlite3, os
-for db_path in [r'C:\Users\samde\Desktop\cv sam new ma3 kimi\jobhunt.db', r'C:\Users\samde\Desktop\cv sam new ma3 kimi\jobs.db', r'C:\Users\samde\Desktop\cv sam new ma3 kimi\data.db']:
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+for db_path in [os.path.join(BASE_DIR, 'jobhunt.db'), os.path.join(BASE_DIR, 'jobs.db'), os.path.join(BASE_DIR, 'data.db')]:
     print(f"\nDB: {os.path.basename(db_path)} | exists: {os.path.exists(db_path)}")
     if os.path.exists(db_path):
         conn = sqlite3.connect(db_path)

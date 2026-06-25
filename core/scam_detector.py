@@ -162,24 +162,58 @@ class ScamDetector:
             except Exception:
                 pass
 
-        # 4. Salary sanity check
+        # 4. Salary sanity check (handles hourly, monthly, and yearly rates intelligently for senior roles)
+        monthly_equiv = 0.0
         if salary:
             try:
                 s = float(salary)
-                for threshold, period in SCAM_SALARY_FLAGS:
-                    if (period == "monthly" and s > threshold) or \
-                       (period == "hourly" and s > threshold):
-                        return True, f"Suspicious salary: ${s:,.0f}/{period}"
+                # Differentiate periods based on magnitude
+                if s > 30000:
+                    monthly_equiv = s / 12
+                    period = "yearly"
+                elif s > 1000:
+                    monthly_equiv = s
+                    period = "monthly"
+                else:
+                    monthly_equiv = s * 160  # assume 160 hours/month
+                    period = "hourly"
+                
+                # For a Senior Network Engineer, high salaries are normal.
+                # Only block if salary is completely absurd (> $40K/month)
+                # OR if it's high (> $10K/month) and combined with low-skill keywords.
+                is_suspicious = False
+                if monthly_equiv > 40000:
+                    is_suspicious = True
+                elif monthly_equiv > 10000:
+                    low_skill_kws = ["data entry", "typing", "assistant", "clerk", "form filler", "survey"]
+                    if any(k in combined for k in low_skill_kws):
+                        is_suspicious = True
+                        
+                if is_suspicious:
+                    return True, f"Suspicious salary: ${s:,.0f}/{period} (too high for job scope)"
             except (ValueError, TypeError):
                 pass
 
-        # 5. Ghost job patterns
-        ghost_flags = ["no interview", "no experience", "apply by whatsapp",
-                       "telegram interview", "immediate hire", "walk in",
-                       "urgent opening", "send cv to whatsapp"]
-        ghost_count = sum(1 for f in ghost_flags if f in combined)
-        if ghost_count >= 2:
-            return True, "Ghost/too-good-to-be-true job (multiple flags)"
+        # 5. Ghost job & chat-platform interview scams (uses robust proximity/co-occurrence checks)
+        combined_lower = combined.lower()
+        if "telegram" in combined_lower and any(w in combined_lower for w in ["interview", "recruit", "hiring", "apply", "contact"]):
+            return True, "Scam detected: Telegram recruitment/interview channel"
+        if "whatsapp" in combined_lower and any(w in combined_lower for w in ["interview", "recruit", "hiring", "apply", "contact", "cv", "send"]):
+            return True, "Scam detected: WhatsApp recruitment/interview channel"
+
+        high_risk_scam_flags = [
+            "envelope stuffing", "package forwarding", "package handler home"
+        ]
+        if any(f in combined_lower for f in high_risk_scam_flags):
+            return True, "Scam detected: package or work-from-home fraud flag"
+            
+        # Mild urgency/entry indicators (only block if multiple are present AND combined with low-skill terms)
+        mild_flags = ["no interview", "no experience", "immediate hire", "walk in", "urgent opening"]
+        mild_count = sum(1 for f in mild_flags if f in combined_lower)
+        if mild_count >= 3:
+            low_skill_kws = ["data entry", "typing", "assistant", "clerk", "form filler", "survey", "simple task"]
+            if any(k in combined_lower for k in low_skill_kws):
+                return True, "Ghost/too-good-to-be-true job (multiple urgency/low-skill flags)"
 
         return False, ""
 

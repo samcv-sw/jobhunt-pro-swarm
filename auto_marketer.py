@@ -1,6 +1,13 @@
 import os
+import sys
+if not os.getenv("FORCE_SQLITE"):
+    try:
+        from core import pg_sqlite_shim as sqlite3
+    except ImportError:
+        import sqlite3
+else:
+    import sqlite3
 import time
-import sqlite3
 import smtplib
 import random
 import logging
@@ -56,28 +63,48 @@ def load_accounts():
 
 ACCOUNTS = load_accounts()
 
+def spin_text(text):
+    """Parse and spin spintax format '{option1|option2|...}'"""
+    import re
+    pattern = re.compile(r'\{([^{}]+)\}')
+    while True:
+        match = pattern.search(text)
+        if not match:
+            break
+        options = match.group(1).split('|')
+        text = text[:match.start()] + random.choice(options) + text[match.end():]
+    return text
+
 def send_email(account, to_email, name):
+    first_name = name.split()[0] if name else "there"
+    
+    subject_raw = random.choice([
+        "{Saw you are|Noticed you're|Found your profile} {open to work|looking for opportunities} on {GitHub|Github}",
+        "GitHub: {Saw you're open to work|noticed your profile|quick question about your job hunt}",
+        "{Open to work|Looking for roles}? {Saw your GitHub profile|Noticed your GitHub}",
+    ])
+    
+    body_raw = """Hi {first_name},
+
+{I saw on your GitHub profile that you're currently open to new opportunities.|I came across your GitHub profile and noticed you are looking for new roles.|I noticed on GitHub that you are currently open to new software engineering opportunities.}
+
+{I recently built a private AI bot on Telegram that automatically applies to 500 remote software engineering jobs for you while you sleep. It uses advanced automation to fill out complex forms, saving you hours of tedious work.|I've developed a private Telegram AI assistant that applies to up to 500 remote engineering jobs automatically on your behalf. It handles all the form-filling and tailoring while you sleep.|I recently launched a private Telegram AI bot that automates applying to 500 remote developer jobs. It does the complex form-filling work automatically while you rest.}
+
+{It's currently completely free to use if you invite a few friends. You can launch it here:|It is entirely free to try out right now when you invite a couple of friends. You can start it here:|You can use it for free by inviting a few friends. Launch it directly here:} 
+t.me/JobHuntPro_Ai_Bot
+
+{Best of luck with the job hunt!|Good luck with your job search!|Wishing you the best with your application search!}
+
+- Sam
+{Architect, JobHunt Pro AI|Creator of JobHunt Pro|Lead Developer, JobHunt Pro}"""
+
+    subject = spin_text(subject_raw)
+    body = spin_text(body_raw).replace("{first_name}", first_name)
+    
     msg = MIMEMultipart()
     msg['From'] = f"Sam (JobHunt Pro) <{account['user']}>"
     msg['To'] = to_email
-    msg['Subject'] = "Saw you are open to work on GitHub"
-    
-    first_name = name.split()[0] if name else "there"
-    
-    body = f"""Hi {first_name},
-
-I saw on your GitHub profile that you're currently open to new opportunities.
-
-I recently built a private AI bot on Telegram that automatically applies to 500 remote software engineering jobs for you while you sleep. It uses advanced automation to fill out complex forms, saving you hours of tedious work.
-
-It's currently completely free to use if you invite a few friends. You can launch it here: 
-t.me/JobHuntPro_Ai_Bot
-
-Best of luck with the job hunt!
-
-- Sam
-Architect, JobHunt Pro AI
-"""
+    msg['Subject'] = subject
     msg.attach(MIMEText(body, 'plain'))
     
     try:

@@ -15,7 +15,7 @@ import logging
 import os
 import shutil
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
 import httpx
@@ -66,7 +66,7 @@ class ComplianceEngine:
             "user_id": user_id,
             "action": "ERASURE_REQUEST",
             "reason": reason,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
             "status": "pending",
             "data_categories": [],
             "erasure_verification": None,
@@ -94,11 +94,11 @@ class ComplianceEngine:
             audit_entry["external_deleted"] = api_result
 
             # 5. Generate verification hash
-            verification_data = f"{user_id}:{datetime.utcnow().isoformat()}:{audit_id}"
+            verification_data = f"{user_id}:{datetime.now(timezone.utc).replace(tzinfo=None).isoformat()}:{audit_id}"
             verification_hash = hashlib.sha256(verification_data.encode()).hexdigest()
             audit_entry["erasure_verification"] = verification_hash
             audit_entry["status"] = "completed"
-            audit_entry["completed_at"] = datetime.utcnow().isoformat()
+            audit_entry["completed_at"] = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
 
             # 6. Log to compliance audit trail
             await self._log_audit(audit_entry)
@@ -136,7 +136,7 @@ class ComplianceEngine:
         export_data = {
             "export_info": {
                 "user_id": user_id,
-                "export_date": datetime.utcnow().isoformat(),
+                "export_date": datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
                 "format": "JSON",
                 "regulation": "GDPR Article 20",
             },
@@ -187,7 +187,7 @@ class ComplianceEngine:
                 "audit_id": str(uuid.uuid4())[:16],
                 "user_id": user_id,
                 "action": "DATA_EXPORT",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
                 "data_categories": list(export_data.keys()),
                 "status": "completed",
             })

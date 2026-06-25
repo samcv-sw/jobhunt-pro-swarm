@@ -370,6 +370,9 @@ class DictRow:
             return super().__getattribute__(name)
         return self._data.get(name)
         
+    def get(self, key, default=None):
+        return self._data.get(key, default)
+        
     def keys(self):
         return list(self._data.keys())
         

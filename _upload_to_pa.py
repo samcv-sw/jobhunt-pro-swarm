@@ -25,7 +25,7 @@ def reload_webapp():
     )
     return resp.status_code, resp.text[:200]
 
-BASE_LOCAL = r"C:\Users\samde\Desktop\cv sam new ma3 kimi"
+BASE_LOCAL = os.path.dirname(os.path.abspath(__file__))
 
 print("=== Uploading files to PA ===")
 files = [

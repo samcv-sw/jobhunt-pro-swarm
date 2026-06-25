@@ -287,7 +287,7 @@ async def search_bayt(
     rate_limit: float = RATE_LIMIT,
 ) -> List[Dict]:
     """Async wrapper for search_bayt_sync."""
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     return await loop.run_in_executor(
         None, search_bayt_sync, countries, titles, rate_limit
     )

@@ -1408,99 +1408,100 @@ def init_saas_v2_db():
             CREATE INDEX IF NOT EXISTS idx_sub_keys_status ON subscription_keys_inventory(offer_id, is_used);
         """)
 
-        # Helper for migrations
-        def add_column(table, col, typ):
-            cols = [r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
-            if col not in cols:
-                try:
-                    conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
-                    conn.commit()
-                except Exception as e:
-                    logger.error(f"Error adding {col} to {table}: {e}")
+            # Helper for migrations
+            def add_column(table, col, typ):
+                cols = [r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
+                if col not in cols:
+                    try:
+                        conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
+                        conn.commit()
+                    except Exception as e:
+                        logger.error(f"Error adding {col} to {table}: {e}")
 
-        # Migration: Add NowPayments columns
+            # Migration: Add NowPayments columns
 
-        for col, typ in [
-            ("nowpayments_id", "INTEGER"), ("nowpayments_invoice_url", "TEXT"),
-            ("pay_currency", "TEXT"), ("pay_amount", "REAL"), ("pay_address", "TEXT")
-        ]:
-            add_column("orders", col, typ)
+            for col, typ in [
+                ("nowpayments_id", "INTEGER"), ("nowpayments_invoice_url", "TEXT"),
+                ("pay_currency", "TEXT"), ("pay_amount", "REAL"), ("pay_address", "TEXT")
+            ]:
+                add_column("orders", col, typ)
 
-        add_column("campaigns", "bouquets", "TEXT")
-        add_column("users", "login_streak", "INTEGER DEFAULT 0")
-        add_column("users", "last_login", "TIMESTAMP")
-        add_column("users", "oauth_provider", "TEXT")
-        add_column("users", "oauth_access_token", "TEXT")
-        add_column("users", "oauth_refresh_token", "TEXT")
-        add_column("users", "oauth_expires_at", "REAL")
-        
-        add_column("campaign_emails", "pipeline_stage", "TEXT DEFAULT 'discovered'")
-        # For pipeline_stage default value backfill
-        try:
-            conn.execute("UPDATE campaign_emails SET pipeline_stage = 'applied' WHERE status = 'sent' AND pipeline_stage = 'discovered'")
+            add_column("campaigns", "bouquets", "TEXT")
+            add_column("users", "login_streak", "INTEGER DEFAULT 0")
+            add_column("users", "last_login", "TIMESTAMP")
+            add_column("users", "oauth_provider", "TEXT")
+            add_column("users", "oauth_access_token", "TEXT")
+            add_column("users", "oauth_refresh_token", "TEXT")
+            add_column("users", "oauth_expires_at", "REAL")
+            
+            add_column("campaign_emails", "pipeline_stage", "TEXT DEFAULT 'discovered'")
+            # For pipeline_stage default value backfill
+            try:
+                conn.execute("UPDATE campaign_emails SET pipeline_stage = 'applied' WHERE status = 'sent' AND pipeline_stage = 'discovered'")
+                conn.commit()
+            except Exception: pass
+            
+            add_column("campaign_emails", "from_email", "TEXT")
+            add_column("campaign_emails", "error_reason", "TEXT")
+            add_column("campaigns", "total_attempted", "INTEGER DEFAULT 0")
+            add_column("campaigns", "retry_count", "INTEGER DEFAULT 0")
+            add_column("campaigns", "premium_weapons", "INTEGER DEFAULT 0")
+            add_column("campaigns", "engine_type", "TEXT DEFAULT 'piggyback'")
+            add_column("campaign_emails", "interview_prep", "TEXT DEFAULT ''")
+            add_column("campaign_emails", "linkedin_message", "TEXT DEFAULT ''")
+            add_column("cv_profiles", "home_country", "TEXT DEFAULT 'Lebanon'")
+            add_column("cv_profiles", "min_local_salary", "REAL DEFAULT 0")
+            add_column("cv_profiles", "min_international_salary", "REAL DEFAULT 0")
+            add_column("redeem_codes", "code_type", "TEXT DEFAULT 'sale'")
+            add_column("special_offers", "original_price", "REAL DEFAULT 0.0")
+            add_column("special_offers", "delivery_type", "TEXT DEFAULT 'manual'")
+            add_column("special_offers", "reseller_api_url", "TEXT")
+            add_column("special_offers", "reseller_api_key", "TEXT")
+            add_column("special_offer_purchases", "fulfillment_status", "TEXT DEFAULT 'pending'")
+            add_column("special_offer_purchases", "delivered_credentials", "TEXT")
+            add_column("special_offer_purchases", "fulfillment_error", "TEXT")
+
+            try:
+                conn.execute("DELETE FROM pricing_tiers_v2")
+                for t in PRICING_TIERS:
+                    conn.execute("INSERT INTO pricing_tiers_v2 (tier, name, companies, price_usd, description) VALUES (?, ?, ?, ?, ?)",
+                               (t["tier"], t["name"], t["companies"], t["price_usd"], t["description"]))
+
+                conn.execute("DELETE FROM service_packages")
+                for s in SERVICE_PACKAGES:
+                    conn.execute("INSERT INTO service_packages (package, name, price_usd, description) VALUES (?, ?, ?, ?)",
+                               (s["package"], s["name"], s["price_usd"], s["description"]))
+
+                conn.execute("DELETE FROM bouquet_packages")
+                for b in BOUQUET_PACKAGES:
+                    conn.execute("INSERT INTO bouquet_packages (bouquet, name, price_usd, description) VALUES (?, ?, ?, ?)",
+                               (b["bouquet"], b["name"], b["price_usd"], b["description"]))
+            except Exception as e:
+                logger.warning(f"Error seeding pricing/service/bouquet tables: {e}")
+
             conn.commit()
-        except Exception: pass
-        
-        add_column("campaign_emails", "from_email", "TEXT")
-        add_column("campaign_emails", "error_reason", "TEXT")
-        add_column("campaigns", "total_attempted", "INTEGER DEFAULT 0")
-        add_column("campaigns", "premium_weapons", "INTEGER DEFAULT 0")
-        add_column("campaigns", "engine_type", "TEXT DEFAULT 'piggyback'")
-        add_column("campaign_emails", "interview_prep", "TEXT DEFAULT ''")
-        add_column("campaign_emails", "linkedin_message", "TEXT DEFAULT ''")
-        add_column("cv_profiles", "home_country", "TEXT DEFAULT 'Lebanon'")
-        add_column("cv_profiles", "min_local_salary", "REAL DEFAULT 0")
-        add_column("cv_profiles", "min_international_salary", "REAL DEFAULT 0")
-        add_column("redeem_codes", "code_type", "TEXT DEFAULT 'sale'")
-        add_column("special_offers", "original_price", "REAL DEFAULT 0.0")
-        add_column("special_offers", "delivery_type", "TEXT DEFAULT 'manual'")
-        add_column("special_offers", "reseller_api_url", "TEXT")
-        add_column("special_offers", "reseller_api_key", "TEXT")
-        add_column("special_offer_purchases", "fulfillment_status", "TEXT DEFAULT 'pending'")
-        add_column("special_offer_purchases", "delivered_credentials", "TEXT")
-        add_column("special_offer_purchases", "fulfillment_error", "TEXT")
 
-        try:
-            conn.execute("DELETE FROM pricing_tiers_v2")
-            for t in PRICING_TIERS:
-                conn.execute("INSERT INTO pricing_tiers_v2 (tier, name, companies, price_usd, description) VALUES (?, ?, ?, ?, ?)",
-                           (t["tier"], t["name"], t["companies"], t["price_usd"], t["description"]))
+            # Create email_campaign_log table for automated email marketing tracking
+            try:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS email_campaign_log (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        campaign_type TEXT NOT NULL,
+                        user_id TEXT,
+                        to_email TEXT NOT NULL,
+                        subject TEXT,
+                        sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        opened_at TIMESTAMP,
+                        status TEXT DEFAULT 'sent',
+                        order_id TEXT,
+                        error TEXT
+                    )
+                """)
+                conn.commit()
+            except Exception as e:
+                logger.warning(f"Error creating email_campaign_log table: {e}")
 
-            conn.execute("DELETE FROM service_packages")
-            for s in SERVICE_PACKAGES:
-                conn.execute("INSERT INTO service_packages (package, name, price_usd, description) VALUES (?, ?, ?, ?)",
-                           (s["package"], s["name"], s["price_usd"], s["description"]))
-
-            conn.execute("DELETE FROM bouquet_packages")
-            for b in BOUQUET_PACKAGES:
-                conn.execute("INSERT INTO bouquet_packages (bouquet, name, price_usd, description) VALUES (?, ?, ?, ?)",
-                           (b["bouquet"], b["name"], b["price_usd"], b["description"]))
-        except Exception as e:
-            logger.warning(f"Error seeding pricing/service/bouquet tables: {e}")
-
-        conn.commit()
-
-        # Create email_campaign_log table for automated email marketing tracking
-        try:
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS email_campaign_log (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    campaign_type TEXT NOT NULL,
-                    user_id TEXT,
-                    to_email TEXT NOT NULL,
-                    subject TEXT,
-                    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    opened_at TIMESTAMP,
-                    status TEXT DEFAULT 'sent',
-                    order_id TEXT,
-                    error TEXT
-                )
-            """)
-            conn.commit()
-        except Exception as e:
-            logger.warning(f"Error creating email_campaign_log table: {e}")
-
-        logger.info(f"[DB] init_saas_v2_db complete")
+            logger.info(f"[DB] init_saas_v2_db complete")
     except Exception as e:
         logger.error(f"[DB] init_saas_v2_db error (non-fatal): {e}")
 
@@ -3694,7 +3695,16 @@ If you didn't request this, ignore this email.
                         logger.info(f"[RESET] Telegram sent to chat {chat_id}")
             except Exception as e:
                 logger.error(f"[RESET] Telegram failed: {e}")
-            # Method 1: Brevo HTTP API
+            # Method 1: EmailEngine pool (supports 20+ SMTP/HTTP providers)
+            try:
+                sent = email_engine.send_sync(email, "JobHunt Pro - Password Reset Request", html_body)
+                if sent:
+                    logger.info(f"[RESET] EmailEngine sent reset link to {email}")
+                    return
+            except Exception as e:
+                logger.error(f"[RESET] EmailEngine failed: {e}")
+
+            # Method 2: Direct Brevo fallback if EmailEngine failed
             try:
                 brevo_key = (os.getenv("BREVO_API_KEY", "") or getattr(config, "BREVO_API_KEY", "")).strip()
                 brevo_from = (os.getenv("BREVO_ACCOUNT_EMAIL", "").strip()
@@ -3713,12 +3723,12 @@ If you didn't request this, ignore this email.
                         timeout=15,
                     )
                     if br.status_code == 201:
-                        logging.info(f"[RESET] Brevo email sent to {email}")
-                    else:
-                        logging.warning(f"[RESET] Brevo returned {br.status_code}: {br.text[:100]}")
+                        logger.info(f"[RESET] Direct Brevo email fallback sent to {email}")
+                        return
             except Exception as e:
-                logging.warning(f"[RESET] Brevo failed: {e}")
-            # Method 2: Gmail SMTP fallback (may fail on PA free tier)
+                logger.warning(f"[RESET] Direct Brevo fallback failed: {e}")
+
+            # Method 3: Direct Gmail SMTP fallback if both failed
             try:
                 sent = _send_via_gmail_smtp(
                     email,
@@ -3727,9 +3737,9 @@ If you didn't request this, ignore this email.
                     "JobHunt Pro",
                 )
                 if sent:
-                    logger.info(f"[RESET] Gmail email sent to {email}")
+                    logger.info(f"[RESET] Direct Gmail SMTP fallback sent to {email}")
             except Exception as e:
-                logger.error(f"[RESET] Gmail failed: {e}")
+                logger.error(f"[RESET] Direct Gmail SMTP fallback failed: {e}")
 
 
         threading.Thread(target=_send_notifications, daemon=True).start()
@@ -5957,8 +5967,20 @@ async def upload_cv(
     if not user_id:
         return RedirectResponse("/login", status_code=303)
 
-    # â&#x201D;€â&#x201D;€ Handle file upload â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
-    extracted_text = cv_text.strip()
+    # Coerce FastAPI Form defaults to empty strings if called programmatically in tests
+    if not isinstance(profile_name, str): profile_name = ""
+    if not isinstance(cv_text, str): cv_text = ""
+    if not isinstance(skills, str): skills = ""
+    if not isinstance(target_titles, str): target_titles = ""
+    if not isinstance(target_locations, str): target_locations = ""
+    if not isinstance(cover_letter_template, str): cover_letter_template = ""
+    if not isinstance(email_template, str): email_template = ""
+    if not isinstance(cv_full_text, str): cv_full_text = ""
+    if not isinstance(cover_letter_text, str): cover_letter_text = ""
+    if not isinstance(email_body, str): email_body = ""
+
+    # ── Handle file upload ───────────────────────────────────────────
+    extracted_text = cv_text.strip() if isinstance(cv_text, str) else ""
 
     if cv_file and cv_file.filename:
         try:
@@ -10722,17 +10744,22 @@ async def api_v1_jobs(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
-    db = await get_db()
+    db = get_db()
     try:
-        cursor = await db.execute(
+        cursor = db.execute(
             "SELECT * FROM jobs WHERE user_id = ? ORDER BY created_at DESC",
             (user_id,)
         )
-        rows = await cursor.fetchall()
+        rows = cursor.fetchall()
         columns = [col[0] for col in cursor.description]
         jobs = [dict(zip(columns, row)) for row in rows]
+        db.close()
         return JSONResponse({"jobs": jobs, "count": len(jobs)})
     except Exception as e:
+        try:
+            db.close()
+        except Exception:
+            pass
         logger.exception("api_v1_jobs failed")
         return JSONResponse({"error": str(e)}, status_code=500)
 
@@ -10747,18 +10774,68 @@ async def api_v1_login(request: Request):
         password = data.get("password", "")
         if not email or not password:
             return JSONResponse({"error": "Email and password required"}, status_code=400)
-        db = await get_db()
-        cursor = await db.execute(
+        
+        # Add rate limit check
+        client_ip = request.client.host if request.client else "unknown"
+        if not _check_login_rate_limit(client_ip):
+            return JSONResponse({"error": "Too many login attempts. Please try again in 1 hour."}, status_code=429)
+            
+        account_key = f"login_lock:{email}"
+        db = get_db()
+        
+        lockout = None
+        try:
+            lockout = db.execute("SELECT value FROM system_config WHERE key = ?", (account_key,)).fetchone()
+        except Exception:
+            pass
+            
+        if lockout:
+            from time import time
+            try:
+                lock_ts = float(lockout["value"])
+                if time() - lock_ts < 1800:  # 30 min lockout
+                    db.close()
+                    return JSONResponse({"error": "Account locked due to too many failed attempts. Try again in 30 minutes."}, status_code=423)
+            except (ValueError, TypeError):
+                pass
+                
+        cursor = db.execute(
             "SELECT * FROM users WHERE email = ?", (email,)
         )
-        row = await cursor.fetchone()
+        row = cursor.fetchone()
         if not row:
+            db.close()
             return JSONResponse({"error": "Invalid credentials"}, status_code=401)
         columns = [col[0] for col in cursor.description]
         user_dict = dict(zip(columns, row))
         stored_hash = user_dict.get("password_hash", "")
         if not verify_password(password, stored_hash):
+            # Track failed attempt
+            try:
+                from time import time
+                fail_key = f"login_fails:{email}"
+                fail_row = db.execute("SELECT value FROM system_config WHERE key = ?", (fail_key,)).fetchone()
+                fails = int(fail_row["value"]) + 1 if fail_row else 1
+                db.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
+                             (fail_key, str(fails)))
+                if fails >= 5:
+                    db.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
+                                 (account_key, str(time())))
+                db.commit()
+            except Exception:
+                pass
+            db.close()
             return JSONResponse({"error": "Invalid credentials"}, status_code=401)
+            
+        # Successful login — clear failed attempts
+        try:
+            db.execute("DELETE FROM system_config WHERE key = ?", (f"login_fails:{email}",))
+            db.execute("DELETE FROM system_config WHERE key = ?", (account_key,))
+            db.commit()
+        except Exception:
+            pass
+        db.close()
+        
         request.session["user"] = {
             "id": user_dict["id"],
             "email": user_dict["email"],

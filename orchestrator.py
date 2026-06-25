@@ -55,6 +55,7 @@ class Orchestrator:
         self.research = CompanyResearch()
         self.scheduler = SmartScheduler()
         self.analytics = Analytics()
+        self.warmup = warmup
         self.healer = None
         # Lazy import healing engine
         try:
@@ -62,7 +63,7 @@ class Orchestrator:
             self.healer = healing_engine
         except Exception:
             pass
-        logger.info("Orchestrator v8 initialized (AI Tailoring + Anti-Ban + Personalization)")
+        logger.info("Orchestrator v8 initialized (AI Tailoring + Anti-Ban + Personalization + Email Warmup)")
 
     async def run_search(self, max_results=50):
         """Search for jobs using curated contacts (guaranteed results)
@@ -259,7 +260,9 @@ class Orchestrator:
                 prediction = predictor.predict_response_rate(subject, cover_html, company)
 
                 if not prediction["should_send"]:
-                    logger.info(f"  Low confidence ({prediction['confidence']}%) for {company} - SKIPPING")
+                    reason = prediction.get("reason", "low_confidence")
+                    logger.info(f"  Predictor block ({reason}) for {company} - SKIPPING")
+                    await self.db.update_job_status(job["job_id"], "skipped", reason)
                     skipped += 1
                     continue
 

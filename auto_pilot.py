@@ -162,9 +162,13 @@ class AutoPilot:
             # Phase 5: Print stats
             stats = await orch.db.get_stats()
             warmup_stats = {}
-            active_providers = list(orch.scheduler._active_providers) if orch.scheduler._active_providers else ['gmail1']
-            for p in active_providers:
-                warmup_stats[p] = orch.warmup.get_status(p)
+            try:
+                active_providers = list(orch.scheduler._active_providers) if orch.scheduler._active_providers else ['gmail1']
+                for p in active_providers:
+                    if hasattr(orch, "warmup") and orch.warmup:
+                        warmup_stats[p] = orch.warmup.get_status(p)
+            except Exception as w_err:
+                logger.warning(f"Could not load warmup stats: {w_err}")
 
             logger.info("\n" + "=" * 60)
             logger.info("  CYCLE COMPLETE - SUMMARY")
@@ -173,10 +177,13 @@ class AutoPilot:
             logger.info(f"  Totals:        {self.total_applied} applied, {self.total_retried} retried, {self.total_followups} follow-ups")
 
             if self.mega_master:
-                ms = await self.mega_master.get_swarm_status()
-                logger.info(f"  Mega Swarm:    {ms.get('cycles_completed', 0)} cycles, "
-                            f"{ms.get('total_agents', 0):,} agents, "
-                            f"uptime {ms.get('uptime_seconds', 0):.0f}s")
+                try:
+                    ms = await self.mega_master.get_swarm_status()
+                    logger.info(f"  Mega Swarm:    {ms.get('cycles_completed', 0)} cycles, "
+                                f"{ms.get('total_agents', 0):,} agents, "
+                                f"uptime {ms.get('uptime_seconds', 0):.0f}s")
+                except Exception as m_err:
+                    logger.warning(f"Could not load swarm status details: {m_err}")
 
             for p, ws in warmup_stats.items():
                 logger.info(f"  Warmup {p}:    {ws['sent_today']}/{ws['daily_limit']} (day {ws['warmup_day']})")
@@ -343,7 +350,11 @@ class AutoPilot:
 async def main():
     pilot = AutoPilot()
     try:
-        await pilot.run_forever()
+        if "--once" in sys.argv:
+            logger.info("Executing a single Auto-Pilot run cycle (--once)")
+            await pilot.run_cycle()
+        else:
+            await pilot.run_forever()
     finally:
         # Shut down mega swarm gracefully
         if pilot.mega_master:

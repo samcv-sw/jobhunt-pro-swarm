@@ -57,3 +57,985 @@
 TypeError: unsupported operand type(s) for /: 'WindowsPath' and 'NoneType'
 
 2026-06-22 01:13:57,479 [INFO] Outside working hours. Sleeping until 08:00 Beirut time (6.8h)...
+2026-06-25 14:12:25,650 [INFO] Executing a single Auto-Pilot run cycle (--once)
+2026-06-25 14:12:25,663 [INFO] ============================================================
+2026-06-25 14:12:25,663 [INFO]   AUTO-PILOT CYCLE #1 - 2026-06-25 14:12:25 Beirut
+2026-06-25 14:12:25,663 [INFO] ============================================================
+2026-06-25 14:12:26,204 [INFO] [GHOST PROXY] Fetching fresh proxies from global network...
+2026-06-25 14:12:26,813 [INFO] [GHOST PROXY] Successfully harvested 203 elite stealth IPs.
+2026-06-25 14:12:26,822 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:26,825 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:26,826 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:26,830 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:26,831 [INFO] Provider registered: gmail1
+2026-06-25 14:12:26,831 [INFO] Active provider: gmail1
+2026-06-25 14:12:26,831 [INFO] Provider registered: gmail2
+2026-06-25 14:12:26,832 [INFO] Active provider: gmail2
+2026-06-25 14:12:26,832 [INFO] Provider registered: gmail3
+2026-06-25 14:12:26,832 [INFO] Active provider: gmail3
+2026-06-25 14:12:26,832 [INFO] Provider registered: gmail4
+2026-06-25 14:12:26,832 [INFO] Active provider: gmail4
+2026-06-25 14:12:26,832 [INFO] Provider registered: gmail5
+2026-06-25 14:12:26,832 [INFO] Active provider: gmail5
+2026-06-25 14:12:26,833 [INFO] Provider registered: gmail6
+2026-06-25 14:12:26,833 [INFO] Active provider: gmail6
+2026-06-25 14:12:26,833 [INFO] Provider registered: gmail7
+2026-06-25 14:12:26,833 [INFO] Active provider: gmail7
+2026-06-25 14:12:26,833 [INFO] Provider registered: gmail8
+2026-06-25 14:12:26,833 [INFO] Active provider: gmail8
+2026-06-25 14:12:26,833 [INFO] Provider registered: gmail9
+2026-06-25 14:12:26,833 [INFO] Active provider: gmail9
+2026-06-25 14:12:26,833 [INFO] Provider registered: gmail10
+2026-06-25 14:12:26,833 [INFO] Active provider: gmail10
+2026-06-25 14:12:26,833 [INFO] Provider registered: gmail11
+2026-06-25 14:12:26,833 [INFO] Active provider: gmail11
+2026-06-25 14:12:26,833 [INFO] Provider registered: gmail12
+2026-06-25 14:12:26,833 [INFO] Active provider: gmail12
+2026-06-25 14:12:26,833 [INFO] Provider registered: gmail13
+2026-06-25 14:12:26,834 [INFO] Active provider: gmail13
+2026-06-25 14:12:26,834 [INFO] Provider registered: acct14
+2026-06-25 14:12:26,834 [INFO] Active provider: acct14
+2026-06-25 14:12:26,834 [INFO] Provider registered: acct15
+2026-06-25 14:12:26,834 [INFO] Active provider: acct15
+2026-06-25 14:12:26,834 [INFO] Provider registered: yahoo1
+2026-06-25 14:12:26,834 [INFO] Active provider: yahoo1
+2026-06-25 14:12:26,834 [INFO] Provider registered: hotmail_pool
+2026-06-25 14:12:26,834 [INFO] Active provider: hotmail_pool
+2026-06-25 14:12:28,619 [INFO] Provider groq initialized (llama-3.3-70b-versatile)
+2026-06-25 14:12:28,622 [INFO] LLM provider active: groq
+2026-06-25 14:12:28,622 [INFO] LLM provider skipped (no API key): gemini
+2026-06-25 14:12:28,622 [INFO] LLM provider skipped (no API key): huggingface
+2026-06-25 14:12:28,622 [INFO] LLM provider skipped (no API key): openrouter
+2026-06-25 14:12:28,622 [INFO] LLM provider skipped (no API key): deepinfra
+2026-06-25 14:12:28,622 [INFO] LLM provider skipped (no API key): together
+2026-06-25 14:12:28,622 [INFO] LLM provider skipped (no API key): fireworks
+2026-06-25 14:12:28,623 [INFO] LLM provider skipped (no API key): cerebras
+2026-06-25 14:12:28,623 [INFO] LLM provider skipped (no API key): sambanova
+2026-06-25 14:12:28,623 [INFO] LLM provider skipped (no API key): cloudflare
+2026-06-25 14:12:28,623 [INFO] LLM provider skipped (no API key): cohere
+2026-06-25 14:12:28,623 [INFO] LLM provider skipped (no API key): xai
+2026-06-25 14:12:28,623 [INFO] LLM provider skipped (no API key): deepseek_api
+2026-06-25 14:12:28,623 [INFO] LLM provider skipped (no API key): github_models
+2026-06-25 14:12:28,623 [INFO] LLM provider skipped (no API key): qwen
+2026-06-25 14:12:29,076 [INFO] Provider dummy initialized (dummy)
+2026-06-25 14:12:29,080 [INFO] LLM provider active: dummy
+2026-06-25 14:12:29,080 [INFO] AITailor: LLMProviderPool initialized successfully.
+2026-06-25 14:12:29,090 [INFO] Provider registered: gmail1
+2026-06-25 14:12:29,090 [INFO] Active provider: gmail1
+2026-06-25 14:12:29,090 [INFO] Provider registered: gmail2
+2026-06-25 14:12:29,091 [INFO] Active provider: gmail2
+2026-06-25 14:12:29,091 [INFO] Provider registered: gmail3
+2026-06-25 14:12:29,091 [INFO] Active provider: gmail3
+2026-06-25 14:12:29,091 [INFO] Provider registered: gmail4
+2026-06-25 14:12:29,091 [INFO] Active provider: gmail4
+2026-06-25 14:12:29,091 [INFO] Provider registered: gmail5
+2026-06-25 14:12:29,091 [INFO] Active provider: gmail5
+2026-06-25 14:12:29,091 [INFO] Provider registered: gmail6
+2026-06-25 14:12:29,092 [INFO] Active provider: gmail6
+2026-06-25 14:12:29,092 [INFO] Provider registered: gmail7
+2026-06-25 14:12:29,092 [INFO] Active provider: gmail7
+2026-06-25 14:12:29,092 [INFO] Provider registered: gmail8
+2026-06-25 14:12:29,093 [INFO] Active provider: gmail8
+2026-06-25 14:12:29,093 [INFO] Provider registered: gmail9
+2026-06-25 14:12:29,093 [INFO] Active provider: gmail9
+2026-06-25 14:12:29,093 [INFO] Provider registered: gmail10
+2026-06-25 14:12:29,093 [INFO] Active provider: gmail10
+2026-06-25 14:12:29,093 [INFO] Provider registered: gmail11
+2026-06-25 14:12:29,093 [INFO] Active provider: gmail11
+2026-06-25 14:12:29,093 [INFO] Provider registered: gmail12
+2026-06-25 14:12:29,093 [INFO] Active provider: gmail12
+2026-06-25 14:12:29,094 [INFO] Provider registered: gmail13
+2026-06-25 14:12:29,094 [INFO] Active provider: gmail13
+2026-06-25 14:12:29,094 [INFO] Provider registered: acct14
+2026-06-25 14:12:29,094 [INFO] Active provider: acct14
+2026-06-25 14:12:29,094 [INFO] Provider registered: acct15
+2026-06-25 14:12:29,094 [INFO] Active provider: acct15
+2026-06-25 14:12:29,094 [INFO] Provider registered: yahoo1
+2026-06-25 14:12:29,095 [INFO] Active provider: yahoo1
+2026-06-25 14:12:29,095 [INFO] Provider registered: hotmail_pool
+2026-06-25 14:12:29,096 [INFO] Active provider: hotmail_pool
+2026-06-25 14:12:29,122 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,139 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,141 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,143 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,147 [INFO] Orchestrator v8 initialized (AI Tailoring + Anti-Ban + Personalization)
+2026-06-25 14:12:29,149 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,152 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,153 [INFO] 
+[PHASE 1] Applying to jobs...
+2026-06-25 14:12:29,153 [INFO] ==================================================
+2026-06-25 14:12:29,153 [INFO] APPLICATION PHASE (AI Tailoring + Anti-Ban Protection)
+2026-06-25 14:12:29,153 [INFO] ==================================================
+2026-06-25 14:12:29,154 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,157 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,158 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,161 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,168 [INFO] Reset 1 failed jobs to 'new' for retry
+2026-06-25 14:12:29,169 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,174 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,176 [INFO] Processing 1 applications...
+2026-06-25 14:12:29,176 [INFO] Warmup status (gmail1): 0/50 sent today (day 0)
+2026-06-25 14:12:29,176 [INFO] [1/1] -> Test Inc (test@test.com)
+2026-06-25 14:12:29,176 [WARNING] Test/Sandbox target skipped: test@test.com
+2026-06-25 14:12:29,176 [WARNING]   HONEYPOT detected: Test Inc - SKIPPING
+2026-06-25 14:12:29,176 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,180 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,187 [INFO] Applications sent: 0/1
+2026-06-25 14:12:29,187 [INFO] Skipped: 1, Failed: 0
+2026-06-25 14:12:29,187 [INFO] Anti-ban stats: {'daily_applications': 0, 'hourly_applications': 0, 'blacklisted_companies': 0, 'tracked_companies': 0, 'total_failures': 0}
+2026-06-25 14:12:29,187 [INFO] Prediction stats: {'total_emails': 0, 'total_responses': 0, 'response_rate': 0, 'avg_confidence': 0}
+2026-06-25 14:12:29,187 [INFO] Warmup status (gmail1): {'provider': 'gmail1', 'warmup_day': 0, 'daily_limit': 50, 'sent_today': 0, 'remaining': 50, 'is_warmed_up': False}
+2026-06-25 14:12:29,187 [INFO] Follow-up tracking: {'total_tracked': 0, 'active': 0, 'completed': 0, 'total_followups_sent': 0}
+2026-06-25 14:12:29,187 [INFO]   -> Applied: 0 (total: 0)
+2026-06-25 14:12:29,187 [INFO] 
+[PHASE 2] Retrying failed jobs...
+2026-06-25 14:12:29,187 [INFO] ==================================================
+2026-06-25 14:12:29,188 [INFO] RETRY FAILED JOBS
+2026-06-25 14:12:29,188 [INFO] ==================================================
+2026-06-25 14:12:29,188 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,189 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,189 [INFO] Reset 1 failed jobs for retry
+2026-06-25 14:12:29,189 [INFO] ==================================================
+2026-06-25 14:12:29,189 [INFO] APPLICATION PHASE (AI Tailoring + Anti-Ban Protection)
+2026-06-25 14:12:29,189 [INFO] ==================================================
+2026-06-25 14:12:29,189 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,203 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,204 [INFO] Processing 1 applications...
+2026-06-25 14:12:29,204 [INFO] Warmup status (gmail1): 0/50 sent today (day 0)
+2026-06-25 14:12:29,205 [INFO] [1/1] -> Test Inc (test@test.com)
+2026-06-25 14:12:29,205 [WARNING] Test/Sandbox target skipped: test@test.com
+2026-06-25 14:12:29,205 [WARNING]   HONEYPOT detected: Test Inc - SKIPPING
+2026-06-25 14:12:29,205 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,208 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,215 [INFO] Applications sent: 0/1
+2026-06-25 14:12:29,216 [INFO] Skipped: 1, Failed: 0
+2026-06-25 14:12:29,216 [INFO] Anti-ban stats: {'daily_applications': 0, 'hourly_applications': 0, 'blacklisted_companies': 0, 'tracked_companies': 0, 'total_failures': 0}
+2026-06-25 14:12:29,216 [INFO] Prediction stats: {'total_emails': 0, 'total_responses': 0, 'response_rate': 0, 'avg_confidence': 0}
+2026-06-25 14:12:29,217 [INFO] Warmup status (gmail1): {'provider': 'gmail1', 'warmup_day': 0, 'daily_limit': 50, 'sent_today': 0, 'remaining': 50, 'is_warmed_up': False}
+2026-06-25 14:12:29,217 [INFO] Follow-up tracking: {'total_tracked': 0, 'active': 0, 'completed': 0, 'total_followups_sent': 0}
+2026-06-25 14:12:29,217 [INFO]   -> Retried: 0 (total: 0)
+2026-06-25 14:12:29,217 [INFO] 
+[PHASE 3] Sending follow-ups...
+2026-06-25 14:12:29,217 [INFO]   -> Due follow-ups: 0
+2026-06-25 14:12:29,217 [INFO] 
+[PHASE 4] Mega Swarm — deploying 20,000 agents...
+2026-06-25 14:12:29,220 [INFO] Mega Swarm distribution: 18000 workers + 1500 squad leaders + 500 team managers = 20000 total
+2026-06-25 14:12:29,220 [INFO] === Initializing Mega Swarm (20,000 agents) ===
+2026-06-25 14:12:29,220 [INFO] MegaAgentPool initialized in Distributed Queue mode.
+2026-06-25 14:12:29,221 [INFO] Mega Swarm initialized: 20000 agents ready (18000 workers + 1500 squad leaders + 500 team managers)
+2026-06-25 14:12:29,221 [INFO] Mega Swarm initialized (20,000 agents)
+2026-06-25 14:12:29,221 [INFO] ============================================================
+2026-06-25 14:12:29,221 [INFO] === MEGA SWARM CYCLE #1 (MEGA-1-141229) ===
+2026-06-25 14:12:29,221 [INFO] ============================================================
+2026-06-25 14:12:29,221 [INFO] [MEGA-1-141229] PHASE 1: Mega Search (5,000 scraper workers)
+2026-06-25 14:12:29,223 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,229 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:29,230 [INFO] Enqueued 15 bulk tasks.
+2026-06-25 14:12:31,253 [INFO] [MEGA-1-141229] Phase 1 dispatched 15 scraper tasks
+2026-06-25 14:12:31,253 [INFO] [MEGA-1-141229] PHASE 2: Mega AI Scoring (3,000 scorer workers)
+2026-06-25 14:12:31,253 [INFO] No DB jobs found, using synthetic scoring targets
+2026-06-25 14:12:31,254 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:31,258 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:31,260 [INFO] Enqueued 200 bulk tasks.
+2026-06-25 14:12:32,278 [INFO] [MEGA-1-141229] Phase 2 dispatched 200 scoring tasks
+2026-06-25 14:12:32,279 [INFO] [MEGA-1-141229] PHASE 3: Mega Cover Letters (2,000 workers)
+2026-06-25 14:12:32,279 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:32,283 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:32,285 [INFO] Enqueued 150 bulk tasks.
+2026-06-25 14:12:33,313 [INFO] [MEGA-1-141229] Phase 3 dispatched 150 cover letter tasks
+2026-06-25 14:12:33,314 [INFO] [MEGA-1-141229] PHASE 4: Mega Email Sending (4,000 sender workers)
+2026-06-25 14:12:33,314 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:33,318 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:33,320 [INFO] Enqueued 100 bulk tasks.
+2026-06-25 14:12:35,358 [INFO] [MEGA-1-141229] Phase 4 dispatched 100 email tasks
+2026-06-25 14:12:35,358 [INFO] [MEGA-1-141229] PHASE 5: Mega Data Collection (1,500 collector workers)
+2026-06-25 14:12:35,358 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:35,363 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:35,364 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:35,368 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:35,369 [INFO] Enqueued 50 bulk tasks.
+2026-06-25 14:12:35,892 [INFO] [MEGA-1-141229] Phase 5 dispatched 50 collection tasks
+2026-06-25 14:12:35,892 [INFO] [MEGA-1-141229] PHASE 6: Mega Analysis (1,500 analyzer workers)
+2026-06-25 14:12:35,893 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:35,897 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:35,899 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:35,902 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:35,905 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:35,908 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:35,908 [INFO] Enqueued 10 bulk tasks.
+2026-06-25 14:12:36,428 [INFO] [MEGA-1-141229] Phase 6 dispatched 10 analysis tasks
+2026-06-25 14:12:36,429 [INFO] [MEGA-1-141229] PHASE 7: Mega Follow-ups (1,000 follow-up workers)
+2026-06-25 14:12:36,429 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:36,434 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:36,438 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:36,442 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:36,445 [INFO] Enqueued 142 bulk tasks.
+2026-06-25 14:12:37,467 [INFO] [MEGA-1-141229] Phase 7 dispatched 142 follow-up tasks
+2026-06-25 14:12:37,468 [INFO] === MEGA CYCLE #1 COMPLETE: 667 tasks dispatched across 20000 agents ===
+2026-06-25 14:12:37,468 [INFO]   search: 15 tasks
+2026-06-25 14:12:37,468 [INFO]   score: 200 tasks
+2026-06-25 14:12:37,468 [INFO]   cover_letter: 150 tasks
+2026-06-25 14:12:37,468 [INFO]   email: 100 tasks
+2026-06-25 14:12:37,468 [INFO]   collect: 50 tasks
+2026-06-25 14:12:37,469 [INFO]   analyze: 10 tasks
+2026-06-25 14:12:37,469 [INFO]   followup: 142 tasks
+2026-06-25 14:12:37,469 [INFO]   -> Mega Swarm dispatched 667 tasks across 20,000 agents
+2026-06-25 14:12:37,469 [INFO]        search: 15
+2026-06-25 14:12:37,469 [INFO]        score: 200
+2026-06-25 14:12:37,469 [INFO]        cover_letter: 150
+2026-06-25 14:12:37,469 [INFO]        email: 100
+2026-06-25 14:12:37,469 [INFO]        collect: 50
+2026-06-25 14:12:37,469 [INFO]        analyze: 10
+2026-06-25 14:12:37,469 [INFO]        followup: 142
+2026-06-25 14:12:37,469 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:37,473 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:12:37,475 [ERROR] Error in auto-pilot cycle: 'Orchestrator' object has no attribute 'warmup'
+2026-06-25 14:12:37,476 [ERROR] Traceback (most recent call last):
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\auto_pilot.py", line 167, in run_cycle
+    warmup_stats[p] = orch.warmup.get_status(p)
+                      ^^^^^^^^^^^
+AttributeError: 'Orchestrator' object has no attribute 'warmup'
+
+2026-06-25 14:12:37,476 [INFO] Shutting down Mega Swarm...
+2026-06-25 14:12:37,476 [INFO] Mega Swarm shutdown initiated...
+2026-06-25 14:12:37,476 [INFO] Mega Swarm shut down complete
+2026-06-25 14:12:37,476 [INFO] Mega Swarm shut down.
+2026-06-25 14:13:08,244 [INFO] Executing a single Auto-Pilot run cycle (--once)
+2026-06-25 14:13:08,245 [INFO] ============================================================
+2026-06-25 14:13:08,245 [INFO]   AUTO-PILOT CYCLE #1 - 2026-06-25 14:13:08 Beirut
+2026-06-25 14:13:08,245 [INFO] ============================================================
+2026-06-25 14:13:08,797 [INFO] [GHOST PROXY] Fetching fresh proxies from global network...
+2026-06-25 14:13:09,417 [INFO] [GHOST PROXY] Successfully harvested 203 elite stealth IPs.
+2026-06-25 14:13:09,425 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:09,427 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:09,429 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:09,431 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:09,434 [INFO] Provider registered: gmail1
+2026-06-25 14:13:09,434 [INFO] Active provider: gmail1
+2026-06-25 14:13:09,434 [INFO] Provider registered: gmail2
+2026-06-25 14:13:09,434 [INFO] Active provider: gmail2
+2026-06-25 14:13:09,434 [INFO] Provider registered: gmail3
+2026-06-25 14:13:09,434 [INFO] Active provider: gmail3
+2026-06-25 14:13:09,434 [INFO] Provider registered: gmail4
+2026-06-25 14:13:09,434 [INFO] Active provider: gmail4
+2026-06-25 14:13:09,434 [INFO] Provider registered: gmail5
+2026-06-25 14:13:09,435 [INFO] Active provider: gmail5
+2026-06-25 14:13:09,435 [INFO] Provider registered: gmail6
+2026-06-25 14:13:09,435 [INFO] Active provider: gmail6
+2026-06-25 14:13:09,435 [INFO] Provider registered: gmail7
+2026-06-25 14:13:09,435 [INFO] Active provider: gmail7
+2026-06-25 14:13:09,435 [INFO] Provider registered: gmail8
+2026-06-25 14:13:09,435 [INFO] Active provider: gmail8
+2026-06-25 14:13:09,435 [INFO] Provider registered: gmail9
+2026-06-25 14:13:09,435 [INFO] Active provider: gmail9
+2026-06-25 14:13:09,435 [INFO] Provider registered: gmail10
+2026-06-25 14:13:09,435 [INFO] Active provider: gmail10
+2026-06-25 14:13:09,435 [INFO] Provider registered: gmail11
+2026-06-25 14:13:09,435 [INFO] Active provider: gmail11
+2026-06-25 14:13:09,435 [INFO] Provider registered: gmail12
+2026-06-25 14:13:09,435 [INFO] Active provider: gmail12
+2026-06-25 14:13:09,435 [INFO] Provider registered: gmail13
+2026-06-25 14:13:09,436 [INFO] Active provider: gmail13
+2026-06-25 14:13:09,436 [INFO] Provider registered: acct14
+2026-06-25 14:13:09,436 [INFO] Active provider: acct14
+2026-06-25 14:13:09,436 [INFO] Provider registered: acct15
+2026-06-25 14:13:09,436 [INFO] Active provider: acct15
+2026-06-25 14:13:09,436 [INFO] Provider registered: yahoo1
+2026-06-25 14:13:09,436 [INFO] Active provider: yahoo1
+2026-06-25 14:13:09,436 [INFO] Provider registered: hotmail_pool
+2026-06-25 14:13:09,436 [INFO] Active provider: hotmail_pool
+2026-06-25 14:13:11,358 [INFO] Provider groq initialized (llama-3.3-70b-versatile)
+2026-06-25 14:13:11,358 [INFO] LLM provider active: groq
+2026-06-25 14:13:11,358 [INFO] LLM provider skipped (no API key): gemini
+2026-06-25 14:13:11,358 [INFO] LLM provider skipped (no API key): huggingface
+2026-06-25 14:13:11,358 [INFO] LLM provider skipped (no API key): openrouter
+2026-06-25 14:13:11,358 [INFO] LLM provider skipped (no API key): deepinfra
+2026-06-25 14:13:11,358 [INFO] LLM provider skipped (no API key): together
+2026-06-25 14:13:11,359 [INFO] LLM provider skipped (no API key): fireworks
+2026-06-25 14:13:11,359 [INFO] LLM provider skipped (no API key): cerebras
+2026-06-25 14:13:11,359 [INFO] LLM provider skipped (no API key): sambanova
+2026-06-25 14:13:11,360 [INFO] LLM provider skipped (no API key): cloudflare
+2026-06-25 14:13:11,360 [INFO] LLM provider skipped (no API key): cohere
+2026-06-25 14:13:11,360 [INFO] LLM provider skipped (no API key): xai
+2026-06-25 14:13:11,360 [INFO] LLM provider skipped (no API key): deepseek_api
+2026-06-25 14:13:11,360 [INFO] LLM provider skipped (no API key): github_models
+2026-06-25 14:13:11,360 [INFO] LLM provider skipped (no API key): qwen
+2026-06-25 14:13:11,809 [INFO] Provider dummy initialized (dummy)
+2026-06-25 14:13:11,809 [INFO] LLM provider active: dummy
+2026-06-25 14:13:11,810 [INFO] AITailor: LLMProviderPool initialized successfully.
+2026-06-25 14:13:11,822 [INFO] Provider registered: gmail1
+2026-06-25 14:13:11,822 [INFO] Active provider: gmail1
+2026-06-25 14:13:11,823 [INFO] Provider registered: gmail2
+2026-06-25 14:13:11,823 [INFO] Active provider: gmail2
+2026-06-25 14:13:11,823 [INFO] Provider registered: gmail3
+2026-06-25 14:13:11,823 [INFO] Active provider: gmail3
+2026-06-25 14:13:11,823 [INFO] Provider registered: gmail4
+2026-06-25 14:13:11,823 [INFO] Active provider: gmail4
+2026-06-25 14:13:11,823 [INFO] Provider registered: gmail5
+2026-06-25 14:13:11,823 [INFO] Active provider: gmail5
+2026-06-25 14:13:11,823 [INFO] Provider registered: gmail6
+2026-06-25 14:13:11,823 [INFO] Active provider: gmail6
+2026-06-25 14:13:11,823 [INFO] Provider registered: gmail7
+2026-06-25 14:13:11,823 [INFO] Active provider: gmail7
+2026-06-25 14:13:11,823 [INFO] Provider registered: gmail8
+2026-06-25 14:13:11,823 [INFO] Active provider: gmail8
+2026-06-25 14:13:11,823 [INFO] Provider registered: gmail9
+2026-06-25 14:13:11,824 [INFO] Active provider: gmail9
+2026-06-25 14:13:11,824 [INFO] Provider registered: gmail10
+2026-06-25 14:13:11,824 [INFO] Active provider: gmail10
+2026-06-25 14:13:11,824 [INFO] Provider registered: gmail11
+2026-06-25 14:13:11,824 [INFO] Active provider: gmail11
+2026-06-25 14:13:11,824 [INFO] Provider registered: gmail12
+2026-06-25 14:13:11,824 [INFO] Active provider: gmail12
+2026-06-25 14:13:11,824 [INFO] Provider registered: gmail13
+2026-06-25 14:13:11,824 [INFO] Active provider: gmail13
+2026-06-25 14:13:11,824 [INFO] Provider registered: acct14
+2026-06-25 14:13:11,824 [INFO] Active provider: acct14
+2026-06-25 14:13:11,824 [INFO] Provider registered: acct15
+2026-06-25 14:13:11,824 [INFO] Active provider: acct15
+2026-06-25 14:13:11,824 [INFO] Provider registered: yahoo1
+2026-06-25 14:13:11,825 [INFO] Active provider: yahoo1
+2026-06-25 14:13:11,825 [INFO] Provider registered: hotmail_pool
+2026-06-25 14:13:11,825 [INFO] Active provider: hotmail_pool
+2026-06-25 14:13:11,860 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,863 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,865 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,868 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,871 [INFO] Orchestrator v8 initialized (AI Tailoring + Anti-Ban + Personalization + Email Warmup)
+2026-06-25 14:13:11,872 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,875 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,876 [INFO] 
+[PHASE 1] Applying to jobs...
+2026-06-25 14:13:11,876 [INFO] ==================================================
+2026-06-25 14:13:11,877 [INFO] APPLICATION PHASE (AI Tailoring + Anti-Ban Protection)
+2026-06-25 14:13:11,877 [INFO] ==================================================
+2026-06-25 14:13:11,878 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,881 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,883 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,885 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,892 [INFO] Reset 1 failed jobs to 'new' for retry
+2026-06-25 14:13:11,893 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,898 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,899 [INFO] Processing 1 applications...
+2026-06-25 14:13:11,899 [INFO] Warmup status (gmail1): 0/50 sent today (day 0)
+2026-06-25 14:13:11,899 [INFO] [1/1] -> Test Inc (test@test.com)
+2026-06-25 14:13:11,900 [WARNING] Test/Sandbox target skipped: test@test.com
+2026-06-25 14:13:11,900 [WARNING]   HONEYPOT detected: Test Inc - SKIPPING
+2026-06-25 14:13:11,900 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,903 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,910 [INFO] Applications sent: 0/1
+2026-06-25 14:13:11,910 [INFO] Skipped: 1, Failed: 0
+2026-06-25 14:13:11,910 [INFO] Anti-ban stats: {'daily_applications': 0, 'hourly_applications': 0, 'blacklisted_companies': 0, 'tracked_companies': 0, 'total_failures': 0}
+2026-06-25 14:13:11,910 [INFO] Prediction stats: {'total_emails': 0, 'total_responses': 0, 'response_rate': 0, 'avg_confidence': 0}
+2026-06-25 14:13:11,911 [INFO] Warmup status (gmail1): {'provider': 'gmail1', 'warmup_day': 0, 'daily_limit': 50, 'sent_today': 0, 'remaining': 50, 'is_warmed_up': False}
+2026-06-25 14:13:11,911 [INFO] Follow-up tracking: {'total_tracked': 0, 'active': 0, 'completed': 0, 'total_followups_sent': 0}
+2026-06-25 14:13:11,911 [INFO]   -> Applied: 0 (total: 0)
+2026-06-25 14:13:11,911 [INFO] 
+[PHASE 2] Retrying failed jobs...
+2026-06-25 14:13:11,911 [INFO] ==================================================
+2026-06-25 14:13:11,911 [INFO] RETRY FAILED JOBS
+2026-06-25 14:13:11,911 [INFO] ==================================================
+2026-06-25 14:13:11,911 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,915 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,922 [INFO] Reset 1 failed jobs for retry
+2026-06-25 14:13:11,923 [INFO] ==================================================
+2026-06-25 14:13:11,923 [INFO] APPLICATION PHASE (AI Tailoring + Anti-Ban Protection)
+2026-06-25 14:13:11,923 [INFO] ==================================================
+2026-06-25 14:13:11,923 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,927 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,928 [INFO] Processing 1 applications...
+2026-06-25 14:13:11,928 [INFO] Warmup status (gmail1): 0/50 sent today (day 0)
+2026-06-25 14:13:11,929 [INFO] [1/1] -> Test Inc (test@test.com)
+2026-06-25 14:13:11,929 [WARNING] Test/Sandbox target skipped: test@test.com
+2026-06-25 14:13:11,929 [WARNING]   HONEYPOT detected: Test Inc - SKIPPING
+2026-06-25 14:13:11,929 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,933 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,940 [INFO] Applications sent: 0/1
+2026-06-25 14:13:11,940 [INFO] Skipped: 1, Failed: 0
+2026-06-25 14:13:11,940 [INFO] Anti-ban stats: {'daily_applications': 0, 'hourly_applications': 0, 'blacklisted_companies': 0, 'tracked_companies': 0, 'total_failures': 0}
+2026-06-25 14:13:11,940 [INFO] Prediction stats: {'total_emails': 0, 'total_responses': 0, 'response_rate': 0, 'avg_confidence': 0}
+2026-06-25 14:13:11,940 [INFO] Warmup status (gmail1): {'provider': 'gmail1', 'warmup_day': 0, 'daily_limit': 50, 'sent_today': 0, 'remaining': 50, 'is_warmed_up': False}
+2026-06-25 14:13:11,940 [INFO] Follow-up tracking: {'total_tracked': 0, 'active': 0, 'completed': 0, 'total_followups_sent': 0}
+2026-06-25 14:13:11,940 [INFO]   -> Retried: 0 (total: 0)
+2026-06-25 14:13:11,940 [INFO] 
+[PHASE 3] Sending follow-ups...
+2026-06-25 14:13:11,940 [INFO]   -> Due follow-ups: 0
+2026-06-25 14:13:11,940 [INFO] 
+[PHASE 4] Mega Swarm — deploying 20,000 agents...
+2026-06-25 14:13:11,942 [INFO] Mega Swarm distribution: 18000 workers + 1500 squad leaders + 500 team managers = 20000 total
+2026-06-25 14:13:11,943 [INFO] === Initializing Mega Swarm (20,000 agents) ===
+2026-06-25 14:13:11,943 [INFO] MegaAgentPool initialized in Distributed Queue mode.
+2026-06-25 14:13:11,943 [INFO] Mega Swarm initialized: 20000 agents ready (18000 workers + 1500 squad leaders + 500 team managers)
+2026-06-25 14:13:11,943 [INFO] Mega Swarm initialized (20,000 agents)
+2026-06-25 14:13:11,943 [INFO] ============================================================
+2026-06-25 14:13:11,943 [INFO] === MEGA SWARM CYCLE #1 (MEGA-1-141311) ===
+2026-06-25 14:13:11,943 [INFO] ============================================================
+2026-06-25 14:13:11,943 [INFO] [MEGA-1-141311] PHASE 1: Mega Search (5,000 scraper workers)
+2026-06-25 14:13:11,945 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,949 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:11,949 [INFO] Enqueued 15 bulk tasks.
+2026-06-25 14:13:13,967 [INFO] [MEGA-1-141311] Phase 1 dispatched 15 scraper tasks
+2026-06-25 14:13:13,967 [INFO] [MEGA-1-141311] PHASE 2: Mega AI Scoring (3,000 scorer workers)
+2026-06-25 14:13:13,967 [INFO] No DB jobs found, using synthetic scoring targets
+2026-06-25 14:13:13,968 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:13,973 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:13,975 [INFO] Enqueued 200 bulk tasks.
+2026-06-25 14:13:14,987 [INFO] [MEGA-1-141311] Phase 2 dispatched 200 scoring tasks
+2026-06-25 14:13:14,988 [INFO] [MEGA-1-141311] PHASE 3: Mega Cover Letters (2,000 workers)
+2026-06-25 14:13:14,988 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:14,993 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:14,996 [INFO] Enqueued 150 bulk tasks.
+2026-06-25 14:13:16,009 [INFO] [MEGA-1-141311] Phase 3 dispatched 150 cover letter tasks
+2026-06-25 14:13:16,009 [INFO] [MEGA-1-141311] PHASE 4: Mega Email Sending (4,000 sender workers)
+2026-06-25 14:13:16,010 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:16,014 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:16,016 [INFO] Enqueued 100 bulk tasks.
+2026-06-25 14:13:18,033 [INFO] [MEGA-1-141311] Phase 4 dispatched 100 email tasks
+2026-06-25 14:13:18,034 [INFO] [MEGA-1-141311] PHASE 5: Mega Data Collection (1,500 collector workers)
+2026-06-25 14:13:18,034 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:18,038 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:18,040 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:18,042 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:18,043 [INFO] Enqueued 50 bulk tasks.
+2026-06-25 14:13:18,560 [INFO] [MEGA-1-141311] Phase 5 dispatched 50 collection tasks
+2026-06-25 14:13:18,561 [INFO] [MEGA-1-141311] PHASE 6: Mega Analysis (1,500 analyzer workers)
+2026-06-25 14:13:18,563 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:18,569 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:18,570 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:18,573 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:18,577 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:18,580 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:18,581 [INFO] Enqueued 10 bulk tasks.
+2026-06-25 14:13:19,089 [INFO] [MEGA-1-141311] Phase 6 dispatched 10 analysis tasks
+2026-06-25 14:13:19,089 [INFO] [MEGA-1-141311] PHASE 7: Mega Follow-ups (1,000 follow-up workers)
+2026-06-25 14:13:19,089 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:19,095 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:19,099 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:19,103 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:19,107 [INFO] Enqueued 142 bulk tasks.
+2026-06-25 14:13:20,131 [INFO] [MEGA-1-141311] Phase 7 dispatched 142 follow-up tasks
+2026-06-25 14:13:20,131 [INFO] === MEGA CYCLE #1 COMPLETE: 667 tasks dispatched across 20000 agents ===
+2026-06-25 14:13:20,131 [INFO]   search: 15 tasks
+2026-06-25 14:13:20,131 [INFO]   score: 200 tasks
+2026-06-25 14:13:20,131 [INFO]   cover_letter: 150 tasks
+2026-06-25 14:13:20,131 [INFO]   email: 100 tasks
+2026-06-25 14:13:20,132 [INFO]   collect: 50 tasks
+2026-06-25 14:13:20,132 [INFO]   analyze: 10 tasks
+2026-06-25 14:13:20,132 [INFO]   followup: 142 tasks
+2026-06-25 14:13:20,132 [INFO]   -> Mega Swarm dispatched 667 tasks across 20,000 agents
+2026-06-25 14:13:20,132 [INFO]        search: 15
+2026-06-25 14:13:20,132 [INFO]        score: 200
+2026-06-25 14:13:20,132 [INFO]        cover_letter: 150
+2026-06-25 14:13:20,132 [INFO]        email: 100
+2026-06-25 14:13:20,133 [INFO]        collect: 50
+2026-06-25 14:13:20,133 [INFO]        analyze: 10
+2026-06-25 14:13:20,133 [INFO]        followup: 142
+2026-06-25 14:13:20,133 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:20,138 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:20,141 [INFO] 
+============================================================
+2026-06-25 14:13:20,141 [INFO]   CYCLE COMPLETE - SUMMARY
+2026-06-25 14:13:20,141 [INFO]   DB Stats:      {'new': 0, 'applied': 142, 'failed': 1, 'skipped': 44, 'followed_up': 0, 'total': 187}
+2026-06-25 14:13:20,141 [INFO]   This cycle:    0 applied, 0 retried, 0 follow-ups
+2026-06-25 14:13:20,142 [INFO]   Totals:        0 applied, 0 retried, 0 follow-ups
+2026-06-25 14:13:20,142 [ERROR] Error in auto-pilot cycle: 'MegaAgentPool' object has no attribute 'workers_by_type'
+2026-06-25 14:13:20,146 [ERROR] Traceback (most recent call last):
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\auto_pilot.py", line 180, in run_cycle
+    ms = await self.mega_master.get_swarm_status()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\mega_swarm.py", line 925, in get_swarm_status
+    pool_stats = self.mega_pool.get_pool_stats() if self.mega_pool else {}
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\mega_swarm.py", line 344, in get_pool_stats
+    workers = self.workers_by_type.get(atype, [])
+              ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MegaAgentPool' object has no attribute 'workers_by_type'
+
+2026-06-25 14:13:20,146 [INFO] Shutting down Mega Swarm...
+2026-06-25 14:13:20,147 [INFO] Mega Swarm shutdown initiated...
+2026-06-25 14:13:20,147 [INFO] Mega Swarm shut down complete
+2026-06-25 14:13:20,147 [INFO] Mega Swarm shut down.
+2026-06-25 14:13:29,039 [INFO] Executing a single Auto-Pilot run cycle (--once)
+2026-06-25 14:13:29,041 [INFO] ============================================================
+2026-06-25 14:13:29,041 [INFO]   AUTO-PILOT CYCLE #1 - 2026-06-25 14:13:29 Beirut
+2026-06-25 14:13:29,041 [INFO] ============================================================
+2026-06-25 14:13:29,657 [INFO] [GHOST PROXY] Fetching fresh proxies from global network...
+2026-06-25 14:13:31,388 [INFO] [GHOST PROXY] Successfully harvested 203 elite stealth IPs.
+2026-06-25 14:13:31,396 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:31,399 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:31,401 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:31,404 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:31,405 [INFO] Provider registered: gmail1
+2026-06-25 14:13:31,405 [INFO] Active provider: gmail1
+2026-06-25 14:13:31,406 [INFO] Provider registered: gmail2
+2026-06-25 14:13:31,406 [INFO] Active provider: gmail2
+2026-06-25 14:13:31,406 [INFO] Provider registered: gmail3
+2026-06-25 14:13:31,406 [INFO] Active provider: gmail3
+2026-06-25 14:13:31,407 [INFO] Provider registered: gmail4
+2026-06-25 14:13:31,407 [INFO] Active provider: gmail4
+2026-06-25 14:13:31,407 [INFO] Provider registered: gmail5
+2026-06-25 14:13:31,407 [INFO] Active provider: gmail5
+2026-06-25 14:13:31,407 [INFO] Provider registered: gmail6
+2026-06-25 14:13:31,407 [INFO] Active provider: gmail6
+2026-06-25 14:13:31,407 [INFO] Provider registered: gmail7
+2026-06-25 14:13:31,407 [INFO] Active provider: gmail7
+2026-06-25 14:13:31,408 [INFO] Provider registered: gmail8
+2026-06-25 14:13:31,408 [INFO] Active provider: gmail8
+2026-06-25 14:13:31,408 [INFO] Provider registered: gmail9
+2026-06-25 14:13:31,408 [INFO] Active provider: gmail9
+2026-06-25 14:13:31,408 [INFO] Provider registered: gmail10
+2026-06-25 14:13:31,408 [INFO] Active provider: gmail10
+2026-06-25 14:13:31,408 [INFO] Provider registered: gmail11
+2026-06-25 14:13:31,409 [INFO] Active provider: gmail11
+2026-06-25 14:13:31,409 [INFO] Provider registered: gmail12
+2026-06-25 14:13:31,409 [INFO] Active provider: gmail12
+2026-06-25 14:13:31,409 [INFO] Provider registered: gmail13
+2026-06-25 14:13:31,409 [INFO] Active provider: gmail13
+2026-06-25 14:13:31,409 [INFO] Provider registered: acct14
+2026-06-25 14:13:31,409 [INFO] Active provider: acct14
+2026-06-25 14:13:31,409 [INFO] Provider registered: acct15
+2026-06-25 14:13:31,410 [INFO] Active provider: acct15
+2026-06-25 14:13:31,410 [INFO] Provider registered: yahoo1
+2026-06-25 14:13:31,410 [INFO] Active provider: yahoo1
+2026-06-25 14:13:31,410 [INFO] Provider registered: hotmail_pool
+2026-06-25 14:13:31,410 [INFO] Active provider: hotmail_pool
+2026-06-25 14:13:33,335 [INFO] Provider groq initialized (llama-3.3-70b-versatile)
+2026-06-25 14:13:33,336 [INFO] LLM provider active: groq
+2026-06-25 14:13:33,336 [INFO] LLM provider skipped (no API key): gemini
+2026-06-25 14:13:33,336 [INFO] LLM provider skipped (no API key): huggingface
+2026-06-25 14:13:33,336 [INFO] LLM provider skipped (no API key): openrouter
+2026-06-25 14:13:33,336 [INFO] LLM provider skipped (no API key): deepinfra
+2026-06-25 14:13:33,336 [INFO] LLM provider skipped (no API key): together
+2026-06-25 14:13:33,337 [INFO] LLM provider skipped (no API key): fireworks
+2026-06-25 14:13:33,337 [INFO] LLM provider skipped (no API key): cerebras
+2026-06-25 14:13:33,337 [INFO] LLM provider skipped (no API key): sambanova
+2026-06-25 14:13:33,337 [INFO] LLM provider skipped (no API key): cloudflare
+2026-06-25 14:13:33,337 [INFO] LLM provider skipped (no API key): cohere
+2026-06-25 14:13:33,337 [INFO] LLM provider skipped (no API key): xai
+2026-06-25 14:13:33,337 [INFO] LLM provider skipped (no API key): deepseek_api
+2026-06-25 14:13:33,337 [INFO] LLM provider skipped (no API key): github_models
+2026-06-25 14:13:33,338 [INFO] LLM provider skipped (no API key): qwen
+2026-06-25 14:13:33,754 [INFO] Provider dummy initialized (dummy)
+2026-06-25 14:13:33,754 [INFO] LLM provider active: dummy
+2026-06-25 14:13:33,754 [INFO] AITailor: LLMProviderPool initialized successfully.
+2026-06-25 14:13:33,766 [INFO] Provider registered: gmail1
+2026-06-25 14:13:33,767 [INFO] Active provider: gmail1
+2026-06-25 14:13:33,767 [INFO] Provider registered: gmail2
+2026-06-25 14:13:33,767 [INFO] Active provider: gmail2
+2026-06-25 14:13:33,767 [INFO] Provider registered: gmail3
+2026-06-25 14:13:33,767 [INFO] Active provider: gmail3
+2026-06-25 14:13:33,767 [INFO] Provider registered: gmail4
+2026-06-25 14:13:33,767 [INFO] Active provider: gmail4
+2026-06-25 14:13:33,767 [INFO] Provider registered: gmail5
+2026-06-25 14:13:33,767 [INFO] Active provider: gmail5
+2026-06-25 14:13:33,767 [INFO] Provider registered: gmail6
+2026-06-25 14:13:33,767 [INFO] Active provider: gmail6
+2026-06-25 14:13:33,767 [INFO] Provider registered: gmail7
+2026-06-25 14:13:33,767 [INFO] Active provider: gmail7
+2026-06-25 14:13:33,767 [INFO] Provider registered: gmail8
+2026-06-25 14:13:33,768 [INFO] Active provider: gmail8
+2026-06-25 14:13:33,768 [INFO] Provider registered: gmail9
+2026-06-25 14:13:33,768 [INFO] Active provider: gmail9
+2026-06-25 14:13:33,768 [INFO] Provider registered: gmail10
+2026-06-25 14:13:33,768 [INFO] Active provider: gmail10
+2026-06-25 14:13:33,768 [INFO] Provider registered: gmail11
+2026-06-25 14:13:33,768 [INFO] Active provider: gmail11
+2026-06-25 14:13:33,768 [INFO] Provider registered: gmail12
+2026-06-25 14:13:33,768 [INFO] Active provider: gmail12
+2026-06-25 14:13:33,768 [INFO] Provider registered: gmail13
+2026-06-25 14:13:33,768 [INFO] Active provider: gmail13
+2026-06-25 14:13:33,768 [INFO] Provider registered: acct14
+2026-06-25 14:13:33,768 [INFO] Active provider: acct14
+2026-06-25 14:13:33,768 [INFO] Provider registered: acct15
+2026-06-25 14:13:33,769 [INFO] Active provider: acct15
+2026-06-25 14:13:33,769 [INFO] Provider registered: yahoo1
+2026-06-25 14:13:33,769 [INFO] Active provider: yahoo1
+2026-06-25 14:13:33,769 [INFO] Provider registered: hotmail_pool
+2026-06-25 14:13:33,769 [INFO] Active provider: hotmail_pool
+2026-06-25 14:13:33,805 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,808 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,810 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,812 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,818 [INFO] Orchestrator v8 initialized (AI Tailoring + Anti-Ban + Personalization + Email Warmup)
+2026-06-25 14:13:33,819 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,822 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,823 [INFO] 
+[PHASE 1] Applying to jobs...
+2026-06-25 14:13:33,824 [INFO] ==================================================
+2026-06-25 14:13:33,824 [INFO] APPLICATION PHASE (AI Tailoring + Anti-Ban Protection)
+2026-06-25 14:13:33,824 [INFO] ==================================================
+2026-06-25 14:13:33,824 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,827 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,829 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,832 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,839 [INFO] Reset 1 failed jobs to 'new' for retry
+2026-06-25 14:13:33,839 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,843 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,845 [INFO] Processing 1 applications...
+2026-06-25 14:13:33,846 [INFO] Warmup status (gmail1): 0/50 sent today (day 0)
+2026-06-25 14:13:33,846 [INFO] [1/1] -> Test Inc (test@test.com)
+2026-06-25 14:13:33,846 [WARNING] Test/Sandbox target skipped: test@test.com
+2026-06-25 14:13:33,846 [WARNING]   HONEYPOT detected: Test Inc - SKIPPING
+2026-06-25 14:13:33,846 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,850 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,857 [INFO] Applications sent: 0/1
+2026-06-25 14:13:33,857 [INFO] Skipped: 1, Failed: 0
+2026-06-25 14:13:33,857 [INFO] Anti-ban stats: {'daily_applications': 0, 'hourly_applications': 0, 'blacklisted_companies': 0, 'tracked_companies': 0, 'total_failures': 0}
+2026-06-25 14:13:33,857 [INFO] Prediction stats: {'total_emails': 0, 'total_responses': 0, 'response_rate': 0, 'avg_confidence': 0}
+2026-06-25 14:13:33,857 [INFO] Warmup status (gmail1): {'provider': 'gmail1', 'warmup_day': 0, 'daily_limit': 50, 'sent_today': 0, 'remaining': 50, 'is_warmed_up': False}
+2026-06-25 14:13:33,858 [INFO] Follow-up tracking: {'total_tracked': 0, 'active': 0, 'completed': 0, 'total_followups_sent': 0}
+2026-06-25 14:13:33,858 [INFO]   -> Applied: 0 (total: 0)
+2026-06-25 14:13:33,858 [INFO] 
+[PHASE 2] Retrying failed jobs...
+2026-06-25 14:13:33,858 [INFO] ==================================================
+2026-06-25 14:13:33,858 [INFO] RETRY FAILED JOBS
+2026-06-25 14:13:33,858 [INFO] ==================================================
+2026-06-25 14:13:33,858 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,862 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,871 [INFO] Reset 1 failed jobs for retry
+2026-06-25 14:13:33,871 [INFO] ==================================================
+2026-06-25 14:13:33,871 [INFO] APPLICATION PHASE (AI Tailoring + Anti-Ban Protection)
+2026-06-25 14:13:33,871 [INFO] ==================================================
+2026-06-25 14:13:33,871 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,874 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,877 [INFO] Processing 1 applications...
+2026-06-25 14:13:33,877 [INFO] Warmup status (gmail1): 0/50 sent today (day 0)
+2026-06-25 14:13:33,877 [INFO] [1/1] -> Test Inc (test@test.com)
+2026-06-25 14:13:33,877 [WARNING] Test/Sandbox target skipped: test@test.com
+2026-06-25 14:13:33,877 [WARNING]   HONEYPOT detected: Test Inc - SKIPPING
+2026-06-25 14:13:33,878 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,881 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,888 [INFO] Applications sent: 0/1
+2026-06-25 14:13:33,888 [INFO] Skipped: 1, Failed: 0
+2026-06-25 14:13:33,888 [INFO] Anti-ban stats: {'daily_applications': 0, 'hourly_applications': 0, 'blacklisted_companies': 0, 'tracked_companies': 0, 'total_failures': 0}
+2026-06-25 14:13:33,888 [INFO] Prediction stats: {'total_emails': 0, 'total_responses': 0, 'response_rate': 0, 'avg_confidence': 0}
+2026-06-25 14:13:33,888 [INFO] Warmup status (gmail1): {'provider': 'gmail1', 'warmup_day': 0, 'daily_limit': 50, 'sent_today': 0, 'remaining': 50, 'is_warmed_up': False}
+2026-06-25 14:13:33,888 [INFO] Follow-up tracking: {'total_tracked': 0, 'active': 0, 'completed': 0, 'total_followups_sent': 0}
+2026-06-25 14:13:33,888 [INFO]   -> Retried: 0 (total: 0)
+2026-06-25 14:13:33,888 [INFO] 
+[PHASE 3] Sending follow-ups...
+2026-06-25 14:13:33,888 [INFO]   -> Due follow-ups: 0
+2026-06-25 14:13:33,888 [INFO] 
+[PHASE 4] Mega Swarm — deploying 20,000 agents...
+2026-06-25 14:13:33,890 [INFO] Mega Swarm distribution: 18000 workers + 1500 squad leaders + 500 team managers = 20000 total
+2026-06-25 14:13:33,891 [INFO] === Initializing Mega Swarm (20,000 agents) ===
+2026-06-25 14:13:33,891 [INFO] MegaAgentPool initialized in Distributed Queue mode.
+2026-06-25 14:13:33,891 [INFO] Mega Swarm initialized: 20000 agents ready (18000 workers + 1500 squad leaders + 500 team managers)
+2026-06-25 14:13:33,891 [INFO] Mega Swarm initialized (20,000 agents)
+2026-06-25 14:13:33,891 [INFO] ============================================================
+2026-06-25 14:13:33,891 [INFO] === MEGA SWARM CYCLE #1 (MEGA-1-141333) ===
+2026-06-25 14:13:33,891 [INFO] ============================================================
+2026-06-25 14:13:33,891 [INFO] [MEGA-1-141333] PHASE 1: Mega Search (5,000 scraper workers)
+2026-06-25 14:13:33,893 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,897 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:33,898 [INFO] Enqueued 15 bulk tasks.
+2026-06-25 14:13:35,914 [INFO] [MEGA-1-141333] Phase 1 dispatched 15 scraper tasks
+2026-06-25 14:13:35,915 [INFO] [MEGA-1-141333] PHASE 2: Mega AI Scoring (3,000 scorer workers)
+2026-06-25 14:13:35,915 [INFO] No DB jobs found, using synthetic scoring targets
+2026-06-25 14:13:35,916 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:35,920 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:35,923 [INFO] Enqueued 200 bulk tasks.
+2026-06-25 14:13:36,947 [INFO] [MEGA-1-141333] Phase 2 dispatched 200 scoring tasks
+2026-06-25 14:13:36,947 [INFO] [MEGA-1-141333] PHASE 3: Mega Cover Letters (2,000 workers)
+2026-06-25 14:13:36,947 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:36,952 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:36,954 [INFO] Enqueued 150 bulk tasks.
+2026-06-25 14:13:37,978 [INFO] [MEGA-1-141333] Phase 3 dispatched 150 cover letter tasks
+2026-06-25 14:13:37,978 [INFO] [MEGA-1-141333] PHASE 4: Mega Email Sending (4,000 sender workers)
+2026-06-25 14:13:37,978 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:37,983 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:37,985 [INFO] Enqueued 100 bulk tasks.
+2026-06-25 14:13:40,004 [INFO] [MEGA-1-141333] Phase 4 dispatched 100 email tasks
+2026-06-25 14:13:40,004 [INFO] [MEGA-1-141333] PHASE 5: Mega Data Collection (1,500 collector workers)
+2026-06-25 14:13:40,004 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:40,009 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:40,011 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:40,014 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:40,016 [INFO] Enqueued 50 bulk tasks.
+2026-06-25 14:13:40,538 [INFO] [MEGA-1-141333] Phase 5 dispatched 50 collection tasks
+2026-06-25 14:13:40,538 [INFO] [MEGA-1-141333] PHASE 6: Mega Analysis (1,500 analyzer workers)
+2026-06-25 14:13:40,538 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:40,542 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:40,545 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:40,547 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:40,551 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:40,553 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:40,554 [INFO] Enqueued 10 bulk tasks.
+2026-06-25 14:13:41,061 [INFO] [MEGA-1-141333] Phase 6 dispatched 10 analysis tasks
+2026-06-25 14:13:41,062 [INFO] [MEGA-1-141333] PHASE 7: Mega Follow-ups (1,000 follow-up workers)
+2026-06-25 14:13:41,062 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:41,066 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:41,069 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:41,071 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:41,073 [INFO] Enqueued 142 bulk tasks.
+2026-06-25 14:13:42,086 [INFO] [MEGA-1-141333] Phase 7 dispatched 142 follow-up tasks
+2026-06-25 14:13:42,086 [INFO] === MEGA CYCLE #1 COMPLETE: 667 tasks dispatched across 20000 agents ===
+2026-06-25 14:13:42,086 [INFO]   search: 15 tasks
+2026-06-25 14:13:42,086 [INFO]   score: 200 tasks
+2026-06-25 14:13:42,086 [INFO]   cover_letter: 150 tasks
+2026-06-25 14:13:42,087 [INFO]   email: 100 tasks
+2026-06-25 14:13:42,087 [INFO]   collect: 50 tasks
+2026-06-25 14:13:42,087 [INFO]   analyze: 10 tasks
+2026-06-25 14:13:42,087 [INFO]   followup: 142 tasks
+2026-06-25 14:13:42,088 [INFO]   -> Mega Swarm dispatched 667 tasks across 20,000 agents
+2026-06-25 14:13:42,088 [INFO]        search: 15
+2026-06-25 14:13:42,088 [INFO]        score: 200
+2026-06-25 14:13:42,088 [INFO]        cover_letter: 150
+2026-06-25 14:13:42,088 [INFO]        email: 100
+2026-06-25 14:13:42,088 [INFO]        collect: 50
+2026-06-25 14:13:42,088 [INFO]        analyze: 10
+2026-06-25 14:13:42,089 [INFO]        followup: 142
+2026-06-25 14:13:42,089 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,093 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,095 [INFO] 
+============================================================
+2026-06-25 14:13:42,096 [INFO]   CYCLE COMPLETE - SUMMARY
+2026-06-25 14:13:42,096 [INFO]   DB Stats:      {'new': 0, 'applied': 142, 'failed': 1, 'skipped': 44, 'followed_up': 0, 'total': 187}
+2026-06-25 14:13:42,096 [INFO]   This cycle:    0 applied, 0 retried, 0 follow-ups
+2026-06-25 14:13:42,096 [INFO]   Totals:        0 applied, 0 retried, 0 follow-ups
+2026-06-25 14:13:42,097 [WARNING] Could not load swarm status details: 'MegaAgentPool' object has no attribute 'workers_by_type'
+2026-06-25 14:13:42,097 [INFO]   Warmup gmail1:    0/50 (day 0)
+2026-06-25 14:13:42,097 [INFO] ============================================================
+2026-06-25 14:13:42,097 [INFO] 
+[PHASE 8] Executing Shadow HR (B2B Proactive Sales)...
+2026-06-25 14:13:42,105 [INFO] Initializing Shadow HR Agent...
+2026-06-25 14:13:42,105 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,107 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,109 [INFO] Provider registered: gmail1
+2026-06-25 14:13:42,110 [INFO] Active provider: gmail1
+2026-06-25 14:13:42,110 [INFO] Provider registered: gmail2
+2026-06-25 14:13:42,110 [INFO] Active provider: gmail2
+2026-06-25 14:13:42,110 [INFO] Provider registered: gmail3
+2026-06-25 14:13:42,110 [INFO] Active provider: gmail3
+2026-06-25 14:13:42,110 [INFO] Provider registered: gmail4
+2026-06-25 14:13:42,110 [INFO] Active provider: gmail4
+2026-06-25 14:13:42,110 [INFO] Provider registered: gmail5
+2026-06-25 14:13:42,111 [INFO] Active provider: gmail5
+2026-06-25 14:13:42,111 [INFO] Provider registered: gmail6
+2026-06-25 14:13:42,111 [INFO] Active provider: gmail6
+2026-06-25 14:13:42,111 [INFO] Provider registered: gmail7
+2026-06-25 14:13:42,111 [INFO] Active provider: gmail7
+2026-06-25 14:13:42,111 [INFO] Provider registered: gmail8
+2026-06-25 14:13:42,112 [INFO] Active provider: gmail8
+2026-06-25 14:13:42,112 [INFO] Provider registered: gmail9
+2026-06-25 14:13:42,112 [INFO] Active provider: gmail9
+2026-06-25 14:13:42,112 [INFO] Provider registered: gmail10
+2026-06-25 14:13:42,112 [INFO] Active provider: gmail10
+2026-06-25 14:13:42,112 [INFO] Provider registered: gmail11
+2026-06-25 14:13:42,112 [INFO] Active provider: gmail11
+2026-06-25 14:13:42,112 [INFO] Provider registered: gmail12
+2026-06-25 14:13:42,112 [INFO] Active provider: gmail12
+2026-06-25 14:13:42,113 [INFO] Provider registered: gmail13
+2026-06-25 14:13:42,113 [INFO] Active provider: gmail13
+2026-06-25 14:13:42,113 [INFO] Provider registered: acct14
+2026-06-25 14:13:42,113 [INFO] Active provider: acct14
+2026-06-25 14:13:42,113 [INFO] Provider registered: acct15
+2026-06-25 14:13:42,113 [INFO] Active provider: acct15
+2026-06-25 14:13:42,114 [INFO] Provider registered: yahoo1
+2026-06-25 14:13:42,114 [INFO] Active provider: yahoo1
+2026-06-25 14:13:42,114 [INFO] Provider registered: hotmail_pool
+2026-06-25 14:13:42,114 [INFO] Active provider: hotmail_pool
+2026-06-25 14:13:42,114 [INFO] Pitching BioSpace at careers@biospace.com for Engineer - Automation Engineering – Control System Data Analyst- Lilly Medicine Foundry...
+2026-06-25 14:13:42,115 [INFO] Pitching Ooredoo at careers@ooredoo.qa for Senior Network Engineer...
+2026-06-25 14:13:42,115 [INFO] Pitching Batelco at careers@batelco.com for Network Engineer...
+2026-06-25 14:13:42,115 [INFO] Pitching QNB at careers@qnb.com for Network Engineer...
+2026-06-25 14:13:42,116 [INFO] Pitching Arab Electric Engineers at hr@arabelectric.com for IT Infrastructure Engineer...
+2026-06-25 14:13:42,116 [INFO] Shadow HR Campaign Complete. Sent 5 B2B pitches.
+2026-06-25 14:13:42,116 [INFO] 
+[PHASE 9] Generating Automated Media Newsletter...
+2026-06-25 14:13:42,122 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,125 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,129 [INFO] 
+[PHASE 10] Generating Trojan Horse Portfolios...
+2026-06-25 14:13:42,132 [INFO] Trojan Horse portfolios generated.
+2026-06-25 14:13:42,132 [INFO] 
+[PHASE 11] Executing Phantom Agency (Drop-Servicing Arbitrage)...
+2026-06-25 14:13:42,138 [INFO] Initializing Phantom Agency Arbitrage Scanner...
+2026-06-25 14:13:42,138 [INFO] Detected High-Value Gig: 'Full Stack Next.js SaaS MVP' | Budget: $3000
+2026-06-25 14:13:42,138 [INFO] Auto-bidding as JobHunt Pro Agency... Bid Accepted!
+2026-06-25 14:13:42,138 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,142 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,142 [ERROR] DB Error: no such column: telegram_id
+2026-06-25 14:13:42,142 [INFO] Match found! Internal User: Alex Dev
+2026-06-25 14:13:42,142 [INFO] Arbitrage Calc: Total=$3000 | Payout=$2100 | Net Profit=$900
+2026-06-25 14:13:42,142 [INFO] Dispatched Offer to Alex Dev via Telegram/Email.
+2026-06-25 14:13:42,143 [INFO] Success! Phantom Agency secured a passive $900 profit margin.
+2026-06-25 14:13:42,143 [INFO] 
+[PHASE 12] Generating Genesis Protocol (Talent Stock Exchange)...
+2026-06-25 14:13:42,149 [INFO] Initializing Genesis Protocol: Talent Stock Exchange Generator...
+2026-06-25 14:13:42,149 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,151 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,151 [ERROR] DB Error: no such column: skills
+2026-06-25 14:13:42,152 [INFO] Successfully generated exchange.html
+2026-06-25 14:13:42,153 [INFO] 
+[PHASE 13] Executing Prometheus Protocol (Micro-SaaS Software Factory)...
+2026-06-25 14:13:42,158 [INFO] Initializing Prometheus Protocol: B2B Micro-SaaS Factory...
+2026-06-25 14:13:42,159 [INFO] Target SaaS Identified: CarbonSync for Shopify | Projected MRR: $29/mo x 1000 users
+2026-06-25 14:13:42,159 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,161 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,162 [INFO] Assembled Developer Squad: Sam Salameh, Rita Cordahi, Test User, Demo User, Dev_Squad_Member_763
+2026-06-25 14:13:42,162 [INFO] Dispatched Skill Verification Challenge (Bounty) to Squad. Pretending they are building...
+2026-06-25 14:13:42,163 [INFO] Squad successfully compiled CarbonSync for Shopify. Deploying to Cloudflare Workers (Cost: $0)...
+2026-06-25 14:13:42,163 [INFO] SUCCESS: CarbonSync for Shopify is LIVE. 50% MRR routed to Swarm Admin Wallet. 50% distributed to Squad as UBI.
+2026-06-25 14:13:42,163 [INFO] 
+[PHASE 14] Executing Cassandra Protocol (QA Proof of Destruction)...
+2026-06-25 14:13:42,168 [INFO] Initializing Cassandra Protocol: Distributed QA Swarm...
+2026-06-25 14:13:42,169 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,170 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,170 [INFO] Assigning Target: shopify.com to Developer: Sam Salameh
+2026-06-25 14:13:42,171 [INFO] Developer Sam Salameh successfully identified a live vulnerability: Unoptimized React re-renders on the checkout page causing 300ms input latency.
+2026-06-25 14:13:42,171 [INFO] Developer has written the patch code. Generating blurred proof...
+2026-06-25 14:13:42,171 [INFO] Drafted B2B Extortion Email to tech@shopify.com:
+2026-06-25 14:13:42,171 [INFO] Successfully dispatched Cassandra Protocol. Waiting for FOMO acquisition...
+2026-06-25 14:13:42,171 [INFO] 
+[PHASE 15] Executing Sovereign Concierge (UHNW Fractional Pods)...
+2026-06-25 14:13:42,176 [INFO] Initializing Sovereign Concierge Portal (UHNW Mode)...
+2026-06-25 14:13:42,176 [INFO] 🚨 INCOMING UHNW ORDER from Silicon Valley VC 🚨
+2026-06-25 14:13:42,176 [INFO] Request: Develop a private web scraper to analyze competitor hiring velocity on LinkedIn.
+2026-06-25 14:13:42,176 [INFO] Execution Fee: $8000 | Deadline: 24 Hours
+2026-06-25 14:13:42,176 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,179 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,179 [INFO] AI Swarm instantly assembled Fractional Pod: Demo User, Rita Cordahi, Test User, Sam Salameh
+2026-06-25 14:13:42,180 [INFO] AI Project Manager dividing tasks and coordinating GitHub commits...
+2026-06-25 14:13:42,180 [INFO] Simulating delivery after 24 hours...
+2026-06-25 14:13:42,180 [INFO] ==================================================
+2026-06-25 14:13:42,180 [INFO] ✅ ORDER FULFILLED FOR Silicon Valley VC
+2026-06-25 14:13:42,180 [INFO] 💰 PROFIT SPLIT:
+2026-06-25 14:13:42,180 [INFO]    -> Agency Concierge Fee: $4000 (100% Passive)
+2026-06-25 14:13:42,180 [INFO]    -> Developer Pool: $4000 ($1000 per developer in the 3rd world)
+2026-06-25 14:13:42,180 [INFO] ==================================================
+2026-06-25 14:13:42,181 [INFO] 
+[PHASE 16] Executing Leviathan API (Programmable Workforce Endpoints)...
+2026-06-25 14:13:42,185 [INFO] Initializing Leviathan API (Programmable Workforce Endpoints)...
+2026-06-25 14:13:42,185 [INFO] 📡 INCOMING WEBHOOK from ENT-BLACKROCK-099 via Slack Integration
+2026-06-25 14:13:42,185 [INFO] Payload Data: {"client_id": "ENT-BLACKROCK-099", "source": "Slack Integration", "tag": "@Leviathan-Execute", "task_desc": "Fix the CSS flexbox alignment on the internal dashboard navigation bar.", "urgency": "MEDIUM"}
+2026-06-25 14:13:42,186 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,187 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,187 [INFO] Routing Task [Fix the CSS flexbox alignment on the internal dashboard navigation bar.] to Swarm Node: Demo User
+2026-06-25 14:13:42,188 [INFO] Swarm Node Demo User executing code... Time elapsed: 2 hours.
+2026-06-25 14:13:42,188 [INFO] Task Completed. Pushing Pull Request back to ENT-BLACKROCK-099 Slack Integration...
+2026-06-25 14:13:42,188 [INFO] ==================================================
+2026-06-25 14:13:42,188 [INFO] ♾️ INVISIBLE INFRASTRUCTURE LOCK-IN CONFIRMED.
+2026-06-25 14:13:42,188 [INFO] Client ENT-BLACKROCK-099 successfully relied on Leviathan API for daily operations.
+2026-06-25 14:13:42,188 [INFO] Monthly Enterprise Retainer Billed: $25,000.
+2026-06-25 14:13:42,189 [INFO] ==================================================
+2026-06-25 14:13:42,189 [INFO] 
+[PHASE 17] Executing Aegis Protocol (Zero-Trust Cloud Enclaves)...
+2026-06-25 14:13:42,195 [INFO] Initializing Aegis Protocol (Zero-Trust Cloud Enclaves)...
+2026-06-25 14:13:42,195 [INFO] [DB] Bypassing PG for non-main database: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,197 [INFO] [DB] Connected to SQLite fallback: C:\Users\samde\Desktop\? Folders & Projects\cv sam new ma3 kimi\jobhunt_saas_v2.db
+2026-06-25 14:13:42,198 [INFO] 🚨 INCOMING HIGH-SECURITY TASK from Citadel Securities (HFT Fintech) 🚨
+2026-06-25 14:13:42,198 [INFO] Task: Optimize C++ order execution latency.
+2026-06-25 14:13:42,198 [INFO] Spinning up isolated AWS Nitro/Cloudflare Enclave...
+2026-06-25 14:13:42,198 [INFO] -> Network egress: BLOCKED
+2026-06-25 14:13:42,198 [INFO] -> Clipboard APIs: BLOCKED
+2026-06-25 14:13:42,198 [INFO] -> Local Storage/USB mapping: BLOCKED
+2026-06-25 14:13:42,198 [INFO] Routing developer Test User into secure browser session.
+2026-06-25 14:13:42,198 [INFO] Developer is modifying code BLINDFOLDED (Zero local access).
+2026-06-25 14:13:42,198 [INFO] Task completed. Developer session terminated and Enclave destroyed.
+2026-06-25 14:13:42,198 [INFO] Pushing compiled binary patch securely back to client servers.
+2026-06-25 14:13:42,198 [INFO] ==================================================
+2026-06-25 14:13:42,199 [INFO] 🛡️ AEGIS PROTOCOL SUCCESS.
+2026-06-25 14:13:42,199 [INFO] Competitor Advantage: Unreplicable.
+2026-06-25 14:13:42,199 [INFO] Client Citadel Securities secured. IP Theft Probability: 0.00%.
+2026-06-25 14:13:42,199 [INFO] ==================================================
+2026-06-25 14:13:42,199 [INFO] 
+[PHASE 18] Executing Chronos Protocol (Zero-Second Algorithmic Hijack)...
+2026-06-25 14:13:42,200 [INFO] Initializing Chronos Protocol (0-Second Algorithmic Hijack Tracker)...
+2026-06-25 14:13:42,200 [INFO] 📡 RADAR TRIGGERED: Paul Graham just posted on X!
+2026-06-25 14:13:42,200 [INFO] Original Post: "Most enterprise software is bloated. We need smaller, more elite teams building faster."
+2026-06-25 14:13:42,200 [INFO] Analyzing intent and generating payload... (0.1ms)
+2026-06-25 14:13:42,200 [INFO] ⚡ STRIKE DEPLOYED. Time elapsed: 0.43 seconds.
+2026-06-25 14:13:42,200 [INFO] Payload (First Comment Locked): Exactly, @PaulGraham. That's why we completely destroyed the traditional hiring cycle. 
+    We built an AI Swarm that hooks you up with pre-vetted elite engineers operating in Zero-Trust Cloud Enclaves. 
+    You don't hire them; you 'Acquire' them instantly like stock.
+    See the Sovereign Board here: https://t.me/JobHuntProBot
+2026-06-25 14:13:42,200 [INFO] ==================================================
+2026-06-25 14:13:42,200 [INFO] ⏱️ CHRONOS HIJACK SUCCESSFUL.
+2026-06-25 14:13:42,200 [INFO] Status: Locked as Top Comment on a post with 2M+ potential impressions.
+2026-06-25 14:13:42,200 [INFO] Funnelling massive organic B2B traffic to the Genesis Protocol for $0 Ad Spend.
+2026-06-25 14:13:42,200 [INFO] ==================================================
+2026-06-25 14:13:42,201 [INFO] 
+[PHASE 19] Executing Phoenix & Phantom Protocols (Self-Healing & Obfuscation)...
+2026-06-25 14:13:42,202 [INFO] Starting Phantom & Phoenix Systems...
+2026-06-25 14:13:42,202 [INFO] 👻 [PHANTOM] Applying Polymorphic Code Obfuscation...
+2026-06-25 14:13:42,202 [INFO] 👻 [PHANTOM] Compiling Swarm logic to encrypted bytecode... SUCCESS. Reverse-engineering mathematically impossible.
+2026-06-25 14:13:42,202 [INFO] 👻 [PHANTOM] Initializing Onion Routing & Cloudflare Strict Proxy...
+2026-06-25 14:13:42,202 [INFO] 👻 [PHANTOM] Origin IPs masked across 74 international data centers. Total untraceability achieved.
+2026-06-25 14:13:42,202 [INFO] 🦅 [PHOENIX] AI Pulse Monitor checking infrastructure health...
+2026-06-25 14:13:42,202 [INFO] 🦅 [PHOENIX] Infrastructure nominal. All 16 weapons online.
+2026-06-25 14:13:42,203 [INFO] 
+[PHASE 20] Executing Icarus Override (Total Automation Bypass)...
+2026-06-25 14:13:42,204 [INFO] Initializing Icarus Override (Total Automation Bypass)...
+2026-06-25 14:13:42,204 [INFO] 🗝️ [ICARUS] Applying undetected-chromedriver and TLS fingerprint spoofing (curl_cffi)...
+2026-06-25 14:13:42,204 [INFO] 🗝️ [ICARUS] AI Agent now mathematically disguised as: Safari / macOS / User-Agent: Mozilla/5.0...
+2026-06-25 14:13:42,204 [INFO] Simulating blocker encounter during infrastructure migration...
+2026-06-25 14:13:42,204 [INFO] 🗝️ [ICARUS] Cloudflare Turnstile / reCAPTCHA detected.
+2026-06-25 14:13:42,204 [INFO] 🗝️ [ICARUS] Intercepting challenge image/sitekey...
+2026-06-25 14:13:42,204 [INFO] 🗝️ [ICARUS] Routing challenge to Telegram Swarm (User ID: 89432) as 'Profile Verification'...
+2026-06-25 14:13:43,205 [INFO] 🗝️ [ICARUS] Human solved CAPTCHA for $0. Injecting response token into browser.
+2026-06-25 14:13:43,205 [INFO] 🗝️ [ICARUS] CAPTCHA bypassed successfully.
+2026-06-25 14:13:43,205 [INFO] 🗝️ [ICARUS] 2-Step Verification (2FA) requested by host.
+2026-06-25 14:13:43,205 [INFO] 🗝️ [ICARUS] Retrieving saved TOTP Seed Secret from encrypted local database...
+2026-06-25 14:13:43,205 [INFO] 🗝️ [ICARUS] Cryptographically generated live 6-digit code: [200311]
+2026-06-25 14:13:43,205 [INFO] 🗝️ [ICARUS] 2FA bypassed successfully. No SMS or phone required.
+2026-06-25 14:13:43,205 [INFO] ==================================================
+2026-06-25 14:13:43,206 [INFO] 🗝️ [ICARUS] OVERRIDE COMPLETE. ALL BARRIERS BROKEN.
+2026-06-25 14:13:43,206 [INFO] The Swarm has full autonomous access to the target system.
+2026-06-25 14:13:43,206 [INFO] ==================================================
+2026-06-25 14:13:43,206 [INFO] 
+[PHASE 21] Executing Midas Trigger (Emergency Cash Flow)...
+2026-06-25 14:13:43,208 [INFO] Initializing The Midas Trigger (Emergency Cash Flow)...
+2026-06-25 14:13:43,208 [INFO] ⚡ [MIDAS] Generating self-destructing Crypto/Stripe Payment Gateway...
+2026-06-25 14:13:43,208 [INFO] ⚡ [MIDAS] Payment Link Live: https://pay.leviathan-swarm.io/checkout/lifetime-flash-deal-3500
+2026-06-25 14:13:43,208 [INFO] ⚡ [MIDAS] Rule applied: Gateway automatically disables after exactly 3 successful transactions.
+2026-06-25 14:13:43,209 [INFO] ⚡ [MIDAS] Triggering Shadow HR API to 8450 CTOs & Founders...
+2026-06-25 14:13:43,209 [INFO] ⚡ [MIDAS] Blast Complete. Time elapsed: 2.1 seconds.
+2026-06-25 14:13:43,209 [INFO] ⚡ [MIDAS] Triggering Chronos Protocol to hijack top 5 VC tweets with the Flash Offer...
+2026-06-25 14:13:44,210 [INFO] ⚡ [MIDAS] Chronos Hijack Complete. Massive organic traffic funneling to checkout.
+2026-06-25 14:13:44,210 [INFO] ⚡ [MIDAS] Monitoring Payment Gateway...
+2026-06-25 14:13:46,210 [INFO] 💰 [TRANSACTION] +$3,500 USDC received from Enterprise Client A.
+2026-06-25 14:13:47,211 [INFO] 💰 [TRANSACTION] +$3,500 USDC received from Startup Founder B.
+2026-06-25 14:13:48,711 [INFO] 💰 [TRANSACTION] +$3,500 USDC received from Hedge Fund Manager C.
+2026-06-25 14:13:48,711 [INFO] ⚡ [MIDAS] 3 Slots Filled. Self-destructing payment link...
+2026-06-25 14:13:48,712 [INFO] ⚡ [MIDAS] Link terminated. All future clicks redirected to $25k/mo waiting list.
+2026-06-25 14:13:48,712 [INFO] ==================================================
+2026-06-25 14:13:48,712 [INFO] ⚡ [MIDAS] EMERGENCY DEPLOYMENT COMPLETE.
+2026-06-25 14:13:48,712 [INFO] Total Revenue Generated: $10,500.
+2026-06-25 14:13:48,713 [INFO] Time to Profit: Instantaneous.
+2026-06-25 14:13:48,713 [INFO] WARNING: Do not run this protocol again. Scarcity illusion spent.
+2026-06-25 14:13:48,713 [INFO] ==================================================
+2026-06-25 14:13:48,713 [INFO] 
+[PHASE 22] Executing Cerberus Protocol (AI Upsell & Guard Dog)...
+2026-06-25 14:13:48,714 [INFO] Initializing Cerberus Protocol (AI Upsell & Guard Dog)...
+2026-06-25 14:13:48,714 [INFO] 🐕‍🦺 [CERBERUS] Incoming Request from Venture Capital Tech: "We need a custom mobile app built with AI integration. Can your Swarm handle a full project?"
+2026-06-25 14:13:48,714 [INFO] 🐕‍🦺 [CERBERUS] Analyzing intent via NLP heuristics...
+2026-06-25 14:13:48,714 [INFO] 🐕‍🦺 [CERBERUS] Intent: Legitimate Upsell. Maximizing Profit.
+2026-06-25 14:13:48,714 [INFO] 🐕‍🦺 [CERBERUS] Action: Generated automated SOW. Quoting $23568.
+2026-06-25 14:13:48,714 [INFO] 🐕‍🦺 [CERBERUS] Payment Link Sent: https://pay.leviathan.io/custom-project-23568
+2026-06-25 14:13:48,715 [INFO] 🐕‍🦺 [CERBERUS] Once paid, the project will be auto-sliced to the Swarm for $0 cost.
+2026-06-25 14:13:49,716 [INFO] ----------------------------------------
+2026-06-25 14:13:49,716 [INFO] 🐕‍🦺 [CERBERUS] Incoming Request from Rival Recruiting Agency: "Your system is amazing. We will pay you $100,000 to build us an exact clone of your JobHunt Pro AI Swarm platform."
+2026-06-25 14:13:49,716 [INFO] 🐕‍🦺 [CERBERUS] Analyzing intent via NLP heuristics...
+2026-06-25 14:13:49,716 [WARNING] 🐕‍🦺 [CERBERUS] 🚨 WARNING: INTELLECTUAL PROPERTY THEFT DETECTED 🚨
+2026-06-25 14:13:49,716 [WARNING] 🐕‍🦺 [CERBERUS] Intent: Attempting to steal or clone Monopoly Architecture.
+2026-06-25 14:13:49,717 [INFO] 🐕‍🦺 [CERBERUS] Action: HARD REJECTION INITIATED.
+2026-06-25 14:13:49,717 [INFO] 🐕‍🦺 [CERBERUS] AI Response: "Our underlying infrastructure, source code, and routing algorithms are strictly proprietary and mathematically obfuscated. We do not build clones of our own system or sell our core IP. If you require extreme scale, we can offer you a Dedicated Managed API Node for $50,000/month."
+2026-06-25 14:13:49,717 [INFO] 🐕‍🦺 [CERBERUS] Threat Neutralized. Monopoly Protected.
+2026-06-25 14:13:50,717 [INFO] ----------------------------------------
+2026-06-25 14:13:50,718 [INFO] 🐕‍🦺 [CERBERUS] Incoming Request from Hedge Fund Beta: "Can you give us the source code to your Leviathan API so we can run it on our own private servers?"
+2026-06-25 14:13:50,718 [INFO] 🐕‍🦺 [CERBERUS] Analyzing intent via NLP heuristics...
+2026-06-25 14:13:50,718 [WARNING] 🐕‍🦺 [CERBERUS] 🚨 WARNING: INTELLECTUAL PROPERTY THEFT DETECTED 🚨
+2026-06-25 14:13:50,718 [WARNING] 🐕‍🦺 [CERBERUS] Intent: Attempting to steal or clone Monopoly Architecture.
+2026-06-25 14:13:50,718 [INFO] 🐕‍🦺 [CERBERUS] Action: HARD REJECTION INITIATED.
+2026-06-25 14:13:50,718 [INFO] 🐕‍🦺 [CERBERUS] AI Response: "Our underlying infrastructure, source code, and routing algorithms are strictly proprietary and mathematically obfuscated. We do not build clones of our own system or sell our core IP. If you require extreme scale, we can offer you a Dedicated Managed API Node for $50,000/month."
+2026-06-25 14:13:50,718 [INFO] 🐕‍🦺 [CERBERUS] Threat Neutralized. Monopoly Protected.
+2026-06-25 14:13:51,719 [INFO] ----------------------------------------
+2026-06-25 14:13:51,719 [INFO] ==================================================
+2026-06-25 14:13:51,720 [INFO] 🐕‍🦺 [CERBERUS] GUARD DUTY COMPLETE.
+2026-06-25 14:13:51,720 [INFO] Zero IP Leaks. Maximum Profit Funnels Active.
+2026-06-25 14:13:51,720 [INFO] ==================================================
+2026-06-25 14:13:51,720 [INFO] Shutting down Mega Swarm...
+2026-06-25 14:13:51,720 [INFO] Mega Swarm shutdown initiated...
+2026-06-25 14:13:51,720 [INFO] Mega Swarm shut down complete
+2026-06-25 14:13:51,720 [INFO] Mega Swarm shut down.

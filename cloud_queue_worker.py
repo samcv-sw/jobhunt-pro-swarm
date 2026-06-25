@@ -1,36 +1,46 @@
 import os
+import sys
 import time
 import requests
 import logging
+import subprocess
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
 # Config
-TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8722842310:AAHkdje5I8EF2tO-t-DQ4rKrQNj77bn5lOA")
-WEBHOOK_URL = "https://olympus-webhook.samsalameh-cv.workers.dev"
+try:
+    import config
+    TELEGRAM_BOT_TOKEN = getattr(config, "TELEGRAM_BOT_TOKEN", None) or os.getenv("TELEGRAM_BOT_TOKEN", "")
+except ImportError:
+    TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+
+WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://olympus-webhook.samsalameh-cv.workers.dev")
 CV_DIR = "downloaded_cvs"
 
 if not os.path.exists(CV_DIR):
     os.makedirs(CV_DIR, exist_ok=True)
 
 def send_telegram_message(chat_id, text):
+    if not TELEGRAM_BOT_TOKEN:
+        logger.warning(f"Cannot send Telegram message (token missing) to {chat_id}: {text[:50]}...")
+        return
     try:
         url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-        requests.post(url, json={"chat_id": chat_id, "text": text})
+        requests.post(url, json={"chat_id": chat_id, "text": text}, timeout=15)
     except Exception as e:
         logger.error(f"Failed to send TG message: {e}")
 
 def update_job_status(telegram_id, status):
     try:
         url = f"{WEBHOOK_URL}/api/v1/queue/status"
-        requests.post(url, json={"telegram_id": telegram_id, "status": status})
+        requests.post(url, json={"telegram_id": telegram_id, "status": status}, timeout=15)
     except Exception as e:
         logger.error(f"Failed to update status: {e}")
 
 def process_queue():
     try:
-        resp = requests.get(f"{WEBHOOK_URL}/api/v1/queue")
+        resp = requests.get(f"{WEBHOOK_URL}/api/v1/queue", timeout=15)
         if resp.status_code != 200:
             return
 
@@ -48,11 +58,9 @@ def process_queue():
             send_telegram_message(telegram_id, "🚀 STARTING AI SWARM (CLOUD NODE): Your PDF has been loaded into our Hugging Face Global Cluster.\n\nRunning Auto-Pilot blitz...")
             
             try:
-                # We can call the orchestrator directly or just run a subprocess
-                # os.system("python auto_pilot.py")
-                logger.info("Executing Auto Pilot in Cloud...")
-                time.sleep(5) # Simulate initial scan
-                send_telegram_message(telegram_id, "✅ SWARM UPDATE: Scraped 150 matching jobs. Beginning applications...")
+                # Execute a single-run apply cycle using the real Auto-Pilot engine
+                logger.info("Executing real Auto Pilot cycle in Cloud...")
+                subprocess.run([sys.executable, "auto_pilot.py", "--once"], check=True)
                 
                 # Update status
                 update_job_status(telegram_id, "completed")
@@ -67,7 +75,6 @@ def process_queue():
         logger.error(f"Error checking queue: {e}")
 
 if __name__ == "__main__":
-    import sys
     logger.info("🤖 JobHunt Pro - CLOUD Queue Worker Started on Ghost Swarm...")
     
     if "--one-shot" in sys.argv:

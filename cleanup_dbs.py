@@ -1,6 +1,6 @@
 import os, shutil
 
-root = r'C:\Users\samde\Desktop\cv sam new ma3 kimi'
+root = os.path.dirname(os.path.abspath(__file__))
 backup = os.path.join(root, '_backups', 'cleanup_20260624')
 os.makedirs(backup, exist_ok=True)
 

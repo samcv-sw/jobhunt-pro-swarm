@@ -10,7 +10,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 sys.stdout.reconfigure(encoding='utf-8')
-PROJECT = r'C:\Users\samde\Desktop\cv sam new ma3 kimi'
+PROJECT = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.path.join(PROJECT, 'cache', 'qclaw_email_engine.json')
 
 # ── Load .env ────────────────────────────────────────────────────────────

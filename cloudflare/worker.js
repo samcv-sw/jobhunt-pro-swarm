@@ -255,6 +255,12 @@ export default {
         try {
           fetch(`${backend}/healthz`, { signal: AbortSignal.timeout(10000) }).catch(() => {});
           fetch(`${backend}/api/ping`, { signal: AbortSignal.timeout(10000) }).catch(() => {});
+          // Auto-reset stuck campaigns on all backends
+          fetch(`${backend}/api/v2/cloud-tick/reset-stuck`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(15000)
+          }).catch(() => {});
         } catch (e) {}
       }
 

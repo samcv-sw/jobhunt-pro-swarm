@@ -3,7 +3,7 @@ import requests, os
 PA_TOKEN = '7f8bf3e6ad742bcb9e3c25e446cf664d6710b31d'
 USERNAME = 'JHFGUF'
 headers = {'Authorization': f'Token {PA_TOKEN}'}
-base = r'C:\Users\samde\Desktop\cv sam new ma3 kimi'
+base = os.path.dirname(os.path.abspath(__file__))
 
 # Critical files to deploy (dedup fix + smart-tick)
 deploy = [

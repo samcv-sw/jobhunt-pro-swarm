@@ -305,6 +305,30 @@ I look forward to the opportunity to discuss how my skills align with your team'
     return html
 
 
+def _get_smtp_connection(config_data: dict) -> Optional[smtplib.SMTP]:
+    """Helper to establish a synchronous SMTP connection for validation/warmup.
+    Used by run_test.py and testing scripts.
+    """
+    try:
+        server = config_data.get("server") or config_data.get("smtp")
+        port = config_data.get("port")
+        user = config_data.get("user") or config_data.get("login")
+        password = config_data.get("password")
+        
+        if not server or not port or not user or not password:
+            logger.error(f"Missing config keys in config_data: {config_data}")
+            return None
+            
+        if port == 465:
+            conn = smtplib.SMTP_SSL(server, port, timeout=10)
+        else:
+            conn = smtplib.SMTP(server, port, timeout=10)
+            conn.starttls()
+        conn.login(user, password)
+        return conn
+    except Exception as e:
+        logger.error(f"Sync SMTP connection failed: {e}")
+        return None
 
 
 class RateLimiter:
@@ -373,10 +397,20 @@ class EmailValidator:
         email = email.strip().lower()
         if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
             return False, "invalid_format"
-        blocked = ['test.com', 'example.com', 'fake.com', 'spam.com', 'noreply@']
-        for b in blocked:
-            if b in email:
-                return False, "blocked_domain"
+        # Extract local and domain parts cleanly to prevent blocking legitimate domains like 'latest.com'
+        parts = email.split('@')
+        if len(parts) != 2:
+            return False, "invalid_format"
+        local_part, domain_part = parts[0], parts[1]
+        
+        # Blocked domains (exact match or subdomain match)
+        blocked_domains = {'test.com', 'example.com', 'fake.com', 'spam.com'}
+        if domain_part in blocked_domains or domain_part.endswith(tuple('.' + d for d in blocked_domains)):
+            return False, "blocked_domain"
+            
+        # Blocked local parts
+        if local_part.startswith('noreply') or 'noreply' in local_part:
+            return False, "blocked_domain"
         return True, "ok"
 
 
@@ -566,11 +600,13 @@ class EmailEngine:
             logger.debug(f"[SPF] From aligned: {display_name} <{smtp_user}>")
 
             # 100% True Async execution using aiosmtplib
+            use_tls = (config_data["port"] == 465)
+            start_tls = not use_tls
             smtp_client = aiosmtplib.SMTP(
                 hostname=config_data["smtp"],
                 port=config_data["port"],
-                use_tls=False,
-                start_tls=True,
+                use_tls=use_tls,
+                start_tls=start_tls,
                 timeout=30
             )
             await smtp_client.connect()
@@ -779,6 +815,27 @@ class EmailEngine:
                         body_html = payload.decode("utf-8", errors="ignore")
                     else:
                         body_text = payload.decode("utf-8", errors="ignore")
+
+            # Parse attachments from msg
+            attachments = []
+            try:
+                import base64
+                if msg.is_multipart():
+                    for part in msg.walk():
+                        if part.is_multipart():
+                            continue
+                        filename = part.get_filename()
+                        if filename:
+                            payload = part.get_payload(decode=True)
+                            if payload:
+                                attachments.append({
+                                    "filename": filename,
+                                    "content": payload,
+                                    "content_b64": base64.b64encode(payload).decode("utf-8"),
+                                    "content_type": part.get_content_type()
+                                })
+            except Exception as att_ex:
+                logger.warning(f"[CASCADE] Attachment extraction failed: {att_ex}")
                         
             # Fallback 1: Brevo HTTP
             logger.info(f"[CASCADE] Attempting Brevo HTTP Fallback for {to_email}...")
@@ -786,16 +843,44 @@ class EmailEngine:
                 send_email_via_brevo_http, 
                 to_email=to_email, 
                 subject=subject, 
-                custom_body=body_html or body_text
+                custom_body=body_html or body_text,
+                attachments=attachments
             )
             if brevo_success:
                 return True, "brevo_http_fallback"
                 
             # Fallback 2: SendGrid HTTP
             logger.info(f"[CASCADE] Attempting SendGrid HTTP Fallback for {to_email}...")
-            sendgrid_success = await asyncio.to_thread(send_email_via_sendgrid_http, to_email, subject, body_html, body_text)
+            sendgrid_success = await asyncio.to_thread(
+                send_email_via_sendgrid_http, 
+                to_email=to_email, 
+                subject=subject, 
+                body_html=body_html, 
+                body_text=body_text,
+                attachments=attachments
+            )
             if sendgrid_success:
                 return True, "sendgrid_http_fallback"
+
+            # Fallback 3: FreeSMTPPool (Resend, Mailgun, Elastic Email, ZeptoMail, turboSMTP, Mailjet, SendPulse, Postmark)
+            try:
+                from core.free_smtp_pool import get_free_smtp_pool
+                pool = get_free_smtp_pool()
+                if pool.has_providers():
+                    logger.info(f"[CASCADE] Attempting FreeSMTPPool Fallback for {to_email}...")
+                    pool_success, pool_provider = await asyncio.to_thread(
+                        pool.send,
+                        to_email=to_email,
+                        subject=subject,
+                        html_body=body_html or body_text,
+                        text_body=body_text or body_html,
+                        from_name=config.CANDIDATE_NAME,
+                        attachments=attachments
+                    )
+                    if pool_success:
+                        return True, f"free_smtp_pool_{pool_provider}"
+            except Exception as pool_ex:
+                logger.error(f"[CASCADE] FreeSMTPPool Fallback failed: {pool_ex}")
                 
         except Exception as ex:
             logger.error(f"[CASCADE] HTTP Fallback extraction/execution failed: {ex}")
@@ -866,7 +951,8 @@ class EmailEngine:
         # SMTP Swarm Optimization: Try User's SMTP First
         if user_details and user_details.get("smtp_user") and user_details.get("smtp_pass"):
             try:
-                success = send_email_via_gmail_smtp(
+                success = await asyncio.to_thread(
+                    send_email_via_gmail_smtp,
                     to_email=to_email,
                     company_name=company,
                     job_title=title,
@@ -1022,7 +1108,16 @@ I remain very interested in this opportunity.</p>
         Uses a semaphore to cap concurrent SMTP connections at max_concurrent.
         Returns (sent_count, failed_count, results_list).
         """
-        sem = asyncio.Semaphore(max_concurrent)
+        from core.smart_scheduler import is_pythonanywhere
+        active_prov_count = len(self.scheduler._active_providers) if hasattr(self.scheduler, "_active_providers") else 0
+        if is_pythonanywhere():
+            optimal_concurrent = min(8, max(2, active_prov_count // 2))
+        else:
+            optimal_concurrent = min(15, max(4, active_prov_count))
+            
+        concurrency = max_concurrent if max_concurrent != 10 else (optimal_concurrent or max_concurrent)
+        logger.info(f"[EmailEngine] Concurrency dynamic limit set to {concurrency} (active providers: {active_prov_count})")
+        sem = asyncio.Semaphore(concurrency)
         # OPT#3: Collect tuples then batch commit — avoids per-email SQLite COMMIT overhead
         _pending_inserts = []
         
@@ -1361,6 +1456,7 @@ def send_email_via_brevo_http(
     custom_body: str = "",
     sender_name: str = config.CANDIDATE_NAME,
     subject: str = None,
+    attachments: Optional[list] = None,
 ) -> bool:
     """Send email via Brevo REST API (no SMTP needed).
     Uses BREVO_API_KEY from .env.
@@ -1399,21 +1495,30 @@ def send_email_via_brevo_http(
         "htmlContent": html_body,
     }
     
-    # Attach CV if available
-    try:
-        cv_path = config.CV_PATH
-        if cv_path and os.path.exists(cv_path):
-            import base64
-            with open(cv_path, "rb") as f:
-                cv_b64 = base64.b64encode(f.read()).decode('utf-8')
-            payload["attachment"] = [
-                {
-                    "content": cv_b64,
-                    "name": os.path.basename(cv_path)
-                }
-            ]
-    except Exception as e:
-        logger.warning(f"[BREVO-HTTP] Failed to attach CV: {e}")
+    # Attach files if provided, else fallback to CV_PATH
+    if attachments:
+        payload["attachment"] = [
+            {
+                "content": att["content_b64"],
+                "name": att["filename"]
+            }
+            for att in attachments
+        ]
+    else:
+        try:
+            cv_path = config.CV_PATH
+            if cv_path and os.path.exists(cv_path):
+                import base64
+                with open(cv_path, "rb") as f:
+                    cv_b64 = base64.b64encode(f.read()).decode('utf-8')
+                payload["attachment"] = [
+                    {
+                        "content": cv_b64,
+                        "name": os.path.basename(cv_path)
+                    }
+                ]
+        except Exception as e:
+            logger.warning(f"[BREVO-HTTP] Failed to attach CV: {e}")
 
     url = "https://api.brevo.com/v3/smtp/email"
     headers = {
@@ -1439,6 +1544,7 @@ def send_email_via_sendgrid_http(
     subject: str = None,
     body_html: str = "",
     body_text: str = "",
+    attachments: Optional[list] = None,
 ) -> bool:
     """Send email via SendGrid REST API (no SMTP needed).
     Uses SENDGRID_API_KEY from .env.
@@ -1467,6 +1573,17 @@ def send_email_via_sendgrid_http(
         payload["content"].append({"type": "text/plain", "value": body_text})
     if body_html:
         payload["content"].append({"type": "text/html", "value": body_html})
+
+    if attachments:
+        payload["attachments"] = [
+            {
+                "content": att["content_b64"],
+                "filename": att["filename"],
+                "type": att["content_type"],
+                "disposition": "attachment"
+            }
+            for att in attachments
+        ]
 
     url = "https://api.sendgrid.com/v3/mail/send"
     headers = {
@@ -1568,6 +1685,7 @@ def send_email_via_resend(
     highlights=None,
     subject: str = None,
     reply_to: str = None,
+    attachments: Optional[list] = None,
 ) -> bool:
     """[RESEND API] Best Gmail inbox delivery. Uses HTTP port 443.
 
@@ -1608,14 +1726,20 @@ def send_email_via_resend(
     gmail_user = os.getenv("GMAIL_SMTP_USER", "").strip()
 
     # Build attachments
-    attachments = []
-    if attachment_paths:
+    attachments_payload = []
+    if attachments:
+        for att in attachments:
+            attachments_payload.append({
+                "filename": att["filename"],
+                "content": att["content_b64"]
+            })
+    elif attachment_paths:
         for path in attachment_paths if isinstance(attachment_paths, list) else [attachment_paths]:
             if path and os.path.exists(path):
                 try:
                     with open(path, "rb") as f:
                         content = base64.b64encode(f.read()).decode("utf-8")
-                        attachments.append({"filename": os.path.basename(path), "content": content})
+                        attachments_payload.append({"filename": os.path.basename(path), "content": content})
                 except Exception as e:
                     logger.warning(f"[RESEND] Failed to attach {path}: {e}")
 
@@ -1630,8 +1754,8 @@ def send_email_via_resend(
                 "html": html_content,
                 "reply_to": reply_to or gmail_user or to_email,
             }
-            if attachments:
-                params["attachments"] = attachments
+            if attachments_payload:
+                params["attachments"] = attachments_payload
 
             logger.info(f"[RESEND] Sending via {env_var} to {to_email}...")
             r = resend_lib.Emails.send(params)
@@ -1656,6 +1780,7 @@ def send_email_via_mailjet(
     highlights=None,
     subject: str = None,
     reply_to: str = None,
+    attachments: Optional[list] = None,
 ) -> bool:
     """[MAILJET API] Free 200/day. Uses HTTP port 443 — works on cloud."""
     api_key = os.getenv("MAILJET_API_KEY", "").strip()
@@ -1677,7 +1802,14 @@ def send_email_via_mailjet(
         return False
 
     attachment_list = []
-    if attachment_paths:
+    if attachments:
+        for att in attachments:
+            attachment_list.append({
+                "ContentType": att["content_type"],
+                "Filename": att["filename"],
+                "Base64Content": att["content_b64"]
+            })
+    elif attachment_paths:
         for path in attachment_paths if isinstance(attachment_paths, list) else [attachment_paths]:
             if path and os.path.exists(path):
                 try:
@@ -1736,6 +1868,7 @@ def send_email_via_sendpulse(
     highlights=None,
     subject: str = None,
     reply_to: str = None,
+    attachments: Optional[list] = None,
 ) -> bool:
     """[PORTED FROM CHRONOS] SendPulse HTTP API — free 12,000/month (~400/day)."""
     api_key = os.getenv("SENDPULSE_API_KEY", "").strip()
@@ -1774,13 +1907,16 @@ def send_email_via_sendpulse(
 
         headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
-        attachments = {}
-        if attachment_paths:
+        attachments_payload = {}
+        if attachments:
+            for att in attachments:
+                attachments_payload[att["filename"]] = att["content_b64"]
+        elif attachment_paths:
             for path in attachment_paths if isinstance(attachment_paths, list) else [attachment_paths]:
                 if path and os.path.exists(path):
                     try:
                         with open(path, "rb") as f:
-                            attachments[os.path.basename(path)] = base64.b64encode(f.read()).decode("utf-8")
+                            attachments_payload[os.path.basename(path)] = base64.b64encode(f.read()).decode("utf-8")
                     except Exception as e:
                         logger.warning(f"[SENDPULSE] Failed to attach {path}: {e}")
 
@@ -1794,8 +1930,8 @@ def send_email_via_sendpulse(
                 "reply_to": {"name": sender_name, "email": reply_to or sender_email},
             }
         }
-        if attachments:
-            payload["email"]["attachments_binary"] = attachments
+        if attachments_payload:
+            payload["email"]["attachments_binary"] = attachments_payload
 
         logger.info(f"[SENDPULSE] Sending via HTTP API to {to_email}...")
         response = requests.post(

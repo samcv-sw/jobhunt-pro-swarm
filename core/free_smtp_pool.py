@@ -211,13 +211,13 @@ class FreeSMTPPool:
         try:
             if provider == "resend":
                 from core.email_engine import send_email_via_resend
-                return send_email_via_resend(to_email, "JobHunt", subject, html_body)
+                return send_email_via_resend(to_email, "JobHunt", subject, html_body, sender_name=name, attachments=attachments)
             elif provider == "mailjet":
                 from core.email_engine import send_email_via_mailjet
-                return send_email_via_mailjet(to_email, "JobHunt", subject, html_body, text)
+                return send_email_via_mailjet(to_email, "JobHunt", subject, html_body, text, sender_name=name, attachments=attachments)
             elif provider == "sendpulse":
                 from core.email_engine import send_email_via_sendpulse
-                return send_email_via_sendpulse(to_email, "JobHunt", subject, html_body, text)
+                return send_email_via_sendpulse(to_email, "JobHunt", subject, html_body, text, sender_name=name, attachments=attachments)
         except ImportError as e:
             logger.warning(f"[FreeSMTPPool] Cannot import {provider} sender: {e}")
         return False
@@ -232,19 +232,28 @@ class FreeSMTPPool:
             return False
         try:
             url = f"https://api.mailgun.net/v3/{domain}/messages"
-            resp = http_requests.post(
-                url,
-                auth=("api", api_key),
-                data={
-                    "from": f"{from_name} <jobhunt@{domain}>",
-                    "to": to_email,
-                    "subject": subject,
-                    "html": html,
-                    "text": text[:500],
-                },
-                timeout=15,
-            )
-            return resp.status_code == 200
+            data = {
+                "from": f"{from_name} <jobhunt@{domain}>",
+                "to": to_email,
+                "subject": subject,
+                "html": html,
+                "text": text[:500],
+            }
+            files = []
+            if atts:
+                for att in atts:
+                    files.append(("attachment", (att["filename"], att["content"], att["content_type"])))
+            
+            if HAS_REQUESTS:
+                resp = http_requests.post(url, auth=("api", api_key), data=data, files=files if files else None, timeout=15)
+                return resp.status_code == 200
+            else:
+                import urllib.request
+                import urllib.parse
+                req = urllib.request.Request(url, data=urllib.parse.urlencode(data).encode('utf-8'))
+                req.add_header("Authorization", "Basic " + base64.b64encode(f"api:{api_key}".encode('utf-8')).decode('utf-8'))
+                resp = urllib.request.urlopen(req, timeout=15)
+                return resp.getcode() == 200
         except Exception as e:
             logger.warning(f"[Mailgun] Send failed: {e}")
             return False
@@ -257,23 +266,47 @@ class FreeSMTPPool:
         if not api_key:
             return False
         try:
-            resp = http_requests.post(
-                "https://api.elasticemail.com/v4/emails/transactional",
-                headers={
-                    "X-ElasticEmail-ApiKey": api_key,
-                    "Content-Type": "application/json",
+            payload = {
+                "Recipients": {"To": [to_email]},
+                "Content": {
+                    "Subject": subject,
+                    "Body": [{"ContentType": "HTML", "Content": html}],
+                    "From": f"{from_name} <jobhunt@elasticemail.com>",
                 },
-                json={
-                    "Recipients": {"To": [to_email]},
-                    "Content": {
-                        "Subject": subject,
-                        "Body": [{"ContentType": "HTML", "Content": html}],
-                        "From": f"{from_name} <jobhunt@elasticemail.com>",
+            }
+            if atts:
+                attachments_list = []
+                for att in atts:
+                    attachments_list.append({
+                        "BinaryContent": att["content_b64"],
+                        "Name": att["filename"],
+                        "ContentType": att["content_type"]
+                    })
+                payload["Content"]["Attachments"] = attachments_list
+
+            if HAS_REQUESTS:
+                resp = http_requests.post(
+                    "https://api.elasticemail.com/v4/emails/transactional",
+                    headers={
+                        "X-ElasticEmail-ApiKey": api_key,
+                        "Content-Type": "application/json",
                     },
-                },
-                timeout=15,
-            )
-            return resp.status_code in (200, 201)
+                    json=payload,
+                    timeout=15,
+                )
+                return resp.status_code in (200, 201)
+            else:
+                import urllib.request
+                req = urllib.request.Request(
+                    "https://api.elasticemail.com/v4/emails/transactional",
+                    data=json.dumps(payload).encode('utf-8'),
+                    headers={
+                        "X-ElasticEmail-ApiKey": api_key,
+                        "Content-Type": "application/json",
+                    }
+                )
+                resp = urllib.request.urlopen(req, timeout=15)
+                return resp.getcode() in (200, 201)
         except Exception as e:
             logger.warning(f"[ElasticEmail] Send failed: {e}")
             return False
@@ -286,21 +319,45 @@ class FreeSMTPPool:
         if not token:
             return False
         try:
-            resp = http_requests.post(
-                "https://api.zeptomail.com/v1.1/email",
-                headers={
-                    "Authorization": token,
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "from": {"address": "jobhunt@zeptomail.com", "name": from_name},
-                    "to": [{"email_address": {"address": to_email}}],
-                    "subject": subject,
-                    "htmlbody": html,
-                },
-                timeout=15,
-            )
-            return resp.status_code in (200, 201, 202)
+            payload = {
+                "from": {"address": "jobhunt@zeptomail.com", "name": from_name},
+                "to": [{"email_address": {"address": to_email}}],
+                "subject": subject,
+                "htmlbody": html,
+            }
+            if atts:
+                attachments_list = []
+                for att in atts:
+                    attachments_list.append({
+                        "content": att["content_b64"],
+                        "mime_type": att["content_type"],
+                        "name": att["filename"]
+                    })
+                payload["attachments"] = attachments_list
+
+            if HAS_REQUESTS:
+                resp = http_requests.post(
+                    "https://api.zeptomail.com/v1.1/email",
+                    headers={
+                        "Authorization": token,
+                        "Content-Type": "application/json",
+                    },
+                    json=payload,
+                    timeout=15,
+                )
+                return resp.status_code in (200, 201, 202)
+            else:
+                import urllib.request
+                req = urllib.request.Request(
+                    "https://api.zeptomail.com/v1.1/email",
+                    data=json.dumps(payload).encode('utf-8'),
+                    headers={
+                        "Authorization": token,
+                        "Content-Type": "application/json",
+                    }
+                )
+                resp = urllib.request.urlopen(req, timeout=15)
+                return resp.getcode() in (200, 201, 202)
         except Exception as e:
             logger.warning(f"[ZeptoMail] Send failed: {e}")
             return False
@@ -314,22 +371,46 @@ class FreeSMTPPool:
         if not user or not pwd:
             return False
         try:
-            resp = http_requests.post(
-                "https://api.turbo-smtp.com/api/v2/mail/send",
-                headers={
-                    "Authorization": f"Bearer {pwd}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "from": f"{from_name} <{user}>",
-                    "to": [to_email],
-                    "subject": subject,
-                    "content": html,
-                    "html_content": html,
-                },
-                timeout=15,
-            )
-            return resp.status_code in (200, 201)
+            payload = {
+                "from": f"{from_name} <{user}>",
+                "to": [to_email],
+                "subject": subject,
+                "content": html,
+                "html_content": html,
+            }
+            if atts:
+                attachments_list = []
+                for att in atts:
+                    attachments_list.append({
+                        "content": att["content_b64"],
+                        "name": att["filename"],
+                        "mime": att["content_type"]
+                    })
+                payload["attachments"] = attachments_list
+
+            if HAS_REQUESTS:
+                resp = http_requests.post(
+                    "https://api.turbo-smtp.com/api/v2/mail/send",
+                    headers={
+                        "Authorization": f"Bearer {pwd}",
+                        "Content-Type": "application/json",
+                    },
+                    json=payload,
+                    timeout=15,
+                )
+                return resp.status_code in (200, 201)
+            else:
+                import urllib.request
+                req = urllib.request.Request(
+                    "https://api.turbo-smtp.com/api/v2/mail/send",
+                    data=json.dumps(payload).encode('utf-8'),
+                    headers={
+                        "Authorization": f"Bearer {pwd}",
+                        "Content-Type": "application/json",
+                    }
+                )
+                resp = urllib.request.urlopen(req, timeout=15)
+                return resp.getcode() in (200, 201)
         except Exception as e:
             logger.warning(f"[turboSMTP] Send failed: {e}")
             return False
@@ -342,24 +423,49 @@ class FreeSMTPPool:
         if not server_token:
             return False
         try:
-            resp = http_requests.post(
-                "https://api.postmarkapp.com/email",
-                headers={
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "X-Postmark-Server-Token": server_token,
-                },
-                json={
-                    "From": f"{from_name} <jobhunt@postmark.com>",
-                    "To": to_email,
-                    "Subject": subject,
-                    "HtmlBody": html,
-                    "TextBody": text[:500],
-                    "MessageStream": "outbound",
-                },
-                timeout=15,
-            )
-            return resp.status_code == 200
+            payload = {
+                "From": f"{from_name} <jobhunt@postmark.com>",
+                "To": to_email,
+                "Subject": subject,
+                "HtmlBody": html,
+                "TextBody": text[:500],
+                "MessageStream": "outbound",
+            }
+            if atts:
+                attachments_list = []
+                for att in atts:
+                    attachments_list.append({
+                        "Name": att["filename"],
+                        "Content": att["content_b64"],
+                        "ContentType": att["content_type"]
+                    })
+                payload["Attachments"] = attachments_list
+
+            if HAS_REQUESTS:
+                resp = http_requests.post(
+                    "https://api.postmarkapp.com/email",
+                    headers={
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                        "X-Postmark-Server-Token": server_token,
+                    },
+                    json=payload,
+                    timeout=15,
+                )
+                return resp.status_code == 200
+            else:
+                import urllib.request
+                req = urllib.request.Request(
+                    "https://api.postmarkapp.com/email",
+                    data=json.dumps(payload).encode('utf-8'),
+                    headers={
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                        "X-Postmark-Server-Token": server_token,
+                    }
+                )
+                resp = urllib.request.urlopen(req, timeout=15)
+                return resp.getcode() == 200
         except Exception as e:
             logger.warning(f"[Postmark] Send failed: {e}")
             return False

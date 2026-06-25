@@ -226,42 +226,45 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
                 jobs = [j for j in cached_jobs if j.get("company", "").lower() not in all_sent_companies]
                 logger.info(f"[CampaignRunner] 📦 Cache hit: {len(cached_jobs)} raw → {len(jobs)} after dedup, {int(time.time()-cached_ts)}s old")
             else:
-                try:
-                    from core.pa_job_scraper import PAJobScraper
-                    pa = PAJobScraper()
-                    all_jobs = pa.search_all(max_jobs=campaign["total_companies"])
-                    jobs = all_jobs
-                    _save_search_cache(jobs)
-                    logger.info(f"[CampaignRunner] PAJobScraper: {len(jobs)} jobs")
-                except Exception as pae:
-                    logger.error(f"[CampaignRunner] PAJobScraper failed: {pae}. Falling back to original scraper.")
-                    # Original fallback: LinkedIn XHR only
-                    all_jobs = []
-                    seen = set()
-                    import httpx
-                    _XHR_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-                    _XHR_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
-                    city_combos = [("uae","Dubai"),("saudi","Riyadh"),("qatar","Doha"),("kuwait","Kuwait"),("lebanon","Beirut")]
-                    random.shuffle(city_combos)  # Randomize city order for freshness
-                    for _, city in city_combos:
-                        try:
-                            url = f"{_XHR_URL}?keywords=network+engineer&location={urllib.request.quote(city)}&start=0&count=10"
-                            resp = httpx.get(url, headers=_XHR_HEADERS, timeout=10)
-                            if resp.status_code == 200:
-                                from bs4 import BeautifulSoup
-                                soup = BeautifulSoup(resp.text, "html.parser")
-                                for card in soup.select("li"):
-                                    t_el = card.select_one(".base-search-card__title")
-                                    c_el = card.select_one(".base-search-card__subtitle")
-                                    if t_el and c_el:
-                                        k = (c_el.get_text(strip=True).lower(), t_el.get_text(strip=True).lower())
-                                        if k not in seen:
-                                            seen.add(k)
-                                            all_jobs.append({"title": t_el.get_text(strip=True), "company": c_el.get_text(strip=True), "source": "linkedin_xhr"})
-                        except Exception:
-                            pass
-                    jobs = all_jobs
-                    _save_search_cache(jobs)
+                def run_pa_scraping():
+                    try:
+                        from core.pa_job_scraper import PAJobScraper
+                        pa = PAJobScraper()
+                        all_jobs = pa.search_all(max_jobs=campaign["total_companies"])
+                        logger.info(f"[CampaignRunner] PAJobScraper found {len(all_jobs)} jobs in thread")
+                        return all_jobs
+                    except Exception as pae:
+                        logger.error(f"[CampaignRunner] PAJobScraper failed: {pae}. Falling back to original scraper.")
+                        # Original fallback: LinkedIn XHR only
+                        all_jobs = []
+                        seen = set()
+                        import httpx
+                        _XHR_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+                        _XHR_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
+                        city_combos = [("uae","Dubai"),("saudi","Riyadh"),("qatar","Doha"),("kuwait","Kuwait"),("lebanon","Beirut")]
+                        random.shuffle(city_combos)  # Randomize city order for freshness
+                        for _, city in city_combos:
+                            try:
+                                url = f"{_XHR_URL}?keywords=network+engineer&location={urllib.request.quote(city)}&start=0&count=10"
+                                resp = httpx.get(url, headers=_XHR_HEADERS, timeout=10)
+                                if resp.status_code == 200:
+                                    from bs4 import BeautifulSoup
+                                    soup = BeautifulSoup(resp.text, "html.parser")
+                                    for card in soup.select("li"):
+                                        t_el = card.select_one(".base-search-card__title")
+                                        c_el = card.select_one(".base-search-card__subtitle")
+                                        if t_el and c_el:
+                                            k = (c_el.get_text(strip=True).lower(), t_el.get_text(strip=True).lower())
+                                            if k not in seen:
+                                                seen.add(k)
+                                                all_jobs.append({"title": t_el.get_text(strip=True), "company": c_el.get_text(strip=True), "source": "linkedin_xhr"})
+                            except Exception:
+                                pass
+                        return all_jobs
+
+                jobs = await asyncio.to_thread(run_pa_scraping)
+                _save_search_cache(jobs)
+                logger.info(f"[CampaignRunner] PAJobScraper/Fallback thread yielded: {len(jobs)} jobs")
         else:
             # Non-PA mode: MultiSource search with limit
             raw_jobs = await asyncio.to_thread(

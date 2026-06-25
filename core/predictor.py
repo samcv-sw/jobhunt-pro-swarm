@@ -65,10 +65,23 @@ class ResponsePredictor:
         has_numbers = bool(re.search(r'\d+', body))
         scores["has_metrics"] = 100 if has_numbers else 30
         
-        # Check for personalization tokens
-        personalization_tokens = ['{first_name}', '{company}', '{position}']
-        has_tokens = any(token in body for token in personalization_tokens)
-        scores["personalization"] = 100 if has_tokens else 50
+        # Safety check: Detect raw/unresolved template placeholders (failed template replacement)
+        unresolved_placeholders = [
+            '{first_name}', '{company}', '{position}', '{title}', '{company_name}',
+            '[Company Name]', '[Recruiter Name]', '[Job Title]', '[Insert',
+            '<first_name>', '<company>', '<position>'
+        ]
+        has_unresolved = any(placeholder.lower() in body.lower() or placeholder.lower() in subject.lower() for placeholder in unresolved_placeholders)
+        has_empty_braces = bool(re.search(r'\{\s*\}|\[\s*\]|<\s*>', body + subject))
+        
+        if has_unresolved or has_empty_braces:
+            # Personalization is a complete failure if raw braces/tags leak into the final output
+            scores["personalization"] = 0
+            scores["unresolved_gate"] = 0 # 0 denotes a critical failure gate
+        else:
+            # Good personalization check: check if it features the candidate's name or is custom-tailored
+            has_candidate_name = "sam" in body.lower() or "salameh" in body.lower()
+            scores["personalization"] = 100 if has_candidate_name else 70
         
         # Check for call to action
         cta_words = ['schedule', 'call', 'discuss', 'meeting', 'available', 'apply']
@@ -102,23 +115,27 @@ class ResponsePredictor:
         """Predict response rate for an email"""
         # Analyze email quality
         quality_scores = self.analyze_email_quality(subject, body)
-        quality_avg = sum(quality_scores.values()) / len(quality_scores)
+        
+        # Calculate quality average excluding the safety gate key
+        scoring_keys = [k for k in quality_scores.keys() if k != "unresolved_gate"]
+        quality_avg = sum(quality_scores[k] for k in scoring_keys) / len(scoring_keys)
         
         # Analyze company responsiveness
         company_responsiveness = self.analyze_company_responsiveness(company)
         
         # Calculate overall confidence
         confidence = (quality_avg * 0.6 + company_responsiveness * 0.4)
-        
-        # Cap at 100
         confidence = min(confidence, 100)
         
+        # safety gate check
+        failed_gate = (quality_scores.get("unresolved_gate", 100) == 0)
+        
         return {
-            "confidence": round(confidence, 1),
-            "quality_scores": quality_scores,
+            "confidence": 0.0 if failed_gate else round(confidence, 1),
+            "quality_scores": {k: v for k, v in quality_scores.items() if k != "unresolved_gate"},
             "company_responsiveness": company_responsiveness,
-            "should_send": confidence >= MIN_CONFIDENCE_THRESHOLD,
-            "reason": self._get_send_reason(confidence, quality_scores)
+            "should_send": False if failed_gate else (confidence >= MIN_CONFIDENCE_THRESHOLD),
+            "reason": "CRITICAL: Unresolved template placeholders detected!" if failed_gate else self._get_send_reason(confidence, quality_scores)
         }
     
     def _get_send_reason(self, confidence: float, quality_scores: Dict) -> str:

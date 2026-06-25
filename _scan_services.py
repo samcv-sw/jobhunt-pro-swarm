@@ -1,6 +1,6 @@
 import os, re
 
-root = r'C:\Users\samde\Desktop\cv sam new ma3 kimi'
+root = os.path.dirname(os.path.abspath(__file__))
 
 services = set()
 for dirpath, dirs, files in os.walk(root):

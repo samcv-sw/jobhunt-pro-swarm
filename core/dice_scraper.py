@@ -266,7 +266,7 @@ async def search_dice(
     rate_limit: float = RATE_LIMIT,
 ) -> List[Dict]:
     """Async wrapper for search_dice_sync."""
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     return await loop.run_in_executor(
         None, search_dice_sync, titles, locations, rate_limit
     )

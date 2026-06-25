@@ -1,6 +1,7 @@
 # Fix pricing_v2.html - add cyberpunk body class
 import re
-path = r'C:\Users\samde\Desktop\cv sam new ma3 kimi\web\templates\pricing_v2.html'
+import os
+path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates', 'pricing_v2.html')
 with open(path, 'r', encoding='utf-8') as f:
     content = f.read()
 if 'cyberpunk' not in content:

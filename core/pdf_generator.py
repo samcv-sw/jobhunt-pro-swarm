@@ -1,11 +1,53 @@
 import io
 import logging
+import re
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.enums import TA_LEFT
 
 logger = logging.getLogger(__name__)
+
+def clean_xml_for_reportlab(text: str) -> str:
+    """
+    Cleans up HTML/Markdown text to make it fully compliant with ReportLab's Paragraph XML parser.
+    Escapes unescaped special characters, cleans up markdown tags, and preserves valid HTML tags.
+    """
+    if not text:
+        return ""
+
+    # 1. First, convert markdown bold (**text**) to <b>text</b> globally
+    text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
+
+    # 2. Convert markdown italic (*text*) to <i>text</i> globally
+    text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)
+
+    # 3. Escape ampersands, but avoid double-escaping already escaped ones
+    # We match '&' only if it's not part of an existing entity like &amp;, &lt;, &gt;, &quot;, &apos;
+    text = re.sub(r'&(?!([a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+);)', '&amp;', text)
+
+    # 4. Preserve valid ReportLab XML tags by placeholder-ing them to avoid escaping them.
+    # Allowed tags: b, i, u, font, br, link, a, and their closing counterparts.
+    valid_tag_pattern = re.compile(
+        r'(</?(?:b|i|u|a|link|font|br)(?:\s+[^>]*?)?/?>)', 
+        re.IGNORECASE
+    )
+    
+    placeholders = []
+    def save_tag(match):
+        placeholders.append(match.group(1))
+        return f"___TAG_PLACEHOLDER_{len(placeholders)-1}___"
+        
+    text = valid_tag_pattern.sub(save_tag, text)
+    
+    # 5. Escape any remaining stray '<' and '>' to prevent XML parsing errors
+    text = text.replace('<', '&lt;').replace('>', '&gt;')
+    
+    # 6. Restore the valid tags
+    for idx, tag in enumerate(placeholders):
+        text = text.replace(f"___TAG_PLACEHOLDER_{idx}___", tag)
+        
+    return text
 
 def generate_cover_letter_pdf(text: str, applicant_name: str = "Sam Salameh") -> bytes:
     """
@@ -52,9 +94,9 @@ def generate_cover_letter_pdf(text: str, applicant_name: str = "Sam Salameh") ->
         for para in paragraphs:
             para = para.strip()
             if para:
-                # Basic cleanup of markdown bolding (**text**) for reportlab
-                para = para.replace("**", "<b>", 1).replace("**", "</b>", 1)
-                elements.append(Paragraph(para, body_style))
+                # Clean up XML tags for ReportLab safety
+                clean_para = clean_xml_for_reportlab(para)
+                elements.append(Paragraph(clean_para, body_style))
 
         doc.build(elements)
         pdf_bytes = buffer.getvalue()

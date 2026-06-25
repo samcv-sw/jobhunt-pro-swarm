@@ -7,10 +7,21 @@ import random
 import asyncio
 import logging
 import time
+import sqlite3
+import pathlib
 from datetime import datetime, timedelta
 from typing import Dict, List, Set, Optional
 
 logger = logging.getLogger(__name__)
+
+# Dynamic SQLite database path configuration
+_base_dir = pathlib.Path(__file__).resolve().parent.parent
+try:
+    import config
+    _db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+    DB_PATH = str(_base_dir / _db_name)
+except Exception:
+    DB_PATH = str(_base_dir / "jobhunt_saas_v2.db")
 
 
 class AntiBanProtection:
@@ -70,62 +81,114 @@ class AntiBanProtection:
         return company_name.lower().strip().replace(' ', '_')
     
     def is_honeypot(self, email: str, company: str, snippet: str = "") -> bool:
-        """Check if this looks like a honeypot/spam trap"""
+        """
+        Check if this looks like a honeypot/spam trap.
+        Avoids false positives on common hiring terms (urgent, asap) and valid admin emails.
+        """
         email_lower = email.lower()
         company_lower = company.lower()
         snippet_lower = snippet.lower()
         
-        # Check email for honeypot keywords
-        for keyword in self.honeypot_keywords:
-            if keyword in email_lower:
-                logger.warning(f"HONEYPOT detected: {email} contains '{keyword}'")
+        # 1. Definitive honeypot indicators (high-confidence blocks)
+        definitive_honeypots = {'honeypot', 'spamtrap', 'crawler-trap', 'crawler_trap', 'spam-trap'}
+        for keyword in definitive_honeypots:
+            if keyword in email_lower or keyword in company_lower or keyword in snippet_lower:
+                logger.warning(f"HONEYPOT detected: {company} - '{keyword}' found in target")
                 return True
-        
-        # Check for suspicious email patterns
-        suspicious_email_patterns = ['noreply', 'no-reply', 'donotreply', 'test@', 'admin@']
-        for pattern in suspicious_email_patterns:
-            if pattern in email_lower:
-                logger.warning(f"Suspicious email pattern: {email} contains '{pattern}'")
+                
+        # 2. Skip obvious test/dev destinations
+        test_indicators = {'test@', 'example.com', 'localhost'}
+        for indicator in test_indicators:
+            if indicator in email_lower:
+                logger.warning(f"Test/Sandbox target skipped: {email}")
                 return True
-        
-        # Check company for suspicious patterns
-        for category, patterns in self.suspicious_patterns.items():
-            for pattern in patterns:
-                if pattern in snippet_lower:
-                    logger.warning(f"Suspicious pattern ({category}): {company} - '{pattern}'")
-                    return True
-        
+
+        # 3. Direct noreply addresses should be skipped (useless to send emails to)
+        noreply_indicators = {'noreply@', 'no-reply@', 'donotreply@'}
+        for indicator in noreply_indicators:
+            if indicator in email_lower:
+                logger.info(f"Noreply target skipped: {email}")
+                return True
+
+        # Note: We deliberately DO NOT block 'admin@' or common hiring terms like 'urgent',
+        # 'immediate', or 'asap' here, as they are standard parts of legitimate recruiting.
+        # Specific fraud patterns are handled separately by the ScamDetector.
+
         return False
     
     def can_apply_to_company(self, company: str) -> tuple[bool, str]:
-        """Check if we can apply to this company"""
+        """Check if we can apply to this company (in-memory + database persistence)"""
         company_key = self._normalize_company_name(company)
         now = datetime.now()
         
-        # Check if company is blacklisted
+        # 1. Check in-memory blacklist first (fastest)
         if company_key in self.suspicious_companies:
-            return False, "Company is blacklisted"
+            return False, "Company is blacklisted (in-memory)"
+            
+        # 2. Check historical database blacklist (persistent cross-restarts)
+        try:
+            with sqlite3.connect(DB_PATH, timeout=10) as conn:
+                cur = conn.execute(
+                    "SELECT COUNT(*) FROM jobs WHERE LOWER(company)=? AND (response_type='blacklisted' OR response_type='honeypot')",
+                    (company.lower().strip(),)
+                )
+                if cur.fetchone()[0] > 0:
+                    # Sync back to in-memory cache for speed
+                    self.suspicious_companies.add(company_key)
+                    return False, "Company is blacklisted (historical database check)"
+        except Exception as e:
+            logger.debug(f"Database blacklist check failed: {e}")
         
-        # Get application history
+        # 3. Get in-memory application history
         apps = self.company_applications.get(company_key, [])
         
         # Clean old entries
         apps = [app for app in apps if (now - app).days < 30]
         self.company_applications[company_key] = apps
         
-        # Check daily limit
+        # Check in-memory limits
         daily_apps = [app for app in apps if (now - app).days < 1]
         if len(daily_apps) >= self.max_apps_per_company_per_day:
-            return False, f"Daily limit reached ({self.max_apps_per_company_per_day}/day)"
+            return False, f"Daily limit reached ({self.max_apps_per_company_per_day}/day in-memory)"
         
-        # Check weekly limit
         weekly_apps = [app for app in apps if (now - app).days < 7]
         if len(weekly_apps) >= self.max_apps_per_company_per_week:
-            return False, f"Weekly limit reached ({self.max_apps_per_company_per_week}/week)"
+            return False, f"Weekly limit reached ({self.max_apps_per_company_per_week}/week in-memory)"
         
-        # Check total limit
         if len(apps) >= self.max_apps_per_company_total:
-            return False, f"Total limit reached ({self.max_apps_per_company_total} total)"
+            return False, f"Total limit reached ({self.max_apps_per_company_total} total in-memory)"
+            
+        # 4. Check historical database application counts (cross-process persistence)
+        try:
+            with sqlite3.connect(DB_PATH, timeout=10) as conn:
+                # Query daily apps (last 24 hours)
+                cur = conn.execute(
+                    "SELECT COUNT(*) FROM jobs WHERE LOWER(company)=? AND status='applied' AND datetime(created_at) >= datetime('now', '-1 day')",
+                    (company.lower().strip(),)
+                )
+                db_daily = cur.fetchone()[0]
+                if db_daily >= self.max_apps_per_company_per_day:
+                    return False, f"Daily limit reached ({db_daily}/day, database check)"
+
+                # Query weekly apps (last 7 days)
+                cur = conn.execute(
+                    "SELECT COUNT(*) FROM jobs WHERE LOWER(company)=? AND status='applied' AND datetime(created_at) >= datetime('now', '-7 days')",
+                    (company.lower().strip(),)
+                )
+                db_weekly = cur.fetchone()[0]
+                if db_weekly >= self.max_apps_per_company_per_week:
+                    return False, f"Weekly limit reached ({db_weekly}/week, database check)"
+
+                # Query total apps
+                cur = conn.execute(
+                    "SELECT COUNT(*) FROM jobs WHERE LOWER(company)=? AND status='applied'",
+                    (company.lower().strip(),)
+                )
+                db_total = cur.fetchone()[0]
+                if db_total >= self.max_apps_per_company_total:
+                    return False, f"Total limit reached ({db_total} total, database check)"
+        except Exception as e:
+            logger.debug(f"Database application history check failed: {e}")
         
         return True, "OK"
     
@@ -159,17 +222,29 @@ class AntiBanProtection:
             logger.warning(f"Blacklisted {company} after {self.failed_applications[company_key]} failures")
     
     def should_blacklist_company(self, company: str) -> bool:
-        """Check if company should be blacklisted"""
+        """Check if company should be blacklisted (in-memory + database check)"""
         company_key = self._normalize_company_name(company)
         
-        # Check failure count
+        # Check in-memory first
         failures = self.failed_applications.get(company_key, 0)
         if failures >= 3:
             return True
-        
-        # Check if already blacklisted
         if company_key in self.suspicious_companies:
             return True
+        
+        # Check database
+        try:
+            with sqlite3.connect(DB_PATH, timeout=10) as conn:
+                cur = conn.execute(
+                    "SELECT COUNT(*) FROM jobs WHERE LOWER(company)=? AND (response_type='blacklisted' OR response_type='honeypot')",
+                    (company.lower().strip(),)
+                )
+                if cur.fetchone()[0] > 0:
+                    # Sync to in-memory cache
+                    self.suspicious_companies.add(company_key)
+                    return True
+        except Exception:
+            pass
         
         return False
     

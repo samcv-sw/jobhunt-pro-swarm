@@ -1,7 +1,8 @@
 # Fix pricing_v2.html
 import re
 
-path = r'C:\Users\samde\Desktop\cv sam new ma3 kimi\web\templates\pricing_v2.html'
+import os
+path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates', 'pricing_v2.html')
 with open(path, 'rb') as f:
     raw = f.read()
 

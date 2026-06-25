@@ -4,7 +4,7 @@ BUILD-QUICK-WINS Agent - Injects 5 high-impact features into JobHunt Pro
 import re
 import os
 
-BASE = r'C:\Users\samde\Desktop\cv sam new ma3 kimi\web'
+BASE = os.path.dirname(os.path.abspath(__file__))
 APP_V2 = os.path.join(BASE, 'app_v2.py')
 
 with open(APP_V2, 'r', encoding='utf-8') as f:
