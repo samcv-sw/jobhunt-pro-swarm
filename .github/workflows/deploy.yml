@@ -13,7 +13,7 @@ jobs:
       - name: Trigger Render Deployment
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        if: env.RENDER_DEPLOY_HOOK != ''
+        if: secrets.RENDER_DEPLOY_HOOK_URL != ''
         uses: fjogeleit/http-request-action@v1
         with:
           url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
