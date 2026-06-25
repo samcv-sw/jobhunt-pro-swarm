@@ -13,7 +13,7 @@ jobs:
       - name: Trigger Render Deployment
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        if: ${{ env.RENDER_DEPLOY_HOOK != '' }}
+        if: env.RENDER_DEPLOY_HOOK != ''
         uses: fjogeleit/http-request-action@v1
         with:
           url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
@@ -22,7 +22,7 @@ jobs:
 
   deploy-flyio:
     runs-on: ubuntu-latest
-    if: ${{ secrets.FLY_API_TOKEN != '' }}
+    if: secrets.FLY_API_TOKEN != ''
     steps:
       - uses: actions/checkout@v4
       
