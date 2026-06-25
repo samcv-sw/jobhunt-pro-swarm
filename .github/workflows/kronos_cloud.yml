@@ -7,9 +7,14 @@ on:
   workflow_dispatch:
     # Allows manual trigger from GitHub UI
 
+env:
+  WORKER_URL: 'https://jobhunt-pro-router.samsalameh-cv.workers.dev'
+  PA_URL: 'https://jhfguf.pythonanywhere.com'
+
 jobs:
   kronos-engines:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     
     steps:
       - name: Checkout Repository
@@ -18,39 +23,47 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
           cache: 'pip'
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install feedparser httpx fastapi uvicorn sqlite3
+          pip install feedparser httpx fastapi uvicorn sqlite3 beautifulsoup4 requests dnspython --quiet
+
+      - name: Matrix Scrapers - Run All Scrapers Concurrently
+        run: |
+          python scripts/run_all_scrapers.py
+        continue-on-error: true
 
       - name: Engine 1 - The Ghost Agency
         run: |
           echo "Starting Ghost Agency outreach..."
           python ghost_agency.py
         env:
-          # Add any needed secrets here from GitHub Secrets
           QCLAW_EMAIL: ${{ secrets.QCLAW_EMAIL }}
           QCLAW_PASSWORD: ${{ secrets.QCLAW_PASSWORD }}
           NOWPAYMENTS_API_KEY: ${{ secrets.NOWPAYMENTS_API_KEY }}
           NOWPAYMENTS_IPN_SECRET: ${{ secrets.NOWPAYMENTS_IPN_SECRET }}
+        continue-on-error: true
 
       - name: Engine 2 - The Freelance Swarm
         run: |
           echo "Bidding on Upwork/Freelancer projects..."
           python freelance_swarm.py
+        continue-on-error: true
 
       - name: Engine 3 - The SEO Matrix
         run: |
           echo "Generating 1000s of SEO pages..."
           python seo_matrix_generator.py
+        continue-on-error: true
 
       - name: Engine 4 - The Data Broker
         run: |
           echo "Extracting B2B Leads to CSV..."
           python data_broker_export.py
+        continue-on-error: true
 
       - name: Engine 5 - The Reverse Recruiter
         run: |
@@ -61,12 +74,49 @@ jobs:
           QCLAW_PASSWORD: ${{ secrets.QCLAW_PASSWORD }}
           NOWPAYMENTS_API_KEY: ${{ secrets.NOWPAYMENTS_API_KEY }}
           NOWPAYMENTS_IPN_SECRET: ${{ secrets.NOWPAYMENTS_IPN_SECRET }}
+        continue-on-error: true
 
-      - name: Commit and Push SEO Pages and Databases
+      - name: Marketing - Run Lead Generator (GitHub Scout)
+        run: |
+          echo "Scanning GitHub for leads..."
+          python lead_generator.py
+        continue-on-error: true
+
+      - name: Marketing - Run Auto-Marketer (Email Blast)
+        run: |
+          echo "Dispatching marketing email blast..."
+          python auto_marketer.py
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          GMAIL1_USER: ${{ secrets.GMAIL1_USER }}
+          GMAIL1_PASS: ${{ secrets.GMAIL1_PASS }}
+          GMAIL2_USER: ${{ secrets.GMAIL2_USER }}
+          GMAIL2_PASS: ${{ secrets.GMAIL2_PASS }}
+          GMAIL3_USER: ${{ secrets.GMAIL3_USER }}
+          GMAIL3_PASS: ${{ secrets.GMAIL3_PASS }}
+          GMAIL4_USER: ${{ secrets.GMAIL4_USER }}
+          GMAIL4_PASS: ${{ secrets.GMAIL4_PASS }}
+          GMAIL5_USER: ${{ secrets.GMAIL5_USER }}
+          GMAIL5_PASS: ${{ secrets.GMAIL5_PASS }}
+        continue-on-error: true
+
+      - name: Cloudflare - Sync PA → D1
+        run: |
+          curl -s "$WORKER_URL/api/health" -m 10 || echo "Worker health endpoint unreachable"
+          echo ""
+          SYNC_RESULT=$(curl -s -X POST "$WORKER_URL/api/sync" \
+            -H "Content-Type: application/json" \
+            -d '{"table":"stats","action":"sync","data":{"id":0}}' -m 15 || echo "Sync request failed")
+          echo "Sync: $SYNC_RESULT"
+        continue-on-error: true
+
+      - name: Commit and Push Updated Pages, Leads & Databases
         run: |
           git config --global user.name "Project Nebula Bot"
           git config --global user.email "bot@nebula.ai"
           git add static_webapp/seo_matrix/
-          git add -f freelance_bids.db kronos_exports/
-          git commit -m "chore: Auto-update SEO pages and B2B leads via KRONOS" || echo "No changes to commit"
+          git add -f freelance_bids.db leads.db kronos_exports/
+          git commit -m "chore: Auto-update SEO pages, freelance bids, leads, and databases via KRONOS [skip ci]" || echo "No changes to commit"
           git push origin main || echo "No changes to push"
+        continue-on-error: true
+

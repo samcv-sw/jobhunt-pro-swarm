@@ -52,6 +52,12 @@ jobs:
               -H "Content-Type: application/json" \
               -d '{"action":"cloud_tick","source":"gh-actions-dispatcher"}' || echo "failed")
             echo "Response: $RESPONSE"
+            
+            echo "Resetting stuck campaigns on backend: ${backend}"
+            RESET_RESP=$(curl -s --max-time 30 \
+              -X POST "${backend}/api/v2/cloud-tick/reset-stuck" \
+              -H "Content-Type: application/json" || echo "failed")
+            echo "Reset Response: $RESET_RESP"
           done
 
       - name: 2️⃣ Check PA Webapp Health & Auto-Reload
@@ -62,7 +68,7 @@ jobs:
           PA_USER: ${{ vars.PA_USER || 'jhfguf' }}
           PA_DOMAIN: ${{ vars.PA_DOMAIN || 'jhfguf.pythonanywhere.com' }}
         run: |
-          CODE=$(curl -s --max-time 15 -o /dev/null -w "%{http_code}" "https://jhfguf.pythonanywhere.com/api/ping" || echo "500")
+          CODE=$(curl -s --max-time 15 -o /dev/null -w "%{http_code}" "https://${PA_DOMAIN}/api/ping" || echo "500")
           echo "PA ping HTTP code: $CODE"
           if [ "$CODE" != "200" ] && [ ! -z "$PA_TOKEN" ]; then
             echo "PA is unhealthy. Re-triggering webapp reload..."
@@ -103,9 +109,13 @@ jobs:
         if: ${{ steps.cf-health.outputs.cf_failed == 'true' }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '6639482672' }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          msg="🚨 CLOUD CRITICAL ALERT: Cloudflare Worker API is down! Health status code returned non-200. Please inspect wrangler logs."
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -d "chat_id=${TELEGRAM_CHAT_ID}" \
-            -d "text=${msg}"
+          if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
+            msg="🚨 CLOUD CRITICAL ALERT: Cloudflare Worker API is down! Health status code returned non-200. Please inspect wrangler logs."
+            curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+              -d "chat_id=${TELEGRAM_CHAT_ID}" \
+              -d "text=${msg}"
+          else
+            echo "⚠️ Telegram bot details not configured, skipping alert."
+          fi
