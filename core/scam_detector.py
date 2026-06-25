@@ -115,7 +115,7 @@ class ScamDetector:
             re.compile(re.escape(k), re.IGNORECASE) for k in SCAM_TITLE_KEYWORDS
         ]
         self._tld_re = re.compile(
-            "\.(xyz|top|tk|ml|ga|cf|gq|work|click|link|country|loan|stream|download|racing)$",
+            r"\.(xyz|top|tk|ml|ga|cf|gq|work|click|link|country|loan|stream|download|racing)$",
             re.IGNORECASE
         )
 

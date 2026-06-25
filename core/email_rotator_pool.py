@@ -44,7 +44,10 @@ def _load_db_rate_limits():
         try:
             # Fallback to direct sqlite3 connector (which uses pg_sqlite_shim under CLOUD_MODE)
             import sqlite3
-            db_path = os.getenv("DB_PATH", "data/jobhunt_saas_v2.db")
+            import config
+            from pathlib import Path
+            db_name = getattr(config, "DB_PATH", None) or os.getenv("DB_PATH") or "jobhunt_saas_v2.db"
+            db_path = str(Path(__file__).parent.parent / db_name)
             conn = sqlite3.connect(db_path, timeout=10)
             conn.row_factory = sqlite3.Row
         except Exception:

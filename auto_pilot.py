@@ -25,6 +25,9 @@ import traceback
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from core.auto_install import ensure_packages
+ensure_packages()
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,

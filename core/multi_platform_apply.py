@@ -206,7 +206,7 @@ class PlatformRateLimiter:
 
 def _get_db_path() -> str:
     """Resolve the DB path consistently with the rest of the project."""
-    raw = getattr(config, "DB_PATH", "jobhunt_saas_v2.db")
+    raw = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
     if os.path.isabs(raw):
         return raw
     # Relative to project root

@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class Analytics:
     def __init__(self, db_path=None):
-        self.db_path = db_path or config.DB_PATH
+        self.db_path = db_path or getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
 
     def get_dashboard_data(self, days=30):
         since = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')

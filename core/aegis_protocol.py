@@ -16,7 +16,14 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] AEGIS-PROTOCOL: %(message)s")
 logger = logging.getLogger(__name__)
 
-DB_PATH = "jobhunt_saas_v2.db"
+# Resolved relative to project root
+from pathlib import Path
+try:
+    import config
+    db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+except ImportError:
+    db_name = "jobhunt_saas_v2.db"
+DB_PATH = str(Path(__file__).resolve().parent.parent / db_name)
 
 # High-Security B2B Clients
 SECURE_CLIENTS = [

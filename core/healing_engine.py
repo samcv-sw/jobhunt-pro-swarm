@@ -562,7 +562,7 @@ class HealingEngine:
         issues = []
 
         # Check that the database file exists (core resource)
-        db_path = getattr(config, "DB_PATH", "jobhunt_saas_v2.db")
+        db_path = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
         if not os.path.exists(db_path):
             # Try relative to project root
             alt_path = os.path.join(

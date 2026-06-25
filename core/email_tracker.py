@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class EmailTracker:
     def __init__(self, db_path=None):
-        self.db_path = db_path or config.DB_PATH
+        self.db_path = db_path or getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
 
     def generate_tracking_pixel(self, tracking_id):
         return f'<img src="https://track.sam-salameh.com/pixel/{tracking_id}" width="1" height="1" style="display:none" />'

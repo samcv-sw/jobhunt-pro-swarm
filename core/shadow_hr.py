@@ -24,7 +24,14 @@ except ImportError:
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
-DB_PATH = "jobhunt_saas_v2.db"
+# Resolved relative to project root
+from pathlib import Path
+try:
+    import config
+    db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+except ImportError:
+    db_name = "jobhunt_saas_v2.db"
+DB_PATH = str(Path(__file__).resolve().parent.parent / db_name)
 PAYMENT_LINK = "https://olympus-webhook.samsalameh-cv.workers.dev/api/v1/b2b/checkout" # B2B Unlock Link
 
 def get_target_jobs(limit=10):

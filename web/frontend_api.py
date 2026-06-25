@@ -63,8 +63,13 @@ _tables_initialized = False
 def get_db():
     """Get database connection matching app_v2.py."""
     from pathlib import Path
+    try:
+        import config
+        db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+    except ImportError:
+        db_name = "jobhunt_saas_v2.db"
     BASE_DIR = Path(__file__).parent
-    db_path = str(BASE_DIR.parent / "jobhunt_saas_v2.db")
+    db_path = str(BASE_DIR.parent / db_name)
     conn = sqlite3_module.connect(db_path)
     conn.row_factory = sqlite3_module.Row
     conn.execute("PRAGMA journal_mode=WAL")

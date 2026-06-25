@@ -215,7 +215,7 @@ class WebsiteController:
     RENDER_HEALTH_URL = "https://jobhunt-pro.onrender.com/health"
     PA_HEALTH_URL = "https://jhfguf.pythonanywhere.com/health"
     PA_API = "https://www.pythonanywhere.com/api/v0/user/JHFGUF"
-    PA_TOKEN = os.getenv("PA_API_TOKEN", "7e7ad272cc2d4470e8078fca29dfacf301fb01fe")
+    PA_TOKEN = getattr(config, "PA_API_TOKEN", None) or os.getenv("PA_API_TOKEN") or "7f8bf3e6ad742bcb9e3c25e446cf664d6710b31d"
 
     async def health_check(self) -> str:
         """Check health of all platforms."""
@@ -283,7 +283,8 @@ class WebsiteController:
     async def get_logs(self, platform: str = "render", lines: int = 20) -> str:
         """Get recent application logs."""
         try:
-            db_path = Path(__file__).parent.parent / "data" / "jobhunt_saas_v2.db"
+            db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+            db_path = Path(__file__).parent.parent / db_name
             if not db_path.exists():
                 return "📜 No database found for logs."
 

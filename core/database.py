@@ -140,16 +140,13 @@ import sys
 class Database:
     """Legacy async wrapper for SQLite jobs table used by orchestrator."""
     def __init__(self):
-        # Resolve to jobhunt_saas_v2.db in root dir
         base_dir = pathlib.Path(__file__).resolve().parent.parent
-        self.db_path = str(base_dir / "jobhunt_saas_v2.db")
         try:
             import config
-            db_path_val = getattr(config, "DB_PATH", None)
-            if db_path_val is not None:
-                self.db_path = str(base_dir / db_path_val)
+            db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+            self.db_path = str(base_dir / db_name)
         except ImportError:
-            pass
+            self.db_path = str(base_dir / "jobhunt_saas_v2.db")
 
     def _get_conn(self):
         conn = sqlite3_sync.connect(self.db_path, timeout=30)

@@ -9,7 +9,14 @@ import sqlite3
 import os
 import datetime
 
-DB_PATH = "jobhunt_saas_v2.db"
+# Resolved relative to project root
+from pathlib import Path
+try:
+    import config
+    db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+except ImportError:
+    db_name = "jobhunt_saas_v2.db"
+DB_PATH = str(Path(__file__).resolve().parent.parent / db_name)
 OUTPUT_DIR = "newsletters"
 SPONSOR_TEXT = "🔥 **SPONSORED BY CLOUDFLARE**: Fast, secure edge networks. Start for free today!"
 SPONSOR_LINK = "https://cloudflare.com/affiliate"

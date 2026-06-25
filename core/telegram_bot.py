@@ -432,7 +432,7 @@ def _get_db():
 
     """Get SQLite connection to the main database."""
 
-    db_name = getattr(config, "DB_PATH", "jobhunt_saas_v2.db")
+    db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
 
     db_path = Path(__file__).parent.parent / db_name
 
@@ -467,7 +467,7 @@ class TelegramBot:
 
         self.bot_start_time = datetime.now()
         # Analytics engine
-        db_name = getattr(config, "DB_PATH", "jobhunt_saas_v2.db")
+        db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
         db_path = str(Path(__file__).parent.parent / db_name)
         self.analytics = TelegramAnalytics(db_path)
         self._awaiting_input = {}
@@ -862,7 +862,7 @@ class TelegramBot:
 
         # ── Smart Notification Service ──────────────────────
         self.notification_chat_id = self.chat_id  # same as bot's registered chat
-        db_name = getattr(config, "DB_PATH", "jobhunt_saas_v2.db")
+        db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
         self.db_path = str(Path(__file__).parent.parent / db_name)
         self.notifier = TelegramNotifier(
             db_path=self.db_path,
@@ -2670,9 +2670,9 @@ class TelegramBot:
             conn = _get_db()
             try:
                 row = conn.execute("PRAGMA database_list").fetchone()
-                src = row[2] if row else str(Path(__file__).parent.parent / getattr(config, "DB_PATH", "jobhunt_saas_v2.db"))
+                src = row[2] if row else str(Path(__file__).parent.parent / (getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"))
             except Exception:
-                src = str(Path(__file__).parent.parent / getattr(config, "DB_PATH", "jobhunt_saas_v2.db"))
+                src = str(Path(__file__).parent.parent / (getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"))
             ts = datetime.now().strftime("%Y%m%d_%H%M%S")
             dst = f"{src}.{ts}.bak"
             conn.execute("VACUUM INTO ?", (dst,))
