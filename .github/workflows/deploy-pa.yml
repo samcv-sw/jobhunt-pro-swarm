@@ -48,7 +48,7 @@ jobs:
             remote="${FILES[$local]}"
             if [ -f "$local" ]; then
               echo "Uploading $local to $remote..."
-              HTTP_CODE=$(curl -s -o /tmp/upload_resp.txt -w "%{http_code}" --max-time 30 \
+              HTTP_CODE=$(curl -s -o /tmp/upload_resp.txt -w "%{http_code}" --max-time 60 \
                 -X POST "https://www.pythonanywhere.com/api/v0/user/${USER_LOWER}/files/path$remote" \
                 -H "Authorization: Token $PA_TOKEN" \
                 -F "content=@$local")
@@ -70,7 +70,7 @@ jobs:
           USER_LOWER="${USER_LOWER:-jhfguf}"
           DOMAIN="${{ vars.PA_DOMAIN }}"
           DOMAIN="${DOMAIN:-jhfguf.pythonanywhere.com}"
-          HTTP_CODE=$(curl -s -o /tmp/reload_resp.txt -w "%{http_code}" --max-time 30 \
+          HTTP_CODE=$(curl -s -o /tmp/reload_resp.txt -w "%{http_code}" --max-time 90 \
             -X POST "https://www.pythonanywhere.com/api/v0/user/${USER_LOWER}/webapps/${DOMAIN}/reload/" \
             -H "Authorization: Token $PA_TOKEN")
           echo "HTTP Code: ${HTTP_CODE}"
