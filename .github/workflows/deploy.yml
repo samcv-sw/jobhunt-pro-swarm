@@ -13,7 +13,7 @@ jobs:
       - name: Trigger Render Deployment
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        if: secrets.RENDER_DEPLOY_HOOK_URL != ''
+        if: ${{ env.RENDER_DEPLOY_HOOK != '' }}
         uses: fjogeleit/http-request-action@v1
         with:
           url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
@@ -26,11 +26,11 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Setup flyctl
-        if: secrets.FLY_API_TOKEN != ''
+        if: ${{ secrets.FLY_API_TOKEN }}
         uses: superfly/flyctl-actions/setup-flyctl@master
         
       - name: Deploy to Fly.io
-        if: secrets.FLY_API_TOKEN != ''
+        if: ${{ secrets.FLY_API_TOKEN }}
         run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
