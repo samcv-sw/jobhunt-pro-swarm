@@ -138,6 +138,46 @@ BOUQUET_PACKAGES = [
 ]
 
 
+# Map checkout service IDs (from services/catalog.py) to backend feature IDs (from SERVICE_PACKAGES)
+CHECKOUT_SERVICE_MAPPING = {
+    "cv-review": {"ats-dominator"},
+    "email-template": {"penetration-letter"},
+    "cover-letter-basic": {"penetration-letter"},
+    "linkedin-headline": {"linkedin-dominator"},
+    "job-alert-setup": {"competition-radar"},
+    "skill-gap-report": {"ats-dominator"},
+    "cv-optimization": {"ats-dominator"},
+    "company-research": {"the-insider"},
+    "followup-sequence": {"follow-up-trio"},
+    "networking-plan": {"networking-missile"},
+    "linkedin-optimization": {"linkedin-dominator"},
+    "interview-prep": {"mock-interview", "interview-arsenal"},
+    "career-consultation": {"career-agent"},
+    "full-application-pack": {"ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", "warp-speed", "global-strike"},
+    "salary-negotiation": {"salary-negotiator"},
+    "vip-support-month": {
+        "ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", "interview-arsenal", 
+        "warp-speed", "global-strike", "competition-radar", "mock-interview", "linkedin-dominator", 
+        "salary-negotiator", "career-agent", "networking-missile", "interview-ninja", "mena-multilang"
+    }
+}
+
+# Map checkout bouquet IDs (from services/catalog.py) to backend feature IDs
+CHECKOUT_BOUQUET_MAPPING = {
+    "starter-pack": {"ats-dominator", "penetration-letter"},
+    "linkedin-pack": {"linkedin-dominator"},
+    "application-pack": {"ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", "warp-speed", "global-strike"},
+    "premium-pack": {
+        "ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", "warp-speed", "global-strike",
+        "linkedin-dominator", "career-agent", "mock-interview", "interview-arsenal"
+    },
+    "vip-month": {
+        "ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", "interview-arsenal", 
+        "warp-speed", "global-strike", "competition-radar", "mock-interview", "linkedin-dominator", 
+        "salary-negotiator", "career-agent", "networking-missile", "interview-ninja", "mena-multilang"
+    }
+}
+
 def get_unlocked_features(user_id: str) -> set:
     """Return the set of feature IDs unlocked by user's purchases (services + bouquets)."""
     unlocked = set()
@@ -152,17 +192,24 @@ def get_unlocked_features(user_id: str) -> set:
             for p in purchases:
                 pid = p[0]
                 stype = p[1]
+                
+                # Apply checkout mappings first, falling back to direct names
                 if stype == "service":
-                    unlocked.add(pid)  # direct feature: ats-dominator, the-insider, etc.
+                    if pid in CHECKOUT_SERVICE_MAPPING:
+                        unlocked.update(CHECKOUT_SERVICE_MAPPING[pid])
+                    else:
+                        unlocked.add(pid)
                 elif stype == "bouquet":
-                    # expand bouquet into its features
-                    features = BOUQUET_FEATURES.get(pid, [])
-                    unlocked.update(features)
+                    if pid in CHECKOUT_BOUQUET_MAPPING:
+                        unlocked.update(CHECKOUT_BOUQUET_MAPPING[pid])
+                    elif pid in BOUQUET_FEATURES:
+                        unlocked.update(BOUQUET_FEATURES[pid])
         finally:
             db.close()
     except Exception:
         pass
     return unlocked
+
 
 
 def get_all_pricing() -> Dict[str, Any]:

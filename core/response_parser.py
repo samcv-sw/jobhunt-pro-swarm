@@ -115,18 +115,13 @@ class ResponseParser:
         self.auto_reply_patterns = self._build_patterns(AUTO_REPLY_KEYWORDS)
         self.spam_patterns = self._build_patterns(SPAM_KEYWORDS)
 
-    def _build_patterns(self, keywords: list) -> list:
-        patterns = []
-        for kw in keywords:
-            patterns.append(re.compile(r'\b' + re.escape(kw) + r'\b', re.IGNORECASE))
-        return patterns
+    def _build_patterns(self, keywords: list) -> re.Pattern:
+        """Compile all keywords into one union regex for O(1) per-category scan."""
+        union = "|".join(r'\b' + re.escape(kw) + r'\b' for kw in keywords)
+        return re.compile(union, re.IGNORECASE)
 
-    def _count_matches(self, text: str, patterns: list) -> Tuple[int, list]:
-        found = []
-        for pattern in patterns:
-            matches = pattern.findall(text)
-            if matches:
-                found.extend(matches)
+    def _count_matches(self, text: str, pattern: re.Pattern) -> Tuple[int, list]:
+        found = pattern.findall(text)
         return len(found), found
 
     def parse(self, subject: str, body: str, from_email: str = "") -> ParseResult:

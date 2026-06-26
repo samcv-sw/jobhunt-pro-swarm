@@ -11,6 +11,9 @@ from typing import Dict, List, Any, Optional
 
 logger = logging.getLogger(__name__)
 
+# Precompile prefix regex globally to improve name parsing performance
+PREFIX_RE = re.compile(r'^(Mr\.|Mrs\.|Ms\.|Dr\.|Prof\.)\s*', re.IGNORECASE)
+
 
 class EmailPersonalizer:
     """Advanced email personalization with dynamic tokens."""
@@ -56,8 +59,8 @@ class EmailPersonalizer:
         if not full_name:
             return ""
         
-        # Remove common prefixes
-        name = re.sub(r'^(Mr\.|Mrs\.|Ms\.|Dr\.|Prof\.)\s*', '', full_name, flags=re.IGNORECASE)
+        # Remove common prefixes using globally precompiled regex
+        name = PREFIX_RE.sub('', full_name)
         
         # Get first part
         parts = name.strip().split()
@@ -70,8 +73,13 @@ class EmailPersonalizer:
         if not company_info:
             company_info = {}
         
+        contact_name = company_info.get("contact_name", "")
+        first_name = self.extract_first_name(contact_name)
+        if not first_name or not first_name.strip():
+            first_name = "Hiring Manager"
+        
         token_map = {
-            "{first_name}": self.extract_first_name(company_info.get("contact_name", "")),
+            "{first_name}": first_name,
             "{company}": company_info.get("company", "your company"),
             "{position}": company_info.get("title", "the position"),
             "{relevant_skill}": self._get_relevant_skill(company_info),
@@ -86,19 +94,33 @@ class EmailPersonalizer:
         return token_map.get(token, token)
     
     def personalize_email(self, template: str, company_info: Dict = None) -> str:
-        """Personalize an email template with dynamic content"""
+        """Personalize an email template with dynamic content in a single pass."""
         if not company_info:
             company_info = {}
         
-        result = template
+        contact_name = company_info.get("contact_name", "")
+        first_name = self.extract_first_name(contact_name)
+        if not first_name or not first_name.strip():
+            first_name = "Hiring Manager"
         
-        # Replace all tokens
-        for token in ["{first_name}", "{company}", "{position}", 
-                      "{relevant_skill}", "{achievement}", "{pain_point}",
-                      "{candidate_name}", "{candidate_email}", 
-                      "{candidate_phone}", "{candidate_profession}"]:
-            replacement = self.personalize_token(token, company_info)
-            result = result.replace(token, replacement)
+        # Build token map once per email to prevent redundant computations
+        token_map = {
+            "{first_name}": first_name,
+            "{company}": company_info.get("company", "your company"),
+            "{position}": company_info.get("title", "the position"),
+            "{relevant_skill}": self._get_relevant_skill(company_info),
+            "{achievement}": self._get_relevant_achievement(company_info),
+            "{pain_point}": self._get_pain_point(company_info),
+            "{candidate_name}": self.candidate_data["name"],
+            "{candidate_email}": self.candidate_data["email"],
+            "{candidate_phone}": self.candidate_data["phone"],
+            "{candidate_profession}": self.candidate_data["profession"],
+        }
+        
+        result = template
+        for token, replacement in token_map.items():
+            if token in result:
+                result = result.replace(token, replacement)
         
         return result
     

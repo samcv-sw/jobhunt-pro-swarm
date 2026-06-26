@@ -1107,7 +1107,7 @@ def init_saas_v2_db():
                 open_count INTEGER DEFAULT 0,
                 response_count INTEGER DEFAULT 0,
                 bouquets TEXT,
-                engine_type TEXT DEFAULT 'piggyback',
+                engine_type TEXT DEFAULT 'cloud',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 started_at TIMESTAMP,
                 completed_at TIMESTAMP,
@@ -1416,7 +1416,11 @@ def init_saas_v2_db():
                         conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
                         conn.commit()
                     except Exception as e:
-                        logger.error(f"Error adding {col} to {table}: {e}")
+                        err_msg = str(e).lower()
+                        if "already exists" in err_msg or "duplicate column" in err_msg:
+                            logger.info(f"Column {col} already exists in {table} (handled gracefully)")
+                        else:
+                            logger.error(f"Error adding {col} to {table}: {e}")
 
             # Migration: Add NowPayments columns
 
@@ -1446,7 +1450,13 @@ def init_saas_v2_db():
             add_column("campaigns", "total_attempted", "INTEGER DEFAULT 0")
             add_column("campaigns", "retry_count", "INTEGER DEFAULT 0")
             add_column("campaigns", "premium_weapons", "INTEGER DEFAULT 0")
-            add_column("campaigns", "engine_type", "TEXT DEFAULT 'piggyback'")
+            add_column("campaigns", "engine_type", "TEXT DEFAULT 'cloud'")
+            # Backfill existing non-functional piggyback/cloud-tick campaigns to cloud
+            try:
+                conn.execute("UPDATE campaigns SET engine_type = 'cloud' WHERE engine_type IN ('piggyback', 'cloud-tick')")
+                conn.commit()
+            except Exception:
+                pass
             add_column("campaign_emails", "interview_prep", "TEXT DEFAULT ''")
             add_column("campaign_emails", "linkedin_message", "TEXT DEFAULT ''")
             add_column("cv_profiles", "home_country", "TEXT DEFAULT 'Lebanon'")
@@ -4135,7 +4145,7 @@ async def delete_cv_profile(request: Request):
 @app.post("/create-campaign")
 @app.post("/api/campaigns")
 def create_campaign(request: Request, profile_id: int = Form(...),
-                          company_count: int = Form(0), bouquet: str = Form(""), bouquet_names: str = Form(""), engine_type: str = Form("piggyback")):
+                          company_count: int = Form(0), bouquet: str = Form(""), bouquet_names: str = Form(""), engine_type: str = Form("cloud")):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -8337,7 +8347,14 @@ def api_employer_post_job(
         existing = [c[1] for c in conn.execute("PRAGMA table_info(posted_jobs)").fetchall()]
         for col, coltype in [('duration_days','INTEGER DEFAULT 30'),('is_bulk','INTEGER DEFAULT 0'),('bulk_count','INTEGER DEFAULT 0'),('addons',"TEXT DEFAULT '[]'"),('applications','INTEGER DEFAULT 0'),('google_jobs_id',"TEXT DEFAULT ''")]:
             if col not in existing:
-                conn.execute(f"ALTER TABLE posted_jobs ADD COLUMN {col} {coltype}")
+                try:
+                    conn.execute(f"ALTER TABLE posted_jobs ADD COLUMN {col} {coltype}")
+                except Exception as e:
+                    err_msg = str(e).lower()
+                    if "already exists" in err_msg or "duplicate column" in err_msg:
+                        logger.info(f"Column {col} already exists in posted_jobs (handled gracefully)")
+                    else:
+                        raise e
         conn.commit()
 
         job_ids = []
@@ -8529,7 +8546,7 @@ def api_apply_to_job(
         # Ensure applications column exists
         try:
             conn.execute("ALTER TABLE posted_jobs ADD COLUMN applications INTEGER DEFAULT 0")
-        except sqlite3.OperationalError:
+        except Exception:
             pass
 
         # Increment application count
@@ -9424,26 +9441,30 @@ def cron_run_cycle(request: Request, key: str = ""):
         return JSONResponse({"status": "error", "detail": "invalid key"}, status_code=403)
 
     try:
-        try:
-            from orchestrator import Orchestrator
-        except ImportError as ie:
-            return JSONResponse({"status": "error", "detail": f"orchestrator import error: {ie}"}, status_code=503)
-        try:
-            orch = Orchestrator()
-        except Exception as oe:
-            return JSONResponse({"status": "error", "detail": f"orchestrator init error: {oe}"}, status_code=503)
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        result = loop.run_until_complete(orch.run_full_cycle())
-        loop.close()
+        import subprocess
+        import sys
+        
+        creationflags = 0
+        if sys.platform.startswith("win"):
+            creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
+        script_path = str(BASE_DIR / "cron_trigger.py")
+
+        p = subprocess.Popen(
+            [sys.executable, script_path, "--company-limit", "15", "--max-campaigns", "3", "--skip-backup"],
+            creationflags=creationflags,
+            start_new_session=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        logger.info(f"[CronRunCycle] Spawned cron_trigger.py in background (PID: {p.pid})")
         return {
-            "status": "ok",
-            "found": result["found"],
-            "applied": result["applied"],
-            "followups": result["followups"],
+            "status": "spawned",
+            "message": "Cron cycle started in background.",
+            "pid": p.pid,
         }
     except Exception as e:
-        logger.exception("Cron cycle failed: %s", e)
+        logger.exception("Cron cycle spawning failed: %s", e)
         return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
 
 
@@ -11229,12 +11250,26 @@ async def cron_tick(request: Request, key: str = "", maintenance: str = "",
         
         if cid:
             try:
-                logger.info(f"[CRON] Picked up pending campaign {cid} to run inline")
-                from core.campaign_runner import run_campaign
-                camp_res = await run_campaign(cid, get_db, config)
-                res["actions"].append({"campaign": cid, "result": camp_res})
+                logger.info(f"[CRON] Picked up pending campaign {cid} to run in background")
+                import subprocess
+                import sys
+                
+                creationflags = 0
+                if sys.platform.startswith("win"):
+                    creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                
+                script_path = str(BASE_DIR.parent / "run_campaign_cli.py")
+                p = subprocess.Popen(
+                    [sys.executable, script_path, cid],
+                    creationflags=creationflags,
+                    start_new_session=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+                logger.info(f"[CRON] Spawned run_campaign_cli.py for campaign {cid} (PID: {p.pid})")
+                res["actions"].append({"campaign": cid, "status": "spawned", "pid": p.pid})
             except Exception as ce:
-                logger.error(f"[CRON] Inline execution error for {cid}: {ce}")
+                logger.error(f"[CRON] Background execution spawn error for {cid}: {ce}")
                 res["actions"].append({"campaign": cid, "error": str(ce)})
                 
         return res

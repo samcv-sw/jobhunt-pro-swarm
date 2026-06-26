@@ -85,24 +85,27 @@ def run_daily_backup():
     return None
 
 
-async def run_cycle():
-    """Run one full job-hunt cycle."""
-    from orchestrator import Orchestrator
-
-    orch = Orchestrator()
-    logger.info("=" * 60)
-    logger.info("  PA CRON — Starting Job Cycle")
-    logger.info("=" * 60)
-
-    result = await orch.run_full_cycle()
+async def run_cycle(company_limit: int = 15, max_campaigns: int = 3, campaign_id: str = None):
+    """Run one full job-hunt cycle using MultiTenantRunner."""
+    from core.multi_tenant import MultiTenantRunner
 
     logger.info("=" * 60)
-    logger.info("  PA CRON — Cycle Complete")
-    logger.info(f"  Found:    {result['found']}")
-    logger.info(f"  Applied:  {result['applied']}")
-    logger.info(f"  Followups:{result['followups']}")
+    logger.info(f"  PA CRON — Starting Multi-Tenant Job Cycle (company_limit={company_limit}, max_campaigns={max_campaigns}, campaign_id={campaign_id})")
     logger.info("=" * 60)
-    return result
+
+    runner = MultiTenantRunner(company_limit=company_limit, max_campaigns=max_campaigns, campaign_id=campaign_id)
+    result = await runner.tick()
+
+    logger.info("=" * 60)
+    logger.info("  PA CRON — Multi-Tenant Cycle Complete")
+    logger.info(f"  Processed campaigns: {result.get('campaigns_processed', 0)}")
+    logger.info(f"  Emails sent:         {result.get('emails_sent', 0)}")
+    logger.info("=" * 60)
+    return {
+        "found": result.get("campaigns_processed", 0),
+        "applied": result.get("emails_sent", 0),
+        "followups": 0
+    }
 
 
 def main():
@@ -112,20 +115,32 @@ def main():
       1. Daily database backup (only first run after midnight UTC)
       2. Full job cycle (Search → Apply → Follow-up)
     """
+    import argparse
+    parser = argparse.ArgumentParser(description="PA Cron Trigger")
+    parser.add_argument("--company-limit", type=int, default=15)
+    parser.add_argument("--max-campaigns", type=int, default=3)
+    parser.add_argument("--campaign-id", type=str, default=None)
+    parser.add_argument("--skip-backup", action="store_true")
+    args, unknown = parser.parse_known_args()
+
     logger.info("PA Cron Trigger started")
 
     # ── Daily backup (runs once per UTC day) ───────────────
-    if _should_run_backup():
+    if not args.skip_backup and _should_run_backup():
         logger.info("📦 Daily backup window — running backup before job cycle")
         run_daily_backup()
     else:
-        logger.info("📦 Backup already done today — skipping")
+        logger.info("📦 Backup already done today or skipped")
 
     # ── Job cycle ──────────────────────────────────────────
     try:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        result = loop.run_until_complete(run_cycle())
+        result = loop.run_until_complete(run_cycle(
+            company_limit=args.company_limit,
+            max_campaigns=args.max_campaigns,
+            campaign_id=args.campaign_id
+        ))
         loop.close()
         logger.info("PA Cron Trigger completed successfully")
 

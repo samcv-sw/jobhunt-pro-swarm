@@ -80,6 +80,11 @@ class AntiBanProtection:
         """Normalize company name for tracking"""
         return company_name.lower().strip().replace(' ', '_')
     
+    def _get_user_key(self, company_key: str, user_id: Optional[str]) -> str:
+        """Get unique composite key for tenant + company tracking"""
+        uid = user_id or "default"
+        return f"{uid}:{company_key}"
+    
     def is_honeypot(self, email: str, company: str, snippet: str = "") -> bool:
         """
         Check if this looks like a honeypot/spam trap.
@@ -116,35 +121,22 @@ class AntiBanProtection:
 
         return False
     
-    def can_apply_to_company(self, company: str) -> tuple[bool, str]:
-        """Check if we can apply to this company (in-memory + database persistence)"""
+    def can_apply_to_company(self, company: str, user_id: Optional[str] = None) -> tuple[bool, str]:
+        """Check if we can apply to this company (in-memory + database persistence, tenant-isolated)"""
         company_key = self._normalize_company_name(company)
+        user_key = self._get_user_key(company_key, user_id)
         now = datetime.now()
         
         # 1. Check in-memory blacklist first (fastest)
-        if company_key in self.suspicious_companies:
-            return False, "Company is blacklisted (in-memory)"
+        if user_key in self.suspicious_companies:
+            return False, "Company is blacklisted for this tenant (in-memory)"
             
-        # 2. Check historical database blacklist (persistent cross-restarts)
-        try:
-            with sqlite3.connect(DB_PATH, timeout=10) as conn:
-                cur = conn.execute(
-                    "SELECT COUNT(*) FROM jobs WHERE LOWER(company)=? AND (response_type='blacklisted' OR response_type='honeypot')",
-                    (company.lower().strip(),)
-                )
-                if cur.fetchone()[0] > 0:
-                    # Sync back to in-memory cache for speed
-                    self.suspicious_companies.add(company_key)
-                    return False, "Company is blacklisted (historical database check)"
-        except Exception as e:
-            logger.debug(f"Database blacklist check failed: {e}")
-        
-        # 3. Get in-memory application history
-        apps = self.company_applications.get(company_key, [])
+        # 2. Check in-memory application history (fastest local checks)
+        apps = self.company_applications.get(user_key, [])
         
         # Clean old entries
         apps = [app for app in apps if (now - app).days < 30]
-        self.company_applications[company_key] = apps
+        self.company_applications[user_key] = apps
         
         # Check in-memory limits
         daily_apps = [app for app in apps if (now - app).days < 1]
@@ -157,91 +149,128 @@ class AntiBanProtection:
         
         if len(apps) >= self.max_apps_per_company_total:
             return False, f"Total limit reached ({self.max_apps_per_company_total} total in-memory)"
-            
-        # 4. Check historical database application counts (cross-process persistence)
+
+        # 3. Check historical database counts and blacklist in a single combined query
         try:
             with sqlite3.connect(DB_PATH, timeout=10) as conn:
-                # Query daily apps (last 24 hours)
-                cur = conn.execute(
-                    "SELECT COUNT(*) FROM jobs WHERE LOWER(company)=? AND status='applied' AND datetime(created_at) >= datetime('now', '-1 day')",
-                    (company.lower().strip(),)
-                )
-                db_daily = cur.fetchone()[0]
-                if db_daily >= self.max_apps_per_company_per_day:
-                    return False, f"Daily limit reached ({db_daily}/day, database check)"
+                # Detect if user_id column exists in jobs table
+                has_user_id = True
+                try:
+                    conn.execute("SELECT user_id FROM jobs LIMIT 1")
+                except Exception:
+                    has_user_id = False
 
-                # Query weekly apps (last 7 days)
-                cur = conn.execute(
-                    "SELECT COUNT(*) FROM jobs WHERE LOWER(company)=? AND status='applied' AND datetime(created_at) >= datetime('now', '-7 days')",
-                    (company.lower().strip(),)
-                )
-                db_weekly = cur.fetchone()[0]
-                if db_weekly >= self.max_apps_per_company_per_week:
-                    return False, f"Weekly limit reached ({db_weekly}/week, database check)"
-
-                # Query total apps
-                cur = conn.execute(
-                    "SELECT COUNT(*) FROM jobs WHERE LOWER(company)=? AND status='applied'",
-                    (company.lower().strip(),)
-                )
-                db_total = cur.fetchone()[0]
-                if db_total >= self.max_apps_per_company_total:
-                    return False, f"Total limit reached ({db_total} total, database check)"
+                if has_user_id and user_id:
+                    cur = conn.execute("""
+                        SELECT 
+                            SUM(CASE WHEN response_type='blacklisted' OR response_type='honeypot' THEN 1 ELSE 0 END),
+                            SUM(CASE WHEN status='applied' AND datetime(created_at) >= datetime('now', '-1 day') THEN 1 ELSE 0 END),
+                            SUM(CASE WHEN status='applied' AND datetime(created_at) >= datetime('now', '-7 days') THEN 1 ELSE 0 END),
+                            SUM(CASE WHEN status='applied' THEN 1 ELSE 0 END)
+                        FROM jobs 
+                        WHERE LOWER(company)=? AND (user_id=? OR user_id IS NULL)
+                    """, (company.lower().strip(), user_id))
+                else:
+                    cur = conn.execute("""
+                        SELECT 
+                            SUM(CASE WHEN response_type='blacklisted' OR response_type='honeypot' THEN 1 ELSE 0 END),
+                            SUM(CASE WHEN status='applied' AND datetime(created_at) >= datetime('now', '-1 day') THEN 1 ELSE 0 END),
+                            SUM(CASE WHEN status='applied' AND datetime(created_at) >= datetime('now', '-7 days') THEN 1 ELSE 0 END),
+                            SUM(CASE WHEN status='applied' THEN 1 ELSE 0 END)
+                        FROM jobs 
+                        WHERE LOWER(company)=?
+                    """, (company.lower().strip(),))
+                
+                row = cur.fetchone()
+                if row:
+                    is_blacklisted = row[0] or 0
+                    db_daily = row[1] or 0
+                    db_weekly = row[2] or 0
+                    db_total = row[3] or 0
+                    
+                    if is_blacklisted > 0:
+                        self.suspicious_companies.add(user_key)
+                        return False, "Company is blacklisted for this tenant (historical database check)"
+                    if db_daily >= self.max_apps_per_company_per_day:
+                        return False, f"Daily limit reached ({db_daily}/day, database check)"
+                    if db_weekly >= self.max_apps_per_company_per_week:
+                        return False, f"Weekly limit reached ({db_weekly}/week, database check)"
+                    if db_total >= self.max_apps_per_company_total:
+                        return False, f"Total limit reached ({db_total} total, database check)"
         except Exception as e:
-            logger.debug(f"Database application history check failed: {e}")
+            logger.debug(f"Database query optimization checks failed: {e}")
         
         return True, "OK"
     
-    def record_application(self, company: str):
+    def record_application(self, company: str, user_id: Optional[str] = None):
         """Record an application to a company"""
         company_key = self._normalize_company_name(company)
+        user_key = self._get_user_key(company_key, user_id)
         now = datetime.now()
         
-        if company_key not in self.company_applications:
-            self.company_applications[company_key] = []
+        if user_key not in self.company_applications:
+            self.company_applications[user_key] = []
         
-        self.company_applications[company_key].append(now)
+        self.company_applications[user_key].append(now)
         self.last_application_time = now
         self.daily_applications += 1
         self.hourly_applications += 1
         
-        logger.debug(f"Recorded application to {company}")
+        logger.debug(f"Recorded application to {company} (tenant: {user_id or 'default'})")
     
-    def record_failure(self, company: str):
+    def record_failure(self, company: str, user_id: Optional[str] = None):
         """Record a failed application"""
         company_key = self._normalize_company_name(company)
+        user_key = self._get_user_key(company_key, user_id)
         
-        if company_key not in self.failed_applications:
-            self.failed_applications[company_key] = 0
+        if user_key not in self.failed_applications:
+            self.failed_applications[user_key] = 0
         
-        self.failed_applications[company_key] += 1
+        self.failed_applications[user_key] += 1
         
         # Blacklist after 3 failures
-        if self.failed_applications[company_key] >= 3:
-            self.suspicious_companies.add(company_key)
-            logger.warning(f"Blacklisted {company} after {self.failed_applications[company_key]} failures")
+        if self.failed_applications[user_key] >= 3:
+            self.suspicious_companies.add(user_key)
+            logger.warning(f"Blacklisted {company} for tenant {user_id or 'default'} after {self.failed_applications[user_key]} failures")
     
-    def should_blacklist_company(self, company: str) -> bool:
+    def should_blacklist_company(self, company: str, user_id: Optional[str] = None) -> bool:
         """Check if company should be blacklisted (in-memory + database check)"""
         company_key = self._normalize_company_name(company)
+        user_key = self._get_user_key(company_key, user_id)
         
         # Check in-memory first
-        failures = self.failed_applications.get(company_key, 0)
+        failures = self.failed_applications.get(user_key, 0)
         if failures >= 3:
             return True
-        if company_key in self.suspicious_companies:
+        if user_key in self.suspicious_companies:
             return True
         
         # Check database
         try:
             with sqlite3.connect(DB_PATH, timeout=10) as conn:
-                cur = conn.execute(
-                    "SELECT COUNT(*) FROM jobs WHERE LOWER(company)=? AND (response_type='blacklisted' OR response_type='honeypot')",
-                    (company.lower().strip(),)
-                )
+                # Detect if user_id column exists
+                has_user_id = True
+                try:
+                    conn.execute("SELECT user_id FROM jobs LIMIT 1")
+                except Exception:
+                    has_user_id = False
+
+                if has_user_id and user_id:
+                    cur = conn.execute("""
+                        SELECT COUNT(*) FROM jobs 
+                        WHERE LOWER(company)=? AND (user_id=? OR user_id IS NULL) 
+                        AND (response_type='blacklisted' OR response_type='honeypot')
+                    """, (company.lower().strip(), user_id))
+                else:
+                    cur = conn.execute("""
+                        SELECT COUNT(*) FROM jobs 
+                        WHERE LOWER(company)=? 
+                        AND (response_type='blacklisted' OR response_type='honeypot')
+                    """, (company.lower().strip(),))
+                
                 if cur.fetchone()[0] > 0:
                     # Sync to in-memory cache
-                    self.suspicious_companies.add(company_key)
+                    self.suspicious_companies.add(user_key)
                     return True
         except Exception:
             pass

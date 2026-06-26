@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 # JSearch API config
 JSEARCH_KEY = os.getenv("JSEARCH_API_KEY", "4661cb4462msh784e5b26afc61cfp158ffbjsn19689ea28233")
-JSEARCH_BACKUP = os.getenv("JSEARCH_BACKUP_KEY", "7085d5ad11msh996c8add34ca2a5p106c72jsn7beaa25f86e2")
+JSEARCH_BACKUP = os.getenv("JSEARCH_BACKUP_KEY") or os.getenv("JSEARCH_API_KEY_BACKUP") or "7085d5ad11msh996c8add34ca2a5p106c72jsn7beaa25f86e2"
 
 # ── Country Mapping ──────────────────────────────────────────────────────
 COUNTRIES = {

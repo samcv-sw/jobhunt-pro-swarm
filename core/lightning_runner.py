@@ -12,6 +12,7 @@ import random
 import logging
 from datetime import datetime
 from pathlib import Path
+from core.anti_ban import anti_ban
 
 logger = logging.getLogger(__name__)
 
@@ -158,6 +159,26 @@ async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> di
                     companies_processed.append({"company": company_name, "status": "invalid_email"})
                     continue
                 
+                # ── Anti-Ban Protections ──
+                # 1. Check if honeypot
+                if anti_ban.is_honeypot(company_email, company_name, ""):
+                    failed += 1
+                    companies_processed.append({"company": company_name, "status": "failed", "reason": "honeypot"})
+                    continue
+                
+                # 2. Check tenant-isolated company rate limits
+                can_apply, reason = anti_ban.can_apply_to_company(company_name, user_id=tenant_id)
+                if not can_apply:
+                    failed += 1
+                    companies_processed.append({"company": company_name, "status": "skipped", "reason": f"rate_limited: {reason}"})
+                    continue
+                
+                # 3. Check if company should be blacklisted
+                if anti_ban.should_blacklist_company(company_name, user_id=tenant_id):
+                    failed += 1
+                    companies_processed.append({"company": company_name, "status": "failed", "reason": "blacklisted"})
+                    continue
+                
                 # Build HTML
                 skills_short = (skills[:200].replace(',', '</li><li>') if skills else 'Professional experience')
                 cv_short = (cv_text or "")[:300]
@@ -183,12 +204,12 @@ async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> di
             if not recipients:
                 return {
                     "status": "ok", "sent": 0, "failed": 0,
-                    "message": "All companies already contacted",
+                    "message": "All companies already contacted or filtered by anti-ban",
                     "companies": companies_processed,
                 }
             
             # Send batch (max 5 per account to stay safe)
-            result = send_batch(recipients, max_per_account=5)
+            result = send_batch(recipients, max_per_account=5, tenant_id=tenant_id, from_name=tenant_name)
             sent = result.get("sent", 0)
             failed = result.get("failed", len(recipients) - sent)
             
@@ -204,9 +225,60 @@ async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> di
                             "INSERT INTO campaign_sent (campaign_id, company_name, email, status, sent_at) VALUES (?,?,?,'sent',CURRENT_TIMESTAMP)",
                             (campaign_id, company_name, detail.get("via", "smtp"))
                         )
+                        
+                        # Generate a unique job_id and also record to the jobs table for dashboard/anti-ban
+                        import uuid
+                        job_id = f"job_{uuid.uuid4().hex[:12]}"
+                        
+                        has_user_id = True
+                        try:
+                            conn.execute("SELECT user_id FROM jobs LIMIT 1")
+                        except Exception:
+                            has_user_id = False
+                            
+                        if has_user_id:
+                            conn.execute("""
+                                INSERT INTO jobs 
+                                (job_id, user_id, title, company, email, location, url, source, snippet, status, created_at, updated_at) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'applied', datetime('now'), datetime('now'))
+                            """, (
+                                job_id,
+                                tenant_id,
+                                job_title,
+                                company_name,
+                                detail.get("email", ""),
+                                "Lebanon",
+                                "",
+                                "lightning_campaign",
+                                f"Applied via Lightning Campaign {campaign_id}"
+                            ))
+                        else:
+                            conn.execute("""
+                                INSERT INTO jobs 
+                                (job_id, title, company, email, location, url, source, snippet, status, created_at, updated_at) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'applied', datetime('now'), datetime('now'))
+                            """, (
+                                job_id,
+                                job_title,
+                                company_name,
+                                detail.get("email", ""),
+                                "Lebanon",
+                                "",
+                                "lightning_campaign",
+                                f"Applied via Lightning Campaign {campaign_id}"
+                            ))
                         conn.commit()
-                    except Exception:
-                        pass
+                        
+                        # Also record application in anti-ban
+                        anti_ban.record_application(company_name, user_id=tenant_id)
+                    except Exception as ex:
+                        logger.error(f"[Lightning] Failed to record successful application: {ex}")
+                else:
+                    # Record failure in anti-ban
+                    try:
+                        anti_ban.record_failure(company_name, user_id=tenant_id)
+                    except Exception as ex:
+                        logger.error(f"[Lightning] Failed to record failed application: {ex}")
         
         except ImportError as e:
             logger.warning(f"[Lightning] micro_smtp not available: {e}")
@@ -217,11 +289,24 @@ async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> di
         new_sent = (camp.get("sent_count") or 0) + sent
         new_total = max(camp.get("total_companies") or 0, sent + failed)
         
-        conn.execute(
-            """UPDATE campaigns SET sent_count=?, total_companies=?, status='completed'
-               WHERE campaign_id=?""",
-            (new_sent, new_total, campaign_id)
-        )
+        target_limit = camp.get("total_companies") or 100
+        has_more = (len(companies) >= company_limit) and (new_sent < target_limit)
+        
+        if has_more:
+            conn.execute(
+                """UPDATE campaigns SET sent_count=?, total_companies=?, status='pending'
+                   WHERE campaign_id=?""",
+                (new_sent, new_total, campaign_id)
+            )
+            logger.info(f"[Lightning] Campaign {campaign_id} updated: sent={new_sent}/{new_total}, status remains pending")
+        else:
+            conn.execute(
+                """UPDATE campaigns SET sent_count=?, total_companies=?, status='completed', completed_at=CURRENT_TIMESTAMP
+                   WHERE campaign_id=?""",
+                (new_sent, new_total, campaign_id)
+            )
+            logger.info(f"[Lightning] Campaign {campaign_id} COMPLETED: sent={new_sent}/{new_total}")
+        
         conn.commit()
         
         elapsed = time.time() - start_time

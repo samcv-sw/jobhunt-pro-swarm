@@ -6,7 +6,6 @@ import json
 import logging
 import subprocess
 from datetime import datetime
-import PyPDF2
 import re
 
 # Setup Logging
@@ -109,10 +108,40 @@ def process_queue():
             # Extract CV text for AI Affiliate Injector
             cv_text = ""
             try:
-                with open(cv_path, "rb") as f:
-                    reader = PyPDF2.PdfReader(f)
-                    for page in reader.pages:
-                        cv_text += page.extract_text() + " "
+                # 1. Try pdfplumber (preferred)
+                try:
+                    import pdfplumber
+                    with pdfplumber.open(cv_path) as pdf:
+                        cv_text = "\n".join(page.extract_text() or "" for page in pdf.pages)
+                except ImportError:
+                    pass
+                except Exception as e:
+                    logger.warning(f"pdfplumber failed: {e}")
+
+                # 2. Try pypdf (modern standard fallback)
+                if not cv_text.strip():
+                    try:
+                        import pypdf
+                        with open(cv_path, "rb") as f:
+                            reader = pypdf.PdfReader(f)
+                            cv_text = "\n".join(page.extract_text() or "" for page in reader.pages)
+                    except ImportError:
+                        pass
+                    except Exception as e:
+                        logger.warning(f"pypdf fallback failed: {e}")
+
+                # 3. Try PyPDF2 (legacy fallback)
+                if not cv_text.strip():
+                    try:
+                        import PyPDF2
+                        with open(cv_path, "rb") as f:
+                            reader = PyPDF2.PdfReader(f)
+                            cv_text = "\n".join(page.extract_text() or "" for page in reader.pages)
+                    except ImportError:
+                        pass
+                    except Exception as e:
+                        logger.warning(f"PyPDF2 fallback failed: {e}")
+
             except Exception as e:
                 logger.error(f"Could not read PDF for affiliate injection: {e}")
                 

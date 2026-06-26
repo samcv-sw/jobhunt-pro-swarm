@@ -247,6 +247,71 @@ class ServiceFulfillment:
                 _save_orders(self._orders)
                 _log_sale(order)
 
+                # SQLite/PostgreSQL Database Sync: Credit wallet and record order/purchase
+                try:
+                    import sqlite3
+                    import pathlib
+                    db_val = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+                    if os.path.isabs(db_val):
+                        db_path = db_val
+                    else:
+                        base_dir = pathlib.Path(__file__).resolve().parent.parent
+                        db_path = str(base_dir / db_val)
+                    
+                    customer_email = order.get("customer_email", "")
+                    price = order.get("price", 0)
+                    service_id = order.get("service_id", "")
+                    service_name = order.get("service_name", "")
+                    item_type = order.get("item_type", "service")
+                    
+                    if customer_email:
+                        conn = sqlite3.connect(db_path, timeout=30)
+                        conn.row_factory = sqlite3.Row
+                        try:
+                            user_row = conn.execute("SELECT user_id, wallet_balance FROM users WHERE email = ?", (customer_email,)).fetchone()
+                            if user_row:
+                                user_id = user_row["user_id"]
+                                conn.execute("BEGIN TRANSACTION")
+                                
+                                # Credit wallet
+                                conn.execute("UPDATE users SET wallet_balance = wallet_balance + ? WHERE user_id = ?", (price, user_id))
+                                
+                                # Get new balance
+                                new_bal_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
+                                new_bal = new_bal_row["wallet_balance"] if new_bal_row else price
+                                
+                                # Insert wallet transaction
+                                conn.execute("""
+                                    INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
+                                    VALUES (?, ?, ?, ?, ?)
+                                """, (user_id, "deposit", price, new_bal, f"Crypto Checkout: {order_id} ({service_name})"))
+                                
+                                # Record order in SQLite orders table if not exists
+                                order_exists = conn.execute("SELECT order_id FROM orders WHERE order_id = ?", (order_id,)).fetchone()
+                                if not order_exists:
+                                    conn.execute("""
+                                        INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                                    """, (order_id, user_id, item_type, service_id, 0, price, "crypto", "completed"))
+                                    
+                                # Record in purchased_services
+                                conn.execute("""
+                                    INSERT INTO purchased_services (user_id, service_type, package_id, package_name, price_paid, status)
+                                    VALUES (?, ?, ?, ?, ?, 'active')
+                                """, (user_id, item_type, service_id, service_name, price))
+                                
+                                conn.commit()
+                                logger.info(f"[DB-SYNC] Successfully synced payment to database: credited user {user_id} (${price:.2f}) for order {order_id}")
+                            else:
+                                logger.warning(f"[DB-SYNC] User {customer_email} not found in database, wallet credit skipped")
+                        except Exception as inner_e:
+                            conn.rollback()
+                            logger.error(f"[DB-SYNC] Database transaction failed: {inner_e}")
+                        finally:
+                            conn.close()
+                except Exception as db_sync_err:
+                    logger.error(f"[DB-SYNC] Failed to run database sync: {db_sync_err}")
+
                 self._log_verify_attempt(order_id, client_ip, True)
 
                 # Auto-deliver (safe: checks for running event loop first)

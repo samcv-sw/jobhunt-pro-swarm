@@ -18,8 +18,23 @@ SMTP_ACCOUNTS = [
     # Format: (email, app_password, display_name)
 ]
 
-def _load_smtp_accounts():
-    """Load SMTP accounts from environment variables."""
+def _load_smtp_accounts(tenant_id=None):
+    """Load SMTP accounts from environment variables or tenant-specific configurations."""
+    if tenant_id:
+        try:
+            from core.multi_tenant import MultiTenantRunner
+            provider = MultiTenantRunner.get_tenant_smtp_provider(tenant_id)
+            if provider and provider.get("user") and provider.get("password"):
+                user = provider["user"]
+                passw = provider["password"]
+                name = provider.get("name", user.split("@")[0])
+                server = provider.get("server", "smtp.gmail.com")
+                port = provider.get("port", 587)
+                logger.info(f"[MicroSMTP] Loaded tenant-specific SMTP account for {tenant_id}: {user}")
+                return [(user, passw, name, server, port)]
+        except Exception as e:
+            logger.error(f"[MicroSMTP] Failed to load tenant SMTP provider for {tenant_id}: {e}")
+
     accounts = []
     # Gmail accounts
     for i in range(1, 16):
@@ -52,6 +67,7 @@ def send_via_brevo(
     subject: str,
     html_body: str,
     from_name: str = "Candidate",
+    from_email: str = None,
 ) -> bool:
     """Send via Brevo HTTP API (300/day free, no SMTP rate limits)."""
     import json as _json
@@ -60,8 +76,9 @@ def send_via_brevo(
     if not api_key:
         return False
     try:
+        sender_email = from_email or os.getenv("BREVO_ACCOUNT_EMAIL", "samsalameh.cv@gmail.com")
         data = _json.dumps({
-            "sender": {"name": from_name, "email": os.getenv("BREVO_ACCOUNT_EMAIL", "samsalameh.cv@gmail.com")},
+            "sender": {"name": from_name, "email": sender_email},
             "to": [{"email": to_email}],
             "subject": subject,
             "htmlContent": html_body,
@@ -119,15 +136,19 @@ def send_single_email(
 def send_batch(
     recipients: list,  # [{"email": "...", "company": "...", "subject": "...", "html": "..."}]
     max_per_account: int = 5,
+    tenant_id: str = None,
+    from_name: str = "Candidate",
 ) -> dict:
     """
     Send to multiple recipients using available SMTP accounts.
     Rotates accounts to avoid hitting per-account limits.
     Returns: {"sent": N, "failed": N, "details": [...]}
     """
-    accounts = _load_smtp_accounts()
+    accounts = _load_smtp_accounts(tenant_id)
     if not accounts:
         return {"sent": 0, "failed": len(recipients), "error": "No SMTP accounts configured"}
+    
+    sender_email = accounts[0][0] if accounts else None
     
     sent = 0
     failed = 0
@@ -148,7 +169,8 @@ def send_batch(
             to_email=to_email,
             subject=r.get("subject", "Job Application"),
             html_body=r.get("html", ""),
-            from_name="Sam Salameh"
+            from_name=from_name,
+            from_email=sender_email
         )
         if success:
             sent += 1

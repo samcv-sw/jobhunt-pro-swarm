@@ -788,5 +788,125 @@
     "timestamp": "2026-06-25T15:01:44.789862",
     "summary": "Unspecified improvement",
     "conversation_id": "a08f1e82-3caa-41ec-b2da-4ead22ed920b"
+  },
+  {
+    "timestamp": "2026-06-26T01:44:20.375507",
+    "summary": "Optimized core/scam_detector.py using regex union patterns to speed up matching and reduce search iterations",
+    "conversation_id": "32c706e7-7a84-43b2-9f0e-8e2ad486f549"
+  },
+  {
+    "timestamp": "2026-06-26T01:45:23.917556",
+    "summary": "Optimized core/semantic_cache.py to reuse HTTP client connections and precompute vector norms in SQLite cosine similarity loop",
+    "conversation_id": "32c706e7-7a84-43b2-9f0e-8e2ad486f549"
+  },
+  {
+    "timestamp": "2026-06-26T01:47:55.738602",
+    "summary": "Optimized core/ats_scorer.py by precompiling regexes and caching Groq clients globally",
+    "conversation_id": "32c706e7-7a84-43b2-9f0e-8e2ad486f549"
+  },
+  {
+    "timestamp": "2026-06-26T01:49:32.559443",
+    "summary": "Optimized core/smart_scheduler.py by batching SQLite updates into single transaction commits instead of separate N connections and commits",
+    "conversation_id": "7e275909-be2a-4cc3-93e0-79632b5a9fd4"
+  },
+  {
+    "timestamp": "2026-06-26T01:50:47.264009",
+    "summary": "Optimized core/anti_ban.py database query in can_apply_to_company to use a single combined query",
+    "conversation_id": "35d19637-877a-4bb9-9bdd-0a1d317b8f16"
+  },
+  {
+    "timestamp": "2026-06-26T01:52:21.509897",
+    "summary": "Optimized core/ats_matcher.py keyword extraction and client connection pooling",
+    "conversation_id": "35d19637-877a-4bb9-9bdd-0a1d317b8f16"
+  },
+  {
+    "timestamp": "2026-06-26T01:53:40.018488",
+    "summary": "Optimized core/personalizer.py regex compiling and batch token replacement",
+    "conversation_id": "32c706e7-7a84-43b2-9f0e-8e2ad486f549"
+  },
+  {
+    "timestamp": "2026-06-26T01:55:37.968583",
+    "summary": "Optimized core/campaign_runner.py database index usage and scraper connection pooling",
+    "conversation_id": "7e275909-be2a-4cc3-93e0-79632b5a9fd4"
+  },
+  {
+    "timestamp": "2026-06-26T11:30:20.781701",
+    "summary": "Unspecified improvement",
+    "conversation_id": "38648956-b314-43a1-9ede-e2bdb582f500"
+  },
+  {
+    "timestamp": "2026-06-26T11:30:24.014210",
+    "summary": "Unspecified improvement",
+    "conversation_id": "38648956-b314-43a1-9ede-e2bdb582f500"
+  },
+  {
+    "timestamp": "2026-06-26T11:32:15.930482",
+    "summary": "Unspecified improvement",
+    "conversation_id": "38648956-b314-43a1-9ede-e2bdb582f500"
+  },
+  {
+    "timestamp": "2026-06-26T11:33:49.740536",
+    "summary": "Unspecified improvement",
+    "conversation_id": "38648956-b314-43a1-9ede-e2bdb582f500"
+  },
+  {
+    "timestamp": "2026-06-26T11:33:52.982009",
+    "summary": "Unspecified improvement",
+    "conversation_id": "38648956-b314-43a1-9ede-e2bdb582f500"
+  },
+  {
+    "timestamp": "2026-06-26T11:37:13.514616",
+    "summary": "Unspecified improvement",
+    "conversation_id": "38648956-b314-43a1-9ede-e2bdb582f500"
+  },
+  {
+    "timestamp": "2026-06-26T11:37:16.743238",
+    "summary": "Unspecified improvement",
+    "conversation_id": "38648956-b314-43a1-9ede-e2bdb582f500"
+  },
+  {
+    "timestamp": "2026-06-26T11:38:58.822742",
+    "summary": "Unspecified improvement",
+    "conversation_id": "38648956-b314-43a1-9ede-e2bdb582f500"
+  },
+  {
+    "timestamp": "2026-06-26T11:39:02.046435",
+    "summary": "Unspecified improvement",
+    "conversation_id": "38648956-b314-43a1-9ede-e2bdb582f500"
+  },
+  {
+    "timestamp": "2026-06-26T11:42:45.676450",
+    "summary": "Unspecified improvement",
+    "conversation_id": "38648956-b314-43a1-9ede-e2bdb582f500"
+  },
+  {
+    "timestamp": "2026-06-26T11:42:48.928415",
+    "summary": "Unspecified improvement",
+    "conversation_id": "38648956-b314-43a1-9ede-e2bdb582f500"
+  },
+  {
+    "timestamp": "2026-06-26T11:42:52.245021",
+    "summary": "Unspecified improvement",
+    "conversation_id": "38648956-b314-43a1-9ede-e2bdb582f500"
+  },
+  {
+    "timestamp": "2026-06-26T13:26:58.883920",
+    "summary": "Unspecified improvement",
+    "conversation_id": "f9bd7e46-5a2d-40d3-aa3a-f0d2f69bba4d"
+  },
+  {
+    "timestamp": "2026-06-26T13:27:02.114140",
+    "summary": "Unspecified improvement",
+    "conversation_id": "f9bd7e46-5a2d-40d3-aa3a-f0d2f69bba4d"
+  },
+  {
+    "timestamp": "2026-06-26T14:25:48.824807",
+    "summary": "Shifted campaign run-cycle and tick endpoints to background execution using subprocess.Popen to avoid blocking I/O and prevent 502/499 HTTP timeouts on PythonAnywhere. Also pruned Rita Cordahi email credentials from config.py and .env.",
+    "conversation_id": "3124ec45-59fe-472c-96ff-3422bcae41c3"
+  },
+  {
+    "timestamp": "2026-06-26T14:28:52.997634",
+    "summary": "Wrapped all database table schema migrations and ALTER TABLE column additions in web/app_v2.py and web/app.py in try-except blocks to gracefully handle and suppress duplicate column exceptions when running on Neon PostgreSQL.",
+    "conversation_id": "3124ec45-59fe-472c-96ff-3422bcae41c3"
   }
 ]

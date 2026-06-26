@@ -19,15 +19,16 @@ SCAM_COMPANY_PATTERNS = {
     "mlm_pyramid": [
         "amway", "herbalife", "nu skin", "primerica", "doterra", "young living",
         "world ventures", "isagenix", "usana", "arbonne", "monat", "senegence",
-        "mary kay", "avon", "pampered chef", "tupperware", "scentsy",
-        "kyani", "jeunesse", "qnet", "organo gold", "forever living",
-        "it works global", "lifevantage", "melaleuca", "younique",
-        "paparazzi accessories", "color street", "thirty-one gifts",
-        "norwex", "partylite", "lularoe", "seacret", "jem jewels",
+        "mary kay", "avon cosmetics", "avon products", "avon representative",
+        "pampered chef", "tupperware", "scentsy", "kyani", "jeunesse", "qnet",
+        "organo gold", "forever living", "it works global", "lifevantage",
+        "melaleuca", "younique", "paparazzi accessories", "color street",
+        "thirty-one gifts", "norwex", "partylite", "lularoe", "seacret", "jem jewels",
     ],
     "crypto_fraud": [
         "bitconnect", "onecoin", "plus token", "wootrade",
-        "celsius network", "blockfi", "genesis", "gemini earn",
+        "celsius network", "blockfi", "genesis crypto", "genesis trading",
+        "genesis global capital", "genesis block", "gemini earn",
         "crypto exchange", "trading signals", "defi yield",
         "binary options", "forex signals", "trading bot",
         "crypto trading", "crypto arbitrage", "nft flipping",
@@ -48,7 +49,7 @@ SCAM_COMPANY_PATTERNS = {
         "make money online", "work from home earn",
         "get rich quick", "double your income",
         "unlimited earning potential", "$500/day",
-        "$1000/week", "earn $", "make $",
+        "$1000/week",
     ],
     "data_harvesting": [
         "data entry $", "typing jobs $", "form filling",
@@ -67,7 +68,7 @@ SCAM_COMPANY_PATTERNS = {
 }
 
 SCAM_TITLE_KEYWORDS = [
-    "$500/day", "$1000/week", "earn $", "make money",
+    "$500/day", "$1000/week", "make money",
     "get rich", "work from home $", "passive income",
     "no experience $", "immediate start $", "guaranteed income",
     "unlimited earning", "financial freedom",
@@ -106,14 +107,27 @@ class ScamDetector:
     """Detects scam/fraudulent job postings before they reach candidates."""
 
     def __init__(self):
-        self._compiled_company = {}
+        self._compiled_company_regex = {}
         for category, patterns in SCAM_COMPANY_PATTERNS.items():
-            self._compiled_company[category] = [
-                re.compile(re.escape(p), re.IGNORECASE) for p in patterns
-            ]
-        self._compiled_titles = [
-            re.compile(re.escape(k), re.IGNORECASE) for k in SCAM_TITLE_KEYWORDS
-        ]
+            regex_parts = []
+            for p in patterns:
+                escaped = re.escape(p)
+                # Intelligently add word boundary if pattern starts/ends with alphanumeric
+                start_boundary = r"\b" if p[0].isalnum() or p[0] == '_' else ""
+                end_boundary = r"\b" if p[-1].isalnum() or p[-1] == '_' else ""
+                regex_parts.append(f"{start_boundary}{escaped}{end_boundary}")
+            # Combine all patterns for a category into a single regex union
+            self._compiled_company_regex[category] = re.compile("|".join(regex_parts), re.IGNORECASE)
+            
+        # Combine all title keywords into a single regex union using smart word boundaries
+        title_parts = []
+        for k in SCAM_TITLE_KEYWORDS:
+            escaped = re.escape(k)
+            start_boundary = r"\b" if k[0].isalnum() or k[0] == '_' else ""
+            end_boundary = r"\b" if k[-1].isalnum() or k[-1] == '_' else ""
+            title_parts.append(f"{start_boundary}{escaped}{end_boundary}")
+        self._compiled_titles_regex = re.compile("|".join(title_parts), re.IGNORECASE)
+        
         self._tld_re = re.compile(
             r"\.(xyz|top|tk|ml|ga|cf|gq|work|click|link|country|loan|stream|download|racing)$",
             re.IGNORECASE
@@ -133,16 +147,14 @@ class ScamDetector:
 
         combined = f"{company} {title} {snippet} {url}".lower()
 
-        # 1. Check company against scam patterns
-        for category, patterns in self._compiled_company.items():
-            for pat in patterns:
-                if pat.search(company) or pat.search(combined):
-                    return True, f"Scam detected: {category} pattern"
+        # 1. Check company against scam patterns using fast union regexes
+        for category, pattern in self._compiled_company_regex.items():
+            if pattern.search(company) or pattern.search(combined):
+                return True, f"Scam detected: {category} pattern"
 
-        # 2. Check title for obvious scam keywords
-        for pat in self._compiled_titles:
-            if pat.search(title) or pat.search(combined):
-                return True, "Scam title keyword detected"
+        # 2. Check title for obvious scam keywords using unified regex
+        if self._compiled_titles_regex.search(title) or self._compiled_titles_regex.search(combined):
+            return True, "Scam title keyword detected"
 
         # 3. Check for suspicious TLDs
         if url:

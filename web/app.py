@@ -196,21 +196,16 @@ def init_saas_db():
         conn.commit()
 
         # Migration: Add home_country, min_local_salary, min_international_salary to cv_profiles if missing
-        try:
-            conn.execute("ALTER TABLE cv_profiles ADD COLUMN home_country TEXT DEFAULT 'Lebanon'")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        try:
-            conn.execute("ALTER TABLE cv_profiles ADD COLUMN min_local_salary REAL DEFAULT 0")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        try:
-            conn.execute("ALTER TABLE cv_profiles ADD COLUMN min_international_salary REAL DEFAULT 0")
-            conn.commit()
-        except Exception as e:
-            logger.error(e, exc_info=True)
+        for col, coltype in [("home_country", "TEXT DEFAULT 'Lebanon'"), ("min_local_salary", "REAL DEFAULT 0"), ("min_international_salary", "REAL DEFAULT 0")]:
+            try:
+                conn.execute(f"ALTER TABLE cv_profiles ADD COLUMN {col} {coltype}")
+                conn.commit()
+            except Exception as e:
+                err_msg = str(e).lower()
+                if "already exists" in err_msg or "duplicate column" in err_msg:
+                    logger.info(f"Column {col} already exists in cv_profiles (handled gracefully)")
+                else:
+                    logger.error(f"Error adding {col} to cv_profiles: {e}", exc_info=True)
 
 init_saas_db()
 

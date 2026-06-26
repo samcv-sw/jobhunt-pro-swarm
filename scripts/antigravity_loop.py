@@ -26,18 +26,25 @@ DEFAULT_BRAIN_DIR = r"C:\Users\samde\.gemini\antigravity-ide\brain"
 ALT_BRAIN_DIR = r"C:\Users\samde\.gemini\antigravity\brain"
 
 
-def find_active_conversation_dir(brain_dir=DEFAULT_BRAIN_DIR):
+def find_active_conversation_dir(brain_dir=None):
     """Dynamically finds the most recently updated conversation directory under candidate brain paths."""
     dirs_to_check = []
     if brain_dir:
-        dirs_to_check.append(brain_dir)
-    
-    for path in [DEFAULT_BRAIN_DIR, ALT_BRAIN_DIR, os.path.expanduser(r"~\\.gemini\\antigravity-ide\\brain"), os.path.expanduser(r"~\\.gemini\\antigravity\\brain")]:
-        if path not in dirs_to_check:
-            dirs_to_check.append(path)
+        # If user explicitly specified a brain directory, only scan that directory
+        dirs_to_check = [brain_dir]
+    else:
+        dirs_to_check = [DEFAULT_BRAIN_DIR, ALT_BRAIN_DIR, os.path.expanduser(r"~\\.gemini\\antigravity-ide\\brain"), os.path.expanduser(r"~\\.gemini\\antigravity\\brain")]
+
+    # De-duplicate paths while preserving order
+    unique_dirs = []
+    for path in dirs_to_check:
+        if path:
+            norm_path = os.path.normpath(path)
+            if norm_path not in unique_dirs:
+                unique_dirs.append(norm_path)
 
     subdirs = []
-    for b_dir in dirs_to_check:
+    for b_dir in unique_dirs:
         if not os.path.exists(b_dir):
             continue
         for d in os.listdir(b_dir):

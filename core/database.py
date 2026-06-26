@@ -164,22 +164,48 @@ class Database:
         def _save():
             with self._get_conn() as conn:
                 try:
-                    conn.execute("""
-                        INSERT INTO jobs 
-                        (job_id, title, company, location, url, snippet, source, salary, status, created_at, email) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?)
-                    """, (
-                        job.get("job_id"),
-                        job.get("title", "Unknown"),
-                        job.get("company", "Unknown"),
-                        job.get("location", ""),
-                        job.get("url", ""),
-                        job.get("description", "")[:1000],
-                        job.get("source", ""),
-                        job.get("salary_range", ""),
-                        "new",
-                        job.get("email", "")
-                    ))
+                    # Check if user_id column exists
+                    has_user_id = True
+                    try:
+                        conn.execute("SELECT user_id FROM jobs LIMIT 1")
+                    except Exception:
+                        has_user_id = False
+
+                    if has_user_id:
+                        conn.execute("""
+                            INSERT INTO jobs 
+                            (job_id, user_id, title, company, location, url, snippet, source, salary, status, created_at, email) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?)
+                        """, (
+                            job.get("job_id"),
+                            job.get("user_id"),
+                            job.get("title", "Unknown"),
+                            job.get("company", "Unknown"),
+                            job.get("location", ""),
+                            job.get("url", ""),
+                            job.get("description", "")[:1000],
+                            job.get("source", ""),
+                            job.get("salary_range", ""),
+                            "new",
+                            job.get("email", "")
+                        ))
+                    else:
+                        conn.execute("""
+                            INSERT INTO jobs 
+                            (job_id, title, company, location, url, snippet, source, salary, status, created_at, email) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?)
+                        """, (
+                            job.get("job_id"),
+                            job.get("title", "Unknown"),
+                            job.get("company", "Unknown"),
+                            job.get("location", ""),
+                            job.get("url", ""),
+                            job.get("description", "")[:1000],
+                            job.get("source", ""),
+                            job.get("salary_range", ""),
+                            "new",
+                            job.get("email", "")
+                        ))
                     conn.commit()
                     return True
                 except sqlite3_sync.IntegrityError:
@@ -250,6 +276,7 @@ class Database:
                     CREATE TABLE IF NOT EXISTS jobs (
                         id INTEGER PRIMARY KEY AUTOINCREMENT, 
                         job_id VARCHAR(64) UNIQUE NOT NULL,
+                        user_id VARCHAR(64),
                         company VARCHAR(255) NOT NULL, 
                         title VARCHAR(255) NOT NULL,
                         email VARCHAR(255) NOT NULL, 
@@ -267,5 +294,10 @@ class Database:
                         updated_at DATETIME
                     )
                 """)
+                # Automated migration: add user_id column to existing SQLite jobs tables if it doesn't exist
+                try:
+                    conn.execute("ALTER TABLE jobs ADD COLUMN user_id VARCHAR(64)")
+                except Exception:
+                    pass
                 conn.commit()
         await asyncio.to_thread(_create)

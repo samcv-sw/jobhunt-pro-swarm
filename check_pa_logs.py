@@ -52,6 +52,8 @@ r = s.post(f"https://{PA_HOST}/login/", data={
 
 if "token" in r.text.lower() or "otp_token" in r.text or "authenticator" in r.text.lower():
     print("Submitting 2FA TOTP...")
+    with open(r"C:\Users\samde\.gemini\antigravity\brain\ab1ce20a-887d-4485-b352-10875b86216f\scratch\pa_2fa_prompt.html", "w", encoding="utf-8") as f:
+        f.write(r.text)
     totp = pyotp.TOTP(TOTP_SECRET)
     code = totp.now()
     csrf2_match = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', r.text)
@@ -65,6 +67,10 @@ if "token" in r.text.lower() or "otp_token" in r.text or "authenticator" in r.te
 
 if "Invalid" in r.text or "Log in" in r.text:
     print("Error: Login or 2FA verification failed.")
+    scratch_path = r"C:\Users\samde\.gemini\antigravity\brain\ab1ce20a-887d-4485-b352-10875b86216f\scratch\pa_login_failed.html"
+    with open(scratch_path, "w", encoding="utf-8") as f:
+        f.write(r.text)
+    print(f"Saved failed login HTML to: {scratch_path}")
     sys.exit(1)
 
 print("Login successful! Fetching webapps page...")

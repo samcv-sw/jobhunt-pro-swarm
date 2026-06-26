@@ -19,6 +19,18 @@ from groq import AsyncGroq
 
 logger = logging.getLogger(__name__)
 
+# Precompile regular expressions globally for performance
+WORD_RE = re.compile(r"\w+")
+JSON_BLOCK_RE = re.compile(r"```(?:json)?\s*([\s\S]*?)\s*```", re.IGNORECASE)
+
+# Cache AsyncGroq clients globally to reuse connections and avoid overhead
+_groq_clients = {}
+
+def _get_groq_client(api_key: str) -> AsyncGroq:
+    if api_key not in _groq_clients:
+        _groq_clients[api_key] = AsyncGroq(api_key=api_key)
+    return _groq_clients[api_key]
+
 # Load Groq API keys from env with rotation support
 _primary_key = os.getenv("GROQ_PRIMARY_KEY") or os.getenv("GROQ_API_KEY") or ""
 _rotation_keys = os.getenv("GROQ_ROTATION_KEYS", "")
@@ -54,7 +66,7 @@ def _extract_json(text: str) -> dict:
         pass
         
     # 2. Try extracting content inside code blocks ```json ... ```
-    code_block_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text_clean, re.IGNORECASE)
+    code_block_match = JSON_BLOCK_RE.search(text_clean)
     if code_block_match:
         try:
             return json.loads(code_block_match.group(1).strip())
@@ -76,8 +88,8 @@ def _extract_json(text: str) -> dict:
 
 def fallback_score(resume_text: str, job_description: str) -> dict:
     """Fallback local heuristic scoring when LLM is unavailable."""
-    resume_words = set(re.findall(r"\w+", resume_text.lower()))
-    jd_words = set(re.findall(r"\w+", job_description.lower()))
+    resume_words = set(WORD_RE.findall(resume_text.lower()))
+    jd_words = set(WORD_RE.findall(job_description.lower()))
     
     stop_words = {
         "and", "the", "or", "in", "to", "of", "with", "a", "for", "on", "at", "by", 
@@ -123,13 +135,14 @@ async def score_resume(resume_text: str, job_description: str, job_title: str = 
     if not resume_text_cleaned or not job_description_cleaned:
         return fallback_score(resume_text_cleaned, job_description_cleaned)
 
-    # Try each configured Groq key in rotation
+    # Try each configured Groq key in rotation and fallback across multiple models
     for api_key in GROQ_KEYS:
         if not api_key:
             continue
-        try:
-            client = AsyncGroq(api_key=api_key)
-            prompt = f"""{ATS_SYSTEM_PROMPT}
+        for model in ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]:
+            try:
+                client = _get_groq_client(api_key)
+                prompt = f"""{ATS_SYSTEM_PROMPT}
 
 RESUME:
 {resume_text_cleaned[:3500]}
@@ -152,33 +165,33 @@ Return ONLY valid JSON (no markdown, no code fences, no extra text) with this ex
   "strengths": ["Relevant experience", "Good keyword usage"]
 }}"""
 
-            resp = await client.chat.completions.create(
-                model="llama-3.1-8b-instant",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.1,
-                max_tokens=600
-            )
+                resp = await client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.1,
+                    max_tokens=600
+                )
 
-            raw = resp.choices[0].message.content
-            score_data = _extract_json(raw)
+                raw = resp.choices[0].message.content
+                score_data = _extract_json(raw)
 
-            # Normalize all numeric fields to 0-100
-            for key in ("overall_score", "skills_match", "experience_match",
-                        "education_match", "keyword_density", "format_score"):
-                if key in score_data:
-                    score_data[key] = max(0, min(100, int(score_data[key])))
+                # Normalize all numeric fields to 0-100
+                for key in ("overall_score", "skills_match", "experience_match",
+                            "education_match", "keyword_density", "format_score"):
+                    if key in score_data:
+                        score_data[key] = max(0, min(100, int(score_data[key])))
 
-            # Ensure lists exist
-            for key in ("missing_keywords", "suggestions", "strengths"):
-                if key not in score_data or not isinstance(score_data[key], list):
-                    score_data[key] = []
+                # Ensure lists exist
+                for key in ("missing_keywords", "suggestions", "strengths"):
+                    if key not in score_data or not isinstance(score_data[key], list):
+                        score_data[key] = []
 
-            return score_data
+                return score_data
 
-        except Exception as e:
-            key_suffix = f"...{api_key[-6:]}" if len(api_key) > 6 else "empty/invalid"
-            logger.warning(f"[ATS Scorer] Key rotation failure (key suffix {key_suffix}): {e}")
-            errors.append(f"Key suffix {key_suffix}: {e}")
+            except Exception as e:
+                key_suffix = f"...{api_key[-6:]}" if len(api_key) > 6 else "empty/invalid"
+                logger.warning(f"[ATS Scorer] Key/Model failure (key {key_suffix}, model {model}): {e}")
+                errors.append(f"Key {key_suffix}, model {model}: {e}")
 
     # Fallback to local heuristic parsing
     logger.error(f"[ATS Scorer] All Groq API keys failed or none provided. Errors: {errors}. Falling back to heuristic scorer.")

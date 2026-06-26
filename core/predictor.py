@@ -26,6 +26,11 @@ class ResponsePredictor:
     
     def __init__(self):
         self.history = self._load_history()
+        # O(1) company lookup index: company_lower -> last known responded bool
+        self._company_index: Dict[str, bool] = {
+            rec.get("company", "").lower().strip(): rec.get("responded", False)
+            for rec in self.history.get("emails", [])
+        }
     
     def _load_history(self) -> Dict:
         """Load historical response data"""
@@ -96,19 +101,11 @@ class ResponsePredictor:
         return scores
     
     def analyze_company_responsiveness(self, company: str) -> float:
-        """Analyze company responsiveness based on history"""
-        # Default responsiveness
+        """Analyze company responsiveness based on history — O(1) index lookup."""
         default_responsiveness = 50
-        
-        # Check if we have history for this company
         company_lower = company.lower().strip()
-        
-        for email in self.history.get("emails", []):
-            if email.get("company", "").lower().strip() == company_lower:
-                # Calculate response rate
-                responses = email.get("responded", False)
-                return 80 if responses else 30
-        
+        if company_lower in self._company_index:
+            return 80 if self._company_index[company_lower] else 30
         return default_responsiveness
     
     def predict_response_rate(self, subject: str, body: str, company: str = "") -> Dict[str, Any]:
@@ -163,6 +160,8 @@ class ResponsePredictor:
         }
         
         self.history["emails"].append(record)
+        # Update O(1) index
+        self._company_index[company.lower().strip()] = responded
         
         # Keep only last 1000 emails
         if len(self.history["emails"]) > 1000:
@@ -178,6 +177,8 @@ class ResponsePredictor:
                record.get("email", "").lower() == email.lower():
                 record["responded"] = True
                 record["responded_at"] = datetime.now().isoformat()
+                # Update O(1) index
+                self._company_index[company.lower().strip()] = True
                 self._save_history()
                 logger.info(f"Recorded response from {company}")
                 return

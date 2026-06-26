@@ -342,6 +342,6 @@ MIN_EMAIL_QUALITY_SCORE = 0.3        # Campaign min: 30% emails must pass MX del
 
 # Filter to only providers that have credentials configured
 # oauth2 providers always pass the filter (they use JSON pool, not env vars)
-ACTIVE_EMAIL_PROVIDERS = [p for p in EMAIL_PROVIDERS if (p.get("oauth2")) or (p.get("user") and p.get("password"))]
+ACTIVE_EMAIL_PROVIDERS = [p for p in EMAIL_PROVIDERS if ((p.get("oauth2")) or (p.get("user") and p.get("password"))) and "rita" not in p.get("user", "").lower() and "cordahi" not in p.get("user", "").lower()]
 if not ACTIVE_EMAIL_PROVIDERS:
     logger.warning("No email providers configured — check GMAIL_SMTP_USER_1, GMAIL_APP_PASSWORD_1 etc. in .env")

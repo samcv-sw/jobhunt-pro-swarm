@@ -90,6 +90,41 @@
 .bs-empty { text-align: center; padding: 48px 20px; }
 .bs-empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.6; }
 .bs-empty-text { font-size: 13px; color: #64748b; margin-bottom: 20px; line-height: 1.5; }
+
+/* Autopilot Radar Pulse Styles */
+.autopilot-radar {
+    position: relative;
+    width: 24px;
+    height: 24px;
+}
+.radar-dot {
+    width: 12px;
+    height: 12px;
+    background-color: #4ade80;
+    border-radius: 50%;
+    position: absolute;
+    top: 6px;
+    left: 6px;
+}
+.radar-ping {
+    border: 3px solid #4ade80;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    position: absolute;
+    animation: radar-ping-anim 1.5s infinite ease-out;
+    opacity: 0;
+}
+@keyframes radar-ping-anim {
+    0% {
+        transform: scale(0.2);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1.2);
+        opacity: 0;
+    }
+}
 </style>
 
 <!-- ═══════════════ TOP BAR ═══════════════ -->
@@ -99,6 +134,48 @@
      <p class="bs-subtitle">Live Campaign Command Center — monitor and control all active offensives</p>
    </div>
  </div>
+
+ <!-- ═══════════════ AUTOPILOT RADAR STATUS ═══════════════ -->
+  <div class="bs-panel" style="border-color: rgba(74,222,128,.3); background: rgba(74,222,128,.02); position: relative; overflow: hidden; margin-bottom: 24px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; margin-bottom: 12px;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div class="autopilot-radar">
+          <div class="radar-ping"></div>
+          <div class="radar-dot"></div>
+        </div>
+        <div>
+          <h2 style="font-size: 16px; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
+            🤖 AUTOPILOT ENGINE ACTIVE
+          </h2>
+          <p style="font-size: 13px; color: #94a3b8; margin: 4px 0 0 0;">
+            The browser autopilot is driving applications. Keep this page open to automatically apply to new companies.
+          </p>
+        </div>
+      </div>
+      
+      <div style="text-align: center; background: rgba(0,0,0,.3); padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,.05); min-width: 200px;">
+        <div style="font-size: 9px; color: #60a5fa; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px;">Next Auto-Apply Scan</div>
+        <div id="autopilot-countdown" style="font-size: 28px; font-weight: 800; color: #60a5fa; font-family: monospace; letter-spacing: 1px; line-height: 1;">03:00</div>
+        <div id="autopilot-status" style="font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 4px;">Initializing autopilot...</div>
+      </div>
+    </div>
+    
+    <!-- Autopilot Keep-Open Warning Banner -->
+    <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 12px;">
+      <span style="font-size: 20px; margin-top: 2px;">⚠️</span>
+      <div style="font-size: 13px; color: #fde047; font-weight: 600; line-height: 1.5; flex: 1;">
+        <strong>CRITICAL OPERATIONAL REQUIREMENT:</strong>
+        <br>
+        You must keep this browser tab <span style="text-decoration: underline; color: #fff;">OPEN and ACTIVE</span>. If you close this tab, close your browser, or put your computer to sleep, the autopilot will pause and stop applying to jobs!
+        <br>
+        <span style="display: block; margin-top: 6px; font-size: 13px; color: #fef08a;">
+          <strong>تنبيه تشغيلي هام جداً:</strong>
+          <br>
+          يجب ترك علامة التبويب هذه <span style="text-decoration: underline; color: #fff;">مفتوحة ونشطة دائماً</span>. إذا قمت بإغلاق هذه الصفحة، أو قمت بقفل المتصفح، أو دخل الكومبيوتر في وضع السكون (Sleep)، سيتوقف محرك التقديم التلقائي فوراً!
+        </span>
+      </div>
+    </div>
+  </div>
 
  <!-- ═══════════════ STATS GRID ═══════════════ -->
  <div class="bs-stats-grid">
@@ -315,4 +392,68 @@ function bsStopAll() {
       }
     }).catch(e => bsShowToast('❌ Network error', 'error'));
 }
+
+// Browser Autopilot Loop Implementation
+let autopilotSeconds = 180; // 3-minute cycle
+let autopilotTimer = null;
+
+function startAutopilot() {
+  const countdownEl = document.getElementById('autopilot-countdown');
+  const statusEl = document.getElementById('autopilot-status');
+  if (!countdownEl) return;
+
+  autopilotTimer = setInterval(async () => {
+    autopilotSeconds--;
+    if (autopilotSeconds <= 0) {
+      clearInterval(autopilotTimer);
+      countdownEl.textContent = "00:00";
+      countdownEl.style.color = "#fbbf24";
+      statusEl.textContent = "🚀 Deploying Applications...";
+      statusEl.style.color = "#fbbf24";
+      
+      try {
+        // Call the cloud-tick trigger endpoint in the background
+        const res = await fetch('/api/v2/cloud-tick', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ company_limit: 3, max_campaigns: 3 })
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          const sent = data.emails_sent || 0;
+          statusEl.textContent = `✅ Success! Sent ${sent} applications.`;
+          statusEl.style.color = "#4ade80";
+          countdownEl.style.color = "#4ade80";
+          
+          // Reload page to update UI list and metrics
+          setTimeout(() => location.reload(), 3000);
+        } else {
+          throw new Error(`HTTP Error ${res.status}`);
+        }
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "❌ Scan timeout/failed. Retrying...";
+        statusEl.style.color = "#ef4444";
+        countdownEl.style.color = "#ef4444";
+        setTimeout(() => {
+          autopilotSeconds = 30; // Quick retry
+          startAutopilot();
+        }, 3000);
+      }
+    } else {
+      const mins = Math.floor(autopilotSeconds / 60).toString().padStart(2, '0');
+      const secs = (autopilotSeconds % 60).toString().padStart(2, '0');
+      countdownEl.textContent = `${mins}:${secs}`;
+      statusEl.textContent = "Scanning for new job targets...";
+      statusEl.style.color = "#94a3b8";
+      countdownEl.style.color = "#60a5fa";
+    }
+  }, 1000);
+}
+
+// Start autopilot when layout is ready
+document.addEventListener('DOMContentLoaded', () => {
+  startAutopilot();
+});
 </script>

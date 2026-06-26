@@ -17,8 +17,30 @@ import re
 import os
 import json
 import logging
+import itertools
 from typing import Dict, List, Tuple, Optional
 from collections import Counter
+
+# Globally precompiled regex for normalization
+NORMALIZE_RE = re.compile(r'[^\w\s\-+#./]')
+
+# Global persistent clients for connection pooling
+_sync_client = None
+_async_client = None
+
+def _get_sync_client():
+    global _sync_client
+    import httpx
+    if _sync_client is None or _sync_client.is_closed:
+        _sync_client = httpx.Client(timeout=30)
+    return _sync_client
+
+def _get_async_client():
+    global _async_client
+    import httpx
+    if _async_client is None or _async_client.is_closed:
+        _async_client = httpx.AsyncClient(timeout=30)
+    return _async_client
 try:
     from rapidfuzz import fuzz
 except ImportError:
@@ -123,22 +145,20 @@ class ATSMatcher:
     def extract_keywords(self, text: str) -> Dict[str, int]:
         """Extract keywords with frequency from text. Supports unigrams + n-grams."""
         # Normalize
-        text = text.lower()
-        # Keep meaningful characters
-        text = re.sub(r'[^\w\s\-+#./]', ' ', text)
+        text = NORMALIZE_RE.sub(' ', text.lower())
 
         words = text.split()
 
-        # Build n-grams
+        # Build n-grams lazily using generators to save memory
         unigrams = words
-        bigrams = [f"{words[i]} {words[i+1]}" for i in range(len(words) - 1)]
-        trigrams = [f"{words[i]} {words[i+1]} {words[i+2]}" for i in range(len(words) - 2)]
+        bigrams = (f"{words[i]} {words[i+1]}" for i in range(len(words) - 1))
+        trigrams = (f"{words[i]} {words[i+1]} {words[i+2]}" for i in range(len(words) - 2))
 
         # Count frequencies
         freq: Dict[str, int] = {}
 
-        for term in unigrams + bigrams + trigrams:
-            term = term.strip()
+        # Chain generators/lists to avoid list concatenation memory overhead
+        for term in itertools.chain(unigrams, bigrams, trigrams):
             if len(term) < 2 or term in STOP_WORDS or term.isdigit():
                 continue
             freq[term] = freq.get(term, 0) + 1
@@ -198,14 +218,24 @@ class ATSMatcher:
                 # Try partial / fuzzy match
                 best_ratio = 0.0
                 best_rk = None
+                len_kw = len(kw)
                 for rk in resume_kw:
+                    len_rk = len(rk)
+                    # Mathematical pruning: maximum possible fuzzy ratio is 2 * min(L1, L2) / (L1 + L2)
+                    # If this upper bound is less than 0.7 or less than best_ratio, we can skip the heavy fuzz.ratio check
+                    max_possible = (2.0 * min(len_kw, len_rk)) / (len_kw + len_rk)
+                    if max_possible < 0.7 or max_possible < best_ratio:
+                        continue
+                        
                     # Allow fuzzy matching if length difference is small (e.g. typos, hyphens)
                     # or if one is a substring of the other (e.g. "vpn" in "vpns")
-                    if abs(len(kw) - len(rk)) <= 4 or kw in rk or rk in kw:
+                    if abs(len_kw - len_rk) <= 4 or kw in rk or rk in kw:
                         ratio = fuzz.ratio(kw, rk) / 100.0
                         if ratio > best_ratio:
                             best_ratio = ratio
                             best_rk = rk
+                            if best_ratio == 1.0:
+                                break
 
                 if best_ratio >= 0.7:
                     matched[kw] = {
@@ -416,8 +446,6 @@ def analyze_with_groq(
         Dict with match_percent, missing_skills, matched_skills,
         ats_score, improvement_tips, format_issues
     """
-    import httpx
-
     prompt = f"""You are an ATS (Applicant Tracking System) expert. Analyze this resume vs job description.
 
 RESUME:
@@ -438,7 +466,8 @@ Return JSON ONLY (no markdown, no code fences, no extra text):
 """
 
     try:
-        resp = httpx.post(
+        client = _get_sync_client()
+        resp = client.post(
             "https://api.groq.com/openai/v1/chat/completions",
             headers={
                 "Authorization": f"Bearer {groq_key}",
@@ -450,7 +479,6 @@ Return JSON ONLY (no markdown, no code fences, no extra text):
                 "temperature": 0.1,
                 "max_tokens": 1000,
             },
-            timeout=30,
         )
         if resp.status_code == 200:
             content = resp.json()["choices"][0]["message"]["content"]
@@ -459,12 +487,8 @@ Return JSON ONLY (no markdown, no code fences, no extra text):
                 return json.loads(json_match.group())
         else:
             logger.warning(f"[ATS-Groq] API returned {resp.status_code}: {resp.text[:200]}")
-    except httpx.TimeoutException:
-        logger.error("[ATS-Groq] Request timed out after 30s")
-    except json.JSONDecodeError as e:
-        logger.error(f"[ATS-Groq] JSON decode error: {e}")
     except Exception as e:
-        logger.error(f"[ATS-Groq] Error: {e}")
+        logger.error(f"[ATS-Groq] Error during sync analysis: {e}")
 
     return {}
 
@@ -476,8 +500,6 @@ async def analyze_with_groq_async(
     model: str = "mixtral-8x7b-32768",
 ) -> Dict:
     """Async version of analyze_with_groq."""
-    import httpx
-
     prompt = f"""You are an ATS expert. Analyze resume vs job description.
 
 RESUME:
@@ -497,25 +519,25 @@ Return JSON ONLY:
 }}
 """
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            resp = await client.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {groq_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": model,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.1,
-                    "max_tokens": 1000,
-                },
-            )
-            if resp.status_code == 200:
-                content = resp.json()["choices"][0]["message"]["content"]
-                json_match = re.search(r'\{.*\}', content, re.DOTALL)
-                if json_match:
-                    return json.loads(json_match.group())
+        client = _get_async_client()
+        resp = await client.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {groq_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": model,
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.1,
+                "max_tokens": 1000,
+            },
+        )
+        if resp.status_code == 200:
+            content = resp.json()["choices"][0]["message"]["content"]
+            json_match = re.search(r'\{.*\}', content, re.DOTALL)
+            if json_match:
+                return json.loads(json_match.group())
     except Exception as e:
         logger.error(f"[ATS-Groq] Async error: {e}")
 

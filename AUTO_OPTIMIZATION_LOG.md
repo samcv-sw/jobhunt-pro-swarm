@@ -1,11 +1,11 @@
 # Auto-Optimizer Report
-**Time:** 2026-06-25 16:31:06
+**Time:** 2026-06-26 14:29:23
 **Mode:** Read-only
-**Run:** #8
+**Run:** #10
 
 ## Findings
-- RAM usage: 74.0%
-- C: drive free: 42.6 GB
+- RAM usage: 82.0%
+- C: drive free: 47.6 GB
 - Temp dir checked: C:\Users\samde\AppData\Local\Temp
 - Temp dir checked: C:\Users\samde\AppData\Local\Temp
 - Temp dir checked: C:\Users\samde\AppData\Local\Temp
@@ -19,7 +19,7 @@
                             "192.168.10.1"
                         ]
 }
-- Python files: 1934, JSON files: 212
+- Python files: 1962, JSON files: 212
 - Large files (>500KB): 4
 -   [FILE] blast_master.json: 1.4 MB
 -   [FILE] PA_jobhunt_saas_v2.db_20260612_2121: 1.0 MB

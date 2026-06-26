@@ -633,44 +633,46 @@ Track which keywords were injected per section."""
                 return f.read()
 
         elif ext == ".pdf":
-            try:
-                import pdfplumber
-            except ImportError:
-                try:
-                    import PyPDF2
-                    with open(cv_path, "rb") as f:
-                        reader = PyPDF2.PdfReader(f)
-                        text = "\n".join(page.extract_text() or "" for page in reader.pages)
-                    return text
-                except ImportError:
-                    pass
-                try:
-                    import pdfminer
-                    # pdfminer approach
-                    pass
-                except ImportError:
-                    logger.warning("No PDF reader available (install pdfplumber or PyPDF2)")
-                    return ""
-
-            # pdfplumber is preferred
+            # 1. Try pdfplumber (preferred, preserves layout spacing)
             try:
                 import pdfplumber
                 with pdfplumber.open(cv_path) as pdf:
                     text = "\n".join(page.extract_text() or "" for page in pdf.pages)
                 if text.strip():
                     return text
+            except ImportError:
+                pass
             except Exception as e:
                 logger.warning(f"pdfplumber failed on {cv_path}: {e}")
 
-            # Fallback to PyPDF2
+            # 2. Try pypdf (modern standard fallback)
+            try:
+                import pypdf
+                with open(cv_path, "rb") as f:
+                    reader = pypdf.PdfReader(f)
+                    text = "\n".join(page.extract_text() or "" for page in reader.pages)
+                if text.strip():
+                    return text
+            except ImportError:
+                pass
+            except Exception as e:
+                logger.warning(f"pypdf fallback failed: {e}")
+
+            # 3. Try PyPDF2 (legacy fallback)
             try:
                 import PyPDF2
                 with open(cv_path, "rb") as f:
                     reader = PyPDF2.PdfReader(f)
                     text = "\n".join(page.extract_text() or "" for page in reader.pages)
-                return text
+                if text.strip():
+                    return text
+            except ImportError:
+                pass
             except Exception as e:
                 logger.warning(f"PyPDF2 fallback failed: {e}")
+
+            logger.warning("No functional PDF reader available (please install pdfplumber or pypdf)")
+            return ""
 
         elif ext == ".docx":
             try:

@@ -246,6 +246,9 @@ PROVIDER_CONFIGS = [
     ),
 ]
 
+# Pre-built weight lookup to avoid O(N) scan in sort_key lambdas
+_PROVIDER_WEIGHT: dict = {cfg.name: cfg.weight for cfg in PROVIDER_CONFIGS}
+
 
 class ProviderInstance:
     """Manages a single provider with rate limiting and quota tracking."""
@@ -436,12 +439,7 @@ class LLMProviderPool:
         candidates = list(self._providers.keys())
 
         def sort_key(p: LLMProvider) -> tuple:
-            for cfg in PROVIDER_CONFIGS:
-                if cfg.name == p:
-                    w = cfg.weight
-                    break
-            else:
-                w = 0
+            w = _PROVIDER_WEIGHT.get(p, 0)
             is_preferred = 0 if preferred and p == preferred else 1
             return (is_preferred, -w, self._last_used.get(p, 0))
 
@@ -518,13 +516,7 @@ class LLMProviderPool:
 
         # Sort by: preferred first, then by weight (higher first), then by last_used
         def sort_key(p: LLMProvider) -> tuple:
-            # Get config weight
-            for cfg in PROVIDER_CONFIGS:
-                if cfg.name == p:
-                    w = cfg.weight
-                    break
-            else:
-                w = 0
+            w = _PROVIDER_WEIGHT.get(p, 0)
             is_preferred = 0 if p == preferred_provider else 1
             return (is_preferred, -w, self._last_used.get(p, 0))
 

@@ -216,6 +216,48 @@ class SmartScheduler:
         except Exception as e:
             logger.error(f"[Scheduler] Failed to update reset time field in SQLite: {e}")
 
+    def _save_provider_states_to_db(self, states: List):
+        """Save multiple providers' states to the SQLite database in a single transaction."""
+        if not states:
+            return
+        try:
+            utc_now = datetime.now(timezone.utc)
+            default_reset_day = utc_now.strftime("%Y-%m-%d")
+            default_reset_hour = utc_now.strftime("%Y-%m-%d-%H")
+            
+            params = []
+            for item in states:
+                if isinstance(item, tuple):
+                    state, r_day, r_hour = item
+                else:
+                    state, r_day, r_hour = item, None, None
+                
+                r_day = r_day or default_reset_day
+                r_hour = r_hour or default_reset_hour
+                params.append((
+                    state.name, state.sent_today, state.sent_this_hour,
+                    state.failures, state.disabled_until, state.last_sent,
+                    r_day, r_hour
+                ))
+                
+            with sqlite3.connect(DB_PATH, timeout=10) as conn:
+                conn.executemany("""
+                    INSERT INTO smart_scheduler_state 
+                    (provider_name, sent_today, sent_this_hour, failures, disabled_until, last_sent, last_reset_day, last_reset_hour)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(provider_name) DO UPDATE SET
+                        sent_today=excluded.sent_today,
+                        sent_this_hour=excluded.sent_this_hour,
+                        failures=excluded.failures,
+                        disabled_until=excluded.disabled_until,
+                        last_sent=excluded.last_sent,
+                        last_reset_day=excluded.last_reset_day,
+                        last_reset_hour=excluded.last_reset_hour
+                """, params)
+                conn.commit()
+        except Exception as e:
+            logger.error(f"[Scheduler] Failed to save batch provider states to SQLite: {e}")
+
     def _init_providers(self):
         self._init_db()
         
@@ -239,6 +281,8 @@ class SmartScheduler:
 
         today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         hour_str = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H")
+        
+        states_to_save = []
 
         for config in self.PROVIDER_CONFIGS:
             name = config["name"]
@@ -255,24 +299,35 @@ class SmartScheduler:
                 state.disabled_until = db_st["disabled_until"]
                 state.last_sent = db_st["last_sent"]
                 
+                state_modified = False
                 # Check if daily reset is needed
                 if db_st["last_reset_day"] == today_str:
                     state.sent_today = db_st["sent_today"]
+                    r_day = today_str
                 else:
                     state.sent_today = 0
-                    self._update_db_reset_time(name, "last_reset_day", today_str)
+                    r_day = today_str
+                    state_modified = True
                 
                 # Check if hourly reset is needed
                 if db_st["last_reset_hour"] == hour_str:
                     state.sent_this_hour = db_st["sent_this_hour"]
+                    r_hour = hour_str
                 else:
                     state.sent_this_hour = 0
-                    self._update_db_reset_time(name, "last_reset_hour", hour_str)
+                    r_hour = hour_str
+                    state_modified = True
+                    
+                if state_modified:
+                    states_to_save.append((state, r_day, r_hour))
             else:
                 # Insert initial row in DB
-                self._save_provider_state_to_db(state, today_str, hour_str)
+                states_to_save.append((state, today_str, hour_str))
                 
             self.providers[name] = state
+            
+        if states_to_save:
+            self._save_provider_states_to_db(states_to_save)
 
     def get_next_provider(self) -> Optional[str]:
         """Get next available provider with weighted rotation.
@@ -405,16 +460,20 @@ class SmartScheduler:
 
     def reset_daily(self):
         today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        states_to_save = []
         for provider in self.providers.values():
             provider.reset_daily()
-            self._save_provider_state_to_db(provider, reset_day=today_str)
+            states_to_save.append((provider, today_str, None))
+        self._save_provider_states_to_db(states_to_save)
         logger.info("Daily quotas reset")
 
     def reset_hourly(self):
         hour_str = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H")
+        states_to_save = []
         for provider in self.providers.values():
             provider.reset_hourly()
-            self._save_provider_state_to_db(provider, reset_hour=hour_str)
+            states_to_save.append((provider, None, hour_str))
+        self._save_provider_states_to_db(states_to_save)
         logger.info("Hourly quotas reset")
 
     async def wait_for_send_slot(self) -> Optional[str]:

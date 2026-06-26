@@ -427,11 +427,35 @@ class EmailRotatorPool:
         body_text: Optional[str] = None,
         preferred_account: Optional[str] = None,
         attachments: Optional[List[str]] = None,
+        tenant_id: Optional[str] = None,
     ) -> Tuple[bool, Optional[str]]:
         """
         Send email by finding best available account.
         Returns (success, account_name_or_error).
         """
+        if tenant_id:
+            try:
+                from core.multi_tenant import MultiTenantRunner
+                provider = MultiTenantRunner.get_tenant_smtp_provider(tenant_id)
+                if provider and provider.get("user") and provider.get("password"):
+                    from core.email_rotator_pool import EmailAccount, EmailSenderClient
+                    account = EmailAccount(
+                        name=provider.get("name", f"tenant_{tenant_id}"),
+                        server=provider["server"],
+                        port=provider["port"],
+                        user=provider["user"],
+                        password=provider["password"],
+                        daily_limit=provider.get("daily_limit", 100),
+                        weight=provider.get("weight", 1)
+                    )
+                    tenant_client = EmailSenderClient(account)
+                    success = await tenant_client.send_email(
+                        to_email, subject, body_html, body_text, attachments=attachments
+                    )
+                    return success, account.name if success else tenant_client._last_error
+            except Exception as e:
+                logger.error(f"[EmailRotatorPool] Failed to send via tenant SMTP provider: {e}")
+
         async with self._lock:
             if not self._accounts:
                 logger.error("No email accounts configured")

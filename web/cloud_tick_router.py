@@ -35,37 +35,57 @@ async def cloud_tick_handler(request: Request):
     Falls back to CloudOrchestrator if MultiTenantRunner unavailable.
     """
     try:
-        # Try multi-tenant first (v17+)
-        from core.multi_tenant import MultiTenantRunner
         company_limit = 3
         max_campaigns = 3
+        campaign_id = None
         try:
             body = await request.json()
             company_limit = body.get("company_limit", 3)
             max_campaigns = body.get("max_campaigns", 3)
+            campaign_id = body.get("campaign_id")
         except Exception:
             pass
-        runner = MultiTenantRunner(company_limit=company_limit, max_campaigns=max_campaigns)
-        result = await runner.tick()
-        return result
-    except ImportError:
-        logger.info("MultiTenantRunner not available, using CloudOrchestrator")
+
+        import subprocess
+        import sys
+        
+        creationflags = 0
+        if sys.platform.startswith("win"):
+            creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        script_path = os.path.join(base_dir, "web", "cron_trigger.py")
+
+        cmd = [
+            sys.executable,
+            script_path,
+            "--company-limit", str(company_limit),
+            "--max-campaigns", str(max_campaigns),
+            "--skip-backup"
+        ]
+        if campaign_id:
+            cmd.extend(["--campaign-id", str(campaign_id)])
+
+        p = subprocess.Popen(
+            cmd,
+            creationflags=creationflags,
+            start_new_session=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        logger.info(f"[CloudTick] Spawned cron_trigger.py in background (PID: {p.pid})")
+        return {
+            "status": "spawned",
+            "message": "Multi-tenant campaign tick initiated in background.",
+            "pid": p.pid,
+            "timestamp": datetime.now().isoformat()
+        }
     except Exception as e:
-        logger.warning(f"MultiTenantRunner failed: {e}, falling back")
-    
-    # Fallback to single-tenant CloudOrchestrator
-    try:
-        from cloud_orchestrator import CloudOrchestrator
-        orch = CloudOrchestrator()
-        result = await orch.tick()
-        return result
-    except Exception as e:
-        logger.error(f"Cloud tick failed: {e}", exc_info=True)
+        logger.error(f"Cloud tick spawning failed: {e}", exc_info=True)
         return {
             "status": "error",
             "error": str(e),
-            "timestamp": datetime.now().isoformat(),
-            "partial": {"db": False, "campaigns": 0, "emails": 0}
+            "timestamp": datetime.now().isoformat()
         }
 
 
@@ -81,6 +101,58 @@ async def cloud_tick_status():
         "version": "v2.1"
     }
 
+@router.get("/cloud-tick/debug-db")
+async def debug_db():
+    try:
+        db_path = _get_db_path()
+        conn = sqlite3.connect(db_path, timeout=30)
+        conn.row_factory = sqlite3.Row
+        
+        # Check if table lebanon_companies exists
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='lebanon_companies'")
+        has_table = cursor.fetchone() is not None
+        
+        tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
+        
+        lebanon_count = 0
+        if has_table:
+            lebanon_count = conn.execute("SELECT COUNT(*) FROM lebanon_companies").fetchone()[0]
+            
+        campaign_sent_count = 0
+        has_sent_table = 'campaign_sent' in tables
+        if has_sent_table:
+            campaign_sent_count = conn.execute("SELECT COUNT(*) FROM campaign_sent").fetchone()[0]
+            
+        conn.close()
+        
+        # Check GMAIL env variables
+        gmail_env = {}
+        for i in range(1, 20):
+            u = os.getenv(f"GMAIL{i}_USER")
+            p = os.getenv(f"GMAIL{i}_PASS")
+            if u:
+                gmail_env[f"GMAIL{i}"] = {
+                    "user": u,
+                    "has_pass": bool(p),
+                    "pass_len": len(p) if p else 0
+                }
+                
+        return {
+            "status": "ok",
+            "db_path": db_path,
+            "tables": tables,
+            "has_lebanon_companies": has_table,
+            "lebanon_companies_count": lebanon_count,
+            "has_campaign_sent": has_sent_table,
+            "campaign_sent_count": campaign_sent_count,
+            "gmail_env": gmail_env,
+            "brevo_api_key_set": bool(os.getenv("BREVO_API_KEY")),
+            "brevo_email": os.getenv("BREVO_ACCOUNT_EMAIL")
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
 
 @router.post("/cloud-tick/reset-stuck")
 async def reset_stuck_campaigns():
@@ -94,12 +166,12 @@ async def reset_stuck_campaigns():
         conn = sqlite3.connect(db_path, timeout=30)
         conn.row_factory = sqlite3.Row
 
-        # Find stuck campaigns: completed but sent_count = 0
+        # Find stuck campaigns: completed but sent_count < total_companies
         stuck = conn.execute("""
             SELECT campaign_id, user_id, total_companies, sent_count, status
             FROM campaigns
             WHERE status = 'completed'
-            AND (sent_count = 0 OR sent_count IS NULL)
+            AND (sent_count < total_companies OR sent_count IS NULL)
             AND total_companies > 0
         """).fetchall()
 
@@ -124,6 +196,67 @@ async def reset_stuck_campaigns():
     except Exception as e:
         logger.error(f"Reset stuck failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+@router.get("/cloud-tick/debug-logs")
+async def debug_logs(file: str = "auto_run.log", lines: int = 200):
+    try:
+        if file.startswith("/var/log/"):
+            filepath = file
+        else:
+            file = os.path.basename(file)
+            log_dir = "/home/JHFGUF/jobhunt/logs"
+            if not os.path.exists(log_dir):
+                log_dir = "logs"
+            
+            filepath = os.path.join(log_dir, file)
+            if not os.path.exists(filepath):
+                filepath = os.path.join("/home/JHFGUF/jobhunt", file)
+                if not os.path.exists(filepath):
+                    filepath = os.path.join("/home/JHFGUF", file)
+                    if not os.path.exists(filepath):
+                        return {"status": "error", "message": f"File {file} not found"}
+        
+        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.readlines()
+            
+        last_lines = content[-lines:] if len(content) > lines else content
+        return {
+            "status": "ok",
+            "file": filepath,
+            "total_lines": len(content),
+            "lines": [line.strip() for line in last_lines]
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+@router.get("/cloud-tick/list-dir")
+async def list_dir_api(path: str = "."):
+    try:
+        base_dir = "/home/JHFGUF/jobhunt"
+        if not os.path.exists(base_dir):
+            base_dir = "."
+        
+        target = os.path.abspath(os.path.join(base_dir, path))
+        if not target.startswith(os.path.abspath(base_dir)) and not target.startswith("/home/JHFGUF"):
+            return {"status": "error", "message": "Access denied"}
+            
+        if not os.path.exists(target):
+            return {"status": "error", "message": "Path not found"}
+            
+        if os.path.isfile(target):
+            return {"status": "ok", "type": "file", "size": os.path.getsize(target)}
+            
+        items = []
+        for name in os.listdir(target):
+            item_path = os.path.join(target, name)
+            items.append({
+                "name": name,
+                "is_dir": os.path.isdir(item_path),
+                "size": os.path.getsize(item_path) if os.path.isfile(item_path) else 0
+            })
+        return {"status": "ok", "path": target, "items": items}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
 
 
 @router.get("/cloud-tick/campaigns")
@@ -277,3 +410,47 @@ async def force_reset_all():
     except Exception as e:
         logger.error(f"Force reset failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/cloud-tick/test-scrape")
+async def test_scrape():
+    """Test job scraping capability on PythonAnywhere free tier."""
+    try:
+        from core.pa_job_scraper import PAJobScraper
+        pa = PAJobScraper()
+        jobs = pa.search_all(query="network engineer", location="Lebanon", max_jobs=5)
+        return {"status": "ok", "jobs_found": len(jobs), "jobs": jobs[:5]}
+    except Exception as e:
+        logger.exception("Scraper test failed: %s", e)
+        return {"status": "error", "error": str(e)}
+
+
+@router.post("/cloud-tick/execute-sql")
+async def execute_sql(request: Request):
+    """Execute arbitrary SQL query on the local database (admin only)."""
+    try:
+        body = await request.json()
+        query = body.get("query")
+        params = body.get("params", [])
+        
+        if not query:
+            return {"status": "error", "message": "query required"}
+            
+        db_path = _get_db_path()
+        conn = sqlite3.connect(db_path, timeout=30)
+        conn.row_factory = sqlite3.Row
+        
+        cursor = conn.execute(query, params)
+        conn.commit()
+        
+        # Check if it was a SELECT query
+        if query.strip().upper().startswith("SELECT"):
+            rows = cursor.fetchall()
+            conn.close()
+            return {"status": "ok", "row_count": len(rows), "rows": [dict(r) for r in rows]}
+            
+        conn.close()
+        return {"status": "ok", "message": "Query executed successfully"}
+    except Exception as e:
+        logger.exception("SQL execution failed: %s", e)
+        return {"status": "error", "error": str(e)}

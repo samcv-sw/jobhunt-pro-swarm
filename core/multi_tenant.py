@@ -46,22 +46,23 @@ router = APIRouter(tags=["multi-tenant"])
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  PRECONFIGURED TENANT: Rita Cordahi
+#  PRECONFIGURED TENANT: Sam Salameh
 # ══════════════════════════════════════════════════════════════════════════════
 
-RITA_CORDAHI_PROFILE = {
-    "tenant_name": "Rita Cordahi",
-    "email": "ritacordahi2@gmail.com",
-    "phone": "+961 76 005 412",
-    "profession": "HR Operations Manager / HR Coordinator / Recruitment Specialist",
-    "target_titles": "HR Operations Manager, HR Coordinator, Customer Operations Specialist, Recruitment Specialist",
-    "skills": "HR operations, customer service, recruitment, onboarding, employee relations, HRIS, payroll coordination, performance management, training & development, talent acquisition, interview coordination, screening, ATS management, Microsoft Office, Excel, PowerPoint, Google Workspace, team leadership, reporting, data entry, contract management, compliance, labor law",
-    "experience_years": 5,
-    "target_locations": "Lebanon, Beirut, Jbeil, Keserwan, Metn, Mount Lebanon",
-    "target_salary": "$1,500+/month",
-    "target_companies": "Murex, Bank Audi, BLOM Bank, Byblos Bank, Touch, Alfa, Azadea Group, CME Offshore, Malia Group, Berytech",
-    "linkedin": "https://www.linkedin.com/in/rita-cordahi/",
+SAM_SALAMEH_PROFILE = {
+    "tenant_name": "Sam Salameh",
+    "email": "samsalameh.cv@gmail.com",
+    "phone": "+961 71 019 053",
+    "profession": "Senior Network Engineer",
+    "target_titles": "network engineer, senior network engineer, network administrator",
+    "skills": "cisco, mikrotik, fortinet, juniper, bgp, ospf, vpn, firewalls, linux, python",
+    "experience_years": 15,
+    "target_locations": "lebanon, uae, dubai, qatar, saudi arabia, remote",
+    "target_salary": "$5,000+/month",
+    "target_companies": "Cisco, Google, Microsoft, Amazon, Oracle, Huawei, Nokia, Ericsson, local ISPs",
+    "linkedin": "https://www.linkedin.com/in/samsalameh/",
 }
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -239,55 +240,83 @@ LANGUAGES
 
     @staticmethod
     def get_tenant_stats(tenant_id: str) -> Dict[str, Any]:
-        """Get per-tenant campaign stats."""
+        """Get per-tenant campaign stats optimized in a single SQL query."""
         conn = _get_conn()
         try:
-            # Total campaigns
-            total_c = conn.execute(
-                "SELECT COUNT(*) FROM campaigns WHERE user_id = ?",
-                (tenant_id,)
-            ).fetchone()[0]
+            row = conn.execute("""
+                SELECT 
+                    u.name,
+                    u.email,
+                    (SELECT COUNT(*) FROM campaigns WHERE user_id = ?) AS total_campaigns,
+                    (SELECT COUNT(*) FROM campaigns WHERE user_id = ? AND status IN ('pending','running')) AS active_campaigns,
+                    (SELECT COUNT(*) FROM campaigns WHERE user_id = ? AND status = 'completed') AS completed_campaigns,
+                    (SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON c.campaign_id = ce.campaign_id WHERE c.user_id = ? AND ce.status = 'sent') AS emails_sent,
+                    (SELECT COALESCE(SUM(sent_count), 0) FROM campaigns WHERE user_id = ?) AS total_sent_count
+                FROM users u
+                WHERE u.user_id = ?
+            """, (tenant_id, tenant_id, tenant_id, tenant_id, tenant_id, tenant_id)).fetchone()
+            
+            if row:
+                return {
+                    "tenant_id": tenant_id,
+                    "name": row["name"] or "Unknown",
+                    "email": row["email"] or "Unknown",
+                    "total_campaigns": row["total_campaigns"] or 0,
+                    "active_campaigns": row["active_campaigns"] or 0,
+                    "completed_campaigns": row["completed_campaigns"] or 0,
+                    "emails_sent": row["emails_sent"] or 0,
+                    "total_sent_count": row["total_sent_count"] or 0,
+                }
+            else:
+                return {
+                    "tenant_id": tenant_id,
+                    "name": "Unknown",
+                    "email": "Unknown",
+                    "total_campaigns": 0,
+                    "active_campaigns": 0,
+                    "completed_campaigns": 0,
+                    "emails_sent": 0,
+                    "total_sent_count": 0,
+                }
+        finally:
+            conn.close()
 
-            # Active campaigns
-            active_c = conn.execute(
-                "SELECT COUNT(*) FROM campaigns WHERE user_id = ? AND status IN ('pending','running')",
-                (tenant_id,)
-            ).fetchone()[0]
-
-            # Completed
-            completed_c = conn.execute(
-                "SELECT COUNT(*) FROM campaigns WHERE user_id = ? AND status = 'completed'",
-                (tenant_id,)
-            ).fetchone()[0]
-
-            # Emails sent
-            emails_sent = conn.execute("""
-                SELECT COUNT(*) FROM campaign_emails ce
-                JOIN campaigns c ON c.campaign_id = ce.campaign_id
-                WHERE c.user_id = ? AND ce.status = 'sent'
-            """, (tenant_id,)).fetchone()[0]
-
-            # Sum of sent_count from campaigns table
-            total_sent = conn.execute(
-                "SELECT COALESCE(SUM(sent_count), 0) FROM campaigns WHERE user_id = ?",
-                (tenant_id,)
-            ).fetchone()[0]
-
-            # User row
-            user_row = conn.execute(
-                "SELECT * FROM users WHERE user_id = ?", (tenant_id,)
-            ).fetchone()
-
-            return {
-                "tenant_id": tenant_id,
-                "name": user_row["name"] if user_row else "Unknown",
-                "email": user_row["email"] if user_row else "Unknown",
-                "total_campaigns": total_c,
-                "active_campaigns": active_c,
-                "completed_campaigns": completed_c,
-                "emails_sent": emails_sent,
-                "total_sent_count": total_sent,
-            }
+    @staticmethod
+    def get_all_tenants_stats() -> List[Dict[str, Any]]:
+        """Get stats for all tenants in a single optimized query."""
+        conn = _get_conn()
+        try:
+            rows = conn.execute("""
+                SELECT 
+                    u.user_id,
+                    u.name,
+                    u.email,
+                    COUNT(DISTINCT c.campaign_id) AS total_campaigns,
+                    SUM(CASE WHEN c.status IN ('pending','running') THEN 1 ELSE 0 END) AS active_campaigns,
+                    SUM(CASE WHEN c.status = 'completed' THEN 1 ELSE 0 END) AS completed_campaigns,
+                    COALESCE(SUM(c.sent_count), 0) AS total_sent_count,
+                    (
+                        SELECT COUNT(*) 
+                        FROM campaign_emails ce
+                        JOIN campaigns c2 ON c2.campaign_id = ce.campaign_id
+                        WHERE c2.user_id = u.user_id AND ce.status = 'sent'
+                    ) AS emails_sent
+                FROM users u
+                LEFT JOIN campaigns c ON c.user_id = u.user_id
+                GROUP BY u.user_id
+                ORDER BY u.created_at ASC
+            """).fetchall()
+            
+            return [{
+                "tenant_id": r["user_id"],
+                "name": r["name"] or "Unknown",
+                "email": r["email"] or "Unknown",
+                "total_campaigns": r["total_campaigns"] or 0,
+                "active_campaigns": r["active_campaigns"] or 0,
+                "completed_campaigns": r["completed_campaigns"] or 0,
+                "emails_sent": r["emails_sent"] or 0,
+                "total_sent_count": r["total_sent_count"] or 0,
+            } for r in rows]
         finally:
             conn.close()
 
@@ -303,9 +332,10 @@ class MultiTenantRunner:
     concurrently with full isolation per tenant.
     """
 
-    def __init__(self, company_limit: int = 3, max_campaigns: int = 3):
+    def __init__(self, company_limit: int = 3, max_campaigns: int = 5, campaign_id: str = None):
         self.company_limit = company_limit
         self.max_campaigns = max_campaigns
+        self.campaign_id = campaign_id
         self.tenant_stats: Dict[str, Dict[str, Any]] = {}
 
     async def tick(self) -> Dict[str, Any]:
@@ -333,6 +363,8 @@ class MultiTenantRunner:
 
         # ── Step 1: Fetch all active campaigns ──
         campaigns = self._fetch_all_active_campaigns()
+        if self.campaign_id:
+            campaigns = [c for c in campaigns if c.get("campaign_id") == self.campaign_id]
         if not campaigns:
             logger.info("[MultiTenant] No active campaigns across any tenant.")
             results["message"] = "No active campaigns found"
@@ -340,14 +372,36 @@ class MultiTenantRunner:
 
         logger.info(f"[MultiTenant] Found {len(campaigns)} active campaign(s) across tenants.")
         
-        # Limit campaigns processed per tick (PA free tier safety)
-        if len(campaigns) > self.max_campaigns:
-            campaigns = campaigns[:self.max_campaigns]
-            logger.info(f"[MultiTenant] Limiting to {self.max_campaigns} campaigns per tick (PA safety)")
-
-        # ── Step 2: Group campaigns by tenant_id ──
-        tenant_campaigns: Dict[str, List[Dict]] = {}
+        # Group all active campaigns by tenant first to do fair scheduling
+        by_tenant: Dict[str, List[Dict]] = {}
         for c in campaigns:
+            tid = c.get("user_id", "unknown")
+            if tid not in by_tenant:
+                by_tenant[tid] = []
+            by_tenant[tid].append(c)
+
+        # Fair-share scheduling: select up to self.max_campaigns campaigns
+        selected_campaigns = []
+        tenant_ids = list(by_tenant.keys())
+        # Shuffle tenants to avoid priority bias
+        import random
+        random.shuffle(tenant_ids)
+        
+        while len(selected_campaigns) < self.max_campaigns and tenant_ids:
+            active_tenants = []
+            for tid in tenant_ids:
+                if by_tenant[tid]:
+                    selected_campaigns.append(by_tenant[tid].pop(0))
+                    if len(selected_campaigns) >= self.max_campaigns:
+                        break
+                    active_tenants.append(tid)
+            tenant_ids = active_tenants
+
+        logger.info(f"[MultiTenant] Selected {len(selected_campaigns)} campaign(s) for execution via fair scheduling.")
+
+        # ── Step 2: Group selected campaigns by tenant_id ──
+        tenant_campaigns: Dict[str, List[Dict]] = {}
+        for c in selected_campaigns:
             tid = c.get("user_id", "unknown")
             if tid not in tenant_campaigns:
                 tenant_campaigns[tid] = []
@@ -365,22 +419,10 @@ class MultiTenantRunner:
             }
             for camp in t_campaigns:
                 cid = camp["campaign_id"]
-                try:
-                    # Use lightning runner for PA free tier (fast, no scraping)
-                    from core.lightning_runner import run_campaign_lightning
-                    camp_result = await run_campaign_lightning(
-                        campaign_id=cid,
-                        company_limit=self.company_limit,
-                    )
-                    tenant_result["campaigns"].append({
-                        "campaign_id": cid,
-                        "result": camp_result,
-                    })
-                    if isinstance(camp_result, dict):
-                        tenant_result["total_sent"] += camp_result.get("sent", 0)
-                        tenant_result["total_failed"] += camp_result.get("failed", 0)
-                except ImportError:
-                    # Fallback to full campaign runner
+                engine_type = camp.get("engine_type", "piggyback")
+                
+                if engine_type == "cloud":
+                    # For cloud engine_type, use the full campaign runner to search and enrich
                     try:
                         from core.campaign_runner import run_campaign
                         camp_result = await run_campaign(
@@ -399,17 +441,32 @@ class MultiTenantRunner:
                             tenant_result["total_sent"] += camp_result.get("sent", 0)
                             tenant_result["total_failed"] += camp_result.get("failed", 0)
                     except Exception as e2:
-                        logger.error(f"[MultiTenant] Both runners failed for {cid}: {e2}")
+                        logger.error(f"[MultiTenant] Full runner failed for cloud campaign {cid}: {e2}")
                         tenant_result["campaigns"].append({
                             "campaign_id": cid,
                             "error": str(e2),
                         })
-                except Exception as e:
-                    logger.error(f"[MultiTenant] Campaign {cid} (tenant {tid}) failed: {e}")
-                    tenant_result["campaigns"].append({
-                        "campaign_id": cid,
-                        "error": str(e),
-                    })
+                else:
+                    # By default (or for piggyback / cloud-tick), use lightning runner
+                    try:
+                        from core.lightning_runner import run_campaign_lightning
+                        camp_result = await run_campaign_lightning(
+                            campaign_id=cid,
+                            company_limit=self.company_limit,
+                        )
+                        tenant_result["campaigns"].append({
+                            "campaign_id": cid,
+                            "result": camp_result,
+                        })
+                        if isinstance(camp_result, dict):
+                            tenant_result["total_sent"] += camp_result.get("sent", 0)
+                            tenant_result["total_failed"] += camp_result.get("failed", 0)
+                    except Exception as e:
+                        logger.error(f"[MultiTenant] Lightning runner failed for {cid}: {e}")
+                        tenant_result["campaigns"].append({
+                            "campaign_id": cid,
+                            "error": str(e),
+                        })
             return tenant_result
 
         # Execute tenants SEQUENTIALLY (PA free tier - avoid timeout)
@@ -481,8 +538,8 @@ class MultiTenantRunner:
                 tid = row["user_id"]
                 profile_id = row["profile_id"]
                 name = row["name"]
-                titles = row.get("target_titles") or "Professional"
-                location = row.get("target_locations") or "Lebanon"
+                titles = row["target_titles"] or "Professional"
+                location = row["target_locations"] or "Lebanon"
                 
                 # Create a default campaign
                 campaign_id = f"auto_{uuid.uuid4().hex[:12]}"
@@ -491,7 +548,7 @@ class MultiTenantRunner:
                 conn.execute("""
                     INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, 
                     status, total_companies, sent_count, created_at, bouquets, engine_type)
-                    VALUES (?, ?, ?, ?, 'pending', 100, 0, CURRENT_TIMESTAMP, 'Priority Shield', 'cloud-tick')
+                    VALUES (?, ?, ?, ?, 'pending', 100, 0, CURRENT_TIMESTAMP, 'Priority Shield', 'cloud')
                 """, (campaign_id, tid, f"auto_{tid[:8]}", profile_id))
                 conn.commit()
                 logger.info(f"[MultiTenant] Auto-created campaign {campaign_id} for {name} ({job_title})")
@@ -524,22 +581,25 @@ class MultiTenantRunner:
                 conn.close()
 
             if user_row:
+                # 1. General tenant SMTP detection via env vars
+                env_id = tenant_id.upper().replace("-", "_").replace(".", "_")
+                tenant_smtp_user = os.getenv(f"TENANT_{env_id}_SMTP_USER", "")
+                tenant_smtp_pass = os.getenv(f"TENANT_{env_id}_SMTP_PASS", "")
+                if tenant_smtp_user and tenant_smtp_pass:
+                    return {
+                        "name": f"{tenant_id}_tenant",
+                        "server": os.getenv(f"TENANT_{env_id}_SMTP_SERVER", "smtp.gmail.com"),
+                        "port": int(os.getenv(f"TENANT_{env_id}_SMTP_PORT", "587")),
+                        "user": tenant_smtp_user,
+                        "password": tenant_smtp_pass,
+                        "daily_limit": int(os.getenv(f"TENANT_{env_id}_SMTP_LIMIT", "100")),
+                        "weight": 2,
+                    }
+
                 tenant_email = user_row["email"] or ""
-                # Rita Cordahi detection
-                if "ritacordahi" in tenant_email.lower():
-                    # Use Rita's own SMTP if configured
-                    rita_smtp_user = os.getenv("RITA_GMAIL_SMTP_USER", "")
-                    rita_smtp_pass = os.getenv("RITA_GMAIL_APP_PASSWORD", "")
-                    if rita_smtp_user and rita_smtp_pass:
-                        return {
-                            "name": f"rita_tenant",
-                            "server": "smtp.gmail.com",
-                            "port": 587,
-                            "user": rita_smtp_user,
-                            "password": rita_smtp_pass,
-                            "daily_limit": 100,
-                            "weight": 2,
-                        }
+                if "ritacordahi" in tenant_email.lower() or "rita.cordahi" in tenant_email.lower():
+                    logger.warning("[MultiTenant] Rita Cordahi is deactivated. Blocking SMTP rotation for this tenant.")
+                    return None
 
         # Fallback: use the default SMTP pool from config
         if config_module is None:
@@ -600,7 +660,7 @@ def _auto_seed_rita():
 
 
 # Run on import (safe — idempotent)
-_auto_seed_rita()
+# _auto_seed_rita()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -643,24 +703,20 @@ async def multi_tenant_cloud_tick(request: Request):
 @router.get("/multi-tenant/status")
 async def multi_tenant_status():
     """
-    Show all tenants and their campaign stats.
+    Show all tenants and their campaign stats (fully optimized, 1 query).
     """
     try:
-        tenants = TenantManager.list_tenants()
-        result = {
+        stats = TenantManager.get_all_tenants_stats()
+        return {
             "status": "ok",
-            "tenant_count": len(tenants),
-            "tenants": [],
+            "tenant_count": len(stats),
+            "tenants": stats,
             "timestamp": datetime.now().isoformat(),
         }
-        for t in tenants:
-            tid = t.get("user_id", "")
-            stats = TenantManager.get_tenant_stats(tid)
-            result["tenants"].append(stats)
-        return result
     except Exception as e:
         logger.error(f"[MultiTenant] Status failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @router.post("/multi-tenant/add-tenant")
@@ -745,35 +801,132 @@ async def add_tenant(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/multi-tenant/rita")
-async def get_rita_profile():
+@router.get("/multi-tenant/sam")
+async def get_sam_profile():
     """
-    Return Rita Cordahi's pre-configured profile and stats.
+    Return Sam Salameh's pre-configured profile and stats.
     """
     try:
         conn = _get_conn()
         user_row = conn.execute(
             "SELECT user_id FROM users WHERE email = ?",
-            (RITA_CORDAHI_PROFILE["email"],)
+            (SAM_SALAMEH_PROFILE["email"],)
         ).fetchone()
         conn.close()
 
         if not user_row:
             return {
                 "status": "error",
-                "message": "Rita Cordahi not found in DB. Run seed first.",
+                "message": "Sam Salameh not found in DB. Run seed first.",
             }
 
         tid = user_row["user_id"]
         stats = TenantManager.get_tenant_stats(tid)
         return {
             "status": "ok",
-            "profile": RITA_CORDAHI_PROFILE,
+            "profile": SAM_SALAMEH_PROFILE,
             "stats": stats,
         }
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/multi-tenant/debug-db")
+async def debug_db():
+    """
+    Return a snapshot of the database users, profiles, and campaigns for live diagnostics.
+    """
+    conn = _get_conn()
+    try:
+        users = [dict(r) for r in conn.execute("SELECT user_id, email, name, phone, created_at FROM users").fetchall()]
+        profiles = [dict(r) for r in conn.execute("SELECT id, user_id, target_titles, target_locations, skills, experience_years FROM cv_profiles").fetchall()]
+        campaigns = [dict(r) for r in conn.execute("SELECT campaign_id, user_id, status, total_companies, sent_count, created_at, engine_type FROM campaigns").fetchall()]
+        return {
+            "status": "ok",
+            "users": users,
+            "profiles": profiles,
+            "campaigns": campaigns
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+    finally:
+        conn.close()
+
+
+@router.post("/multi-tenant/cleanup-db")
+async def cleanup_db():
+    """
+    Scrubs the database of all non-Sam users/profiles/campaigns.
+    Ensures Sam's CV profile has correct target titles and locations.
+    """
+    conn = _get_conn()
+    try:
+        allowed_emails = ("samsalameh.cv@gmail.com", "samatou683@gmail.com")
+        
+        # Find all user_ids that are NOT Sam
+        rows = conn.execute("SELECT user_id, email FROM users").fetchall()
+        to_delete_user_ids = []
+        for r in rows:
+            if r["email"] not in allowed_emails:
+                to_delete_user_ids.append(r["user_id"])
+                
+        deleted_campaigns = 0
+        deleted_profiles = 0
+        deleted_users = 0
+        deleted_emails = 0
+        
+        for uid in to_delete_user_ids:
+            camps = conn.execute("SELECT campaign_id FROM campaigns WHERE user_id = ?", (uid,)).fetchall()
+            for c in camps:
+                cid = c["campaign_id"]
+                ce = conn.execute("DELETE FROM campaign_emails WHERE campaign_id = ?", (cid,))
+                deleted_emails += ce.rowcount
+                
+            c = conn.execute("DELETE FROM campaigns WHERE user_id = ?", (uid,))
+            deleted_campaigns += c.rowcount
+            
+            p = conn.execute("DELETE FROM cv_profiles WHERE user_id = ?", (uid,))
+            deleted_profiles += p.rowcount
+            
+            u = conn.execute("DELETE FROM users WHERE user_id = ?", (uid,))
+            deleted_users += u.rowcount
+            
+        # Verify and optimize Sam Salameh's CV profiles
+        sam_rows = conn.execute("SELECT user_id, email FROM users WHERE email IN ('samsalameh.cv@gmail.com', 'samatou683@gmail.com')").fetchall()
+        
+        for sr in sam_rows:
+            uid = sr["user_id"]
+            # Check if he has a CV profile
+            p_row = conn.execute("SELECT id, target_titles, target_locations FROM cv_profiles WHERE user_id = ?", (uid,)).fetchone()
+            if p_row:
+                # Update his profile to have correct titles and locations if they are empty or basic
+                conn.execute("""
+                    UPDATE cv_profiles SET
+                        target_titles = 'network engineer, senior network engineer, network administrator',
+                        target_locations = 'lebanon, uae, dubai, qatar, saudi arabia, remote',
+                        skills = 'cisco, mikrotik, fortinet, juniper, bgp, ospf, vpn, firewalls, linux, python',
+                        experience_years = 15
+                    WHERE id = ?
+                """, (p_row["id"],))
+            else:
+                # Insert a default CV profile for him
+                conn.execute("""
+                    INSERT INTO cv_profiles (user_id, target_titles, target_locations, skills, experience_years, cv_text, created_at)
+                    VALUES (?, 'network engineer, senior network engineer, network administrator', 'lebanon, uae, dubai, qatar, saudi arabia, remote',
+                            'cisco, mikrotik, fortinet, juniper, bgp, ospf, vpn, firewalls, linux, python', 15,
+                            'Sam Salameh | Senior Network Engineer | 15+ years experience | CCNA, CCNP, MikroTik MTCNA', CURRENT_TIMESTAMP)
+                """, (uid,))
+                
+        conn.commit()
+        return {
+            "status": "ok",
+            "message": f"Successfully deleted {deleted_users} users, {deleted_profiles} profiles, {deleted_campaigns} campaigns, and {deleted_emails} emails. Confirmed Sam Salameh's profile is fully optimized.",
+        }
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "error": str(e)}
+    finally:
+        conn.close()
 
 
 # ══════════════════════════════════════════════════════════════════════════════

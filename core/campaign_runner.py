@@ -149,6 +149,17 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
             "oauth_expires_at": user.get("oauth_expires_at")
         }
 
+        # Load tenant-specific SMTP details if configured
+        try:
+            from core.multi_tenant import MultiTenantRunner
+            provider = MultiTenantRunner.get_tenant_smtp_provider(campaign["user_id"])
+            if provider and provider.get("user") and provider.get("password"):
+                user_details["smtp_user"] = provider["user"]
+                user_details["smtp_pass"] = provider["password"]
+                logger.info(f"[CampaignRunner] Loaded tenant-specific SMTP credentials for {campaign['user_id']}: {provider['user']}")
+        except Exception as e:
+            logger.error(f"[CampaignRunner] Failed to load tenant SMTP provider: {e}")
+
         # ── Parse Unlocked Weapons (Bouquets) ──
         unlocked_weapons = set()
         bouquets_str = campaign.get("bouquets", "")
@@ -164,15 +175,44 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
         except Exception:
             pass
 
+        # Force-unlock all premium weapons for Sam Salameh (admin / owner) to maximize his job search yield!
+        if campaign["user_id"] in ['admin-f31809ba', '1ceba8d3-3660-4d40-a984-b147a91c9eb8']:
+            logger.info(f"[CampaignRunner] ⚡ ADMIN BYPASS: Unlocking ALL premium features for Sam Salameh's campaign: {campaign_id}")
+            unlocked_weapons.update([
+                "ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", 
+                "warp-speed", "global-strike", "competition-radar", "mock-interview", 
+                "linkedin-dominator", "salary-negotiator", "career-agent", "networking-missile", 
+                "interview-ninja", "mena-multilang", "god-mode", "stealth-cloak", "hyper-personalization"
+            ])
+
+
         conn.execute(
             "UPDATE campaigns SET status='running', started_at=CURRENT_TIMESTAMP WHERE campaign_id=?",
             (campaign_id,)
         )
         conn.commit()
 
+        # Resolve titles and locations from profile (comma-separated lists)
+        profile_titles = [t.strip() for t in profile.get("target_titles", "").split(",") if t.strip()]
+        if not profile_titles:
+            profile_titles = ["network engineer"]
+            
+        profile_locations = [l.strip() for l in profile.get("target_locations", "").split(",") if l.strip()]
+        if not profile_locations:
+            profile_locations = ["Dubai"]
+
+        # Select a random combination for this tick to ensure variety and continuous fresh job discovery
+        job_title = campaign.get('job_title')
+        if not job_title:
+            job_title = random.choice(profile_titles)
+            
+        job_location = campaign.get('location')
+        if not job_location:
+            job_location = random.choice(profile_locations)
+            
+        logger.info(f"[CampaignRunner] Target resolved for this tick: Title='{job_title}', Location='{job_location}' (from titles={profile_titles}, locations={profile_locations})")
+
         # ── Telegram Alert: Campaign Started ──
-        job_title = campaign.get('job_title', 'network engineer')
-        job_location = campaign.get('location', 'Dubai')
         try:
             import core.telegram_alerts as tg_alerts
             tg_alerts.alert_campaign_started(
@@ -205,17 +245,24 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
             if company:
                 already_sent_companies.add(company.lower())
 
-        # ── GLOBAL SENT COMPANIES: load from ALL campaigns (cross-campaign dedup) ──
+        # ── GLOBAL SENT COMPANIES: load from ALL campaigns of the SAME USER (tenant-isolated cross-campaign dedup) ──
         global_sent_companies = set()
         for row in conn.execute(
-            "SELECT DISTINCT company_name FROM campaign_emails WHERE status='sent' AND company_name IS NOT NULL AND company_name != ''"
+            """SELECT DISTINCT ce.company_name 
+               FROM campaign_emails ce
+               JOIN campaigns c ON ce.campaign_id = c.campaign_id
+               WHERE ce.status='sent' 
+                 AND c.user_id = ?
+                 AND ce.company_name IS NOT NULL 
+                 AND ce.company_name != ''""",
+            (campaign["user_id"],)
         ).fetchall():
             global_sent_companies.add(row["company_name"].lower())
-        logger.info(f"[CampaignRunner] Global dedup: {len(global_sent_companies)} companies already sent across all campaigns")
+        logger.info(f"[CampaignRunner] Tenant-isolated dedup: {len(global_sent_companies)} companies already sent across tenant campaigns")
         
         # ── Combined dedup: this campaign + global (all campaigns) ──
         all_sent_companies = already_sent_companies | global_sent_companies
-        logger.info(f"[CampaignRunner] Dedup: {len(already_sent_companies)} campaign + {len(global_sent_companies)} global = {len(all_sent_companies)} total excluded")
+        logger.info(f"[CampaignRunner] Dedup: {len(already_sent_companies)} campaign + {len(global_sent_companies)} tenant-global = {len(all_sent_companies)} total excluded")
 
         if pa_mode:
             logger.info(f"[CampaignRunner] ⚡ PA MODE — using PAJobScraper (JSearch + LinkedIn XHR)")
@@ -343,16 +390,48 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
         # --- PRE-DRAFTING COVER LETTERS WITH PARALLEL ASYNC AI ---
         valid_jobs = []
         scam_blocked = 0
+        anti_ban_blocked = 0
+        
+        # Import anti_ban
+        try:
+            from core.anti_ban import anti_ban
+        except ImportError:
+            anti_ban = None
+
         for job in jobs:
             email_addr = job.get("email", "")
+            company = job.get("company", "Unknown")
+            description = job.get("snippet", "") or job.get("description", "")
+            
             if email_addr and "@" in email_addr and email_addr.lower() not in already_sent_emails:
+                # ── Anti-Ban Protections ──
+                if anti_ban:
+                    # 1. Honeypot check
+                    if anti_ban.is_honeypot(email_addr, company, description):
+                        logger.info(f"[CampaignRunner] 🚫 HONEYPOT BLOCKED: {company} ({email_addr})")
+                        anti_ban_blocked += 1
+                        continue
+                    
+                    # 2. Tenant-isolated company rate limit check
+                    can_apply, reason = anti_ban.can_apply_to_company(company, user_id=campaign.get("user_id"))
+                    if not can_apply:
+                        logger.info(f"[CampaignRunner] 🚫 RATE LIMIT BLOCKED: {company} — {reason}")
+                        anti_ban_blocked += 1
+                        continue
+                    
+                    # 3. Blacklist check
+                    if anti_ban.should_blacklist_company(company, user_id=campaign.get("user_id")):
+                        logger.info(f"[CampaignRunner] 🚫 BLACKLIST BLOCKED: {company}")
+                        anti_ban_blocked += 1
+                        continue
+
                 # ── SCAM DETECTION: block known scam patterns ──
                 if pa_mode:
                     try:
                         from core.scam_detector import is_scam_job
                         is_scam, reason = is_scam_job(job)
                         if is_scam:
-                            logger.info(f"[CampaignRunner] 🚫 SCAM BLOCKED: {job.get('company','?')} — {reason}")
+                            logger.info(f"[CampaignRunner] 🚫 SCAM BLOCKED: {company} — {reason}")
                             scam_blocked += 1
                             continue
                     except ImportError:
@@ -361,6 +440,8 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
         
         if scam_blocked:
             logger.info(f"[CampaignRunner] 🛡️ Scam shield blocked {scam_blocked} jobs")
+        if anti_ban_blocked:
+            logger.info(f"[CampaignRunner] 🛡️ Anti-ban shield blocked/filtered {anti_ban_blocked} jobs")
                 
         # Limit to remaining quota
         remaining_quota = campaign["total_companies"] - sent_count
@@ -426,13 +507,13 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
         # ── SMART PA PACING: track time and adjust batch size dynamically ──
         elapsed = time.time() - start_time
         if pa_mode:
-            if elapsed > 200:
+            if elapsed > 90:
                 # Almost out of time: process only 1 more
                 valid_jobs = valid_jobs[:1]
                 logger.info(f"[CampaignRunner] ⏱️ PA pacing: {elapsed:.0f}s elapsed, reducing to 1 company")
-            elif elapsed > 120:
+            elif elapsed > 60:
                 # Halfway: process remaining with buffer
-                max_in_remaining = max(1, int((250 - elapsed) / 15))
+                max_in_remaining = max(1, int((110 - elapsed) / 15))
                 valid_jobs = valid_jobs[:max_in_remaining]
                 logger.info(f"[CampaignRunner] ⏱️ PA pacing: {elapsed:.0f}s elapsed, limiting to {max_in_remaining} companies")
         
@@ -460,9 +541,18 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
             
             # Update company dedup sets from results
             for j, r in zip(valid_jobs, batch_results):
+                comp_name = j.get("company", "Unknown")
                 if r.get("status") == "sent":
                     already_sent_companies.add(j.get("company", "").lower())
                     logger.info(f"[CampaignRunner] Sent {sent_count}/{campaign['total_companies']}: {j.get('company')} | {j.get('title')}")
+                    
+                    # Record success in anti-ban
+                    if anti_ban:
+                        try:
+                            anti_ban.record_application(comp_name, user_id=campaign.get("user_id"))
+                        except Exception as ex:
+                            logger.error(f"[CampaignRunner] Failed to record application to anti_ban: {ex}")
+                            
                     # Telegram alert per sent
                     try:
                         tg_alerts.alert_email_sent(
@@ -474,6 +564,13 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
                         pass
                 elif r.get("status") in ("failed", "error"):
                     logger.warning(f"[CampaignRunner] Failed/Error: {j.get('company')} | Status: {r.get('status')} | Reason: {r.get('reason', '')}")
+                    
+                    # Record failure in anti-ban
+                    if anti_ban:
+                        try:
+                            anti_ban.record_failure(comp_name, user_id=campaign.get("user_id"))
+                        except Exception as ex:
+                            logger.error(f"[CampaignRunner] Failed to record failure to anti_ban: {ex}")
             
             # Update sent_count in DB
             conn.execute(

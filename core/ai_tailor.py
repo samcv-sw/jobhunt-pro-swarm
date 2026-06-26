@@ -427,7 +427,10 @@ Include a mix of:
     _SEMANTIC_CACHE = {} # Local memory fallback
 
     async def _call_ai(self, prompt: str, max_tokens: int = 1000, temperature: float = 0.7) -> str | None:
-        """Call AI with pgvector Semantic Caching → Rotating LLM Provider Pool → Legacy Hardcoded Groq/Gemini fallback."""
+        """Call AI with pgvector Semantic Caching → Rotating LLM Provider Pool → Legacy Hardcoded Groq/Gemini fallback.
+        Includes a self-healing retry mechanism that detects unresolved placeholders in the AI response,
+        re-prompts the model with strict formatting guidelines if found, and falls back gracefully to templates.
+        """
         
         # 1. $0 pgvector Semantic Caching Layer
         try:
@@ -438,58 +441,89 @@ Include a mix of:
         except Exception as e:
             logger.warning(f"Semantic cache lookup failed: {e}")
 
+        # Helper to validate response content
+        def _is_valid_ai_response(text: str) -> bool:
+            if not text:
+                return False
+            unresolved_placeholders = [
+                '{first_name}', '{company}', '{position}', '{title}', '{company_name}',
+                '[Company Name]', '[Recruiter Name]', '[Job Title]', '[Insert',
+                '<first_name>', '<company>', '<position>'
+            ]
+            has_unresolved = any(placeholder.lower() in text.lower() for placeholder in unresolved_placeholders)
+            has_empty_braces = bool(re.search(r'\{\s*\}|\[\s*\]|<\s*>', text))
+            return not (has_unresolved or has_empty_braces)
+
         # Local cache fallback
         cache_key = hashlib.md5(prompt.encode()).hexdigest()
         if cache_key in self._SEMANTIC_CACHE:
-            return self._SEMANTIC_CACHE[cache_key]
+            cached_val = self._SEMANTIC_CACHE[cache_key]
+            if _is_valid_ai_response(cached_val):
+                return cached_val
+            else:
+                del self._SEMANTIC_CACHE[cache_key]
 
-        # 2. Try rotating LLM Provider Pool (17 providers, non-blocking, automatic 429 rotation)
-        if self.llm_pool:
-            try:
-                result = await self.llm_pool.complete(
-                    system_prompt="You are a professional career advisor and cover letter writer. Always follow the user's formatting instructions precisely. When asked for JSON, return ONLY valid JSON without markdown code fences.",
-                    user_prompt=prompt,
-                    temperature=temperature,
-                    max_tokens=max_tokens
-                )
-                if result:
-                    self._SEMANTIC_CACHE[cache_key] = result
-                    try:
-                        semantic_cache.save_to_cache(prompt, result)
-                    except: pass
-                    return result
-            except Exception as e:
-                logger.warning(f"Rotating LLM Provider Pool failed: {e}. Falling back to legacy Groq/Gemini...")
+        current_prompt = prompt
+        for attempt in range(1, 4):
+            result = None
 
-        # 3. Legacy Fallback: Try Groq first (fast, free tier)
-        if self.groq_key:
-            for model in self.MODELS:
+            # 2. Try rotating LLM Provider Pool (17 providers, non-blocking, automatic 429 rotation)
+            if self.llm_pool:
                 try:
-                    result = await self._call_groq(prompt, model, max_tokens, temperature)
-                    if result:
-                        self._SEMANTIC_CACHE[cache_key] = result
-                        try:
-                            semantic_cache.save_to_cache(prompt, result)
-                        except: pass
-                        return result
+                    result = await self.llm_pool.complete(
+                        system_prompt="You are a professional career advisor and cover letter writer. Always follow the user's formatting instructions precisely. When asked for JSON, return ONLY valid JSON without markdown code fences.",
+                        user_prompt=current_prompt,
+                        temperature=temperature,
+                        max_tokens=max_tokens
+                    )
                 except Exception as e:
-                    logger.warning(f"Groq {model} failed: {e}")
-                    continue
+                    logger.warning(f"Rotating LLM Provider Pool failed on attempt {attempt}: {e}. Falling back to legacy Groq/Gemini...")
 
-        # 4. Legacy Fallback: Try Gemini
-        if self.gemini_key:
-            try:
-                result = await self._call_gemini(prompt, max_tokens)
-                if result:
+            # 3. Legacy Fallback: Try Groq first (fast, free tier)
+            if not result and self.groq_key:
+                for model in self.MODELS:
+                    try:
+                        result = await self._call_groq(current_prompt, model, max_tokens, temperature)
+                        if result:
+                            break
+                    except Exception as e:
+                        logger.warning(f"Groq {model} failed on attempt {attempt}: {e}")
+                        continue
+
+            # 4. Legacy Fallback: Try Gemini
+            if not result and self.gemini_key:
+                try:
+                    result = await self._call_gemini(current_prompt, max_tokens)
+                except Exception as e:
+                    logger.warning(f"Gemini failed on attempt {attempt}: {e}")
+
+            # Validate the response content
+            if result:
+                if _is_valid_ai_response(result):
+                    # Valid response! Save and return.
                     self._SEMANTIC_CACHE[cache_key] = result
                     try:
                         semantic_cache.save_to_cache(prompt, result)
-                    except: pass
+                    except:
+                        pass
                     return result
-            except Exception as e:
-                logger.warning(f"Gemini failed: {e}")
+                else:
+                    logger.warning(
+                        f"[Self-Healing AI] Attempt {attempt} generated a response with unresolved placeholders! "
+                        "Retrying with stricter directives..."
+                    )
+                    # Modify prompt to strictly forbid placeholders
+                    current_prompt = (
+                        prompt +
+                        "\n\nCRITICAL DIRECTIVE: Do NOT output any template placeholders, brackets, or braces "
+                        "(e.g., NO '[Company Name]', '{first_name}', '[Job Title]', or empty brackets like '[]' or '{}'). "
+                        "Write out the actual candidate name, job title, and company directly. If you do not know a detail, "
+                        "write a realistic name or generic phrase instead of a placeholder."
+                    )
+                    # Slightly increase temperature to get a different completion path
+                    temperature = min(1.0, temperature + 0.1)
 
-        logger.error("All AI providers failed")
+        logger.error("[Self-Healing AI] All AI providers failed or generated invalid responses after 3 attempts.")
         return None
 
     async def _call_groq(self, prompt: str, model: str, max_tokens: int, temperature: float) -> str | None:

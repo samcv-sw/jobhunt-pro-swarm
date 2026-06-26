@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Request, UploadFile, File
 from fastapi.templating import Jinja2Templates
 from core.ai_tailor import ai_tailor
-import PyPDF2
 import io
 import logging
 
@@ -19,12 +18,41 @@ async def roast_resume(file: UploadFile = File(...)):
     """Extracts text from PDF and sends to Gemini for a brutal roast."""
     try:
         content = await file.read()
-        reader = PyPDF2.PdfReader(io.BytesIO(content))
         text = ""
-        for page in reader.pages:
-            text += page.extract_text()
-            
-        if not text:
+        
+        # 1. Try pdfplumber (preferred)
+        try:
+            import pdfplumber
+            with pdfplumber.open(io.BytesIO(content)) as pdf:
+                text = "\n".join(page.extract_text() or "" for page in pdf.pages)
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.warning(f"pdfplumber failed: {e}")
+
+        # 2. Try pypdf (modern standard fallback)
+        if not text.strip():
+            try:
+                import pypdf
+                reader = pypdf.PdfReader(io.BytesIO(content))
+                text = "\n".join(page.extract_text() or "" for page in reader.pages)
+            except ImportError:
+                pass
+            except Exception as e:
+                logger.warning(f"pypdf fallback failed: {e}")
+
+        # 3. Try PyPDF2 (legacy fallback)
+        if not text.strip():
+            try:
+                import PyPDF2
+                reader = PyPDF2.PdfReader(io.BytesIO(content))
+                text = "\n".join(page.extract_text() or "" for page in reader.pages)
+            except ImportError:
+                pass
+            except Exception as e:
+                logger.warning(f"PyPDF2 fallback failed: {e}")
+
+        if not text.strip():
             return {"error": "Could not extract text from PDF"}
 
         prompt = f"""

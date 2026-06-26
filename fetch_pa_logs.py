@@ -1,6 +1,6 @@
 import requests
 
-PA_TOKEN = "34fe3a4cafefe3a4ac8d592119d5480a0b988971"
+PA_TOKEN = "7f8bf3e6ad742bcb9e3c25e446cf664d6710b31d"
 USERNAME = "jhfguf"
 headers = {"Authorization": f"Token {PA_TOKEN}"}
 
