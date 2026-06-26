@@ -208,9 +208,9 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
         # ── GLOBAL SENT COMPANIES: load from ALL campaigns (cross-campaign dedup) ──
         global_sent_companies = set()
         for row in conn.execute(
-            "SELECT DISTINCT LOWER(company_name) AS cn FROM campaign_emails WHERE status='sent' AND company_name IS NOT NULL AND company_name != ''"
+            "SELECT DISTINCT company_name FROM campaign_emails WHERE status='sent' AND company_name IS NOT NULL AND company_name != ''"
         ).fetchall():
-            global_sent_companies.add(row["cn"])
+            global_sent_companies.add(row["company_name"].lower())
         logger.info(f"[CampaignRunner] Global dedup: {len(global_sent_companies)} companies already sent across all campaigns")
         
         # ── Combined dedup: this campaign + global (all campaigns) ──
@@ -230,7 +230,7 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
                     try:
                         from core.pa_job_scraper import PAJobScraper
                         pa = PAJobScraper()
-                        all_jobs = pa.search_all(max_jobs=campaign["total_companies"])
+                        all_jobs = pa.search_all(query=job_title, location=job_location, max_jobs=campaign["total_companies"])
                         logger.info(f"[CampaignRunner] PAJobScraper found {len(all_jobs)} jobs in thread")
                         return all_jobs
                     except Exception as pae:
@@ -241,25 +241,30 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
                         import httpx
                         _XHR_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
                         _XHR_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
-                        city_combos = [("uae","Dubai"),("saudi","Riyadh"),("qatar","Doha"),("kuwait","Kuwait"),("lebanon","Beirut")]
-                        random.shuffle(city_combos)  # Randomize city order for freshness
-                        for _, city in city_combos:
-                            try:
-                                url = f"{_XHR_URL}?keywords=network+engineer&location={urllib.request.quote(city)}&start=0&count=10"
-                                resp = httpx.get(url, headers=_XHR_HEADERS, timeout=10)
-                                if resp.status_code == 200:
-                                    from bs4 import BeautifulSoup
-                                    soup = BeautifulSoup(resp.text, "html.parser")
-                                    for card in soup.select("li"):
-                                        t_el = card.select_one(".base-search-card__title")
-                                        c_el = card.select_one(".base-search-card__subtitle")
-                                        if t_el and c_el:
-                                            k = (c_el.get_text(strip=True).lower(), t_el.get_text(strip=True).lower())
-                                            if k not in seen:
-                                                seen.add(k)
-                                                all_jobs.append({"title": t_el.get_text(strip=True), "company": c_el.get_text(strip=True), "source": "linkedin_xhr"})
-                            except Exception:
-                                pass
+                        if job_location:
+                            city_combos = [(job_location.lower(), job_location)]
+                        else:
+                            city_combos = [("uae","Dubai"),("saudi","Riyadh"),("qatar","Doha"),("kuwait","Kuwait"),("lebanon","Beirut")]
+                            random.shuffle(city_combos)  # Randomize city order for freshness
+                        with httpx.Client(timeout=10) as client:
+                            for _, city in city_combos:
+                                try:
+                                    search_kw = job_title or "network engineer"
+                                    url = f"{_XHR_URL}?keywords={urllib.request.quote(search_kw)}&location={urllib.request.quote(city)}&start=0&count=10"
+                                    resp = client.get(url, headers=_XHR_HEADERS)
+                                    if resp.status_code == 200:
+                                        from bs4 import BeautifulSoup
+                                        soup = BeautifulSoup(resp.text, "html.parser")
+                                        for card in soup.select("li"):
+                                            t_el = card.select_one(".base-search-card__title")
+                                            c_el = card.select_one(".base-search-card__subtitle")
+                                            if t_el and c_el:
+                                                k = (c_el.get_text(strip=True).lower(), t_el.get_text(strip=True).lower())
+                                                if k not in seen:
+                                                    seen.add(k)
+                                                    all_jobs.append({"title": t_el.get_text(strip=True), "company": c_el.get_text(strip=True), "source": "linkedin_xhr"})
+                                except Exception:
+                                    pass
                         return all_jobs
 
                 jobs = await asyncio.to_thread(run_pa_scraping)
@@ -467,8 +472,8 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
                         )
                     except Exception:
                         pass
-                elif r.get("status") == "failed":
-                    logger.warning(f"[CampaignRunner] Failed: {j.get('company')} | {r.get('reason', '')}")
+                elif r.get("status") in ("failed", "error"):
+                    logger.warning(f"[CampaignRunner] Failed/Error: {j.get('company')} | Status: {r.get('status')} | Reason: {r.get('reason', '')}")
             
             # Update sent_count in DB
             conn.execute(
@@ -495,7 +500,7 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
                 return {"status": "running", "campaign_id": campaign_id, "sent": sent_count, "failed": failed_count, "message": "Chunk completed"}
 
         # ── Check if we actually finished the campaign or just chunked ──
-        if sent_count < campaign["total_companies"] and jobs_available_this_cycle > 0:
+        if sent_count < campaign["total_companies"]:
             logger.info(f"[CampaignRunner] ⏱️ Yielding to next cycle ({sent_count}/{campaign['total_companies']} sent).")
             conn.execute("UPDATE campaigns SET started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (campaign_id,))
             conn.commit()

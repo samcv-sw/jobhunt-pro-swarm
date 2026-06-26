@@ -169,9 +169,11 @@ async function scrapeJobs(env, url) {
         ).bind(url, 'direct_fetch', text.substring(0, 50000), String(text.length), resp.status).run().catch(() => {});
       }
       return { source: 'direct_fetch', status: 200, content: text.substring(0, 100000) };
+    } else {
+      return { source: 'direct_fetch', status: resp.status, error: `Direct fetch returned non-200 status: ${resp.status}` };
     }
   } catch (directErr) {
-    console.error("Direct fetch failed, falling back to Google Cache:", directErr.message);
+    return { source: 'direct_fetch', error: directErr.message, stack: directErr.stack };
   }
   
   // 2. Fallback to Google Cache (Legacy, might return 404/403 since retired)

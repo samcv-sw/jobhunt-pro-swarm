@@ -58,6 +58,9 @@ print("=== Deploying to PA ===")
 files = [
     ("jobhunt/core/email_engine.py", os.path.join(BASE_LOCAL, "core", "email_engine.py")),
     ("jobhunt/cloud_orchestrator.py", os.path.join(BASE_LOCAL, "cloud_orchestrator.py")),
+    ("jobhunt/web/cloud_tick_router.py", os.path.join(BASE_LOCAL, "web", "cloud_tick_router.py")),
+    ("jobhunt/core/pa_job_scraper.py", os.path.join(BASE_LOCAL, "core", "pa_job_scraper.py")),
+    ("jobhunt/core/campaign_runner.py", os.path.join(BASE_LOCAL, "core", "campaign_runner.py")),
 ]
 
 for remote, local in files:
