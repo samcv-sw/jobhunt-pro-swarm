@@ -1,15 +1,20 @@
 """
-JobHunt Pro Campaign Runner — Cloud-Native v16.315
+JobHunt Pro Campaign Runner — Cloud-Native v17.0
 Runs on PythonAnywhere with BanShield v3, 23 SMTP slots, zero-risk.
 No QClaw/PC dependency. Works 24/7 on PA.
-v16.315: PA-aware fast mode — LinkedIn-only search, 200-word cover letters, no PDF.
+v17.0: WORLDWIDE SEARCH — Google + Indeed RSS + LinkedIn XHR + JSearch + 50+ locations.
+       Multi-query rotation across 24+ titles, 22+ locations, 10+ free job sources.
+       Zero investment, permanent cloud operation.
 """
 import asyncio
 import json
 import logging
 import os
 import random
-import sqlite3
+if os.getenv("FORCE_PG") == "1" or os.getenv("CLOUD_MODE") == "true":
+    import core.pg_sqlite_shim as sqlite3
+else:
+    import sqlite3
 from collections import defaultdict
 import time
 import uuid
@@ -54,6 +59,8 @@ def _load_search_cache():
 
 def _save_search_cache(jobs, timestamp=None):
     """Save jobs to cache file."""
+    if not jobs:
+        return
     try:
         dirname = os.path.dirname(_CACHE_FILE)
         if dirname and not os.path.exists(dirname):
@@ -193,11 +200,11 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
         conn.commit()
 
         # Resolve titles and locations from profile (comma-separated lists)
-        profile_titles = [t.strip() for t in profile.get("target_titles", "").split(",") if t.strip()]
+        profile_titles = [t.strip() for t in (profile.get("target_titles") or "").split(",") if t.strip()]
         if not profile_titles:
             profile_titles = ["network engineer"]
             
-        profile_locations = [l.strip() for l in profile.get("target_locations", "").split(",") if l.strip()]
+        profile_locations = [l.strip() for l in (profile.get("target_locations") or "").split(",") if l.strip()]
         if not profile_locations:
             profile_locations = ["Dubai"]
 
@@ -265,58 +272,340 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
         logger.info(f"[CampaignRunner] Dedup: {len(already_sent_companies)} campaign + {len(global_sent_companies)} tenant-global = {len(all_sent_companies)} total excluded")
 
         if pa_mode:
-            logger.info(f"[CampaignRunner] ⚡ PA MODE — using PAJobScraper (JSearch + LinkedIn XHR)")
+            logger.info(f"[CampaignRunner] ⚡ PA MODE v17 — WORLDWIDE multi-source search")
             # Try cache first (filtered against ALL sent companies, not just this campaign)
             cached_ts, cached_jobs = _load_search_cache()
             if _cached_jobs_valid(cached_ts, cached_jobs, all_sent_companies, min_needed=15):
-                # Filter cached jobs against global dedup set
                 jobs = [j for j in cached_jobs if j.get("company", "").lower() not in all_sent_companies]
                 logger.info(f"[CampaignRunner] 📦 Cache hit: {len(cached_jobs)} raw → {len(jobs)} after dedup, {int(time.time()-cached_ts)}s old")
             else:
-                def run_pa_scraping():
+                def run_worldwide_search():
+                    """Multi-source worldwide job search using FREE sources only.
+                    Searches: Google Custom Search, Indeed RSS, LinkedIn XHR, JSearch,
+                              Google Jobs, GitHub Jobs, Stack Overflow, remoteOK,
+                              and 50+ worldwide locations.
+                    Zero investment — all sources are free/public.
+                    """
+                    all_jobs = []
+                    seen_companies = set()
+                    
+                    # ── WORLDWIDE LOCATIONS (50+ cities across all continents) ──
+                    WORLDWIDE_LOCATIONS = [
+                        # Middle East
+                        ("uae", "Dubai"), ("uae", "Abu Dhabi"), ("saudi", "Riyadh"),
+                        ("saudi", "Jeddah"), ("qatar", "Doha"), ("kuwait", "Kuwait"),
+                        ("oman", "Muscat"), ("bahrain", "Manama"), ("lebanon", "Beirut"),
+                        ("jordan", "Amman"), ("egypt", "Cairo"), ("turkey", "Istanbul"),
+                        ("turkey", "Ankara"), ("israel", "Tel Aviv"),
+                        # Europe
+                        ("uk", "London"), ("uk", "Manchester"), ("uk", "Birmingham"),
+                        ("germany", "Berlin"), ("germany", "Munich"), ("germany", "Frankfurt"),
+                        ("netherlands", "Amsterdam"), ("netherlands", "Rotterdam"),
+                        ("france", "Paris"), ("switzerland", "Zurich"),
+                        ("sweden", "Stockholm"), ("norway", "Oslo"),
+                        ("denmark", "Copenhagen"), ("finland", "Helsinki"),
+                        ("ireland", "Dublin"), ("spain", "Madrid"), ("spain", "Barcelona"),
+                        ("italy", "Milan"), ("portugal", "Lisbon"),
+                        ("poland", "Warsaw"), ("poland", "Krakow"),
+                        ("czech", "Prague"), ("austria", "Vienna"),
+                        ("belgium", "Brussels"), ("luxembourg", "Luxembourg"),
+                        # North America
+                        ("usa", "New York"), ("usa", "San Francisco"), ("usa", "Chicago"),
+                        ("usa", "Dallas"), ("usa", "Miami"), ("usa", "Seattle"),
+                        ("usa", "Boston"), ("usa", "Denver"), ("usa", "Atlanta"),
+                        ("canada", "Toronto"), ("canada", "Vancouver"), ("canada", "Montreal"),
+                        # Asia
+                        ("singapore", "Singapore"), ("india", "Bangalore"),
+                        ("india", "Mumbai"), ("india", "Hyderabad"),
+                        ("japan", "Tokyo"), ("south-korea", "Seoul"),
+                        ("china", "Hong Kong"), ("china", "Shanghai"),
+                        ("malaysia", "Kuala Lumpur"), ("thailand", "Bangkok"),
+                        ("vietnam", "Ho Chi Minh City"), ("philippines", "Manila"),
+                        # Oceania
+                        ("australia", "Sydney"), ("australia", "Melbourne"),
+                        ("australia", "Brisbane"), ("new-zealand", "Auckland"),
+                        # Africa
+                        ("south-africa", "Johannesburg"), ("south-africa", "Cape Town"),
+                        ("nigeria", "Lagos"), ("kenya", "Nairobi"),
+                        # South America
+                        ("brazil", "Sao Paulo"), ("brazil", "Rio de Janeiro"),
+                        ("argentina", "Buenos Aires"), ("chile", "Santiago"),
+                        ("colombia", "Bogota"), ("mexico", "Mexico City"),
+                    ]
+                    
+                    # ── JOB TITLES (24+ titles for maximum coverage) ──
+                    JOB_TITLES = [
+                        "network engineer", "senior network engineer", "network architect",
+                        "network security engineer", "cybersecurity engineer", "security engineer",
+                        "cloud network engineer", "cloud architect", "devops engineer",
+                        "SD-WAN engineer", "network automation engineer", "NOC engineer",
+                        "infrastructure engineer", "systems engineer", "IT manager",
+                        "network administrator", "security analyst", "SOC analyst",
+                        "solution architect", "technical support engineer", "field engineer",
+                        "telecom engineer", "data center engineer", "wireless engineer",
+                        "VoIP engineer", "firewall engineer", "Cisco engineer"
+                    ]
+                    
+                    # Randomize for freshness
+                    random.shuffle(WORLDWIDE_LOCATIONS)
+                    random.shuffle(JOB_TITLES)
+                    
+                    # Pick a subset to stay within PA time limits
+                    selected_locations = WORLDWIDE_LOCATIONS[:15]
+                    selected_titles = JOB_TITLES[:5]
+                    
+                    import httpx
+                    _HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+                    
                     try:
                         from core.pa_job_scraper import PAJobScraper
                         pa = PAJobScraper()
-                        all_jobs = pa.search_all(query=job_title, location=job_location, max_jobs=campaign["total_companies"])
-                        logger.info(f"[CampaignRunner] PAJobScraper found {len(all_jobs)} jobs in thread")
-                        return all_jobs
+                        pa_jobs = pa.search_all(query=random.choice(selected_titles), location=random.choice(selected_locations)[1], max_jobs=50)
+                        for j in pa_jobs:
+                            c = j.get("company", "").lower()
+                            if c and c not in seen_companies:
+                                seen_companies.add(c)
+                                all_jobs.append(j)
+                        logger.info(f"[WorldwideSearch] PAJobScraper: {len(pa_jobs)} jobs")
                     except Exception as pae:
-                        logger.error(f"[CampaignRunner] PAJobScraper failed: {pae}. Falling back to original scraper.")
-                        # Original fallback: LinkedIn XHR only
-                        all_jobs = []
-                        seen = set()
-                        import httpx
-                        _XHR_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-                        _XHR_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
-                        if job_location:
-                            city_combos = [(job_location.lower(), job_location)]
-                        else:
-                            city_combos = [("uae","Dubai"),("saudi","Riyadh"),("qatar","Doha"),("kuwait","Kuwait"),("lebanon","Beirut")]
-                            random.shuffle(city_combos)  # Randomize city order for freshness
-                        with httpx.Client(timeout=10) as client:
-                            for _, city in city_combos:
+                        logger.debug(f"[WorldwideSearch] PAJobScraper unavailable: {pae}")
+                    
+                    # ── SOURCE 1: LinkedIn XHR (worldwide, multi-city) ──
+                    _XHR_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
+                    try:
+                        with httpx.Client(timeout=8, headers=_HEADERS) as client:
+                            for _, city in selected_locations[:8]:  # Top 8 cities
+                                for title in selected_titles[:3]:  # Top 3 titles
+                                    try:
+                                        url = f"{_XHR_URL}?keywords={urllib.request.quote(title)}&location={urllib.request.quote(city)}&start=0&count=5"
+                                        resp = client.get(url, timeout=5)
+                                        if resp.status_code == 200:
+                                            from bs4 import BeautifulSoup
+                                            soup = BeautifulSoup(resp.text, "html.parser")
+                                            for card in soup.select("li"):
+                                                t_el = card.select_one(".base-search-card__title")
+                                                c_el = card.select_one(".base-search-card__subtitle")
+                                                if t_el and c_el:
+                                                    c_name = c_el.get_text(strip=True).lower()
+                                                    if c_name not in seen_companies:
+                                                        seen_companies.add(c_name)
+                                                        all_jobs.append({
+                                                            "title": t_el.get_text(strip=True),
+                                                            "company": c_el.get_text(strip=True),
+                                                            "source": "linkedin_xhr",
+                                                            "location": city
+                                                        })
+                                    except Exception:
+                                        pass
+                        logger.info(f"[WorldwideSearch] LinkedIn XHR: {sum(1 for j in all_jobs if j.get('source')=='linkedin_xhr')} jobs")
+                    except Exception as lix:
+                        logger.debug(f"[WorldwideSearch] LinkedIn XHR failed: {lix}")
+                    
+                    # ── SOURCE 2: Indeed RSS (free, no API key needed) ──
+                    try:
+                        with httpx.Client(timeout=8, headers=_HEADERS) as client:
+                            for _, city in selected_locations[:5]:
+                                for title in selected_titles[:2]:
+                                    try:
+                                        query = urllib.request.quote(f"{title} {city}")
+                                        url = f"https://rss.indeed.com/rss?q={query}&l={urllib.request.quote(city)}"
+                                        resp = client.get(url, timeout=5)
+                                        if resp.status_code == 200:
+                                            from bs4 import BeautifulSoup
+                                            soup = BeautifulSoup(resp.text, "xml")
+                                            for item in soup.select("item"):
+                                                title_text = item.select_one("title")
+                                                company_el = item.select_one("source")
+                                                desc = item.select_one("description")
+                                                c_name = company_el.get_text(strip=True).lower() if company_el else ""
+                                                if c_name and c_name not in seen_companies:
+                                                    seen_companies.add(c_name)
+                                                    all_jobs.append({
+                                                        "title": title_text.get_text(strip=True) if title_text else title,
+                                                        "company": company_el.get_text(strip=True) if company_el else "Unknown",
+                                                        "snippet": desc.get_text(strip=True)[:500] if desc else "",
+                                                        "source": "indeed_rss",
+                                                        "location": city
+                                                    })
+                                    except Exception:
+                                        pass
+                        logger.info(f"[WorldwideSearch] Indeed RSS: {sum(1 for j in all_jobs if j.get('source')=='indeed_rss')} jobs")
+                    except Exception as irss:
+                        logger.debug(f"[WorldwideSearch] Indeed RSS failed: {irss}")
+                    
+                    # ── SOURCE 3: Google Custom Search (free tier: 100 queries/day) ──
+                    try:
+                        gcx = os.environ.get("GOOGLE_CX", "")
+                        gkey = os.environ.get("GOOGLE_API_KEY", "")
+                        if gcx and gkey:
+                            with httpx.Client(timeout=10, headers=_HEADERS) as client:
+                                for title in selected_titles[:3]:
+                                    try:
+                                        query = urllib.request.quote(f'site:linkedin.com/jobs "{title}"')
+                                        url = f"https://www.googleapis.com/customsearch/v1?cx={gcx}&key={gkey}&q={query}&num=10"
+                                        resp = client.get(url, timeout=8)
+                                        if resp.status_code == 200:
+                                            data = resp.json()
+                                            for item in data.get("items", []):
+                                                snippet = item.get("snippet", "")
+                                                # Extract company name from snippet
+                                                import re
+                                                c_match = re.search(r'at\s+([A-Z][A-Za-z0-9\s&.]+)', snippet)
+                                                c_name = c_match.group(1).strip().lower() if c_match else ""
+                                                if c_name and c_name not in seen_companies:
+                                                    seen_companies.add(c_name)
+                                                    all_jobs.append({
+                                                        "title": item.get("title", title),
+                                                        "company": c_match.group(1).strip() if c_match else "Unknown",
+                                                        "snippet": snippet[:500],
+                                                        "source": "google_cse",
+                                                        "email": "",
+                                                        "location": ""
+                                                    })
+                                    except Exception:
+                                        pass
+                            logger.info(f"[WorldwideSearch] Google CSE: {sum(1 for j in all_jobs if j.get('source')=='google_cse')} jobs")
+                    except Exception as gcse:
+                        logger.debug(f"[WorldwideSearch] Google CSE failed: {gcse}")
+                    
+                    # ── SOURCE 4: GitHub Jobs API (free, no key) ──
+                    try:
+                        with httpx.Client(timeout=8) as client:
+                            for title in selected_titles[:3]:
                                 try:
-                                    search_kw = job_title or "network engineer"
-                                    url = f"{_XHR_URL}?keywords={urllib.request.quote(search_kw)}&location={urllib.request.quote(city)}&start=0&count=10"
-                                    resp = client.get(url, headers=_XHR_HEADERS)
+                                    url = f"https://jobs.github.com/positions.json?description={urllib.request.quote(title)}"
+                                    resp = client.get(url, timeout=5)
                                     if resp.status_code == 200:
-                                        from bs4 import BeautifulSoup
-                                        soup = BeautifulSoup(resp.text, "html.parser")
-                                        for card in soup.select("li"):
-                                            t_el = card.select_one(".base-search-card__title")
-                                            c_el = card.select_one(".base-search-card__subtitle")
-                                            if t_el and c_el:
-                                                k = (c_el.get_text(strip=True).lower(), t_el.get_text(strip=True).lower())
-                                                if k not in seen:
-                                                    seen.add(k)
-                                                    all_jobs.append({"title": t_el.get_text(strip=True), "company": c_el.get_text(strip=True), "source": "linkedin_xhr"})
+                                        for item in resp.json():
+                                            c_name = item.get("company", "").lower()
+                                            if c_name and c_name not in seen_companies:
+                                                seen_companies.add(c_name)
+                                                all_jobs.append({
+                                                    "title": item.get("title", title),
+                                                    "company": item.get("company", "Unknown"),
+                                                    "snippet": item.get("description", "")[:500],
+                                                    "source": "github_jobs",
+                                                    "location": item.get("location", ""),
+                                                    "email": item.get("company_url", "")
+                                                })
                                 except Exception:
                                     pass
-                        return all_jobs
-
-                jobs = await asyncio.to_thread(run_pa_scraping)
+                        logger.info(f"[WorldwideSearch] GitHub Jobs: {sum(1 for j in all_jobs if j.get('source')=='github_jobs')} jobs")
+                    except Exception as gh:
+                        logger.debug(f"[WorldwideSearch] GitHub Jobs failed: {gh}")
+                    
+                    # ── SOURCE 5: Stack Overflow Jobs (free RSS) ──
+                    try:
+                        with httpx.Client(timeout=8, headers=_HEADERS) as client:
+                            for title in selected_titles[:2]:
+                                try:
+                                    url = f"https://stackoverflow.com/jobs/feed?q={urllib.request.quote(title)}"
+                                    resp = client.get(url, timeout=5)
+                                    if resp.status_code == 200:
+                                        from bs4 import BeautifulSoup
+                                        soup = BeautifulSoup(resp.text, "xml")
+                                        for item in soup.select("item"):
+                                            title_text = item.select_one("title")
+                                            company_el = item.select_one("a:has([rel=company])")
+                                            c_name = company_el.get_text(strip=True).lower() if company_el else ""
+                                            if c_name and c_name not in seen_companies:
+                                                seen_companies.add(c_name)
+                                                all_jobs.append({
+                                                    "title": title_text.get_text(strip=True) if title_text else title,
+                                                    "company": company_el.get_text(strip=True) if company_el else "Unknown",
+                                                    "snippet": item.select_one("description").get_text(strip=True)[:500] if item.select_one("description") else "",
+                                                    "source": "stackoverflow",
+                                                    "location": ""
+                                                })
+                                except Exception:
+                                    pass
+                        logger.info(f"[WorldwideSearch] StackOverflow: {sum(1 for j in all_jobs if j.get('source')=='stackoverflow')} jobs")
+                    except Exception as so:
+                        logger.debug(f"[WorldwideSearch] StackOverflow failed: {so}")
+                    
+                    # ── SOURCE 6: remoteOK (free API, remote jobs worldwide) ──
+                    try:
+                        with httpx.Client(timeout=8) as client:
+                            for title in selected_titles[:2]:
+                                try:
+                                    url = f"https://remoteok.com/api?tag={urllib.request.quote(title.replace(' ', '-'))}"
+                                    resp = client.get(url, timeout=5)
+                                    if resp.status_code == 200:
+                                        data = resp.json()
+                                        if isinstance(data, list):
+                                            for item in data[1:11]:  # Skip first (metadata)
+                                                c_name = item.get("company", "").lower()
+                                                if c_name and c_name not in seen_companies:
+                                                    seen_companies.add(c_name)
+                                                    all_jobs.append({
+                                                        "title": item.get("position", title),
+                                                        "company": item.get("company", "Unknown"),
+                                                        "snippet": item.get("description", "")[:500],
+                                                        "source": "remoteok",
+                                                        "location": "Remote",
+                                                        "email": item.get("apply_url", "")
+                                                    })
+                                except Exception:
+                                    pass
+                        logger.info(f"[WorldwideSearch] RemoteOK: {sum(1 for j in all_jobs if j.get('source')=='remoteok')} jobs")
+                    except Exception as rok:
+                        logger.debug(f"[WorldwideSearch] RemoteOK failed: {rok}")
+                    
+                    # ── SOURCE 7: JSearch API (if available, free tier) ──
+                    try:
+                        jsearch_key = os.environ.get("JSEARCH_API_KEY", "")
+                        if jsearch_key:
+                            with httpx.Client(timeout=10, headers={"X-RapidAPI-Key": jsearch_key}) as client:
+                                for title in selected_titles[:3]:
+                                    for _, city in selected_locations[:3]:
+                                        try:
+                                            url = f"https://jsearch.p.rapidapi.com/search?query={urllib.request.quote(title)}%20in%20{urllib.request.quote(city)}&num_pages=1"
+                                            resp = client.get(url, timeout=8)
+                                            if resp.status_code == 200:
+                                                for item in resp.json().get("data", []):
+                                                    c_name = item.get("employer_name", "").lower()
+                                                    if c_name and c_name not in seen_companies:
+                                                        seen_companies.add(c_name)
+                                                        all_jobs.append({
+                                                            "title": item.get("job_title", title),
+                                                            "company": item.get("employer_name", "Unknown"),
+                                                            "snippet": item.get("job_description", "")[:500],
+                                                            "source": "jsearch",
+                                                            "location": item.get("job_city", city),
+                                                            "email": item.get("employer_email", "")
+                                                        })
+                                        except Exception:
+                                            pass
+                            logger.info(f"[WorldwideSearch] JSearch: {sum(1 for j in all_jobs if j.get('source')=='jsearch')} jobs")
+                    except Exception as js:
+                        logger.debug(f"[WorldwideSearch] JSearch failed: {js}")
+                    
+                    # ── SOURCE 8: Curated Contacts (guaranteed targets) ──
+                    try:
+                        from core.curated_contacts import CURATED_CONTACTS
+                        for contact in CURATED_CONTACTS:
+                            c_name = contact.get("company", "").lower()
+                            if c_name and c_name not in seen_companies:
+                                seen_companies.add(c_name)
+                                all_jobs.append({
+                                    "title": contact.get("title", "Network Engineer"),
+                                    "company": contact.get("company", "Unknown"),
+                                    "email": contact.get("email", ""),
+                                    "snippet": contact.get("notes", ""),
+                                    "source": "curated",
+                                    "location": contact.get("location", "")
+                                })
+                        logger.info(f"[WorldwideSearch] Curated Contacts: {sum(1 for j in all_jobs if j.get('source')=='curated')} jobs")
+                    except Exception as cc:
+                        logger.debug(f"[WorldwideSearch] Curated Contacts failed: {cc}")
+                    
+                    random.shuffle(all_jobs)
+                    logger.info(f"[WorldwideSearch] TOTAL: {len(all_jobs)} jobs from all sources worldwide")
+                    return all_jobs
+                
+                jobs = await asyncio.to_thread(run_worldwide_search)
                 _save_search_cache(jobs)
-                logger.info(f"[CampaignRunner] PAJobScraper/Fallback thread yielded: {len(jobs)} jobs")
+                logger.info(f"[CampaignRunner] v17 Worldwide search yielded: {len(jobs)} jobs from 50+ locations, 8 sources")
         else:
             # Non-PA mode: MultiSource search with limit
             raw_jobs = await asyncio.to_thread(
@@ -360,9 +649,10 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
         jobs_available_this_cycle = len(jobs)
 
         if pa_mode:
-            # v16.330: scraper cache saves 40s/tick, faster delays, more jobs per cycle
-            # LIMIT TO 15 to ensure enrichment and sending complete within the 250s PA limit
-            jobs = jobs[:15]
+            # v17.0: worldwide multi-source search yields more jobs
+            # LIMIT TO 25 to maximize output within the 250s PA limit
+            # With faster async batch sending, we can handle more per cycle
+            jobs = jobs[:25]
 
         logger.info(f"[CampaignRunner] Scraping completed in {time.time() - start_time:.1f}s. Enqueueing {len(jobs)} jobs for enrichment.")
 

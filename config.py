@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Hijack sqlite3 globally in Cloud/PG Mode to transparently redirect all operations to Neon PG
-if os.getenv("CLOUD_MODE") == "true" or os.getenv("DATABASE_URL", "").startswith(("postgresql", "libsql")):
+if os.getenv("CLOUD_MODE") == "true" or os.getenv("FORCE_PG") == "1" or os.getenv("DATABASE_URL", "").startswith(("postgresql", "libsql")):
     try:
         import sys
         from pathlib import Path
@@ -44,42 +44,62 @@ CANDIDATE_ADDRESS = os.getenv("CANDIDATE_ADDRESS", "Beirut, Lebanon")
 CANDIDATE_LINKEDIN = "https://www.linkedin.com/in/sam-salameh"
 YEARS_EXPERIENCE = 15
 
-SKILLS = ["cisco", "mikrotik", "ubiquiti", "fortinet", "juniper", "tcp/ip", "vpn", "firewalls", "routing", "switching", "ospf", "bgp", "mpls", "vlan", "wlan", "wan", "lan", "dhcp", "dns", "network security", "wireshark", "network monitoring", "prtg", "nagios", "zabbix", "solarwinds", "it infrastructure", "data center", "cloud networking", "aws", "azure", "gcp", "vmware", "hyper-v", "linux", "windows server", "active directory", "powershell", "python", "bash", "automation", "ansible", "terraform", "git", "ci/cd", "fiber optic", "structured cabling", "wireless networks", "ccna", "ccnp", "ccie", "mikrotik mtcna", "mikrotik mtcre", "fortinet nse", "comptia network+", "palo alto", "sonicwall", "checkpoint"]
+SKILLS = ["cisco", "mikrotik", "ubiquiti", "fortinet", "juniper", "tcp/ip", "vpn", "firewalls", "routing", "switching", "ospf", "bgp", "mpls", "vlan", "wlan", "wan", "lan", "dhcp", "dns", "network security", "wireshark", "network monitoring", "prtg", "nagios", "zabbix", "solarwinds", "it infrastructure", "data center", "cloud networking", "aws", "azure", "gcp", "vmware", "hyper-v", "linux", "windows server", "active directory", "powershell", "python", "bash", "automation", "ansible", "terraform", "git", "ci/cd", "fiber optic", "structured cabling", "wireless networks", "ccna", "ccnp", "ccie", "mikrotik mtcna", "mikrotik mtcre", "fortinet nse", "comptia network+", "palo alto", "sonicwall", "checkpoint", "sd-wan", "sase", "ztna", "zero trust", "sdn", "network automation", "netdevops", "nfv", "vxlan", "evpn", "segment routing", "ipv6", "multicast", "qos", "load balancing", "f5", "nginx", "docker", "kubernetes", "istio", "prometheus", "grafana", "elk stack", "splunk", "servicenow", "itil", "iso 27001", "nist", "gdpr compliance", "business continuity", "disaster recovery", "sd-wan orchestration", "silver peak", "vmware nsx", "cisco aci", "meraki", "aruba", "ruckus", "extremenetworks", "riverbed", "blue coat", "zscaler", "cloudflare", "akamai"]
 
 JOB_TITLES = [
     # ── Core Network Engineering ──
     "network engineer", "senior network engineer", "network administrator", "network specialist",
     "network consultant", "network architect", "network infrastructure engineer",
     "network support engineer", "network technician", "network analyst", "network manager",
+    "principal network engineer", "lead network engineer", "staff network engineer",
     # ── NOC / Operations ──
     "noc engineer", "noc manager", "network operations engineer", "network operations center",
+    "noc technician", "senior noc engineer",
     # ── Security ──
     "network security engineer", "security engineer", "cybersecurity engineer",
     "firewall engineer", "security administrator", "security analyst",
+    "soc analyst", "soc engineer", "information security engineer",
+    "network security architect", "security operations engineer",
     # ── Infrastructure ──
     "it infrastructure engineer", "infrastructure engineer", "systems engineer",
     "systems administrator", "sysadmin", "it administrator",
+    "senior systems engineer", "infrastructure architect",
     # ── IT Management ──
     "it manager", "it director", "it specialist", "it support engineer",
     "it operations", "technical operations", "head of network", "head of infrastructure",
     "head of it", "director of network", "technical manager",
+    "cto", "chief technology officer", "vp of engineering", "vp of infrastructure",
+    # ── SD-WAN / SASE / Modern Networking ──
+    "sd-wan engineer", "sd-wan architect", "sase engineer", "sase architect",
+    "network automation engineer", "network devops engineer",
+    "netdevops engineer", "network reliability engineer",
     # ── Telecom ──
     "telecom engineer", "telecommunications engineer",
     "fiber optic technician", "fiber optic engineer",
+    "isp engineer", "isp network engineer", "tier 2 engineer", "tier 3 engineer",
     # ── Vendor-Specific ──
     "cisco engineer", "mikrotik engineer", "ubiquiti engineer",
     "fortinet engineer", "juniper engineer", "palo alto engineer",
+    "meraki engineer", "aruba engineer", "extreme networks engineer",
     # ── Cloud / DevOps ──
     "cloud engineer", "cloud network engineer", "site reliability engineer",
-    "devops engineer", "platform engineer",
+    "devops engineer", "platform engineer", "cloud architect",
+    "aws network engineer", "azure network engineer", "gcp network engineer",
     # ── Pre-Sales / Solutions ──
     "pre-sales engineer", "solutions engineer", "technical consultant",
+    "solutions architect", "sales engineer",
+    # ── Data Center ──
+    "data center engineer", "data center technician", "data center manager",
+    "data center operations engineer",
     # ── International titles (for Europe/Germany/Turkey) ──
     "netzwerktechniker", "netzwerkadministrator", "systemadministrator",  # German
-    "ingénieur réseau", "administrateur réseau",  # French
-    "ingeniero de redes", "administrador de redes",  # Spanish
-    "ağ mühendisi", "sistem yöneticisi",  # Turkish
-    "inżynier sieci", "administrator sieci",  # Polish
+    "it systemelektroniker", "fachinformatiker",  # German
+    "ingénieur réseau", "administrateur réseau", "ingénieur infrastructure",  # French
+    "ingeniero de redes", "administrador de redes", "ingeniero de infraestructura",  # Spanish
+    "ağ mühendisi", "sistem yöneticisi", "ağ yöneticisi",  # Turkish
+    "inżynier sieci", "administrator sieci", "inżynier infrastruktury",  # Polish
+    "engenheiro de redes", "administrador de redes",  # Portuguese
+    "ingenere di rete", "amministratore di rete",  # Italian
 ]
 
 LOCATIONS = [

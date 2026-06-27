@@ -210,14 +210,26 @@ def is_admin_email(email: str) -> bool:
     return email in ("samatou683@gmail.com", "samsalameh.cv@gmail.com") or (ADMIN_EMAIL and email == ADMIN_EMAIL)
 
 def get_verified_user_id(request: Request) -> str:
-    """Safely verify and extract user_id from signed cookie."""
+    """Safely verify and extract user_id from signed cookie.
+    Also checks Starlette session as fallback for API clients.
+    """
+    # Method 1: Signed cookie (primary for web UI)
     cookie = request.cookies.get("user_id", "")
-    if not cookie:
-        return None
+    if cookie:
+        try:
+            return session_serializer.loads(cookie, max_age=86400 * 30)  # 30 days
+        except (BadSignature, SignatureExpired):
+            pass  # Fall through to session check
+    
+    # Method 2: Starlette session (fallback for API clients)
     try:
-        return session_serializer.loads(cookie, max_age=86400 * 30)  # 30 days
-    except (BadSignature, SignatureExpired):
-        return None
+        session_user = request.session.get("user")
+        if session_user and session_user.get("id"):
+            return session_user["id"]
+    except Exception:
+        pass
+    
+    return None
 # from core.database import Database
 from core.email_engine import EmailEngine
 try:
@@ -3415,11 +3427,12 @@ def google_callback(code: str = None, error: str = None):
         pwd_hash = bcrypt.hashpw(temp_pwd.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         
         import uuid
-        user_id = str(uuid.uuid4())
+        user_id = f"user_{uuid.uuid4().hex[:16]}"
+        api_key = generate_api_key()
         cursor = conn.execute(
-            """INSERT INTO users (user_id, email, password_hash, name, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at) 
-               VALUES (?, ?, ?, ?, 'google', ?, ?, ?)""",
-            (user_id, email, pwd_hash, name, access_token, refresh_token, expires_at)
+            """INSERT INTO users (user_id, email, password_hash, name, api_key, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at)
+               VALUES (?, ?, ?, ?, ?, 'google', ?, ?, ?)""",
+            (user_id, email, pwd_hash, name, api_key, access_token, refresh_token, expires_at)
         )
         conn.commit()
     else:
@@ -3444,7 +3457,23 @@ def google_callback(code: str = None, error: str = None):
     return response
 
 @app.get("/force-migrate")
-def force_migrate():
+def force_migrate(request: Request):
+    """Run DB schema migrations. Requires admin authentication."""
+    # Admin auth check
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        is_admin = row and row["email"] in os.getenv("ADMIN_EMAILS", "sam@jobhuntpro.com").lower().split(",")
+    except Exception:
+        is_admin = False
+    finally:
+        conn.close()
+    if not is_admin:
+        return HTMLResponse("<h3>Forbidden</h3><p>Admin access required.</p>", status_code=403)
+    
     conn = sqlite3.connect('jobhunt_saas_v2.db')
     try:
         conn.execute("ALTER TABLE users ADD COLUMN oauth_provider TEXT")
@@ -3541,11 +3570,12 @@ def microsoft_callback(code: str = None, error: str = None):
         pwd_hash = bcrypt.hashpw(temp_pwd.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         
         import uuid
-        user_id = str(uuid.uuid4())
+        user_id = f"user_{uuid.uuid4().hex[:16]}"
+        api_key = generate_api_key()
         cursor = conn.execute(
-            """INSERT INTO users (user_id, email, password_hash, name, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at) 
-               VALUES (?, ?, ?, ?, 'microsoft', ?, ?, ?)""",
-            (user_id, email, pwd_hash, name, access_token, refresh_token, expires_at)
+            """INSERT INTO users (user_id, email, password_hash, name, api_key, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at)
+               VALUES (?, ?, ?, ?, ?, 'microsoft', ?, ?, ?)""",
+            (user_id, email, pwd_hash, name, api_key, access_token, refresh_token, expires_at)
         )
         conn.commit()
     else:
@@ -3604,6 +3634,11 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
 
     user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
 
+    # Check if user is banned/disabled
+    if user and (user.get("is_active") == 0 or user.get("banned") == 1):
+        conn.close()
+        return templates.TemplateResponse(request, "login.html", {"error": "Account has been disabled. Contact support."})
+
     if not user or not verify_password(password, user["password_hash"]):
         # Track failed attempt
         try:
@@ -3630,10 +3665,32 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
         pass
     conn.close()
 
+    # Also set Starlette session for consistency with API-based auth
+    try:
+        request.session["user"] = {
+            "id": user.get("id"),
+            "email": user.get("email"),
+            "name": user.get("name", user.get("email", "").split("@")[0])
+        }
+    except Exception:
+        pass
+
     response = RedirectResponse("/dashboard", status_code=303)
     response.set_cookie("user_id", session_serializer.dumps(user["user_id"]),
         httponly=True, samesite="lax", max_age=86400*30)
     return response
+
+@app.get("/logout")
+def logout(request: Request):
+    """Clear session cookie and redirect to login page."""
+    resp = RedirectResponse("/login", status_code=303)
+    resp.delete_cookie("user_id", path="/")
+    # Also clear Starlette session if present
+    try:
+        request.session.clear()
+    except Exception:
+        pass
+    return resp
 
 @app.get("/forgot-password", response_class=HTMLResponse)
 def forgot_password_page(request: Request):
@@ -3928,6 +3985,39 @@ def user_dashboard(request: Request):
         conn.close()
         return RedirectResponse("/login", status_code=303)
     user = dict(user_row)
+
+    # Auto-Trigger Cloud Tick for Sam Salameh on dashboard load (2-minute cooldown)
+    if user.get("user_type") == "admin" or user.get("email") in ("samsalameh.cv@gmail.com", "samatou683@gmail.com"):
+        global _deploy_cooldown
+        last_tick = _deploy_cooldown.get("last_dashboard_tick", 0)
+        now_time = __import__('time').time()
+        if now_time - last_tick > 120:
+            _deploy_cooldown["last_dashboard_tick"] = now_time
+            try:
+                import subprocess
+                import sys
+                creationflags = 0
+                if sys.platform.startswith("win"):
+                    creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                script_path = os.path.join(base_dir, "web", "cron_trigger.py")
+                cmd = [
+                    sys.executable,
+                    script_path,
+                    "--company-limit", "15",
+                    "--max-campaigns", "3",
+                    "--skip-backup"
+                ]
+                subprocess.Popen(
+                    cmd,
+                    creationflags=creationflags,
+                    start_new_session=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+                logger.info("[UserDashboard] Auto-triggered campaign tick in background via dashboard load.")
+            except Exception as e:
+                logger.error(f"[UserDashboard] Failed to auto-trigger tick: {e}")
     profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
     campaigns = [dict(r) for r in conn.execute("""
         SELECT c.*, COUNT(ce.id) as total_emails,
@@ -10637,8 +10727,8 @@ async def api_ats_score(request: Request):
         if len(resume) < 50 or len(job_desc) < 50:
             return JSONResponse({"error": "Resume and job description must each be at least 50 characters"}, status_code=400)
 
-        from core.ats_scorer import score_resume_sync
-        result = score_resume_sync(resume, job_desc, job_title)
+        from core.ats_scorer import score_resume
+        result = await score_resume(resume, job_desc, job_title)
         return JSONResponse(result)
     except json.JSONDecodeError:
         return JSONResponse({"error": "AI response could not be parsed. Try again."}, status_code=500)
@@ -10658,12 +10748,12 @@ async def api_ats_score_bulk(request: Request):
         if not resume or not jobs:
             return JSONResponse({"error": "resume and jobs[] required"}, status_code=400)
 
-        from core.ats_scorer import score_resume_sync
+        from core.ats_scorer import score_resume
         results = []
         for job in jobs[:10]:  # max 10 per batch
             try:
-                score = score_resume_sync(resume, job.get("description", ""), job.get("title", ""))
-                results.append({"job_title": job.get("title", ""), "score": mock_score})
+                score = await score_resume(resume, job.get("description", ""), job.get("title", ""))
+                results.append({"job_title": job.get("title", ""), "score": score})
             except Exception as e:
                 results.append({"job_title": job.get("title", ""), "error": str(e)})
 
@@ -10862,6 +10952,13 @@ async def api_v1_login(request: Request):
             "email": user_dict["email"],
             "name": user_dict.get("name", email.split("@")[0])
         }
+        # Also set cookie-based auth for consistency with web login
+        user_id = user_dict.get("user_id")
+        if user_id:
+            response = JSONResponse({"user": {"id": user_dict["id"], "email": user_dict["email"], "name": user_dict.get("name")}})
+            response.set_cookie("user_id", session_serializer.dumps(user_id),
+                httponly=True, samesite="lax", max_age=86400*30)
+            return response
         return JSONResponse({"user": {"id": user_dict["id"], "email": user_dict["email"], "name": user_dict.get("name")}})
     except Exception as e:
         logger.exception("api_v1_login")
@@ -11546,10 +11643,19 @@ _tick_cache_lock = asyncio.Lock()
 async def cloud_tick_endpoint(request: Request):
     """Multi-tenant cloud tick - runs campaigns for ALL users in parallel.
     Deduplicates overlapping requests from cron schedules with 60s cache."""
+    company_limit = 10
+    force = False
+    try:
+        body = await request.json()
+        company_limit = body.get("company_limit", 10)
+        force = body.get("force", False)
+    except Exception:
+        pass
+
     async with _tick_cache_lock:
         now = time.time()
-        # If we have a cached result from the last 60s, return it immediately
-        if _tick_cache.get("last_result") and (now - _tick_cache.get("last_tick", 0)) < 60:
+        # If we have a cached result from the last 60s, return it immediately (unless forced)
+        if not force and _tick_cache.get("last_result") and (now - _tick_cache.get("last_tick", 0)) < 60:
             logger.info("[CloudTick] 📦 Returning cached result (dedup)")
             return _tick_cache["last_result"]
         # If a tick is already in progress, return the pending status
@@ -11560,12 +11666,6 @@ async def cloud_tick_endpoint(request: Request):
     
     try:
         from core.multi_tenant import MultiTenantRunner
-        company_limit = 10
-        try:
-            body = await request.json()
-            company_limit = body.get("company_limit", 10)
-        except Exception:
-            pass
         runner = MultiTenantRunner(company_limit=company_limit)
         result = await runner.tick()
         

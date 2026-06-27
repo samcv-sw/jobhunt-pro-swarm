@@ -12,7 +12,14 @@ def _safe_str(val) -> str:
     """Sanitize string for safe logging in windows environments with default encoding."""
     if isinstance(val, bytes):
         return val.decode("utf-8", errors="ignore")
-    return str(val).encode("ascii", errors="replace").decode("ascii")
+    s = str(val)
+    try:
+        # Test if it can be encoded in the default console encoding
+        s.encode("ascii", errors="strict")
+        return s
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        # Replace non-ASCII characters with safe alternatives
+        return s.encode("ascii", errors="replace").decode("ascii")
 
 NEON_URI = os.getenv("NEON_URL") or os.getenv("DATABASE_URL") or os.getenv("DATABASE_URL_SYNC") or ""
 if NEON_URI.startswith("postgresql+asyncpg://"):
@@ -131,11 +138,63 @@ def convert_sql(query):
     sql = re.sub(r"\bLIKE\b", "ILIKE", sql, flags=re.IGNORECASE)
     return sql
 
+class PgRow:
+    """A dict/sqlite3.Row-compatible row wrapper for PostgreSQL results.
+    
+    Supports both integer indexing (row[0]) and column name access (row['name']),
+    plus .get() method, matching the sqlite3.Row interface.
+    """
+    def __init__(self, cursor, row_tuple):
+        self._row = tuple(row_tuple)
+        self._columns = []
+        if cursor and cursor.description:
+            self._columns = [col[0] for col in cursor.description]
+        self._col_map = {col.lower(): i for i, col in enumerate(self._columns)}
+
+    def __getitem__(self, key):
+        if isinstance(key, (int, slice)):
+            return self._row[key]
+        if isinstance(key, str):
+            idx = self._col_map.get(key.lower())
+            if idx is not None:
+                return self._row[idx]
+            raise KeyError(key)
+        raise TypeError(f"Row indices must be integers or strings, not {type(key).__name__}")
+
+    def __len__(self):
+        return len(self._row)
+
+    def __iter__(self):
+        return iter(self._row)
+
+    def __repr__(self):
+        return repr(dict(zip(self._columns, self._row)))
+
+    def keys(self):
+        return self._columns
+
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except (KeyError, IndexError, TypeError):
+            return default
+
 class PgCursorWrapper:
     def __init__(self, cursor, connection):
         self.cursor = cursor
         self.connection = connection
         self.lastrowid = None
+        self._description = None
+
+    def _wrap_row(self, row_tuple):
+        """Apply row_factory if set, otherwise return a PgRow for compatibility."""
+        if self.connection.row_factory:
+            try:
+                return self.connection.row_factory(self.cursor, row_tuple)
+            except Exception as e:
+                logger.debug(f"Row factory failed ({e}), using PgRow fallback")
+                return PgRow(self.cursor, row_tuple)
+        return PgRow(self.cursor, row_tuple)
         
     def execute(self, query, params=None):
         pg_query = convert_sql(query)
@@ -194,13 +253,7 @@ class PgCursorWrapper:
                 except:
                     pass
                 return None
-            if self.connection.row_factory:
-                try:
-                    row_tuple = tuple(res)
-                    return self.connection.row_factory(self, row_tuple)
-                except Exception as e:
-                    logger.debug(f"Row factory wrapping failed: {e}")
-            return res
+            return self._wrap_row(tuple(res))
         except Exception as e:
             try:
                 self.cursor.close()
@@ -211,9 +264,7 @@ class PgCursorWrapper:
     def fetchall(self):
         try:
             rows = self.cursor.fetchall()
-            if self.connection.row_factory:
-                return [self.connection.row_factory(self, tuple(r)) for r in rows]
-            return rows
+            return [self._wrap_row(tuple(r)) for r in rows]
         finally:
             try:
                 self.cursor.close()
@@ -231,9 +282,7 @@ class PgCursorWrapper:
                     self.cursor.close()
                 except:
                     pass
-            if self.connection.row_factory:
-                return [self.connection.row_factory(self, tuple(r)) for r in rows]
-            return rows
+            return [self._wrap_row(tuple(r)) for r in rows]
         except Exception as e:
             try:
                 self.cursor.close()
@@ -426,6 +475,9 @@ class SqliteConnectionWrapper:
             self.close()
 
 def should_use_pg(db_path):
+    # FORCE_PG=1 bypasses all checks and forces PostgreSQL mode
+    if os.getenv("FORCE_PG") == "1":
+        return True
     # If running inside unit tests/pytest, do NOT use PostgreSQL to keep tests isolated
     import sys
     if "unittest" in sys.modules or "pytest" in sys.modules or any("pytest" in arg or "unittest" in arg for arg in sys.argv):
@@ -439,6 +491,9 @@ def should_use_pg(db_path):
         return False
     if "temp" in db_path_str:
         return False
+    # Also check if NEON_URI is configured — if so, prefer PG for any .db file
+    if NEON_URI and ("jobhunt" in db_path_str or "saas" in db_path_str or "database" in db_path_str or "cv sam" in db_path_str):
+        return True
     main_db_indicators = ["saas", "sam_max", "jobhunt", "database_v2", "database.db", "database.sqlite3", "leads"]
     return any(indicator in db_path_str for indicator in main_db_indicators)
 

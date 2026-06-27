@@ -231,7 +231,8 @@ LANGUAGES
                        p.experience_years
                 FROM users u
                 INNER JOIN cv_profiles p ON p.user_id = u.user_id
-                GROUP BY u.user_id
+                GROUP BY u.user_id, u.name, u.email, u.phone, u.created_at,
+                         p.id, p.target_titles, p.skills, p.experience_years
                 ORDER BY u.created_at ASC
             """).fetchall()
             return [dict(r) for r in rows]
@@ -287,7 +288,7 @@ LANGUAGES
         conn = _get_conn()
         try:
             rows = conn.execute("""
-                SELECT 
+                SELECT
                     u.user_id,
                     u.name,
                     u.email,
@@ -296,14 +297,14 @@ LANGUAGES
                     SUM(CASE WHEN c.status = 'completed' THEN 1 ELSE 0 END) AS completed_campaigns,
                     COALESCE(SUM(c.sent_count), 0) AS total_sent_count,
                     (
-                        SELECT COUNT(*) 
+                        SELECT COUNT(*)
                         FROM campaign_emails ce
                         JOIN campaigns c2 ON c2.campaign_id = ce.campaign_id
                         WHERE c2.user_id = u.user_id AND ce.status = 'sent'
                     ) AS emails_sent
                 FROM users u
                 LEFT JOIN campaigns c ON c.user_id = u.user_id
-                GROUP BY u.user_id
+                GROUP BY u.user_id, u.name, u.email, u.created_at
                 ORDER BY u.created_at ASC
             """).fetchall()
             
@@ -441,7 +442,8 @@ class MultiTenantRunner:
                             tenant_result["total_sent"] += camp_result.get("sent", 0)
                             tenant_result["total_failed"] += camp_result.get("failed", 0)
                     except Exception as e2:
-                        logger.error(f"[MultiTenant] Full runner failed for cloud campaign {cid}: {e2}")
+                        safe_err = str(e2).encode("ascii", errors="replace").decode("ascii")
+                        logger.error(f"[MultiTenant] Full runner failed for cloud campaign {cid}: {safe_err}")
                         tenant_result["campaigns"].append({
                             "campaign_id": cid,
                             "error": str(e2),
@@ -462,7 +464,8 @@ class MultiTenantRunner:
                             tenant_result["total_sent"] += camp_result.get("sent", 0)
                             tenant_result["total_failed"] += camp_result.get("failed", 0)
                     except Exception as e:
-                        logger.error(f"[MultiTenant] Lightning runner failed for {cid}: {e}")
+                        safe_err = str(e).encode("ascii", errors="replace").decode("ascii")
+                        logger.error(f"[MultiTenant] Lightning runner failed for {cid}: {safe_err}")
                         tenant_result["campaigns"].append({
                             "campaign_id": cid,
                             "error": str(e),
@@ -525,13 +528,16 @@ class MultiTenantRunner:
         conn = _get_conn()
         try:
             # Find tenants (users with profiles) that have no active campaign
+            # Using NOT EXISTS instead of LEFT JOIN/GROUP BY for PostgreSQL compatibility
             rows = conn.execute("""
                 SELECT u.user_id, u.name, p.id AS profile_id, p.target_titles, p.target_locations
                 FROM users u
                 INNER JOIN cv_profiles p ON p.user_id = u.user_id
-                LEFT JOIN campaigns c ON c.user_id = u.user_id AND c.status IN ('pending','running')
-                WHERE c.campaign_id IS NULL
-                GROUP BY u.user_id
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM campaigns c
+                    WHERE c.user_id = u.user_id
+                    AND c.status IN ('pending','running')
+                )
             """).fetchall()
             
             for row in rows:
@@ -546,7 +552,7 @@ class MultiTenantRunner:
                 job_title = titles.split(",")[0].strip() if titles else "Professional"
                 
                 conn.execute("""
-                    INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, 
+                    INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id,
                     status, total_companies, sent_count, created_at, bouquets, engine_type)
                     VALUES (?, ?, ?, ?, 'pending', 100, 0, CURRENT_TIMESTAMP, 'Priority Shield', 'cloud')
                 """, (campaign_id, tid, f"auto_{tid[:8]}", profile_id))
@@ -627,40 +633,35 @@ class MultiTenantRunner:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  AUTO-SEED: Ensure Rita Cordahi exists in DB
+#  AUTO-SEED: Ensure Sam Salameh exists in DB
 # ══════════════════════════════════════════════════════════════════════════════
 
-def _auto_seed_rita():
+def _auto_seed_sam():
     """
     Called on module import.
-    Ensures Rita Cordahi's user + profile exist in the DB.
-    Idempotent — safe to call every time.
+    Ensures Sam Salameh exists in the DB.
     """
     try:
         result = TenantManager.ensure_tenant(
-            name=RITA_CORDAHI_PROFILE["tenant_name"],
-            email=RITA_CORDAHI_PROFILE["email"],
-            phone=RITA_CORDAHI_PROFILE["phone"],
-            linkedin=RITA_CORDAHI_PROFILE["linkedin"],
-            profession=RITA_CORDAHI_PROFILE["profession"],
-            skills=RITA_CORDAHI_PROFILE["skills"],
-            experience_years=RITA_CORDAHI_PROFILE["experience_years"],
+            name=SAM_SALAMEH_PROFILE["tenant_name"],
+            email=SAM_SALAMEH_PROFILE["email"],
+            phone=SAM_SALAMEH_PROFILE["phone"],
+            linkedin=SAM_SALAMEH_PROFILE["linkedin"],
+            profession=SAM_SALAMEH_PROFILE["profession"],
+            skills=SAM_SALAMEH_PROFILE["skills"],
+            experience_years=SAM_SALAMEH_PROFILE["experience_years"],
         )
         if result.get("created_user") or result.get("created_profile"):
             logger.info(
-                f"[MultiTenant] ✅ Auto-seeded Rita Cordahi: "
+                f"[MultiTenant] ✅ Auto-seeded Sam Salameh: "
                 f"tenant={result['tenant_id']}, profile={result['profile_id']}"
             )
-        else:
-            logger.debug(
-                f"[MultiTenant] Rita Cordahi already exists: {result['tenant_id']}"
-            )
     except Exception as e:
-        logger.error(f"[MultiTenant] ⚠️ Failed to auto-seed Rita: {e}")
-
+        logger.error(f"[MultiTenant] ⚠️ Failed to auto-seed Sam Salameh: {e}")
 
 # Run on import (safe — idempotent)
-# _auto_seed_rita()
+_auto_seed_sam()
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════

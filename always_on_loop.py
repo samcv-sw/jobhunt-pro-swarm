@@ -3,16 +3,24 @@ import os
 import sys
 import logging
 import asyncio
+import io
 
-# Set up logging
-log_dir = "/home/JHFGUF/jobhunt/logs"
+# ── Fix Windows console encoding for emoji-safe logging ──
+if sys.stdout.encoding is None or sys.stdout.encoding.upper() not in ("UTF-8", "UTF8"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+if sys.stderr.encoding is None or sys.stderr.encoding.upper() not in ("UTF-8", "UTF8"):
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+
+# Resolve paths dynamically to support both local and PythonAnywhere environments
+base_dir = os.path.dirname(os.path.abspath(__file__))
+log_dir = os.path.join(base_dir, "logs")
 os.makedirs(log_dir, exist_ok=True)
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - ALWAYS-ON - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler("/home/JHFGUF/jobhunt/logs/always_on.log"),
+        logging.FileHandler(os.path.join(log_dir, "always_on.log"), encoding="utf-8"),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -21,21 +29,33 @@ logger = logging.getLogger(__name__)
 logger.info("Starting Always-on Campaign Loop...")
 
 # Add project root to path
-sys.path.insert(0, "/home/JHFGUF/jobhunt")
+sys.path.insert(0, base_dir)
 
 async def run_loop():
     while True:
         logger.info("Triggering campaign run cycle...")
+        sleep_time = 30  # Default idle sleep time
         try:
             from core.multi_tenant import MultiTenantRunner
             runner = MultiTenantRunner(company_limit=15, max_campaigns=3)
             result = await runner.tick()
-            logger.info(f"Cycle complete: processed {result.get('campaigns_processed', 0)} campaigns, sent {result.get('emails_sent', 0)} applications")
+            processed = result.get('campaigns_processed', 0)
+            sent = result.get('emails_sent', 0)
+            logger.info(f"Cycle complete: processed {processed} campaigns, sent {sent} applications")
+            
+            # Continuous non-sleeping autopilot:
+            # If campaigns were processed, tick every 10 seconds to handle sends rapidly.
+            if processed > 0:
+                sleep_time = 10
+            else:
+                sleep_time = 30
         except Exception as e:
             logger.error(f"Error during campaign cycle: {e}", exc_info=True)
+            sleep_time = 60
         
-        logger.info("Sleeping for 15 minutes...")
-        await asyncio.sleep(900)
+        logger.info(f"Sleeping for {sleep_time} seconds...")
+        await asyncio.sleep(sleep_time)
 
 if __name__ == "__main__":
     asyncio.run(run_loop())
+

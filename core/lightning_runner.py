@@ -4,7 +4,11 @@ Uses pre-seeded Lebanon companies (no scraping) for sub-60s campaign execution.
 Each tick: pick company → generate email → send via email_engine.
 FIXED: Uses EmailEngine.send_application() async method properly.
 """
-import sqlite3
+import os
+if os.getenv("FORCE_PG") == "1" or os.getenv("CLOUD_MODE") == "true":
+    import core.pg_sqlite_shim as sqlite3
+else:
+    import sqlite3
 import os
 import time
 import asyncio
