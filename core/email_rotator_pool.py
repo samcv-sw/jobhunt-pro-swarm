@@ -500,9 +500,10 @@ class EmailRotatorPool:
     async def send_batch(
         self,
         emails: List[Tuple[str, str, str, Optional[str]]],
+        max_concurrency: int = 5,
     ) -> Dict[str, Any]:
         """
-        Send multiple emails, distributing across available accounts.
+        Send multiple emails concurrently, distributing across available accounts.
         Each tuple: (to_email, subject, body_html, body_text_or_None)
         """
         results = {
@@ -513,18 +514,26 @@ class EmailRotatorPool:
             "failures": [],
         }
 
-        for to_email, subject, body_html, body_text in emails:
-            success, info = await self.send_email(to_email, subject, body_html, body_text)
-            if success:
-                results["sent"] += 1
-                results["by_account"][info] = results["by_account"].get(info, 0) + 1
-            else:
-                results["failed"] += 1
-                results["failures"].append({
-                    "to": to_email,
-                    "subject": subject[:50],
-                    "error": info,
-                })
+        sem = asyncio.Semaphore(max_concurrency)
+        lock = asyncio.Lock()
+
+        async def send_one(to_email, subject, body_html, body_text):
+            async with sem:
+                success, info = await self.send_email(to_email, subject, body_html, body_text)
+                async with lock:
+                    if success:
+                        results["sent"] += 1
+                        results["by_account"][info] = results["by_account"].get(info, 0) + 1
+                    else:
+                        results["failed"] += 1
+                        results["failures"].append({
+                            "to": to_email,
+                            "subject": subject[:50],
+                            "error": info,
+                        })
+
+        tasks = [send_one(*item) for item in emails]
+        await asyncio.gather(*tasks)
 
         # Give detailed summary
         logger.info(

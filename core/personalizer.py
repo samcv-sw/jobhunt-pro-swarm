@@ -194,6 +194,7 @@ class EmailPersonalizer:
     def generate_subject_variants(self, base_subject: str, company: str) -> List[str]:
         """Generate multiple subject line variants for A/B testing"""
         name = self.candidate_data['name']
+        prof = self.candidate_data['profession']
         variants = [
             base_subject,
             f"Re: {base_subject}",
@@ -201,11 +202,11 @@ class EmailPersonalizer:
             f"{name} - {base_subject}",
             f"Interested in {company}",
             # More compelling variants
-            f"{name} | 15yr Network Engineer | CCNP/NSE/AWS",
-            f"Experienced Network Engineer for {company}",
-            f"SD-WAN & Security Expert | {name}",
-            f"Network Infrastructure Specialist - {name}",
-            f"Available: Senior Network Engineer (CCNP, NSE, AWS)",
+            f"{name} | {prof}",
+            f"Experienced {prof} for {company}",
+            f"Specialist | {name}",
+            f"{prof} Specialist - {name}",
+            f"Available: {prof}",
         ]
         return variants
     

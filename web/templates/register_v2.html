@@ -1,7 +1,16 @@
+<!DOCTYPE html>
 <!-- Register v2 — Enhanced with plan selector UX, form validation, password strength, improved animations -->
-<link rel="stylesheet" href="/static/css/dashboard-v4.css">
-<link rel="stylesheet" href="/static/css/auth-v2.css">
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create your free JobHunt Pro account. Let 200 AI agents apply to thousands of jobs for you — automatically.">
+  <title>Create Account &mdash; JobHunt Pro</title>
+  <link rel="stylesheet" href="/static/css/dashboard-v4.css">
+  <link rel="stylesheet" href="/static/css/auth-v2.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
 /* ═══════════════════════════════════════════
    REGISTER v2 — Page-Specific Styles
@@ -102,6 +111,7 @@
   .benefits-card { animation: fadeSlideUp 0.6s ease-out; }
 }
 </style>
+</head>
 <body class="auth-page">
 <div class="bg-particles">
   <div class="particle"></div><div class="particle"></div><div class="particle"></div>
@@ -171,7 +181,7 @@
     <form method="POST" action="/register" id="registerForm" onsubmit="return handleRegister(event)">
       <!-- PROJECT AEGIS: Invisible Bot Honeypot -->
       <div style="display:none; visibility:hidden;">
-        <label>Leave this empty if you are human</label>
+        <label for="aegis_honeypot">Leave this empty if you are human</label>
         <input type="text" name="aegis_honeypot" id="aegis_honeypot" tabindex="-1" autocomplete="off">
       </div>
 
@@ -217,7 +227,7 @@
       </div>
 
       <div class="turnstile-wrap">
-        <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key | default('1x00000000000000000000AA') }}" data-theme="dark"></div>
+        <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key | default('1x00000000000000000000AA', true) }}" data-theme="dark"></div>
       </div>
 
       <button type="submit" class="btn-submit" id="registerBtn">

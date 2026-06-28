@@ -42,7 +42,16 @@ class ShadowNetwork:
             if len(name_tokens) >= 2:
                 first = name_tokens[0].lower()
                 last = name_tokens[-1].lower()
-                domain = re.sub(r'[^a-z0-9]', '', company_name.lower()) + '.com'
+                
+                clean_name = company_name.lower().strip()
+                for suffix in [" corporation", " corp.", " corp", " incorporated", " inc.", " inc", 
+                               " limited", " ltd.", " ltd", " llc", " l.l.c.", " co.", " co", 
+                               " group", " solutions", " systems", " system", " technologies", " technology"]:
+                    if clean_name.endswith(suffix):
+                        clean_name = clean_name[:-len(suffix)].strip()
+                        break
+                        
+                domain = re.sub(r'[^a-z0-9]', '', clean_name) + '.com'
                 guessed_email = f"{first}.{last}@{domain}"
             else:
                 guessed_email = ""

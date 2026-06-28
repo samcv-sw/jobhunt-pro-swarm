@@ -827,16 +827,18 @@ class EmailEngine:
                     self.scheduler.record_failure(provider)
 
                     if attempt < max_retries - 1:
-                        delay = (2 ** attempt) * 5 + random.uniform(0, 5)
+                        # Cap delay at 15s max to prevent exceeding PythonAnywhere's 250s timeout
+                        delay = min((2 ** attempt) * 5 + random.uniform(0, 3), 15.0)
                         logger.info(f"Retry {attempt + 1}/{max_retries} after {delay:.1f}s")
                         await asyncio.sleep(delay)
 
                 except Exception as e:
                     logger.error(f"Send attempt {attempt + 1} failed: {e}")
                     if "No module named" in str(e) or "aiosmtplib" in str(e):
-                        break
+                         break
                     if attempt < max_retries - 1:
-                        await asyncio.sleep(2 ** attempt * 5)
+                        delay = min(2 ** attempt * 5, 15.0)
+                        await asyncio.sleep(delay)
 
         logger.info(f"[EmailEngine] SMTP skipped/expired. Falling to Brevo HTTP...")
         
@@ -1000,7 +1002,7 @@ class EmailEngine:
         # SMTP Swarm Optimization: Try User's SMTP First
         if user_details and user_details.get("smtp_user") and user_details.get("smtp_pass"):
             try:
-                success = await asyncio.to_thread(
+                success, msg_id_or_err = await asyncio.to_thread(
                     send_email_via_gmail_smtp,
                     to_email=to_email,
                     company_name=company,
@@ -1013,7 +1015,7 @@ class EmailEngine:
                     attachment_paths=attachment_paths
                 )
                 if success:
-                    return True, "smtp_swarm"
+                    return True, f"{tracking_id}|{msg_id_or_err}"
             except Exception as e:
                 logger.warning(f"SMTP Swarm failed, falling back to centralized APIs: {e}")
 
@@ -1102,8 +1104,7 @@ class EmailEngine:
         body = f"""<p>Dear Hiring Team,</p>
 <p>I hope this message finds you well. I am writing to follow up on my application for the <strong>{title}</strong>
 position at <strong>{company}</strong>, submitted on {original_date}.</p>
-<p>With over 15 years of network engineering experience across Cisco, MikroTik, Fortinet, and Ubiquiti platforms,
-I remain very interested in this opportunity.</p>
+<p>With my background as a <strong>{config.CANDIDATE_TITLE}</strong>, I remain very interested in this opportunity.</p>
 <p>I would appreciate any update regarding the status of my application.</p>
 <p>Best regards,<br><strong>{config.CANDIDATE_NAME}</strong><br>{config.CANDIDATE_EMAIL}<br>{config.CANDIDATE_PHONE}</p>
 <img src="{SITE_URL}/api/v2/campaign/track/{tracking_id}" width="1" height="1" style="display:none" alt=""/>"""
@@ -1399,14 +1400,19 @@ class AntiGhostingEngine:
                         days_since = (now - sent_at).days
                         followup_count = email_record.get("followup_count", 0)
 
+                        to_email = email_record.get("email_address", "")
+                        if not to_email:
+                            results["skipped"] += 1
+                            continue
+
                         if followup_engine.should_send_followup(
                             days_since=days_since,
                             followup_count=followup_count,
-                            last_response_type=email_record.get("response_type", "unknown")
+                            last_response_type=email_record.get("response_type", "unknown"),
+                            recipient_email=to_email
                         ):
                             company = email_record.get("company_name", "the company")
                             title = email_record.get("job_title", "the position")
-                            to_email = email_record.get("email_address", "")
 
                             if not to_email:
                                 results["skipped"] += 1
@@ -1603,7 +1609,7 @@ def send_email_via_sendgrid_http(
         logger.warning("[SENDGRID-HTTP] SENDGRID_API_KEY not configured")
         return False
 
-    sender_email = os.getenv("SENDGRID_SENDER_EMAIL", "samsalameh.cv@gmail.com").strip()
+    sender_email = os.getenv("SENDGRID_SENDER_EMAIL", config.CANDIDATE_EMAIL).strip()
 
     if not subject:
         subject = "JobHunt Pro Update"
@@ -1665,14 +1671,14 @@ def send_email_via_gmail_smtp(
     smtp_user: str = None,
     smtp_pass: str = None,
     attachment_paths: list = None
-) -> bool:
+) -> Tuple[bool, str]:
     """Send via Gmail SMTP with app password. 15s timeout, TLS."""
     import smtplib, ssl
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
     
     if not smtp_user or not smtp_pass:
-        return False
+        return False, "Missing SMTP credentials"
     
     if not sender_email:
         sender_email = smtp_user
@@ -1909,6 +1915,12 @@ def send_email_via_mailjet(
         return False
 
 
+_SENDPULSE_TOKEN_CACHE = {
+    "token": None,
+    "expires_at": 0
+}
+
+
 def send_email_via_sendpulse(
     to_email: str,
     company_name: str,
@@ -1922,6 +1934,7 @@ def send_email_via_sendpulse(
     attachments: Optional[list] = None,
 ) -> bool:
     """[PORTED FROM CHRONOS] SendPulse HTTP API — free 12,000/month (~400/day)."""
+    global _SENDPULSE_TOKEN_CACHE
     api_key = os.getenv("SENDPULSE_API_KEY", "").strip()
     client_id = os.getenv("SENDPULSE_CLIENT_ID", "").strip()
     client_secret = os.getenv("SENDPULSE_CLIENT_SECRET", "").strip()
@@ -1944,17 +1957,25 @@ def send_email_via_sendpulse(
         if api_key:
             token = api_key
         else:
-            token_resp = requests.post(
-                "https://api.sendpulse.com/oauth/access_token",
-                json={"grant_type": "client_credentials", "client_id": client_id, "client_secret": client_secret},
-                timeout=15,
-            )
-            if token_resp.status_code != 200:
-                logger.warning(f"[SENDPULSE] Token failed: {token_resp.text[:200]}")
-                return False
-            token = token_resp.json().get("access_token")
-            if not token:
-                return False
+            now = time.time()
+            if _SENDPULSE_TOKEN_CACHE["token"] and _SENDPULSE_TOKEN_CACHE["expires_at"] > now + 60:
+                token = _SENDPULSE_TOKEN_CACHE["token"]
+            else:
+                token_resp = requests.post(
+                    "https://api.sendpulse.com/oauth/access_token",
+                    json={"grant_type": "client_credentials", "client_id": client_id, "client_secret": client_secret},
+                    timeout=15,
+                )
+                if token_resp.status_code != 200:
+                    logger.warning(f"[SENDPULSE] Token failed: {token_resp.text[:200]}")
+                    return False
+                token_data = token_resp.json()
+                token = token_data.get("access_token")
+                if not token:
+                    return False
+                expires_in = token_data.get("expires_in", 3600)
+                _SENDPULSE_TOKEN_CACHE["token"] = token
+                _SENDPULSE_TOKEN_CACHE["expires_at"] = now + expires_in
 
         headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 

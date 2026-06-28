@@ -61,17 +61,7 @@
 
   <link rel="stylesheet" href="/static/css/landing-v4.css">
 
-</head>
-<body class="cyberpunk-body">
 
-<!-- COOKIE CONSENT BANNER -->
-<div class="cookie-banner" id="cookieBanner">
- <div class="cookie-content">
-  <span>&#x1f36a;</span>
-  <p>We use essential cookies to keep JobHunt Pro running. By using our site, you agree to our <a href="/privacy">Privacy Policy</a>.</p>
-  <button class="btn" onclick="acceptCookies()">Got it &#x2713;</button>
- </div>
-</div>
 <style>
 .cookie-banner{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,25,0.97);border-top:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px 24px;backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
 .cookie-content{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
@@ -83,6 +73,30 @@
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @media(max-width:600px){.cookie-content{text-align:center}}
 </style>
+<style>
+.guarantee-badge-section{padding:0 24px 40px;display:flex;justify-content:center;position:relative;z-index:2}
+.guarantee-badge{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(0,240,255,0.08),rgba(0,240,255,0.02));border:1px solid rgba(0,240,255,0.2);border-radius:20px;padding:20px 32px;max-width:700px;width:100%;backdrop-filter:blur(10px);animation:guaranteePulse 2s ease-in-out infinite}
+.guarantee-icon{font-size:32px;flex-shrink:0}
+.guarantee-text{display:flex;flex-direction:column;gap:4px;flex:1}
+.guarantee-text strong{font-size:16px;color:var(--cyan);letter-spacing:-0.3px}
+.guarantee-text span{font-size:13px;color:var(--muted)}
+.guarantee-seal{flex-shrink:0;opacity:0.8}
+@keyframes guaranteePulse{0%,100%{box-shadow:0 0 20px rgba(0,240,255,0.1)}50%{box-shadow:0 0 35px rgba(0,240,255,0.2)}}
+@media(max-width:600px){.guarantee-badge{flex-direction:column;text-align:center;padding:16px 20px}}
+</style>
+</head>
+
+<body class="cyberpunk-body">
+
+<!-- COOKIE CONSENT BANNER -->
+<div class="cookie-banner" id="cookieBanner">
+ <div class="cookie-content">
+  <span>&#x1f36a;</span>
+  <p>We use essential cookies to keep JobHunt Pro running. By using our site, you agree to our <a href="/privacy">Privacy Policy</a>.</p>
+  <button class="btn" onclick="acceptCookies()">Got it &#x2713;</button>
+ </div>
+</div>
+
 <script>
 function acceptCookies(){document.getElementById('cookieBanner').style.display='none';localStorage.setItem('cookiesAccepted','1');}
 if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanner').style.display='none';}
@@ -141,17 +155,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   </div>
  </div>
 </section>
-<style>
-.guarantee-badge-section{padding:0 24px 40px;display:flex;justify-content:center;position:relative;z-index:2}
-.guarantee-badge{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(0,240,255,0.08),rgba(0,240,255,0.02));border:1px solid rgba(0,240,255,0.2);border-radius:20px;padding:20px 32px;max-width:700px;width:100%;backdrop-filter:blur(10px);animation:guaranteePulse 2s ease-in-out infinite}
-.guarantee-icon{font-size:32px;flex-shrink:0}
-.guarantee-text{display:flex;flex-direction:column;gap:4px;flex:1}
-.guarantee-text strong{font-size:16px;color:var(--cyan);letter-spacing:-0.3px}
-.guarantee-text span{font-size:13px;color:var(--muted)}
-.guarantee-seal{flex-shrink:0;opacity:0.8}
-@keyframes guaranteePulse{0%,100%{box-shadow:0 0 20px rgba(0,240,255,0.1)}50%{box-shadow:0 0 35px rgba(0,240,255,0.2)}}
-@media(max-width:600px){.guarantee-badge{flex-direction:column;text-align:center;padding:16px 20px}}
-</style>
+
 
 <!-- ═══ INTEGRATIONS BAR ═══ -->
 <section class="trusted-by">

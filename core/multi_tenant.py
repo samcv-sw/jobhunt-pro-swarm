@@ -663,49 +663,22 @@ def _auto_seed_sam():
 _auto_seed_sam()
 
 
-
 # ══════════════════════════════════════════════════════════════════════════════
 #  API ENDPOINTS (FastAPI Router)
 # ══════════════════════════════════════════════════════════════════════════════
 
-# ── Singleton runner instance ──
-
-_runner = None
-
-
-def _get_runner() -> MultiTenantRunner:
-    global _runner
-    if _runner is None:
-        _runner = MultiTenantRunner(company_limit=15, max_campaigns=10)
-    return _runner
-
-
-@router.post("/v2/cloud-tick")
-async def multi_tenant_cloud_tick(request: Request):
-    """
-    Main multi-tenant cron endpoint.
-    Replaces the single-tenant /api/v2/cloud-tick with parallel multi-user execution.
-
-    Called by GH Actions cron every 15 min.
-    """
-    try:
-        runner = _get_runner()
-        result = await runner.tick()
-        return result
-    except Exception as e:
-        logger.error(f"[MultiTenant] Cloud tick failed: {e}", exc_info=True)
-        return {
-            "status": "error",
-            "error": str(e),
-            "timestamp": datetime.now().isoformat(),
-        }
+def verify_system_key(request: Request):
+    """Verify that the request has the correct CRON_SECRET or session admin privileges."""
+    from web.app_v2 import verify_system_key as vsk
+    return vsk(request)
 
 
 @router.get("/multi-tenant/status")
-async def multi_tenant_status():
+async def multi_tenant_status(request: Request):
     """
     Show all tenants and their campaign stats (fully optimized, 1 query).
     """
+    verify_system_key(request)
     try:
         stats = TenantManager.get_all_tenants_stats()
         return {
@@ -719,26 +692,12 @@ async def multi_tenant_status():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
 @router.post("/multi-tenant/add-tenant")
 async def add_tenant(request: Request):
     """
     Add a new tenant via API.
-
-    Body JSON:
-    {
-        "name": "Jane Doe",
-        "email": "jane@example.com",
-        "phone": "+961 12 345 678",
-        "profession": "Software Engineer",
-        "skills": "Python, JavaScript, React",
-        "experience_years": 3,
-        "target_titles": "Frontend Developer, UI Engineer",
-        "target_locations": "Lebanon, Remote",
-        "target_salary": "$2,000+/month",
-        "target_companies": "Google, Microsoft"
-    }
     """
+    verify_system_key(request)
     try:
         body = await request.json()
 
@@ -803,10 +762,11 @@ async def add_tenant(request: Request):
 
 
 @router.get("/multi-tenant/sam")
-async def get_sam_profile():
+async def get_sam_profile(request: Request):
     """
     Return Sam Salameh's pre-configured profile and stats.
     """
+    verify_system_key(request)
     try:
         conn = _get_conn()
         user_row = conn.execute(
@@ -833,10 +793,15 @@ async def get_sam_profile():
 
 
 @router.get("/multi-tenant/debug-db")
-async def debug_db():
+async def debug_db(request: Request):
     """
     Return a snapshot of the database users, profiles, and campaigns for live diagnostics.
+    Only accessible if DEBUG=1 or DEBUG=true is set in environment variables.
     """
+    verify_system_key(request)
+    if os.getenv("DEBUG", "").lower() not in ("1", "true"):
+        raise HTTPException(status_code=403, detail="Forbidden: Diagnostics endpoint is only active in debug mode.")
+        
     conn = _get_conn()
     try:
         users = [dict(r) for r in conn.execute("SELECT user_id, email, name, phone, created_at FROM users").fetchall()]
@@ -855,11 +820,12 @@ async def debug_db():
 
 
 @router.post("/multi-tenant/cleanup-db")
-async def cleanup_db():
+async def cleanup_db(request: Request):
     """
     Scrubs the database of all non-Sam users/profiles/campaigns.
     Ensures Sam's CV profile has correct target titles and locations.
     """
+    verify_system_key(request)
     conn = _get_conn()
     try:
         allowed_emails = ("samsalameh.cv@gmail.com", "samatou683@gmail.com")

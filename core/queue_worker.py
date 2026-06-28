@@ -36,7 +36,7 @@ async def process_queue():
         try:
             task = dequeue_task()
             if not task:
-                await asyncio.sleep(5)  # Wait 5 seconds before polling again
+                await asyncio.sleep(10)  # Wait 10 seconds before polling again (reduce DB contention)
                 continue
                     
             task_id = task["id"]
@@ -59,18 +59,31 @@ async def process_queue():
             elif task_type == "run_campaign":
                 campaign_id = payload.get("campaign_id")
                 if campaign_id:
-                    # Run the campaign with FORK ISOLATION (Protects against LLM OOM crashes)
-                    p = multiprocessing.Process(target=_isolated_campaign_runner, args=(campaign_id,))
-                    p.start()
-                    p.join(timeout=260)
-                        
-                    if p.is_alive():
-                        logger.error(f"Task {task_id} exceeded 260s. Terminating isolated fork.")
-                        p.terminate()
-                        p.join()
-                        fail_task(task_id, "Fork timeout")
+                    # Check if running on PythonAnywhere or Windows (no-fork environments)
+                    if os.getenv("FORCE_SQLITE") == "1" or sys.platform == "win32":
+                        logger.info(f"[ML-SYSTEM] Running campaign {campaign_id} inline (no fork)...")
+                        try:
+                            send_telegram_message_sync(f"🚀 [NODE-WORKER] Batch task {campaign_id} started processing (inline).")
+                            await run_campaign(campaign_id, get_db, config)
+                            send_telegram_message_sync(f"✅ [NODE-WORKER] Batch task {campaign_id} completed successfully.")
+                            complete_task(task_id)
+                        except Exception as e:
+                            logger.error(f"Inline campaign execution crashed: {e}")
+                            send_telegram_message_sync(f"❌ [NODE-WORKER] Batch task {campaign_id} crashed: {str(e)}")
+                            fail_task(task_id, str(e))
                     else:
-                        complete_task(task_id)
+                        # Run the campaign with FORK ISOLATION (Protects against LLM OOM crashes)
+                        p = multiprocessing.Process(target=_isolated_campaign_runner, args=(campaign_id,))
+                        p.start()
+                        p.join(timeout=260)
+                            
+                        if p.is_alive():
+                            logger.error(f"Task {task_id} exceeded 260s. Terminating isolated fork.")
+                            p.terminate()
+                            p.join()
+                            fail_task(task_id, "Fork timeout")
+                        else:
+                            complete_task(task_id)
                 else:
                     fail_task(task_id, "Missing batch_id")
                         
@@ -127,14 +140,24 @@ async def process_queue():
                         conn.commit()
                         logger.info(f"[ML-SYSTEM] Cron tick picked up batch {cid}")
                             
-                        p = multiprocessing.Process(target=_isolated_campaign_runner, args=(cid,))
-                        p.start()
-                        p.join(timeout=260)
-                            
-                        if p.is_alive():
-                            logger.error(f"[ML-SYSTEM] Cron tick batch {cid} timed out. Terminating fork.")
-                            p.terminate()
-                            p.join()
+                        if os.getenv("FORCE_SQLITE") == "1" or sys.platform == "win32":
+                            logger.info(f"[ML-SYSTEM] Running cron_tick campaign {cid} inline...")
+                            try:
+                                send_telegram_message_sync(f"🚀 [NODE-WORKER] Batch task {cid} started processing (inline).")
+                                await run_campaign(cid, get_db, config)
+                                send_telegram_message_sync(f"✅ [NODE-WORKER] Batch task {cid} completed successfully.")
+                            except Exception as e:
+                                logger.error(f"Inline cron_tick campaign execution crashed: {e}")
+                                send_telegram_message_sync(f"❌ [NODE-WORKER] Batch task {cid} crashed: {str(e)}")
+                        else:
+                            p = multiprocessing.Process(target=_isolated_campaign_runner, args=(cid,))
+                            p.start()
+                            p.join(timeout=260)
+                                
+                            if p.is_alive():
+                                logger.error(f"[ML-SYSTEM] Cron tick batch {cid} timed out. Terminating fork.")
+                                p.terminate()
+                                p.join()
                                 
                 except Exception as e:
                     logger.error(f"Error in cron_tick task: {e}")
@@ -174,8 +197,8 @@ async def process_queue():
             else:
                 fail_task(task_id, f"Unknown task_type: {task_type}")
                     
-            # Do not sleep if we found a task, to rapidly drain queue
-            await asyncio.sleep(0.01)
+            # Small sleep after processing a task to prevent DB contention
+            await asyncio.sleep(1.0)
                 
         except Exception as e:
             logger.error(f"Worker loop error: {e}\n{traceback.format_exc()}")

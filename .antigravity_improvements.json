@@ -1143,5 +1143,100 @@
     "timestamp": "2026-06-28T12:43:11.623890",
     "summary": "Fixed hardcoded old conversation ID paths in check_pa_logs.py to use relative workspace scratch directory paths.",
     "conversation_id": "c63484c6-d4a0-405e-876e-231fcb3dbbef"
+  },
+  {
+    "timestamp": "2026-06-28T13:16:05.778029",
+    "summary": "PAJobScraper v4: +4 free job sources (RemoteOK, WeWorkRemotely, TheMuse, Jobicy), exponential backoff on HTTP fetches, URL-based dedup, per-source circuit-breaker (3-strike 30min cooldown). auto_heal: added step-7 scraper circuit health monitoring with Telegram alerts and force-reset deadlock protection. always_on_loop v2: adaptive backoff (1s/3s/10s/30s), per-10-cycle GC, health log every 50 cycles, consecutive-error circuit-breaker (5 errors = 60s backoff).",
+    "conversation_id": "205764a1-c049-4eaa-9366-7be6f65f758a"
+  },
+  {
+    "timestamp": "2026-06-28T13:28:44.372016",
+    "summary": "Upgraded core/ats_matcher.py to utilize the 17-provider LLMProviderPool for deep ATS analysis. Implemented a robust sync-to-async execution helper (_run_async) to support synchronous contexts like the Telegram bot, removing hardcoded dependencies on the Groq API key and providing resilient multi-provider rotation.",
+    "conversation_id": "205764a1-c049-4eaa-9366-7be6f65f758a"
+  },
+  {
+    "timestamp": "2026-06-28T13:32:45.767881",
+    "summary": "Fixed critical SMTP swarm return type bug in core/email_engine.py where send_email_via_gmail_smtp returned a tuple but the caller treated it as a boolean, causing failed swarm attempts to be falsely marked as successful.",
+    "conversation_id": "33e8f8c9-4711-40bf-9f8a-db832728f9ca"
+  },
+  {
+    "timestamp": "2026-06-28T13:36:29.141110",
+    "summary": "Upgraded canvas and WebGL fingerprint spoofing scripts in core/stealth.py to avoid detection and mismatch red flags.",
+    "conversation_id": "33e8f8c9-4711-40bf-9f8a-db832728f9ca"
+  },
+  {
+    "timestamp": "2026-06-28T13:44:09.196375",
+    "summary": "Fixed queue_worker import in web/app_v2.py and bypassed multiprocessing.Process on PythonAnywhere/Windows to enable stable, 100% autonomous background campaign execution.",
+    "conversation_id": "f9ef6955-1948-4c9d-bfe4-c2af03bf0a11"
+  },
+  {
+    "timestamp": "2026-06-28T14:10:56.511009",
+    "summary": "Hardened Aegis WAF with Host Header Injection (BadHost CVE-2026-48710) protection and proxy IP resolution, and secured all system endpoints.",
+    "conversation_id": "f9ef6955-1948-4c9d-bfe4-c2af03bf0a11"
+  },
+  {
+    "timestamp": "2026-06-28T14:23:57.210819",
+    "summary": "Resolved frontend, layout, and functional issues across templates (Turnstile sitekey fix, missing DOCTYPE, CSS @import, broken asset links, accessibility labels).",
+    "conversation_id": "f9ef6955-1948-4c9d-bfe4-c2af03bf0a11"
+  },
+  {
+    "timestamp": "2026-06-28T16:16:10.924045",
+    "summary": "Fixed 5 critical 500 errors across /blog, /faq, /terms, /privacy, /compare (and /chrome-extension, /track-application, /interview_prep, /admin_analytics) caused by old-style TemplateResponse('template.html', {'request':req}) calls incompatible with FastAPI 0.108+. Also fixed: login redirect loop (POST /login now redirects to /user-dashboard not /dashboard), CLOUD-TICK SQL error (total_jobs column -> total_attempted), queue worker DB contention (idle sleep 5s->10s, post-task sleep 0.2s->1.0s). All 22 public pages now return HTTP 200.",
+    "conversation_id": "5684f3fc-32a5-4eae-9d90-476c06b11605"
+  },
+  {
+    "timestamp": "2026-06-28T16:28:21.618484",
+    "summary": "MEGA HTML STRUCTURE FIX: Fixed critical DOCTYPE/html/head/body structure in 28+ HTML templates that were rendering in browser quirks mode. All 61 templates now pass 100% structure check. Also completely redesigned forgot_password.html and reset_password.html to match unified design system with glassmorphism, animated orbs, password strength meter, confirm password field. Fixed login.html to use unified nav, consistent design tokens, shimmering button, loading state. Fixed register_v2.html missing html/head/charset/title. All 83 pytest tests passing.",
+    "conversation_id": "6aad5007-ca20-42b6-acf0-400333eb4bd7"
+  },
+  {
+    "timestamp": "2026-06-28T16:46:32.650318",
+    "summary": "Fixed trailing HTML tag order issues across all website templates (ensured </body> precedes </html>)",
+    "conversation_id": "72e097fd-963a-4c96-8626-9bbc713dbd85"
+  },
+  {
+    "timestamp": "2026-06-28T16:59:06.400613",
+    "summary": "Fixed Cloudflare Worker scrape/google_cache fallback bug and SMTP return type/unpacking bugs in email engine and web app.",
+    "conversation_id": "72e097fd-963a-4c96-8626-9bbc713dbd85"
+  },
+  {
+    "timestamp": "2026-06-28T17:05:46.281453",
+    "summary": "Cleaned up hardcoded PII from response parser and email engines, making subject variants, signatures, and fallbacks fully dynamic.",
+    "conversation_id": "72e097fd-963a-4c96-8626-9bbc713dbd85"
+  },
+  {
+    "timestamp": "2026-06-28T17:10:37.918972",
+    "summary": "Implemented concurrent email batch sending in EmailRotatorPool using asyncio.Semaphore to significantly boost throughput.",
+    "conversation_id": "72e097fd-963a-4c96-8626-9bbc713dbd85"
+  },
+  {
+    "timestamp": "2026-06-28T17:18:21.149190",
+    "summary": "Hardened ScamDetector by wrapping check logic in an audit logging wrapper to trace flagged jobs.",
+    "conversation_id": "72e097fd-963a-4c96-8626-9bbc713dbd85"
+  },
+  {
+    "timestamp": "2026-06-28T17:20:37.175121",
+    "summary": "Hardened stealth scraping anti-ban defense in stealth.py by randomizing X-Forwarded-For Googlebot IP within the official CIDR block range.",
+    "conversation_id": "72e097fd-963a-4c96-8626-9bbc713dbd85"
+  },
+  {
+    "timestamp": "2026-06-28T17:25:29.877998",
+    "summary": "Refactored function-level imports in stealth.py to the module level to optimize performance and prevent runtime import failures.",
+    "conversation_id": "72e097fd-963a-4c96-8626-9bbc713dbd85"
+  },
+  {
+    "timestamp": "2026-06-28T17:28:30.381567",
+    "summary": "Hardened follow-up email scheduling by adding a stable, hash-based delay offset (0 to 2 days) per recipient email to avoid spam classification.",
+    "conversation_id": "72e097fd-963a-4c96-8626-9bbc713dbd85"
+  },
+  {
+    "timestamp": "2026-06-28T17:32:22.187403",
+    "summary": "Hardened orchestrator constructor logging and optimized domain-guessing heuristics in linkedin_shadow.py by stripping common corporate suffixes before domain generation.",
+    "conversation_id": "72e097fd-963a-4c96-8626-9bbc713dbd85"
+  },
+  {
+    "timestamp": "2026-06-28T17:35:57.975546",
+    "summary": "Implemented negation-detection heuristics in ResponseParser to avoid false-positive interview classifications.",
+    "conversation_id": "72e097fd-963a-4c96-8626-9bbc713dbd85"
   }
 ]

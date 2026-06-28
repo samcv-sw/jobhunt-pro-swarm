@@ -138,7 +138,7 @@ Best regards,
 ${userName}`;
 }
 
-// ── SCRAPE JOBS WITH DIRECT FETCH AND GOOGLE CACHE FALLBACK ──
+// ── SCRAPE JOBS WITH DIRECT FETCH AND GOOGLEBOT FALLBACK ──
 async function scrapeJobs(env, url) {
   if (!url) return { error: 'Missing url' };
   
@@ -150,7 +150,7 @@ async function scrapeJobs(env, url) {
     if (cached) return { source: 'cache', content: cached.content };
   }
   
-  // 1. Try Direct Fetch first (Modern approach)
+  // 1. Try Direct Fetch first (Modern browser UA)
   try {
     const resp = await fetch(url, {
       headers: {
@@ -169,29 +169,34 @@ async function scrapeJobs(env, url) {
         ).bind(url, 'direct_fetch', text.substring(0, 50000), String(text.length), resp.status).run().catch(() => {});
       }
       return { source: 'direct_fetch', status: 200, content: text.substring(0, 100000) };
-    } else {
-      return { source: 'direct_fetch', status: resp.status, error: `Direct fetch returned non-200 status: ${resp.status}` };
     }
   } catch (directErr) {
-    return { source: 'direct_fetch', error: directErr.message, stack: directErr.stack };
+    console.error("Direct fetch failed:", directErr.message);
   }
   
-  // 2. Fallback to Google Cache (Legacy, might return 404/403 since retired)
+  // 2. Fallback: Googlebot fetch (bypasses some basic crawler blocks)
   try {
-    const resp = await fetch(`https://webcache.googleusercontent.com/search?q=cache:${encodeURIComponent(url)}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' },
+    const resp = await fetch(url, {
+      headers: { 
+        'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+      },
       signal: AbortSignal.timeout(10000)
     });
-    const text = await resp.text();
     
-    if (env.DB && text.length < 100000) {
-      env.DB.prepare(
-        "INSERT OR REPLACE INTO scraper_cache (url, platform, content, content_hash, expires_at, status) VALUES (?, ?, ?, ?, datetime('now', '+1 hour'), ?)"
-      ).bind(url, 'google_cache', text.substring(0, 50000), String(text.length), resp.status).run().catch(() => {});
+    if (resp.status === 200) {
+      const text = await resp.text();
+      if (env.DB && text.length < 100000) {
+        env.DB.prepare(
+          "INSERT OR REPLACE INTO scraper_cache (url, platform, content, content_hash, expires_at, status) VALUES (?, ?, ?, ?, datetime('now', '+1 hour'), ?)"
+        ).bind(url, 'googlebot_fetch', text.substring(0, 50000), String(text.length), resp.status).run().catch(() => {});
+      }
+      return { source: 'googlebot_fetch', status: 200, content: text.substring(0, 100000) };
+    } else {
+      return { error: `Googlebot fetch returned status: ${resp.status}`, status: resp.status };
     }
-    return { source: 'google_cache', status: resp.status, content: text.substring(0, 100000) };
   } catch (e) {
-    return { error: e.message };
+    return { error: `Fallback fetch failed: ${e.message}`, status: 502 };
   }
 }
 

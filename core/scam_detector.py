@@ -163,6 +163,14 @@ class ScamDetector:
         Check if a job posting is a scam.
         Returns (is_scam: bool, reason: str)
         """
+        is_detected, reason = self._check_is_scam(job)
+        if is_detected:
+            company = (job.get("company") or "").strip()
+            title = (job.get("title") or "").strip()
+            logger.warning(f"[ScamDetector] Scam flagged: {reason} (Company: '{company}', Title: '{title}')")
+        return is_detected, reason
+
+    def _check_is_scam(self, job: Dict[str, Any]) -> Tuple[bool, str]:
         company = (job.get("company") or "").strip()
         title = (job.get("title") or "").strip()
         snippet = (job.get("snippet") or job.get("description") or "").strip()

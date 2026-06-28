@@ -1,12 +1,21 @@
 """
-PAJobScraper v3 — GLOBAL SCALE (v17.0)
+PAJobScraper v4 — GLOBAL SCALE (v18.0)
 - JSearch API with smart caching (2h TTL) to conserve 300/month quota
 - hh.ru FREE REST API (Russia/CIS market — no key needed)
 - Indeed FREE RSS feeds (no blocks, no API key)
-- Glassdoor free job listing scraper
+- Glassdoor free job listing scraper (best-effort)
 - LinkedIn XHR as fallback
+- Remotive FREE API (worldwide remote, no key)
+- Arbeitnow FREE API (Europe, no key)
+- RemoteOK FREE API (worldwide remote, no key)
+- WeWorkRemotely RSS (free, reliable)
+- The Muse API (free, global companies, no key)
+- Jobicy FREE API (remote-first, no key)
 - Rotating queries: 3 random locations + 2 random titles per tick
   covers all ~50 locations over ~15 ticks (1 hour)
+- Exponential backoff on all HTTP fetches
+- Per-source circuit-breaker (3 failures → 30 min cooldown)
+- URL-based deduplication (on top of company+title)
 """
 
 import logging
@@ -142,15 +151,48 @@ INDEED_RSS_LOCATIONS = {
 }
 
 _CACHE_DIR = os.path.join(os.path.dirname(__file__), '..', 'cache')
-# Source-specific TTLs in seconds: JSearch=2h, Indeed=30min, hh.ru=1h, Glassdoor=1h, LinkedIn=3h
+# Source-specific TTLs in seconds
 _SOURCE_TTLS = {
-    "jsearch": 7200,
-    "hhru": 3600,
-    "indeed_rss": 1800,
-    "glassdoor": 3600,
-    "linkedin_xhr": 10800,
+    "jsearch":        7200,
+    "hhru":           3600,
+    "indeed_rss":     1800,
+    "glassdoor":      3600,
+    "linkedin_xhr":  10800,
+    "remotive":       3600,
+    "arbeitnow":      3600,
+    "remoteok":       1800,
+    "weworkremotely": 1800,
+    "themuse":        7200,
+    "jobicy":         3600,
 }
 _CACHE_TTL = 7200  # Default global cache TTL in seconds (2 hours)
+
+# ── Per-source circuit-breaker state ─────────────────────────────────────
+_SOURCE_FAILURES: dict = {}          # source_key -> consecutive_failure_count
+_SOURCE_DISABLED_UNTIL: dict = {}    # source_key -> epoch_timestamp
+_CIRCUIT_FAILURE_THRESHOLD = 3       # failures before cooldown
+_CIRCUIT_COOLDOWN_SECONDS = 1800     # 30-minute cooldown
+
+
+def _source_is_healthy(source_key: str) -> bool:
+    """Return False if source is currently in cooldown (circuit open)."""
+    until = _SOURCE_DISABLED_UNTIL.get(source_key, 0)
+    return time.time() >= until
+
+
+def _record_source_failure(source_key: str):
+    """Increment failure counter; open circuit after threshold."""
+    count = _SOURCE_FAILURES.get(source_key, 0) + 1
+    _SOURCE_FAILURES[source_key] = count
+    if count >= _CIRCUIT_FAILURE_THRESHOLD:
+        _SOURCE_DISABLED_UNTIL[source_key] = time.time() + _CIRCUIT_COOLDOWN_SECONDS
+        logger.warning(f"[Circuit] {source_key} disabled for {_CIRCUIT_COOLDOWN_SECONDS//60} min after {count} consecutive failures")
+
+
+def _record_source_success(source_key: str):
+    """Reset circuit counter on success."""
+    _SOURCE_FAILURES[source_key] = 0
+    _SOURCE_DISABLED_UNTIL.pop(source_key, None)
 
 
 def _load_cache():
@@ -278,8 +320,23 @@ class PAJobScraper:
         self._key_idx = 0
         self._hhru_user_agent = "JobHuntPro/17.0 (samsalameh.cv@gmail.com)"
 
-    def _fetch_url(self, url: str, headers: dict = None, timeout: int = 15) -> str:
-        """Fetch URL routing through Cloudflare Worker scrape endpoint, falling back to direct request."""
+    def _fetch_url(self, url: str, headers: dict = None, timeout: int = 15,
+                   retries: int = 3) -> str:
+        """Fetch URL with exponential backoff, routing through Cloudflare Worker first."""
+        last_exc = None
+        for attempt in range(retries):
+            try:
+                return self._fetch_url_once(url, headers=headers, timeout=timeout)
+            except Exception as exc:
+                last_exc = exc
+                if attempt < retries - 1:
+                    wait = (2 ** attempt) + random.uniform(0, 1)
+                    logger.debug(f"[_fetch_url] attempt {attempt+1} failed ({exc}), retrying in {wait:.1f}s")
+                    time.sleep(wait)
+        raise last_exc
+
+    def _fetch_url_once(self, url: str, headers: dict = None, timeout: int = 15) -> str:
+        """Single-attempt URL fetch routing through Cloudflare Worker scrape endpoint, falling back to direct request."""
         worker_url = os.getenv("WORKER_URL", "https://jobhunt-pro-router.samsalameh-cv.workers.dev")
         scrape_url = f"{worker_url.rstrip('/')}/scrape?url={urllib.request.quote(url)}"
         
@@ -928,52 +985,81 @@ class PAJobScraper:
                 return cached_jobs[:max_jobs]
 
         all_jobs = []
-        seen = set()
+        seen_keys: set = set()    # (company, title) dedup
+        seen_urls: set = set()    # URL-based dedup
 
         def _add_jobs(jobs, label):
             added = 0
             for j in jobs:
-                key = (j.get("company", "").lower(), j.get("title", "").lower())
-                if key not in seen:
-                    seen.add(key)
-                    all_jobs.append(j)
-                    added += 1
+                key = (j.get("company", "").lower().strip(), j.get("title", "").lower().strip())
+                url = (j.get("url", "") or "").split("?")[0].rstrip("/")  # canonical URL
+                if key in seen_keys:
+                    continue
+                if url and url in seen_urls:
+                    continue
+                seen_keys.add(key)
+                if url:
+                    seen_urls.add(url)
+                all_jobs.append(j)
+                added += 1
             logger.info(f"  [{label}] +{added} jobs (total: {len(all_jobs)})")
             return added
 
         # Phase 1: Free sources run concurrently via ThreadPoolExecutor
-        logger.info("=== PAJobScraper v3 GLOBAL: Phase 1 — Concurrent Free Scrapers ===")
+        logger.info("=== PAJobScraper v4 GLOBAL: Phase 1 — Concurrent Free Scrapers ===")
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
-        free_scrapers = {
-            "Remotive": lambda: self.search_remotive(max_jobs=20, query=query),
-            "Arbeitnow": lambda: self.search_arbeitnow(max_jobs=20, query=query),
-            "hhru": lambda: self.search_hhru(max_jobs=80, query=query, location=location),
-            "IndeedRSS": lambda: self.search_indeed_rss(max_jobs=50, query=query, location=location),
-            "Glassdoor": lambda: self.search_glassdoor(max_jobs=30, query=query, location=location),
-            "LinkedInXHR": lambda: self.search_linkedin_xhr(max_jobs=50, query=query, location=location),
+        # Map circuit-breaker keys to scraper lambdas
+        free_scrapers_all = {
+            "Remotive":        ("remotive",        lambda: self.search_remotive(max_jobs=25, query=query)),
+            "Arbeitnow":       ("arbeitnow",       lambda: self.search_arbeitnow(max_jobs=25, query=query)),
+            "RemoteOK":        ("remoteok",        lambda: self.search_remoteok(max_jobs=25, query=query)),
+            "WeWorkRemotely":  ("weworkremotely",  lambda: self.search_weworkremotely(max_jobs=25, query=query)),
+            "TheMuse":         ("themuse",         lambda: self.search_themuse(max_jobs=25, query=query)),
+            "Jobicy":          ("jobicy",          lambda: self.search_jobicy(max_jobs=25, query=query)),
+            "hhru":            ("hhru",            lambda: self.search_hhru(max_jobs=80, query=query, location=location)),
+            "IndeedRSS":       ("indeed_rss",      lambda: self.search_indeed_rss(max_jobs=50, query=query, location=location)),
+            "Glassdoor":       ("glassdoor",       lambda: self.search_glassdoor(max_jobs=30, query=query, location=location)),
+            "LinkedInXHR":     ("linkedin_xhr",    lambda: self.search_linkedin_xhr(max_jobs=50, query=query, location=location)),
         }
 
-        with ThreadPoolExecutor(max_workers=len(free_scrapers)) as executor:
-            future_to_label = {executor.submit(func): label for label, func in free_scrapers.items()}
-            for future in as_completed(future_to_label):
-                label = future_to_label[future]
+        # Skip sources currently in circuit-breaker cooldown
+        free_scrapers = {
+            label: func
+            for label, (cb_key, func) in free_scrapers_all.items()
+            if _source_is_healthy(cb_key)
+        }
+        skipped = set(free_scrapers_all) - set(free_scrapers)
+        if skipped:
+            logger.info(f"[Circuit] Skipping unhealthy sources: {', '.join(skipped)}")
+
+        with ThreadPoolExecutor(max_workers=min(len(free_scrapers), 10)) as executor:
+            future_to_info = {
+                executor.submit(func): (label, free_scrapers_all[label][0])
+                for label, func in free_scrapers.items()
+            }
+            for future in as_completed(future_to_info):
+                label, cb_key = future_to_info[future]
                 try:
                     jobs = future.result()
                     _add_jobs(jobs, label)
+                    _record_source_success(cb_key)
                 except Exception as e:
-                    logger.warning(f"{label} search failed concurrently: {e}")
+                    logger.warning(f"{label} search failed: {e}")
+                    _record_source_failure(cb_key)
 
         # Phase 2: Fallback to JSearch API only if free sources did not yield enough jobs (conserve quota)
         if len(all_jobs) < 15:
-            logger.info("=== PAJobScraper v3 GLOBAL: Phase 2 — JSearch API Fallback ===")
+            logger.info("=== PAJobScraper v4 GLOBAL: Phase 2 — JSearch API Fallback ===")
             try:
                 jsearch_jobs = self.search_jsearch(max_total=max_jobs, query=query, location=location)
                 _add_jobs(jsearch_jobs, "JSearch")
+                _record_source_success("jsearch")
             except Exception as e:
                 logger.warning(f"JSearch fallback failed: {e}")
+                _record_source_failure("jsearch")
         else:
-            logger.info(f"=== PAJobScraper v3: Skipping JSearch ({len(all_jobs)} jobs retrieved from free sources) ===")
+            logger.info(f"=== PAJobScraper v4: Skipping JSearch ({len(all_jobs)} jobs from free sources) ===")
 
         # Save to cache
         if all_jobs:
@@ -1071,3 +1157,221 @@ class PAJobScraper:
         except Exception as e:
             logger.warning(f"Arbeitnow search error: {e}")
             return []
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RemoteOK FREE API (worldwide remote — no key)
+    # ══════════════════════════════════════════════════════════════════════
+
+    def search_remoteok(self, max_jobs: int = 30, query: str = "") -> List[Dict]:
+        """RemoteOK public JSON API — zero cost, no key, great for remote IT roles."""
+        try:
+            url = "https://remoteok.com/api"
+            res_text = self._fetch_url(url, headers={
+                "User-Agent": "JobHuntPro/18.0 (samsalameh.cv@gmail.com)",
+                "Accept": "application/json",
+            }, timeout=15)
+            data = json.loads(res_text)
+            # First element is a legal notice dict — skip it
+            jobs = []
+            kw = (query or "network engineer").lower().split()
+            for item in data:
+                if not isinstance(item, dict) or not item.get("position"):
+                    continue
+                title = (item.get("position") or "").strip()
+                company = (item.get("company") or "").strip()
+                if not title or not company:
+                    continue
+                # Relevance filter
+                tl = title.lower()
+                tags = " ".join(item.get("tags") or []).lower()
+                if query and not any(k in tl or k in tags for k in kw):
+                    continue
+                job_url = item.get("url") or f"https://remoteok.com/remote-jobs/{item.get('id', '')}"
+                desc = (item.get("description") or "")[:300]
+                # Strip HTML tags
+                import re as _re
+                desc = _re.sub(r"<[^>]+>", "", desc).strip()
+                jobs.append({
+                    "id": f"rok_{item.get('id', len(jobs))}",
+                    "title": title[:100],
+                    "company": company[:80],
+                    "location": "Remote",
+                    "source": "remoteok",
+                    "url": job_url,
+                    "email": _clean_email(company, job_url),
+                    "snippet": desc[:200],
+                    "salary": item.get("salary") or "",
+                    "job_id": f"rok_{item.get('id', '')}",
+                })
+                if len(jobs) >= max_jobs:
+                    break
+            logger.info(f"RemoteOK: {len(jobs)} jobs")
+            return jobs
+        except Exception as e:
+            logger.warning(f"RemoteOK search error: {e}")
+            return []
+
+    # ══════════════════════════════════════════════════════════════════════
+    # WeWorkRemotely RSS (free, zero auth)
+    # ══════════════════════════════════════════════════════════════════════
+
+    def search_weworkremotely(self, max_jobs: int = 30, query: str = "") -> List[Dict]:
+        """WeWorkRemotely public RSS feed — free, reliable, worldwide remote jobs."""
+        try:
+            feeds = [
+                "https://weworkremotely.com/categories/remote-devops-sysadmin-jobs.rss",
+                "https://weworkremotely.com/categories/remote-programming-jobs.rss",
+            ]
+            all_jobs: List[Dict] = []
+            seen: set = set()
+            kw = (query or "network engineer").lower().split()
+            import re as _re
+            for feed_url in feeds:
+                if len(all_jobs) >= max_jobs:
+                    break
+                try:
+                    xml_text = self._fetch_url(feed_url, headers={
+                        "User-Agent": "JobHuntPro/18.0",
+                        "Accept": "application/rss+xml",
+                    }, timeout=15)
+                    root = ET.fromstring(xml_text)
+                    for item in root.iter("item"):
+                        t_el = item.find("title")
+                        l_el = item.find("link")
+                        d_el = item.find("description")
+                        if t_el is None or not t_el.text:
+                            continue
+                        raw_title = t_el.text.strip()
+                        # WWR format: "Company: Job Title"
+                        if ": " in raw_title:
+                            company, title = raw_title.split(": ", 1)
+                        else:
+                            company, title = "", raw_title
+                        company = company.strip()
+                        title = title.strip()
+                        if not title:
+                            continue
+                        tl = title.lower()
+                        if query and not any(k in tl for k in kw):
+                            continue
+                        link = (l_el.text or "").strip() if l_el is not None else ""
+                        key = (company.lower(), title.lower())
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        desc = ""
+                        if d_el is not None and d_el.text:
+                            desc = _re.sub(r"<[^>]+>", "", d_el.text).strip()[:200]
+                        all_jobs.append({
+                            "id": f"wwr_{len(all_jobs)}",
+                            "title": title[:100],
+                            "company": company[:80],
+                            "location": "Remote",
+                            "source": "weworkremotely",
+                            "url": link,
+                            "email": _clean_email(company, link),
+                            "snippet": desc,
+                            "job_id": f"wwr_{len(all_jobs)}",
+                        })
+                        if len(all_jobs) >= max_jobs:
+                            break
+                    time.sleep(1)
+                except Exception as fe:
+                    logger.debug(f"WWR feed {feed_url} error: {fe}")
+            logger.info(f"WeWorkRemotely: {len(all_jobs)} jobs")
+            return all_jobs[:max_jobs]
+        except Exception as e:
+            logger.warning(f"WeWorkRemotely search error: {e}")
+            return []
+
+    # ══════════════════════════════════════════════════════════════════════
+    # The Muse FREE API (global companies — no key needed for public data)
+    # ══════════════════════════════════════════════════════════════════════
+
+    def search_themuse(self, max_jobs: int = 25, query: str = "") -> List[Dict]:
+        """The Muse public jobs API — worldwide companies, no API key needed."""
+        try:
+            search_q = query or "network engineer"
+            url = f"https://www.themuse.com/api/public/jobs?query={urllib.request.quote(search_q)}&page=1&descending=true"
+            res_text = self._fetch_url(url, headers={
+                "User-Agent": "JobHuntPro/18.0",
+                "Accept": "application/json",
+            }, timeout=15)
+            data = json.loads(res_text)
+            jobs = []
+            for item in data.get("results", []):
+                title = (item.get("name") or "").strip()
+                co_data = (item.get("company") or {})
+                company = (co_data.get("name") if isinstance(co_data, dict) else str(co_data)).strip()
+                if not title or not company:
+                    continue
+                locs = item.get("locations") or []
+                loc_str = ", ".join(l.get("name", "") for l in locs if isinstance(l, dict))[:60] or "Remote"
+                refs = item.get("refs") or {}
+                job_url = refs.get("landing_page") or ""
+                jobs.append({
+                    "id": f"muse_{item.get('id', len(jobs))}",
+                    "title": title[:100],
+                    "company": company[:80],
+                    "location": loc_str,
+                    "source": "themuse",
+                    "url": job_url,
+                    "email": _clean_email(company, job_url),
+                    "snippet": "",
+                    "job_id": f"muse_{item.get('id', '')}",
+                })
+                if len(jobs) >= max_jobs:
+                    break
+            logger.info(f"The Muse: {len(jobs)} jobs")
+            return jobs
+        except Exception as e:
+            logger.warning(f"The Muse search error: {e}")
+            return []
+
+    # ══════════════════════════════════════════════════════════════════════
+    # Jobicy FREE API (remote-first, worldwide — no key)
+    # ══════════════════════════════════════════════════════════════════════
+
+    def search_jobicy(self, max_jobs: int = 25, query: str = "") -> List[Dict]:
+        """Jobicy public JSON API — remote tech jobs, zero cost, no key."""
+        try:
+            url = "https://jobicy.com/api/v2/remote-jobs?count=50&industrySlug=it"
+            if query:
+                url += f"&tag={urllib.request.quote(query.replace(' ', '-'))}"
+            res_text = self._fetch_url(url, headers={
+                "User-Agent": "JobHuntPro/18.0",
+                "Accept": "application/json",
+            }, timeout=15)
+            data = json.loads(res_text)
+            jobs = []
+            kw = (query or "").lower().split()
+            for item in data.get("jobs", []):
+                title = (item.get("jobTitle") or "").strip()
+                company = (item.get("companyName") or "").strip()
+                if not title or not company:
+                    continue
+                tl = title.lower()
+                if kw and not any(k in tl for k in kw):
+                    continue
+                job_url = item.get("url") or ""
+                snippet = (item.get("jobExcerpt") or "")[:200]
+                jobs.append({
+                    "id": f"jcy_{item.get('id', len(jobs))}",
+                    "title": title[:100],
+                    "company": company[:80],
+                    "location": (item.get("jobGeo") or "Remote")[:60],
+                    "source": "jobicy",
+                    "url": job_url,
+                    "email": _clean_email(company, job_url),
+                    "snippet": snippet,
+                    "salary": item.get("annualSalaryMin") and f"${item['annualSalaryMin']}-${item.get('annualSalaryMax', '?')}" or "",
+                    "job_id": f"jcy_{item.get('id', '')}",
+                })
+                if len(jobs) >= max_jobs:
+                    break
+            logger.info(f"Jobicy: {len(jobs)} jobs")
+            return jobs
+        except Exception as e:
+            logger.warning(f"Jobicy search error: {e}")
+            return []
+

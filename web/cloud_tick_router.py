@@ -34,6 +34,12 @@ async def cloud_tick_handler(request: Request):
     Runs campaigns for ALL users (Sam + Rita + future tenants) in parallel.
     Falls back to CloudOrchestrator if MultiTenantRunner unavailable.
     """
+    # Secure with CRON_SECRET
+    key = request.query_params.get("key") or request.headers.get("X-Cron-Secret") or request.headers.get("x-cron-secret")
+    expected_key = os.getenv("CRON_SECRET", "")
+    if expected_key and key != expected_key:
+        raise HTTPException(status_code=403, detail="Forbidden: Invalid cron key")
+
     try:
         company_limit = 3
         max_campaigns = 3

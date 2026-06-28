@@ -62,8 +62,8 @@ class Orchestrator:
         try:
             from core.healing_engine import healing_engine
             self.healer = healing_engine
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to initialize Healing Engine: {e}")
         logger.info("Orchestrator v8 initialized (AI Tailoring + Anti-Ban + Personalization + Email Warmup)")
 
     async def run_search(self, max_results: int = 50) -> int:
@@ -323,7 +323,7 @@ class Orchestrator:
 
                 # Predict response rate with compelling subject line
                 # Include certifications and experience level for higher open rates
-                subject = f"{title} | 15yr Network Engineer | CCNP/NSE/AWS | SD-WAN & Security Expert"
+                subject = f"{title} | {config.CANDIDATE_TITLE}"
                 prediction = predictor.predict_response_rate(subject, cover_html, company)
 
                 if not prediction["should_send"]:

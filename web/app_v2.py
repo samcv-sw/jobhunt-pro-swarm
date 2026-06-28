@@ -130,10 +130,14 @@ def get_verified_user_id(request: Request) -> str:
     """
     # Method 1: Signed cookie (primary for web UI)
     cookie = request.cookies.get("user_id", "")
+    logger.info(f"[AUTH] cookie user_id: {cookie}")
     if cookie:
         try:
-            return session_serializer.loads(cookie, max_age=86400 * 30)  # 30 days
-        except (BadSignature, SignatureExpired):
+            val = session_serializer.loads(cookie, max_age=86400 * 30)  # 30 days
+            logger.info(f"[AUTH] Verified user_id: {val}")
+            return val
+        except (BadSignature, SignatureExpired) as e:
+            logger.warning(f"[AUTH] Cookie signature verification failed: {e}")
             pass  # Fall through to session check
     
     # Method 2: Starlette session (fallback for API clients)
@@ -299,7 +303,7 @@ async def _campaign_self_tick_loop():
                     WHERE status='failed' 
                     AND completed_at IS NOT NULL 
                     AND datetime(completed_at, '+4 hours') < datetime('now')
-                    AND total_jobs = 0
+                    AND COALESCE(total_attempted, 0) = 0
                 """).fetchall()
                 for _row in _retry_res:
                     _conn.execute("UPDATE campaigns SET status='pending', completed_at=NULL, started_at=NULL WHERE campaign_id=?", (_row["campaign_id"],))
@@ -386,10 +390,10 @@ async def lifespan(app_instance):
     async def _deferred_init():
         try:
             from core.database import db
-            from core.queue_worker import queue_worker
+            from core.queue_worker import process_queue
             from core.growth_autopilot import start_autopilot
             await db.connect()
-            task_queue = asyncio.create_task(queue_worker.start())
+            task_queue = asyncio.create_task(process_queue())
             _background_tasks.append(task_queue)
             
             # Start Autonomous AI Client Acquisition!
@@ -926,7 +930,7 @@ def get_db(max_retries: int = 3):
                 conn.execute("PRAGMA cache_size=-64000")
                 conn.execute("PRAGMA temp_store=MEMORY")
                 conn.execute("PRAGMA mmap_size=3000000000")
-                conn.execute("PRAGMA busy_timeout=5000")
+                conn.execute("PRAGMA busy_timeout=30000")
             except Exception: pass
             return conn
         except sqlite3.OperationalError as e:
@@ -2667,12 +2671,16 @@ def _build_dashboard_shell(user, user_id, content_html, title, active_page):
     <nav class="nav">
         <a href="/user-dashboard"{ac("dashboard")}><span class="nav-icon">📊</span>Dashboard</a>
         <a href="/upload-cv"{ac("upload-cv")}><span class="nav-icon">📄</span>Upload CV</a>
+        <a href="/ats-scorer"{ac("ats-scorer")}><span class="nav-icon">🎯</span>ATS Scorer</a>
+        <a href="/resume-tailor"{ac("resume-tailor")} style="color:#a78bfa;"><span class="nav-icon">✨</span>Resume Tailor</a>
+        <a href="/funnel-analytics"{ac("funnel-analytics")}><span class="nav-icon">📊</span>Funnel Analytics</a>
         <a href="/new-campaign"{ac("new-campaign")}><span class="nav-icon">🎯</span>New Campaign</a>
         <a href="/sent-emails"{ac("sent-emails")}><span class="nav-icon">📧</span>Sent Emails</a>
         <div class="nav-divider"></div>
         <a href="/battle-station"{ac("battle-station")}><span class="nav-icon">⚔️</span>Battle Station</a>
         <a href="/services"{ac("services")}><span class="nav-icon">⭐</span>Premium Services</a>
         <a href="/offers"{ac("offers")} style="color:#f43f5e;"><span class="nav-icon">🔥</span>Special Offers</a>
+        <a href="/my-purchases"{ac("my-purchases")} style="color:#3b82f6;"><span class="nav-icon">📦</span>My Subscriptions</a>
         <div class="nav-divider"></div>
         <a href="/for-employers"{ac("employers")} style="color:#f59e0b;"><span class="nav-icon">🏢</span>For Employers</a>
         <div style="padding-left:10px;margin:4px 0 10px;">
@@ -2811,7 +2819,7 @@ def referral_page(request: Request):
 @app.get("/faq", response_class=HTMLResponse)
 def faq_page(request: Request):
     """FAQ page"""
-    return templates.TemplateResponse("faq.html", {"request": request})
+    return templates.TemplateResponse(request, "faq.html", {})
 
 @app.get("/blog", response_class=HTMLResponse)
 def blog_page(request: Request):
@@ -2819,8 +2827,7 @@ def blog_page(request: Request):
     from core.seo_blog_farm import get_posts, get_stats
     posts = get_posts(published_only=True, limit=20)
     stats = get_stats()
-    return templates.TemplateResponse("blog.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "blog.html", {
         "posts": posts,
         "stats": stats,
         "VERSION": config.VERSION,
@@ -2835,8 +2842,7 @@ def blog_post_page(request: Request, slug: str):
         raise HTTPException(status_code=404, detail="Post not found")
     from core.seo_blog_farm import get_posts
     related = get_posts(published_only=True, limit=3)
-    return templates.TemplateResponse("blog_post.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "blog_post.html", {
         "post": post,
         "related": related,
         "VERSION": config.VERSION,
@@ -2845,7 +2851,7 @@ def blog_post_page(request: Request, slug: str):
 @app.get("/privacy", response_class=HTMLResponse)
 def privacy_page(request: Request):
     """Privacy Policy page"""
-    return templates.TemplateResponse("privacy.html", {"request": request})
+    return templates.TemplateResponse(request, "privacy.html", {})
 
 @app.get("/trust", response_class=HTMLResponse)
 def trust_page(request: Request):
@@ -2866,18 +2872,18 @@ def war_room_redirect(request: Request):
 @app.get("/compare", response_class=HTMLResponse)
 def compare_page(request: Request):
     """Competitor comparison page — SEO gold for alternative searches."""
-    return templates.TemplateResponse("compare.html", {"request": request, "VERSION": config.VERSION})
+    return templates.TemplateResponse(request, "compare.html", {"VERSION": config.VERSION})
 
 @app.get("/chrome-extension", response_class=HTMLResponse)
 def chrome_extension_page(request: Request):
     """Chrome extension landing page."""
-    return templates.TemplateResponse("chromeext.html", {"request": request, "VERSION": config.VERSION})
+    return templates.TemplateResponse(request, "chromeext.html", {"VERSION": config.VERSION})
 
 
 @app.get("/terms", response_class=HTMLResponse)
 def terms_page(request: Request):
     """Terms of Service page"""
-    return templates.TemplateResponse("terms.html", {"request": request})
+    return templates.TemplateResponse(request, "terms.html", {})
 
 @app.get("/refund", response_class=HTMLResponse)
 def refund_page(request: Request):
@@ -3050,7 +3056,7 @@ Sitemap: {site}/sitemap.xml"""
 @app.get("/track-application", response_class=HTMLResponse)
 def track_application_page(request: Request):
     """Track application by tracking code"""
-    return templates.TemplateResponse("track_application.html", {"request": request})
+    return templates.TemplateResponse(request, "track_application.html", {})
 
 @app.get("/contact", response_class=HTMLResponse)
 def contact_page(request: Request):
@@ -3117,7 +3123,7 @@ def register_page(request: Request, ref: str = ""):
     return templates.TemplateResponse(request, "register_v2.html", {
         "ref": ref,
         "VERSION": config.VERSION,
-        "turnstile_site_key": getattr(config, "TURNSTILE_SITE_KEY", "1x00000000000000000000AA")
+        "turnstile_site_key": getattr(config, "TURNSTILE_SITE_KEY", "") or "1x00000000000000000000AA"
     })
 
 @app.post("/register")
@@ -3419,7 +3425,7 @@ def google_callback(code: str = None, error: str = None):
     
     conn.close()
     
-    response = RedirectResponse("/dashboard", status_code=303)
+    response = RedirectResponse("/user-dashboard", status_code=303)
     response.set_cookie("user_id", session_serializer.dumps(user_id), httponly=True, samesite="lax", max_age=86400*30)
     return response
 
@@ -3561,7 +3567,7 @@ def microsoft_callback(code: str = None, error: str = None):
     
     conn.close()
     
-    response = RedirectResponse("/dashboard", status_code=303)
+    response = RedirectResponse("/user-dashboard", status_code=303)
     response.set_cookie("user_id", session_serializer.dumps(user_id), httponly=True, samesite="lax", max_age=86400*30)
     return response
 
@@ -3646,7 +3652,7 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
     except Exception:
         pass
 
-    response = RedirectResponse("/dashboard", status_code=303)
+    response = RedirectResponse("/user-dashboard", status_code=303)
     response.set_cookie("user_id", session_serializer.dumps(user["user_id"]),
         httponly=True, samesite="lax", max_age=86400*30)
     return response
@@ -4496,8 +4502,7 @@ def view_interview_prep(request: Request, email_id: int):
         
     email_data = dict(row)
     
-    return templates.TemplateResponse("interview_prep.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "interview_prep.html", {
         "campaign_id": email_data.get("campaign_id", ""),
         "company": email_data.get("company_name", ""),
         "job_title": email_data.get("job_title", ""),
@@ -6419,8 +6424,8 @@ def admin_analytics(req: Request):
         else:
             top_countries = []
 
-        return templates.TemplateResponse("admin_analytics.html", {
-            "request": req, "total_revenue": total_revenue,
+        return templates.TemplateResponse(req, "admin_analytics.html", {
+            "total_revenue": total_revenue,
             "total_users": total_users, "active_campaigns": active_campaigns,
             "emails_today": emails_today, "revenue_growth": revenue_growth,
             "user_growth": user_growth, "campaign_pct": campaign_pct,
@@ -6606,7 +6611,8 @@ def email_test_send(request: Request, to_email: str = Form(...), company_name: s
     from core.campaign_runner import run_campaign
     ok = send_email_via_brevo_http(to_email=to_email, company_name=company_name, job_title=job_title, custom_body=html, sender_name=sender_name, subject=subject)
     if not ok:
-        ok = send_email_via_gmail_smtp(to_email=to_email, company_name=company_name, job_title=job_title, custom_body=html, sender_name=sender_name, subject=subject)
+        res = send_email_via_gmail_smtp(to_email=to_email, company_name=company_name, job_title=job_title, custom_body=html, sender_name=sender_name, subject=subject)
+        ok = res[0] if isinstance(res, tuple) else res
     conn = get_db()
     try:
         conn.execute("CREATE TABLE IF NOT EXISTS email_tests (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, to_email TEXT, company_name TEXT, job_title TEXT, status TEXT, sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
@@ -11593,6 +11599,34 @@ app.include_router(frontend_router)
 
 
 # -- GHA Matrix: AI Analysis endpoints --
+def verify_system_key(request: Request):
+    """Verify that the request has the correct CRON_SECRET or session admin privileges."""
+    key = request.query_params.get("key") or request.headers.get("X-Cron-Secret") or request.headers.get("x-cron-secret")
+    expected_key = os.getenv("CRON_SECRET", "")
+    if expected_key and key == expected_key:
+        return True
+        
+    try:
+        user_id = get_verified_user_id(request)
+        if user_id:
+            conn = get_db()
+            try:
+                user_row = conn.execute("SELECT email, user_type FROM users WHERE user_id = ?", (user_id,)).fetchone()
+                if user_row:
+                    email = user_row["email"]
+                    user_type = user_row["user_type"]
+                    if user_type == "admin" or is_admin_email(email):
+                        return True
+            except Exception:
+                pass
+            finally:
+                conn.close()
+    except Exception:
+        pass
+            
+    raise HTTPException(status_code=403, detail="Forbidden: Unauthorized access to system API")
+
+
 @app.get('/api/jobs/unscored')
 async def jobs_unscored(request: Request, limit: int = 100):
     import hashlib
@@ -11730,8 +11764,9 @@ async def cloud_tick_status():
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/api/multi-tenant/status")
-async def multi_tenant_status():
+async def multi_tenant_status(request: Request):
     """Get all tenants and their stats."""
+    verify_system_key(request)
     try:
         from core.multi_tenant import TenantManager
         return TenantManager.list_tenants()
@@ -11742,8 +11777,9 @@ async def multi_tenant_status():
 
 
 @app.get("/api/multi-tenant/rita")
-async def rita_status():
+async def rita_status(request: Request):
     """Get Rita's profile and stats."""
+    verify_system_key(request)
     try:
         from core.multi_tenant import TenantManager
         return TenantManager.get_tenant_stats("ritacordahi2@gmail.com")
@@ -11754,8 +11790,9 @@ async def rita_status():
 
 
 @app.post("/api/system/seed-companies")
-async def seed_companies():
+async def seed_companies(request: Request):
     """Seed Lebanon company database on PA."""
+    verify_system_key(request)
     try:
         from core.lebanon_company_seeder import seed_all_companies
         result = seed_all_companies()
@@ -11765,7 +11802,8 @@ async def seed_companies():
 
 
 @app.get("/api/system/companies-count")
-async def companies_count():
+async def companies_count(request: Request):
+    verify_system_key(request)
     try:
         from core.lebanon_company_seeder import get_companies_count
         return get_companies_count()
@@ -11774,17 +11812,19 @@ async def companies_count():
 
 
 @app.post("/api/system/force-rita-campaign")
-async def force_rita_campaign():
+async def force_rita_campaign(request: Request):
+    verify_system_key(request)
     try:
-        from scripts.force_rita_campaign import force_rita_campaign
-        return force_rita_campaign()
+        from scripts.force_rita_campaign import force_rita_campaign as frc
+        return frc()
     except Exception as e:
         return {"status": "error", "error": str(e)}
 
 
 @app.post("/api/system/force-reset-all")
-async def force_reset_all():
+async def force_reset_all(request: Request):
     """Reset ALL completed campaigns to pending for both tenants."""
+    verify_system_key(request)
     try:
         from scripts.force_reset_all import force_reset_all_campaigns
         return force_reset_all_campaigns()
@@ -11795,6 +11835,7 @@ async def force_reset_all():
 @app.post("/api/multi-tenant/add-tenant")
 async def add_tenant(request: Request):
     """Add a new tenant via API."""
+    verify_system_key(request)
     try:
         from core.multi_tenant import TenantManager
         data = await request.json()
@@ -11819,12 +11860,13 @@ async def add_tenant(request: Request):
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/api/system/status")
-async def system_status():
+async def system_status(request: Request):
     """
     Full system status — RAM, CPU, running campaigns, SMTP health, API keys.
     Uses auto_heal.get_system_health_snapshot() for comprehensive health view.
     Designed for monitoring dashboards and hourly Telegram summaries.
     """
+    verify_system_key(request)
     try:
         snapshot = _autoheal.get_system_health_snapshot()
     except Exception as e:
@@ -11851,6 +11893,7 @@ async def trigger_auto_heal(request: Request):
     Runs all heal checks: stuck campaigns, dead locks, SMTP rotation,
     RAM check, Groq API health.
     """
+    verify_system_key(request)
     try:
         data = await request.json()
     except Exception:

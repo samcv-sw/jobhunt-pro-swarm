@@ -7,7 +7,10 @@ import logging
 import os
 import random
 import time
-import sqlite3
+if os.getenv("FORCE_PG") == "1" or os.getenv("CLOUD_MODE") == "true":
+    import core.pg_sqlite_shim as sqlite3
+else:
+    import sqlite3
 import pathlib
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, List, Tuple

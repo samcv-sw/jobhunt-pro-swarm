@@ -1106,17 +1106,7 @@ body{
 .hero-stats-strip .stat-item:nth-child(5){animation-delay:0.5s}
 </style>
 
-</head>
-<body class="cyberpunk-body">
 
-<!-- COOKIE CONSENT BANNER -->
-<div class="cookie-banner" id="cookieBanner">
- <div class="cookie-content">
-  <span>&#x1f36a;</span>
-  <p>We use essential cookies to keep JobHunt Pro running. By using our site, you agree to our <a href="/privacy">Privacy Policy</a>.</p>
-  <button class="btn" onclick="acceptCookies()">Got it &#x2713;</button>
- </div>
-</div>
 <style>
 .cookie-banner{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,25,0.97);border-top:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px 24px;backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
 .cookie-content{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
@@ -1128,6 +1118,93 @@ body{
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @media(max-width:600px){.cookie-content{text-align:center}}
 </style>
+<style>
+.guarantee-badge-section{padding:0 24px 40px;display:flex;justify-content:center;position:relative;z-index:2}
+.guarantee-badge{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(0,240,255,0.08),rgba(0,240,255,0.02));border:1px solid rgba(0,240,255,0.2);border-radius:20px;padding:20px 32px;max-width:700px;width:100%;backdrop-filter:blur(10px);animation:guaranteePulse 2s ease-in-out infinite}
+.guarantee-icon{font-size:32px;flex-shrink:0}
+.guarantee-text{display:flex;flex-direction:column;gap:4px;flex:1}
+.guarantee-text strong{font-size:16px;color:var(--cyan);letter-spacing:-0.3px}
+.guarantee-text span{font-size:13px;color:var(--muted)}
+.guarantee-seal{flex-shrink:0;opacity:0.8}
+@keyframes guaranteePulse{0%,100%{box-shadow:0 0 20px rgba(0,240,255,0.1)}50%{box-shadow:0 0 35px rgba(0,240,255,0.2)}}
+@media(max-width:600px){.guarantee-badge{flex-direction:column;text-align:center;padding:16px 20px}}
+</style>
+<style>
+.ats-checker{padding:80px 24px;position:relative;z-index:2;max-width:1100px;margin:0 auto}
+.ats-demo{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:40px;align-items:start}
+.ats-upload-zone{background:var(--glass);border:2px dashed rgba(0,240,255,0.2);border-radius:20px;padding:40px 30px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;transition:all var(--transition);cursor:pointer}
+.ats-upload-zone:hover{border-color:var(--cyan);background:rgba(0,240,255,0.03);box-shadow:var(--glow-cyan)}
+.ats-upload-icon{font-size:48px;opacity:0.7}
+.ats-upload-zone p{font-size:15px;color:#fff;font-weight:500}
+.ats-upload-zone span{font-size:12px;color:var(--dim)}
+.ats-scan-btn{display:inline-block;margin-top:8px;padding:12px 28px;background:var(--cyan);color:#000;border-radius:28px;font-weight:700;font-size:14px;text-decoration:none;transition:all var(--transition)}
+.ats-scan-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,240,255,0.3)}
+.ats-score-preview{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px}
+.ats-score-circle{width:120px;height:120px;margin:0 auto 16px;position:relative}
+.ats-score-circle svg{position:absolute;top:0;left:0}
+.ats-score-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;line-height:1}
+.ats-score-num{font-size:36px;font-weight:900;color:#fff}
+.ats-score-total{font-size:14px;color:var(--muted)}
+.ats-sample-label{text-align:center;font-size:13px;color:var(--muted);margin-bottom:20px;font-style:italic}
+.ats-breakdown{display:flex;flex-direction:column;gap:10px}
+.ats-row{display:flex;justify-content:space-between;font-size:14px;padding:8px 12px;background:var(--glass2);border-radius:8px}
+@media(max-width:768px){.ats-demo{grid-template-columns:1fr}}
+</style>
+<style>
+.referral-section{padding:80px 24px;position:relative;z-index:2;max-width:1100px;margin:0 auto}
+.referral-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:40px}
+.ref-step{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px 20px;text-align:center;transition:all var(--transition)}
+.ref-step:hover{border-color:rgba(255,179,0,0.3);transform:translateY(-4px);box-shadow:var(--glow-gold)}
+.ref-num{font-size:36px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.ref-step h4{font-size:15px;color:#fff;margin-bottom:6px}
+.ref-step p{font-size:12px;color:var(--muted)}
+@media(max-width:768px){.referral-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.referral-grid{grid-template-columns:1fr}}
+</style>
+<style>
+.social-toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.social-toast{background:rgba(10,10,20,0.95);border:1px solid rgba(0,240,255,0.2);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 20px rgba(0,240,255,0.08);animation:toastSlideIn 0.5s ease-out;transition:all 0.5s ease-out;max-width:320px;pointer-events:auto}
+.toast-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--magenta));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.toast-body{font-size:12px;color:var(--muted);line-height:1.4}
+.toast-body strong{color:#fff}
+@keyframes toastSlideIn{from{opacity:0;transform:translateX(120%)}to{opacity:1;transform:translateX(0)}}
+@media(max-width:600px){.social-toast-container{bottom:12px;right:8px;left:8px}.social-toast{max-width:100%}}
+</style>
+<style>
+.exit-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
+.exit-overlay.show{display:flex;animation:fadeIn 0.3s ease-out}
+.exit-popup{background:linear-gradient(135deg,rgba(15,15,30,0.98),rgba(10,10,25,0.98));border:1px solid rgba(0,240,255,0.2);border-radius:24px;padding:40px 32px;max-width:520px;width:100%;text-align:center;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,240,255,0.06)}
+.exit-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--muted);font-size:28px;cursor:pointer;line-height:1}
+.exit-close:hover{color:#fff}
+.exit-icon{font-size:48px;margin-bottom:16px}
+.exit-popup h3{font-family:'Space Grotesk',sans-serif;font-size:22px;color:#fff;margin-bottom:10px;letter-spacing:-0.5px}
+.exit-popup p{color:var(--muted);font-size:14px;line-height:1.5;margin-bottom:20px}
+.exit-value-props{display:flex;flex-direction:column;gap:6px;margin-bottom:24px}
+.exit-value-props span{font-size:13px;color:var(--green)}
+.exit-cta{display:inline-block;padding:14px 36px;background:linear-gradient(135deg,var(--cyan),#00b8ff);color:#000;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;transition:all var(--transition)}
+.exit-cta:hover{transform:translateY(-2px);box-shadow:0 10px 35px rgba(0,240,255,0.4)}
+.exit-footnote{font-size:11px;color:var(--dim);margin-top:16px}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+</style>
+<style>
+.mobile-cta-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;padding:10px 16px;background:rgba(10,10,25,0.95);border-top:1px solid rgba(0,240,255,0.1);backdrop-filter:blur(12px)}
+.mobile-cta-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,var(--cyan),#00b8ff);color:#000;text-align:center;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;animation:ctaPulse 2s ease-in-out infinite}
+@keyframes ctaPulse{0%,100%{box-shadow:0 0 15px rgba(0,240,255,0.15)}50%{box-shadow:0 0 30px rgba(0,240,255,0.3)}}
+@media(max-width:768px){.mobile-cta-bar{display:block}}
+</style>
+</head>
+
+<body class="cyberpunk-body">
+
+<!-- COOKIE CONSENT BANNER -->
+<div class="cookie-banner" id="cookieBanner">
+ <div class="cookie-content">
+  <span>&#x1f36a;</span>
+  <p>We use essential cookies to keep JobHunt Pro running. By using our site, you agree to our <a href="/privacy">Privacy Policy</a>.</p>
+  <button class="btn" onclick="acceptCookies()">Got it &#x2713;</button>
+ </div>
+</div>
+
 <script>
 function acceptCookies(){document.getElementById('cookieBanner').style.display='none';localStorage.setItem('cookiesAccepted','1');}
 if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanner').style.display='none';}
@@ -1188,17 +1265,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   </div>
  </div>
 </section>
-<style>
-.guarantee-badge-section{padding:0 24px 40px;display:flex;justify-content:center;position:relative;z-index:2}
-.guarantee-badge{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(0,240,255,0.08),rgba(0,240,255,0.02));border:1px solid rgba(0,240,255,0.2);border-radius:20px;padding:20px 32px;max-width:700px;width:100%;backdrop-filter:blur(10px);animation:guaranteePulse 2s ease-in-out infinite}
-.guarantee-icon{font-size:32px;flex-shrink:0}
-.guarantee-text{display:flex;flex-direction:column;gap:4px;flex:1}
-.guarantee-text strong{font-size:16px;color:var(--cyan);letter-spacing:-0.3px}
-.guarantee-text span{font-size:13px;color:var(--muted)}
-.guarantee-seal{flex-shrink:0;opacity:0.8}
-@keyframes guaranteePulse{0%,100%{box-shadow:0 0 20px rgba(0,240,255,0.1)}50%{box-shadow:0 0 35px rgba(0,240,255,0.2)}}
-@media(max-width:600px){.guarantee-badge{flex-direction:column;text-align:center;padding:16px 20px}}
-</style>
+
 
 
 <!-- ═══ INTEGRATIONS BAR (Real Platforms We Connect To) ═══ -->
@@ -1416,27 +1483,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   </div>
  </div>
 </section>
-<style>
-.ats-checker{padding:80px 24px;position:relative;z-index:2;max-width:1100px;margin:0 auto}
-.ats-demo{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:40px;align-items:start}
-.ats-upload-zone{background:var(--glass);border:2px dashed rgba(0,240,255,0.2);border-radius:20px;padding:40px 30px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;transition:all var(--transition);cursor:pointer}
-.ats-upload-zone:hover{border-color:var(--cyan);background:rgba(0,240,255,0.03);box-shadow:var(--glow-cyan)}
-.ats-upload-icon{font-size:48px;opacity:0.7}
-.ats-upload-zone p{font-size:15px;color:#fff;font-weight:500}
-.ats-upload-zone span{font-size:12px;color:var(--dim)}
-.ats-scan-btn{display:inline-block;margin-top:8px;padding:12px 28px;background:var(--cyan);color:#000;border-radius:28px;font-weight:700;font-size:14px;text-decoration:none;transition:all var(--transition)}
-.ats-scan-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,240,255,0.3)}
-.ats-score-preview{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px}
-.ats-score-circle{width:120px;height:120px;margin:0 auto 16px;position:relative}
-.ats-score-circle svg{position:absolute;top:0;left:0}
-.ats-score-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;line-height:1}
-.ats-score-num{font-size:36px;font-weight:900;color:#fff}
-.ats-score-total{font-size:14px;color:var(--muted)}
-.ats-sample-label{text-align:center;font-size:13px;color:var(--muted);margin-bottom:20px;font-style:italic}
-.ats-breakdown{display:flex;flex-direction:column;gap:10px}
-.ats-row{display:flex;justify-content:space-between;font-size:14px;padding:8px 12px;background:var(--glass2);border-radius:8px}
-@media(max-width:768px){.ats-demo{grid-template-columns:1fr}}
-</style>
+
 
 <!-- ═══ COMPETITOR COMPARISON TABLE ═══ -->
 <section class="comparison">
@@ -2020,17 +2067,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   <a href="/register" class="primary" style="display:inline-block">&#x1f517; Get Your Referral Link — Free</a>
  </div>
 </section>
-<style>
-.referral-section{padding:80px 24px;position:relative;z-index:2;max-width:1100px;margin:0 auto}
-.referral-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:40px}
-.ref-step{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px 20px;text-align:center;transition:all var(--transition)}
-.ref-step:hover{border-color:rgba(255,179,0,0.3);transform:translateY(-4px);box-shadow:var(--glow-gold)}
-.ref-num{font-size:36px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
-.ref-step h4{font-size:15px;color:#fff;margin-bottom:6px}
-.ref-step p{font-size:12px;color:var(--muted)}
-@media(max-width:768px){.referral-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:480px){.referral-grid{grid-template-columns:1fr}}
-</style>
+
 
 <!-- ═══ FINAL CTA ═══ -->
 <section class="final-cta">
@@ -2376,15 +2413,7 @@ function toggleFaq(item){
  setTimeout(showToast, 12000);
 })();
 </script>
-<style>
-.social-toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
-.social-toast{background:rgba(10,10,20,0.95);border:1px solid rgba(0,240,255,0.2);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 20px rgba(0,240,255,0.08);animation:toastSlideIn 0.5s ease-out;transition:all 0.5s ease-out;max-width:320px;pointer-events:auto}
-.toast-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--magenta));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
-.toast-body{font-size:12px;color:var(--muted);line-height:1.4}
-.toast-body strong{color:#fff}
-@keyframes toastSlideIn{from{opacity:0;transform:translateX(120%)}to{opacity:1;transform:translateX(0)}}
-@media(max-width:600px){.social-toast-container{bottom:12px;right:8px;left:8px}.social-toast{max-width:100%}}
-</style>
+
 
 
 <!-- EXIT-INTENT POPUP -->
@@ -2403,22 +2432,7 @@ function toggleFaq(item){
   <p class="exit-footnote">Trusted by professionals in 50+ countries</p>
  </div>
 </div>
-<style>
-.exit-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
-.exit-overlay.show{display:flex;animation:fadeIn 0.3s ease-out}
-.exit-popup{background:linear-gradient(135deg,rgba(15,15,30,0.98),rgba(10,10,25,0.98));border:1px solid rgba(0,240,255,0.2);border-radius:24px;padding:40px 32px;max-width:520px;width:100%;text-align:center;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,240,255,0.06)}
-.exit-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--muted);font-size:28px;cursor:pointer;line-height:1}
-.exit-close:hover{color:#fff}
-.exit-icon{font-size:48px;margin-bottom:16px}
-.exit-popup h3{font-family:'Space Grotesk',sans-serif;font-size:22px;color:#fff;margin-bottom:10px;letter-spacing:-0.5px}
-.exit-popup p{color:var(--muted);font-size:14px;line-height:1.5;margin-bottom:20px}
-.exit-value-props{display:flex;flex-direction:column;gap:6px;margin-bottom:24px}
-.exit-value-props span{font-size:13px;color:var(--green)}
-.exit-cta{display:inline-block;padding:14px 36px;background:linear-gradient(135deg,var(--cyan),#00b8ff);color:#000;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;transition:all var(--transition)}
-.exit-cta:hover{transform:translateY(-2px);box-shadow:0 10px 35px rgba(0,240,255,0.4)}
-.exit-footnote{font-size:11px;color:var(--dim);margin-top:16px}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-</style>
+
 <script>
 (function(){
  let exitShown = false;
@@ -2465,12 +2479,7 @@ function toggleFaq(item){
 <div class="mobile-cta-bar" id="mobileCtaBar">
  <a href="/register" class="mobile-cta-btn">&#x1f680; Start Applying Free</a>
 </div>
-<style>
-.mobile-cta-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;padding:10px 16px;background:rgba(10,10,25,0.95);border-top:1px solid rgba(0,240,255,0.1);backdrop-filter:blur(12px)}
-.mobile-cta-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,var(--cyan),#00b8ff);color:#000;text-align:center;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;animation:ctaPulse 2s ease-in-out infinite}
-@keyframes ctaPulse{0%,100%{box-shadow:0 0 15px rgba(0,240,255,0.15)}50%{box-shadow:0 0 30px rgba(0,240,255,0.3)}}
-@media(max-width:768px){.mobile-cta-bar{display:block}}
-</style>
+
 
   <script>
     if ('serviceWorker' in navigator) {

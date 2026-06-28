@@ -770,6 +770,52 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
         result["errors"].append(f"DB pruning: {e}")
         logger.error(f"DB pruning error: {e}")
 
+    # 7. Scraper Source Circuit-Breaker Health
+    try:
+        from core.pa_job_scraper import (
+            _SOURCE_FAILURES, _SOURCE_DISABLED_UNTIL
+        )
+        now = time.time()
+        total_sources = 10  # total scraper sources in pa_job_scraper v4
+        tripped = {
+            src: until
+            for src, until in _SOURCE_DISABLED_UNTIL.items()
+            if until > now
+        }
+        result["scraper_circuits_tripped"] = list(tripped.keys())
+        if tripped:
+            remaining_sec = {src: int(until - now) for src, until in tripped.items()}
+            logger.warning(
+                f"[AutoHeal] Scraper circuit-breakers OPEN: {list(tripped.keys())} "
+                f"({len(tripped)}/{total_sources} sources down)"
+            )
+            # Telegram alert only if majority (>=50%) of sources are tripped
+            if len(tripped) >= total_sources // 2:
+                await _telegram_alert(
+                    f"\u26a0\ufe0f <b>SCRAPER HEALTH ALERT</b>\n\n"
+                    f"<b>{len(tripped)}/{total_sources}</b> job sources in circuit-breaker cooldown.\n"
+                    + "\n".join(
+                        f"  \u2022 <code>{src}</code>: recovers in {sec}s"
+                        for src, sec in remaining_sec.items()
+                    )
+                    + "\n\n<i>Will auto-recover when cooldown expires.</i>"
+                )
+                result["alerts_sent"].append("scraper_circuit_open")
+                _save_history({"action": "scraper_circuit_alert", "tripped": list(tripped.keys())})
+            # Force-reset circuits if ALL sources are simultaneously tripped (total deadlock)
+            if len(tripped) >= total_sources:
+                logger.critical("[AutoHeal] ALL scraper sources tripped — force-resetting all circuits!")
+                _SOURCE_DISABLED_UNTIL.clear()
+                _SOURCE_FAILURES.clear()
+                with _state_lock:
+                    _heal_state["heals_applied"] += 1
+                _save_history({"action": "scraper_circuit_force_reset"})
+        else:
+            result["scraper_circuits_tripped"] = []
+    except Exception as e:
+        result["errors"].append(f"Scraper circuit check: {e}")
+        logger.debug(f"Scraper circuit check skipped: {e}")
+
     # Explicit garbage collection to release memory back to OS in memory-constrained cloud environments
     gc.collect()
 
@@ -917,6 +963,20 @@ def get_system_health_snapshot() -> Dict[str, Any]:
     # PA config
     pa_configured = bool(os.getenv("PA_API_TOKEN", ""))
     
+    # Scraper circuit-breaker states
+    scraper_circuits = {}
+    try:
+        from core.pa_job_scraper import _SOURCE_DISABLED_UNTIL
+        now = time.time()
+        for src, until in _SOURCE_DISABLED_UNTIL.items():
+            if until > now:
+                scraper_circuits[src] = {
+                    "healthy": False,
+                    "cooldown_remaining_seconds": int(until - now)
+                }
+    except Exception:
+        pass
+
     return {
         "status": "ok",
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -940,6 +1000,7 @@ def get_system_health_snapshot() -> Dict[str, Any]:
             "pa_api": pa_configured,
             "smtp": smtp_configured,
         },
+        "scraper_circuits": scraper_circuits,
         "auto_heal": get_heal_state(),
     }
 

@@ -538,6 +538,36 @@ class ATSMatcher:
 #  Groq AI Enhanced Analysis
 # ═══════════════════════════════════════════════════════════════════════════════
 
+_llm_pool = None
+
+def _get_llm_pool():
+    global _llm_pool
+    if _llm_pool is None:
+        try:
+            from core.llm_provider_pool import LLMProviderPool
+            _llm_pool = LLMProviderPool().initialize()
+        except Exception as e:
+            logger.warning(f"Failed to initialize LLMProviderPool in ats_matcher: {e}")
+    return _llm_pool
+
+
+def _run_async(coro):
+    """Run an async coroutine from a synchronous context safely."""
+    import asyncio
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+
+    if loop and loop.is_running():
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(asyncio.run, coro)
+            return future.result()
+    else:
+        return asyncio.run(coro)
+
+
 def analyze_with_groq(
     resume_text: str,
     jd_text: str,
@@ -545,19 +575,20 @@ def analyze_with_groq(
     model: str = "mixtral-8x7b-32768",
 ) -> Dict:
     """
-    Use Groq AI for deep ATS analysis. Enhances keyword matching with
+    Use LLM Provider Pool for deep ATS analysis. Enhances keyword matching with
     semantic understanding, format critique, and nuanced scoring.
-
-    Args:
-        resume_text: Full resume text (automatically truncated to 3000 chars)
-        jd_text: Full job description text (automatically truncated to 3000 chars)
-        groq_key: Groq API key
-        model: Groq model to use
-
-    Returns:
-        Dict with match_percent, missing_skills, matched_skills,
-        ats_score, improvement_tips, format_issues
+    Falls back to legacy direct Groq call if pool fails.
     """
+    return _run_async(analyze_with_groq_async(resume_text, jd_text, groq_key, model))
+
+
+async def analyze_with_groq_async(
+    resume_text: str,
+    jd_text: str,
+    groq_key: str = DEFAULT_GROQ_KEY,
+    model: str = "mixtral-8x7b-32768",
+) -> Dict:
+    """Async version of analyze_with_groq using LLMProviderPool with legacy Groq fallback."""
     prompt = f"""You are an ATS (Applicant Tracking System) expert. Analyze this resume vs job description.
 
 RESUME:
@@ -576,82 +607,49 @@ Return JSON ONLY (no markdown, no code fences, no extra text):
   "format_issues": ["issue1"]
 }}
 """
+    # 1. Try rotating LLM Provider Pool first
+    pool = _get_llm_pool()
+    if pool:
+        try:
+            content = await pool.complete(
+                system_prompt="You are an ATS expert. Answer in JSON only.",
+                user_prompt=prompt,
+                temperature=0.1,
+                max_tokens=1000
+            )
+            if content:
+                json_match = re.search(r'\{.*\}', content, re.DOTALL)
+                if json_match:
+                    return json.loads(json_match.group())
+        except Exception as pool_err:
+            logger.warning(f"[ATS-Pool] Pool completion failed: {pool_err}. Falling back to direct Groq...")
 
-    try:
-        client = _get_sync_client()
-        resp = client.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {groq_key}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": model,
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.1,
-                "max_tokens": 1000,
-            },
-        )
-        if resp.status_code == 200:
-            content = resp.json()["choices"][0]["message"]["content"]
-            json_match = re.search(r'\{.*\}', content, re.DOTALL)
-            if json_match:
-                return json.loads(json_match.group())
-        else:
-            logger.warning(f"[ATS-Groq] API returned {resp.status_code}: {resp.text[:200]}")
-    except Exception as e:
-        logger.error(f"[ATS-Groq] Error during sync analysis: {e}")
-
-    return {}
-
-
-async def analyze_with_groq_async(
-    resume_text: str,
-    jd_text: str,
-    groq_key: str = DEFAULT_GROQ_KEY,
-    model: str = "mixtral-8x7b-32768",
-) -> Dict:
-    """Async version of analyze_with_groq."""
-    prompt = f"""You are an ATS expert. Analyze resume vs job description.
-
-RESUME:
-{resume_text[:3000]}
-
-JOB DESCRIPTION:
-{jd_text[:3000]}
-
-Return JSON ONLY:
-{{
-  "match_percent": <0-100>,
-  "missing_skills": ["skill1", "skill2"],
-  "matched_skills": ["skill1", "skill2"],
-  "ats_score": <0-100>,
-  "improvement_tips": ["tip1", "tip2"],
-  "format_issues": ["issue1"]
-}}
-"""
-    try:
-        client = _get_async_client()
-        resp = await client.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {groq_key}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": model,
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.1,
-                "max_tokens": 1000,
-            },
-        )
-        if resp.status_code == 200:
-            content = resp.json()["choices"][0]["message"]["content"]
-            json_match = re.search(r'\{.*\}', content, re.DOTALL)
-            if json_match:
-                return json.loads(json_match.group())
-    except Exception as e:
-        logger.error(f"[ATS-Groq] Async error: {e}")
+    # 2. Legacy Fallback: Direct Groq API call
+    if groq_key:
+        try:
+            client = _get_async_client()
+            resp = await client.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {groq_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": model,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "temperature": 0.1,
+                    "max_tokens": 1000,
+                },
+            )
+            if resp.status_code == 200:
+                content = resp.json()["choices"][0]["message"]["content"]
+                json_match = re.search(r'\{.*\}', content, re.DOTALL)
+                if json_match:
+                    return json.loads(json_match.group())
+            else:
+                logger.warning(f"[ATS-Groq] API returned {resp.status_code}: {resp.text[:200]}")
+        except Exception as e:
+            logger.error(f"[ATS-Groq] Async error: {e}")
 
     return {}
 

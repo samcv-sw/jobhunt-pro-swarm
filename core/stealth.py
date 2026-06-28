@@ -9,12 +9,15 @@ import hashlib
 import re
 from typing import Dict, List, Optional
 import logging
+import asyncio
+import inspect
+import requests
+import httpx
 
 try:
     from curl_cffi import requests as cffi_requests
     HAS_CFFI = True
 except ImportError:
-    import httpx
     HAS_CFFI = False
 
 logger = logging.getLogger(__name__)
@@ -39,7 +42,6 @@ class StealthScraper:
         try:
             logger.info("[GHOST PROXY] Fetching fresh proxies from global network...")
             # Using multiple zero-investment proxy sources
-            import requests
             res = requests.get("https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=elite")
             if res.status_code == 200:
                 self.proxies = [p.strip() for p in res.text.split("\n") if p.strip()]
@@ -53,7 +55,6 @@ class StealthScraper:
     def get_random_proxy(self) -> Optional[str]:
         proxies = self._fetch_free_proxies()
         if proxies:
-            import random
             return f"http://{random.choice(proxies)}"
         return None
     
@@ -185,7 +186,6 @@ class StealthScraper:
             min_delay = 1.0
             if elapsed < min_delay:
                 delay = min_delay - elapsed + random.uniform(0.1, 0.5)
-                import asyncio
                 await asyncio.sleep(delay)
         
         self.last_request_time = time.time()
@@ -214,8 +214,6 @@ class StealthScraper:
             return cffi_requests.AsyncSession(impersonate="chrome120", timeout=timeout, proxies=proxies)
         else:
             logger.warning("[STEALTH] curl_cffi is missing! Falling back to raw httpx. Cloudflare may block you.")
-            import httpx
-            import inspect
             client_kwargs = {"timeout": timeout, "follow_redirects": follow_redirects}
             if proxy:
                 sig = inspect.signature(httpx.AsyncClient.__init__)
@@ -233,8 +231,6 @@ class StealthScraper:
         if HAS_CFFI:
             return cffi_requests.Session(impersonate="chrome120", timeout=timeout, proxies=proxies)
         else:
-            import httpx
-            import inspect
             client_kwargs = {"timeout": timeout, "follow_redirects": follow_redirects}
             if proxy:
                 sig = inspect.signature(httpx.Client.__init__)
@@ -245,35 +241,41 @@ class StealthScraper:
             return httpx.Client(**client_kwargs)
 
     def get_canvas_spoofing_script(self) -> str:
-        """[RUSSIAN STEALTH] Injectable JS to spoof Canvas fingerprint"""
-        noise = random.randint(1, 5)
-        return f"""
+        """[RUSSIAN STEALTH] Injectable JS to spoof Canvas fingerprint with non-deterministic subpixel noise"""
+        return """
         const originalGetContext = HTMLCanvasElement.prototype.getContext;
-        HTMLCanvasElement.prototype.getContext = function(type) {{
+        HTMLCanvasElement.prototype.getContext = function(type) {
             const context = originalGetContext.apply(this, arguments);
-            if (type === '2d') {{
+            if (type === '2d') {
                 const originalGetImageData = context.getImageData;
-                context.getImageData = function() {{
+                context.getImageData = function() {
                     const imageData = originalGetImageData.apply(this, arguments);
-                    for (let i = 0; i < imageData.data.length; i += 4) {{
-                        imageData.data[i] = imageData.data[i] ^ {noise};
-                    }}
+                    // Add subtle non-deterministic subpixel noise to bypass statistical XOR fingerprinting
+                    for (let i = 0; i < imageData.data.length; i += 4) {
+                        const shift = Math.random() > 0.5 ? 1 : -1;
+                        imageData.data[i] = Math.min(255, Math.max(0, imageData.data[i] + shift));
+                    }
                     return imageData;
-                }};
-            }}
+                };
+            }
             return context;
-        }};
+        };
         """
 
     def get_webgl_spoofing_script(self) -> str:
-        """[RUSSIAN STEALTH] Injectable JS to spoof WebGL vendor/renderer"""
-        vendors = ["Google Inc. (Apple)", "Intel Inc.", "AMD", "NVIDIA Corporation"]
-        renderers = ["ANGLE (Apple, Apple M1 Pro, OpenGL 4.1)", "Intel Iris OpenGL Engine", "AMD Radeon Pro 5300M OpenGL Engine", "NVIDIA GeForce RTX 4090"]
+        """[RUSSIAN STEALTH] Injectable JS to spoof WebGL vendor/renderer with matched GPU pairs"""
+        gpu_pairs = [
+            ("Google Inc. (Apple)", "ANGLE (Apple, Apple M1 Pro, OpenGL 4.1)"),
+            ("Intel Inc.", "Intel(R) Iris(R) Xe Graphics"),
+            ("NVIDIA Corporation", "NVIDIA GeForce RTX 4090"),
+            ("ATI Technologies Inc.", "AMD Radeon Pro 5300M OpenGL Engine")
+        ]
+        vendor, renderer = random.choice(gpu_pairs)
         return f"""
         const getParameter = WebGLRenderingContext.prototype.getParameter;
         WebGLRenderingContext.prototype.getParameter = function(parameter) {{
-            if (parameter === 37445) return '{random.choice(vendors)}'; // UNMASKED_VENDOR_WEBGL
-            if (parameter === 37446) return '{random.choice(renderers)}'; // UNMASKED_RENDERER_WEBGL
+            if (parameter === 37445) return '{vendor}'; // UNMASKED_VENDOR_WEBGL
+            if (parameter === 37446) return '{renderer}'; // UNMASKED_RENDERER_WEBGL
             return getParameter.apply(this, arguments);
         }};
         """
@@ -297,7 +299,6 @@ class StealthScraper:
             try:
                 logger.info(f"[STEALTH] Trying {name} UA for {url}")
                 resp = await self._fetch_with_headers(url, mobile=mobile, googlebot=googlebot, timeout=timeout)
-                import asyncio
                 await asyncio.sleep(random.uniform(0.5, 1.5))
                 
                 if resp and len(resp) > 500:
@@ -315,17 +316,17 @@ class StealthScraper:
     
     async def _fetch_with_headers(self, url: str, mobile: bool = False, googlebot: bool = False, timeout: float = 30.0) -> Optional[str]:
         """Internal fetch with specific UA profile."""
-        import httpx
         headers = self.get_headers(mobile=mobile, googlebot=googlebot)
         
         # Extra security headers for Googlebot
         if googlebot:
-            headers['X-Forwarded-For'] = '66.249.66.1'  # Google IP range
+            rand_octet3 = random.randint(64, 95)
+            rand_octet4 = random.randint(1, 254)
+            headers['X-Forwarded-For'] = f"66.249.{rand_octet3}.{rand_octet4}"  # Google IP range
             headers['Via'] = '1.1 google'
         
         async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
             # Add jitter (random delay 0.3-1.2s)
-            import asyncio
             await asyncio.sleep(random.uniform(0.3, 1.2))
             resp = await client.get(url, headers=headers)
             
@@ -340,7 +341,6 @@ class StealthScraper:
     
     async def fetch_google_cache(self, url: str, timeout: float = 30.0) -> Optional[str]:
         """Fetch page from Google Cache (bypasses Cloudflare entirely)."""
-        import httpx
         cache_url = f"https://webcache.googleusercontent.com/search?q=cache:{url}"
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',

@@ -8,6 +8,7 @@ import re
 from typing import Dict, Tuple, Optional
 from dataclasses import dataclass
 from enum import Enum
+import config
 
 logger = logging.getLogger(__name__)
 
@@ -49,10 +50,10 @@ Alternatively, please let me know your preferred dates and times, and I will mak
 Looking forward to speaking with you.
 
 Best regards,
-Sam Salameh
-Senior Network Engineer
-samsalameh.cv@gmail.com
-+961 71 019 053"""
+{candidate_name}
+{candidate_title}
+{candidate_email}
+{candidate_phone}"""
 
 FOLLOWUP_REPLY = """Dear Hiring Team,
 
@@ -63,7 +64,7 @@ I remain very interested in this opportunity and am available to discuss my qual
 Please let me know if you need any additional information from my end.
 
 Best regards,
-Sam Salameh"""
+{candidate_name}"""
 
 INTERVIEW_KEYWORDS = [
     "interview", "schedule", "call", "meeting", "discuss",
@@ -120,6 +121,11 @@ class ResponseParser:
         union = "|".join(r'\b' + re.escape(kw) + r'\b' for kw in keywords)
         return re.compile(union, re.IGNORECASE)
 
+    def _is_negated(self, text: str, keyword: str) -> bool:
+        """Check if a keyword is preceded by a negation word within 3 words."""
+        pattern = r"\b(not|cannot|unable|won't|don't|can't|unfortunate|unfortunately|sorry|decided not to|choose not to|stop|no longer)\s+(?:[\w']+\s+){0,3}" + re.escape(keyword)
+        return bool(re.search(pattern, text, re.IGNORECASE))
+
     def _count_matches(self, text: str, pattern: re.Pattern) -> Tuple[int, list]:
         found = pattern.findall(text)
         return len(found), found
@@ -130,6 +136,14 @@ class ResponseParser:
             text = f"{subject} {body}".lower()
 
             interview_count, interview_kw = self._count_matches(text, self.interview_patterns)
+            
+            # Negation adjustment
+            negated_count = 0
+            for kw in interview_kw:
+                if self._is_negated(text, kw):
+                    negated_count += 1
+            interview_count = max(0, interview_count - negated_count)
+
             rejection_count, rejection_kw = self._count_matches(text, self.rejection_patterns)
             offer_count, offer_kw = self._count_matches(text, self.offer_patterns)
             followup_count, followup_kw = self._count_matches(text, self.followup_patterns)
@@ -193,18 +207,33 @@ class ResponseParser:
     def _generate_reply(self, response_type: ResponseType, body: str,
                         from_email: str) -> Tuple[bool, str]:
         if response_type == ResponseType.INTERVIEW:
-            reply = CALENDLY_REPLY.format(scheduling_link=self.calendly_link)
+            reply = CALENDLY_REPLY.format(
+                scheduling_link=self.calendly_link,
+                candidate_name=config.CANDIDATE_NAME,
+                candidate_title=config.CANDIDATE_TITLE,
+                candidate_email=config.CANDIDATE_EMAIL,
+                candidate_phone=config.CANDIDATE_PHONE
+            )
             return True, reply
 
         elif response_type == ResponseType.REJECTION:
             return False, ""
 
         elif response_type == ResponseType.OFFER:
-            reply = CALENDLY_REPLY.format(scheduling_link=self.calendly_link)
+            reply = CALENDLY_REPLY.format(
+                scheduling_link=self.calendly_link,
+                candidate_name=config.CANDIDATE_NAME,
+                candidate_title=config.CANDIDATE_TITLE,
+                candidate_email=config.CANDIDATE_EMAIL,
+                candidate_phone=config.CANDIDATE_PHONE
+            )
             return True, reply
 
         elif response_type == ResponseType.FOLLOWUP:
-            return True, FOLLOWUP_REPLY
+            reply = FOLLOWUP_REPLY.format(
+                candidate_name=config.CANDIDATE_NAME
+            )
+            return True, reply
 
         elif response_type == ResponseType.AUTO_REPLY:
             return False, ""
@@ -298,21 +327,24 @@ Sam Salameh"""
         return template(company, title, days_since_application)
 
     def should_send_followup(self, days_since: int, followup_count: int,
-                              last_response_type: str) -> bool:
+                             last_response_type: str, recipient_email: str = "") -> bool:
         if last_response_type in ("interview", "offer", "rejection"):
             return False
 
         if followup_count >= 3:
             return False
 
-        if followup_count == 0 and days_since >= 4:
-            return True
-        elif followup_count == 1 and days_since >= 7:
-            return True
-        elif followup_count == 2 and days_since >= 14:
-            return True
+        # Add a stable, randomized jitter (0 to 2 days) based on recipient email
+        import hashlib
+        jitter = 0
+        if recipient_email:
+            h = int(hashlib.md5(recipient_email.lower().strip().encode()).hexdigest(), 16)
+            jitter = h % 3  # 0, 1, or 2 days
 
-        return False
+        target_days = [4, 7, 14]
+        required_days = target_days[min(followup_count, len(target_days) - 1)] + jitter
+
+        return days_since >= required_days
 
 
 parser = ResponseParser()
