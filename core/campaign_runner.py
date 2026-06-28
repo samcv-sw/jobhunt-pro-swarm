@@ -23,6 +23,7 @@ import httpx
 import urllib.request
 from urllib.parse import quote_plus
 from bs4 import BeautifulSoup
+from typing import Tuple, List, Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -45,19 +46,19 @@ _CACHE_FILE = os.path.join(os.path.dirname(__file__), '..', '_search_cache.json'
 _CACHE_TTL = 7200  # 2 hours
 
 
-def _load_search_cache():
+def _load_search_cache() -> Tuple[float, List[Dict[str, Any]]]:
     """Load cached jobs. Returns (timestamp, [jobs]) or (0, [])."""
     try:
         if os.path.exists(_CACHE_FILE):
             with open(_CACHE_FILE, 'r') as f:
                 data = json.load(f)
-            return data.get("ts", 0), data.get("jobs", [])
+            return data.get("ts", 0.0), data.get("jobs", [])
     except Exception:
         pass
-    return 0, []
+    return 0.0, []
 
 
-def _save_search_cache(jobs, timestamp=None):
+def _save_search_cache(jobs: List[Dict[str, Any]], timestamp: Optional[float] = None) -> None:
     """Save jobs to cache file."""
     if not jobs:
         return
@@ -71,7 +72,7 @@ def _save_search_cache(jobs, timestamp=None):
         pass
 
 
-def _cached_jobs_valid(cached_ts, cached_jobs, already_sent_companies, min_needed=10):
+def _cached_jobs_valid(cached_ts: float, cached_jobs: List[Dict[str, Any]], already_sent_companies: set, min_needed: int = 10) -> bool:
     """Check if cached jobs are fresh enough and have enough unseen results."""
     age = time.time() - cached_ts
     if age > _CACHE_TTL:
@@ -81,7 +82,7 @@ def _cached_jobs_valid(cached_ts, cached_jobs, already_sent_companies, min_neede
     return len(unseen) >= min_needed
 
 
-async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int = 0):
+async def run_campaign(campaign_id: str, get_db_fn: Any, config: Any, company_limit: int = 0) -> Dict[str, Any]:
     """Cloud-native campaign runner for PA.
     Uses BanShield v3 per-provider tracking + 15-account rotation.
     
@@ -333,7 +334,7 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
                         ("colombia", "Bogota"), ("mexico", "Mexico City"),
                     ]
                     
-                    # ── JOB TITLES (24+ titles for maximum coverage) ──
+                    # ── JOB TITLES (36+ titles for maximum coverage) ──
                     JOB_TITLES = [
                         "network engineer", "senior network engineer", "network architect",
                         "network security engineer", "cybersecurity engineer", "security engineer",
@@ -343,7 +344,13 @@ async def run_campaign(campaign_id: str, get_db_fn, config, company_limit: int =
                         "network administrator", "security analyst", "SOC analyst",
                         "solution architect", "technical support engineer", "field engineer",
                         "telecom engineer", "data center engineer", "wireless engineer",
-                        "VoIP engineer", "firewall engineer", "Cisco engineer"
+                        "VoIP engineer", "firewall engineer", "Cisco engineer",
+                        # ── 2025 emerging titles ──
+                        "platform engineer", "cloud security engineer", "devsecops engineer",
+                        "site reliability engineer", "kubernetes network engineer",
+                        "observability engineer", "gitops engineer", "5g network engineer",
+                        "ebpf engineer", "cnapp engineer", "network SRE",
+                        "infrastructure platform engineer",
                     ]
                     
                     # Randomize for freshness

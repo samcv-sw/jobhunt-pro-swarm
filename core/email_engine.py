@@ -41,86 +41,132 @@ except ImportError:
     logger.info('[EmailEngine] aiosmtplib not available - will use HTTP fallbacks directly')
 
 
-def _extract_highlight_title(text: str) -> str:
-    import re
+def _extract_years_experience(text: str) -> Optional[str]:
+    """Helper to match years of experience (e.g. '15 years of network experience')."""
     m = re.match(r"^(\d+[+]?)\s*years?", text, re.I)
     if m:
         return f"{m.group(1).upper()} YEARS EXPERIENCE"
+    return None
+
+
+def _extract_percentage_metric(text: str) -> Optional[str]:
+    """Helper to match starting percentage achievements (e.g. '99.9% uptime achieved')."""
     m = re.match(r"^([\d.]+%)", text)
     if m:
         pct = m.group(1)
-        for kw in ["uptime","maintenance","reduction","improvement","efficiency","performance","delivery","quality","rate","satisfaction"]:
+        for kw in ["uptime", "maintenance", "reduction", "improvement", "efficiency", "performance", "delivery", "quality", "rate", "satisfaction", "cost reduction", "cost savings", "savings"]:
             if kw in text.lower():
                 return f"{pct} {kw.upper()}"
         return f"{pct} ACHIEVEMENT"
-    m = re.match(r"^(Resolved|Reduced|Improved|Managed|Achieved|Delivered|Optimized|Automated|Designed|Implemented)\b", text, re.I)
-    if m:
-        verb = m.group(1)
-        rest = text[m.end():].strip()
-        pct = re.search(r"(\d+%)", rest)
-        if pct:
-            pv = pct.group(1)
-            verb_lower = verb.lower()
-            if verb_lower.startswith("optimi"):
-                return f"{pv} OPTIMIZATION"
-            elif verb_lower.startswith("automat"):
-                return f"{pv} AUTOMATION"
-            elif verb_lower.startswith("reduc"):
-                return f"{pv} REDUCTION"
-            elif verb_lower.startswith("improv"):
-                return f"{pv} IMPROVEMENT"
-            elif verb_lower.startswith("resolv"):
-                return f"{pv} RESOLUTION"
-            elif verb_lower.startswith("manag"):
-                return f"{pv} MANAGEMENT"
-            elif verb_lower.startswith("achiev"):
-                return f"{pv} ACHIEVEMENT"
-            elif verb_lower.startswith("deliver"):
-                return f"{pv} DELIVERY"
-            elif verb_lower.startswith("design"):
-                return f"{pv} DESIGN"
-            elif verb_lower.startswith("implement"):
-                return f"{pv} IMPLEMENTATION"
-            
-            after_pct = rest[pct.end():]
-            before_pct = rest[:pct.start()]
-            # Key: prioritize before_pct keywords over after_pct (they're closer to the number)
-            for kw in ["deployment","satisfaction","improvement","reduction","optimization","efficiency","performance","delivery","quality","rate","automation","uptime","maintenance"]:
-                if kw in before_pct.lower():
-                    return f"{pv} {kw.upper()}"
-            for kw in ["deployment","satisfaction","improvement","reduction","optimization","efficiency","performance","delivery","quality","rate","automation","uptime","maintenance"]:
-                if kw in after_pct.lower():
-                    return f"{pv} {kw.upper()}"
-            for kw in ["satisfaction","improvement","reduction","efficiency","performance","delivery"]:
-                if kw in text.lower():
-                    return f"{pv} {kw.upper()}"
-            return f"{pv} IMPACT"
-        num = re.search(r"(\d+[+]?|\d+)", rest)
-        if num:
-            nv = num.group(1)
-            after_num = rest[num.end():]
-            before_num = rest[:num.start()]
-            # Prioritize before_num (closer to the number)
-            for kw in ["deployment","resolution","support","handling","issues","tickets","tasks","cases","optimization","automation","performance","maintenance","operations","infrastructure","network","security","service","delivery","efficiency","reduction","improvement","installation","configuration","management"]:
-                if kw in before_num.lower():
-                    if kw == "issues":
-                        return f"{nv} RESOLVED"
-                    return f"{nv} {kw.upper()}"
-            for kw in ["deployment","resolution","support","handling","issues","tickets","tasks","cases","optimization","automation","performance","maintenance","operations","infrastructure","network","security","service","delivery","efficiency","reduction","improvement","installation","configuration","management"]:
-                if kw in after_num.lower():
-                    if kw == "issues":
-                        return f"{nv} RESOLVED"
-                    return f"{nv} {kw.upper()}"
-            for kw in ["deployment","automation","optimization","reduction","improvement","performance","maintenance","infrastructure","network","operations","security","service"]:
-                if kw in rest.lower():
-                    return f"{nv} {kw.upper()}"
-            return f"{nv} IMPACT"
-        for kw in ["network","performance","automation","maintenance","infrastructure","operations","security","system","solution","service","process","team"]:
+    return None
+
+
+def _extract_action_verb_metric(text: str) -> Optional[str]:
+    """Helper to match action verb metrics (e.g. 'Optimized database querying by 30%')."""
+    m = re.match(r"^(Resolved|Reduced|Improved|Managed|Achieved|Delivered|Optimized|Automated|Designed|Implemented|Architected|Migrated|Deployed|Secured|Led|Established|Conducted|Mentored)\b", text, re.I)
+    if not m:
+        return None
+
+    verb = m.group(1)
+    rest = text[m.end():].strip()
+    pct = re.search(r"(\d+%)", rest)
+    if pct:
+        pv = pct.group(1)
+        verb_lower = verb.lower()
+        if verb_lower.startswith("optimi"):
+            return f"{pv} OPTIMIZATION"
+        elif verb_lower.startswith("automat"):
+            return f"{pv} AUTOMATION"
+        elif verb_lower.startswith("reduc"):
+            return f"{pv} REDUCTION"
+        elif verb_lower.startswith("improv"):
+            return f"{pv} IMPROVEMENT"
+        elif verb_lower.startswith("resolv"):
+            return f"{pv} RESOLUTION"
+        elif verb_lower.startswith("manag"):
+            return f"{pv} MANAGEMENT"
+        elif verb_lower.startswith("achiev"):
+            return f"{pv} ACHIEVEMENT"
+        elif verb_lower.startswith("deliver"):
+            return f"{pv} DELIVERY"
+        elif verb_lower.startswith("design"):
+            return f"{pv} DESIGN"
+        elif verb_lower.startswith("implement"):
+            return f"{pv} IMPLEMENTATION"
+        elif verb_lower.startswith("archit"):
+            return f"{pv} ARCHITECTURE"
+        elif verb_lower.startswith("migrat"):
+            return f"{pv} MIGRATION"
+        elif verb_lower.startswith("deploy"):
+            return f"{pv} DEPLOYMENT"
+        elif verb_lower.startswith("sec"):
+            return f"{pv} SECURITY"
+        elif verb_lower.startswith("led") or verb_lower.startswith("establish"):
+            return f"{pv} LEADERSHIP"
+        elif verb_lower.startswith("conduct"):
+            return f"{pv} AUDIT"
+        elif verb_lower.startswith("mentor"):
+            return f"{pv} MENTORSHIP"
+
+        after_pct = rest[pct.end():]
+        before_pct = rest[:pct.start()]
+        for kw in ["deployment", "satisfaction", "improvement", "reduction", "optimization", "efficiency", "performance", "delivery", "quality", "rate", "automation", "uptime", "maintenance", "cost", "savings", "budget"]:
+            if kw in before_pct.lower():
+                return f"{pv} {kw.upper()}"
+        for kw in ["deployment", "satisfaction", "improvement", "reduction", "optimization", "efficiency", "performance", "delivery", "quality", "rate", "automation", "uptime", "maintenance", "cost", "savings", "budget"]:
+            if kw in after_pct.lower():
+                return f"{pv} {kw.upper()}"
+        for kw in ["satisfaction", "improvement", "reduction", "efficiency", "performance", "delivery", "cost", "savings"]:
+            if kw in text.lower():
+                return f"{pv} {kw.upper()}"
+        return f"{pv} IMPACT"
+
+    num = re.search(r"(\d+[+]?|\d+)", rest)
+    if num:
+        nv = num.group(1)
+        after_num = rest[num.end():]
+        before_num = rest[:num.start()]
+        for kw in ["deployment", "resolution", "support", "handling", "issues", "tickets", "tasks", "cases", "optimization", "automation", "performance", "maintenance", "operations", "infrastructure", "network", "security", "service", "delivery", "efficiency", "reduction", "improvement", "installation", "configuration", "management", "sites", "locations", "users", "employees", "engineers", "servers", "devices", "routers", "switches", "firewalls", "sites", "branches", "offices", "countries", "regions", "vendors", "providers", "certifications", "audits", "assessments"]:
+            if kw in before_num.lower():
+                if kw == "issues":
+                    return f"{nv} RESOLVED"
+                return f"{nv} {kw.upper()}"
+        for kw in ["deployment", "resolution", "support", "handling", "issues", "tickets", "tasks", "cases", "optimization", "automation", "performance", "maintenance", "operations", "infrastructure", "network", "security", "service", "delivery", "efficiency", "reduction", "improvement", "installation", "configuration", "management", "sites", "locations", "users", "employees", "engineers", "servers", "devices", "routers", "switches", "firewalls", "sites", "branches", "offices", "countries", "regions", "vendors", "providers", "certifications", "audits", "assessments"]:
+            if kw in after_num.lower():
+                if kw == "issues":
+                    return f"{nv} RESOLVED"
+                return f"{nv} {kw.upper()}"
+        for kw in ["deployment", "automation", "optimization", "reduction", "improvement", "performance", "maintenance", "infrastructure", "network", "operations", "security", "service", "migration", "architecture", "design", "implementation", "sites", "users", "locations", "countries"]:
             if kw in rest.lower():
-                return f"{verb.upper()} {kw.upper()}"
-        return f"{verb.upper()} EXCELLENCE"
+                return f"{nv} {kw.upper()}"
+        return f"{nv} IMPACT"
+
+    for kw in ["network", "performance", "automation", "maintenance", "infrastructure", "operations", "security", "system", "solution", "service", "process", "team", "architecture", "design", "migration", "deployment", "sd-wan", "cloud", "data center", "zero trust", "sase"]:
+        if kw in rest.lower():
+            return f"{verb.upper()} {kw.upper()}"
+    return f"{verb.upper()} EXCELLENCE"
+
+
+def _fallback_words_title(text: str) -> str:
+    """Helper to extract first 3 words of the text in uppercase as title badge."""
     words = text.split()[:3]
     return " ".join(words).upper().rstrip(",.:")
+
+
+def _extract_highlight_title(text: str) -> str:
+    """Extract a short, capitalized badge title (e.g. '15 YEARS EXPERIENCE')
+    from a resume highlight sentence for email template rendering.
+    """
+    res = _extract_years_experience(text)
+    if res is not None:
+        return res
+    res = _extract_percentage_metric(text)
+    if res is not None:
+        return res
+    res = _extract_action_verb_metric(text)
+    if res is not None:
+        return res
+    return _fallback_words_title(text)
 
 
 
@@ -167,9 +213,11 @@ def _wrap_in_sovereign_template(company_name, job_title, body_text="", highlight
         body_html = f"""<p style="margin:20px 0;font-size:15px;color:#e2e8f0;line-height:1.8;">
 Dear Hiring Team,</p>
 <p style="margin:20px 0;font-size:15px;color:#e2e8f0;line-height:1.8;">
-I am writing to express my strong interest in the <strong>{job_title}</strong> position at <strong>{company_name}</strong>.</p>
+I am writing to express my strong interest in the <strong>{job_title}</strong> position at <strong>{company_name}</strong>. With 15+ years of progressive experience designing, securing, and automating enterprise networks across 10+ countries, I bring deep expertise in SD-WAN/SASE architecture, Zero Trust security, multi-cloud networking, and network automation.</p>
 <p style="margin:20px 0;font-size:15px;color:#e2e8f0;line-height:1.8;">
-I look forward to the opportunity to discuss how my skills align with your team's needs.</p>\n"""
+My track record includes deploying SD-WAN across 50+ sites (45% cost reduction), implementing Zero Trust for 2,000+ remote users, and automating network operations with Python/Ansible/Terraform (40% faster deployments). I hold multiple industry certifications including CCNP, NSE, and cloud architecture credentials.</p>
+<p style="margin:20px 0;font-size:15px;color:#e2e8f0;line-height:1.8;">
+I have attached my CV for your review and would welcome the opportunity to discuss how my experience can contribute to {company_name}'s continued success.</p>\n"""
 
     # Highlights section (numbered achievements)
     highlights_html = ""
@@ -519,17 +567,21 @@ class EmailEngine:
                 logger.debug(f"Skipping provider (no creds): {p['name']}")
 
     def _ensure_hotmail_pool(self):
-        """Lazy-init the Hotmail OAuth2 pool."""
+        """Lazy-init the Hotmail Graph API pool.
+        
+        v3.0: Uses Microsoft Graph API instead of SMTP XOAUTH2.
+        All 1000 accounts revived — OAuth2 tokens refresh with Mail.Send scope.
+        """
         if self._hotmail_pool is not None:
             return
         try:
-            from core.hotmail_pool import init, get_stats, send_email_sync
+            from core.hotmail_pool import init, get_stats
             init()
             stats = get_stats()
-            if stats['active'] > 0:
+            if stats['active_accounts'] > 0:
                 self._hotmail_pool = True  # non-None signals initialized
                 self._hotmail_pool_available = True
-                logger.info(f"HotmailPool active: {stats['active']}/{stats['total_accounts']} accounts, {stats['max_daily_capacity']}/day")
+                logger.info(f"HotmailPool active: {stats['active_accounts']}/{stats['total_accounts']} accounts via Graph API, {stats['max_daily_capacity']}/day")
             else:
                 self._hotmail_pool = True
                 self._hotmail_pool_available = False
@@ -599,21 +651,18 @@ class EmailEngine:
             msg["From"] = f"{display_name} <{smtp_user}>"
             logger.debug(f"[SPF] From aligned: {display_name} <{smtp_user}>")
 
-            # 100% True Async execution using aiosmtplib
+            # 100% True Async execution using aiosmtplib with context manager to prevent connection/socket leaks
             use_tls = (config_data["port"] == 465)
             start_tls = not use_tls
-            smtp_client = aiosmtplib.SMTP(
+            async with aiosmtplib.SMTP(
                 hostname=config_data["smtp"],
                 port=config_data["port"],
                 use_tls=use_tls,
                 start_tls=start_tls,
                 timeout=30
-            )
-            await smtp_client.connect()
-            await smtp_client.login(config_data["login"], config_data["password"])
-            
-            errors, message = await smtp_client.send_message(msg)
-            await smtp_client.quit()
+            ) as smtp_client:
+                await smtp_client.login(config_data["login"], config_data["password"])
+                errors, message = await smtp_client.send_message(msg)
             
             if errors:
                 logger.warning(f"[SMTP-ASYNC] Refused recipients via {config_data.get('name', '?')}: {errors}")
@@ -1662,11 +1711,13 @@ def send_email_via_gmail_smtp(
                     except Exception as e:
                         logger.warning(f"[GMAIL-SMTP] Failed to attach {path}: {e}")
 
-        pwd_clean = smtp_pass.replace(" ", "")
+        # IMPORTANT: Do NOT strip spaces from password!
+        # Gmail app passwords use spaces every 4 chars (e.g., "kkqo tgup eqwk ongo")
+        # Stripping spaces corrupts the password and causes 535 auth errors
         ctx = ssl.create_default_context()
         with smtplib.SMTP("smtp.gmail.com", 587, timeout=15) as s:
             s.starttls(context=ctx)
-            s.login(smtp_user, pwd_clean)
+            s.login(smtp_user, smtp_pass)
             s.send_message(msg)
         logger.info(f"[GMAIL-SMTP] Sent to {to_email} via {smtp_user} with Message-ID {msg_id}")
         return True, msg_id

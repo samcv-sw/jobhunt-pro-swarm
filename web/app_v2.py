@@ -83,16 +83,24 @@ session_serializer = URLSafeTimedSerializer(SECRET_KEY)
 template_dir = Path(__file__).parent / "templates"
 templates = Jinja2Templates(directory=str(template_dir))
 
+import jinja2
+jinja_env = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(str(template_dir)),
+    undefined=jinja2.DebugUndefined
+)
+
 def render_template(name: str, **context):
     """Render a Jinja2 template to HTML string, handling undefined variables gracefully."""
-    from jinja2 import Template, DebugUndefined
-    tmpl_path = template_dir / name
-    if not tmpl_path.exists():
+    try:
+        if "VERSION" not in context:
+            context["VERSION"] = config.VERSION
+        t = jinja_env.get_template(name)
+        return t.render(**context)
+    except jinja2.TemplateNotFound:
         return f"<!-- Template {name} not found -->"
-    if "VERSION" not in context:
-        context["VERSION"] = config.VERSION
-    t = Template(tmpl_path.read_text(encoding='utf-8'), undefined=DebugUndefined)
-    return t.render(**context)
+    except Exception as e:
+        logger.error(f"Error rendering template {name}: {e}")
+        return f"<!-- Error rendering template {name}: {e} -->"
 
 def _public_shell(content: str, title: str = "JobHunt Pro", description: str = "") -> str:
     """Wrap content in glass-morphism HTML shell for non-authenticated pages.
@@ -101,107 +109,14 @@ def _public_shell(content: str, title: str = "JobHunt Pro", description: str = "
         title: Page title (default "JobHunt Pro")
         description: Meta description (uses default if empty)
     """
-    css = """
-<link rel="stylesheet" href="/static/css/cyberpunk.css?v=199">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#0a0a0f;--surface:rgba(255,255,255,.03);--border:rgba(255,255,255,.08);--border-light:rgba(255,255,255,.06);--blue:#3b82f6;--blue-dim:rgba(59,130,246,.15);--green:#22c55e;--gold:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--text:#e2e8f0;--text-dim:#94a3b8;--text-muted:#64748b;--radius:12px;--radius-lg:16px;--radius-xl:20px;--shadow:0 4px 16px rgba(0,0,0,.25);--transition:all .2s ease}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
-a{color:var(--blue);text-decoration:none;transition:var(--transition)}
-a:hover{color:#60a5fa}
-h1{font-size:32px;font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
-h2{font-size:22px;font-weight:700;margin-bottom:12px}
-h3{font-size:17px;font-weight:600;margin-bottom:8px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px;transition:var(--transition)}
-.card:hover{border-color:var(--border);box-shadow:var(--shadow)}
-.card-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:10px}
-.glass{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius-lg);padding:24px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.glass:hover{border-color:var(--border);box-shadow:var(--shadow)}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:var(--transition);font-family:'Inter',sans-serif;text-decoration:none}
-.btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px var(--blue-dim)}
-.btn-sm{padding:7px 14px;font-size:12px}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-dim)}
-.btn-outline:hover{background:rgba(255,255,255,.04)}
-.text-dim{color:var(--text-dim)}
-.text-muted{color:var(--text-muted)}
-.text-center{text-align:center}
-.grid{display:grid;gap:16px}
-.grid-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-.grid-3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
-.flex{display:flex;gap:12px;align-items:center}
-.flex-wrap{flex-wrap:wrap}
-.mb-8{margin-bottom:8px}
-.mb-16{margin-bottom:16px}
-.mb-24{margin-bottom:24px}
-.mt-16{margin-top:16px}
-.mt-24{margin-top:24px}
-.p-24{padding:24px}
-.gap-8{gap:8px}
-.gap-12{gap:12px}
-.max-w-800{max-width:800px;margin-left:auto;margin-right:auto}
-.max-w-1200{max-width:1200px;margin-left:auto;margin-right:auto}
-.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
-.tag-blue{background:var(--blue-dim);color:#60a5fa}
-.tag-green{background:rgba(34,197,94,.12);color:#4ade80}
-.tag-gold{background:rgba(245,158,11,.12);color:#fbbf24}
-.tag-purple{background:rgba(139,92,246,.12);color:#c4b5fd}
-@media(max-width:768px){h1{font-size:26px}.card{padding:18px}.grid-2,.grid-3{grid-template-columns:1fr}}
-.headroom{min-height:60px;background:rgba(10,10,15,.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border-light);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
-.headroom .brand{font-size:18px;font-weight:800;color:var(--blue);letter-spacing:-.5px}
-.headroom nav{display:flex;gap:18px}
-.headroom nav a{font-size:13px;color:var(--text-muted);font-weight:500;padding:6px 0;border-bottom:2px solid transparent}
-.headroom nav a:hover{border-color:var(--blue);color:var(--text)}
-</style>"""
-    nav_html = render_template("_public_nav.html")
     default_desc = "AI-Powered Job Application Engine — Apply to thousands of jobs automatically. Your personal job-hunting AI works 24/7. Get hired faster."
     meta_desc = description if description else default_desc
-    return f"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="{meta_desc}"><meta property="og:title" content="{title}"><meta property="og:description" content="{meta_desc}"><meta property="og:type" content="website"><meta property="og:url" content="https://jhfguf.pythonanywhere.com"><title>{title}</title><link rel="manifest" href="/static/manifest.json"><meta name="theme-color" content="#0a0a14"><link rel="apple-touch-icon" href="/static/img/icon-192.png">{css}
-<style>
-/* Contact Page Styles */
-.main.contact-container{{max-width:1000px;margin:0 auto;padding:40px 20px 80px}}
-.contact-hero{{text-align:center;margin-bottom:32px}}
-.contact-hero h1{{font-size:32px;font-weight:800;margin-bottom:12px;letter-spacing:-.5px}}
-.contact-hero .subtitle{{color:#94a3b8;font-size:15px;max-width:600px;margin:0 auto}}
-.contact-alert{{padding:14px 20px;border-radius:12px;margin-bottom:24px;font-size:14px;font-weight:500}}
-.contact-alert.success{{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);color:#4ade80}}
-.contact-alert.error{{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#f87171}}
-.response-badge{{display:inline-flex;align-items:center;gap:8px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.15);border-radius:50px;padding:8px 20px;font-size:12px;color:#94a3b8;margin-bottom:32px}}
-.pulse-dot{{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite}}
-@keyframes pulse{{0%,100%{{opacity:1}}50%{{opacity:.4}}}}
-.contact-grid{{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px}}
-.form-panel{{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px}}
-.form-panel h2{{font-size:18px;font-weight:700;margin-bottom:6px}}
-.form-subtitle{{font-size:12px;color:#64748b;margin-bottom:24px}}
-.form-row{{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0}}
-.form-group{{margin-bottom:18px}}
-.form-group label{{display:block;font-size:13px;color:#94a3b8;margin-bottom:7px;font-weight:500}}
-.glass-input{{width:100%;padding:12px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#e2e8f0;font-size:14px;font-family:'Inter',sans-serif;transition:all .25s;resize:vertical}}
-.glass-input:focus{{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}}
-textarea.glass-input{{min-height:130px}}
-.btn-submit{{width:100%;padding:14px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}}
-.btn-submit:hover{{transform:translateY(-2px);box-shadow:0 10px 30px rgba(59,130,246,.35)}}
-.support-cards{{display:flex;flex-direction:column;gap:14px}}
-.support-card{{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:22px;text-decoration:none;color:inherit;transition:all .25s;display:block}}
-.support-card:hover{{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05);transform:translateY(-2px)}}
-.support-card.whatsapp:hover{{border-color:rgba(37,211,102,.2)}}
-.sc-icon{{font-size:28px;margin-bottom:10px;display:block}}
-.support-card h3{{font-size:14px;font-weight:700;margin-bottom:6px;color:#e2e8f0}}
-.support-card p{{font-size:12px;color:#94a3b8;line-height:1.7}}
-.hours-card{{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:22px}}
-.hours-card h3{{font-size:14px;font-weight:700;margin-bottom:14px;color:#e2e8f0}}
-.hours-row{{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}}
-.hours-row:last-child{{border-bottom:none}}
-.day{{font-size:12px;color:#94a3b8}}
-.time{{font-size:12px;font-weight:600;color:#64748b}}
-.time.highlight{{color:#22c55e}}
-.wa-float{{position:fixed;bottom:28px;right:28px;background:#25d366;color:#fff;padding:12px 22px;border-radius:50px;font-weight:700;font-size:14px;text-decoration:none;box-shadow:0 4px 20px rgba(37,211,102,.35);z-index:999;display:flex;align-items:center;gap:8px;transition:all .25s}}
-.wa-float:hover{{transform:translateY(-3px);box-shadow:0 8px 30px rgba(37,211,102,.5);color:#fff}}
-@media(max-width:768px){{.contact-grid{{grid-template-columns:1fr}}.form-row{{grid-template-columns:1fr}}}}
-/* Services Page Styles (when loaded in public shell) */
-.services-container{{max-width:1100px;margin:0 auto;padding:40px 20px 80px}}
-</style>
-</head><body>{nav_html}<div style="padding:20px">{content}</div><script>if ('serviceWorker' in navigator) {{ window.addEventListener('load', () => {{ navigator.serviceWorker.register('/static/service-worker.js'); }}); }}</script></body></html>"""
+    return render_template(
+        "_public_shell.html",
+        content=content,
+        title=title,
+        description=meta_desc
+    )
 
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "")
 
@@ -2289,11 +2204,47 @@ def home(request: Request):
             "breakdown_all": {"orders": {"amount": 0, "count": 0}, "codes": {"amount": 0, "count": 0}, "emails": {"amount": 0, "count": 0}},
         }
 
-    return templates.TemplateResponse(request, "index_v3.html", {
+    # Fetch featured jobs to show in index_v4.html
+    featured_jobs = []
+    try:
+        conn = get_db()
+        rows = conn.execute("SELECT * FROM jobs ORDER BY id DESC LIMIT 6").fetchall()
+        for r in rows:
+            date_str = "Just now"
+            if r["created_at"]:
+                try:
+                    dt = datetime.strptime(r["created_at"].split(".")[0], "%Y-%m-%d %H:%M:%S")
+                    diff = datetime.now() - dt
+                    if diff.days == 0:
+                        date_str = "Today"
+                    elif diff.days == 1:
+                        date_str = "1 day ago"
+                    else:
+                        date_str = f"{diff.days} days ago"
+                except Exception:
+                    pass
+            featured_jobs.append({
+                "id": r["id"],
+                "title": r["title"],
+                "company": r["company"],
+                "location": r["location"] or "Remote",
+                "salary": r["salary"] if r["salary"] else "$80k - $120k",
+                "board": r["source"].upper() if r["source"] else "LINKEDIN",
+                "type": "Full-time",
+                "date_posted": date_str
+            })
+        conn.close()
+    except Exception as e:
+        logger.error(f"Error fetching featured jobs: {e}")
+
+    tiers = get_all_pricing()
+    return templates.TemplateResponse(request, "index_v4.html", {
         "earnings": earnings,
+        "tiers": tiers,
         "VERSION": config.VERSION,
         "APP_NAME": config.APP_NAME,
-        "fomo_apps_today": total_24h if total_24h > 0 else "47"
+        "fomo_apps_today": total_24h if total_24h > 0 else "47",
+        "featured_jobs": featured_jobs
     })
 
 @app.get("/api/ping")
@@ -2804,17 +2755,29 @@ def pricing(request: Request):
             user = dict(user_row) if user_row else None
             conn2.close()
             pricing_html = _build_pricing_inline(pricing_data, flash_discount, flash_sale_info)
-            html = _build_dashboard_shell(user, user_id, pricing_html, "&#x1F48E; Pricing", "pricing")
+            html = _build_dashboard_shell(user, user_id, pricing_html, "💎 Pricing", "pricing")
             resp = HTMLResponse(content=html)
             resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
             resp.headers["Pragma"] = "no-cache"
             resp.headers["Expires"] = "0"
             return resp
-        response = templates.TemplateResponse(request, "pricing_v2.html", {
-            "pricing": pricing_data,
+        
+        services_list = [
+            {"name": "AI Auto-Apply Engine", "desc": "Automated job applications 24/7", "price": 9.99},
+            {"name": "Smart Resume Tailoring", "desc": "AI optimizes your CV per job", "price": 4.99},
+            {"name": "Email Follow-up Automation", "desc": "Auto follow-ups with tracking", "price": 6.99},
+            {"name": "Interview Scheduler", "desc": "AI schedules your interviews", "price": 14.99},
+            {"name": "LinkedIn Profile Optimizer", "desc": "AI-enhanced LinkedIn presence", "price": 3.99},
+            {"name": "Cover Letter Generator", "desc": "Custom cover letters per job", "price": 2.99},
+        ]
+        pricing_dict = {"tiers": pricing_data.get("tiers", pricing_data), "services": services_list}
+        
+        response = templates.TemplateResponse(request, "pricing_v3.html", {
+            "pricing": pricing_dict,
             "flash_discount": flash_discount,
             "flash_sale": flash_sale_info,
-            "is_logged_in": False
+            "is_logged_in": False,
+            "VERSION": config.VERSION
         })
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
         response.headers["Pragma"] = "no-cache"
@@ -3151,7 +3114,11 @@ def export_page(request: Request):
 
 @app.get("/register", response_class=HTMLResponse)
 def register_page(request: Request, ref: str = ""):
-    return templates.TemplateResponse(request, "register.html", {"ref": ref, "VERSION": config.VERSION})
+    return templates.TemplateResponse(request, "register_v2.html", {
+        "ref": ref,
+        "VERSION": config.VERSION,
+        "turnstile_site_key": getattr(config, "TURNSTILE_SITE_KEY", "1x00000000000000000000AA")
+    })
 
 @app.post("/register")
 async def register(request: Request, email: str = Form(...), password: str = Form(...),
@@ -3601,7 +3568,11 @@ def microsoft_callback(code: str = None, error: str = None):
 @app.get("/login", response_class=HTMLResponse)
 def login_page(request: Request, plan: str = ""):
     selected_plan = plan or request.cookies.get("last_selected_plan", "starter")
-    return templates.TemplateResponse(request, "login.html", {"selected_plan": selected_plan})
+    return templates.TemplateResponse(request, "login_v2.html", {
+        "selected_plan": selected_plan,
+        "plan": plan,
+        "VERSION": config.VERSION
+    })
 
 @app.post("/login")
 def login(request: Request, email: str = Form(...), password: str = Form(...)):
@@ -4182,7 +4153,7 @@ def user_dashboard(request: Request):
     conn.close()
 
     referral_link = f"{config.SITE_URL}/register?ref={user_id}"
-    content = render_template("dashboard_v2.html", request=request, active_page="dashboard", user=user, profiles=profiles, profile_count=len(profiles), campaigns=campaigns, campaign_count=len(campaigns), transactions=transactions, referrals=referrals, referral_link=referral_link, pipeline_emails=pipeline_emails, pipeline_counts=pipeline_counts, manual_emails_user=manual_emails_user, login_streak=login_streak, streak_reward=streak_reward, next_milestone=next_milestone, days_to_next=days_to_next, next_reward=next_reward, flash_sales=active_flash_sales, recent_purchases=recent_purchases, stats=stats, candidates=[])
+    content = render_template("dashboard_v3.html", request=request, active_page="dashboard", user=user, profiles=profiles, profile_count=len(profiles), campaigns=campaigns, campaign_count=len(campaigns), transactions=transactions, referrals=referrals, referral_link=referral_link, pipeline_emails=pipeline_emails, pipeline_counts=pipeline_counts, manual_emails_user=manual_emails_user, login_streak=login_streak, streak_reward=streak_reward, next_milestone=next_milestone, days_to_next=days_to_next, next_reward=next_reward, flash_sales=active_flash_sales, recent_purchases=recent_purchases, stats=stats, candidates=[])
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Dashboard", "dashboard"))
 
 @app.get("/new-campaign", response_class=HTMLResponse)
@@ -5691,15 +5662,22 @@ def checkout_page(request: Request, order_id: str):
 
     conn = get_db()
     order = conn.execute("SELECT * FROM orders WHERE order_id = ? AND user_id = ?", (order_id, user_id)).fetchone()
-    conn.close()
-
     if not order:
+        conn.close()
         return RedirectResponse("/wallet", status_code=303)
+
+    user_row = conn.execute("SELECT name, email FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    conn.close()
 
     if order["payment_status"] == "completed":
         return RedirectResponse("/wallet?success=redeemed", status_code=303)
 
-    # Use NowPayments address from DB, fallback to static
+    user_name = "Candidate"
+    user_email = ""
+    if user_row:
+        user_name = user_row["name"] or "Candidate"
+        user_email = user_row["email"] or ""
+
     currency = order["payment_method"]
     addr = order["pay_address"] if order["pay_address"] else ""
     if not addr:
@@ -5707,10 +5685,29 @@ def checkout_page(request: Request, order_id: str):
         addr = addresses.get(currency, "")
     if not addr:
         addr = "0xSimulatedTrc20UsdtAddressForAutomatedJobHuntPayments"
-    return templates.TemplateResponse(request, "checkout.html", {
-        "order": dict(order),
+
+    payment_code = order["payment_code"] if "payment_code" in dict(order) else ""
+    if not payment_code:
+        payment_code = order_id[-8:].upper()
+
+    order_dict = {
+        "order_id": order["order_id"],
+        "status": order["payment_status"],
+        "item_type": order["order_type"],
+        "price": order["amount_usd"],
+        "total_price": order["amount_usd"],
+        "service_name": "Wallet Topup" if order["package_name"] == "wallet_topup" else order["package_name"],
+        "customer_name": user_name,
+        "customer_email": user_email,
+        "payment_code": payment_code,
+        "crypto_addresses": {currency: addr} if addr else get_payment_addresses(),
+    }
+
+    return templates.TemplateResponse(request, "checkout_v3.html", {
+        "order": order_dict,
         "address": addr,
-        "currency": currency
+        "currency": currency,
+        "VERSION": config.VERSION
     })
 @app.get("/services-v2")
 def services_v2_redirect():
@@ -6039,7 +6036,7 @@ def upload_cv_page(request: Request):
     user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
     conn.close()
     user = dict(user_row) if user_row else {}
-    content = render_template("upload_cv_v2.html", user=user, user_id=user_id)
+    content = render_template("upload_cv_v3.html", user=user, user_id=user_id)
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Upload CV", "upload-cv"))
 
 

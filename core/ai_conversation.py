@@ -111,6 +111,7 @@ class AIConversationEngine:
         candidate_name: str = "Sam Salameh",
         candidate_skills: Optional[List[str]] = None,
         job_url: str = "",
+        years_of_experience: Optional[int] = None,
     ) -> str:
         """
         Generate a personalized greeting message for a recruiter.
@@ -120,6 +121,7 @@ class AIConversationEngine:
         skills = candidate_skills or []
         skills_str = ", ".join(skills[:3]) if skills else "relevant experience"
         skills_all = ", ".join(skills[:5]) if skills else "relevant experience"
+        exp_years = years_of_experience if years_of_experience is not None else 5
 
         if self.groq_key:
             ai_msg = self._ai_generate_greeting(
@@ -132,7 +134,7 @@ class AIConversationEngine:
         # Default high-quality template (multiple variants)
         templates = [
             f"Hello {recruiter_name}, I came across the {position} opening at {company} "
-            f"and I'm very interested. With my background in {skills_str} and {len(skills)}+ years "
+            f"and I'm very interested. With my background in {skills_str} and {exp_years}+ years "
             f"of hands-on experience, I believe I'd be a great fit. I've submitted my application "
             f"and would love to connect further. Looking forward to hearing from you!",
 

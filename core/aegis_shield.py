@@ -64,14 +64,23 @@ class AegisShieldMiddleware(BaseHTTPMiddleware):
         # 4. 📦 PAYLOAD SIZE DEFENSE
         # Prevent hackers from uploading 5GB files to crash the disk.
         content_length = request.headers.get("content-length")
-        if content_length and int(content_length) > 10 * 1024 * 1024:  # 10 MB absolute max for normal routes
-            logger.warning(f"🛡️ [AEGIS SHIELD] Payload too large from {client_ip}.")
-            return PlainTextResponse("Payload too large.", status_code=413)
+        if content_length:
+            try:
+                if int(content_length) > 10 * 1024 * 1024:  # 10 MB absolute max for normal routes
+                    logger.warning(f"🛡️ [AEGIS SHIELD] Payload too large from {client_ip}.")
+                    return PlainTextResponse("Payload too large.", status_code=413)
+            except (ValueError, TypeError):
+                # Malformed Content-Length header — attacker probe, reject it
+                logger.warning(f"🛡️ [AEGIS SHIELD] Malformed Content-Length from {client_ip}: '{content_length}'")
+                return PlainTextResponse("Bad Request.", status_code=400)
 
         # --- PROCESS REQUEST ---
         _current_concurrency += 1
         try:
             response = await call_next(request)
             return response
+        except Exception as e:
+            logger.error(f"🛡️ [AEGIS SHIELD] Unhandled middleware error from {client_ip}: {e}")
+            return PlainTextResponse("Internal Server Error.", status_code=500)
         finally:
             _current_concurrency -= 1

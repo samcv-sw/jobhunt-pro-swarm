@@ -1,0 +1,743 @@
+<!-- Pricing v3 — Enhanced with billing toggle, feature detail expansion, shared design tokens -->
+<link rel="stylesheet" href="/static/css/dashboard-v4.css">
+<style>
+/* ═══════════════════════════════════════════
+   PRICING v3 — Page-Specific Styles
+   ═══════════════════════════════════════════ */
+
+/* ── Hero ── */
+.pricing-hero-v3 {
+  text-align: center; padding: 80px 20px 40px;
+  position: relative; z-index: 10;
+}
+.pricing-hero-v3 h1 {
+  font-size: 48px; font-weight: 800; margin-bottom: 12px; line-height: 1.15;
+  background: linear-gradient(135deg, var(--text-main), var(--accent-primary));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.pricing-hero-v3 .subtitle {
+  font-size: 16px; color: var(--text-muted);
+  max-width: 600px; margin: 0 auto; line-height: 1.7;
+}
+
+/* ── Billing Toggle ── */
+.billing-toggle {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  margin: 32px 0 40px;
+}
+.billing-toggle label {
+  font-size: 14px; font-weight: 500; color: var(--text-muted);
+  cursor: pointer; transition: color var(--transition-fast);
+  user-select: none;
+}
+.billing-toggle label.active { color: var(--text-main); }
+.toggle-track {
+  width: 56px; height: 30px; border-radius: 15px;
+  background: var(--bg-elevated); border: 1px solid var(--border-glass);
+  cursor: pointer; position: relative; transition: all var(--transition-base);
+  flex-shrink: 0;
+}
+.toggle-track:hover { border-color: var(--accent-primary); }
+.toggle-thumb {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent-primary); position: absolute; top: 2px; left: 2px;
+  transition: transform var(--transition-bounce);
+  box-shadow: var(--shadow-glow-primary);
+}
+.toggle-track.annual .toggle-thumb { transform: translateX(26px); }
+.savings-badge {
+  display: inline-block; padding: 4px 12px;
+  background: var(--accent-primary-dim);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 50px; color: var(--accent-primary);
+  font-size: 11px; font-weight: 600; margin-left: 8px;
+}
+
+/* ── Flash Sale Banner ── */
+.flash-banner-v3 {
+  display: none;
+  max-width: 1200px; margin: -10px auto 24px; padding: 16px 24px;
+  background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04));
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: var(--radius-lg);
+  align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center;
+  position: relative; z-index: 10;
+  animation: pulseGlow 2s infinite;
+}
+.flash-banner-v3.active { display: flex; }
+.flash-banner-v3 .fs-icon { font-size: 24px; }
+.flash-banner-v3 .fs-deal { text-align: center; }
+.flash-banner-v3 .fs-deal strong { font-size: 16px; color: var(--text-main); }
+.flash-banner-v3 .fs-deal .fs-pct {
+  background: var(--accent-danger); color: #fff;
+  padding: 2px 12px; border-radius: 20px; font-weight: 700; font-size: 13px; margin-left: 8px;
+}
+.flash-banner-v3 .fs-countdown {
+  font-family: var(--font-mono); font-size: 20px; font-weight: 700;
+  letter-spacing: 1px; color: var(--accent-danger);
+}
+
+/* ── Section containers ── */
+.pricing-section-v3 {
+  padding: 60px 20px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 10;
+}
+.pricing-section-v3 h2 {
+  font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 8px; letter-spacing: -0.5px;
+}
+.pricing-section-v3 .sub {
+  text-align: center; color: var(--text-muted); margin-bottom: 48px; font-size: 14px;
+}
+
+/* ── Pricing Grid ── */
+.pricing-grid-v3 {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+  max-width: 1200px; margin: 0 auto;
+}
+.pricing-card-v3 {
+  background: var(--bg-card);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  padding: 36px 24px; text-align: center;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+.pricing-card-v3:hover {
+  transform: translateY(-6px);
+  border-color: var(--accent-primary);
+  background: var(--bg-card-hover);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-primary);
+}
+.pricing-card-v3.highlight {
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.12), inset 0 0 30px rgba(99, 102, 241, 0.03);
+  transform: scale(1.04);
+}
+.pricing-card-v3.highlight:hover {
+  box-shadow: var(--shadow-lg), 0 0 40px rgba(99, 102, 241, 0.25);
+}
+.pricing-card-v3.highlight::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-primary));
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+.pricing-card-v3 .card-glow {
+  position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle at 50% 0%, rgba(99,102,241,0.06), transparent 60%);
+  pointer-events: none;
+}
+
+/* ── Badges ── */
+.badge-v3 {
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--accent-secondary), #F472B6);
+  color: #fff; padding: 6px 18px;
+  border-radius: 50px; font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; white-space: nowrap; z-index: 10;
+}
+.badge-v3.premium { background: linear-gradient(135deg, var(--accent-primary), #818CF8); }
+.badge-v3.best-value { background: linear-gradient(135deg, #06B6D4, #22D3EE); color: #000; }
+.badge-v3.flash { background: linear-gradient(135deg, var(--accent-danger), #F87171); }
+
+/* ── Card content ── */
+.tier-name-v3 {
+  font-size: 10px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 3px; margin-bottom: 8px;
+}
+.pricing-card-v3 h3 { font-size: 22px; font-weight: 700; margin-bottom: 14px; }
+.companies-v3 {
+  font-size: 44px; font-weight: 800; color: var(--accent-primary); line-height: 1;
+}
+.companies-v3 span { font-size: 13px; color: var(--text-muted); font-weight: 400; }
+.price-v3 {
+  font-size: 36px; font-weight: 800; margin: 14px 0 4px;
+}
+.price-v3.free { color: var(--accent-success); }
+.price-v3 span { font-size: 13px; color: var(--text-muted); font-weight: 400; }
+.price-v3 .original {
+  text-decoration: line-through; color: var(--text-muted);
+  font-size: 18px; font-weight: 500;
+}
+.price-v3 .flash-price { color: var(--accent-danger); }
+.original-price-v3 { font-size: 13px; color: var(--text-muted); text-decoration: line-through; }
+.per-v3 { font-size: 11px; color: var(--text-muted); margin-bottom: 20px; letter-spacing: 1px; }
+.savings-v3 {
+  display: inline-block; padding: 5px 14px;
+  background: var(--accent-primary-dim); border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 50px; color: var(--accent-primary); font-size: 11px; font-weight: 600; margin-bottom: 18px;
+}
+
+.pricing-card-v3 ul { list-style: none; text-align: left; margin-bottom: 28px; }
+.pricing-card-v3 li {
+  padding: 10px 0; color: var(--text-muted); font-size: 13px;
+  border-bottom: 1px solid var(--border-glass); line-height: 1.5;
+  cursor: pointer; transition: color var(--transition-fast);
+  position: relative;
+}
+.pricing-card-v3 li:last-child { border-bottom: none; }
+.pricing-card-v3 li:hover { color: var(--text-secondary); }
+.pricing-card-v3 li::before {
+  content: '→'; color: var(--accent-primary); margin-right: 10px; font-weight: 700;
+}
+.pricing-card-v3 li .feature-detail {
+  display: none; font-size: 11px; color: var(--text-dim);
+  margin-top: 6px; padding-left: 22px; line-height: 1.6;
+}
+.pricing-card-v3 li .feature-detail.open { display: block; }
+.pricing-card-v3 li .expand-icon {
+  float: right; font-size: 10px; color: var(--text-dim);
+  transition: transform var(--transition-fast);
+}
+.pricing-card-v3 li .expand-icon.open { transform: rotate(180deg); }
+
+.pricing-card-v3 a.btn { width: 100%; text-align: center; }
+
+/* ── Bulk Discount Calculator ── */
+.bulk-calc-v3 {
+  max-width: 600px; margin: 0 auto;
+  background: var(--bg-card);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  padding: 36px 32px; text-align: center;
+}
+.bulk-calc-v3 label {
+  color: var(--text-muted); font-size: 12px; letter-spacing: 1px;
+  text-transform: uppercase; display: block; margin-bottom: 10px;
+}
+.bulk-calc-v3 input[type="range"] {
+  width: 100%; height: 8px;
+  -webkit-appearance: none;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 4px; outline: none;
+}
+.bulk-calc-v3 input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 24px; height: 24px;
+  background: var(--text-main); border-radius: 50%; cursor: pointer;
+  border: 3px solid var(--accent-primary); box-shadow: var(--shadow-glow-primary);
+}
+.bulk-calc-v3 .bulk-qty-display { font-size: 44px; font-weight: 800; color: var(--accent-primary); }
+.bulk-calc-v3 .bulk-stats { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+.bulk-calc-v3 .bulk-stat { text-align: center; }
+.bulk-calc-v3 .bulk-stat .stat-label {
+  font-size: 11px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+}
+.bulk-calc-v3 .bulk-stat .stat-value { font-size: 22px; font-weight: 700; }
+.bulk-calc-v3 .bulk-stat .stat-value.strikethrough { color: var(--text-muted); text-decoration: line-through; }
+.bulk-calc-v3 .bulk-stat .stat-value.savings { color: var(--accent-success); }
+.bulk-calc-v3 .bulk-stat .stat-value.flash { color: var(--accent-primary); }
+
+/* ── Urgency Counter ── */
+.urgency-box-v3 {
+  max-width: 600px; margin: 0 auto;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(236, 72, 153, 0.04));
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: var(--radius-lg); padding: 24px; text-align: center;
+}
+.urgency-box-v3 .urgency-stats { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; }
+.urgency-box-v3 .urgency-stat { text-align: center; }
+.urgency-box-v3 .urgency-stat .ur-value {
+  font-size: 30px; font-weight: 800;
+}
+.urgency-box-v3 .urgency-stat .ur-value.primary { color: var(--accent-primary); }
+.urgency-box-v3 .urgency-stat .ur-value.secondary { color: var(--accent-secondary); }
+.urgency-box-v3 .urgency-stat .ur-value.success { color: var(--accent-success); }
+.urgency-box-v3 .urgency-stat .ur-label {
+  font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;
+}
+
+/* ── Comparison Table ── */
+.comparison-table-v3 { max-width: 700px; margin: 0 auto; }
+.comparison-row-v3 {
+  display: flex; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid var(--border-glass);
+}
+.comparison-row-v3 .label { color: var(--text-muted); font-size: 13px; min-width: 160px; }
+.comparison-row-v3 .them { color: rgba(107,114,128,0.4); font-size: 13px; text-align: center; flex: 1; }
+.comparison-row-v3 .you { color: var(--accent-primary); font-weight: 600; font-size: 13px; text-align: right; flex: 1; }
+
+/* ── A La Carte Services ── */
+.service-grid-v3 {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+  max-width: 700px; margin: 0 auto;
+}
+.service-card-v3 {
+  background: var(--bg-card);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  transition: all var(--transition-base);
+}
+.service-card-v3:hover { border-color: var(--border-glass-hover); transform: translateY(-2px); }
+.service-info-v3 h3 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.service-info-v3 p { color: var(--text-muted); font-size: 11px; }
+.service-price-v3 { font-size: 20px; font-weight: 700; color: var(--accent-primary); }
+
+/* ── Crypto Section ── */
+.crypto-section-v3 {
+  text-align: center; padding: 40px 20px; position: relative; z-index: 10;
+}
+.crypto-section-v3 h2 { font-size: 20px; margin-bottom: 12px; }
+.crypto-section-v3 p { color: var(--text-muted); font-size: 13px; line-height: 1.8; }
+.crypto-icons-v3 {
+  display: flex; justify-content: center; gap: 16px; margin-top: 16px; flex-wrap: wrap;
+}
+.crypto-icons-v3 span {
+  padding: 8px 16px; background: var(--bg-card);
+  border: 1px solid var(--border-glass); border-radius: var(--radius-sm);
+  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ── Social Proof ── */
+.social-proof-v3 {
+  padding: 50px 20px; text-align: center; position: relative; z-index: 10;
+}
+.social-proof-v3 .stars { color: #F59E0B; font-size: 24px; margin-bottom: 8px; }
+.social-proof-v3 h2 { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
+.social-proof-v3 p { color: var(--text-muted); font-size: 13px; }
+
+/* ── Footer ── */
+.pricing-footer-v3 {
+  padding: 32px; text-align: center;
+  border-top: 1px solid var(--border-glass);
+  color: var(--text-muted); font-size: 12px; letter-spacing: 1px;
+  position: relative; z-index: 10;
+}
+
+/* ── Social Toast ── */
+.social-toast-v3 {
+  position: fixed; bottom: 80px; right: 20px; z-index: var(--z-toast);
+  max-width: 340px;
+  background: var(--bg-card);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  box-shadow: var(--shadow-lg);
+  transform: translateX(120%);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex; align-items: center; gap: 12px; font-size: 12px;
+}
+.social-toast-v3.show { transform: translateX(0); }
+.social-toast-v3 .st-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 600; flex-shrink: 0; color: #fff;
+}
+.social-toast-v3 .st-content { line-height: 1.5; }
+.social-toast-v3 .st-content .st-name { color: var(--text-main); font-weight: 600; }
+.social-toast-v3 .st-content .st-action { color: var(--accent-primary); }
+.social-toast-v3 .st-content .st-time { color: var(--text-muted); font-size: 10px; }
+.toast-close-v3 {
+  position: absolute; top: 6px; right: 10px;
+  background: none; border: none; color: var(--text-muted);
+  cursor: pointer; font-size: 14px;
+}
+
+/* ── Responsive ── */
+@media(max-width: 1100px) {
+  .pricing-grid-v3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width: 768px) {
+  .pricing-grid-v3 { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+  .pricing-card-v3.highlight { transform: scale(1); }
+  .pricing-hero-v3 h1 { font-size: 28px; }
+  .pricing-hero-v3 { padding: 40px 16px 24px; }
+  .pricing-section-v3 { padding: 40px 16px; }
+  .pricing-card-v3 { padding: 32px 20px; }
+  .companies-v3 { font-size: 36px; }
+  .price-v3 { font-size: 28px; }
+  .service-grid-v3 { grid-template-columns: 1fr; }
+  .urgency-box-v3 .urgency-stats { gap: 20px; }
+  .comparison-row-v3 { flex-wrap: wrap; gap: 4px; }
+  .comparison-row-v3 .label { min-width: 120px; }
+  .billing-toggle { flex-wrap: wrap; gap: 10px; }
+}
+@media(max-width: 480px) {
+  .pricing-hero-v3 h1 { font-size: 22px; }
+  .pricing-hero-v3 .subtitle { font-size: 13px; }
+  .pricing-card-v3 h3 { font-size: 18px; }
+  .companies-v3 { font-size: 28px; }
+  .price-v3 { font-size: 24px; }
+  .pricing-section-v3 h2 { font-size: 20px; }
+  .bulk-calc-v3 { padding: 24px 18px; }
+}
+</style>
+<body style="background:var(--bg-main);min-height:100vh;font-family:var(--font-sans);color:var(--text-main);margin:0;">
+{% include '_public_nav.html' %}
+
+<div class="pricing-hero-v3">
+  <h1>Choose Your <span style="color:var(--accent-primary);-webkit-text-fill-color:var(--accent-primary);">Power Level</span></h1>
+  <p class="subtitle">One-time payment. No subscriptions. No hidden fees. Starting at $5. Pay with crypto.</p>
+</div>
+
+<!-- Billing Toggle -->
+<div class="billing-toggle">
+  <label id="lblOneTime" class="active" onclick="setBilling('onetime')">One-Time</label>
+  <div class="toggle-track" id="billingTrack" onclick="toggleBilling()">
+    <div class="toggle-thumb"></div>
+  </div>
+  <label id="lblAnnual" onclick="setBilling('annual')">
+    Annual <span class="savings-badge">Save 20%</span>
+  </label>
+</div>
+
+<!-- Flash Sale Banner -->
+<div class="flash-banner-v3" id="flashBannerV3">
+  <div class="fs-icon">⚡</div>
+  <div class="fs-deal">
+    <strong id="flashDealNameV3">Flash Sale</strong>
+    <span class="fs-pct" id="flashDiscountV3">30% OFF</span>
+  </div>
+  <div class="fs-countdown" id="flashCountdownV3">0h 00m 00s</div>
+</div>
+
+<section class="pricing-section-v3" id="pricing-section">
+  <h2>// Pricing Tiers</h2>
+  <p class="sub">Start your campaign. Upgrade when you're ready.</p>
+
+  <div class="pricing-grid-v3">
+    {% for tier in pricing.tiers %}
+    {% set discount = flash_discount or 0 %}
+    {% set discounted = (tier.price_usd * (100 - discount) / 100) if discount > 0 else tier.price_usd %}
+    <div class="pricing-card-v3 {% if tier.highlight %}highlight{% endif %}" data-tier="{{ tier.id }}" data-price="{{ tier.price_usd }}" {% if discount > 0 %}style="border-color:rgba(239,68,68,0.3);"{% endif %}>
+      <div class="card-glow"></div>
+      {% if tier.badge %}
+      <div class="badge-v3 {% if tier.badge == 'PREMIUM' %}premium{% elif tier.badge == 'BEST VALUE' %}best-value{% endif %}">{{ tier.badge }}</div>
+      {% endif %}
+      {% if discount > 0 %}
+      <div class="badge-v3 flash" style="top:-14px;">{{ "%.0f"|format(discount) }}% OFF</div>
+      {% endif %}
+      <div class="tier-name-v3">{{ tier.name|upper }}</div>
+      <h3>{{ tier.name }}</h3>
+      <div class="companies-v3">{{ "{:,}".format(tier.companies) }} <span>companies</span></div>
+      <div class="price-v3 {% if tier.price_usd == 0 %}free{% endif %}">
+        {% if tier.price_usd == 0 %}
+        FREE
+        {% elif discount > 0 %}
+        <span class="original">${{ "%.0f"|format(tier.price_usd) }}</span>
+        <span class="flash-price">${{ "%.0f"|format(discounted) }}</span>
+        {% else %}
+        ${{ "%.0f"|format(tier.price_usd) }}
+        {% endif %}
+      </div>
+      {% if tier.original_price > tier.price_usd and tier.price_usd > 0 %}
+      <div class="original-price-v3">Was ${{ "%.0f"|format(tier.original_price) }}</div>
+      {% endif %}
+      <div class="per-v3">{{ tier.per_company }} / company</div>
+      <ul>
+        {% for feature in tier.features %}
+        <li onclick="toggleFeatureDetail(this)">
+          {{ feature }}
+          <span class="expand-icon">▼</span>
+          <div class="feature-detail">Detailed information about {{ feature|lower }} — includes full support and configuration.</div>
+        </li>
+        {% endfor %}
+      </ul>
+      <a href="{{ '/new-campaign' if is_logged_in else '/register' }}" class="btn {{ tier.button_class }}">{{ tier.button_text }}</a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Bulk Discount Calculator -->
+<section class="pricing-section-v3" style="padding-top:0;">
+  <h2>// Bulk Discount Calculator</h2>
+  <p class="sub">Buy multiple campaigns and save big.</p>
+  <div class="bulk-calc-v3">
+    <div style="margin-bottom:20px;">
+      <label>Number of Campaigns</label>
+      <input type="range" id="bulkQtyV3" min="1" max="20" value="1" step="1" oninput="updateBulkCalcV3(this.value)">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-top:4px;">
+        <span>1</span><span>5</span><span>10</span><span>15</span><span>20</span>
+      </div>
+    </div>
+    <div class="bulk-qty-display" id="bulkQtyDisplayV3">1</div>
+    <div style="color:var(--text-muted);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">CAMPAIGNS</div>
+    <div class="bulk-stats">
+      <div class="bulk-stat">
+        <div class="stat-label">Normal Price</div>
+        <div class="stat-value strikethrough" id="bulkNormalV3">$0</div>
+      </div>
+      <div class="bulk-stat">
+        <div class="stat-label">Your Price</div>
+        <div class="stat-value flash" id="bulkPriceV3">$0</div>
+      </div>
+      <div class="bulk-stat">
+        <div class="stat-label">You Save</div>
+        <div class="stat-value savings" id="bulkSaveV3">$0</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Urgency Counter -->
+<section class="pricing-section-v3" style="padding:30px 20px 10px;">
+  <div class="urgency-box-v3">
+    <div class="urgency-stats">
+      <div class="urgency-stat">
+        <div class="ur-value secondary">14</div>
+        <div class="ur-label">People viewing now</div>
+      </div>
+      <div class="urgency-stat">
+        <div class="ur-value primary">3</div>
+        <div class="ur-label">Purchased today</div>
+      </div>
+      <div class="urgency-stat">
+        <div class="ur-value success">2</div>
+        <div class="ur-label">Limited spots left</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Comparison Table -->
+<section class="pricing-section-v3" style="padding-top:20px;">
+  <h2>// Manual vs JobHunt Pro</h2>
+  <p class="sub">See the difference automation makes.</p>
+  <div class="comparison-table-v3">
+    <div class="comparison-row-v3">
+      <span class="label">Applications per day</span>
+      <span class="them">5-10 manual</span>
+      <span class="you">2,000+ automated</span>
+    </div>
+    <div class="comparison-row-v3">
+      <span class="label">Time spent</span>
+      <span class="them">8 hours/day</span>
+      <span class="you">0 hours (automated)</span>
+    </div>
+    <div class="comparison-row-v3">
+      <span class="label">Cover letters</span>
+      <span class="them">Generic template</span>
+      <span class="you">AI personalized</span>
+    </div>
+    <div class="comparison-row-v3">
+      <span class="label">Follow-ups</span>
+      <span class="them">Forget most</span>
+      <span class="you">Auto at 7 + 14 days</span>
+    </div>
+    <div class="comparison-row-v3">
+      <span class="label">Cost</span>
+      <span class="them">$2,000+/mo recruiter</span>
+      <span class="you">$5 one-time</span>
+    </div>
+    <div class="comparison-row-v3">
+      <span class="label">Interview rate</span>
+      <span class="them">2-5%</span>
+      <span class="you">8-15% (AI optimized)</span>
+    </div>
+  </div>
+</section>
+
+<!-- A La Carte Services -->
+<section class="pricing-section-v3" style="padding-top:20px;">
+  <h2>// A La Carte Services</h2>
+  <p class="sub">Need something specific? Pick individual services.</p>
+  <div class="service-grid-v3">
+    {% for service in pricing.services %}
+    <div class="service-card-v3">
+      <div class="service-info-v3">
+        <h3>{{ service.name }}</h3>
+        <p>{{ service.description }}</p>
+      </div>
+      <div class="service-price-v3">${{ service.price_usd }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Crypto Section -->
+<section class="crypto-section-v3">
+  <h2>💎 Pay with Crypto</h2>
+  <p>No credit card required. No hidden fees. Instant activation.</p>
+  <div class="crypto-icons-v3">
+    <span>BTC</span>
+    <span>ETH</span>
+    <span>USDT</span>
+    <span>LTC</span>
+    <span>SOL</span>
+    <span>USDC</span>
+  </div>
+</section>
+
+<!-- Social Proof -->
+<section class="social-proof-v3">
+  <div class="stars">★★★★★</div>
+  <h2>2,847 Job Seekers Already Using This</h2>
+  <p>Average user sends 847 applications in their first month. Start your campaign today.</p>
+</section>
+
+<footer class="pricing-footer-v3">
+  &copy; 2026 JOBHUNT PRO. PAY WITH CRYPTO: BTC, ETH, USDT, LTC, SOL, USDC. PLANS START FROM $2.
+</footer>
+
+<!-- Social Toast -->
+<div class="social-toast-v3" id="socialToastV3">
+  <button class="toast-close-v3" onclick="document.getElementById('socialToastV3').classList.remove('show')">✕</button>
+  <div class="st-avatar" id="stAvatarV3"></div>
+  <div class="st-content">
+    <div class="st-name" id="stNameV3"></div>
+    <div class="st-action" id="stActionV3"></div>
+    <div class="st-time" id="stTimeV3"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// PRICING v3 — JavaScript
+// ═══════════════════════════════════════════════════════════
+
+/* ── Billing Toggle ── */
+let billingMode = 'onetime';
+function toggleBilling() {
+  setBilling(billingMode === 'onetime' ? 'annual' : 'onetime');
+}
+function setBilling(mode) {
+  billingMode = mode;
+  const track = document.getElementById('billingTrack');
+  const lbl1 = document.getElementById('lblOneTime');
+  const lbl2 = document.getElementById('lblAnnual');
+  if (mode === 'annual') {
+    track.classList.add('annual');
+    lbl1.classList.remove('active');
+    lbl2.classList.add('active');
+  } else {
+    track.classList.remove('annual');
+    lbl1.classList.add('active');
+    lbl2.classList.remove('active');
+  }
+  // Update prices with 20% discount for annual
+  document.querySelectorAll('.pricing-card-v3').forEach(function(card) {
+    const basePrice = parseFloat(card.dataset.price) || 0;
+    const priceEl = card.querySelector('.price-v3');
+    if (!priceEl || basePrice === 0) return;
+    if (mode === 'annual') {
+      const discounted = (basePrice * 0.8).toFixed(0);
+      priceEl.innerHTML = '$' + discounted + ' <span style="font-size:11px;color:var(--accent-success);font-weight:600;">/yr</span>';
+    } else {
+      priceEl.innerHTML = '$' + basePrice;
+    }
+  });
+}
+
+/* ── Feature Detail Expansion ── */
+function toggleFeatureDetail(el) {
+  const detail = el.querySelector('.feature-detail');
+  const icon = el.querySelector('.expand-icon');
+  if (!detail) return;
+  const isOpen = detail.classList.contains('open');
+  document.querySelectorAll('.feature-detail.open').forEach(function(d) { d.classList.remove('open'); });
+  document.querySelectorAll('.expand-icon.open').forEach(function(i) { i.classList.remove('open'); });
+  if (!isOpen) {
+    detail.classList.add('open');
+    if (icon) icon.classList.add('open');
+  }
+}
+
+/* ── Bulk Discount Calculator ── */
+function updateBulkCalcV3(qty) {
+  qty = parseInt(qty) || 1;
+  var firstCard = document.querySelector('.pricing-card-v3[data-price]');
+  const basePrice = firstCard ? parseFloat(firstCard.dataset.price) : 15;
+  const discounts = {1:0, 2:5, 3:10, 5:15, 10:20, 15:25, 20:30};
+  let pct = 0;
+  for (let threshold of Object.keys(discounts).map(Number).sort(function(a,b){return b-a;})) {
+    if (qty >= threshold) { pct = discounts[threshold]; break; }
+  }
+  const normal = basePrice * qty;
+  const discounted = normal * (100 - pct) / 100;
+  const save = normal - discounted;
+  document.getElementById('bulkQtyDisplayV3').textContent = qty;
+  document.getElementById('bulkNormalV3').textContent = '$' + normal.toFixed(2);
+  document.getElementById('bulkPriceV3').textContent = '$' + discounted.toFixed(2);
+  document.getElementById('bulkSaveV3').textContent = '$' + save.toFixed(2) + ' (' + pct + '% off)';
+}
+
+/* ── Flash Sale Fetch & Countdown ── */
+(function() {
+  const banner = document.getElementById('flashBannerV3');
+  if (!banner) return;
+  fetch('/api/flash-sales')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.success || !data.flash_sales || data.flash_sales.length === 0) return;
+    const fs = data.flash_sales[0];
+    document.getElementById('flashDealNameV3').textContent = fs.title;
+    document.getElementById('flashDiscountV3').textContent = Math.round(fs.discount_percent) + '%';
+    banner.classList.add('active');
+    const endTime = new Date(fs.end_time.replace(' ', 'T') + 'Z').getTime();
+    function updateTimer() {
+      const diff = endTime - new Date().getTime();
+      if (diff <= 0) {
+        document.getElementById('flashCountdownV3').textContent = '🔥 SALE ENDED!';
+        return;
+      }
+      const h = Math.floor(diff / (1000*60*60));
+      const m = Math.floor((diff % (1000*60*60)) / (1000*60));
+      const s = Math.floor((diff % (1000*60)) / 1000);
+      document.getElementById('flashCountdownV3').textContent =
+        h.toString().padStart(2,'0') + 'h ' + m.toString().padStart(2,'0') + 'm ' + s.toString().padStart(2,'0') + 's';
+    }
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  })
+  .catch(function() {});
+})();
+
+/* ── Social Proof Toasts ── */
+(function(){
+  var purchases = [
+    {name:'Ahmed from Dubai',action:'just purchased PRO Plan ($30)',avatar:'AK',bg:'#6366f1'},
+    {name:'Sara from Beirut',action:'just upgraded to ULTIMATE',avatar:'SR',bg:'#ec4899'},
+    {name:'Mohamed from Riyadh',action:'signed up for Free Trial',avatar:'MH',bg:'#10b981'},
+    {name:'Karim from Doha',action:'just bought ENTERPRISE ($500)',avatar:'KR',bg:'#f59e0b'},
+    {name:'Nour from Kuwait',action:'started INFINITY campaign',avatar:'NR',bg:'#8b5cf6'},
+    {name:'Hassan from Muscat',action:'purchased PRO+ Plan',avatar:'HS',bg:'#ef4444'},
+    {name:'Layla from Manama',action:'just got 3 interview calls',avatar:'LA',bg:'#06b6d4'},
+    {name:'Omar from Amman',action:'upgraded to ADVANCED tier',avatar:'OM',bg:'#84cc16'},
+  ];
+  var idx = 0;
+  function showToast() {
+    var p = purchases[idx % purchases.length];
+    var el = document.getElementById('socialToastV3');
+    document.getElementById('stAvatarV3').style.background = p.bg;
+    document.getElementById('stAvatarV3').textContent = p.avatar;
+    document.getElementById('stNameV3').textContent = p.name;
+    document.getElementById('stActionV3').textContent = p.action;
+    document.getElementById('stTimeV3').textContent = 'Just now';
+    el.classList.add('show');
+    setTimeout(function(){ el.classList.remove('show'); }, 4000);
+    idx++;
+  }
+  showToast();
+  setInterval(showToast, 15000 + Math.random()*20000);
+})();
+
+/* ── Scroll Reveal Observer ── */
+(function() {
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(function(el) {
+    observer.observe(el);
+  });
+})();
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', function() {
+  updateBulkCalcV3(1);
+});
+</script>
+</body>
+</html>

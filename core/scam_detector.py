@@ -65,6 +65,28 @@ SCAM_COMPANY_PATTERNS = {
         "telegram interview", "no experience required $",
         "work from home no experience",
     ],
+    # ── 2025 Emerging Scam Categories ──────────────────────────────────
+    "ai_phishing_jobs": [
+        "chatgpt evaluator remote $", "ai trainer work from home",
+        "llm tester no experience", "ai data labeler $500",
+        "prompt evaluator $1000", "ai model tester part time",
+        "openai contractor remote $300", "google deepmind remote tester",
+        "anthropic evaluator work",
+    ],
+    "discord_signal_scams": [
+        "interview via discord", "apply on discord",
+        "discord interview link", "signal interview",
+        "apply via signal", "contact on discord",
+        "job offer discord", "job discord server",
+    ],
+    "social_engineering": [
+        "send your bank details", "bank account for payroll",
+        "advance fee", "training fee required", "pay for kit",
+        "equipment deposit", "background check fee", "visa processing fee",
+        "pay before starting", "upfront investment",
+        "wire transfer advance", "western union payment",
+        "gift card payment", "zelle payment first",
+    ],
 }
 
 SCAM_TITLE_KEYWORDS = [
@@ -80,6 +102,9 @@ SCAM_TLD_BLOCKLIST = [
     ".xyz", ".top", ".tk", ".ml", ".ga", ".cf",
     ".gq", ".work", ".click", ".link", ".country",
     ".loan", ".stream", ".download", ".racing",
+    # 2025 additions
+    ".vip", ".icu", ".buzz", ".fun", ".monster",
+    ".cyou", ".sbs", ".quest",
 ]
 
 SCAM_SALARY_FLAGS = [
@@ -212,13 +237,22 @@ class ScamDetector:
             return True, "Scam detected: Telegram recruitment/interview channel"
         if "whatsapp" in combined_lower and any(w in combined_lower for w in ["interview", "recruit", "hiring", "apply", "contact", "cv", "send"]):
             return True, "Scam detected: WhatsApp recruitment/interview channel"
+        if "discord" in combined_lower and any(w in combined_lower for w in ["interview", "recruit", "hiring", "apply", "job"]):
+            return True, "Scam detected: Discord recruitment channel (2025 scam vector)"
+        if "signal" in combined_lower and any(w in combined_lower for w in ["interview", "apply", "job offer", "hiring"]):
+            return True, "Scam detected: Signal messaging recruitment (2025 scam vector)"
 
         high_risk_scam_flags = [
-            "envelope stuffing", "package forwarding", "package handler home"
+            "envelope stuffing", "package forwarding", "package handler home",
+            "send your bank details", "advance fee", "training fee required",
+            "pay for kit", "equipment deposit", "background check fee",
+            "visa processing fee", "pay before starting", "upfront investment",
+            "wire transfer advance", "western union payment",
+            "gift card payment", "zelle payment first",
         ]
         if any(f in combined_lower for f in high_risk_scam_flags):
             return True, "Scam detected: package or work-from-home fraud flag"
-            
+
         # Mild urgency/entry indicators (only block if multiple are present AND combined with low-skill terms)
         mild_flags = ["no interview", "no experience", "immediate hire", "walk in", "urgent opening"]
         mild_count = sum(1 for f in mild_flags if f in combined_lower)

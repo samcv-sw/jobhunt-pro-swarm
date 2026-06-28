@@ -69,6 +69,7 @@ LOCATIONS = ["Dubai", "Riyadh", "Beirut", "Doha", "Kuwait City", "Manama", "Musc
 
 def monkey_patch_scraper(worker_url: str):
     """Monkey patch BaseScraper._get to route requests through Cloudflare Worker Google Cache scrape."""
+    original_get = BaseScraper._get
     
     def mock_get(self, url: str, extra_headers=None, max_retries=2) -> Optional[httpx.Response]:
         logger.info(f"Routing request through Cloudflare Worker Scrape: {url}")
@@ -80,23 +81,41 @@ def monkey_patch_scraper(worker_url: str):
             if resp.status_code == 200:
                 data = resp.json()
                 if "error" in data:
-                    logger.warning(f"Worker scrape returned error for {url}: {data['error']}")
-                    return None
-                
-                content = data.get("content", "")
-                if content:
-                    logger.info(f"Successfully scraped {len(content)} bytes for {url}")
-                    # Return mock httpx.Response object
-                    mock_resp = httpx.Response(
-                        status_code=200,
-                        content=content.encode("utf-8"),
-                        request=httpx.Request("GET", url)
-                    )
-                    return mock_resp
-            logger.warning(f"Worker returned status {resp.status_code} for {url}")
+                    logger.warning(f"Worker scrape returned error for {url}: {data['error']}. Falling back to direct request.")
+                else:
+                    content = data.get("content", "")
+                    if content:
+                        content_lower = content.lower()
+                        block_indicators = [
+                            "cf-challenge", 
+                            "cf-cookie-error",
+                            "cf-browser-verification", 
+                            "attention required! | cloudflare",
+                            "cloudflare ray id",
+                            "ray id:",
+                            "captcha-bypass",
+                            "hcaptcha",
+                            "recaptcha"
+                        ]
+                        if any(ind in content_lower for ind in block_indicators):
+                            logger.warning(f"Worker request for {url} returned a Cloudflare block page. Falling back to direct request.")
+                        else:
+                            logger.info(f"Successfully scraped {len(content)} bytes for {url}")
+                            # Return mock httpx.Response object
+                            mock_resp = httpx.Response(
+                                status_code=200,
+                                content=content.encode("utf-8"),
+                                request=httpx.Request("GET", url)
+                            )
+                            return mock_resp
+            else:
+                logger.warning(f"Worker returned status {resp.status_code} for {url}. Falling back to direct request.")
         except Exception as e:
-            logger.error(f"Error fetching from worker scraper: {e}")
-        return None
+            logger.error(f"Error fetching from worker scraper: {e}. Falling back to direct request.")
+            
+        # Fall back to original direct request
+        logger.info(f"Executing original direct request fallback for {url}")
+        return original_get(self, url, extra_headers=extra_headers, max_retries=max_retries)
 
     BaseScraper._get = mock_get
     logger.info("BaseScraper._get successfully monkey-patched to use Cloudflare Worker.")

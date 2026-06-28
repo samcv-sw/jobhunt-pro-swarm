@@ -125,57 +125,70 @@ class ResponseParser:
         return len(found), found
 
     def parse(self, subject: str, body: str, from_email: str = "") -> ParseResult:
-        text = f"{subject} {body}".lower()
+        """Parse an email response and classify it. Returns UNKNOWN on unexpected errors."""
+        try:
+            text = f"{subject} {body}".lower()
 
-        interview_count, interview_kw = self._count_matches(text, self.interview_patterns)
-        rejection_count, rejection_kw = self._count_matches(text, self.rejection_patterns)
-        offer_count, offer_kw = self._count_matches(text, self.offer_patterns)
-        followup_count, followup_kw = self._count_matches(text, self.followup_patterns)
-        auto_count, auto_kw = self._count_matches(text, self.auto_reply_patterns)
-        spam_count, spam_kw = self._count_matches(text, self.spam_patterns)
+            interview_count, interview_kw = self._count_matches(text, self.interview_patterns)
+            rejection_count, rejection_kw = self._count_matches(text, self.rejection_patterns)
+            offer_count, offer_kw = self._count_matches(text, self.offer_patterns)
+            followup_count, followup_kw = self._count_matches(text, self.followup_patterns)
+            auto_count, auto_kw = self._count_matches(text, self.auto_reply_patterns)
+            spam_count, spam_kw = self._count_matches(text, self.spam_patterns)
 
-        scores = {
-            ResponseType.INTERVIEW: interview_count * 3,
-            ResponseType.REJECTION: rejection_count * 4,
-            ResponseType.OFFER: offer_count * 5,
-            ResponseType.FOLLOWUP: followup_count * 2,
-            ResponseType.AUTO_REPLY: auto_count * 3,
-            ResponseType.SPAM: spam_count * 2,
-        }
+            scores = {
+                ResponseType.INTERVIEW: interview_count * 3,
+                ResponseType.REJECTION: rejection_count * 4,
+                ResponseType.OFFER: offer_count * 5,
+                ResponseType.FOLLOWUP: followup_count * 2,
+                ResponseType.AUTO_REPLY: auto_count * 3,
+                ResponseType.SPAM: spam_count * 2,
+            }
 
-        max_type = max(scores, key=scores.get)
-        max_score = scores[max_type]
+            max_type = max(scores, key=scores.get)
+            max_score = scores[max_type]
 
-        if max_score == 0:
-            response_type = ResponseType.UNKNOWN
-            confidence = 0.0
-            keywords_found = []
-        else:
-            response_type = max_type
-            confidence = min(max_score / 10, 1.0)
-            all_kw = interview_kw + rejection_kw + offer_kw + followup_kw + auto_kw + spam_kw
-            keywords_found = list(set(all_kw))
+            if max_score == 0:
+                response_type = ResponseType.UNKNOWN
+                confidence = 0.0
+                keywords_found = []
+            else:
+                response_type = max_type
+                confidence = min(max_score / 10, 1.0)
+                all_kw = interview_kw + rejection_kw + offer_kw + followup_kw + auto_kw + spam_kw
+                keywords_found = list(set(all_kw))
 
-        if response_type == ResponseType.INTERVIEW:
-            sentiment = "positive"
-        elif response_type in (ResponseType.REJECTION, ResponseType.SPAM):
-            sentiment = "negative"
-        elif response_type == ResponseType.OFFER:
-            sentiment = "very_positive"
-        else:
-            sentiment = "neutral"
+            if response_type == ResponseType.INTERVIEW:
+                sentiment = "positive"
+            elif response_type in (ResponseType.REJECTION, ResponseType.SPAM):
+                sentiment = "negative"
+            elif response_type == ResponseType.OFFER:
+                sentiment = "very_positive"
+            else:
+                sentiment = "neutral"
 
-        should_reply, reply_text = self._generate_reply(response_type, body, from_email)
+            should_reply, reply_text = self._generate_reply(response_type, body, from_email)
 
-        return ParseResult(
-            response_type=response_type,
-            confidence=confidence,
-            keywords_found=keywords_found,
-            sentiment=sentiment,
-            should_reply=should_reply,
-            reply_text=reply_text,
-            calendar_link=self.calendly_link
-        )
+            return ParseResult(
+                response_type=response_type,
+                confidence=confidence,
+                keywords_found=keywords_found,
+                sentiment=sentiment,
+                should_reply=should_reply,
+                reply_text=reply_text,
+                calendar_link=self.calendly_link
+            )
+        except Exception as e:
+            logger.error(f"[ResponseParser] parse() failed unexpectedly: {e}", exc_info=True)
+            return ParseResult(
+                response_type=ResponseType.UNKNOWN,
+                confidence=0.0,
+                keywords_found=[],
+                sentiment="neutral",
+                should_reply=False,
+                reply_text="",
+                calendar_link=self.calendly_link,
+            )
 
     def _generate_reply(self, response_type: ResponseType, body: str,
                         from_email: str) -> Tuple[bool, str]:
@@ -203,6 +216,7 @@ class ResponseParser:
             return False, ""
 
     def parse_batch(self, emails: list) -> Dict[str, int]:
+        """Parse a batch of emails and return aggregated stats."""
         stats = {
             "total": len(emails),
             "interview": 0,
@@ -212,19 +226,25 @@ class ResponseParser:
             "auto_reply": 0,
             "spam": 0,
             "unknown": 0,
-            "should_reply": 0
+            "should_reply": 0,
+            "errors": 0,
         }
 
         for email in emails:
-            subject = email.get("subject", "")
-            body = email.get("body", "")
-            from_email = email.get("from", "")
+            try:
+                subject = email.get("subject", "")
+                body = email.get("body", "")
+                from_email = email.get("from", "")
 
-            result = self.parse(subject, body, from_email)
+                result = self.parse(subject, body, from_email)
 
-            stats[result.response_type.value] += 1
-            if result.should_reply:
-                stats["should_reply"] += 1
+                stats[result.response_type.value] += 1
+                if result.should_reply:
+                    stats["should_reply"] += 1
+            except Exception as e:
+                logger.warning(f"[ResponseParser] parse_batch: skipping malformed email: {e}")
+                stats["errors"] += 1
+                stats["unknown"] += 1
 
         return stats
 

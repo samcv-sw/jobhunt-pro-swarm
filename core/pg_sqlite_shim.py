@@ -5,10 +5,11 @@ import os
 import logging
 import sqlite3 as real_sqlite3
 import re
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 logger = logging.getLogger(__name__)
 
-def _safe_str(val) -> str:
+def _safe_str(val: Any) -> str:
     """Sanitize string for safe logging in windows environments with default encoding."""
     if isinstance(val, bytes):
         return val.decode("utf-8", errors="ignore")
@@ -48,7 +49,7 @@ class NotSupportedError(real_sqlite3.NotSupportedError):
 class InternalError(real_sqlite3.InternalError):
     pass
 
-def convert_sql(query):
+def convert_sql(query: str) -> str:
     """Convert SQLite SQL to PostgreSQL-compatible SQL.
     Handles: ? → %s, AUTOINCREMENT → SERIAL, datetime() → PG timestamp ops, PRAGMA → skip,
              INSERT OR IGNORE, and INSERT OR REPLACE.
@@ -101,7 +102,7 @@ def convert_sql(query):
     sql = re.sub(r"\blast_insert_rowid\(\)", "lastval()", sql, flags=re.IGNORECASE)
     
     # Replace: datetime('now', '...offset...') → NOW() +/- INTERVAL '...offset...'
-    def _fix_datetime(m):
+    def _fix_datetime(m: re.Match[str]) -> str:
         inner = m.group(1)
         parts = [p.strip().strip("'\"") for p in inner.split(',')]
         if len(parts) == 1:
@@ -144,14 +145,14 @@ class PgRow:
     Supports both integer indexing (row[0]) and column name access (row['name']),
     plus .get() method, matching the sqlite3.Row interface.
     """
-    def __init__(self, cursor, row_tuple):
+    def __init__(self, cursor: Any, row_tuple: Union[Tuple[Any, ...], List[Any]]) -> None:
         self._row = tuple(row_tuple)
-        self._columns = []
+        self._columns: List[str] = []
         if cursor and cursor.description:
             self._columns = [col[0] for col in cursor.description]
         self._col_map = {col.lower(): i for i, col in enumerate(self._columns)}
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Union[int, slice, str]) -> Any:
         if isinstance(key, (int, slice)):
             return self._row[key]
         if isinstance(key, str):
@@ -161,32 +162,32 @@ class PgRow:
             raise KeyError(key)
         raise TypeError(f"Row indices must be integers or strings, not {type(key).__name__}")
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._row)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Any]:
         return iter(self._row)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(dict(zip(self._columns, self._row)))
 
-    def keys(self):
+    def keys(self) -> List[str]:
         return self._columns
 
-    def get(self, key, default=None):
+    def get(self, key: Union[int, str], default: Any = None) -> Any:
         try:
             return self[key]
         except (KeyError, IndexError, TypeError):
             return default
 
 class PgCursorWrapper:
-    def __init__(self, cursor, connection):
+    def __init__(self, cursor: Any, connection: Any) -> None:
         self.cursor = cursor
         self.connection = connection
-        self.lastrowid = None
-        self._description = None
+        self.lastrowid: Optional[int] = None
+        self._description: Optional[Any] = None
 
-    def _wrap_row(self, row_tuple):
+    def _wrap_row(self, row_tuple: Tuple[Any, ...]) -> Any:
         """Apply row_factory if set, otherwise return a PgRow for compatibility."""
         if self.connection.row_factory:
             try:
@@ -196,7 +197,7 @@ class PgCursorWrapper:
                 return PgRow(self.cursor, row_tuple)
         return PgRow(self.cursor, row_tuple)
         
-    def execute(self, query, params=None):
+    def execute(self, query: str, params: Optional[Union[Dict[str, Any], Tuple[Any, ...], List[Any]]] = None) -> 'PgCursorWrapper':
         pg_query = convert_sql(query)
         if not pg_query:
             return self
@@ -234,7 +235,7 @@ class PgCursorWrapper:
             
         return self
 
-    def executemany(self, query, seq_of_params):
+    def executemany(self, query: str, seq_of_params: Iterable[Any]) -> 'PgCursorWrapper':
         pg_query = convert_sql(query)
         try:
             self.cursor.executemany(pg_query, seq_of_params)
@@ -244,7 +245,7 @@ class PgCursorWrapper:
             raise IntegrityError(e)
         return self
         
-    def fetchone(self):
+    def fetchone(self) -> Optional[Any]:
         try:
             res = self.cursor.fetchone()
             if res is None:
@@ -261,7 +262,7 @@ class PgCursorWrapper:
                 pass
             raise e
         
-    def fetchall(self):
+    def fetchall(self) -> List[Any]:
         try:
             rows = self.cursor.fetchall()
             return [self._wrap_row(tuple(r)) for r in rows]
@@ -271,7 +272,7 @@ class PgCursorWrapper:
             except:
                 pass
         
-    def fetchmany(self, size=None):
+    def fetchmany(self, size: Optional[int] = None) -> List[Any]:
         try:
             if size is None:
                 rows = self.cursor.fetchmany()
@@ -290,33 +291,33 @@ class PgCursorWrapper:
                 pass
             raise e
         
-    def close(self):
+    def close(self) -> None:
         try:
             self.cursor.close()
         except:
             pass
 
-    def __iter__(self):
+    def __iter__(self) -> 'PgCursorWrapper':
         return self
 
-    def __next__(self):
+    def __next__(self) -> Any:
         row = self.fetchone()
         if row is None:
             raise StopIteration
         return row
 
-    def __del__(self):
+    def __del__(self) -> None:
         try:
             self.cursor.close()
         except:
             pass
 
     @property
-    def rowcount(self):
+    def rowcount(self) -> int:
         return self.cursor.rowcount
 
     @property
-    def description(self):
+    def description(self) -> Optional[Any]:
         return self.cursor.description
 
 class PgConnectionWrapper:
@@ -338,8 +339,8 @@ class PgConnectionWrapper:
             BACKEND = "pg"
         except psycopg2.OperationalError as e:
             raise OperationalError(e)
-            
-    def execute(self, query, params=None):
+
+    def execute(self, query: str, params: Optional[Union[Dict[str, Any], Tuple[Any, ...], List[Any]]] = None) -> PgCursorWrapper:
         if query:
             q_upper = query.strip().upper()
             if q_upper.startswith("BEGIN"):
@@ -348,22 +349,22 @@ class PgConnectionWrapper:
                 self._in_transaction = False
             elif q_upper.startswith("ROLLBACK"):
                 self._in_transaction = False
-                
+                 
         cur = self.conn.cursor()
         wrapper = PgCursorWrapper(cur, self)
         return wrapper.execute(query, params)
         
-    def executescript(self, script):
+    def executescript(self, script: str) -> PgCursorWrapper:
         cur = self.conn.cursor()
         wrapper = PgCursorWrapper(cur, self)
         return wrapper.execute(script)
 
-    def executemany(self, query, seq_of_params):
+    def executemany(self, query: str, seq_of_params: Iterable[Any]) -> PgCursorWrapper:
         cur = self.conn.cursor()
         wrapper = PgCursorWrapper(cur, self)
         return wrapper.executemany(query, seq_of_params)
         
-    def commit(self):
+    def commit(self) -> None:
         try:
             if self.conn:
                 if getattr(self.conn, "autocommit", False):
@@ -376,7 +377,7 @@ class PgConnectionWrapper:
         except Exception as e:
             logger.debug(f"Commit failed: {e}")
         
-    def rollback(self):
+    def rollback(self) -> None:
         try:
             if self.conn:
                 if getattr(self.conn, "autocommit", False):
@@ -389,20 +390,20 @@ class PgConnectionWrapper:
         except Exception as e:
             logger.debug(f"Rollback failed: {e}")
 
-    def cursor(self):
+    def cursor(self) -> PgCursorWrapper:
         cur = self.conn.cursor()
         return PgCursorWrapper(cur, self)
         
-    def close(self):
+    def close(self) -> None:
         global PG_POOL
         if PG_POOL and self.conn:
             PG_POOL.putconn(self.conn)
             self.conn = None
         
-    def __enter__(self):
+    def __enter__(self) -> 'PgConnectionWrapper':
         return self
         
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         try:
             if exc_type is None:
                 self.commit()
@@ -411,7 +412,7 @@ class PgConnectionWrapper:
         finally:
             self.close()
 
-    def __del__(self):
+    def __del__(self) -> None:
         try:
             self.close()
         except:
@@ -419,7 +420,7 @@ class PgConnectionWrapper:
 
 class SqliteConnectionWrapper:
     """SQLite fallback wrapper with same interface as PgConnectionWrapper."""
-    def __init__(self, db_path):
+    def __init__(self, db_path: Union[str, Any]) -> None:
         global BACKEND
         self.conn = real_sqlite3.connect(db_path, check_same_thread=False, timeout=30)
         self.conn.row_factory = DictLikeRow
@@ -433,7 +434,7 @@ class SqliteConnectionWrapper:
         BACKEND = "sqlite"
         logger.info(f"[DB] Connected to SQLite fallback: {_safe_str(db_path)}")
         
-    def execute(self, query, params=None):
+    def execute(self, query: str, params: Optional[Union[Dict[str, Any], Tuple[Any, ...], List[Any]]] = None) -> real_sqlite3.Cursor:
         cur = self.conn.cursor()
         if params is not None:
             cur.execute(query, params)
@@ -441,31 +442,31 @@ class SqliteConnectionWrapper:
             cur.execute(query)
         return cur
         
-    def executescript(self, script):
+    def executescript(self, script: str) -> real_sqlite3.Cursor:
         self.conn.executescript(script)
         return self.conn.cursor()
 
-    def executemany(self, query, seq_of_params):
+    def executemany(self, query: str, seq_of_params: Iterable[Any]) -> real_sqlite3.Cursor:
         cur = self.conn.cursor()
         cur.executemany(query, seq_of_params)
         return cur
         
-    def commit(self):
+    def commit(self) -> None:
         self.conn.commit()
         
-    def rollback(self):
+    def rollback(self) -> None:
         self.conn.rollback()
 
-    def cursor(self):
+    def cursor(self) -> real_sqlite3.Cursor:
         return self.conn.cursor()
         
-    def close(self):
+    def close(self) -> None:
         self.conn.close()
         
-    def __enter__(self):
+    def __enter__(self) -> 'SqliteConnectionWrapper':
         return self
         
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         try:
             if exc_type is None:
                 self.commit()
@@ -474,14 +475,14 @@ class SqliteConnectionWrapper:
         finally:
             self.close()
 
-def should_use_pg(db_path):
-    # FORCE_PG=1 bypasses all checks and forces PostgreSQL mode
-    if os.getenv("FORCE_PG") == "1":
-        return True
+def should_use_pg(db_path: Optional[Union[str, Any]]) -> bool:
     # If running inside unit tests/pytest, do NOT use PostgreSQL to keep tests isolated
     import sys
     if "unittest" in sys.modules or "pytest" in sys.modules or any("pytest" in arg or "unittest" in arg for arg in sys.argv):
         return False
+    # FORCE_PG=1 bypasses all checks and forces PostgreSQL mode
+    if os.getenv("FORCE_PG") == "1":
+        return True
     if not db_path:
         return True
     db_path_str = str(db_path).lower()
@@ -497,7 +498,7 @@ def should_use_pg(db_path):
     main_db_indicators = ["saas", "sam_max", "jobhunt", "database_v2", "database.db", "database.sqlite3", "leads"]
     return any(indicator in db_path_str for indicator in main_db_indicators)
 
-def connect(db_path=None, **kwargs):
+def connect(db_path: Optional[Union[str, Any]] = None, **kwargs: Any) -> Union[PgConnectionWrapper, SqliteConnectionWrapper]:
     """Connect to Neon PG with automatic SQLite fallback."""
     global FALLBACK_DB_PATH
     if db_path:
@@ -524,7 +525,7 @@ def connect(db_path=None, **kwargs):
 
 class DictLikeRow(real_sqlite3.Row):
     """Subclass of sqlite3.Row that adds dict-style .get() support."""
-    def get(self, key, default=None):
+    def get(self, key: Any, default: Any = None) -> Any:
         try:
             return self[key]
         except (KeyError, IndexError, TypeError):
@@ -543,6 +544,6 @@ ProgrammingError = ProgrammingError
 NotSupportedError = NotSupportedError
 InternalError = InternalError
 
-def get_backend():
+def get_backend() -> str:
     """Returns current database backend: 'pg' or 'sqlite'."""
     return BACKEND or "unknown"

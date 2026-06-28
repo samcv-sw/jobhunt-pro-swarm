@@ -14,7 +14,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
 from dataclasses import dataclass, field
 from datetime import datetime, date
 
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 _db_rate_limited_hosts = {}
 _last_db_rate_limit_check = 0.0
 
-def _load_db_rate_limits():
+def _load_db_rate_limits() -> None:
     """Load rate-limited SMTP hosts from the database to synchronize state across instances."""
     global _db_rate_limited_hosts, _last_db_rate_limit_check
     now = time.time()
@@ -120,19 +120,19 @@ class SMTPConnectionPool:
     In a Maximum Power architecture, this manages 10-50 simultaneous TLS connections 
     per provider to avoid handshake overhead on every batch send.
     """
-    def __init__(self, account: EmailAccount, max_connections: int = 10):
+    def __init__(self, account: EmailAccount, max_connections: int = 10) -> None:
         self.account = account
         self.max_connections = max_connections
         self._pool: asyncio.Queue = asyncio.Queue(maxsize=max_connections)
         self._active_connections = 0
         self._lock = asyncio.Lock()
 
-    async def acquire(self) -> smtplib.SMTP:
+    async def acquire(self) -> Optional[smtplib.SMTP]:
         """Acquire a warm SMTP connection from the pool."""
         # Implementation left for production rollout
-        pass
+        return None
 
-    async def release(self, conn: smtplib.SMTP):
+    async def release(self, conn: smtplib.SMTP) -> None:
         """Return the connection to the pool."""
         pass
 
@@ -141,7 +141,7 @@ class SMTPConnectionPool:
 class EmailSenderClient:
     """Manages SMTP connection for a single email account with quota tracking."""
 
-    def __init__(self, account: EmailAccount):
+    def __init__(self, account: EmailAccount) -> None:
         self.account = account
         self._sent_today = 0
         self._daily_reset = date.today()
@@ -152,7 +152,8 @@ class EmailSenderClient:
         self._smtp_conn: Optional[smtplib.SMTP] = None
         self._conn_lock = asyncio.Lock()
 
-    def _reset_daily_if_needed(self):
+    def _reset_daily_if_needed(self) -> None:
+        """Resets the daily counter if the current date differs from the last reset date."""
         today = date.today()
         if today != self._daily_reset:
             self._sent_today = 0
@@ -177,6 +178,7 @@ class EmailSenderClient:
         return self._sent_today < self.account.daily_limit
 
     def quota_remaining(self) -> int:
+        """Returns the number of emails left for the day."""
         self._reset_daily_if_needed()
         return max(0, self.account.daily_limit - self._sent_today)
 
@@ -313,14 +315,16 @@ class EmailSenderClient:
                 logger.warning(f"Email send error on {self.account.name}: {e}")
                 return False
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
+        """Closes the current SMTP connection."""
         if self._smtp_conn:
             try:
                 loop = asyncio.get_event_loop()
 
-                def _quit():
+                def _quit() -> None:
                     try:
-                        self._smtp_conn.quit()
+                        if self._smtp_conn:
+                            self._smtp_conn.quit()
                     except Exception:
                         pass
 
@@ -336,7 +340,7 @@ class EmailRotatorPool:
     Automatically skips accounts that are out of quota or having errors.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._accounts: List[EmailSenderClient] = []
         self._round_robin_idx = 0
         self._lock = asyncio.Lock()
@@ -370,7 +374,7 @@ class EmailRotatorPool:
 
         return None
 
-    def release_provider(self, account: EmailSenderClient):
+    def release_provider(self, account: EmailSenderClient) -> None:
         """
         Release a provider back to the pool.
         No-op in current design — providers are stateless between sends;
@@ -414,9 +418,11 @@ class EmailRotatorPool:
         return self
 
     def get_total_daily_capacity(self) -> int:
+        """Returns the total capacity of all accounts combined."""
         return sum(a.account.daily_limit for a in self._accounts)
 
     def get_available_accounts(self) -> List[EmailSenderClient]:
+        """Returns a list of accounts that can send more emails."""
         return [a for a in self._accounts if a.can_send()]
 
     async def send_email(
@@ -528,6 +534,7 @@ class EmailRotatorPool:
         return results
 
     async def get_pool_status(self) -> Dict[str, Any]:
+        """Returns the status and usage statistics of all accounts in the pool."""
         status = {
             "total_accounts": len(self._accounts),
             "total_capacity": self.get_total_daily_capacity(),
@@ -546,7 +553,7 @@ class EmailRotatorPool:
             }
         return status
 
-    def _persist_stats(self):
+    def _persist_stats(self) -> None:
         """Save daily send counts for crash recovery."""
         try:
             os.makedirs(os.path.dirname(self._stats_file), exist_ok=True)
@@ -561,7 +568,7 @@ class EmailRotatorPool:
         except Exception:
             pass
 
-    def _load_persisted_stats(self):
+    def _load_persisted_stats(self) -> None:
         """Restore previously saved stats (for crash recovery)."""
         try:
             if os.path.exists(self._stats_file):
@@ -577,6 +584,7 @@ class EmailRotatorPool:
         except Exception:
             pass
 
-    async def disconnect_all(self):
+    async def disconnect_all(self) -> None:
+        """Disconnect all SMTP connections in the pool."""
         for client in self._accounts:
             await client.disconnect()

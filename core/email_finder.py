@@ -201,7 +201,7 @@ class EmailFinder:
     All results are cached in memory. Thread-safe for async usage.
     """
 
-    def __init__(self, rate_limit_sec: float = 1.5):
+    def __init__(self, rate_limit_sec: float = 0.3):
         self._rate_limit_sec = rate_limit_sec
         self._last_request: float = 0.0
         self._ddg_lock = asyncio.Lock()  # Serializes DDG requests
@@ -311,8 +311,7 @@ class EmailFinder:
         now = time.monotonic()
         elapsed = now - self._last_request
         if elapsed < self._rate_limit_sec:
-            jitter = random.uniform(0, 0.5)
-            await asyncio.sleep(self._rate_limit_sec - elapsed + jitter)
+            await asyncio.sleep(self._rate_limit_sec - elapsed)
         self._last_request = time.monotonic()
 
     async def _call_ddg_safe(self, query: str, max_results: int = 10) -> List[Dict]:
@@ -325,8 +324,7 @@ class EmailFinder:
             now = time.monotonic()
             elapsed = now - self._last_request
             if elapsed < self._rate_limit_sec:
-                jitter = random.uniform(0, 0.5)
-                await asyncio.sleep(self._rate_limit_sec - elapsed + jitter)
+                await asyncio.sleep(self._rate_limit_sec - elapsed)
 
             # Run the synchronous blocking DDG request in a thread pool
             def _execute_search():
@@ -345,6 +343,65 @@ class EmailFinder:
     # Bouncify-Style MX Verification (Lightweight, DNS-only)
     # ══════════════════════════════════════════════════════════════════════
 
+    async def _resolve_mx_dns_over_https(self, domain: str) -> Optional[str]:
+        """Query Cloudflare or Google DNS-over-HTTPS APIs for MX records."""
+        # 1. Cloudflare DoH
+        try:
+            url = f"https://cloudflare-dns.com/dns-query?name={domain}&type=MX"
+            headers = {"Accept": "application/dns-json"}
+            await self._ensure_client()
+            response = await self._client.get(url, headers=headers, timeout=5.0)
+            if response.status_code == 200:
+                data = response.json()
+                answers = data.get("Answer", [])
+                if answers:
+                    mx_records = []
+                    for ans in answers:
+                        if ans.get("type") == 15:  # MX
+                            parts = ans.get("data", "").split()
+                            if len(parts) >= 2:
+                                try:
+                                    pref = int(parts[0])
+                                    host = parts[1].rstrip('.')
+                                    mx_records.append((pref, host))
+                                except ValueError:
+                                    pass
+                    if mx_records:
+                        mx_host = sorted(mx_records, key=lambda x: x[0])[0][1]
+                        logger.info(f"[EmailFinder] Resolved MX via Cloudflare DoH for {domain}: {mx_host}")
+                        return mx_host
+        except Exception as e:
+            logger.debug(f"[EmailFinder] Cloudflare DoH lookup failed for {domain}: {e}")
+
+        # 2. Google DoH
+        try:
+            url = f"https://dns.google/resolve?name={domain}&type=MX"
+            await self._ensure_client()
+            response = await self._client.get(url, timeout=5.0)
+            if response.status_code == 200:
+                data = response.json()
+                answers = data.get("Answer", [])
+                if answers:
+                    mx_records = []
+                    for ans in answers:
+                        if ans.get("type") == 15:  # MX
+                            parts = ans.get("data", "").split()
+                            if len(parts) >= 2:
+                                try:
+                                    pref = int(parts[0])
+                                    host = parts[1].rstrip('.')
+                                    mx_records.append((pref, host))
+                                except ValueError:
+                                    pass
+                    if mx_records:
+                        mx_host = sorted(mx_records, key=lambda x: x[0])[0][1]
+                        logger.info(f"[EmailFinder] Resolved MX via Google DoH for {domain}: {mx_host}")
+                        return mx_host
+        except Exception as e:
+            logger.debug(f"[EmailFinder] Google DoH lookup failed for {domain}: {e}")
+
+        return None
+
     async def _verify_domain_has_mx(self, domain: str) -> bool:
         """Quick DNS MX lookup — returns True if domain accepts email.
         Cached in self._mx_cache.
@@ -361,11 +418,14 @@ class EmailFinder:
                 mx_host = str(sorted(answers, key=lambda r: r.preference)[0].exchange).rstrip('.')
                 self._mx_cache[domain] = mx_host
                 return True
-        except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer,
-                dns.resolver.NoNameservers, dns.exception.Timeout):
-            pass
         except Exception:
             pass
+
+        # Fallback to DNS-over-HTTPS (DoH) for proxy/UDP-blocked environments like PythonAnywhere free tier
+        mx_host = await self._resolve_mx_dns_over_https(domain)
+        if mx_host:
+            self._mx_cache[domain] = mx_host
+            return True
 
         self._mx_cache[domain] = None
         return False
@@ -506,7 +566,7 @@ class EmailFinder:
             # Quick DDG email dorking (2s timeout)
             try:
                 dork_emails = await asyncio.wait_for(
-                    self._google_dork_emails(company, domain), timeout=15.0
+                    self._google_dork_emails(company, domain), timeout=5.0
                 )
                 if dork_emails:
                     # Bouncify filter: MX + disposable + placeholder check
@@ -715,7 +775,7 @@ class EmailFinder:
 
         # Dork 1: site:{domain} email
         query1 = f"site:{domain} email OR \"@{domain}\" OR ceo OR founder OR engineering OR contact"
-        results1 = await self._call_ddg_safe(query1, max_results=10)
+        results1 = await self._call_ddg_safe(query1, max_results=5)
         for result in results1:
             body = result.get('body', '')
             url = result.get('href', '')
@@ -733,7 +793,7 @@ class EmailFinder:
 
         # Dork 2: company email ceo cto founder engineering lead
         query2 = f"\"{company}\" email ceo cto founder engineering lead"
-        results2 = await self._call_ddg_safe(query2, max_results=10)
+        results2 = await self._call_ddg_safe(query2, max_results=5)
         for result in results2:
             body = result.get('body', '')
             snippet = result.get('snippet', '')
@@ -953,32 +1013,29 @@ class EmailFinder:
             answers = await loop.run_in_executor(
                 None, lambda: dns.resolver.resolve(domain, 'MX')
             )
-        except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer,
-                dns.resolver.NoNameservers, dns.exception.Timeout) as e:
-            logger.debug(f"[EmailFinder] No MX for {domain}: {e}")
-            self._mx_cache[domain] = None
-            return None
-        except Exception as e:
-            logger.debug(f"[EmailFinder] DNS error for {domain}: {e}")
-            self._mx_cache[domain] = None
-            return None
+            if answers:
+                mx_records = sorted(answers, key=lambda r: r.preference)
+                mx_host = str(mx_records[0].exchange).rstrip('.')
+                self._mx_cache[domain] = mx_host
+                return mx_host
+        except Exception:
+            pass
 
-        if not answers:
-            self._mx_cache[domain] = None
-            return None
+        # Fallback to DNS-over-HTTPS (DoH) for proxy/UDP-blocked environments like PythonAnywhere free tier
+        mx_host = await self._resolve_mx_dns_over_https(domain)
+        if mx_host:
+            self._mx_cache[domain] = mx_host
+            return mx_host
 
-        # Pick lowest-preference MX
-        mx_records = sorted(answers, key=lambda r: r.preference)
-        mx_host = str(mx_records[0].exchange).rstrip('.')
-        self._mx_cache[domain] = mx_host
-        return mx_host
+        self._mx_cache[domain] = None
+        return None
 
     async def _smtp_check(
         self,
         mx_host: str,
         recipient: str,
         sender_domain: str,
-        timeout: float = 15.0,
+        timeout: float = 5.0,
     ) -> bool:
         """
         Perform SMTP RCPT TO verification.
@@ -1235,3 +1292,4 @@ async def _quick_test():
 
 if __name__ == "__main__":
     asyncio.run(_quick_test())
+

@@ -3,7 +3,10 @@ JobHunt Pro — Service Catalog v2
 Micro-services priced $2–$20 for instant automated delivery
 Each service has: id, name, price, description, delivery_time, features, fulfillment_func
 """
+import logging
 from typing import Optional, Dict, Any, List
+
+logger = logging.getLogger(__name__)
 
 SERVICE_CATALOG = [
     # ═══════════════════════════════════════════
@@ -245,66 +248,93 @@ BOUQUET_CATALOG = [
 
 
 def get_service(service_id: str) -> Optional[Dict[str, Any]]:
-    """Get a service by its ID."""
+    """Get a service by its ID. Returns None if not found."""
+    if not service_id or not isinstance(service_id, str):
+        logger.warning(f"[catalog] get_service called with invalid ID: {service_id!r}")
+        return None
+    sid = service_id.strip().lower()
     for s in SERVICE_CATALOG:
-        if s["id"] == service_id:
+        if s.get("id", "") == sid:
             return s.copy()
+    logger.debug(f"[catalog] Service not found: {service_id!r}")
     return None
 
 
 def get_bouquet(bouquet_id: str) -> Optional[Dict[str, Any]]:
-    """Get a bouquet package by its ID."""
+    """Get a bouquet package by its ID. Returns None if not found."""
+    if not bouquet_id or not isinstance(bouquet_id, str):
+        logger.warning(f"[catalog] get_bouquet called with invalid ID: {bouquet_id!r}")
+        return None
+    bid = bouquet_id.strip().lower()
     for b in BOUQUET_CATALOG:
-        if b["id"] == bouquet_id:
+        if b.get("id", "") == bid:
             return b.copy()
+    logger.debug(f"[catalog] Bouquet not found: {bouquet_id!r}")
     return None
 
 
 def get_services_by_price_range(min_price: int, max_price: int) -> List[Dict[str, Any]]:
-    """Get all services within a price range."""
-    return [s for s in SERVICE_CATALOG if min_price <= s["price"] <= max_price]
+    """Get all services within a price range (inclusive)."""
+    if min_price < 0 or max_price < min_price:
+        logger.warning(f"[catalog] Invalid price range: {min_price}–{max_price}")
+        return []
+    return [s for s in SERVICE_CATALOG if min_price <= s.get("price", 0) <= max_price]
+
+
+def get_all_service_ids() -> List[str]:
+    """Return all valid service IDs for validation purposes."""
+    return [s["id"] for s in SERVICE_CATALOG]
+
+
+def validate_service_exists(service_id: str) -> bool:
+    """Return True if the service_id exists in the catalog."""
+    return get_service(service_id) is not None
 
 
 def format_catalog_markdown() -> str:
     """Return the entire catalog as formatted markdown for display."""
-    lines = ["# JobHunt Pro -- Service Catalog\n"]
-    lines.append(f"**Total Services:** {len(SERVICE_CATALOG)} | **Bouquets:** {len(BOUQUET_CATALOG)}\n")
-    lines.append(f"**Price Range:** $2 -- $20\n")
-    lines.append("---\n")
+    try:
+        lines = ["# JobHunt Pro -- Service Catalog\n"]
+        lines.append(f"**Total Services:** {len(SERVICE_CATALOG)} | **Bouquets:** {len(BOUQUET_CATALOG)}\n")
+        lines.append(f"**Price Range:** $2 -- $20\n")
+        lines.append("---\n")
 
-    # Group by price range
-    lines.append("## MICRO SERVICES ($2 - $5)\n")
-    for s in get_services_by_price_range(2, 5):
-        lines.append(f"### {s['name']} — **${s['price']}**")
-        lines.append(f"_{s['description']}_")
-        lines.append(f"- Delivery: {s['delivery']}")
-        lines.append(f"- What you get: {s['what_they_get']}")
-        lines.append("")
+        # Group by price range
+        lines.append("## MICRO SERVICES ($2 - $5)\n")
+        for s in get_services_by_price_range(2, 5):
+            lines.append(f"### {s['name']} — **${s['price']}**")
+            lines.append(f"_{s['description']}_")
+            lines.append(f"- Delivery: {s.get('delivery', 'N/A')}")
+            lines.append(f"- What you get: {s.get('what_they_get', 'N/A')}")
+            lines.append("")
 
-    lines.append("## STANDARD SERVICES ($6 - $10)\n")
-    for s in get_services_by_price_range(6, 10):
-        lines.append(f"### {s['name']} — **${s['price']}**")
-        lines.append(f"_{s['description']}_")
-        lines.append(f"- Delivery: {s['delivery']}")
-        lines.append(f"- What you get: {s['what_they_get']}")
-        lines.append("")
+        lines.append("## STANDARD SERVICES ($6 - $10)\n")
+        for s in get_services_by_price_range(6, 10):
+            lines.append(f"### {s['name']} — **${s['price']}**")
+            lines.append(f"_{s['description']}_")
+            lines.append(f"- Delivery: {s.get('delivery', 'N/A')}")
+            lines.append(f"- What you get: {s.get('what_they_get', 'N/A')}")
+            lines.append("")
 
-    lines.append("## PREMIUM SERVICES ($12 - $20)\n")
-    for s in get_services_by_price_range(12, 20):
-        lines.append(f"### {s['name']} — **${s['price']}**")
-        lines.append(f"_{s['description']}_")
-        lines.append(f"- Delivery: {s['delivery']}")
-        lines.append(f"- What you get: {s['what_they_get']}")
-        lines.append("")
+        lines.append("## PREMIUM SERVICES ($12 - $20)\n")
+        for s in get_services_by_price_range(12, 20):
+            lines.append(f"### {s['name']} — **${s['price']}**")
+            lines.append(f"_{s['description']}_")
+            lines.append(f"- Delivery: {s.get('delivery', 'N/A')}")
+            lines.append(f"- What you get: {s.get('what_they_get', 'N/A')}")
+            lines.append("")
 
-    lines.append("## BOUQUET PACKAGES\n")
-    for b in BOUQUET_CATALOG:
-        lines.append(f"### {b['name']} — **${b['price']}** (Save {b['savings']})")
-        lines.append(f"_{b['description']}_")
-        lines.append("")
+        lines.append("## BOUQUET PACKAGES\n")
+        for b in BOUQUET_CATALOG:
+            lines.append(f"### {b['name']} — **${b['price']}** (Save {b.get('savings', '0%')})")
+            lines.append(f"_{b['description']}_")
+            lines.append("")
 
-    lines.append("---\n")
-    lines.append("**Payment:** Crypto (BTC/ETH/USDT/LTC) -- send exact amount to wallet address\n")
-    lines.append("**Delivery:** Instant = automated within minutes | 24h/48h = within timeframe\n")
+        lines.append("---\n")
+        lines.append("**Payment:** Crypto (BTC/ETH/USDT/LTC) -- send exact amount to wallet address\n")
+        lines.append("**Delivery:** Instant = automated within minutes | 24h/48h = within timeframe\n")
 
-    return "\n".join(lines)
+        return "\n".join(lines)
+    except Exception as e:
+        logger.error(f"[catalog] Error formatting catalog markdown: {e}", exc_info=True)
+        return "# JobHunt Pro Service Catalog\n\n_Error loading catalog. Please try again._\n"

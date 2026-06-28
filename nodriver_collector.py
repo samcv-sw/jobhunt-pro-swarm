@@ -2,8 +2,16 @@
 CLOUDSCRAPER COLLECTOR v1 — Bayt-focused, bypasses Cloudflare, uploads to PA
 Replaces nodriver_collector.py for headless/cron environments
 """
-import cloudscraper, re, json, os, time
+import cloudscraper
+import re
+import json
+import os
+import time
+import logging
 from datetime import datetime
+from typing import Any, Dict, List
+
+logger = logging.getLogger(__name__)
 
 OUTPUT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nodriver_jobs.json")
 PA_API = "https://jhfguf.pythonanywhere.com/api/nodriver-feed"
@@ -19,14 +27,15 @@ EXCLUDE = ["search", "network-engineer", "it-support", "system-admin", "network-
            "engineering", "root", "healthcare", "transport", "science", "designer", 
            "skilled", "personal-service"]
 
-def scrape_bayt(scraper, title, country_code, country_name):
-    jobs = []
+def scrape_bayt(scraper: Any, title: str, country_code: str, country_name: str) -> List[Dict[str, Any]]:
+    """Scrape Bayt.com job listings for a specific job title and country."""
+    jobs: List[Dict[str, Any]] = []
     slug = title.replace(' ', '-')
     url = f"https://www.bayt.com/en/{country_code}/jobs/{slug}-jobs/"
     try:
         resp = scraper.get(url, timeout=30)
         if resp.status_code != 200:
-            print(f"  Bayt [{title[:30]}/{country_code}]: HTTP {resp.status_code}", flush=True)
+            logger.warning(f"  Bayt [{title[:30]}/{country_code}]: HTTP {resp.status_code}")
             return jobs
         
         html = resp.text
@@ -49,20 +58,21 @@ def scrape_bayt(scraper, title, country_code, country_name):
                     'source': 'bayt',
                     'location': country_name
                 })
-        print(f"  Bayt [{title[:30]}/{country_code}]: {len(jobs)} jobs", flush=True)
+        logger.info(f"  Bayt [{title[:30]}/{country_code}]: {len(jobs)} jobs")
     except Exception as e:
-        print(f"  Bayt [{title}/{country_code}]: ERROR - {str(e)[:80]}", flush=True)
+        logger.error(f"  Bayt [{title}/{country_code}]: ERROR - {str(e)[:80]}")
     return jobs
 
-def main():
+def main() -> List[Dict[str, Any]]:
+    """Main execution block to initiate scraping run across target locations and upload to PythonAnywhere."""
     t_start = datetime.now()
-    print(f">>> CLOUDSCRAPER BAYT COLLECTOR - {t_start.strftime('%H:%M:%S')}", flush=True)
+    logger.info(f">>> CLOUDSCRAPER BAYT COLLECTOR - {t_start.strftime('%H:%M:%S')}")
     
     scraper = cloudscraper.create_scraper(
         browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False, 'desktop': True}
     )
     
-    all_jobs = []
+    all_jobs: List[Dict[str, Any]] = []
     total_queries = 0
     
     for title in TITLES:
@@ -74,7 +84,7 @@ def main():
     
     # Deduplicate by URL
     seen = set()
-    unique = []
+    unique: List[Dict[str, Any]] = []
     for j in all_jobs:
         if j['url'] and j['url'] not in seen:
             seen.add(j['url'])
@@ -82,7 +92,7 @@ def main():
     
     elapsed = (datetime.now() - t_start).total_seconds()
     
-    print(f"\n>>> DONE in {elapsed:.0f}s: {len(all_jobs)} total -> {len(unique)} unique from {total_queries} queries", flush=True)
+    logger.info(f"\n>>> DONE in {elapsed:.0f}s: {len(all_jobs)} total -> {len(unique)} unique from {total_queries} queries")
     
     # Save locally
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
@@ -92,15 +102,15 @@ def main():
             'elapsed_seconds': elapsed,
             'jobs': unique
         }, f, indent=2, ensure_ascii=False)
-    print(f">>> Saved to {OUTPUT_FILE}", flush=True)
+    logger.info(f">>> Saved to {OUTPUT_FILE}")
     
     # Upload to PA
     try:
         import requests as req
         r = req.post(PA_API, json={'jobs': unique}, timeout=30)
-        print(f">>> PA upload: {r.status_code} - {r.text[:200]}", flush=True)
+        logger.info(f">>> PA upload: {r.status_code} - {r.text[:200]}")
     except Exception as e:
-        print(f">>> PA upload failed: {e}", flush=True)
+        logger.error(f">>> PA upload failed: {e}")
     
     return unique
 

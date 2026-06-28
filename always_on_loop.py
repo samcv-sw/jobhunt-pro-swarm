@@ -26,36 +26,41 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-logger.info("Starting Always-on Campaign Loop...")
+logger.info("Starting Always-on Campaign Loop — MAXIMUM THROUGHPUT MODE")
 
 # Add project root to path
 sys.path.insert(0, base_dir)
 
 async def run_loop():
+    consecutive_empty = 0
     while True:
         logger.info("Triggering campaign run cycle...")
-        sleep_time = 30  # Default idle sleep time
+        sleep_time = 1  # Default: 1 second between cycles for max throughput
         try:
             from core.multi_tenant import MultiTenantRunner
-            runner = MultiTenantRunner(company_limit=15, max_campaigns=3)
+            runner = MultiTenantRunner(company_limit=15, max_campaigns=10)
             result = await runner.tick()
             processed = result.get('campaigns_processed', 0)
             sent = result.get('emails_sent', 0)
             logger.info(f"Cycle complete: processed {processed} campaigns, sent {sent} applications")
             
-            # Continuous non-sleeping autopilot:
-            # If campaigns were processed, tick every 10 seconds to handle sends rapidly.
             if processed > 0:
-                sleep_time = 10
+                # If campaigns were processed, tick every 1 second (no delay)
+                sleep_time = 1
+                consecutive_empty = 0
             else:
-                sleep_time = 30
+                consecutive_empty += 1
+                # If no campaigns for 10+ cycles, still only wait 3s max
+                if consecutive_empty > 10:
+                    sleep_time = 3
+                else:
+                    sleep_time = 1
         except Exception as e:
             logger.error(f"Error during campaign cycle: {e}", exc_info=True)
-            sleep_time = 60
+            sleep_time = 5  # Short delay on error, then retry fast
         
         logger.info(f"Sleeping for {sleep_time} seconds...")
         await asyncio.sleep(sleep_time)
 
 if __name__ == "__main__":
     asyncio.run(run_loop())
-

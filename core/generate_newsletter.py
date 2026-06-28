@@ -8,6 +8,10 @@ Substack-style newsletter, injecting high-value sponsorships.
 import sqlite3
 import os
 import datetime
+import logging
+from typing import Any, Dict, List
+
+logger = logging.getLogger(__name__)
 
 # Resolved relative to project root
 from pathlib import Path
@@ -21,8 +25,9 @@ OUTPUT_DIR = "newsletters"
 SPONSOR_TEXT = "🔥 **SPONSORED BY CLOUDFLARE**: Fast, secure edge networks. Start for free today!"
 SPONSOR_LINK = "https://cloudflare.com/affiliate"
 
-def get_top_jobs_today(limit=10):
-    jobs = []
+def get_top_jobs_today(limit: int = 10) -> List[Dict[str, Any]]:
+    """Retrieve the top daily jobs from the database, falling back to mock data if empty."""
+    jobs: List[Dict[str, Any]] = []
     if os.path.exists(DB_PATH):
         try:
             conn = sqlite3.connect(DB_PATH)
@@ -32,7 +37,7 @@ def get_top_jobs_today(limit=10):
             jobs = [dict(row) for row in cur.fetchall()]
             conn.close()
         except Exception as e:
-            print(f"DB Error: {e}")
+            logger.error(f"DB Error: {e}", exc_info=True)
             
     if not jobs:
         # Mock data
@@ -43,7 +48,8 @@ def get_top_jobs_today(limit=10):
         ]
     return jobs
 
-def generate_newsletter_html():
+def generate_newsletter_html() -> str:
+    """Generate daily premium newsletter curated with top remote jobs, saving it to a local HTML file."""
     jobs = get_top_jobs_today(10)
     date_str = datetime.datetime.now().strftime("%B %d, %Y")
     
@@ -105,8 +111,9 @@ def generate_newsletter_html():
     with open(filename, "w", encoding="utf-8") as f:
         f.write(html)
         
-    print(f"Newsletter generated: {filename}")
+    logger.info(f"Newsletter generated successfully: {filename}")
     return filename
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
     generate_newsletter_html()

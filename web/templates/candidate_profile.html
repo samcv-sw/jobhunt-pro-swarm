@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ cv.name }} - Resume{% end block %}
+{% block title %}{{ cv.name }} - Resume{% endblock %}
 {% block content %}
 
 <!-- VIRAL HONEYPOT BANNER -->
@@ -16,7 +16,7 @@
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         {% for skill in cv.skills %}
             <span class="badge" style="background: rgba(59,130,246,0.2); color: #fff; border: 1px solid var(--primary);">{{ skill }}</span>
-        {% end for %}
+        {% endfor %}
     </div>
     
     <br><br>
@@ -25,4 +25,4 @@
     </div>
 </div>
 
-{% end block %}
+{% endblock %}

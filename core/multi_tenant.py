@@ -333,7 +333,7 @@ class MultiTenantRunner:
     concurrently with full isolation per tenant.
     """
 
-    def __init__(self, company_limit: int = 3, max_campaigns: int = 5, campaign_id: str = None):
+    def __init__(self, company_limit: int = 15, max_campaigns: int = 10, campaign_id: str = None):
         self.company_limit = company_limit
         self.max_campaigns = max_campaigns
         self.campaign_id = campaign_id
@@ -676,7 +676,7 @@ _runner = None
 def _get_runner() -> MultiTenantRunner:
     global _runner
     if _runner is None:
-        _runner = MultiTenantRunner(company_limit=10)
+        _runner = MultiTenantRunner(company_limit=15, max_campaigns=10)
     return _runner
 
 
@@ -934,7 +934,7 @@ async def cleanup_db():
 #  CONVENIENCE: Direct runner for PA tick replacement
 # ══════════════════════════════════════════════════════════════════════════════
 
-async def run_multi_tenant_tick(company_limit: int = 10) -> Dict[str, Any]:
+async def run_multi_tenant_tick(company_limit: int = 15) -> Dict[str, Any]:
     """Convenience function — call from cloud_orchestrator or app router."""
-    runner = MultiTenantRunner(company_limit=company_limit)
+    runner = MultiTenantRunner(company_limit=company_limit, max_campaigns=10)
     return await runner.tick()

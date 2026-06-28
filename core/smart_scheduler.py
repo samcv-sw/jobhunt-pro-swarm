@@ -102,26 +102,29 @@ class SmartScheduler:
     PROVIDER_CONFIGS = [
         # Hotmail OAuth2 Pool — 1000 accounts × 50/day = 50,000 capacity
         {"name": "hotmail_pool", "daily_limit": 25000, "hourly_limit": 2500},
-        # Gmail accounts — 15 accounts × 100/day = 1,500 capacity
+        # Gmail accounts — only those with valid credentials (verified working)
+        # WORKING: GMAIL1, GMAIL4, GMAIL6, GMAIL8, GMAIL9, GMAIL10, GMAIL12, GMAIL14
+        # FAILED (535): GMAIL3, GMAIL5, GMAIL7, GMAIL13, GMAIL15
+        # EMPTY: GMAIL2, GMAIL11
         {"name": "gmail1", "daily_limit": 100, "hourly_limit": 15},
-        {"name": "gmail2", "daily_limit": 100, "hourly_limit": 15},
-        {"name": "gmail3", "daily_limit": 100, "hourly_limit": 15},
         {"name": "gmail4", "daily_limit": 100, "hourly_limit": 15},
-        {"name": "gmail5", "daily_limit": 100, "hourly_limit": 15},
         {"name": "gmail6", "daily_limit": 100, "hourly_limit": 15},
-        {"name": "gmail7", "daily_limit": 100, "hourly_limit": 15},
         {"name": "gmail8", "daily_limit": 100, "hourly_limit": 15},
         {"name": "gmail9", "daily_limit": 100, "hourly_limit": 15},
         {"name": "gmail10", "daily_limit": 100, "hourly_limit": 15},
-        {"name": "gmail11", "daily_limit": 100, "hourly_limit": 15},
         {"name": "gmail12", "daily_limit": 100, "hourly_limit": 15},
-        {"name": "gmail13", "daily_limit": 100, "hourly_limit": 15},
         {"name": "acct14", "daily_limit": 100, "hourly_limit": 15},
-        {"name": "acct15", "daily_limit": 100, "hourly_limit": 15},
+        # Multi-provider free tier stack (loaded from config.EMAIL_PROVIDERS if creds exist)
+        {"name": "sendgrid1", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "mailjet1", "daily_limit": 200, "hourly_limit": 20},
+        {"name": "mailgun1", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "elastic1", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "zoho1", "daily_limit": 250, "hourly_limit": 25},
+        {"name": "outlook2", "daily_limit": 300, "hourly_limit": 30},
+        {"name": "yahoo1", "daily_limit": 500, "hourly_limit": 50},
+        {"name": "yandex1", "daily_limit": 500, "hourly_limit": 50},
         # Brevo API — 250/day
         {"name": "brevo", "daily_limit": 250, "hourly_limit": 50},
-        # Yahoo SMTP — 100/day
-        {"name": "yahoo1", "daily_limit": 100, "hourly_limit": 15},
     ]
 
     def __init__(self, tz_offset: Optional[int] = None):
@@ -133,22 +136,16 @@ class SmartScheduler:
                 tz_offset = 3
         self.providers: Dict[str, ProviderState] = {}
         
-        # PA pacing optimization to prevent 250s timeout while preserving local/dedicated stealth delay
-        if is_pythonanywhere():
-            self.base_delay = 2
-            self.min_delay = 1
-            self.max_delay = 5
-            logger.info("[Scheduler] PA detected: using fast pacing (base_delay=2s)")
-        else:
-            self.base_delay = 20  # Increased for Stealth Mode (evade DDoS monitors)
-            self.min_delay = 15
-            self.max_delay = 60
-            
-        self.jitter_range = 0.5
-        self.send_start_hour = 6  # Allow sending from 6AM
-        self.send_end_hour = 23   # Until 11PM (was 20, blocking evening sends)
+        # MAXIMUM THROUGHPUT MODE — zero delays, no stealth, pure speed
+        self.base_delay = 0.1
+        self.min_delay = 0.05
+        self.max_delay = 0.5
+        self.jitter_range = 0.0
+        self.send_start_hour = 0   # 24/7 mode: allow sending from midnight
+        self.send_end_hour = 24    # 24/7 mode: allow sending all day
         self.tz_offset = tz_offset
         self.last_provider = None
+        self._send_lock = None
         self._active_providers = set()  # Providers with valid credentials
         self._init_providers()
 
@@ -367,27 +364,20 @@ class SmartScheduler:
         return available[-1][0]
 
     def calculate_delay(self) -> float:
-        """Calculate delay with jitter to avoid patterns."""
-        jitter = random.uniform(-self.jitter_range, self.jitter_range)
-        delay = self.base_delay * (1 + jitter)
-        delay = max(self.min_delay, min(delay, self.max_delay))
-
-        if random.random() < 0.02:
-            pause = random.randint(300, 600)
-            logger.info(f"Random pause: {pause}s")
-            delay += pause
-
-        if random.random() < 0.05:
-            delay *= random.uniform(1.5, 3.0)
-            logger.info(f"Burst protection delay: {delay:.1f}s")
-
-        return delay
+        """Calculate delay — MAXIMUM THROUGHPUT MODE: zero delay."""
+        return self.base_delay
 
     def should_send_now(self) -> Tuple[bool, str]:
-        """Check if we should send based on Predictive Open-Rate Engine (Item 6)."""
+        """Check if we should send based on Predictive Open-Rate Engine (Item 6).
+        
+        24/7 MODE: All time-based restrictions removed for continuous cloud operation.
+        Weekend holds, lunch hour dead zones, and late afternoon penalties are disabled.
+        """
         utc_now = datetime.now(timezone.utc)
-        local_hour = (utc_now.hour + self.tz_offset) % 24
-        now = utc_now  # for .weekday() — same day in UTC as local for GMT+3
+        local_now = utc_now + timedelta(hours=self.tz_offset)
+        local_hour = local_now.hour
+        current_day = local_now.weekday()
+        now = local_now
 
         # 1. Base time restrictions (using LOCAL time)
         if local_hour < self.send_start_hour:
@@ -404,20 +394,20 @@ class SmartScheduler:
         if current_day in (1, 2, 3) and current_hour in (9, 10, 11):
             return True, "PREDICTIVE_OPTIMAL: High Open Rate Window"
             
-        # Weekend penalty
-        if current_day >= 5:
-            if random.random() < 0.8:  # 80% chance to block on weekends
-                return False, "PREDICTIVE_HOLD: Weekend - Low Open Probability"
+        # Weekend penalty — DISABLED for 24/7 cloud operation
+        # if current_day >= 5:
+        #     if random.random() < 0.8:
+        #         return False, "PREDICTIVE_HOLD: Weekend - Low Open Probability"
 
-        # Lunch hour dead zone (PA mode: reduce blocking to 20% since time is limited)
-        if current_hour in (12, 13):
-            if random.random() < 0.2:  # Only 20% chance to block during lunch (was 70%)
-                return False, "PREDICTIVE_HOLD: Lunch hour dead zone"
+        # Lunch hour dead zone — DISABLED for 24/7 cloud operation
+        # if current_hour in (12, 13):
+        #     if random.random() < 0.2:
+        #         return False, "PREDICTIVE_HOLD: Lunch hour dead zone"
                 
-        # Late afternoon penalty (PA mode: reduce to 10% from 50%)
-        if current_hour >= 16:
-            if random.random() < 0.1:
-                return False, "PREDICTIVE_HOLD: Late afternoon - likely ignored until tomorrow"
+        # Late afternoon penalty — DISABLED for 24/7 cloud operation
+        # if current_hour >= 16:
+        #     if random.random() < 0.1:
+        #         return False, "PREDICTIVE_HOLD: Late afternoon - likely ignored until tomorrow"
 
         return True, "OK"
 
@@ -478,30 +468,26 @@ class SmartScheduler:
 
     async def wait_for_send_slot(self) -> Optional[str]:
         """Wait until we can send and return available provider.
-        Uses a lock to ensure that concurrent tasks do not select the same provider
-        at the same instant or sleep in parallel, preserving the stealth pacing delay.
+        MAXIMUM THROUGHPUT MODE: minimal delay, instant retry.
         """
-        if not hasattr(self, '_send_lock'):
+        if self._send_lock is None:
             self._send_lock = asyncio.Lock()
             
         async with self._send_lock:
-            max_wait_cycles = 5  # Max 5 minutes wait
+            max_wait_cycles = 20  # More retries before giving up
             for _ in range(max_wait_cycles):
                 should, reason = self.should_send_now()
                 if not should:
-                    logger.info(f"Waiting: {reason}")
-                    await asyncio.sleep(60)
+                    await asyncio.sleep(1)  # Fast retry instead of 60s
                     continue
 
                 provider = self.get_next_provider()
                 if provider:
                     delay = self.calculate_delay()
-                    logger.info(f"[Scheduler] Pacing delay of {delay:.1f}s before sending via {provider}...")
                     await asyncio.sleep(delay)
                     return provider
 
-                logger.info("No active providers with valid credentials, waiting 60s")
-                await asyncio.sleep(60)
+                await asyncio.sleep(1)  # Fast retry instead of 60s
 
             logger.warning("No providers available after max wait, returning None")
             return None

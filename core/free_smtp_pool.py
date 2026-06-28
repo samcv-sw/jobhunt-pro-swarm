@@ -28,7 +28,7 @@ import logging
 import time
 import base64
 import random
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 try:
     import requests as http_requests
@@ -43,12 +43,12 @@ logger = logging.getLogger(__name__)
 class FreeSMTPPool:
     """Orchestrates all free HTTP-based email APIs."""
 
-    def __init__(self):
-        self._providers = []
-        self._stats = {}
+    def __init__(self) -> None:
+        self._providers: List[Dict[str, Any]] = []
+        self._stats: Dict[str, Dict[str, int]] = {}
         self._init_providers()
 
-    def _init_providers(self):
+    def _init_providers(self) -> None:
         """Auto-detect configured providers from env vars."""
         # Resend
         if os.getenv("RESEND_API_KEY") and os.getenv("RESEND_FROM_EMAIL"):
@@ -138,7 +138,7 @@ class FreeSMTPPool:
         html_body: str,
         text_body: str = "",
         from_name: str = "",
-        attachments: list = None,
+        attachments: Optional[List[Dict[str, Any]]] = None,
     ) -> Tuple[bool, str]:
         """
         Send email via the best available free HTTP API.
@@ -189,7 +189,7 @@ class FreeSMTPPool:
         html_body: str,
         text_body: str = "",
         from_name: str = "",
-        attachments: list = None,
+        attachments: Optional[List[Dict[str, Any]]] = None,
     ) -> bool:
         """Route to specific provider implementation."""
         name = from_name or "Sam Salameh"
@@ -225,7 +225,15 @@ class FreeSMTPPool:
     # ═══════════════════════════════════════════════════════════════════
     # MAILGUN (FREE — 100 emails/day via flex plan, no credit card)
     # ═══════════════════════════════════════════════════════════════════
-    def _send_mailgun(self, to_email, subject, html, text, from_name, atts):
+    def _send_mailgun(
+        self,
+        to_email: str,
+        subject: str,
+        html: str,
+        text: str,
+        from_name: str,
+        atts: Optional[List[Dict[str, Any]]],
+    ) -> bool:
         api_key = os.getenv("MAILGUN_API_KEY", "")
         domain = os.getenv("MAILGUN_DOMAIN", "")
         if not api_key or not domain:
@@ -261,7 +269,15 @@ class FreeSMTPPool:
     # ═══════════════════════════════════════════════════════════════════
     # ELASTIC EMAIL (FREE — 100 emails/day)
     # ═══════════════════════════════════════════════════════════════════
-    def _send_elastic_email(self, to_email, subject, html, text, from_name, atts):
+    def _send_elastic_email(
+        self,
+        to_email: str,
+        subject: str,
+        html: str,
+        text: str,
+        from_name: str,
+        atts: Optional[List[Dict[str, Any]]],
+    ) -> bool:
         api_key = os.getenv("ELASTIC_EMAIL_API_KEY", "")
         if not api_key:
             return False
@@ -314,7 +330,15 @@ class FreeSMTPPool:
     # ═══════════════════════════════════════════════════════════════════
     # ZEPTOMAIL (FREE — 100 emails/day, Zoho's transactional service)
     # ═══════════════════════════════════════════════════════════════════
-    def _send_zeptomail(self, to_email, subject, html, text, from_name, atts):
+    def _send_zeptomail(
+        self,
+        to_email: str,
+        subject: str,
+        html: str,
+        text: str,
+        from_name: str,
+        atts: Optional[List[Dict[str, Any]]],
+    ) -> bool:
         token = os.getenv("ZEPTOMAIL_TOKEN", "")
         if not token:
             return False
@@ -365,7 +389,15 @@ class FreeSMTPPool:
     # ═══════════════════════════════════════════════════════════════════
     # TURBOSMTP (FREE — 6,000/month = 200/day)
     # ═══════════════════════════════════════════════════════════════════
-    def _send_turbosmtp(self, to_email, subject, html, text, from_name, atts):
+    def _send_turbosmtp(
+        self,
+        to_email: str,
+        subject: str,
+        html: str,
+        text: str,
+        from_name: str,
+        atts: Optional[List[Dict[str, Any]]],
+    ) -> bool:
         user = os.getenv("TURBOSMTP_USER", "")
         pwd = os.getenv("TURBOSMTP_PASS", "")
         if not user or not pwd:
@@ -418,7 +450,15 @@ class FreeSMTPPool:
     # ═══════════════════════════════════════════════════════════════════
     # POSTMARK (FREE — 100 emails, no credit card to start)
     # ═══════════════════════════════════════════════════════════════════
-    def _send_postmark(self, to_email, subject, html, text, from_name, atts):
+    def _send_postmark(
+        self,
+        to_email: str,
+        subject: str,
+        html: str,
+        text: str,
+        from_name: str,
+        atts: Optional[List[Dict[str, Any]]],
+    ) -> bool:
         server_token = os.getenv("POSTMARK_SERVER_TOKEN", "")
         if not server_token:
             return False
@@ -470,7 +510,7 @@ class FreeSMTPPool:
             logger.warning(f"[Postmark] Send failed: {e}")
             return False
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> Dict[str, Any]:
         """Return current usage stats for all providers."""
         return {
             "providers": len(self._providers),

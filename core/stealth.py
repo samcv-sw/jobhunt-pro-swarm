@@ -215,7 +215,15 @@ class StealthScraper:
         else:
             logger.warning("[STEALTH] curl_cffi is missing! Falling back to raw httpx. Cloudflare may block you.")
             import httpx
-            return httpx.AsyncClient(timeout=timeout, follow_redirects=follow_redirects, proxies=proxy if proxy else None)
+            import inspect
+            client_kwargs = {"timeout": timeout, "follow_redirects": follow_redirects}
+            if proxy:
+                sig = inspect.signature(httpx.AsyncClient.__init__)
+                if "proxy" in sig.parameters:
+                    client_kwargs["proxy"] = proxy
+                else:
+                    client_kwargs["proxies"] = proxy
+            return httpx.AsyncClient(**client_kwargs)
 
     def get_sync_client(self, timeout: float = 30.0, follow_redirects: bool = True):
         """Synchronous version of Tier 1 stealth client."""
@@ -226,7 +234,15 @@ class StealthScraper:
             return cffi_requests.Session(impersonate="chrome120", timeout=timeout, proxies=proxies)
         else:
             import httpx
-            return httpx.Client(timeout=timeout, follow_redirects=follow_redirects, proxies=proxy if proxy else None)
+            import inspect
+            client_kwargs = {"timeout": timeout, "follow_redirects": follow_redirects}
+            if proxy:
+                sig = inspect.signature(httpx.Client.__init__)
+                if "proxy" in sig.parameters:
+                    client_kwargs["proxy"] = proxy
+                else:
+                    client_kwargs["proxies"] = proxy
+            return httpx.Client(**client_kwargs)
 
     def get_canvas_spoofing_script(self) -> str:
         """[RUSSIAN STEALTH] Injectable JS to spoof Canvas fingerprint"""

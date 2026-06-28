@@ -1,2 +1,2 @@
-'total_companies'
+'skills'
 Traceback (most recent call last):

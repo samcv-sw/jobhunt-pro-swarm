@@ -131,3 +131,42 @@ _list_root_py.py
 _bulk_upload.py
 _check_runs.py
 CRYPTO_SECRETS.txt
+
+# ── IDE/Roo configuration ────────────────────────
+.clinerules
+.roomodes
+.cursor/
+.roo/
+
+# ── Auto-improvement artifacts ──────────────────
+_improve_request_*.md
+.auto_improve_state.json
+IMPROVE_ME.md
+
+# ── Run outputs ───────────────────────────────
+auto_app_output*.txt
+*output.txt
+check_*.txt
+pa_error_log.txt
+convert_output.txt
+get_db_lines.txt
+
+# ── Debug/test scripts (one-off) ──────────────
+auto_app_passwords.py
+check_accounts_status.py
+check_pyc.py
+convert_hotmail_csv_to_smtps.py
+debug_google_signin.py
+debug_password_page.py
+fix_hotmail_pool_json.py
+mark_flagged_accounts.py
+revive_flagged_accounts.py
+setup_free_providers.py
+
+# ── Batch/Shell files ──────────────────────────
+*.bat
+*.cmd
+*.ps1
+
+# ── Permanent watchdog (background) ───────────
+permanent_watchdog.py

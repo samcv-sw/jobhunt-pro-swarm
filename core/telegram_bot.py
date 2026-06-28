@@ -69,6 +69,37 @@ logger = logging.getLogger(__name__)
 
 
 
+# ── Sync Telegram Sender (standalone, no async, no bot instance) ─────
+# Used by queue_worker, viral_factory, cloud_orchestrator, web/app.py
+import requests as _tg_requests
+
+def send_telegram_message_sync(text: str, parse_mode: str = "Markdown") -> bool:
+    """Send a Telegram message synchronously using requests.
+    
+    Reads TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID from environment.
+    Returns True on success, False on failure.
+    """
+    token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID", "")
+    if not token or not chat_id:
+        logger.warning("[send_telegram_message_sync] Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID")
+        return False
+    try:
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        payload = {"chat_id": chat_id, "text": text, "parse_mode": parse_mode}
+        if len(text) > 4000:
+            payload["text"] = text[:3950] + "\n\n...(truncated)"
+        r = _tg_requests.post(url, json=payload, timeout=10)
+        if r.status_code == 200:
+            return True
+        logger.warning(f"[send_telegram_message_sync] HTTP {r.status_code}: {r.text[:200]}")
+        return False
+    except Exception as e:
+        logger.warning(f"[send_telegram_message_sync] Error: {e}")
+        return False
+
+
+
 # ══════════════════════════════════════════════════════════════════════
 
 # 🎛️ CHRONOS KEYBOARDS — Full Reply + Inline Keyboards

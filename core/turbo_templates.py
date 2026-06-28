@@ -4,11 +4,15 @@ Pre-built professional cover letter templates for Network Engineers
 Zero AI calls = instant generation. Speed: 2000+ applications/hour.
 """
 
+import logging
+
 from config import (
     CANDIDATE_NAME, CANDIDATE_TITLE, CANDIDATE_EMAIL,
     CANDIDATE_PHONE, CANDIDATE_ADDRESS, CANDIDATE_LINKEDIN,
     YEARS_EXPERIENCE, SKILLS
 )
+
+logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MASTER TEMPLATE – Network Engineer
@@ -179,24 +183,42 @@ def get_letter(title: str, company: str, template_key: str = None) -> str:
         template_key: Optional explicit template key. Auto-detected if None.
     
     Returns:
-        Formatted cover letter string
+        Formatted cover letter string. Falls back to master template on error.
     """
+    if not title:
+        title = "Network Engineer"
+    if not company:
+        company = "your company"
+
     if template_key is None:
         template_key = detect_template_key(title)
-    
+
     template = TEMPLATES.get(template_key, MASTER_TEMPLATE)
-    
-    return template.format(
-        title=title,
-        company=company,
-        years=YEARS_EXPERIENCE,
-        CANDIDATE_NAME=CANDIDATE_NAME,
-        CANDIDATE_TITLE=CANDIDATE_TITLE,
-        CANDIDATE_EMAIL=CANDIDATE_EMAIL,
-        CANDIDATE_PHONE=CANDIDATE_PHONE,
-        CANDIDATE_ADDRESS=CANDIDATE_ADDRESS,
-        CANDIDATE_LINKEDIN=CANDIDATE_LINKEDIN,
-    )
+
+    format_kwargs = {
+        "title": title,
+        "company": company,
+        "years": YEARS_EXPERIENCE,
+        "CANDIDATE_NAME": CANDIDATE_NAME,
+        "CANDIDATE_TITLE": CANDIDATE_TITLE,
+        "CANDIDATE_EMAIL": CANDIDATE_EMAIL,
+        "CANDIDATE_PHONE": CANDIDATE_PHONE,
+        "CANDIDATE_ADDRESS": CANDIDATE_ADDRESS,
+        "CANDIDATE_LINKEDIN": CANDIDATE_LINKEDIN,
+    }
+
+    try:
+        return template.format(**format_kwargs)
+    except KeyError as e:
+        logger.warning(f"[turbo_templates] Template '{template_key}' has unknown key {e}, falling back to MASTER_TEMPLATE")
+        try:
+            return MASTER_TEMPLATE.format(**format_kwargs)
+        except Exception as ex:
+            logger.error(f"[turbo_templates] MASTER_TEMPLATE also failed: {ex}")
+            return f"Dear Hiring Manager,\n\nI am applying for the {title} position at {company}.\n\nBest regards,\n{CANDIDATE_NAME}"
+    except Exception as e:
+        logger.error(f"[turbo_templates] Unexpected error generating letter: {e}", exc_info=True)
+        return f"Dear Hiring Manager,\n\nI am applying for the {title} position at {company}.\n\nBest regards,\n{CANDIDATE_NAME}"
 
 
 def batch_generate(jobs: list) -> list:
@@ -206,13 +228,20 @@ def batch_generate(jobs: list) -> list:
         jobs: List of dicts with 'title' and 'company' keys
     
     Returns:
-        List of dicts with original data + generated letter
+        List of dicts with original data + generated letter. Failed jobs are skipped.
     """
     result = []
     for job in jobs:
-        result.append({
-            **job,
-            "letter": get_letter(job.get("title", "Network Engineer"), job.get("company", "Company")),
-            "template_key": detect_template_key(job.get("title", "")),
-        })
+        try:
+            title = job.get("title", "Network Engineer") or "Network Engineer"
+            company = job.get("company", "Company") or "Company"
+            result.append({
+                **job,
+                "letter": get_letter(title, company),
+                "template_key": detect_template_key(title),
+            })
+        except Exception as e:
+            logger.error(f"[turbo_templates] Failed to generate letter for job {job.get('company', 'unknown')}: {e}")
+            # Include the job without a letter rather than dropping it entirely
+            result.append({**job, "letter": "", "template_key": "default"})
     return result

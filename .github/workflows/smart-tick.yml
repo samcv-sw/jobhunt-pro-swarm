@@ -1,66 +1,54 @@
-name: JobHunt Pro — Smart Cloud Tick & Dispatcher
+name: JobHunt Pro — Worker Tick (Always-On Queue Processor)
 on:
   schedule:
-    # Run every 20 minutes (72 runs/day, ~2,160 runs/month - safe for private repo 2k min limit)
-    - cron: '*/20 * * * *'
+    # Run every 5 minutes (288 runs/day, ~8,640 runs/month)
+    # GitHub Actions gives 2,000 min/month free for private repos
+    # BUT: public repos get UNLIMITED minutes!
+    # Make the repo PUBLIC to get unlimited cron execution.
+    - cron: '*/5 * * * *'
   workflow_dispatch:
     inputs:
-      force_mode:
-        description: 'Force mode (normal/heal/hyper)'
+      force_tick:
+        description: 'Force worker tick'
         required: false
-        default: 'normal'
+        default: 'true'
 
 env:
-  WORKER_URL: 'https://jobhunt-pro-router.samsalameh-cv.workers.dev'
   PA_URL: 'https://jhfguf.pythonanywhere.com'
 
 jobs:
-  cloud-engine:
+  worker-tick:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 🐍 Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: 'requirements.txt'
-        continue-on-error: true
-
-      - name: 📦 Install dependencies
-        run: |
-          pip install requests beautifulsoup4 aiosmtplib --quiet
-        continue-on-error: true
-
-      - name: 1️⃣ Tick & Keep-Alive All Backends
-        id: pa-tick
+      - name: 1️⃣ Worker Tick - Process Queue Items
+        id: worker-tick
         continue-on-error: true
         run: |
-          echo "=== CLOUD TICK v3 ==="
-          BACKENDS=(
-            "https://jhfguf.pythonanywhere.com"
-            "https://jobhunt-pro.fly.dev"
-            "https://jobhunt-pro.onrender.com"
-          )
-          for backend in "${BACKENDS[@]}"; do
-            echo "Pinging backend: ${backend}"
-            RESPONSE=$(curl -s --max-time 120 \
-              -X POST "${backend}/api/v2/cloud-tick" \
-              -H "Content-Type: application/json" \
-              -d '{"action":"cloud_tick","source":"gh-actions-dispatcher"}' || echo "failed")
-            echo "Response: $RESPONSE"
-            
-            echo "Resetting stuck campaigns on backend: ${backend}"
-            RESET_RESP=$(curl -s --max-time 30 \
-              -X POST "${backend}/api/v2/cloud-tick/reset-stuck" \
-              -H "Content-Type: application/json" || echo "failed")
-            echo "Reset Response: $RESET_RESP"
-          done
+          echo "=== WORKER TICK v17.1 ==="
+          echo "Tick time: $(date -u)"
+          
+          # Call the PA Always-On Worker endpoint
+          # This processes 1-2 queue items per tick (fits within PA's ~60s timeout)
+          RESPONSE=$(curl -s --max-time 300 \
+            -X POST "${PA_URL}/api/v2/worker/tick" \
+            -H "Content-Type: application/json" \
+            -d '{"source":"gh-actions-cron"}' || echo '{"processed":0,"errors":["curl_failed"]}')
+          
+          echo "Response: $RESPONSE"
+          
+          # Check if more ticks are needed
+          NEEDS_MORE=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('next_tick_needed', False))" 2>/dev/null || echo "false")
+          PROCESSED=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('processed', 0))" 2>/dev/null || echo "0")
+          ERRORS=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('errors', [])))" 2>/dev/null || echo "0")
+          
+          echo "processed=$PROCESSED" >> $GITHUB_OUTPUT
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+          echo "needs_more=$NEEDS_MORE" >> $GITHUB_OUTPUT
+          
+          echo "=== Tick Complete: processed=$PROCESSED, errors=$ERRORS, needs_more=$NEEDS_MORE ==="
 
-      - name: 2️⃣ Check PA Webapp Health & Auto-Reload
+      - name: 2️⃣ Check PA Health & Auto-Reload
         id: pa-health
         continue-on-error: true
         env:
@@ -68,8 +56,8 @@ jobs:
           PA_USER: ${{ vars.PA_USER || 'jhfguf' }}
           PA_DOMAIN: ${{ vars.PA_DOMAIN || 'jhfguf.pythonanywhere.com' }}
         run: |
-          CODE=$(curl -s --max-time 15 -o /dev/null -w "%{http_code}" "https://${PA_DOMAIN}/api/ping" || echo "500")
-          echo "PA ping HTTP code: $CODE"
+          CODE=$(curl -s --max-time 15 -o /dev/null -w "%{http_code}" "https://${PA_DOMAIN}/api/v2/health" || echo "500")
+          echo "PA health HTTP code: $CODE"
           if [ "$CODE" != "200" ] && [ ! -z "$PA_TOKEN" ]; then
             echo "PA is unhealthy. Re-triggering webapp reload..."
             curl -s --max-time 20 -X POST \
@@ -77,45 +65,23 @@ jobs:
               -H "Authorization: Token ${PA_TOKEN}"
           fi
 
-      - name: 3️⃣ Process D1 Email Outbox Queue
-        id: process-emails
+      - name: 3️⃣ Check Queue Depth & Alert if Growing
+        id: queue-check
         continue-on-error: true
-        env:
-          OUTBOX_SECRET: ${{ secrets.OUTBOX_SECRET }}
-        run: |
-          echo "=== Processing Outbox SMTP Queue ==="
-          python scripts/cloud_email_sender.py
-
-      - name: 4️⃣ Process Telegram Bot Swarm Queue (One-Shot)
-        id: process-queue
-        continue-on-error: true
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        run: |
-          echo "=== Processing Telegram Swarm Queue ==="
-          python cloud_queue_worker.py --one-shot
-
-      - name: 5️⃣ Monitor Cloudflare Worker Health
-        id: cf-health
-        continue-on-error: true
-        run: |
-          CF_CODE=$(curl -s --max-time 15 -o /dev/null -w "%{http_code}" "${{ env.WORKER_URL }}/api/cloud-health" || echo "500")
-          echo "Cloudflare Worker status code: $CF_CODE"
-          if [ "$CF_CODE" != "200" ]; then
-            echo "cf_failed=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: 🚨 Send Telegram Alerts on Failure
-        if: ${{ steps.cf-health.outputs.cf_failed == 'true' }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
-            msg="🚨 CLOUD CRITICAL ALERT: Cloudflare Worker API is down! Health status code returned non-200. Please inspect wrangler logs."
+          HEALTH=$(curl -s --max-time 15 "${PA_URL}/api/v2/health" || echo '{"queue":{"pending":0,"running":0}}')
+          PENDING=$(echo "$HEALTH" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('queue',{}).get('pending',0))" 2>/dev/null || echo "0")
+          RUNNING=$(echo "$HEALTH" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('queue',{}).get('running',0))" 2>/dev/null || echo "0")
+          
+          echo "Queue: pending=$PENDING, running=$RUNNING"
+          
+          # Alert if queue is growing (more than 5 pending)
+          if [ "$PENDING" -gt 5 ] && [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
+            msg="⚠️ QUEUE BACKLOG: $PENDING pending tasks on PA. Consider increasing tick frequency."
             curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
               -d "chat_id=${TELEGRAM_CHAT_ID}" \
               -d "text=${msg}"
-          else
-            echo "⚠️ Telegram bot details not configured, skipping alert."
           fi

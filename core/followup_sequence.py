@@ -27,26 +27,36 @@ FOLLOWUP_STAGES = {
 
 I hope this message finds you well. I wanted to follow up on my application for the {role} position at {company} that I submitted on {date}.
 
-I understand you're likely reviewing many applications, and I just wanted to make sure my materials reached you successfully. I remain very enthusiastic about this opportunity and would welcome the chance to discuss how my experience in network engineering could contribute to your team.
+I understand you're likely reviewing many applications, and I just wanted to make sure my materials reached you successfully. I remain very enthusiastic about this opportunity and would welcome the chance to discuss how my 15+ years of experience in SD-WAN, network security, and cloud networking could contribute to your team.
 
-Thank you for your time.
+Thank you for your time and consideration.
 
 Best regards,
-Sam Salameh""",
+Sam Salameh
+CCNP | NSE 4-7 | AWS Certified | 15+ Years Network Engineering""",
     },
     7: {
         "name": "value_add",
-        "subject": "Re: {role} - Additional thoughts",
+        "subject": "Re: {role} - SD-WAN & Security expertise",
         "body": """Dear {contact},
 
 I wanted to share some additional thoughts regarding the {role} position at {company}.
 
-Since submitting my application, I've been reflecting on how my 15+ years of experience in enterprise networking — including Cisco, MikroTik, Fortinet, and Ubiquiti platforms — could specifically benefit {company}. My track record of maintaining 99.99% uptime for critical infrastructure and implementing network automation solutions aligns well with what growing organizations typically need.
+Since submitting my application, I've been reflecting on how my specific expertise could benefit {company}:
+
+• SD-WAN & SASE: Architected solutions across 50+ sites, reducing WAN costs by 45%
+• Zero Trust Security: Implemented ZTNA for 2,000+ users across 10+ countries
+• Network Automation: Python/Ansible/Terraform pipelines reducing deployment time by 40%
+• Cloud Networking: Migrated 100+ servers to AWS/Azure with 99.99% uptime
+• Multi-Vendor: Cisco, Fortinet, MikroTik, Palo Alto, Juniper, Aruba
+
+I'm confident I could make an immediate impact on your network infrastructure and security posture.
 
 I'd welcome the opportunity to discuss this further at your convenience.
 
 Best regards,
-Sam Salameh""",
+Sam Salameh
+CCNP | NSE 4-7 | AWS Certified | 15+ Years Network Engineering""",
     },
     14: {
         "name": "final_push",
@@ -55,12 +65,15 @@ Sam Salameh""",
 
 I understand you may have moved forward with other candidates, but I wanted to express my continued interest in the {role} position at {company}.
 
-My expertise in network infrastructure design, security implementation, and automation remains highly relevant, and I'm confident I could make an immediate impact on your team. I'm flexible regarding start date and open to discussing the role in whatever format works best for you.
+My expertise in SD-WAN architecture, Zero Trust security, network automation, and multi-cloud networking remains highly relevant for today's infrastructure challenges. I've successfully managed $5M+ budgets, led teams of 12 engineers, and delivered 99.99% uptime across 200+ locations.
+
+I'm flexible regarding start date and open to discussing the role in whatever format works best for you. I'd also be happy to provide references or additional portfolio materials.
 
 Thank you for considering my application.
 
 Best regards,
-Sam Salameh""",
+Sam Salameh
+CCNP | NSE 4-7 | AWS Certified | 15+ Years Network Engineering""",
     },
 }
 

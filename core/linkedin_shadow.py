@@ -13,7 +13,7 @@ class ShadowNetwork:
     """
     
     def __init__(self):
-        self.ddgs = DDGS()
+        pass
         
     def hunt_hr_manager(self, company_name: str, location: str = "") -> Optional[Dict]:
         """Search for HR managers at the target company."""
@@ -24,7 +24,8 @@ class ShadowNetwork:
         query = f'site:linkedin.com/in/ "Talent Acquisition" OR "Recruiter" OR "HR Manager" "{company_name}" {location}'
         
         try:
-            results = list(self.ddgs.text(query, max_results=3))
+            with DDGS() as ddgs:
+                results = list(ddgs.text(query, max_results=3))
             if not results:
                 logger.warning(f"[SHADOW] No HR managers found for {company_name}")
                 return None

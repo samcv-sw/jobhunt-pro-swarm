@@ -126,8 +126,10 @@ def _load_state():
     global _state
     if STATE_FILE and STATE_FILE.exists():
         try:
-            _state = json.load(open(STATE_FILE))
-        except Exception:
+            with open(STATE_FILE) as f:
+                _state = json.load(f)
+        except Exception as e:
+            logger.warning(f"[social_auto] Could not load state file: {e}")
             _state = {}
     _state.setdefault("reddit_comments", 0)
     _state.setdefault("linkedin_posts", 0)
@@ -139,10 +141,15 @@ def _load_state():
     _state.setdefault("last_tweet", "")
 
 
-def _save_state():
+def _save_state() -> None:
+    """Persist state to disk. Fails softly on permission errors."""
     if STATE_FILE:
-        _state["updated"] = datetime.utcnow().isoformat()
-        json.dump(_state, open(STATE_FILE, 'w'), indent=2)
+        try:
+            _state["updated"] = datetime.utcnow().isoformat()
+            with open(STATE_FILE, 'w') as f:
+                json.dump(_state, f, indent=2)
+        except Exception as e:
+            logger.warning(f"[social_auto] Could not save state: {e}")
 
 
 # ── Reddit Auto-Engagement ───────────────────────────────────
@@ -150,22 +157,24 @@ def _save_state():
 def get_reddit_comment(keyword_context: str = "job search") -> str:
     """Generate a Reddit comment based on trigger keyword."""
     comment = random.choice(REDDIT_COMMENT_TEMPLATES)
-    
-    # Add personalization
+
     intro = random.choice([
-        f"This. ",
-        f"I feel you. ",
-        f"Same here. ",
-        f"I struggled with this for months. ",
-        f"Been there. ",
+        "This. ",
+        "I feel you. ",
+        "Same here. ",
+        "I struggled with this for months. ",
+        "Been there. ",
     ])
-    
+
     full = intro + comment
-    
-    _state["reddit_comments"] += 1
-    _state["last_reddit"] = datetime.utcnow().isoformat()
-    _save_state()
-    
+
+    try:
+        _state["reddit_comments"] = _state.get("reddit_comments", 0) + 1
+        _state["last_reddit"] = datetime.utcnow().isoformat()
+        _save_state()
+    except Exception as e:
+        logger.warning(f"[social_auto] State update failed for reddit_comment: {e}")
+
     return full
 
 
@@ -189,11 +198,14 @@ def get_reddit_posts_to_target() -> List[Dict]:
 def get_linkedin_post() -> str:
     """Generate a LinkedIn post."""
     post = random.choice(LINKEDIN_POST_TEMPLATES)
-    
-    _state["linkedin_posts"] += 1
-    _state["last_linkedin"] = datetime.utcnow().isoformat()
-    _save_state()
-    
+
+    try:
+        _state["linkedin_posts"] = _state.get("linkedin_posts", 0) + 1
+        _state["last_linkedin"] = datetime.utcnow().isoformat()
+        _save_state()
+    except Exception as e:
+        logger.warning(f"[social_auto] State update failed for linkedin_post: {e}")
+
     return post
 
 
@@ -202,14 +214,17 @@ def get_linkedin_post() -> str:
 def get_quora_answer(question: str = "") -> str:
     """Generate a Quora answer with natural JobHunt Pro mention."""
     answer = QUORA_ANSWER_TEMPLATES
-    
+
     if question:
         answer = f"Great question about: {question[:100]}\n\n" + answer
-    
-    _state["quora_answers"] += 1
-    _state["last_quora"] = datetime.utcnow().isoformat()
-    _save_state()
-    
+
+    try:
+        _state["quora_answers"] = _state.get("quora_answers", 0) + 1
+        _state["last_quora"] = datetime.utcnow().isoformat()
+        _save_state()
+    except Exception as e:
+        logger.warning(f"[social_auto] State update failed for quora_answer: {e}")
+
     return answer
 
 
@@ -232,11 +247,14 @@ QUORA_SEARCH_QUERIES = [
 def get_tweet() -> str:
     """Generate a tweet."""
     tweet = random.choice(TWEET_TEMPLATES)
-    
-    _state["tweets"] += 1
-    _state["last_tweet"] = datetime.utcnow().isoformat()
-    _save_state()
-    
+
+    try:
+        _state["tweets"] = _state.get("tweets", 0) + 1
+        _state["last_tweet"] = datetime.utcnow().isoformat()
+        _save_state()
+    except Exception as e:
+        logger.warning(f"[social_auto] State update failed for tweet: {e}")
+
     return tweet
 
 

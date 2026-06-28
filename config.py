@@ -100,6 +100,18 @@ JOB_TITLES = [
     "inżynier sieci", "administrator sieci", "inżynier infrastruktury",  # Polish
     "engenheiro de redes", "administrador de redes",  # Portuguese
     "ingenere di rete", "amministratore di rete",  # Italian
+    # ── 2025/2026 Emerging Titles ──
+    "platform engineer", "senior platform engineer", "lead platform engineer",
+    "cloud native engineer", "cloud security engineer", "cloud network security engineer",
+    "cnapp engineer", "cspm engineer", "devsecops engineer",
+    "kubernetes network engineer", "container network engineer",
+    "ebpf engineer", "service mesh engineer", "cilium engineer",
+    "gitops engineer", "infrastructure platform engineer",
+    "network sre", "network site reliability engineer",
+    "observability engineer", "telemetry engineer",
+    "openran engineer", "5g network engineer", "private 5g engineer",
+    "wifi engineer", "wireless network engineer", "rf engineer",
+    "network product manager", "network program manager",
 ]
 
 LOCATIONS = [

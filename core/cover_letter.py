@@ -35,14 +35,14 @@ class CoverLetterWriter:
 
 I am writing to express my strong interest in the {title} position at {company}.
 
-With over {experience_years} years of progressive experience as a {profession}, I have developed deep expertise in my field. My technical proficiency spans across various core competencies, with extensive hands-on experience in delivering high-quality results.
+With over {experience_years} years of progressive experience as a {profession}, I have developed deep expertise in designing, deploying, and managing large-scale enterprise networks across 10+ countries. My technical proficiency spans SD-WAN/SASE architecture, Zero Trust security, multi-cloud networking (AWS/Azure/GCP), and network automation — delivering measurable results in complex environments.
 
 Key qualifications I bring:
-- {experience_years}+ years of proven experience in my industry
-- Expert-level knowledge of core professional principles and practices
-- Proven track record in optimizing processes and achieving measurable outcomes
-- Strong experience with industry-standard tools and methodologies
-- Continuous professional development and adaptability
+- {experience_years}+ years designing and managing enterprise networks across multiple countries (UAE, Saudi Arabia, Qatar, Kuwait, Lebanon, and more)
+- Expert-level knowledge of routing/switching (BGP/OSPF/MPLS), SD-WAN (Silver Peak/Viptela), and next-gen security (FortiGate/Palo Alto/Zero Trust)
+- Proven track record: Reduced WAN costs by 45% through SD-WAN deployment across 50+ sites, improved application performance by 60%
+- Automated network provisioning using Python/Ansible/Terraform, reducing deployment time by 40% and operational overhead by 35%
+- Led Zero Trust (ZTNA/SASE) implementation securing 2,000+ remote users across 30+ branch offices
 - Core skills: {skills}
 
 {icebreaker}
@@ -57,24 +57,28 @@ Best regards,
 
     TEMPLATE_RESULTS = """Dear {company} Hiring Team,
 
-I am reaching out to express my high-level interest in the {title} position.
+I am reaching out to express my high-level interest in the {title} position at {company}.
 
-My approach is built specifically for organizations that demand reliability, efficiency, and scalable operations from their team members.
+My approach is built specifically for organizations that demand reliability, efficiency, and scalable operations from their network and infrastructure teams.
 
 01. PROFESSIONAL EXPERIENCE
-Proven expertise with {experience_years}+ years of experience as a {profession}, consistently maintaining high standards and delivering impactful results.
+{experience_years}+ years as a {profession} designing and managing multi-site enterprise networks across 10+ countries. Consistently maintained 99.99% uptime while delivering impactful infrastructure transformations.
 
 02. CORE COMPETENCIES
-A track record of resolving complex challenges while maintaining strict compliance and achieving excellent satisfaction scores. My skills include: {skills}
+- SD-WAN/SASE/ZTNA architecture and deployment (50+ sites, 45% cost reduction)
+- Multi-cloud networking (AWS Direct Connect, Azure ExpressRoute, GCP Interconnect)
+- Network automation (Python/Ansible/Terraform — 40% faster deployments)
+- Enterprise security (FortiGate/Palo Alto/Zero Trust — 2,000+ remote users secured)
+- Skills include: {skills}
 
-03. WORKFLOW OPTIMIZATION
-Experience standardizing operational procedures, reducing overhead and improving overall efficiency.
+03. INFRASTRUCTURE OPTIMIZATION
+Proven track record of standardizing operational procedures, automating repetitive tasks, and reducing annual operational costs by $500K+ through vendor consolidation and intelligent licensing.
 
 {icebreaker}
 
-"I am committed to bringing rigorous accountability and structured growth to the {company} team."
+"I am committed to bringing rigorous accountability, technical excellence, and structured growth to the {company} team."
 
-I have attached my Professional CV for your comprehensive review. I look forward to discussing how my expertise can drive your goals.
+I have attached my Professional CV for your comprehensive review. I look forward to discussing how my expertise can drive your infrastructure goals.
 
 Best regards,
 {name}
@@ -84,15 +88,15 @@ Best regards,
 
     TEMPLATE_MODERN = """Dear Hiring Team,
 
-I am {name}, a {profession} with {experience_years}+ years of hands-on experience delivering high-quality results.
+I am {name}, a {profession} with {experience_years}+ years of hands-on experience delivering high-quality results across enterprise networking, security, and cloud infrastructure.
 
 Why me for {title} at {company}?
 
-PROVEN EXPERTISE: With a background spanning over {experience_years} years, I have successfully managed projects and operations that drive value.
+PROVEN EXPERTISE: With over {experience_years} years spanning 10+ countries, I have successfully architected SD-WAN solutions (50+ sites, 45% cost reduction), implemented Zero Trust security for 2,000+ users, and led cloud migrations with 99.99% uptime.
 
 CORE SKILLS: My primary areas of expertise include: {skills}.
 
-EFFICIENCY: I focus on structured, results-oriented approaches that reduce manual work and human error.
+AUTOMATION & EFFICIENCY: I focus on structured, results-oriented approaches — automating network provisioning with Python/Ansible/Terraform, reducing deployment time by 40% and operational overhead by 35%.
 
 {icebreaker}
 
@@ -106,21 +110,23 @@ LinkedIn: {linkedin}"""
 
 {title} — {name}
 
-A senior {profession} with {experience_years}+ years of cross-functional expertise, I am compelled by the opportunity at {company}.
+A senior {profession} with {experience_years}+ years of cross-functional expertise spanning enterprise networking, security, cloud, and automation across 10+ countries, I am compelled by the opportunity at {company}.
 
 TRACK RECORD OF IMPACT:
-▸ Delivered impactful results consistently over {experience_years}+ years of professional experience
-▸ Reduced operational friction through proactive problem-solving
-▸ Led key initiatives, delivering on time and under budget
-▸ Built and collaborated with teams across diverse cultural environments
+▸ Designed and deployed SD-WAN solution across 50+ sites — reduced WAN costs by 45%, improved application performance by 60%
+▸ Implemented Zero Trust Network Access (ZTNA/SASE) architecture securing 2,000+ remote users across 30+ branch offices
+▸ Led cloud migration of 100+ servers to AWS/Azure with 99.99% uptime and zero security incidents
+▸ Automated network provisioning using Python/Ansible/Terraform — reduced deployment time by 40%, operational overhead by 35%
+▸ Managed $5M+ network infrastructure budget including vendor negotiations and lifecycle management
+▸ Led SOC/NOC team of 12 engineers, establishing 24/7 monitoring with Splunk/ELK SIEM — reduced MTTR by 55%
 
 PROFESSIONAL DEPTH:
 ▸ Core competencies: {skills}
-▸ Focus on strategic planning and operational excellence
+▸ Focus on strategic planning, operational excellence, and digital transformation
 
 {icebreaker}
 
-I bring the operational discipline and professional depth that {company} needs at this stage of growth. I look forward to a conversation.
+I bring the operational discipline, technical depth, and strategic vision that {company} needs at this stage of growth. I look forward to a conversation.
 
 {name}
 {email} | {phone} | {linkedin}"""
@@ -129,10 +135,10 @@ I bring the operational discipline and professional depth that {company} needs a
 
 Re: {title} at {company}
 
-In {experience_years} years as a {profession}, I've learned that professional excellence comes down to reliability, efficiency, and adaptability. Here's how I deliver each:
+In {experience_years} years as a {profession} across 10+ countries, I've learned that network excellence comes down to three things. Here's how I deliver each:
 
-Reliability → Consistent high-quality output and strict adherence to deadlines
-Efficiency → Proven track record of optimizing workflows and solving complex problems
+Reliability → Designed multi-site MPLS/VPN backbone connecting 200+ locations with 99.99% uptime and BGP/OSPF route optimization
+Efficiency → Automated network provisioning with Python/Ansible/Terraform, cutting deployment time by 40% and annual costs by $500K+
 Adaptability → Core skills include: {skills}
 
 {icebreaker}
@@ -150,13 +156,15 @@ My CV is attached. I'd welcome 15 minutes to discuss how this experience maps to
 
 أكتب إليكم للتعبير عن اهتمامي الكبير بمنصب {title} في {company}.
 
-أملك أكثر من {experience_years} عاماً من الخبرة المتقدمة في مجال عملي كـ {profession}. تشمل خبرتي تقديم نتائج عالية الجودة وتطبيق أفضل الممارسات المهنية.
+أملك أكثر من {experience_years} عاماً من الخبرة المتقدمة في مجال الشبكات والأمن السيبراني والحوسبة السحابية عبر 10 دول منها الإمارات والسعودية وقطر والكويت ولبنان. قمت بتصميم وتنفيذ حلول SD-WAN عبر 50 موقعاً مما خفض التكاليف بنسبة 45%، وتطبيق بنية Zero Trust لتأمين أكثر من 2000 مستخدم عن بعد.
 
 المؤهلات الرئيسية:
-- أكثر من {experience_years} عاماً من الخبرة الموثوقة
-- سجل حافل في تحقيق الأهداف وتحسين كفاءة العمل
+- أكثر من {experience_years} عاماً من الخبرة في تصميم وإدارة الشبكات المؤسسية
+- خبير في SD-WAN، SASE، ZTNA، الحوسبة السحابية (AWS/Azure/GCP)، وأتمتة الشبكات
+- سجل حافل: تخفيض تكاليف WAN بنسبة 45%، أتمتة البنية التحتية بنسبة 40% أسرع
+- إدارة ميزانية شبكات تتجاوز $5M مع تحقيق توفير سنوي $500K+
+- قيادة فريق من 12 مهندس شبكات وأمن معلومات
 - مهارات أساسية تشمل: {skills}
-- التزام بالتطوير المهني المستمر
 
 {icebreaker}
 
@@ -473,25 +481,27 @@ Best regards,
         if company_info:
             if company_info.get('info'):
                 breakers.append(
-                    f"I have been following {company}'s recent developments and impressive growth in the industry."
+                    f"I have been following {company}'s recent developments and impressive growth in the industry, particularly in the networking and infrastructure space."
                 )
             if company_info.get('culture'):
                 breakers.append(
-                    f"{company}'s commitment to innovation and excellence resonates with my professional values."
+                    f"{company}'s commitment to innovation and technical excellence resonates deeply with my professional values and engineering philosophy."
                 )
             if company_info.get('news'):
                 breakers.append(
-                    f"Your latest projects demonstrate exactly the kind of technical challenges I thrive on."
+                    f"Your latest infrastructure and technology projects demonstrate exactly the kind of technical challenges I have thrived on throughout my 15-year career."
                 )
             if company_info.get('values'):
                 breakers.append(
-                    f"{company}'s values of {company_info['values'][:50]} align closely with how I approach engineering challenges."
+                    f"{company}'s values of {company_info['values'][:50]} align closely with how I approach network engineering challenges — with precision, reliability, and continuous improvement."
                 )
         if not breakers:
             breakers = [
-                f"I am particularly drawn to this opportunity at {company} because it aligns perfectly with my network engineering expertise.",
-                f"The {title} role at {company} represents an ideal match for my 15+ years of progressive experience.",
-                f"{company}'s reputation for technical excellence makes this an exciting opportunity for my next career step.",
-                f"The technical challenges at {company} are exactly the kind that have defined my 15-year career in network engineering.",
+                f"I am particularly drawn to this opportunity at {company} because it aligns perfectly with my 15+ years of expertise in SD-WAN, enterprise networking, and security architecture.",
+                f"The {title} role at {company} represents an ideal match for my extensive experience designing and managing multi-site networks across 10+ countries.",
+                f"{company}'s reputation for technical excellence in the networking space makes this an exciting opportunity for my next career step.",
+                f"The technical challenges at {company} are exactly the kind that have defined my career — from SD-WAN deployments across 50+ sites to Zero Trust security implementations for thousands of users.",
+                f"Having designed and managed enterprise networks across the Middle East and beyond for 15+ years, I am excited about the opportunity to bring this experience to {company}.",
+                f"With {company}'s continued growth and focus on digital transformation, I believe my expertise in network automation, cloud networking, and security architecture would be immediately valuable.",
             ]
         return random.choice(breakers)

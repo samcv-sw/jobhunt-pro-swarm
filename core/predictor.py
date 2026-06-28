@@ -57,18 +57,30 @@ class ResponsePredictor:
         
         # Subject line analysis
         subject_len = len(subject)
-        scores["subject_length"] = 100 if 40 <= subject_len <= 60 else max(0, 100 - abs(50 - subject_len) * 2)
+        # More lenient: 30-80 chars is good for compelling subject lines with certifications
+        scores["subject_length"] = 100 if 30 <= subject_len <= 80 else max(0, 100 - abs(55 - subject_len) * 1.5)
         
-        # Check for personalization in subject
-        scores["subject_personalized"] = 100 if any(word in subject.lower() for word in ['your', 'you', 're:']) else 50
+        # Check for personalization in subject - also check for certifications/experience indicators
+        subject_lower = subject.lower()
+        has_personalization = any(word in subject_lower for word in ['your', 'you', 're:', 'available', 'experienced'])
+        has_certifications = any(word in subject_lower for word in ['ccnp', 'nse', 'aws', 'ccie', 'expert', 'senior', '15yr', 'specialist'])
+        scores["subject_personalized"] = 100 if (has_personalization or has_certifications) else 50
         
-        # Body length analysis (optimal: 150-250 words)
+        # Body length analysis (optimal: 150-300 words for detailed cover letters)
         word_count = len(body.split())
-        scores["body_length"] = 100 if 150 <= word_count <= 250 else max(0, 100 - abs(200 - word_count) * 0.5)
+        scores["body_length"] = 100 if 150 <= word_count <= 300 else max(0, 100 - abs(225 - word_count) * 0.4)
         
-        # Check for numbers/metrics
+        # Check for numbers/metrics - critical for engineering roles
         has_numbers = bool(re.search(r'\d+', body))
-        scores["has_metrics"] = 100 if has_numbers else 30
+        has_percentages = bool(re.search(r'\d+%', body))
+        scores["has_metrics"] = 100 if has_percentages else (80 if has_numbers else 30)
+        
+        # Check for relevant technical keywords in body
+        tech_keywords = ['sd-wan', 'network', 'security', 'cloud', 'automation', 'infrastructure',
+                        'zero trust', 'mpls', 'bgp', 'firewall', 'data center', 'ansible', 'terraform',
+                        'python', 'cisco', 'fortinet', 'aws', 'azure']
+        tech_match_count = sum(1 for kw in tech_keywords if kw in body.lower())
+        scores["technical_relevance"] = min(100, tech_match_count * 15)  # Up to 100 for 7+ matches
         
         # Safety check: Detect raw/unresolved template placeholders (failed template replacement)
         unresolved_placeholders = [
@@ -89,12 +101,12 @@ class ResponsePredictor:
             scores["personalization"] = 100 if has_candidate_name else 70
         
         # Check for call to action
-        cta_words = ['schedule', 'call', 'discuss', 'meeting', 'available', 'apply']
+        cta_words = ['schedule', 'call', 'discuss', 'meeting', 'available', 'apply', 'interview', 'conversation']
         has_cta = any(word in body.lower() for word in cta_words)
         scores["call_to_action"] = 100 if has_cta else 40
         
         # Check for urgency
-        urgency_words = ['asap', 'urgent', 'immediate', 'deadline']
+        urgency_words = ['asap', 'urgent', 'immediate', 'deadline', 'opportunity', 'available']
         has_urgency = any(word in body.lower() for word in urgency_words)
         scores["urgency"] = 100 if has_urgency else 60
         

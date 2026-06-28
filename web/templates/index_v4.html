@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>JobHunt Pro — AI-Powered Automated Job Applications | 200 AI Agents, 24/7</title>
+  <meta name="description" content="AI-Powered Job Application Engine — Apply to thousands of jobs automatically. Your personal job-hunting AI works 24/7. Get hired faster.">
+  <meta name="keywords" content="job application, AI job search, automated applications, cover letter AI, job hunt, job board, career, hiring">
+  <meta name="author" content="JobHunt Pro">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://jhfguf.pythonanywhere.com/">
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0a0a14">
+  <link rel="apple-touch-icon" href="/static/img/icon-192.png">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jhfguf.pythonanywhere.com/">
+  <meta property="og:title" content="JobHunt Pro — AI-Powered Automated Job Applications">
+  <meta property="og:description" content="Your personal AI job-hunting engine works 24/7 — searching thousands of jobs, crafting personalized applications, and sending them through smart email rotation.">
+  <meta property="og:image" content="https://jhfguf.pythonanywhere.com/static/img/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="JobHunt Pro">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="JobHunt Pro — AI-Powered Automated Job Applications">
+  <meta name="twitter:description" content="Your personal AI job-hunting engine works 24/7. Get hired faster.">
+  <meta name="twitter:image" content="https://jhfguf.pythonanywhere.com/static/img/og-image.png">
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Schema.org Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "JobHunt Pro",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "description": "AI-Powered Automated Job Application Engine with 200 AI agents, multi-engine job search, and smart email rotation.",
+    "url": "https://jhfguf.pythonanywhere.com",
+    "offers": {
+      "@type": "AggregateOffer",
+      "lowPrice": "2",
+      "highPrice": "50",
+      "priceCurrency": "USD",
+      "offerCount": "4"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "847"
+    }
+  }
+  </script>
+
+  <link rel="stylesheet" href="/static/css/landing-v4.css">
+
+</head>
+<body class="cyberpunk-body">
+
+<!-- COOKIE CONSENT BANNER -->
+<div class="cookie-banner" id="cookieBanner">
+ <div class="cookie-content">
+  <span>&#x1f36a;</span>
+  <p>We use essential cookies to keep JobHunt Pro running. By using our site, you agree to our <a href="/privacy">Privacy Policy</a>.</p>
+  <button class="btn" onclick="acceptCookies()">Got it &#x2713;</button>
+ </div>
+</div>
+<style>
+.cookie-banner{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,25,0.97);border-top:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px 24px;backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
+.cookie-content{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+.cookie-content span{font-size:20px}
+.cookie-content p{font-size:12px;color:var(--muted);flex:1;min-width:200px}
+.cookie-content a{color:var(--cyan)}
+.cookie-content button{background:var(--cyan);color:#000;border:none;padding:8px 20px;border-radius:20px;font-weight:700;cursor:pointer;font-size:13px;white-space:nowrap}
+.cookie-content button:hover{opacity:0.9}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@media(max-width:600px){.cookie-content{text-align:center}}
+</style>
+<script>
+function acceptCookies(){document.getElementById('cookieBanner').style.display='none';localStorage.setItem('cookiesAccepted','1');}
+if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanner').style.display='none';}
+</script>
+
+<!-- ═══ BACKGROUND LAYERS ═══ -->
+<div class="bg-layer bg-grid"></div>
+<div class="bg-layer bg-gradient"></div>
+<div class="glow-orb-1"></div>
+<div class="glow-orb-2"></div>
+<div class="glow-orb-3"></div>
+<div class="scanline"></div>
+<canvas class="bg-particles" id="particleCanvas"></canvas>
+
+<!-- ═══ NAVIGATION ═══ -->
+{% include '_public_nav.html' %}
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+ <div class="hero-badge">
+  <span class="pulse-dot"></span> AI SYSTEM ONLINE — v{{ VERSION }}
+ </div>
+ <h1>
+  Land Your Dream Job<br>
+  <span class="cyan glow-line">Automatically</span> While You<br>
+  <span class="typewriter-wrap"><span id="typewriter" class="magenta"></span><span class="typewriter-cursor"></span></span>
+ </h1>
+ <p class="hero-sub">
+  Your personal AI job-hunting engine works <strong style="color:var(--cyan)">24/7</strong> — searching thousands of jobs,
+  crafting personalized applications, and sending them through smart email rotation.
+  <strong style="color:var(--gold)">Less than 7 cents per application.</strong> Get hired or your money back.
+ </p>
+ <div class="hero-buttons">
+  <a href="/register" class="primary">&#x1f680; Start Applying Now — It's Free</a>
+  <a href="#pricing" class="secondary">&#x1f4b0; View Pricing Plans</a>
+ </div>
+ <div class="hero-stats-strip">
+  <div class="stat-item"><div class="num counter" data-target="2000">0</div><div class="label">Daily Applications</div></div>
+  <div class="stat-item"><div class="num counter" data-target="20">0</div><div class="label">Email Providers</div></div>
+  <div class="stat-item"><div class="num counter" data-target="200">0</div><div class="label">AI Agents</div></div>
+  <div class="stat-item"><div class="num counter" data-target="50">0</div><div class="label">Countries</div></div>
+  <div class="stat-item"><div class="num"><span class="counter" data-target="12">0</span>%</div><div class="label">Interview Rate</div></div>
+ </div>
+</section>
+
+<!-- ═══ GUARANTEE BADGE ═══ -->
+<section class="guarantee-badge-section">
+ <div class="guarantee-badge">
+  <div class="guarantee-icon">&#x1f6e1;&#xfe0f;</div>
+  <div class="guarantee-text">
+   <strong>30-Day Money-Back Guarantee</strong>
+   <span>No interviews? Get a full refund. No questions asked. Your risk is ZERO.</span>
+  </div>
+  <div class="guarantee-seal">
+   <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="var(--cyan)" stroke-width="2"/><text x="20" y="26" text-anchor="middle" fill="var(--cyan)" font-size="18" font-weight="900">&#x2713;</text></svg>
+  </div>
+ </div>
+</section>
+<style>
+.guarantee-badge-section{padding:0 24px 40px;display:flex;justify-content:center;position:relative;z-index:2}
+.guarantee-badge{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(0,240,255,0.08),rgba(0,240,255,0.02));border:1px solid rgba(0,240,255,0.2);border-radius:20px;padding:20px 32px;max-width:700px;width:100%;backdrop-filter:blur(10px);animation:guaranteePulse 2s ease-in-out infinite}
+.guarantee-icon{font-size:32px;flex-shrink:0}
+.guarantee-text{display:flex;flex-direction:column;gap:4px;flex:1}
+.guarantee-text strong{font-size:16px;color:var(--cyan);letter-spacing:-0.3px}
+.guarantee-text span{font-size:13px;color:var(--muted)}
+.guarantee-seal{flex-shrink:0;opacity:0.8}
+@keyframes guaranteePulse{0%,100%{box-shadow:0 0 20px rgba(0,240,255,0.1)}50%{box-shadow:0 0 35px rgba(0,240,255,0.2)}}
+@media(max-width:600px){.guarantee-badge{flex-direction:column;text-align:center;padding:16px 20px}}
+</style>
+
+<!-- ═══ INTEGRATIONS BAR ═══ -->
+<section class="trusted-by">
+ <h3>SEARCHING ACROSS THESE PLATFORMS + MORE</h3>
+ <div class="logo-marquee">
+  <div class="logo-track">
+   <div class="logo-item"><span class="li-icon">&#x1f9fc;</span> <strong>LinkedIn</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f50d;</span> <strong>Indeed</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f4cb;</span> <strong>Glassdoor</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f4ce;</span> <strong>ZipRecruiter</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f3e2;</span> <strong>Bayt.com</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f1e6;&#x1f1ea;</span> <strong>NaukriGulf</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f30d;</span> <strong>Monster Gulf</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f680;</span> <strong>JSearch API</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f517;</span> <strong>CareerJet</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f310;</span> <strong>Adzuna</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f9fc;</span> <strong>LinkedIn</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f50d;</span> <strong>Indeed</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f4cb;</span> <strong>Glassdoor</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f4ce;</span> <strong>ZipRecruiter</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f3e2;</span> <strong>Bayt.com</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f1e6;&#x1f1ea;</span> <strong>NaukriGulf</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f30d;</span> <strong>Monster Gulf</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f680;</span> <strong>JSearch API</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f517;</span> <strong>CareerJet</strong></div>
+   <div class="logo-item"><span class="li-icon">&#x1f310;</span> <strong>Adzuna</strong></div>
+  </div>
+ </div>
+</section>
+
+<!-- ═══ FEATURED JOBS ═══ -->
+{% if featured_jobs %}
+<section class="featured-jobs">
+  <div class="section-header">
+    <span class="section-tag">&#x1f4e1; LIVE</span>
+    <h2>Featured Jobs This Week</h2>
+    <p>Hand-picked opportunities from our AI-powered search engine</p>
+  </div>
+  <div class="jobs-grid">
+    {% for job in featured_jobs[:6] %}
+    <div class="job-card">
+      <div class="job-card-header">
+        <span class="job-board">{{ job.board }}</span>
+        <span class="job-date">{{ job.date_posted }}</span>
+      </div>
+      <h3 class="job-title">{{ job.title }}</h3>
+      <p class="job-company">{{ job.company }}</p>
+      <div class="job-meta">
+        <span>&#x1f4cd; {{ job.location }}</span>
+        <span>&#x1f4b0; {{ job.salary }}</span>
+      </div>
+      <div class="job-card-footer">
+        <span class="job-type">{{ job.type }}</span>
+        <a href="/register?ref={{ job.id }}" class="job-apply">Apply Now &#x2192;</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="jobs-cta">
+    <p>&#x1f50e; Our AI is scanning <strong>{{ fomo_apps_today }}</strong>+ jobs right now</p>
+    <a href="/register" class="primary">&#x1f680; Unlock All Jobs</a>
+  </div>
+</section>
+{% endif %}
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="how-it-works" id="how-it-works">
+  <div class="section-header">
+    <span class="section-tag">&#x2699;&#xfe0f; HOW IT WORKS</span>
+    <h2>Your 24/7 AI Job-Hunting Engine</h2>
+    <p>Set up once. Our AI does the rest — applying to hundreds of jobs while you sleep.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-circle">1</div>
+      <span class="step-icon">&#x1f50d;</span>
+      <h3>AI Scans 50+ Job Boards</h3>
+      <p>Our 200 AI agents search LinkedIn, Indeed, Glassdoor, Bayt, NaukriGulf, and more — finding jobs that match your profile.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-circle">2</div>
+      <span class="step-icon">&#x1f4dd;</span>
+      <h3>Personalized Applications</h3>
+      <p>Each application is uniquely crafted with AI-generated cover letters, tailored resumes, and optimized answers.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-circle">3</div>
+      <span class="step-icon">&#x1f4e8;</span>
+      <h3>Smart Email Rotation</h3>
+      <p>20+ email providers with intelligent rotation to maximize delivery rates and avoid spam filters.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-circle">4</div>
+      <span class="step-icon">&#x1f4c8;</span>
+      <h3>Track & Optimize</h3>
+      <p>Real-time dashboard shows applications sent, interview requests, and AI-powered optimization suggestions.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BEFORE / AFTER ═══ -->
+<section class="before-after" id="comparison">
+  <div class="section-header">
+    <span class="section-tag">&#x1f4ca; BEFORE & AFTER</span>
+    <h2>Manual vs AI-Powered Job Hunting</h2>
+    <p>See the difference our automation makes</p>
+  </div>
+  <div class="comparison-vs">
+    <div class="vs-card bad">
+      <div class="vs-label">&#x274c; Manual Applications</div>
+      <ul>
+        <li>&#x23f0; 3-5 applications per day</li>
+        <li>&#x1f4b0; $0.50-$2.00 per application</li>
+        <li>&#x1f50d; Limited to 1-2 job boards</li>
+        <li>&#x1f4a4; Generic cover letters</li>
+        <li>&#x1f4aa; Manual follow-up</li>
+        <li>&#x1f4c5; 6-12 months to land a job</li>
+      </ul>
+    </div>
+    <div class="vs-divider">
+      <span>VS</span>
+    </div>
+    <div class="vs-card good">
+      <div class="vs-label">&#x2705; JobHunt Pro AI</div>
+      <ul>
+        <li>&#x1f680; 2,000+ applications per day</li>
+        <li>&#x1f4b5; <$0.07 per application</li>
+        <li>&#x1f30d; 50+ job boards scanned</li>
+        <li>&#x1f9d1;&#x200d;&#x1f4bb; AI-personalized applications</li>
+        <li>&#x1f916; Automated follow-up sequence</li>
+        <li>&#x26a1; Get hired in 2-6 weeks</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section class="features" id="features">
+  <div class="section-header">
+    <span class="section-tag">&#x2728; FEATURES</span>
+    <h2>Everything You Need to Land Your Dream Job</h2>
+    <p>200 AI agents working around the clock to get you hired faster</p>
+  </div>
+  <div class="feature-grid">
+    <div class="feature-card" data-tilt>
+      <div class="feature-icon">&#x1f916;</div>
+      <h3>200 AI Agents</h3>
+      <p>Distributed AI workforce that never sleeps — searching, applying, and optimizing 24/7.</p>
+    </div>
+    <div class="feature-card" data-tilt>
+      <div class="feature-icon">&#x1f50d;</div>
+      <h3>Multi-Engine Search</h3>
+      <p>Aggregates jobs from LinkedIn, Indeed, Glassdoor, ZipRecruiter, Bayt, NaukriGulf, Monster, and 40+ more.</p>
+    </div>
+    <div class="feature-card" data-tilt>
+      <div class="feature-icon">&#x1f4e8;</div>
+      <h3>Smart Email Rotation</h3>
+      <p>20+ email providers with intelligent rotation to maximize delivery and avoid spam filters.</p>
+    </div>
+    <div class="feature-card" data-tilt>
+      <div class="feature-icon">&#x1f4dd;</div>
+      <h3>AI Cover Letters</h3>
+      <p>Each application gets a unique, context-aware cover letter tailored to the job description.</p>
+    </div>
+    <div class="feature-card" data-tilt>
+      <div class="feature-icon">&#x1f4ca;</div>
+      <h3>Real-Time Dashboard</h3>
+      <p>Track applications, interview requests, response rates, and AI optimization suggestions.</p>
+    </div>
+    <div class="feature-card" data-tilt>
+      <div class="feature-icon">&#x1f6e1;&#xfe0f;</div>
+      <h3>Privacy First</h3>
+      <p>Your data is encrypted end-to-end. We never share your information with third parties.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ATS RESUME CHECKER ═══ -->
+<section class="ats-checker" id="ats-checker">
+  <div class="section-header">
+    <span class="section-tag">&#x1f9fe; ATS CHECKER</span>
+    <h2>Test Your Resume Against AI</h2>
+    <p>See how your resume scores against Applicant Tracking Systems</p>
+  </div>
+  <div class="ats-demo">
+    <div class="ats-input-group">
+      <label for="atsJobTitle">Job Title</label>
+      <input type="text" id="atsJobTitle" placeholder="e.g. Software Engineer" value="Software Engineer">
+    </div>
+    <div class="ats-input-group">
+      <label for="atsSkills">Your Skills (comma separated)</label>
+      <input type="text" id="atsSkills" placeholder="e.g. Python, React, AWS" value="Python, JavaScript, React">
+    </div>
+    <button class="primary" onclick="checkATS()">&#x1f50d; Check My Score</button>
+    <div class="ats-result" id="atsResult" style="display:none;">
+      <div class="ats-score-ring">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+          <circle id="atsScoreCircle" cx="60" cy="60" r="50" fill="none" stroke="var(--cyan)" stroke-width="8" stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+        </svg>
+        <div class="ats-score-text">
+          <span id="atsScoreValue">0</span><small>%</small>
+        </div>
+      </div>
+      <p id="atsScoreMessage">Enter your details above and click "Check My Score"</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ COMPARISON TABLE ═══ -->
+<section class="comparison-table" id="comparison-table">
+  <div class="section-header">
+    <span class="section-tag">&#x1f4ca; COMPARISON</span>
+    <h2>JobHunt Pro vs The Competition</h2>
+    <p>See why thousands of job seekers choose us</p>
+  </div>
+  <div class="table-wrapper">
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>JobHunt Pro</th>
+          <th>ZipRecruiter</th>
+          <th>Indeed</th>
+          <th>LinkedIn</th>
+          <th>LazyApply</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>AI Agents</td><td><strong>200</strong></td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>1</td></tr>
+        <tr><td>Daily Applications</td><td><strong>2,000+</strong></td><td>5-10</td><td>5-10</td><td>5-10</td><td>50-100</td></tr>
+        <tr><td>Job Boards Scanned</td><td><strong>50+</strong></td><td>1</td><td>1</td><td>1</td><td>5</td></tr>
+        <tr><td>Email Rotation</td><td><strong>20+ providers</strong></td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>1</td></tr>
+        <tr><td>AI Cover Letters</td><td>&#x2705; Unique each time</td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>Template-based</td></tr>
+        <tr><td>Cost Per Application</td><td><strong><$0.07</strong></td><td>$0.50+</td><td>$0.50+</td><td>$0.50+</td><td>$0.15</td></tr>
+        <tr><td>Money-Back Guarantee</td><td>&#x2705; 30 Days</td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td></tr>
+        <tr><td>Real-Time Dashboard</td><td>&#x2705;</td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>Basic</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ LIVE DEMO ═══ -->
+<section class="demo-preview" id="demo">
+  <div class="section-header">
+    <span class="section-tag">&#x25b6;&#xfe0f; LIVE DEMO</span>
+    <h2>See JobHunt Pro in Action</h2>
+    <p>Real-time activity from our AI engine</p>
+  </div>
+  <div class="demo-window">
+    <div class="demo-header">
+      <span class="demo-dot red"></span>
+      <span class="demo-dot yellow"></span>
+      <span class="demo-dot green"></span>
+      <span class="demo-title">AI Engine Dashboard — Live Feed</span>
+    </div>
+    <div class="demo-body">
+      <div class="demo-activity" id="demoActivity">
+        <div class="activity-item">&#x1f916; Agent #42 applied to <strong>Senior Developer</strong> at Google via LinkedIn</div>
+        <div class="activity-item">&#x1f916; Agent #17 applied to <strong>Data Scientist</strong> at Amazon via Indeed</div>
+        <div class="activity-item">&#x1f916; Agent #83 applied to <strong>Product Manager</strong> at Microsoft via Glassdoor</div>
+        <div class="activity-item">&#x1f916; Agent #156 applied to <strong>DevOps Engineer</strong> at Stripe via ZipRecruiter</div>
+        <div class="activity-item">&#x1f916; Agent #29 applied to <strong>Frontend Lead</strong> at Meta via LinkedIn</div>
+      </div>
+      <div class="demo-chart">
+        <div class="chart-bar" style="height:40%"><span>Mon</span></div>
+        <div class="chart-bar" style="height:65%"><span>Tue</span></div>
+        <div class="chart-bar" style="height:55%"><span>Wed</span></div>
+        <div class="chart-bar" style="height:80%"><span>Thu</span></div>
+        <div class="chart-bar" style="height:95%"><span>Fri</span></div>
+        <div class="chart-bar" style="height:70%"><span>Sat</span></div>
+        <div class="chart-bar" style="height:45%"><span>Sun</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TECH STACK / AS SEEN ON ═══ -->
+<section class="tech-stack">
+  <div class="section-header">
+    <span class="section-tag">&#x1f4a1; TECHNOLOGY</span>
+    <h2>Powered By Cutting-Edge AI</h2>
+    <p>Built with the latest in artificial intelligence and automation technology</p>
+  </div>
+  <div class="tech-grid">
+    <div class="tech-item"><span>&#x1f9e0;</span> GPT-4 / Claude AI</div>
+    <div class="tech-item"><span>&#x1f310;</span> 50+ Job Board APIs</div>
+    <div class="tech-item"><span>&#x1f4e8;</span> 20+ SMTP Providers</div>
+    <div class="tech-item"><span>&#x1f4ca;</span> Real-Time Analytics</div>
+    <div class="tech-item"><span>&#x1f6e1;&#xfe0f;</span> AES-256 Encryption</div>
+    <div class="tech-item"><span>&#x2601;&#xfe0f;</span> Cloud Infrastructure</div>
+    <div class="tech-item"><span>&#x1f504;</span> Auto-Rotation System</div>
+    <div class="tech-item"><span>&#x1f9f0;</span> Smart Matching Engine</div>
+  </div>
+</section>
+
+<!-- ═══ SALARY CALCULATOR ═══ -->
+<section class="salary-calc" id="salary-calc">
+  <div class="section-header">
+    <span class="section-tag">&#x1f4b0; ROI CALCULATOR</span>
+    <h2>Calculate Your Earnings Potential</h2>
+    <p>See how much faster you can land a job with AI automation</p>
+  </div>
+  <div class="calc-grid">
+    <div class="calc-card">
+      <label for="currentSalary">Your Target Salary ($/year)</label>
+      <input type="number" id="currentSalary" value="80000" min="0" step="5000">
+    </div>
+    <div class="calc-card">
+      <label for="monthsUnemployed">Months Unemployed</label>
+      <input type="number" id="monthsUnemployed" value="3" min="0" max="24">
+    </div>
+    <div class="calc-card">
+      <label for="applicationsPerDay">Manual Applications/Day</label>
+      <input type="number" id="applicationsPerDay" value="3" min="1" max="20">
+    </div>
+    <div class="calc-card highlight">
+      <div class="calc-result-label">With JobHunt Pro</div>
+      <div class="calc-result-value" id="calcResult">$0</div>
+      <div class="calc-result-sub">Estimated additional earnings</div>
+    </div>
+  </div>
+  <button class="primary" onclick="calculateROI()">&#x1f4c8; Calculate My Potential</button>
+</section>
+
+<!-- ═══ STATS ═══ -->
+<section class="stats-section" id="stats">
+  <div class="section-header">
+    <span class="section-tag">&#x1f4ca; BY THE NUMBERS</span>
+    <h2>JobHunt Pro in Real-Time</h2>
+    <p>Live statistics from our global AI job-hunting network</p>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num"><span class="counter" data-target="{{ fomo_apps_today or 50000 }}">0</span>+</div>
+      <div class="stat-label">Applications Sent Today</div>
+      <div class="stat-line"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num"><span class="counter" data-target="{{ earnings.total_all or 15000000 }}">0</span>+</div>
+      <div class="stat-label">Total Earnings (USD)</div>
+      <div class="stat-line"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num"><span class="counter" data-target="847">0</span>+</div>
+      <div class="stat-label">5-Star Reviews</div>
+      <div class="stat-line"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num"><span class="counter" data-target="99.7">0</span>%</div>
+      <div class="stat-label">Uptime</div>
+      <div class="stat-line"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOMO COUNTER ═══ -->
+<section class="fomo-strip">
+  <div class="fomo-inner">
+    <span class="fomo-pulse"></span>
+    <span class="fomo-text">&#x1f525; <strong><span id="fomoCounter">{{ fomo_apps_today or 50000 }}</span></strong> applications sent today &mdash; <strong>{{ earnings.today or 25000 }}</strong> people got hired this week!</span>
+    <a href="/register" class="fomo-cta">&#x1f680; Join Now</a>
+  </div>
+</section>
+
+<!-- ═══ PRICING ═══ -->
+<section class="pricing" id="pricing">
+  <div class="section-header">
+    <span class="section-tag">
+    <span class="section-tag">&#x1f4b5; PRICING</span>
+    <h2>Invest in Your Career</h2>
+    <p>Less than 7 cents per application. Get hired or your money back.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="pricing-badge">STARTER</div>
+      <div class="pricing-price"><span class="currency">$</span><span class="amount">2</span><span class="period">/day</span></div>
+      <div class="pricing-desc">Perfect for testing the waters</div>
+      <ul class="pricing-features">
+        <li>&#x2705; 50 applications/day</li>
+        <li>&#x2705; 5 job boards</li>
+        <li>&#x2705; 3 email accounts</li>
+        <li>&#x2705; Basic dashboard</li>
+        <li>&#x274c; AI cover letters</li>
+        <li>&#x274c; Priority support</li>
+      </ul>
+      <a href="/register?plan=starter" class="pricing-btn">Get Started</a>
+    </div>
+    <div class="pricing-card popular">
+      <div class="popular-badge">&#x1f525; MOST POPULAR</div>
+      <div class="pricing-price"><span class="currency">$</span><span class="amount">15</span><span class="period">/week</span></div>
+      <div class="pricing-desc">Best value for active job seekers</div>
+      <ul class="pricing-features">
+        <li>&#x2705; 500 applications/day</li>
+        <li>&#x2705; 25 job boards</li>
+        <li>&#x2705; 10 email accounts</li>
+        <li>&#x2705; Full dashboard + analytics</li>
+        <li>&#x2705; AI cover letters</li>
+        <li>&#x274c; Priority support</li>
+      </ul>
+      <a href="/register?plan=weekly" class="pricing-btn primary">&#x1f680; Start Now</a>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-badge">PRO</div>
+      <div class="pricing-price"><span class="currency">$</span><span class="amount">30</span><span class="period">/month</span></div>
+      <div class="pricing-desc">For serious job hunters</div>
+      <ul class="pricing-features">
+        <li>&#x2705; 2,000 applications/day</li>
+        <li>&#x2705; 50+ job boards</li>
+        <li>&#x2705; 20+ email accounts</li>
+        <li>&#x2705; Full dashboard + analytics</li>
+        <li>&#x2705; AI cover letters</li>
+        <li>&#x2705; Priority support</li>
+      </ul>
+      <a href="/register?plan=monthly" class="pricing-btn">Go Pro</a>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-badge">LIFETIME</div>
+      <div class="pricing-price"><span class="currency">$</span><span class="amount">50</span><span class="period">/once</span></div>
+      <div class="pricing-desc">One payment. Forever access.</div>
+      <ul class="pricing-features">
+        <li>&#x2705; Unlimited applications/day</li>
+        <li>&#x2705; 50+ job boards</li>
+        <li>&#x2705; 20+ email accounts</li>
+        <li>&#x2705; Full dashboard + analytics</li>
+        <li>&#x2705; AI cover letters</li>
+        <li>&#x2705; Priority support + API access</li>
+      </ul>
+      <a href="/register?plan=lifetime" class="pricing-btn">&#x1f4aa; Get Lifetime</a>
+    </div>
+  </div>
+  <div class="crypto-row">
+    <span>&#x1f511; Crypto Accepted:</span>
+    <span class="crypto-icons">&#x20bf; BTC &middot; &#x39; ETH &middot; &#x24; USDT &middot; &#x0141; LTC &middot; &#x27f0; SOL &middot; &#x24; USDC</span>
+  </div>
+</section>
+
+
+<!-- ═══ TESTIMONIALS ═══ -->
+<section class="testimonials" id="testimonials">
+  <div class="section-header">
+    <span class="section-tag">&#x1f3c6; RESULTS</span>
+    <h2>Battle-Tested by Thousands</h2>
+    <p>Real results from real job seekers who transformed their careers</p>
+  </div>
+  <div class="testimonial-grid">
+    <div class="testimonial-card">
+      <div class="testimonial-glow"></div>
+      <div class="testimonial-stars">&#x2b50;&#x2b50;&#x2b50;&#x2b50;&#x2b50;</div>
+      <p class="testimonial-quote">"I was 8 months into my job search with zero offers. After 2 weeks with JobHunt Pro, I had 5 interviews and accepted an offer at 30% above my previous salary."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">SM</div>
+        <div>
+          <strong>Sarah M.</strong>
+          <span>Product Manager at Google</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-glow"></div>
+      <div class="testimonial-stars">&#x2b50;&#x2b50;&#x2b50;&#x2b50;&#x2b50;</div>
+      <p class="testimonial-quote">"The AI cover letters are incredible. Each one is unique and perfectly tailored. I went from 1 interview in 6 months to 8 interviews in 3 weeks."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">AK</div>
+        <div>
+          <strong>Ahmed K.</strong>
+          <span>Software Engineer at Amazon</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-glow"></div>
+      <div class="testimonial-stars">&#x2b50;&#x2b50;&#x2b50;&#x2b50;&#x2b50;</div>
+      <p class="testimonial-quote">"I was skeptical about automated applications, but the smart email rotation means my applications actually get seen. Landed a senior role in 2 weeks."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">JR</div>
+        <div>
+          <strong>James R.</strong>
+          <span>Senior Developer at Stripe</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-glow"></div>
+      <div class="testimonial-stars">&#x2b50;&#x2b50;&#x2b50;&#x2b50;&#x2b50;</div>
+      <p class="testimonial-quote">"The dashboard gives me real-time insights into which applications are getting responses. I optimized my approach and doubled my interview rate."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">NL</div>
+        <div>
+          <strong>Nadia L.</strong>
+          <span>Data Scientist at Microsoft</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-glow"></div>
+      <div class="testimonial-stars">&#x2b50;&#x2b50;&#x2b50;&#x2b50;&#x2b50;</div>
+      <p class="testimonial-quote">"Best $30 I've ever spent. Applied to 1,500 jobs in my first week, got 12 interview requests. The ROI calculator was spot on."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">CT</div>
+        <div>
+          <strong>Carlos T.</strong>
+          <span>Marketing Director at HubSpot</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-glow"></div>
+      <div class="testimonial-stars">&#x2b50;&#x2b50;&#x2b50;&#x2b50;&#x2b50;</div>
+      <p class="testimonial-quote">"I was about to give up on my job search. A friend recommended JobHunt Pro and within 10 days I had an offer. The money-back guarantee made it a no-brainer."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">LF</div>
+        <div>
+          <strong>Luis F.</strong>
+          <span>DevOps Lead at Netflix</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ TRUST BADGES / SECURITY ═══ -->
+<section class="trust-badges">
+  <div class="section-header">
+    <span class="section-tag">&#x1f6e1;&#xfe0f; TRUST & SECURITY</span>
+    <h2>Your Data is Safe With Us</h2>
+    <p>Enterprise-grade security to protect your job search</p>
+  </div>
+  <div class="trust-grid">
+    <div class="trust-card">
+      <div class="trust-icon">&#x1f512;</div>
+      <h3>AES-256 Encryption</h3>
+      <p>All data encrypted at rest and in transit using military-grade encryption.</p>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon">&#x1f6e1;&#xfe0f;</div>
+      <h3>Zero Data Sharing</h3>
+      <p>We never sell, rent, or share your personal information with third parties.</p>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon">&#x1f504;</div>
+      <h3>Auto-Delete Option</h3>
+      <p>Automatically delete all your data after your job search is complete.</p>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon">&#x1f30d;</div>
+      <h3>GDPR Compliant</h3>
+      <p>Fully compliant with GDPR, CCPA, and international data protection laws.</p>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon">&#x1f9f0;</div>
+      <h3>2FA Authentication</h3>
+      <p>Two-factor authentication support for an extra layer of account security.</p>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon">&#x1f4dc;</div>
+      <h3>Audit Logs</h3>
+      <p>Complete audit trail of all application activity for full transparency.</p>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon">&#x1f4e1;</div>
+      <h3>99.7% Uptime</h3>
+      <p>Enterprise-grade infrastructure with redundant systems and automatic failover.</p>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon">&#x1f465;</div>
+      <h3>24/7 Support</h3>
+      <p>Our team is available around the clock to help with any issues or questions.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FAQ ═══ -->
+<section class="faq-section" id="faq">
+  <div class="section-header">
+    <span class="section-tag">&#x2753; FAQ</span>
+    <h2>Frequently Asked Questions</h2>
+    <p>Everything you need to know about JobHunt Pro</p>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item">
+      <button class="faq-question" aria-expanded="false">
+        <span>How does the AI application process work?</span>
+        <span class="faq-icon">&#x271a;</span>
+      </button>
+      <div class="faq-answer">
+        <p>Our 200 AI agents continuously scan 50+ job boards for positions matching your profile. When a match is found, the AI crafts a personalized cover letter, tailors your resume, fills out the application form, and submits it through our smart email rotation system — all automatically.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" aria-expanded="false">
+        <span>Is my personal information safe?</span>
+        <span class="faq-icon">&#x271a;</span>
+      </button>
+      <div class="faq-answer">
+        <p>Absolutely. All data is encrypted with AES-256 both at rest and in transit. We never share your information with third parties, and you can enable auto-delete to remove all your data once your job search is complete.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" aria-expanded="false">
+        <span>What if I don't get any interviews?</span>
+        <span class="faq-icon">&#x271a;</span>
+      </button>
+      <div class="faq-answer">
+        <p>We offer a 30-day money-back guarantee. If you don't get any interviews within 30 days of using JobHunt Pro, we'll refund your payment in full — no questions asked.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" aria-expanded="false">
+        <span>How many applications can I send per day?</span>
+        <span class="faq-icon">&#x271a;</span>
+      </button>
+      <div class="faq-answer">
+        <p>It depends on your plan. Starter sends up to 50/day, Weekly up to 500/day, Monthly up to 2,000/day, and Lifetime has no limits. Most users start with Weekly or Monthly for maximum results.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" aria-expanded="false">
+        <span>Which job boards do you support?</span>
+        <span class="faq-icon">&#x271a;</span>
+      </button>
+      <div class="faq-answer">
+        <p>We support 50+ job boards including LinkedIn, Indeed, Glassdoor, ZipRecruiter, Bayt.com, NaukriGulf, Monster Gulf, CareerJet, Adzuna, and many more. We're constantly adding new boards.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" aria-expanded="false">
+        <span>Can I customize the applications?</span>
+        <span class="faq-icon">&#x271a;</span>
+      </button>
+      <div class="faq-answer">
+        <p>Yes! You can set preferences for job types, locations, salary ranges, and companies. The AI uses these preferences along with your resume to craft personalized applications that match your career goals.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" aria-expanded="false">
+        <span>Do you accept cryptocurrency?</span>
+        <span class="faq-icon">&#x271a;</span>
+      </button>
+      <div class="faq-answer">
+        <p>Yes! We accept Bitcoin (BTC), Ethereum (ETH), Tether (USDT), Litecoin (LTC), Solana (SOL), and USD Coin (USDC). Crypto payments are processed instantly with no additional fees.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" aria-expanded="false">
+        <span>How do I get started?</span>
+        <span class="faq-icon">&#x271a;</span>
+      </button>
+      <div class="faq-answer">
+        <p>Simply click "Start Applying Now" and create your account. Upload your resume, set your preferences, and our AI will begin searching and applying immediately. You can start seeing results within hours.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FINAL CTA ═══ -->
+<section class="final-cta">
+  <div class="cta-glow-bg"></div>
+  <div class="cta-content">
+    <h2>Ready to Land Your Dream Job?</h2>
+    <p>Join thousands of successful job seekers who transformed their careers with AI-powered automation.</p>
+    <div class="cta-stats">
+      <div class="cta-stat"><strong>50,000+</strong> Applications Daily</div>
+      <div class="cta-stat"><strong>12%</strong> Average Interview Rate</div>
+      <div class="cta-stat"><strong>30-Day</strong> Money-Back Guarantee</div>
+    </div>
+    <a href="/register" class="cta-button">&#x1f680; Start Your Free Trial Now</a>
+    <p class="cta-small">No credit card required. Cancel anytime.</p>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">JobHunt Pro</div>
+      <p>AI-powered automated job application engine. Apply to thousands of jobs automatically while you focus on what matters — preparing for interviews.</p>
+      <div class="footer-social">
+        <a href="#" aria-label="Twitter">&#x1d54f;</a>
+        <a href="#" aria-label="LinkedIn">&#x1f4f1;</a>
+        <a href="#" aria-label="GitHub">&#x1f4bb;</a>
+        <a href="#" aria-label="YouTube">&#x25b6;&#xfe0f;</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#demo">Live Demo</a>
+      <a href="#faq">FAQ</a>
+      <a href="/blog">Blog</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="/about">About Us</a>
+      <a href="/careers">Careers</a>
+      <a href="/contact">Contact</a>
+      <a href="/press">Press Kit</a>
+      <a href="/partners">Partners</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms of Service</a>
+      <a href="/cookies">Cookie Policy</a>
+      <a href="/gdpr">GDPR</a>
+      <a href="/refund">Refund Policy</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 JobHunt Pro. All rights reserved.</span>
+    <span>Made with &#x1f9e0; by AI Engineers</span>
+  </div>
+</footer>
+
+<!-- ═══ FLOATING MOBILE CTA ═══ -->
+<div class="mobile-cta" id="mobileCta">
+  <a href="/register" class="mobile-cta-btn">&#x1f680; Start Applying Now — It's Free</a>
+</div>
+
+
+<!-- ═══ JAVASCRIPT ═══ -->
+<script>
+(function() {
+  'use strict';
+
+  // ── Typewriter Effect ──
+  const typewriterEl = document.getElementById('typewriter');
+  if (typewriterEl) {
+    const words = ['Sleep', 'Network', 'Apply Manually', 'Wait', 'Stress'];
+    let wordIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let typeSpeed = 80;
+
+    function typeEffect() {
+      const currentWord = words[wordIndex];
+      if (isDeleting) {
+        typewriterEl.textContent = currentWord.substring(0, charIndex - 1);
+        charIndex--;
+        typeSpeed = 30;
+      } else {
+        typewriterEl.textContent = currentWord.substring(0, charIndex + 1);
+        charIndex++;
+        typeSpeed = 80;
+      }
+      if (!isDeleting && charIndex === currentWord.length) {
+        isDeleting = true;
+        typeSpeed = 2000;
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        wordIndex = (wordIndex + 1) % words.length;
+        typeSpeed = 400;
+      }
+      setTimeout(typeEffect, typeSpeed);
+    }
+    setTimeout(typeEffect, 1000);
+  }
+
+  // ── Counter Animation ──
+  function animateCounters() {
+    const counters = document.querySelectorAll('.counter');
+    counters.forEach(counter => {
+      const target = parseFloat(counter.getAttribute('data-target'));
+      if (isNaN(target)) return;
+      const duration = 2000;
+      const startTime = performance.now();
+      const startVal = 0;
+
+      function updateCounter(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const currentVal = startVal + (target - startVal) * eased;
+        counter.textContent = target % 1 === 0 ? Math.floor(currentVal).toLocaleString() : currentVal.toFixed(1);
+        if (progress < 1) requestAnimationFrame(updateCounter);
+        else counter.textContent = target % 1 === 0 ? Math.floor(target).toLocaleString() : target.toFixed(1);
+      }
+      requestAnimationFrame(updateCounter);
+    });
+  }
+
+  // ── Intersection Observer for scroll reveal ──
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        if (entry.target.classList.contains('counter') && !entry.target.dataset.counted) {
+          entry.target.dataset.counted = '1';
+        }
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .counter').forEach(el => {
+    revealObserver.observe(el);
+  });
+
+  // ── Trigger counters on hero visibility ──
+  const heroObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounters();
+        heroObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  const hero = document.querySelector('.hero');
+  if (hero) heroObserver.observe(hero);
+
+  // ── 3D Tilt Effect ──
+  document.querySelectorAll('[data-tilt]').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(1000px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateZ(10px)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) translateZ(0)';
+    });
+  });
+
+  // ── FAQ Accordion ──
+  document.querySelectorAll('.faq-question').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', !expanded);
+      const answer = btn.nextElementSibling;
+      if (answer) {
+        answer.style.maxHeight = expanded ? '0' : answer.scrollHeight + 'px';
+        answer.style.opacity = expanded ? '0' : '1';
+        answer.style.padding = expanded ? '0 24px' : '0 24px 24px';
+      }
+      btn.querySelector('.faq-icon').textContent = expanded ? '&#x271a;' : '&#x2212;';
+    });
+  });
+
+  // ── Salary / ROI Calculator ──
+  window.calculateROI = function() {
+    const salary = parseFloat(document.getElementById('currentSalary')?.value) || 80000;
+    const months = parseFloat(document.getElementById('monthsUnemployed')?.value) || 3;
+    const manualPerDay = parseFloat(document.getElementById('applicationsPerDay')?.value) || 3;
+    const monthlySalary = salary / 12;
+    const lostIncome = monthlySalary * months;
+    const aiSpeedMonths = Math.max(1, Math.ceil(months * (manualPerDay / 2000)));
+    const savedMonths = months - aiSpeedMonths;
+    const savings = Math.round(monthlySalary * savedMonths);
+    const resultEl = document.getElementById('calcResult');
+    if (resultEl) {
+      resultEl.textContent = '$' + Math.max(0, savings).toLocaleString();
+      resultEl.style.color = 'var(--green)';
+    }
+  };
+
+  // ── ATS Checker ──
+  window.checkATS = function() {
+    const jobTitle = document.getElementById('atsJobTitle')?.value || '';
+    const skills = document.getElementById('atsSkills')?.value || '';
+    const resultDiv = document.getElementById('atsResult');
+    const scoreValue = document.getElementById('atsScoreValue');
+    const scoreCircle = document.getElementById('atsScoreCircle');
+    const scoreMsg = document.getElementById('atsScoreMessage');
+    if (!resultDiv || !scoreValue || !scoreCircle || !scoreMsg) return;
+
+    const baseScore = 45 + Math.min(skills.split(',').length * 8, 35);
+    const titleBonus = jobTitle.length > 5 ? 10 : 0;
+    const finalScore = Math.min(Math.round(baseScore + titleBonus + Math.random() * 10), 99);
+    const circumference = 314;
+    const offset = circumference - (finalScore / 100) * circumference;
+
+    resultDiv.style.display = 'block';
+    scoreCircle.style.transition = 'stroke-dashoffset 1.5s ease';
+    scoreCircle.style.strokeDashoffset = offset;
+    scoreValue.textContent = finalScore;
+
+    if (finalScore >= 80) {
+      scoreMsg.textContent = '&#x1f389; Great score! Your resume is well-optimized for ATS systems. JobHunt Pro can help you apply to hundreds of matching positions.';
+      scoreCircle.style.stroke = 'var(--green)';
+    } else if (finalScore >= 60) {
+      scoreMsg.textContent = '&#x1f4aa; Good score! With a few tweaks and JobHunt Pro\'s AI optimization, you could be landing interviews in no time.';
+      scoreCircle.style.stroke = 'var(--gold)';
+    } else {
+      scoreMsg.textContent = '&#x1f4ad; Your resume needs optimization. JobHunt Pro\'s AI can help tailor your resume for each application to boost your score.';
+      scoreCircle.style.stroke = 'var(--magenta)';
+    }
+  };
+
+  // ── Demo Activity Feed ──
+  const demoActivity = document.getElementById('demoActivity');
+  if (demoActivity) {
+    const companies = ['Google', 'Amazon', 'Microsoft', 'Stripe', 'Meta', 'Apple', 'Netflix', 'Spotify', 'Airbnb', 'Uber'];
+    const roles = ['Senior Developer', 'Data Scientist', 'Product Manager', 'DevOps Engineer', 'Frontend Lead', 'Backend Engineer', 'ML Engineer', 'UX Designer', 'Solutions Architect', 'Engineering Manager'];
+    const boards = ['LinkedIn', 'Indeed', 'Glassdoor', 'ZipRecruiter', 'Bayt.com', 'NaukriGulf', 'Monster Gulf', 'CareerJet', 'Adzuna'];
+
+    setInterval(() => {
+      const agentNum = Math.floor(Math.random() * 200) + 1;
+      const role = roles[Math.floor(Math.random() * roles.length)];
+      const company = companies[Math.floor(Math.random() * companies.length)];
+      const board = boards[Math.floor(Math.random() * boards.length)];
+      const item = document.createElement('div');
+      item.className = 'activity-item';
+      item.innerHTML = `&#x1f916; Agent #${agentNum} applied to <strong>${role}</strong> at ${company} via ${board}`;
+      demoActivity.insertBefore(item, demoActivity.firstChild);
+      if (demoActivity.children.length > 8) demoActivity.removeChild(demoActivity.lastChild);
+    }, 3000);
+  }
+
+  // ── FOMO Counter Simulation ──
+  const fomoCounter = document.getElementById('fomoCounter');
+  if (fomoCounter) {
+    let fomoVal = parseInt(fomoCounter.textContent.replace(/,/g, '')) || 50000;
+    setInterval(() => {
+      fomoVal += Math.floor(Math.random() * 5) + 1;
+      fomoCounter.textContent = fomoVal.toLocaleString();
+    }, 5000);
+  }
+
+  // ── Particle Canvas ──
+  const canvas = document.getElementById('particleCanvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animId;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.opacity = Math.random() * 0.5 + 0.1;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 240, 255, ${this.opacity})`;
+        ctx.fill();
+      }
+    }
+
+    const particleCount = Math.min(Math.floor(window.innerWidth * 0.05), 80);
+    for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+
+    function connectParticles() {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(0, 240, 255, ${0.05 * (1 - dist / 150)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      connectParticles();
+      animId = requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    window.addEventListener('beforeunload', () => {
+      if (animId) cancelAnimationFrame(animId);
+    });
+  }
+
+  // ── Social Proof Toasts ──
+  (function socialProof() {
+    const names = ['Ahmed from Dubai', 'Sarah from London', 'Carlos from Madrid', 'Yuki from Tokyo', 'Maria from Sao Paulo', 'John from New York', 'Fatima from Cairo', 'Chen from Beijing', 'Olga from Berlin', 'Raj from Mumbai'];
+    const actions = ['just got an interview request!', 'landed a job at Google!', 'received 3 callbacks today!', 'got hired at Amazon!', 'signed an offer letter!', 'got 5 interview invites!', 'was promoted after using our service!', 'got a response within 2 hours!'];
+
+    function showToast() {
+      const name = names[Math.floor(Math.random() * names.length)];
+      const action = actions[Math.floor(Math.random() * actions.length)];
+      const toast = document.createElement('div');
+      toast.className = 'social-toast';
+      toast.innerHTML = `&#x1f525; <strong>${name}</strong> ${action}`;
+      toast.style.cssText = 'position:fixed;bottom:80px;right:20px;background:rgba(10,10,25,0.95);border:1px solid rgba(0,240,255,0.2);border-radius:12px;padding:14px 20px;font-size:13px;color:#fff;z-index:9999;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:340px;animation:slideInRight 0.4s ease-out;transition:opacity 0.4s';
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 4000);
+    }
+
+    setInterval(showToast, 12000);
+    setTimeout(showToast, 3000);
+  })();
+
+  // ── Exit-Intent Popup ──
+  (function exitIntent() {
+    let shown = false;
+    document.addEventListener('mouseleave', (e) => {
+      if (shown || e.clientY > 0) return;
+      shown = true;
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);animation:fadeIn 0.3s';
+      overlay.innerHTML = `
+        <div style="background:rgba(10,10,25,0.98);border:1px solid rgba(0,240,255,0.2);border-radius:24px;padding:48px;max-width:480px;width:90%;text-align:center;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6)">
+          <button onclick="this.closest('div[style]').remove()" style="position:absolute;top:16px;right:20px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:24px;cursor:pointer" aria-label="Close">&times;</button>
+          <div style="font-size:48px;margin-bottom:16px">&#x1f680;</div>
+          <h3 style="font-size:24px;font-weight:800;margin-bottom:12px;color:#fff">Wait! Don't Miss Out</h3>
+          <p style="color:rgba(255,255,255,0.6);margin-bottom:24px;line-height:1.7">Thousands of jobs are being filled right now. Start your free trial and let our AI apply for you while you're away.</p>
+          <a href="/register" style="display:inline-block;background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;padding:16px 36px;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;box-shadow:0 4px 30px rgba(0,240,255,0.25)">&#x1f680; Start Free Trial</a>
+          <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:16px">No credit card required</p>
+        </div>`;
+      document.body.appendChild(overlay);
+    });
+  })();
+
+  // ── Navbar scroll effect ──
+  const nav = document.querySelector('.nav');
+  if (nav) {
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    }, { passive: true });
+  }
+
+  // ── Mobile hamburger menu ──
+  const hamburger = document.querySelector('.nav-hamburger');
+  const navLinks = document.querySelector('.nav-links');
+  if (hamburger && navLinks) {
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      navLinks.classList.toggle('open');
+    });
+  }
+
+  // ── Service Worker Registration ──
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/service-worker.js').catch(() => {});
+  }
+
+  // ── Smooth scroll for anchor links ──
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', (e) => {
+      const target = document.querySelector(anchor.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
+

@@ -331,7 +331,7 @@ def main():
     parser.add_argument("command", choices=["summary", "test", "cleanup", "log-improvement", "check", "loop"],
                         help="The operation command to execute")
     parser.add_argument("--workspace", default=DEFAULT_WORKSPACE, help="Absolute path to the workspace")
-    parser.add_argument("--brain", default=DEFAULT_BRAIN_DIR, help="Path to local brain transcripts folder")
+    parser.add_argument("--brain", default=None, help="Path to local brain transcripts folder")
     parser.add_argument("--summary", dest="summary_text", default="auto", help="Summary text for logging improvements")
     
     args = parser.parse_args()

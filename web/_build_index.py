@@ -2,14 +2,30 @@
 BUILD-QUICK-WINS: Add featured jobs section to index_v3.html
 """
 import os
+import sys
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
 
 INDEX_HTML = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates', 'index_v3.html')
 
-with open(INDEX_HTML, 'r', encoding='utf-8') as f:
-    content = f.read()
 
-# ===== Add Featured Jobs CSS before closing </style> =====
-featured_css = '''
+def build_index() -> None:
+    """Builds and updates index_v3.html templates with featured jobs sections."""
+    try:
+        if not os.path.exists(INDEX_HTML):
+            logger.error(f"Template file not found: {INDEX_HTML}")
+            sys.exit(1)
+
+        with open(INDEX_HTML, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except Exception as e:
+        logger.error(f"Failed to read template file: {e}")
+        sys.exit(1)
+
+    # ===== Add Featured Jobs CSS before closing </style> =====
+    featured_css = '''
 /* Featured Jobs Section (spy-report quick win #5) */
 .featured-jobs{
   position:relative;z-index:10;padding:60px 40px;max-width:1200px;margin:0 auto;
@@ -72,18 +88,19 @@ featured_css = '''
 @media(max-width:768px){.featured-grid{grid-template-columns:1fr;max-width:400px;margin-left:auto;margin-right:auto;}}
 '''
 
-style_close = content.rfind('</style>')
-content = content[:style_close] + featured_css + content[style_close:]
-print("+ Added featured jobs CSS")
+    style_close = content.rfind('</style>')
+    if style_close != -1:
+        content = content[:style_close] + featured_css + content[style_close:]
+        logger.info("+ Added featured jobs CSS")
 
-# ===== Add featured jobs HTML after Trusted By and before How It Works =====
-how_it_works_marker = '<!-- ═══ HOW IT WORKS ═══ -->'
-how_idx = content.find(how_it_works_marker)
-if how_idx == -1:
-    print("ERROR: Could not find How It Works section!")
-    exit(1)
+    # ===== Add featured jobs HTML after Trusted By and before How It Works =====
+    how_it_works_marker = '<!-- ═══ HOW IT WORKS ═══ -->'
+    how_idx = content.find(how_it_works_marker)
+    if how_idx == -1:
+        logger.error("Could not find How It Works section!")
+        sys.exit(1)
 
-featured_html = '''
+    featured_html = '''
 <!-- ═══ FEATURED JOBS (spy-report quick win #5) ═══ -->
 {% if featured_jobs %}
 <section class="featured-jobs">
@@ -118,10 +135,17 @@ featured_html = '''
 {% endif %}
 '''
 
-content = content[:how_idx] + featured_html + '\n' + content[how_idx:]
-print("+ Added featured jobs HTML section")
+    content = content[:how_idx] + featured_html + '\n' + content[how_idx:]
+    logger.info("+ Added featured jobs HTML section")
 
-with open(INDEX_HTML, 'w', encoding='utf-8') as f:
-    f.write(content)
+    try:
+        with open(INDEX_HTML, 'w', encoding='utf-8') as f:
+            f.write(content)
+        logger.info("=== index_v3.html updated ===")
+    except Exception as e:
+        logger.error(f"Failed to write template file: {e}")
+        sys.exit(1)
 
-print("=== index_v3.html updated ===")
+
+if __name__ == "__main__":
+    build_index()

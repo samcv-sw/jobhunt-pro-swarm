@@ -1,6 +1,10 @@
 """
 pricing_tiers.py - Pricing configuration for JobHunt Pro v15
 """
+import logging
+from typing import Optional, Dict, Any, List
+
+logger = logging.getLogger(__name__)
 
 # Job application pricing tiers (NO FREE TIER - minimum $2 via crypto)
 PRICING_TIERS = [
@@ -55,11 +59,13 @@ BOUQUET_PACKAGES = [
     {"bouquet": "ultimate-pack", "name": "Ultimate Pack", "price_usd": 50, "description": "The complete job search solution"},
 ]
 
-def get_all_pricing():
+def get_all_pricing() -> Dict[str, List[Dict[str, Any]]]:
+    """Return all pricing data as a structured dict."""
     return {"tiers": PRICING_TIERS, "services": SERVICE_PACKAGES, "bouquets": BOUQUET_PACKAGES}
 
+
 def calculate_daily_reward(tier_name: str) -> int:
-    """Calculate daily email reward based on tier."""
+    """Calculate daily email reward based on tier. Returns 5 (minimum) on invalid input."""
     tier_map = {
         "free": 5,
         "starter": 5,
@@ -70,11 +76,46 @@ def calculate_daily_reward(tier_name: str) -> int:
     if isinstance(tier_name, str):
         t_clean = tier_name.strip().lower()
     else:
+        logger.warning(f"[pricing] calculate_daily_reward received non-string tier: {tier_name!r}")
         t_clean = ""
-    return tier_map.get(t_clean, 5)
+    reward = tier_map.get(t_clean, 5)
+    return reward
 
-def get_tier_by_name(tier_name):
+
+def get_tier_by_name(tier_name: Any) -> Dict[str, Any]:
+    """Get a pricing tier by name. Returns the Starter tier as default if not found."""
+    if not tier_name or not isinstance(tier_name, str):
+        logger.warning(f"[pricing] get_tier_by_name called with invalid name: {tier_name!r}")
+        return PRICING_TIERS[0]
+    tid = tier_name.strip().lower()
     for t in PRICING_TIERS:
-        if t["tier"] == tier_name:
+        if t.get("tier", "") == tid:
             return t
+    logger.debug(f"[pricing] Tier not found: {tier_name!r}, returning default")
     return PRICING_TIERS[0]
+
+
+def get_service_package(package_id: str) -> Optional[Dict[str, Any]]:
+    """Get a service package by package ID. Returns None if not found."""
+    if not package_id or not isinstance(package_id, str):
+        logger.warning(f"[pricing] get_service_package called with invalid ID: {package_id!r}")
+        return None
+    pid = package_id.strip().lower()
+    for p in SERVICE_PACKAGES:
+        if p.get("package", "") == pid:
+            return p
+    logger.debug(f"[pricing] Service package not found: {package_id!r}")
+    return None
+
+
+def get_bouquet_package(bouquet_id: str) -> Optional[Dict[str, Any]]:
+    """Get a bouquet package by bouquet ID. Returns None if not found."""
+    if not bouquet_id or not isinstance(bouquet_id, str):
+        logger.warning(f"[pricing] get_bouquet_package called with invalid ID: {bouquet_id!r}")
+        return None
+    bid = bouquet_id.strip().lower()
+    for b in BOUQUET_PACKAGES:
+        if b.get("bouquet", "") == bid:
+            return b
+    logger.debug(f"[pricing] Bouquet package not found: {bouquet_id!r}")
+    return None

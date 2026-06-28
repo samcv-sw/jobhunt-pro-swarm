@@ -1,0 +1,427 @@
+<!-- Dashboard v3 — Enhanced UX with loading states, notifications, keyboard shortcuts, dark/light toggle -->
+<link rel="stylesheet" href="/static/css/dashboard-v4.css">
+<style>
+/* ═══════════════════════════════════════════
+   DASHBOARD v3 — Page-Specific Styles
+   ═══════════════════════════════════════════ */
+
+.theme-toggle {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--bg-card); backdrop-filter: blur(24px);
+  border: 1px solid var(--border-glass); color: var(--text-main);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; box-shadow: var(--shadow-lg);
+  transition: all var(--transition-base);
+}
+.theme-toggle:hover { transform: scale(1.1); border-color: var(--accent-primary); }
+
+.hero-section {
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(135deg, rgba(30,30,50,0.8) 0%, rgba(15,15,25,0.9) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 40px rgba(99, 102, 241, 0.1);
+}
+.hero-content h1 {
+  font-size: 36px; font-weight: 800; margin: 0 0 8px 0;
+  background: linear-gradient(to right, #fff, #a5b4fc);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
+}
+.hero-content p { color: var(--text-muted); font-size: 16px; margin: 0; max-width: 500px; }
+.hero-actions { display: flex; align-items: center; gap: 12px; }
+
+.badge-premium {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.2));
+  border: 1px solid rgba(236, 72, 153, 0.4); border-radius: 30px;
+  font-weight: 600; font-size: 14px; color: #fbcfe8;
+  animation: pulseGlow 3s infinite;
+}
+
+.smtp-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 30px;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-left: 4px solid var(--accent-success); border-radius: 16px;
+}
+
+.chart-container { height: 300px; width: 100%; margin-top: 20px; }
+
+.activity-feed { display: flex; flex-direction: column; gap: 8px; }
+.activity-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; background: var(--bg-glass);
+  border-radius: var(--radius-md); border: 1px solid var(--border-glass);
+  transition: all var(--transition-fast); cursor: pointer;
+}
+.activity-item:hover { background: var(--bg-elevated); border-color: var(--border-glass-hover); }
+.activity-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.activity-dot.success { background: var(--accent-success); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
+.activity-dot.warning { background: var(--accent-warning); box-shadow: 0 0 8px rgba(245,158,11,0.4); }
+.activity-dot.danger { background: var(--accent-danger); box-shadow: 0 0 8px rgba(239,68,68,0.4); }
+.activity-dot.primary { background: var(--accent-primary); box-shadow: 0 0 8px rgba(99,102,241,0.4); }
+.activity-content { flex: 1; }
+.activity-title { font-size: 14px; font-weight: 600; color: var(--text-main); }
+.activity-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.activity-time { font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+
+.quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.quick-action-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; padding: 20px; background: var(--bg-glass);
+  border: 1px solid var(--border-glass); border-radius: var(--radius-md);
+  cursor: pointer; transition: all var(--transition-base);
+  text-decoration: none; color: var(--text-main);
+}
+.quick-action-btn:hover {
+  background: var(--accent-primary-dim); border-color: var(--accent-primary);
+  transform: translateY(-2px);
+}
+.quick-action-btn .q-icon { font-size: 24px; }
+.quick-action-btn .q-label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+
+.shortcut-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.shortcut-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+.shortcut-desc { font-size: 14px; color: var(--text-muted); }
+
+.loading-overlay {
+  position: fixed; inset: 0; background: var(--bg-deep); z-index: 9999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 24px; transition: opacity 0.5s ease;
+}
+.loading-overlay.hidden { opacity: 0; pointer-events: none; }
+.loading-overlay .loader-logo {
+  font-size: 32px; font-weight: 900;
+  background: var(--gradient-primary); -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; letter-spacing: -1px;
+}
+.loading-overlay .loader-bar { width: 200px; height: 3px; background: var(--bg-glass); border-radius: var(--radius-full); overflow: hidden; }
+.loading-overlay .loader-bar-fill { height: 100%; width: 0%; background: var(--gradient-primary); border-radius: var(--radius-full); animation: progressBar 1.5s ease forwards; }
+
+@media (max-width: 1024px) {
+  .hero-section { flex-direction: column; align-items: flex-start; gap: 24px; }
+  .quick-actions { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 768px) {
+  .hero-content h1 { font-size: 28px; }
+  .hero-actions { width: 100%; }
+  .hero-actions .btn { flex: 1; }
+  .smtp-banner { flex-direction: column; gap: 16px; align-items: flex-start; }
+  .smtp-banner > div:last-child { width: 100%; display: flex; gap: 8px; }
+  .smtp-banner > div:last-child .btn { flex: 1; }
+  .quick-actions { grid-template-columns: repeat(2, 1fr); }
+  .shortcut-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .hero-content h1 { font-size: 24px; }
+  .quick-actions { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader-logo">JOBHUNT PRO</div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+  <div style="color:var(--text-muted);font-size:13px;">Loading your dashboard...</div>
+</div>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" data-tooltip="Toggle theme">🌙</button>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="dashboard-container">
+  
+  <!-- HERO WELCOME -->
+  <div class="glass-card hero-section reveal visible">
+    <div class="hero-content">
+      <h1>Welcome back, {{ user.name.split(' ')[0] if user.name else 'Hunter' }}</h1>
+      <p>Your AI agents are actively hunting and negotiating the best roles for you. You currently have <strong style="color:var(--accent-primary)">{{ stats.emails_sent }}</strong> active applications in the market.</p>
+    </div>
+    <div class="hero-actions">
+      {% if 'microsoft' in (user.get('oauth_provider') or '') %}
+        <div class="badge-premium" style="border-color:#0078D4;color:#60A5FA;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zm12.6 0H12.6V0H24v11.4z"/></svg> Microsoft Connected
+        </div>
+      {% elif 'google' in (user.get('oauth_provider') or '') %}
+        <div class="badge-premium" style="border-color:#34A853;color:#86EFAC;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Google Connected
+        </div>
+      {% else %}
+        <div class="badge-premium"><span>⭐</span> Premium Services Active</div>
+      {% endif %}
+      <button class="btn btn-ghost btn-icon" onclick="showShortcuts()" data-tooltip="Keyboard shortcuts">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M6 16h.01M10 16h.01M14 16h.01M18 16h.01"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- CONNECT SMTP BANNER -->
+  {% if not user.get('oauth_provider') %}
+  <div class="smtp-banner reveal">
+    <div>
+      <h3 style="margin:0 0 5px 0;color:#fff;">Activate Premium AI Inbox Delivery</h3>
+      <p style="margin:0;color:var(--text-muted);font-size:14px;">Connect your professional email account. Our AI will automatically optimize your sending patterns and utilize dedicated IP routing to guarantee the highest employer response rates.</p>
+    </div>
+    <div style="display:flex;gap:12px;">
+      <a href="/oauth/microsoft/login" class="btn btn-primary">Connect Microsoft</a>
+      <a href="/oauth/google/login" class="btn btn-outline">Connect Google</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- KPI STATS GRID -->
+  <div class="grid-4">
+    <div class="glass-card stat-box reveal" style="animation-delay:0.1s;">
+      <div class="stat-header"><span>Active Applications</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-primary)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+      </div>
+      <div class="stat-value" id="statApplications">{{ stats.emails_sent }}</div>
+      <div class="stat-footer">Sent across platforms</div>
+    </div>
+    <div class="glass-card stat-box reveal" style="animation-delay:0.2s;">
+      <div class="stat-header"><span>Match Rate</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-success)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      </div>
+      <div class="stat-value">92%</div>
+      <div class="stat-footer">High compatibility roles</div>
+    </div>
+    <div class="glass-card stat-box reveal" style="animation-delay:0.3s;">
+      <div class="stat-header"><span>Tokens Saved</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-secondary)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+      </div>
+      <div class="stat-value">12.5k</div>
+      <div class="stat-footer">Via Local Resume Trimmer</div>
+    </div>
+    <div class="glass-card stat-box reveal" style="animation-delay:0.4s;">
+      <div class="stat-header"><span>Time Saved</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-warning)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      </div>
+      <div class="stat-value" style="font-size:32px;padding:5px 0;">
+        {% set total_mins = (stats.emails_sent | default(0)) * 2 %}
+        {% if total_mins >= 60 %}{{ total_mins // 60 }}h{{ total_mins % 60 }}m{% else %}{{ total_mins }}m{% endif %}
+      </div>
+      <div class="stat-footer">Automation equivalent</div>
+    </div>
+  </div>
+
+  <!-- MAIN TWO-COLUMN SECTION -->
+  <div class="grid-2">
+    <!-- Left Col: Pipeline Chart -->
+    <div class="glass-card reveal">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Application Pipeline</h2>
+          <p class="section-subtitle">Conversion funnel from discovery to offers</p>
+        </div>
+        <div class="tabs" id="chartTabs">
+          <button class="tab active" onclick="switchChart('bar',this)">Bar</button>
+          <button class="tab" onclick="switchChart('line',this)">Line</button>
+          <button class="tab" onclick="switchChart('doughnut',this)">Doughnut</button>
+        </div>
+      </div>
+      <div class="chart-container"><canvas id="pipelineChart"></canvas></div>
+    </div>
+
+    <!-- Right Col -->
+    <div style="display:flex;flex-direction:column;gap:24px;">
+      
+      <!-- Quick Actions -->
+      <div class="glass-card reveal" style="padding:24px;">
+        <h3 style="margin:0 0 16px 0;font-size:16px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Quick Actions</h3>
+        <div class="quick-actions">
+          <a href="/new-campaign" class="quick-action-btn"><span class="q-icon">🚀</span><span class="q-label">New Campaign</span></a>
+          <a href="/upload-cv" class="quick-action-btn"><span class="q-icon">📄</span><span class="q-label">Upload CV</span></a>
+          <a href="/services" class="quick-action-btn"><span class="q-icon">🛠️</span><span class="q-label">Services</span></a>
+          <a href="/pricing" class="quick-action-btn"><span class="q-icon">💎</span><span class="q-label">Upgrade</span></a>
+        </div>
+      </div>
+
+      <!-- Premium Status -->
+      <div class="glass-card reveal" style="padding:24px;background:linear-gradient(to bottom right,rgba(99,102,241,0.1),rgba(18,24,38,0.8));">
+        <h3 style="margin:0 0 16px 0;font-size:16px;color:#a5b4fc;text-transform:uppercase;letter-spacing:1px;">Active Arsenal</h3>
+        {% set total_weapons = 0 %}
+        {% for c in campaigns %}{% set total_weapons = total_weapons + (c.premium_weapons|default(0)|int) %}{% endfor %}
+        {% if total_weapons > 0 %}
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+            <div style="font-size:36px;">🔫</div>
+            <div><div style="font-size:24px;font-weight:700;color:#fff;">{{ total_weapons }} Weapons Active</div><div style="color:var(--accent-success);font-size:13px;">Bypassing rate limits & prioritizing delivery</div></div>
+          </div>
+        {% else %}
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+            <div style="font-size:36px;opacity:0.5;">🔒</div>
+            <div><div style="font-size:20px;font-weight:600;color:#fff;">No Weapons Equipped</div><div style="color:var(--text-muted);font-size:13px;">Standard delivery queue</div></div>
+          </div>
+          <a href="/services" class="btn btn-primary" style="width:100%;padding:10px;">Visit Arsenal</a>
+        {% endif %}
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="glass-card reveal" style="flex:1;display:flex;flex-direction:column;">
+        <div class="section-header">
+          <h3 class="section-title">Recent Dispatches</h3>
+          <span class="badge badge-primary" id="liveBadge">● LIVE</span>
+        </div>
+        {% if pipeline_emails %}
+          <div class="activity-feed" style="flex:1;overflow-y:auto;max-height:240px;">
+            {% for email in pipeline_emails[:6] %}
+            <div class="activity-item">
+              <div class="activity-dot {% if email.status in ('brevo_failed','gmail_failed','failed') %}danger{% elif email.pipeline_stage == 'interview' %}success{% elif email.opened_at %}warning{% else %}primary{% endif %}"></div>
+              <div class="activity-content">
+                <div class="activity-title">{{ email.company_name }}</div>
+                <div class="activity-desc">{{ email.job_title }}</div>
+              </div>
+              <div>
+                {% if email.status in ('brevo_failed','gmail_failed','failed') %}<span class="badge badge-danger">FAILED</span>
+                {% elif email.pipeline_stage == 'interview' %}<span class="badge badge-success">INTERVIEW</span>
+                {% elif email.opened_at %}<span class="badge badge-warning">OPENED</span>
+                {% else %}<span class="badge badge-primary">DELIVERED</span>{% endif %}
+              </div>
+              <div class="activity-time">2m ago</div>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon">📨</div>
+            <div class="empty-state-title">No Dispatches Yet</div>
+            <div class="empty-state-description">Your AI agents haven't sent any applications yet. Start your first campaign to begin.</div>
+            <a href="/new-campaign" class="btn btn-primary">Start Campaign</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Keyboard Shortcuts Modal -->
+<div class="modal-backdrop" id="shortcutBackdrop" onclick="hideShortcuts()"></div>
+<div class="modal" id="shortcutModal">
+  <div class="modal-header">
+    <h3 class="modal-title">⌨️ Keyboard Shortcuts</h3>
+    <button class="modal-close" onclick="hideShortcuts()">✕</button>
+  </div>
+  <div class="shortcut-grid">
+    <div class="shortcut-row"><span class="shortcut-desc">New Campaign</span><span><kbd>N</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Upload CV</span><span><kbd>U</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Dashboard</span><span><kbd>D</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Pricing</span><span><kbd>P</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Services</span><span><kbd>S</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Toggle Theme</span><span><kbd>T</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Search</span><span><kbd>/</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Shortcuts Help</span><span><kbd>?</kbd></span></div>
+  </div>
+</div>
+
+<!-- CHART.JS + DASHBOARD LOGIC -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  setTimeout(function(){
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    setTimeout(function(){document.getElementById('loadingOverlay').style.display='none';},500);
+  },800);
+  initChart();
+  initRevealAnimations();
+  initKeyboardShortcuts();
+  initTheme();
+  showWelcomeToast();
+});
+
+var pipelineChart=null,currentChartType='bar';
+
+function initChart(){
+  var ctx=document.getElementById('pipelineChart');if(!ctx)return;
+  var gradient=ctx.getContext('2d').createLinearGradient(0,0,0,400);
+  gradient.addColorStop(0,'rgba(99,102,241,0.8)');gradient.addColorStop(1,'rgba(99,102,241,0.0)');
+  pipelineChart=new Chart(ctx,{
+    type:'bar',
+    data:{labels:['Discovered','Applied','Followed Up','Interviewing','Offers'],datasets:[{label:'Candidates',data:[{{ pipeline_counts.discovered|default(0) }},{{ pipeline_counts.applied|default(0) }},{{ pipeline_counts.followed_up|default(0) }},{{ pipeline_counts.interview|default(0) }},{{ pipeline_counts.offer|default(0) }}],backgroundColor:gradient,borderColor:'#6366F1',borderWidth:2,borderRadius:8,barPercentage:0.6}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(15,23,42,0.9)',titleColor:'#fff',bodyColor:'#cbd5e1',padding:12,borderColor:'rgba(255,255,255,0.1)',borderWidth:1}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.05)',drawBorder:false},ticks:{color:'#94a3b8',font:{family:'Inter'}}},x:{grid:{display:false},ticks:{color:'#94a3b8',font:{family:'Inter',size:13,weight:'500'}}}},animation:{duration:2000,easing:'easeOutQuart'}}
+  });
+}
+
+function switchChart(type,btn){
+  if(type===currentChartType)return;currentChartType=type;
+  document.querySelectorAll('#chartTabs .tab').forEach(function(t){t.classList.remove('active');});
+  btn.classList.add('active');
+  if(pipelineChart)pipelineChart.destroy();
+  var ctx=document.getElementById('pipelineChart');if(!ctx)return;
+  var gradient=ctx.getContext('2d').createLinearGradient(0,0,0,400);
+  gradient.addColorStop(0,'rgba(99,102,241,0.8)');gradient.addColorStop(1,'rgba(99,102,241,0.0)');
+  pipelineChart=new Chart(ctx,{
+    type:type,
+    data:{labels:['Discovered','Applied','Followed Up','Interviewing','Offers'],datasets:[{label:'Candidates',data:[{{ pipeline_counts.discovered|default(0) }},{{ pipeline_counts.applied|default(0) }},{{ pipeline_counts.followed_up|default(0) }},{{ pipeline_counts.interview|default(0) }},{{ pipeline_counts.offer|default(0) }}],backgroundColor:type==='doughnut'?['#6366F1','#EC4899','#10B981','#F59E0B','#EF4444']:gradient,borderColor:'#6366F1',borderWidth:2,borderRadius:type==='bar'?8:0,barPercentage:0.6}]},
+    options:type==='doughnut'?{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{family:'Inter',size:12},padding:16}},tooltip:{backgroundColor:'rgba(15,23,42,0.9)',titleColor:'#fff',bodyColor:'#cbd5e1',padding:12,borderColor:'rgba(255,255,255,0.1)',borderWidth:1}},animation:{duration:2000,easing:'easeOutQuart'}}:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(15,23,42,0.9)',titleColor:'#fff',bodyColor:'#cbd5e1',padding:12,borderColor:'rgba(255,255,255,0.1)',borderWidth:1}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.05)',drawBorder:false},ticks:{color:'#94a3b8',font:{family:'Inter'}}},x:{grid:{display:false},ticks:{color:'#94a3b8',font:{family:'Inter',size:13,weight:'500'}}}},animation:{duration:2000,easing:'easeOutQuart'}}
+  });
+}
+
+function initRevealAnimations(){
+  var observer=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){if(entry.isIntersecting)entry.target.classList.add('visible');});
+  },{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
+  document.querySelectorAll('.reveal:not(.visible)').forEach(function(el){observer.observe(el);});
+}
+
+function initKeyboardShortcuts(){
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    switch(e.key){
+      case'n':case'N':window.location.href='/new-campaign';break;
+      case'u':case'U':window.location.href='/upload-cv';break;
+      case'd':case'D':window.location.href='/dashboard';break;
+      case'p':case'P':window.location.href='/pricing';break;
+      case's':case'S':window.location.href='/services';break;
+      case't':case'T':toggleTheme();break;
+      case'/':e.preventDefault();showToast('info','🔍 Search','Type what you\'re looking for...');break;
+      case'?':showShortcuts();break;
+    }
+  });
+}
+
+function showShortcuts(){
+  document.getElementById('shortcutBackdrop').classList.add('active');
+  document.getElementById('shortcutModal').classList.add('active');
+}
+function hideShortcuts(){
+  document.getElementById('shortcutBackdrop').classList.remove('active');
+  document.getElementById('shortcutModal').classList.remove('active');
+}
+
+function initTheme(){
+  var saved=localStorage.getItem('dashboard-theme');
+  if(saved==='light'){document.documentElement.setAttribute('data-theme','light');document.getElementById('themeToggle').textContent='☀️';}
+}
+function toggleTheme(){
+  var html=document.documentElement,btn=document.getElementById('themeToggle');
+  if(html.getAttribute('data-theme')==='light'){
+    html.removeAttribute('data-theme');btn.textContent='🌙';
+    localStorage.setItem('dashboard-theme','dark');
+    showToast('info','🌙 Dark Mode','Switched to dark theme');
+  }else{
+    html.setAttribute('data-theme','light');btn.textContent='☀️';
+    localStorage.setItem('dashboard-theme','light');
+    showToast('info','☀️ Light Mode','Switched to light theme');
+  }
+}
+
+function showToast(type,title,message,duration){
+  duration=duration||4000;
+  var container=document.getElementById('toastContainer');
+  var toast=document.createElement('div');toast.className='toast';
+  var icons={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  toast.innerHTML='<div class="toast-icon '+type+'">'+(icons[type]||'ℹ️')+'</div><div class="toast-content"><div class="toast-title">'+title+'</div><div class="toast-message">'+message+'</div></div><button class="toast-close" onclick="this.parentElement.classList.add(\'removing\');setTimeout(function(){this.parentElement.remove()}.bind(this),300)">✕</button>';
+  container.appendChild(toast);
+  setTimeout(function(){toast.classList.add('removing');setTimeout(function(){toast.remove();},300);},duration);
+}
+
+function showWelcomeToast(){
+  setTimeout(function(){showToast('success','🚀 Dashboard Ready','Your AI agents are actively working');},1200);
+}
+</script>

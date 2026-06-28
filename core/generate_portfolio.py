@@ -7,13 +7,40 @@ for candidates. Injects a massive B2B upsell banner for HR managers at the botto
 
 import os
 import re
+import logging
+from typing import List
+
+logger = logging.getLogger(__name__)
 
 OUTPUT_DIR = os.path.join("docs", "portfolios")
 B2B_CHECKOUT_LINK = "https://olympus-webhook.samsalameh-cv.workers.dev/api/v1/b2b/candidates"
 
-def generate_trojan_portfolio(user_id: str, name: str, title: str, skills: list, summary: str):
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
+def generate_trojan_portfolio(user_id: str, name: str, title: str, skills: List[str], summary: str) -> str:
+    """Automatically generates a stunning, high-converting interactive web portfolio.
+
+    Args:
+        user_id: Candidate identifier.
+        name: Candidate name.
+        title: Candidate title.
+        skills: List of skills.
+        summary: Candidate professional summary.
+
+    Returns:
+        The generated HTML file path.
+    """
+    global OUTPUT_DIR
+    try:
+        if not os.path.exists(OUTPUT_DIR):
+            os.makedirs(OUTPUT_DIR, exist_ok=True)
+    except Exception as e:
+        logger.error(f"[generate_portfolio] Failed to create output directory {OUTPUT_DIR}: {e}")
+        # fallback to local portfolios folder or current directory
+        OUTPUT_DIR = "portfolios"
+        try:
+            if not os.path.exists(OUTPUT_DIR):
+                os.makedirs(OUTPUT_DIR, exist_ok=True)
+        except Exception:
+            OUTPUT_DIR = "."
         
     skills_html = "".join([f'<span class="skill-tag">{s}</span>' for s in skills])
     
@@ -156,8 +183,21 @@ def generate_trojan_portfolio(user_id: str, name: str, title: str, skills: list,
     safe_id = re.sub(r'[^a-zA-Z0-9_]', '', str(user_id))
     filepath = os.path.join(OUTPUT_DIR, f"{safe_id}.html")
     
-    with open(filepath, "w", encoding="utf-8") as f:
-        f.write(html)
+    try:
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(html)
+        logger.info(f"[generate_portfolio] Successfully generated portfolio at {filepath}")
+    except Exception as e:
+        logger.error(f"[generate_portfolio] Failed to write portfolio to {filepath}: {e}")
+        fallback_filepath = f"{safe_id}_portfolio.html"
+        try:
+            with open(fallback_filepath, "w", encoding="utf-8") as f:
+                f.write(html)
+            logger.info(f"[generate_portfolio] Generated fallback portfolio at {fallback_filepath}")
+            return fallback_filepath
+        except Exception as ex:
+            logger.critical(f"[generate_portfolio] Critical failure writing fallback portfolio: {ex}")
+            raise ex
         
     return filepath
 

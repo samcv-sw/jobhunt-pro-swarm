@@ -1,4 +1,5 @@
-import sys, os
+import sys
+import os
 if not os.getenv("FORCE_SQLITE"):
     try:
         from core import pg_sqlite_shim
@@ -15,6 +16,7 @@ except ImportError:
 import asyncio
 import os
 import logging
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +25,10 @@ if NEON_URI.startswith("postgresql+asyncpg://"):
     NEON_URI = NEON_URI.replace("postgresql+asyncpg://", "postgresql://", 1)
 
 class DatabaseManager:
-    def __init__(self):
+    def __init__(self) -> None:
         self.pool = None
 
-    async def connect(self):
+    async def connect(self) -> None:
         db_url = os.getenv("DATABASE_URL", "")
         if db_url.startswith("libsql://"):
             logger.info("PROJECT APEX: Connected to Turso Edge Database (Global Replication)")
@@ -41,7 +43,7 @@ class DatabaseManager:
         except Exception as e:
             logger.error(f"Failed to connect to Neon.tech: {e}")
 
-    async def init_db(self):
+    async def init_db(self) -> None:
         async with self.pool.acquire() as conn:
             # Users table (updated for Viral Growth)
             await conn.execute("""
@@ -120,9 +122,13 @@ class DatabaseManager:
                     last_success TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """)
+            # Add PostgreSQL indexes for optimized queries
+            await conn.execute("CREATE INDEX IF NOT EXISTS idx_applications_user_id ON applications(user_id);")
+            await conn.execute("CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);")
+            await conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_created_at ON jobs(created_at);")
             logger.info("PostgreSQL schema initialized successfully.")
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
         if self.pool:
             await self.pool.close()
             logger.info("Disconnected from Neon.tech PostgreSQL")
@@ -139,7 +145,8 @@ import sys
 
 class Database:
     """Legacy async wrapper for SQLite jobs table used by orchestrator."""
-    def __init__(self):
+
+    def __init__(self) -> None:
         base_dir = pathlib.Path(__file__).resolve().parent.parent
         try:
             import config
@@ -148,7 +155,7 @@ class Database:
         except ImportError:
             self.db_path = str(base_dir / "jobhunt_saas_v2.db")
 
-    def _get_conn(self):
+    def _get_conn(self) -> sqlite3_sync.Connection:
         conn = sqlite3_sync.connect(self.db_path, timeout=30)
         conn.row_factory = sqlite3_sync.Row
         try:
@@ -160,7 +167,7 @@ class Database:
         except Exception: pass
         return conn
 
-    async def save_job(self, job):
+    async def save_job(self, job: Dict[str, Any]) -> bool:
         def _save():
             with self._get_conn() as conn:
                 try:
@@ -212,7 +219,7 @@ class Database:
                     return False
         return await asyncio.to_thread(_save)
 
-    async def update_job_status(self, job_id, status, reason=None):
+    async def update_job_status(self, job_id: str, status: str, reason: Optional[str] = None) -> None:
         def _update():
             with self._get_conn() as conn:
                 conn.execute(
@@ -222,14 +229,14 @@ class Database:
                 conn.commit()
         await asyncio.to_thread(_update)
 
-    async def get_jobs_by_status(self, status, limit):
+    async def get_jobs_by_status(self, status: str, limit: int) -> List[Dict[str, Any]]:
         def _get():
             with self._get_conn() as conn:
                 cur = conn.execute("SELECT * FROM jobs WHERE status=? LIMIT ?", (status, limit))
                 return [dict(r) for r in cur.fetchall()]
         return await asyncio.to_thread(_get)
 
-    async def reset_failed_jobs(self, limit):
+    async def reset_failed_jobs(self, limit: int) -> int:
         def _reset():
             with self._get_conn() as conn:
                 cur = conn.execute(
@@ -240,36 +247,40 @@ class Database:
                 return cur.rowcount
         return await asyncio.to_thread(_reset)
 
-    async def get_jobs_needing_followup(self, followup_level):
+    async def get_jobs_needing_followup(self, followup_level: int) -> List[Dict[str, Any]]:
         def _get():
             with self._get_conn() as conn:
                 cur = conn.execute("SELECT * FROM jobs WHERE status='applied' LIMIT 10")
                 return [dict(r) for r in cur.fetchall()]
         return await asyncio.to_thread(_get)
 
-    async def mark_followed_up(self, job_id, level):
+    async def mark_followed_up(self, job_id: str, level: int) -> None:
         def _mark():
             with self._get_conn() as conn:
                 conn.execute("UPDATE jobs SET status='followed_up' WHERE job_id=?", (job_id,))
                 conn.commit()
         await asyncio.to_thread(_mark)
 
-    async def get_stats(self):
+    async def get_stats(self) -> Dict[str, int]:
         def _stats():
             with self._get_conn() as conn:
                 try:
-                    res = {}
-                    for status in ['new', 'applied', 'failed', 'skipped', 'followed_up']:
-                        cur = conn.execute("SELECT COUNT(*) FROM jobs WHERE status=?", (status,))
-                        res[status] = cur.fetchone()[0]
-                    cur = conn.execute("SELECT COUNT(*) FROM jobs")
-                    res["total"] = cur.fetchone()[0]
+                    res = {status: 0 for status in ['new', 'applied', 'failed', 'skipped', 'followed_up']}
+                    cur = conn.execute("SELECT status, COUNT(*) FROM jobs GROUP BY status")
+                    total = 0
+                    for row in cur.fetchall():
+                        status = row[0]
+                        count = row[1]
+                        if status in res:
+                            res[status] = count
+                        total += count
+                    res["total"] = total
                     return res
                 except sqlite3_sync.OperationalError:
                     return {"total": 0, "new": 0, "applied": 0, "failed": 0, "skipped": 0, "followed_up": 0}
         return await asyncio.to_thread(_stats)
 
-    async def create_tables(self):
+    async def create_tables(self) -> None:
         def _create():
             with self._get_conn() as conn:
                 conn.execute("""
@@ -297,6 +308,12 @@ class Database:
                 # Automated migration: add user_id column to existing SQLite jobs tables if it doesn't exist
                 try:
                     conn.execute("ALTER TABLE jobs ADD COLUMN user_id VARCHAR(64)")
+                except Exception:
+                    pass
+                # Add indexes for optimized job lookups
+                try:
+                    conn.execute("CREATE INDEX IF NOT EXISTS idx_sqlite_jobs_status ON jobs(status)")
+                    conn.execute("CREATE INDEX IF NOT EXISTS idx_sqlite_jobs_user_id ON jobs(user_id)")
                 except Exception:
                     pass
                 conn.commit()

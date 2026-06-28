@@ -1,7 +1,8 @@
 """
-JobHunt Pro - Orchestrator v8
+JobHunt Pro - Orchestrator v9
 Coordinates: Search -> Score -> AI Tailor -> Apply -> Follow-up -> Dashboard
 Enhanced with Groq AI Personalization, Anti-Ban, Stealth, and Response Prediction
+Multi-query search across all locations, improved subject lines, adaptive thresholds
 """
 import sys, os
 if not os.getenv("FORCE_SQLITE"):
@@ -16,7 +17,7 @@ import logging
 import sys
 import os
 from datetime import datetime
-from typing import List, Dict
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from core.whatsapp_notifier import notify_application_submitted, notify_campaign_started
 import config
@@ -48,7 +49,7 @@ logger = logging.getLogger(__name__)
 
 
 class Orchestrator:
-    def __init__(self):
+    def __init__(self) -> None:
         self.db = Database()
         self.search = MultiSourceSearch()
         self.email = EmailEngine()
@@ -65,36 +66,99 @@ class Orchestrator:
             pass
         logger.info("Orchestrator v8 initialized (AI Tailoring + Anti-Ban + Personalization + Email Warmup)")
 
-    async def run_search(self, max_results=50):
+    async def run_search(self, max_results: int = 50) -> int:
         """Search for jobs using curated contacts (guaranteed results)
-        + optional live search as bonus"""
+        + multi-query live search across all locations"""
         logger.info("=" * 50)
-        logger.info("JOB SEARCH PHASE")
+        logger.info("JOB SEARCH PHASE v9 (Multi-Query)")
         logger.info("=" * 50)
 
         all_jobs = []
-        locations = config.LOCATIONS[:5]
+        # Use ALL locations, not just first 5
+        locations = config.LOCATIONS
 
         # Phase 1: Curated contacts (GUARANTEED results)
-        for location in locations:
+        for location in locations[:10]:  # Top 10 locations for curated
             curated = get_curated_contacts(location, limit=20)
             all_jobs.extend(curated)
         
         # Add all curated contacts
-        all_curated = get_curated_contacts("", limit=100)
+        all_curated = get_curated_contacts("", limit=200)
         all_jobs.extend(all_curated)
         logger.info(f"Curated contacts loaded: {len(all_jobs)}")
 
-        # Phase 2: Quick live search (1 query only, as bonus)
-        try:
-            loop = asyncio.get_event_loop()
-            live_jobs = await loop.run_in_executor(
-                None, self.search.search_all_sources, "network engineer", "Lebanon", 10
-            )
-            all_jobs.extend(live_jobs)
-            logger.info(f"Live search bonus: {len(live_jobs)} jobs")
-        except Exception as e:
-            logger.debug(f"Live search skipped: {e}")
+        # Phase 2: Multi-query live search across multiple locations
+        # Use diverse search queries to maximize coverage
+        search_queries = [
+            # Core network engineering titles
+            "network engineer", "senior network engineer", "network architect",
+            # Modern networking
+            "sd-wan engineer", "sase engineer", "network automation engineer",
+            "network security engineer", "cloud network engineer",
+            # Infrastructure & operations
+            "infrastructure engineer", "noc engineer", "network administrator",
+            "network consultant", "network specialist",
+            # Security-focused
+            "cybersecurity engineer", "firewall engineer", "security engineer",
+            "soc analyst", "network security architect",
+            # Cloud & DevOps
+            "cloud engineer", "devops engineer", "site reliability engineer",
+            "solutions architect", "pre-sales engineer",
+            # Data center & telecom
+            "data center engineer", "telecom engineer", "isp engineer",
+            # Management
+            "it manager", "network manager", "head of network",
+            # International titles
+            "ingénieur réseau", "netzwerktechniker", "ağ mühendisi",
+        ]
+
+        # Select a diverse subset of locations for live search
+        # Prioritize job-rich markets
+        search_locations = [
+            # GCC (high density)
+            "uae", "dubai", "saudi arabia", "riyadh", "qatar", "doha",
+            "kuwait", "oman", "muscat", "bahrain",
+            # MENA
+            "lebanon", "beirut", "jordan", "amman", "egypt", "cairo",
+            # Europe
+            "united kingdom", "london", "germany", "berlin", "netherlands",
+            "ireland", "dublin",
+            # Asia
+            "india", "bangalore", "singapore",
+            # Turkey
+            "turkey", "istanbul",
+            # Remote / Global
+            "remote", "worldwide",
+        ]
+
+        # Shuffle queries and locations for variety each cycle
+        import random
+        random.shuffle(search_queries)
+        random.shuffle(search_locations)
+
+        # Run up to 8 live searches (mix of queries and locations)
+        live_search_count = 0
+        max_live_searches = 8
+        for query in search_queries[:6]:  # Try 6 different queries
+            for loc in search_locations[:3]:  # Each query in 3 different locations
+                if live_search_count >= max_live_searches:
+                    break
+                try:
+                    loop = asyncio.get_event_loop()
+                    live_jobs = await loop.run_in_executor(
+                        None, self.search.search_all_sources, query, loc, 10
+                    )
+                    if live_jobs:
+                        all_jobs.extend(live_jobs)
+                        logger.info(f"  Live search [{query}] in [{loc}]: {len(live_jobs)} jobs")
+                    live_search_count += 1
+                except Exception as e:
+                    logger.debug(f"  Live search [{query}] in [{loc}] skipped: {e}")
+                    live_search_count += 1
+            if live_search_count >= max_live_searches:
+                break
+
+        logger.info(f"Total live searches executed: {live_search_count}")
 
         # Deduplicate by email
         seen_emails = set()
@@ -119,7 +183,7 @@ class Orchestrator:
         logger.info(f"Search complete: {len(unique_jobs)} found, {saved} new saved")
         return saved
 
-    async def run_apply(self, limit=None, include_failed=False):
+    async def run_apply(self, limit: Optional[int] = None, include_failed: bool = False) -> int:
         """Send application emails with AI tailoring, anti-ban protection and personalization"""
         limit = limit or min(config.DAILY_SEND_LIMIT, 200)
         logger.info("=" * 50)
@@ -225,7 +289,9 @@ class Orchestrator:
                 recommendation = relevance.get("recommendation", "maybe")
                 logger.info(f"  AI Relevance Score: {job_score}/100 - {recommendation}")
 
-                if recommendation == "skip" and job_score < 40:
+                # More inclusive threshold with improved scoring system
+                # The enhanced CANDIDATE_PROFILE now scores more jobs higher
+                if recommendation == "skip" and job_score < 30:
                     logger.info(f"  Low relevance ({job_score}%) for {company} — SKIPPING")
                     await self.db.update_job_status(job["job_id"], "skipped", f"low_relevance_{job_score}")
                     skipped += 1
@@ -255,8 +321,9 @@ class Orchestrator:
                 # Personalize cover letter
                 cover_html = personalizer.personalize_email(cover_html, company_info)
 
-                # Predict response rate
-                subject = f"Application: {title} - Sam Salameh"
+                # Predict response rate with compelling subject line
+                # Include certifications and experience level for higher open rates
+                subject = f"{title} | 15yr Network Engineer | CCNP/NSE/AWS | SD-WAN & Security Expert"
                 prediction = predictor.predict_response_rate(subject, cover_html, company)
 
                 if not prediction["should_send"]:
@@ -304,7 +371,7 @@ class Orchestrator:
         logger.info(f"Follow-up tracking: {followup_sequence.get_stats()}")
         return applied
 
-    async def retry_failed(self, limit=50):
+    async def retry_failed(self, limit: int = 50) -> int:
         """Retry failed jobs by resetting them to 'new' status."""
         logger.info("=" * 50)
         logger.info("RETRY FAILED JOBS")
@@ -318,7 +385,7 @@ class Orchestrator:
         logger.info("No failed jobs to retry")
         return 0
 
-    async def run_followups(self, limit=10):
+    async def run_followups(self, limit: int = 10) -> int:
         """Send follow-up emails"""
         logger.info("Running follow-ups...")
         sent = 0
@@ -343,7 +410,7 @@ class Orchestrator:
             logger.warning(f"Follow-ups failed: {e}")
         return sent
 
-    def start_web_server(self):
+    def start_web_server(self) -> None:
         """Start the dashboard web server (skip if already running)"""
         try:
             import socket
@@ -369,7 +436,7 @@ class Orchestrator:
         except Exception as e:
             logger.warning(f"Web server failed to start: {e}")
 
-    async def run_hyper_cycle(self):
+    async def run_hyper_cycle(self) -> Dict[str, Any]:
         """Run one Turbo Hyper Mode cycle (zero AI, 2000+/hour)."""
         logger.info("=" * 60)
         logger.info("  [TURBO] JOBHUNT PRO - HYPER MODE TURBO")
@@ -387,7 +454,7 @@ class Orchestrator:
             logger.error(f"[HYPER] Cycle failed: {e}")
             return {"sent": 0, "failed": 0}
 
-    async def run_full_cycle(self):
+    async def run_full_cycle(self) -> Dict[str, Any]:
         """Run one complete cycle: Search -> Apply -> Follow-up"""
         logger.info("=" * 60)
         logger.info("  JOBHUNT PRO v8 - FULL CYCLE")
@@ -503,7 +570,7 @@ class Orchestrator:
         return {"found": found, "applied": applied, "retried": retried, "followups": followed}
 
 
-async def main():
+async def main() -> None:
     """Main entry point"""
     orch = Orchestrator()
     

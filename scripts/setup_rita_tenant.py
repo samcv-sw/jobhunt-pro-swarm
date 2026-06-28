@@ -1,32 +1,82 @@
 """Rita Cordahi Tenant Setup - v17 Max (fixed schema)"""
-import sqlite3, os, sys, uuid, time
+import sqlite3
+import logging
+import os
+import sys
+import uuid
+import time
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger(__name__)
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'jobhunt_saas_v2.db')
 
-def create_rita():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    
-    existing = conn.execute("SELECT * FROM users WHERE email = ?", ("ritacordahi2@gmail.com",)).fetchone()
-    if existing:
-        rita_user_id = existing["user_id"]
-        print(f"[OK] Rita already exists: {rita_user_id}")
-    else:
-        rita_user_id = f"rita_{uuid.uuid4().hex[:12]}"
-        now = time.strftime('%Y-%m-%d %H:%M:%S')
-        conn.execute(
-            "INSERT INTO users (user_id, name, email, phone, password_hash, created_at, is_active, user_type) VALUES (?, ?, ?, ?, ?, ?, 1, 'jobseeker')",
-            (rita_user_id, "Rita Cordahi", "ritacordahi2@gmail.com", "+961 76 005 412", "ritatenant_api_nopass", now))
-        conn.commit()
-        print(f"[OK] Created Rita user: {rita_user_id}")
 
-    # CV Profile
-    existing_p = conn.execute("SELECT * FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (rita_user_id,)).fetchone()
-    if existing_p:
-        profile_id = existing_p["id"]
-        print(f"[OK] Rita CV profile exists: {profile_id}")
-    else:
-        rita_cv = """RITA CORDAHI
+def create_rita() -> bool:
+    """Create Rita Cordahi as a tenant in the SaaS database.
+
+    Returns:
+        True on success, False on failure.
+    """
+    if not os.path.exists(DB_PATH):
+        logger.error(f"[setup_rita] Database not found at: {DB_PATH}")
+        logger.error("[setup_rita] Please run the main app first to initialize the database.")
+        return False
+
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+    except Exception as e:
+        logger.error(f"[setup_rita] Failed to connect to database: {e}")
+        return False
+
+    try:
+        # ── User ──────────────────────────────────────────────────────────────
+        try:
+            existing = conn.execute(
+                "SELECT * FROM users WHERE email = ?", ("ritacordahi2@gmail.com",)
+            ).fetchone()
+        except Exception as e:
+            logger.error(f"[setup_rita] Failed to query users table: {e}")
+            logger.error("[setup_rita] Is the schema initialized? Run web/app.py first.")
+            return False
+
+        if existing:
+            rita_user_id = existing["user_id"]
+            logger.info(f"[OK] Rita already exists: {rita_user_id}")
+        else:
+            rita_user_id = f"rita_{uuid.uuid4().hex[:12]}"
+            now = time.strftime('%Y-%m-%d %H:%M:%S')
+            try:
+                conn.execute(
+                    "INSERT INTO users (user_id, name, email, phone, password_hash, created_at, is_active, user_type) "
+                    "VALUES (?, ?, ?, ?, ?, ?, 1, 'jobseeker')",
+                    (rita_user_id, "Rita Cordahi", "ritacordahi2@gmail.com",
+                     "+961 76 005 412", "ritatenant_api_nopass", now)
+                )
+                conn.commit()
+                logger.info(f"[OK] Created Rita user: {rita_user_id}")
+            except Exception as e:
+                logger.error(f"[setup_rita] Failed to create Rita user: {e}")
+                conn.rollback()
+                return False
+
+        # ── CV Profile ────────────────────────────────────────────────────────
+        try:
+            existing_p = conn.execute(
+                "SELECT * FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1",
+                (rita_user_id,)
+            ).fetchone()
+        except Exception as e:
+            logger.warning(f"[setup_rita] Could not check cv_profiles: {e}")
+            existing_p = None
+
+        if existing_p:
+            profile_id = existing_p["id"]
+            logger.info(f"[OK] Rita CV profile exists: {profile_id}")
+        else:
+            rita_cv = """RITA CORDAHI
 ritacordahi2@gmail.com | +961 76 005 412 | Beirut, Lebanon
 linkedin.com/in/rita-cordahi/
 
@@ -54,44 +104,83 @@ HR Operations, Recruitment, Employee Onboarding, HRIS, Payroll Coordination, Per
 LANGUAGES
 Arabic (Native), English (Fluent), French (Intermediate)
 """
-        conn.execute(
-            "INSERT INTO cv_profiles (user_id, cv_text, skills, experience_years, target_titles, target_locations, created_at, profile_name, min_local_salary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (rita_user_id, rita_cv,
-             "HR operations, customer service, recruitment, onboarding, employee relations, HRIS, payroll coordination, performance management, training & development",
-             5,
-             "HR Operations Manager, HR Coordinator, Customer Operations Specialist, Recruitment Specialist, People Operations Manager, HR Generalist, Talent Acquisition Coordinator",
-             "Lebanon (Beirut, Jbeil, Keserwan, Metn, Mount Lebanon)",
-             time.strftime('%Y-%m-%d %H:%M:%S'),
-             "Rita Cordahi - HR Professional",
-             1500))
-        conn.commit()
-        profile_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-        print(f"[OK] Created Rita CV profile: {profile_id}")
+            try:
+                conn.execute(
+                    "INSERT INTO cv_profiles (user_id, cv_text, skills, experience_years, target_titles, "
+                    "target_locations, created_at, profile_name, min_local_salary) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (rita_user_id, rita_cv,
+                     "HR operations, customer service, recruitment, onboarding, employee relations, HRIS, payroll coordination, performance management, training & development",
+                     5,
+                     "HR Operations Manager, HR Coordinator, Customer Operations Specialist, Recruitment Specialist, People Operations Manager, HR Generalist, Talent Acquisition Coordinator",
+                     "Lebanon (Beirut, Jbeil, Keserwan, Metn, Mount Lebanon)",
+                     time.strftime('%Y-%m-%d %H:%M:%S'),
+                     "Rita Cordahi - HR Professional",
+                     1500)
+                )
+                conn.commit()
+                profile_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                logger.info(f"[OK] Created Rita CV profile: {profile_id}")
+            except Exception as e:
+                logger.error(f"[setup_rita] Failed to create Rita CV profile: {e}")
+                conn.rollback()
+                profile_id = 0
 
-    # Campaign (correct schema)
-    existing_c = conn.execute("SELECT * FROM campaigns WHERE user_id = ? AND status IN ('pending','running','paused') ORDER BY id DESC LIMIT 1", (rita_user_id,)).fetchone()
-    if existing_c:
-        campaign_id = existing_c["campaign_id"]
-        print(f"[OK] Rita campaign exists: {campaign_id}")
-    else:
-        campaign_id = f"rita_camp_{uuid.uuid4().hex[:8]}"
-        rita_companies_count = 50  # Target companies list
-        conn.execute(
-            "INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, status, total_companies, sent_count, created_at, bouquets) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)",
-            (campaign_id, rita_user_id, 'rita_setup_free', profile_id, "pending", rita_companies_count,
-             time.strftime('%Y-%m-%d %H:%M:%S'), "Priority Shield,Stealth Mode"))
-        conn.commit()
-        print(f"[OK] Created Rita campaign: {campaign_id}")
+        # ── Campaign ─────────────────────────────────────────────────────────
+        try:
+            existing_c = conn.execute(
+                "SELECT * FROM campaigns WHERE user_id = ? AND status IN ('pending','running','paused') "
+                "ORDER BY id DESC LIMIT 1",
+                (rita_user_id,)
+            ).fetchone()
+        except Exception as e:
+            logger.warning(f"[setup_rita] Could not check campaigns: {e}")
+            existing_c = None
 
-    # Verify
-    users = conn.execute("SELECT user_id, name, email FROM users WHERE is_active=1").fetchall()
-    print(f"\n=== Active Users: {len(users)} ===")
-    for u in users:
-        camps = conn.execute("SELECT COUNT(*) as cnt FROM campaigns WHERE user_id=?", (u["user_id"],)).fetchone()
-        print(f"  {u['name']} ({u['email']}) - {camps['cnt']} campaigns")
-    conn.close()
-    print("\n[DONE] Rita Cordahi tenant setup complete!")
-    return True
+        if existing_c:
+            campaign_id = existing_c["campaign_id"]
+            logger.info(f"[OK] Rita campaign exists: {campaign_id}")
+        else:
+            campaign_id = f"rita_camp_{uuid.uuid4().hex[:8]}"
+            rita_companies_count = 50
+            try:
+                conn.execute(
+                    "INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, status, "
+                    "total_companies, sent_count, created_at, bouquets) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)",
+                    (campaign_id, rita_user_id, 'rita_setup_free', profile_id, "pending",
+                     rita_companies_count, time.strftime('%Y-%m-%d %H:%M:%S'), "Priority Shield,Stealth Mode")
+                )
+                conn.commit()
+                logger.info(f"[OK] Created Rita campaign: {campaign_id}")
+            except Exception as e:
+                logger.error(f"[setup_rita] Failed to create Rita campaign: {e}")
+                conn.rollback()
+
+        # ── Verify ────────────────────────────────────────────────────────────
+        try:
+            users = conn.execute("SELECT user_id, name, email FROM users WHERE is_active=1").fetchall()
+            logger.info(f"\n=== Active Users: {len(users)} ===")
+            for u in users:
+                camps = conn.execute(
+                    "SELECT COUNT(*) as cnt FROM campaigns WHERE user_id=?", (u["user_id"],)
+                ).fetchone()
+                logger.info(f"  {u['name']} ({u['email']}) - {camps['cnt']} campaigns")
+        except Exception as e:
+            logger.warning(f"[setup_rita] Could not run verification query: {e}")
+
+        logger.info("\n[DONE] Rita Cordahi tenant setup complete!")
+        return True
+
+    except Exception as e:
+        logger.error(f"[setup_rita] Unexpected error during setup: {e}", exc_info=True)
+        return False
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
 
 if __name__ == "__main__":
-    create_rita()
+    success = create_rita()
+    sys.exit(0 if success else 1)

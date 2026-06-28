@@ -24,20 +24,82 @@ CANDIDATE_PROFILE = {
     "years": 15,
     "core_skills": [
         "Cisco (CCNA/CCNP)", "MikroTik (MTCNA/MTCRE)", "Fortinet (NSE)",
-        "Ubiquiti", "Juniper", "Palo Alto", "SonicWall", "Checkpoint"
+        "Ubiquiti", "Juniper", "Palo Alto", "SonicWall", "Checkpoint",
+        "SD-WAN (Silver Peak/Viptela)", "SASE", "ZTNA", "Zero Trust Architecture",
+        "SDN", "Network Automation", "NetDevOps", "NFV", "VXLAN", "EVPN",
+        "Segment Routing", "IPv6", "Multicast", "QoS", "Load Balancing (F5/NGINX)",
+        "Cisco ACI", "VMware NSX", "Meraki", "Aruba", "Ruckus", "ExtremeNetworks",
+        "Riverbed", "Blue Coat", "Zscaler", "Cloudflare", "Akamai CDN"
     ],
-    "protocols": ["OSPF", "BGP", "MPLS", "VPN", "IPSec", "VLAN", "WLAN", "WAN/LAN"],
-    "security": ["Firewalls", "IDS/IPS", "Network Security", "Zero Trust"],
-    "monitoring": ["PRTG", "Nagios", "Zabbix", "SolarWinds", "Wireshark"],
-    "cloud": ["AWS", "Azure", "GCP", "VMware", "Hyper-V"],
-    "automation": ["Python", "PowerShell", "Ansible", "Terraform", "Bash", "Git", "CI/CD"],
-    "infrastructure": ["Data Center", "Fiber Optic", "Structured Cabling", "Wireless Networks"],
-    "certs": ["CCNA", "CCNP", "MTCNA", "MTCRE", "NSE", "CompTIA Network+"],
+    "protocols": [
+        "OSPF", "BGP", "MPLS", "VPN", "IPSec", "VLAN", "WLAN", "WAN/LAN",
+        "VXLAN", "EVPN", "IS-IS", "EIGRP", "STP", "RSTP", "MSTP", "LACP",
+        "MLAG", "VRRP", "HSRP", "GLBP", "PIM", "IGMP", "SNMP", "NetFlow",
+        "sFlow", "IPFIX", "RADIUS", "TACACS+", "802.1X", "MACsec", "DMVPN",
+        "GETVPN", "FlexVPN", "L2TP", "PPTP", "GRE", "IP-in-IP"
+    ],
+    "security": [
+        "Firewalls (FortiGate/Palo Alto/Checkpoint)", "IDS/IPS", "Network Security",
+        "Zero Trust / ZTNA", "SASE", "NGFW", "WAF", "DLP", "SIEM (Splunk/ELK)",
+        "SOAR", "Endpoint Security", "EDR/XDR", "IAM", "PAM", "MFA",
+        "PKI", "SSL/TLS", "IPSec VPN", "DMZ Architecture", "Micro-segmentation",
+        "NAC (Cisco ISE/Aruba ClearPass)", "Threat Intelligence", "Vulnerability Management",
+        "Penetration Testing", "SOC Operations", "Incident Response", "Forensics"
+    ],
+    "monitoring": [
+        "PRTG", "Nagios", "Zabbix", "SolarWinds", "Wireshark",
+        "Prometheus", "Grafana", "ELK Stack (Elasticsearch/Logstash/Kibana)",
+        "Splunk", "Datadog", "New Relic", "LibreNMS", "Observium",
+        "Cacti", "MRTG", "Smokeping", "NetCrunch", "WhatsUp Gold",
+        "LogicMonitor", "AppDynamics", "Dynatrace"
+    ],
+    "cloud": [
+        "AWS (VPC/Direct Connect/Route53)", "Azure (ExpressRoute/VNet)",
+        "GCP (Cloud Interconnect/VPC)", "VMware vSphere/vCenter", "Hyper-V",
+        "Docker", "Kubernetes", "Istio Service Mesh", "Terraform",
+        "AWS CloudFormation", "Azure ARM", "GCP Deployment Manager",
+        "OCI (Oracle Cloud)", "OpenStack", "Cloud Networking", "SDN"
+    ],
+    "automation": [
+        "Python (Netmiko/Napalm/Scrapli/Nornir)", "PowerShell", "Ansible (AWX/Tower)",
+        "Terraform (IaC)", "Bash/Shell Scripting", "Git (GitHub/GitLab/Bitbucket)",
+        "CI/CD (Jenkins/GitLab CI/GitHub Actions)", "Docker", "Kubernetes",
+        "REST APIs (Postman/cURL)", "YAML/JSON/XML", "Jinja2 Templating",
+        "Robot Framework", "PyATS/genie", "SaltStack", "Puppet", "Chef",
+        "ELK Stack Automation", "NetBox/IPAM Automation", "NAPALM Automation"
+    ],
+    "infrastructure": [
+        "Data Center Design (Tier III/IV)", "Fiber Optic (Single/Multi-mode)",
+        "Structured Cabling (Cat6a/Cat7/Fiber)", "Wireless Networks (Wi-Fi 6/6E)",
+        "MPLS WAN Design", "SD-WAN Architecture", "Campus LAN Design",
+        "Branch Office Networking", "Colocation Management", "DR Site Design",
+        "BGP/OSPF Route Optimization", "QoS Design", "Multicast Design",
+        "IPv6 Migration", "Network Segmentation", "DC Interconnect (DCI)"
+    ],
+    "certs": [
+        "CCNA", "CCNP", "CCIE (Written)", "MTCNA", "MTCRE", "MTCINE",
+        "NSE 4", "NSE 5", "NSE 6", "NSE 7", "CompTIA Network+",
+        "CompTIA Security+", "AWS Certified Solutions Architect",
+        "Azure Network Engineer Associate", "ITIL Foundation",
+        "Palo Alto PCNSA", "Juniper JNCIA", "Cisco DevNet Associate",
+        "Fortinet FCP", "VMware VCP-NV", "Certified Kubernetes Administrator (CKA)"
+    ],
     "highlights": [
-        "15+ years designing and managing enterprise networks across multiple countries",
-        "99.99% uptime maintenance across enterprise environments",
-        "Resolved 50+ daily complex technical issues with 98% satisfaction score",
-        "Reduced deployment time by 40% and operational overhead by 35% through automation",
+        "15+ years designing and managing enterprise networks across 10+ countries (Lebanon, UAE, Saudi Arabia, Qatar, Kuwait, Oman, Jordan, Egypt, Turkey, Iraq)",
+        "Designed and deployed SD-WAN solution across 50+ sites reducing WAN costs by 45% while improving application performance by 60%",
+        "Implemented Zero Trust Network Access (ZTNA/SASE) architecture securing 2,000+ remote users across 30+ branch offices",
+        "Led migration of 100+ servers and network infrastructure to AWS/Azure cloud with 99.99% uptime and zero security incidents",
+        "Architected multi-site MPLS/VPN backbone connecting 200+ locations with BGP/OSPF route optimization and QoS",
+        "Automated network provisioning and configuration management using Ansible/Terraform/Python, reducing deployment time by 40% and operational overhead by 35%",
+        "Resolved 50+ daily complex technical issues (Tier 3 escalation) with 98% satisfaction score and <15min average resolution time",
+        "Managed $5M+ network infrastructure budget including vendor negotiations, procurement, and lifecycle management",
+        "Led SOC/NOC team of 12 engineers, establishing 24/7 monitoring with Splunk/ELK SIEM reducing MTTR by 55%",
+        "Designed and implemented enterprise-wide firewall migration (Checkpoint → FortiGate) across 100+ sites with zero downtime",
+        "Deployed Wi-Fi 6/6E wireless infrastructure serving 5,000+ concurrent users with seamless roaming and 99.9% availability",
+        "Established disaster recovery and business continuity plan with RPO <15min and RTO <2hrs for critical network services",
+        "Conducted 50+ security audits and penetration tests, achieving ISO 27001 compliance and passing all regulatory requirements",
+        "Mentored 20+ junior engineers, creating training programs that improved team certification pass rate by 70%",
+        "Reduced annual network operational costs by $500K+ through automation, vendor consolidation, and optimized licensing"
     ],
 }
 
@@ -150,18 +212,18 @@ Candidate CV summary:
 {cv_text[:3000]}
 
 CANDIDATE: {CANDIDATE_PROFILE['name']} — {CANDIDATE_PROFILE['title']}, {CANDIDATE_PROFILE['years']} years experience.
-Core skills: {', '.join(CANDIDATE_PROFILE['core_skills'])}
-Protocols: {', '.join(CANDIDATE_PROFILE['protocols'])}
-Automation: {', '.join(CANDIDATE_PROFILE['automation'])}
+Full skills inventory: {', '.join(CANDIDATE_PROFILE['core_skills'] + CANDIDATE_PROFILE['protocols'] + CANDIDATE_PROFILE['security'] + CANDIDATE_PROFILE['cloud'] + CANDIDATE_PROFILE['automation'] + CANDIDATE_PROFILE['monitoring'] + CANDIDATE_PROFILE['infrastructure'] + CANDIDATE_PROFILE['certs'])[:2000]}
 
 JOB: {title} at {company}
 Description: {description[:2000]}
 
 Score 0-100 based on:
-1. Skills match (40 pts) — how many required skills does the candidate have?
-2. Experience level (25 pts) — does the candidate's years match the seniority?
-3. Domain relevance (25 pts) — is this in the candidate's domain (networking/infrastructure)?
+1. Skills match (40 pts) — how many required skills does the candidate have? (Be generous: candidate has 15+ years of broad networking/security/cloud/automation expertise)
+2. Experience level (25 pts) — does the candidate's 15+ years match the seniority?
+3. Domain relevance (25 pts) — is this in the candidate's domain (networking, security, cloud, infrastructure, automation)?
 4. Location/culture fit (10 pts) — any obvious mismatches?
+
+IMPORTANT: This candidate has deep expertise across enterprise networking, SD-WAN, SASE, ZTNA, cloud (AWS/Azure/GCP), automation (Python/Ansible/Terraform), security (FortiGate/Palo Alto/Zero Trust), and data center technologies. Be inclusive — if the job is even remotely related to IT infrastructure, networking, or security, score it fairly.
 
 Return ONLY valid JSON:
 {{"score": <0-100>, "skills_match": <list of matching skills>, "missing_skills": <list>, "experience_fit": <bool>, "domain_fit": <bool>, "recommendation": "apply"|"maybe"|"skip", "reason": "<1 sentence>"}}"""
@@ -207,21 +269,25 @@ COMPANY RESEARCH:
         cv_subset.append(f"- Title: {CANDIDATE_PROFILE['title']}, {CANDIDATE_PROFILE['years']}+ years experience")
         
         job_lower = (title + " " + description).lower()
-        if any(k in job_lower for k in ['network', 'cisco', 'fortinet', 'juniper', 'router', 'switch', 'bgp']):
+        if any(k in job_lower for k in ['network', 'cisco', 'fortinet', 'juniper', 'router', 'switch', 'bgp', 'sd-wan', 'sase', 'mpls']):
             cv_subset.append(f"- Core expertise: {', '.join(CANDIDATE_PROFILE['core_skills'])}")
             cv_subset.append(f"- Protocols: {', '.join(CANDIDATE_PROFILE['protocols'])}")
+            cv_subset.append(f"- Infrastructure: {', '.join(CANDIDATE_PROFILE['infrastructure'])}")
         
-        if any(k in job_lower for k in ['security', 'firewall', 'ips', 'ids', 'zero trust']):
+        if any(k in job_lower for k in ['security', 'firewall', 'ips', 'ids', 'zero trust', 'ztna', 'sase', 'siem', 'soc', 'cyber']):
             cv_subset.append(f"- Security: {', '.join(CANDIDATE_PROFILE['security'])}")
             
-        if any(k in job_lower for k in ['cloud', 'aws', 'azure', 'gcp', 'vmware']):
+        if any(k in job_lower for k in ['cloud', 'aws', 'azure', 'gcp', 'vmware', 'kubernetes', 'docker', 'container']):
             cv_subset.append(f"- Cloud: {', '.join(CANDIDATE_PROFILE['cloud'])}")
             
-        if any(k in job_lower for k in ['automation', 'python', 'ansible', 'terraform', 'scripting']):
+        if any(k in job_lower for k in ['automation', 'python', 'ansible', 'terraform', 'scripting', 'devops', 'ci/cd', 'netdevops']):
             cv_subset.append(f"- Automation: {', '.join(CANDIDATE_PROFILE['automation'])}")
             
+        if any(k in job_lower for k in ['monitoring', 'observability', 'splunk', 'prometheus', 'grafana', 'elk', 'siem']):
+            cv_subset.append(f"- Monitoring/Observability: {', '.join(CANDIDATE_PROFILE['monitoring'])}")
+            
         cv_subset.append(f"- Certifications: {', '.join(CANDIDATE_PROFILE['certs'])}")
-        cv_subset.append(f"- Key achievements: {'; '.join(CANDIDATE_PROFILE['highlights'][:2])}") # Only top 2 achievements
+        cv_subset.append(f"- Key achievements: {'; '.join(CANDIDATE_PROFILE['highlights'][:3])}") # Top 3 achievements
 
         prompt = f"""Write a highly personalized, professional cover letter for {CANDIDATE_PROFILE['name']} applying for {title} at {company}.
 
@@ -609,7 +675,10 @@ Include a mix of:
                 CANDIDATE_PROFILE['protocols'] +
                 CANDIDATE_PROFILE['security'] +
                 CANDIDATE_PROFILE['cloud'] +
-                CANDIDATE_PROFILE['automation']
+                CANDIDATE_PROFILE['automation'] +
+                CANDIDATE_PROFILE['monitoring'] +
+                CANDIDATE_PROFILE['infrastructure'] +
+                CANDIDATE_PROFILE['certs']
             ).lower()
             job_text = (title + " " + description).lower()
             
@@ -631,11 +700,11 @@ Include a mix of:
             matching = [s for s in config.SKILLS if s.lower() in job_text]
             return {
                 "score": score,
-                "skills_match": matching[:10],
+                "skills_match": matching[:15],
                 "missing_skills": [],
-                "experience_fit": "engineer" in job_text or "manager" in job_text,
-                "domain_fit": any(kw in job_text for kw in ["network", "infrastructure", "security"]),
-                "recommendation": "apply" if score >= 70 else ("maybe" if score >= 50 else "skip"),
+                "experience_fit": "engineer" in job_text or "manager" in job_text or "architect" in job_text or "director" in job_text or "vp" in job_text or "cto" in job_text,
+                "domain_fit": any(kw in job_text for kw in ["network", "infrastructure", "security", "cloud", "automation", "data center", "it"]),
+                "recommendation": "apply" if score >= 65 else ("maybe" if score >= 45 else "skip"),
                 "reason": f"Vector Cosine Similarity: {cos_sim:.2f}"
             }
         except Exception as e:
@@ -659,11 +728,11 @@ Include a mix of:
         matching = [s for s in config.SKILLS if s.lower() in text]
         return {
             "score": score,
-            "skills_match": matching[:10],
+            "skills_match": matching[:15],
             "missing_skills": [],
-            "experience_fit": "engineer" in text or "administrator" in text or "manager" in text,
-            "domain_fit": any(kw in text for kw in ["network", "infrastructure", "security", "it ", "system"]),
-            "recommendation": "apply" if score >= 70 else ("maybe" if score >= 50 else "skip"),
+            "experience_fit": "engineer" in text or "administrator" in text or "manager" in text or "architect" in text or "director" in text or "vp" in text or "cto" in text,
+            "domain_fit": any(kw in text for kw in ["network", "infrastructure", "security", "cloud", "automation", "data center", "it ", "system", "devops", "sre"]),
+            "recommendation": "apply" if score >= 65 else ("maybe" if score >= 45 else "skip"),
             "reason": f"Keyword-based score: {match_count} skills matched"
         }
 

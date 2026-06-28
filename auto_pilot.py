@@ -22,6 +22,7 @@ import logging
 import config
 from datetime import datetime, time, timedelta
 import traceback
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -42,12 +43,12 @@ logger = logging.getLogger(__name__)
 # Beirut timezone offset (UTC+3)
 BEIRUT_OFFSET = 3 * 3600  # 3 hours in seconds
 
-def beirut_now():
+def beirut_now() -> datetime:
     """Get current time in Beirut timezone."""
     utc_now = datetime.utcnow()
     return datetime.fromtimestamp(utc_now.timestamp() + BEIRUT_OFFSET)
 
-def is_working_hours():
+def is_working_hours() -> bool:
     """Check if current time in Beirut is within working hours (8AM-8PM)."""
     now = beirut_now()
     return 8 <= now.hour < 20
@@ -55,16 +56,16 @@ def is_working_hours():
 class AutoPilot:
     """Autonomous job application engine - runs 24/7 with 20,000 mega swarm."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.cycle_count = 0
         self.total_applied = 0
         self.total_followups = 0
         self.total_retried = 0
         self.start_time = datetime.now()
-        self.mega_master = None
+        self.mega_master: Optional[Any] = None
         self.mega_enabled = True  # Set to False to disable mega swarm
 
-    async def run_cycle(self):
+    async def run_cycle(self) -> bool:
         """Run one complete cycle: Apply -> Retry -> Follow-ups."""
         self.cycle_count += 1
         now = beirut_now()
@@ -310,7 +311,7 @@ class AutoPilot:
             logger.error(traceback.format_exc())
             return False
 
-    async def run_forever(self):
+    async def run_forever(self) -> None:
         """Run auto-pilot indefinitely."""
         logger.info("=" * 60)
         logger.info(f"  JOBHUNT PRO v{config.VERSION} - AUTO-PILOT MODE")
@@ -347,7 +348,7 @@ class AutoPilot:
                 await asyncio.sleep(60)
 
 
-async def main():
+async def main() -> None:
     pilot = AutoPilot()
     try:
         if "--once" in sys.argv:

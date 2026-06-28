@@ -125,6 +125,49 @@
         opacity: 0;
     }
 }
+
+/* Toast Notifications */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 14px 20px;
+    background: rgba(15, 15, 20, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: #e2e8f0;
+    font-size: 13.5px;
+    z-index: 99999;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+}
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+.toast.error {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.15);
+}
+.toast.info {
+    border-color: rgba(59, 130, 246, 0.4);
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.15);
+}
+.toast.success {
+    border-color: rgba(34, 197, 94, 0.4);
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.15);
+}
 </style>
 
 <!-- ═══════════════ TOP BAR ═══════════════ -->
@@ -155,7 +198,7 @@
       
       <div style="text-align: center; background: rgba(0,0,0,.3); padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,.05); min-width: 200px;">
         <div style="font-size: 9px; color: #60a5fa; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px;">Next Auto-Apply Scan</div>
-        <div id="autopilot-countdown" style="font-size: 28px; font-weight: 800; color: #60a5fa; font-family: monospace; letter-spacing: 1px; line-height: 1;">03:00</div>
+        <div id="autopilot-countdown" style="font-size: 28px; font-weight: 800; color: #60a5fa; font-family: monospace; letter-spacing: 1px; line-height: 1;">01:15</div>
         <div id="autopilot-status" style="font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 4px;">Initializing autopilot...</div>
       </div>
     </div>
@@ -198,13 +241,14 @@
  </div>
 
  <!-- ═══════════════ COMMAND & CONTROL ═══════════════ -->
- <div class="bs-section-hdr">🎮 Command &amp; Control</div>
- <div class="bs-actions">
-   <button class="bs-btn green" onclick="bsStartAll()">▶ Start All</button>
-   <button class="bs-btn red" onclick="bsStopAll()">⏹ Stop All</button>
-   <a href="/new-campaign" class="bs-btn amber">➕ New Campaign</a>
-   <a href="/sent-emails" class="bs-btn">📊 View Reports</a>
- </div>
+  <div class="bs-section-hdr">🎮 Command &amp; Control</div>
+  <div class="bs-actions">
+    <button class="bs-btn green" onclick="bsStartAll()">▶ Start All</button>
+    <button class="bs-btn red" onclick="bsStopAll()">⏹ Stop All</button>
+    <button class="bs-btn green" style="background: linear-gradient(135deg, #10b981, #059669); border-color: rgba(16,185,129,.3);" onclick="forceScanNow()">🚀 Force Scan &amp; Apply</button>
+    <a href="/new-campaign" class="bs-btn amber">➕ New Campaign</a>
+    <a href="/sent-emails" class="bs-btn">📊 View Reports</a>
+  </div>
 
  <!-- ═══════════════ LAUNCH CTA ═══════════════ -->
  <div class="bs-cta">
@@ -362,45 +406,128 @@ function bsShowToast(msg, type) {
   const t = document.getElementById('bsToast');
   if (!t) return;
   t.textContent = msg;
-  t.className = 'toast show' + (type === 'error' ? ' error' : type === 'info' ? ' info' : '');
+  t.className = 'toast show ' + (type || 'info');
   setTimeout(function() { t.classList.remove('show'); }, 3500);
 }
+
+function setButtonsDisabled(disabled) {
+  const actions = document.querySelectorAll('.bs-actions button, .bs-actions a');
+  actions.forEach(el => {
+    if (disabled) {
+      el.style.opacity = '0.5';
+      el.style.pointerEvents = 'none';
+    } else {
+      el.style.opacity = '';
+      el.style.pointerEvents = '';
+    }
+  });
+}
+
 function bsStartAll() {
+  setButtonsDisabled(true);
   bsShowToast('Starting all campaigns...', 'info');
   fetch('/api/campaign/start-all', { method: 'POST' })
     .then(r => r.json())
     .then(data => {
+      setButtonsDisabled(false);
       if(data.success) {
-        bsShowToast('✅ ' + data.message);
+        bsShowToast('✅ ' + data.message, 'success');
         setTimeout(() => location.reload(), 1500);
       } else {
         bsShowToast('❌ Error: ' + data.error, 'error');
       }
-    }).catch(e => bsShowToast('❌ Network error', 'error'));
+    }).catch(e => {
+      setButtonsDisabled(false);
+      bsShowToast('❌ Network error', 'error');
+    });
 }
 
 function bsStopAll() {
+  setButtonsDisabled(true);
   bsShowToast('Pausing all campaigns...', 'info');
   fetch('/api/campaign/stop-all', { method: 'POST' })
     .then(r => r.json())
     .then(data => {
+      setButtonsDisabled(false);
       if(data.success) {
-        bsShowToast('✅ ' + data.message);
+        bsShowToast('✅ ' + data.message, 'success');
         setTimeout(() => location.reload(), 1500);
       } else {
         bsShowToast('❌ Error: ' + data.error, 'error');
       }
-    }).catch(e => bsShowToast('❌ Network error', 'error'));
+    }).catch(e => {
+      setButtonsDisabled(false);
+      bsShowToast('❌ Network error', 'error');
+    });
 }
 
 // Browser Autopilot Loop Implementation
-let autopilotSeconds = 180; // 3-minute cycle
+let autopilotSeconds = 75; // 75-second cycle to prevent double-ticking server's 60s cache
 let autopilotTimer = null;
+
+async function forceScanNow() {
+  const countdownEl = document.getElementById('autopilot-countdown');
+  const statusEl = document.getElementById('autopilot-status');
+  if (!countdownEl) return;
+  
+  setButtonsDisabled(true);
+  bsShowToast('Force triggering scan and application blast...', 'info');
+  clearInterval(autopilotTimer);
+  countdownEl.textContent = "00:00";
+  countdownEl.style.color = "#fbbf24";
+  statusEl.textContent = "🚀 Deploying Applications...";
+  statusEl.style.color = "#fbbf24";
+  
+  try {
+    const res = await fetch('/api/v2/cloud-tick', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ company_limit: 3, max_campaigns: 3, force: true })
+    });
+    
+    setButtonsDisabled(false);
+    if (res.ok) {
+      const data = await res.json();
+      const sent = data.sent || data.emails_sent || 0;
+      if (sent > 0) {
+        statusEl.textContent = `✅ Success! Sent ${sent} applications.`;
+        statusEl.style.color = "#4ade80";
+        countdownEl.style.color = "#4ade80";
+        bsShowToast(`✅ Success! Deployed ${sent} applications.`, 'success');
+        setTimeout(() => location.reload(), 2000);
+      } else {
+        statusEl.textContent = "🔍 Scan complete. No new matching jobs.";
+        statusEl.style.color = "#94a3b8";
+        countdownEl.style.color = "#60a5fa";
+        bsShowToast("🔍 Scan complete. No new jobs matching your profile.", 'info');
+        autopilotSeconds = 75;
+        startAutopilot();
+      }
+    } else {
+      throw new Error(`HTTP Error ${res.status}`);
+    }
+  } catch (err) {
+    setButtonsDisabled(false);
+    console.error(err);
+    statusEl.textContent = "❌ Scan timeout/failed.";
+    statusEl.style.color = "#ef4444";
+    countdownEl.style.color = "#ef4444";
+    bsShowToast('❌ Scan failed', 'error');
+    setTimeout(() => {
+      autopilotSeconds = 30; // retry quickly
+      startAutopilot();
+    }, 3000);
+  }
+}
 
 function startAutopilot() {
   const countdownEl = document.getElementById('autopilot-countdown');
   const statusEl = document.getElementById('autopilot-status');
   if (!countdownEl) return;
+
+  if (autopilotTimer) {
+    clearInterval(autopilotTimer);
+  }
 
   autopilotTimer = setInterval(async () => {
     autopilotSeconds--;
@@ -421,13 +548,21 @@ function startAutopilot() {
         
         if (res.ok) {
           const data = await res.json();
-          const sent = data.emails_sent || 0;
-          statusEl.textContent = `✅ Success! Sent ${sent} applications.`;
-          statusEl.style.color = "#4ade80";
-          countdownEl.style.color = "#4ade80";
-          
-          // Reload page to update UI list and metrics
-          setTimeout(() => location.reload(), 3000);
+          const sent = data.sent || data.emails_sent || 0;
+          if (sent > 0) {
+            statusEl.textContent = `✅ Success! Sent ${sent} applications.`;
+            statusEl.style.color = "#4ade80";
+            countdownEl.style.color = "#4ade80";
+            bsShowToast(`✅ Success! Deployed ${sent} applications.`, 'success');
+            // Reload page to update UI list and metrics
+            setTimeout(() => location.reload(), 3000);
+          } else {
+            statusEl.textContent = "🔍 Scan complete. No new matching jobs.";
+            statusEl.style.color = "#94a3b8";
+            countdownEl.style.color = "#60a5fa";
+            autopilotSeconds = 75;
+            startAutopilot();
+          }
         } else {
           throw new Error(`HTTP Error ${res.status}`);
         }

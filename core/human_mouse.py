@@ -6,7 +6,10 @@ to bypass Datadome and Cloudflare behavioral tracking.
 import math
 import random
 import time
-from typing import List, Tuple
+import logging
+from typing import Any, List, Tuple
+
+logger = logging.getLogger(__name__)
 
 class HumanMouse:
     @staticmethod
@@ -61,7 +64,7 @@ class HumanMouse:
         return path
 
     @staticmethod
-    async def simulate_mouse_movement(page, start_x: int, start_y: int, dest_x: int, dest_y: int):
+    async def simulate_mouse_movement(page: Any, start_x: int, start_y: int, dest_x: int, dest_y: int) -> None:
         """
         Simulate human mouse movement on a browser page (e.g., nodriver or playwright).
         """
@@ -69,6 +72,7 @@ class HumanMouse:
         distance = math.hypot(dest_x - start_x, dest_y - start_y)
         num_points = max(10, int(distance / 15))  # More points for longer distances
         
+        logger.info(f"Simulating mouse path from ({start_x}, {start_y}) to ({dest_x}, {dest_y}) in {num_points} points.")
         path = HumanMouse.generate_path(start_x, start_y, dest_x, dest_y, num_points)
         
         import asyncio

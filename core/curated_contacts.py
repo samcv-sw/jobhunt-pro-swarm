@@ -145,6 +145,98 @@ CURATED_CONTACTS: List[Dict] = [
     {"company": "Arista Networks", "email": "careers@arista.com", "title": "Network Engineer", "location": "Remote"},
     {"company": "Cisco Systems", "email": "careers@cisco.com", "title": "Senior Network Engineer", "location": "Remote"},
     {"company": "Huawei MENA", "email": "careers@huawei.com", "title": "Network Architect", "location": "Remote"},
+
+    # ── EUROPE - UK ──
+    {"company": "BT Group", "email": "careers@bt.com", "title": "Senior Network Engineer", "location": "London, UK"},
+    {"company": "Vodafone UK", "email": "careers@vodafone.co.uk", "title": "Network Architect", "location": "London, UK"},
+    {"company": "Sky UK", "email": "careers@sky.uk", "title": "Network Engineer", "location": "London, UK"},
+    {"company": "EE (BT)", "email": "careers@ee.co.uk", "title": "Network Infrastructure Engineer", "location": "London, UK"},
+    {"company": "TalkTalk", "email": "careers@talktalk.co.uk", "title": "Network Engineer", "location": "London, UK"},
+    {"company": "Colt Technology", "email": "careers@colt.net", "title": "Network Engineer", "location": "London, UK"},
+    {"company": "Equinix UK", "email": "careers@equinix.co.uk", "title": "Network Engineer", "location": "London, UK"},
+    {"company": "Barclays", "email": "careers@barclays.com", "title": "Network Engineer", "location": "London, UK"},
+    {"company": "HSBC", "email": "careers@hsbc.com", "title": "Senior Network Engineer", "location": "London, UK"},
+    {"company": "Amazon Web Services", "email": "careers@amazon.co.uk", "title": "Network Engineer", "location": "London, UK"},
+    {"company": "Google UK", "email": "careers@google.com", "title": "Network Engineer", "location": "London, UK"},
+    {"company": "Microsoft UK", "email": "careers@microsoft.com", "title": "Cloud Network Engineer", "location": "London, UK"},
+
+    # ── EUROPE - Germany ──
+    {"company": "Deutsche Telekom", "email": "careers@telekom.de", "title": "Senior Network Engineer", "location": "Berlin, Germany"},
+    {"company": "Siemens", "email": "careers@siemens.com", "title": "Network Engineer", "location": "Munich, Germany"},
+    {"company": "SAP", "email": "careers@sap.com", "title": "Network Infrastructure Engineer", "location": "Berlin, Germany"},
+    {"company": "T-Mobile", "email": "careers@t-mobile.de", "title": "Network Architect", "location": "Bonn, Germany"},
+    {"company": "Vodafone Germany", "email": "careers@vodafone.de", "title": "Network Engineer", "location": "Dusseldorf, Germany"},
+    {"company": "Deutsche Bank", "email": "careers@db.com", "title": "IT Network Engineer", "location": "Frankfurt, Germany"},
+    {"company": "Zalando", "email": "careers@zalando.de", "title": "Cloud Network Engineer", "location": "Berlin, Germany"},
+
+    # ── EUROPE - Netherlands ──
+    {"company": "KPN", "email": "careers@kpn.com", "title": "Network Engineer", "location": "Amsterdam, Netherlands"},
+    {"company": "VodafoneZiggo", "email": "careers@vodafoneziggo.nl", "title": "Senior Network Engineer", "location": "Amsterdam, Netherlands"},
+    {"company": "ING Group", "email": "careers@ing.com", "title": "IT Network Engineer", "location": "Amsterdam, Netherlands"},
+    {"company": "ABN AMRO", "email": "careers@abnamro.nl", "title": "Network Engineer", "location": "Amsterdam, Netherlands"},
+
+    # ── EUROPE - Ireland ──
+    {"company": "Google Ireland", "email": "careers@google.ie", "title": "Network Engineer", "location": "Dublin, Ireland"},
+    {"company": "Meta Ireland", "email": "careers@meta.com", "title": "Network Engineer", "location": "Dublin, Ireland"},
+    {"company": "Microsoft Ireland", "email": "careers@microsoft.ie", "title": "Cloud Network Engineer", "location": "Dublin, Ireland"},
+    {"company": "Amazon Dublin", "email": "careers@amazon.ie", "title": "Network Engineer", "location": "Dublin, Ireland"},
+    {"company": "Vodafone Ireland", "email": "careers@vodafone.ie", "title": "Network Engineer", "location": "Dublin, Ireland"},
+    {"company": "Eir Telecom", "email": "careers@eir.ie", "title": "Senior Network Engineer", "location": "Dublin, Ireland"},
+
+    # ── EUROPE - Poland ──
+    {"company": "Orange Poland", "email": "careers@orange.pl", "title": "Network Engineer", "location": "Warsaw, Poland"},
+    {"company": "T-Mobile Poland", "email": "careers@t-mobile.pl", "title": "Network Engineer", "location": "Warsaw, Poland"},
+    {"company": "Play Telecom", "email": "careers@play.pl", "title": "Network Engineer", "location": "Warsaw, Poland"},
+
+    # ── EUROPE - Spain ──
+    {"company": "Telefonica", "email": "careers@telefonica.com", "title": "Senior Network Engineer", "location": "Madrid, Spain"},
+    {"company": "Vodafone Spain", "email": "careers@vodafone.es", "title": "Network Engineer", "location": "Madrid, Spain"},
+    {"company": "Orange Spain", "email": "careers@orange.es", "title": "Network Engineer", "location": "Madrid, Spain"},
+
+    # ── EUROPE - Portugal ──
+    {"company": "Altice Portugal", "email": "careers@altice.pt", "title": "Network Engineer", "location": "Lisbon, Portugal"},
+    {"company": "NOS Telecom", "email": "careers@nos.pt", "title": "Network Engineer", "location": "Lisbon, Portugal"},
+    {"company": "Vodafone Portugal", "email": "careers@vodafone.pt", "title": "Network Engineer", "location": "Lisbon, Portugal"},
+
+    # ── TURKEY ──
+    {"company": "Turk Telekom", "email": "careers@turktelekom.com.tr", "title": "Senior Network Engineer", "location": "Istanbul, Turkey"},
+    {"company": "Turkcell", "email": "careers@turkcell.com.tr", "title": "Network Engineer", "location": "Istanbul, Turkey"},
+    {"company": "Vodafone Turkey", "email": "careers@vodafone.com.tr", "title": "Network Engineer", "location": "Istanbul, Turkey"},
+    {"company": "Türksat", "email": "careers@turksat.com.tr", "title": "Network Engineer", "location": "Ankara, Turkey"},
+
+    # ── ASIA - Singapore ──
+    {"company": "Singtel", "email": "careers@singtel.com", "title": "Senior Network Engineer", "location": "Singapore"},
+    {"company": "StarHub", "email": "careers@starhub.com", "title": "Network Engineer", "location": "Singapore"},
+    {"company": "M1 Singapore", "email": "careers@m1.com.sg", "title": "Network Engineer", "location": "Singapore"},
+    {"company": "Google Singapore", "email": "careers@google.com.sg", "title": "Network Engineer", "location": "Singapore"},
+    {"company": "Meta Singapore", "email": "careers@meta.com.sg", "title": "Network Engineer", "location": "Singapore"},
+
+    # ── ASIA - India ──
+    {"company": "Tata Communications", "email": "careers@tatacommunications.com", "title": "Senior Network Engineer", "location": "Mumbai, India"},
+    {"company": "Reliance Jio", "email": "careers@jio.com", "title": "Network Engineer", "location": "Mumbai, India"},
+    {"company": "Airtel", "email": "careers@airtel.com", "title": "Network Engineer", "location": "Bangalore, India"},
+    {"company": "TCS", "email": "careers@tcs.com", "title": "Network Engineer", "location": "Bangalore, India"},
+    {"company": "Infosys", "email": "careers@infosys.com", "title": "Network Engineer", "location": "Bangalore, India"},
+    {"company": "Wipro", "email": "careers@wipro.com", "title": "Network Engineer", "location": "Bangalore, India"},
+    {"company": "HCL Tech", "email": "careers@hcltech.com", "title": "Network Engineer", "location": "Noida, India"},
+    {"company": "Tech Mahindra", "email": "careers@techmahindra.com", "title": "Network Engineer", "location": "Pune, India"},
+
+    # ── SD-WAN / SASE / Cloud Networking Companies ──
+    {"company": "VMware (Broadcom)", "email": "careers@vmware.com", "title": "SD-WAN Engineer", "location": "Remote"},
+    {"company": "Fortinet", "email": "careers@fortinet.com", "title": "SD-WAN Engineer", "location": "Remote"},
+    {"company": "Zscaler", "email": "careers@zscaler.com", "title": "SASE Engineer", "location": "Remote"},
+    {"company": "Cloudflare", "email": "careers@cloudflare.com", "title": "Zero Trust Engineer", "location": "Remote"},
+    {"company": "Netskope", "email": "careers@netskope.com", "title": "SASE Engineer", "location": "Remote"},
+    {"company": "Cato Networks", "email": "careers@catonetworks.com", "title": "SD-WAN Engineer", "location": "Remote"},
+    {"company": "Versa Networks", "email": "careers@versa-networks.com", "title": "SD-WAN Engineer", "location": "Remote"},
+    {"company": "Silver Peak (HPE)", "email": "careers@hpe.com", "title": "SD-WAN Engineer", "location": "Remote"},
+    {"company": "Check Point", "email": "careers@checkpoint.com", "title": "Network Security Engineer", "location": "Remote"},
+    {"company": "F5 Networks", "email": "careers@f5.com", "title": "Network Engineer", "location": "Remote"},
+    {"company": "Akamai", "email": "careers@akamai.com", "title": "Network Engineer", "location": "Remote"},
+    {"company": "Fastly", "email": "careers@fastly.com", "title": "Network Engineer", "location": "Remote"},
+    {"company": "DigitalOcean", "email": "careers@digitalocean.com", "title": "Network Engineer", "location": "Remote"},
+    {"company": "Hetzner", "email": "careers@hetzner.com", "title": "Network Engineer", "location": "Remote"},
+    {"company": "OVHcloud", "email": "careers@ovhcloud.com", "title": "Network Engineer", "location": "Remote"},
 ]
 
 

@@ -6,7 +6,10 @@ import asyncio
 import httpx
 import random
 import time
-from typing import List, Dict, Optional
+import logging
+from typing import Any, List, Dict, Optional
+
+logger = logging.getLogger(__name__)
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
@@ -43,12 +46,12 @@ class HHRUScraper:
             jobs = await scraper.search(["Network Engineer"], country="lebanon", pages=3)
     """
 
-    def __init__(self, proxy_url: Optional[str] = None):
+    def __init__(self, proxy_url: Optional[str] = None) -> None:
         self.proxy = proxy_url
         self._last: float = 0.0
         self._sess: Optional[httpx.AsyncClient] = None
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> 'HHRUScraper':
         self._sess = httpx.AsyncClient(
             timeout=30.0,
             follow_redirects=True,
@@ -57,11 +60,11 @@ class HHRUScraper:
         )
         return self
 
-    async def __aexit__(self, *args):
+    async def __aexit__(self, *args: Any) -> None:
         if self._sess:
             await self._sess.aclose()
 
-    async def _throttle(self):
+    async def _throttle(self) -> None:
         """Rate-limit requests to respect hh.ru API policy."""
         elapsed = time.time() - self._last
         delay = random.uniform(MIN_DELAY, MAX_DELAY)
@@ -87,7 +90,7 @@ class HHRUScraper:
         keywords: str = "",
         pages: int = 3,
         per_page: int = 50,
-    ) -> List[Dict]:
+    ) -> List[Dict[str, Any]]:
         """Search hh.ru vacancies.
 
         Args:
@@ -131,12 +134,13 @@ class HHRUScraper:
                     headers={"User-Agent": self._ua()},
                 )
                 if r.status_code == 429:
+                    logger.warning("hh.ru rate limit (429) hit, sleeping for 60s...")
                     await asyncio.sleep(60)
                     continue
                 r.raise_for_status()
                 data = r.json()
             except Exception as e:
-                print(f"hh.ru err page {page_num}: {e}")
+                logger.error(f"hh.ru error on page {page_num}: {e}", exc_info=True)
                 continue
 
             items = data.get("items", [])
@@ -196,7 +200,7 @@ class HHRUScraper:
 
         return jobs
 
-    async def get_vacancy_detail(self, vacancy_id: str) -> Optional[Dict]:
+    async def get_vacancy_detail(self, vacancy_id: str) -> Optional[Dict[str, Any]]:
         """Fetch full details for a single vacancy."""
         if not self._sess:
             raise RuntimeError("Use 'async with HHRUScraper() as scraper:' context manager")
@@ -208,10 +212,11 @@ class HHRUScraper:
                 headers={"User-Agent": self._ua()},
             )
             if r.status_code == 429:
+                logger.warning("hh.ru rate limit (429) hit on vacancy detail, sleeping for 60s...")
                 await asyncio.sleep(60)
                 return None
             r.raise_for_status()
             return r.json()
         except Exception as e:
-            print(f"hh.ru vacancy detail err {vacancy_id}: {e}")
+            logger.error(f"hh.ru vacancy detail error for ID {vacancy_id}: {e}", exc_info=True)
             return None

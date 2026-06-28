@@ -294,8 +294,23 @@ class PAJobScraper:
                 if isinstance(data, dict) and "content" in data:
                     content = data["content"]
                     if content:
-                        logger.info(f"[PAJobScraper] Successfully fetched {len(content)} bytes via Worker.")
-                        return content
+                        content_lower = content.lower()
+                        block_indicators = [
+                            "cf-challenge", 
+                            "cf-cookie-error",
+                            "cf-browser-verification", 
+                            "attention required! | cloudflare",
+                            "cloudflare ray id",
+                            "ray id:",
+                            "captcha-bypass",
+                            "hcaptcha",
+                            "recaptcha"
+                        ]
+                        if any(ind in content_lower for ind in block_indicators):
+                            logger.warning(f"[PAJobScraper] Worker request for {url} returned a Cloudflare block page. Falling back to direct request.")
+                        else:
+                            logger.info(f"[PAJobScraper] Successfully fetched {len(content)} bytes via Worker.")
+                            return content
                 if isinstance(data, dict) and "error" in data:
                     logger.warning(f"[PAJobScraper] Worker scrape returned error: {data['error']}")
         except Exception as e:
@@ -926,83 +941,39 @@ class PAJobScraper:
             logger.info(f"  [{label}] +{added} jobs (total: {len(all_jobs)})")
             return added
 
-        # Phase 1: JSearch API (3 queries — conserve quota)
-        logger.info("=== PAJobScraper v3 GLOBAL: Phase 1 — JSearch ===")
-        jsearch_jobs = self.search_jsearch(max_total=max_jobs, query=query, location=location)
-        _add_jobs(jsearch_jobs, "JSearch")
+        # Phase 1: Free sources run concurrently via ThreadPoolExecutor
+        logger.info("=== PAJobScraper v3 GLOBAL: Phase 1 — Concurrent Free Scrapers ===")
+        from concurrent.futures import ThreadPoolExecutor, as_completed
 
-        # OPT#1: Early-exit if JSearch delivered enough (skip hh.ru, Indeed RSS, Glassdoor)
-        if len(all_jobs) >= 15:
-            logger.info(f"PAJobScraper: JSearch delivered {len(all_jobs)} jobs — skipping remaining sources")
-            if all_jobs:
-                _save_cache(all_jobs)
-            return all_jobs[:max_jobs]
+        free_scrapers = {
+            "Remotive": lambda: self.search_remotive(max_jobs=20, query=query),
+            "Arbeitnow": lambda: self.search_arbeitnow(max_jobs=20, query=query),
+            "hhru": lambda: self.search_hhru(max_jobs=80, query=query, location=location),
+            "IndeedRSS": lambda: self.search_indeed_rss(max_jobs=50, query=query, location=location),
+            "Glassdoor": lambda: self.search_glassdoor(max_jobs=30, query=query, location=location),
+            "LinkedInXHR": lambda: self.search_linkedin_xhr(max_jobs=50, query=query, location=location),
+        }
 
-        # Phase 2: Remotive (WORLDWIDE remote jobs — FREE, no key)
+        with ThreadPoolExecutor(max_workers=len(free_scrapers)) as executor:
+            future_to_label = {executor.submit(func): label for label, func in free_scrapers.items()}
+            for future in as_completed(future_to_label):
+                label = future_to_label[future]
+                try:
+                    jobs = future.result()
+                    _add_jobs(jobs, label)
+                except Exception as e:
+                    logger.warning(f"{label} search failed concurrently: {e}")
+
+        # Phase 2: Fallback to JSearch API only if free sources did not yield enough jobs (conserve quota)
         if len(all_jobs) < 15:
-            logger.info("=== PAJobScraper v3 GLOBAL: Phase 2 — Remotive (worldwide remote) ===")
+            logger.info("=== PAJobScraper v3 GLOBAL: Phase 2 — JSearch API Fallback ===")
             try:
-                remotive_jobs = self.search_remotive(max_jobs=20, query=query)
-                _add_jobs(remotive_jobs, "Remotive")
+                jsearch_jobs = self.search_jsearch(max_total=max_jobs, query=query, location=location)
+                _add_jobs(jsearch_jobs, "JSearch")
             except Exception as e:
-                logger.warning(f"Remotive search failed: {e}")
+                logger.warning(f"JSearch fallback failed: {e}")
         else:
-            logger.info(f"=== PAJobScraper v3: Skipping Remotive ({len(all_jobs)} jobs already) ===")
-
-        # Phase 2b: Arbeitnow (EUROPE jobs — FREE, no key)
-        if len(all_jobs) < 15:
-            logger.info("=== PAJobScraper v3 GLOBAL: Phase 3 — Arbeitnow (Europe) ===")
-            try:
-                arbeitnow_jobs = self.search_arbeitnow(max_jobs=20, query=query)
-                _add_jobs(arbeitnow_jobs, "Arbeitnow")
-            except Exception as e:
-                logger.warning(f"Arbeitnow search failed: {e}")
-        else:
-            logger.info(f"=== PAJobScraper v3: Skipping Arbeitnow ({len(all_jobs)} jobs already) ===")
-
-        # Phase 4: hh.ru FREE REST API (Russia/CIS — unlimited, no key)
-        if len(all_jobs) < 15:
-            logger.info("=== PAJobScraper v3 GLOBAL: Phase 4 — hh.ru ===")
-            try:
-                hhru_jobs = self.search_hhru(max_jobs=80, query=query, location=location)
-                _add_jobs(hhru_jobs, "hhru")
-            except Exception as e:
-                logger.warning(f"hh.ru search failed: {e}")
-        else:
-            logger.info(f"=== PAJobScraper v3: Skipping hh.ru ({len(all_jobs)} jobs already, target hit) ===")
-
-        # Phase 5: Indeed RSS (FREE XML — no blocks)
-        if len(all_jobs) < 15:
-            logger.info("=== PAJobScraper v3 GLOBAL: Phase 5 — Indeed RSS ===")
-            try:
-                indeed_jobs = self.search_indeed_rss(max_jobs=50, query=query, location=location)
-                _add_jobs(indeed_jobs, "IndeedRSS")
-            except Exception as e:
-                logger.warning(f"Indeed RSS search failed: {e}")
-        else:
-            logger.info(f"=== PAJobScraper v3: Skipping Indeed RSS ({len(all_jobs)} jobs already) ===")
-
-        # Phase 6: Glassdoor (FREE — best effort)
-        if len(all_jobs) < 15:
-            logger.info("=== PAJobScraper v3 GLOBAL: Phase 6 — Glassdoor ===")
-            try:
-                glassdoor_jobs = self.search_glassdoor(max_jobs=30, query=query, location=location)
-                _add_jobs(glassdoor_jobs, "Glassdoor")
-            except Exception as e:
-                logger.warning(f"Glassdoor search failed: {e}")
-        else:
-            logger.info(f"=== PAJobScraper v3: Skipping Glassdoor ({len(all_jobs)} jobs already) ===")
-
-        # Phase 7: LinkedIn XHR (free, no auth)
-        if len(all_jobs) < 15:
-            logger.info("=== PAJobScraper v3 GLOBAL: Phase 7 — LinkedIn XHR ===")
-            try:
-                li_jobs = self.search_linkedin_xhr(max_jobs=50, query=query, location=location)
-                _add_jobs(li_jobs, "LinkedInXHR")
-            except Exception as e:
-                logger.warning(f"LinkedIn XHR search failed: {e}")
-        else:
-            logger.info(f"=== PAJobScraper v3: Skipping LinkedIn XHR ({len(all_jobs)} jobs already) ===")
+            logger.info(f"=== PAJobScraper v3: Skipping JSearch ({len(all_jobs)} jobs retrieved from free sources) ===")
 
         # Save to cache
         if all_jobs:

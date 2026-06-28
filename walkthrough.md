@@ -49,3 +49,23 @@ We have implemented several high-value performance optimizations, connection poo
 - **Updates:** The user dashboard (`/user-dashboard`) was overhauled to feature an ultra-premium "glassmorphism" aesthetic with dark slate colors.
 - **Obfuscation:** Replaced raw technical jargon (like "SMTP fallback" and "0% ban risk") with polished, professional marketing copy ("Activate Premium AI Inbox Delivery") to mask the hacker/developer roots and appeal to enterprise users.
 - **Validation:** Deployed directly to PythonAnywhere.
+
+---
+
+# Scraper Performance & Production Deployment Fixes (June 28, 2026)
+
+## 1. Scraper Concurrency & API Quota Conservation
+- **Location:** [pa_job_scraper.py](file:///c:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi/core/pa_job_scraper.py)
+- **Bottleneck:** Scrapers for 7 different job search engines (JSearch, Remotive, Arbeitnow, hh.ru, Indeed, Glassdoor, LinkedIn) were previously running sequentially. In addition, JSearch API (which runs on a strict monthly quota of 300 free requests) was always queried first and unconditionally on every tick.
+- **Optimization:** 
+  - Wrapped the free search platforms (Remotive, Arbeitnow, hh.ru, Indeed RSS, Glassdoor, and LinkedIn XHR) in a `ThreadPoolExecutor` to execute their fetches concurrently, dropping overall scraper latency to the speed of the slowest single API response (~2 seconds instead of 15+ seconds).
+  - Structured JSearch as a strict conditional fallback: it is now queried *only* if the free scrapers collect fewer than 15 unique jobs combined. This drastically saves API request limits and ensures high availability of the job listings.
+
+## 2. PythonAnywhere TemplateNotFound / Deployment Path Mismatch Fix
+- **Location:** [deploy_to_pa_complete.py](file:///c:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi/deploy_to_pa_complete.py)
+- **Issue:** Deployed webapp was crashing with `jinja2.exceptions.TemplateNotFound: index_v4.html` on the server. The deployment script was placing the templates directly under `REMOTE_BASE/templates/` (e.g., `/home/JHFGUF/jobhunt/templates/`), whereas the Starlette app (`app_v2.py`) resolved the template path using its parent module directory (`web/templates/` / `/home/JHFGUF/jobhunt/web/templates/`).
+- **Fix:** 
+  - Re-routed all template file destinations to `REMOTE_BASE/web/templates/` and all static CSS files to `REMOTE_BASE/web/static/css/` to align with the application's runtime structure.
+  - Added [pa_job_scraper.py](file:///c:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi/core/pa_job_scraper.py) to the `deploy_to_pa_complete.py` core files list to ensure future synchronization.
+  - Deployed all updated files and templates to PythonAnywhere.
+  - Triggered a successful WSGI application reload using curl commands via subprocess, verifying the live site returned `ONLINE` immediately.

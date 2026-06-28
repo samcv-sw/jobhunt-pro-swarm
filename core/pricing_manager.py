@@ -181,33 +181,65 @@ CHECKOUT_BOUQUET_MAPPING = {
 def get_unlocked_features(user_id: str) -> set:
     """Return the set of feature IDs unlocked by user's purchases (services + bouquets)."""
     unlocked = set()
-    try:
-        from database import SessionLocal
-        db = SessionLocal()
+    import os
+    import sys
+    from pathlib import Path
+    
+    if os.getenv("FORCE_PG") == "1" or os.getenv("CLOUD_MODE") == "true":
         try:
-            purchases = db.execute(
-                db.text("SELECT package_id, service_type FROM purchased_services WHERE user_id = :uid AND status = 'active'"),
-                {"uid": user_id}
-            ).fetchall()
-            for p in purchases:
-                pid = p[0]
-                stype = p[1]
-                
-                # Apply checkout mappings first, falling back to direct names
-                if stype == "service":
-                    if pid in CHECKOUT_SERVICE_MAPPING:
-                        unlocked.update(CHECKOUT_SERVICE_MAPPING[pid])
-                    else:
-                        unlocked.add(pid)
-                elif stype == "bouquet":
-                    if pid in CHECKOUT_BOUQUET_MAPPING:
-                        unlocked.update(CHECKOUT_BOUQUET_MAPPING[pid])
-                    elif pid in BOUQUET_FEATURES:
-                        unlocked.update(BOUQUET_FEATURES[pid])
-        finally:
-            db.close()
+            import core.pg_sqlite_shim as sqlite3
+        except ImportError:
+            import sqlite3
+    else:
+        import sqlite3
+
+    db_path = "jobhunt_saas_v2.db"
+    try:
+        root_dir = str(Path(__file__).resolve().parent.parent)
+        if root_dir not in sys.path:
+            sys.path.insert(0, root_dir)
+        import config
+        db_path = getattr(config, "DB_PATH", "jobhunt_saas_v2.db")
     except Exception:
         pass
+
+    if not os.path.isabs(db_path):
+        db_path = os.path.join(str(Path(__file__).resolve().parent.parent), db_path)
+
+    if not os.path.exists(db_path):
+        db_path = "jobhunt_saas_v2.db"
+
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path, timeout=10)
+        conn.row_factory = sqlite3.Row
+        purchases = conn.execute(
+            "SELECT package_id, service_type FROM purchased_services WHERE user_id = ? AND status = 'active'",
+            (user_id,)
+        ).fetchall()
+        for p in purchases:
+            pid = p["package_id"]
+            stype = p["service_type"]
+            
+            # Apply checkout mappings first, falling back to direct names
+            if stype == "service":
+                if pid in CHECKOUT_SERVICE_MAPPING:
+                    unlocked.update(CHECKOUT_SERVICE_MAPPING[pid])
+                else:
+                    unlocked.add(pid)
+            elif stype == "bouquet":
+                if pid in CHECKOUT_BOUQUET_MAPPING:
+                    unlocked.update(CHECKOUT_BOUQUET_MAPPING[pid])
+                elif pid in BOUQUET_FEATURES:
+                    unlocked.update(BOUQUET_FEATURES[pid])
+    except Exception as e:
+        logger.error(f"[pricing_manager] Failed to query purchased services for {user_id}: {e}")
+    finally:
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
     return unlocked
 
 

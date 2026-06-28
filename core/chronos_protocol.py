@@ -28,39 +28,43 @@ SIMULATED_POSTS = [
     "Most enterprise software is bloated. We need smaller, more elite teams building faster."
 ]
 
-def hijack_algorithm():
-    """Main loop for the Chronos Protocol."""
-    logger.info("Initializing Chronos Protocol (0-Second Algorithmic Hijack Tracker)...")
-    
-    # 1. Detect Post
-    target = random.choice(TARGET_INFLUENCERS)
-    post_content = random.choice(SIMULATED_POSTS)
-    
-    logger.info(f"📡 RADAR TRIGGERED: {target['name']} just posted on {target['platform']}!")
-    logger.info(f"Original Post: \"{post_content}\"")
-    
-    # 2. Millisecond AI Response Generation
-    logger.info("Analyzing intent and generating payload... (0.1ms)")
-    
-    ai_reply = f"""
+def hijack_algorithm() -> bool:
+    """Main loop for the Chronos Protocol. Returns True on success."""
+    try:
+        logger.info("Initializing Chronos Protocol (0-Second Algorithmic Hijack Tracker)...")
+
+        # 1. Detect Post
+        target = random.choice(TARGET_INFLUENCERS)
+        post_content = random.choice(SIMULATED_POSTS)
+
+        logger.info(f"📡 RADAR TRIGGERED: {target['name']} just posted on {target['platform']}!")
+        logger.info(f"Original Post: \"{post_content}\"")
+
+        # 2. Millisecond AI Response Generation
+        logger.info("Analyzing intent and generating payload... (0.1ms)")
+
+        ai_reply = f"""
     Exactly, @{target['name'].replace(' ', '')}. That's why we completely destroyed the traditional hiring cycle. 
     We built an AI Swarm that hooks you up with pre-vetted elite engineers operating in Zero-Trust Cloud Enclaves. 
     You don't hire them; you 'Acquire' them instantly like stock.
     See the Sovereign Board here: https://t.me/JobHuntProBot
     """
-    
-    # 3. Strike
-    logger.info(f"⚡ STRIKE DEPLOYED. Time elapsed: 0.43 seconds.")
-    logger.info(f"Payload (First Comment Locked): {ai_reply.strip()}")
-    
-    # 4. Profit Simulation
-    logger.info("==================================================")
-    logger.info(f"⏱️ CHRONOS HIJACK SUCCESSFUL.")
-    logger.info(f"Status: Locked as Top Comment on a post with {target['audience_size']} potential impressions.")
-    logger.info("Funnelling massive organic B2B traffic to the Genesis Protocol for $0 Ad Spend.")
-    logger.info("==================================================")
-    
-    return True
+
+        # 3. Strike
+        logger.info(f"⚡ STRIKE DEPLOYED. Time elapsed: 0.43 seconds.")
+        logger.info(f"Payload (First Comment Locked): {ai_reply.strip()}")
+
+        # 4. Profit Simulation
+        logger.info("==================================================")
+        logger.info(f"⏱️ CHRONOS HIJACK SUCCESSFUL.")
+        logger.info(f"Status: Locked as Top Comment on a post with {target['audience_size']} potential impressions.")
+        logger.info("Funnelling massive organic B2B traffic to the Genesis Protocol for $0 Ad Spend.")
+        logger.info("==================================================")
+
+        return True
+    except Exception as e:
+        logger.error(f"[CHRONOS] Protocol execution failed: {e}", exc_info=True)
+        return False
 
 if __name__ == "__main__":
     hijack_algorithm()

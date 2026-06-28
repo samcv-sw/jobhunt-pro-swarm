@@ -6,8 +6,12 @@ Zero API calls — all data pre-researched and ready.
 import sqlite3
 import os
 import uuid
+import logging
 from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List
+
+logger = logging.getLogger(__name__)
 
 def _get_db_path() -> str:
     db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")
@@ -128,15 +132,13 @@ RITA_COMPANIES = [
     ("Contact Lebanon", "BPO/Call Center", "Beirut", "recruitment@contact.com.lb", "contact.com.lb", 80),
     ("CME Offshore", "Technology", "Beirut", "careers@cmeoffshore.com", "cmeoffshore.com", 85),
     ("Berytech", "Technology Hub", "Beirut", "info@berytech.org", "berytech.org", 82),
-    ("Touch Lebanon", "Telecom", "Beirut", "careers@touch.com.lb", "touch.com.lb", 85),
-    ("Alfa Telecom", "Telecom", "Beirut", "careers@alfa.com.lb", "alfa.com.lb", 85),
-    ("Ogero Telecom", "Telecom", "Beirut", "info@ogero.gov.lb", "ogero.gov.lb", 80),
-    ("Metropolitan Group", "Real Estate", "Beirut", "hr@metropolitan.com.lb", "metropolitan.com.lb", 78),
-    ("Murex", "Financial Software", "Beirut", "careers@murex.com", "murex.com", 92),
-]
-
-def seed_all_companies():
-    """Seed both Sam and Rita companies into the database."""
+    ("Toucdef seed_all_companies() -> Dict[str, Any]:
+    """Seed both Sam and Rita companies into the database.
+    
+    Creates the lebanon_companies table if it does not exist, and inserts pre-verified
+    records for role types 'tech' and 'hr'.
+    """
+    logger.info("Starting Lebanon Company database seeding...")
     db_path = _get_db_path()
     conn = sqlite3.connect(db_path, timeout=30)
     conn.row_factory = sqlite3.Row
@@ -171,8 +173,8 @@ def seed_all_companies():
                 """, (name, industry, location, email, website, score))
                 if conn.changes > 0:
                     sam_count += 1
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to insert tech company {name}: {e}")
         conn.commit()
         
         # Insert Rita's companies
@@ -185,8 +187,8 @@ def seed_all_companies():
                 """, (name, industry, location, email, website, score))
                 if conn.changes > 0:
                     rita_count += 1
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to insert HR company {name}: {e}")
         conn.commit()
         
         # Count totals
@@ -194,6 +196,7 @@ def seed_all_companies():
         tech = conn.execute("SELECT COUNT(*) FROM lebanon_companies WHERE target_role_type='tech'").fetchone()[0]
         hr = conn.execute("SELECT COUNT(*) FROM lebanon_companies WHERE target_role_type='hr'").fetchone()[0]
         
+        logger.info(f"Seeding completed: {sam_count} tech, {rita_count} HR companies inserted.")
         return {
             "status": "ok",
             "sam_companies_seeded": sam_count,
@@ -203,12 +206,23 @@ def seed_all_companies():
             "hr_companies": hr,
             "database": db_path,
         }
-        
+    except Exception as e:
+        logger.error(f"Error during company database seeding: {e}", exc_info=True)
+        return {
+            "status": "error",
+            "error": str(e),
+            "sam_companies_seeded": 0,
+            "rita_companies_seeded": 0,
+            "total_in_db": 0,
+            "tech_companies": 0,
+            "hr_companies": 0,
+            "database": db_path,
+        }
     finally:
         conn.close()
 
-def get_companies_for_role_type(role_type: str = "tech", limit: int = 50) -> list:
-    """Get pre-seeded companies for a role type."""
+def get_companies_for_role_type(role_type: str = "tech", limit: int = 50) -> List[Dict[str, Any]]:
+    """Get pre-seeded companies for a given role type (e.g., 'tech' or 'hr')."""
     db_path = _get_db_path()
     conn = sqlite3.connect(db_path, timeout=30)
     conn.row_factory = sqlite3.Row
@@ -220,11 +234,14 @@ def get_companies_for_role_type(role_type: str = "tech", limit: int = 50) -> lis
             LIMIT ?
         """, (role_type, limit)).fetchall()
         return [dict(r) for r in rows]
+    except Exception as e:
+        logger.error(f"Failed to query companies for role type '{role_type}': {e}")
+        return []
     finally:
         conn.close()
 
-def get_companies_count() -> dict:
-    """Get company count stats."""
+def get_companies_count() -> Dict[str, int]:
+    """Get company count statistics."""
     db_path = _get_db_path()
     conn = sqlite3.connect(db_path, timeout=30)
     try:
@@ -232,11 +249,19 @@ def get_companies_count() -> dict:
         tech = conn.execute("SELECT COUNT(*) FROM lebanon_companies WHERE target_role_type='tech'").fetchone()[0]
         hr = conn.execute("SELECT COUNT(*) FROM lebanon_companies WHERE target_role_type='hr'").fetchone()[0]
         return {"total": total, "tech": tech, "hr": hr}
+    except Exception as e:
+        logger.error(f"Failed to query companies count: {e}")
+        return {"total": 0, "tech": 0, "hr": 0}
     finally:
         conn.close()
 
 if __name__ == "__main__":
+    # Setup basic logging to console when run directly
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
     result = seed_all_companies()
-    print(f"✅ Seeded: {result['sam_companies_seeded']} tech + {result['rita_companies_seeded']} HR")
-    print(f"   Total in DB: {result['total_in_db']}")
-    print(f"   Tech: {result['tech_companies']} | HR: {result['hr_companies']}")
+    if result["status"] == "ok":
+        print(f"✅ Seeded: {result['sam_companies_seeded']} tech + {result['rita_companies_seeded']} HR")
+        print(f"   Total in DB: {result['total_in_db']}")
+        print(f"   Tech: {result['tech_companies']} | HR: {result['hr_companies']}")
+    else:
+        print(f"❌ Seeding failed: {result.get('error')}")

@@ -72,22 +72,22 @@ class ATSOptimizationResult:
 SYSTEM_KEYWORD_EXTRACTOR = """You are an expert ATS keyword extraction specialist. Your job is to analyze a job description and extract ALL critical keywords, skills, certifications, tools, and technologies mentioned.
 
 Rules:
-1. Extract ALL technical skills (languages, frameworks, tools, platforms)
+1. Extract ALL technical skills (languages, frameworks, tools, platforms) — including modern networking technologies like SD-WAN, SASE, ZTNA, Zero Trust, VXLAN, EVPN, Segment Routing, Network Automation, NetDevOps, SDN, NFV, Cloud Networking, Kubernetes, Docker, Terraform, Ansible, Prometheus, Grafana, ELK Stack, Splunk, etc.
 2. Extract ALL soft skills mentioned
-3. Extract ALL certifications and qualifications
-4. Extract ALL domain-specific terminology
+3. Extract ALL certifications and qualifications (CCNA, CCNP, CCIE, NSE, AWS, Azure, GCP, ITIL, etc.)
+4. Extract ALL domain-specific terminology (MPLS, BGP, OSPF, VPN, IPSec, Firewalls, Load Balancing, QoS, Multicast, IPv6, etc.)
 5. Categorize keywords into: technical_skills, soft_skills, certifications, tools, domain_knowledge
 6. Be exhaustive — missing a keyword costs the candidate a lower ATS score
 7. Return ONLY valid JSON, no markdown, no code fences
 
 Return format:
 {
-  "technical_skills": ["Cisco", "BGP", "OSPF"],
-  "soft_skills": ["leadership", "communication"],
-  "certifications": ["CCNA", "CCNP"],
-  "tools": ["Wireshark", "PRTG"],
-  "domain_knowledge": ["MPLS", "VPN"],
-  "all_keywords": ["Cisco", "BGP", "OSPF", "leadership", ...]
+  "technical_skills": ["Cisco", "BGP", "OSPF", "SD-WAN", "SASE", "Zero Trust", "Python", "Ansible"],
+  "soft_skills": ["leadership", "communication", "team management"],
+  "certifications": ["CCNA", "CCNP", "NSE", "AWS Certified"],
+  "tools": ["Wireshark", "PRTG", "Splunk", "Prometheus", "Grafana"],
+  "domain_knowledge": ["MPLS", "VPN", "SD-WAN", "Cloud Networking", "Network Security"],
+  "all_keywords": ["Cisco", "BGP", "OSPF", "SD-WAN", "leadership", ...]
 }"""
 
 SYSTEM_RESUME_OPTIMIZER = """You are an expert ATS resume optimizer. Your job is to rewrite sections of a candidate's resume to maximize match with specific keywords from a job description.
@@ -95,19 +95,20 @@ SYSTEM_RESUME_OPTIMIZER = """You are an expert ATS resume optimizer. Your job is
 Rules:
 1. Preserve the candidate's actual experience — NEVER fabricate skills, certifications, or experience
 2. Naturally weave the target keywords into existing content where contextually appropriate
-3. Rephrase bullet points to use exact phrasing from the JD (e.g., "led team" → "led cross-functional team" if JD says that)
+3. Rephrase bullet points to use exact phrasing from the JD (e.g., "managed network" → "designed and deployed SD-WAN solution" if JD says that)
 4. Prioritize keywords that appear multiple times in the job description
 5. Keep all content truthful, factual, and verifiable
 6. Maintain professional tone and readability
 7. For each section, track which keywords you injected
 8. Return ONLY valid JSON — no markdown, no code fences
+9. IMPORTANT: The candidate has 15+ years of enterprise networking experience including SD-WAN, SASE, ZTNA, Zero Trust, cloud networking (AWS/Azure/GCP), network automation (Python/Ansible/Terraform), security (FortiGate/Palo Alto), data center, and multi-site MPLS/VPN. Use this context to naturally align with JD keywords.
 
 Return format:
 {
   "sections": [
     {
       "section_name": "Professional Summary",
-      "optimized_text": "Senior Network Engineer with 15+ years...",
+      "optimized_text": "Senior Network Engineer with 15+ years designing enterprise networks, SD-WAN, cloud, and security...",
       "injected_keywords": ["keyword1", "keyword2"]
     }
   ],
