@@ -128,6 +128,11 @@
   position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
   background: radial-gradient(circle at 50% 0%, rgba(99,102,241,0.06), transparent 60%);
   pointer-events: none;
+  z-index: 0;
+}
+.pricing-card-v3 > *:not(.card-glow) {
+  position: relative;
+  z-index: 2;
 }
 
 /* ── Badges ── */
@@ -147,13 +152,13 @@
   font-size: 10px; color: var(--text-muted);
   text-transform: uppercase; letter-spacing: 3px; margin-bottom: 8px;
 }
-.pricing-card-v3 h3 { font-size: 22px; font-weight: 700; margin-bottom: 14px; }
+.pricing-card-v3 h3 { font-size: 22px; font-weight: 700; margin-bottom: 14px; color: var(--text-main); }
 .companies-v3 {
-  font-size: 44px; font-weight: 800; color: var(--accent-primary); line-height: 1;
+  font-size: 44px; font-weight: 800; color: var(--accent-primary); line-height: 1; text-shadow: var(--shadow-glow-primary);
 }
-.companies-v3 span { font-size: 13px; color: var(--text-muted); font-weight: 400; }
+.companies-v3 span { font-size: 13px; color: var(--text-muted); font-weight: 400; text-shadow: none; }
 .price-v3 {
-  font-size: 36px; font-weight: 800; margin: 14px 0 4px;
+  font-size: 36px; font-weight: 800; margin: 14px 0 4px; color: var(--text-main);
 }
 .price-v3.free { color: var(--accent-success); }
 .price-v3 span { font-size: 13px; color: var(--text-muted); font-weight: 400; }
@@ -188,10 +193,19 @@
 }
 .pricing-card-v3 li .feature-detail.open { display: block; }
 .pricing-card-v3 li .expand-icon {
-  float: right; font-size: 10px; color: var(--text-dim);
-  transition: transform var(--transition-fast);
+  float: right;
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-right: 1.5px solid var(--text-dim);
+  border-bottom: 1.5px solid var(--text-dim);
+  transform: translateY(4px) rotate(45deg);
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+  margin-right: 4px;
 }
-.pricing-card-v3 li .expand-icon.open { transform: rotate(180deg); }
+.pricing-card-v3 li .expand-icon.open {
+  transform: translateY(7px) rotate(-135deg);
+}
 
 .pricing-card-v3 a.btn { width: 100%; text-align: center; }
 
@@ -219,17 +233,17 @@
   background: var(--text-main); border-radius: 50%; cursor: pointer;
   border: 3px solid var(--accent-primary); box-shadow: var(--shadow-glow-primary);
 }
-.bulk-calc-v3 .bulk-qty-display { font-size: 44px; font-weight: 800; color: var(--accent-primary); }
+.bulk-calc-v3 .bulk-qty-display { font-size: 44px; font-weight: 800; color: var(--accent-primary); text-shadow: var(--shadow-glow-primary); }
 .bulk-calc-v3 .bulk-stats { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
 .bulk-calc-v3 .bulk-stat { text-align: center; }
 .bulk-calc-v3 .bulk-stat .stat-label {
   font-size: 11px; color: var(--text-muted);
   text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
 }
-.bulk-calc-v3 .bulk-stat .stat-value { font-size: 22px; font-weight: 700; }
+.bulk-calc-v3 .bulk-stat .stat-value { font-size: 22px; font-weight: 700; color: var(--text-main); }
 .bulk-calc-v3 .bulk-stat .stat-value.strikethrough { color: var(--text-muted); text-decoration: line-through; }
-.bulk-calc-v3 .bulk-stat .stat-value.savings { color: var(--accent-success); }
-.bulk-calc-v3 .bulk-stat .stat-value.flash { color: var(--accent-primary); }
+.bulk-calc-v3 .bulk-stat .stat-value.savings { color: var(--accent-success); text-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+.bulk-calc-v3 .bulk-stat .stat-value.flash { color: var(--accent-primary); text-shadow: var(--shadow-glow-primary); }
 
 /* ── Urgency Counter ── */
 .urgency-box-v3 {
@@ -271,7 +285,7 @@
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
   padding: 18px 20px;
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex; justify-content: space-between; align-items: center; gap: 16px;
   transition: all var(--transition-base);
 }
 .service-card-v3:hover { border-color: var(--border-glass-hover); transform: translateY(-2px); }
@@ -313,7 +327,7 @@
 
 /* ── Social Toast ── */
 .social-toast-v3 {
-  position: fixed; bottom: 80px; right: 20px; z-index: var(--z-toast);
+  position: fixed; bottom: 80px; right: 20px; z-index: 9999;
   max-width: 340px;
   background: var(--bg-card);
   backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
@@ -356,8 +370,10 @@
   .price-v3 { font-size: 28px; }
   .service-grid-v3 { grid-template-columns: 1fr; }
   .urgency-box-v3 .urgency-stats { gap: 20px; }
-  .comparison-row-v3 { flex-wrap: wrap; gap: 4px; }
-  .comparison-row-v3 .label { min-width: 120px; }
+  .comparison-row-v3 { flex-direction: column; gap: 8px; text-align: left; padding: 16px 0; }
+  .comparison-row-v3 .label { min-width: auto; font-weight: 600; color: var(--text-main); }
+  .comparison-row-v3 .them { text-align: left; }
+  .comparison-row-v3 .you { text-align: left; }
   .billing-toggle { flex-wrap: wrap; gap: 10px; }
 }
 @media(max-width: 480px) {
@@ -371,7 +387,6 @@
 }
 </style>
 
-{% include '_public_nav.html' %}
 
 <div class="pricing-hero-v3">
   <h1>Choose Your <span style="color:var(--accent-primary);-webkit-text-fill-color:var(--accent-primary);">Power Level</span></h1>
@@ -436,7 +451,7 @@
         {% for feature in tier.features %}
         <li onclick="toggleFeatureDetail(this)">
           {{ feature }}
-          <span class="expand-icon">▼</span>
+          <span class="expand-icon"></span>
           <div class="feature-detail">Detailed information about {{ feature|lower }} — includes full support and configuration.</div>
         </li>
         {% endfor %}
@@ -545,9 +560,9 @@
     <div class="service-card-v3">
       <div class="service-info-v3">
         <h3>{{ service.name }}</h3>
-        <p>{{ service.description }}</p>
+        <p>{{ service.desc }}</p>
       </div>
-      <div class="service-price-v3">${{ service.price_usd }}</div>
+      <div class="service-price-v3">${{ service.price }}</div>
     </div>
     {% endfor %}
   </div>
