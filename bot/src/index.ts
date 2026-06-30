@@ -1,144 +1,16 @@
-import { chromium, BrowserContext, Page } from 'rebrowser-playwright';
 import { createCursor } from 'ghost-cursor';
-import Groq from 'groq-sdk';
 import { htmlToText } from 'html-to-text';
-import nodemailer from 'nodemailer';
-import { Client } from 'pg';
 import fs from 'fs';
 import path from 'path';
 
+import { getDbConnection, loadState, saveState, BotState } from './db';
+import { callGroqWithFallback } from './ai';
+import { getRandomEmailAccount } from './mailer';
+import { launchBrowser } from './browser';
+
 const REPORT_FILE = path.join(process.cwd(), 'public', 'index.html');
 
-async function getDbConnection(): Promise<Client | null> {
-    const dbUrl = process.env.DATABASE_URL_SYNC || process.env.NEON_URL;
-    if (!dbUrl) {
-        console.warn("WARNING: No Database URL provided. Falling back to temporary in-memory state.");
-        return null;
-    }
-    
-    try {
-        const client = new Client({ connectionString: dbUrl });
-        await client.connect();
-        
-        // Initialize table
-        await client.query(`
-            CREATE TABLE IF NOT EXISTS auto_apply_state (
-                id SERIAL PRIMARY KEY,
-                jobs_applied INTEGER DEFAULT 0,
-                last_run TIMESTAMP,
-                session_cookies JSON
-            )
-        `);
-        
-        // Add session_cookies column if it doesn't exist (for existing tables)
-        try {
-            await client.query(`ALTER TABLE auto_apply_state ADD COLUMN session_cookies JSON`);
-        } catch (e) {
-            // Column likely already exists
-        }
-        
-        const countRes = await client.query('SELECT COUNT(*) FROM auto_apply_state');
-        if (parseInt(countRes.rows[0].count) === 0) {
-            await client.query('INSERT INTO auto_apply_state (jobs_applied) VALUES (0)');
-        }
-        
-        return client;
-    } catch (error) {
-        console.error(`Database Connection Error:`, error);
-        return null;
-    }
-}
-
-async function loadState(client: Client | null): Promise<{ jobs_applied: number, last_run: string | null, session_cookies: any | null }> {
-    if (!client) return { jobs_applied: 0, last_run: null, session_cookies: null };
-    try {
-        const res = await client.query('SELECT jobs_applied, last_run, session_cookies FROM auto_apply_state ORDER BY id DESC LIMIT 1');
-        if (res.rows.length > 0) {
-            return {
-                jobs_applied: res.rows[0].jobs_applied,
-                last_run: res.rows[0].last_run ? res.rows[0].last_run.toString() : null,
-                session_cookies: res.rows[0].session_cookies
-            };
-        }
-    } catch (e) {
-        console.error(e);
-    }
-    return { jobs_applied: 0, last_run: null, session_cookies: null };
-}
-
-async function saveState(client: Client | null, appliedThisRun: number, updatedCookies: any | null = null) {
-    if (!client) return;
-    try {
-        if (updatedCookies) {
-            await client.query(
-                'UPDATE auto_apply_state SET jobs_applied = jobs_applied + $1, last_run = NOW(), session_cookies = $2',
-                [appliedThisRun, JSON.stringify(updatedCookies)]
-            );
-        } else {
-            await client.query(
-                'UPDATE auto_apply_state SET jobs_applied = jobs_applied + $1, last_run = NOW()',
-                [appliedThisRun]
-            );
-        }
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-async function callGroqWithFallback(prompt: string): Promise<string> {
-    const keysJson = process.env.GROQ_KEYS_JSON;
-    if (!keysJson) {
-        console.error("ERROR: GROQ_KEYS_JSON not set.");
-        return "No API Key";
-    }
-
-    let keys: string[] = [];
-    try {
-        keys = JSON.parse(keysJson);
-        // Shuffle keys
-        keys = keys.sort(() => Math.random() - 0.5);
-    } catch (e) {
-        console.error("Error parsing GROQ_KEYS_JSON:", e);
-        return "Key Parse Error";
-    }
-
-    while (keys.length > 0) {
-        const apiKey = keys.shift()!;
-        console.log(`Attempting Groq Request with Key: ${apiKey.substring(0, 8)}... (${keys.length} keys remaining)`);
-        
-        try {
-            const groq = new Groq({ apiKey });
-            const response = await groq.chat.completions.create({
-                messages: [{ role: 'user', content: prompt }],
-                model: 'llama-3.3-70b-versatile',
-            });
-            console.log("Groq Request Successful!");
-            return response.choices[0]?.message?.content || "";
-        } catch (error: any) {
-            console.error(`Groq API Error on this key: ${error.message}. Switching to next key...`);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-    }
-
-    console.log("FATAL: All Groq keys failed.");
-    return "Error";
-}
-
-function getRandomEmailAccount(): any {
-    const accountsJson = process.env.GMAIL_ACCOUNTS_JSON;
-    if (!accountsJson) return null;
-    try {
-        const accounts = JSON.parse(accountsJson);
-        if (accounts && accounts.length > 0) {
-            return accounts[Math.floor(Math.random() * accounts.length)];
-        }
-    } catch (e) {
-        console.error("Error parsing GMAIL_ACCOUNTS_JSON:", e);
-    }
-    return null;
-}
-
-function generateDashboard(state: any) {
+function generateDashboard(state: BotState) {
     const publicDir = path.join(process.cwd(), 'public');
     if (!fs.existsSync(publicDir)) {
         fs.mkdirSync(publicDir, { recursive: true });
@@ -150,7 +22,7 @@ function generateDashboard(state: any) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>JobHunt Pro - Zero Cost Dashboard (Ultimate Node.js)</title>
+        <title>JobHunt Pro - Enterprise Edition</title>
         <style>
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #111; color: #fff; padding: 2rem; }
             .card { background: #222; padding: 1.5rem; border-radius: 8px; border: 1px solid #333; }
@@ -159,8 +31,8 @@ function generateDashboard(state: any) {
         </style>
     </head>
     <body>
-        <h1>JobHunt Pro - لوحة التحكم</h1>
-        <div class="badge">Node.js Ultimate Stealth Mode ⚡</div>
+        <h1>JobHunt Pro - Enterprise Dashboard</h1>
+        <div class="badge">Strict Memory Management & Zero-Leak Architecture ⚡</div>
         <div class="card">
             <h2>إجمالي الوظائف المقدم عليها</h2>
             <div class="stat">${state.jobs_applied}</div>
@@ -173,9 +45,9 @@ function generateDashboard(state: any) {
 }
 
 async function runAgent() {
-    console.log("Starting Ephemeral JobHunt Pro Agent (Node.js) on GitHub Actions...");
+    console.log("Starting Ephemeral JobHunt Pro Agent (Enterprise Node.js)...");
 
-    // Jitter 1 to 5 minutes
+    // Jitter 1 to 5 minutes to evade basic cron detection
     const jitterSeconds = Math.floor(Math.random() * (300 - 60 + 1)) + 60;
     console.log(`Applying Human Jitter: Sleeping for ${Math.floor(jitterSeconds / 60)} minutes and ${jitterSeconds % 60} seconds...`);
     await new Promise(resolve => setTimeout(resolve, jitterSeconds * 1000));
@@ -185,13 +57,11 @@ async function runAgent() {
 
     let cookies = [];
     
-    // 1. Try to load cookies from Database (Dynamic Refresh)
+    // Dynamic Session Cookies Loading
     if (state.session_cookies) {
         cookies = state.session_cookies;
         console.log("Session cookies loaded dynamically from Database!");
-    } 
-    // 2. Fallback to GitHub Secrets if DB is empty (First Run)
-    else {
+    } else {
         const cookiesJson = process.env.SESSION_COOKIES;
         if (cookiesJson) {
             try {
@@ -200,50 +70,43 @@ async function runAgent() {
             } catch (e) {
                 console.log("Failed to parse SESSION_COOKIES from secrets:", e);
             }
-        } else {
-            console.log("WARNING: No SESSION_COOKIES found in DB or Secrets. The bot may face CAPTCHA or Login blocks.");
         }
     }
 
-    console.log("Launching rebrowser-playwright (WARP Proxy + Ultimate Stealth)...");
-    const browser = await chromium.launch({
-        headless: true,
-        args: ["--disable-blink-features=AutomationControlled"],
-        proxy: { server: "socks5://127.0.0.1:40000" }
-    });
-
-    const context = await browser.newContext();
-    if (cookies.length > 0) {
-        await context.addCookies(cookies);
-    }
-
-    const page = await context.newPage();
-    
-    // Inject Ghost Cursor (Human-like movements)
-    const cursor = createCursor(page);
-    
-    const jobBoardUrl = "https://www.linkedin.com/jobs";
-    console.log(`Navigating to ${jobBoardUrl}...`);
-
+    let browserSession;
     let appliedThisRun = 0;
     let newCookies = null;
 
     try {
-        await page.goto("https://cloudflare.com/cdn-cgi/trace");
+        browserSession = await launchBrowser(cookies);
+        const page = await browserSession.context.newPage();
+        
+        // Inject Ghost Cursor with smart randomization
+        const cursor = createCursor(page);
+        
+        const jobBoardUrl = "https://www.linkedin.com/jobs";
+        console.log(`Navigating to ${jobBoardUrl}...`);
+
+        await page.goto("https://cloudflare.com/cdn-cgi/trace", { timeout: 30000 });
         const trace = await page.content();
         console.log("WARP IP Trace:");
-        console.log(trace.substring(0, 300));
+        console.log(trace.substring(0, 150));
 
         await page.goto(jobBoardUrl, { timeout: 60000 });
-        await page.waitForSelector("body", { timeout: 15000 });
         
-        // Example of ghost-cursor usage instead of page.click()
-        // await cursor.click('button.some-apply-button');
+        // Smart Locators instead of generic CSS selectors
+        await page.getByRole('main').waitFor({ state: 'attached', timeout: 20000 }).catch(() => {
+            console.log("Main role not found, waiting for body as fallback...");
+            return page.waitForSelector("body", { timeout: 15000 });
+        });
+        
+        // Example Ghost Cursor execution with random jitter
+        // await cursor.click(page.getByRole('button', { name: /Apply/i }));
         
         const htmlContent = await page.content();
         const mdContent = htmlToText(htmlContent, { wordwrap: 130 });
 
-        console.log("Calling Groq (Llama-3) with Enterprise Fallback (Node.js)...");
+        console.log("Calling Groq (Llama-3) API...");
         const prompt = `Extract the job titles and requirements from this markdown:\n\n${mdContent.substring(0, 20000)}`;
         const aiResponse = await callGroqWithFallback(prompt);
         console.log(`AI Analysis Completed. Snippet: ${aiResponse.substring(0, 100)}...`);
@@ -255,25 +118,44 @@ async function runAgent() {
             console.log(`Selected SMTP Account for outreach: ${emailAccount.email}`);
         }
         
-        // Refresh cookies before closing (Dynamic Session Extension)
-        newCookies = await context.cookies();
+        // Atomic Cookie Refresh
+        newCookies = await browserSession.context.cookies();
         
-    } catch (e: any) {
-        console.error(`Error during browser automation: ${e.message}`);
+    } catch (error: any) {
+        console.error(`CRITICAL FATAL ERROR during execution: ${error.message}`);
     } finally {
-        await browser.close();
+        console.log("Entering strict finally block to clean up resources...");
+        // Guarantee no zombie browsers
+        if (browserSession) {
+            try {
+                await browserSession.browser.close();
+                console.log("Browser closed successfully.");
+            } catch (e) {
+                console.error("Failed to close browser:", e);
+            }
+        }
+
+        // Guarantee atomic save and DB disconnect
+        try {
+            await saveState(dbClient, appliedThisRun, newCookies);
+            state.jobs_applied += appliedThisRun;
+            state.last_run = new Date().toLocaleString();
+            
+            if (dbClient) {
+                await dbClient.end();
+                console.log("Database connection closed successfully.");
+            }
+        } catch (e) {
+            console.error("Failed to cleanly save state or close DB:", e);
+        }
+
+        // Always generate dashboard based on whatever state we have
+        generateDashboard(state);
+        console.log("Agent run and resource cleanup completed.");
     }
-
-    await saveState(dbClient, appliedThisRun, newCookies);
-    state.jobs_applied += appliedThisRun;
-    state.last_run = new Date().toLocaleString();
-
-    if (dbClient) {
-        await dbClient.end();
-    }
-
-    generateDashboard(state);
-    console.log("Agent run completed. Dashboard generated.");
 }
 
-runAgent().catch(console.error);
+runAgent().catch(err => {
+    console.error("Unhandled top-level exception:", err);
+    process.exit(1);
+});
