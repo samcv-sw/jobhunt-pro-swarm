@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  btcpay:
+    image: btcpayserver/btcpayserver:1.13.6
+    restart: always
+    environment:
+      BTCPAY_NETWORK: mainnet
+      BTCPAY_BIND: 0.0.0.0:49392
+      BTCPAY_ROOTPATH: /
+      BTCPAY_POSTGRES: "User ID=postgres;Password=btcpaypassword;Host=postgres;Port=5432;Database=btcpayserver"
+      BTCPAY_EXTERNALURL: "https://btcpay.jobhuntpro.io"
+      BTCPAY_CHAINTYPE: "BTC"
+    ports:
+      - "49392:49392"
+    volumes:
+      - "btcpay_datadir:/datadir"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: btcpaypassword
+      POSTGRES_DB: btcpayserver
+    volumes:
+      - "postgres_datadir:/var/lib/postgresql/data"
+
+volumes:
+  btcpay_datadir:
+  postgres_datadir:

@@ -338,12 +338,13 @@ I have attached my CV for your review and would welcome the opportunity to discu
         <div style="color:#94a3b8;font-size:13px;margin-top:4px;">{profession}</div>
       </div>
 
-      <!-- CAN-SPAM Footer: Physical address + Unsubscribe (legal requirement) -->
+      <!-- GDPR/EU Opt-out Footer (Strict Compliance) -->
       <div style="margin-top:32px;padding-top:14px;border-top:1px solid #1e293b;text-align:center;">
         <div style="color:#475569;font-size:11px;">
-            This application was sent via JobHunt Pro on behalf of {name}<br>
+            This application was securely routed via JobHunt Pro on behalf of {name}.<br>
+            In compliance with GDPR and EU data protection regulations, you may request complete removal of your data.<br>
             📫 {candidate_address}<br>
-            <a href="{SITE_URL}/unsubscribe" style="color:#475569;">Unsubscribe</a> &bull; Not the right contact? Reply and we'll remove you.
+            <a href="{SITE_URL}/opt-out?email={candidate_email}" style="color:#00ff88;text-decoration:underline;">Click here to Opt-Out & Delete Data (GDPR)</a> &bull; Or reply with "Remove"
         </div>
       </div>
     </td>

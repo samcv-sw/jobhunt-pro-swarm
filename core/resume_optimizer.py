@@ -102,6 +102,7 @@ Rules:
 7. For each section, track which keywords you injected
 8. Return ONLY valid JSON — no markdown, no code fences
 9. IMPORTANT: The candidate has 15+ years of enterprise networking experience including SD-WAN, SASE, ZTNA, Zero Trust, cloud networking (AWS/Azure/GCP), network automation (Python/Ansible/Terraform), security (FortiGate/Palo Alto), data center, and multi-site MPLS/VPN. Use this context to naturally align with JD keywords.
+10. FRENCH/EU MARKET RULES: Ensure the generated content strictly adheres to French CV conventions: maximum of ONE page, NO photos, strict GDPR data minimization (exclude unnecessary personal details), and adopt an anonymous, objective tone where appropriate.
 
 Return format:
 {

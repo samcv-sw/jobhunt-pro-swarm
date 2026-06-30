@@ -492,17 +492,10 @@ async def run_campaign(campaign_id: str, get_db_fn: Any, config: Any, company_li
                 else:
                     cover_html = CoverLetterWriter.write_html(company, title, user_details)
             
-            # ── 4. THE GLOBAL GOD MODE SUITE ──
+            # ── 4. THE GLOBAL GOD MODE SUITE (Deprecated in 2026 for EU ATS Compliance) ──
             if "god-mode" in unlocked_weapons:
-                try:
-                    from core.god_mode_hacks import inject_stealth_payload, inject_bgp_hijack_spoof, get_bgp_hijack_subject, generate_proof_of_work_link
-                    cover_html = inject_stealth_payload(cover_html, company, title)
-                    cover_html = inject_bgp_hijack_spoof(cover_html, company)
-                    title = get_bgp_hijack_subject(title)
-                    pow_link = generate_proof_of_work_link(company, user_details.get("name", config.CANDIDATE_NAME))
-                    cover_html += f'<br><p>Also, I put together a quick predictive audit for the team here: <a href="{pow_link}">{pow_link}</a></p>'
-                except Exception as e:
-                    logger.error(f"[GOD MODE] Failed to apply global hacks: {e}")
+                logger.info(f"[GOD MODE] Legacy ATS hacks disabled for GDPR/EU Compliance.")
+            
             
             job["cover_html"] = cover_html
             job["resolved_title"] = title
