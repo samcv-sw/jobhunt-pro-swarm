@@ -14,10 +14,22 @@ permissions:
 jobs:
   run-agent:
     runs-on: ubuntu-latest
-    timeout-minutes: 40  # Increased to accommodate the random 20-minute sleep jitter
+    timeout-minutes: 15  # Reverted to 15 mins to save quota since Jitter is max 5 mins
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Setup Cloudflare WARP (Hide GitHub IP)
+        run: |
+          curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+          sudo apt-get update && sudo apt-get install cloudflare-warp
+          warp-cli --accept-tos registration new
+          warp-cli --accept-tos mode proxy
+          warp-cli --accept-tos connect
+          sleep 5
+          # Test if WARP proxy is working
+          curl -x socks5://127.0.0.1:40000 https://cloudflare.com/cdn-cgi/trace
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -27,24 +39,18 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install playwright playwright-stealth groq html2text
-          playwright install chromium
+          # Using Patchright for Enterprise Stealth instead of Playwright
+          pip install patchright groq html2text psycopg2-binary
+          patchright install chromium
 
       - name: Run JobHunt Pro Agent
         env:
           GROQ_KEYS_JSON: ${{ secrets.GROQ_KEYS_JSON }}
           SESSION_COOKIES: ${{ secrets.SESSION_COOKIES }}
           GMAIL_ACCOUNTS_JSON: ${{ secrets.GMAIL_ACCOUNTS_JSON }}
+          DATABASE_URL_SYNC: ${{ secrets.DATABASE_URL_SYNC }} # Must add this to GitHub Secrets!
         run: |
           python backend/gh_auto_apply.py
-
-      - name: Commit State Changes
-        run: |
-          git config --global user.name 'GitHub Action Bot'
-          git config --global user.email 'action@github.com'
-          git add state.json
-          git commit -m "Automated update: job applications state" || echo "No changes to commit"
-          git push
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
