@@ -18,26 +18,34 @@ concurrency:
 jobs:
   run-agent:
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # Reverted to 15 mins to save quota since Jitter is max 5 mins
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Cloudflare WARP (Hide GitHub IP)
-        run: |
-          curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
-  ping-huggingface:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Keep Hugging Face Space Alive
-        run: |
-          # Replace this URL with your actual Hugging Face Space URL
-          curl -s "https://your-hugging-face-space-url.hf.space/ping" || echo "Ping failed but continuing"
-
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Setup Node.js (v20)
+        uses: actions/setup-node@v4
         with:
-          path: ./public
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'bot/package-lock.json'
+      
+      - name: Install Dependencies
+        working-directory: bot
+        run: npm ci
+        
+      - name: Install Playwright Browsers
+        working-directory: bot
+        run: npx playwright install chromium
+
+      - name: Run JobHunt Pro Agent (TypeScript)
+        working-directory: bot
+        env:
+          GROQ_KEYS_JSON: ${{ secrets.GROQ_KEYS_JSON }}
+          GMAIL_ACCOUNTS_JSON: ${{ secrets.GMAIL_ACCOUNTS_JSON }}
+          SESSION_COOKIES: ${{ secrets.SESSION_COOKIES }}
+          DATABASE_URL_SYNC: ${{ secrets.DATABASE_URL_SYNC }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: npm start
 
   deploy-pages:
     needs: run-agent

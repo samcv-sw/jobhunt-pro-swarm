@@ -2,7 +2,6 @@ import { createCursor } from 'ghost-cursor';
 import { htmlToText } from 'html-to-text';
 import fs from 'fs';
 import path from 'path';
-import express from 'express';
 
 import { getDbConnection, loadState, saveState, BotState } from './db';
 import { callGroqWithFallback } from './ai';
@@ -156,47 +155,7 @@ async function runAgent() {
     }
 }
 
-// ------------------------------------------------------------------
-// THE INFINITE HUGGING FACE HACK (EXPRESS SERVER)
-// ------------------------------------------------------------------
-const app = express();
-const PORT = process.env.PORT || 7860;
-
-// Serve the dashboard statically
-app.use(express.static(path.join(process.cwd(), 'public')));
-
-app.get('/ping', (req, res) => {
-    console.log("Received Keep-Alive Ping from GitHub Actions!");
-    // You could trigger a run here if you wanted, but usually, cron handles it.
-    res.send("PONG - God-Mode System is ALIVE!");
-});
-
-// API endpoint for the React Dashboard
-app.get('/api/stats', async (req, res) => {
-    const dbClient = await getDbConnection();
-    const state = await loadState(dbClient);
-    if (dbClient) {
-        await dbClient.end();
-    }
-    res.json({
-        jobs_applied: state.jobs_applied,
-        last_run: state.last_run
-    });
-});
-
-app.listen(PORT, () => {
-    console.log(`🚀 Hugging Face Express Server running on port ${PORT}`);
-    console.log("God-Mode Bot is now online 24/7. Waiting for cron triggers...");
-    
-    // Automatically run the agent every 6 hours inside the container
-    // This removes the need for GitHub to do anything other than Ping.
-    setInterval(() => {
-        console.log("Starting scheduled internal run...");
-        runAgent().catch(console.error);
-    }, 6 * 60 * 60 * 1000); // 6 hours
-    
-    // Run once on startup
-    setTimeout(() => {
-        runAgent().catch(console.error);
-    }, 10000);
+runAgent().catch(err => {
+    console.error("Unhandled top-level exception:", err);
+    process.exit(1);
 });
