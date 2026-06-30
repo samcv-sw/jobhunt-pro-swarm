@@ -17,15 +17,33 @@ function humanJitterDelay(min: number, max: number) {
     return new Promise(resolve => setTimeout(resolve, baseDelay + stutter));
 }
 
-// Trigger Native OS Click via Background Debugger API
-function triggerNativeClick(element: HTMLElement) {
+// Advanced Javascript Event Synthesizer (No Debugger UX warning)
+async function triggerNativeClick(element: HTMLElement) {
     const rect = element.getBoundingClientRect();
-    // Calculate precise center + slight random offset
     const x = Math.round(rect.left + (rect.width / 2) + (Math.random() * 10 - 5));
     const y = Math.round(rect.top + (rect.height / 2) + (Math.random() * 10 - 5));
     
-    console.log(`📡 Requesting OS-Level Click at [${x}, ${y}]...`);
-    chrome.runtime.sendMessage({ action: "TRIGGER_OS_CLICK", x, y });
+    console.log(`📡 Simulating Advanced Pointer Clicks at [${x}, ${y}]...`);
+    
+    // Simulate complex user interaction
+    const events = [
+        new PointerEvent('pointerover', { bubbles: true, cancelable: true, clientX: x, clientY: y }),
+        new PointerEvent('pointerenter', { bubbles: true, cancelable: true, clientX: x, clientY: y }),
+        new MouseEvent('mouseover', { bubbles: true, cancelable: true, clientX: x, clientY: y }),
+        new MouseEvent('mouseenter', { bubbles: true, cancelable: true, clientX: x, clientY: y })
+    ];
+    
+    events.forEach(ev => element.dispatchEvent(ev));
+    await new Promise(r => setTimeout(r, Math.random() * 200 + 50));
+    
+    element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
+    element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
+    
+    await new Promise(r => setTimeout(r, Math.random() * 80 + 20));
+    
+    element.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
+    element.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
+    element.click(); // Final fallback trigger
 }
 
 // Swarm Core Logic

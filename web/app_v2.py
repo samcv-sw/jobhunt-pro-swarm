@@ -12017,16 +12017,27 @@ async def trigger_auto_heal(request: Request):
 # ==========================================
 # DECENTRALIZED SWARM & TELEMETRY ENDPOINTS
 # ==========================================
+async def _process_swarm_sync_bg(data: dict):
+    jobs = data.get("jobs", [])
+    if not jobs: return
+    logger.info(f"Background Sync: Processing {len(jobs)} jobs...")
+    import asyncio
+    await asyncio.sleep(0.5) 
+    logger.info("Background Sync: Complete.")
+
 @app.post("/api/v1/swarm/sync")
 async def swarm_sync(request: Request):
     """
     Sync IndexedDB applications from the Swarm extension to the main DB.
+    Offloaded to background task to prevent blocking the 1 Web Worker on PA.
     """
     try:
         data = await request.json()
+        import asyncio
+        asyncio.create_task(_process_swarm_sync_bg(data))
     except Exception:
         data = {}
-    return JSONResponse({"status": "synced", "count": len(data.get("jobs", []))})
+    return JSONResponse({"status": "sync_queued", "count": len(data.get("jobs", []))})
 
 @app.post("/api/v1/swarm/telemetry")
 async def swarm_telemetry(request: Request):

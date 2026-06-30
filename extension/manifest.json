@@ -35,7 +35,6 @@
     "alarms",
     "declarativeNetRequest",
     "declarativeNetRequestWithHostAccess",
-    "debugger",
     "privacy"
   ],
   "host_permissions": [
