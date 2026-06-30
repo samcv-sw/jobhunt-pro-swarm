@@ -13,7 +13,13 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*.linkedin.com/*", "*://*.indeed.com/*"],
+      "matches": [
+        "*://*.linkedin.com/*", 
+        "*://*.indeed.com/*", 
+        "*://*.workday.com/*", 
+        "*://*.greenhouse.io/*", 
+        "*://*.lever.co/*"
+      ],
       "js": ["src/content.ts"],
       "run_at": "document_end"
     }
@@ -40,6 +46,9 @@
   "host_permissions": [
     "*://*.linkedin.com/*",
     "*://*.indeed.com/*",
+    "*://*.workday.com/*",
+    "*://*.greenhouse.io/*",
+    "*://*.lever.co/*",
     "https://api.puter.com/*"
   ]
 }

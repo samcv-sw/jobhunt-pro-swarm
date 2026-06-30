@@ -4,7 +4,7 @@ console.log("JobHunt Pro Swarm Injected.");
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "START_SWARM") {
         console.log("🚀 Swarm Protocol Initiated!");
-        startLinkedInHack();
+        startUniversalHack();
         sendResponse({ status: "running" });
     }
 });
@@ -46,29 +46,32 @@ async function triggerNativeClick(element: HTMLElement) {
     element.click(); // Final fallback trigger
 }
 
-// Swarm Core Logic
-async function startLinkedInHack() {
-    console.log("🕵️‍♂️ Swarm Ghost Protocol: Initializing DOM MutationObserver...");
+// Swarm Core Logic - Universal ATS Engine
+async function startUniversalHack() {
+    console.log("🕵️‍♂️ Swarm Ghost Protocol: Initializing Universal ATS Scanner...");
     
-    // Instead of fixed waits, we observe the DOM for changes
-    const observer = new MutationObserver(async (mutations, obs) => {
-        const applyButtons = Array.from(document.querySelectorAll('button')).filter(btn => 
-            btn.innerText.includes('Easy Apply') || 
-            btn.innerText.includes('Apply now') ||
-            btn.innerText.includes('تقديم سهل')
-        );
+    // 1. Scan and Fill Form Fields
+    await scanAndFillFields();
 
-        if (applyButtons.length > 0) {
+    // 2. Observe the DOM for "Apply/Next/Submit" Buttons
+    const observer = new MutationObserver(async (mutations, obs) => {
+        const actionKeywords = ['apply', 'next', 'submit', 'continue', 'إرسال', 'التالي', 'تقديم'];
+        const actionButtons = Array.from(document.querySelectorAll('button, input[type="submit"], input[type="button"], a.btn')).filter(btn => {
+            const text = (btn.innerText || (btn as HTMLInputElement).value || '').toLowerCase();
+            return actionKeywords.some(keyword => text.includes(keyword));
+        });
+
+        if (actionButtons.length > 0) {
             obs.disconnect(); // Stop observing once we find our target
-            console.log(`🎯 Target Locked: Found ${applyButtons.length} Easy Apply buttons!`);
-            const targetBtn = applyButtons[0] as HTMLElement;
+            console.log(`🎯 Target Locked: Found ${actionButtons.length} potential Action buttons!`);
+            const targetBtn = actionButtons[0] as HTMLElement;
             
             await humanJitterDelay(1500, 3500);
-            console.log("🖱️ Executing OS-Level Trusted Click...");
+            console.log("🖱️ Executing OS-Level Trusted Click on Action Button...");
             triggerNativeClick(targetBtn);
             
-            // Re-init observer for Modal
-            observeModal();
+            // Re-init observer for subsequent modals or pages
+            setTimeout(startUniversalHack, 3000); 
         }
     });
 
@@ -76,36 +79,55 @@ async function startLinkedInHack() {
     
     // Fallback trigger
     setTimeout(() => {
-        // Trigger a fake mutation if nothing happens natively
         document.body.setAttribute('data-swarm-ping', Date.now().toString());
     }, 1000);
 }
 
-function observeModal() {
-    console.log("🕵️‍♂️ Waiting for LinkedIn Modal...");
-    const modalObserver = new MutationObserver(async (mutations, obs) => {
-        const modalButtons = Array.from(document.querySelectorAll('button')).filter(btn => 
-            btn.innerText.includes('Submit application') || 
-            btn.innerText.includes('Next') ||
-            btn.innerText.includes('التالي') ||
-            btn.innerText.includes('إرسال الطلب')
-        );
+// Simulated Local AI / Fuzzy Matcher for Form Fields
+async function scanAndFillFields() {
+    console.log("🔍 Scanning for Input Fields...");
+    const inputs = document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]), textarea, select');
+    
+    // Dummy user data (This would typically come from IndexedDB or Background Script)
+    const userData: Record<string, string> = {
+        'first name': 'Sam',
+        'last name': 'Engineer',
+        'email': 'sam@example.com',
+        'phone': '+1234567890',
+        'linkedin': 'https://linkedin.com/in/sam',
+        'github': 'https://github.com/sam',
+        'expected salary': '120000',
+        'location': 'Remote'
+    };
 
-        if (modalButtons.length > 0) {
-            console.log("🎯 Modal Interactive Element Detected.");
-            const actionBtn = modalButtons[0] as HTMLElement;
-            
-            await humanJitterDelay(800, 2000);
-            triggerNativeClick(actionBtn);
-            
-            chrome.runtime.sendMessage({ action: "JOB_APPLIED", details: "Swarm successfully injected and clicked through modal." });
-            
-            // Continue observing if it was 'Next', disconnect if 'Submit'
-            if (actionBtn.innerText.includes('Submit') || actionBtn.innerText.includes('إرسال')) {
-                 obs.disconnect();
+    for (const el of Array.from(inputs)) {
+        const input = el as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+        
+        // Skip already filled inputs
+        if (input.value && input.value.trim() !== '') continue;
+
+        // Try to identify the field context via id, name, placeholder, or preceding label
+        let context = `${input.id} ${input.name} ${input.placeholder || ''}`.toLowerCase();
+        
+        // Find nearest label
+        let label = document.querySelector(`label[for="${input.id}"]`);
+        if (label) context += ` ${label.textContent?.toLowerCase()}`;
+        else if (input.parentElement && input.parentElement.tagName.toLowerCase() === 'label') {
+            context += ` ${input.parentElement.textContent?.toLowerCase()}`;
+        }
+
+        // Fuzzy match logic
+        for (const [key, value] of Object.entries(userData)) {
+            if (context.includes(key.split(' ')[0])) {
+                console.log(`✍️ Filling matched field [${key}] -> ${value}`);
+                input.value = value;
+                
+                // Dispatch events to trigger framework (React/Angular) state updates
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                await humanJitterDelay(300, 800); // Wait between fields to look human
+                break;
             }
         }
-    });
-
-    modalObserver.observe(document.body, { childList: true, subtree: true });
+    }
 }
