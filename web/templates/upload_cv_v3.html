@@ -465,7 +465,7 @@
         <span class="fmt-badge word">DOCX</span>
         <span class="fmt-badge txt">TXT</span>
       </div>
-      <input type="file" id="cvFile" accept=".pdf,.docx,.doc,.txt" onchange="handleFileSelect(this)">
+      <input dir="auto" type="file" id="cvFile" accept=".pdf,.docx,.doc,.txt" onchange="handleFileSelect(this)">
     </div>
 
     <!-- File Info -->
@@ -494,26 +494,26 @@
     <div class="row">
       <div class="form-group">
         <label>Full Name</label>
-        <input type="text" placeholder="e.g. Sam Salameh" value="{{ user.name if user else '' }}">
+        <input dir="auto" type="text" placeholder="e.g. Sam Salameh" value="{{ user.name if user else '' }}">
       </div>
       <div class="form-group">
         <label>Email</label>
-        <input type="email" placeholder="you@example.com" value="{{ user.email if user else '' }}">
+        <input dir="auto" type="email" placeholder="you@example.com" value="{{ user.email if user else '' }}">
       </div>
     </div>
     <div class="row">
       <div class="form-group">
         <label>Phone</label>
-        <input type="tel" placeholder="+961 70 000 000">
+        <input dir="auto" type="tel" placeholder="+961 70 000 000">
       </div>
       <div class="form-group">
         <label>Location</label>
-        <input type="text" placeholder="e.g. Beirut, Lebanon">
+        <input dir="auto" type="text" placeholder="e.g. Beirut, Lebanon">
       </div>
     </div>
     <div class="form-group">
       <label>LinkedIn (optional)</label>
-      <input type="url" placeholder="https://linkedin.com/in/yourprofile">
+      <input dir="auto" type="url" placeholder="https://linkedin.com/in/yourprofile">
     </div>
   </div>
 
@@ -522,7 +522,7 @@
     <div class="card-title">🏷️ Skills & Keywords</div>
     <div class="form-group">
       <label>Skills (comma separated)</label>
-      <input type="text" placeholder="Python, JavaScript, Project Management, ..." id="skillsInput" onkeydown="handleSkillTag(event)">
+      <input dir="auto" type="text" placeholder="Python, JavaScript, Project Management, ..." id="skillsInput" onkeydown="handleSkillTag(event)">
     </div>
     <div class="tag-list" id="skillTags">
       <span class="tag">Python ✕</span>
@@ -556,7 +556,7 @@
     </div>
     <div class="form-group">
       <label>Custom Range</label>
-      <input type="text" placeholder="e.g. $60,000 - $90,000">
+      <input dir="auto" type="text" placeholder="e.g. $60,000 - $90,000">
     </div>
   </div>
 

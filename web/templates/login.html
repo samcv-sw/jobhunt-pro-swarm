@@ -107,7 +107,7 @@ body {
 
   {% include '_public_nav.html' %}
 
-  <div class="page-wrap">
+  <div class="page-wrap" style="padding-top:140px;">
     <div class="auth-container">
       <div class="auth-card">
         <div class="auth-header">
@@ -145,11 +145,11 @@ body {
         <form method="POST" action="/login">
           <div class="form-group">
             <label for="email">Email Address</label>
-            <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>
+            <input dir="auto" type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>
           </div>
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password">
+            <input dir="auto" type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password">
           </div>
           <div class="pw-row">
             <a href="/forgot-password">Forgot password?</a>

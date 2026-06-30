@@ -162,7 +162,7 @@
     <div class="wr-card">
         <div class="wr-card-head"><span class="wr-company">{{ cv.company }}</span><span class="wr-role">{{ cv.job_title }}</span><span class="wr-status {{ cv.status_cls }}">{{ cv.status }}</span></div>
         <div class="wr-card-body terminal cover-preview" style="display:{{ 'block' if cv.has_preview else 'none' }};max-height:160px;overflow:hidden;">{{ cv.html[:800] if cv.html else '' }}</div>
-        <textarea class="raw-html-data" style="display:none;">{{ cv.html }}</textarea>
+        <textarea dir="auto" class="raw-html-data" style="display:none;">{{ cv.html }}</textarea>
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
             <button class="wr-btn-copy" onclick="copyHtml(this)"><span class="copy-icon">📋</span> COPY HTML</button>
             <button class="wr-btn-copy" style="background:#2d3748;color:#e2e8f0;border-color:#4a5568;" onclick="generateInterviewPrep({{ cv.id }}, this)">🧠 INTERVIEW PREP</button>

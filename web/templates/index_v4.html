@@ -59,16 +59,16 @@
   }
   </script>
 
-  <link rel="stylesheet" href="/static/css/landing-v4.css">
+  <link rel="stylesheet" href="/static/css/landing-v4.css?v=20260629_v2">
 
 
 <style>
-.cookie-banner{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,25,0.97);border-top:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px 24px;backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
+.cookie-banner{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,25,0.97);border-top:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px var(--space-3);backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
 .cookie-content{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
 .cookie-content span{font-size:20px}
 .cookie-content p{font-size:12px;color:var(--muted);flex:1;min-width:200px}
 .cookie-content a{color:var(--cyan)}
-.cookie-content button{background:var(--cyan);color:#000;border:none;padding:8px 20px;border-radius:20px;font-weight:700;cursor:pointer;font-size:13px;white-space:nowrap}
+.cookie-content button{background:var(--cyan);color:#000;border:none;padding:var(--space-1) 20px;border-radius:20px;font-weight:700;cursor:pointer;font-size:13px;white-space:nowrap}
 .cookie-content button:hover{opacity:0.9}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @media(max-width:600px){.cookie-content{text-align:center}}
@@ -109,13 +109,13 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <div class="glow-orb-2"></div>
 <div class="glow-orb-3"></div>
 <div class="scanline"></div>
-<canvas class="bg-particles" id="particleCanvas"></canvas>
+<canvas class="bg-particles" id="particleCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;"></canvas>
 
 <!-- ═══ NAVIGATION ═══ -->
 {% include '_public_nav.html' %}
 
 <!-- ═══ HERO ═══ -->
-<section class="hero">
+<section class="hero" style="padding-top:140px;">
  <div class="hero-badge">
   <span class="pulse-dot"></span> AI SYSTEM ONLINE — v{{ VERSION }}
  </div>
@@ -134,11 +134,11 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   <a href="#pricing" class="secondary">&#x1f4b0; View Pricing Plans</a>
  </div>
  <div class="hero-stats-strip">
-  <div class="stat-item"><div class="num counter" data-target="2000">0</div><div class="label">Daily Applications</div></div>
-  <div class="stat-item"><div class="num counter" data-target="20">0</div><div class="label">Email Providers</div></div>
-  <div class="stat-item"><div class="num counter" data-target="200">0</div><div class="label">AI Agents</div></div>
-  <div class="stat-item"><div class="num counter" data-target="50">0</div><div class="label">Countries</div></div>
-  <div class="stat-item"><div class="num"><span class="counter" data-target="12">0</span>%</div><div class="label">Interview Rate</div></div>
+  <div class="stat-item"><div class="num counter" data-target="2000">2,000+</div><div class="label">Daily Applications</div></div>
+  <div class="stat-item"><div class="num counter" data-target="20">20+</div><div class="label">Email Providers</div></div>
+  <div class="stat-item"><div class="num counter" data-target="200">200+</div><div class="label">AI Agents</div></div>
+  <div class="stat-item"><div class="num counter" data-target="50">50+</div><div class="label">Countries</div></div>
+  <div class="stat-item"><div class="num"><span class="counter" data-target="12">12</span>%</div><div class="label">Interview Rate</div></div>
  </div>
 </section>
 
@@ -343,11 +343,11 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   <div class="ats-demo">
     <div class="ats-input-group">
       <label for="atsJobTitle">Job Title</label>
-      <input type="text" id="atsJobTitle" placeholder="e.g. Software Engineer" value="Software Engineer">
+      <input dir="auto" type="text" id="atsJobTitle" placeholder="e.g. Software Engineer" value="Software Engineer">
     </div>
     <div class="ats-input-group">
       <label for="atsSkills">Your Skills (comma separated)</label>
-      <input type="text" id="atsSkills" placeholder="e.g. Python, React, AWS" value="Python, JavaScript, React">
+      <input dir="auto" type="text" id="atsSkills" placeholder="e.g. Python, React, AWS" value="Python, JavaScript, React">
     </div>
     <button class="primary" onclick="checkATS()">&#x1f50d; Check My Score</button>
     <div class="ats-result" id="atsResult" style="display:none;">
@@ -462,15 +462,15 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   <div class="calc-grid">
     <div class="calc-card">
       <label for="currentSalary">Your Target Salary ($/year)</label>
-      <input type="number" id="currentSalary" value="80000" min="0" step="5000">
+      <input dir="auto" type="number" id="currentSalary" value="80000" min="0" step="5000">
     </div>
     <div class="calc-card">
       <label for="monthsUnemployed">Months Unemployed</label>
-      <input type="number" id="monthsUnemployed" value="3" min="0" max="24">
+      <input dir="auto" type="number" id="monthsUnemployed" value="3" min="0" max="24">
     </div>
     <div class="calc-card">
       <label for="applicationsPerDay">Manual Applications/Day</label>
-      <input type="number" id="applicationsPerDay" value="3" min="1" max="20">
+      <input dir="auto" type="number" id="applicationsPerDay" value="3" min="1" max="20">
     </div>
     <div class="calc-card highlight">
       <div class="calc-result-label">With JobHunt Pro</div>
@@ -490,22 +490,22 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   </div>
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-num"><span class="counter" data-target="{{ fomo_apps_today or 50000 }}">0</span>+</div>
+      <div class="stat-num"><span class="counter" data-target="{{ fomo_apps_today or 50000 }}">{{ fomo_apps_today or 50000 }}</span>+</div>
       <div class="stat-label">Applications Sent Today</div>
       <div class="stat-line"></div>
     </div>
     <div class="stat-card">
-      <div class="stat-num"><span class="counter" data-target="{{ earnings.total_all or 15000000 }}">0</span>+</div>
+      <div class="stat-num"><span class="counter" data-target="{{ earnings.total_all or 15000000 }}">{{ earnings.total_all or 15000000 }}</span>+</div>
       <div class="stat-label">Total Earnings (USD)</div>
       <div class="stat-line"></div>
     </div>
     <div class="stat-card">
-      <div class="stat-num"><span class="counter" data-target="847">0</span>+</div>
+      <div class="stat-num"><span class="counter" data-target="847">847</span>+</div>
       <div class="stat-label">5-Star Reviews</div>
       <div class="stat-line"></div>
     </div>
     <div class="stat-card">
-      <div class="stat-num"><span class="counter" data-target="99.7">0</span>%</div>
+      <div class="stat-num"><span class="counter" data-target="99.7">99.7</span>%</div>
       <div class="stat-label">Uptime</div>
       <div class="stat-line"></div>
     </div>
@@ -917,26 +917,25 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   }
 
   // ── Counter Animation ──
-  function animateCounters() {
-    const counters = document.querySelectorAll('.counter');
-    counters.forEach(counter => {
-      const target = parseFloat(counter.getAttribute('data-target'));
-      if (isNaN(target)) return;
-      const duration = 2000;
-      const startTime = performance.now();
-      const startVal = 0;
+  function animateSingleCounter(counter) {
+    if (counter.dataset.counted) return;
+    counter.dataset.counted = '1';
+    const target = parseFloat(counter.getAttribute('data-target'));
+    if (isNaN(target)) return;
+    const duration = 2000;
+    const startTime = performance.now();
+    const startVal = 0;
 
-      function updateCounter(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const currentVal = startVal + (target - startVal) * eased;
-        counter.textContent = target % 1 === 0 ? Math.floor(currentVal).toLocaleString() : currentVal.toFixed(1);
-        if (progress < 1) requestAnimationFrame(updateCounter);
-        else counter.textContent = target % 1 === 0 ? Math.floor(target).toLocaleString() : target.toFixed(1);
-      }
-      requestAnimationFrame(updateCounter);
-    });
+    function updateCounter(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const currentVal = startVal + (target - startVal) * eased;
+      counter.textContent = target % 1 === 0 ? Math.floor(currentVal).toLocaleString() : currentVal.toFixed(1);
+      if (progress < 1) requestAnimationFrame(updateCounter);
+      else counter.textContent = target % 1 === 0 ? Math.floor(target).toLocaleString() : target.toFixed(1);
+    }
+    requestAnimationFrame(updateCounter);
   }
 
   // ── Intersection Observer for scroll reveal ──
@@ -944,28 +943,25 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
-        if (entry.target.classList.contains('counter') && !entry.target.dataset.counted) {
-          entry.target.dataset.counted = '1';
+        if (entry.target.classList.contains('counter')) {
+          animateSingleCounter(entry.target);
         }
       }
     });
-  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+  }, { threshold: 0.10, rootMargin: '0px 0px -50px 0px' });
 
   document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .counter').forEach(el => {
     revealObserver.observe(el);
   });
 
-  // ── Trigger counters on hero visibility ──
-  const heroObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        animateCounters();
-        heroObserver.unobserve(entry.target);
+  // Fallback to trigger all counters if not loaded by observer (e.g. headless testing)
+  setTimeout(() => {
+    document.querySelectorAll('.counter').forEach(counter => {
+      if (!counter.dataset.counted) {
+        animateSingleCounter(counter);
       }
     });
-  }, { threshold: 0.3 });
-  const hero = document.querySelector('.hero');
-  if (hero) heroObserver.observe(hero);
+  }, 1000);
 
   // ── 3D Tilt Effect ──
   document.querySelectorAll('[data-tilt]').forEach(card => {

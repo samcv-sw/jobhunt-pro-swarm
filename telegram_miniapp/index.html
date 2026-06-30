@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>JobHunt Pro - AI Resume</title>
     <!-- Telegram Mini App SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js" onerror="window.Telegram=window.Telegram||{WebApp:{expand:function(){},initDataUnsafe:{},openTelegramLink:function(u){window.open(u,'_blank');}}}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:,">
 </head>
 <body>
     <div class="glass-container">
@@ -70,7 +71,9 @@
             'width' : 320,
             'params' : {}
         };
-        document.write('<scr' + 'ipt type="text/javascript" src="http' + (location.protocol === 'https:' ? 's' : '') + '://www.highperformancecpmnetwork.com/0123456789abcdef0123456789abcdef/invoke.js"></scr' + 'ipt>');
+        if (window.location.protocol.startsWith('http')) {
+            document.write('<scr' + 'ipt type="text/javascript" src="http' + (location.protocol === 'https:' ? 's' : '') + '://www.highperformancecpmnetwork.com/0123456789abcdef0123456789abcdef/invoke.js"></scr' + 'ipt>');
+        }
     </script>
 </body>
 </html>

@@ -113,7 +113,6 @@ SCAM_SALARY_FLAGS = [
     (200, "hourly"),    # $200+/hour for general roles
 ]
 
-PHYSICAL_ADDRESS = "1084 Rue 54, Jnah, Beirut, Lebanon"
 import sys
 from pathlib import Path
 _ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -122,9 +121,11 @@ if str(_ROOT_DIR) not in sys.path:
 try:
     import config
     SITE_URL = getattr(config, 'SITE_URL', 'https://jhfguf.pythonanywhere.com').rstrip('/')
+    PHYSICAL_ADDRESS = getattr(config, 'CANDIDATE_ADDRESS', 'Beirut, Lebanon')
 except Exception:
     import os
     SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip('/')
+    PHYSICAL_ADDRESS = "Beirut, Lebanon"
 UNSUBSCRIBE_URL = f"{SITE_URL}/unsubscribe"
 
 
@@ -302,12 +303,19 @@ def is_scam_job(job: Dict[str, Any]) -> Tuple[bool, str]:
 
 def get_email_footer() -> str:
     """CAN-SPAM compliant email footer with physical address."""
+    try:
+        import config
+        candidate_name = getattr(config, "CANDIDATE_NAME", "Sam Salameh")
+        candidate_address = getattr(config, "CANDIDATE_ADDRESS", "Beirut, Lebanon")
+    except Exception:
+        candidate_name = "Sam Salameh"
+        candidate_address = "Beirut, Lebanon"
     return (
         '<br><br>'
         '<div style="font-size:11px;color:#888;border-top:1px solid #ddd;padding-top:12px;margin-top:20px;">'
-        '<p style="margin:0 0 4px 0;">This application was sent via JobHunt Pro — '
-        'an automated job search service for Sam Salameh.</p>'
-        '<p style="margin:0 0 4px 0;">📫 1084 Rue 54, Jnah, Beirut, Lebanon</p>'
+        f'<p style="margin:0 0 4px 0;">This application was sent via JobHunt Pro — '
+        f'an automated job search service for {candidate_name}.</p>'
+        f'<p style="margin:0 0 4px 0;">📫 {candidate_address}</p>'
         f'<p style="margin:0;"><a href="{UNSUBSCRIBE_URL}" style="color:#888;">Unsubscribe</a> '
         '&bull; Not interested in this application? We apologize for the contact.</p>'
         '</div>'

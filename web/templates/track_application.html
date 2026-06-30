@@ -140,25 +140,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 </head>
 
 <body class="cyberpunk-body">
-<header class="headroom">
-  <a href="/" class="brand" style="font-size:18px;font-weight:800;color:#3b82f6;letter-spacing:-.5px;text-decoration:none;">🚀 JobHunt Pro</a>
-  <nav>
-    <a href="/">Home</a>
-    <a href="/services">Services</a>
-    <a href="/pricing">Pricing</a>
-    <a href="/faq">FAQ</a>
-    <a href="/blog">Blog</a>
-    <a href="/contact">Contact</a>
-    <a href="/login" style="color:#60a5fa;border-color:#60a5fa">Login</a>
-    <a href="/register" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;padding:6px 16px;border-radius:8px;font-weight:600">Get Started Free</a>
-  </nav>
-</header>
-
+{% include '_public_nav.html' %}
 
 <div class="bg-layer bg-grid"></div>
 <div class="glow-orb"></div>
 
-<div class="container">
+<div class="container" style="padding-top:130px">
   <div class="header">
     <h1>Track Your <span class="gradient">Applications</span></h1>
     <p>Enter the email you used in your job applications to see real-time status across all positions.</p>
@@ -168,7 +155,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <form method="POST" action="/track-application" class="search-form">
       <div class="form-group">
         <label>Your Email Address</label>
-        <input type="email" name="email" value="{{ email or '' }}" placeholder="you@email.com" required autofocus>
+        <input dir="auto" type="email" name="email" value="{{ email or '' }}" placeholder="you@email.com" required autofocus>
       </div>
       <button type="submit" class="btn btn-search">&#x1F50D; Track Applications</button>
     </form>
@@ -220,11 +207,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   </div>
 </div>
 
-<div class="footer">
-  <a href="/">JobHunt Pro</a> &middot; 
-  <a href="/pricing">Pricing</a> &middot; 
-  <a href="/contact">Contact</a>
-</div>
+{% include '_public_footer.html' %}
 </div>
 
 

@@ -71,7 +71,11 @@
         <a href="/">Home</a>
         <a href="/pricing">Pricing</a>
         <a href="/blog">Blog</a>
+        {% if user_id %}
+        <a href="/dashboard" class="btn">Dashboard</a>
+        {% else %}
         <a href="/login" class="btn">Get Started</a>
+        {% endif %}
     </div>
 </nav>
 <div class="container">
@@ -84,7 +88,7 @@
             <h3>Your API Key</h3>
             <p>Find your API key in the Wallet section of your dashboard. Include it in the <code style="background:rgba(0,240,255,.08);color:#00f0ff;padding:1px 6px;border-radius:3px;font-size:12px;">X-API-Key</code> header on all requests.</p>
         </div>
-        <div class="key-code">X-API-Key: jhp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+        <div class="key-code">X-API-Key: {{ api_key if api_key else 'jhp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' }}</div>
     </div>
 
     <h2 style="font-size:20px;font-weight:700;color:#00f0ff;margin-bottom:20px;">Endpoints</h2>

@@ -13,8 +13,13 @@
   <a href="/faq" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">FAQ</a>
   <a href="/trust" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">Trust</a>
   <a href="/contact" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">Contact</a>
-  <a href="/login" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">Login</a>
-  <a href="/register" class="cta" style="background:linear-gradient(135deg,#00f0ff,#00a0cc);color:#000000;font-weight:700;padding:10px 22px;border-radius:12px;box-shadow:0 0 20px rgba(0,240,255,0.15);text-decoration:none;font-size:13px;transition:all 0.3s;">Get Started Free</a>
+  {% if is_logged_in %}
+   <a href="/dashboard" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">Dashboard</a>
+   <a href="/logout" class="cta" style="background:linear-gradient(135deg,#ef4444,#b91c1c);color:#ffffff;font-weight:700;padding:10px 22px;border-radius:12px;box-shadow:0 0 20px rgba(239,68,68,0.15);text-decoration:none;font-size:13px;transition:all 0.3s;">Logout</a>
+  {% else %}
+   <a href="/login" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">Login</a>
+   <a href="/register" class="cta" style="background:linear-gradient(135deg,#6366f1,#a855f7);color:#ffffff;font-weight:700;padding:10px 22px;border-radius:12px;box-shadow:0 0 20px rgba(99,102,241,0.15);text-decoration:none;font-size:13px;transition:all 0.3s;">Get Started Free</a>
+  {% endif %}
  </div>
 </nav>
 

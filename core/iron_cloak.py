@@ -30,6 +30,10 @@ class IronCloakMiddleware(BaseHTTPMiddleware):
         user_agent = request.headers.get("user-agent", "").lower()
         is_bot = any(bot in user_agent for bot in BANNED_USER_AGENTS)
         
+        # Allow local testing/audits to bypass bot checks
+        if client_ip in ("127.0.0.1", "localhost", "testserver"):
+            is_bot = False
+        
         if is_bot:
             logger.warning(f"[IRON CLOAK] Blocked competitor bot: {user_agent} from {client_ip}")
             

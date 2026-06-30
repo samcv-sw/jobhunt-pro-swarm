@@ -1,0 +1,65 @@
+{
+  "/": [
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav",
+    "🟡 LOW: 4 empty/placeholder links (#)"
+  ],
+  "/pricing": [
+    "🟡 MEDIUM: Footer has only 0 links (should have 5+)",
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav",
+    "🟡 LOW: Heavy inline style usage (44 elements) — consider CSS classes"
+  ],
+  "/faq": [
+    "🟡 MEDIUM: Meta description too long (169 chars, ideal ≤160)",
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav"
+  ],
+  "/contact": [
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav"
+  ],
+  "/compare": [
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav"
+  ],
+  "/track-application": [
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav"
+  ],
+  "/trust": [
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav"
+  ],
+  "/services": [
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav",
+    "🟡 LOW: Heavy inline style usage (43 elements) — consider CSS classes"
+  ],
+  "/blog": [
+    "🟡 MEDIUM: Footer has only 1 links (should have 5+)",
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav",
+    "🟡 MEDIUM: No dark background color detected — may break dark theme"
+  ],
+  "/privacy": [],
+  "/terms": [],
+  "/roast": [
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav",
+    "🟡 LOW: 1 empty/placeholder links (#)",
+    "🟡 LOW: Heavy inline style usage (49 elements) — consider CSS classes",
+    "🟡 MEDIUM: No dark background color detected — may break dark theme"
+  ],
+  "/register": [
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav",
+    "🟡 LOW: Image not lazy-loaded: https://upload.wikimedia.org/wikipedia/c",
+    "🟡 LOW: Image not lazy-loaded: https://upload.wikimedia.org/wikipedia/c",
+    "🟡 MEDIUM: No dark background color detected — may break dark theme"
+  ],
+  "/login": [
+    "🟡 MEDIUM: Meta description too short (34 chars)",
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav",
+    "🟡 LOW: Image not lazy-loaded: https://upload.wikimedia.org/wikipedia/c",
+    "🟡 LOW: Image not lazy-loaded: https://upload.wikimedia.org/wikipedia/c",
+    "🟡 MEDIUM: No dark background color detected — may break dark theme"
+  ],
+  "/chrome-extension": [
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav",
+    "🟡 LOW: Heavy inline style usage (41 elements) — consider CSS classes"
+  ],
+  "/careers": [
+    "🟠 HIGH: Fixed/sticky nav but low content top-offset (0px) — content may hide under nav",
+    "🟡 LOW: Heavy inline style usage (53 elements) — consider CSS classes"
+  ]
+}

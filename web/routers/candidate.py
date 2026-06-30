@@ -3,9 +3,11 @@ from fastapi.templating import Jinja2Templates
 from core.database import db
 import logging
 
+from pathlib import Path
+
 logger = logging.getLogger(__name__)
 router = APIRouter()
-templates = Jinja2Templates(directory="web/templates")
+templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))
 
 @router.get("/p/{candidate_id}")
 async def view_candidate_profile(request: Request, candidate_id: str):

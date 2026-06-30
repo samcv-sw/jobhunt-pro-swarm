@@ -3,15 +3,21 @@ from fastapi.templating import Jinja2Templates
 from core.ai_tailor import ai_tailor
 import io
 import logging
+import config
+
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-templates = Jinja2Templates(directory="web/templates")
+templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))
+templates.env.globals["VERSION"] = config.VERSION
+ph = None
 
 @router.get("/roast")
 async def roast_page(request: Request):
     """Viral Marketing: Un-gated free tool for lead gen."""
-    return templates.TemplateResponse(request, "roast.html")
+    return templates.TemplateResponse(request, "roast.html", {"VERSION": config.VERSION})
+
 
 @router.post("/api/roast")
 async def roast_resume(file: UploadFile = File(...)):

@@ -1,13 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Roast My Resume - JobHunt Pro{% endblock %}
+{% block head %}
+<meta name="description" content="Roast My Resume — Get a brutally honest, AI-powered critique of your CV to find out why you are not landing job interviews.">
+{% endblock %}
 {% block content %}
+{% include '_public_nav.html' %}
 
-<div class="glass-panel" style="max-width: 600px; margin: 50px auto; text-align: center;">
+<div class="glass-panel" style="padding-top:140px;max-width: 600px; margin: 120px auto 50px; text-align: center;">
     <h1 style="color: var(--danger);">🔥 Roast My Resume</h1>
     <p>Upload your PDF and let our brutally honest AI destroy your ego.</p>
     
     <div style="margin: 30px 0;">
-        <input type="file" id="resumeFile" accept="application/pdf" class="glass-input" style="margin-bottom: 20px;">
+        <input dir="auto" type="file" id="resumeFile" accept="application/pdf" class="glass-input" style="margin-bottom: 20px;">
         <button id="roastBtn" class="btn-primary" style="width: 100%; background: var(--danger);">Roast Me Now</button>
     </div>
     
@@ -33,6 +37,8 @@
     </div>
 </div>
 
+
+{% include '_public_footer.html' %}
 {% endblock %}
 
 {% block scripts %}

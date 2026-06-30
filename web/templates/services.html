@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>{{ title | default('JobHunt Pro') }}</title>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <link rel="stylesheet" href="/static/css/cyberpunk.css">
 
@@ -416,7 +417,7 @@
  <div class="store-grid">
  {% for s in services %}
  <div class="store-card {% if s.package in active_ids %}unlocked{% endif %}">
- <input type="checkbox" class="checkbox-select" data-id="{{ s.package }}" data-type="service" data-price="{{ s.price_usd }}" data-name="{{ s.name }}">
+ <input dir="auto" type="checkbox" class="checkbox-select" data-id="{{ s.package }}" data-type="service" data-price="{{ s.price_usd }}" data-name="{{ s.name }}">
  <div class="card-header">
  <span class="package-badge">Add-on Feature</span>
  <h3>{{ s.name }}</h3>
@@ -429,8 +430,8 @@
  </div>
  
  <form method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ s.name }}', '{{ s.price_usd }}')">
- <input type="hidden" name="package_id" value="{{ s.package }}">
- <input type="hidden" name="service_type" value="service">
+ <input dir="auto" type="hidden" name="package_id" value="{{ s.package }}">
+ <input dir="auto" type="hidden" name="service_type" value="service">
  {% if s.package in active_ids %}
  <button type="button" class="btn btn-secondary" disabled>Active</button>
  {% else %}
@@ -449,7 +450,7 @@
  {% for s in services %}
  {% if 'follow-up-automation' in s.package %}
  <div class="store-card {% if s.package in active_ids %}unlocked{% endif %}" style="border-left: 3px solid var(--cyan);">
- <input type="checkbox" class="checkbox-select" data-id="{{ s.package }}" data-type="service" data-price="{{ s.price_usd }}" data-name="{{ s.name }}">
+ <input dir="auto" type="checkbox" class="checkbox-select" data-id="{{ s.package }}" data-type="service" data-price="{{ s.price_usd }}" data-name="{{ s.name }}">
  <div class="card-header">
  <span class="package-badge" style="color: var(--cyan);">FOLLOW-UP TIER</span>
  <h3>{{ s.name }}</h3>
@@ -461,8 +462,8 @@
  <div class="price-val cyan-glow">${{ "%.2f"|format(s.price_usd) }}</div>
  </div>
  <form method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ s.name }}', '{{ s.price_usd }}')">
- <input type="hidden" name="package_id" value="{{ s.package }}">
- <input type="hidden" name="service_type" value="service">
+ <input dir="auto" type="hidden" name="package_id" value="{{ s.package }}">
+ <input dir="auto" type="hidden" name="service_type" value="service">
  {% if s.package in active_ids %}
  <button type="button" class="btn btn-secondary" disabled>Active</button>
  {% else %}
@@ -482,7 +483,7 @@
  <div class="store-grid">
  {% for b in bouquets %}
  <div class="store-card {% if b.bouquet in active_ids %}unlocked{% endif %}">
- <input type="checkbox" class="checkbox-select" data-id="{{ b.bouquet }}" data-type="bouquet" data-price="{{ b.price_usd }}" data-name="{{ b.name }}">
+ <input dir="auto" type="checkbox" class="checkbox-select" data-id="{{ b.bouquet }}" data-type="bouquet" data-price="{{ b.price_usd }}" data-name="{{ b.name }}">
  <div class="card-header">
  <span class="package-badge" style="color: var(--magenta);">Value Bundle</span>
  <h3>{{ b.name }}</h3>
@@ -495,8 +496,8 @@
  </div>
  
  <form method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ b.name }}', '{{ b.price_usd }}')">
- <input type="hidden" name="package_id" value="{{ b.bouquet }}">
- <input type="hidden" name="service_type" value="bouquet">
+ <input dir="auto" type="hidden" name="package_id" value="{{ b.bouquet }}">
+ <input dir="auto" type="hidden" name="service_type" value="bouquet">
  {% if b.bouquet in active_ids %}
  <button type="button" class="btn btn-secondary" disabled>Active</button>
  {% else %}
@@ -516,7 +517,7 @@
  </div>
  <button type="submit" class="btn-bulk-buy" id="bulkBtn" disabled>Buy Selected</button>
  </div>
- <input type="hidden" name="selected_items" id="selectedInput" value="">
+ <input dir="auto" type="hidden" name="selected_items" id="selectedInput" value="">
  </form>
 
  <!-- Terminal log for active upgrades -->

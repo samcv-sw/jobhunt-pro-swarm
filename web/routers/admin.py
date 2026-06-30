@@ -4,10 +4,12 @@ from fastapi.responses import RedirectResponse
 from core.database import db
 import logging
 
+from pathlib import Path
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-templates = Jinja2Templates(directory="web/templates")
+templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))
 
 ADMIN_CODE = "ADMIN99"
 

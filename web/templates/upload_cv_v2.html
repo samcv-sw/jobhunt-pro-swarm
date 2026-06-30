@@ -535,7 +535,7 @@
         <span class="fmt-badge word">📘 DOCX</span>
         <span class="fmt-badge txt">📄 TXT</span>
       </div>
-      <input type="file" id="cvFileInput" accept=".pdf,.doc,.docx,.txt,.rtf">
+      <input dir="auto" type="file" id="cvFileInput" accept=".pdf,.doc,.docx,.txt,.rtf">
     </div>
     <div class="file-info" id="fileInfo">
       <span>✅ <span id="fileName"></span></span>
@@ -546,7 +546,7 @@
       <span style="position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(255,255,255,0.08);"></span>
     </div>
     <div class="form-group">
-      <textarea class="large" id="cvText" placeholder="Paste your entire CV / resume text here...
+      <textarea dir="auto" class="large" id="cvText" placeholder="Paste your entire CV / resume text here...
 
 Include: Full Name, Contact Info, Work Experience, Education, Skills, Certifications, Languages...
 
@@ -559,45 +559,45 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
 
   <!-- Profile Form -->
   <form method="POST" action="/upload-cv" enctype="multipart/form-data" id="cvForm">
-    <input type="hidden" name="profile_name" id="profileNameHidden">
-    <input type="hidden" name="skills" id="skillsHidden">
-    <input type="hidden" name="target_titles" id="targetTitlesHidden">
-    <input type="hidden" name="target_locations" id="targetLocationsHidden">
-    <input type="hidden" name="cv_full_text" id="cvFullTextHidden">
-    <input type="hidden" name="cover_letter_text" id="coverLetterTextHidden">
-    <input type="hidden" name="email_body" id="emailBodyTextHidden">
+    <input dir="auto" type="hidden" name="profile_name" id="profileNameHidden">
+    <input dir="auto" type="hidden" name="skills" id="skillsHidden">
+    <input dir="auto" type="hidden" name="target_titles" id="targetTitlesHidden">
+    <input dir="auto" type="hidden" name="target_locations" id="targetLocationsHidden">
+    <input dir="auto" type="hidden" name="cv_full_text" id="cvFullTextHidden">
+    <input dir="auto" type="hidden" name="cover_letter_text" id="coverLetterTextHidden">
+    <input dir="auto" type="hidden" name="email_body" id="emailBodyTextHidden">
 
     <!-- Basic Info -->
     <div class="card">
       <div class="card-title">👤 Basic Information</div>
       <div class="row">
-        <div class="form-group"><label for="fullName">Full Name <span style="color:#f87171;">*</span></label><input type="text" id="fullName" placeholder="e.g. Sam Salameh"></div>
-        <div class="form-group"><label for="email">Email</label><input type="email" id="email" placeholder="your@email.com"></div>
+        <div class="form-group"><label for="fullName">Full Name <span style="color:#f87171;">*</span></label><input dir="auto" type="text" id="fullName" placeholder="e.g. Sam Salameh"></div>
+        <div class="form-group"><label for="email">Email</label><input dir="auto" type="email" id="email" placeholder="your@email.com"></div>
       </div>
       <div class="row">
-        <div class="form-group"><label for="phone">Phone</label><input type="text" id="phone" placeholder="+961 3 123 456"></div>
-        <div class="form-group"><label for="location">Location</label><input type="text" id="location" placeholder="Beirut, Lebanon"></div>
+        <div class="form-group"><label for="phone">Phone</label><input dir="auto" type="text" id="phone" placeholder="+961 3 123 456"></div>
+        <div class="form-group"><label for="location">Location</label><input dir="auto" type="text" id="location" placeholder="Beirut, Lebanon"></div>
       </div>
       <div class="row">
-        <div class="form-group"><label for="currentTitle">Current Title</label><input type="text" id="currentTitle" placeholder="Senior Network Engineer"></div>
-        <div class="form-group"><label for="experienceYears">Experience (years)</label><input type="number" id="experienceYears" min="0" max="50" value="5"></div>
+        <div class="form-group"><label for="currentTitle">Current Title</label><input dir="auto" type="text" id="currentTitle" placeholder="Senior Network Engineer"></div>
+        <div class="form-group"><label for="experienceYears">Experience (years)</label><input dir="auto" type="number" id="experienceYears" min="0" max="50" value="5"></div>
       </div>
       <div class="row">
-        <div class="form-group"><label for="education">Education</label><input type="text" id="education" placeholder="Bachelor of Engineering"></div>
-        <div class="form-group"><label for="linkedin">LinkedIn</label><input type="url" id="linkedin" placeholder="https://linkedin.com/in/..."></div>
+        <div class="form-group"><label for="education">Education</label><input dir="auto" type="text" id="education" placeholder="Bachelor of Engineering"></div>
+        <div class="form-group"><label for="linkedin">LinkedIn</label><input dir="auto" type="url" id="linkedin" placeholder="https://linkedin.com/in/..."></div>
       </div>
-      <div class="form-group"><label for="skillsInput">Skills (comma separated)</label><input type="text" id="skillsInput" placeholder="Cisco, Python, Linux, AWS, MikroTik, Fortinet..."><div class="tag-list" id="skillsTags"></div></div>
-      <div class="form-group"><label for="certsInput">Certifications</label><input type="text" id="certsInput" placeholder="CCNA, NSE, MTCNA..."><div class="tag-list" id="certsTags"></div></div>
-      <div class="form-group"><label for="langsInput">Languages</label><input type="text" id="langsInput" placeholder="English, Arabic, French..."><div class="tag-list" id="langsTags"></div></div>
-      <div class="form-group"><label for="summary">Professional Summary</label><textarea id="summary" placeholder="Brief professional summary..." style="min-height:90px;"></textarea></div>
+      <div class="form-group"><label for="skillsInput">Skills (comma separated)</label><input dir="auto" type="text" id="skillsInput" placeholder="Cisco, Python, Linux, AWS, MikroTik, Fortinet..."><div class="tag-list" id="skillsTags"></div></div>
+      <div class="form-group"><label for="certsInput">Certifications</label><input dir="auto" type="text" id="certsInput" placeholder="CCNA, NSE, MTCNA..."><div class="tag-list" id="certsTags"></div></div>
+      <div class="form-group"><label for="langsInput">Languages</label><input dir="auto" type="text" id="langsInput" placeholder="English, Arabic, French..."><div class="tag-list" id="langsTags"></div></div>
+      <div class="form-group"><label for="summary">Professional Summary</label><textarea dir="auto" id="summary" placeholder="Brief professional summary..." style="min-height:90px;"></textarea></div>
     </div>
 
     <!-- Target + Salary -->
     <div class="card">
       <div class="card-title">🎯 Target Job &amp; Salary</div>
       <div class="row" style="margin-bottom:20px;">
-        <div class="form-group"><label for="targetCompany">Target Company</label><input type="text" id="targetCompany" placeholder="Murex, Cisco, Bank Audi..."></div>
-        <div class="form-group"><label for="targetJobTitle">Target Job Title</label><input type="text" id="targetJobTitle" placeholder="Senior Network Engineer"></div>
+        <div class="form-group"><label for="targetCompany">Target Company</label><input dir="auto" type="text" id="targetCompany" placeholder="Murex, Cisco, Bank Audi..."></div>
+        <div class="form-group"><label for="targetJobTitle">Target Job Title</label><input dir="auto" type="text" id="targetJobTitle" placeholder="Senior Network Engineer"></div>
       </div>
       <label style="font-size:16px;color:#64748b;margin-bottom:14px;display:block;">💰 Quick Salary Range</label>
       <div class="salary-presets">
@@ -612,12 +612,12 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
         </div>
       </div>
       <div class="row">
-        <div class="form-group"><label for="targetTitles">Target Job Titles</label><input type="text" id="targetTitles" placeholder="Senior Network Engineer, IT Manager..."></div>
-        <div class="form-group"><label for="targetLocations">Target Locations</label><input type="text" id="targetLocations" placeholder="Dubai, Remote, Riyadh, Beirut..."></div>
+        <div class="form-group"><label for="targetTitles">Target Job Titles</label><input dir="auto" type="text" id="targetTitles" placeholder="Senior Network Engineer, IT Manager..."></div>
+        <div class="form-group"><label for="targetLocations">Target Locations</label><input dir="auto" type="text" id="targetLocations" placeholder="Dubai, Remote, Riyadh, Beirut..."></div>
       </div>
       <div class="row">
-        <div class="form-group"><label for="minLocalSalary">Min Local Salary ($)</label><input type="number" id="minLocalSalary" min="0" step="100" value="1500"></div>
-        <div class="form-group"><label for="minIntlSalary">Min Intl Salary ($)</label><input type="number" id="minIntlSalary" min="0" step="100" value="6000"></div>
+        <div class="form-group"><label for="minLocalSalary">Min Local Salary ($)</label><input dir="auto" type="number" id="minLocalSalary" min="0" step="100" value="1500"></div>
+        <div class="form-group"><label for="minIntlSalary">Min Intl Salary ($)</label><input dir="auto" type="number" id="minIntlSalary" min="0" step="100" value="6000"></div>
       </div>
     </div>
 
@@ -643,7 +643,7 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
             <div class="sc-desc">Direct &amp; powerful.<br>Best for senior roles,<br>tech leaders, consultants.</div>
           </div>
         </div>
-        <input type="hidden" id="emailStyle" value="professional">
+        <input dir="auto" type="hidden" id="emailStyle" value="professional">
       </div>
       <div style="margin-bottom:24px;">
         <label style="font-size:13px;font-weight:600;color:#8b5cf6;margin-bottom:12px;display:block;">📄 CV ATTACHMENT STYLE</label>
@@ -664,7 +664,7 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
             <div class="sc-desc">Glassmorphism badges,<br>minimalist layout, sleek.</div>
           </div>
         </div>
-        <input type="hidden" id="cvStyle" value="executive">
+        <input dir="auto" type="hidden" id="cvStyle" value="executive">
       </div>
       <div>
         <label style="font-size:13px;font-weight:600;color:#22c55e;margin-bottom:12px;display:block;">✉️ COVER LETTER STYLE</label>
@@ -685,7 +685,7 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
             <div class="sc-desc">Classic business letter,<br>formal structure, respectful.</div>
           </div>
         </div>
-        <input type="hidden" id="clStyle" value="storytelling">
+        <input dir="auto" type="hidden" id="clStyle" value="storytelling">
       </div>
     </div>
 

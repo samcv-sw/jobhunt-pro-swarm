@@ -1,20 +1,30 @@
-# Antigravity Workspace Rules & Instructions
+# Multi-Persona Council & AI Context Rules
 
-Whenever a new chat session is started in this workspace, the agent MUST automatically perform the following steps on its very first turn:
+## Global Constraints
+1. **Never use placeholder code** (e.g., `// TODO: implement`). Always provide complete, copy-paste-ready file outputs.
+2. **Lazy Loading of Tools**: Use context efficiently. Only load metadata and tools when strictly necessary for the active domain.
+3. **No Sycophancy**: Do not blindly agree with the user if their technical request contradicts structural integrity or best practices.
 
-1. **Read Project State**:
-   - Read [ANTIGRAVITY_STATE_SUMMARY.md](file:///C:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi/ANTIGRAVITY_STATE_SUMMARY.md) to understand the current state, active objectives, and the previous conversation ID.
-   - Read [AUTO_OPTIMIZATION_LOG.md](file:///C:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi/AUTO_OPTIMIZATION_LOG.md) and [.antigravity_improvements.json](file:///C:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi/.antigravity_improvements.json) to see what optimizations have already been applied.
+## Multi-Persona Evaluation Council
+For all complex code generation, especially regarding architecture and UI/UX:
+1. **Skeptic**: Assume the generated code has hidden bugs or fails to account for edge cases. Identify what is wrong, missing, or overly complex.
+2. **Domain Expert**: Review the code from the perspective of a Senior Architect. Are CSS Logical Properties strictly used? Are the typography and cultural colors accurate for the Gulf region?
+3. **Adversary**: Construct the strongest argument against the chosen approach. E.g., "This flex layout will break on older browsers" or "This font size is too small for Arabic legibility."
+4. **Synthesis Pass**: Combine the initial output with these critiques to produce the final, hardened codebase.
 
-2. **Sync the Conversation ID**:
-   - Run the loop script command: `python scripts/antigravity_loop.py loop` using `run_command`. This dynamically finds the active conversation directory in the Antigravity IDE and updates the state summary report with the new conversation ID.
-
-3. **Verify Workspace Health**:
-   - Run the health check command: `python scripts/antigravity_loop.py check` to check database connections, schema validation, and config files.
-   - Check `_pa_error.log` or the `logs/` directory for any recent failures or crashes that need auto-healing.
-
-4. **Continuous Optimization Plan**:
-   - If the user runs the chat with the `/goal` command or requests optimization:
-     - Identify the most high-impact files to optimize (e.g., refactoring code, fixing bugs, cleaning up logs, performance tuning).
-     - Implement the changes, run tests with `pytest`, log the improvements with `python scripts/antigravity_loop.py log-improvement --summary "..."`, and update the state report.
-     - Repeat this cycle continuously until the estimated token limit (from `ANTIGRAVITY_STATE_SUMMARY.md`) reaches ~85% or 1.7M tokens.
+## UI/UX & Layout Directives (Arabic & RTL Focus)
+1. **CSS Logical Properties MUST BE USED**:
+   - `margin-left` -> `margin-inline-start`
+   - `padding-right` -> `padding-inline-end`
+   - `left`/`right` -> `inset-inline-start`/`inset-inline-end`
+   - `width`/`height` -> `inline-size`/`block-size`
+2. **Arabic Typography**:
+   - Fonts: `'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif`
+   - Min font-size: `14px` (recommended `16px` for readability)
+   - Line-height: `1.6` to `2.0`
+   - No `letter-spacing` on Arabic text.
+3. **Cultural Ergonomics**:
+   - Primary action buttons (CTAs) should remain centrally located or naturally positioned for right-handed users on mobile devices, avoiding blind mechanical mirroring.
+   - **Colors**: Green for success. Black/Gold for luxury. Blue for trust. Red for strict errors only.
+4. **Forms**: All inputs must use `dir="auto"`.
+5. **Directional Icons**: Use `transform: scaleX(var(--text-x-direction))` with a `--text-x-direction` variable (`1` for LTR, `-1` for RTL).

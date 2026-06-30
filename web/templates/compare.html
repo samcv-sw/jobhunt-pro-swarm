@@ -51,7 +51,7 @@
         
         .cta-section { text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #00f0ff10, #7000ff10); }
         .cta-section h2 { color: #fff; font-size: 1.8em; }
-        .cta-section .cta-button { margin-top: 20px; display: inline-block; padding: 14px 40px; background: linear-gradient(135deg, #00f0ff, #0088ff); color: #000; border-radius: 30px; font-weight: 700; text-decoration: none; font-size: 16px; }
+        .cta-section .cta-button { margin-top: 20px; display: inline-block; padding: 14px 40px; background: linear-gradient(135deg, #00f0ff, #0088ff); color: #fff; border-radius: 30px; font-weight: 700; text-decoration: none; font-size: 16px; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
         
         .faq-section { max-width: 900px; margin: 0 auto; padding: 40px 20px 60px; }
         .faq-section h2 { color: #00f0ff; text-align: center; margin-bottom: 30px; }
@@ -67,9 +67,9 @@
     </style>
 </head>
 <body class="cyberpunk-body">
-    <nav class="navbar"><a href="/" class="logo">⚡ JobHunt Pro</a><div class="nav-links"><a href="/">Home</a><a href="/blog">Blog</a><a href="/compare">Compare</a><a href="/register">Get Started</a></div></nav>
+{% include '_public_nav.html' %}
 
-    <section class="comparison-hero">
+    <section class="comparison-hero" style="padding-top:120px">
         <h1>JobHunt Pro vs Competitors</h1>
         <p>The definitive comparison of AI job application tools. We tested every service so you don't have to.</p>
     </section>
@@ -262,6 +262,17 @@
         <a href="/register" class="cta-button">⚡ Start Auto-Applying Now</a>
     </section>
 
-    <footer class="site-footer"><p>JobHunt Pro · AI-Powered Job Applications · <a href="/">Start Free</a></p></footer>
+    <footer style="text-align:center;padding:40px 24px;border-top:1px solid rgba(255,255,255,0.06);color:#52525b;font-size:13px;">
+        <div style="margin-bottom:16px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;">
+            <a href="/" style="color:#64748b;text-decoration:none;">Home</a>
+            <a href="/pricing" style="color:#64748b;text-decoration:none;">Pricing</a>
+            <a href="/faq" style="color:#64748b;text-decoration:none;">FAQ</a>
+            <a href="/blog" style="color:#64748b;text-decoration:none;">Blog</a>
+            <a href="/contact" style="color:#64748b;text-decoration:none;">Contact</a>
+            <a href="/trust" style="color:#64748b;text-decoration:none;">Trust</a>
+            <a href="/register" style="color:#00f0ff;text-decoration:none;font-weight:600;">Get Started Free</a>
+        </div>
+        <p>&copy; 2026 JobHunt Pro. All rights reserved. AI-Powered Job Applications.</p>
+    </footer>
 </body>
 </html>

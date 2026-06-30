@@ -589,8 +589,8 @@ body {
       Enter your <strong style="color:var(--accent-primary);">Payment Code</strong> (shown above) and the transaction hash from your crypto wallet.
     </div>
     <div class="verify-input-group-v3">
-      <input type="text" id="paymentCodeV3" placeholder="Payment Code (e.g. A1B2C3D4)" autocomplete="off" style="text-transform:uppercase; letter-spacing:2px;">
-      <input type="text" id="txHashV3" placeholder="Transaction hash / TX ID" autocomplete="off">
+      <input dir="auto" type="text" id="paymentCodeV3" placeholder="Payment Code (e.g. A1B2C3D4)" autocomplete="off" style="text-transform:uppercase; letter-spacing:2px;">
+      <input dir="auto" type="text" id="txHashV3" placeholder="Transaction hash / TX ID" autocomplete="off">
       <button class="btn-verify-v3" id="verifyBtnV3" onclick="verifyPaymentV3('{{ order.order_id }}')">Verify</button>
     </div>
     <div class="verify-result-v3" id="verifyResultV3"></div>

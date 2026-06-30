@@ -422,7 +422,20 @@ class SqliteConnectionWrapper:
     """SQLite fallback wrapper with same interface as PgConnectionWrapper."""
     def __init__(self, db_path: Union[str, Any]) -> None:
         global BACKEND
-        self.conn = real_sqlite3.connect(db_path, check_same_thread=False, timeout=30)
+        try:
+            self.conn = real_sqlite3.connect(db_path, check_same_thread=False, timeout=30)
+        except real_sqlite3.DatabaseError as de:
+            if "file is not a database" in str(de):
+                logger.error(f"[SHIM] SQLite file is not a database. Auto-healing by removing: {db_path}")
+                try:
+                    import os
+                    if os.path.exists(db_path):
+                        os.remove(db_path)
+                except Exception:
+                    pass
+                self.conn = real_sqlite3.connect(db_path, check_same_thread=False, timeout=30)
+            else:
+                raise de
         self.conn.row_factory = DictLikeRow
         
         # Performance tuning for extreme scalability on SQLite
@@ -430,6 +443,7 @@ class SqliteConnectionWrapper:
         self.conn.execute("PRAGMA synchronous=NORMAL")
         self.conn.execute("PRAGMA cache_size=-64000") # 64MB cache
         self.conn.execute("PRAGMA busy_timeout=30000")
+        self.conn.execute("PRAGMA encoding='UTF-8'")
         
         BACKEND = "sqlite"
         logger.info(f"[DB] Connected to SQLite fallback: {_safe_str(db_path)}")

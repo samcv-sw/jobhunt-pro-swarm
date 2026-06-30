@@ -2005,7 +2005,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
  <div class="roi-box">
   <div class="roi-slider-wrap">
    <label>Your Target Annual Salary: <strong id="roiLabel" style="color:var(--gold)">$50,000</strong></label>
-   <input type="range" class="roi-slider" id="roiSlider" min="12000" max="200000" value="50000" step="1000" oninput="updateROI(this.value)">
+   <input dir="auto" type="range" class="roi-slider" id="roiSlider" min="12000" max="200000" value="50000" step="1000" oninput="updateROI(this.value)">
   </div>
   <div class="roi-result">
    <span class="roi-val" id="roiSavings">$4,167</span>
@@ -2079,48 +2079,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 </section>
 
 <!-- ═══ FOOTER ═══ -->
-<footer class="footer">
- <div class="footer-grid">
-  <div class="footer-brand">
-   <span class="fb-logo">JOBHUNT PRO</span>
-   <p>AI-powered job application automation. Your personal job-hunting engine that works 24/7 so you don't have to. Save 40+ hours per week. Land more interviews. Get hired faster.</p>
-  </div>
-  <div class="footer-col">
-   <h4>Product</h4>
-   <a href="#how">How It Works</a>
-   <a href="#features">Features</a>
-   <a href="#pricing">Pricing</a>
-   <a href="#faq">FAQ</a>
-   <a href="/register">Get Started</a>
-  </div>
-  <div class="footer-col">
-   <h4>Company</h4>
-   <a href="/about">About Us</a>
-   <a href="/trust">Trust Center</a>
-   <a href="/blog">Blog</a>
-   <a href="/careers">Careers</a>
-   <a href="/contact">Contact</a>
-  </div>
-  <div class="footer-col">
-   <h4>Legal</h4>
-   <a href="/privacy">Privacy Policy</a>
-   <a href="/terms">Terms of Service</a>
-   <a href="/refund">Refund Policy</a>
-   <a href="/cookies">Cookie Policy</a>
-   <a href="/trust">Security</a>
-  </div>
- </div>
- <div class="footer-bottom">
-  <p>© 2026 JobHunt Pro v{{ VERSION }} — AI-Powered Automated Job Applications. Pay with BTC, ETH, USDT, LTC.</p>
-  <div class="footer-social">
-    <a href="https://twitter.com/jobhuntpro" title="Twitter/X" target="_blank">𝕏</a>
-    <a href="https://linkedin.com/company/jobhuntpro" title="LinkedIn" target="_blank">in</a>
-    <a href="https://github.com/jobhuntpro" title="GitHub" target="_blank">⌂</a>
-    <a href="https://discord.gg/jobhuntpro" title="Discord" target="_blank">◇</a>
-    <a href="https://t.me/jobhuntpro" title="Telegram" target="_blank">✈</a>
-  </div>
- </div>
-</footer>
+{% include "_public_footer.html" %}
 
 <!-- ═══ JAVASCRIPT ═══ -->
 <script>

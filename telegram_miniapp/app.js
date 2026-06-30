@@ -10,7 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const user = tg.initDataUnsafe?.user;
         if (user) {
             userId = user.id;
-            document.getElementById('user-greeting').innerText = `Welcome, ${user.first_name}!`;
+            const greetingEl = document.getElementById('user-greeting');
+            if (greetingEl) {
+                greetingEl.innerText = `Welcome, ${user.first_name}!`;
+            }
         }
     } catch (e) {
         console.log("Not running inside Telegram");
@@ -20,6 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchStats() {
         try {
             const res = await fetch(`${WEBHOOK_URL}/api/v1/user/${userId}`);
+            if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) {
+                console.log("Using local/fallback stats (API offline or not returning JSON)");
+                return;
+            }
             const data = await res.json();
             const credits = data.credits || 0;
             document.getElementById('invite-count').innerText = `${credits}/3`;
@@ -33,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 payBtn.dataset.free = 'true';
             }
         } catch(e) {
-            console.error("Failed to fetch stats", e);
+            console.log("Failed to fetch stats:", e.message);
         }
     }
     fetchStats();

@@ -102,20 +102,29 @@ def render_template(name: str, **context):
         logger.error(f"Error rendering template {name}: {e}")
         return f"<!-- Error rendering template {name}: {e} -->"
 
-def _public_shell(content: str, title: str = "JobHunt Pro", description: str = "") -> str:
+def _public_shell(content: str, title: str = "JobHunt Pro", description: str = "", request: Request = None) -> str:
     """Wrap content in glass-morphism HTML shell for non-authenticated pages.
     Args:
         content: HTML body content
         title: Page title (default "JobHunt Pro")
         description: Meta description (uses default if empty)
+        request: FastAPI Request object to determine login state
     """
     default_desc = "AI-Powered Job Application Engine — Apply to thousands of jobs automatically. Your personal job-hunting AI works 24/7. Get hired faster."
     meta_desc = description if description else default_desc
+    is_logged_in = False
+    if request:
+        try:
+            is_logged_in = bool(get_verified_user_id(request))
+        except Exception:
+            pass
     return render_template(
         "_public_shell.html",
         content=content,
         title=title,
-        description=meta_desc
+        description=meta_desc,
+        is_logged_in=is_logged_in,
+        VERSION=config.VERSION
     )
 
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "")
@@ -582,13 +591,14 @@ try:
     from starlette.middleware.cors import CORSMiddleware
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["https://jhfguf.pythonanywhere.com", "http://localhost:*", "http://127.0.0.1:*"],
+        allow_origins=["https://jhfguf.pythonanywhere.com", "null"],
+        allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["*"],
         max_age=3600,
     )
-    logger.info("CORS middleware configured (restrictive)")
+    logger.info("CORS middleware configured (allowing null & localhost regex)")
 except Exception as e:
     logger.warning(f"CORS middleware skipped: {e}")
 # ----------------------------------------
@@ -881,7 +891,9 @@ class StaticCacheMiddleware(BaseHTTPMiddleware):
             else:
                 response.headers["Cache-Control"] = "public, max-age=86400"
         elif path in ("/", "/pricing", "/services", "/faq", "/blog", "/trust", "/contact"):
-            response.headers["Cache-Control"] = "public, max-age=3600, stale-while-revalidate=86400"
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
         
         # Piggyback trigger (5% chance on non-static routes to process background jobs)
         if not path.startswith("/static/") and random.random() < 0.05:
@@ -2426,7 +2438,7 @@ def _build_dashboard_shell(user, user_id, content_html, title, active_page):
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#0a0a14">
     <link rel="apple-touch-icon" href="/static/img/icon-192.png">
-    <link rel="stylesheet" href="/static/css/cyberpunk.css?v=199">
+    <link rel="stylesheet" href="/static/css/cyberpunk.css?v=20260629_v2">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
 *{{margin:0;padding:0;box-sizing:border-box}}
@@ -2756,19 +2768,6 @@ def pricing(request: Request):
             logger.error(e, exc_info=True)
             if 'conn' in locals() and conn: conn.close()
         user_id = get_verified_user_id(request)
-        # Logged-in users get dashboard-embedded pricing (with sidebar)
-        if user_id:
-            conn2 = get_db()
-            user_row = conn2.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-            user = dict(user_row) if user_row else None
-            conn2.close()
-            pricing_html = _build_pricing_inline(pricing_data, flash_discount, flash_sale_info)
-            html = _build_dashboard_shell(user, user_id, pricing_html, "💎 Pricing", "pricing")
-            resp = HTMLResponse(content=html)
-            resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-            resp.headers["Pragma"] = "no-cache"
-            resp.headers["Expires"] = "0"
-            return resp
         
         services_list = [
             {"name": "AI Auto-Apply Engine", "desc": "Automated job applications 24/7", "price": 9.99},
@@ -2780,13 +2779,14 @@ def pricing(request: Request):
         ]
         pricing_dict = {"tiers": pricing_data.get("tiers", pricing_data), "services": services_list}
         
-        response = templates.TemplateResponse(request, "pricing_v3.html", {
-            "pricing": pricing_dict,
-            "flash_discount": flash_discount,
-            "flash_sale": flash_sale_info,
-            "is_logged_in": False,
-            "VERSION": config.VERSION
-        })
+        pricing_content = render_template("pricing_v3.html", request=request,
+                                          pricing=pricing_dict,
+                                          flash_discount=flash_discount,
+                                          flash_sale=flash_sale_info,
+                                          is_logged_in=bool(user_id),
+                                          VERSION=config.VERSION)
+        html = _public_shell(pricing_content, "Pricing — JobHunt Pro", "JobHunt Pro pricing plans. Choose the power level that fits your job hunt: Starter, Basic, Pro, or Enterprise.", request=request)
+        response = HTMLResponse(content=html)
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
@@ -2796,25 +2796,24 @@ def pricing(request: Request):
         return HTMLResponse("<h2>Error loading pricing</h2><p>Please try again later.</p>", status_code=500)
 
 @app.get("/referral", response_class=HTMLResponse)
-def referral_page(request: Request):
+def referral_page(request: Request, ref: str = ""):
+    """Invited users landing page."""
     try:
         user_id = get_verified_user_id(request)
-        if not user_id:
-            return RedirectResponse("/login")
-        # Logic for referrals goes here
-        return HTMLResponse("<h1>Referrals</h1>")
+        if user_id:
+            return RedirectResponse("/dashboard", status_code=303)
+        
+        # Render public referral landing page
+        content = render_template("referral.html", request=request, ref_code=ref)
+        html = _public_shell(content, "You are invited to JobHunt Pro!", request=request)
+        response = HTMLResponse(content=html)
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
     except Exception as e:
-        logger.error(e, exc_info=True)
-    response = templates.TemplateResponse(request, "pricing_v2.html", {
-        "pricing": pricing_data,
-        "flash_discount": flash_discount,
-        "flash_sale": flash_sale_info,
-        "is_logged_in": False
-    })
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "0"
-    return response
+        logger.error(f"Error rendering referral landing: {e}", exc_info=True)
+        return RedirectResponse("/register", status_code=303)
 
 @app.get("/faq", response_class=HTMLResponse)
 def faq_page(request: Request):
@@ -3005,7 +3004,7 @@ def careers_page(request: Request):
 
         <p style="margin-top:40px;color:#64748b;">Don't see your role? <a href="/contact">Send us your CV anyway</a> &mdash; we're always looking for great people.</p>
     </div>
-    """, "Careers \u2014 JobHunt Pro")
+    """, "Careers — JobHunt Pro", "Join the JobHunt Pro team. Remote-first AI startup. Open roles in Engineering, Marketing, and Customer Success.", request=request)
     return HTMLResponse(html)
 
 @app.get("/sitemap.xml")
@@ -3080,7 +3079,7 @@ def contact_page(request: Request):
             logger.error(e, exc_info=True)
     content = render_template("contact.html", request=request, msg=msg, error=error,
                               user_name=user_name, user_email=user_email, is_admin=is_admin)
-    return HTMLResponse(_public_shell(content, "Contact &mdash; JobHunt Pro"))
+    return HTMLResponse(_public_shell(content, "Contact &mdash; JobHunt Pro", "Contact JobHunt Pro support. Reach us via WhatsApp, email, or our contact form. We respond within 24h.", request=request))
 
 @app.post("/contact")
 def contact_submit(request: Request, name: str = Form(...), email: str = Form(...), message: str = Form(...), subject: str = Form(""), rating: str = Form("")):
@@ -3143,7 +3142,7 @@ async def register(request: Request, email: str = Form(...), password: str = For
 
     # 1. Cloudflare Turnstile Anti-Bot Validation (Item 19)
     if not cf_turnstile_response:
-        return templates.TemplateResponse(request, "register.html", {"error": "Please complete the Anti-Bot CAPTCHA.", "ref": ref})
+        return templates.TemplateResponse(request, "register_v2.html", {"error": "Please complete the Anti-Bot CAPTCHA.", "ref": ref})
         
     try:
         turnstile_secret = config.TURNSTILE_SECRET or os.getenv("TURNSTILE_SECRET", "")
@@ -3157,25 +3156,25 @@ async def register(request: Request, email: str = Form(...), password: str = For
                     "response": cf_turnstile_response
                 }, timeout=5.0)
                 if not cf_resp.json().get("success"):
-                    return templates.TemplateResponse(request, "register.html", {"error": "Anti-Bot Verification Failed. Please try again.", "ref": ref})
+                    return templates.TemplateResponse(request, "register_v2.html", {"error": "Anti-Bot Verification Failed. Please try again.", "ref": ref})
     except Exception as e:
         logger.error(f"Turnstile API error: {e}")
-        return templates.TemplateResponse(request, "register.html", {"error": "Bot verification service is down. Try again later.", "ref": ref})
+        return templates.TemplateResponse(request, "register_v2.html", {"error": "Bot verification service is down. Try again later.", "ref": ref})
 
     # Rate limit: max 5 registrations per IP per hour
     client_ip = request.client.host if request.client else "unknown"
     if not _check_rate_limit(_register_attempts, client_ip, max_count=5):
         return templates.TemplateResponse(
-            request, "register.html",
+            request, "register_v2.html",
             {"error": "Too many registration attempts. Please try again in 1 hour.", "ref": ref}
         )
     # Password complexity: min 8 chars, 1 uppercase, 1 digit
     if len(password) < 8:
-        return templates.TemplateResponse(request, "register.html", {"error": "Password must be at least 8 characters.", "ref": ref})
+        return templates.TemplateResponse(request, "register_v2.html", {"error": "Password must be at least 8 characters.", "ref": ref})
     if not any(c.isupper() for c in password):
-        return templates.TemplateResponse(request, "register.html", {"error": "Password must contain at least one uppercase letter.", "ref": ref})
+        return templates.TemplateResponse(request, "register_v2.html", {"error": "Password must contain at least one uppercase letter.", "ref": ref})
     if not any(c.isdigit() for c in password):
-        return templates.TemplateResponse(request, "register.html", {"error": "Password must contain at least one digit.", "ref": ref})
+        return templates.TemplateResponse(request, "register_v2.html", {"error": "Password must contain at least one digit.", "ref": ref})
     conn = get_db()
     existing = conn.execute("SELECT user_id, password_hash, api_key FROM users WHERE email = ?", (email,)).fetchone()
     if existing:
@@ -3186,7 +3185,7 @@ async def register(request: Request, email: str = Form(...), password: str = For
             valid_codes = os.getenv("SEEDED_INVITE_CODES", "").split(",")
             if not invite_code or invite_code.strip() not in valid_codes:
                 conn.close()
-                return templates.TemplateResponse(request, "register.html", {"error": "This account requires an invite code to claim.", "ref": ref})
+                return templates.TemplateResponse(request, "register_v2.html", {"error": "This account requires an invite code to claim.", "ref": ref})
             api_key = existing["api_key"] or generate_api_key()
             conn.execute("""UPDATE users SET password_hash = ?, name = ?, phone = ?, company_name = ?, user_type = ?, api_key = ?
                             WHERE user_id = ?""",
@@ -3199,7 +3198,7 @@ async def register(request: Request, email: str = Form(...), password: str = For
             return resp
         else:
             conn.close()
-            return templates.TemplateResponse(request, "register.html", {"error": "Email already registered"})
+            return templates.TemplateResponse(request, "register_v2.html", {"error": "Email already registered"})
 
     user_id = f"user_{uuid.uuid4().hex[:16]}"
     api_key = generate_api_key()
@@ -3586,7 +3585,7 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
     client_ip = request.client.host if request.client else "unknown"
     if not _check_login_rate_limit(client_ip):
         return templates.TemplateResponse(
-            request, "login.html",
+            request, "login_v2.html",
             {"error": "Too many login attempts. Please try again in 1 hour."}
         )
     # Per-account lockout: 5 failed attempts = 30min lock
@@ -3605,7 +3604,7 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
             lock_ts = float(lockout["value"])
             if time() - lock_ts < 1800:  # 30 min lockout
                 conn.close()
-                return templates.TemplateResponse(request, "login.html", {"error": "Account locked due to too many failed attempts. Try again in 30 minutes."})
+                return templates.TemplateResponse(request, "login_v2.html", {"error": "Account locked due to too many failed attempts. Try again in 30 minutes."})
         except (ValueError, TypeError):
             pass
 
@@ -3614,7 +3613,7 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
     # Check if user is banned/disabled
     if user and (user.get("is_active") == 0 or user.get("banned") == 1):
         conn.close()
-        return templates.TemplateResponse(request, "login.html", {"error": "Account has been disabled. Contact support."})
+        return templates.TemplateResponse(request, "login_v2.html", {"error": "Account has been disabled. Contact support."})
 
     if not user or not verify_password(password, user["password_hash"]):
         # Track failed attempt
@@ -3631,7 +3630,7 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
         except Exception:
             pass
         conn.close()
-        return templates.TemplateResponse(request, "login.html", {"error": "Invalid credentials"})
+        return templates.TemplateResponse(request, "login_v2.html", {"error": "Invalid credentials"})
 
     # Successful login — clear failed attempts
     try:
@@ -4687,17 +4686,20 @@ def services_page(request: Request):
     # Show success flash to authenticated users
     success_msg = ""
     user_id = get_verified_user_id(request)
+    user = None
     if user_id:
         success_msg = request.query_params.get("success", "")
-        conn = get_db()
-        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        conn.close()
-        if user_row:
-            user = dict(user_row)
-            content = render_template("services_new.html", request=request, success=success_msg, user=user)
-            return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Services", "services"))
-    content = render_template("services_new.html", request=request, success=success_msg)
-    return HTMLResponse(_public_shell(content, "Services &mdash; JobHunt Pro"))
+        try:
+            conn = get_db()
+            user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            conn.close()
+            if user_row:
+                user = dict(user_row)
+        except Exception as e:
+            logger.error(f"Error getting user for services: {e}", exc_info=True)
+            if 'conn' in locals() and conn: conn.close()
+    content = render_template("services_new.html", request=request, success=success_msg, user=user, is_logged_in=bool(user_id))
+    return HTMLResponse(_public_shell(content, "Services &mdash; JobHunt Pro", "JobHunt Pro Premium Services — CV rewriting, ATS optimization, LinkedIn makeover, email domain setup, and career coaching bundles.", request=request))
 
 @app.post("/services/purchase")
 def purchase_service(request: Request, package_id: str = Form(...), service_type: str = Form(...)):
@@ -8818,9 +8820,82 @@ def require_admin(request: Request):
 
 @app.get("/admin", response_class=HTMLResponse)
 def admin_panel(request: Request):
-    """Admin dashboard &#x2014; full system overview."""
+    """Admin dashboard — full system overview."""
     if not require_admin(request):
         return RedirectResponse("/login", status_code=303)
+
+    conn = get_db()
+
+    # Stats
+    total_users    = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+    total_campaigns= conn.execute("SELECT COUNT(*) FROM campaigns").fetchone()[0]
+    total_emails   = conn.execute("SELECT COUNT(*) FROM campaign_emails").fetchone()[0]
+    emails_sent    = conn.execute("SELECT COUNT(*) FROM campaign_emails WHERE status='sent'").fetchone()[0]
+    total_revenue  = conn.execute("SELECT COALESCE(SUM(amount_usd),0) FROM orders WHERE payment_status='completed'").fetchone()[0]
+    total_wallets  = conn.execute("SELECT COALESCE(SUM(wallet_balance),0) FROM users").fetchone()[0]
+
+    # Recent users
+    users = [dict(r) for r in conn.execute(
+        "SELECT user_id, email, name, wallet_balance, total_spent, user_type, created_at, is_active FROM users ORDER BY created_at DESC LIMIT 50"
+    ).fetchall()]
+
+    # Recent campaigns
+    campaigns = [dict(r) for r in conn.execute(
+        "SELECT c.campaign_id, c.user_id, c.status, c.total_companies, c.sent_count, c.created_at, u.email FROM campaigns c LEFT JOIN users u ON c.user_id=u.user_id ORDER BY c.created_at DESC LIMIT 30"
+    ).fetchall()]
+
+    # Recent orders
+    orders = [dict(r) for r in conn.execute(
+        "SELECT o.order_id, o.user_id, o.order_type, o.amount_usd, o.payment_status, o.created_at, u.email FROM orders o LEFT JOIN users u ON o.user_id=u.user_id ORDER BY o.created_at DESC LIMIT 30"
+    ).fetchall()]
+
+    # Unused redeem codes
+    redeem_codes = [dict(r) for r in conn.execute(
+        "SELECT code, value_usd, code_type, is_used, used_by, created_at FROM redeem_codes ORDER BY created_at DESC LIMIT 20"
+    ).fetchall()]
+
+    # Recent manual emails
+    manual_emails = [dict(r) for r in conn.execute(
+        "SELECT to_email, subject, price_usd, status, created_at FROM manual_emails ORDER BY created_at DESC LIMIT 20"
+    ).fetchall()]
+
+    # Manual email stats
+    manual_email_count = conn.execute("SELECT COUNT(*) FROM manual_emails").fetchone()[0]
+    manual_email_revenue = conn.execute("SELECT COALESCE(SUM(price_usd),0) FROM manual_emails WHERE status='sent'").fetchone()[0]
+
+    # Flash sales
+    flash_sales = [dict(r) for r in conn.execute(
+        "SELECT * FROM flash_sales ORDER BY created_at DESC LIMIT 20"
+    ).fetchall()]
+
+    conn.close()
+
+    # Payment stats from payments module
+    try:
+        payment_stats = get_payment_stats()
+    except Exception:
+        payment_stats = {"total_payments": 0, "total_received_usd": 0, "by_currency": {}, "recent": []}
+
+    return templates.TemplateResponse(request, "admin.html", {
+        "stats": {
+            "total_users": total_users,
+            "total_campaigns": total_campaigns,
+            "total_emails": total_emails,
+            "emails_sent": emails_sent,
+            "total_revenue": round(float(total_revenue), 2),
+            "total_wallets": round(float(total_wallets), 2),
+            "manual_emails": manual_email_count,
+            "manual_email_revenue": round(float(manual_email_revenue), 2),
+        },
+        "users": users,
+        "campaigns": campaigns,
+        "orders": orders,
+        "redeem_codes": redeem_codes,
+        "payment_stats": payment_stats,
+        "manual_emails": manual_emails,
+        "flash_sales": flash_sales,
+    })
+
 
 @app.get("/admin/sys-logs", response_class=HTMLResponse)
 def admin_sys_logs(request: Request):
@@ -8874,55 +8949,6 @@ def admin_sys_logs(request: Request):
     return HTMLResponse(html_content)
 
 
-    conn = get_db()
-
-    # Stats
-    total_users    = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-    total_campaigns= conn.execute("SELECT COUNT(*) FROM campaigns").fetchone()[0]
-    total_emails   = conn.execute("SELECT COUNT(*) FROM campaign_emails").fetchone()[0]
-    emails_sent    = conn.execute("SELECT COUNT(*) FROM campaign_emails WHERE status='sent'").fetchone()[0]
-    total_revenue  = conn.execute("SELECT COALESCE(SUM(amount_usd),0) FROM orders WHERE payment_status='completed'").fetchone()[0]
-    total_wallets  = conn.execute("SELECT COALESCE(SUM(wallet_balance),0) FROM users").fetchone()[0]
-
-    # Recent users
-    users = [dict(r) for r in conn.execute(
-        "SELECT user_id, email, name, wallet_balance, total_spent, user_type, created_at, is_active FROM users ORDER BY created_at DESC LIMIT 50"
-    ).fetchall()]
-
-    # Recent campaigns
-    campaigns = [dict(r) for r in conn.execute(
-        "SELECT c.campaign_id, c.user_id, c.status, c.total_companies, c.sent_count, c.created_at, u.email FROM campaigns c LEFT JOIN users u ON c.user_id=u.user_id ORDER BY c.created_at DESC LIMIT 30"
-    ).fetchall()]
-
-    # Recent orders
-    orders = [dict(r) for r in conn.execute(
-        "SELECT o.order_id, o.user_id, o.order_type, o.amount_usd, o.payment_status, o.created_at, u.email FROM orders o LEFT JOIN users u ON o.user_id=u.user_id ORDER BY o.created_at DESC LIMIT 30"
-    ).fetchall()]
-
-    # Unused redeem codes
-    redeem_codes = [dict(r) for r in conn.execute(
-        "SELECT code, value_usd, code_type, is_used, used_by, created_at FROM redeem_codes ORDER BY created_at DESC LIMIT 20"
-    ).fetchall()]
-
-    # Recent manual emails
-    manual_emails = [dict(r) for r in conn.execute(
-        "SELECT to_email, subject, price_usd, status, created_at FROM manual_emails ORDER BY created_at DESC LIMIT 20"
-    ).fetchall()]
-
-    # Manual email stats
-    manual_email_count = conn.execute("SELECT COUNT(*) FROM manual_emails").fetchone()[0]
-    manual_email_revenue = conn.execute("SELECT COALESCE(SUM(price_usd),0) FROM manual_emails WHERE status='sent'").fetchone()[0]
-
-    # Flash sales
-    flash_sales = [dict(r) for r in conn.execute(
-        "SELECT * FROM flash_sales ORDER BY created_at DESC LIMIT 20"
-    ).fetchall()]
-
-    conn.close()
-
-    # Payment stats from payments module
-
-
 @app.post("/admin-reset-pw")
 def admin_reset_pw(token: str = ""):
     """Reset admin password via secret token. POST-only, uses ADMIN_PW_HASH env var."""
@@ -8938,30 +8964,95 @@ def admin_reset_pw(token: str = ""):
     conn.close()
     logger.info("Password reset for samsalameh.cv@gmail.com via admin-reset-pw")
     return {"status": "password updated for samsalameh.cv@gmail.com"}
-    try:
-        payment_stats = get_payment_stats()
-    except Exception:
-        payment_stats = {"total_payments": 0, "total_received_usd": 0, "by_currency": {}, "recent": []}
 
-    return templates.TemplateResponse(request, "admin.html", {
-        "stats": {
-            "total_users": total_users,
-            "total_campaigns": total_campaigns,
-            "total_emails": total_emails,
-            "emails_sent": emails_sent,
-            "total_revenue": round(float(total_revenue), 2),
-            "total_wallets": round(float(total_wallets), 2),
-            "manual_emails": manual_email_count,
-            "manual_email_revenue": round(float(manual_email_revenue), 2),
-        },
-        "users": users,
-        "campaigns": campaigns,
-        "orders": orders,
-        "redeem_codes": redeem_codes,
-        "payment_stats": payment_stats,
-        "manual_emails": manual_emails,
-        "flash_sales": flash_sales,
-    })
+
+@app.post("/api/admin/run-design-scan")
+def api_run_design_scan(request: Request):
+    if not require_admin(request):
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+    
+    routes = [
+        "/",
+        "/pricing",
+        "/faq",
+        "/contact",
+        "/services",
+        "/compare",
+        "/track-application",
+        "/trust",
+        "/login",
+        "/register",
+        "/chrome-extension",
+        "/careers"
+    ]
+    
+    results = []
+    critical_count = 0
+    high_count = 0
+    medium_count = 0
+    
+    import httpx
+    base_url = str(request.base_url).rstrip('/')
+    
+    try:
+        with httpx.Client(timeout=10.0, follow_redirects=True) as client:
+            for r in routes:
+                url = f"{base_url}{r}"
+                issues = []
+                try:
+                    res = client.get(url)
+                    html = res.text
+                    
+                    # 1. Check title
+                    if "<title>" not in html or "</title>" not in html:
+                        issues.append({"severity": "CRITICAL", "message": "Missing <title> tag"})
+                        critical_count += 1
+                    
+                    # 2. Check viewport
+                    if 'name="viewport"' not in html:
+                        issues.append({"severity": "CRITICAL", "message": "Missing viewport meta tag — broken on mobile"})
+                        critical_count += 1
+                        
+                    # 3. Check nav
+                    if "<nav" not in html:
+                        issues.append({"severity": "CRITICAL", "message": "No <nav> element found"})
+                        critical_count += 1
+                        
+                    # 4. Check footer
+                    if "footer" not in html.lower():
+                        issues.append({"severity": "MEDIUM", "message": "Missing footer element"})
+                        medium_count += 1
+                        
+                    # 5. Check cache control headers for HTML routes
+                    cc = res.headers.get("Cache-Control", "")
+                    if "no-cache" not in cc and "max-age=0" not in cc:
+                        issues.append({"severity": "HIGH", "message": f"Caching enabled on HTML page (Cache-Control: {cc}) — may cause styling delay"})
+                        high_count += 1
+                        
+                    # 6. Check empty links
+                    empty_links = html.count('href="#"') + html.count("href='#'")
+                    if empty_links > 0:
+                        issues.append({"severity": "LOW", "message": f"Contains {empty_links} empty placeholder link(s) (#)"})
+                        
+                except Exception as e:
+                    issues.append({"severity": "CRITICAL", "message": f"Page failed to load: {e}"})
+                    critical_count += 1
+                    
+                results.append({
+                    "route": r,
+                    "url": url,
+                    "issues": issues
+                })
+    except Exception as e:
+        return JSONResponse({"error": f"Scanner client error: {e}"}, status_code=500)
+        
+    return {
+        "status": "success",
+        "critical_count": critical_count,
+        "high_count": high_count,
+        "medium_count": medium_count,
+        "results": results
+    }
 
 
 @app.post("/admin/add-credits")
@@ -11523,7 +11614,8 @@ def api_claim_social_share(request: Request):
 
 @app.get("/roast")
 def roast_view(request: Request):
-    return render_template("roast.html", request=request)
+    user_id = get_verified_user_id(request)
+    return render_template("roast.html", request=request, is_logged_in=bool(user_id))
 
 @app.post("/api/v1/roast")
 async def api_roast_cv(file: UploadFile = File(...)):

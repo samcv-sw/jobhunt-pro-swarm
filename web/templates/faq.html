@@ -37,7 +37,7 @@
 </head>
 <body class="cyberpunk-body">
 {% include '_public_nav.html' %}
-<div class="container">
+<div class="container" style="padding-top:130px">
     <h1>Frequently Asked Questions</h1>
     <p class="subtitle">Everything you need to know about JobHunt Pro &mdash; your AI-powered job application platform.</p>
 
@@ -74,10 +74,7 @@
         <div class="faq-answer">Getting started takes under 2 minutes. Create an account, upload your CV, choose a pricing tier, and launch your campaign. Our AI handles the rest.</div>
     </div>
 </div>
-<footer class="footer">
-    <a href="/faq">FAQ</a> &middot; <a href="/terms">Terms</a> &middot; <a href="/privacy">Privacy</a> &middot; <a href="/blog">Blog</a> &middot; <a href="/contact">Contact</a>
-    <p style="margin-top:12px;">&copy; 2026 JobHunt Pro. All rights reserved.</p>
-</footer>
+{% include '_public_footer.html' %}
 <script>
 function toggleFaq(e){var item=e.parentElement,open=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(function(i){i.classList.remove('open')});if(!open)item.classList.add('open')}
 </script>

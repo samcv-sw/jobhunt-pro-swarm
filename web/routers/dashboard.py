@@ -6,10 +6,12 @@ from typing import Dict, List
 import logging
 import json
 
+from pathlib import Path
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-templates = Jinja2Templates(directory="web/templates")
+templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))
 
 class ConnectionManager:
     def __init__(self):
@@ -40,8 +42,8 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-@router.get("/dashboard")
-async def dashboard(request: Request):
+@router.get("/legacy-dashboard")
+async def legacy_dashboard(request: Request):
     user_id = request.session.get("user_id")
     if not user_id:
         return RedirectResponse(url="/login")

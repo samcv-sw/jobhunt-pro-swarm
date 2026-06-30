@@ -277,6 +277,12 @@ class MegaAgentPool:
         # We no longer build 20,000 in-memory agents.
         # The MegaAgentPool is now a virtual interface to the Postgres job_queue.
         logger.info("MegaAgentPool initialized in Distributed Queue mode.")
+        self.workers = {}
+        self.squad_leaders = {}
+        self.team_managers = {}
+        self.workers_by_type = {t: [] for t in AgentType}
+        self.squad_leaders_by_type = {t: [] for t in AgentType}
+        self.team_managers_by_type = {t: [] for t in AgentType}
 
     def _build_worker_pool(self):
         pass

@@ -8,10 +8,13 @@ import secrets
 import logging
 import config
 
+from pathlib import Path
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-templates = Jinja2Templates(directory="web/templates")
+templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))
+templates.env.globals["VERSION"] = config.VERSION
 ph = PasswordHasher()
 
 def hash_password(password: str) -> str:
@@ -25,7 +28,7 @@ def verify_password(hash_str: str, password: str) -> bool:
 
 @router.get("/login")
 async def login_page(request: Request):
-    return templates.TemplateResponse(request, "login.html")
+    return templates.TemplateResponse(request, "login.html", {"VERSION": config.VERSION})
 
 @router.post("/login")
 async def login_post(request: Request, email: str = Form(...), password: str = Form(...)):
@@ -33,7 +36,7 @@ async def login_post(request: Request, email: str = Form(...), password: str = F
         user = await conn.fetchrow("SELECT user_id, password_hash, api_key FROM users WHERE email = $1", email)
         
         if not user or not verify_password(user["password_hash"], password):
-            return templates.TemplateResponse(request, "login.html", {"error": "Invalid credentials"})
+            return templates.TemplateResponse(request, "login.html", {"error": "Invalid credentials", "VERSION": config.VERSION})
             
         request.session["user_id"] = user["user_id"]
         request.session["api_key"] = user["api_key"]
@@ -41,7 +44,7 @@ async def login_post(request: Request, email: str = Form(...), password: str = F
 
 @router.get("/register")
 async def register_page(request: Request):
-    return templates.TemplateResponse(request, "register.html")
+    return templates.TemplateResponse(request, "register.html", {"VERSION": config.VERSION})
 
 @router.post("/register")
 async def register_post(request: Request, email: str = Form(...), password: str = Form(...), name: str = Form(...), cf_turnstile_response: str = Form(None, alias="cf-turnstile-response")):

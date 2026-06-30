@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>{{ title | default('JobHunt Pro') }}</title>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <link rel="stylesheet" href="/static/css/cyberpunk.css">
 
@@ -989,14 +990,14 @@
  <p style="color:var(--muted); font-size:15px; margin-bottom:8px;">Enter your details to receive the deliverable via email.</p>
 
  <form id="orderForm" onsubmit="submitOrder(event)">
- <input type="hidden" id="serviceId" name="service_id">
- <input type="hidden" id="isBouquet" name="is_bouquet" value="false">
+ <input dir="auto" type="hidden" id="serviceId" name="service_id">
+ <input dir="auto" type="hidden" id="isBouquet" name="is_bouquet" value="false">
 
  <label for="customerName">Your Name</label>
- <input type="text" id="customerName" required placeholder="e.g. John Doe">
+ <input dir="auto" type="text" id="customerName" required placeholder="e.g. John Doe">
 
  <label for="customerEmail">Your Email</label>
- <input type="email" id="customerEmail" required placeholder="e.g. john@example.com">
+ <input dir="auto" type="email" id="customerEmail" required placeholder="e.g. john@example.com">
 
  <div class="modal-error" id="modalError">Error message here</div>
 

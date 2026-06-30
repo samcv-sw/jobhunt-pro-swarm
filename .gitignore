@@ -170,3 +170,5 @@ setup_free_providers.py
 
 # ── Permanent watchdog (background) ───────────
 permanent_watchdog.py
+groq_keys.json
+gmail_accounts.json

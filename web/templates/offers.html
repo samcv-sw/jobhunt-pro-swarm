@@ -131,25 +131,25 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="offerTitle">Offer Title</label>
-                    <input class="form-control" type="text" name="title" id="offerTitle" placeholder="e.g. Executive CV Makeover + 100 Companies" required autocomplete="off">
+                    <input dir="auto" class="form-control" type="text" name="title" id="offerTitle" placeholder="e.g. Executive CV Makeover + 100 Companies" required autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label for="offerPrice">Discounted Price (USD)</label>
-                    <input class="form-control" type="number" name="price" id="offerPrice" placeholder="e.g. 19.99" step="0.01" min="1" required>
+                    <input dir="auto" class="form-control" type="number" name="price" id="offerPrice" placeholder="e.g. 19.99" step="0.01" min="1" required>
                 </div>
                 <div class="form-group">
                     <label for="offerOriginalPrice">Original Price (USD) &mdash; Optional</label>
-                    <input class="form-control" type="number" name="original_price" id="offerOriginalPrice" placeholder="e.g. 49.99" step="0.01" min="0">
+                    <input dir="auto" class="form-control" type="number" name="original_price" id="offerOriginalPrice" placeholder="e.g. 49.99" step="0.01" min="0">
                 </div>
                 <div class="form-group full-width">
                     <label for="offerDesc">Description</label>
-                    <textarea class="form-control" name="description" id="offerDesc" rows="3" placeholder="Explain what is included in this offer in detail..." required></textarea>
+                    <textarea dir="auto" class="form-control" name="description" id="offerDesc" rows="3" placeholder="Explain what is included in this offer in detail..." required></textarea>
                 </div>
                 <div class="form-group">
                     <label for="offerImage">Offer Image</label>
-                    <input class="form-control" type="text" name="image_url" id="offerImage" placeholder="Paste image link URL or upload below..." autocomplete="off">
+                    <input dir="auto" class="form-control" type="text" name="image_url" id="offerImage" placeholder="Paste image link URL or upload below..." autocomplete="off">
                     <div class="img-preview-box">
-                        <input type="file" id="imageFileUploader" accept="image/*" style="display: none;" onchange="convertImageToBase64(this)">
+                        <input dir="auto" type="file" id="imageFileUploader" accept="image/*" style="display: none;" onchange="convertImageToBase64(this)">
                         <button type="button" class="btn-cyber secondary" style="padding: 6px 12px; font-size: 11px;" onclick="document.getElementById('imageFileUploader').click()">📤 Upload File</button>
                         <div class="img-preview" id="imagePreview">🖼️</div>
                     </div>
@@ -165,16 +165,16 @@
                 <div class="form-group full-width api-fields-add" style="display: none; grid-column: 1 / -1; gap: 20px; grid-template-columns: 1fr 1fr;">
                     <div class="form-group" style="grid-column: span 1;">
                         <label for="offerApiUrl">Reseller API URL</label>
-                        <input class="form-control" type="url" name="reseller_api_url" id="offerApiUrl" placeholder="https://api.provider.com/v1/generate">
+                        <input dir="auto" class="form-control" type="url" name="reseller_api_url" id="offerApiUrl" placeholder="https://api.provider.com/v1/generate">
                     </div>
                     <div class="form-group" style="grid-column: span 1;">
                         <label for="offerApiKey">Reseller API Key / Token</label>
-                        <input class="form-control" type="text" name="reseller_api_key" id="offerApiKey" placeholder="API Secret Key Token" autocomplete="off">
+                        <input dir="auto" class="form-control" type="text" name="reseller_api_key" id="offerApiKey" placeholder="API Secret Key Token" autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="offerNote">Important Note (Guideline/Restriction)</label>
-                    <textarea class="form-control" name="note" id="offerNote" rows="2" placeholder="e.g. Note: Delivery takes 48 hours and requires your current CV."></textarea>
+                    <textarea dir="auto" class="form-control" name="note" id="offerNote" rows="2" placeholder="e.g. Note: Delivery takes 48 hours and requires your current CV."></textarea>
                 </div>
                 <div class="form-group full-width" style="margin-top: 8px;">
                     <button type="submit" class="btn-cyber primary">➕ Publish Special Offer</button>
@@ -200,7 +200,7 @@
                 </div>
                 <div class="form-group full-width">
                     <label for="importKeysText">Subscription Keys / Accounts List (One per line)</label>
-                    <textarea class="form-control" name="keys" id="importKeysText" rows="4" placeholder="Paste your keys, account credentials, or links here.&#10;One item per line.&#10;e.g. USER:PASS-IPTV-123&#10;e.g. https://vpn.com/claim?code=abc" required></textarea>
+                    <textarea dir="auto" class="form-control" name="keys" id="importKeysText" rows="4" placeholder="Paste your keys, account credentials, or links here.&#10;One item per line.&#10;e.g. USER:PASS-IPTV-123&#10;e.g. https://vpn.com/claim?code=abc" required></textarea>
                 </div>
                 <div class="form-group full-width" style="margin-top: 8px;">
                     <button type="submit" class="btn-cyber primary" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);">📥 Import Keys into Inventory Pool</button>
@@ -428,7 +428,7 @@
             <div class="modal-form-body">
                 <div class="form-group">
                     <label for="modalReqs">Tell us what you need / your requirements:</label>
-                    <textarea class="form-control" name="requirements" id="modalReqs" rows="5" placeholder="Specify your preferences, target industries, links, email text guidelines, or details of what you need..." required></textarea>
+                    <textarea dir="auto" class="form-control" name="requirements" id="modalReqs" rows="5" placeholder="Specify your preferences, target industries, links, email text guidelines, or details of what you need..." required></textarea>
                 </div>
             </div>
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -451,25 +451,25 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="editOfferTitle">Offer Title</label>
-                        <input class="form-control" type="text" name="title" id="editOfferTitle" placeholder="e.g. Executive CV Makeover + 100 Companies" required autocomplete="off">
+                        <input dir="auto" class="form-control" type="text" name="title" id="editOfferTitle" placeholder="e.g. Executive CV Makeover + 100 Companies" required autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label for="editOfferPrice">Discounted Price (USD)</label>
-                        <input class="form-control" type="number" name="price" id="editOfferPrice" placeholder="e.g. 19.99" step="0.01" min="1" required>
+                        <input dir="auto" class="form-control" type="number" name="price" id="editOfferPrice" placeholder="e.g. 19.99" step="0.01" min="1" required>
                     </div>
                     <div class="form-group">
                         <label for="editOfferOriginalPrice">Original Price (USD) &mdash; Optional</label>
-                        <input class="form-control" type="number" name="original_price" id="editOfferOriginalPrice" placeholder="e.g. 49.99" step="0.01" min="0">
+                        <input dir="auto" class="form-control" type="number" name="original_price" id="editOfferOriginalPrice" placeholder="e.g. 49.99" step="0.01" min="0">
                     </div>
                     <div class="form-group full-width">
                         <label for="editOfferDesc">Description</label>
-                        <textarea class="form-control" name="description" id="editOfferDesc" rows="3" placeholder="Explain what is included in this offer in detail..." required></textarea>
+                        <textarea dir="auto" class="form-control" name="description" id="editOfferDesc" rows="3" placeholder="Explain what is included in this offer in detail..." required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="editOfferImage">Offer Image</label>
-                        <input class="form-control" type="text" name="image_url" id="editOfferImage" placeholder="Paste image link URL or upload below..." autocomplete="off">
+                        <input dir="auto" class="form-control" type="text" name="image_url" id="editOfferImage" placeholder="Paste image link URL or upload below..." autocomplete="off">
                         <div class="img-preview-box">
-                            <input type="file" id="editImageFileUploader" accept="image/*" style="display: none;" onchange="convertEditImageToBase64(this)">
+                            <input dir="auto" type="file" id="editImageFileUploader" accept="image/*" style="display: none;" onchange="convertEditImageToBase64(this)">
                             <button type="button" class="btn-cyber secondary" style="padding: 6px 12px; font-size: 11px;" onclick="document.getElementById('editImageFileUploader').click()">📤 Upload File</button>
                             <div class="img-preview" id="editImagePreview">🖼️</div>
                         </div>
@@ -485,16 +485,16 @@
                     <div class="form-group full-width api-fields-edit" style="display: none; grid-column: 1 / -1; gap: 20px; grid-template-columns: 1fr 1fr;">
                         <div class="form-group" style="grid-column: span 1;">
                             <label for="editOfferApiUrl">Reseller API URL</label>
-                            <input class="form-control" type="url" name="reseller_api_url" id="editOfferApiUrl" placeholder="https://api.provider.com/v1/generate">
+                            <input dir="auto" class="form-control" type="url" name="reseller_api_url" id="editOfferApiUrl" placeholder="https://api.provider.com/v1/generate">
                         </div>
                         <div class="form-group" style="grid-column: span 1;">
                             <label for="editOfferApiKey">Reseller API Key / Token</label>
-                            <input class="form-control" type="text" name="reseller_api_key" id="editOfferApiKey" placeholder="API Secret Key Token" autocomplete="off">
+                            <input dir="auto" class="form-control" type="text" name="reseller_api_key" id="editOfferApiKey" placeholder="API Secret Key Token" autocomplete="off">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="editOfferNote">Important Note (Guideline/Restriction)</label>
-                        <textarea class="form-control" name="note" id="editOfferNote" rows="2" placeholder="e.g. Note: Delivery takes 48 hours."></textarea>
+                        <textarea dir="auto" class="form-control" name="note" id="editOfferNote" rows="2" placeholder="e.g. Note: Delivery takes 48 hours."></textarea>
                     </div>
                 </div>
             </div>
@@ -791,15 +791,15 @@ function closeFulfillModal() {
             <div class="modal-form-body">
                 <div class="form-group" style="margin-bottom: 12px;">
                     <label>Customer</label>
-                    <input class="form-control" type="text" id="fulfillCustomerEmail" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);">
+                    <input dir="auto" class="form-control" type="text" id="fulfillCustomerEmail" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);">
                 </div>
                 <div class="form-group" style="margin-bottom: 12px;">
                     <label>Offer Package</label>
-                    <input class="form-control" type="text" id="fulfillOfferTitle" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);">
+                    <input dir="auto" class="form-control" type="text" id="fulfillOfferTitle" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);">
                 </div>
                 <div class="form-group">
                     <label for="fulfillCredentials">Delivered Credentials / Subscription Keys / Access Link</label>
-                    <textarea class="form-control" name="credentials" id="fulfillCredentials" rows="4" placeholder="Paste IPTV logins, premium license key, account details, or instructions here..." required></textarea>
+                    <textarea dir="auto" class="form-control" name="credentials" id="fulfillCredentials" rows="4" placeholder="Paste IPTV logins, premium license key, account details, or instructions here..." required></textarea>
                 </div>
             </div>
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">

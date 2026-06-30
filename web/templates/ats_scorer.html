@@ -335,7 +335,7 @@
   <!-- Resume panel -->
   <div class="ats-panel">
     <h3>&#x1F4C4; Your Resume</h3>
-    <textarea id="ats-resume" placeholder="Paste your full resume text here...
+    <textarea dir="auto" id="ats-resume" placeholder="Paste your full resume text here...
 
 Example:
 SAM SALAMEH
@@ -355,10 +355,10 @@ PROFESSIONAL SUMMARY
   <div class="ats-panel">
     <h3>&#x1F4CB; Job Description</h3>
     <div class="url-import">
-      <input type="url" id="ats-url" placeholder="Or paste a job posting URL..." />
+      <input dir="auto" type="url" id="ats-url" placeholder="Or paste a job posting URL..." />
       <button class="btn btn-outline btn-sm" onclick="importFromUrl()" id="btn-url-import">&#x1F517; Import</button>
     </div>
-    <textarea id="ats-job-desc" placeholder="Paste the job description here...
+    <textarea dir="auto" id="ats-job-desc" placeholder="Paste the job description here...
 
 Example:
 Network Engineer
@@ -370,7 +370,7 @@ Requirements:
 - Strong knowledge of BGP, OSPF, MPLS
 - Experience with Fortinet firewalls
 ..."></textarea>
-    <input type="text" id="ats-job-title" placeholder="Job title (optional, e.g. Senior Network Engineer)"
+    <input dir="auto" type="text" id="ats-job-title" placeholder="Job title (optional, e.g. Senior Network Engineer)"
       style="margin-top:10px;width:100%;padding:8px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#e2e8f0;font-size:13px;font-family:'Inter',sans-serif;" />
   </div>
 </div>
@@ -393,8 +393,8 @@ Requirements:
     <p style="color:#94a3b8;font-size:12px;margin-bottom:10px;">Add job titles to compare your resume against multiple positions at once.</p>
     <div class="bulk-jobs" id="bulk-jobs-container">
       <div class="bulk-job-row">
-        <input type="text" class="bulk-title" placeholder="Job Title (e.g. Senior Network Engineer)" />
-        <input type="text" class="bulk-desc" placeholder="Job Description (paste here)" style="flex:2;" />
+        <input dir="auto" type="text" class="bulk-title" placeholder="Job Title (e.g. Senior Network Engineer)" />
+        <input dir="auto" type="text" class="bulk-desc" placeholder="Job Description (paste here)" style="flex:2;" />
         <button class="btn btn-outline btn-sm" onclick="this.closest('.bulk-job-row').remove()" style="flex-shrink:0;">&#x2715;</button>
       </div>
     </div>
@@ -740,8 +740,8 @@ function addBulkRow() {
   const row = document.createElement('div');
   row.className = 'bulk-job-row';
   row.innerHTML = `
-    <input type="text" class="bulk-title" placeholder="Job Title" />
-    <input type="text" class="bulk-desc" placeholder="Job Description" style="flex:2;" />
+    <input dir="auto" type="text" class="bulk-title" placeholder="Job Title" />
+    <input dir="auto" type="text" class="bulk-desc" placeholder="Job Description" style="flex:2;" />
     <button class="btn btn-outline btn-sm" onclick="this.closest('.bulk-job-row').remove()" style="flex-shrink:0;">\u2715</button>
   `;
   container.appendChild(row);

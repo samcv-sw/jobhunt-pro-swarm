@@ -9,8 +9,8 @@
   <title>Login — JobHunt Pro</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
 <!-- Login v2 — Enhanced with password strength meter, toggle visibility, loading states, improved animations -->
-<link rel="stylesheet" href="/static/css/dashboard-v4.css">
-<link rel="stylesheet" href="/static/css/auth-v2.css">
+<link rel="stylesheet" href="/static/css/dashboard-v4.css?v=20260629_v2">
+<link rel="stylesheet" href="/static/css/auth-v2.css?v=20260629_v2">
 <style>
 /* ═══════════════════════════════════════════
    LOGIN v2 — Page-Specific Styles
@@ -80,7 +80,7 @@
 
 {% include '_public_nav.html' %}
 
-<div class="auth-page-wrap">
+<div class="auth-page-wrap" style="padding-top:140px;">
   <div class="auth-container">
     <div class="auth-card">
       <div class="auth-header">
@@ -119,12 +119,12 @@
       <form method="POST" action="/login" id="loginForm" onsubmit="handleLogin(event)">
         <div class="form-group">
           <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>
+          <input dir="auto" type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>
         </div>
         <div class="form-group">
           <label for="password">Password</label>
           <div class="pw-input-wrap">
-            <input type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password" oninput="checkPwStrength(this.value)">
+            <input dir="auto" type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password" oninput="checkPwStrength(this.value)">
             <button type="button" class="pw-toggle-btn" onclick="togglePwVisibility()" id="pwToggle" aria-label="Toggle password visibility">👁️</button>
           </div>
           <!-- Password Strength Meter -->
@@ -135,7 +135,7 @@
         </div>
         <div class="pw-row">
           <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);cursor:pointer;">
-            <input type="checkbox" name="remember" style="accent-color:var(--accent-primary);"> Remember me
+            <input dir="auto" type="checkbox" name="remember" style="accent-color:var(--accent-primary);"> Remember me
           </label>
           <a href="/forgot-password">Forgot password?</a>
         </div>
@@ -223,5 +223,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+{% include '_public_footer.html' %}
 </body>
 </html>

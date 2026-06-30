@@ -183,12 +183,14 @@ def _wrap_in_sovereign_template(company_name, job_title, body_text="", highlight
         phone = user_details.get("phone") or config.CANDIDATE_PHONE
         linkedin = user_details.get("linkedin") or user_details.get("linkedin_url") or config.CANDIDATE_LINKEDIN
         profession = user_details.get("profession") or user_details.get("target_title") or "Senior Network Engineer"
+        candidate_address = user_details.get("address") or getattr(config, "CANDIDATE_ADDRESS", "Beirut, Lebanon")
     else:
         name = config.CANDIDATE_NAME
         candidate_email = config.CANDIDATE_EMAIL
         phone = config.CANDIDATE_PHONE
         linkedin = config.CANDIDATE_LINKEDIN
         profession = "Senior Network Engineer"
+        candidate_address = getattr(config, "CANDIDATE_ADDRESS", "Beirut, Lebanon")
 
     # Compute initials dynamically (e.g. Sam Salameh -> SS)
     def get_initials(full_name: str) -> str:
@@ -339,8 +341,8 @@ I have attached my CV for your review and would welcome the opportunity to discu
       <!-- CAN-SPAM Footer: Physical address + Unsubscribe (legal requirement) -->
       <div style="margin-top:32px;padding-top:14px;border-top:1px solid #1e293b;text-align:center;">
         <div style="color:#475569;font-size:11px;">
-            This application was sent via JobHunt Pro on behalf of Sam Salameh<br>
-            📫 1084 Rue 54, Jnah, Beirut, Lebanon<br>
+            This application was sent via JobHunt Pro on behalf of {name}<br>
+            📫 {candidate_address}<br>
             <a href="{SITE_URL}/unsubscribe" style="color:#475569;">Unsubscribe</a> &bull; Not the right contact? Reply and we'll remove you.
         </div>
       </div>

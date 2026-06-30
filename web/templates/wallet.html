@@ -130,16 +130,34 @@
     <span style="font-size:18px;">🔑</span>
     <div>
       <div style="font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:2px;">Your API Key</div>
-      <code style="font-size:13px;color:#94a3b8;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:6px;">{{ user.api_key or 'No key generated' }}</code>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <code id="apiKeyDisplay" style="font-size:13px;color:#94a3b8;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:6px;font-family:monospace;">••••••••••••••••••••••••</code>
+        <button id="toggleKeyBtn" class="btn-wallet" style="padding:2px 8px;font-size:11px;min-height:24px;line-height:1;" onclick="toggleApiKey()">👁️ Show</button>
+      </div>
     </div>
   </div>
-  <div style="display:flex;gap:8px;">
+  <div style="display:flex;gap:8px;align-items:center;">
     <button class="btn-wallet" onclick="navigator.clipboard.writeText('{{ user.api_key }}');this.innerHTML='✅ Copied!';setTimeout(()=>this.innerHTML='📋 Copy',2000)">📋 Copy</button>
     <form method="POST" action="/wallet/regenerate-key" style="margin:0;">
       <button type="submit" class="btn-wallet" style="color:#f59e0b;border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.08);">🔄 Regenerate</button>
     </form>
   </div>
 </div>
+
+<script>
+function toggleApiKey() {
+  const code = document.getElementById('apiKeyDisplay');
+  const btn = document.getElementById('toggleKeyBtn');
+  const realKey = '{{ user.api_key or "" }}';
+  if (code.textContent.includes('•')) {
+    code.textContent = realKey || "No key generated";
+    btn.textContent = '👁️ Hide';
+  } else {
+    code.textContent = '••••••••••••••••••••••••';
+    btn.textContent = '👁️ Show';
+  }
+}
+</script>
 
 <!-- NOWPayments Top-Up -->
 <div class="topup-card">
@@ -154,7 +172,7 @@
     <div class="topup-row">
         <div class="topup-amount">
             <label>Amount (USD)</label>
-            <input type="number" id="topupAmount" value="25" min="10" max="1000" step="1" />
+            <input dir="auto" type="number" id="topupAmount" value="25" min="10" max="1000" step="1" />
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;">
             <label style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;">Pay with</label>
@@ -215,7 +233,7 @@
   <h3>🎁 Redeem Code</h3>
   <p>Got a gift card or promo code? Enter it below to instantly add credit to your wallet.</p>
   <form class="redeem-form" method="POST" action="/redeem">
-    <input class="redeem-input" type="text" name="code" placeholder="XXXX-XXXX-XXXX" required autocomplete="off" />
+    <input dir="auto" class="redeem-input" type="text" name="code" placeholder="XXXX-XXXX-XXXX" required autocomplete="off" />
     <button class="btn-redeem" type="submit">✨ Redeem</button>
   </form>
 </div>

@@ -33,23 +33,58 @@ class StealthScraper:
         self.fingerprints = self._generate_fingerprints()
         self.proxies = []
         self.last_proxy_fetch = 0
+        self._proxy_fetch_in_progress = False
+        try:
+            loop = asyncio.get_running_loop()
+            if loop.is_running():
+                loop.create_task(self.fetch_proxies_async())
+        except RuntimeError:
+            pass
         
+    async def fetch_proxies_async(self) -> None:
+        """Fetch proxies asynchronously using httpx to prevent event-loop block."""
+        if getattr(self, "_proxy_fetch_in_progress", False):
+            return
+        self._proxy_fetch_in_progress = True
+        try:
+            logger.info("[GHOST PROXY] Async fetching fresh proxies from global network...")
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                res = await client.get("https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=elite")
+                if res.status_code == 200:
+                    proxies = [p.strip() for p in res.text.split("\n") if p.strip()]
+                    if proxies:
+                        self.proxies = proxies
+                        self.last_proxy_fetch = time.time()
+                        logger.info(f"[GHOST PROXY] Async harvested {len(self.proxies)} elite stealth IPs.")
+        except Exception as e:
+            logger.warning(f"[GHOST PROXY] Async proxy fetch failed: {e}")
+        finally:
+            self._proxy_fetch_in_progress = False
+
     def _fetch_free_proxies(self) -> List[str]:
         """[GHOST PROXY] Fetch 10,000+ free residential/datacenter proxies dynamically"""
         if time.time() - self.last_proxy_fetch < 3600 and self.proxies:
             return self.proxies
             
         try:
-            logger.info("[GHOST PROXY] Fetching fresh proxies from global network...")
-            # Using multiple zero-investment proxy sources
+            loop = asyncio.get_running_loop()
+            if loop.is_running():
+                if not getattr(self, "_proxy_fetch_in_progress", False):
+                    loop.create_task(self.fetch_proxies_async())
+                return self.proxies
+        except RuntimeError:
+            pass
+
+        try:
+            logger.info("[GHOST PROXY] Fetching fresh proxies from global network (synchronous fallback)...")
             res = requests.get("https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=elite")
             if res.status_code == 200:
                 self.proxies = [p.strip() for p in res.text.split("\n") if p.strip()]
                 self.last_proxy_fetch = time.time()
-                logger.info(f"[GHOST PROXY] Successfully harvested {len(self.proxies)} elite stealth IPs.")
+                logger.info(f"[GHOST PROXY] Successfully harvested {len(self.proxies)} elite stealth IPs (sync).")
             return self.proxies
         except Exception as e:
-            logger.warning(f"[GHOST PROXY] Failed to fetch proxies: {e}")
+            logger.warning(f"[GHOST PROXY] Failed to fetch proxies (sync): {e}")
             return []
 
     def get_random_proxy(self) -> Optional[str]:

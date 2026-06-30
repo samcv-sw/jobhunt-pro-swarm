@@ -146,20 +146,20 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;point
       <h3>🎯 Choose Your Plan</h3>
       <div class="plan-options">
         <label class="plan-option selected" for="plan-starter">
-          <input type="radio" name="plan" value="starter" id="plan-starter" checked>
+          <input dir="auto" type="radio" name="plan" value="starter" id="plan-starter" checked>
           <div class="plan-name">Starter</div>
           <div class="plan-price">$2 <span>one-time</span></div>
           <div class="plan-apps">10 applications</div>
         </label>
         <label class="plan-option" for="plan-basic">
-          <input type="radio" name="plan" value="basic" id="plan-basic">
+          <input dir="auto" type="radio" name="plan" value="basic" id="plan-basic">
           <span class="plan-badge">POPULAR</span>
           <div class="plan-name">Basic</div>
           <div class="plan-price">$5 <span>one-time</span></div>
           <div class="plan-apps">100 applications</div>
         </label>
         <label class="plan-option" for="plan-pro">
-          <input type="radio" name="plan" value="pro" id="plan-pro">
+          <input dir="auto" type="radio" name="plan" value="pro" id="plan-pro">
           <div class="plan-name">Pro ⭐</div>
           <div class="plan-price">$15 <span>one-time</span></div>
           <div class="plan-apps">500 applications</div>
@@ -174,26 +174,26 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;point
     <!-- PROJECT AEGIS: Invisible Bot Honeypot -->
     <div style="display:none; visibility:hidden;">
         <label>Leave this empty if you are human</label>
-        <input type="text" name="aegis_honeypot" id="aegis_honeypot" tabindex="-1" autocomplete="off">
+        <input dir="auto" type="text" name="aegis_honeypot" id="aegis_honeypot" tabindex="-1" autocomplete="off">
     </div>
 
-    <input type="hidden" name="selected_plan" id="selected-plan" value="starter">
-    <input type="hidden" name="ref" value="{{ ref }}">
+    <input dir="auto" type="hidden" name="selected_plan" id="selected-plan" value="starter">
+    <input dir="auto" type="hidden" name="ref" value="{{ ref }}">
     <div class="form-group">
       <label>Full Name</label>
-      <input type="text" name="name" placeholder="e.g. Sam Salameh" required autocomplete="name">
+      <input dir="auto" type="text" name="name" placeholder="e.g. Sam Salameh" required autocomplete="name">
     </div>
     <div class="form-group">
       <label>Email</label>
-      <input type="email" name="email" placeholder="you@example.com" required autocomplete="email">
+      <input dir="auto" type="email" name="email" placeholder="you@example.com" required autocomplete="email">
     </div>
     <div class="form-group">
       <label>Phone (optional)</label>
-      <input type="tel" name="phone" placeholder="e.g. +961 70 000 000" autocomplete="tel">
+      <input dir="auto" type="tel" name="phone" placeholder="e.g. +961 70 000 000" autocomplete="tel">
     </div>
     <div class="form-group">
       <label>Password</label>
-      <input type="password" name="password" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password">
+      <input dir="auto" type="password" name="password" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password">
     </div>
     <div class="turnstile-wrap">
       <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key | default('1x00000000000000000000AA') }}" data-theme="dark"></div>

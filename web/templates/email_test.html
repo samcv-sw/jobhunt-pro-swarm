@@ -89,7 +89,7 @@
       <div class="uz-icon">&#x1F4E5;</div>
       <strong>Drop your CV here or click to browse</strong>
       <p>PDF only, max 5MB. System will analyze and auto-fill below.</p>
-      <input type="file" id="cvFileInput" accept=".pdf">
+      <input dir="auto" type="file" id="cvFileInput" accept=".pdf">
     </div>
     <div class="upload-status" id="uploadStatus">
       <span>&#x1F4CE; <span id="upFileName"></span></span>
@@ -103,15 +103,15 @@
     <div class="et-row">
       <div class="et-field">
         <label>To Email *</label>
-        <input type="email" name="to_email" id="fldTo" value="{{ ctx.to_email or '' }}" placeholder="hr@company.com" required>
+        <input dir="auto" type="email" name="to_email" id="fldTo" value="{{ ctx.to_email or '' }}" placeholder="hr@company.com" required>
       </div>
       <div class="et-field">
         <label>Company Name</label>
-        <input type="text" name="company_name" id="fldCompany" value="{{ ctx.company_name or '' }}" placeholder="Target Company">
+        <input dir="auto" type="text" name="company_name" id="fldCompany" value="{{ ctx.company_name or '' }}" placeholder="Target Company">
       </div>
       <div class="et-field">
         <label>Job Title</label>
-        <input type="text" name="job_title" id="fldJob" value="{{ ctx.job_title or '' }}" placeholder="Network Engineer">
+        <input dir="auto" type="text" name="job_title" id="fldJob" value="{{ ctx.job_title or '' }}" placeholder="Network Engineer">
       </div>
     </div>
   </div>
@@ -126,7 +126,7 @@
       </div>
     </div>
     <div class="et-field">
-      <textarea name="cv_text" id="fldCV" placeholder="Your CV text will appear here after uploading PDF...">{{ ctx.cv_text or '' }}</textarea>
+      <textarea dir="auto" name="cv_text" id="fldCV" placeholder="Your CV text will appear here after uploading PDF...">{{ ctx.cv_text or '' }}</textarea>
     </div>
   </div>
 
@@ -140,7 +140,7 @@
       </div>
     </div>
     <div class="et-field">
-      <textarea name="cover_letter" id="fldCover" placeholder="Cover letter will be auto-generated...">{{ ctx.cover_letter or '' }}</textarea>
+      <textarea dir="auto" name="cover_letter" id="fldCover" placeholder="Cover letter will be auto-generated...">{{ ctx.cover_letter or '' }}</textarea>
     </div>
   </div>
 
@@ -151,7 +151,7 @@
       <button type="button" class="btn btn-xs btn-ai" onclick="aiRegen('email')">&#x2728; AI Rewrite</button>
     </div>
     <div class="et-field">
-      <textarea name="email_body" id="fldEmail" placeholder="Email body will be auto-generated...">{{ ctx.email_body or '' }}</textarea>
+      <textarea dir="auto" name="email_body" id="fldEmail" placeholder="Email body will be auto-generated...">{{ ctx.email_body or '' }}</textarea>
     </div>
   </div>
 
