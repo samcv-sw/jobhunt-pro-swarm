@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ cv.name }} - Resume{% endblock %}
+{% block content %}
+
+<!-- VIRAL HONEYPOT BANNER -->
+<div style="background: linear-gradient(90deg, #3b82f6, #8b5cf6); color: white; text-align: center; padding: 12px; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    🚀 Candidate sourced by <a href="/" style="color: #fff; text-decoration: underline;">JobHunt Pro AI</a>. Are your candidates this well-prepared? Try our hiring tools.
+</div>
+
+<div class="glass-panel" style="max-width: 800px; margin: 40px auto;">
+    <h1 style="margin-top:0;">{{ cv.name }}</h1>
+    <h3 style="color: var(--primary);">{{ cv.title }} ({{ cv.experience }})</h3>
+    <hr style="border-color: var(--glass-border);">
+    
+    <h4>Core Skills</h4>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        {% for skill in cv.skills %}
+            <span class="badge" style="background: rgba(59,130,246,0.2); color: #fff; border: 1px solid var(--primary);">{{ skill }}</span>
+        {% endfor %}
+    </div>
+    
+    <br><br>
+    <div style="text-align: center; margin-top: 30px;">
+        <button class="btn-primary" onclick="alert('Contact logic initiated')">Contact {{ cv.name }}</button>
+    </div>
+</div>
+
+{% endblock %}

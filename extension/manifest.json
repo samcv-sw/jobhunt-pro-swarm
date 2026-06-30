@@ -20,6 +20,18 @@
         "*://*.greenhouse.io/*", 
         "*://*.lever.co/*"
       ],
+      "js": ["src/stealth_injector.ts"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "*://*.linkedin.com/*", 
+        "*://*.indeed.com/*", 
+        "*://*.workday.com/*", 
+        "*://*.greenhouse.io/*", 
+        "*://*.lever.co/*"
+      ],
       "js": ["src/content.ts"],
       "run_at": "document_end"
     }
@@ -41,7 +53,8 @@
     "alarms",
     "declarativeNetRequest",
     "declarativeNetRequestWithHostAccess",
-    "privacy"
+    "privacy",
+    "debugger"
   ],
   "host_permissions": [
     "*://*.linkedin.com/*",

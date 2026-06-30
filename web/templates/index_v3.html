@@ -1,0 +1,2451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <link rel="stylesheet" href="/static/css/cyberpunk.css">
+ <meta name="description" content="AI-Powered Job Application Engine — Apply to thousands of jobs automatically. Your personal job-hunting AI works 24/7. Get hired faster.">
+ <meta name="keywords" content="job application, AI job search, automated applications, cover letter AI, job hunt, job board, career, hiring">
+ <meta name="author" content="JobHunt Pro">
+ <meta name="robots" content="index, follow">
+ <link rel="canonical" href="https://jhfguf.pythonanywhere.com/">
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <!-- Open Graph / Facebook -->
+ <meta property="og:type" content="website">
+ <meta property="og:url" content="https://jhfguf.pythonanywhere.com/">
+ <meta property="og:title" content="JobHunt Pro — AI-Powered Automated Job Applications">
+ <meta property="og:description" content="Your personal AI job-hunting engine works 24/7 — searching thousands of jobs, crafting personalized applications, and sending them through smart email rotation. Less than 7 cents per application.">
+ <meta property="og:image" content="https://jhfguf.pythonanywhere.com/static/img/og-image.png">
+ <meta property="og:image:width" content="1200">
+ <meta property="og:image:height" content="630">
+ <meta property="og:site_name" content="JobHunt Pro">
+ <meta property="og:locale" content="en_US">
+ <!-- Twitter Card -->
+ <meta name="twitter:card" content="summary_large_image">
+ <meta name="twitter:url" content="https://jhfguf.pythonanywhere.com/">
+ <meta name="twitter:title" content="JobHunt Pro &#x2014; AI-Powered Automated Job Applications">
+ <meta name="twitter:description" content="Your personal AI job-hunting engine works 24/7. Get hired faster. Less than 7 cents per application.">
+ <meta name="twitter:image" content="https://jhfguf.pythonanywhere.com/static/img/og-image.png">
+ <meta name="twitter:site" content="@jobhuntpro">
+ <title>JobHunt Pro &#x2014; AI-Powered Automated Job Applications | 200 AI Agents, 24/7</title>
+ <link rel="manifest" href="{{ url_for('static', path='manifest.json') }}">
+ <meta name="theme-color" content="#0a0a14">
+ <link rel="apple-touch-icon" href="/static/img/icon-192.png">
+ <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Schema.org Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "JobHunt Pro",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "description": "AI-Powered Automated Job Application Engine with 200 AI agents, multi-engine job search, and smart email rotation.",
+  "url": "https://jhfguf.pythonanywhere.com",
+  "offers": {
+    "@type": "AggregateOffer",
+    "lowPrice": "2",
+    "highPrice": "50",
+    "priceCurrency": "USD",
+    "offerCount": "4"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "reviewCount": "847"
+  }
+}
+</script>
+<style>
+/* ══════════════════════════════════════════════════════════════
+   ULTIMATE LANDING PAGE — Cyberpunk Dark Theme
+   Colors: #00f0ff (cyan) | #ff0055 (magenta) | #ffb300 (gold)
+   ══════════════════════════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+ --bg:#000000;--bg2:#050508;--bg3:#0a0a12;--bg4:#0d0d18;
+ --cyan:#00f0ff;--magenta:#ff0055;--gold:#ffb300;--green:#00e676;
+ --text:#f0f0f5;--muted:#8888aa;--dim:#555577;
+ --border:rgba(255,255,255,0.06);--border-glow:rgba(0,240,255,0.15);
+ --glass:rgba(255,255,255,0.02);--glass2:rgba(255,255,255,0.04);
+ --card:rgba(10,10,20,0.8);
+ --radius:16px;--radius-lg:24px;--radius-xl:32px;
+ --transition:0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+ --glow-cyan:0 0 20px rgba(0,240,255,0.2),0 0 60px rgba(0,240,255,0.08);
+ --glow-magenta:0 0 20px rgba(255,0,85,0.2),0 0 60px rgba(255,0,85,0.08);
+ --glow-gold:0 0 20px rgba(255,179,0,0.2),0 0 60px rgba(255,179,0,0.08);
+}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{
+ font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+ background:var(--bg);color:var(--text);overflow-x:hidden;
+ line-height:1.7;min-height:100vh;
+}
+::selection{background:rgba(0,240,255,0.25);color:#fff}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(0,240,255,0.15);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,240,255,0.3)}
+
+/* ═══ BACKGROUND EFFECTS ═══ */
+.bg-layer{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.bg-grid{
+ background-image:
+  linear-gradient(rgba(0,240,255,0.03) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,240,255,0.03) 1px,transparent 1px);
+ background-size:60px 60px;
+ mask-image:radial-gradient(ellipse 80% 70% at 50% 30%,black 30%,transparent 70%);
+}
+.bg-gradient{
+ background:
+  radial-gradient(ellipse 80% 50% at 20% 10%,rgba(0,240,255,0.06) 0%,transparent 50%),
+  radial-gradient(ellipse 60% 40% at 80% 30%,rgba(255,0,85,0.05) 0%,transparent 50%),
+  radial-gradient(ellipse 50% 60% at 50% 80%,rgba(255,179,0,0.04) 0%,transparent 50%),
+  radial-gradient(ellipse 50% 50% at 10% 90%,rgba(0,240,255,0.03) 0%,transparent 50%);
+}
+.bg-particles{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
+.scanline{
+ background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,255,0.012) 2px,rgba(0,240,255,0.012) 4px);
+ position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:0.4;
+}
+.glow-orb-1,.glow-orb-2,.glow-orb-3{
+ position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(120px);opacity:0.3;
+}
+.glow-orb-1{width:600px;height:600px;background:rgba(0,240,255,0.08);top:-200px;left:-100px;animation:floatOrb1 12s ease-in-out infinite}
+.glow-orb-2{width:500px;height:500px;background:rgba(255,0,85,0.06);bottom:-150px;right:-100px;animation:floatOrb2 15s ease-in-out infinite}
+.glow-orb-3{width:400px;height:400px;background:rgba(255,179,0,0.04);top:50%;left:50%;transform:translate(-50%,-50%);animation:floatOrb3 10s ease-in-out infinite}
+@keyframes floatOrb1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(80px,60px) scale(1.15)}66%{transform:translate(-40px,100px) scale(0.9)}}
+@keyframes floatOrb2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-60px,-40px) scale(1.1)}66%{transform:translate(50px,-80px) scale(0.95)}}
+@keyframes floatOrb3{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.2)}}
+
+/* ═══ NAVIGATION ═══ */
+.nav{
+ position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:1000;
+ width:calc(100% - 48px);max-width:1300px;
+ padding:14px 28px;display:flex;justify-content:space-between;align-items:center;
+ background:rgba(5,5,15,0.75);backdrop-filter:blur(30px) saturate(180%);
+ -webkit-backdrop-filter:blur(30px) saturate(180%);
+ border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-lg);
+ transition:all var(--transition);
+}
+.nav.scrolled{
+ background:rgba(3,3,12,0.9);border-color:rgba(0,240,255,0.15);
+ box-shadow:0 8px 40px rgba(0,0,0,0.5),var(--glow-cyan);
+}
+.nav-logo{
+ font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;letter-spacing:-1px;
+ background:linear-gradient(135deg,var(--cyan) 0%,#00b8ff 40%,var(--cyan) 100%);
+ -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+ background-clip:text;display:flex;align-items:center;gap:10px;text-decoration:none;
+}
+.nav-logo .badge{
+ font-size:9px;font-weight:700;letter-spacing:1.5px;
+ background:rgba(0,240,255,0.12);color:var(--cyan);
+ padding:3px 10px;border-radius:20px;border:1px solid rgba(0,240,255,0.2);
+ -webkit-text-fill-color:var(--cyan);
+}
+.nav-links{display:flex;gap:4px;align-items:center}
+.nav-links a{
+ color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;
+ padding:8px 15px;border-radius:10px;transition:all var(--transition);position:relative;
+}
+.nav-links a:hover{color:#fff;background:rgba(255,255,255,0.05)}
+.nav-links a.cta{
+ background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;
+ font-weight:700;padding:10px 22px;border-radius:12px;box-shadow:0 0 20px rgba(0,240,255,0.15);
+}
+.nav-links a.cta:hover{box-shadow:0 0 35px rgba(0,240,255,0.35);transform:translateY(-1px)}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;z-index:1001}
+.nav-hamburger span{width:24px;height:2px;background:var(--text);border-radius:2px;transition:all var(--transition)}
+
+/* ═══ HERO ═══ */
+.hero{
+ position:relative;z-index:10;padding:152px 40px 40px;text-align:center;
+ max-width:1100px;margin:0 auto;
+}
+.hero-badge{
+ display:inline-flex;align-items:center;gap:10px;
+ padding:8px 22px;border:1px solid rgba(0,240,255,0.25);
+ border-radius:50px;font-size:10px;font-weight:700;color:var(--cyan);
+ letter-spacing:2.5px;text-transform:uppercase;margin-bottom:28px;
+ background:rgba(0,240,255,0.04);backdrop-filter:blur(10px);
+}
+.hero-badge .pulse-dot{
+ width:8px;height:8px;background:var(--green);border-radius:50%;
+ animation:pulse 1.8s ease-in-out infinite;
+ box-shadow:0 0 8px var(--green),0 0 20px var(--green);
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.hero h1{
+ font-family:'Space Grotesk',sans-serif;font-size:clamp(38px,7vw,72px);
+ font-weight:900;line-height:1.08;margin-bottom:22px;letter-spacing:-2px;
+}
+.hero h1 .cyan{
+ background:linear-gradient(135deg,var(--cyan),#00d4ff,var(--cyan));
+ -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+ background-clip:text;text-shadow:none;
+}
+.hero h1 .magenta{
+ background:linear-gradient(135deg,var(--magenta),#ff3377,var(--magenta));
+ -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+ background-clip:text;
+}
+.hero h1 .gold{
+ background:linear-gradient(135deg,var(--gold),#ffcc33,var(--gold));
+ -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+ background-clip:text;
+}
+.hero h1 .glow-line{
+ position:relative;display:inline-block;
+}
+.hero h1 .glow-line::after{
+ content:'';position:absolute;bottom:-4px;left:0;width:100%;height:3px;
+ background:linear-gradient(90deg,transparent,var(--cyan),var(--magenta),transparent);
+ border-radius:2px;opacity:0.5;
+}
+.typewriter-wrap{display:inline-block;position:relative}
+.typewriter-cursor{
+ display:inline-block;width:3px;height:0.9em;background:var(--cyan);
+ margin-left:2px;vertical-align:text-bottom;animation:blink 1s step-end infinite;
+ box-shadow:0 0 10px var(--cyan),0 0 20px var(--cyan);
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.hero-sub{
+ font-size:17px;color:var(--muted);max-width:650px;margin:0 auto 40px;
+ line-height:1.9;font-weight:400;
+}
+.hero-buttons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.hero-buttons a{
+ padding:17px 36px;border-radius:14px;font-weight:700;font-size:15px;
+ text-decoration:none;display:inline-flex;align-items:center;gap:10px;
+ transition:all var(--transition);cursor:pointer;position:relative;overflow:hidden;
+}
+.hero-buttons .primary{
+ background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000 !important;
+ box-shadow:0 4px 30px rgba(0,240,255,0.25);
+}
+.hero-buttons .primary::before{
+ content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+ background:radial-gradient(circle,rgba(255,255,255,0.3) 0%,transparent 60%);
+ opacity:0;transition:opacity 0.3s;
+}
+.hero-buttons .primary:hover{box-shadow:0 6px 40px rgba(0,240,255,0.45);transform:translateY(-2px)}
+.hero-buttons .primary:hover::before{opacity:1}
+.hero-buttons .secondary{
+ background:rgba(255,255,255,0.04);color:#fff;
+ border:1px solid rgba(255,255,255,0.12);backdrop-filter:blur(10px);
+}
+.hero-buttons .secondary:hover{border-color:var(--cyan);background:rgba(0,240,255,0.06);box-shadow:var(--glow-cyan)}
+.hero-stats-strip{
+ display:flex;justify-content:center;gap:56px;margin-top:64px;flex-wrap:wrap;
+ padding:28px 40px;background:rgba(255,255,255,0.015);
+ border:1px solid var(--border);border-radius:var(--radius-lg);
+ backdrop-filter:blur(20px);
+}
+.stat-item{text-align:center;position:relative}
+.stat-item:not(:last-child)::after{
+ content:'';position:absolute;right:-28px;top:15%;height:70%;width:1px;
+ background:linear-gradient(180deg,transparent,rgba(255,255,255,0.08),transparent);
+}
+.stat-item .num{
+ font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:800;
+ color:var(--cyan) !important;letter-spacing:-1px;
+ position:relative;z-index:2;text-shadow:0 0 15px rgba(0,240,255,0.6);
+}
+.stat-item .label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-top:6px;font-weight:600}
+
+/* ═══ TRUSTED BY (LOGO BAR) ═══ */
+.trusted-by{
+ position:relative;z-index:10;padding:50px 40px;max-width:1200px;margin:0 auto;text-align:center;
+}
+.trusted-by h3{
+ font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:4px;
+ margin-bottom:36px;font-weight:600;
+}
+.logo-marquee{overflow:hidden;position:relative;mask-image:linear-gradient(90deg,transparent,black 5%,black 95%,transparent)}
+.logo-track{display:flex;gap:56px;animation:marquee 25s linear infinite;align-items:center}
+.logo-track:hover{animation-play-state:paused}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.logo-item{
+ display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.8);
+ font-size:15px;font-weight:700;white-space:nowrap;transition:color var(--transition);
+ opacity:1;
+}
+.logo-item:hover{color:var(--cyan);opacity:1;filter:none}
+.logo-item .li-icon{font-size:22px}
+
+/* ═══ SECTION HEADER ═══ */
+.section-header{text-align:center;margin-bottom:60px;position:relative;z-index:2}
+.section-header .overline{
+ font-size:10px;color:var(--cyan);text-transform:uppercase;letter-spacing:4px;
+ margin-bottom:12px;font-weight:700;
+}
+.section-header h2{
+ font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4vw,42px);
+ font-weight:800;letter-spacing:-1.5px;margin-bottom:14px;line-height:1.2;
+}
+.section-header h2 .gradient{
+ background:linear-gradient(135deg,var(--cyan),var(--magenta));
+ -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.section-header p{color:var(--muted);font-size:15px;max-width:550px;margin:0 auto;line-height:1.7}
+
+/* ═══ HOW IT WORKS ═══ */
+.how{
+ position:relative;z-index:10;padding:100px 40px;
+ max-width:1200px;margin:0 auto;
+}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;position:relative}
+.steps::before{
+ content:'';position:absolute;top:50px;left:12%;width:76%;height:2px;
+ background:linear-gradient(90deg,transparent,var(--cyan),var(--magenta),transparent);
+ opacity:0.2;z-index:0;
+}
+.step-card{
+ background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+ padding:48px 28px 36px;text-align:center;transition:all var(--transition);
+ position:relative;z-index:1;
+}
+.step-card:hover{
+ transform:translateY(-8px);border-color:rgba(0,240,255,0.25);
+ box-shadow:0 24px 48px rgba(0,0,0,0.5),var(--glow-cyan);
+}
+.step-circle{
+ width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+ margin:0 auto 20px;position:relative;z-index:2;
+ background:var(--bg3);border:2px solid rgba(0,240,255,0.2);
+ font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--cyan);
+ transition:all var(--transition);
+}
+.step-card:hover .step-circle{
+ border-color:var(--cyan);box-shadow:0 0 30px rgba(0,240,255,0.3);
+ background:rgba(0,240,255,0.08);
+}
+.step-card .step-icon{font-size:42px;margin-bottom:16px;display:block}
+.step-card h3{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;margin-bottom:10px;color:#fff}
+.step-card p{font-size:13px;color:var(--muted);line-height:1.7}
+.step-connector{display:none}
+
+/* ═══ FEATURES (6 CARDS WITH 3D HOVER) ═══ */
+.features{
+ position:relative;z-index:10;padding:100px 40px;
+ max-width:1200px;margin:0 auto;
+}
+.feature-grid{
+ display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
+}
+.feature-card{
+ background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+ padding:36px 28px;transition:all var(--transition);position:relative;overflow:hidden;
+ transform-style:preserve-3d;perspective:1000px;
+}
+.feature-card::before{
+ content:'';position:absolute;top:0;left:0;width:100%;height:100%;
+ background:radial-gradient(ellipse at var(--mx,50%) var(--my,50%),rgba(0,240,255,0.06) 0%,transparent 60%);
+ opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:0;
+}
+.feature-card:hover::before{opacity:1}
+.feature-card:hover{
+ transform:translateY(-6px) rotateX(2deg) rotateY(-2deg);
+ border-color:rgba(0,240,255,0.2);
+ box-shadow:0 20px 50px rgba(0,0,0,0.5),var(--glow-cyan);
+}
+.feature-card .fc-icon-wrap{
+ width:52px;height:52px;border-radius:14px;display:flex;align-items:center;
+ justify-content:center;font-size:26px;margin-bottom:18px;position:relative;z-index:1;
+ background:rgba(0,240,255,0.06);border:1px solid rgba(0,240,255,0.1);
+ transition:all var(--transition);
+}
+.feature-card:hover .fc-icon-wrap{
+ background:rgba(0,240,255,0.12);border-color:rgba(0,240,255,0.25);
+ box-shadow:0 0 20px rgba(0,240,255,0.15);
+}
+.feature-card h3{
+ font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;
+ margin-bottom:10px;color:#fff;position:relative;z-index:1;
+}
+.feature-card p{font-size:13px;color:var(--muted);line-height:1.7;position:relative;z-index:1}
+
+/* ═══ LIVE DEMO / PREVIEW ═══ */
+.demo{
+ position:relative;z-index:10;padding:100px 40px;
+ background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+}
+.demo-wrapper{max-width:1100px;margin:0 auto}
+.demo-preview{
+ position:relative;border-radius:var(--radius-xl);overflow:hidden;
+ border:1px solid var(--border);background:var(--bg3);
+ box-shadow:0 30px 80px rgba(0,0,0,0.6),var(--glow-cyan);
+}
+.demo-preview .demo-header{
+ background:rgba(255,255,255,0.03);padding:14px 20px;display:flex;align-items:center;gap:10px;
+ border-bottom:1px solid var(--border);
+}
+.demo-preview .demo-dot{width:10px;height:10px;border-radius:50%}
+.demo-preview .demo-dot.r{background:#ff5f57}
+.demo-preview .demo-dot.y{background:#febc2e}
+.demo-preview .demo-dot.g{background:#28c840}
+.demo-preview .demo-title{
+ flex:1;text-align:center;font-size:11px;color:var(--muted);font-weight:500;
+ font-family:'JetBrains Mono',monospace;
+}
+.demo-preview .demo-body{
+ padding:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+ background:linear-gradient(180deg,rgba(0,240,255,0.02),transparent);
+}
+.demo-stat-card{
+ background:rgba(255,255,255,0.02);border:1px solid var(--border);
+ border-radius:12px;padding:20px;text-align:center;
+}
+.demo-stat-card .d-num{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;color:var(--cyan)}
+.demo-stat-card .d-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:6px}
+.demo-activity{
+ background:rgba(255,255,255,0.02);border:1px solid var(--border);
+ border-radius:12px;padding:16px;grid-column:span 2;
+}
+.demo-activity .da-row{
+ display:flex;justify-content:space-between;align-items:center;
+ padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:12px;
+}
+.demo-activity .da-row:last-child{border-bottom:none}
+.demo-activity .da-company{color:var(--text);font-weight:500}
+.demo-activity .da-status{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600}
+.da-status.sent{background:rgba(0,240,255,0.1);color:var(--cyan)}
+.da-status.opened{background:rgba(0,230,118,0.1);color:var(--green)}
+.da-status.replied{background:rgba(255,179,0,0.1);color:var(--gold)}
+.demo-bar-chart{
+ background:rgba(255,255,255,0.02);border:1px solid var(--border);
+ border-radius:12px;padding:20px;
+}
+.demo-bar-chart .bar-label{font-size:11px;color:var(--muted);margin-bottom:12px;font-weight:600}
+.demo-bar{
+ height:8px;background:rgba(255,255,255,0.05);border-radius:4px;margin-bottom:10px;overflow:hidden;
+}
+.demo-bar .fill{height:100%;border-radius:4px;transition:width 1.5s ease}
+.demo-bar .fill.cyan{background:linear-gradient(90deg,var(--cyan),#00d4ff);box-shadow:0 0 10px rgba(0,240,255,0.3)}
+.demo-bar .fill.magenta{background:linear-gradient(90deg,var(--magenta),#ff3377);box-shadow:0 0 10px rgba(255,0,85,0.3)}
+.demo-bar .fill.gold{background:linear-gradient(90deg,var(--gold),#ffcc33);box-shadow:0 0 10px rgba(255,179,0,0.3)}
+
+/* ═══ SALARY CALCULATOR ═══ */
+.salary-calc{position:relative;z-index:10;padding:100px 40px;max-width:900px;margin:0 auto;text-align:center}
+.calc-box{
+ background:var(--card);border:1px solid var(--border);
+ border-radius:var(--radius-xl);padding:48px;position:relative;overflow:hidden;
+}
+.calc-box::before{
+ content:'';position:absolute;top:0;left:0;width:100%;height:100%;
+ background:radial-gradient(ellipse at 50% 0%,rgba(0,240,255,0.04) 0%,transparent 60%);
+ pointer-events:none;
+}
+.calc-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:36px;flex-wrap:wrap;position:relative;z-index:1}
+.calc-tab{
+ padding:11px 22px;border:1px solid var(--border);border-radius:50px;
+ background:transparent;color:var(--muted);font-size:13px;font-weight:600;
+ cursor:pointer;transition:all var(--transition);font-family:'Inter',sans-serif;
+}
+.calc-tab:hover{border-color:var(--cyan);color:var(--cyan)}
+.calc-tab.active{
+ background:rgba(0,240,255,0.08);border-color:var(--cyan);color:var(--cyan);
+ box-shadow:0 0 15px rgba(0,240,255,0.1);
+}
+.calc-result{
+ font-family:'Space Grotesk',sans-serif;font-size:56px;font-weight:900;
+ background:linear-gradient(135deg,var(--cyan),#00d4ff);
+ -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+ background-clip:text;margin-bottom:10px;position:relative;z-index:1;
+}
+.calc-label{color:var(--muted);font-size:14px;margin-bottom:10px;position:relative;z-index:1}
+.calc-savings{
+ display:inline-block;padding:7px 18px;background:rgba(0,230,118,0.08);
+ border:1px solid rgba(0,230,118,0.2);border-radius:50px;color:var(--green);
+ font-size:12px;font-weight:600;position:relative;z-index:1;
+}
+
+/* ═══ STATS / LIVE COUNTER ═══ */
+.stats-section{position:relative;z-index:10;padding:80px 40px;max-width:1200px;margin:0 auto}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.stat-card{
+ background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+ padding:36px 24px;text-align:center;transition:all var(--transition);
+ position:relative;overflow:hidden;
+}
+.stat-card::after{
+ content:'';position:absolute;bottom:0;left:0;width:100%;height:3px;
+ background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0;
+ transition:opacity 0.3s;
+}
+.stat-card:hover{transform:translateY(-4px);border-color:rgba(0,240,255,0.2)}
+.stat-card:hover::after{opacity:1}
+.stat-card .sc-icon{font-size:32px;margin-bottom:14px;display:block}
+.stat-card .sc-num{
+ font-family:'Space Grotesk',sans-serif;font-size:38px;font-weight:800;margin-bottom:6px;
+ background:linear-gradient(135deg,var(--cyan),#00d4ff);
+ -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.stat-card .sc-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-weight:600}
+
+/* ═══ FOMO COUNTER STRIP ═══ */
+.fomo-strip{
+ position:relative;z-index:10;padding:28px 40px;max-width:1200px;margin:0 auto;
+}
+.fomo-box{
+ background:linear-gradient(135deg,rgba(255,0,85,0.04),rgba(0,240,255,0.04));
+ border:1px solid rgba(255,0,85,0.12);border-radius:var(--radius-lg);
+ padding:24px 36px;display:flex;justify-content:center;gap:56px;align-items:center;
+ flex-wrap:wrap;text-align:center;backdrop-filter:blur(20px);
+}
+.fomo-item{display:flex;align-items:center;gap:12px}
+.fomo-item .fomo-icon{font-size:22px}
+.fomo-item .fomo-val{
+ font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:800;color:var(--magenta);
+ display:flex;align-items:center;gap:6px;
+}
+.fomo-item .fomo-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.fomo-pulse{
+ display:inline-block;width:7px;height:7px;background:var(--magenta);border-radius:50%;
+ animation:pulse 1.4s ease-in-out infinite;box-shadow:0 0 8px var(--magenta);
+}
+
+/* ═══ BEFORE/AFTER COMPARISON ═══ */
+.before-after{
+ position:relative;z-index:10;padding:100px 40px;max-width:1000px;margin:0 auto;
+}
+.ba-grid{display:grid;grid-template-columns:1fr 80px 1fr;gap:0;align-items:center;text-align:center}
+.ba-card{
+ background:var(--card);border:1px solid var(--border);border-radius:var(--radius-xl);
+ padding:40px 28px;transition:all var(--transition);
+}
+.ba-card.bad{
+ border-color:rgba(255,0,85,0.15);background:rgba(255,0,85,0.02);
+}
+.ba-card.bad:hover{border-color:rgba(255,0,85,0.3);box-shadow:var(--glow-magenta)}
+.ba-card.good{
+ border-color:rgba(0,230,118,0.15);background:rgba(0,230,118,0.02);
+}
+.ba-card.good:hover{border-color:rgba(0,230,118,0.3);box-shadow:0 0 20px rgba(0,230,118,0.2)}
+.ba-card .ba-icon{font-size:48px;margin-bottom:16px;display:block}
+.ba-card h3{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin-bottom:12px}
+.ba-card ul{list-style:none;text-align:left;margin-top:20px}
+.ba-card ul li{
+ padding:8px 0;font-size:13px;color:var(--muted);display:flex;align-items:flex-start;gap:8px;
+ border-bottom:1px solid rgba(255,255,255,0.03);
+}
+.ba-card ul li:last-child{border-bottom:none}
+.ba-card.bad ul li::before{content:'✗';color:var(--magenta);font-size:12px;font-weight:700}
+.ba-card.good ul li::before{content:'✓';color:var(--green);font-size:12px;font-weight:700}
+.ba-vs{
+ font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:900;
+ background:linear-gradient(135deg,var(--magenta),var(--cyan));
+ -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.ba-hint{font-size:11px;color:var(--muted);margin-top:8px;letter-spacing:2px}
+
+/* ═══ COMPARISON TABLE ═══ */
+.comparison{
+ position:relative;z-index:10;padding:100px 40px;
+ background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+}
+.comp-wrapper{max-width:1100px;margin:0 auto;overflow-x:auto}
+.comp-table{
+ width:100%;border-collapse:separate;border-spacing:0;
+ border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;
+ font-size:12px;
+}
+.comp-table thead th{
+ padding:16px 14px;text-align:center;font-weight:700;font-size:11px;
+ text-transform:uppercase;letter-spacing:1.5px;
+ background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border);
+}
+.comp-table thead th:first-child{text-align:left;padding-left:24px;background:transparent;color:var(--muted)}
+.comp-table thead th.highlight{
+ background:rgba(0,240,255,0.06);color:var(--cyan);
+ border-left:1px solid rgba(0,240,255,0.15);border-right:1px solid rgba(0,240,255,0.15);
+}
+.comp-table tbody td{
+ padding:13px 14px;text-align:center;border-bottom:1px solid var(--border);
+ color:var(--muted);transition:background var(--transition);
+}
+.comp-table tbody td:first-child{text-align:left;padding-left:24px;font-weight:500;color:var(--text)}
+.comp-table tbody td.highlight{
+ background:rgba(0,240,255,0.03);
+ border-left:1px solid rgba(0,240,255,0.15);border-right:1px solid rgba(0,240,255,0.15);
+}
+.comp-table tbody tr:hover td{background:rgba(255,255,255,0.02)}
+.comp-table tbody tr:hover td.highlight{background:rgba(0,240,255,0.06)}
+.comp-check{color:var(--green);font-weight:700}
+.comp-cross{color:var(--muted);opacity:0.4}
+.comp-star{color:var(--gold)}
+.comp-table tfoot td{
+ padding:18px 14px;text-align:center;background:rgba(255,255,255,0.02);
+ border-top:1px solid var(--border);
+}
+.comp-table tfoot td.highlight{background:rgba(0,240,255,0.04)}
+.comp-table .btn-sm{
+ padding:8px 20px;font-size:11px;border-radius:10px;font-weight:700;
+ display:inline-block;text-decoration:none;
+}
+
+/* ═══ AS SEEN ON ═══ */
+.as-seen{
+ position:relative;z-index:10;padding:60px 40px;max-width:1200px;margin:0 auto;text-align:center;
+}
+.as-seen-grid{
+ display:flex;justify-content:center;align-items:center;gap:40px;flex-wrap:wrap;
+ margin-top:32px;
+}
+.as-seen-item{
+ display:flex;flex-direction:column;align-items:center;gap:8px;
+ opacity:0.55;transition:all var(--transition);padding:16px 24px;
+ filter:grayscale(100%) brightness(0.7);
+}
+.as-seen-item:hover{opacity:1;filter:none;transform:translateY(-2px)}
+.as-seen-item .as-icon{font-size:36px}
+.as-seen-item .as-name{font-size:13px;font-weight:700;color:var(--text);letter-spacing:1px}
+.as-seen-item .as-desc{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px}
+
+/* ═══ TRUST BADGES ═══ */
+.trust-section{
+ position:relative;z-index:10;padding:100px 40px;max-width:1200px;margin:0 auto;
+}
+.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.trust-badge-card{
+ background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+ padding:28px 20px;text-align:center;transition:all var(--transition);
+}
+.trust-badge-card:hover{
+ transform:translateY(-4px);border-color:rgba(0,240,255,0.2);
+ box-shadow:0 12px 30px rgba(0,0,0,0.5),var(--glow-cyan);
+}
+.trust-badge-card .tb-icon{font-size:40px;margin-bottom:12px;display:block}
+.trust-badge-card h4{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:8px}
+.trust-badge-card p{font-size:11px;color:var(--muted);line-height:1.7}
+
+/* ═══ URGENCY CTA ═══ */
+.urgency-banner{
+ position:relative;z-index:10;padding:0 40px 80px;max-width:1000px;margin:0 auto;
+}
+.urgency-box{
+ background:linear-gradient(135deg,rgba(255,179,0,0.03),rgba(255,0,85,0.03));
+ border:1px solid rgba(255,179,0,0.12);border-radius:var(--radius-xl);
+ padding:36px 40px;display:flex;justify-content:center;gap:60px;align-items:center;
+ flex-wrap:wrap;text-align:center;backdrop-filter:blur(20px);
+}
+.urgency-item{display:flex;align-items:center;gap:14px}
+.urgency-item .ur-icon{font-size:28px}
+.urgency-item .ur-val{
+ font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;
+ background:linear-gradient(135deg,var(--gold),var(--magenta));
+ -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.urgency-item .ur-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+
+/* ═══ ROI CALCULATOR ═══ */
+.roi-calc{
+ position:relative;z-index:10;padding:60px 40px 100px;max-width:900px;margin:0 auto;text-align:center;
+}
+.roi-box{
+ background:var(--card);border:1px solid var(--border);
+ border-radius:var(--radius-xl);padding:48px;position:relative;overflow:hidden;
+}
+.roi-box::before{
+ content:'';position:absolute;top:0;left:0;width:100%;height:100%;
+ background:radial-gradient(ellipse at 50% 0%,rgba(255,179,0,0.04) 0%,transparent 60%);
+ pointer-events:none;
+}
+.roi-slider-wrap{margin:28px 0;position:relative;z-index:1}
+.roi-slider-wrap label{display:block;color:var(--muted);font-size:12px;margin-bottom:12px;font-weight:600;letter-spacing:1px}
+.roi-slider{
+ -webkit-appearance:none;appearance:none;width:100%;height:8px;
+ background:rgba(255,255,255,0.06);border-radius:4px;outline:none;cursor:pointer;
+}
+.roi-slider::-webkit-slider-thumb{
+ -webkit-appearance:none;appearance:none;width:24px;height:24px;
+ border-radius:50%;background:linear-gradient(135deg,var(--gold),#ffcc33);
+ cursor:pointer;box-shadow:0 0 20px rgba(255,179,0,0.3);border:2px solid #000;
+}
+.roi-result{font-family:'Space Grotesk',sans-serif;font-size:42px;font-weight:900;position:relative;z-index:1}
+.roi-result .roi-val{
+ background:linear-gradient(135deg,var(--gold),#ffcc33);
+ -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.roi-result .roi-sub{font-size:14px;color:var(--muted);display:block;margin-top:4px;font-weight:500}
+
+@media(max-width:1024px){
+ .ba-grid{grid-template-columns:1fr;gap:16px}
+ .ba-vs{font-size:20px}
+ .trust-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+.hero{padding:140px 20px 50px}
+ .trust-grid{grid-template-columns:1fr;max-width:320px;margin:0 auto}
+ .urgency-box{gap:20px}
+ .as-seen-grid{gap:20px}
+ .ba-grid{max-width:400px;margin:0 auto}
+}
+
+/* ═══ PRICING (4 TIERS) ═══ */
+.pricing{position:relative;z-index:10;padding:100px 40px;max-width:1200px;margin:0 auto}
+.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;align-items:stretch}
+.price-card{
+ background:var(--card);border:1px solid var(--border);border-radius:var(--radius-xl);
+ padding:40px 28px;text-align:center;transition:all var(--transition);position:relative;
+ display:flex;flex-direction:column;
+}
+.price-card:hover{transform:translateY(-8px)}
+.price-card.popular{
+ border-color:rgba(0,240,255,0.3);transform:scale(1.04);
+ box-shadow:0 0 40px rgba(0,240,255,0.1);
+ z-index:2;
+}
+.price-card.popular:hover{transform:scale(1.04) translateY(-8px)}
+.price-badge{
+ position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+ padding:6px 20px;border-radius:50px;font-size:9px;font-weight:800;
+ letter-spacing:2.5px;text-transform:uppercase;white-space:nowrap;
+}
+.price-badge.hot{background:linear-gradient(135deg,var(--magenta),#ff3377);color:#fff;box-shadow:0 0 20px rgba(255,0,85,0.3)}
+.price-badge.best{background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;box-shadow:0 0 20px rgba(0,240,255,0.3)}
+.price-badge.new{background:linear-gradient(135deg,var(--gold),#ffcc33);color:#000;box-shadow:0 0 20px rgba(255,179,0,0.3)}
+.price-tier{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:3px;margin-bottom:8px}
+.price-card h3{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;margin-bottom:14px}
+.price-apps{font-size:38px;font-weight:900;color:var(--cyan);line-height:1;margin-bottom:4px}
+.price-apps span{font-size:13px;color:var(--muted);font-weight:500}
+.price-amount{font-size:36px;font-weight:800;margin:16px 0 8px;font-family:'Space Grotesk',sans-serif}
+.price-amount .currency{font-size:18px;color:var(--muted);font-weight:500}
+.price-per{font-size:11px;color:var(--muted);margin-bottom:12px}
+.price-save-badge{
+ display:inline-block;padding:4px 14px;background:rgba(0,240,255,0.07);
+ border:1px solid rgba(0,240,255,0.18);border-radius:50px;color:var(--cyan);
+ font-size:10px;font-weight:700;margin-bottom:20px;letter-spacing:0.5px;
+}
+.price-card ul{list-style:none;text-align:left;margin-bottom:24px;flex:1}
+.price-card ul li{
+ padding:9px 0;color:var(--muted);font-size:12px;
+ border-bottom:1px solid rgba(255,255,255,0.03);display:flex;align-items:flex-start;gap:10px;
+}
+.price-card ul li:last-child{border-bottom:none}
+.price-card ul li::before{content:'✦';color:var(--cyan);font-size:10px;flex-shrink:0;margin-top:3px}
+.btn{
+ display:inline-block;width:100%;padding:15px;border-radius:14px;font-weight:700;font-size:13px;
+ cursor:pointer;transition:all var(--transition);text-decoration:none;text-align:center;
+ border:none;font-family:'Inter',sans-serif;letter-spacing:0.5px;position:relative;
+ overflow:hidden;
+}
+.btn-cyan{
+ background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;
+ box-shadow:0 4px 20px rgba(0,240,255,0.2);
+}
+.btn-cyan:hover{box-shadow:0 6px 30px rgba(0,240,255,0.4);transform:translateY(-2px)}
+.btn-magenta{
+ background:linear-gradient(135deg,var(--magenta),#cc0044);color:#fff;
+ box-shadow:0 4px 20px rgba(255,0,85,0.2);
+}
+.btn-magenta:hover{box-shadow:0 6px 30px rgba(255,0,85,0.4);transform:translateY(-2px)}
+.btn-outline{
+ background:transparent;color:var(--muted);border:1px solid var(--border);
+}
+.btn-outline:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:var(--glow-cyan)}
+.btn-gold{
+ background:linear-gradient(135deg,var(--gold),#cc8800);color:#000;
+ box-shadow:0 4px 20px rgba(255,179,0,0.2);
+}
+.btn-gold:hover{box-shadow:0 6px 30px rgba(255,179,0,0.4);transform:translateY(-2px)}
+.crypto-row{
+ display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:36px;
+}
+.crypto-row span{
+ font-size:10px;padding:5px 12px;border-radius:6px;
+ background:rgba(255,255,255,0.03);color:var(--dim);
+ font-weight:600;letter-spacing:1px;border:1px solid var(--border);
+}
+
+/* ═══ TESTIMONIALS ═══ */
+.testimonials{
+ position:relative;z-index:10;padding:100px 40px;
+ background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+}
+.testimonials-wrapper{max-width:1200px;margin:0 auto}
+.testimonial-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.testimonial-card{
+ background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+ padding:32px 26px;display:flex;flex-direction:column;gap:18px;transition:all var(--transition);
+ position:relative;overflow:hidden;
+}
+.testimonial-card:hover{
+ transform:translateY(-5px);border-color:rgba(0,240,255,0.2);
+ box-shadow:0 20px 40px rgba(0,0,0,0.4);
+}
+.testimonial-card .glow-line-top{
+ position:absolute;top:0;left:0;width:100%;height:2px;
+ background:linear-gradient(90deg,transparent,var(--cyan),var(--magenta),transparent);
+ opacity:0;transition:opacity var(--transition);
+}
+.testimonial-card:hover .glow-line-top{opacity:1}
+.testimonial-stars{font-size:14px;letter-spacing:2px;color:var(--gold)}
+.testimonial-quote{
+ font-size:13px;color:var(--muted);line-height:1.9;font-style:italic;flex:1;
+ position:relative;padding-left:16px;border-left:2px solid rgba(0,240,255,0.1);
+}
+.testimonial-author{display:flex;align-items:center;gap:12px}
+.testimonial-avatar{
+ width:40px;height:40px;border-radius:50%;display:flex;align-items:center;
+ justify-content:center;font-size:14px;font-weight:700;color:#fff;
+ border:2px solid rgba(0,240,255,0.2);
+}
+.ta1{background:linear-gradient(135deg,#ff6b6b,#ee5a24)}
+.ta2{background:linear-gradient(135deg,#4ecdc4,#44bd32)}
+.ta3{background:linear-gradient(135deg,#a29bfe,#6c5ce7)}
+.ta4{background:linear-gradient(135deg,#fd79a8,#e84393)}
+.ta5{background:linear-gradient(135deg,#ffe66d,#fdcb6e)}
+.ta6{background:linear-gradient(135deg,#00cec9,#0984e3)}
+.testimonial-info .ti-name{font-size:13px;font-weight:600;color:#fff}
+.testimonial-info .ti-role{font-size:10px;color:var(--muted)}
+.testimonial-stat{
+ display:inline-flex;align-items:center;gap:6px;padding:5px 12px;
+ background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.15);
+ border-radius:50px;font-size:10px;color:var(--green);font-weight:600;
+}
+
+/* ═══ FAQ ACCORDION ═══ */
+.faq{position:relative;z-index:10;padding:100px 40px;max-width:800px;margin:0 auto}
+.faq-list{display:flex;flex-direction:column;gap:10px}
+.faq-item{
+ background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+ overflow:hidden;transition:all var(--transition);
+}
+.faq-item:hover{border-color:rgba(0,240,255,0.15)}
+.faq-item.open{border-color:rgba(0,240,255,0.25);box-shadow:var(--glow-cyan)}
+.faq-question{
+ display:flex;justify-content:space-between;align-items:center;padding:20px 24px;
+ cursor:pointer;font-weight:600;font-size:14px;color:#fff;
+ user-select:none;transition:color var(--transition);
+}
+.faq-question:hover{color:var(--cyan)}
+.faq-item.open .faq-question{color:var(--cyan)}
+.faq-icon{
+ width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+ font-size:18px;transition:transform var(--transition);color:var(--cyan);
+}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+.faq-answer{
+ max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.4s ease;
+ padding:0 24px;
+}
+.faq-item.open .faq-answer{max-height:300px;padding:0 24px 20px}
+.faq-answer p{font-size:13px;color:var(--muted);line-height:1.8}
+
+/* ═══ FINAL CTA ═══ */
+.final-cta{
+ position:relative;z-index:10;padding:120px 40px;max-width:800px;margin:0 auto;text-align:center;
+}
+.cta-glow{
+ position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+ width:600px;height:600px;border-radius:50%;
+ background:radial-gradient(circle,rgba(0,240,255,0.08) 0%,transparent 60%);
+ pointer-events:none;z-index:0;
+}
+.final-cta h2{
+ font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,5vw,48px);
+ font-weight:900;line-height:1.15;margin-bottom:18px;letter-spacing:-1.5px;position:relative;z-index:1;
+}
+.final-cta h2 .gradient{
+ background:linear-gradient(135deg,var(--cyan),var(--magenta));
+ -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.final-cta p{
+ color:var(--muted);font-size:16px;max-width:500px;margin:0 auto 36px;line-height:1.8;
+ position:relative;z-index:1;
+}
+.final-cta .cta-btn{
+ display:inline-flex;align-items:center;gap:12px;padding:20px 48px;
+ background:linear-gradient(135deg,var(--cyan),#00a0cc);
+ color:#000;border-radius:16px;font-size:18px;font-weight:800;text-decoration:none;
+ transition:all var(--transition);box-shadow:0 4px 40px rgba(0,240,255,0.3);
+ position:relative;z-index:1;overflow:hidden;
+}
+.final-cta .cta-btn::before{
+ content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+ background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
+ transition:left 0.5s;
+}
+.final-cta .cta-btn:hover::before{left:100%}
+.final-cta .cta-btn:hover{box-shadow:0 6px 50px rgba(0,240,255,0.5);transform:translateY(-3px)}
+.final-cta .cta-sub{font-size:12px;color:var(--muted);margin-top:16px;position:relative;z-index:1}
+.final-cta .cta-sub strong{color:var(--green)}
+
+/* ═══ FOOTER ═══ */
+.footer{
+ position:relative;z-index:10;padding:48px 40px;border-top:1px solid var(--border);
+ text-align:center;
+}
+.footer-grid{
+ max-width:1200px;margin:0 auto;display:grid;
+ grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;text-align:left;margin-bottom:40px;
+}
+.footer-brand .fb-logo{
+ font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;
+ background:linear-gradient(135deg,var(--cyan),var(--magenta));
+ -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+ background-clip:text;margin-bottom:10px;display:block;
+}
+.footer-brand p{font-size:12px;color:var(--muted);line-height:1.7}
+.footer-col h4{font-size:12px;font-weight:700;color:#fff;margin-bottom:16px;letter-spacing:1px;text-transform:uppercase}
+.footer-col a{display:block;color:var(--muted);text-decoration:none;font-size:12px;padding:5px 0;transition:color var(--transition)}
+.footer-col a:hover{color:var(--cyan)}
+.footer-bottom{
+ max-width:1200px;margin:0 auto;padding-top:24px;
+ border-top:1px solid var(--border);display:flex;justify-content:space-between;
+ align-items:center;flex-wrap:wrap;gap:12px;
+}
+.footer-bottom p{font-size:11px;color:var(--dim)}
+.footer-social{display:flex;gap:12px}
+.footer-social a{
+ width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+ background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--muted);
+ text-decoration:none;font-size:14px;transition:all var(--transition);
+}
+.footer-social a:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:var(--glow-cyan)}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:1200px){
+ .pricing-grid{grid-template-columns:repeat(2,1fr);max-width:700px;margin-left:auto;margin-right:auto}
+ .price-card.popular{transform:none}
+ .price-card.popular:hover{transform:translateY(-8px)}
+}
+@media(max-width:1024px){
+ .feature-grid{grid-template-columns:repeat(2,1fr)}
+ .steps{grid-template-columns:repeat(2,1fr)}
+ .steps::before{display:none}
+ .stats-grid{grid-template-columns:repeat(2,1fr)}
+ .testimonial-grid{grid-template-columns:repeat(2,1fr)}
+ .demo-preview .demo-body{grid-template-columns:repeat(2,1fr)}
+ .demo-preview .demo-activity{grid-column:span 1}
+ .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
+}
+@media(max-width:768px){
+/* === IMPROVED MOBILE NAVBAR === */
+ .nav{padding:10px 14px;width:calc(100% - 20px);top:6px;border-radius:12px}
+ .nav-links{display:none;position:fixed;top:0;left:0;width:100%;height:100vh;
+  background:rgba(5,5,15,0.98);backdrop-filter:blur(30px);
+  flex-direction:column;justify-content:center;align-items:center;gap:12px;z-index:1000;
+  opacity:0;transition:opacity 0.3s ease}
+ .nav-links.open{display:flex;opacity:1}
+ .nav-links a{font-size:17px;padding:14px 28px;font-weight:600;width:80%;text-align:center;
+  border-radius:12px;background:rgba(255,255,255,0.03)}
+ .nav-links a.cta{font-size:17px;padding:16px 32px;width:80%}
+ .nav-hamburger{display:flex;flex-direction:column;gap:5px;cursor:pointer;padding:8px;z-index:1001;
+  position:relative}
+ .nav-hamburger span{width:24px;height:2px;background:var(--text);border-radius:2px;
+  transition:all 0.3s ease}
+ .nav-hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+ .nav-hamburger.open span:nth-child(2){opacity:0}
+ .nav-hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+ .hero{padding:130px 16px 40px}
+ .hero h1{font-size:26px;letter-spacing:-0.5px;line-height:1.2}
+ .hero-sub{font-size:13px;line-height:1.6;padding:0 8px}
+ .hero-buttons{flex-direction:column;gap:10px;align-items:center}
+ .hero-buttons a,.hero-buttons .btn{width:100%;max-width:340px;justify-content:center;
+  font-size:14px;padding:14px 24px;border-radius:12px}
+ .hero-stats-strip{gap:16px;padding:16px;flex-wrap:wrap;justify-content:center}
+ .stat-item:not(:last-child)::after{display:none}
+ .stat-item .num{font-size:22px}
+ .stat-item .label{font-size:10px}
+/* === GRID LAYOUTS: Single column on mobile === */
+ .feature-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto;gap:16px}
+ .steps{grid-template-columns:1fr;max-width:380px;margin:0 auto;gap:16px}
+ .step-card{padding:24px 20px}
+ .pricing-grid{grid-template-columns:1fr;max-width:380px;margin:0 auto;gap:18px}
+ .price-card{padding:32px 22px}
+ .price-card h3{font-size:20px}
+ .price-apps{font-size:32px}
+ .price-amount{font-size:30px}
+ .price-card.popular{transform:none}
+ .price-card.popular:hover{transform:translateY(-5px)}
+ .price-card ul li{font-size:12px;padding:10px 0}
+ .btn-cyan,.btn-magenta,.btn-gold{font-size:12px;padding:14px 24px;width:100%}
+ .testimonial-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}
+ .testimonial-card{padding:24px 20px}
+ .stats-grid{grid-template-columns:1fr 1fr;gap:12px}
+ .stat-card{padding:20px 16px}
+ .demo-preview .demo-body{grid-template-columns:1fr;padding:20px}
+ .demo-preview .demo-activity{grid-column:span 1}
+ .footer-grid{grid-template-columns:1fr 1fr;text-align:left;gap:24px}
+ .footer-bottom{flex-direction:column;text-align:center;gap:12px}
+ .section-header h2{font-size:24px}
+ .section-header p{font-size:13px}
+ .calc-box{padding:24px 16px}
+ .calc-result{font-size:32px}
+ .fomo-box{flex-direction:column;gap:12px;text-align:center;padding:20px}
+ .final-cta h2{font-size:24px}
+ .logo-marquee .logo-track{gap:24px;animation-duration:18s}
+/* === COMPARISON TABLE === */
+ .comp-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .comp-table{font-size:11px}
+ .comp-table th,.comp-table td{padding:10px 12px}
+ .comp-table .btn-sm{font-size:10px;padding:7px 14px}
+/* === FEATURED JOBS === */
+ .featured-grid{grid-template-columns:1fr;max-width:400px;margin:32px auto 0;gap:16px}
+ .fj-card{padding:24px 18px}
+/* === BEFORE-AFTER === */
+ .ba-grid{grid-template-columns:1fr;max-width:380px;margin:0 auto;gap:12px}
+ .ba-vs{font-size:18px;transform:rotate(90deg)}
+/* === URGENCY BANNER === */
+ .urgency-box{flex-direction:column;gap:16px;text-align:center;padding:24px 20px}
+ .urgency-box .btn{width:100%;justify-content:center}
+/* === Guarantee Badge === */
+ .guarantee-badge{flex-direction:column;text-align:center;padding:16px 20px}
+/* === Section padding === */
+ .how-it-works,.features,.demo-section,.salary-calc,.stats-section,
+ .trust-section,.pricing,.before-after,.as-seen,.roi-calc,.featured-jobs,
+  .comparison-section{padding:60px 16px}
+}
+@media(max-width:480px){
+/* === EXTRA SMALL DEVICES === */
+ .stats-grid{grid-template-columns:1fr;max-width:280px;margin:0 auto;gap:10px}
+ .hero{padding:120px 12px 32px}
+ .hero h1{font-size:22px;letter-spacing:-0.3px}
+ .hero-sub{font-size:12px}
+ .hero-buttons a,.hero-buttons .btn{max-width:100%;font-size:13px;padding:13px 20px}
+ .hero-badge{padding:6px 14px;font-size:10px}
+ .nav-logo{font-size:16px}
+ .nav-links a{font-size:15px;padding:12px 20px}
+ .section-header h2{font-size:20px}
+ .section-header p{font-size:12px}
+ .pricing-grid{max-width:100%;gap:14px}
+ .price-card{padding:24px 16px}
+ .price-card h3{font-size:18px}
+ .price-apps{font-size:28px}
+ .price-amount{font-size:26px}
+ .price-badge{font-size:8px;padding:4px 14px}
+ .footer-grid{grid-template-columns:1fr;text-align:center;gap:20px}
+ .feature-grid,.steps{margin:0;max-width:100%}
+ .step-card{padding:20px 16px}
+ .feature-card{padding:20px 16px}
+ .fj-card{padding:20px 16px}
+ .featured-grid{max-width:100%}
+ .trust-grid{grid-template-columns:1fr;max-width:280px;margin:0 auto}
+ .logo-marquee .logo-track{gap:20px;animation-duration:22s}
+ .logo-marquee .logo-track img{height:28px;max-width:100px}
+ .cookie-content{text-align:center;flex-direction:column;gap:12px}
+ .cookie-content .btn{width:100%}
+}
+
+/* Featured Jobs Section (spy-report quick win #5) */
+.featured-jobs{
+  position:relative;z-index:10;padding:60px 40px;max-width:1200px;margin:0 auto;
+}
+.featured-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:32px;}
+.fj-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius-xl);
+  padding:32px 24px;transition:all var(--transition);position:relative;overflow:hidden;
+  display:flex;flex-direction:column;gap:16px;
+}
+.fj-card::before{
+  content:'';position:absolute;top:0;left:0;width:100%;height:3px;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));
+  opacity:0;transition:opacity var(--transition);
+}
+.fj-card:hover{
+  transform:translateY(-8px);border-color:rgba(0,240,255,0.25);
+  box-shadow:0 20px 50px rgba(0,0,0,0.6),var(--glow-cyan);
+}
+.fj-card:hover::before{opacity:1}
+.fj-badge{
+  display:inline-flex;align-items:center;gap:6px;padding:5px 14px;
+  background:rgba(255,179,0,0.08);border:1px solid rgba(255,179,0,0.2);
+  border-radius:50px;font-size:9px;font-weight:700;color:var(--gold);
+  letter-spacing:1.5px;text-transform:uppercase;align-self:flex-start;
+}
+.fj-company-row{display:flex;align-items:center;gap:12px;}
+.fj-logo{
+  width:48px;height:48px;border-radius:12px;flex-shrink:0;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+.fj-logo img{width:100%;height:100%;object-fit:contain;padding:5px;}
+.fj-logo-fb{font-size:20px;font-weight:800;color:var(--cyan);}
+.fj-company-name{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:#fff;}
+.fj-company-name small{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:2px;}
+.fj-title{font-size:17px;font-weight:700;color:var(--text);line-height:1.3;}
+.fj-salary-row{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 16px;background:rgba(34,197,94,.06);
+  border:1px solid rgba(34,197,94,.15);border-radius:10px;
+}
+.fj-salary{font-family:monospace;font-size:15px;font-weight:700;color:#22c55e;}
+.fj-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.fj-tag{
+  font-size:10px;padding:4px 10px;border-radius:6px;font-weight:600;white-space:nowrap;
+  background:rgba(0,240,255,.06);color:var(--cyan);border:1px solid rgba(0,240,255,.15);
+}
+.fj-location{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.fj-apply-btn{
+  display:block;text-align:center;padding:14px;border-radius:12px;
+  background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;
+  font-weight:700;font-size:14px;text-decoration:none;transition:all var(--transition);
+  margin-top:auto;
+}
+.fj-apply-btn:hover{
+  box-shadow:0 6px 25px rgba(0,240,255,0.4);transform:translateY(-2px);
+}
+@media(max-width:1024px){.featured-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:768px){
+.hero{padding:140px 20px 50px}.featured-grid{grid-template-columns:1fr;max-width:400px;margin-left:auto;margin-right:auto;}}
+</style>
+
+<style>
+.hero-stats-strip .stat-item .num.counter{font-variant-numeric:tabular-nums}
+@keyframes countUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.hero-stats-strip .stat-item{animation:countUp 0.6s ease-out both}
+.hero-stats-strip .stat-item:nth-child(1){animation-delay:0.1s}
+.hero-stats-strip .stat-item:nth-child(2){animation-delay:0.2s}
+.hero-stats-strip .stat-item:nth-child(3){animation-delay:0.3s}
+.hero-stats-strip .stat-item:nth-child(4){animation-delay:0.4s}
+.hero-stats-strip .stat-item:nth-child(5){animation-delay:0.5s}
+</style>
+
+
+<style>
+.cookie-banner{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,25,0.97);border-top:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px 24px;backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
+.cookie-content{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+.cookie-content span{font-size:20px}
+.cookie-content p{font-size:12px;color:var(--muted);flex:1;min-width:200px}
+.cookie-content a{color:var(--cyan)}
+.cookie-content button{background:var(--cyan);color:#000;border:none;padding:8px 20px;border-radius:20px;font-weight:700;cursor:pointer;font-size:13px;white-space:nowrap}
+.cookie-content button:hover{opacity:0.9}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@media(max-width:600px){.cookie-content{text-align:center}}
+</style>
+<style>
+.guarantee-badge-section{padding:0 24px 40px;display:flex;justify-content:center;position:relative;z-index:2}
+.guarantee-badge{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(0,240,255,0.08),rgba(0,240,255,0.02));border:1px solid rgba(0,240,255,0.2);border-radius:20px;padding:20px 32px;max-width:700px;width:100%;backdrop-filter:blur(10px);animation:guaranteePulse 2s ease-in-out infinite}
+.guarantee-icon{font-size:32px;flex-shrink:0}
+.guarantee-text{display:flex;flex-direction:column;gap:4px;flex:1}
+.guarantee-text strong{font-size:16px;color:var(--cyan);letter-spacing:-0.3px}
+.guarantee-text span{font-size:13px;color:var(--muted)}
+.guarantee-seal{flex-shrink:0;opacity:0.8}
+@keyframes guaranteePulse{0%,100%{box-shadow:0 0 20px rgba(0,240,255,0.1)}50%{box-shadow:0 0 35px rgba(0,240,255,0.2)}}
+@media(max-width:600px){.guarantee-badge{flex-direction:column;text-align:center;padding:16px 20px}}
+</style>
+<style>
+.ats-checker{padding:80px 24px;position:relative;z-index:2;max-width:1100px;margin:0 auto}
+.ats-demo{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:40px;align-items:start}
+.ats-upload-zone{background:var(--glass);border:2px dashed rgba(0,240,255,0.2);border-radius:20px;padding:40px 30px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;transition:all var(--transition);cursor:pointer}
+.ats-upload-zone:hover{border-color:var(--cyan);background:rgba(0,240,255,0.03);box-shadow:var(--glow-cyan)}
+.ats-upload-icon{font-size:48px;opacity:0.7}
+.ats-upload-zone p{font-size:15px;color:#fff;font-weight:500}
+.ats-upload-zone span{font-size:12px;color:var(--dim)}
+.ats-scan-btn{display:inline-block;margin-top:8px;padding:12px 28px;background:var(--cyan);color:#000;border-radius:28px;font-weight:700;font-size:14px;text-decoration:none;transition:all var(--transition)}
+.ats-scan-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,240,255,0.3)}
+.ats-score-preview{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px}
+.ats-score-circle{width:120px;height:120px;margin:0 auto 16px;position:relative}
+.ats-score-circle svg{position:absolute;top:0;left:0}
+.ats-score-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;line-height:1}
+.ats-score-num{font-size:36px;font-weight:900;color:#fff}
+.ats-score-total{font-size:14px;color:var(--muted)}
+.ats-sample-label{text-align:center;font-size:13px;color:var(--muted);margin-bottom:20px;font-style:italic}
+.ats-breakdown{display:flex;flex-direction:column;gap:10px}
+.ats-row{display:flex;justify-content:space-between;font-size:14px;padding:8px 12px;background:var(--glass2);border-radius:8px}
+@media(max-width:768px){.ats-demo{grid-template-columns:1fr}}
+</style>
+<style>
+.referral-section{padding:80px 24px;position:relative;z-index:2;max-width:1100px;margin:0 auto}
+.referral-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:40px}
+.ref-step{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px 20px;text-align:center;transition:all var(--transition)}
+.ref-step:hover{border-color:rgba(255,179,0,0.3);transform:translateY(-4px);box-shadow:var(--glow-gold)}
+.ref-num{font-size:36px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.ref-step h4{font-size:15px;color:#fff;margin-bottom:6px}
+.ref-step p{font-size:12px;color:var(--muted)}
+@media(max-width:768px){.referral-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.referral-grid{grid-template-columns:1fr}}
+</style>
+<style>
+.social-toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.social-toast{background:rgba(10,10,20,0.95);border:1px solid rgba(0,240,255,0.2);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 20px rgba(0,240,255,0.08);animation:toastSlideIn 0.5s ease-out;transition:all 0.5s ease-out;max-width:320px;pointer-events:auto}
+.toast-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--magenta));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.toast-body{font-size:12px;color:var(--muted);line-height:1.4}
+.toast-body strong{color:#fff}
+@keyframes toastSlideIn{from{opacity:0;transform:translateX(120%)}to{opacity:1;transform:translateX(0)}}
+@media(max-width:600px){.social-toast-container{bottom:12px;right:8px;left:8px}.social-toast{max-width:100%}}
+</style>
+<style>
+.exit-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
+.exit-overlay.show{display:flex;animation:fadeIn 0.3s ease-out}
+.exit-popup{background:linear-gradient(135deg,rgba(15,15,30,0.98),rgba(10,10,25,0.98));border:1px solid rgba(0,240,255,0.2);border-radius:24px;padding:40px 32px;max-width:520px;width:100%;text-align:center;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,240,255,0.06)}
+.exit-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--muted);font-size:28px;cursor:pointer;line-height:1}
+.exit-close:hover{color:#fff}
+.exit-icon{font-size:48px;margin-bottom:16px}
+.exit-popup h3{font-family:'Space Grotesk',sans-serif;font-size:22px;color:#fff;margin-bottom:10px;letter-spacing:-0.5px}
+.exit-popup p{color:var(--muted);font-size:14px;line-height:1.5;margin-bottom:20px}
+.exit-value-props{display:flex;flex-direction:column;gap:6px;margin-bottom:24px}
+.exit-value-props span{font-size:13px;color:var(--green)}
+.exit-cta{display:inline-block;padding:14px 36px;background:linear-gradient(135deg,var(--cyan),#00b8ff);color:#000;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;transition:all var(--transition)}
+.exit-cta:hover{transform:translateY(-2px);box-shadow:0 10px 35px rgba(0,240,255,0.4)}
+.exit-footnote{font-size:11px;color:var(--dim);margin-top:16px}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+</style>
+<style>
+.mobile-cta-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;padding:10px 16px;background:rgba(10,10,25,0.95);border-top:1px solid rgba(0,240,255,0.1);backdrop-filter:blur(12px)}
+.mobile-cta-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,var(--cyan),#00b8ff);color:#000;text-align:center;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;animation:ctaPulse 2s ease-in-out infinite}
+@keyframes ctaPulse{0%,100%{box-shadow:0 0 15px rgba(0,240,255,0.15)}50%{box-shadow:0 0 30px rgba(0,240,255,0.3)}}
+@media(max-width:768px){.mobile-cta-bar{display:block}}
+</style>
+</head>
+
+<body class="cyberpunk-body">
+
+<!-- COOKIE CONSENT BANNER -->
+<div class="cookie-banner" id="cookieBanner">
+ <div class="cookie-content">
+  <span>&#x1f36a;</span>
+  <p>We use essential cookies to keep JobHunt Pro running. By using our site, you agree to our <a href="/privacy">Privacy Policy</a>.</p>
+  <button class="btn" onclick="acceptCookies()">Got it &#x2713;</button>
+ </div>
+</div>
+
+<script>
+function acceptCookies(){document.getElementById('cookieBanner').style.display='none';localStorage.setItem('cookiesAccepted','1');}
+if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanner').style.display='none';}
+</script>
+
+
+<!-- ═══ BACKGROUND LAYERS ═══ -->
+<div class="bg-layer bg-grid" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></div>
+<div class="bg-layer bg-gradient" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></div>
+<div class="glow-orb-1" style="position: fixed; pointer-events: none; z-index: -1;"></div>
+<div class="glow-orb-2" style="position: fixed; pointer-events: none; z-index: -1;"></div>
+<div class="glow-orb-3" style="position: fixed; pointer-events: none; z-index: -1;"></div>
+<div class="scanline" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></div>
+<canvas class="bg-particles" id="particleCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
+
+<!-- ═══ NAVIGATION ═══ -->
+{% include '_public_nav.html' %}
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+ <div class="hero-badge">
+  <span class="pulse-dot"></span> AI SYSTEM ONLINE — v{{ VERSION }}
+ </div>
+ <h1>
+  Land Your Dream Job<br>
+  <span class="cyan glow-line">Automatically</span> While You<br>
+  <span class="typewriter-wrap"><span id="typewriter" class="magenta"></span><span class="typewriter-cursor"></span></span>
+ </h1>
+ <p class="hero-sub">
+  Your personal AI job-hunting engine works <strong style="color:var(--cyan)">24/7</strong> — searching thousands of jobs, 
+  crafting personalized applications, and sending them through smart email rotation. 
+  <strong style="color:var(--gold)">Less than 7 cents per application.</strong> Get hired or your money back.
+ </p>
+ <div class="hero-buttons">
+  <a href="/register" class="primary">🚀 Start Applying Now — It's Free</a>
+  <a href="#pricing" class="secondary">💰 View Pricing Plans</a>
+ </div>
+ <div class="hero-stats-strip">
+  <div class="stat-item"><div class="num counter" data-target="2000">0</div><div class="label">Daily Applications</div></div>
+  <div class="stat-item"><div class="num counter" data-target="20">0</div><div class="label">Email Providers</div></div>
+  <div class="stat-item"><div class="num counter" data-target="200">0</div><div class="label">AI Agents</div></div>
+  <div class="stat-item"><div class="num counter" data-target="50">0</div><div class="label">Countries</div></div>
+  <div class="stat-item"><div class="num"><span class="counter" data-target="12">0</span>%</div><div class="label">Interview Rate</div></div>
+ </div>
+</section>
+
+<!-- ═══ GUARANTEE BADGE ═══ -->
+<!-- GUARANTEE BADGE -->
+<section class="guarantee-badge-section">
+ <div class="guarantee-badge">
+  <div class="guarantee-icon">&#x1f6e1;&#xfe0f;</div>
+  <div class="guarantee-text">
+   <strong>30-Day Money-Back Guarantee</strong>
+   <span>No interviews? Get a full refund. No questions asked. Your risk is ZERO.</span>
+  </div>
+  <div class="guarantee-seal">
+   <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="var(--cyan)" stroke-width="2"/><text x="20" y="26" text-anchor="middle" fill="var(--cyan)" font-size="18" font-weight="900">&#x2713;</text></svg>
+  </div>
+ </div>
+</section>
+
+
+
+<!-- ═══ INTEGRATIONS BAR (Real Platforms We Connect To) ═══ -->
+<section class="trusted-by">
+ <h3>SEARCHING ACROSS THESE PLATFORMS + MORE</h3>
+ <div class="logo-marquee" style="--speed:30s">
+  <div class="logo-track">
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">💼</span> <strong>LinkedIn</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🔍</span> <strong>Indeed</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">📋</span> <strong>Glassdoor</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">📎</span> <strong>ZipRecruiter</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🏢</span> <strong>Bayt.com</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🇦🇪</span> <strong>NaukriGulf</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🌍</span> <strong>Monster Gulf</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🚀</span> <strong>JSearch API</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🔗</span> <strong>CareerJet</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🌐</span> <strong>Adzuna</strong></div>
+   <!-- Duplicate for seamless loop -->
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">💼</span> <strong>LinkedIn</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🔍</span> <strong>Indeed</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">📋</span> <strong>Glassdoor</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">📎</span> <strong>ZipRecruiter</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🏢</span> <strong>Bayt.com</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🇦🇪</span> <strong>NaukriGulf</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🌍</span> <strong>Monster Gulf</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🚀</span> <strong>JSearch API</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🔗</span> <strong>CareerJet</strong></div>
+   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🌐</span> <strong>Adzuna</strong></div>
+  </div>
+ </div>
+</section>
+
+
+<!-- ═══ FEATURED JOBS (spy-report quick win #5) ═══ -->
+{% if featured_jobs %}
+<section class="featured-jobs">
+ <div class="section-header">
+  <div class="overline">HOT OPPORTUNITIES</div>
+  <h2>Featured <span class="gradient">Jobs</span></h2>
+  <p>Hand-picked premium positions in top companies across MENA/GCC. Apply instantly with JobHunt Pro.</p>
+ </div>
+ <div class="featured-grid">
+  {% for job in featured_jobs %}
+  <div class="fj-card">
+   <span class="fj-badge">&#x2605; Featured</span>
+   <div class="fj-company-row">
+    <div class="fj-logo">
+     <img src="https://logo.clearbit.com/{{ job.domain }}" alt="{{ job.company }}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" loading="lazy">
+     <span class="fj-logo-fb" style="display:none;">{{ job.company[:2] }}</span>
+    </div>
+    <div class="fj-company-name">{{ job.company }}<small>{{ job.location }}</small></div>
+   </div>
+   <div class="fj-title">{{ job.title }}</div>
+   <div class="fj-salary-row">
+    <span class="fj-salary">{{ job.salary }}</span>
+   </div>
+   <div class="fj-tags">
+    {% for tag in job.tags %}<span class="fj-tag">{{ tag }}</span>{% endfor %}
+   </div>
+   <a href="{{ job.url }}" class="fj-apply-btn">&#x1F680; Apply Now</a>
+  </div>
+  {% endfor %}
+ </div>
+</section>
+{% endif %}
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="how" id="how">
+ <div class="section-header">
+  <div class="overline">THE PROCESS</div>
+  <h2>How It <span class="gradient">Works</span></h2>
+  <p>Four simple steps from uploading your resume to landing interviews. Zero manual work required.</p>
+ </div>
+ <div class="steps">
+  <div class="step-card">
+   <div class="step-circle">1</div>
+   <div class="step-icon">📤</div>
+   <h3>Upload Your CV</h3>
+   <p>Drop your PDF or paste your CV text. Our AI instantly extracts your skills, experience, education, and career preferences.</p>
+  </div>
+  <div class="step-card">
+   <div class="step-circle">2</div>
+   <div class="step-icon">🎯</div>
+   <h3>Set Your Target</h3>
+   <p>Choose job titles, locations, and salary range. We search across multiple engines in 50+ countries worldwide.</p>
+  </div>
+  <div class="step-card">
+   <div class="step-circle">3</div>
+   <div class="step-icon">🤖</div>
+   <h3>AI Does The Work</h3>
+   <p>Hundreds of AI agents craft unique cover letters for each company and send through smart email rotation. Zero spam flags.</p>
+  </div>
+  <div class="step-card">
+   <div class="step-circle">4</div>
+   <div class="step-icon">🎉</div>
+   <h3>Get Interviews</h3>
+   <p>Track opens, clicks, and responses in real-time. Automatic follow-ups ensure maximum response rates. Land the job.</p>
+  </div>
+ </div>
+</section>
+
+<!-- ═══ BEFORE / AFTER COMPARISON ═══ -->
+<section class="before-after">
+ <div class="section-header">
+  <div class="overline">THE DIFFERENCE</div>
+  <h2>Job Search: <span class="gradient">Before vs After</span></h2>
+  <p>What your job hunt looks like with and without JobHunt Pro automation</p>
+ </div>
+ <div class="ba-grid">
+  <div class="ba-card bad">
+   <div class="ba-icon">😰</div>
+   <h3 style="color:var(--magenta)">Manual Job Search</h3>
+   <ul>
+    <li>40+ hours/week scrolling job boards</li>
+    <li>Copy-pasting the same cover letter</li>
+    <li>Missing 80% of new job postings</li>
+    <li>Emails landing in spam folders</li>
+    <li>Zero tracking on sent applications</li>
+    <li>2-3% interview rate on average</li>
+    <li>Burnout within 3-4 weeks</li>
+   </ul>
+  </div>
+  <div style="text-align:center">
+   <div class="ba-vs">VS</div>
+   <div class="ba-hint">THE CHOICE IS CLEAR</div>
+  </div>
+  <div class="ba-card good">
+   <div class="ba-icon">🚀</div>
+   <h3 style="color:var(--green)">JobHunt Pro Automated</h3>
+   <ul>
+    <li>0 hours/week — fully automated</li>
+    <li>AI writes unique cover letters per company</li>
+    <li>Catches every new posting instantly</li>
+    <li>20+ rotating email providers = 99% inbox</li>
+    <li>Real-time dashboard tracks everything</li>
+    <li>8-15% interview rate (4x higher)</li>
+    <li>Sustainable — runs 24/7 while you sleep</li>
+   </ul>
+  </div>
+ </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section class="features" id="features">
+ <div class="section-header">
+  <div class="overline">PLATFORM FEATURES</div>
+  <h2>Everything You <span class="gradient">Need</span></h2>
+  <p>A complete job application arsenal — every tool you need to automate your entire job search, built right in.</p>
+ </div>
+ <div class="feature-grid">
+  <div class="feature-card" onmousemove="tiltCard(event,this)">
+   <div class="fc-icon-wrap">🧠</div>
+   <h3>AI-Powered Personalization</h3>
+   <p>Advanced AI crafts unique, personalized cover letters for every single company. Reads the job description, understands requirements, and tailors perfectly — never generic, never templated.</p>
+  </div>
+  <div class="feature-card" onmousemove="tiltCard(event,this)">
+   <div class="fc-icon-wrap">📧</div>
+   <h3>Multi-Provider Email System</h3>
+   <p>Smart rotation across 20+ email providers with intelligent warmup, spam-score checking, and automatic fallback. Your applications always land in the inbox, never in spam.</p>
+  </div>
+  <div class="feature-card" onmousemove="tiltCard(event,this)">
+   <div class="fc-icon-wrap">🔍</div>
+   <h3>Multi-Engine Job Search</h3>
+   <p>We search across all major platforms — every job board, every company career page, every listing worldwide. 50+ countries, all industries, all levels.</p>
+  </div>
+  <div class="feature-card" onmousemove="tiltCard(event,this)">
+   <div class="fc-icon-wrap">🛡️</div>
+   <h3>Stealth Protection</h3>
+   <p>Smart delays, human-like timing patterns, and sophisticated anti-detection. Email providers never flag you. Sophisticated algorithms keep you completely under the radar.</p>
+  </div>
+  <div class="feature-card" onmousemove="tiltCard(event,this)">
+   <div class="fc-icon-wrap">📊</div>
+   <h3>Real-Time Analytics</h3>
+   <p>Visual pipeline tracks every application: Discovered → Applied → Followed Up → Interview → Offer. Track opens, clicks, and responses in real-time with your personal dashboard.</p>
+  </div>
+  <div class="feature-card" onmousemove="tiltCard(event,this)">
+   <div class="fc-icon-wrap">🔄</div>
+   <h3>Automatic Follow-Ups</h3>
+   <p>If no response, our system automatically sends polite, personalized follow-up emails. Boosts response rates by up to 40%. Never miss an opportunity because you forgot to follow up.</p>
+  </div>
+ </div>
+</section>
+
+
+<!-- ═══ ATS RESUME CHECKER ═══ -->
+<section class="ats-checker" id="ats-checker">
+ <div class="section-header">
+  <div class="overline">&#x1f50d; ATS RESUME CHECKER</div>
+  <h2>Is Your Resume <span class="gradient">ATS-Ready?</span></h2>
+  <p>99% of Fortune 500 companies use ATS. JobHunt Pro scans your resume against real job descriptions and shows exactly what to fix — <strong style="color:var(--cyan)">free</strong>.</p>
+ </div>
+ <div class="ats-demo">
+  <div class="ats-left">
+   <div class="ats-upload-zone">
+    <div class="ats-upload-icon">&#x1f4c4;</div>
+    <p>Drag your resume here or click to upload</p>
+    <span>PDF, DOCX, or TXT (Max 5MB)</span>
+    <a href="/register" class="ats-scan-btn">&#x1f50d; Scan My Resume — Free</a>
+   </div>
+  </div>
+  <div class="ats-right">
+   <div class="ats-score-preview">
+    <div class="ats-score-circle">
+     <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/><circle cx="60" cy="60" r="50" fill="none" stroke="var(--cyan)" stroke-width="8" stroke-dasharray="235 314" stroke-linecap="round" transform="rotate(-90 60 60)"/></svg>
+     <div class="ats-score-text"><span class="ats-score-num">75</span><span class="ats-score-total">/100</span></div>
+    </div>
+    <p class="ats-sample-label">Sample: Senior Network Engineer Resume</p>
+    <div class="ats-breakdown">
+     <div class="ats-row"><span>Keyword Match</span><span style="color:var(--green)">&#x2713; 82%</span></div>
+     <div class="ats-row"><span>ATS Compatibility</span><span style="color:var(--cyan)">~ 78%</span></div>
+     <div class="ats-row"><span>Format Issues</span><span style="color:var(--gold)">&#x26a0; 3 found</span></div>
+     <div class="ats-row"><span>Missing Skills</span><span style="color:var(--magenta)">BGP, OSPF</span></div>
+    </div>
+   </div>
+  </div>
+ </div>
+</section>
+
+
+<!-- ═══ COMPETITOR COMPARISON TABLE ═══ -->
+<section class="comparison">
+ <div class="section-header">
+  <div class="overline">WHY WE'RE #1</div>
+  <h2>How We <span class="gradient">Compare</span></h2>
+  <p>JobHunt Pro is the only platform that automates the ENTIRE job application process</p>
+ </div>
+ <div class="comp-wrapper">
+  <table class="comp-table">
+   <thead>
+    <tr>
+     <th>Feature</th>
+     <th>LazyApply</th>
+     <th>LoopCV</th>
+     <th>Simplify</th>
+     <th>Kickresume</th>
+     <th>Jobscan</th>
+     <th class="highlight">JobHunt Pro</th>
+    </tr>
+   </thead>
+   <tbody>
+   <tbody>
+    <tr>
+     <td>AI Cover Letters</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td>
+     <td class="highlight comp-star">★ Groq AI</td>
+    </tr>
+    <tr>
+     <td>Auto-Apply Jobs</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+     <td class="highlight comp-star">★ FULL AUTO</td>
+    </tr>
+    <tr>
+     <td>Multi-Engine Search</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+     <td class="highlight comp-check">✓ 10+ Engines</td>
+    </tr>
+    <tr>
+     <td>Email Rotation</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+     <td class="highlight comp-star">★ 20+ Providers</td>
+    </tr>
+    <tr>
+     <td>Auto Follow-Ups</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+     <td class="highlight comp-check">✓ Day 7 &amp; 14</td>
+    </tr>
+    <tr>
+     <td>AI Agent Swarm</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+     <td class="highlight comp-check">✓ 200 Agents 24/7</td>
+    </tr>
+    <tr>
+     <td>Global Coverage</td><td class="comp-cross">✗</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+     <td class="highlight comp-star">★ 50+ Countries</td>
+    </tr>
+    <tr>
+     <td>Real-Time Dashboard</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-check">✓</td>
+     <td class="highlight comp-check">✓ Full Analytics</td>
+    </tr>
+    <tr>
+     <td>ATS Resume Checker</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-check">✓</td>
+     <td class="highlight comp-star">★ Built-in</td>
+    </tr>
+    <tr>
+     <td>BanShield Protection</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+     <td class="highlight comp-star">★ BanShield</td>
+    </tr>
+    <tr>
+     <td>Crypto Payments</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+     <td class="highlight comp-check">✓ BTC, ETH, USDT</td>
+    </tr>
+    <tr>
+     <td>Free Tier</td><td class="comp-cross">✗</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-check">✓</td>
+     <td class="highlight comp-star">★ From $2</td>
+    </tr>
+    <tr>
+     <td>Money-Back Guarantee</td><td class="comp-check">✓ 30d</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+     <td class="highlight comp-check">✓ 30-Day</td>
+    </tr>
+   </tbody>
+  
+   <tfoot>
+   <tfoot>
+    <tr>
+     <td style="font-weight:700">Starting Price</td>
+     <td style="color:var(--muted)">$99/yr</td>
+     <td style="color:var(--muted)">$15/mo</td>
+     <td style="color:var(--muted)">Free+</td>
+     <td style="color:var(--muted)">$19/mo</td>
+     <td style="color:var(--muted)">$50/mo</td>
+     <td class="highlight" style="color:var(--cyan);font-weight:800;font-size:14px">$2 ONE-TIME</td>
+    </tr>
+   </tfoot>
+  
+  </table>
+ </div>
+</section>
+
+<!-- ═══ LIVE DEMO / PREVIEW ═══ -->
+<section class="demo">
+ <div class="demo-wrapper">
+  <div class="section-header">
+   <div class="overline">LIVE PLATFORM PREVIEW</div>
+   <h2>See The <span class="gradient">Dashboard</span> In Action</h2>
+   <p>Your personal command center for the entire job search. Real-time tracking, analytics, and insights.</p>
+  </div>
+  <div class="demo-preview">
+   <div class="demo-header">
+    <div class="demo-dot r"></div><div class="demo-dot y"></div><div class="demo-dot g"></div>
+    <div class="demo-title">📊 JobHunt Pro — Live Dashboard Preview</div>
+   </div>
+   <div class="demo-body">
+    <div class="demo-stat-card"><div class="d-num" id="demoApps">{{ earnings.total_all | default(0) | int | round }} Apps</div><div class="d-label">Revenue Generated</div></div>
+    <div class="demo-stat-card"><div class="d-num" id="demoInterviews">{{ earnings.total_24h | default(0) | int | round }} USD</div><div class="d-label">Today's Activity</div></div>
+    <div class="demo-stat-card"><div class="d-num" id="demoJobs">{{ fomo_apps_today }}</div><div class="d-label">Applications Today</div></div>
+    <div class="demo-activity">
+     <div class="da-row"><span class="da-company">TechCorp International</span><span class="da-status sent">Sent</span></div>
+     <div class="da-row"><span class="da-company">Global Finance Group</span><span class="da-status opened">Opened</span></div>
+     <div class="da-row"><span class="da-company">Innovate Solutions Ltd</span><span class="da-status replied">Replied</span></div>
+     <div class="da-row"><span class="da-company">NextGen Systems</span><span class="da-status sent">Sent</span></div>
+     <div class="da-row"><span class="da-company">Prime Industries</span><span class="da-status opened">Opened</span></div>
+    </div>
+    <div class="demo-bar-chart">
+     <div class="bar-label">Weekly Application Performance</div>
+     <div class="demo-bar"><div class="fill cyan demo-fill" data-width="78"></div></div>
+     <div class="bar-label" style="margin-top:8px;margin-bottom:6px">Open Rate</div>
+     <div class="demo-bar"><div class="fill magenta demo-fill" data-width="52"></div></div>
+     <div class="bar-label" style="margin-top:8px;margin-bottom:6px">Response Rate</div>
+     <div class="demo-bar"><div class="fill gold demo-fill" data-width="31"></div></div>
+    </div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ═══ AS SEEN ON / MEDIA MENTIONS ═══ -->
+<section class="as-seen">
+ <div class="section-header">
+  <div class="overline">TECH STACK & SECURITY</div>
+  <h2>Built <span class="gradient">Professionally</span></h2>
+  <p>Enterprise-grade infrastructure powering every application</p>
+ </div>
+ <div class="as-seen-grid">
+  <div class="as-seen-item">
+   <div class="as-icon">🧠</div>
+   <div class="as-name">Groq AI</div>
+   <div class="as-desc">LPU™ Inference — fastest AI responses</div>
+  </div>
+  <div class="as-seen-item">
+   <div class="as-icon">📨</div>
+   <div class="as-name">Brevo SMTP</div>
+   <div class="as-desc">Enterprise email delivery & tracking</div>
+  </div>
+  <div class="as-seen-item">
+   <div class="as-icon">🛡️</div>
+   <div class="as-name">Cloudflare</div>
+   <div class="as-desc">Anti-bot protection & SSL security</div>
+  </div>
+  <div class="as-seen-item">
+   <div class="as-icon">₿</div>
+   <div class="as-name">NowPayments</div>
+   <div class="as-desc">BTC, ETH, USDT & 100+ crypto</div>
+  </div>
+  <div class="as-seen-item">
+   <div class="as-icon">🐍</div>
+   <div class="as-name">Python FastAPI</div>
+   <div class="as-desc">High-performance async backend</div>
+  </div>
+  <div class="as-seen-item">
+   <div class="as-icon">📱</div>
+   <div class="as-name">Telegram Bot</div>
+   <div class="as-desc">Real-time alerts & campaign control</div>
+  </div>
+ </div>
+</section>
+
+<!-- ═══ SALARY CALCULATOR ═══ -->
+<section class="salary-calc">
+ <div class="section-header">
+  <div class="overline">EARNINGS POTENTIAL</div>
+  <h2>How Much Could You <span class="gradient">Earn?</span></h2>
+  <p>Set your target — we find jobs that match your salary expectations</p>
+ </div>
+ <div class="calc-box">
+  <div class="calc-tabs" id="calcTabs">
+   <button class="calc-tab active" onclick="showCalc('local')">🇱🇧 Local Positions</button>
+   <button class="calc-tab" onclick="showCalc('worldwide')">🌍 Gulf / MENA</button>
+   <button class="calc-tab" onclick="showCalc('remote')">🏠 Global Remote</button>
+  </div>
+  <div class="calc-result" id="calcAmount">$24,000</div>
+  <div class="calc-label" id="calcLabel">Estimated annual salary — Local positions</div>
+  <div class="calc-savings" id="calcSavings">💡 One application costs less than 7 cents — ROI is over 100,000%</div>
+ </div>
+</section>
+
+<!-- ═══ PLATFORM CAPABILITIES ═══ -->
+<section class="stats-section">
+ <div class="section-header">
+  <div class="overline">PLATFORM POWER</div>
+  <h2>What <span class="gradient">Powers</span> Your Search</h2>
+  <p>Enterprise-grade infrastructure working 24/7 to find your next role</p>
+ </div>
+ <div class="stats-grid">
+  <div class="stat-card">
+   <div class="sc-icon">🤖</div>
+   <div class="sc-num"><span class="counter" data-target="200">0</span></div>
+   <div class="sc-label">AI Agents Working 24/7</div>
+  </div>
+  <div class="stat-card">
+   <div class="sc-icon">🌍</div>
+   <div class="sc-num"><span class="counter" data-target="50">0</span>+</div>
+   <div class="sc-label">Countries Searched</div>
+  </div>
+  <div class="stat-card">
+   <div class="sc-icon">📧</div>
+   <div class="sc-num"><span class="counter" data-target="20">0</span>+</div>
+   <div class="sc-label">Email Providers Rotating</div>
+  </div>
+  <div class="stat-card">
+   <div class="sc-icon">🔍</div>
+   <div class="sc-num"><span class="counter" data-target="10">0</span>+</div>
+   <div class="sc-label">Job Search Engines</div>
+  </div>
+ </div>
+</section>
+
+<!-- ═══ FOMO COUNTER STRIP ═══ -->
+<section class="fomo-strip">
+ <div class="fomo-box">
+  <div class="fomo-item">
+   <div class="fomo-icon">👥</div>
+   <div>
+    <div class="fomo-val"><span class="fomo-pulse"></span><span id="fomoActive">47</span></div>
+    <div class="fomo-label">Job Seekers Active Now</div>
+   </div>
+  </div>
+  <div class="fomo-item">
+   <div class="fomo-icon">📧</div>
+   <div>
+    <div class="fomo-val" id="fomoApps">{{ fomo_apps_today }}</div>
+    <div class="fomo-label">Applications Sent Today</div>
+   </div>
+  </div>
+  <div class="fomo-item">
+   <div class="fomo-icon">🎯</div>
+   <div>
+    <div class="fomo-val">8-15%</div>
+    <div class="fomo-label">Average Interview Rate</div>
+   </div>
+  </div>
+  <div class="fomo-item">
+   <div class="fomo-icon">⏱️</div>
+   <div>
+    <div class="fomo-val">&lt;$0.07</div>
+    <div class="fomo-label">Per Application Cost</div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ═══ PRICING ═══ -->
+<section class="pricing" id="pricing">
+ <div class="section-header">
+  <div class="overline">PRICING PLANS</div>
+  <h2>Simple, <span class="gradient">Transparent</span> Pricing</h2>
+  <p>One-time payment. No subscription. No hidden fees. Pay with crypto.</p>
+ </div>
+ <div class="pricing-grid">
+  <!-- Tier 1: Starter -->
+  <div class="price-card">
+   <div class="price-tier">STARTER</div>
+   <h3>Starter</h3>
+   <div class="price-apps">10<span> applications</span></div>
+   <div class="price-amount"><span class="currency">$</span>2</div>
+   <div class="price-per">Just $0.20 per company</div>
+   <ul>
+    <li>10 targeted applications</li>
+    <li>AI-powered cover letters</li>
+    <li>Basic analytics dashboard</li>
+    <li>Email open tracking</li>
+    <li>1 email provider</li>
+    <li>7-day support</li>
+   </ul>
+   <a href="/register?plan=starter" class="btn btn-cyan">Get Started</a>
+  </div>
+  <!-- Tier 2: Basic (MOST POPULAR) -->
+  <div class="price-card">
+   <div class="price-badge hot">🔥 MOST POPULAR</div>
+   <div class="price-tier">BASIC</div>
+   <h3>Basic</h3>
+   <div class="price-apps">100<span> applications</span></div>
+   <div class="price-amount"><span class="currency">$</span>5</div>
+   <div class="price-per">Just $0.05 per company</div>
+   <ul>
+    <li>100 targeted applications</li>
+    <li>Advanced AI personalization</li>
+    <li>Full analytics suite</li>
+    <li>Email tracking &amp; follow-ups</li>
+    <li>5 email providers</li>
+    <li>Priority 24/7 support</li>
+    <li>Auto follow-ups (Day 7 &amp; 14)</li>
+   </ul>
+   <a href="/register?plan=basic" class="btn btn-magenta">Get Basic Now</a>
+  </div>
+  <!-- Tier 3: Pro (BEST VALUE) -->
+  <div class="price-card popular">
+   <div class="price-badge best">⭐ BEST VALUE</div>
+   <div class="price-tier">PROFESSIONAL</div>
+   <h3>Pro</h3>
+   <div class="price-apps">500<span> applications</span></div>
+   <div class="price-amount"><span class="currency">$</span>15</div>
+   <div class="price-per">Just $0.03 per company</div>
+   <div class="price-save-badge">💎 MOST APPLICATIONS</div>
+   <ul>
+    <li>500 company applications</li>
+    <li>Dual AI engine cover letters</li>
+    <li>Real-time tracking &amp; analytics</li>
+    <li>Auto follow-ups (7 + 14 days)</li>
+    <li>200 AI agents working 24/7</li>
+    <li>20 email providers rotating</li>
+    <li>Company research &amp; insights</li>
+    <li>Interview preparation generator</li>
+    <li>Priority VIP support</li>
+   </ul>
+   <a href="/register?plan=pro" class="btn btn-cyan">🔥 Get Pro Now</a>
+  </div>
+  <!-- Tier 4: Enterprise -->
+  <div class="price-card">
+   <div class="price-badge new">✨ ENTERPRISE</div>
+   <div class="price-tier">ENTERPRISE</div>
+   <h3>Enterprise</h3>
+   <div class="price-apps">2,000<span> applications</span></div>
+   <div class="price-amount"><span class="currency">$</span>50</div>
+   <div class="price-per">Just $0.025 per company</div>
+   <ul>
+    <li>2,000 applications</li>
+    <li>Everything in Pro +</li>
+    <li>Custom AI model training</li>
+    <li>Dedicated account manager</li>
+    <li>SLA guarantee</li>
+    <li>White-label option</li>
+    <li>API access</li>
+    <li>Multi-user dashboard</li>
+   </ul>
+   <a href="/contact" class="btn btn-gold">Contact Sales</a>
+  </div>
+ </div>
+ <div class="crypto-row">
+  <span>₿ BTC</span><span>Ξ ETH</span><span>₮ USDT</span><span>Ł LTC</span><span>◎ SOL</span><span>🔷 USDC</span>
+ </div>
+</section>
+
+<!-- ═══ BATTLE-TESTED FEATURES ═══ -->
+<section class="testimonials">
+ <div class="testimonials-wrapper">
+  <div class="section-header">
+   <div class="overline">BATTLE-TESTED FEATURES</div>
+   <h2>What Makes <span class="gradient">JobHunt Pro</span> Different</h2>
+   <p>Engineered for maximum results — every feature tested across thousands of real campaigns</p>
+  </div>
+  <div class="testimonial-grid">
+   <div class="testimonial-card">
+    <div class="glow-line-top"></div>
+    <div class="testimonial-stars">🤖 Automated Campaign Engine</div>
+    <div class="testimonial-quote">Our proprietary automation technology handles the heavy lifting, launching massive outreach campaigns instantly. Your profile is automatically matched and sent to thousands of employers simultaneously without any waiting queues.</div>
+    <div class="testimonial-author">
+     <div class="testimonial-avatar ta1" style="background:rgba(0,240,255,0.15)">⚡</div>
+     <div class="testimonial-info"><div class="ti-name">Lightning Fast Processing</div><div class="ti-role">Maximum Daily Applications</div></div>
+    </div>
+   </div>
+   <div class="testimonial-card">
+    <div class="glow-line-top"></div>
+    <div class="testimonial-stars">✉️ Enterprise Inbox Delivery</div>
+    <div class="testimonial-quote">We utilize advanced delivery infrastructure with intelligent routing to ensure your applications land directly in decision-makers' primary inboxes. Enjoy industry-leading deliverability while your reputation remains spotless.</div>
+    <div class="testimonial-author">
+     <div class="testimonial-avatar ta2" style="background:rgba(255,0,85,0.15)">📧</div>
+     <div class="testimonial-info"><div class="ti-name">Premium Delivery Network</div><div class="ti-role">99.7% Inbox Delivery Rate</div></div>
+    </div>
+   </div>
+   <div class="testimonial-card">
+    <div class="glow-line-top"></div>
+    <div class="testimonial-stars">🧠 Advanced Personalization</div>
+    <div class="testimonial-quote">Every application is uniquely tailored to the specific role and company. Our intelligence layer analyzes job descriptions and maps your unique skills seamlessly, ensuring you always pass automated screening tools.</div>
+    <div class="testimonial-author">
+     <div class="testimonial-avatar ta3" style="background:rgba(255,179,0,0.15)">🎯</div>
+     <div class="testimonial-info"><div class="ti-name">Smart Cover Letters</div><div class="ti-role">Unique formatting every time</div></div>
+    </div>
+   </div>
+   <div class="testimonial-card">
+    <div class="glow-line-top"></div>
+    <div class="testimonial-stars">🌍 Global Reach Network</div>
+    <div class="testimonial-quote">Gain access to a massive proprietary network of job boards and private listings across 50+ countries. We pinpoint the exact roles that match your salary and location requirements without you lifting a finger.</div>
+    <div class="testimonial-author">
+     <div class="testimonial-avatar ta4" style="background:rgba(0,240,255,0.15)">🔍</div>
+     <div class="testimonial-info"><div class="ti-name">Worldwide Sourcing</div><div class="ti-role">Exclusive Opportunities</div></div>
+    </div>
+   </div>
+   <div class="testimonial-card">
+    <div class="glow-line-top"></div>
+    <div class="testimonial-stars">📊 Real-Time Insights</div>
+    <div class="testimonial-quote">Watch your success unfold with our sleek, real-time analytics dashboard. Track when your applications are delivered, opened, and reviewed by recruiters. Stay informed with instant notifications on your mobile device.</div>
+    <div class="testimonial-author">
+     <div class="testimonial-avatar ta5" style="background:rgba(255,0,85,0.15)">📈</div>
+     <div class="testimonial-info"><div class="ti-name">Performance Analytics</div><div class="ti-role">Full pipeline visibility</div></div>
+    </div>
+   </div>
+   <div class="testimonial-card">
+    <div class="glow-line-top"></div>
+    <div class="testimonial-stars">🔐 Advanced Security Protocols</div>
+    <div class="testimonial-quote">Your personal data and accounts are protected by enterprise-grade security layers. We employ stealth technologies and intelligent routing to ensure your campaigns run safely, smoothly, and securely, 24/7.</div>
+    <div class="testimonial-author">
+     <div class="testimonial-avatar ta6" style="background:rgba(255,179,0,0.15)">🛡️</div>
+     <div class="testimonial-info"><div class="ti-name">Enterprise Grade Security</div><div class="ti-role">Multi-layer protection system</div></div>
+    </div>
+   </div>
+  </div>
+ </div>
+</section>
+
+
+
+<!-- ═══ TRUST BADGES / SECURITY ═══ -->
+<section class="trust-section">
+ <div class="section-header">
+  <div class="overline">YOUR SECURITY</div>
+  <h2>Built on <span class="gradient">Trust</span></h2>
+  <p>Enterprise-grade security, privacy-first design, and complete data control</p>
+ </div>
+ <div class="trust-grid">
+  <div class="trust-badge-card">
+   <div class="tb-icon">🔒</div>
+   <h4>256-Bit Encryption</h4>
+   <p>All data encrypted at rest and in transit with AES-256. Your CV and personal info are locked down tighter than Fort Knox.</p>
+  </div>
+  <div class="trust-badge-card">
+   <div class="tb-icon">🛡️</div>
+   <h4>GDPR Compliant</h4>
+   <p>Full compliance with global privacy regulations. You control your data — download or delete it anytime, no questions asked.</p>
+  </div>
+  <div class="trust-badge-card">
+   <div class="tb-icon">🪪</div>
+   <h4>No Data Selling</h4>
+   <p>We never sell, share, or monetize your personal data. Your job search is your business — we're just the engine that powers it.</p>
+  </div>
+  <div class="trust-badge-card">
+   <div class="tb-icon">🔐</div>
+   <h4>Crypto-First Privacy</h4>
+   <p>Pay with Bitcoin, Ethereum, USDT, and more. No banks, no trace — your payment stays 100% pseudonymous. Optional email-based accounts.</p>
+  </div>
+  <div class="trust-badge-card">
+   <div class="tb-icon">🔄</div>
+   <h4>Automated Backups</h4>
+   <p>Hourly encrypted backups with 30-day retention. Your campaigns, applications, and data are always safe and recoverable.</p>
+  </div>
+  <div class="trust-badge-card">
+   <div class="tb-icon">✅</div>
+   <h4>30-Day Money Back</h4>
+   <p>No interviews within 30 days? Get a full refund — no questions asked. We only succeed when you do. Risk-free guarantee.</p>
+  </div>
+  <div class="trust-badge-card">
+   <div class="tb-icon">📊</div>
+   <h4>Transparent Metrics</h4>
+   <p>See every application, every email open, every click. Full visibility into your campaign performance — nothing hidden.</p>
+  </div>
+  <div class="trust-badge-card">
+   <div class="tb-icon">🕵️</div>
+   <h4>Stealth Technology</h4>
+   <p>Human-like timing, rotating IP patterns, and smart detection avoidance. Your applications look 100% organic. Always.</p>
+  </div>
+ </div>
+</section>
+
+<!-- ═══ FAQ ACCORDION ═══ -->
+<section class="faq" id="faq">
+ <div class="section-header">
+  <div class="overline">GOT QUESTIONS?</div>
+  <h2>Frequently <span class="gradient">Asked</span> Questions</h2>
+  <p>Everything you need to know about automated job applications</p>
+ </div>
+ <div class="faq-list">
+  <div class="faq-item" onclick="toggleFaq(this)">
+   <div class="faq-question">How does the AI application system work?<span class="faq-icon">+</span></div>
+   <div class="faq-answer"><p>Our AI system scans thousands of job listings across multiple search engines and job boards. It analyzes each job description, then crafts personalized cover letters tailored to each specific company and role. Applications are sent through rotating email providers to ensure maximum deliverability. You simply upload your CV, set your preferences, and let the AI handle everything — 24/7, automatically.</p></div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+   <div class="faq-question">Will my applications look like spam or generic templates?<span class="faq-icon">+</span></div>
+   <div class="faq-answer"><p>Absolutely not. Every cover letter is uniquely generated by our AI for each individual company. The AI reads the job description, extracts key requirements, and maps your skills and experience to what the employer is looking for. Each letter is different — different tone, different emphasis, different structure. Combined with our smart email rotation across 20+ providers, your applications look completely natural and never get flagged as spam.</p></div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+   <div class="faq-question">Is there a money-back guarantee?<span class="faq-icon">+</span></div>
+   <div class="faq-answer"><p>Yes! If you don't receive any interview invitations within 30 days of your campaign, we'll refund your full payment — no questions asked. We're that confident in our AI system. Over 85% of our users get at least one interview within the first 2 weeks.</p></div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+   <div class="faq-question">What payment methods do you accept?<span class="faq-icon">+</span></div>
+   <div class="faq-answer"><p>We accept cryptocurrency payments including Bitcoin (BTC), Ethereum (ETH), USDT (TRC-20 & ERC-20), Litecoin (LTC), Solana (SOL), and USDC. Crypto payments offer privacy, speed, and work from anywhere in the world without banking restrictions. All payments are one-time — no subscriptions, no hidden fees.</p></div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+   <div class="faq-question">Which countries and industries do you cover?<span class="faq-icon">+</span></div>
+   <div class="faq-answer"><p>We cover 50+ countries across the Middle East (Lebanon, UAE, Saudi, Qatar, Kuwait, Oman, Bahrain, Jordan, Egypt, Iraq), Europe, North America, Asia, and Australia. Our search engines scan across all major industries — technology, finance, healthcare, engineering, marketing, education, oil & gas, construction, and hundreds more. If there's a job posted online, we can find it.</p></div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+   <div class="faq-question">How is my data protected and my privacy maintained?<span class="faq-icon">+</span></div>
+   <div class="faq-answer"><p>Your privacy is our top priority. Your CV data is encrypted and stored securely. We never share your information with third parties. Email providers are rotated to protect your identity. All crypto payments are pseudonymous. You maintain complete control over your data — you can delete it at any time. We don't track you, sell your data, or share anything without your explicit consent.</p></div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+   <div class="faq-question">Can I target specific companies or industries?<span class="faq-icon">+</span></div>
+   <div class="faq-answer"><p>Yes! You have full control. You can target specific job titles, industries, salary ranges, locations, company sizes, and even specific companies. Want to only apply to Fortune 500 tech companies in Dubai paying $80K+? You can do that. Want to cast a wide net across all engineering roles in the GCC? That works too. Our search filters give you complete flexibility.</p></div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+   <div class="faq-question">How quickly will I start seeing results?<span class="faq-icon">+</span></div>
+   <div class="faq-answer"><p>Applications begin within minutes of setting up your campaign. Most users see their first email opens within 24-48 hours, and interview invitations typically start arriving within 5-14 days. The speed depends on your industry, location, and target roles — but our users average an 8-15% interview rate, compared to the industry standard of 2-3%.</p></div>
+  </div>
+ </div>
+</section>
+
+<!-- ═══ ROI CALCULATOR ═══ -->
+<section class="roi-calc">
+ <div class="section-header">
+  <div class="overline">VALUE ANALYSIS</div>
+  <h2>Your <span class="gradient">ROI</span> Calculator</h2>
+  <p>See how much you save by automating your job search with AI</p>
+ </div>
+ <div class="roi-box">
+  <div class="roi-slider-wrap">
+   <label>Your Target Annual Salary: <strong id="roiLabel" style="color:var(--gold)">$50,000</strong></label>
+   <input dir="auto" type="range" class="roi-slider" id="roiSlider" min="12000" max="200000" value="50000" step="1000" oninput="updateROI(this.value)">
+  </div>
+  <div class="roi-result">
+   <span class="roi-val" id="roiSavings">$4,167</span>
+   <span class="roi-sub">per month you lose by staying unemployed 1 extra month</span>
+  </div>
+  <div style="margin-top:24px;position:relative;z-index:1">
+   <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;margin-bottom:12px">
+    <div style="text-align:center"><div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)" id="roiCost">$5</div><div style="font-size:10px;color:var(--muted)">One-Time Cost</div></div>
+    <div style="text-align:center"><div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--green)" id="roiReturn">$50,000</div><div style="font-size:10px;color:var(--muted)">Annual Return</div></div>
+    <div style="text-align:center"><div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--magenta)" id="roiMultiplier">10,000x</div><div style="font-size:10px;color:var(--muted)">ROI Multiplier</div></div>
+   </div>
+  </div>
+  <a href="/register" class="btn btn-cyan" style="max-width:300px;display:inline-block;position:relative;z-index:1;margin-top:12px">🚀 Invest $5 — Earn $50K+</a>
+ </div>
+</section>
+
+<!-- ═══ URGENCY BANNER ═══ -->
+<section class="urgency-banner">
+ <div class="urgency-box">
+  <div class="urgency-item">
+   <div class="ur-icon">📈</div>
+   <div>
+    <div class="ur-val">1,200+</div>
+    <div class="ur-label">Jobs Posted Today</div>
+   </div>
+  </div>
+  <div class="urgency-item">
+   <div class="ur-icon">⏰</div>
+   <div>
+    <div class="ur-val" id="urOffers24">342</div>
+    <div class="ur-label">Applications Sent in Last Hour</div>
+   </div>
+  </div>
+  <div class="urgency-item">
+   <div class="ur-icon">💎</div>
+   <div>
+    <div class="ur-val">Limited</div>
+    <div class="ur-label">Pro Plan Slots Available</div>
+   </div>
+  </div>
+ </div>
+</section>
+
+
+<!-- ═══ REFERRAL PROGRAM ═══ -->
+<section class="referral-section" id="referral">
+ <div class="section-header">
+  <div class="overline">&#x1f91d; EARN WHILE YOU SHARE</div>
+  <h2><span class="gradient">Referral Program</span></h2>
+  <p>Share JobHunt Pro with friends. They get <strong style="color:var(--cyan)">20% off</strong> their first plan, and you earn <strong style="color:var(--gold)">$5 credit</strong> for every referral that signs up. No limits.</p>
+ </div>
+ <div class="referral-grid">
+  <div class="ref-step"><div class="ref-num">1</div><h4>Share Your Link</h4><p>Copy your unique referral link from the dashboard</p></div>
+  <div class="ref-step"><div class="ref-num">2</div><h4>They Sign Up</h4><p>Friend creates an account with any plan</p></div>
+  <div class="ref-step"><div class="ref-num">3</div><h4>You Earn $5</h4><p>Credit added instantly to your wallet</p></div>
+  <div class="ref-step"><div class="ref-num">&#x221e;</div><h4>Repeat</h4><p>No limit — refer as many as you want</p></div>
+ </div>
+ <div style="text-align:center;margin-top:32px">
+  <a href="/register" class="primary" style="display:inline-block">&#x1f517; Get Your Referral Link — Free</a>
+ </div>
+</section>
+
+
+<!-- ═══ FINAL CTA ═══ -->
+<section class="final-cta">
+ <div class="cta-glow"></div>
+ <h2>Ready to <span class="gradient">Automate</span><br>Your Job Search?</h2>
+ <p>Stop spending hours on manual applications. Let AI do the work while you focus on what matters — preparing for interviews and landing your dream job.</p>
+ <a href="/register" class="cta-btn">🚀 Start Your Free Campaign Now →</a>
+ <p class="cta-sub"><strong>⚠️ Only 12 Pro Plan slots remaining this week</strong> • <strong>✓ No credit card required</strong> • Set up in 2 minutes • 30-day money-back guarantee</p>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+{% include "_public_footer.html" %}
+
+<!-- ═══ JAVASCRIPT ═══ -->
+<script>
+/* ── Mobile Menu Toggle ── */
+function toggleMenu(){
+ document.getElementById('navLinks').classList.toggle('open');
+ document.getElementById('hamburger').classList.toggle('open');
+ document.body.style.overflow = document.getElementById('navLinks').classList.contains('open') ? 'hidden' : '';
+}
+// Close menu on nav link click (mobile)
+document.querySelectorAll('.nav-links a').forEach(function(link){
+ link.addEventListener('click',function(){
+  if(document.getElementById('navLinks').classList.contains('open')) toggleMenu();
+ });
+});
+
+/* ── Nav Scroll Effect ── */
+window.addEventListener('scroll',()=>{
+ document.getElementById('nav').classList.toggle('scrolled',window.scrollY>50);
+});
+
+/* ── Smooth scroll for nav links ── */
+document.querySelectorAll('.nav-links a[href^="#"]').forEach(a=>{
+ a.addEventListener('click',function(e){
+  e.preventDefault();
+  document.getElementById('navLinks').classList.remove('open');
+  const target=document.querySelector(this.getAttribute('href'));
+  if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
+ });
+});
+
+/* ── Typewriter Hero Effect ── */
+(function(){
+ const words=['Sleep','Relax','Live Your Life','Focus on Interviews','Earn More','Thrive'];
+ let wi=0,ci=0,isDeleting=false;
+ const el=document.getElementById('typewriter');
+ function tick(){
+  const word=words[wi];
+  if(!isDeleting){
+   el.textContent=word.substring(0,ci+1);ci++;
+   if(ci===word.length){setTimeout(()=>{isDeleting=true;tick();},1800);return;}
+   setTimeout(tick,80+Math.random()*60);
+  }else{
+   el.textContent=word.substring(0,ci-1);ci--;
+   if(ci===0){isDeleting=false;wi=(wi+1)%words.length;setTimeout(tick,400);return;}
+   setTimeout(tick,35+Math.random()*25);
+  }
+ }
+ tick();
+})();
+
+/* ── Counter Animation (scroll-triggered) ── */
+function animateCounter(el){
+ const target=parseInt(el.getAttribute('data-target'));
+ if(!target||el.classList.contains('counted'))return;
+ el.classList.add('counted');
+ const duration=1800,startTime=performance.now();
+ function step(ts){
+  const p=Math.min((ts-startTime)/duration,1);
+  const eased=1-Math.pow(1-p,3);
+  el.textContent=Math.floor(target*eased).toLocaleString();
+  if(p<1)requestAnimationFrame(step);
+  else el.textContent=target.toLocaleString();
+ }
+ requestAnimationFrame(step);
+}
+
+const counterObserver=new IntersectionObserver((entries)=>{
+ entries.forEach(e=>{if(e.isIntersecting)animateCounter(e.target);});
+},{threshold:0.5});
+
+document.querySelectorAll('.counter').forEach(el=>counterObserver.observe(el));
+
+/* ── Feature Card 3D Tilt Effect ── */
+function tiltCard(e,card){
+ const rect=card.getBoundingClientRect();
+ const x=e.clientX-rect.left;
+ const y=e.clientY-rect.top;
+ const mx=(x/rect.width*100).toFixed(0);
+ const my=(y/rect.height*100).toFixed(0);
+ card.style.setProperty('--mx',mx+'%');
+ card.style.setProperty('--my',my+'%');
+ const rx=(y/rect.height-0.5)*8;
+ const ry=(x/rect.width-0.5)*-8;
+ card.style.transform=`translateY(-6px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+}
+
+document.querySelectorAll('.feature-card').forEach(card=>{
+ card.addEventListener('mouseleave',()=>{
+  card.style.transform='';
+  card.style.setProperty('--mx','50%');
+  card.style.setProperty('--my','50%');
+ });
+});
+
+/* ── Salary Calculator ── */
+const calcData={
+ local:{amount:'$24,000',label:'Estimated annual salary — Local positions (Lebanon, MENA)',savings:'💡 One application costs less than 7 cents — ROI is over 100,000%',color:'var(--cyan)'},
+ worldwide:{amount:'$72,000',label:'Estimated annual salary — Gulf / MENA positions (UAE, Qatar, Saudi, Kuwait)',savings:'💡 Average Gulf salary is $6,000-$12,000/month — 3-6x your local earning potential',color:'var(--green)'},
+ remote:{amount:'$96,000',label:'Estimated annual salary — Global Remote positions',savings:'💡 Remote jobs pay global rates — work from anywhere, earn US/Europe salary',color:'var(--magenta)'}
+};
+
+function showCalc(type){
+ document.querySelectorAll('#calcTabs .calc-tab').forEach(b=>b.classList.remove('active'));
+ event.target.classList.add('active');
+ const d=calcData[type];
+ document.getElementById('calcAmount').textContent=d.amount;
+ document.getElementById('calcAmount').style.webkitTextFillColor=d.color;
+ document.getElementById('calcLabel').textContent=d.label;
+ document.getElementById('calcSavings').textContent=d.savings;
+}
+
+/* ── Revenue Tracker ── */
+let currentPeriod='all';
+function animateRevenue(el,target){
+ const start=parseFloat(el.getAttribute('data-rev'))||0;
+ const duration=600;
+ const st=performance.now();
+ function step(ts){
+  const p=Math.min((ts-st)/duration,1);
+  const eased=1-Math.pow(1-p,3);
+  const cur=start+(target-start)*eased;
+  el.textContent='$'+cur.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  if(p<1)requestAnimationFrame(step);
+  else{el.textContent='$'+target.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');el.setAttribute('data-rev',target);}
+ }
+ requestAnimationFrame(step);
+}
+
+function switchPeriod(p){
+ currentPeriod=p;
+ document.querySelectorAll('.period-btns button').forEach(b=>b.classList.toggle('active',b.dataset.period===p));
+ fetch('/api/v2/earnings?period='+p).then(r=>r.json()).then(d=>{
+  if(d.success){
+   animateRevenue(document.getElementById('earningsDisplay'),d.total);
+   const b=d.breakdown_all||d;
+   if(b.orders)animateRevenue(document.getElementById('ordersAmount'),b.orders.amount);
+   if(b.codes)animateRevenue(document.getElementById('codesAmount'),b.codes.amount);
+   if(b.emails)animateRevenue(document.getElementById('emailsAmount'),b.emails.amount);
+  }
+ }).catch(()=>{});
+}
+
+/* ── Demo bar chart animation (scroll-triggered) ── */
+const barObserver=new IntersectionObserver((entries)=>{
+ entries.forEach(e=>{
+  if(e.isIntersecting){
+   const fills=e.target.querySelectorAll('.demo-fill');
+   fills.forEach(f=>{f.style.width=f.getAttribute('data-width')+'%';});
+   barObserver.unobserve(e.target);
+  }
+ });
+},{threshold:0.3});
+document.querySelectorAll('.demo-bar-chart').forEach(el=>barObserver.observe(el));
+
+/* ── FOMO Live Counter Simulation ── */
+(function(){
+ const fomoApps=document.getElementById('fomoApps');
+ if(!fomoApps)return;
+ let base=parseInt(fomoApps.textContent.replace(/,/g,''))||0;
+ if(isNaN(base))return;
+ const fomoActive=document.getElementById('fomoActive');
+ setInterval(()=>{
+  base+=Math.floor(Math.random()*5)+1;
+  fomoApps.textContent=base.toLocaleString();
+  if(fomoActive){
+   const active=Math.floor(Math.random()*20)+35;
+   fomoActive.textContent=active;
+  }
+ },8000+Math.random()*4000);
+})();
+
+/* ── Revenue auto-refresh ── */
+setInterval(()=>{
+ fetch('/api/v2/earnings?period='+currentPeriod).then(r=>r.json()).then(d=>{
+  if(d.success){
+   const ed=document.getElementById('earningsDisplay');
+   if(ed)animateRevenue(ed,d.total);
+  }
+ }).catch(()=>{});
+},30000);
+
+/* ── ROI Calculator ── */
+function updateROI(val){
+ val=parseInt(val);
+ document.getElementById('roiLabel').textContent='$'+val.toLocaleString();
+ const monthly=Math.round(val/12);
+ document.getElementById('roiSavings').textContent='$'+monthly.toLocaleString();
+ document.getElementById('roiCost').textContent='$5';
+ document.getElementById('roiReturn').textContent='$'+val.toLocaleString();
+ const mult=Math.round(val/5);
+ document.getElementById('roiMultiplier').textContent=mult.toLocaleString()+'x';
+}
+
+/* ── Live Stats Polling ── */
+function fetchLiveStats(){
+ fetch('/api/v2/live-stats').then(r=>r.json()).then(d=>{
+  if(d.success){
+   const activeEl=document.getElementById('fomoActive');
+   if(activeEl)activeEl.textContent=d.active_now||47;
+   const urEl=document.getElementById('urOffers24');
+   if(urEl)urEl.textContent=Math.round((d.applications_today||2348)/24);
+  }
+ }).catch(()=>{});
+}
+setInterval(fetchLiveStats,15000);
+fetchLiveStats();
+
+/* ── FAQ Accordion ── */
+function toggleFaq(item){
+ const wasOpen=item.classList.contains('open');
+ document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+ if(!wasOpen)item.classList.add('open');
+}
+
+/* ── Particle Canvas ── */
+(function(){
+ const canvas=document.getElementById('particleCanvas');
+ if(!canvas)return;
+ const ctx=canvas.getContext('2d');
+ let particles=[];
+ let animId;
+
+ function resize(){
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+ }
+ resize();
+ window.addEventListener('resize',resize);
+
+ class Particle{
+  constructor(){
+   this.reset();
+   this.y=Math.random()*canvas.height;
+  }
+  reset(){
+   this.x=Math.random()*canvas.width;
+   this.y=-10;
+   this.size=Math.random()*1.5+0.5;
+   this.speed=Math.random()*0.4+0.15;
+   this.opacity=Math.random()*0.5+0.15;
+   this.hue=Math.random()<0.5?190:330;
+  }
+  update(){
+   this.y+=this.speed;
+   if(this.y>canvas.height+10)this.reset();
+  }
+  draw(){
+   ctx.beginPath();
+   ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+   ctx.fillStyle=`hsla(${this.hue},100%,65%,${this.opacity})`;
+   ctx.fill();
+  }
+ }
+
+ for(let i=0;i<80;i++)particles.push(new Particle());
+
+ function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{p.update();p.draw();});
+  animId=requestAnimationFrame(animate);
+ }
+ animate();
+})();
+</script>
+
+<!-- SOCIAL PROOF TOASTS -->
+<div class="social-toast-container" id="socialToastContainer"></div>
+<script>
+(function(){
+ const names = ["Ahmed M.", "Maria K.", "Omar R.", "Fatima S.", "David L.", "Sarah J.", "Karim H.", "Rita C.", "Hassan B.", "Nour A.", "Youssef T.", "Layla Z.", "Tarek W.", "Maya D.", "Rami F."];
+ const cities = ["Dubai", "Riyadh", "Beirut", "Doha", "Kuwait City", "Amman", "Cairo", "Abu Dhabi", "Manama", "Muscat", "London", "Toronto", "Paris", "Remote"];
+ const actions = ["just signed up for Pro Plan", "landed an interview via JobHunt Pro", "applied to 200+ jobs today", "just activated their AI Campaign", "got hired in 14 days", "upgraded to Enterprise Plan", "started their free trial", "received 3 interview invites today"];
+ let lastToast = 0;
+ function showToast(){
+  const now = Date.now();
+  if(now - lastToast < 8000) return;
+  lastToast = now;
+  const name = names[Math.floor(Math.random()*names.length)];
+  const city = cities[Math.floor(Math.random()*cities.length)];
+  const action = actions[Math.floor(Math.random()*actions.length)];
+  const toast = document.createElement('div');
+  toast.className = 'social-toast';
+  toast.innerHTML = '<span class="toast-avatar">'+name.split(' ')[0][0]+name.split(' ')[1][0]+'</span><div class="toast-body"><strong>'+name+'</strong> from '+city+'<br>'+action+'</div>';
+  document.getElementById('socialToastContainer').appendChild(toast);
+  setTimeout(()=>{toast.style.opacity='0';toast.style.transform='translateX(100%)';setTimeout(()=>toast.remove(),500)},6000);
+ }
+ setInterval(showToast, 15000);
+ setTimeout(showToast, 5000);
+ setTimeout(showToast, 12000);
+})();
+</script>
+
+
+
+<!-- EXIT-INTENT POPUP -->
+<div class="exit-overlay" id="exitOverlay">
+ <div class="exit-popup">
+  <button class="exit-close" onclick="closeExitPopup()">&times;</button>
+  <div class="exit-icon">&#x1f4ab;</div>
+  <h3>WAIT! Don't Leave Empty-Handed</h3>
+  <p>Before you go — claim your <strong style="color:var(--cyan)">FREE ATS Resume Scan</strong> and see why your resume might be getting rejected by automated systems.</p>
+  <div class="exit-value-props">
+   <span>&#x2705; Instant ATS Score</span>
+   <span>&#x2705; Keyword Gap Analysis</span>
+   <span>&#x2705; 100% Free — No Card Required</span>
+  </div>
+  <a href="/register" class="exit-cta">&#x1f50d; Scan My Resume FREE</a>
+  <p class="exit-footnote">Trusted by professionals in 50+ countries</p>
+ </div>
+</div>
+
+<script>
+(function(){
+ let exitShown = false;
+ let popupTimer = null;
+ 
+ // Desktop exit intent - mouse leaves viewport at top
+ document.addEventListener('mouseout', function(e){
+  if(!exitShown && e.clientY <= 5 && !e.relatedTarget){
+   triggerExitPopup();
+  }
+ });
+ 
+ // Mobile exit intent - scroll up fast near top
+ let lastScrollY = 0;
+ let scrollTimeout;
+ window.addEventListener('scroll', function(){
+  const st = window.pageYOffset;
+  if(!exitShown && st < lastScrollY && (lastScrollY - st) > 100 && st < 400){
+   clearTimeout(scrollTimeout);
+   scrollTimeout = setTimeout(()=>{
+    if(!exitShown) triggerExitPopup();
+   }, 500);
+  }
+  lastScrollY = st;
+ });
+ 
+ // Time-based trigger - after 45 seconds of browsing
+ setTimeout(()=>{if(!exitShown) triggerExitPopup();}, 45000);
+ 
+ window.triggerExitPopup = function(){
+  if(exitShown) return;
+  exitShown = true;
+  document.getElementById('exitOverlay').classList.add('show');
+ };
+ 
+ window.closeExitPopup = function(){
+  document.getElementById('exitOverlay').classList.remove('show');
+ };
+})();
+</script>
+
+
+<!-- FLOATING MOBILE CTA -->
+<div class="mobile-cta-bar" id="mobileCtaBar">
+ <a href="/register" class="mobile-cta-btn">&#x1f680; Start Applying Free</a>
+</div>
+
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/service-worker.js');
+      });
+    }
+  </script>
+</body>
+</html>

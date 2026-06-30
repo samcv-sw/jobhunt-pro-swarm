@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+  <link rel="stylesheet" href="/static/css/cyberpunk.css">
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>User Detail — Admin</title>
+ <style>
+ * { margin:0; padding:0; box-sizing:border-box; }
+ body { font-family:'Segoe UI',sans-serif; background:#0a0a0f; color:#e2e8f0; }
+ .topbar { background:linear-gradient(90deg,#7c3aed,#2563eb); padding:16px 32px; display:flex; justify-content:space-between; align-items:center; }
+ .topbar h1 { font-size:20px; font-weight:700; }
+ .topbar a { color:#fff; text-decoration:none; background:rgba(255,255,255,.15); padding:6px 14px; border-radius:8px; font-size:13px; }
+ .container { max-width:1200px; margin:0 auto; padding:32px 24px; }
+ .card { background:rgba(30,30,50,.8); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:24px; margin-bottom:24px; }
+ .card h2 { font-size:16px; margin-bottom:16px; color:#94a3b8; }
+ .info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; }
+ .info-item label { font-size:11px; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px; }
+ .info-item span { font-size:15px; font-weight:500; }
+ .green { color:#22c55e; } .blue { color:#3b82f6; } .purple { color:#8b5cf6; }
+ .table-wrap { overflow-x:auto; }
+ table { width:100%; border-collapse:collapse; font-size:13px; }
+ th { padding:10px 14px; text-align:left; color:#94a3b8; font-size:11px; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,.08); }
+ td { padding:10px 14px; border-bottom:1px solid rgba(255,255,255,.04); }
+ .badge { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+ .badge-green { background:rgba(34,197,94,.15); color:#22c55e; }
+ .badge-red { background:rgba(239,68,68,.15); color:#f87171; }
+ .badge-blue { background:rgba(59,130,246,.15); color:#3b82f6; }
+ .badge-orange{ background:rgba(249,115,22,.15); color:#f97316; }
+ .mono { font-family:monospace; font-size:12px; }
+ .btn { padding:8px 16px; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; }
+ .btn-green { background:#16a34a; color:#fff; }
+ input[type=number],input[type=text] { padding:8px 12px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:8px; color:#fff; font-size:13px; }
+ </style>
+</head>
+<body class="cyberpunk-body">
+<div class="topbar">
+ <h1>&#x1F464; User: {{ user.email }}</h1>
+ <a href="/admin">&#x2190; Back to Admin</a>
+</div>
+<div class="container">
+
+ <!-- User Info -->
+ <div class="card">
+ <h2>User Info</h2>
+ <div class="info-grid">
+ <div class="info-item"><label>Name</label><span>{{ user.name or '—' }}</span></div>
+ <div class="info-item"><label>Email</label><span class="blue">{{ user.email }}</span></div>
+ <div class="info-item"><label>Type</label><span>{{ user.user_type }}</span></div>
+ <div class="info-item"><label>💰 Wallet</label><span class="green">${{ "%.2f"|format(user.wallet_balance or 0) }}</span></div>
+ <div class="info-item"><label>Total Spent</label><span>${{ "%.2f"|format(user.total_spent or 0) }}</span></div>
+ <div class="info-item"><label>Status</label><span>{% if user.is_active %}<span class="badge badge-green">Active</span>{% else %}<span class="badge badge-red">Disabled</span>{% endif %}</span></div>
+ <div class="info-item"><label>Joined</label><span class="mono">{{ (user.created_at or '')[:16] }}</span></div>
+ <div class="info-item"><label>API Key</label><span class="mono" style="font-size:11px;">{{ (user.api_key or '')[:24] }}...</span></div>
+ </div>
+
+ <!-- Quick add credits -->
+ <div style="margin-top:20px; display:flex; gap:10px; align-items:center;">
+ <form method="POST" action="/admin/add-credits" style="display:flex; gap:8px; align-items:center;">
+ <input dir="auto" type="hidden" name="target_email" value="{{ user.email }}">
+ <input dir="auto" type="number" name="amount" placeholder="$" step="0.01" min="0.01" style="width:100px;">
+ <input dir="auto" type="text" name="note" value="Admin credit" style="width:150px;">
+ <button type="submit" class="btn btn-green">+ Add Credits</button>
+ </form>
+ </div>
+ </div>
+
+ <!-- Campaigns -->
+ <div class="card">
+ <h2>Campaigns ({{ campaigns|length }})</h2>
+ <div class="table-wrap">
+ <table class="cyber-table">
+ <thead><tr><th>ID</th><th>Status</th><th>Companies</th><th>Sent</th><th>Date</th></tr></thead>
+ <tbody>
+ {% for c in campaigns %}
+ <tr>
+ <td class="mono">{{ c.campaign_id[:24] }}</td>
+ <td><span class="badge {% if c.status=='completed' %}badge-green{% elif c.status=='running' %}badge-blue{% elif c.status=='failed' %}badge-red{% else %}badge-orange{% endif %}">{{ c.status }}</span></td>
+ <td>{{ c.total_companies }}</td>
+ <td>{{ c.sent_count }}</td>
+ <td class="mono">{{ (c.created_at or '')[:16] }}</td>
+ </tr>
+ {% endfor %}
+ {% if not campaigns %}<tr><td colspan="5" style="color:#64748b;text-align:center;padding:20px;">No campaigns</td></tr>{% endif %}
+ </tbody>
+ </table>
+ </div>
+ </div>
+
+ <!-- Transactions -->
+ <div class="card">
+ <h2>Wallet Transactions ({{ transactions|length }})</h2>
+ <div class="table-wrap">
+ <table class="cyber-table">
+ <thead><tr><th>Type</th><th>Amount</th><th>Balance After</th><th>Description</th><th>Date</th></tr></thead>
+ <tbody>
+ {% for t in transactions %}
+ <tr>
+ <td><span class="badge {% if t.amount > 0 %}badge-green{% else %}badge-red{% endif %}">{{ t.transaction_type }}</span></td>
+ <td style="color:{% if t.amount > 0 %}#22c55e{% else %}#f87171{% endif %};">{{ '+' if t.amount > 0 else '' }}${{ "%.2f"|format(t.amount or 0) }}</td>
+ <td>${{ "%.2f"|format(t.balance_after or 0) }}</td>
+ <td>{{ t.description or '—' }}</td>
+ <td class="mono">{{ (t.created_at or '')[:16] }}</td>
+ </tr>
+ {% endfor %}
+ {% if not transactions %}<tr><td colspan="5" style="color:#64748b;text-align:center;padding:20px;">No transactions</td></tr>{% endif %}
+ </tbody>
+ </table>
+ </div>
+ </div>
+
+ <!-- Orders -->
+ <div class="card">
+ <h2>Orders ({{ orders|length }})</h2>
+ <div class="table-wrap">
+ <table class="cyber-table">
+ <thead><tr><th>Order ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+ <tbody>
+ {% for o in orders %}
+ <tr>
+ <td class="mono">{{ o.order_id[:24] }}</td>
+ <td>{{ o.order_type }}</td>
+ <td class="green">${{ "%.2f"|format(o.amount_usd or 0) }}</td>
+ <td><span class="badge {% if o.payment_status=='completed' %}badge-green{% elif o.payment_status=='pending' %}badge-orange{% else %}badge-red{% endif %}">{{ o.payment_status }}</span></td>
+ <td class="mono">{{ (o.created_at or '')[:16] }}</td>
+ </tr>
+ {% endfor %}
+ {% if not orders %}<tr><td colspan="5" style="color:#64748b;text-align:center;padding:20px;">No orders</td></tr>{% endif %}
+ </tbody>
+ </table>
+ </div>
+ </div>
+
+</div>
+</body>
+</html>

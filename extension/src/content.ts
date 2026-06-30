@@ -17,33 +17,84 @@ function humanJitterDelay(min: number, max: number) {
     return new Promise(resolve => setTimeout(resolve, baseDelay + stutter));
 }
 
-// Advanced Javascript Event Synthesizer (No Debugger UX warning)
+// Bezier curve math for human-like mouse movement
+function cubicBezier(t: number, p0: number, p1: number, p2: number, p3: number): number {
+    const u = 1 - t;
+    const tt = t * t;
+    const uu = u * u;
+    const uuu = uu * u;
+    const ttt = tt * t;
+    return uuu * p0 + 3 * uu * t * p1 + 3 * u * tt * p2 + ttt * p3;
+}
+
+// Send CDP command to background script
+function sendCDP(type: string, params: any): Promise<any> {
+    return new Promise((resolve) => {
+        chrome.runtime.sendMessage({ action: "CDP_DISPATCH", type, params }, (response) => {
+            resolve(response);
+        });
+    });
+}
+
+// Advanced CDP-based Javascript Event Synthesizer
 async function triggerNativeClick(element: HTMLElement) {
     const rect = element.getBoundingClientRect();
-    const x = Math.round(rect.left + (rect.width / 2) + (Math.random() * 10 - 5));
-    const y = Math.round(rect.top + (rect.height / 2) + (Math.random() * 10 - 5));
+    const targetX = Math.round(rect.left + (rect.width / 2) + (Math.random() * 10 - 5));
+    const targetY = Math.round(rect.top + (rect.height / 2) + (Math.random() * 10 - 5));
     
-    console.log(`📡 Simulating Advanced Pointer Clicks at [${x}, ${y}]...`);
+    console.log(`📡 Simulating CDP Pointer Clicks at [${targetX}, ${targetY}]...`);
     
-    // Simulate complex user interaction
-    const events = [
-        new PointerEvent('pointerover', { bubbles: true, cancelable: true, clientX: x, clientY: y }),
-        new PointerEvent('pointerenter', { bubbles: true, cancelable: true, clientX: x, clientY: y }),
-        new MouseEvent('mouseover', { bubbles: true, cancelable: true, clientX: x, clientY: y }),
-        new MouseEvent('mouseenter', { bubbles: true, cancelable: true, clientX: x, clientY: y })
-    ];
+    // 1. Simulate bezier mouse movement from (0,0) or current pos
+    const startX = Math.random() * window.innerWidth;
+    const startY = Math.random() * window.innerHeight;
     
-    events.forEach(ev => element.dispatchEvent(ev));
+    // Control points for curve
+    const cp1X = startX + (targetX - startX) * Math.random();
+    const cp1Y = startY + (targetY - startY) * Math.random();
+    const cp2X = targetX + (startX - targetX) * Math.random();
+    const cp2Y = targetY + (startY - targetY) * Math.random();
+    
+    const steps = Math.floor(Math.random() * 10) + 10; // 10 to 20 steps
+    for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const x = cubicBezier(t, startX, cp1X, cp2X, targetX);
+        const y = cubicBezier(t, startY, cp1Y, cp2Y, targetY);
+        
+        await sendCDP("Input.dispatchMouseEvent", {
+            type: "mouseMoved",
+            x: x,
+            y: y
+        });
+        await new Promise(r => setTimeout(r, Math.random() * 10 + 5));
+    }
+    
+    // 2. Add physiological tremor (jitter) over the target
+    await sendCDP("Input.dispatchMouseEvent", {
+        type: "mouseMoved",
+        x: targetX + (Math.random() * 2 - 1),
+        y: targetY + (Math.random() * 2 - 1)
+    });
+    
     await new Promise(r => setTimeout(r, Math.random() * 200 + 50));
     
-    element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
-    element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
+    // 3. Dispatch CDP mouse pressed and released
+    await sendCDP("Input.dispatchMouseEvent", {
+        type: "mousePressed",
+        x: targetX,
+        y: targetY,
+        button: "left",
+        clickCount: 1
+    });
     
     await new Promise(r => setTimeout(r, Math.random() * 80 + 20));
     
-    element.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
-    element.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
-    element.click(); // Final fallback trigger
+    await sendCDP("Input.dispatchMouseEvent", {
+        type: "mouseReleased",
+        x: targetX,
+        y: targetY,
+        button: "left",
+        clickCount: 1
+    });
 }
 
 // Swarm Core Logic - Universal ATS Engine

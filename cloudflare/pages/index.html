@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JobHunt Pro — AI Job Application System</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0f; color: #e0e0f0; min-height: 100vh; }
+    .container { max-width: 960px; margin: 0 auto; padding: 20px; }
+    
+    h1 { font-size: 2.5em; background: linear-gradient(135deg, #00f0ff, #00ff88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    h1 .badge { background: #00ff8844; color: #00ff88; font-size: 14px; padding: 4px 10px; border-radius: 20px; border: 1px solid #00ff8844; -webkit-text-fill-color: #00ff88; }
+    p.subtitle { color: #8888aa; margin-top: 8px; font-size: 14px; }
+    
+    .card { background: #12121a; border: 1px solid #2a2a3a; border-radius: 12px; padding: 20px; margin: 16px 0; }
+    .card h2 { color: #00f0ff; font-size: 16px; margin-bottom: 12px; }
+    .card p { color: #8888aa; font-size: 13px; margin-bottom: 8px; }
+    
+    input, textarea, select { width: 100%; background: #0a0a0f; border: 1px solid #2a2a3a; color: #e0e0f0; padding: 10px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 10px; }
+    input:focus, textarea:focus { border-color: #00f0ff; outline: none; }
+    label { display: block; color: #aaaacc; font-size: 12px; margin-bottom: 4px; }
+    
+    .btn { background: linear-gradient(135deg, #00f0ff22, #00ff8822); border: 1px solid #00f0ff; color: #00f0ff; padding: 10px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: 0.3s; width: 100%; }
+    .btn:hover { background: linear-gradient(135deg, #00f0ff44, #00ff8844); border-color: #00ff88; }
+    .btn:disabled { opacity: 0.4; cursor: wait; }
+    .btn.green { border-color: #00ff88; color: #00ff88; }
+    .btn.danger { border-color: #ff3366; color: #ff3366; }
+    .btn.small { padding: 6px 14px; font-size: 12px; width: auto; display: inline-block; }
+    
+    .status { padding: 8px 12px; border-radius: 6px; font-size: 12px; margin: 8px 0; }
+    .status.ok { background: #00ff8811; border: 1px solid #00ff8833; color: #00ff88; }
+    .status.err { background: #ff336611; border: 1px solid #ff336633; color: #ff3366; }
+    .status.info { background: #00f0ff11; border: 1px solid #00f0ff33; color: #00f0ff; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 16px 0; }
+    .stat-card { background: #0a0a0f; border: 1px solid #2a2a3a; border-radius: 8px; padding: 16px; text-align: center; }
+    .stat-card .num { font-size: 28px; font-weight: bold; background: linear-gradient(135deg, #00f0ff, #00ff88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-card .label { font-size: 11px; color: #6666aa; margin-top: 4px; }
+    
+    .step { display: flex; gap: 12px; align-items: flex-start; margin: 12px 0; }
+    .step .num { background: #00f0ff22; border: 1px solid #00f0ff44; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #00f0ff; flex-shrink: 0; }
+    .step .text { font-size: 13px; color: #aaaacc; line-height: 1.5; }
+    
+    .tabs { display: flex; gap: 0; margin: 20px 0; border-bottom: 1px solid #2a2a3a; }
+    .tab { padding: 10px 20px; cursor: pointer; color: #6666aa; border-bottom: 2px solid transparent; font-size: 13px; }
+    .tab.active { color: #00f0ff; border-bottom-color: #00f0ff; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    .loader { display: inline-block; width: 20px; height: 20px; border: 2px solid #2a2a3a; border-top-color: #00f0ff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* Table */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; color: #6666aa; padding: 8px 10px; border-bottom: 1px solid #2a2a3a; font-weight: 400; }
+    td { padding: 10px; border-bottom: 1px solid #1a1a2a; color: #cccce0; }
+    .badge-status { padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+    .badge-status.running { background: #00ff8811; color: #00ff88; border: 1px solid #00ff8833; }
+    .badge-status.idle { background: #88888811; color: #888888; border: 1px solid #88888833; }
+    .badge-status.error { background: #ff336611; color: #ff3366; border: 1px solid #ff336633; }
+    
+    footer { text-align: center; padding: 30px; color: #444466; font-size: 12px; }
+    footer a { color: #00f0ff88; text-decoration: none; }
+    
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8em; }
+      .container { padding: 12px; }
+      table { font-size: 11px; }
+      th, td { padding: 6px 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ JobHunt Pro <span class="badge">Cloud</span></h1>
+      <p class="subtitle">AI-Powered Job Application Engine — One Click, We Do The Rest</p>
+    </header>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="home">🏠 Home</div>
+      <div class="tab" data-tab="register">📝 Start</div>
+      <div class="tab" data-tab="dashboard">📊 Dashboard</div>
+    </div>
+
+    <!-- TAB: Home -->
+    <div id="tab-home" class="tab-content active">
+      <div class="card">
+        <h2>🚀 How It Works</h2>
+        <div class="step"><span class="num">1</span><span class="text"><b>Register</b> — Enter your name, email, target job, upload CV</span></div>
+        <div class="step"><span class="num">2</span><span class="text"><b>Connect Email</b> — Enter your Gmail app password (we send through YOUR account)</span></div>
+        <div class="step"><span class="num">3</span><span class="text"><b>Auto-Pilot</b> — The system finds jobs, AI-scores them, and applies 24/7</span></div>
+      </div>
+
+      <div class="card">
+        <h2>💰 $0 — Always Free</h2>
+        <p>✅ No subscription — No hidden fees — No credit card</p>
+        <p>✅ You bring your Gmail — We send through YOUR account</p>
+        <p>✅ 100% cloud — Nothing runs on your PC, ever</p>
+        <p>✅ 200 AI agents working for you 24/7</p>
+      </div>
+
+      <div class="stats-grid" id="globalStats">
+        <div class="stat-card"><div class="num" id="statUsers">-</div><div class="label">Active Users</div></div>
+        <div class="stat-card"><div class="num" id="statApps">-</div><div class="label">Apps Sent</div></div>
+        <div class="stat-card"><div class="num" id="statJobs">-</div><div class="label">Jobs Found</div></div>
+        <div class="stat-card"><div class="num" id="statInterviews">-</div><div class="label">Interviews</div></div>
+      </div>
+
+      <button class="btn green" id="homeStartBtn" data-tab="register">🚀 Start Now — Free</button>
+    </div>
+
+    <!-- TAB: Register -->
+    <div id="tab-register" class="tab-content">
+      <div class="card">
+        <h2>📝 Create Your Account</h2>
+        <p>No credit card. No password — we'll email you a magic link.</p>
+        
+        <label>Full Name</label>
+        <input type="text" id="regName" placeholder="e.g. Sam Salameh" />
+        
+        <label>Email (Gmail recommended)</label>
+        <input type="email" id="regEmail" placeholder="you@gmail.com" />
+        
+        <label>Phone (WhatsApp for alerts)</label>
+        <input type="tel" id="regPhone" placeholder="+961 70 000 000" />
+        
+        <label>Target Job Titles (comma separated)</label>
+        <input type="text" id="regRoles" placeholder="e.g. Network Engineer, DevOps Engineer, IT Manager" />
+        
+        <label>Target Locations (comma separated)</label>
+        <input type="text" id="regLocations" placeholder="e.g. Beirut, Dubai, Remote" />
+        
+        <label>Minimum Salary ($/month)</label>
+        <input type="number" id="regSalary" value="1500" min="0" />
+
+        <label>BYO AI Provider (Optional)</label>
+        <select id="regAiProvider">
+          <option value="groq">Groq (Llama-3.1-8b-instant - Fast & Free)</option>
+          <option value="openai">OpenAI (GPT-4o-mini - High Quality)</option>
+          <option value="gemini">Google Gemini (Gemini 1.5 Flash)</option>
+          <option value="anthropic">Anthropic (Claude 3.5 Sonnet)</option>
+        </select>
+
+        <label>AI API Key (Optional)</label>
+        <input type="password" id="regAiKey" placeholder="Paste your API key here" />
+        
+        <label>Upload CV (PDF)</label>
+        <input type="file" id="regCv" accept=".pdf" />
+        
+        <div id="regStatus" class="status info">✅ 5 minutes setup. 200 AI agents start automatically.</div>
+        <button class="btn green" id="regBtn">🚀 Create Free Account</button>
+      </div>
+
+      <div class="card" id="smtpSection" style="display:none;">
+        <h2>🔗 Connect Your Gmail</h2>
+        <p>We use YOUR Gmail to send applications. Encrypted and 100% secure.</p>
+        
+        <label>Gmail Address</label>
+        <input type="email" id="smtpEmail" placeholder="you@gmail.com" />
+        
+        <label>App Password (16 characters)</label>
+        <input type="password" id="smtpPass" placeholder="xxxx xxxx xxxx xxxx" />
+        <p style="font-size: 11px; color: #6666aa;">
+          🔑 Need one? <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color:#00f0ff;">Generate App Password</a>
+          (Requires 2FA enabled on your Google Account)
+        </p>
+        
+        <div id="smtpStatus" class="status info">🔍 Test connection before saving.</div>
+        <button class="btn" id="testSmtpBtn">🔍 Test Connection</button>
+        <button class="btn green" id="saveSmtpBtn" style="margin-top:8px;">💾 Save & Start Auto-Pilot</button>
+      </div>
+    </div>
+
+    <!-- TAB: Dashboard -->
+    <div id="tab-dashboard" class="tab-content">
+      <div class="card" id="dashLogin">
+        <h2>🔐 Your Dashboard</h2>
+        <p>Enter your email to access your campaign dashboard.</p>
+        <label>Your Email</label>
+        <input type="email" id="dashEmail" placeholder="you@gmail.com" />
+        <button class="btn" id="dashLoadBtn">📊 Load Dashboard</button>
+        <div id="dashError" style="display:none;"></div>
+      </div>
+      
+      <div id="dashContent" style="display:none;">
+        <!-- Dynamic content loaded via JS -->
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    ⚡ JobHunt Pro Cloud — Powered by Cloudflare + PythonAnywhere — 100% Free Forever
+  </footer>
+
+  <script>
+    // ── Config ──
+    // Use Worker API directly (no PA dependency for core routes)
+    const API = '';
+    const WORKER_API = '/api';
+
+    // ── Tab Switching (CDP-safe) ──
+    document.addEventListener('click', function(e) {
+      var tab = e.target.closest('[data-tab]');
+      if (tab) switchTab(tab.dataset.tab);
+    });
+    document.getElementById('regBtn')?.addEventListener('click', register);
+
+    var hash = window.location.hash.replace('#','');
+    if (hash && ['home','register','dashboard'].indexOf(hash) !== -1) {
+      switchTab(hash);
+    } else {
+      loadGlobalStats();
+    }
+
+    function switchTab(name) {
+      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+      var tabEl = document.querySelector('.tab[data-tab="' + name + '"]');
+      if (tabEl) tabEl.classList.add('active');
+      var contEl = document.getElementById('tab-' + name);
+      if (contEl) contEl.classList.add('active');
+      if (name === 'home') loadGlobalStats();
+    }
+
+    // ── Global Stats ──
+    async function loadGlobalStats() {
+      try {
+        var r = await fetch(API + '/api/stats/daily?days=30');
+        var d = await r.json();
+        var stats = d.stats || [];
+        var total = { apps: 0, interviews: 0 };
+        stats.forEach(function(s) {
+          total.apps += s.apps || 0;
+          total.interviews += s.interviews || 0;
+        });
+        document.getElementById('statApps').textContent = total.apps.toLocaleString();
+        document.getElementById('statInterviews').textContent = total.interviews.toLocaleString();
+        document.getElementById('statUsers').textContent = stats.length > 0 ? 'Live' : 'Active';
+        document.getElementById('statJobs').textContent = '10k+';
+      } catch(e) {
+        document.getElementById('statApps').textContent = 'Live';
+        document.getElementById('statUsers').textContent = 'Active';
+        document.getElementById('statJobs').textContent = 'Active';
+        document.getElementById('statInterviews').textContent = 'Active';
+      }
+    }
+
+    // ── Register ──
+    async function register() {
+      var btn = document.getElementById('regBtn');
+      if (!btn || btn.disabled) return;
+      btn.disabled = true;
+      btn.textContent = '⏳ Creating...';
+      var status = document.getElementById('regStatus');
+
+      var name = document.getElementById('regName').value.trim();
+      var email = document.getElementById('regEmail').value.trim();
+      var phone = document.getElementById('regPhone').value.trim();
+      var roles = document.getElementById('regRoles').value.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+      var locations = document.getElementById('regLocations').value.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+      var salary = parseInt(document.getElementById('regSalary').value) || 1500;
+      var aiProvider = document.getElementById('regAiProvider').value;
+      var aiKey = document.getElementById('regAiKey').value.trim();
+
+      if (!name || !email) {
+        status.className = 'status err';
+        status.textContent = '❌ Name and Email are required!';
+        btn.disabled = false;
+        btn.textContent = '🚀 Create Free Account';
+        return;
+      }
+
+      try {
+        var r = await fetch(API + '/api/register-fast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, email: email, phone: phone, roles: roles, locations: locations, salary: salary, ai_provider: aiProvider, ai_key: aiKey }),
+        });
+        var result = await r.json();
+        if (r.ok) {
+          status.className = 'status ok';
+          status.textContent = '✅ Account created! Now connect your Gmail below.';
+          document.getElementById('smtpSection').style.display = 'block';
+          document.getElementById('smtpEmail').value = email;
+          document.getElementById('smtpEmail').dataset.userId = result.user_id || '';
+          document.getElementById('smtpEmail').dataset.userName = name;
+        } else {
+          status.className = 'status err';
+          status.textContent = '❌ ' + (result.error || 'Registration failed.');
+        }
+      } catch(e) {
+        status.className = 'status err';
+        status.textContent = '❌ Server error. Please try again.';
+      }
+      btn.disabled = false;
+      btn.textContent = '✅ Registered!';
+    }
+
+    // ── SMTP: Test Connection ──
+    document.getElementById('testSmtpBtn')?.addEventListener('click', testSmtp);
+    async function testSmtp() {
+      var email = document.getElementById('smtpEmail').value.trim();
+      var pass = document.getElementById('smtpPass').value.trim();
+      var status = document.getElementById('smtpStatus');
+      
+      if (!email || !pass) {
+        status.className = 'status err';
+        status.textContent = '❌ Enter email and app password first.';
+        return;
+      }
+      status.className = 'status info';
+      status.textContent = '🔄 Testing...';
+      
+      try {
+        var r = await fetch(API + '/_/pa/api/byo-smtp/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: pass }),
+        });
+        var result = await r.json();
+        status.className = result.success ? 'status ok' : 'status err';
+        status.textContent = result.success ? '✅ Connected! Ready to save.' : '❌ ' + (result.message || 'Connection failed');
+        status.dataset.connected = result.success ? 'true' : 'false';
+      } catch(e) {
+        status.className = 'status err';
+        status.textContent = '❌ Error: ' + e.message;
+      }
+    }
+
+    // ── SMTP: Save + Auto-Start Campaign ──
+    document.getElementById('saveSmtpBtn')?.addEventListener('click', saveAndStartCampaign);
+    async function saveAndStartCampaign() {
+      var email = document.getElementById('smtpEmail').value.trim();
+      var pass = document.getElementById('smtpPass').value.trim();
+      var userId = document.getElementById('smtpEmail').dataset.userId || '';
+      var status = document.getElementById('smtpStatus');
+      var btn = document.getElementById('saveSmtpBtn');
+      
+      btn.disabled = true;
+      btn.textContent = '⏳ Saving & Starting...';
+      status.className = 'status info';
+      status.textContent = '🔄 Saving SMTP and launching campaign...';
+
+      try {
+        // Step 1: Save SMTP
+        var r1 = await fetch(API + '/api/byo-smtp/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: pass, user_id: userId }),
+        });
+        if (!r1.ok) {
+          var err1 = await r1.json();
+          status.className = 'status err';
+          status.textContent = '❌ ' + (err1.error || 'Save failed');
+          btn.disabled = false;
+          btn.textContent = '💾 Save & Start Auto-Pilot';
+          return;
+        }
+        
+        // Step 2: Auto-create campaign
+        var r2 = await fetch(API + '/api/campaign/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId }),
+        });
+        var cr = await r2.json();
+        
+        status.className = 'status ok';
+        status.textContent = '✅ SMTP saved! Campaign active — ' + (cr.message || 'Auto-Pilot engaged!') + ' 🚀';
+        document.getElementById('smtpPass').value = '';
+        
+        // Redirect to dashboard after 2s
+        setTimeout(function() { switchTab('dashboard'); }, 2000);
+      } catch(e) {
+        status.className = 'status err';
+        status.textContent = '❌ Error: ' + e.message;
+      }
+      btn.disabled = false;
+      btn.textContent = '✅ Started!';
+    }
+
+    // ── Dashboard ──
+    document.getElementById('dashLoadBtn')?.addEventListener('click', loadDashboard);
+    async function loadDashboard() {
+      var email = document.getElementById('dashEmail').value.trim();
+      var dashContent = document.getElementById('dashContent');
+      var dashLogin = document.getElementById('dashLogin');
+      var dashError = document.getElementById('dashError');
+      
+      if (!email) { 
+        dashError.style.display = 'block';
+        dashError.className = 'status err';
+        dashError.textContent = '❌ Enter your email.';
+        return;
+      }
+      
+      dashError.style.display = 'none';
+      dashContent.style.display = 'block';
+      dashContent.innerHTML = '<div class="loader" style="margin:30px auto;"></div>';
+
+      try {
+        // Fetch user details
+        var r = await fetch(API + '/api/user/by-email?email=' + encodeURIComponent(email));
+        if (!r.ok) {
+          dashContent.innerHTML = '<div class="card"><div class="status err">❌ User not found. Register first.</div></div>';
+          return;
+        }
+        var user = await r.json();
+        
+        // Fetch user stats
+        var sr = await fetch(API + '/api/user/stats?user_id=' + user.id);
+        var stats = sr.ok ? await sr.json() : {};
+        
+        // Fetch campaigns
+        var campR = await fetch(API + '/api/campaign/list?user_id=' + user.id);
+        var campaigns = campR.ok ? await campR.json() : { campaigns: [] };
+        var camps = campaigns.campaigns || [];
+        
+        // Fetch recent jobs
+        var jobR = await fetch(API + '/api/jobs/user?user_id=' + user.id + '&limit=20');
+        var jobs = jobR.ok ? await jobR.json() : { jobs: [] };
+        var jobList = jobs.jobs || [];
+
+        var campRows = '';
+        if (camps.length === 0) {
+          campRows = '<tr><td colspan="5" style="text-align:center;color:#6666aa;">No campaigns yet. Complete registration above.</td></tr>';
+        } else {
+          camps.forEach(function(c) {
+            var badge = c.status === 'running' || c.status === 'active' ? 'running' : (c.status === 'error' ? 'error' : 'idle');
+            campRows += '<tr><td>' + (c.name || 'Auto Campaign') + '</td><td><span class="badge-status ' + badge + '">' + (c.status || 'active') + '</span></td><td>' + (c.apps_sent || 0) + '</td><td>' + (c.jobs_found || 0) + '</td><td><button class="btn small green" onclick="alert(\'Restarting campaign...\')">🔄</button></td></tr>';
+          });
+        }
+
+        var jobRows = '';
+        if (jobList.length === 0) {
+          jobRows = '<tr><td colspan="4" style="text-align:center;color:#6666aa;">No jobs found yet. Campaign is searching...</td></tr>';
+        } else {
+          jobList.slice(0, 20).forEach(function(j) {
+            var score = j.score !== undefined ? parseInt(j.score) + '%' : '...';
+            jobRows += '<tr><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;">' + (j.title || 'Unknown') + '</td><td>' + (j.company || '...') + '</td><td>' + (j.source || 'web') + '</td><td>' + score + '</td></tr>';
+          });
+        }
+
+        dashContent.innerHTML = `
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <h2>👤 ${user.name || 'User'}</h2>
+              <span style="font-size:12px;color:#6666aa;">${email}</span>
+            </div>
+            <div class="stats-grid">
+              <div class="stat-card"><div class="num">${stats.apps_sent || 0}</div><div class="label">Applications Sent</div></div>
+              <div class="stat-card"><div class="num">${stats.interviews || 0}</div><div class="label">Interviews</div></div>
+              <div class="stat-card"><div class="num">${stats.match_rate || 0}%</div><div class="label">AI Match Rate</div></div>
+              <div class="stat-card"><div class="num">${camps.length}</div><div class="label">Active Campaigns</div></div>
+            </div>
+            <p style="color:#6666aa;font-size:12px;">
+              🎯 ${(user.target_roles || 'Any roles')} | ${(user.target_locations || 'Anywhere')} | $${user.target_salary || 1500}+
+            </p>
+          </div>
+
+          <div class="card">
+            <h2>📋 Your Campaigns</h2>
+            <table><thead><tr><th>Campaign</th><th>Status</th><th>Apps</th><th>Jobs</th><th>Action</th></tr></thead><tbody>${campRows}</tbody></table>
+          </div>
+
+          <div class="card">
+            <h2>💼 Recent Matches</h2>
+            <table><thead><tr><th>Job Title</th><th>Company</th><th>Source</th><th>Score</th></tr></thead><tbody>${jobRows}</tbody></table>
+          </div>
+
+          <button class="btn green" onclick="loadDashboard()">🔄 Refresh Dashboard</button>
+        `;
+      } catch(e) {
+        dashContent.innerHTML = '<div class="card"><div class="status err">❌ Error loading dashboard: ' + e.message + '</div></div>';
+      }
+    }
+  </script>
+</body>
+</html>

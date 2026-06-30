@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create your JobHunt Pro account. Start automating job applications with AI-crafted cover letters & 200-agent swarm. Choose your plan.">
+  <title>Register &#x2014; JobHunt Pro | 200 AI Agents, 24/7</title>
+  <link rel="stylesheet" href="/static/css/cyberpunk.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+:root {
+  --bg-dark: #050505;
+  --bg-panel: rgba(18, 18, 24, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.15);
+  --accent-cyan: #00f2fe;
+  --accent-magenta: #4facfe;
+  --accent-glow: rgba(79, 172, 254, 0.15);
+  --text-main: #f8fafc;
+  --text-muted: #8b9bb4;
+  --dim: #555577;
+  --transition: 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+body {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+/* BG effects */
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;background:radial-gradient(circle at 15% 50%, rgba(79, 172, 254, 0.08), transparent 25%),radial-gradient(circle at 85% 30%, rgba(0, 242, 254, 0.06), transparent 25%);}
+
+.headroom{position:relative;z-index:10;min-height:60px;background:rgba(5,5,15,.75);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--glass-border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-wrap:wrap;gap:10px}
+.headroom .brand{font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--accent-cyan),#00b8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;letter-spacing:-.5px}
+.headroom nav{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.headroom nav a{font-size:13px;color:var(--text-muted);font-weight:500;text-decoration:none;padding:6px 0;transition:all var(--transition)}
+.headroom nav a:hover{color:#fff}
+
+.page-wrap{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:center;padding:30px 16px 60px;min-height:calc(100vh - 60px)}
+.container{width:100%;max-width:900px;display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+@media(max-width:700px){.container{grid-template-columns:1fr}}
+
+.card{background:var(--bg-panel);border:1px solid var(--glass-border);border-radius:20px;padding:32px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.card h1{font-size:26px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}
+.card .subtitle{color:var(--text-muted);font-size:14px;margin-bottom:28px}
+
+/* Benefits sidebar */
+.benefits-card{background:var(--bg-panel);border:1px solid var(--glass-border);border-radius:20px;padding:28px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.benefits-card h2{font-size:18px;font-weight:700;margin-bottom:18px;color:var(--accent-cyan)}
+.benefit-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.03);transition:all var(--transition)}
+.benefit-item:hover{background:rgba(255,255,255,.04);border-color:var(--glass-border-hover)}
+.benefit-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.benefit-item strong{display:block;font-size:13px;color:#fff;margin-bottom:2px}
+.benefit-item span{font-size:11px;color:var(--text-muted)}
+
+/* Plan selector */
+.plan-selector{margin-bottom:28px}
+.plan-selector h3{font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.plan-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+@media(max-width:400px){.plan-options{grid-template-columns:1fr}}
+.plan-option{position:relative;padding:14px 10px;background:rgba(255,255,255,.02);border:2px solid var(--glass-border);border-radius:12px;cursor:pointer;text-align:center;transition:all var(--transition)}
+.plan-option:hover{border-color:var(--glass-border-hover);background:rgba(255,255,255,.04)}
+.plan-option.selected{border-color:var(--accent-cyan);background:rgba(0,240,255,.06);box-shadow:0 0 20px var(--accent-glow)}
+.plan-option input{display:none}
+.plan-name{font-size:12px;font-weight:700;color:#fff;margin-bottom:4px}
+.plan-price{font-size:18px;font-weight:800;color:var(--accent-cyan);text-shadow:0 0 10px var(--accent-glow)}
+.plan-price span{font-size:11px;color:var(--text-muted);font-weight:400}
+.plan-apps{font-size:10px;color:var(--text-muted);margin-top:3px}
+.plan-badge{position:absolute;top:-8px;right:-6px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-magenta));color:#050505;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px}
+
+.savings-banner{text-align:center;margin:12px 0 20px;padding:10px;background:rgba(0,240,255,.04);border:1px solid rgba(0,240,255,.1);border-radius:10px;font-size:12px;color:var(--accent-cyan);font-weight:600}
+.savings-banner strong{font-size:15px}
+
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;color:var(--text-muted);margin-bottom:6px;font-weight:500}
+.form-group input{width:100%;padding:13px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:15px;font-family:'Outfit',sans-serif;transition:all var(--transition)}
+.form-group input:focus{outline:none;border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(0,240,255,.1);background:rgba(255,255,255,.06)}
+.form-group input::placeholder{color:var(--dim)}
+
+.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-magenta));color:#050505;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:'Outfit',sans-serif;letter-spacing:-0.3px}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 25px var(--accent-glow)}
+
+.link-row{text-align:center;margin-top:18px;font-size:13px;color:var(--text-muted)}
+.link-row a{color:var(--accent-cyan);text-decoration:none;font-weight:600}
+.link-row a:hover{text-decoration:underline}
+
+.error{background:rgba(255,0,85,.08);border:1px solid rgba(255,0,85,.2);color:#ff0055;padding:12px;border-radius:10px;margin-bottom:18px;font-size:13px}
+
+.trust-strip{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;padding:12px;background:rgba(34,197,94,.03);border:1px solid rgba(34,197,94,.08);border-radius:10px}
+.trust-strip span{font-size:11px;color:#4ade80;font-weight:500}
+
+.turnstile-wrap{display:flex;justify-content:center;margin:12px 0}
+
+.oauth-divider { text-align: center; margin: 24px 0; color: var(--dim); position: relative; font-size: 13px; font-weight: 500; }
+.oauth-divider::before, .oauth-divider::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: rgba(255,255,255,0.1); }
+.oauth-divider::before { left: 0; }
+.oauth-divider::after { right: 0; }
+.btn-oauth { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 12px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--glass-border); border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all var(--transition); text-decoration: none; margin-bottom: 12px; }
+.btn-oauth:hover { background: rgba(255,255,255,0.1); border-color: var(--glass-border-hover); transform: translateY(-1px); box-shadow:0 4px 15px rgba(0,0,0,0.2) }
+.btn-oauth img { width: 20px; height: 20px; }
+</style>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</head>
+<body>
+<header class="headroom">
+  <a href="/" class="brand">⚡ JOBHUNT PRO <span style="font-size:10px;color:var(--accent-cyan);-webkit-text-fill-color:var(--accent-cyan);margin-left:6px;font-weight:400">v{{ VERSION }}</span></a>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/services">Services</a>
+    <a href="/trust">Trust</a>
+    <a href="/faq">FAQ</a>
+    <a href="/login" style="color:var(--accent-cyan)">Login</a>
+  </nav>
+</header>
+
+<div class="page-wrap">
+<div class="container">
+  <!-- LEFT: Registration Form -->
+  <div class="card">
+    <h1>Create Account</h1>
+    <p class="subtitle">Start applying to 1000s of jobs with AI</p>
+
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+    <div style="display: flex; gap: 10px; margin-top: 10px; margin-bottom: 12px;">
+      <a href="/auth/google/login" class="btn-oauth" style="margin-bottom: 0;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
+        Google
+      </a>
+      <a href="/auth/microsoft/login" class="btn-oauth" style="margin-bottom: 0;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft">
+        Microsoft
+      </a>
+    </div>
+    
+    <div class="oauth-divider">OR</div>
+
+    <!-- Plan Picker -->
+    <div class="plan-selector">
+      <h3>🎯 Choose Your Plan</h3>
+      <div class="plan-options">
+        <label class="plan-option selected" for="plan-starter">
+          <input dir="auto" type="radio" name="plan" value="starter" id="plan-starter" checked>
+          <div class="plan-name">Starter</div>
+          <div class="plan-price">$2 <span>one-time</span></div>
+          <div class="plan-apps">10 applications</div>
+        </label>
+        <label class="plan-option" for="plan-basic">
+          <input dir="auto" type="radio" name="plan" value="basic" id="plan-basic">
+          <span class="plan-badge">POPULAR</span>
+          <div class="plan-name">Basic</div>
+          <div class="plan-price">$5 <span>one-time</span></div>
+          <div class="plan-apps">100 applications</div>
+        </label>
+        <label class="plan-option" for="plan-pro">
+          <input dir="auto" type="radio" name="plan" value="pro" id="plan-pro">
+          <div class="plan-name">Pro ⭐</div>
+          <div class="plan-price">$15 <span>one-time</span></div>
+          <div class="plan-apps">500 applications</div>
+        </label>
+      </div>
+      <div class="savings-banner" id="savings-banner">
+        💡 <strong id="savings-text">$0.20</strong> per application — less than a coffee ☕
+      </div>
+    </div>
+
+    <form method="POST" action="/register">
+    <!-- PROJECT AEGIS: Invisible Bot Honeypot -->
+    <div style="display:none; visibility:hidden;">
+        <label>Leave this empty if you are human</label>
+        <input dir="auto" type="text" name="aegis_honeypot" id="aegis_honeypot" tabindex="-1" autocomplete="off">
+    </div>
+
+    <input dir="auto" type="hidden" name="selected_plan" id="selected-plan" value="starter">
+    <input dir="auto" type="hidden" name="ref" value="{{ ref }}">
+    <div class="form-group">
+      <label>Full Name</label>
+      <input dir="auto" type="text" name="name" placeholder="e.g. Sam Salameh" required autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input dir="auto" type="email" name="email" placeholder="you@example.com" required autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Phone (optional)</label>
+      <input dir="auto" type="tel" name="phone" placeholder="e.g. +961 70 000 000" autocomplete="tel">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input dir="auto" type="password" name="password" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password">
+    </div>
+    <div class="turnstile-wrap">
+      <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key | default('1x00000000000000000000AA') }}" data-theme="dark"></div>
+    </div>
+    <button type="submit" class="btn-submit">🚀 Create Free Account</button>
+    </form>
+
+    <div class="link-row">Already have an account? <a href="/login">Login</a></div>
+    <div class="trust-strip">
+      <span>🔒 No credit card required • 30-day money-back guarantee • Cancel anytime</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: Benefits -->
+  <div class="benefits-card">
+    <h2>✨ What You Get</h2>
+    <div class="benefit-item">
+      <span class="benefit-icon">🤖</span>
+      <div><strong>200 AI Agents 24/7</strong><span>Hundreds of AI agents work around the clock searching & applying</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">✉️</span>
+      <div><strong>Unique Cover Letters</strong><span>Each application gets a personalized AI-written cover letter</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">📧</span>
+      <div><strong>20+ Email Providers</strong><span>Smart rotation keeps your emails out of spam folders</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">🌍</span>
+      <div><strong>50+ Countries</strong><span>Search across Lebanon, UAE, Saudi, Qatar, Kuwait, remote & more</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">📊</span>
+      <div><strong>Real-Time Dashboard</strong><span>Track opens, clicks, responses & pipeline progress live</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">🛡️</span>
+      <div><strong>30-Day Money Back</strong><span>No interviews? Full refund. Zero risk guarantee</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">🔒</span>
+      <div><strong>256-Bit Encryption</strong><span>Your CV and data are locked down — never shared or sold</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon">₿</span>
+      <div><strong>Crypto Payments</strong><span>Pay with BTC, ETH, USDT — private & borderless</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// Plan selector interactivity
+document.querySelectorAll('.plan-option').forEach(opt => {
+  opt.addEventListener('click', function() {
+    document.querySelectorAll('.plan-option').forEach(o => o.classList.remove('selected'));
+    this.classList.add('selected');
+    const plan = this.querySelector('input').value;
+    document.getElementById('selected-plan').value = plan;
+    // Update savings banner
+    const prices = {starter: {apps: 10, price: 2, per: '0.20'},
+                     basic: {apps: 100, price: 5, per: '0.05'},
+                     pro: {apps: 500, price: 15, per: '0.03'}};
+    const p = prices[plan];
+    document.getElementById('savings-text').textContent = '$' + p.per;
+    document.querySelector('.savings-banner').innerHTML = '💡 <strong>$' + p.per + '</strong> per application — ' + p.apps + ' apps for just $' + p.price + ' 🚀';
+  });
+});
+</script>
+</body>
+</html>

@@ -30,10 +30,14 @@ class DatabaseManager:
 
     async def connect(self) -> None:
         db_url = os.getenv("DATABASE_URL", "")
-        if db_url.startswith("libsql://"):
-            logger.info("PROJECT APEX: Connected to Turso Edge Database (Global Replication)")
-            self.pool = None # Handled via HTTP/libsql client in edge mode
-            # Initialize schema via edge
+        if db_url.startswith("libsql://") or db_url.startswith("https://"):
+            logger.info("🚀 INFINITE SWARM: Connected to Turso Edge Database (Global Replication)")
+            try:
+                import libsql_experimental as libsql
+                self.pool = libsql.connect(db_url, auth_token=os.getenv("TURSO_AUTH_TOKEN", ""))
+            except ImportError:
+                logger.warning("libsql_experimental not found. Falling back to HTTP driver.")
+                self.pool = None # Handled via HTTP/libsql client in edge mode
             return
             
         try:

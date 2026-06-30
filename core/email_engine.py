@@ -271,11 +271,9 @@ I have attached my CV for your review and would welcome the opportunity to discu
     else:
         attach_html = portfolio_html
 
-    # Tracking pixel (configurable, spam-safe CSS background-image instead of img tag)
+    # CNIL Compliance 2026: Tracking pixels removed.
+    # We only use explicit redirect links (click tracking) now.
     tracking_pixel_html = ""
-    if email_log_id and getattr(config, 'TRACKING_PIXEL_ENABLED', False):
-        track_url = f"{SITE_URL}/api/v2/campaign/track/{email_log_id}?px=1"
-        tracking_pixel_html = f"<div style='width:0;height:0;overflow:hidden;background-image:url({track_url})'></div>"
 
     # Build the complete HTML document
     html = f"""<!DOCTYPE html>
@@ -395,7 +393,15 @@ class RateLimiter:
             self.sent_times[provider] = [
                 t for t in self.sent_times[provider] if now - t < 3600
             ]
-            return len(self.sent_times[provider]) < hourly_limit
+            
+            # Simple Warmup Algorithm:
+            # If a provider has sent < 50 emails historically (estimated by current load)
+            # we restrict their hourly limit to 10 to avoid triggering spam filters.
+            actual_limit = hourly_limit
+            if hourly_limit > 10 and len(self.sent_times[provider]) < 5:
+                actual_limit = min(hourly_limit, 10)
+                
+            return len(self.sent_times[provider]) < actual_limit
 
     async def record_send(self, provider: str):
         async with self.lock:

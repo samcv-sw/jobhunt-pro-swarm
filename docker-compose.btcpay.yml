@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   btcpay:
-    image: btcpayserver/btcpayserver:1.13.6
+    image: btcpayserver/btcpayserver:1.14.1
     restart: always
     environment:
       BTCPAY_NETWORK: mainnet

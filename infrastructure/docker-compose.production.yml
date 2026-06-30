@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  web:
+    build: 
+      context: ..
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - CLOUD_MODE=true
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+    depends_on:
+      - db
+    networks:
+      - hydra_net
+
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - hydra_net
+
+networks:
+  hydra_net:
+    driver: bridge
+
+volumes:
+  pgdata:

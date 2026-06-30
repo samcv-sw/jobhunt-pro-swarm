@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Frequently Asked Questions about JobHunt Pro — AI-powered job application automation. Learn about pricing, AI cover letters, supported countries, and how to get started.">
+    <title>FAQ &mdash; JobHunt Pro</title>
+    <link rel="stylesheet" href="/static/css/cyberpunk.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',-apple-system,sans-serif;background:#0a0a0f;color:#e2e8f0;min-height:100vh}
+        .headroom{min-height:60px;background:rgba(10,10,15,.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+        .headroom .brand{font-size:18px;font-weight:800;color:#3b82f6;letter-spacing:-.5px}
+        .headroom nav{display:flex;gap:18px}
+        .headroom nav a{font-size:13px;color:#64748b;text-decoration:none;font-weight:500;padding:6px 0;border-bottom:2px solid transparent;transition:all .2s}
+        .headroom nav a:hover{border-color:#3b82f6;color:#e2e8f0}
+        .btn-nav{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff!important;padding:6px 16px!important;border-radius:8px!important;border-bottom:none!important;font-weight:600!important}
+        .btn-nav:hover{background:linear-gradient(135deg,#2563eb,#7c3aed)!important;box-shadow:0 4px 16px rgba(59,130,246,.3)!important}
+        .container{max-width:800px;margin:0 auto;padding:60px 20px 80px}
+        h1{font-size:32px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}
+        .subtitle{color:#64748b;font-size:14px;margin-bottom:40px}
+        .faq-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;margin-bottom:12px;overflow:hidden;transition:all .2s}
+        .faq-item:hover{border-color:rgba(255,255,255,.12);box-shadow:0 4px 16px rgba(0,0,0,.25)}
+        .faq-question{padding:18px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:15px;user-select:none;transition:all .2s;color:#e2e8f0}
+        .faq-question:hover{background:rgba(255,255,255,.02)}
+        .faq-question .arrow{font-size:12px;transition:transform .3s;color:#94a3b8}
+        .faq-item.open .faq-question .arrow{transform:rotate(180deg);color:#3b82f6}
+        .faq-answer{padding:0 24px;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;color:#94a3b8;font-size:14px;line-height:1.7}
+        .faq-item.open .faq-answer{padding:0 24px 18px;max-height:300px}
+        .footer{text-align:center;padding:32px;border-top:1px solid rgba(255,255,255,.06);color:#52525b;font-size:12px}
+        .footer a{color:#64748b;text-decoration:none;margin:0 8px;transition:color .2s}
+        .footer a:hover{color:#60a5fa}
+        @media(max-width:768px){.headroom{padding:0 12px}.headroom nav{gap:10px}.headroom nav a{font-size:11px}.container{padding:40px 16px 60px}h1{font-size:26px}.faq-question{font-size:14px;padding:14px 16px}.faq-answer{font-size:13px}}
+    </style>
+</head>
+<body class="cyberpunk-body">
+{% include '_public_nav.html' %}
+<div class="container" style="padding-top:130px">
+    <h1>Frequently Asked Questions</h1>
+    <p class="subtitle">Everything you need to know about JobHunt Pro &mdash; your AI-powered job application platform.</p>
+
+    <div class="faq-item open">
+        <div class="faq-question" onclick="toggleFaq(this)">What is JobHunt Pro? <span class="arrow">&#9660;</span></div>
+        <div class="faq-answer">JobHunt Pro is an intelligent job application automation platform that helps you find and apply to the right jobs faster. Our AI engine searches across multiple job boards, crafts personalized cover letters, and manages your entire application pipeline from discovery to interview.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">How does the pricing work? <span class="arrow">&#9660;</span></div>
+        <div class="faq-answer">JobHunt Pro uses a simple one-time payment model &mdash; no subscriptions, no hidden fees. You purchase a tier based on how many companies you want to target. Each tier includes AI-crafted cover letters, email delivery, and pipeline tracking.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">What countries do you support? <span class="arrow">&#9660;</span></div>
+        <div class="faq-answer">We support job searches across Lebanon, UAE, Saudi Arabia, Qatar, Kuwait, Oman, and remote positions worldwide. Our multi-platform engine searches local and international job boards for the best opportunities.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">How does the AI cover letter work? <span class="arrow">&#9660;</span></div>
+        <div class="faq-answer">Our AI analyzes your CV, the job description, and the company profile to generate a unique cover letter for each application. Each letter is tailored to highlight your most relevant skills and experience for that specific role.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">Is my data secure? <span class="arrow">&#9660;</span></div>
+        <div class="faq-answer">Yes. Your CV, email credentials, and application data are encrypted and stored securely. We never share your personal information with third parties.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">Can I track my applications? <span class="arrow">&#9660;</span></div>
+        <div class="faq-answer">Absolutely. Our dashboard provides real-time tracking of every application. See who opened your email, who responded, and move applications through your pipeline from discovery to interview to offer.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">What payment methods do you accept? <span class="arrow">&#9660;</span></div>
+        <div class="faq-answer">We accept cryptocurrency payments including Bitcoin (BTC), Ethereum (ETH), USDT (TRC20 &amp; ERC20), Litecoin (LTC), and more. No banking restrictions or exchange rate surprises.</div>
+    </div>
+    <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">How do I get started? <span class="arrow">&#9660;</span></div>
+        <div class="faq-answer">Getting started takes under 2 minutes. Create an account, upload your CV, choose a pricing tier, and launch your campaign. Our AI handles the rest.</div>
+    </div>
+</div>
+{% include '_public_footer.html' %}
+<script>
+function toggleFaq(e){var item=e.parentElement,open=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(function(i){i.classList.remove('open')});if(!open)item.classList.add('open')}
+</script>
+</body>
+</html>

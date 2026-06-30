@@ -21,6 +21,32 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "CDP_DISPATCH") {
+        const tabId = sender.tab?.id;
+        if (!tabId) {
+            sendResponse({ status: "error", error: "No tab ID" });
+            return true;
+        }
+
+        // Attach debugger if not already attached
+        chrome.debugger.getTargets((targets) => {
+            const target = targets.find(t => t.tabId === tabId);
+            if (!target || !target.attached) {
+                chrome.debugger.attach({ tabId: tabId }, "1.3", () => {
+                    if (chrome.runtime.lastError) {
+                        console.error("Debugger attach error:", chrome.runtime.lastError);
+                        sendResponse({ status: "error", error: chrome.runtime.lastError.message });
+                        return;
+                    }
+                    dispatchCDPEvent(tabId, request.type, request.params, sendResponse);
+                });
+            } else {
+                dispatchCDPEvent(tabId, request.type, request.params, sendResponse);
+            }
+        });
+        return true; // Keep message channel open for async response
+    }
+
     if (request.action === "JOB_APPLIED") {
         console.log("Background Orchestrator received JOB_APPLIED event.");
         
@@ -46,6 +72,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sendResponse({ status: "recorded" });
     }
 });
+
+function dispatchCDPEvent(tabId: number, type: string, params: any, sendResponse: (res: any) => void) {
+    chrome.debugger.sendCommand({ tabId: tabId }, type, params, (result) => {
+        if (chrome.runtime.lastError) {
+            console.error("CDP command error:", chrome.runtime.lastError);
+            sendResponse({ status: "error", error: chrome.runtime.lastError.message });
+        } else {
+            sendResponse({ status: "success", result: result });
+        }
+    });
+}
 
 // IndexedDB Init
 const dbName = "SwarmDB";

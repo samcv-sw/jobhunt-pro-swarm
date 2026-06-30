@@ -1,0 +1,182 @@
+<button class="hamburger" onclick="toggleNav()" aria-label="Menu"><span></span><span></span><span></span></button>
+<div class="sidebar" id="sidebarNav">
+    <div class="logo">JobHunt<span>Pro</span></div>
+    <nav class="nav">
+        <a href="/user-dashboard"{{ ' class="active"' if active_page == 'dashboard' else '' }}><span class="nav-icon">&#x1F4CA;</span>Dashboard</a>
+        <a href="/upload-cv"{{ ' class="active"' if active_page == 'upload-cv' else '' }}><span class="nav-icon">&#x1F4C4;</span>Upload CV</a>
+        <a href="/ats-scorer"{{ ' class="active"' if active_page == 'ats-scorer' else '' }}><span class="nav-icon">&#x1F3AF;</span>ATS Scorer</a>
+        <a href="/resume-tailor"{{ ' class="active"' if active_page == 'resume-tailor' else '' }} style="color:#a78bfa;"><span class="nav-icon">&#x2728;</span>Resume Tailor</a>
+        <a href="/funnel-analytics"{{ ' class="active"' if active_page == 'funnel-analytics' else '' }}><span class="nav-icon">&#x1F4CA;</span>Funnel Analytics</a>
+        <a href="/new-campaign"{{ ' class="active"' if active_page == 'new-campaign' else '' }}><span class="nav-icon">&#x1F3AF;</span>New Campaign</a>
+        <a href="/for-employers"{{ ' class="active"' if active_page == 'employers' else '' }} style="color:#f59e0b;"><span class="nav-icon">&#x1F488;</span>Premium Services</a>
+        <div style="padding-left:20px;margin:4px 0 10px;">
+            <a href="/for-employers" style="font-size:0.85em;display:block;padding:4px 10px;color:#fbbf24;border-left:2px solid #f59e0b40;"><span class="nav-icon">&#x1F3E2;</span>Post a Job</a>
+            <a href="/employer/track" style="font-size:0.85em;display:block;padding:4px 10px;color:#60a5fa;border-left:2px solid #3b82f640;"><span class="nav-icon">&#x1F4CA;</span>Track My Jobs</a>
+        </div>
+        <a href="/sent-emails"{{ ' class="active"' if active_page == 'sent-emails' else '' }}><span class="nav-icon">&#x1F4E7;</span>Sent Emails</a>
+        <div class="nav-divider"></div>
+        <a href="/battle-station"{{ ' class="active"' if active_page == 'battle-station' else '' }}><span class="nav-icon">&#x2694;&#xFE0F;</span>Battle Station</a>
+        <a href="/services"{{ ' class="active"' if active_page == 'services' else '' }}><span class="nav-icon">&#x2B50;</span>Premium Services</a>
+        <a href="/offers"{{ ' class="active"' if active_page == 'offers' else '' }} style="color:#f43f5e;"><span class="nav-icon">&#x1F525;</span>Special Offers</a>
+        <a href="/my-purchases"{{ ' class="active"' if active_page == 'my-purchases' else '' }} style="color:#3b82f6;"><span class="nav-icon">&#x1F4E6;</span>My Subscriptions</a>
+        <a href="/pricing"{{ ' class="active"' if active_page == 'pricing' else '' }}><span class="nav-icon">&#x1F48E;</span>Pricing</a>
+        <a href="/wallet"{{ ' class="active"' if active_page == 'wallet' else '' }}><span class="nav-icon">&#x1F4B0;</span>Wallet</a>
+        <div class="nav-divider"></div>
+        <a href="/stats"{{ ' class="active"' if active_page == 'stats' else '' }}><span class="nav-icon">&#x1F4C8;</span>Stats</a>
+        <a href="/referral"{{ ' class="active"' if active_page == 'referral' else '' }}><span class="nav-icon">&#x1F465;</span>Referrals</a>
+        <a href="/email-test"{{ ' class="active"' if active_page == 'email-test' else '' }}><span class="nav-icon">&#x1F9EA;</span>Email Test</a>
+        <a href="/export"{{ ' class="active"' if active_page == 'export' else '' }}><span class="nav-icon">&#x1F4E5;</span>Export</a>
+        <a href="/api-docs"{{ ' class="active"' if active_page == 'api' else '' }}><span class="nav-icon">&#x1F50C;</span>API Docs</a>
+        <div class="nav-divider"></div>
+        <a href="/contact"{{ ' class="active"' if active_page == 'contact' else '' }}><span class="nav-icon">&#x1F4AC;</span>Contact</a>
+        <a href="https://wa.me/96171019053?text=Hi%20Sam%21%20JobHunt%20Pro%20Support" target="_blank" style="color:#25D366;"><span class="nav-icon">&#x1F7E2;</span>WhatsApp</a>
+        <a href="/admin/sys-logs"{{ ' class="active"' if active_page == 'sys-logs' else '' }} style="color:#ef4444;"><span class="nav-icon">&#x1F4DC;</span>System Logs</a>
+        <div class="nav-gap"></div>
+        <div class="nav-divider"></div>
+        <a href="#" id="notif-bell-link" onclick="toggleNotifPanel();return false;" style="position:relative;">
+            <span class="nav-icon">&#x1F514;</span>Notifications
+            <span id="notif-badge" class="notif-badge" style="display:none;">0</span>
+        </a>
+        <a href="/logout" class="logout"><span class="nav-icon">&#x1F6AA;</span>Logout</a>
+    </nav>
+</div>
+
+<!-- Notification Panel -->
+<div class="notif-panel" id="notifPanel">
+    <div class="notif-panel-header">
+        <h3>&#x1F514; Notifications</h3>
+        <button class="notif-mark-all" onclick="markAllRead()" id="notif-mark-all-btn" style="display:none;">Mark all read</button>
+    </div>
+    <div class="notif-list" id="notifList">
+        <div class="notif-empty">Loading notifications...</div>
+    </div>
+</div>
+
+<script>
+function toggleNav(){document.getElementById('sidebarNav').classList.toggle('open');document.querySelector('.hamburger').classList.toggle('active');}
+
+// ── Notification System ──
+let notifPollTimer = null;
+let notifOpenId = null;
+
+function toggleNotifPanel() {
+    const panel = document.getElementById('notifPanel');
+    const isOpen = panel.classList.contains('open');
+    if (isOpen) {
+        panel.classList.remove('open');
+        if (notifOpenId) { clearTimeout(notifOpenId); notifOpenId = null; }
+    } else {
+        panel.classList.add('open');
+        loadNotifications();
+        notifOpenId = setTimeout(() => {
+            panel.classList.remove('open');
+            notifOpenId = null;
+        }, 15000);
+    }
+}
+
+async function loadNotifications() {
+    try {
+        const resp = await fetch('/api/v1/notifications?limit=15');
+        if (!resp.ok) return;
+        const data = await resp.json();
+        renderNotifList(data.notifications || []);
+        updateNotifBadge(data.unread_count || 0);
+    } catch(e) { console.log('Notif load error:', e); }
+}
+
+function renderNotifList(notifs) {
+    const list = document.getElementById('notifList');
+    const markBtn = document.getElementById('notif-mark-all-btn');
+    if (!notifs || notifs.length === 0) {
+        list.innerHTML = '<div class="notif-empty">No notifications yet &#x1F389;</div>';
+        markBtn.style.display = 'none';
+        return;
+    }
+    const hasUnread = notifs.some(n => !n.is_read);
+    markBtn.style.display = hasUnread ? 'block' : 'none';
+    list.innerHTML = notifs.map(n => `
+        <div class="notif-item ${n.is_read ? '' : 'unread'}" onclick="markNotifRead(${n.id}, '${(n.link || '').replace(/'/g, "\\'")}')">
+            <span class="notif-icon">${n.icon || '&#x1F514;'}</span>
+            <div class="notif-body">
+                <div class="notif-title">${escapeNotifHtml(n.title)}</div>
+                ${n.message ? '<div class="notif-msg">' + escapeNotifHtml(n.message) + '</div>' : ''}
+                <div class="notif-time">${timeAgo(n.created_at)}</div>
+            </div>
+            ${!n.is_read ? '<div class="notif-dot"></div>' : ''}
+        </div>
+    `).join('');
+}
+
+async function markNotifRead(id, link) {
+    try {
+        await fetch('/api/v1/notifications/read', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id: id})
+        });
+        loadNotifications();
+        pollNotifBadge();
+        if (link) { window.location.href = link; }
+    } catch(e) {}
+}
+
+async function markAllRead() {
+    try {
+        await fetch('/api/v1/notifications/read-all', {method: 'POST'});
+        loadNotifications();
+        pollNotifBadge();
+    } catch(e) {}
+}
+
+function updateNotifBadge(count) {
+    const badge = document.getElementById('notif-badge');
+    if (count > 0) {
+        badge.style.display = 'flex';
+        badge.textContent = count > 99 ? '99+' : count;
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+async function pollNotifBadge() {
+    try {
+        const resp = await fetch('/api/v1/notifications?limit=1&unread_only=true');
+        if (resp.ok) {
+            const data = await resp.json();
+            updateNotifBadge(data.unread_count || 0);
+        }
+    } catch(e) {}
+}
+
+function escapeNotifHtml(str) {
+    if (!str) return '';
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
+
+function timeAgo(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr.replace(' ', 'T') + (dateStr.includes('Z') ? '' : 'Z'));
+    const now = new Date();
+    const diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+}
+
+// Start polling
+pollNotifBadge();
+notifPollTimer = setInterval(pollNotifBadge, 30000);
+
+// Close panel on outside click
+document.addEventListener('click', function(e) {
+    const panel = document.getElementById('notifPanel');
+    const bell = document.getElementById('notif-bell-link');
+    if (panel && bell && !panel.contains(e.target) && !bell.contains(e.target)) {
+        panel.classList.remove('open');
+        if (notifOpenId) { clearTimeout(notifOpenId); notifOpenId = null; }
+    }
+});
+</script>
