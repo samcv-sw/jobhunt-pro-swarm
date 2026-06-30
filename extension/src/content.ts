@@ -29,9 +29,28 @@ async function startLinkedInHack() {
         console.log("Clicking Easy Apply...");
         targetBtn.click();
         
-        // TODO: In a full version, we parse the popup modal and fill fields via DOM injection.
-        // For now, notify the background script that we clicked it.
-        chrome.runtime.sendMessage({ action: "JOB_APPLIED", details: "Clicked Easy Apply button." });
+        // Wait for the modal to appear
+        console.log("Waiting for modal to load...");
+        await new Promise(r => setTimeout(r, 2500));
+        
+        // Look for the Submit Application or Next button inside the modal
+        const modalButtons = Array.from(document.querySelectorAll('button')).filter(btn => 
+            btn.innerText.includes('Submit application') || 
+            btn.innerText.includes('Next') ||
+            btn.innerText.includes('التالي') ||
+            btn.innerText.includes('إرسال الطلب')
+        );
+
+        if (modalButtons.length > 0) {
+            console.log("🎯 Modal interactive button found! Proceeding with auto-fill/submit.");
+            const actionBtn = modalButtons[0] as HTMLElement;
+            await new Promise(r => setTimeout(r, Math.random() * 1000 + 500));
+            actionBtn.click();
+        } else {
+            console.log("⚠️ Could not find Next/Submit button in modal. Form might require complex manual input.");
+        }
+
+        chrome.runtime.sendMessage({ action: "JOB_APPLIED", details: "Clicked Easy Apply button and interacted with modal." });
     } else {
         console.log("⚠️ No Easy Apply buttons found on this page.");
     }
