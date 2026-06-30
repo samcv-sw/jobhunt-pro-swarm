@@ -153,6 +153,9 @@ def _wrap_html(body: str, title: str = "JobHunt Pro") -> str:
   <div class="footer">
     <p>JobHunt Pro · Beirut, Lebanon</p>
     <p><a href="{BASE_URL}/unsubscribe">Unsubscribe</a> · <a href="{BASE_URL}">Visit Website</a></p>
+    <div style="margin-top:20px; padding-top:15px; border-top:1px solid #e2e8f0;">
+      <p style="font-size:11px; color:#64748b;">🚀 <i>Sent automatically via <a href="{BASE_URL}?ref=viral_email" style="color:#3b82f6; font-weight:bold;">JobHunt Pro</a> - Get your own AI Job Search Agent for free.</i></p>
+    </div>
   </div>
 </div>
 </body></html>"""
