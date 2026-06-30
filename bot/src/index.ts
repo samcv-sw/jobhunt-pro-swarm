@@ -171,6 +171,19 @@ app.get('/ping', (req, res) => {
     res.send("PONG - God-Mode System is ALIVE!");
 });
 
+// API endpoint for the React Dashboard
+app.get('/api/stats', async (req, res) => {
+    const dbClient = await getDbConnection();
+    const state = await loadState(dbClient);
+    if (dbClient) {
+        await dbClient.end();
+    }
+    res.json({
+        jobs_applied: state.jobs_applied,
+        last_run: state.last_run
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`🚀 Hugging Face Express Server running on port ${PORT}`);
     console.log("God-Mode Bot is now online 24/7. Waiting for cron triggers...");

@@ -36,8 +36,24 @@ RUN npm install
 RUN npx playwright install chromium
 RUN npx playwright install-deps chromium
 
-# Copy the rest of the application code
+# Copy the rest of the bot application code
 COPY bot/ ./
+
+# Build the TypeScript bot code
+RUN npm run build
+
+# --- Build the React Dashboard ---
+WORKDIR /app/dashboard
+COPY dashboard/package*.json ./
+RUN npm install
+COPY dashboard/ ./
+RUN npm run build
+
+# Move the built dashboard to the Express public folder
+RUN mkdir -p /app/public && cp -r dist/* /app/public/
+
+# Return to bot directory to run the server
+WORKDIR /app
 
 # Expose the port the Express server will run on (Hugging Face standard is 7860)
 EXPOSE 7860
