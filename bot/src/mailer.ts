@@ -1,3 +1,5 @@
+import nodemailer from 'nodemailer';
+
 export function getRandomEmailAccount(): any {
     const accountsJson = process.env.GMAIL_ACCOUNTS_JSON;
     if (!accountsJson) {
@@ -14,4 +16,46 @@ export function getRandomEmailAccount(): any {
         console.error("Error parsing GMAIL_ACCOUNTS_JSON:", e);
     }
     return null;
+}
+
+export async function sendColdEmail(toEmail: string, subject: string, htmlBody: string): Promise<boolean> {
+    const account = getRandomEmailAccount();
+    if (!account) {
+        console.error("❌ No email account available for sending.");
+        return false;
+    }
+
+    console.log(`📧 Sending Cold Pitch to ${toEmail} using ${account.email}...`);
+
+    try {
+        // Determine host based on email domain
+        let host = 'smtp.gmail.com';
+        if (account.email.toLowerCase().includes('hotmail') || account.email.toLowerCase().includes('outlook')) {
+            host = 'smtp-mail.outlook.com';
+        }
+
+        const transporter = nodemailer.createTransport({
+            host: host,
+            port: 587,
+            secure: false, // true for 465, false for other ports
+            auth: {
+                user: account.email,
+                pass: account.password,
+            },
+        });
+
+        const info = await transporter.sendMail({
+            from: `"JobHunt Pro" <${account.email}>`,
+            to: toEmail,
+            subject: subject,
+            html: htmlBody,
+            // You can optionally add CV attachment logic here later if needed
+        });
+
+        console.log(`✅ Email sent successfully! Message ID: ${info.messageId}`);
+        return true;
+    } catch (err) {
+        console.error("❌ Failed to send email:", err);
+        return false;
+    }
 }

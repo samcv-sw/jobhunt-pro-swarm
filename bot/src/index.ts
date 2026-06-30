@@ -5,7 +5,7 @@ import path from 'path';
 
 import { getDbConnection, loadState, saveState, BotState } from './db';
 import { callGroqWithFallback } from './ai';
-import { getRandomEmailAccount } from './mailer';
+import { getRandomEmailAccount, sendColdEmail } from './mailer';
 import { launchBrowser } from './browser';
 
 const REPORT_FILE = path.join(process.cwd(), 'public', 'index.html');
@@ -113,9 +113,18 @@ async function runAgent() {
 
         appliedThisRun = Math.floor(Math.random() * 4) + 1; // 1 to 4
 
-        const emailAccount = getRandomEmailAccount();
-        if (emailAccount) {
-            console.log(`Selected SMTP Account for outreach: ${emailAccount.email}`);
+        // Mock HR Email finding (In production, Groq will extract this from the job post)
+        const hrEmail = "hr-manager@example-tech-company.com";
+        const emailSubject = "Experienced Professional for Your Team - JobHunt Pro Application";
+        
+        console.log(`🤖 Requesting Groq to generate a highly tailored Cold Pitch for ${hrEmail}...`);
+        const pitchPrompt = `Write a short, powerful, and professional cold email pitch for a Software Engineer applying to a tech company. Don't include placeholders, make it ready to send. Keep it under 100 words.`;
+        const generatedPitch = await callGroqWithFallback(pitchPrompt);
+        
+        console.log(`✉️ Sending AI-Generated Pitch via Cold Email Engine...`);
+        const emailSent = await sendColdEmail(hrEmail, emailSubject, `<p>${generatedPitch.replace(/\n/g, '<br>')}</p>`);
+        if (emailSent) {
+            console.log(`🚀 Cold Email outreach successful for this cycle!`);
         }
         
         // Atomic Cookie Refresh

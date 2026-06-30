@@ -7,9 +7,7 @@ on:
   workflow_dispatch: # Allow manual triggers
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
 
 concurrency:
   group: "jobhunt-pro-bot"
@@ -28,6 +26,17 @@ jobs:
           node-version: 20
           cache: 'npm'
           cache-dependency-path: 'bot/package-lock.json'
+          
+      - name: Setup Cloudflare WARP (Hide GitHub IP)
+        run: |
+          curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+          sudo apt-get update && sudo apt-get install cloudflare-warp -y
+          sudo warp-cli --accept-tos registration new
+          sudo warp-cli --accept-tos mode proxy
+          sudo warp-cli --accept-tos connect
+          sleep 5
+          curl -x socks5://127.0.0.1:40000 https://cloudflare.com/cdn-cgi/trace
       
       - name: Install Dependencies
         working-directory: bot
@@ -45,15 +54,14 @@ jobs:
           SESSION_COOKIES: ${{ secrets.SESSION_COOKIES }}
           DATABASE_URL_SYNC: ${{ secrets.DATABASE_URL_SYNC }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # Tell Node to route traffic through the WARP proxy
+          ALL_PROXY: socks5://127.0.0.1:40000
         run: npm start
 
-  deploy-pages:
-    needs: run-agent
+  keep-dashboard-alive:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Ping Hugging Face Space
+        run: |
+          echo "Pinging Hugging Face Dashboard to prevent it from going to sleep..."
+          curl -s https://tomas2336546-jobhunt-pro-dashboard.hf.space || true
