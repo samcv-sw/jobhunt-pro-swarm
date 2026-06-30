@@ -1,0 +1,25 @@
+{
+  "name": "jobhunt-pro-bot",
+  "version": "1.0.0",
+  "description": "Zero-Cost Serverless Automated Bot",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "rebrowser-playwright": "^1.49.0",
+    "groq-sdk": "^0.9.0",
+    "html-to-text": "^9.0.5",
+    "nodemailer": "^6.9.16",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/html-to-text": "^9.0.4",
+    "@types/node": "^20.17.10",
+    "@types/nodemailer": "^6.4.17",
+    "@types/pg": "^8.11.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

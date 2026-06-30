@@ -31,26 +31,26 @@ jobs:
           # Test if WARP proxy is working
           curl -x socks5://127.0.0.1:40000 https://cloudflare.com/cdn-cgi/trace
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.11'
+          node-version: '20'
 
       - name: Install Dependencies
+        working-directory: ./bot
         run: |
-          python -m pip install --upgrade pip
-          # Using Patchright for Enterprise Stealth instead of Playwright
-          pip install patchright groq html2text psycopg2-binary
-          patchright install chromium
+          npm install
+          npx playwright install chromium
 
-      - name: Run JobHunt Pro Agent
+      - name: Run Node.js JobHunt Pro Agent
+        working-directory: ./bot
         env:
           GROQ_KEYS_JSON: ${{ secrets.GROQ_KEYS_JSON }}
           SESSION_COOKIES: ${{ secrets.SESSION_COOKIES }}
           GMAIL_ACCOUNTS_JSON: ${{ secrets.GMAIL_ACCOUNTS_JSON }}
-          DATABASE_URL_SYNC: ${{ secrets.DATABASE_URL_SYNC }} # Must add this to GitHub Secrets!
+          DATABASE_URL_SYNC: ${{ secrets.DATABASE_URL_SYNC }}
         run: |
-          python backend/gh_auto_apply.py
+          npm start
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
