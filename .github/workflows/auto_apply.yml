@@ -26,35 +26,13 @@ jobs:
       - name: Setup Cloudflare WARP (Hide GitHub IP)
         run: |
           curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
-          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
-          sudo apt-get update && sudo apt-get install cloudflare-warp
-          warp-cli --accept-tos registration new
-          warp-cli --accept-tos mode proxy
-          warp-cli --accept-tos connect
-          sleep 5
-          # Test if WARP proxy is working
-          curl -x socks5://127.0.0.1:40000 https://cloudflare.com/cdn-cgi/trace
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Dependencies
-        working-directory: ./bot
+  ping-huggingface:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Keep Hugging Face Space Alive
         run: |
-          npm install
-          npx playwright install chromium
-
-      - name: Run Node.js JobHunt Pro Agent
-        working-directory: ./bot
-        env:
-          GROQ_KEYS_JSON: ${{ secrets.GROQ_KEYS_JSON }}
-          SESSION_COOKIES: ${{ secrets.SESSION_COOKIES }}
-          GMAIL_ACCOUNTS_JSON: ${{ secrets.GMAIL_ACCOUNTS_JSON }}
-          DATABASE_URL_SYNC: ${{ secrets.DATABASE_URL_SYNC }}
-        run: |
-          npm start
+          # Replace this URL with your actual Hugging Face Space URL
+          curl -s "https://your-hugging-face-space-url.hf.space/ping" || echo "Ping failed but continuing"
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3

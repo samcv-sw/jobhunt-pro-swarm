@@ -1,4 +1,5 @@
 import { chromium, Browser, BrowserContext } from 'rebrowser-playwright';
+import { injectWebGLSpoofer } from './spoofing';
 
 export interface BrowserSession {
     browser: Browser;
@@ -21,6 +22,10 @@ export async function launchBrowser(cookies: any[]): Promise<BrowserSession> {
     });
 
     const context = await browser.newContext();
+    
+    // INJECT DEEP WEBGL & CANVAS SPOOFING
+    await context.addInitScript(injectWebGLSpoofer);
+    
     if (cookies.length > 0) {
         await context.addCookies(cookies);
     }

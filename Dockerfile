@@ -1,43 +1,46 @@
-FROM python:3.12-slim
+# Use the official Node.js 20 image (Debian based)
+FROM node:20
 
-# Install dependencies and Supervisor
-RUN apt-get update && apt-get install -y supervisor build-essential wget curl unzip xvfb libxi6 libgconf-2-4 libnss3 libasound2t64 libatk-bridge2.0-0 libgtk-3-0 libgbm1 && rm -rf /var/lib/apt/lists/*
+# Install dependencies required by Playwright (Chromium) and Cloudflare WARP
+RUN apt-get update && apt-get install -y \
+    libnss3 \
+    libnspr4 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libdbus-1-3 \
+    libxcb1 \
+    libxkbcommon0 \
+    libx11-6 \
+    libcomposite1 \
+    libasound2 \
+    libxrandr2 \
+    libgbm1 \
+    libpango-1.0-0 \
+    libcairo2 \
+    wget \
+    gnupg \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set up working directory
+# Set the working directory inside the container
 WORKDIR /app
-COPY . /app
 
-# Install Python packages
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install uvicorn
+# Copy package.json and package-lock.json
+COPY bot/package*.json ./
 
-# Configure Supervisor for Monolith Mode
-RUN echo "[supervisord]" > /etc/supervisor/conf.d/supervisord.conf && \
-    echo "nodaemon=true" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "[program:fastapi]" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "command=gunicorn web.app_v2:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:7860 --timeout 120" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "autostart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "autorestart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "[program:worker]" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "command=python core/queue_worker.py" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "autostart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
-    echo "autorestart=true" >> /etc/supervisor/conf.d/supervisord.conf
+# Install Node.js dependencies
+RUN npm install
 
-# Create Cluster Entrypoint
-RUN echo '#!/bin/bash\n\
-if [ "$MODE" = "WORKER" ]; then\n\
-    echo "🚀 Starting in WORKER ONLY mode..."\n\
-    python core/queue_worker.py\n\
-elif [ "$MODE" = "API" ]; then\n\
-    echo "🚀 Starting in API ONLY mode..."\n\
-    gunicorn web.app_v2:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:7860 --timeout 120\n\
-else\n\
-    echo "🚀 Starting in MONOLITH mode (API + WORKER)..."\n\
-    supervisord -c /etc/supervisor/conf.d/supervisord.conf\n\
-fi' > /app/start.sh && chmod +x /app/start.sh
+# Install Playwright browsers (Chromium only to save space)
+RUN npx playwright install chromium
+RUN npx playwright install-deps chromium
 
-# Expose port 7860 for Hugging Face Spaces
+# Copy the rest of the application code
+COPY bot/ ./
+
+# Expose the port the Express server will run on (Hugging Face standard is 7860)
 EXPOSE 7860
 
-# Run the Cluster Entrypoint
-CMD ["bash", "/app/start.sh"]
+# Command to run the application (Uses ts-node in development or compiled js in production)
+CMD ["npx", "ts-node", "src/index.ts"]
