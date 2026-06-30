@@ -7,6 +7,52 @@ import { getDbConnection, loadState, saveState, BotState } from './db';
 import { callGroqWithFallback } from './ai';
 import { getRandomEmailAccount, sendColdEmail } from './mailer';
 import { launchBrowser } from './browser';
+import https from 'https';
+
+async function sendNotification(message: string) {
+    const webhookUrl = process.env.NOTIFICATIONS_WEBHOOK;
+    if (!webhookUrl) return;
+
+    try {
+        console.log("📱 Sending Webhook Notification...");
+        let payload = '';
+        if (webhookUrl.includes('discord.com')) {
+            payload = JSON.stringify({ content: message });
+        } else if (webhookUrl.includes('api.telegram.org')) {
+            // Assumes URL like https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<ID>&text=
+            // It's better to just append the text if it's telegram, or use POST
+            payload = JSON.stringify({ text: message }); // Many webhooks accept this generic format
+        } else {
+            payload = JSON.stringify({ text: message, content: message });
+        }
+
+        const url = new URL(webhookUrl);
+        const options = {
+            hostname: url.hostname,
+            port: 443,
+            path: url.pathname + url.search,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(payload)
+            }
+        };
+
+        await new Promise((resolve, reject) => {
+            const req = https.request(options, (res) => {
+                res.on('data', () => {}); // Consume data
+                res.on('end', resolve);
+            });
+            req.on('error', reject);
+            req.write(payload);
+            req.end();
+        });
+        console.log("✅ Notification sent successfully.");
+    } catch (e) {
+        console.error("❌ Failed to send notification:", e);
+    }
+}
+
 
 const REPORT_FILE = path.join(process.cwd(), 'public', 'index.html');
 
@@ -160,6 +206,11 @@ async function runAgent() {
 
         // Always generate dashboard based on whatever state we have
         generateDashboard(state);
+        
+        // Final Notification Report
+        const reportMsg = `✅ **JobHunt Pro Agent Cycle Completed!**\n- 💼 Jobs Applied this run: ${appliedThisRun}\n- 📈 Total Jobs Applied: ${state.jobs_applied}\n- ⏰ Run Time: ${state.last_run}\n- 📧 Cold Emails Sent: (See logs)\n\nDashboard is live at: https://huggingface.co/spaces/tomas2336546/JobHunt-Pro-Dashboard`;
+        await sendNotification(reportMsg);
+
         console.log("Agent run and resource cleanup completed.");
     }
 }

@@ -1,4 +1,6 @@
 import nodemailer from 'nodemailer';
+import fs from 'fs';
+import path from 'path';
 
 export function getRandomEmailAccount(): any {
     const accountsJson = process.env.GMAIL_ACCOUNTS_JSON;
@@ -44,12 +46,24 @@ export async function sendColdEmail(toEmail: string, subject: string, htmlBody: 
             },
         });
 
+        const attachments = [];
+        const cvPath = path.join(process.cwd(), '..', 'assets', 'Sam_Salameh_CV.pdf'); // bot/../assets
+        if (fs.existsSync(cvPath)) {
+            attachments.push({
+                filename: 'Sam_Salameh_CV.pdf',
+                path: cvPath
+            });
+            console.log(`📎 Attached CV: ${cvPath}`);
+        } else {
+            console.warn(`⚠️ CV file not found at ${cvPath}. Sending email without attachment.`);
+        }
+
         const info = await transporter.sendMail({
             from: `"JobHunt Pro" <${account.email}>`,
             to: toEmail,
             subject: subject,
             html: htmlBody,
-            // You can optionally add CV attachment logic here later if needed
+            attachments: attachments
         });
 
         console.log(`✅ Email sent successfully! Message ID: ${info.messageId}`);

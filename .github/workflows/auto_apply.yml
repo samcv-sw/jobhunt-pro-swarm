@@ -54,6 +54,7 @@ jobs:
           SESSION_COOKIES: ${{ secrets.SESSION_COOKIES }}
           DATABASE_URL_SYNC: ${{ secrets.DATABASE_URL_SYNC }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NOTIFICATIONS_WEBHOOK: ${{ secrets.NOTIFICATIONS_WEBHOOK }}
           # Tell Node to route traffic through the WARP proxy
           ALL_PROXY: socks5://127.0.0.1:40000
         run: npm start
