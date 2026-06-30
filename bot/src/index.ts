@@ -69,8 +69,11 @@ function generateDashboard(state: BotState) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>JobHunt Pro - Enterprise Edition</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
         <style>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #111; color: #fff; padding: 2rem; }
+            body { font-family: 'Cairo', sans-serif; background: #111; color: #fff; padding: 2rem; }
             .card { background: #222; padding: 1.5rem; border-radius: 8px; border: 1px solid #333; }
             .stat { font-size: 2rem; font-weight: bold; color: #4ade80; }
             .badge { background: #4ade80; color: #111; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.9rem; margin-bottom: 1rem; display: inline-block; }

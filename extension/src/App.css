@@ -120,6 +120,62 @@
     font-size: 16px;
     border-radius: 6px;
     background: var(--social-bg);
+    .dashboard-container {
+      font-family: 'Cairo', sans-serif;
+      padding: 2rem;
+      background-color: #1a1a1a;
+      color: #fff;
+      border-radius: 12px;
+      width: 350px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      text-align: right;
+      direction: rtl;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #4ade80;
+      margin-block-end: 1.5rem;
+    }
+
+    .status-box {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-block-end: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .status-text {
+      color: #60a5fa;
+      font-weight: 600;
+      margin-inline-start: 0.5rem;
+    }
+
+    .ai-text {
+      color: #f472b6;
+      font-size: 0.9rem;
+      margin-inline-start: 0.5rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background: #4ade80;
+      color: #111;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+
+    button:hover {
+      background: #22c55e;
+      transform: translateY(-2px);
+    }
     display: flex;
     padding: 6px 12px;
     align-items: center;
