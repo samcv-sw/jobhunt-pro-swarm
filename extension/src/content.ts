@@ -9,31 +9,52 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
-async function startLinkedInHack() {
-    console.log("Scanning DOM for Easy Apply buttons...");
-    
-    // Attempt to find the Easy Apply button on LinkedIn
-    const applyButtons = Array.from(document.querySelectorAll('button')).filter(btn => 
-        btn.innerText.includes('Easy Apply') || 
-        btn.innerText.includes('Apply now') ||
-        btn.innerText.includes('تقديم سهل')
-    );
+// Simulated Human Jitter Algorithm
+function humanJitterDelay(min: number, max: number) {
+    const baseDelay = Math.random() * (max - min) + min;
+    // Introduce micro-stutters (Bezier curve approximation)
+    const stutter = Math.random() > 0.8 ? Math.random() * 500 : 0;
+    return new Promise(resolve => setTimeout(resolve, baseDelay + stutter));
+}
 
-    if (applyButtons.length > 0) {
-        console.log(`🎯 Found ${applyButtons.length} potential Easy Apply buttons!`);
-        const targetBtn = applyButtons[0] as HTMLElement;
-        
-        // Simulating human mouse movement delay
-        await new Promise(r => setTimeout(r, Math.random() * 2000 + 1000));
-        
-        console.log("Clicking Easy Apply...");
-        targetBtn.click();
-        
-        // Wait for the modal to appear
-        console.log("Waiting for modal to load...");
-        await new Promise(r => setTimeout(r, 2500));
-        
-        // Look for the Submit Application or Next button inside the modal
+// Swarm Core Logic
+async function startLinkedInHack() {
+    console.log("🕵️‍♂️ Swarm Ghost Protocol: Initializing DOM MutationObserver...");
+    
+    // Instead of fixed waits, we observe the DOM for changes
+    const observer = new MutationObserver(async (mutations, obs) => {
+        const applyButtons = Array.from(document.querySelectorAll('button')).filter(btn => 
+            btn.innerText.includes('Easy Apply') || 
+            btn.innerText.includes('Apply now') ||
+            btn.innerText.includes('تقديم سهل')
+        );
+
+        if (applyButtons.length > 0) {
+            obs.disconnect(); // Stop observing once we find our target
+            console.log(`🎯 Target Locked: Found ${applyButtons.length} Easy Apply buttons!`);
+            const targetBtn = applyButtons[0] as HTMLElement;
+            
+            await humanJitterDelay(1500, 3500);
+            console.log("🖱️ Executing Humanized Click...");
+            targetBtn.click();
+            
+            // Re-init observer for Modal
+            observeModal();
+        }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // Fallback trigger
+    setTimeout(() => {
+        // Trigger a fake mutation if nothing happens natively
+        document.body.setAttribute('data-swarm-ping', Date.now().toString());
+    }, 1000);
+}
+
+function observeModal() {
+    console.log("🕵️‍♂️ Waiting for LinkedIn Modal...");
+    const modalObserver = new MutationObserver(async (mutations, obs) => {
         const modalButtons = Array.from(document.querySelectorAll('button')).filter(btn => 
             btn.innerText.includes('Submit application') || 
             btn.innerText.includes('Next') ||
@@ -42,16 +63,20 @@ async function startLinkedInHack() {
         );
 
         if (modalButtons.length > 0) {
-            console.log("🎯 Modal interactive button found! Proceeding with auto-fill/submit.");
+            console.log("🎯 Modal Interactive Element Detected.");
             const actionBtn = modalButtons[0] as HTMLElement;
-            await new Promise(r => setTimeout(r, Math.random() * 1000 + 500));
+            
+            await humanJitterDelay(800, 2000);
             actionBtn.click();
-        } else {
-            console.log("⚠️ Could not find Next/Submit button in modal. Form might require complex manual input.");
+            
+            chrome.runtime.sendMessage({ action: "JOB_APPLIED", details: "Swarm successfully injected and clicked through modal." });
+            
+            // Continue observing if it was 'Next', disconnect if 'Submit'
+            if (actionBtn.innerText.includes('Submit') || actionBtn.innerText.includes('إرسال')) {
+                 obs.disconnect();
+            }
         }
+    });
 
-        chrome.runtime.sendMessage({ action: "JOB_APPLIED", details: "Clicked Easy Apply button and interacted with modal." });
-    } else {
-        console.log("⚠️ No Easy Apply buttons found on this page.");
-    }
+    modalObserver.observe(document.body, { childList: true, subtree: true });
 }

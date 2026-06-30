@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { MemoryRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 
 // Declare Puter globally
 declare const puter: any;
 
-function App() {
+function DashboardHome() {
   const [status, setStatus] = useState('في وضع الاستعداد (Sleeping)');
   const [aiTest, setAiTest] = useState('');
 
@@ -42,22 +43,6 @@ function App() {
   };
 
   return (
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
                 </svg>
                 Discord
               </a>
