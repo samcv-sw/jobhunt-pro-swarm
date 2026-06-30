@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+jinja2
+python-multipart
+orjson
+bcrypt
+requests
+httpx
+itsdangerous
+a2wsgi
