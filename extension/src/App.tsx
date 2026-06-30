@@ -87,23 +87,15 @@ function App() {
             <li>
               <a href="https://bsky.app/profile/vite.dev" target="_blank">
                 <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <div className="dashboard-container">
+      <h1>JobHunt Pro - Swarm Agent</h1>
+      <div className="status-box">
+        <p>Agent Status: <span className="status-text">{status}</span></p>
+        <p>AI Engine: <span className="ai-text">{aiTest || 'Loading Puter.js...'}</span></p>
+      </div>
+      <button onClick={startSwarmProtocol}>Start Swarm Protocol</button>
+    </div>
+  );
 }
 
-export default App
+export default App;
