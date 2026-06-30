@@ -8,11 +8,12 @@
     "build": "tsc"
   },
   "dependencies": {
-    "rebrowser-playwright": "^1.49.0",
+    "ghost-cursor": "^1.4.2",
     "groq-sdk": "^0.9.0",
     "html-to-text": "^9.0.5",
     "nodemailer": "^6.9.16",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "rebrowser-playwright": "^1.49.0"
   },
   "devDependencies": {
     "@types/html-to-text": "^9.0.4",

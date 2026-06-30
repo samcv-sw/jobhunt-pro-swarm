@@ -1,4 +1,5 @@
 import { chromium, BrowserContext, Page } from 'rebrowser-playwright';
+import { createCursor } from 'ghost-cursor';
 import Groq from 'groq-sdk';
 import { htmlToText } from 'html-to-text';
 import nodemailer from 'nodemailer';
@@ -24,9 +25,17 @@ async function getDbConnection(): Promise<Client | null> {
             CREATE TABLE IF NOT EXISTS auto_apply_state (
                 id SERIAL PRIMARY KEY,
                 jobs_applied INTEGER DEFAULT 0,
-                last_run TIMESTAMP
+                last_run TIMESTAMP,
+                session_cookies JSON
             )
         `);
+        
+        // Add session_cookies column if it doesn't exist (for existing tables)
+        try {
+            await client.query(`ALTER TABLE auto_apply_state ADD COLUMN session_cookies JSON`);
+        } catch (e) {
+            // Column likely already exists
+        }
         
         const countRes = await client.query('SELECT COUNT(*) FROM auto_apply_state');
         if (parseInt(countRes.rows[0].count) === 0) {
@@ -40,29 +49,37 @@ async function getDbConnection(): Promise<Client | null> {
     }
 }
 
-async function loadState(client: Client | null): Promise<{ jobs_applied: number, last_run: string | null }> {
-    if (!client) return { jobs_applied: 0, last_run: null };
+async function loadState(client: Client | null): Promise<{ jobs_applied: number, last_run: string | null, session_cookies: any | null }> {
+    if (!client) return { jobs_applied: 0, last_run: null, session_cookies: null };
     try {
-        const res = await client.query('SELECT jobs_applied, last_run FROM auto_apply_state ORDER BY id DESC LIMIT 1');
+        const res = await client.query('SELECT jobs_applied, last_run, session_cookies FROM auto_apply_state ORDER BY id DESC LIMIT 1');
         if (res.rows.length > 0) {
             return {
                 jobs_applied: res.rows[0].jobs_applied,
-                last_run: res.rows[0].last_run ? res.rows[0].last_run.toString() : null
+                last_run: res.rows[0].last_run ? res.rows[0].last_run.toString() : null,
+                session_cookies: res.rows[0].session_cookies
             };
         }
     } catch (e) {
         console.error(e);
     }
-    return { jobs_applied: 0, last_run: null };
+    return { jobs_applied: 0, last_run: null, session_cookies: null };
 }
 
-async function saveState(client: Client | null, appliedThisRun: number) {
+async function saveState(client: Client | null, appliedThisRun: number, updatedCookies: any | null = null) {
     if (!client) return;
     try {
-        await client.query(
-            'UPDATE auto_apply_state SET jobs_applied = jobs_applied + $1, last_run = NOW()',
-            [appliedThisRun]
-        );
+        if (updatedCookies) {
+            await client.query(
+                'UPDATE auto_apply_state SET jobs_applied = jobs_applied + $1, last_run = NOW(), session_cookies = $2',
+                [appliedThisRun, JSON.stringify(updatedCookies)]
+            );
+        } else {
+            await client.query(
+                'UPDATE auto_apply_state SET jobs_applied = jobs_applied + $1, last_run = NOW()',
+                [appliedThisRun]
+            );
+        }
     } catch (e) {
         console.error(e);
     }
@@ -166,17 +183,26 @@ async function runAgent() {
     const dbClient = await getDbConnection();
     const state = await loadState(dbClient);
 
-    const cookiesJson = process.env.SESSION_COOKIES;
     let cookies = [];
-    if (cookiesJson) {
-        try {
-            cookies = JSON.parse(cookiesJson);
-            console.log("Session cookies loaded successfully.");
-        } catch (e) {
-            console.log("Failed to parse SESSION_COOKIES:", e);
+    
+    // 1. Try to load cookies from Database (Dynamic Refresh)
+    if (state.session_cookies) {
+        cookies = state.session_cookies;
+        console.log("Session cookies loaded dynamically from Database!");
+    } 
+    // 2. Fallback to GitHub Secrets if DB is empty (First Run)
+    else {
+        const cookiesJson = process.env.SESSION_COOKIES;
+        if (cookiesJson) {
+            try {
+                cookies = JSON.parse(cookiesJson);
+                console.log("Session cookies loaded from GitHub Secrets (Fallback).");
+            } catch (e) {
+                console.log("Failed to parse SESSION_COOKIES from secrets:", e);
+            }
+        } else {
+            console.log("WARNING: No SESSION_COOKIES found in DB or Secrets. The bot may face CAPTCHA or Login blocks.");
         }
-    } else {
-        console.log("WARNING: No SESSION_COOKIES found. The bot may face CAPTCHA or Login blocks.");
     }
 
     console.log("Launching rebrowser-playwright (WARP Proxy + Ultimate Stealth)...");
@@ -192,10 +218,15 @@ async function runAgent() {
     }
 
     const page = await context.newPage();
+    
+    // Inject Ghost Cursor (Human-like movements)
+    const cursor = createCursor(page);
+    
     const jobBoardUrl = "https://www.linkedin.com/jobs";
     console.log(`Navigating to ${jobBoardUrl}...`);
 
     let appliedThisRun = 0;
+    let newCookies = null;
 
     try {
         await page.goto("https://cloudflare.com/cdn-cgi/trace");
@@ -205,7 +236,10 @@ async function runAgent() {
 
         await page.goto(jobBoardUrl, { timeout: 60000 });
         await page.waitForSelector("body", { timeout: 15000 });
-
+        
+        // Example of ghost-cursor usage instead of page.click()
+        // await cursor.click('button.some-apply-button');
+        
         const htmlContent = await page.content();
         const mdContent = htmlToText(htmlContent, { wordwrap: 130 });
 
@@ -220,13 +254,17 @@ async function runAgent() {
         if (emailAccount) {
             console.log(`Selected SMTP Account for outreach: ${emailAccount.email}`);
         }
+        
+        // Refresh cookies before closing (Dynamic Session Extension)
+        newCookies = await context.cookies();
+        
     } catch (e: any) {
         console.error(`Error during browser automation: ${e.message}`);
     } finally {
         await browser.close();
     }
 
-    await saveState(dbClient, appliedThisRun);
+    await saveState(dbClient, appliedThisRun, newCookies);
     state.jobs_applied += appliedThisRun;
     state.last_run = new Date().toLocaleString();
 
