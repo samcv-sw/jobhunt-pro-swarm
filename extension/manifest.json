@@ -1,4 +1,4 @@
-﻿{
+{
   "manifest_version": 3,
   "name": "JobHunt Pro Swarm Agent",
   "version": "2.0.0",
@@ -18,12 +18,25 @@
       "run_at": "document_end"
     }
   ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "block_spectroscopy",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
   "permissions": [
     "storage",
     "activeTab",
     "scripting",
     "tabs",
-    "alarms"
+    "alarms",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess",
+    "debugger",
+    "privacy"
   ],
   "host_permissions": [
     "*://*.linkedin.com/*",

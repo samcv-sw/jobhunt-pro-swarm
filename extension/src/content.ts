@@ -17,6 +17,17 @@ function humanJitterDelay(min: number, max: number) {
     return new Promise(resolve => setTimeout(resolve, baseDelay + stutter));
 }
 
+// Trigger Native OS Click via Background Debugger API
+function triggerNativeClick(element: HTMLElement) {
+    const rect = element.getBoundingClientRect();
+    // Calculate precise center + slight random offset
+    const x = Math.round(rect.left + (rect.width / 2) + (Math.random() * 10 - 5));
+    const y = Math.round(rect.top + (rect.height / 2) + (Math.random() * 10 - 5));
+    
+    console.log(`📡 Requesting OS-Level Click at [${x}, ${y}]...`);
+    chrome.runtime.sendMessage({ action: "TRIGGER_OS_CLICK", x, y });
+}
+
 // Swarm Core Logic
 async function startLinkedInHack() {
     console.log("🕵️‍♂️ Swarm Ghost Protocol: Initializing DOM MutationObserver...");
@@ -35,8 +46,8 @@ async function startLinkedInHack() {
             const targetBtn = applyButtons[0] as HTMLElement;
             
             await humanJitterDelay(1500, 3500);
-            console.log("🖱️ Executing Humanized Click...");
-            targetBtn.click();
+            console.log("🖱️ Executing OS-Level Trusted Click...");
+            triggerNativeClick(targetBtn);
             
             // Re-init observer for Modal
             observeModal();
@@ -67,7 +78,7 @@ function observeModal() {
             const actionBtn = modalButtons[0] as HTMLElement;
             
             await humanJitterDelay(800, 2000);
-            actionBtn.click();
+            triggerNativeClick(actionBtn);
             
             chrome.runtime.sendMessage({ action: "JOB_APPLIED", details: "Swarm successfully injected and clicked through modal." });
             
