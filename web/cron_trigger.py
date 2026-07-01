@@ -13,6 +13,8 @@ import sys
 import os
 import asyncio
 import logging
+import urllib.request
+import urllib.error
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -131,6 +133,19 @@ def main():
         run_daily_backup()
     else:
         logger.info("📦 Backup already done today or skipped")
+
+    # ── Wake up WSGI web server ─────────────────────────────
+    # Ping the local or remote web server to keep it alive
+    try:
+        url = "https://jhfguf.pythonanywhere.com/ping"
+        req = urllib.request.Request(url, headers={'User-Agent': 'JobHuntPro-Cron/1.0'})
+        with urllib.request.urlopen(req, timeout=10) as response:
+            if response.status == 200:
+                logger.info(f"🌐 Self-ping successful: {url} (Keeps WSGI alive)")
+            else:
+                logger.warning(f"🌐 Self-ping returned status: {response.status}")
+    except Exception as e:
+        logger.warning(f"🌐 Self-ping failed: {e}")
 
     # ── Job cycle ──────────────────────────────────────────
     try:

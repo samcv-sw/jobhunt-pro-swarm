@@ -110,3 +110,15 @@ Then access the endpoint as:
 ```
 https://jhfguf.pythonanywhere.com/cron/run-cycle?key=your-random-secret-here
 ```
+
+## 24/7 Uptime (Keep-Alive Strategy)
+
+PythonAnywhere WSGI workers go to sleep after a period of inactivity. To ensure your app is 100% responsive 24/7 and never suffers from "cold starts":
+
+1. **Integrated Cron Ping:** The `cron_trigger.py` script automatically pings the server (`/ping`) every time it runs, which helps keep the WSGI process warm.
+2. **Dedicated Keep-Alive Script:** If you upgrade your PythonAnywhere account and have access to "Always-on tasks", you can run:
+   ```bash
+   python /home/jhfguf/jobhunt/scripts/cloud_keepalive.py
+   ```
+   This script pings the app every 4 minutes, guaranteeing zero downtime.
+3. **External Pingers:** Alternatively, use a free service like [cron-job.org](https://cron-job.org) or [UptimeRobot](https://uptimerobot.com) to ping `https://jhfguf.pythonanywhere.com/ping` every 5 minutes.

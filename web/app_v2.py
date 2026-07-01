@@ -39,7 +39,7 @@ import threading
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-from fastapi import FastAPI, HTTPException, Request, Form, UploadFile, File, Query
+from fastapi import FastAPI, HTTPException, Request, Form, UploadFile, File, Query, BackgroundTasks
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse, Response
 from fastapi.responses import ORJSONResponse as JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -6248,7 +6248,24 @@ def email_test_page(request: Request, success: str = "", error: str = "", to_ema
 
 
 @app.post("/email-test")
-def email_test_send(request: Request, to_email: str = Form(...), company_name: str = Form("Test Company"), job_title: str = Form("Senior Network Engineer"), cv_text: str = Form(""), cover_letter: str = Form(""), email_body: str = Form("")):
+def _bg_send_test_email(to_email: str, company_name: str, job_title: str, html: str, sender_name: str, subject: str, user_id: str):
+    from core.email_engine import send_email_via_brevo_http, send_email_via_gmail_smtp
+    ok = send_email_via_brevo_http(to_email=to_email, company_name=company_name, job_title=job_title, custom_body=html, sender_name=sender_name, subject=subject)
+    if not ok:
+        res = send_email_via_gmail_smtp(to_email=to_email, company_name=company_name, job_title=job_title, custom_body=html, sender_name=sender_name, subject=subject)
+        ok = res[0] if isinstance(res, tuple) else res
+    conn = get_db()
+    try:
+        conn.execute("CREATE TABLE IF NOT EXISTS email_tests (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, to_email TEXT, company_name TEXT, job_title TEXT, status TEXT, sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+        conn.execute("INSERT INTO email_tests (user_id, to_email, company_name, job_title, status) VALUES (?, ?, ?, ?, ?)", (user_id, to_email, company_name, job_title, "sent" if ok else "failed"))
+        conn.commit()
+    except Exception as e:
+        logger.error(f"[EMAIL-TEST] DB log error: {e}")
+    finally:
+        conn.close()
+
+@app.post("/email-test")
+def email_test_send(request: Request, background_tasks: BackgroundTasks, to_email: str = Form(...), company_name: str = Form("Test Company"), job_title: str = Form("Senior Network Engineer"), cv_text: str = Form(""), cover_letter: str = Form(""), email_body: str = Form("")):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -6258,18 +6275,15 @@ def email_test_send(request: Request, to_email: str = Form(...), company_name: s
     conn.close()
     sender_name = user_row["name"] if user_row and user_row["name"] else "Sam Salameh"
     sender_email_user = user_row["email"] if user_row and user_row["email"] else "samsalameh.cv@gmail.com"
-    # Use form-submitted values FIRST, then fall back to database profile
     cover = cover_letter or (profile["cover_letter_template"] or "" if profile else "")
     email_content = email_body or (profile["email_template"] or "" if profile else "")
     cv_summary = cv_text[:800] if cv_text else (profile["cv_text"][:800] if profile and profile["cv_text"] else "")
     skills = (profile["skills"] or "") if profile else ""
     home_country = (profile["home_country"] or "Lebanon") if profile else "Lebanon"
 
-    # If email_body form field has content, use it directly (already HTML)
     if email_content:
         html = email_content
     else:
-        # Build email from template
         html_parts = [f'<html><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333;">']
         html_parts.append(f'<h2 style="color:#1a56db;">Application: {job_title} at {company_name}</h2>')
         html_parts.append('<p style="color:#555;font-size:14px;">Dear Hiring Team,</p>')
@@ -6286,27 +6300,14 @@ def email_test_send(request: Request, to_email: str = Form(...), company_name: s
         html_parts.append(f'<p style="font-size:14px;">Best regards,<br><strong>{sender_name}</strong><br>{sender_email_user}<br>{home_country}</p>')
         html_parts.append('<p style="font-size:11px;color:#999;margin-top:30px;">Sent via <strong>JobHunt Pro</strong> - Automated Job Application Platform</p>')
         html_parts.append('</body></html>')
-        html = '\n'.join(html_parts)
+        html = '\\n'.join(html_parts)
     subject = f"Application for {job_title} - {company_name}"
-    from core.email_engine import send_email_via_brevo_http, send_email_via_gmail_smtp
-    from core.campaign_runner import run_campaign
-    ok = send_email_via_brevo_http(to_email=to_email, company_name=company_name, job_title=job_title, custom_body=html, sender_name=sender_name, subject=subject)
-    if not ok:
-        res = send_email_via_gmail_smtp(to_email=to_email, company_name=company_name, job_title=job_title, custom_body=html, sender_name=sender_name, subject=subject)
-        ok = res[0] if isinstance(res, tuple) else res
-    conn = get_db()
-    try:
-        conn.execute("CREATE TABLE IF NOT EXISTS email_tests (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, to_email TEXT, company_name TEXT, job_title TEXT, status TEXT, sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-        conn.execute("INSERT INTO email_tests (user_id, to_email, company_name, job_title, status) VALUES (?, ?, ?, ?, ?)", (user_id, to_email, company_name, job_title, "sent" if ok else "failed"))
-        conn.commit()
-    except Exception as e:
-        logger.error(f"[EMAIL-TEST] DB log error: {e}")
-    conn.close()
-    if ok:
-        from urllib.parse import quote
-        return RedirectResponse(f"/email-test?success=Email+sent+to+{quote(to_email)}!+Check+your+inbox.&to_email={quote(to_email)}&company_name={quote(company_name)}&job_title={quote(job_title)}", status_code=303)
-    else:
-        return RedirectResponse("/email-test?error=Failed+to+send+email.+Check+Brevo+API+key+or+try+again.", status_code=303)
+    
+    # Delegate sending email to background task to prevent 504 Timeout
+    background_tasks.add_task(_bg_send_test_email, to_email, company_name, job_title, html, sender_name, subject, user_id)
+    
+    from urllib.parse import quote
+    return RedirectResponse(f"/email-test?success=Email+queued+for+delivery+to+{quote(to_email)}!+Check+your+inbox+shortly.&to_email={quote(to_email)}&company_name={quote(company_name)}&job_title={quote(job_title)}", status_code=303)
 
 @app.post("/email-test/parse-cv")
 async def email_test_parse_cv(request: Request, cv_file: UploadFile = File(...)):
@@ -8986,6 +8987,7 @@ def api_flash_sales():
 @app.post("/admin/send-manual-email")
 def admin_send_manual_email(
     request: Request,
+    background_tasks: BackgroundTasks,
     to_email: str = Form(...),
     subject: str = Form(...),
     body: str = Form(...),
@@ -9001,48 +9003,59 @@ def admin_send_manual_email(
     admin_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (admin_id,)).fetchone()
     admin_email = admin_row["email"] if admin_row else "admin"
 
-    # Try Gmail SMTP first, fall back to Brevo REST API
-    sent_ok = _send_via_gmail_smtp(
-        to_email=to_email,
-        subject=subject,
-        html_body=body,
-        sender_name="Admin",
-    )
-    if not sent_ok:
-        sent_ok = send_email_via_brevo_http(
-            to_email=to_email,
-            company_name="Manual Send",
-            custom_body=body,
-            sender_name="Admin",
-            subject=subject,
-        )
-
-    status = "sent" if sent_ok else "failed"
-    conn.execute(
+    # Insert as pending
+    cursor = conn.cursor()
+    cursor.execute(
         "INSERT INTO manual_emails (user_id, to_email, subject, body, price_usd, admin_email, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (admin_id, to_email, subject, body, 0.0, admin_email, status)  # Admin sends free
+        (admin_id, to_email, subject, body, 0.0, admin_email, "pending")  # Admin sends free
     )
+    email_id = cursor.lastrowid
     conn.commit()
     conn.close()
 
-    if sent_ok:
-        return RedirectResponse(
-            f"/admin?success=Email+sent+to+{to_email}+(subject: {subject[:30]})+&#x2014;+$0.00+(admin+free)",
-            status_code=303,
-        )
-    else:
-        return RedirectResponse(
-            f"/admin?error=Failed+to+send+email+to+{to_email}+&#x2014;+check+Gmail+SMTP+config",
-            status_code=303,
-        )
+    # Dispatch background task
+    background_tasks.add_task(_bg_send_manual_email, to_email, subject, body, "Admin", admin_id, email_id)
+
+    return RedirectResponse(
+        f"/admin?success=Email+queued+for+delivery+to+{to_email}+(subject: {subject[:30]})+&#x2014;+$0.00+(admin+free)",
+        status_code=303,
+    )
 
 
 MANUAL_EMAIL_PRICE = 0.10  # $0.10 per manual email for users
 
 
+def _bg_send_manual_email(to_email: str, subject: str, body: str, sender_name: str, user_id: str, email_id: int):
+    sent_ok = _send_via_gmail_smtp(
+        to_email=to_email,
+        subject=subject,
+        html_body=body,
+        sender_name=sender_name,
+    )
+    if not sent_ok:
+        from core.email_engine import send_email_via_brevo_http
+        sent_ok = send_email_via_brevo_http(
+            to_email=to_email,
+            company_name="Manual Send",
+            custom_body=body,
+            sender_name=sender_name,
+            subject=subject,
+        )
+
+    status = "sent" if sent_ok else "failed"
+    conn = get_db()
+    try:
+        conn.execute("UPDATE manual_emails SET status = ? WHERE id = ?", (status, email_id))
+        conn.commit()
+    except Exception as e:
+        logger.error(f"[BG-MANUAL-EMAIL] DB update error: {e}")
+    finally:
+        conn.close()
+
 @app.post("/send-manual-email")
 def send_manual_email(
     request: Request,
+    background_tasks: BackgroundTasks,
     to_email: str = Form(...),
     subject: str = Form(...),
     body: str = Form(...),
@@ -9066,48 +9079,30 @@ def send_manual_email(
             status_code=303,
         )
 
-    # Try Gmail SMTP first, fall back to Brevo REST API
-    sent_ok = _send_via_gmail_smtp(
-        to_email=to_email,
-        subject=subject,
-        html_body=body,
-        sender_name=user_row["email"] or "User",
-    )
-    if not sent_ok:
-        sent_ok = send_email_via_brevo_http(
-            to_email=to_email,
-            company_name="Manual Send",
-            custom_body=body,
-            sender_name=user_row["email"] or "User",
-            subject=subject,
-        )
-
-    # Deduct from wallet
+    # Deduct from wallet immediately
     new_balance = balance - MANUAL_EMAIL_PRICE
     conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
     conn.execute(
         "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)",
-        (user_id, "manual_email", -MANUAL_EMAIL_PRICE, new_balance, f"Manual email to {to_email}: {subject[:40]}")
+        (user_id, "manual_email", -MANUAL_EMAIL_PRICE, new_balance, f"Manual email queued for {to_email}: {subject[:40]}")
     )
 
-    status = "sent" if sent_ok else "failed"
-    conn.execute(
+    # Insert as pending
+    cursor = conn.cursor()
+    cursor.execute(
         "INSERT INTO manual_emails (user_id, to_email, subject, body, price_usd, status) VALUES (?, ?, ?, ?, ?, ?)",
-        (user_id, to_email, subject, body, MANUAL_EMAIL_PRICE, status)
+        (user_id, to_email, subject, body, MANUAL_EMAIL_PRICE, "pending")
     )
+    email_id = cursor.lastrowid
     conn.commit()
     conn.close()
 
-    if sent_ok:
-        return RedirectResponse(
-            f"/user-dashboard?success=Email+sent+to+{to_email}+&#x2014;+${MANUAL_EMAIL_PRICE:.2f}+deducted",
-            status_code=303,
-        )
-    else:
-        return RedirectResponse(
-            f"/user-dashboard?error=Failed+to+send+email+to+{to_email}+&#x2014;+check+Gmail+SMTP+config+&#x2014;+${MANUAL_EMAIL_PRICE:.2f}+not+deducted",
-            status_code=303,
-        )
+    # Dispatch background task
+    sender_name = user_row["email"] or "User"
+    background_tasks.add_task(_bg_send_manual_email, to_email, subject, body, sender_name, user_id, email_id)
+    
+    return RedirectResponse(f"/user-dashboard?success=Email+queued+for+delivery+to+{to_email}.+Balance+deducted.", status_code=303)
+
 
 
 @app.get("/admin/user/{target_user_id}", response_class=HTMLResponse)

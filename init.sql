@@ -316,3 +316,41 @@ CREATE TABLE IF NOT EXISTS manual_emails (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
 );
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- APEX MATRIX: GDPR SOVEREIGN COMPLIANCE — SUPPRESSION LIST
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Stores all opt-out / unsubscribe requests permanently.
+-- Must be checked before EVERY outbound email to satisfy CNIL/GDPR Article 21
+-- (Right to Object) and avoid fines of up to 4% global annual turnover.
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS suppression_list (
+    id             SERIAL PRIMARY KEY,
+    email          VARCHAR(255) UNIQUE NOT NULL,   -- normalized lowercase
+    reason         VARCHAR(100) DEFAULT 'user_request',  -- user_request | bounce | complaint | admin
+    suppressed_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active      BOOLEAN DEFAULT TRUE,           -- FALSE = re-opted-in (rare)
+    source         VARCHAR(50) DEFAULT 'web_ui',   -- web_ui | email_link | api | telegram
+    user_id        VARCHAR(64)                     -- link to user if known
+);
+
+CREATE INDEX IF NOT EXISTS idx_suppression_email    ON suppression_list(email);
+CREATE INDEX IF NOT EXISTS idx_suppression_active   ON suppression_list(is_active);
+CREATE INDEX IF NOT EXISTS idx_suppression_date     ON suppression_list(suppressed_at DESC);
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- APEX MATRIX: JOB QUEUE RETRY MECHANICS
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Adds retry_count, max_retries, and next_retry_at columns to job_queue.
+-- Enables exponential backoff at the queue level: failed tasks are
+-- automatically rescheduled with increasing delays rather than silently dying.
+-- ═══════════════════════════════════════════════════════════════════════════
+ALTER TABLE job_queue ADD COLUMN IF NOT EXISTS retry_count   INTEGER DEFAULT 0;
+ALTER TABLE job_queue ADD COLUMN IF NOT EXISTS max_retries   INTEGER DEFAULT 3;
+ALTER TABLE job_queue ADD COLUMN IF NOT EXISTS next_retry_at TIMESTAMP;
+ALTER TABLE job_queue ADD COLUMN IF NOT EXISTS priority      INTEGER DEFAULT 5; -- 1=highest, 10=lowest
+
+CREATE INDEX IF NOT EXISTS idx_job_queue_retry ON job_queue(next_retry_at ASC)
+    WHERE status = 'pending' OR status = 'failed';
+CREATE INDEX IF NOT EXISTS idx_job_queue_priority ON job_queue(priority ASC, created_at ASC)
+    WHERE status = 'pending';
