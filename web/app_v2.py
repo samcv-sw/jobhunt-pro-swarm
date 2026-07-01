@@ -8508,49 +8508,6 @@ def admin_panel(request: Request):
     if not require_admin(request):
         return RedirectResponse("/login", status_code=303)
 
-@app.get("/api/debug/move-templates")
-def move_templates():
-    import shutil
-    import os
-    src_dir = "web/templates/ar"
-    dest_dir = "web/templates"
-    if not os.path.exists(src_dir):
-        return {"status": "error", "message": "Source dir ar/ does not exist or already moved"}
-    files = os.listdir(src_dir)
-    moved = []
-    for f in files:
-        src = os.path.join(src_dir, f)
-        dest = os.path.join(dest_dir, f)
-        try:
-            if os.path.exists(dest):
-                if os.path.isdir(dest):
-                    continue
-                os.remove(dest)
-            shutil.move(src, dest)
-            moved.append(f)
-        except Exception as e:
-            moved.append(f"Failed {f}: {e}")
-    return {"status": "done", "moved": moved}
-
-@app.get("/api/debug/fix-db-schema")
-def fix_db_schema():
-    conn = get_db()
-    columns_to_add = [
-        ("next_retry_at", "TEXT"),
-        ("priority", "INTEGER DEFAULT 5"),
-        ("max_retries", "INTEGER DEFAULT 3"),
-        ("retry_count", "INTEGER DEFAULT 0")
-    ]
-    results = []
-    for col_name, col_type in columns_to_add:
-        try:
-            conn.execute(f"ALTER TABLE job_queue ADD COLUMN {col_name} {col_type}")
-            conn.commit()
-            results.append(f"Added {col_name}")
-        except Exception as e:
-            results.append(f"Error {col_name}: {e}")
-    return {"status": "done", "results": results}
-
     conn = get_db()
 
     # Stats
