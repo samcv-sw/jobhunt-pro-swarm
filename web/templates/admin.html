@@ -5,7 +5,7 @@
   <link rel="stylesheet" href="/static/css/cyberpunk.css">
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Admin Panel — JobHunt Pro</title>
+ <title>لوحة الإدارة — JobHunt Pro</title>
  <style>
  * { margin:0; padding:0; box-sizing:border-box; }
  body { font-family:'Segoe UI',sans-serif; background:#0a0a0f; color:#e2e8f0; min-height:100vh; }
@@ -52,7 +52,7 @@
  a.link { color:#3b82f6; text-decoration:none; }
  a.link:hover { text-decoration:underline; }
  .mono { font-family:monospace; font-size:12px; }
- .copy-btn { margin-left:6px; padding:2px var(--space-1); background:rgba(139,92,246,.2); border:none; border-radius:4px; color:#a78bfa; cursor:pointer; font-size:11px; }
+ .copy-btn { margin-inline-start:6px; padding:2px var(--space-1); background:rgba(139,92,246,.2); border:none; border-radius:4px; color:#a78bfa; cursor:pointer; font-size:11px; }
  .copy-btn:hover { background:rgba(139,92,246,.4); }
  .c-btc { color:#f7931a; } .c-eth { color:#627eea; } .c-usdt { color:#26a17b; } .c-ltc { color:#345d9d; }
  </style>
@@ -60,9 +60,9 @@
 <body class="cyberpunk-body">
 
 <div class="topbar">
- <h1> Admin Panel</h1>
- <span>JobHunt Pro — Full Control</span>
- <a href="/user-dashboard">&#x2190; My Dashboard</a>
+ <h1> لوحة الإدارة</h1>
+ <span>جوب هانت برو — تحكم كامل</span>
+ <a href="/user-dashboard">&#x2190; لوحة التحكم</a>
 </div>
 
 <div class="container">
@@ -76,14 +76,14 @@
 
  <!-- Stats -->
  <div class="stats">
- <div class="stat"><div class="val blue">{{ stats.total_users }}</div><div class="lbl">Users</div></div>
- <div class="stat"><div class="val green">{{ stats.total_campaigns }}</div><div class="lbl">Campaigns</div></div>
- <div class="stat"><div class="val purple">{{ stats.total_emails }}</div><div class="lbl">Emails</div></div>
- <div class="stat"><div class="val cyan">{{ stats.emails_sent }}</div><div class="lbl">Sent</div></div>
- <div class="stat"><div class="val orange">${{ stats.total_revenue }}</div><div class="lbl">Revenue</div></div>
- <div class="stat"><div class="val pink">${{ stats.total_wallets }}</div><div class="lbl">Wallets</div></div>
- <div class="stat"><div class="val" style="color:#fbbf24;">{{ payment_stats.total_payments }}</div><div class="lbl">Crypto Payments</div></div>
- <div class="stat"><div class="val" style="color:#fbbf24;">${{ "%.2f"|format(payment_stats.total_received_usd) }}</div><div class="lbl">Crypto Received</div></div>
+ <div class="stat"><div class="val blue">{{ stats.total_users }}</div><div class="lbl">المستخدمين</div></div>
+ <div class="stat"><div class="val green">{{ stats.total_campaigns }}</div><div class="lbl">الحملات</div></div>
+ <div class="stat"><div class="val purple">{{ stats.total_emails }}</div><div class="lbl">الرسائل</div></div>
+ <div class="stat"><div class="val cyan">{{ stats.emails_sent }}</div><div class="lbl">المرسلة</div></div>
+ <div class="stat"><div class="val orange">${{ stats.total_revenue }}</div><div class="lbl">الأرباح</div></div>
+ <div class="stat"><div class="val pink">${{ stats.total_wallets }}</div><div class="lbl">المحافظ</div></div>
+ <div class="stat"><div class="val" style="color:#fbbf24;">{{ payment_stats.total_payments }}</div><div class="lbl">مدفوعات الكريبتو</div></div>
+ <div class="stat"><div class="val" style="color:#fbbf24;">${{ "%.2f"|format(payment_stats.total_received_usd) }}</div><div class="lbl">الكريبتو المستلم</div></div>
  <div class="stat"><div class="val" style="color:#34d399;">{{ stats.manual_emails }}</div><div class="lbl">Manual Emails</div></div>
  <div class="stat"><div class="val" style="color:#34d399;">${{ "%.2f"|format(stats.manual_email_revenue) }}</div><div class="lbl">Manual Revenue</div></div>
  </div>
@@ -103,37 +103,37 @@
 
  <!-- Actions -->
  <div class="section">
- <div class="section-title">&#x1F6E0;&#xFE0F; Admin Actions</div>
+ <div class="section-title">&#x1F6E0;&#xFE0F; إجراءات الإدارة</div>
  <div class="actions">
 
  <div class="action-card">
- <h3> Add Credits to User</h3>
- <p>Manually credit any user's wallet</p>
+ <h3> إضافة رصيد للمستخدم</h3>
+ <p>إضافة رصيد يدوياً لأي مستخدم</p>
  <form method="POST" action="/admin/add-credits">
  <div class="form-row">
  <input dir="auto" type="email" name="target_email" placeholder="user@email.com" required>
  </div>
  <div class="form-row">
- <input dir="auto" type="number" name="amount" placeholder="Amount $" step="0.01" min="0.01" required>
+ <input dir="auto" type="number" name="amount" placeholder="المبلغ $" step="0.01" min="0.01" required>
  <input dir="auto" type="text" name="note" value="Admin credit">
  </div>
- <button type="submit" class="btn btn-green">Add Credits</button>
+ <button type="submit" class="btn btn-green">إضافة رصيد</button>
  </form>
  </div>
 
  <div class="action-card">
- <h3>&#x1F39F;&#xFE0F; Generate Redeem Codes</h3>
- <p>Codes appear in the table below — click to copy and share with users</p>
+ <h3>&#x1F39F;&#xFE0F; إنشاء أكواد شحن</h3>
+ <p>تظهر الأكواد في الجدول أدناه — click to copy and share with users</p>
  <form method="POST" action="/admin/generate-code">
  <div class="form-row">
- <input dir="auto" type="number" name="value" placeholder="Value $" step="0.01" min="0.01" required>
+ <input dir="auto" type="number" name="value" placeholder="القيمة $" step="0.01" min="0.01" required>
  <input dir="auto" type="number" name="count" placeholder="Count" min="1" max="50" value="1">
  <select name="code_type" style="padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;">
  <option value="sale"> Sale (counts as revenue)</option>
  <option value="admin_free">🆓 Admin Free (no revenue)</option>
  </select>
  </div>
- <button type="submit" class="btn btn-purple">Generate Codes</button>
+ <button type="submit" class="btn btn-purple">إنشاء أكواد</button>
  </form>
  </div>
 
@@ -142,7 +142,7 @@
  <p>Add free credits to your own wallet (not counted in revenue)</p>
  <form method="POST" action="/admin/generate-code">
  <div class="form-row">
- <input dir="auto" type="number" name="value" placeholder="Value $" step="0.01" min="0.01" value="100" required>
+ <input dir="auto" type="number" name="value" placeholder="القيمة $" step="0.01" min="0.01" value="100" required>
  <input dir="auto" type="hidden" name="count" value="1">
  <input dir="auto" type="hidden" name="code_type" value="admin_free">
  </div>
@@ -325,7 +325,7 @@
  <div class="table-wrap">
  <table class="cyber-table">
  <thead>
- <tr><th>ID</th><th>User</th><th>Status</th><th>Companies</th><th>Sent</th><th>Date</th></tr>
+ <tr><th>ID</th><th>User</th><th>Status</th><th>Companies</th><th>المرسلة</th><th>Date</th></tr>
  </thead>
  <tbody>
  {% for c in campaigns %}
@@ -367,7 +367,7 @@
  <td class="green">${{ "%.2f"|format(m.price_usd) }}</td>
  <td>
  {% if m.status=='sent' %}
- <span class="badge badge-green">Sent</span>
+ <span class="badge badge-green">المرسلة</span>
  {% else %}
  <span class="badge badge-red">Failed</span>
  {% endif %}
@@ -381,10 +381,10 @@
  </div>
  {% endif %}
 
- <!-- Recent Crypto Payments -->
+ <!-- Recent مدفوعات الكريبتو -->
  {% if payment_stats.recent %}
  <div class="section">
- <div class="section-title">₿ Recent Crypto Payments</div>
+ <div class="section-title">₿ Recent مدفوعات الكريبتو</div>
  <div class="table-wrap">
  <table class="cyber-table">
  <thead>

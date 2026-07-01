@@ -5,39 +5,43 @@
   <link rel="stylesheet" href="/static/css/cyberpunk.css">
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>JobHunt Pro — Land Your Dream Job. Automatically.</title>
- <meta name="description" content="The most advanced job hunting platform. Apply to thousands of jobs, track every application, and get hired faster. Trusted by thousands of job seekers worldwide.">
+ <title>جوب هانت برو — لاقي وظيفة أحلامك. تلقائياً.</title>
+ <meta name="description" content="أكثر منصة متطورة للتدوير ع شغل. قدم ع آلاف الوظائف، تابع كل طلب، وتوظف أسرع. موثوقة من آلاف الباحثين عن عمل بكل العالم.">
 
  <!-- Open Graph / Social -->
- <meta property="og:title" content="JobHunt Pro — Land Your Dream Job. Automatically.">
- <meta property="og:description" content="Apply to thousands of jobs, track every application, and get hired faster. The smartest way to job hunt.">
+ <meta property="og:title" content="جوب هانت برو — لاقي وظيفة أحلامك. تلقائياً.">
+ <meta property="og:description" content="قدم ع آلاف الوظائف، تابع كل طلب، وتوظف أسرع. أذكى طريقة لتلاقي شغل.">
  <meta property="og:type" content="website">
  <meta property="og:url" content="https://jhfguf.pythonanywhere.com">
  <meta property="og:image" content="https://jhfguf.pythonanywhere.com/static/og-image.png">
  <meta property="og:image:width" content="1200">
  <meta property="og:image:height" content="630">
- <meta property="og:site_name" content="JobHunt Pro">
+ <meta property="og:site_name" content="JobHunt برو">
 
  <!-- Twitter Card -->
  <meta name="twitter:card" content="summary_large_image">
- <meta name="twitter:title" content="JobHunt Pro — Land Your Dream Job. Automatically.">
- <meta name="twitter:description" content="Apply to thousands of jobs, track every application, and get hired faster.">
+ <meta name="twitter:title" content="جوب هانت برو — لاقي وظيفة أحلامك. تلقائياً.">
+ <meta name="twitter:description" content="قدم ع آلاف الوظائف، تابع كل طلب، وتوظف أسرع.">
  <meta name="twitter:image" content="https://jhfguf.pythonanywhere.com/static/og-image.png">
 
  <!-- Fonts -->
+ <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=IBM+Plex+Arabic:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
  <link rel="preconnect" href="https://fonts.googleapis.com">
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=IBM+Plex+Arabic:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
  <style>
   /* ══════════════════════════════════════════
-     JOBHUNT PRO — LANDING PAGE v3
+     JOBHUNT برو — LANDING PAGE v3
      Dark Cyberpunk Premium Theme
      ══════════════════════════════════════════ */
 
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
   :root{
+   --text-x-direction: -1;
+
    --bg:#05050a;
    --bg-alt:#080912;
    --card:#0d0e18;
@@ -61,7 +65,7 @@
 
   html{scroll-behavior:smooth}
   body{
-   font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
    background:var(--bg);
    color:var(--text);
    overflow-x:hidden;
@@ -115,7 +119,7 @@
 
   /* ── Background Effects ── */
   .bg-grid{
-   position:fixed;top:0;left:0;width:100%;height:100%;
+   position:fixed;top:0;inset-inline-start:0;width:100%;height:100%;
    background-image:
     linear-gradient(rgba(0,240,255,0.03) 1px,transparent 1px),
     linear-gradient(90deg,rgba(0,240,255,0.03) 1px,transparent 1px);
@@ -123,12 +127,12 @@
    pointer-events:none;z-index:0;
   }
   .bg-glow-top{
-   position:fixed;top:-40%;left:20%;width:60%;height:60%;
+   position:fixed;top:-40%;inset-inline-start:20%;width:60%;height:60%;
    background:radial-gradient(ellipse,var(--cyan-glow) 0%,transparent 70%);
    pointer-events:none;z-index:0;
   }
   .bg-glow-bottom{
-   position:fixed;bottom:-30%;right:10%;width:50%;height:50%;
+   position:fixed;bottom:-30%;inset-inline-end:10%;width:50%;height:50%;
    background:radial-gradient(ellipse,var(--magenta-glow) 0%,transparent 70%);
    pointer-events:none;z-index:0;
   }
@@ -137,13 +141,13 @@
   .section{position:relative;z-index:10;padding:100px 24px}
   .section-inner{max-width:1200px;margin:0 auto}
   .section-label{
-   display:inline-block;font-family:'Orbitron',sans-serif;font-size:10px;
+   display:inline-block;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:10px;
    letter-spacing:5px;text-transform:uppercase;color:var(--cyan);
    margin-bottom:16px;padding:8px 18px;border:1px solid var(--cyan-dim);
    border-radius:50px;background:var(--cyan-glow);
   }
   .section-title{
-   font-family:'Orbitron',sans-serif;font-size:clamp(28px,5vw,42px);
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:clamp(28px,5vw,42px);
    font-weight:800;letter-spacing:1px;margin-bottom:16px;line-height:1.2;
   }
   .section-subtitle{
@@ -152,7 +156,7 @@
 
   /* ═══════════════ HEADER ═══════════════ */
   .header{
-   position:fixed;top:0;left:0;right:0;z-index:100;
+   position:fixed;top:0;inset-inline-start:0;inset-inline-end:0;z-index:100;
    padding:18px 48px;display:flex;justify-content:space-between;
    align-items:center;transition:all 0.4s;
    background:rgba(5,5,10,0.85);backdrop-filter:blur(16px);
@@ -161,7 +165,7 @@
   .header.scrolled{background:rgba(5,5,10,0.95);padding:14px 48px}
   .logo-group{display:flex;flex-direction:column}
   .logo{
-   font-family:'Orbitron',sans-serif;font-size:24px;font-weight:900;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:24px;font-weight:900;
    letter-spacing:4px;background:linear-gradient(135deg,var(--cyan),#00d4e0);
    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
    background-clip:text;
@@ -204,7 +208,7 @@
    animation:livePulse 1.5s infinite;
   }
   .hero-title{
-   font-family:'Orbitron',sans-serif;font-size:clamp(36px,8vw,72px);
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:clamp(36px,8vw,72px);
    font-weight:900;line-height:1.08;margin-bottom:24px;
   }
   .hero-title .cyan{
@@ -221,7 +225,7 @@
   .hero-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:60px}
   .btn{
    display:inline-flex;align-items:center;gap:8px;padding:16px 36px;
-   border-radius:50px;font-family:'Orbitron',sans-serif;font-size:13px;
+   border-radius:50px;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:13px;
    font-weight:700;cursor:pointer;transition:all 0.35s;text-decoration:none;
    border:none;letter-spacing:2px;text-transform:uppercase;
   }
@@ -249,7 +253,7 @@
   }
   .hero-stat:hover{border-color:var(--cyan-dim);transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,0.4)}
   .hero-stat .val{
-   font-family:'Orbitron',sans-serif;font-size:32px;font-weight:900;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:32px;font-weight:900;
    background:linear-gradient(135deg,var(--cyan),#22d3ee);
    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
    background-clip:text;
@@ -260,12 +264,12 @@
   .trust-bar{position:relative;z-index:10;padding:40px 24px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
   .trust-bar-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap}
   .trust-bar-label{
-   font-family:'Orbitron',sans-serif;font-size:10px;color:var(--muted);
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:10px;color:var(--muted);
    letter-spacing:3px;text-transform:uppercase;white-space:nowrap;
   }
   .trust-bar-logos{display:flex;gap:40px;align-items:center;flex-wrap:wrap;justify-content:center}
   .trust-logo{
-   font-family:'Orbitron',sans-serif;font-size:14px;color:var(--text-dim);
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:14px;color:var(--text-dim);
    letter-spacing:3px;font-weight:700;opacity:0.5;transition:all 0.3s;
   }
   .trust-logo:hover{opacity:0.9;color:var(--cyan)}
@@ -280,21 +284,21 @@
    transition:all var(--transition);position:relative;overflow:hidden;
   }
   .step-card::before{
-   content:'';position:absolute;top:0;left:0;width:100%;height:3px;
+   content:'';position:absolute;top:0;inset-inline-start:0;width:100%;height:3px;
    background:linear-gradient(90deg,var(--cyan),var(--magenta));
    opacity:0;transition:opacity 0.4s;
   }
   .step-card:hover::before{opacity:1}
   .step-card:hover{border-color:var(--cyan-dim);transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,0.5)}
   .step-number{
-   font-family:'Orbitron',sans-serif;font-size:48px;font-weight:900;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:48px;font-weight:900;
    background:linear-gradient(135deg,var(--cyan),var(--magenta));
    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
    background-clip:text;margin-bottom:8px;
   }
   .step-icon{font-size:36px;margin-bottom:12px}
   .step-card h3{
-   font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:2px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:14px;letter-spacing:2px;
    margin-bottom:12px;color:var(--text);
   }
   .step-card p{font-size:13px;color:var(--text-dim);line-height:1.7}
@@ -319,12 +323,12 @@
    border:1px solid var(--cyan-dim);
   }
   .feature-card h3{
-   font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:2px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:14px;letter-spacing:2px;
    margin-bottom:10px;color:var(--cyan);
   }
   .feature-card p{font-size:13px;color:var(--text-dim);line-height:1.8}
 
-  /* ═══════════════ STATS / SOCIAL PROOF ═══════════════ */
+  /* ═══════════════ STATS / SOCIAL بروOF ═══════════════ */
   .stats-row{
    display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px;
   }
@@ -338,7 +342,7 @@
    box-shadow:0 8px 25px rgba(0,0,0,0.4);
   }
   .stat-card .big{
-   font-family:'Orbitron',sans-serif;font-size:40px;font-weight:900;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:40px;font-weight:900;
    background:linear-gradient(135deg,var(--cyan),#22d3ee);
    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
    background-clip:text;line-height:1.2;
@@ -364,29 +368,29 @@
    z-index:2;
   }
   .popular-badge{
-   position:absolute;top:-15px;left:50%;transform:translateX(-50%);
+   position:absolute;top:-15px;inset-inline-start:50%;transform:translateX(-50%);
    background:linear-gradient(135deg,var(--magenta),#ff3377);
    color:#fff;padding:10px 24px;border-radius:50px;
-   font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:10px;font-weight:700;
    letter-spacing:2px;white-space:nowrap;
   }
   .pricing-card .tier{
-   font-family:'Orbitron',sans-serif;font-size:10px;color:var(--muted);
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:10px;color:var(--muted);
    text-transform:uppercase;letter-spacing:4px;margin-bottom:8px;
   }
   .pricing-card .name{
-   font-family:'Orbitron',sans-serif;font-size:22px;font-weight:800;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:22px;font-weight:800;
    margin-bottom:8px;letter-spacing:1px;
   }
-  .pricing-card .companies{
-   font-family:'Orbitron',sans-serif;font-size:44px;font-weight:900;
+  .pricing-card .شركات{
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:44px;font-weight:900;
    color:var(--cyan);line-height:1;
   }
-  .pricing-card .companies span{
+  .pricing-card .شركات span{
    font-size:13px;color:var(--text-dim);font-weight:400;
   }
   .pricing-card .price{
-   font-family:'Orbitron',sans-serif;font-size:32px;font-weight:800;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:32px;font-weight:800;
    margin:14px 0 4px;
   }
   .pricing-card .price span{font-size:14px;color:var(--muted);font-weight:400}
@@ -397,7 +401,7 @@
    color:var(--cyan);font-size:11px;font-weight:600;margin-bottom:18px;
   }
   .pricing-card ul{
-   list-style:none;text-align:left;margin-bottom:28px;flex:1;
+   list-style:none;text-align: start;margin-bottom:28px;flex:1;
   }
   .pricing-card ul li{
    padding:10px 0;color:var(--text-dim);font-size:12px;
@@ -407,7 +411,7 @@
   .pricing-card ul li:last-child{border-bottom:none}
   .pricing-card .btn-block{
    display:block;width:100%;padding:16px;border-radius:50px;
-   font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:12px;font-weight:700;
    cursor:pointer;transition:all var(--transition);text-decoration:none;
    text-align:center;border:none;letter-spacing:2px;text-transform:uppercase;
   }
@@ -446,12 +450,12 @@
    width:44px;height:44px;border-radius:50%;
    background:linear-gradient(135deg,var(--cyan),var(--magenta));
    display:flex;align-items:center;justify-content:center;
-   font-family:'Orbitron',sans-serif;font-weight:700;font-size:14px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-weight:700;font-size:14px;
    color:#fff;
   }
   .testimonial-info .name{font-weight:600;font-size:13px}
   .testimonial-info .role{font-size:11px;color:var(--muted)}
-  .testimonial-info .flag{font-size:13px;margin-left:4px}
+  .testimonial-info .flag{font-size:13px;margin-inline-start:4px}
 
   /* ═══════════════ EARNINGS TRACKER ═══════════════ */
   .earnings{
@@ -465,21 +469,21 @@
    position:relative;overflow:hidden;
   }
   .earnings-box::before{
-   content:'';position:absolute;top:-1px;left:-1px;right:-1px;bottom:-1px;
+   content:'';position:absolute;top:-1px;inset-inline-start:-1px;inset-inline-end:-1px;bottom:-1px;
    background:linear-gradient(45deg,var(--cyan),transparent 30%,var(--magenta),transparent 70%,var(--cyan));
    background-size:300% 300%;border-radius:calc(var(--radius-lg) + 1px);
    z-index:-1;opacity:0.25;animation:gradientShift 5s ease infinite;
   }
   .earnings-label{
-   font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:5px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:10px;letter-spacing:5px;
    color:var(--muted);text-transform:uppercase;margin-bottom:10px;
   }
   .earnings-label .live-dot{
    display:inline-block;width:8px;height:8px;background:#22c55e;
-   border-radius:50%;margin-right:8px;animation:livePulse 1.5s infinite;
+   border-radius:50%;margin-inline-end:8px;animation:livePulse 1.5s infinite;
   }
   .earnings-total{
-   font-family:'Orbitron',sans-serif;font-size:56px;font-weight:900;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:56px;font-weight:900;
    background:linear-gradient(135deg,var(--cyan),#22d3ee,var(--magenta));
    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
    background-clip:text;line-height:1.15;margin:4px 0;transition:all 0.5s;
@@ -490,7 +494,7 @@
    padding:9px 20px;border-radius:50px;font-size:11px;letter-spacing:1px;
    cursor:pointer;transition:all 0.3s;background:transparent;
    color:var(--muted);border:1px solid var(--border);text-transform:uppercase;
-   font-family:'Inter',sans-serif;font-weight:500;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-weight:500;
   }
   .earnings-periods button:hover{border-color:var(--cyan);color:var(--cyan)}
   .earnings-periods button.active{
@@ -508,7 +512,7 @@
   .earn-card:hover{border-color:var(--cyan-dim)}
   .earn-card .icon{font-size:20px;margin-bottom:6px}
   .earn-card .val{
-   font-family:'Orbitron',sans-serif;font-size:20px;font-weight:700;color:var(--cyan);
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:20px;font-weight:700;color:var(--cyan);
   }
   .earn-card .label{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
   .earn-card .count{font-size:10px;color:var(--text-dim);margin-top:2px}
@@ -529,7 +533,7 @@
   }
   .faq-question:hover{color:var(--cyan)}
   .faq-question .arrow{
-   font-family:'Orbitron',sans-serif;font-size:18px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:18px;
    transition:transform 0.3s;color:var(--cyan);
   }
   .faq-item.open .faq-question .arrow{transform:rotate(45deg)}
@@ -546,13 +550,13 @@
   }
   .cta-inner{max-width:700px;margin:0 auto}
   .cta-glow{
-   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+   position:absolute;top:50%;inset-inline-start:50%;transform:translate(-50%,-50%);
    width:500px;height:500px;
    background:radial-gradient(circle,var(--cyan-glow) 0%,transparent 70%);
    pointer-events:none;z-index:-1;
   }
   .cta-title{
-   font-family:'Orbitron',sans-serif;font-size:clamp(28px,5vw,44px);
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:clamp(28px,5vw,44px);
    font-weight:900;line-height:1.2;margin-bottom:16px;
   }
   .cta-title .gradient-text{
@@ -576,7 +580,7 @@
    gap:48px;max-width:1200px;margin:0 auto 40px;
   }
   .footer-col h4{
-   font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:3px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:12px;letter-spacing:3px;
    color:var(--cyan);margin-bottom:20px;text-transform:uppercase;
   }
   .footer-col a{
@@ -599,12 +603,12 @@
    .nav-links{display:none}
    .nav-links.open{
     display:flex;flex-direction:column;position:absolute;
-    top:100%;left:0;right:0;background:rgba(5,5,10,0.98);
+    top:100%;inset-inline-start:0;inset-inline-end:0;background:rgba(5,5,10,0.98);
     backdrop-filter:blur(16px);padding:24px;gap:20px;
     border-bottom:1px solid var(--border);
    }
    .mobile-menu-btn{display:block}
-   .feature-grid,.pricing-grid,.testimonial-grid{grid-template-columns:1fr;max-width:440px;margin-left:auto;margin-right:auto}
+   .feature-grid,.pricing-grid,.testimonial-grid{grid-template-columns:1fr;max-width:440px;margin-inline-start:auto;margin-inline-end:auto}
    .pricing-card.popular{transform:scale(1)}
    .steps-grid{grid-template-columns:repeat(2,1fr)}
    .stats-row{grid-template-columns:repeat(2,1fr)}
@@ -622,7 +626,7 @@
    .hero-title{font-size:28px}
    .hero-desc{font-size:15px}
    .hero-stats{flex-direction:column;align-items:center}
-   .steps-grid,.stats-row{grid-template-columns:1fr;max-width:300px;margin-left:auto;margin-right:auto}
+   .steps-grid,.stats-row{grid-template-columns:1fr;max-width:300px;margin-inline-start:auto;margin-inline-end:auto}
    .hero-buttons{flex-direction:column;align-items:center}
    .btn{width:100%;justify-content:center}
    .footer-grid{grid-template-columns:1fr}
@@ -649,14 +653,14 @@
  <header class="header" id="header">
   
   <div class="logo-group">
-   <div class="logo">JOBHUNT PRO</div>
-   <div class="logo-accent">Smart Job Applications</div>
+   <div class="logo">JOBHUNT برو</div>
+   <div class="logo-accent">تقديم ذكي ع الوظائف</div>
   </div>
   <nav class="nav-links" id="navLinks">
-   <a href="/">Home</a>
-   <a href="/pricing">Pricing</a>
-   <a href="/login">Login</a>
-   <a href="/register" class="nav-cta">Get Started</a>
+   <a href="/">الرئيسية</a>
+   <a href="/pricing">الأسعار</a>
+   <a href="/login">تسجيل الدخول</a>
+   <a href="/register" class="nav-cta">بلّش هلأ</a>
   </nav>
   <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menu">&#9776;</button>
  </header>
@@ -665,35 +669,35 @@
  <section class="hero">
   <div class="hero-inner reveal">
    <div class="hero-badge">
-    <span class="dot"></span>Processing Applications Now
+    <span class="dot"></span>عم نعالج الطلبات هلأ
    </div>
    <h1 class="hero-title">
-    Apply to <span class="cyan">Thousands</span> of Jobs<br>
-    While You <span class="magenta">Sleep</span>
+    قدم ع <span class="cyan">آلاف</span> الوظائف<br>
+    وإنت <span class="magenta">نايم</span>
    </h1>
    <p class="hero-desc">
-    Stop spending hours on job boards. Our intelligent platform applies to the right jobs for you &mdash; personalized applications, real-time tracking, and zero manual work.
+    حاج تضيع ساعات ع مواقع التوظيف. منصتنا الذكية بتقدم ع الوظائف المناسبة إلك — طلبات مخصصة، تتبع مباشر، وبدون أي تعب يدوي.
    </p>
    <div class="hero-buttons">
-    <a href="/register" class="btn btn-primary">&#128640; Start Free Trial</a>
-    <a href="#how-it-works" class="btn btn-outline">&#9654; See How It Works</a>
+    <a href="/register" class="btn btn-primary">&#128640; جرب مجاناً</a>
+    <a href="#how-it-works" class="btn btn-outline">&#9654; شوف كيف بتشتغل</a>
    </div>
    <div class="hero-stats">
     <div class="hero-stat">
      <div class="val">3,200+</div>
-     <div class="label">Active Users</div>
+     <div class="label">مستخدم نشط</div>
     </div>
     <div class="hero-stat">
      <div class="val">85,000+</div>
-     <div class="label">Applications Sent</div>
+     <div class="label">طلبات انبعتت</div>
     </div>
     <div class="hero-stat">
      <div class="val">12.4%</div>
-     <div class="label">Interview Rate</div>
+     <div class="label">نسبة المقابلات</div>
     </div>
     <div class="hero-stat">
      <div class="val">4.7&#9733;</div>
-     <div class="label">User Rating</div>
+     <div class="label">تقييم المستخدمين</div>
     </div>
    </div>
   </div>
@@ -702,14 +706,14 @@
  <!-- ═══════════════ TRUST BAR ═══════════════ -->
  <section class="trust-bar">
   <div class="trust-bar-inner reveal">
-   <span class="trust-bar-label">Trusted by Job Seekers Worldwide</span>
+   <span class="trust-bar-label">موثوقة من الباحثين عن عمل بكل العالم</span>
    <div class="trust-bar-logos">
-    <span class="trust-logo">LEBANON</span>
-    <span class="trust-logo">UAE</span>
-    <span class="trust-logo">SAUDI</span>
-    <span class="trust-logo">QATAR</span>
-    <span class="trust-logo">KUWAIT</span>
-    <span class="trust-logo">REMOTE</span>
+    <span class="trust-logo">لبنان</span>
+    <span class="trust-logo">الإمارات</span>
+    <span class="trust-logo">السعودية</span>
+    <span class="trust-logo">قطر</span>
+    <span class="trust-logo">الكويت</span>
+    <span class="trust-logo">عن بُعد</span>
    </div>
   </div>
  </section>
@@ -718,36 +722,36 @@
  <section class="section" id="how-it-works">
   <div class="section-inner">
    <div style="text-align:center">
-    <span class="section-label reveal">How It Works</span>
-    <h2 class="section-title reveal">4 Simple Steps to<br>Your Next Job</h2>
+    <span class="section-label reveal">كيف بتشتغل</span>
+    <h2 class="section-title reveal">4 خطوات بسيطة<br>لوظيفتك الجاية</h2>
     <p class="section-subtitle reveal" style="margin:0 auto">
-     Getting hired has never been easier. Set it up once, and let the system do the heavy lifting.
+     التوظيف صار أسهل من قبل. ضبطها مرة وحدة وخلي النظام يشتغل عنك.
     </p>
    </div>
    <div class="steps-grid">
     <div class="step-card reveal" style="transition-delay:0s">
      <div class="step-number">01</div>
      <div class="step-icon">&#128203;</div>
-     <h3>Create Your Profile</h3>
-     <p>Upload your CV, set your preferences, and tell us what kind of jobs you're looking for. Takes less than 5 minutes.</p>
+     <h3>اعمل بروفايلك</h3>
+     <p>ارفع سيرتك الذاتية، حط تفضيلاتك، وقولنا شو نوع الوظايف يلي عم تفتش عليها. بتاخد أقل من 5 دقايق.</p>
     </div>
     <div class="step-card reveal" style="transition-delay:0.1s">
      <div class="step-number">02</div>
      <div class="step-icon">&#128269;</div>
-     <h3>Jobs Are Scanned</h3>
-     <p>Our platform scans thousands of job listings across multiple sources, finding the best matches for your skills and goals.</p>
+     <h3>مسح الوظائف</h3>
+     <p>منصتنا بتمسح آلاف الوظائف من مصادر كتيرة لتلاقي الأنسب لمهاراتك وأهدافك.</p>
     </div>
     <div class="step-card reveal" style="transition-delay:0.2s">
      <div class="step-number">03</div>
      <div class="step-icon">&#9993;</div>
-     <h3>Auto Applications</h3>
-     <p>Personalized applications are sent automatically. Each one is unique &mdash; tailored to the company and role you're targeting.</p>
+     <h3>تقديم تلقائي</h3>
+     <p>الطلبات المخصصة بتنبعت تلقائياً. كل طلب فريد — ومفصل ع قياس الشركة والوظيفة يلي عم تستهدفها.</p>
     </div>
     <div class="step-card reveal" style="transition-delay:0.3s">
      <div class="step-number">04</div>
      <div class="step-icon">&#127919;</div>
      <h3>Track &amp; Follow Up</h3>
-     <p>Monitor every application, track email opens, and get automatic follow-ups. Never miss an opportunity.</p>
+     <p>راقب كل طلب، تابع فتح الإيميلات، واحصل ع متابعات تلقائية. ما تضيع ولا فرصة.</p>
     </div>
    </div>
   </div>
@@ -757,74 +761,74 @@
  <section class="section" style="background:var(--bg-alt);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
   <div class="section-inner">
    <div style="text-align:center">
-    <span class="section-label reveal">Features</span>
-    <h2 class="section-title reveal">Everything You Need<br>to Get Hired</h2>
+    <span class="section-label reveal">الميزات</span>
+    <h2 class="section-title reveal">كل شي بتحتاجه<br>لتتوظف</h2>
     <p class="section-subtitle reveal" style="margin:0 auto">
-     A complete job hunting toolkit &mdash; from application to interview, all in one place.
+     مجموعة أدوات متكاملة للبحث عن عمل — من التقديم للمقابلة، كله بمكان واحد.
     </p>
    </div>
    <div class="feature-grid">
     <div class="feature-card reveal">
      <div class="feature-icon-box">&#128221;</div>
-     <h3>Smart Cover Letters</h3>
-     <p>Every application gets a unique, personalized cover letter that highlights your strengths for that specific role.</p>
+     <h3>رسائل تغطية ذكية</h3>
+     <p>كل طلب بياخد رسالة تغطية فريدة ومخصصة بتبرز نقاط قوتك لهالوظيفة بالذات.</p>
     </div>
     <div class="feature-card reveal">
      <div class="feature-icon-box">&#128225;</div>
-     <h3>Multi-Source Search</h3>
-     <p>Jobs are sourced from multiple platforms simultaneously &mdash; you get maximum coverage without lifting a finger.</p>
+     <h3>بحث متعدد المصادر</h3>
+     <p>الوظايف بتنجاب من منصات كتيرة بنفس الوقت — لتحصل ع أكبر تغطية بدون ما تحرك إصبعك.</p>
     </div>
     <div class="feature-card reveal">
      <div class="feature-icon-box">&#9889;</div>
-     <h3>High-Speed Processing</h3>
-     <p>Hundreds of applications processed in parallel. What used to take weeks now takes hours.</p>
+     <h3>معالجة سريعة</h3>
+     <p>مئات الطلبات بتتعالج بنفس الوقت. يلي كان ياخد أسابيع صار ياخد ساعات.</p>
     </div>
     <div class="feature-card reveal">
      <div class="feature-icon-box">&#128202;</div>
-     <h3>Real-Time Dashboard</h3>
-     <p>Track every application, email open, and response from a beautiful live dashboard. Full visibility at all times.</p>
+     <h3>لوحة تحكم مباشرة</h3>
+     <p>تابع كل طلب، وكل فتح إيميل، والردود من لوحة تحكم حية وحلوة. رؤية كاملة بكل الأوقات.</p>
     </div>
     <div class="feature-card reveal">
      <div class="feature-icon-box">&#128260;</div>
-     <h3>Auto Follow-Ups</h3>
-     <p>Never miss a lead. Automated follow-up emails sent at optimal intervals to keep you top of mind with recruiters.</p>
+     <h3>متابعات تلقائية</h3>
+     <p>ما تضيع ولا فرصة. إيميلات متابعة تلقائية بتنبعت بأوقات مدروسة لتخليك ببال مسؤولي التوظيف.</p>
     </div>
     <div class="feature-card reveal">
      <div class="feature-icon-box">&#128737;</div>
-     <h3>Human-Like Delivery</h3>
-     <p>Applications are sent naturally with intelligent timing &mdash; looks like a real person, not a robot.</p>
+     <h3>توصيل متل البشر</h3>
+     <p>الطلبات بتنبعت بشكل طبيعي مع توقيت ذكي — بتبين كأنها من شخص حقيقي، مش روبوت.</p>
     </div>
    </div>
   </div>
  </section>
 
- <!-- ═══════════════ STATS / SOCIAL PROOF ═══════════════ -->
+ <!-- ═══════════════ STATS / SOCIAL بروOF ═══════════════ -->
  <section class="section">
   <div class="section-inner">
    <div style="text-align:center">
-    <span class="section-label reveal">By The Numbers</span>
-    <h2 class="section-title reveal">Trusted by Thousands<br>of Job Seekers</h2>
+    <span class="section-label reveal">بالأرقام</span>
+    <h2 class="section-title reveal">موثوقة من آلاف<br>الباحثين عن عمل</h2>
    </div>
    <div class="stats-row">
     <div class="stat-card reveal">
      <div class="big">3,200+</div>
-     <div class="label">Active Users</div>
-     <div class="sub">And growing daily</div>
+     <div class="label">مستخدم نشط</div>
+     <div class="sub">وعم نكبر كل يوم</div>
     </div>
     <div class="stat-card reveal">
      <div class="big">85K+</div>
-     <div class="label">Applications Sent</div>
-     <div class="sub">In the last 30 days</div>
+     <div class="label">طلبات انبعتت</div>
+     <div class="sub">بآخر 30 يوم</div>
     </div>
     <div class="stat-card reveal">
      <div class="big">12.4%</div>
-     <div class="label">Interview Rate</div>
-     <div class="sub">3&times; industry average</div>
+     <div class="label">نسبة المقابلات</div>
+     <div class="sub">3 أضعاف المعدل الطبيعي</div>
     </div>
     <div class="stat-card reveal">
      <div class="big">1,247</div>
-     <div class="label">Jobs Landed</div>
-     <div class="sub">And counting</div>
+     <div class="label">وظائف حصلوا عليها</div>
+     <div class="sub">والعدد عم يزيد</div>
     </div>
    </div>
   </div>
@@ -834,70 +838,70 @@
  <section class="section" style="background:var(--bg-alt);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
   <div class="section-inner">
    <div style="text-align:center">
-    <span class="section-label reveal">Pricing</span>
-    <h2 class="section-title reveal">Choose Your Plan</h2>
+    <span class="section-label reveal">الأسعار</span>
+    <h2 class="section-title reveal">نقي خطتك</h2>
     <p class="section-subtitle reveal" style="margin:0 auto">
-     One-time payment. No subscriptions. Pay with crypto or card. Simple, transparent, effective.
+     دفعة وحدة. ما في اشتراكات. ادفع بالكريبتو أو بالبطاقة. بسيطة، شفافة، وفعالة.
     </p>
    </div>
    <div class="pricing-grid">
-    <!-- Professional -->
+    <!-- محترف -->
     <div class="pricing-card reveal">
-     <div class="tier">Professional</div>
-     <div class="name">PRO</div>
-     <div class="companies">300 <span>companies</span></div>
+     <div class="tier">محترف</div>
+     <div class="name">برو</div>
+     <div class="شركات">300 <span>شركات</span></div>
      <div class="price">$20</div>
-     <div class="per">$0.067 per company</div>
+     <div class="per">$0.067 لكل شركة</div>
      <ul>
-      <li>300 company applications</li>
-      <li>Smart cover letters</li>
-      <li>Email tracking</li>
-      <li>Follow-up automation</li>
-      <li>Basic analytics</li>
+      <li>300 company طلبات</li>
+      <li>رسائل تغطية ذكية</li>
+      <li>تتبع الإيميلات</li>
+      <li>أتمتة المتابعات</li>
+      <li>أساسي analytics</li>
      </ul>
-     <a href="/register" class="btn-block secondary">Get Started</a>
+     <a href="/register" class="btn-block secondary">بلّش هلأ</a>
     </div>
 
-    <!-- Unlimited (Popular) -->
+    <!-- غير محدود (Popular) -->
     <div class="pricing-card popular reveal">
-     <div class="popular-badge">&#11088; MOST POPULAR</div>
-     <div class="tier">Unlimited</div>
-     <div class="name">UNLIMITED</div>
-     <div class="companies">5,000 <span>companies</span></div>
+     <div class="popular-badge">&#11088; الأكثر طلباً</div>
+     <div class="tier">غير محدود</div>
+     <div class="name">أنليميتد</div>
+     <div class="شركات">5,000 <span>شركات</span></div>
      <div class="price">$120</div>
-     <div class="per">$0.024 per company</div>
-     <div class="save">SAVE 64% VS PRO</div>
+     <div class="per">$0.024 لكل شركة</div>
+     <div class="save">SAVE 64% VS برو</div>
      <ul>
-      <li>5,000 company applications</li>
-      <li>Personalized cover letters</li>
-      <li>Real-time email tracking</li>
-      <li>Auto follow-ups (7 + 14 days)</li>
-      <li>Advanced analytics dashboard</li>
-      <li>Full-speed processing</li>
-      <li>Multi-email rotation</li>
-      <li>Company research</li>
-      <li>Interview prep generator</li>
-      <li>Priority support</li>
+      <li>5,000 company طلبات</li>
+      <li>رسائل تغطية مخصصة</li>
+      <li>تتبع إيميلات مباشر</li>
+      <li>متابعات تلقائية (7 + 14 يوم)</li>
+      <li>لوحة تحليلات متطورة</li>
+      <li>معالجة بأقصى سرعة</li>
+      <li>تدوير إيميلات متعدد</li>
+      <li>أبحاث عن الشركات</li>
+      <li>توليد تحضيرات للمقابلة</li>
+      <li>دعم أولوية</li>
      </ul>
-     <a href="/register" class="btn-block primary">Unlock Unlimited &#9889;</a>
+     <a href="/register" class="btn-block primary">Unlock غير محدود &#9889;</a>
     </div>
 
-    <!-- Enterprise -->
+    <!-- شركات -->
     <div class="pricing-card reveal">
-     <div class="tier">Enterprise</div>
-     <div class="name">ENTERPRISE</div>
-     <div class="companies">1M <span>companies</span></div>
+     <div class="tier">شركات</div>
+     <div class="name">إنتربرايز</div>
+     <div class="شركات">1M <span>شركات</span></div>
      <div class="price">$8,000</div>
-     <div class="per">$0.008 per company</div>
+     <div class="per">$0.008 لكل شركة</div>
      <ul>
-      <li>1,000,000 applications</li>
-      <li>Everything in Unlimited</li>
-      <li>Custom training</li>
-      <li>Dedicated account manager</li>
-      <li>SLA guarantee</li>
-      <li>White-label option</li>
+      <li>1,000,000 طلبات</li>
+      <li>Everything in غير محدود</li>
+      <li>تدريب مخصص</li>
+      <li>مدير حساب مخصص</li>
+      <li>ضمان مستوى الخدمة (SLA)</li>
+      <li>خيار العلامة البيضاء</li>
      </ul>
-     <a href="/register" class="btn-block secondary">Contact Sales</a>
+     <a href="/register" class="btn-block secondary">تواصل مع المبيعات</a>
     </div>
    </div>
   </div>
@@ -907,33 +911,33 @@
  <section class="earnings">
   <div class="earnings-inner">
    <div class="earnings-box reveal-scale">
-    <div class="earnings-label"><span class="live-dot"></span>Live Revenue Tracker</div>
+    <div class="earnings-label"><span class="live-dot"></span>تتبع الأرباح المباشر</div>
     <div class="earnings-total" id="earningsDisplay">${{ "{:,.2f}".format(earnings["total_all"]) if earnings else "0.00" }}</div>
-    <div class="earnings-sub">Total Revenue Generated</div>
+    <div class="earnings-sub">إجمالي الأرباح المحققة</div>
     <div class="earnings-periods">
-     <button class="active" data-period="all" onclick="switchPeriod('all')">All Time</button>
-     <button class="btn" data-period="year" onclick="switchPeriod('year')">This Year</button>
-     <button class="btn" data-period="month" onclick="switchPeriod('month')">30 Days</button>
-     <button class="btn" data-period="24h" onclick="switchPeriod('24h')">24 Hours</button>
+     <button class="active" data-period="all" onclick="switchPeriod('all')">كل الوقت</button>
+     <button class="btn" data-period="year" onclick="switchPeriod('year')">هالسنة</button>
+     <button class="btn" data-period="month" onclick="switchPeriod('month')">30 يوم</button>
+     <button class="btn" data-period="24h" onclick="switchPeriod('24h')">24 ساعة</button>
     </div>
     <div class="earnings-breakdown" id="earningsBreakdown">
      <div class="earn-card">
       <div class="icon">&#128230;</div>
       <div class="val" id="ordersAmount">${{ "{:,.2f}".format(earnings["breakdown_all"]["orders"]["amount"]) if earnings else "0.00" }}</div>
-      <div class="label">Package Orders</div>
-      <div class="count" id="ordersCount">{{ earnings["breakdown_all"]["orders"]["count"] if earnings else 0 }} sales</div>
+      <div class="label">طلبات الباقات</div>
+      <div class="count" id="ordersCount">{{ earnings["breakdown_all"]["orders"]["count"] if earnings else 0 }} مبيعات</div>
      </div>
      <div class="earn-card">
       <div class="icon">&#128273;</div>
       <div class="val" id="codesAmount">${{ "{:,.2f}".format(earnings["breakdown_all"]["codes"]["amount"]) if earnings else "0.00" }}</div>
-      <div class="label">Redeem Codes</div>
-      <div class="count" id="codesCount">{{ earnings["breakdown_all"]["codes"]["count"] if earnings else 0 }} used</div>
+      <div class="label">أكواد مستخدمة</div>
+      <div class="count" id="codesCount">{{ earnings["breakdown_all"]["codes"]["count"] if earnings else 0 }} مستخدمة</div>
      </div>
      <div class="earn-card">
       <div class="icon">&#9993;</div>
       <div class="val" id="emailsAmount">${{ "{:,.2f}".format(earnings["breakdown_all"]["emails"]["amount"]) if earnings else "0.00" }}</div>
-      <div class="label">Manual Emails</div>
-      <div class="count" id="emailsCount">{{ earnings["breakdown_all"]["emails"]["count"] if earnings else 0 }} sent</div>
+      <div class="label">إيميلات يدوية</div>
+      <div class="count" id="emailsCount">{{ earnings["breakdown_all"]["emails"]["count"] if earnings else 0 }} انبعتت</div>
      </div>
     </div>
    </div>
@@ -945,16 +949,16 @@
   <div class="section-inner">
    <div style="text-align:center">
     <span class="section-label reveal">Testimonials</span>
-    <h2 class="section-title reveal">What Our Users Say</h2>
+    <h2 class="section-title reveal">شو بيقولوا مستخدمينا</h2>
     <p class="section-subtitle reveal" style="margin:0 auto">
-     Real results from real job seekers who transformed their job hunt.
+     نتائج حقيقية من باحثين عن عمل غيروا طريقتهم بالبحث.
     </p>
    </div>
    <div class="testimonial-grid">
     <div class="testimonial-card reveal">
      <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
      <p class="testimonial-text">
-      "I was spending 4 hours a day applying to jobs manually. This platform did more in one week than I did in three months. Landed two interviews in the first 10 days."
+      "كنت ضيع 4 ساعات كل يوم عم قدم ع الوظايف يدوياً. هالمنصة عملت بأسبوع أكتر من يلي عملته بـ 3 شهور. حصلت ع مقابلتين بأول 10 أيام."
      </p>
      <div class="testimonial-author">
       <div class="testimonial-avatar">AK</div>
@@ -967,7 +971,7 @@
     <div class="testimonial-card reveal" style="transition-delay:0.1s">
      <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
      <p class="testimonial-text">
-      "The quality of cover letters blew me away. Each one felt hand-written and specific to the company. Got a response rate I never thought possible. Absolutely worth every penny."
+      "نوعية رسائل التغطية فاجأتني. كل رسالة بتبين كأنها مكتوبة بالإيد ومخصصة للشركة. حصلت ع نسبة ردود ما كنت بحلم فيها. بتستاهل كل قرش."
      </p>
      <div class="testimonial-author">
       <div class="testimonial-avatar">MR</div>
@@ -980,7 +984,7 @@
     <div class="testimonial-card reveal" style="transition-delay:0.2s">
      <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
      <p class="testimonial-text">
-      "Applied to 500 companies in the Gulf region in one go. The tracking dashboard is incredible &mdash; I know exactly who opened my emails and when to follow up. Game changer."
+      "Applied to 500 شركات in the Gulf region in one go. The tracking dashboard is incredible &mdash; I know exactly who opened my emails and when to follow up. Game changer."
      </p>
      <div class="testimonial-author">
       <div class="testimonial-avatar">OS</div>
@@ -999,61 +1003,61 @@
   <div class="section-inner">
    <div style="text-align:center">
     <span class="section-label reveal">FAQ</span>
-    <h2 class="section-title reveal">Frequently Asked<br>Questions</h2>
+    <h2 class="section-title reveal">الأسئلة<br>الشائعة</h2>
    </div>
    <div class="faq-list">
     <div class="faq-item reveal">
      <div class="faq-question" onclick="toggleFaq(this)">
-      How does the application process work?
+      كيف بتم عملية التقديم؟
       <span class="arrow">+</span>
      </div>
      <div class="faq-answer">
-      <p>You upload your CV, tell us what kind of jobs you want (role, location, industry), and our platform handles the rest. It searches for matching jobs across multiple sources, generates personalized cover letters, and sends applications on your behalf. You can monitor everything from your dashboard.</p>
+      <p>You upload your CV, tell us what kind of jobs you want (role, location, industry), and our platform handles the rest. It searches for matching jobs across multiple sources, generates personalized cover letters, and sends طلبات on your behalf. You can monitor everything from your dashboard.</p>
      </div>
     </div>
     <div class="faq-item reveal">
      <div class="faq-question" onclick="toggleFaq(this)">
-      Is this safe? Will my email get blocked?
+      هل هيدا آمن؟ رح ينعمل بلوك لإيميلي؟
       <span class="arrow">+</span>
      </div>
      <div class="faq-answer">
-      <p>Yes, it's completely safe. Applications are sent with natural timing and intelligent scheduling &mdash; exactly like a real person would. We use multiple email rotation and follow sending best practices to keep your deliverability high and avoid spam filters.</p>
+      <p>Yes, it's completely safe. Applications are انبعتت with natural timing and intelligent scheduling &mdash; exactly like a real person would. We use multiple email rotation and follow sending best practices to keep your deliverability high and avoid spam filters.</p>
      </div>
     </div>
     <div class="faq-item reveal">
      <div class="faq-question" onclick="toggleFaq(this)">
-      What regions and countries do you cover?
+      شو هي المناطق والبلدان يلي بتغطوها؟
       <span class="arrow">+</span>
      </div>
      <div class="faq-answer">
-      <p>We cover jobs worldwide, with strong coverage in Lebanon, UAE, Saudi Arabia, Qatar, Kuwait, and remote positions globally. You can target any country or combination of countries you prefer.</p>
+      <p>We cover jobs worldwide, with strong coverage in Lebanon, الإمارات, Saudi Arabia, Qatar, Kuwait, and remote positions globally. You can target any country or combination of countries you prefer.</p>
      </div>
     </div>
     <div class="faq-item reveal">
      <div class="faq-question" onclick="toggleFaq(this)">
-      How are the cover letters personalized?
+      كيف بتتخصص رسائل التغطية؟
       <span class="arrow">+</span>
      </div>
      <div class="faq-answer">
-      <p>Every cover letter is generated fresh for each application. The system analyzes the company name, job title, your skills, and work history to create a unique, compelling letter that highlights why you're the right fit for that specific role.</p>
+      <p>كل رسالة تغطية بتنعمل من الصفر لكل طلب. النظام بيحلل اسم الشركة، المسمى الوظيفي، مهاراتك، وتاريخك المهني ليعمل رسالة فريدة ومقنعة بتوضح ليش إنت الشخص المناسب لهالدور.</p>
      </div>
     </div>
     <div class="faq-item reveal">
      <div class="faq-question" onclick="toggleFaq(this)">
-      Can I track my applications?
+      Can I track my طلبات?
       <span class="arrow">+</span>
      </div>
      <div class="faq-answer">
-      <p>Absolutely. Your dashboard shows every application sent, email open rates, click tracking, and response monitoring. You'll also get automatic follow-ups sent at optimal intervals to maximize your chances of getting noticed.</p>
+      <p>Absolutely. Your dashboard shows every application انبعتت, email open rates, click tracking, and response monitoring. You'll also get automatic follow-ups انبعتت at optimal intervals to maximize your chances of getting noticed.</p>
      </div>
     </div>
     <div class="faq-item reveal">
      <div class="faq-question" onclick="toggleFaq(this)">
-      What payment methods do you accept?
+      شو هي طرق الدفع يلي بتقبلوها؟
       <span class="arrow">+</span>
      </div>
      <div class="faq-answer">
-      <p>We accept cryptocurrency (BTC, ETH, USDT, LTC) and credit/debit cards. All plans are one-time payments &mdash; no recurring subscriptions or hidden fees. What you see is what you pay.</p>
+      <p>منقبل العملات الرقمية (BTC, ETH, USDT, LTC) وبطاقات الائتمان. كل الخطط عبارة عن دفعة وحدة — ما في اشتراكات ولا رسوم مخفية. يلي بتشوفه هو يلي بتدفعه.</p>
      </div>
     </div>
    </div>
@@ -1065,14 +1069,14 @@
   <div class="cta-glow"></div>
   <div class="cta-inner reveal-scale">
    <h2 class="cta-title">
-    Ready to Land Your<br><span class="gradient-text">Dream Job?</span>
+    جاهز تلاقي<br><span class="gradient-text">وظيفة أحلامك؟</span>
    </h2>
    <p class="cta-desc">
-    Join thousands of job seekers who have already transformed their job hunt. Stop applying manually and start getting results.
+    انضم لآلاف الباحثين عن عمل يلي غيروا طريقتهم بالبحث. حاج تقدم يدوياً وبلش احصد نتائج.
    </p>
    <div class="cta-buttons">
-    <a href="/register" class="btn btn-primary btn-lg">&#9889; Get Started Free</a>
-    <a href="/pricing" class="btn btn-outline btn-lg">View Plans</a>
+    <a href="/register" class="btn btn-primary btn-lg">&#9889; بلّش هلأ Free</a>
+    <a href="/pricing" class="btn btn-outline btn-lg">شوف الخطط</a>
    </div>
   </div>
  </section>
@@ -1081,30 +1085,30 @@
  <footer class="footer">
   <div class="footer-grid">
    <div class="footer-col">
-    <h4>JobHunt Pro</h4>
-    <p>The smartest way to job hunt. Thousands of applications, zero manual work. Your career deserves better.</p>
+    <h4>JobHunt برو</h4>
+    <p>The smartest way to job hunt. Thousands of طلبات, zero manual work. Your career deserves better.</p>
    </div>
    <div class="footer-col">
-    <h4>Product</h4>
-    <a href="/pricing">Pricing</a>
-    <a href="/register">Get Started</a>
-    <a href="/login">Login</a>
+    <h4>بروduct</h4>
+    <a href="/pricing">الأسعار</a>
+    <a href="/register">بلّش هلأ</a>
+    <a href="/login">تسجيل الدخول</a>
    </div>
    <div class="footer-col">
-    <h4>Resources</h4>
-    <a href="#how-it-works">How It Works</a>
+    <h4>المصادر</h4>
+    <a href="#how-it-works">كيف بتشتغل</a>
     <a href="#faq">FAQ</a>
-    <a href="/">Home</a>
+    <a href="/">الرئيسية</a>
    </div>
    <div class="footer-col">
-    <h4>Contact</h4>
-    <a href="mailto:support@jobhuntpro.com">Email Support</a>
-    <a href="https://t.me/jobhuntpro">Telegram</a>
+    <h4>تواصل معنا</h4>
+    <a href="mailto:support@jobhuntpro.com">الدعم عبر الإيميل</a>
+    <a href="https://t.me/jobhuntpro">تيليغرام</a>
    </div>
   </div>
   <div class="footer-bottom">
-   <span class="copyright">&copy; 2026 <span class="footer-accent">JobHunt Pro</span>. All rights reserved.</span>
-   <span class="payment">Payments: BTC &middot; ETH &middot; USDT &middot; LTC &middot; Credit Card</span>
+   <span class="copyright">&copy; 2026 <span class="footer-accent">JobHunt برو</span>. جميع الحقوق محفوظة.</span>
+   <span class="payment">المدفوعات: BTC &middot; ETH &middot; USDT &middot; LTC &middot; Credit Card</span>
   </div>
  </footer>
 
@@ -1179,11 +1183,11 @@
   function updateBreakdown(data) {
    var bd = data.breakdown;
    animateNumber(document.getElementById('ordersAmount'), bd.orders.amount);
-   document.getElementById('ordersCount').textContent = bd.orders.count + ' sales';
+   document.getElementById('ordersCount').textContent = bd.orders.count + ' مبيعات';
    animateNumber(document.getElementById('codesAmount'), bd.codes.amount);
-   document.getElementById('codesCount').textContent = bd.codes.count + ' used';
+   document.getElementById('codesCount').textContent = bd.codes.count + ' مستخدمة';
    animateNumber(document.getElementById('emailsAmount'), bd.emails.amount);
-   document.getElementById('emailsCount').textContent = bd.emails.count + ' sent';
+   document.getElementById('emailsCount').textContent = bd.emails.count + ' انبعتت';
   }
 
   function switchPeriod(period) {

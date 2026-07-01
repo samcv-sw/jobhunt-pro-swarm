@@ -1,14 +1,32 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ post.title }} — JobHunt Pro Blog</title>
+    <title>{{ post.title }} — مدونة JobHunt Pro</title>
     <meta name="description" content="{{ post.meta_description }}">
     <meta name="keywords" content="{{ post.primary_keyword }}, {{ post.topics|join(', ') }}">
     <link rel="canonical" href="https://jhfguf.pythonanywhere.com/blog/{{ post.slug }}">
     <link rel="stylesheet" href="/static/css/cyberpunk.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body, .cyberpunk-body {
+            font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+            font-size: 16px;
+            line-height: 1.8;
+            --text-x-direction: -1;
+        }
+        input, textarea {
+            dir: auto;
+        }
+        .directional-icon {
+            transform: scaleX(var(--text-x-direction));
+            display: inline-block;
+        }
+    </style>
     
     <!-- Schema.org Article structured data -->
     <script type="application/ld+json">
@@ -31,7 +49,7 @@
 <body class="cyberpunk-body">
     {% include '_public_nav.html' %}
 
-    <main class="blog-post" style="padding-top:140px;">
+    <main class="blog-post" style="padding-block-start: 140px;">
         <article>
             <header class="post-header">
                 <div class="post-meta">
@@ -39,7 +57,7 @@
                     {% if post.published_at %}
                     <time datetime="{{ post.published_at }}">{{ post.published_at[:10] }}</time>
                     {% endif %}
-                    <span class="post-reading-time">{{ post.word_count // 200 }} min read</span>
+                    <span class="post-reading-time">{{ post.word_count // 200 }} دقائق قراءة</span>
                 </div>
                 <h1>{{ post.title }}</h1>
                 <div class="post-topics">
@@ -55,16 +73,16 @@
 
             <footer class="post-footer">
                 <div class="post-cta">
-                    <h3>🚀 Ready to Automate Your Job Search?</h3>
-                    <p>JobHunt Pro uses AI to search, match, and apply to thousands of jobs automatically. Stop manually applying — let AI do the work.</p>
-                    <a href="/register" class="cta-button">Try JobHunt Pro → $2</a>
+                    <h3>🚀 جاهز لأتمتة بحثك عن عمل؟</h3>
+                    <p>يستخدم JobHunt Pro الذكاء الاصطناعي للبحث والتطابق والتقديم لآلاف الوظائف تلقائياً. توقف عن التقديم اليدوي — دع الذكاء الاصطناعي يقوم بالعمل.</p>
+                    <a href="/register" class="cta-button"><span class="directional-icon">←</span> جرب JobHunt Pro بـ 2$</a>
                 </div>
             </footer>
         </article>
 
         {% if related %}
         <aside class="related-posts">
-            <h3>Related Articles</h3>
+            <h3>مقالات ذات صلة</h3>
             <div class="related-grid">
                 {% for r in related if r.slug != post.slug %}
                 <div class="related-card">
@@ -78,7 +96,7 @@
     </main>
 
     <footer class="site-footer">
-        <p>JobHunt Pro · AI-Powered Job Applications · <a href="/">Start Free</a></p>
+        <p>JobHunt Pro · تقديم للوظائف بالذكاء الاصطناعي · <a href="/">ابدأ مجاناً</a></p>
     </footer>
 </body>
 </html>

@@ -84,8 +84,8 @@
   <div class="auth-container">
     <div class="auth-card">
       <div class="auth-header">
-        <h1>Welcome Back 👋</h1>
-        <p class="sub">Login to manage your AI job campaigns</p>
+        <h1>أهلاً وسهلاً بيك 👋</h1>
+        <p class="sub">سجل دخولك لتتحكم بحملاتك</p>
       </div>
 
       {% if plan %}
@@ -118,11 +118,11 @@
 
       <form method="POST" action="/login" id="loginForm" onsubmit="handleLogin(event)">
         <div class="form-group">
-          <label for="email">Email Address</label>
+          <label for="email">البريد الإلكتروني</label>
           <input dir="auto" type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>
         </div>
         <div class="form-group">
-          <label for="password">Password</label>
+          <label for="password">كلمة المرور</label>
           <div class="pw-input-wrap">
             <input dir="auto" type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password" oninput="checkPwStrength(this.value)">
             <button type="button" class="pw-toggle-btn" onclick="togglePwVisibility()" id="pwToggle" aria-label="Toggle password visibility">👁️</button>
@@ -135,18 +135,18 @@
         </div>
         <div class="pw-row">
           <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);cursor:pointer;">
-            <input dir="auto" type="checkbox" name="remember" style="accent-color:var(--accent-primary);"> Remember me
+            <input dir="auto" type="checkbox" name="remember" style="accent-color:var(--accent-primary);"> تذكرني
           </label>
-          <a href="/forgot-password">Forgot password?</a>
+          <a href="/forgot-password">نسيت كلمة المرور؟</a>
         </div>
         <button type="submit" class="btn-submit" id="loginBtn">
-          <span class="btn-text">🔐 Login to Dashboard</span>
+          <span class="btn-text">🔐 دخول للوحة التحكم</span>
           <span class="btn-spinner"></span>
         </button>
       </form>
 
       <div class="auth-footer">
-        New to JobHunt Pro? <a href="/register">Create free account →</a>
+        جديد عنا؟ <a href="/register">أنشئ حساب مجاني →</a>
       </div>
     </div>
 

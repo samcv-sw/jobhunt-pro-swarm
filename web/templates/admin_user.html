@@ -61,7 +61,7 @@
  <input dir="auto" type="hidden" name="target_email" value="{{ user.email }}">
  <input dir="auto" type="number" name="amount" placeholder="$" step="0.01" min="0.01" style="width:100px;">
  <input dir="auto" type="text" name="note" value="Admin credit" style="width:150px;">
- <button type="submit" class="btn btn-green">+ Add Credits</button>
+ <button type="submit" class="btn btn-green">+ إضافة رصيد</button>
  </form>
  </div>
  </div>
@@ -71,7 +71,7 @@
  <h2>Campaigns ({{ campaigns|length }})</h2>
  <div class="table-wrap">
  <table class="cyber-table">
- <thead><tr><th>ID</th><th>Status</th><th>Companies</th><th>Sent</th><th>Date</th></tr></thead>
+ <thead><tr><th>ID</th><th>Status</th><th>Companies</th><th>المرسلة</th><th>Date</th></tr></thead>
  <tbody>
  {% for c in campaigns %}
  <tr>

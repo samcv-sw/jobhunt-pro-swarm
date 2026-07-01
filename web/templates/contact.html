@@ -27,12 +27,12 @@
 .form-group{margin-bottom:16px}
 .form-group label{display:block;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
 
-.glass-input{width:100%;padding:14px 16px;margin-top:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#e2e8f0;font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:all .2s;box-sizing:border-box}
+.glass-input{width:100%;padding:14px 16px;margin-top:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#e2e8f0;font-size:15px;font-family:'Cairo', 'Inter', sans-serif;outline:none;transition:all .2s;box-sizing:border-box}
 .glass-input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
-select.glass-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
+select.glass-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 14px center;padding-inline-end:40px}
 textarea.glass-input{min-height:140px;resize:vertical;line-height:1.6}
 
-.btn-submit{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.btn-submit{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Cairo', 'Inter', sans-serif}
 .btn-submit:hover{filter:brightness(1.15);transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,130,246,.25)}
 
 /* Support Cards */
@@ -54,9 +54,9 @@ textarea.glass-input{min-height:140px;resize:vertical;line-height:1.6}
 .hours-row .time.highlight{color:#4ade80;font-weight:600}
 
 /* WhatsApp Float */
-.wa-float{position:fixed;bottom:28px;right:28px;display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border-radius:30px;text-decoration:none;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(37,211,102,.25);z-index:999;transition:all .2s}
+.wa-float{position:fixed;inset-block-end:28px;inset-inline-end:28px;display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border-radius:30px;text-decoration:none;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(37,211,102,.25);z-index:999;transition:all .2s}
 .wa-float:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(37,211,102,.35)}
-@media(max-width:480px){.wa-float{bottom:16px;right:16px;padding:10px 16px;font-size:12px}}
+@media(max-width:480px){.wa-float{inset-block-end:16px;inset-inline-end:16px;padding:10px 16px;font-size:12px}}
 </style>
 
 <div class="main contact-container">
@@ -74,91 +74,91 @@ textarea.glass-input{min-height:140px;resize:vertical;line-height:1.6}
 
         <!-- Hero -->
         <div class="contact-hero">
-            <h1>&#x1F4AC; Contact &amp; Support</h1>
-            <p class="subtitle">Need help? Have feedback? Want to suggest a feature? We're here for you — every message shapes JobHunt Pro.</p>
+            <h1>&#x1F4AC; تواصل ودعم</h1>
+            <p class="subtitle">محتاج مساعدة؟ عندك ملاحظة؟ حابب تقترح ميزة؟ نحن هون كرمالك &mdash; كل رسالة بتساعدنا نطور JobHunt Pro.</p>
         </div>
 
         <!-- Response time badge -->
         <div class="response-badge">
             <span class="pulse-dot"></span>
-            We typically respond within 2 hours during business hours
+            بالعادة منرد خلال ساعتين بأوقات العمل
         </div>
 
         <!-- Two-column layout -->
         <div class="contact-grid">
             <!-- LEFT: Contact Form -->
             <div class="form-panel">
-                <h2>&#x1F4DD; Send Us a Message</h2>
-                <p class="form-subtitle">All fields marked with * are required</p>
+                <h2>&#x1F4DD; ابعتلنا رسالة</h2>
+                <p class="form-subtitle">كل الخانات اللي حدها * مطلوبة</p>
                 <form method="post" action="/contact">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="name">Your Name *</label>
-                            <input dir="auto" type="text" id="name" name="name" class="glass-input" placeholder="John Doe" value="{{ user_name or '' }}" required autocomplete="name">
+                            <label for="name">اسمك *</label>
+                            <input dir="auto" type="text" id="name" name="name" class="glass-input" placeholder="اسمك الكريم" value="{{ user_name or '' }}" required autocomplete="name">
                         </div>
                         <div class="form-group">
-                            <label for="email">Email Address *</label>
+                            <label for="email">بريدك الإلكتروني *</label>
                             <input dir="auto" type="email" id="email" name="email" class="glass-input" placeholder="you@example.com" value="{{ user_email or '' }}" required autocomplete="email">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="subject">Subject *</label>
+                        <label for="subject">الموضوع *</label>
                         <select id="subject" name="subject" class="glass-input" required>
-                            <option value="">Select a topic...</option>
-                            <option value="support">&#x1F527; Technical Support</option>
-                            <option value="billing">&#x1F4B3; Billing &amp; Payments</option>
-                            <option value="feature">&#x1F4A1; Feature Request</option>
-                            <option value="bug">&#x1F41B; Bug Report</option>
-                            <option value="feedback">&#x1F4AC; General Feedback</option>
-                            <option value="account">&#x1F464; Account Help</option>
-                            <option value="other">&#x2753; Other</option>
+                            <option value="">اختار موضوع...</option>
+                            <option value="support">&#x1F527; دعم فني</option>
+                            <option value="billing">&#x1F4B3; الفواتير والدفع</option>
+                            <option value="feature">&#x1F4A1; طلب ميزة جديدة</option>
+                            <option value="bug">&#x1F41B; تبليغ عن مشكلة</option>
+                            <option value="feedback">&#x1F4AC; ملاحظات عامة</option>
+                            <option value="account">&#x1F464; مساعدة بالحساب</option>
+                            <option value="other">&#x2753; غير هيك</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="message">Your Message *</label>
-                        <textarea dir="auto" id="message" name="message" class="glass-input" placeholder="Tell us what's on your mind... Be as detailed as you like — we read every word." required></textarea>
+                        <label for="message">رسالتك *</label>
+                        <textarea dir="auto" id="message" name="message" class="glass-input" placeholder="خبرنا شو ببالك... فيك تحط تفاصيل قد ما بدك &mdash; منقرا كل كلمة." required></textarea>
                     </div>
-                    <button type="submit" class="btn-submit">&#x1F680; Send Message</button>
+                    <button type="submit" class="btn-submit">&#x1F680; ابعت الرسالة</button>
                 </form>
             </div>
 
             <!-- RIGHT: Support Cards + Office Hours -->
             <div class="support-cards">
                 <!-- WhatsApp Card -->
-                <a href="https://wa.me/96171019053?text=Hi%20JobHunt%20Pro%20Team!%20I%20need%20help%20with..." target="_blank" class="support-card whatsapp">
+                <a href="https://wa.me/96171019053?text=مرحبا%20فريق%20JobHunt%20Pro!%20محتاج%20مساعدة%20بـ..." target="_blank" class="support-card whatsapp">
                     <span class="sc-icon">&#x1F7E2;</span>
-                    <h3>WhatsApp Support</h3>
-                    <p>Chat with us directly on WhatsApp for the fastest response. Available for urgent issues and quick questions.</p>
+                    <h3>دعم عبر واتساب</h3>
+                    <p>احكينا دغري عالواتساب لأسرع رد. موجودين للمشاكل الطارئة والأسئلة السريعة.</p>
                 </a>
 
                 <!-- Email Card -->
-                <a href="mailto:support@jobhuntpro.ai?subject=JobHunt%20Pro%20Support" class="support-card email-card-support">
+                <a href="mailto:support@jobhuntpro.ai?subject=دعم%20JobHunt%20Pro" class="support-card email-card-support">
                     <span class="sc-icon">&#x2709;&#xFE0F;</span>
-                    <h3>Email Us</h3>
-                    <p>Prefer email? Reach us at <strong>support@jobhuntpro.ai</strong>. Great for detailed feedback and feature suggestions.</p>
+                    <h3>ابعتلنا إيميل</h3>
+                    <p>بتفضل الإيميل؟ تواصل معنا على <strong>support@jobhuntpro.ai</strong>. ممتاز للملاحظات المفصلة واقتراحات الميزات.</p>
                 </a>
 
                 <!-- FAQ Card -->
                 <a href="/faq" class="support-card">
                     <span class="sc-icon">&#x1F4D6;</span>
-                    <h3>FAQ &amp; Knowledge Base</h3>
-                    <p>Check our frequently asked questions for instant answers to common questions about JobHunt Pro.</p>
+                    <h3>الأسئلة الشائعة</h3>
+                    <p>شوف الأسئلة الشائعة لتحصل على أجوبة فورية للأسئلة المكررة عن JobHunt Pro.</p>
                 </a>
 
                 <!-- Office Hours -->
                 <div class="hours-card">
-                    <h3>&#x1F550; Office Hours (GMT+3, Beirut)</h3>
+                    <h3>&#x1F550; أوقات العمل (GMT+3، بيروت)</h3>
                     <div class="hours-row">
-                        <span class="day">Monday — Friday</span>
-                        <span class="time highlight">9:00 AM — 8:00 PM</span>
+                        <span class="day">التنين &mdash; الجمعة</span>
+                        <span class="time highlight">9:00 الصبح &mdash; 8:00 المسا</span>
                     </div>
                     <div class="hours-row">
-                        <span class="day">Saturday</span>
-                        <span class="time">10:00 AM — 4:00 PM</span>
+                        <span class="day">السبت</span>
+                        <span class="time">10:00 الصبح &mdash; 4:00 بعد الظهر</span>
                     </div>
                     <div class="hours-row">
-                        <span class="day">Sunday</span>
-                        <span class="time">Limited availability</span>
+                        <span class="day">الأحد</span>
+                        <span class="time">تواجد محدود</span>
                     </div>
                 </div>
 
@@ -166,8 +166,8 @@ textarea.glass-input{min-height:140px;resize:vertical;line-height:1.6}
                 <!-- Admin Logs Button -->
                 <a href="/admin/logs" class="support-card" style="border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.05); margin-top: 10px;">
                     <span class="sc-icon">&#x1F5A5;&#xFE0F;</span>
-                    <h3 style="color: #f87171;">System Logs (Admin Only)</h3>
-                    <p>View server and error logs to debug PythonAnywhere unhandled exceptions.</p>
+                    <h3 style="color: #f87171;">سجلات النظام (للمدير بس)</h3>
+                    <p>شوف سجلات السيرفر والأخطاء لمعالجة مشاكل PythonAnywhere.</p>
                 </a>
                 {% endif %}
             </div>
@@ -175,7 +175,7 @@ textarea.glass-input{min-height:140px;resize:vertical;line-height:1.6}
     </div>
 
     <!-- WhatsApp Floating Button -->
-    <a href="https://wa.me/96171019053?text=Hi%20Sam!%20I%20need%20support%20with%20JobHunt%20Pro" target="_blank" class="wa-float">
-        <span class="wa-icon">&#x1F7E2;</span> WhatsApp Us
+    <a href="https://wa.me/96171019053?text=مرحبا%20سام!%20محتاج%20مساعدة%20بـ%20JobHunt%20Pro" target="_blank" class="wa-float">
+        <span class="wa-icon">&#x1F7E2;</span> احكينا واتساب
     </a>
 

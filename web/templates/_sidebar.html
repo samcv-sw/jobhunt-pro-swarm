@@ -1,54 +1,54 @@
-<button class="hamburger" onclick="toggleNav()" aria-label="Menu"><span></span><span></span><span></span></button>
+<button class="hamburger" onclick="toggleNav()" aria-label="القائمة"><span></span><span></span><span></span></button>
 <div class="sidebar" id="sidebarNav">
-    <div class="logo">JobHunt<span>Pro</span></div>
+    <div class="logo">جوبهانت<span>برو</span></div>
     <nav class="nav">
-        <a href="/user-dashboard"{{ ' class="active"' if active_page == 'dashboard' else '' }}><span class="nav-icon">&#x1F4CA;</span>Dashboard</a>
-        <a href="/upload-cv"{{ ' class="active"' if active_page == 'upload-cv' else '' }}><span class="nav-icon">&#x1F4C4;</span>Upload CV</a>
-        <a href="/ats-scorer"{{ ' class="active"' if active_page == 'ats-scorer' else '' }}><span class="nav-icon">&#x1F3AF;</span>ATS Scorer</a>
-        <a href="/resume-tailor"{{ ' class="active"' if active_page == 'resume-tailor' else '' }} style="color:#a78bfa;"><span class="nav-icon">&#x2728;</span>Resume Tailor</a>
-        <a href="/funnel-analytics"{{ ' class="active"' if active_page == 'funnel-analytics' else '' }}><span class="nav-icon">&#x1F4CA;</span>Funnel Analytics</a>
-        <a href="/new-campaign"{{ ' class="active"' if active_page == 'new-campaign' else '' }}><span class="nav-icon">&#x1F3AF;</span>New Campaign</a>
-        <a href="/for-employers"{{ ' class="active"' if active_page == 'employers' else '' }} style="color:#f59e0b;"><span class="nav-icon">&#x1F488;</span>Premium Services</a>
-        <div style="padding-left:20px;margin:4px 0 10px;">
-            <a href="/for-employers" style="font-size:0.85em;display:block;padding:4px 10px;color:#fbbf24;border-left:2px solid #f59e0b40;"><span class="nav-icon">&#x1F3E2;</span>Post a Job</a>
-            <a href="/employer/track" style="font-size:0.85em;display:block;padding:4px 10px;color:#60a5fa;border-left:2px solid #3b82f640;"><span class="nav-icon">&#x1F4CA;</span>Track My Jobs</a>
+        <a href="/user-dashboard"{{ ' class="active"' if active_page == 'dashboard' else '' }}><span class="nav-icon">&#x1F4CA;</span>لوحة القيادة</a>
+        <a href="/upload-cv"{{ ' class="active"' if active_page == 'upload-cv' else '' }}><span class="nav-icon">&#x1F4C4;</span>رفع السيرة الذاتية</a>
+        <a href="/ats-scorer"{{ ' class="active"' if active_page == 'ats-scorer' else '' }}><span class="nav-icon">&#x1F3AF;</span>مقياس ATS</a>
+        <a href="/resume-tailor"{{ ' class="active"' if active_page == 'resume-tailor' else '' }} style="color:#a78bfa;"><span class="nav-icon">&#x2728;</span>تخصيص السيرة الذاتية</a>
+        <a href="/funnel-analytics"{{ ' class="active"' if active_page == 'funnel-analytics' else '' }}><span class="nav-icon">&#x1F4CA;</span>تحليلات مسار التوظيف</a>
+        <a href="/new-campaign"{{ ' class="active"' if active_page == 'new-campaign' else '' }}><span class="nav-icon">&#x1F3AF;</span>حملة جديدة</a>
+        <a href="/for-employers"{{ ' class="active"' if active_page == 'employers' else '' }} style="color:#f59e0b;"><span class="nav-icon">&#x1F488;</span>خدمات أصحاب العمل</a>
+        <div style="padding-inline-start:20px;margin:4px 0 10px;">
+            <a href="/for-employers" style="font-size:0.85em;display:block;padding:4px 10px;color:#fbbf24;border-inline-start:2px solid #f59e0b40;"><span class="nav-icon">&#x1F3E2;</span>نشر وظيفة</a>
+            <a href="/employer/track" style="font-size:0.85em;display:block;padding:4px 10px;color:#60a5fa;border-inline-start:2px solid #3b82f640;"><span class="nav-icon">&#x1F4CA;</span>تتبع وظائفي</a>
         </div>
-        <a href="/sent-emails"{{ ' class="active"' if active_page == 'sent-emails' else '' }}><span class="nav-icon">&#x1F4E7;</span>Sent Emails</a>
+        <a href="/sent-emails"{{ ' class="active"' if active_page == 'sent-emails' else '' }}><span class="nav-icon">&#x1F4E7;</span>الرسائل المرسلة</a>
         <div class="nav-divider"></div>
-        <a href="/battle-station"{{ ' class="active"' if active_page == 'battle-station' else '' }}><span class="nav-icon">&#x2694;&#xFE0F;</span>Battle Station</a>
-        <a href="/services"{{ ' class="active"' if active_page == 'services' else '' }}><span class="nav-icon">&#x2B50;</span>Premium Services</a>
-        <a href="/offers"{{ ' class="active"' if active_page == 'offers' else '' }} style="color:#f43f5e;"><span class="nav-icon">&#x1F525;</span>Special Offers</a>
-        <a href="/my-purchases"{{ ' class="active"' if active_page == 'my-purchases' else '' }} style="color:#3b82f6;"><span class="nav-icon">&#x1F4E6;</span>My Subscriptions</a>
-        <a href="/pricing"{{ ' class="active"' if active_page == 'pricing' else '' }}><span class="nav-icon">&#x1F48E;</span>Pricing</a>
-        <a href="/wallet"{{ ' class="active"' if active_page == 'wallet' else '' }}><span class="nav-icon">&#x1F4B0;</span>Wallet</a>
+        <a href="/battle-station"{{ ' class="active"' if active_page == 'battle-station' else '' }}><span class="nav-icon">&#x2694;&#xFE0F;</span>محطة المعركة</a>
+        <a href="/services"{{ ' class="active"' if active_page == 'services' else '' }}><span class="nav-icon">&#x2B50;</span>الخدمات المميزة</a>
+        <a href="/offers"{{ ' class="active"' if active_page == 'offers' else '' }} style="color:#f43f5e;"><span class="nav-icon">&#x1F525;</span>عروض خاصة</a>
+        <a href="/my-purchases"{{ ' class="active"' if active_page == 'my-purchases' else '' }} style="color:#3b82f6;"><span class="nav-icon">&#x1F4E6;</span>اشتراكاتي</a>
+        <a href="/pricing"{{ ' class="active"' if active_page == 'pricing' else '' }}><span class="nav-icon">&#x1F48E;</span>الأسعار</a>
+        <a href="/wallet"{{ ' class="active"' if active_page == 'wallet' else '' }}><span class="nav-icon">&#x1F4B0;</span>المحفظة</a>
         <div class="nav-divider"></div>
-        <a href="/stats"{{ ' class="active"' if active_page == 'stats' else '' }}><span class="nav-icon">&#x1F4C8;</span>Stats</a>
-        <a href="/referral"{{ ' class="active"' if active_page == 'referral' else '' }}><span class="nav-icon">&#x1F465;</span>Referrals</a>
-        <a href="/email-test"{{ ' class="active"' if active_page == 'email-test' else '' }}><span class="nav-icon">&#x1F9EA;</span>Email Test</a>
-        <a href="/export"{{ ' class="active"' if active_page == 'export' else '' }}><span class="nav-icon">&#x1F4E5;</span>Export</a>
-        <a href="/api-docs"{{ ' class="active"' if active_page == 'api' else '' }}><span class="nav-icon">&#x1F50C;</span>API Docs</a>
+        <a href="/stats"{{ ' class="active"' if active_page == 'stats' else '' }}><span class="nav-icon">&#x1F4C8;</span>الإحصائيات</a>
+        <a href="/referral"{{ ' class="active"' if active_page == 'referral' else '' }}><span class="nav-icon">&#x1F465;</span>الإحالات</a>
+        <a href="/email-test"{{ ' class="active"' if active_page == 'email-test' else '' }}><span class="nav-icon">&#x1F9EA;</span>اختبار البريد</a>
+        <a href="/export"{{ ' class="active"' if active_page == 'export' else '' }}><span class="nav-icon">&#x1F4E5;</span>تصدير</a>
+        <a href="/api-docs"{{ ' class="active"' if active_page == 'api' else '' }}><span class="nav-icon">&#x1F50C;</span>مستندات API</a>
         <div class="nav-divider"></div>
-        <a href="/contact"{{ ' class="active"' if active_page == 'contact' else '' }}><span class="nav-icon">&#x1F4AC;</span>Contact</a>
-        <a href="https://wa.me/96171019053?text=Hi%20Sam%21%20JobHunt%20Pro%20Support" target="_blank" style="color:#25D366;"><span class="nav-icon">&#x1F7E2;</span>WhatsApp</a>
-        <a href="/admin/sys-logs"{{ ' class="active"' if active_page == 'sys-logs' else '' }} style="color:#ef4444;"><span class="nav-icon">&#x1F4DC;</span>System Logs</a>
+        <a href="/contact"{{ ' class="active"' if active_page == 'contact' else '' }}><span class="nav-icon">&#x1F4AC;</span>اتصل بنا</a>
+        <a href="https://wa.me/96171019053?text=مرحبا%20سام%21%20دعم%20جوبهانت%20برو" target="_blank" style="color:#25D366;"><span class="nav-icon">&#x1F7E2;</span>واتساب</a>
+        <a href="/admin/sys-logs"{{ ' class="active"' if active_page == 'sys-logs' else '' }} style="color:#ef4444;"><span class="nav-icon">&#x1F4DC;</span>سجلات النظام</a>
         <div class="nav-gap"></div>
         <div class="nav-divider"></div>
         <a href="#" id="notif-bell-link" onclick="toggleNotifPanel();return false;" style="position:relative;">
-            <span class="nav-icon">&#x1F514;</span>Notifications
+            <span class="nav-icon">&#x1F514;</span>الإشعارات
             <span id="notif-badge" class="notif-badge" style="display:none;">0</span>
         </a>
-        <a href="/logout" class="logout"><span class="nav-icon">&#x1F6AA;</span>Logout</a>
+        <a href="/logout" class="logout"><span class="nav-icon">&#x1F6AA;</span>تسجيل خروج</a>
     </nav>
 </div>
 
 <!-- Notification Panel -->
 <div class="notif-panel" id="notifPanel">
     <div class="notif-panel-header">
-        <h3>&#x1F514; Notifications</h3>
-        <button class="notif-mark-all" onclick="markAllRead()" id="notif-mark-all-btn" style="display:none;">Mark all read</button>
+        <h3>&#x1F514; الإشعارات</h3>
+        <button class="notif-mark-all" onclick="markAllRead()" id="notif-mark-all-btn" style="display:none;">تحديد الكل كمقروء</button>
     </div>
     <div class="notif-list" id="notifList">
-        <div class="notif-empty">Loading notifications...</div>
+        <div class="notif-empty">جاري تحميل الإشعارات...</div>
     </div>
 </div>
 
@@ -89,7 +89,7 @@ function renderNotifList(notifs) {
     const list = document.getElementById('notifList');
     const markBtn = document.getElementById('notif-mark-all-btn');
     if (!notifs || notifs.length === 0) {
-        list.innerHTML = '<div class="notif-empty">No notifications yet &#x1F389;</div>';
+        list.innerHTML = '<div class="notif-empty">لا توجد إشعارات بعد &#x1F389;</div>';
         markBtn.style.display = 'none';
         return;
     }
@@ -160,10 +160,10 @@ function timeAgo(dateStr) {
     const d = new Date(dateStr.replace(' ', 'T') + (dateStr.includes('Z') ? '' : 'Z'));
     const now = new Date();
     const diff = Math.floor((now - d) / 1000);
-    if (diff < 60) return 'Just now';
-    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-    return Math.floor(diff / 86400) + 'd ago';
+    if (diff < 60) return 'الآن';
+    if (diff < 3600) return Math.floor(diff / 60) + ' دقيقة مضت';
+    if (diff < 86400) return Math.floor(diff / 3600) + ' ساعة مضت';
+    return Math.floor(diff / 86400) + ' يوم مضى';
 }
 
 // Start polling

@@ -18,14 +18,14 @@
  --gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);}
 .matrix-bg {
  position: fixed;
- top: 0; left: 0;
+ top: 0; inset-inline-start: 0;
  width: 100%; height: 100%;
  background: linear-gradient(180deg, rgba(0,240,255,0.02) 0%, transparent 50%, rgba(255,0,85,0.02) 100%);
  pointer-events: none;
  z-index: 0;}
 .scanline {
  position: fixed;
- top: 0; left: 0;
+ top: 0; inset-inline-start: 0;
  width: 100%; height: 100%;
  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.01) 2px, rgba(0,240,255,0.01) 4px);
  pointer-events: none;
@@ -89,8 +89,8 @@
  display: flex;
  align-items: center;
  gap: 10px;
- border-left: 4px solid var(--magenta);
- padding-left: 12px;}
+ border-inline-start: 4px solid var(--magenta);
+ padding-inline-start: 12px;}
 .section-desc {
  color: var(--muted);
  font-size: 12px;
@@ -121,7 +121,7 @@
 .store-card.unlocked::before {
  content: 'UNLOCKED';
  position: absolute;
- top: 15px; right: -30px;
+ top: 15px; inset-inline-end: -30px;
  background: var(--green);
  color: #000;
  font-size: 9px;
@@ -204,7 +204,7 @@
 .btn-topup:hover {
  background: rgba(0, 240, 255, 0.1);
  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);}
-/* Terminal component for Active Upgrades */
+/* Terminal component for نشط Upgrades */
  .terminal-wrap {
  background: #08080c;
  border: 1px solid var(--border);
@@ -255,7 +255,7 @@
 .hamburger { display: none;}
 .navbar {
  display: flex; align-items: center; justify-content: space-between;
- position: fixed; top: 0; left: 0; right: 0; height: 56px;
+ position: fixed; top: 0; inset-inline-start: 0; inset-inline-end: 0; height: 56px;
  background: linear-gradient(135deg, #10101f, #050508);
  border-bottom: 1px solid var(--border);
  padding: 0 20px; z-index: 1000;}
@@ -269,7 +269,7 @@
  font-size: 24px; cursor: pointer; padding: 8px;}
 .nav-menu {
  display: none;
- position: fixed; top: 56px; left: 0; right: 0;
+ position: fixed; top: 56px; inset-inline-start: 0; inset-inline-end: 0;
  background: #10101f;
  border-bottom: 1px solid var(--border);
  flex-direction: column; padding: 12px; gap: 4px;
@@ -282,8 +282,8 @@
 .nav-menu a.active {
  background: rgba(59, 130, 246, 0.2) !important;
  color: #fff !important;
- border-left: 3px solid #3b82f6;
- padding-left: 13px;
+ border-inline-start: 3px solid #3b82f6;
+ padding-inline-start: 13px;
  font-weight: 600;}
 .page-header { flex-direction: column; gap: 20px; align-items: flex-start;}
 .balance-box { width: 100%; justify-content: space-between;}
@@ -324,6 +324,8 @@
  transition: all 0.3s;}
 .btn-bulk-buy:hover { box-shadow: 0 0 25px rgba(0,229,255,0.3); transform: translateY(-2px);}
 .btn-bulk-buy:disabled { opacity: 0.4; cursor: not-allowed; transform: none;}</style>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>body, h1, h2, h3, h4, p, span, a, div, .btn { font-family: "Cairo", "IBM Plex Arabic", "Tajawal", sans-serif !important; }</style>
 </head>
 
 <body class="cyberpunk-body">
@@ -341,15 +343,15 @@
  <div class="nav-brand">JOBHUNT PRO</div>
  <button class="hamburger" onclick="toggleNav()">☰</button>
  <div class="nav-menu" id="navMenu">
- <a href="/user-dashboard"> 📊 Dashboard</a>
- <a href="/upload-cv"> 📝 Upload CV</a>
- <a href="/new-campaign"> 🚀 New Campaign</a>
- <a href="/services" class="active"> ✨ Premium Services</a>
- <a href="/wallet"> 💰 Wallet</a>
- <a href="/referral"> 🎁 Referrals</a>
- <a href="/api/docs"> 🔌 API</a>
- <a href="/pricing">💳 Pricing Info</a>
- <a href="/logout"> 🚪 Logout</a>
+ <a href="/user-dashboard"> 📊 لوحة التحكم</a>
+ <a href="/upload-cv"> 📝 رفع السيرة الذاتية</a>
+ <a href="/new-campaign"> 🚀 حملة جديدة</a>
+ <a href="/services" class="active"> ✨ خدمات مميزة</a>
+ <a href="/wallet"> 💰 المحفظة</a>
+ <a href="/referral"> 🎁 الإحالات</a>
+ <a href="/api/docs"> 🔌 واجهة المبرمجين</a>
+ <a href="/pricing">💳 معلومات الأسعار</a>
+ <a href="/logout"> 🚪 تسجيل خروج</a>
  </div>
  </nav>
 
@@ -357,36 +359,36 @@
  <div class="sidebar">
 <div class="logo">JobHunt Pro</div>
 <nav class="nav">
-<a href="/user-dashboard"> 📊 Dashboard</a>
-<a href="/upload-cv"> 📝 Upload CV</a>
-<a href="/new-campaign"> 🚀 New Campaign</a>
-<a href="/sent-emails" style="color:#3b82f6;"> 📬 Sent Emails</a>
-<a href="/services" class="active"> ✨ Premium Services</a>
-<a href="/wallet"> 💰 Wallet</a>
-<a href="/referral"> 🎁 Referrals</a>
-<a href="/stats" style="color: #22c55e;">📈 Stats</a>
-<a href="/api/docs"> 🔌 API</a>
-<a href="/email-test"> ✉️ Email Test</a>
-<a href="/pricing"> 💎 Pricing</a>
-<a href="/contact"> 💬 Contact</a>
-<a href="/export" style="color: #f97316;">📥 Export</a>
-<a href="https://wa.me/96171019053?text=Hi%20Sam%21%20JobHunt%20Pro%20Support" target="_blank" style="color: #25D366;">💬 WhatsApp</a>
-<a href="/logout" style="margin-top:auto;color:#f87171;"> 🚪 Logout</a>
+<a href="/user-dashboard"> 📊 لوحة التحكم</a>
+<a href="/upload-cv"> 📝 رفع السيرة الذاتية</a>
+<a href="/new-campaign"> 🚀 حملة جديدة</a>
+<a href="/sent-emails" style="color:#3b82f6;"> 📬 البريد المرسل</a>
+<a href="/services" class="active"> ✨ خدمات مميزة</a>
+<a href="/wallet"> 💰 المحفظة</a>
+<a href="/referral"> 🎁 الإحالات</a>
+<a href="/stats" style="color: #22c55e;">📈 الإحصائيات</a>
+<a href="/api/docs"> 🔌 واجهة المبرمجين</a>
+<a href="/email-test"> ✉️ اختبار البريد</a>
+<a href="/pricing"> 💎 الأسعار</a>
+<a href="/contact"> 💬 اتصل بنا</a>
+<a href="/export" style="color: #f97316;">📥 تصدير</a>
+<a href="https://wa.me/96171019053?text=Hi%20Sam%21%20JobHunt%20Pro%20Support" target="_blank" style="color: #25D366;">💬 واتساب</a>
+<a href="/logout" style="margin-top:auto;color:#f87171;"> 🚪 تسجيل خروج</a>
 </nav>
 </div>
 <div class="page-header">
  <div>
- <h1> PREMIUM <span class="cyan">SERVICES</span></h1>
- <p style="color: var(--muted); font-size:12px; margin-top:4px;">Directly unlock high-profit expert tools using your wallet balance</p>
+ <h1> خدمات <span class="cyan">مميزة</span></h1>
+ <p style="color: var(--muted); font-size:12px; margin-top:4px;">افتح أدوات الخبراء عالية الربح مباشرة باستخدام رصيد محفظتك</p>
  </div>
  
  {% if user %}
  <div class="balance-box">
  <div>
- <div class="balance-label">Wallet Balance</div>
+ <div class="balance-label">رصيد المحفظة</div>
  <div class="balance-value">${{ "%.2f"|format(user.wallet_balance) }}</div>
  </div>
- <a href="/wallet" class="btn btn-topup">+ Top Up</a>
+ <a href="/wallet" class="btn btn-topup">+ تعبئة الرصيد</a>
  </div>
  {% endif %}
  </div>
@@ -394,48 +396,48 @@
  <!-- Success/Error Feedback -->
  {% if request.query_params.get('success') == 'purchased' %}
  <div class="alert success">
- ✅ Success! <strong>{{ request.query_params.get('package') }}</strong> has been permanently unlocked and credited to your profile.
+ ✅ نجاح! <strong>{{ request.query_params.get('package') }}</strong> تم فتحه بشكل دائم وإضافته إلى ملفك الشخصي.
  </div>
  {% endif %}
  
  {% if request.query_params.get('error') == 'insufficient_funds' %}
  <div class="alert error">
- ❌ Insufficient wallet balance! Please go to the <strong><a href="/wallet" style="color: #f87171; text-decoration: underline;">💰 Wallet</a></strong> page and top up to unlock this feature.
+ ❌ رصيد المحفظة غير كافٍ! يرجى الذهاب إلى <strong><a href="/wallet" style="color: #f87171; text-decoration: underline;">💰 المحفظة</a></strong> وتعبئة الرصيد لفتح هذه الميزة.
  </div>
  {% endif %}
  
  {% if request.query_params.get('error') == 'invalid_package' %}
  <div class="alert error">
- ❌ Invalid service package selected.
+ ❌ تم تحديد باقة خدمة غير صالحة.
  </div>
  {% endif %}
 
  <!-- A La Carte store -->
- <h2 class="section-title">// A LA CARTE FEATURES & SERVICES</h2>
- <p class="section-desc">Unlock advanced AI optimization tools and expert features to boost your response rate. Priced between $2 and $20.</p>
+ <h2 class="section-title">// ميزات وخدمات حسب الطلب</h2>
+ <p class="section-desc">افتح أدوات تحسين الذكاء الاصطناعي المتقدمة وميزات الخبراء لزيادة معدل الاستجابة. بأسعار تتراوح بين 2$ و 20$.</p>
  
  <div class="store-grid">
  {% for s in services %}
  <div class="store-card {% if s.package in active_ids %}unlocked{% endif %}">
  <input dir="auto" type="checkbox" class="checkbox-select" data-id="{{ s.package }}" data-type="service" data-price="{{ s.price_usd }}" data-name="{{ s.name }}">
  <div class="card-header">
- <span class="package-badge">Add-on Feature</span>
+ <span class="package-badge">ميزة إضافية</span>
  <h3>{{ s.name }}</h3>
  </div>
  <p>{{ s.description }}</p>
  <div class="card-footer">
  <div>
- <div class="price-label">Price</div>
+ <div class="price-label">السعر</div>
  <div class="price-val cyan-glow">${{ "%.2f"|format(s.price_usd) }}</div>
  </div>
  
- <form method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ s.name }}', '{{ s.price_usd }}')">
+ <form method="POST" action="/services/purchase" onsubmit="return confirmافتح('{{ s.name }}', '{{ s.price_usd }}')">
  <input dir="auto" type="hidden" name="package_id" value="{{ s.package }}">
  <input dir="auto" type="hidden" name="service_type" value="service">
  {% if s.package in active_ids %}
- <button type="button" class="btn btn-secondary" disabled>Active</button>
+ <button type="button" class="btn btn-secondary" disabled>نشط</button>
  {% else %}
- <button type="submit" class="btn btn-primary">Unlock</button>
+ <button type="submit" class="btn btn-primary">افتح</button>
  {% endif %}
  </form>
  </div>
@@ -444,30 +446,30 @@
  </div>
 
  <!-- Follow-Up Automation Highlight -->
- <h2 class="section-title" style="border-left-color: var(--cyan);">// 📬 FOLLOW-UP AUTOMATION (NEW)</h2>
- <p class="section-desc">AI-powered follow-up emails that automatically check in with employers who haven't responded. 3 tiers based on volume. Each follow-up is personalized by Groq AI.</p>
+ <h2 class="section-title" style="border-inline-start-color: var(--cyan);">// 📬 أتمتة المتابعة (جديد)</h2>
+ <p class="section-desc">رسائل بريد إلكتروني للمتابعة مدعومة بالذكاء الاصطناعي تتحقق تلقائياً مع أصحاب العمل الذين لم يردوا. 3 مستويات بناءً على الحجم. كل متابعة مخصصة بواسطة Groq AI.</p>
  <div class="store-grid" style="margin-bottom: 20px;">
  {% for s in services %}
  {% if 'follow-up-automation' in s.package %}
- <div class="store-card {% if s.package in active_ids %}unlocked{% endif %}" style="border-left: 3px solid var(--cyan);">
+ <div class="store-card {% if s.package in active_ids %}unlocked{% endif %}" style="border-inline-start: 3px solid var(--cyan);">
  <input dir="auto" type="checkbox" class="checkbox-select" data-id="{{ s.package }}" data-type="service" data-price="{{ s.price_usd }}" data-name="{{ s.name }}">
  <div class="card-header">
- <span class="package-badge" style="color: var(--cyan);">FOLLOW-UP TIER</span>
+ <span class="package-badge" style="color: var(--cyan);">مستوى المتابعة</span>
  <h3>{{ s.name }}</h3>
  </div>
  <p>{{ s.description }}</p>
  <div class="card-footer">
  <div>
- <div class="price-label">Per Campaign</div>
+ <div class="price-label">لكل حملة</div>
  <div class="price-val cyan-glow">${{ "%.2f"|format(s.price_usd) }}</div>
  </div>
- <form method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ s.name }}', '{{ s.price_usd }}')">
+ <form method="POST" action="/services/purchase" onsubmit="return confirmافتح('{{ s.name }}', '{{ s.price_usd }}')">
  <input dir="auto" type="hidden" name="package_id" value="{{ s.package }}">
  <input dir="auto" type="hidden" name="service_type" value="service">
  {% if s.package in active_ids %}
- <button type="button" class="btn btn-secondary" disabled>Active</button>
+ <button type="button" class="btn btn-secondary" disabled>نشط</button>
  {% else %}
- <button type="submit" class="btn btn-primary">Unlock</button>
+ <button type="submit" class="btn btn-primary">افتح</button>
  {% endif %}
  </form>
  </div>
@@ -477,31 +479,31 @@
  </div>
 
  <!-- Bouquet Packages store -->
- <h2 class="section-title">// COMBINATION BOUQUET PACKAGES</h2>
- <p class="section-desc">Combine multiple features and larger candidate reach at bulk discount pricing.</p>
+ <h2 class="section-title">// باقات مجمعة</h2>
+ <p class="section-desc">اجمع ميزات متعددة ووصول أكبر للمرشحين بأسعار مخفضة بالجملة.</p>
  
  <div class="store-grid">
  {% for b in bouquets %}
  <div class="store-card {% if b.bouquet in active_ids %}unlocked{% endif %}">
  <input dir="auto" type="checkbox" class="checkbox-select" data-id="{{ b.bouquet }}" data-type="bouquet" data-price="{{ b.price_usd }}" data-name="{{ b.name }}">
  <div class="card-header">
- <span class="package-badge" style="color: var(--magenta);">Value Bundle</span>
+ <span class="package-badge" style="color: var(--magenta);">باقة التوفير</span>
  <h3>{{ b.name }}</h3>
  </div>
  <p>{{ b.description }}</p>
  <div class="card-footer">
  <div>
- <div class="price-label">Bundle Price</div>
+ <div class="price-label">Bundle السعر</div>
  <div class="price-val" style="color: var(--magenta); text-shadow: 0 0 10px rgba(255, 0, 85, 0.3);">${{ "%.2f"|format(b.price_usd) }}</div>
  </div>
  
- <form method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ b.name }}', '{{ b.price_usd }}')">
+ <form method="POST" action="/services/purchase" onsubmit="return confirmافتح('{{ b.name }}', '{{ b.price_usd }}')">
  <input dir="auto" type="hidden" name="package_id" value="{{ b.bouquet }}">
  <input dir="auto" type="hidden" name="service_type" value="bouquet">
  {% if b.bouquet in active_ids %}
- <button type="button" class="btn btn-secondary" disabled>Active</button>
+ <button type="button" class="btn btn-secondary" disabled>نشط</button>
  {% else %}
- <button type="submit" class="btn btn-magenta">Buy Bundle</button>
+ <button type="submit" class="btn btn-magenta">شراء الباقة</button>
  {% endif %}
  </form>
  </div>
@@ -513,9 +515,9 @@
  <form id="bulkForm" method="POST" action="/services/purchase-bulk" onsubmit="return confirmBulk()">
  <div class="bulk-bar" id="bulkBar">
  <div class="bulk-count">
- Selected: <strong id="selectedCount">0</strong> items &nbsp;|&nbsp; Total: <strong id="selectedTotal">$0.00</strong>
+ المحدد: <strong id="selectedCount">0</strong> عناصر &nbsp;|&nbsp; الإجمالي: <strong id="selectedTotal">$0.00</strong>
  </div>
- <button type="submit" class="btn-bulk-buy" id="bulkBtn" disabled>Buy Selected</button>
+ <button type="submit" class="btn-bulk-buy" id="bulkBtn" disabled>شراء المحدد</button>
  </div>
  <input dir="auto" type="hidden" name="selected_items" id="selectedInput" value="">
  </form>
@@ -528,8 +530,8 @@
  <div class="dot yellow"></div>
  <div class="dot green"></div>
  </div>
- <div class="terminal-title">active_upgrades_terminal.sys</div>
- <div>SECURE CONNECTION</div>
+ <div class="terminal-title">وحدة_الترقيات_النشطة.sys</div>
+ <div>اتصال آمن</div>
  </div>
  <div class="terminal-body">
  {% if purchased %}
@@ -537,16 +539,16 @@
  <div class="terminal-row">
  <span>
  <span class="date">[{{ p.created_at[:16] }}]</span>
- <span style="color: #888;">SYS_UNLOCK:</span>
+ <span style="color: #888;">فتح_النظام:</span>
  <span class="name">{{ p.package_name }}</span>
- <span style="color: var(--green); font-size:10px; font-weight:700; margin-left:8px;">[ACTIVE]</span>
+ <span style="color: var(--green); font-size:10px; font-weight:700; margin-inline-start:8px;">[ACTIVE]</span>
  </span>
  <span class="price">${{ "%.2f"|format(p.price_paid) }}</span>
  </div>
  {% endfor %}
  {% else %}
  <div class="terminal-empty">
- &gt; No active system upgrades detected. Unlock features above to populate.
+ &gt; No active system upgrades detected. افتح features above to populate.
  </div>
  {% endif %}
  </div>
@@ -556,8 +558,8 @@
 
  
 <script>
-function confirmUnlock(name, price) {
- return confirm('Unlock ' + name + ' for $' + price + '? This will be deducted from your wallet balance.');
+function confirmافتح(name, price) {
+ return confirm('افتح ' + name + ' for $' + price + '? This will be deducted from your wallet balance.');
 }
 
 function confirmBulk() {

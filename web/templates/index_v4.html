@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>JobHunt Pro — AI-Powered Automated Job Applications | 200 AI Agents, 24/7</title>
+  <title>JobHunt Pro — AI-Powered Automated Job Applications | 200 وكيل ذكاء اصطناعي, 24/7</title>
   <meta name="description" content="AI-Powered Job Application Engine — Apply to thousands of jobs automatically. Your personal job-hunting AI works 24/7. Get hired faster.">
   <meta name="keywords" content="job application, AI job search, automated applications, cover letter AI, job hunt, job board, career, hiring">
   <meta name="author" content="JobHunt Pro">
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://jhfguf.pythonanywhere.com/">
   <meta property="og:title" content="JobHunt Pro — AI-Powered Automated Job Applications">
-  <meta property="og:description" content="Your personal AI job-hunting engine works 24/7 — searching thousands of jobs, crafting personalized applications, and sending them through smart email rotation.">
+  <meta property="og:description" content="Your personal AI job-hunting engine works 24/7 — searching thousands of jobs, ينشئ طلبات تقديم مخصصة، ويرسلها عبر تناوب ذكي للبريد الإلكتروني.">
   <meta property="og:image" content="https://jhfguf.pythonanywhere.com/static/img/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -63,7 +63,7 @@
 
 
 <style>
-.cookie-banner{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,25,0.97);border-top:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px var(--space-3);backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
+.cookie-banner{position:fixed;bottom:0;inset-inline-start: 0;inset-inline-end: 0;background:rgba(10,10,25,0.97);border-top:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px var(--space-3);backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
 .cookie-content{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
 .cookie-content span{font-size:20px}
 .cookie-content p{font-size:12px;color:var(--muted);flex:1;min-width:200px}
@@ -84,6 +84,8 @@
 @keyframes guaranteePulse{0%,100%{box-shadow:0 0 20px rgba(0,240,255,0.1)}50%{box-shadow:0 0 35px rgba(0,240,255,0.2)}}
 @media(max-width:600px){.guarantee-badge{flex-direction:column;text-align:center;padding:16px 20px}}
 </style>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>body, h1, h2, h3, h4, p, span, a, div, .btn { font-family: "Cairo", "IBM Plex Arabic", "Tajawal", sans-serif !important; }</style>
 </head>
 
 <body class="cyberpunk-body">
@@ -92,8 +94,8 @@
 <div class="cookie-banner" id="cookieBanner">
  <div class="cookie-content">
   <span>&#x1f36a;</span>
-  <p>We use essential cookies to keep JobHunt Pro running. By using our site, you agree to our <a href="/privacy">Privacy Policy</a>.</p>
-  <button class="btn" onclick="acceptCookies()">Got it &#x2713;</button>
+  <p>نستخدم ملفات تعريف الارتباط الأساسية للحفاظ على عمل JobHunt Pro. باستخدامك لموقعنا، فإنك توافق على <a href="/privacy">سياسة الخصوصية</a>.</p>
+  <button class="btn" onclick="acceptCookies()">فهمت &#x2713;</button>
  </div>
 </div>
 
@@ -109,7 +111,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <div class="glow-orb-2"></div>
 <div class="glow-orb-3"></div>
 <div class="scanline"></div>
-<canvas class="bg-particles" id="particleCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;"></canvas>
+<canvas class="bg-particles" id="particleCanvas" style="position:fixed;top:0;inset-inline-start: 0;width:100%;height:100%;z-index:-1;pointer-events:none;"></canvas>
 
 <!-- ═══ NAVIGATION ═══ -->
 {% include '_public_nav.html' %}
@@ -117,20 +119,20 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <!-- ═══ HERO ═══ -->
 <section class="hero" style="padding-top:140px;">
  <div class="hero-badge">
-  <span class="pulse-dot"></span> AI SYSTEM ONLINE — v{{ VERSION }}
+  <span class="pulse-dot"></span> نظام الذكاء الاصطناعي متصل — v{{ VERSION }}
  </div>
  <h1>
-  Land Your Dream Job<br>
+  احصل على وظيفة أحلامك<br>
   <span class="cyan glow-line">تلقائياً</span> وأنت<br>
   <span class="typewriter-wrap"><span id="typewriter" class="magenta"></span><span class="typewriter-cursor"></span></span>
  </h1>
  <p class="hero-sub">
-  Your personal AI job-hunting engine works <strong style="color:var(--cyan)">24/7</strong> — searching thousands of jobs,
-  crafting personalized applications, and sending them through smart email rotation.
+  محرك البحث الشخصي للوظائف بالذكاء الاصطناعي يعمل <strong style="color:var(--cyan)">24/7</strong> — يبحث في آلاف الوظائف،
+  ينشئ طلبات تقديم مخصصة، ويرسلها عبر تناوب ذكي للبريد الإلكتروني.
   <strong style="color:var(--gold)">أقل من 7 سنتات لكل تقديم.</strong> احصل على وظيفة أو استرد أموالك.
  </p>
  <div class="hero-buttons">
-  <a href="/register" class="primary">&#x1f680; Start Applying Now — It's Free</a>
+  <a href="/register" class="primary">&#x1f680; ابدأ التقديم الآن — مجاناً</a>
   <a href="#pricing" class="secondary">&#x1f4b0; عرض باقات الأسعار</a>
  </div>
  <div class="hero-stats-strip">
@@ -191,8 +193,8 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <section class="featured-jobs">
   <div class="section-header">
     <span class="section-tag">&#x1f4e1; LIVE</span>
-    <h2>Featured Jobs This Week</h2>
-    <p>Hand-picked opportunities from our AI-powered search engine</p>
+    <h2>وظائف مميزة هذا الأسبوع</h2>
+    <p>فرص مختارة بعناية من محرك بحثنا المدعوم بالذكاء الاصطناعي</p>
   </div>
   <div class="jobs-grid">
     {% for job in featured_jobs[:6] %}
@@ -209,49 +211,49 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
       </div>
       <div class="job-card-footer">
         <span class="job-type">{{ job.type }}</span>
-        <a href="/register?ref={{ job.id }}" class="job-apply">Apply Now &#x2192;</a>
+        <a href="/register?ref={{ job.id }}" class="job-apply">قدم الآن &#x2192;</a>
       </div>
     </div>
     {% endfor %}
   </div>
   <div class="jobs-cta">
-    <p>&#x1f50e; Our AI is scanning <strong>{{ fomo_apps_today }}</strong>+ jobs right now</p>
-    <a href="/register" class="primary">&#x1f680; Unlock All Jobs</a>
+    <p>&#x1f50e; الذكاء الاصطناعي لدينا يمسح <strong>{{ fomo_apps_today }}</strong>+ وظيفة الآن</p>
+    <a href="/register" class="primary">&#x1f680; افتح جميع الوظائف</a>
   </div>
 </section>
 {% endif %}
 
-<!-- ═══ HOW IT WORKS ═══ -->
+<!-- ═══ كيف يعمل ═══ -->
 <section class="how-it-works" id="how-it-works">
   <div class="section-header">
-    <span class="section-tag">&#x2699;&#xfe0f; HOW IT WORKS</span>
-    <h2>Your 24/7 AI Job-Hunting Engine</h2>
-    <p>Set up once. Our AI does the rest — applying to hundreds of jobs while you sleep.</p>
+    <span class="section-tag">&#x2699;&#xfe0f; كيف يعمل</span>
+    <h2>محرك بحث الوظائف الخاص بك 24/7 بالذكاء الاصطناعي</h2>
+    <p>قم بالإعداد مرة واحدة. الذكاء الاصطناعي يتكفل بالباقي — التقديم على مئات الوظائف أثناء نومك.</p>
   </div>
   <div class="steps-grid">
     <div class="step-card">
       <div class="step-circle">1</div>
       <span class="step-icon">&#x1f50d;</span>
-      <h3>AI Scans 50+ Job Boards</h3>
-      <p>Our 200 AI agents search LinkedIn, Indeed, Glassdoor, Bayt, NaukriGulf, and more — finding jobs that match your profile.</p>
+      <h3>مسح أكثر من 50 موقع توظيف</h3>
+      <p>يبحث وكلاؤنا الـ 200 المدعومون بالذكاء الاصطناعي في LinkedIn، Indeed، Glassdoor، Bayt، NaukriGulf والمزيد — لإيجاد وظائف تناسب ملفك الشخصي.</p>
     </div>
     <div class="step-card">
       <div class="step-circle">2</div>
       <span class="step-icon">&#x1f4dd;</span>
-      <h3>Personalized Applications</h3>
-      <p>Each application is uniquely crafted with AI-generated cover letters, tailored resumes, and optimized answers.</p>
+      <h3>طلبات تقديم مخصصة</h3>
+      <p>كل طلب يُصاغ بشكل فريد مع خطابات تغطية مولدة بالذكاء الاصطناعي، سير ذاتية معدلة، وإجابات محسنة.</p>
     </div>
     <div class="step-card">
       <div class="step-circle">3</div>
       <span class="step-icon">&#x1f4e8;</span>
-      <h3>Smart Email Rotation</h3>
-      <p>20+ email providers with intelligent rotation to maximize delivery rates and avoid spam filters.</p>
+      <h3>تناوب ذكي للبريد الإلكتروني</h3>
+      <p>أكثر من 20 مزود بريد إلكتروني مع تناوب ذكي لزيادة معدلات التسليم وتجنب فلاتر البريد المزعج.</p>
     </div>
     <div class="step-card">
       <div class="step-circle">4</div>
       <span class="step-icon">&#x1f4c8;</span>
-      <h3>Track & Optimize</h3>
-      <p>Real-time dashboard shows applications sent, interview requests, and AI-powered optimization suggestions.</p>
+      <h3>تتبع وتحسين</h3>
+      <p>لوحة تحكم في الوقت الفعلي تظهر الطلبات المرسلة، طلبات المقابلة، واقتراحات تحسين مدعومة بالذكاء الاصطناعي.</p>
     </div>
   </div>
 </section>
@@ -259,76 +261,76 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <!-- ═══ BEFORE / AFTER ═══ -->
 <section class="before-after" id="comparison">
   <div class="section-header">
-    <span class="section-tag">&#x1f4ca; BEFORE & AFTER</span>
-    <h2>Manual vs AI-Powered Job Hunting</h2>
-    <p>See the difference our automation makes</p>
+    <span class="section-tag">&#x1f4ca; قبل وبعد</span>
+    <h2>البحث اليدوي مقابل البحث بالذكاء الاصطناعي</h2>
+    <p>شاهد الفرق الذي يحدثه نظام الأتمتة لدينا</p>
   </div>
   <div class="comparison-vs">
     <div class="vs-card bad">
-      <div class="vs-label">&#x274c; Manual Applications</div>
+      <div class="vs-label">&#x274c; التقديم اليدوي</div>
       <ul>
-        <li>&#x23f0; 3-5 applications per day</li>
-        <li>&#x1f4b0; $0.50-$2.00 per application</li>
-        <li>&#x1f50d; Limited to 1-2 job boards</li>
-        <li>&#x1f4a4; Generic cover letters</li>
-        <li>&#x1f4aa; Manual follow-up</li>
-        <li>&#x1f4c5; 6-12 months to land a job</li>
+        <li>&#x23f0; 3-5 طلبات في اليوم</li>
+        <li>&#x1f4b0; 0.50$-2.00$ لكل طلب</li>
+        <li>&#x1f50d; محدود بـ 1-2 موقع توظيف</li>
+        <li>&#x1f4a4; خطابات تغطية عامة</li>
+        <li>&#x1f4aa; متابعة يدوية</li>
+        <li>&#x1f4c5; 6-12 شهراً للحصول على وظيفة</li>
       </ul>
     </div>
     <div class="vs-divider">
       <span>VS</span>
     </div>
     <div class="vs-card good">
-      <div class="vs-label">&#x2705; JobHunt Pro AI</div>
+      <div class="vs-label">&#x2705; ذكاء اصطناعي من JobHunt Pro</div>
       <ul>
-        <li>&#x1f680; 2,000+ applications per day</li>
-        <li>&#x1f4b5; <$0.07 per application</li>
-        <li>&#x1f30d; 50+ job boards scanned</li>
-        <li>&#x1f9d1;&#x200d;&#x1f4bb; AI-personalized applications</li>
-        <li>&#x1f916; Automated follow-up sequence</li>
-        <li>&#x26a1; Get hired in 2-6 weeks</li>
+        <li>&#x1f680; أكثر من 2,000 طلب يومياً</li>
+        <li>&#x1f4b5; أقل من 0.07$ لكل طلب</li>
+        <li>&#x1f30d; مسح أكثر من 50 موقع توظيف</li>
+        <li>&#x1f9d1;&#x200d;&#x1f4bb; طلبات مخصصة بالذكاء الاصطناعي</li>
+        <li>&#x1f916; سلسلة متابعة آلية</li>
+        <li>&#x26a1; احصل على وظيفة خلال 2-6 أسابيع</li>
       </ul>
     </div>
   </div>
 </section>
 
-<!-- ═══ FEATURES ═══ -->
+<!-- ═══ الميزات ═══ -->
 <section class="features" id="features">
   <div class="section-header">
-    <span class="section-tag">&#x2728; FEATURES</span>
-    <h2>Everything You Need to Land Your Dream Job</h2>
-    <p>200 AI agents working around the clock to get you hired faster</p>
+    <span class="section-tag">&#x2728; الميزات</span>
+    <h2>Everything You Need to احصل على وظيفة أحلامك</h2>
+    <p>200 وكيل ذكاء اصطناعي يعملون على مدار الساعة لتوظيفك بشكل أسرع</p>
   </div>
   <div class="feature-grid">
     <div class="feature-card" data-tilt>
       <div class="feature-icon">&#x1f916;</div>
-      <h3>200 AI Agents</h3>
-      <p>Distributed AI workforce that never sleeps — searching, applying, and optimizing 24/7.</p>
+      <h3>200 وكيل ذكاء اصطناعي</h3>
+      <p>قوة عمل موزعة من الذكاء الاصطناعي لا تنام — تبحث، تقدم، وتحسن 24/7.</p>
     </div>
     <div class="feature-card" data-tilt>
       <div class="feature-icon">&#x1f50d;</div>
-      <h3>Multi-Engine Search</h3>
-      <p>Aggregates jobs from LinkedIn, Indeed, Glassdoor, ZipRecruiter, Bayt, NaukriGulf, Monster, and 40+ more.</p>
+      <h3>بحث متعدد المحركات</h3>
+      <p>يجمع الوظائف من LinkedIn، Indeed، Glassdoor، ZipRecruiter، Bayt، NaukriGulf، Monster، وأكثر من 40 موقعاً آخر.</p>
     </div>
     <div class="feature-card" data-tilt>
       <div class="feature-icon">&#x1f4e8;</div>
-      <h3>Smart Email Rotation</h3>
+      <h3>تناوب ذكي للبريد الإلكتروني</h3>
       <p>20+ email providers with intelligent rotation to maximize delivery and avoid spam filters.</p>
     </div>
     <div class="feature-card" data-tilt>
       <div class="feature-icon">&#x1f4dd;</div>
-      <h3>AI Cover Letters</h3>
-      <p>Each application gets a unique, context-aware cover letter tailored to the job description.</p>
+      <h3>خطابات تغطية بالذكاء الاصطناعي</h3>
+      <p>يحصل كل طلب على خطاب تغطية فريد ومدرك للسياق مصمم خصيصاً لوصف الوظيفة.</p>
     </div>
     <div class="feature-card" data-tilt>
       <div class="feature-icon">&#x1f4ca;</div>
-      <h3>Real-Time Dashboard</h3>
-      <p>Track applications, interview requests, response rates, and AI optimization suggestions.</p>
+      <h3>لوحة تحكم مباشرة</h3>
+      <p>تتبع الطلبات، طلبات المقابلات، معدلات الاستجابة، واقتراحات التحسين بالذكاء الاصطناعي.</p>
     </div>
     <div class="feature-card" data-tilt>
       <div class="feature-icon">&#x1f6e1;&#xfe0f;</div>
-      <h3>Privacy First</h3>
-      <p>Your data is encrypted end-to-end. We never share your information with third parties.</p>
+      <h3>الخصوصية أولاً</h3>
+      <p>بياناتك مشفرة من النهاية إلى النهاية. لا نشارك معلوماتك أبدًا مع أطراف ثالثة.</p>
     </div>
   </div>
 </section>
@@ -336,20 +338,20 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <!-- ═══ ATS RESUME CHECKER ═══ -->
 <section class="ats-checker" id="ats-checker">
   <div class="section-header">
-    <span class="section-tag">&#x1f9fe; ATS CHECKER</span>
-    <h2>Test Your Resume Against AI</h2>
-    <p>See how your resume scores against Applicant Tracking Systems</p>
+    <span class="section-tag">&#x1f9fe; فاحص ATS</span>
+    <h2>اختبر سيرتك الذاتية مقابل الذكاء الاصطناعي</h2>
+    <p>شاهد كيف تسجل سيرتك الذاتية مقابل أنظمة تتبع المتقدمين</p>
   </div>
   <div class="ats-demo">
     <div class="ats-input-group">
-      <label for="atsJobTitle">Job Title</label>
+      <label for="atsJobTitle">المسمى الوظيفي</label>
       <input dir="auto" type="text" id="atsJobTitle" placeholder="e.g. Software Engineer" value="Software Engineer">
     </div>
     <div class="ats-input-group">
-      <label for="atsSkills">Your Skills (comma separated)</label>
+      <label for="atsSkills">مهاراتك (مفصولة بفواصل)</label>
       <input dir="auto" type="text" id="atsSkills" placeholder="e.g. Python, React, AWS" value="Python, JavaScript, React">
     </div>
-    <button class="primary" onclick="checkATS()">&#x1f50d; Check My Score</button>
+    <button class="primary" onclick="checkATS()">&#x1f50d; تحقق من نتيجتي</button>
     <div class="ats-result" id="atsResult" style="display:none;">
       <div class="ats-score-ring">
         <svg width="120" height="120" viewBox="0 0 120 120">
@@ -360,23 +362,23 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
           <span id="atsScoreValue">0</span><small>%</small>
         </div>
       </div>
-      <p id="atsScoreMessage">Enter your details above and click "Check My Score"</p>
+      <p id="atsScoreMessage">Enter your details above and click "تحقق من نتيجتي"</p>
     </div>
   </div>
 </section>
 
-<!-- ═══ COMPARISON TABLE ═══ -->
+<!-- ═══ مقارنة TABLE ═══ -->
 <section class="comparison-table" id="comparison-table">
   <div class="section-header">
-    <span class="section-tag">&#x1f4ca; COMPARISON</span>
-    <h2>JobHunt Pro vs The Competition</h2>
-    <p>See why thousands of job seekers choose us</p>
+    <span class="section-tag">&#x1f4ca; مقارنة</span>
+    <h2>JobHunt Pro مقابل المنافسين</h2>
+    <p>اكتشف لماذا يختارنا آلاف الباحثين عن عمل</p>
   </div>
   <div class="table-wrapper">
     <table class="comp-table">
       <thead>
         <tr>
-          <th>Feature</th>
+          <th>الميزة</th>
           <th>JobHunt Pro</th>
           <th>ZipRecruiter</th>
           <th>Indeed</th>
@@ -387,36 +389,36 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
       <tbody>
         <tr><td>وكيل ذكي</td><td><strong>200</strong></td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>1</td></tr>
         <tr><td>تقديمات يومية</td><td><strong>2,000+</strong></td><td>5-10</td><td>5-10</td><td>5-10</td><td>50-100</td></tr>
-        <tr><td>Job Boards Scanned</td><td><strong>50+</strong></td><td>1</td><td>1</td><td>1</td><td>5</td></tr>
-        <tr><td>Email Rotation</td><td><strong>20+ providers</strong></td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>1</td></tr>
-        <tr><td>AI Cover Letters</td><td>&#x2705; Unique each time</td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>Template-based</td></tr>
-        <tr><td>Cost Per Application</td><td><strong><$0.07</strong></td><td>$0.50+</td><td>$0.50+</td><td>$0.50+</td><td>$0.15</td></tr>
-        <tr><td>Money-Back Guarantee</td><td>&#x2705; 30 Days</td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td></tr>
-        <tr><td>Real-Time Dashboard</td><td>&#x2705;</td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>Basic</td></tr>
+        <tr><td>مواقع التوظيف الممسوحة</td><td><strong>50+</strong></td><td>1</td><td>1</td><td>1</td><td>5</td></tr>
+        <tr><td>تناوب البريد الإلكتروني</td><td><strong>20+ providers</strong></td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>1</td></tr>
+        <tr><td>خطابات تغطية بالذكاء الاصطناعي</td><td>&#x2705; فريد في كل مرة</td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>مبني على قوالب</td></tr>
+        <tr><td>التكلفة لكل طلب</td><td><strong><$0.07</strong></td><td>$0.50+</td><td>$0.50+</td><td>$0.50+</td><td>$0.15</td></tr>
+        <tr><td>ضمان استرداد الأموال</td><td>&#x2705; 30 يوماً</td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td></tr>
+        <tr><td>لوحة تحكم مباشرة</td><td>&#x2705;</td><td>&#x274c;</td><td>&#x274c;</td><td>&#x274c;</td><td>أساسي</td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
-<!-- ═══ LIVE DEMO ═══ -->
+<!-- ═══ عرض حي ═══ -->
 <section class="demo-preview" id="demo">
   <div class="section-header">
-    <span class="section-tag">&#x25b6;&#xfe0f; LIVE DEMO</span>
-    <h2>See JobHunt Pro in Action</h2>
-    <p>Real-time activity from our AI engine</p>
+    <span class="section-tag">&#x25b6;&#xfe0f; عرض حي</span>
+    <h2>شاهد JobHunt Pro قيد العمل</h2>
+    <p>نشاط في الوقت الفعلي من محرك الذكاء الاصطناعي لدينا</p>
   </div>
   <div class="demo-window">
     <div class="demo-header">
       <span class="demo-dot red"></span>
       <span class="demo-dot yellow"></span>
       <span class="demo-dot green"></span>
-      <span class="demo-title">AI Engine Dashboard — Live Feed</span>
+      <span class="demo-title">لوحة تحكم محرك الذكاء الاصطناعي — بث مباشر</span>
     </div>
     <div class="demo-body">
       <div class="demo-activity" id="demoActivity">
         <div class="activity-item">&#x1f916; Agent #42 applied to <strong>Senior Developer</strong> at Google via LinkedIn</div>
         <div class="activity-item">&#x1f916; Agent #17 applied to <strong>Data Scientist</strong> at Amazon via Indeed</div>
-        <div class="activity-item">&#x1f916; Agent #83 applied to <strong>Product Manager</strong> at Microsoft via Glassdoor</div>
+        <div class="activity-item">&#x1f916; Agent #83 applied to <strong>المنتج Manager</strong> at Microsoft via Glassdoor</div>
         <div class="activity-item">&#x1f916; Agent #156 applied to <strong>DevOps Engineer</strong> at Stripe via ZipRecruiter</div>
         <div class="activity-item">&#x1f916; Agent #29 applied to <strong>Frontend Lead</strong> at Meta via LinkedIn</div>
       </div>
@@ -436,77 +438,77 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <!-- ═══ TECH STACK / AS SEEN ON ═══ -->
 <section class="tech-stack">
   <div class="section-header">
-    <span class="section-tag">&#x1f4a1; TECHNOLOGY</span>
-    <h2>Powered By Cutting-Edge AI</h2>
-    <p>Built with the latest in artificial intelligence and automation technology</p>
+    <span class="section-tag">&#x1f4a1; التكنولوجيا</span>
+    <h2>مدعوم بأحدث تقنيات الذكاء الاصطناعي</h2>
+    <p>مبني بأحدث تقنيات الذكاء الاصطناعي والأتمتة</p>
   </div>
   <div class="tech-grid">
     <div class="tech-item"><span>&#x1f9e0;</span> GPT-4 / Claude AI</div>
-    <div class="tech-item"><span>&#x1f310;</span> 50+ Job Board APIs</div>
-    <div class="tech-item"><span>&#x1f4e8;</span> 20+ SMTP Providers</div>
-    <div class="tech-item"><span>&#x1f4ca;</span> Real-Time Analytics</div>
-    <div class="tech-item"><span>&#x1f6e1;&#xfe0f;</span> AES-256 Encryption</div>
-    <div class="tech-item"><span>&#x2601;&#xfe0f;</span> Cloud Infrastructure</div>
-    <div class="tech-item"><span>&#x1f504;</span> Auto-Rotation System</div>
-    <div class="tech-item"><span>&#x1f9f0;</span> Smart Matching Engine</div>
+    <div class="tech-item"><span>&#x1f310;</span> أكثر من 50 واجهة برمجة تطبيقات لمواقع التوظيف</div>
+    <div class="tech-item"><span>&#x1f4e8;</span> أكثر من 20 مزود SMTP</div>
+    <div class="tech-item"><span>&#x1f4ca;</span> تحليلات في الوقت الفعلي</div>
+    <div class="tech-item"><span>&#x1f6e1;&#xfe0f;</span> تشفير AES-256</div>
+    <div class="tech-item"><span>&#x2601;&#xfe0f;</span> بنية تحتية سحابية</div>
+    <div class="tech-item"><span>&#x1f504;</span> نظام تناوب تلقائي</div>
+    <div class="tech-item"><span>&#x1f9f0;</span> محرك مطابقة ذكي</div>
   </div>
 </section>
 
 <!-- ═══ SALARY CALCULATOR ═══ -->
 <section class="salary-calc" id="salary-calc">
   <div class="section-header">
-    <span class="section-tag">&#x1f4b0; ROI CALCULATOR</span>
-    <h2>Calculate Your Earnings Potential</h2>
-    <p>See how much faster you can land a job with AI automation</p>
+    <span class="section-tag">&#x1f4b0; حاسبة العائد على الاستثمار</span>
+    <h2>احسب إمكانيات أرباحك</h2>
+    <p>اكتشف مدى سرعة حصولك على وظيفة مع أتمتة الذكاء الاصطناعي</p>
   </div>
   <div class="calc-grid">
     <div class="calc-card">
-      <label for="currentSalary">Your Target Salary ($/year)</label>
+      <label for="currentSalary">الراتب المستهدف (دولار/سنة)</label>
       <input dir="auto" type="number" id="currentSalary" value="80000" min="0" step="5000">
     </div>
     <div class="calc-card">
-      <label for="monthsUnemployed">Months Unemployed</label>
+      <label for="monthsUnemployed">أشهر البطالة</label>
       <input dir="auto" type="number" id="monthsUnemployed" value="3" min="0" max="24">
     </div>
     <div class="calc-card">
-      <label for="applicationsPerDay">Manual Applications/Day</label>
+      <label for="applicationsPerDay">التقديم اليدوي/Day</label>
       <input dir="auto" type="number" id="applicationsPerDay" value="3" min="1" max="20">
     </div>
     <div class="calc-card highlight">
-      <div class="calc-result-label">With JobHunt Pro</div>
+      <div class="calc-result-label">مع JobHunt Pro</div>
       <div class="calc-result-value" id="calcResult">$0</div>
-      <div class="calc-result-sub">Estimated additional earnings</div>
+      <div class="calc-result-sub">الأرباح الإضافية المقدرة</div>
     </div>
   </div>
-  <button class="primary" onclick="calculateROI()">&#x1f4c8; Calculate My Potential</button>
+  <button class="primary" onclick="calculateROI()">&#x1f4c8; احسب إمكانياتي</button>
 </section>
 
 <!-- ═══ STATS ═══ -->
 <section class="stats-section" id="stats">
   <div class="section-header">
-    <span class="section-tag">&#x1f4ca; BY THE NUMBERS</span>
-    <h2>JobHunt Pro in Real-Time</h2>
-    <p>Live statistics from our global AI job-hunting network</p>
+    <span class="section-tag">&#x1f4ca; بالأرقام</span>
+    <h2>JobHunt Pro في الوقت الفعلي</h2>
+    <p>إحصائيات حية من شبكتنا العالمية للبحث عن الوظائف بالذكاء الاصطناعي</p>
   </div>
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-num"><span class="counter" data-target="{{ fomo_apps_today or 50000 }}">{{ fomo_apps_today or 50000 }}</span>+</div>
-      <div class="stat-label">Applications Sent Today</div>
+      <div class="stat-label">الطلبات المرسلة اليوم</div>
       <div class="stat-line"></div>
     </div>
     <div class="stat-card">
       <div class="stat-num"><span class="counter" data-target="{{ earnings.total_all or 15000000 }}">{{ earnings.total_all or 15000000 }}</span>+</div>
-      <div class="stat-label">Total Earnings (USD)</div>
+      <div class="stat-label">إجمالي الأرباح (دولار)</div>
       <div class="stat-line"></div>
     </div>
     <div class="stat-card">
       <div class="stat-num"><span class="counter" data-target="847">847</span>+</div>
-      <div class="stat-label">5-Star Reviews</div>
+      <div class="stat-label">تقييمات 5 نجوم</div>
       <div class="stat-line"></div>
     </div>
     <div class="stat-card">
       <div class="stat-num"><span class="counter" data-target="99.7">99.7</span>%</div>
-      <div class="stat-label">Uptime</div>
+      <div class="stat-label">وقت التشغيل</div>
       <div class="stat-line"></div>
     </div>
   </div>
@@ -516,79 +518,79 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <section class="fomo-strip">
   <div class="fomo-inner">
     <span class="fomo-pulse"></span>
-    <span class="fomo-text">&#x1f525; <strong><span id="fomoCounter">{{ fomo_apps_today or 50000 }}</span></strong> applications sent today &mdash; <strong>{{ earnings.today or 25000 }}</strong> people got hired this week!</span>
-    <a href="/register" class="fomo-cta">&#x1f680; Join Now</a>
+    <span class="fomo-text">&#x1f525; <strong><span id="fomoCounter">{{ fomo_apps_today or 50000 }}</span></strong> طلباً أُرسل اليوم &mdash; <strong>{{ earnings.today or 25000 }}</strong> شخصاً حصلوا على وظائف هذا الأسبوع!</span>
+    <a href="/register" class="fomo-cta">&#x1f680; انضم الآن</a>
   </div>
 </section>
 
-<!-- ═══ PRICING ═══ -->
+<!-- ═══ الأسعار ═══ -->
 <section class="pricing" id="pricing">
   <div class="section-header">
     <span class="section-tag">
-    <span class="section-tag">&#x1f4b5; PRICING</span>
-    <h2>Invest in Your Career</h2>
+    <span class="section-tag">&#x1f4b5; الأسعار</span>
+    <h2>استثمر في مسيرتك المهنية</h2>
     <p>أقل من 7 سنتات لكل تقديم. احصل على وظيفة أو استرد أموالك.</p>
   </div>
   <div class="pricing-grid">
     <div class="pricing-card">
       <div class="pricing-badge">STARTER</div>
       <div class="pricing-price"><span class="currency">$</span><span class="amount">2</span><span class="period">/day</span></div>
-      <div class="pricing-desc">Perfect for testing the waters</div>
+      <div class="pricing-desc">مثالي للتجربة</div>
       <ul class="pricing-features">
-        <li>&#x2705; 50 applications/day</li>
-        <li>&#x2705; 5 job boards</li>
-        <li>&#x2705; 3 email accounts</li>
-        <li>&#x2705; Basic dashboard</li>
+        <li>&#x2705; 50 طلب/اليوم</li>
+        <li>&#x2705; 5 مواقع توظيف</li>
+        <li>&#x2705; 3 حسابات بريد</li>
+        <li>&#x2705; أساسي dashboard</li>
         <li>&#x274c; AI cover letters</li>
-        <li>&#x274c; Priority support</li>
+        <li>&#x274c; دعم ذو أولوية</li>
       </ul>
-      <a href="/register?plan=starter" class="pricing-btn">Get Started</a>
+      <a href="/register?plan=starter" class="pricing-btn">ابدأ الآن</a>
     </div>
     <div class="pricing-card popular">
-      <div class="popular-badge">&#x1f525; MOST POPULAR</div>
+      <div class="popular-badge">&#x1f525; الأكثر شعبية</div>
       <div class="pricing-price"><span class="currency">$</span><span class="amount">15</span><span class="period">/week</span></div>
-      <div class="pricing-desc">Best value for active job seekers</div>
+      <div class="pricing-desc">أفضل قيمة للباحثين النشطين عن عمل</div>
       <ul class="pricing-features">
-        <li>&#x2705; 500 applications/day</li>
-        <li>&#x2705; 25 job boards</li>
-        <li>&#x2705; 10 email accounts</li>
-        <li>&#x2705; Full dashboard + analytics</li>
+        <li>&#x2705; 500 طلب/اليوم</li>
+        <li>&#x2705; 25 مواقع توظيف</li>
+        <li>&#x2705; 10 حسابات بريد</li>
+        <li>&#x2705; لوحة تحكم كاملة + تحليلات</li>
         <li>&#x2705; AI cover letters</li>
-        <li>&#x274c; Priority support</li>
+        <li>&#x274c; دعم ذو أولوية</li>
       </ul>
-      <a href="/register?plan=weekly" class="pricing-btn primary">&#x1f680; Start Now</a>
+      <a href="/register?plan=weekly" class="pricing-btn primary">&#x1f680; ابدأ الآن</a>
     </div>
     <div class="pricing-card">
       <div class="pricing-badge">PRO</div>
       <div class="pricing-price"><span class="currency">$</span><span class="amount">30</span><span class="period">/month</span></div>
-      <div class="pricing-desc">For serious job hunters</div>
+      <div class="pricing-desc">للباحثين الجادين عن عمل</div>
       <ul class="pricing-features">
-        <li>&#x2705; 2,000 applications/day</li>
+        <li>&#x2705; 2,000 طلب/اليوم</li>
         <li>&#x2705; 50+ job boards</li>
         <li>&#x2705; 20+ email accounts</li>
-        <li>&#x2705; Full dashboard + analytics</li>
+        <li>&#x2705; لوحة تحكم كاملة + تحليلات</li>
         <li>&#x2705; AI cover letters</li>
-        <li>&#x2705; Priority support</li>
+        <li>&#x2705; دعم ذو أولوية</li>
       </ul>
-      <a href="/register?plan=monthly" class="pricing-btn">Go Pro</a>
+      <a href="/register?plan=monthly" class="pricing-btn">اشترك بـ Pro</a>
     </div>
     <div class="pricing-card">
       <div class="pricing-badge">LIFETIME</div>
       <div class="pricing-price"><span class="currency">$</span><span class="amount">50</span><span class="period">/once</span></div>
-      <div class="pricing-desc">One payment. Forever access.</div>
+      <div class="pricing-desc">دفعة واحدة. وصول دائم.</div>
       <ul class="pricing-features">
-        <li>&#x2705; Unlimited applications/day</li>
+        <li>&#x2705; طلبات غير محدودة/اليوم</li>
         <li>&#x2705; 50+ job boards</li>
         <li>&#x2705; 20+ email accounts</li>
-        <li>&#x2705; Full dashboard + analytics</li>
+        <li>&#x2705; لوحة تحكم كاملة + تحليلات</li>
         <li>&#x2705; AI cover letters</li>
-        <li>&#x2705; Priority support + API access</li>
+        <li>&#x2705; دعم ذو أولوية + API access</li>
       </ul>
-      <a href="/register?plan=lifetime" class="pricing-btn">&#x1f4aa; Get Lifetime</a>
+      <a href="/register?plan=lifetime" class="pricing-btn">&#x1f4aa; احصل على مدى الحياة</a>
     </div>
   </div>
   <div class="crypto-row">
-    <span>&#x1f511; Crypto Accepted:</span>
+    <span>&#x1f511; العملات الرقمية المقبولة:</span>
     <span class="crypto-icons">&#x20bf; BTC &middot; &#x39; ETH &middot; &#x24; USDT &middot; &#x0141; LTC &middot; &#x27f0; SOL &middot; &#x24; USDC</span>
   </div>
 </section>
@@ -597,9 +599,9 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <!-- ═══ TESTIMONIALS ═══ -->
 <section class="testimonials" id="testimonials">
   <div class="section-header">
-    <span class="section-tag">&#x1f3c6; RESULTS</span>
-    <h2>Battle-Tested by Thousands</h2>
-    <p>Real results from real job seekers who transformed their careers</p>
+    <span class="section-tag">&#x1f3c6; النتائج</span>
+    <h2>مُجرّب من قِبل الآلاف</h2>
+    <p>نتائج حقيقية من باحثين حقيقيين عن عمل غيّروا مساراتهم المهنية</p>
   </div>
   <div class="testimonial-grid">
     <div class="testimonial-card">
@@ -610,7 +612,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
         <div class="testimonial-avatar">SM</div>
         <div>
           <strong>Sarah M.</strong>
-          <span>Product Manager at Google</span>
+          <span>المنتج Manager at Google</span>
         </div>
       </div>
     </div>
@@ -681,60 +683,60 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <!-- ═══ TRUST BADGES / SECURITY ═══ -->
 <section class="trust-badges">
   <div class="section-header">
-    <span class="section-tag">&#x1f6e1;&#xfe0f; TRUST & SECURITY</span>
-    <h2>Your Data is Safe With Us</h2>
-    <p>Enterprise-grade security to protect your job search</p>
+    <span class="section-tag">&#x1f6e1;&#xfe0f; الثقة والأمان</span>
+    <h2>بياناتك آمنة معنا</h2>
+    <p>أمان على مستوى الشركات لحماية بحثك عن الوظائف</p>
   </div>
   <div class="trust-grid">
     <div class="trust-card">
       <div class="trust-icon">&#x1f512;</div>
-      <h3>AES-256 Encryption</h3>
+      <h3>تشفير AES-256</h3>
       <p>All data encrypted at rest and in transit using military-grade encryption.</p>
     </div>
     <div class="trust-card">
       <div class="trust-icon">&#x1f6e1;&#xfe0f;</div>
-      <h3>Zero Data Sharing</h3>
-      <p>We never sell, rent, or share your personal information with third parties.</p>
+      <h3>لا مشاركة للبيانات</h3>
+      <p>نحن لا نبيع أو نؤجر أو نشارك معلوماتك الشخصية مع أطراف ثالثة أبداً.</p>
     </div>
     <div class="trust-card">
       <div class="trust-icon">&#x1f504;</div>
-      <h3>Auto-Delete Option</h3>
-      <p>تلقائياً delete all your data after your job search is complete.</p>
+      <h3>خيار الحذف التلقائي</h3>
+      <p>تلقائياً حذف كل بياناتك بعد اكتمال بحثك عن عمل.</p>
     </div>
     <div class="trust-card">
       <div class="trust-icon">&#x1f30d;</div>
-      <h3>GDPR Compliant</h3>
-      <p>Fully compliant with GDPR, CCPA, and international data protection laws.</p>
+      <h3>متوافق مع قوانين حماية البيانات (GDPR)</h3>
+      <p>متوافق بالكامل مع قوانين GDPR، CCPA والقوانين الدولية لحماية البيانات.</p>
     </div>
     <div class="trust-card">
       <div class="trust-icon">&#x1f9f0;</div>
-      <h3>2FA Authentication</h3>
-      <p>Two-factor authentication support for an extra layer of account security.</p>
+      <h3>المصادقة الثنائية 2FA</h3>
+      <p>دعم المصادقة الثنائية لطبقة إضافية من أمان الحساب.</p>
     </div>
     <div class="trust-card">
       <div class="trust-icon">&#x1f4dc;</div>
-      <h3>Audit Logs</h3>
-      <p>Complete audit trail of all application activity for full transparency.</p>
+      <h3>سجلات التدقيق</h3>
+      <p>مسار تدقيق كامل لجميع أنشطة التطبيق لشفافية تامة.</p>
     </div>
     <div class="trust-card">
       <div class="trust-icon">&#x1f4e1;</div>
-      <h3>99.7% Uptime</h3>
-      <p>Enterprise-grade infrastructure with redundant systems and automatic failover.</p>
+      <h3>99.7% وقت التشغيل</h3>
+      <p>بنية تحتية على مستوى الشركات مع أنظمة مكررة وتجاوز تلقائي للفشل.</p>
     </div>
     <div class="trust-card">
       <div class="trust-icon">&#x1f465;</div>
-      <h3>24/7 Support</h3>
-      <p>Our team is available around the clock to help with any issues or questions.</p>
+      <h3>دعم على مدار الساعة 24/7</h3>
+      <p>فريقنا متاح على مدار الساعة للمساعدة في أي مشكلات أو أسئلة.</p>
     </div>
   </div>
 </section>
 
-<!-- ═══ FAQ ═══ -->
+<!-- ═══ الأسئلة الشائعة ═══ -->
 <section class="faq-section" id="faq">
   <div class="section-header">
-    <span class="section-tag">&#x2753; FAQ</span>
+    <span class="section-tag">&#x2753; الأسئلة الشائعة</span>
     <h2>الأسئلة الشائعة</h2>
-    <p>Everything you need to know about JobHunt Pro</p>
+    <p>كل ما تحتاج معرفته عن JobHunt Pro</p>
   </div>
   <div class="faq-list">
     <div class="faq-item">
@@ -816,15 +818,15 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <section class="final-cta">
   <div class="cta-glow-bg"></div>
   <div class="cta-content">
-    <h2>Ready to Land Your Dream Job?</h2>
-    <p>Join thousands of successful job seekers who transformed their careers with AI-powered automation.</p>
+    <h2>Ready to احصل على وظيفة أحلامك?</h2>
+    <p>انضم إلى آلاف الباحثين عن عمل الناجحين الذين طوروا مساراتهم المهنية باستخدام أتمتة الذكاء الاصطناعي.</p>
     <div class="cta-stats">
-      <div class="cta-stat"><strong>50,000+</strong> Applications Daily</div>
-      <div class="cta-stat"><strong>12%</strong> Average Interview Rate</div>
-      <div class="cta-stat"><strong>30-Day</strong> Money-Back Guarantee</div>
+      <div class="cta-stat"><strong>50,000+</strong> طلب يومياً</div>
+      <div class="cta-stat"><strong>12%</strong> متوسط معدل المقابلات</div>
+      <div class="cta-stat"><strong>30-Day</strong> ضمان استرداد الأموال</div>
     </div>
-    <a href="/register" class="cta-button">&#x1f680; Start Your Free Trial Now</a>
-    <p class="cta-small">No credit card required. Cancel anytime.</p>
+    <a href="/register" class="cta-button">&#x1f680; ابدأ تجربتك المجانية الآن</a>
+    <p class="cta-small">لا حاجة لبطاقة ائتمان. ألغِ في أي وقت.</p>
   </div>
 </section>
 
@@ -833,7 +835,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   <div class="footer-grid">
     <div class="footer-brand">
       <div class="footer-logo">JobHunt Pro</div>
-      <p>AI-powered automated job application engine. Apply to thousands of jobs automatically while you focus on what matters — preparing for interviews.</p>
+      <p>محرك بحث آلي عن الوظائف مدعوم بالذكاء الاصطناعي. قدم على آلاف الوظائف تلقائياً بينما تركز على ما يهم — التحضير للمقابلات.</p>
       <div class="footer-social">
         <a href="#" aria-label="Twitter">&#x1d54f;</a>
         <a href="#" aria-label="LinkedIn">&#x1f4f1;</a>
@@ -842,39 +844,39 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
       </div>
     </div>
     <div class="footer-col">
-      <h4>Product</h4>
-      <a href="#features">Features</a>
+      <h4>المنتج</h4>
+      <a href="#features">الميزةs</a>
       <a href="#pricing">Pricing</a>
       <a href="#demo">Live Demo</a>
-      <a href="#faq">FAQ</a>
+      <a href="#faq">الأسئلة الشائعة</a>
       <a href="/blog">Blog</a>
     </div>
     <div class="footer-col">
-      <h4>Company</h4>
-      <a href="/about">About Us</a>
-      <a href="/careers">Careers</a>
+      <h4>الشركة</h4>
+      <a href="/about">من نحن</a>
+      <a href="/careers">وظائف</a>
       <a href="/contact">Contact</a>
-      <a href="/press">Press Kit</a>
-      <a href="/partners">Partners</a>
+      <a href="/press">الملف الصحفي</a>
+      <a href="/partners">الشركاء</a>
     </div>
     <div class="footer-col">
-      <h4>Legal</h4>
-      <a href="/privacy">Privacy Policy</a>
-      <a href="/terms">Terms of Service</a>
-      <a href="/cookies">Cookie Policy</a>
+      <h4>قانوني</h4>
+      <a href="/privacy">سياسة الخصوصية</a>
+      <a href="/terms">شروط الخدمة</a>
+      <a href="/cookies">سياسة ملفات تعريف الارتباط</a>
       <a href="/gdpr">GDPR</a>
-      <a href="/refund">Refund Policy</a>
+      <a href="/refund">سياسة الاسترجاع</a>
     </div>
   </div>
   <div class="footer-bottom">
-    <span>&copy; 2026 JobHunt Pro. All rights reserved.</span>
-    <span>Made with &#x1f9e0; by AI Engineers</span>
+    <span>&copy; 2026 JobHunt Pro. جميع الحقوق محفوظة.</span>
+    <span>صُنع بـ &#x1f9e0; بواسطة مهندسي الذكاء الاصطناعي</span>
   </div>
 </footer>
 
 <!-- ═══ FLOATING MOBILE CTA ═══ -->
 <div class="mobile-cta" id="mobileCta">
-  <a href="/register" class="mobile-cta-btn">&#x1f680; Start Applying Now — It's Free</a>
+  <a href="/register" class="mobile-cta-btn">&#x1f680; ابدأ التقديم الآن — مجاناً</a>
 </div>
 
 
@@ -976,7 +978,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
     });
   });
 
-  // ── FAQ Accordion ──
+  // ── الأسئلة الشائعة Accordion ──
   document.querySelectorAll('.faq-question').forEach(btn => {
     btn.addEventListener('click', () => {
       const expanded = btn.getAttribute('aria-expanded') === 'true';
@@ -1045,7 +1047,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   const demoActivity = document.getElementById('demoActivity');
   if (demoActivity) {
     const companies = ['Google', 'Amazon', 'Microsoft', 'Stripe', 'Meta', 'Apple', 'Netflix', 'Spotify', 'Airbnb', 'Uber'];
-    const roles = ['Senior Developer', 'Data Scientist', 'Product Manager', 'DevOps Engineer', 'Frontend Lead', 'Backend Engineer', 'ML Engineer', 'UX Designer', 'Solutions Architect', 'Engineering Manager'];
+    const roles = ['Senior Developer', 'Data Scientist', 'المنتج Manager', 'DevOps Engineer', 'Frontend Lead', 'Backend Engineer', 'ML Engineer', 'UX Designer', 'Solutions Architect', 'Engineering Manager'];
     const boards = ['LinkedIn', 'Indeed', 'Glassdoor', 'ZipRecruiter', 'Bayt.com', 'NaukriGulf', 'Monster Gulf', 'CareerJet', 'Adzuna'];
 
     setInterval(() => {
@@ -1155,7 +1157,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
       const toast = document.createElement('div');
       toast.className = 'social-toast';
       toast.innerHTML = `&#x1f525; <strong>${name}</strong> ${action}`;
-      toast.style.cssText = 'position:fixed;bottom:80px;right:20px;background:rgba(10,10,25,0.95);border:1px solid rgba(0,240,255,0.2);border-radius:12px;padding:14px 20px;font-size:13px;color:#fff;z-index:9999;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:340px;animation:slideInRight 0.4s ease-out;transition:opacity 0.4s';
+      toast.style.cssText = 'position:fixed;bottom:80px;inset-inline-end: 20px;background:rgba(10,10,25,0.95);border:1px solid rgba(0,240,255,0.2);border-radius:12px;padding:14px 20px;font-size:13px;color:#fff;z-index:9999;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:340px;animation:slideInRight 0.4s ease-out;transition:opacity 0.4s';
       document.body.appendChild(toast);
       setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 4000);
     }
@@ -1174,12 +1176,12 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);animation:fadeIn 0.3s';
       overlay.innerHTML = `
         <div style="background:rgba(10,10,25,0.98);border:1px solid rgba(0,240,255,0.2);border-radius:24px;padding:48px;max-width:480px;width:90%;text-align:center;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6)">
-          <button onclick="this.closest('div[style]').remove()" style="position:absolute;top:16px;right:20px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:24px;cursor:pointer" aria-label="Close">&times;</button>
+          <button onclick="this.closest('div[style]').remove()" style="position:absolute;top:16px;inset-inline-end: 20px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:24px;cursor:pointer" aria-label="Close">&times;</button>
           <div style="font-size:48px;margin-bottom:16px">&#x1f680;</div>
-          <h3 style="font-size:24px;font-weight:800;margin-bottom:12px;color:#fff">Wait! Don't Miss Out</h3>
-          <p style="color:rgba(255,255,255,0.6);margin-bottom:24px;line-height:1.7">Thousands of jobs are being filled right now. Start your free trial and let our AI apply for you while you're away.</p>
-          <a href="/register" style="display:inline-block;background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;padding:16px 36px;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;box-shadow:0 4px 30px rgba(0,240,255,0.25)">&#x1f680; Start Free Trial</a>
-          <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:16px">No credit card required</p>
+          <h3 style="font-size:24px;font-weight:800;margin-bottom:12px;color:#fff">انتظر! لا تفوت الفرصة</h3>
+          <p style="color:rgba(255,255,255,0.6);margin-bottom:24px;line-height:1.7">آلاف الوظائف تُشغل الآن. ابدأ تجربتك المجانية ودع الذكاء الاصطناعي يقدم بالنيابة عنك أثناء غيابك.</p>
+          <a href="/register" style="display:inline-block;background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;padding:16px 36px;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;box-shadow:0 4px 30px rgba(0,240,255,0.25)">&#x1f680; ابدأ التجربة المجانية</a>
+          <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:16px">لا يتطلب بطاقة ائتمان</p>
         </div>`;
       document.body.appendChild(overlay);
     });
