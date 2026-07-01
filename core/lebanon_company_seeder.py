@@ -3,8 +3,11 @@ Lebanon Company Database Seeder v1.0
 Injects 100+ pre-verified Lebanese companies with contact emails into PA database.
 Zero API calls — all data pre-researched and ready.
 """
-import sqlite3
+import sys
 import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import config
+import sqlite3
 import uuid
 import logging
 from datetime import datetime
@@ -132,7 +135,9 @@ RITA_COMPANIES = [
     ("Contact Lebanon", "BPO/Call Center", "Beirut", "recruitment@contact.com.lb", "contact.com.lb", 80),
     ("CME Offshore", "Technology", "Beirut", "careers@cmeoffshore.com", "cmeoffshore.com", 85),
     ("Berytech", "Technology Hub", "Beirut", "info@berytech.org", "berytech.org", 82),
-    ("Toucdef seed_all_companies() -> Dict[str, Any]:
+]
+
+def seed_all_companies() -> Dict[str, Any]:
     """Seed both Sam and Rita companies into the database.
     
     Creates the lebanon_companies table if it does not exist, and inserts pre-verified

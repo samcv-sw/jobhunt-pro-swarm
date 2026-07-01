@@ -16,6 +16,89 @@ const CORS = {
   'Access-Control-Max-Age': '86400',
 };
 
+// ── FNV-1a HASH RESOLVER FOR 500 SHARDS ──
+function fnv1a(str) {
+  let hash = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    hash ^= str.charCodeAt(i);
+    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+  }
+  return Math.abs(hash);
+}
+
+// ── TURSO SHARD DATABASE ROUTER ──
+async function executeTurso(env, userId, sql, params = []) {
+  const shardIndex = fnv1a(userId || 'default') % 500;
+  const dbName = `jh-shard-${shardIndex}`;
+  const userName = env.TURSO_USER_NAME || "samsalameh";
+  const url = `https://${dbName}-${userName}.turso.io/v2/pipeline`;
+  const token = env.TURSO_AUTH_TOKEN;
+
+  if (!token) {
+    console.warn("TURSO_AUTH_TOKEN is missing, falling back to local D1 DB");
+    if (env.DB) {
+      const stmt = env.DB.prepare(sql).bind(...params);
+      return await stmt.run();
+    }
+    throw new Error("No database available (Turso token & D1 missing)");
+  }
+
+  // Format arguments for Turso HTTP API
+  const args = params.map(p => {
+    if (typeof p === 'number') return { type: 'integer', value: String(p) };
+    return { type: 'text', value: String(p) };
+  });
+
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      requests: [
+        {
+          type: 'execute',
+          stmt: { sql, args }
+        },
+        { type: 'close' }
+      ]
+    })
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text();
+    throw new Error(`Turso Error: ${resp.status} - ${errText}`);
+  }
+
+  const data = await resp.json();
+  const execResult = data.results?.[0]?.response?.result;
+  return {
+    success: true,
+    meta: {
+      changes: execResult?.rows_affected || 0,
+      last_row_id: execResult?.last_insert_rowid || null
+    },
+    results: execResult?.rows || []
+  };
+}
+
+// ── UPSTASH REDIS QUEUE STORAGE ──
+async function redisCommand(env, command, ...args) {
+  const url = env.UPSTASH_REDIS_REST_URL;
+  const token = env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  try {
+    const resp = await fetch(`${url}/${command}/${args.join('/')}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (resp.ok) return await resp.json();
+  } catch (err) {
+    console.error("Redis command error:", err.message);
+  }
+  return null;
+}
+
 // ── HELPERS ──
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
@@ -336,11 +419,46 @@ export default {
     if (method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
 
     try {
-      // ═══════════ API: SYNC (SIMULATED FOR GHA) ═══════════
+      // ═══════════ API: SYNC (WASM LOCAL DB TO TURSO SHARDS) ═══════════
       if (path === '/api/sync' && method === 'POST') {
         const body = await request.json().catch(() => ({}));
-        console.log(`Sync request received for table: ${body.table}`);
-        return json({ ok: true, message: `Sync simulated successfully for ${body.table}` });
+        const { user_id, mutations } = body;
+        if (!user_id || !Array.isArray(mutations)) {
+          return error('user_id and mutations array required');
+        }
+
+        const synced = [];
+        for (const m of mutations) {
+          try {
+            const { action_type, table_name, payload } = m;
+            let sql = '';
+            let params = [];
+
+            if (action_type === 'insert') {
+              const keys = Object.keys(payload);
+              const placeholders = keys.map(() => '?').join(', ');
+              sql = `INSERT OR REPLACE INTO ${table_name} (${keys.join(', ')}) VALUES (${placeholders})`;
+              params = Object.values(payload);
+            } else if (action_type === 'update') {
+              const keys = Object.keys(payload).filter(k => k !== 'id');
+              const sets = keys.map(k => `${k} = ?`).join(', ');
+              sql = `UPDATE ${table_name} SET ${sets} WHERE id = ?`;
+              params = [...keys.map(k => payload[k]), payload.id];
+            } else if (action_type === 'delete') {
+              sql = `DELETE FROM ${table_name} WHERE id = ?`;
+              params = [payload.id];
+            }
+
+            if (sql) {
+              await executeTurso(env, user_id, sql, params);
+              synced.push(m.id);
+            }
+          } catch (err) {
+            console.error(`Failed to sync mutation:`, err.message);
+          }
+        }
+
+        return json({ ok: true, synced, message: `Synced ${synced.length} mutations successfully` });
       }
 
       // ═══════════ API: CLOUD-HEALTH ═══════════
@@ -560,31 +678,68 @@ export default {
         const workerId = parseInt(url.searchParams.get('worker') || '0');
         const limit = parseInt(url.searchParams.get('limit') || '5');
         
-        // Use modulo to distribute across workers
-        await db.prepare(
-          "UPDATE email_outbox SET status = 'claimed', sent_at = datetime('now') WHERE id IN (SELECT id FROM email_outbox WHERE status = 'queued' AND id % 16 = ? ORDER BY id ASC LIMIT ?)"
-        ).bind(workerId, limit).run();
+        let emails = [];
+        let redisPopped = false;
         
-        const claimed = await db.prepare(
-          "SELECT eo.id, eo.to_email, eo.to_name, eo.subject, eo.body, u.byo_smtp_email, u.byo_smtp_token, u.email as user_email FROM email_outbox eo JOIN users u ON eo.user_id = u.id WHERE eo.status = 'claimed' AND eo.id % 16 = ? ORDER BY eo.id ASC"
-        ).bind(workerId).all();
-        
-        // Decode SMTP credentials
-        const emails = claimed.results.map(e => {
-          let smtpInfo = { email: '', password: '' };
-          if (e.byo_smtp_token) {
-            const decoded = Array.from(e.byo_smtp_token).map(c => String.fromCharCode(c.charCodeAt(0) - 13)).join('');
-            const parts = decoded.split(':');
-            smtpInfo = { email: parts[0] || '', password: parts.slice(1).join(':') || '' };
-          } else {
-            smtpInfo = { email: e.user_email || '', password: '' };
+        // 1. Try pulling from Redis first
+        try {
+          const redisRes = await redisCommand(env, "RPOP", "hydra_email_queue");
+          if (redisRes && redisRes.result) {
+            const task = JSON.parse(redisRes.result);
+            // Fetch User SMTP details
+            const user = await db.prepare("SELECT byo_smtp_email, byo_smtp_token, email FROM users WHERE id = ?").bind(task.user_id).first();
+            let smtpInfo = { email: '', password: '' };
+            if (user) {
+              if (user.byo_smtp_token) {
+                const decoded = Array.from(user.byo_smtp_token).map(c => String.fromCharCode(c.charCodeAt(0) - 13)).join('');
+                const parts = decoded.split(':');
+                smtpInfo = { email: parts[0] || '', password: parts.slice(1).join(':') || '' };
+              } else {
+                smtpInfo = { email: user.email || '', password: '' };
+              }
+            }
+            emails.push({
+              id: task.id,
+              to_email: task.to_email,
+              to_name: task.to_name || '',
+              subject: task.subject,
+              body: task.body,
+              smtp_email: smtpInfo.email,
+              smtp_password: smtpInfo.password
+            });
+            redisPopped = true;
           }
-          return {
-            id: e.id, to_email: e.to_email, to_name: e.to_name || '',
-            subject: e.subject || 'Job Application', body: e.body || '',
-            smtp_email: smtpInfo.email, smtp_password: smtpInfo.password,
-          };
-        });
+        } catch (redisErr) {
+          console.error("Failed to pop from Redis outbox:", redisErr.message);
+        }
+
+        // 2. Fallback: D1 SQL database
+        if (!redisPopped) {
+          // Use modulo to distribute across workers
+          await db.prepare(
+            "UPDATE email_outbox SET status = 'claimed', sent_at = datetime('now') WHERE id IN (SELECT id FROM email_outbox WHERE status = 'queued' AND id % 16 = ? ORDER BY id ASC LIMIT ?)"
+          ).bind(workerId, limit).run();
+          
+          const claimed = await db.prepare(
+            "SELECT eo.id, eo.to_email, eo.to_name, eo.subject, eo.body, u.byo_smtp_email, u.byo_smtp_token, u.email as user_email FROM email_outbox eo JOIN users u ON eo.user_id = u.id WHERE eo.status = 'claimed' AND eo.id % 16 = ? ORDER BY eo.id ASC"
+          ).bind(workerId).all();
+          
+          emails = claimed.results.map(e => {
+            let smtpInfo = { email: '', password: '' };
+            if (e.byo_smtp_token) {
+              const decoded = Array.from(e.byo_smtp_token).map(c => String.fromCharCode(c.charCodeAt(0) - 13)).join('');
+              const parts = decoded.split(':');
+              smtpInfo = { email: parts[0] || '', password: parts.slice(1).join(':') || '' };
+            } else {
+              smtpInfo = { email: e.user_email || '', password: '' };
+            }
+            return {
+              id: e.id, to_email: e.to_email, to_name: e.to_name || '',
+              subject: e.subject || 'Job Application', body: e.body || '',
+              smtp_email: smtpInfo.email, smtp_password: smtpInfo.password,
+            };
+          });
+        }
         
         return json({ emails, worker: workerId });
       }
@@ -774,9 +929,23 @@ async function processCampaign(env, camp) {
           // Queue email in outbox
           const toEmail = job.email || '';
           if (toEmail) {
-            await db.prepare(
+            const outRes = await db.prepare(
               "INSERT INTO email_outbox (campaign_id, user_id, job_id, to_email, to_name, subject, body, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'queued', datetime('now'))"
             ).bind(camp.id, camp.user_id, job.id, toEmail, job.company, 'Application for ' + job.title + ' at ' + job.company, letter.substring(0, 1000)).run();
+            
+            const outId = outRes?.meta?.last_row_id || Math.floor(Math.random() * 100000);
+            
+            // Push to Redis for distributed state backup
+            try {
+              await redisCommand(env, "LPUSH", "hydra_email_queue", JSON.stringify({
+                id: outId, campaign_id: camp.id, user_id: camp.user_id, job_id: job.id,
+                to_email: toEmail, to_name: job.company, subject: 'Application for ' + job.title + ' at ' + job.company,
+                body: letter.substring(0, 1000)
+              }));
+            } catch (redisErr) {
+              console.error("Failed to push email task to Redis queue:", redisErr.message);
+            }
+            
             console.log(`  Queued email for job ${job.id}: ${job.title} to ${toEmail}`);
           }
           console.log(`  Matched job ${job.id}: ${job.title} at ${job.company}`);

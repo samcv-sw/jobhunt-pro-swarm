@@ -362,8 +362,26 @@ class MultiTenantRunner:
         # ── Step 0: Auto-create campaigns for tenants without one ──
         self._auto_create_campaigns()
 
-        # ── Step 1: Fetch all active campaigns ──
-        campaigns = self._fetch_all_active_campaigns()
+        # ── Step 1: Fetch all active campaigns (with Upstash Redis cache backup) ──
+        campaigns = None
+        from core.edge_cache import edge_cache
+        if edge_cache.enabled:
+            try:
+                cached_data = await edge_cache.get("hydra_active_campaigns")
+                if cached_data:
+                    campaigns = json.loads(cached_data)
+                    logger.info("[MultiTenant] Loaded active campaigns list from Upstash Redis cache.")
+            except Exception as cache_err:
+                logger.warning(f"Failed to read campaigns from Redis cache: {cache_err}")
+
+        if not campaigns:
+            campaigns = self._fetch_all_active_campaigns()
+            if edge_cache.enabled and campaigns:
+                try:
+                    await edge_cache.set("hydra_active_campaigns", json.dumps(campaigns), ex=120)
+                except Exception as cache_err:
+                    logger.warning(f"Failed to write campaigns to Redis cache: {cache_err}")
+
         if self.campaign_id:
             campaigns = [c for c in campaigns if c.get("campaign_id") == self.campaign_id]
         if not campaigns:
@@ -575,17 +593,63 @@ class MultiTenantRunner:
 
         Per-tenant SMTP caps are enforced based on the provider's daily_limit.
         """
-        # Check if this is a known tenant with custom SMTP config
-        if tenant_id.startswith("user_"):
-            # Look up tenant email to match known profiles
-            conn = _get_conn()
+        # 0. Check database for tenant's BYO SMTP credentials
+        conn = _get_conn()
+        user_row = None
+        byo_email = None
+        byo_token = None
+        try:
+            row = conn.execute(
+                "SELECT email, byo_smtp_email, byo_smtp_token FROM users WHERE user_id = ?", (tenant_id,)
+            ).fetchone()
+            if row:
+                user_row = dict(row)
+                byo_email = user_row.get("byo_smtp_email")
+                byo_token = user_row.get("byo_smtp_token")
+        except Exception as db_err:
+            logger.warning(f"Failed to query BYO SMTP for tenant {tenant_id}: {db_err}")
+            # Fallback to query only email for compatibility (e.g. standard SQLite test tables)
             try:
-                user_row = conn.execute(
+                row = conn.execute(
                     "SELECT email FROM users WHERE user_id = ?", (tenant_id,)
                 ).fetchone()
-            finally:
-                conn.close()
+                if row:
+                    user_row = dict(row)
+            except Exception:
+                pass
+        finally:
+            conn.close()
 
+        if user_row:
+            if byo_email and byo_token:
+                try:
+                    # Decode character shift-13 token
+                    decoded = "".join(chr(ord(c) - 13) for c in byo_token)
+                    parts = decoded.split(":")
+                    email_part = parts[0]
+                    password_part = ":".join(parts[1:])
+                    if email_part and password_part:
+                        domain = byo_email.split("@")[-1].lower()
+                        host = "smtp.gmail.com"
+                        if "outlook" in domain or "hotmail" in domain or "live" in domain:
+                            host = "smtp-mail.outlook.com"
+                        elif "yahoo" in domain:
+                            host = "smtp.mail.yahoo.com"
+                        
+                        return {
+                            "name": f"{tenant_id}_byo_smtp",
+                            "server": host,
+                            "port": 587,
+                            "user": byo_email,
+                            "password": password_part,
+                            "daily_limit": 100,
+                            "weight": 10,
+                        }
+                except Exception as decode_err:
+                    logger.error(f"[MultiTenant] Failed to decode user SMTP: {decode_err}")
+
+        # Check if this is a known tenant with custom SMTP config
+        if tenant_id.startswith("user_"):
             if user_row:
                 # 1. General tenant SMTP detection via env vars
                 env_id = tenant_id.upper().replace("-", "_").replace(".", "_")

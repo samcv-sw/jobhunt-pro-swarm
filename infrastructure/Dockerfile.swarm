@@ -1,0 +1,34 @@
+FROM python:3.11-slim
+
+# Install system dependencies, including Xvfb for virtual framebuffers
+# This is critical for Camoufox to bypass headless browser detection.
+RUN apt-get update && apt-get install -y \
+    xvfb \
+    x11-utils \
+    libnss3 \
+    libxss1 \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libgtk-3-0 \
+    wget \
+    gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Camoufox (and playwright if needed by Camoufox)
+RUN pip install --no-cache-dir camoufox[geoip]
+RUN python -m camoufox fetch
+
+COPY . .
+
+# Environment variable to inform the script we're running inside Docker with Xvfb
+ENV USE_XVFB=true
+ENV DISPLAY=:99
+
+# The command starts Xvfb in the background and then runs the worker app.
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset & sleep 2 && python -m uvicorn web.main:app --host 0.0.0.0 --port 8000"]

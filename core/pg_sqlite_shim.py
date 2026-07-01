@@ -135,6 +135,15 @@ def convert_sql(query: str) -> str:
             
     if sql.strip().upper().startswith("PRAGMA"):
         return ""
+    if "sqlite_master" in sql.lower():
+        sql = re.sub(
+            r"\bselect\s+name\s+from\s+sqlite_master\s+where\s+type\s*=\s*'table'\b",
+            "SELECT table_name FROM information_schema.tables WHERE table_schema='public'",
+            sql,
+            flags=re.IGNORECASE
+        )
+        sql = re.sub(r"\bsqlite_master\b", "information_schema.tables", sql, flags=re.IGNORECASE)
+
     # Convert LIKE to ILIKE for case-insensitive behavior matching SQLite
     sql = re.sub(r"\bLIKE\b", "ILIKE", sql, flags=re.IGNORECASE)
     return sql
@@ -325,6 +334,7 @@ class PgConnectionWrapper:
         global PG_POOL, BACKEND
         self.row_factory = None
         self._in_transaction = False
+        self._last_rowcount = 0
         if PG_POOL is None:
             try:
                 min_conn = int(os.getenv("PG_POOL_MIN", "5"))
@@ -352,17 +362,27 @@ class PgConnectionWrapper:
                  
         cur = self.conn.cursor()
         wrapper = PgCursorWrapper(cur, self)
-        return wrapper.execute(query, params)
+        res = wrapper.execute(query, params)
+        self._last_rowcount = res.rowcount if res else 0
+        return res
         
     def executescript(self, script: str) -> PgCursorWrapper:
         cur = self.conn.cursor()
         wrapper = PgCursorWrapper(cur, self)
-        return wrapper.execute(script)
+        res = wrapper.execute(script)
+        self._last_rowcount = res.rowcount if res else 0
+        return res
 
     def executemany(self, query: str, seq_of_params: Iterable[Any]) -> PgCursorWrapper:
         cur = self.conn.cursor()
         wrapper = PgCursorWrapper(cur, self)
-        return wrapper.executemany(query, seq_of_params)
+        res = wrapper.executemany(query, seq_of_params)
+        self._last_rowcount = res.rowcount if res else 0
+        return res
+
+    @property
+    def changes(self) -> int:
+        return self._last_rowcount
         
     def commit(self) -> None:
         try:

@@ -1,15 +1,15 @@
-"""Rita Cordahi Tenant Setup - v17 Max (fixed schema)"""
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import config
 import sqlite3
 import logging
-import os
-import sys
 import uuid
 import time
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'jobhunt_saas_v2.db')
 
 
@@ -19,11 +19,6 @@ def create_rita() -> bool:
     Returns:
         True on success, False on failure.
     """
-    if not os.path.exists(DB_PATH):
-        logger.error(f"[setup_rita] Database not found at: {DB_PATH}")
-        logger.error("[setup_rita] Please run the main app first to initialize the database.")
-        return False
-
     try:
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
