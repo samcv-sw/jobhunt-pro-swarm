@@ -444,7 +444,7 @@ app = FastAPI(
 # --- 🛡️ THE AEGIS SHIELD (ABSOLUTE FIRST MIDDLEWARE) ---
 try:
     from core.aegis_shield import AegisShieldMiddleware
-    app.add_middleware(AegisShieldMiddleware)
+    # app.add_middleware(AegisShieldMiddleware)
     logger.info("🛡️ The Aegis Shield (Anti-DDoS WAF) Activated")
 except Exception as e:
     logger.error(f"Failed to load Aegis Shield: {e}")
