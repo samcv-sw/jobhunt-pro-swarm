@@ -63,7 +63,8 @@ class IronCloakMiddleware(BaseHTTPMiddleware):
                 pass
             # If they hit the root landing page (where reviewers look), intercept it!
             elif path == "/" or path == "/index":
-                logger.info(f"[IRON CLOAK] Panic Mode Active: Serving Fake Blog to {request.client.host}")
+                client_ip = request.client.host if request.client else "unknown"
+                logger.info(f"[IRON CLOAK] Panic Mode Active: Serving Fake Blog to {client_ip}")
                 return self._serve_fake_blog()
                 
         # 3. Proceed normally
