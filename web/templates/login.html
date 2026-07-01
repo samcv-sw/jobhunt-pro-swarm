@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <meta charset="UTF-8">
@@ -8,9 +8,10 @@
   <meta name="robots" content="noindex, follow">
   <title>Login &mdash; JobHunt Pro</title>
   <link rel="stylesheet" href="/static/css/cyberpunk.css">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap');
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root {
   --bg-dark: #050510;
@@ -26,7 +27,7 @@
   --transition: 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
 }
 body {
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Cairo', -apple-system, sans-serif;
   background-color: var(--bg-dark);
   background-image:
     radial-gradient(circle at 15% 50%, rgba(79, 172, 254, 0.07), transparent 30%),
@@ -65,14 +66,14 @@ body {
 
 .form-group{margin-bottom:18px}
 .form-group label{display:block;font-size:13px;color:var(--text-muted);margin-bottom:6px;font-weight:500}
-.form-group input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:15px;transition:all var(--transition);font-family:'Outfit',sans-serif}
+.form-group input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:15px;transition:all var(--transition);font-family:'Cairo',sans-serif}
 .form-group input:focus{outline:none;border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(0,240,255,0.1);background:rgba(255,255,255,0.06)}
 .form-group input::placeholder{color:var(--dim)}
 .pw-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
 .pw-row a{color:var(--accent-cyan);text-decoration:none;font-size:13px}
 .pw-row a:hover{text-decoration:underline}
 
-.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent-magenta),var(--accent-cyan));color:#020c1b;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:'Outfit',sans-serif;letter-spacing:-0.2px;position:relative;overflow:hidden;}
+.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent-magenta),var(--accent-cyan));color:#020c1b;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:'Cairo',sans-serif;letter-spacing:-0.2px;position:relative;overflow:hidden;}
 .btn-submit::before{content:'';position:absolute;top:0;left:-100%;width:200%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:left 0.5s ease;}
 .btn-submit:hover::before{left:100%;}
 .btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(79,172,254,0.35);}
@@ -111,16 +112,16 @@ body {
     <div class="auth-container">
       <div class="auth-card">
         <div class="auth-header">
-          <h1>Welcome Back 👋</h1>
-          <p class="sub">Login to manage your AI job campaigns</p>
+          <h1>أهلاً بعودتك 👋</h1>
+          <p class="sub">سجّل دخولك لإدارة حملاتك الذكية</p>
         </div>
 
         {% if plan %}
         <div class="plan-badge">
           <span class="plan-badge-icon">🚀</span>
           <div class="plan-badge-info">
-            <strong>{{ plan }} Plan Selected</strong>
-            <span>Continue with your chosen plan. You can change anytime.</span>
+            <strong>{{ plan }} الخطة المختارة</strong>
+            <span>تابع بخطتك المختارة. يمكنك التغيير في أي وقت.</span>
           </div>
         </div>
         {% endif %}
@@ -144,28 +145,28 @@ body {
 
         <form method="POST" action="/login">
           <div class="form-group">
-            <label for="email">Email Address</label>
+            <label for="email">البريد الإلكتروني</label>
             <input dir="auto" type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>
           </div>
           <div class="form-group">
-            <label for="password">Password</label>
+            <label for="password">كلمة المرور</label>
             <input dir="auto" type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password">
           </div>
           <div class="pw-row">
-            <a href="/forgot-password">Forgot password?</a>
+            <a href="/forgot-password">نسيت كلمة المرور؟</a>
           </div>
-          <button type="submit" class="btn-submit" id="loginBtn">🔐 Login to Dashboard</button>
+          <button type="submit" class="btn-submit" id="loginBtn">🔐 دخول إلى غرفة القيادة</button>
         </form>
 
         <div class="auth-footer">
-          New to JobHunt Pro? <a href="/register">Create free account →</a>
+          جديد على المنصة؟ <a href='/register'>إنشاء حساب مجاني ←</a>
         </div>
       </div>
 
       <div class="trust-strip">
-        <span>🔒 256-bit encrypted</span>
-        <span>🛡️ 30-Day Money-Back</span>
-        <span>🤖 200 AI Agents</span>
+        <span>🔒 تشفير 256-بت</span>
+        <span>🛡️ ضمان استرداد 30 يوم</span>
+        <span>🤖 200 وكيل ذكي</span>
       </div>
     </div>
   </div>
@@ -174,8 +175,9 @@ body {
   document.querySelector('form[action="/login"]').addEventListener('submit', function() {
     var btn = document.getElementById('loginBtn');
     btn.classList.add('loading');
-    btn.textContent = '⏳ Signing in...';
+    btn.textContent = '⏳ جاري التحقق...';
   });
   </script>
 </body>
 </html>
+

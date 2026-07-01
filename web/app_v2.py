@@ -5855,6 +5855,9 @@ async def upload_cv(
     email_data = email_template or email_body
     cv_data = extracted_text or cv_full_text
 
+    # NOTE: /logout is handled above at line ~3361 (canonical handler with session.clear)
+    # NOTE: /api/docs is handled elsewhere
+    # NOTE: /email-test is handled elsewhere
     conn = get_db()
     conn.execute(
         """INSERT INTO cv_profiles
@@ -6204,38 +6207,12 @@ def email_test_page(request: Request):
     '''
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Email Test", "email-test"))
 
-@app.get("/api/docs")
-def api_docs_page(request: Request):
-    """Placeholder Premium page for API Docs."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    user = dict(user_row) if user_row else {}
-    content = '''
-    <div style="text-align:center; padding: 100px 20px;">
-        <div style="font-size: 64px; margin-bottom:20px;">🔌</div>
-        <h2 style="font-size: 28px; margin-bottom: 10px; color: #e2e8f0;">Developer API Access</h2>
-        <p style="color: #94a3b8; font-size: 16px; margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">Integrate JobHunt Pro directly into your custom workflows using our GraphQL API.</p>
-        <div style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); padding: 30px; border-radius: 16px; display: inline-block; text-align:left; max-width: 400px;">
-            <h3 style="color:#60a5fa; margin-bottom: 15px; font-size:18px;">Enterprise Feature</h3>
-            <p style="color:#e2e8f0; font-size:14px; margin-bottom: 20px;">API access is restricted to Enterprise and Developer tier users.</p>
-            <a href="/pricing" style="display:block; text-align:center; padding:12px 24px; background:linear-gradient(135deg, #3b82f6, #2563eb); color:white; text-decoration:none; border-radius:8px; font-weight:bold;">View Plans</a>
-        </div>
-    </div>
-    '''
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "API Docs", "api"))
-
+# NOTE: /api/docs template version is above at line ~2442; redirect /api-docs to it
 @app.get("/api-docs")
-def api_docs_dash_redirect():
+def api_docs_dash_redirect_canonical():
     """Redirect /api-docs (dash) to /api/docs (slash) for consistency."""
     return RedirectResponse(url="/api/docs", status_code=301)
 
-@app.get("/api/docs", response_class=HTMLResponse)
-def api_docs_page(request: Request):
-    return templates.TemplateResponse(request, "api_docs.html")
 
 
 @app.get("/email-test", response_class=HTMLResponse)

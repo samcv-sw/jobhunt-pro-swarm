@@ -225,6 +225,26 @@ class StealthScraper:
         
         self.last_request_time = time.time()
         self.request_count += 1
+
+    # APEX MATRIX: Browser profile rotation to avoid static fingerprint detection
+    # Rotate between latest Chrome, Safari, Edge profiles
+    _BROWSER_PROFILES = [
+        "chrome131",   # Chrome 131 (Windows) — most common desktop
+        "chrome130",   # Chrome 130 (Windows) — second most common
+        "chrome129",   # Chrome 129 (macOS)
+        "safari18_0",  # Safari 18 (macOS) — avoid LinkedIn honeypots
+        "edge99",      # Edge 99 (Windows)
+    ]
+
+    def _get_impersonation_profile(self) -> str:
+        """
+        Rotate browser fingerprints per request.
+        Uses a seeded rotation (not fully random) so the same 'session'
+        presents a consistent profile for cookie/session matching.
+        """
+        # Rotate every 10 requests to simulate a normal browsing session
+        profile_index = (self.request_count // 10) % len(self._BROWSER_PROFILES)
+        return self._BROWSER_PROFILES[profile_index]
     
     def should_rotate_ip(self) -> bool:
         """Decide if we should rotate IP (for proxy users)"""
@@ -245,8 +265,15 @@ class StealthScraper:
         proxies = {"http": proxy, "https": proxy} if proxy else None
         
         if HAS_CFFI:
-            # impersonate="chrome120" handles JA3/TLS and HTTP/2 headers natively!
-            return cffi_requests.AsyncSession(impersonate="chrome120", timeout=timeout, proxies=proxies)
+            # APEX MATRIX: Rotate browser impersonation profile
+            # Each profile replicates a different browser's TLS + HTTP/2 + header fingerprint
+            profile = self._get_impersonation_profile()
+            logger.debug(f"[STEALTH] Using browser profile: {profile}")
+            return cffi_requests.AsyncSession(
+                impersonate=profile,
+                timeout=timeout,
+                proxies=proxies,
+            )
         else:
             logger.warning("[STEALTH] curl_cffi is missing! Falling back to raw httpx. Cloudflare may block you.")
             client_kwargs = {"timeout": timeout, "follow_redirects": follow_redirects}
@@ -264,7 +291,13 @@ class StealthScraper:
         proxies = {"http": proxy, "https": proxy} if proxy else None
         
         if HAS_CFFI:
-            return cffi_requests.Session(impersonate="chrome120", timeout=timeout, proxies=proxies)
+            # APEX MATRIX: Rotate browser profile for sync client too
+            profile = self._get_impersonation_profile()
+            return cffi_requests.Session(
+                impersonate=profile,
+                timeout=timeout,
+                proxies=proxies,
+            )
         else:
             client_kwargs = {"timeout": timeout, "follow_redirects": follow_redirects}
             if proxy:

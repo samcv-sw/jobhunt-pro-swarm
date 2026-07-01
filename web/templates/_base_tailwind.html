@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="ar" class="dark" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +12,17 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --text-x-direction: -1; /* For RTL mirroring */
+        }
+        /* Mirror lucide icons when RTL */
+        [dir="rtl"] .lucide-dir-aware {
+            transform: scaleX(var(--text-x-direction));
+        }
+    </style>
     
     <!-- Tailwind CSS (CDN for immediate deployment) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,8 +32,8 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Space Grotesk', 'sans-serif'],
+                        sans: ['Cairo', 'sans-serif'],
+                        display: ['Cairo', 'sans-serif'],
                         mono: ['Fira Code', 'monospace'],
                     },
                     colors: {
@@ -77,25 +87,25 @@
     <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl px-6 py-3 bg-slate-950/80 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-between shadow-2xl shadow-indigo-500/10 transition-all duration-300">
         <a href="/" class="flex items-center gap-2 text-xl font-display font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 hover:opacity-80 transition-opacity">
             <i data-lucide="crosshair" class="w-6 h-6 text-cyan-400"></i>
-            JOBHUNT PRO
-            <span class="px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[10px] text-cyan-400 font-mono tracking-widest hidden sm:inline-block">HYDRA</span>
+            جوبهانت برو
+            <span class="px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[10px] text-cyan-400 font-mono tracking-widest hidden sm:inline-block">هايدرا</span>
         </a>
         
         <!-- Desktop Nav -->
         <div class="hidden md:flex items-center gap-1">
-            <a href="/" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">Home</a>
-            <a href="/pricing" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">Pricing</a>
-            <a href="/services" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">Arsenal</a>
-            <a href="/faq" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">Intel</a>
+            <a href="/" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">الرئيسية</a>
+            <a href="/pricing" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">الأسعار</a>
+            <a href="/services" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">الترسانة</a>
+            <a href="/faq" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">الأسئلة الشائعة</a>
             
             <div class="w-px h-6 bg-white/10 mx-2"></div>
             
             {% if is_logged_in %}
-                <a href="/dashboard" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">Command Center</a>
-                <a href="/logout" class="ml-2 px-4 py-2 text-sm font-bold text-white bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg transition-colors shadow-[0_0_15px_rgba(239,68,68,0.1)]">Logout</a>
+                <a href="/dashboard" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">غرفة القيادة</a>
+                <a href="/logout" class="ms-2 px-4 py-2 text-sm font-bold text-white bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg transition-colors shadow-[0_0_15px_rgba(239,68,68,0.1)]">خروج</a>
             {% else %}
-                <a href="/login" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">Login</a>
-                <a href="/register" class="ml-2 px-5 py-2 text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 rounded-lg shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-all">Engage Free</a>
+                <a href="/login" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">دخول</a>
+                <a href="/register" class="ms-2 px-5 py-2 text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 rounded-lg shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-all">ابدأ مجاناً</a>
             {% endif %}
         </div>
 
@@ -108,16 +118,16 @@
 
     <!-- Mobile Menu Overlay -->
     <div x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-40 bg-slate-950/95 backdrop-blur-sm md:hidden flex flex-col items-center justify-center gap-6" x-cloak>
-        <a href="/" class="text-xl font-medium text-slate-300 hover:text-white">Home</a>
-        <a href="/pricing" class="text-xl font-medium text-slate-300 hover:text-white">Pricing</a>
-        <a href="/services" class="text-xl font-medium text-slate-300 hover:text-white">Arsenal</a>
-        <a href="/faq" class="text-xl font-medium text-slate-300 hover:text-white">Intel</a>
+        <a href="/" class="text-xl font-medium text-slate-300 hover:text-white">الرئيسية</a>
+        <a href="/pricing" class="text-xl font-medium text-slate-300 hover:text-white">الأسعار</a>
+        <a href="/services" class="text-xl font-medium text-slate-300 hover:text-white">الترسانة</a>
+        <a href="/faq" class="text-xl font-medium text-slate-300 hover:text-white">الأسئلة الشائعة</a>
         {% if is_logged_in %}
-            <a href="/dashboard" class="text-xl font-medium text-slate-300 hover:text-white">Command Center</a>
-            <a href="/logout" class="mt-4 px-8 py-3 font-bold text-red-400 bg-red-500/10 border border-red-500/30 rounded-xl">Logout</a>
+            <a href="/dashboard" class="text-xl font-medium text-slate-300 hover:text-white">غرفة القيادة</a>
+            <a href="/logout" class="mt-4 px-8 py-3 font-bold text-red-400 bg-red-500/10 border border-red-500/30 rounded-xl">تسجيل خروج</a>
         {% else %}
-            <a href="/login" class="text-xl font-medium text-slate-300 hover:text-white">Login</a>
-            <a href="/register" class="mt-4 px-8 py-3 font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl">Engage Free</a>
+            <a href="/login" class="text-xl font-medium text-slate-300 hover:text-white">تسجيل الدخول</a>
+            <a href="/register" class="mt-4 px-8 py-3 font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl">ابدأ مجاناً</a>
         {% endif %}
     </div>
 
@@ -129,6 +139,16 @@
     <!-- Initialize Icons -->
     <script>
         lucide.createIcons();
+    </script>
+    <script>
+        // Auto inject dir="auto" into all inputs as per Gulf Premium constraints
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input, textarea, select').forEach(el => {
+                if (!el.hasAttribute('dir')) {
+                    el.setAttribute('dir', 'auto');
+                }
+            });
+        });
     </script>
 </body>
 </html>

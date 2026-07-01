@@ -592,6 +592,29 @@ Include a mix of:
         logger.error("[Self-Healing AI] All AI providers failed or generated invalid responses after 3 attempts.")
         return None
 
+    async def _exponential_backoff_with_jitter(self, attempt: int, base_delay: float = 2.0, max_delay: float = 120.0) -> float:
+        """
+        APEX MATRIX: Exponential Backoff + Stochastic Jitter
+        =====================================================
+        Eliminates the thundering herd problem when multiple swarm agents
+        hit the same rate limit simultaneously.
+
+        Formula: delay = min(base * 2^attempt, max_delay) + random(0, jitter_cap)
+        Jitter cap is 25% of the exponential value to scatter retry collisions.
+        """
+        exp_delay = min(base_delay * (2 ** attempt), max_delay)
+        # Full jitter: randomize between 0 and the exponential delay
+        # This is the most effective strategy per AWS architecture blog
+        import random
+        jitter = random.uniform(0, exp_delay * 0.25)
+        final_delay = exp_delay + jitter
+        logger.info(
+            f"[AI-BACKOFF] Attempt {attempt+1} → waiting {final_delay:.2f}s "
+            f"(exp={exp_delay:.1f}s + jitter={jitter:.2f}s)"
+        )
+        await asyncio.sleep(final_delay)
+        return final_delay
+
     async def _call_groq(self, prompt: str, model: str, max_tokens: int, temperature: float) -> str | None:
         """Call Groq API with a specific model.
         Handles TPD (tokens-per-day) exhaustion gracefully: if the 429 error
@@ -621,12 +644,28 @@ Include a mix of:
                 return content.strip() if content else None
             elif resp.status_code == 429:
                 error_text = resp.text.lower()
+                # TPD = Tokens Per Day exhausted — no point retrying until next day
                 if "tpd" in error_text or "tokens per day" in error_text:
-                    logger.warning(f"Groq {model} TPD limit exhausted, skipping retry: {error_text[:100]}")
+                    logger.warning(f"[AI-BACKOFF] Groq {model} TPD exhausted. Skipping immediately.")
                     raise Exception(f"Groq {model} TPD exhausted — {error_text[:100]}")
-                
-                logger.warning(f"Groq rate limited on {model}, waiting 60s (ANTI-BAN)...")
-                await asyncio.sleep(60) # ANTI-BAN: 60 seconds delay to prevent permanent API key ban
+
+                # Check if Retry-After header is present (respect upstream hint)
+                retry_after_header = resp.headers.get("retry-after") or resp.headers.get("x-ratelimit-reset-requests")
+                if retry_after_header:
+                    try:
+                        wait_secs = float(retry_after_header)
+                        import random
+                        jitter = random.uniform(0, wait_secs * 0.15)  # 15% jitter
+                        logger.warning(f"[AI-BACKOFF] Groq rate limited on {model}. Respecting Retry-After: {wait_secs:.1f}s + {jitter:.2f}s jitter")
+                        await asyncio.sleep(wait_secs + jitter)
+                    except (ValueError, TypeError):
+                        await self._exponential_backoff_with_jitter(0)  # fallback: attempt=0
+                else:
+                    # No header hint — use exponential backoff (attempt=0 = ~2-4s first retry)
+                    logger.warning(f"[AI-BACKOFF] Groq rate limited on {model}. Using exponential backoff.")
+                    await self._exponential_backoff_with_jitter(0)
+
+                # Retry once after the calculated wait
                 resp = await client.post(url, headers=headers, json=payload)
                 if resp.status_code == 200:
                     data = resp.json()

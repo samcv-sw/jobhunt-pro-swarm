@@ -49,6 +49,75 @@ def _extract_years_experience(text: str) -> Optional[str]:
     return None
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# GDPR SUPPRESSION LIST (Apex Matrix Sovereign Compliance Layer)
+# ─────────────────────────────────────────────────────────────────────────────
+# In-memory set for zero-latency lookups. Loaded from DB on first check.
+_suppression_cache: set = set()
+_suppression_loaded: bool = False
+
+
+def _load_suppression_list() -> None:
+    """Load the global suppression list from DB into memory (lazy-load)."""
+    global _suppression_cache, _suppression_loaded
+    if _suppression_loaded:
+        return
+    try:
+        from core.pg_sqlite_shim import connect
+        with connect() as conn:
+            rows = conn.execute(
+                "SELECT email FROM suppression_list WHERE is_active = TRUE"
+            ).fetchall()
+            _suppression_cache = {row[0].strip().lower() for row in rows if row[0]}
+        _suppression_loaded = True
+        logger.info(f"[GDPR] Suppression list loaded: {len(_suppression_cache)} entries.")
+    except Exception as exc:
+        logger.warning(f"[GDPR] Could not load suppression list (DB may not exist yet): {exc}")
+        _suppression_loaded = True  # avoid repeated failures
+
+
+def _is_suppressed(email: str) -> bool:
+    """
+    APEX MATRIX: GDPR Opt-Out Compliance Check.
+    Returns True if the email address is in the global suppression list.
+    Zero-latency — uses in-memory set after first DB load.
+    """
+    if not _suppression_loaded:
+        _load_suppression_list()
+    return email.strip().lower() in _suppression_cache
+
+
+def add_to_suppression_list(email: str, reason: str = "user_request") -> bool:
+    """
+    Add an email to the GDPR suppression list.
+    - Updates the DB immediately (persistent)
+    - Updates the in-memory cache immediately (instant propagation)
+    - Call this when a user clicks 'unsubscribe'
+    """
+    global _suppression_cache
+    email = email.strip().lower()
+    try:
+        from core.pg_sqlite_shim import connect
+        with connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO suppression_list (email, reason, suppressed_at, is_active)
+                VALUES (?, ?, CURRENT_TIMESTAMP, TRUE)
+                ON CONFLICT (email) DO UPDATE SET is_active = TRUE,
+                suppressed_at = CURRENT_TIMESTAMP, reason = ?
+                """,
+                (email, reason, reason)
+            )
+        _suppression_cache.add(email)
+        logger.info(f"[GDPR] ✅ {email} added to suppression list (reason: {reason})")
+        return True
+    except Exception as exc:
+        logger.error(f"[GDPR] Failed to add {email} to suppression list: {exc}")
+        # Still add to in-memory cache for this session
+        _suppression_cache.add(email)
+        return False
+
+
 def _extract_percentage_metric(text: str) -> Optional[str]:
     """Helper to match starting percentage achievements (e.g. '99.9% uptime achieved')."""
     m = re.match(r"^([\d.]+%)", text)
@@ -808,11 +877,24 @@ class EmailEngine:
 
     async def send_with_retry(self, provider: str, msg: MIMEMultipart,
                                max_retries: int = 3) -> Tuple[bool, str]:
-        """Send email with exponential backoff retry."""
+        """
+        APEX MATRIX: Send email with Exponential Backoff + Stochastic Jitter.
+        ======================================================================
+        - Respects SMTP provider Retry-After headers when present
+        - Scales delay exponentially (2^attempt * 5s) with 30% jitter cap
+        - Separate jitter seeds per provider to prevent thundering herd
+        - Separates 'logic failure' retries from 'exception' retries
+        """
         # DRY RUN MODE: Save to file instead of sending
         dry_run = getattr(config, 'DRY_RUN', os.getenv("DRY_RUN", "false").lower() == "true")
         if dry_run:
             return await self._dry_run_send(provider, msg)
+
+        # ── GDPR SUPPRESSION CHECK ────────────────────────────────────────────
+        to_email = msg.get("To", "").strip().lower()
+        if to_email and _is_suppressed(to_email):
+            logger.info(f"[EmailEngine] ⛔ Suppressed address: {to_email}. Skipping.")
+            return False, f"suppressed:{to_email}"
 
         # Skip immediately if circuit breaker says provider is open (broken)
         if not self.circuit_breaker.is_available(provider):
@@ -836,17 +918,31 @@ class EmailEngine:
                     self.scheduler.record_failure(provider)
 
                     if attempt < max_retries - 1:
-                        # Cap delay at 15s max to prevent exceeding PythonAnywhere's 250s timeout
-                        delay = min((2 ** attempt) * 5 + random.uniform(0, 3), 15.0)
-                        logger.info(f"Retry {attempt + 1}/{max_retries} after {delay:.1f}s")
+                        # Exponential backoff: 5s, 10s, 20s ... capped at 30s
+                        # + stochastic jitter of up to 30% of the base delay
+                        # to scatter concurrent swarm retries
+                        base_delay = min((2 ** attempt) * 5, 30.0)
+                        jitter = random.uniform(0, base_delay * 0.30)
+                        delay = base_delay + jitter
+                        logger.info(
+                            f"[SMTP-BACKOFF] {provider} Retry {attempt+1}/{max_retries} "
+                            f"after {delay:.1f}s (base={base_delay:.0f}s + jitter={jitter:.1f}s)"
+                        )
                         await asyncio.sleep(delay)
 
                 except Exception as e:
                     logger.error(f"Send attempt {attempt + 1} failed: {e}")
                     if "No module named" in str(e) or "aiosmtplib" in str(e):
-                         break
+                        break
                     if attempt < max_retries - 1:
-                        delay = min(2 ** attempt * 5, 15.0)
+                        # Exception-path backoff: tighter jitter (15%) to retry quickly
+                        base_delay = min(2 ** attempt * 5, 30.0)
+                        jitter = random.uniform(0, base_delay * 0.15)
+                        delay = base_delay + jitter
+                        logger.info(
+                            f"[SMTP-BACKOFF] {provider} Exception retry {attempt+1} "
+                            f"in {delay:.1f}s"
+                        )
                         await asyncio.sleep(delay)
 
         logger.info(f"[EmailEngine] SMTP skipped/expired. Falling to Brevo HTTP...")

@@ -4,25 +4,37 @@ from core.pg_sqlite_shim import connect, get_backend
 
 logger = logging.getLogger(__name__)
 
-def enqueue_task(task_type: str, payload: dict):
-    """Adds a task to the queue."""
+def enqueue_task(task_type: str, payload: dict, priority: int = 5, max_retries: int = 3):
+    """Adds a task to the queue with priority and retry configuration."""
     try:
         with connect() as conn:
             conn.execute(
-                "INSERT INTO job_queue (task_type, payload, status) VALUES (?, ?, 'pending')",
-                (task_type, json.dumps(payload))
+                """
+                INSERT INTO job_queue (task_type, payload, status, priority, max_retries)
+                VALUES (?, ?, 'pending', ?, ?)
+                """,
+                (task_type, json.dumps(payload), priority, max_retries)
             )
-            logger.info(f"Enqueued task: {task_type}")
+            logger.info(f"Enqueued task: {task_type} (priority={priority})")
     except Exception as e:
         logger.error(f"Failed to enqueue task {task_type}: {e}")
 
 def dequeue_task():
-    """Atomically dequeues a task using FOR UPDATE SKIP LOCKED (PostgreSQL)."""
+    """
+    APEX MATRIX: Atomically dequeues the highest priority task that is ready to run.
+    Respects next_retry_at for tasks in exponential backoff.
+    """
     try:
         with connect() as conn:
             # If backend is sqlite, we do a simple non-concurrent fetch (for local dev)
             if get_backend() == "sqlite":
-                cur = conn.execute("SELECT id, task_type, payload FROM job_queue WHERE status = 'pending' ORDER BY created_at ASC LIMIT 1")
+                cur = conn.execute("""
+                    SELECT id, task_type, payload FROM job_queue 
+                    WHERE (status = 'pending' OR status = 'failed')
+                      AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
+                    ORDER BY priority ASC, next_retry_at ASC, created_at ASC 
+                    LIMIT 1
+                """)
                 row = cur.fetchone()
                 if not row:
                     return None
@@ -40,8 +52,9 @@ def dequeue_task():
                     SET status = 'running', locked_at = CURRENT_TIMESTAMP
                     WHERE id = (
                         SELECT id FROM job_queue 
-                        WHERE status = 'pending' 
-                        ORDER BY created_at ASC 
+                        WHERE (status = 'pending' OR status = 'failed')
+                          AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
+                        ORDER BY priority ASC, next_retry_at ASC, created_at ASC 
                         LIMIT 1 
                         FOR UPDATE SKIP LOCKED
                     )
@@ -71,17 +84,57 @@ def complete_task(task_id: int):
         logger.error(f"Failed to complete task {task_id}: {e}")
 
 def fail_task(task_id: int, error_msg: str):
-    """Marks a task as failed."""
+    """
+    APEX MATRIX: Marks a task as failed and schedules an exponential backoff retry.
+    If max_retries is reached, marks it as permanently failed.
+    """
     try:
         with connect() as conn:
-            conn.execute(
-                "UPDATE job_queue SET status = 'failed', error = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-                (error_msg, task_id)
-            )
+            # Fetch current retry stats
+            cur = conn.execute("SELECT retry_count, max_retries FROM job_queue WHERE id = ?", (task_id,))
+            row = cur.fetchone()
+            if not row:
+                return
+
+            retry_count, max_retries = row
+            retry_count += 1
+
+            if retry_count <= max_retries:
+                # Exponential backoff: 1m, 2m, 4m, 8m...
+                delay_minutes = 2 ** (retry_count - 1)
+                
+                # Use standard SQL date modifier syntax supported by both SQLite and our PG shim
+                conn.execute(
+                    """
+                    UPDATE job_queue 
+                    SET status = 'failed', 
+                        error = ?, 
+                        updated_at = CURRENT_TIMESTAMP,
+                        retry_count = ?,
+                        next_retry_at = datetime(CURRENT_TIMESTAMP, '+' || ? || ' minutes')
+                    WHERE id = ?
+                    """,
+                    (error_msg, retry_count, delay_minutes, task_id)
+                )
+                logger.warning(f"Task {task_id} failed (attempt {retry_count}/{max_retries}). Retrying in {delay_minutes}m: {error_msg}")
+            else:
+                # Permanent failure
+                conn.execute(
+                    """
+                    UPDATE job_queue 
+                    SET status = 'permanently_failed', 
+                        error = ?, 
+                        updated_at = CURRENT_TIMESTAMP 
+                    WHERE id = ?
+                    """,
+                    (error_msg, task_id)
+                )
+                logger.error(f"Task {task_id} permanently failed after {max_retries} retries: {error_msg}")
+
     except Exception as e:
         logger.error(f"Failed to fail task {task_id}: {e}")
 
-def enqueue_bulk_tasks(tasks: list):
+def enqueue_bulk_tasks(tasks: list, priority: int = 5, max_retries: int = 3):
     """
     Atomically enqueues a large list of tasks in a single transaction.
     tasks: list of dicts [{"task_type": "...", "payload": {...}}, ...]
@@ -91,13 +144,14 @@ def enqueue_bulk_tasks(tasks: list):
     try:
         with connect() as conn:
             # We use executemany for bulk inserts
-            data = [(t["task_type"], json.dumps(t["payload"]), 'pending') for t in tasks]
+            data = [(t["task_type"], json.dumps(t["payload"]), 'pending', priority, max_retries) for t in tasks]
             conn.executemany(
-                "INSERT INTO job_queue (task_type, payload, status) VALUES (?, ?, ?)",
+                "INSERT INTO job_queue (task_type, payload, status, priority, max_retries) VALUES (?, ?, ?, ?, ?)",
                 data
             )
             # The context manager auto-commits
-            logger.info(f"Enqueued {len(tasks)} bulk tasks.")
+            logger.info(f"Enqueued {len(tasks)} bulk tasks (priority={priority}).")
+
             return len(tasks)
     except Exception as e:
         logger.error(f"Failed to enqueue bulk tasks: {e}")
