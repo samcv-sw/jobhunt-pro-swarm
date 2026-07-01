@@ -2,7 +2,7 @@
 # JobHunt Pro - Fly.io Configuration
 # ============================================
 
-app = "jobhunt-pro-cloud"
+app = "jobhunt-pro"
 primary_region = "ams"  # Amsterdam — closest available to Lebanon/GCC
 
 [build]
