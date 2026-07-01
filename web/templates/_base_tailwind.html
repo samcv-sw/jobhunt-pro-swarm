@@ -84,52 +84,7 @@
 <body class="bg-slate-900 text-slate-300 font-sans antialiased selection:bg-indigo-500/30 overflow-x-hidden" x-data="{ sidebarOpen: false }">
     
     <!-- Global Navigation -->
-    <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl px-6 py-3 bg-slate-950/80 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-between shadow-2xl shadow-indigo-500/10 transition-all duration-300">
-        <a href="/" class="flex items-center gap-2 text-xl font-display font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 hover:opacity-80 transition-opacity">
-            <i data-lucide="crosshair" class="w-6 h-6 text-cyan-400"></i>
-            جوبهانت برو
-            <span class="px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[10px] text-cyan-400 font-mono tracking-widest hidden sm:inline-block">هايدرا</span>
-        </a>
-        
-        <!-- Desktop Nav -->
-        <div class="hidden md:flex items-center gap-1">
-            <a href="/" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">الرئيسية</a>
-            <a href="/pricing" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">الأسعار</a>
-            <a href="/services" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">الترسانة</a>
-            <a href="/faq" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">الأسئلة الشائعة</a>
-            
-            <div class="w-px h-6 bg-white/10 mx-2"></div>
-            
-            {% if is_logged_in %}
-                <a href="/dashboard" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">غرفة القيادة</a>
-                <a href="/logout" class="ms-2 px-4 py-2 text-sm font-bold text-white bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg transition-colors shadow-[0_0_15px_rgba(239,68,68,0.1)]">خروج</a>
-            {% else %}
-                <a href="/login" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">دخول</a>
-                <a href="/register" class="ms-2 px-5 py-2 text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 rounded-lg shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-all">ابدأ مجاناً</a>
-            {% endif %}
-        </div>
-
-        <!-- Mobile Toggle -->
-        <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors focus:outline-none">
-            <i data-lucide="menu" class="w-6 h-6" x-show="!sidebarOpen"></i>
-            <i data-lucide="x" class="w-6 h-6" x-show="sidebarOpen" x-cloak></i>
-        </button>
-    </nav>
-
-    <!-- Mobile Menu Overlay -->
-    <div x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-40 bg-slate-950/95 backdrop-blur-sm md:hidden flex flex-col items-center justify-center gap-6" x-cloak>
-        <a href="/" class="text-xl font-medium text-slate-300 hover:text-white">الرئيسية</a>
-        <a href="/pricing" class="text-xl font-medium text-slate-300 hover:text-white">الأسعار</a>
-        <a href="/services" class="text-xl font-medium text-slate-300 hover:text-white">الترسانة</a>
-        <a href="/faq" class="text-xl font-medium text-slate-300 hover:text-white">الأسئلة الشائعة</a>
-        {% if is_logged_in %}
-            <a href="/dashboard" class="text-xl font-medium text-slate-300 hover:text-white">غرفة القيادة</a>
-            <a href="/logout" class="mt-4 px-8 py-3 font-bold text-red-400 bg-red-500/10 border border-red-500/30 rounded-xl">تسجيل خروج</a>
-        {% else %}
-            <a href="/login" class="text-xl font-medium text-slate-300 hover:text-white">تسجيل الدخول</a>
-            <a href="/register" class="mt-4 px-8 py-3 font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl">ابدأ مجاناً</a>
-        {% endif %}
-    </div>
+    {% include "_public_nav.html" %}
 
     <!-- Main Content -->
     <main class="{% block main_class %}pt-28 pb-16 min-h-screen{% endblock %}">
