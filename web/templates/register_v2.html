@@ -18,7 +18,7 @@
 
 /* ── Background particles ── */
 .bg-particles {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%;
   pointer-events: none; z-index: 0; overflow: hidden;
 }
 .bg-particles .particle {
@@ -29,14 +29,14 @@
   opacity: 0.12;
   animation: floatParticle 20s infinite linear;
 }
-.bg-particles .particle:nth-child(1) { left: 5%; top: 15%; animation-delay: 0s; animation-duration: 18s; }
-.bg-particles .particle:nth-child(2) { left: 20%; top: 55%; animation-delay: 2s; animation-duration: 22s; width: 3px; height: 3px; }
-.bg-particles .particle:nth-child(3) { left: 40%; top: 5%; animation-delay: 4s; animation-duration: 25s; }
-.bg-particles .particle:nth-child(4) { left: 60%; top: 65%; animation-delay: 1s; animation-duration: 20s; width: 5px; height: 5px; }
-.bg-particles .particle:nth-child(5) { left: 75%; top: 25%; animation-delay: 3s; animation-duration: 23s; }
-.bg-particles .particle:nth-child(6) { left: 45%; top: 75%; animation-delay: 5s; animation-duration: 19s; width: 3px; height: 3px; }
-.bg-particles .particle:nth-child(7) { left: 85%; top: 45%; animation-delay: 6s; animation-duration: 21s; }
-.bg-particles .particle:nth-child(8) { left: 12%; top: 90%; animation-delay: 2.5s; animation-duration: 24s; }
+.bg-particles .particle:nth-child(1) { inset-inline-start: 5%; top: 15%; animation-delay: 0s; animation-duration: 18s; }
+.bg-particles .particle:nth-child(2) { inset-inline-start: 20%; top: 55%; animation-delay: 2s; animation-duration: 22s; width: 3px; height: 3px; }
+.bg-particles .particle:nth-child(3) { inset-inline-start: 40%; top: 5%; animation-delay: 4s; animation-duration: 25s; }
+.bg-particles .particle:nth-child(4) { inset-inline-start: 60%; top: 65%; animation-delay: 1s; animation-duration: 20s; width: 5px; height: 5px; }
+.bg-particles .particle:nth-child(5) { inset-inline-start: 75%; top: 25%; animation-delay: 3s; animation-duration: 23s; }
+.bg-particles .particle:nth-child(6) { inset-inline-start: 45%; top: 75%; animation-delay: 5s; animation-duration: 19s; width: 3px; height: 3px; }
+.bg-particles .particle:nth-child(7) { inset-inline-start: 85%; top: 45%; animation-delay: 6s; animation-duration: 21s; }
+.bg-particles .particle:nth-child(8) { inset-inline-start: 12%; top: 90%; animation-delay: 2.5s; animation-duration: 24s; }
 @keyframes floatParticle {
   0% { transform: translateY(0) rotate(0deg); opacity: 0; }
   10% { opacity: 0.12; }
@@ -90,7 +90,7 @@
 /* ── Animated checkmark for selected plan ── */
 .plan-option .checkmark {
   display: none;
-  position: absolute; bottom: 4px; right: 4px;
+  position: absolute; bottom: 4px; inset-inline-end: 4px;
   width: 18px; height: 18px; border-radius: 50%;
   background: var(--accent-success); color: #fff;
   font-size: 10px; font-weight: 700;

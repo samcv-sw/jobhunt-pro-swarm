@@ -94,7 +94,7 @@ body {
 .glass-card::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; height: 1px;
+  top: 0; inset-inline-start: 0; inset-inline-end: 0; height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -288,7 +288,7 @@ body {
   padding: 20px 30px;
   background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%);
   border: 1px solid rgba(16, 185, 129, 0.3);
-  border-left: 4px solid var(--accent-success);
+  border-inline-start: 4px solid var(--accent-success);
   border-radius: 16px;
 }
 

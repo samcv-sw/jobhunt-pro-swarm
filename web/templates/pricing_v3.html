@@ -226,7 +226,7 @@
   border-radius: 50px; color: var(--accent-primary); font-size: 12px; font-weight: 600; margin-bottom: var(--space-2);
 }
 
-.pricing-card-v3 ul { list-style: none; text-align: left; margin-bottom: var(--space-4); }
+.pricing-card-v3 ul { list-style: none; text-align: start; margin-bottom: var(--space-4); }
 .pricing-card-v3 li {
   padding: var(--space-1) 0; color: var(--text-muted); font-size: 14px;
   border-bottom: 1px solid var(--border-glass); line-height: 1.5;
@@ -347,7 +347,7 @@
 }
 .comparison-row-v3 .label { color: var(--text-muted); font-size: 13px; min-width: 160px; }
 .comparison-row-v3 .them { color: rgba(107,114,128,0.4); font-size: 13px; text-align: center; flex: 1; }
-.comparison-row-v3 .you { color: var(--accent-primary); font-weight: 600; font-size: 13px; text-align: right; flex: 1; }
+.comparison-row-v3 .you { color: var(--accent-primary); font-weight: 600; font-size: 13px; text-align: end; flex: 1; }
 
 /* â”€â”€ A La Carte Services â”€â”€ */
 .service-grid-v3 {
@@ -445,10 +445,10 @@
   .price-v3 { font-size: 28px; }
   .service-grid-v3 { grid-template-columns: 1fr; }
   .urgency-box-v3 .urgency-stats { gap: 20px; }
-  .comparison-row-v3 { flex-direction: column; gap: var(--space-1); text-align: left; padding: var(--space-2) 0; }
+  .comparison-row-v3 { flex-direction: column; gap: var(--space-1); text-align: start; padding: var(--space-2) 0; }
   .comparison-row-v3 .label { min-width: auto; font-weight: 600; color: var(--text-main); }
-  .comparison-row-v3 .them { text-align: left; }
-  .comparison-row-v3 .you { text-align: left; }
+  .comparison-row-v3 .them { text-align: start; }
+  .comparison-row-v3 .you { text-align: start; }
   .billing-toggle { flex-wrap: wrap; gap: 10px; }
 }
 @media(max-width: 480px) {

@@ -11,18 +11,18 @@
  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
  <style>
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-  body{background:#05050a;color:#f1f1f5;font-family:'Inter',sans-serif;min-height:100vh}
+  body{background:#05050a;color:#f1f1f5;font-family: 'Cairo', 'Inter',sans-serif;min-height:100vh}
   .page-wrap{max-width:1200px;margin:0 auto;padding:24px 20px 80px}
 
   .header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:28px}
-  .header h1{font-family:'Orbitron',monospace;font-size:22px;font-weight:700;letter-spacing:1px;background:linear-gradient(135deg,#00f0ff,#ff0055);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .header h1{font-family: 'Cairo', 'Orbitron',monospace;font-size:22px;font-weight:700;letter-spacing:1px;background:linear-gradient(135deg,#00f0ff,#ff0055);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   .header .sub{font-size:13px;color:#64748b;margin-top:4px}
   .header .date{font-size:12px;color:#52525b;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 14px}
 
   .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px}
   .kpi-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:20px 16px;text-align:center;transition:all .3s;position:relative;overflow:hidden}
   .kpi-card:hover{border-color:rgba(0,240,255,0.2);transform:translateY(-2px)}
-  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:.6}
+  .kpi-card::before{content:'';position:absolute;top:0;inset-inline-start: 0;inset-inline-end: 0;height:2px;opacity:.6}
   .kpi-card.primary::before{background:#00f0ff}
   .kpi-card.success::before{background:#4ade80}
   .kpi-card.warning::before{background:#facc15}
@@ -48,11 +48,11 @@
   .rate-bar-fill.blue{background:linear-gradient(90deg,#3b82f6,#00f0ff)}
   .rate-bar-fill.red{background:linear-gradient(90deg,#ff0055,#f97316)}
 
-  .section-title{font-family:'Orbitron',monospace;font-size:15px;font-weight:600;margin:32px 0 18px;letter-spacing:0.5px;color:#cbd5e1;display:flex;align-items:center;gap:10px}
+  .section-title{font-family: 'Cairo', 'Orbitron',monospace;font-size:15px;font-weight:600;margin:32px 0 18px;letter-spacing:0.5px;color:#cbd5e1;display:flex;align-items:center;gap:10px}
   .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,0.08),transparent)}
 
   .campaign-table{width:100%;border-collapse:collapse;background:rgba(255,255,255,0.02);border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.05)}
-  .campaign-table th{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;padding:12px 14px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05)}
+  .campaign-table th{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;padding:12px 14px;text-align: start;border-bottom:1px solid rgba(255,255,255,0.05)}
   .campaign-table td{padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.03)}
   .campaign-table tr:last-child td{border-bottom:none}
   .campaign-table tr:hover td{background:rgba(255,255,255,0.03)}

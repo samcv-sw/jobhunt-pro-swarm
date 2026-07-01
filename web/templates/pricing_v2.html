@@ -109,7 +109,7 @@ header.headroom nav a.pill {
   overflow: hidden;
 }
 .pricing-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  content: ''; position: absolute; top: 0; inset-inline-start: 0; inset-inline-end: 0;
   height: 180px;
   background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,.06), transparent 70%);
   pointer-events: none;
@@ -128,7 +128,7 @@ header.headroom nav a.pill {
   box-shadow: 0 8px 40px rgba(59,130,246,.25);
 }
 .pricing-card.highlight::after {
-  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  content: ''; position: absolute; top: 0; inset-inline-start: 0; inset-inline-end: 0;
   height: 3px;
   background: linear-gradient(90deg, var(--blue), var(--purple), var(--blue));
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
@@ -136,7 +136,7 @@ header.headroom nav a.pill {
 
 /* ── Badges ── */
 .badge {
-  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: -14px; inset-inline-start: 50%; transform: translateX(-50%);
   background: linear-gradient(135deg, var(--magenta), #ec4899);
   color: #fff; padding: 6px 18px;
   border-radius: 50px; font-size: 10px; font-weight: 700;
@@ -168,14 +168,14 @@ header.headroom nav a.pill {
   border-radius: 50px; color: var(--blue); font-size: 11px; font-weight: 600; margin-bottom: 18px;
 }
 
-.pricing-card ul { list-style: none; text-align: left; margin-bottom: 28px; }
+.pricing-card ul { list-style: none; text-align: start; margin-bottom: 28px; }
 .pricing-card li {
   padding: 9px 0; color: var(--text-muted); font-size: 12px;
   border-bottom: 1px solid var(--border); line-height: 1.5;
 }
 .pricing-card li:last-child { border-bottom: none; }
 .pricing-card li::before {
-  content: '→'; color: var(--blue); margin-right: 10px; font-weight: 700;
+  content: '→'; color: var(--blue); margin-inline-end: 10px; font-weight: 700;
 }
 
 .pricing-card a.btn { width: 100%; text-align: center; }
@@ -194,10 +194,10 @@ header.headroom nav a.pill {
 .flash-banner .fs-deal strong { font-size: 15px; color: var(--text); }
 .flash-banner .fs-deal .fs-pct {
   background: var(--red); color: #fff;
-  padding: 2px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; margin-left: 8px;
+  padding: 2px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; margin-inline-start: 8px;
 }
 .flash-banner .fs-countdown {
-  font-family: 'Inter', monospace; font-size: 18px; font-weight: 700;
+  font-family: 'Cairo', 'Inter', monospace; font-size: 18px; font-weight: 700;
   letter-spacing: 1px; color: var(--red);
 }
 @keyframes pulseGlow {
@@ -267,7 +267,7 @@ header.headroom nav a.pill {
 }
 .comparison-row .label { color: var(--text-muted); font-size: 13px; min-width: 160px; }
 .comparison-row .them { color: rgba(107,114,128,.4); font-size: 13px; text-align: center; flex: 1; }
-.comparison-row .you { color: var(--blue); font-weight: 600; font-size: 13px; text-align: right; flex: 1; }
+.comparison-row .you { color: var(--blue); font-weight: 600; font-size: 13px; text-align: end; flex: 1; }
 
 /* ── A La Carte Services ── */
 .service-grid {
@@ -311,7 +311,7 @@ header.headroom nav a.pill {
 
 /* ── Social Toast (glass-morphism version) ── */
 .social-toast {
-  position: fixed; bottom: 80px; right: 20px; z-index: 9999;
+  position: fixed; bottom: 80px; inset-inline-end: 20px; z-index: 9999;
   max-width: 340px;
   background: linear-gradient(135deg, rgba(15,15,30,.95), rgba(10,10,20,.95));
   border: 1px solid rgba(59,130,246,.2);
@@ -333,7 +333,7 @@ header.headroom nav a.pill {
 .social-toast .st-content .st-action { color: var(--blue); }
 .social-toast .st-content .st-time { color: var(--text-muted); font-size: 10px; }
 .toast-close {
-  position: absolute; top: 6px; right: 10px;
+  position: absolute; top: 6px; inset-inline-end: 10px;
   background: none; border: none; color: var(--text-muted);
   cursor: pointer; font-size: 14px;
 }
@@ -385,7 +385,7 @@ header.headroom nav a.pill {
       0%,100% { box-shadow: 0 0 12px rgba(239,68,68,.15); }
       50% { box-shadow: 0 0 25px rgba(239,68,68,.3); }
     }
-    .fs-timer { font-size:26px; font-weight:800; color:var(--red); font-family:monospace; letter-spacing:2px; }
+    .fs-timer { font-size:26px; font-weight:800; color:var(--red); font-family: 'Cairo', monospace; letter-spacing:2px; }
   </style>
 </head>
 

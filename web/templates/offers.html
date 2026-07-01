@@ -14,7 +14,7 @@
 
 /* Admin Dashboard Panel with Gradient Border Glow */
 .admin-card { background: linear-gradient(135deg, rgba(15, 10, 28, 0.95), rgba(10, 8, 20, 0.95)); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: 18px; padding: 28px; margin-bottom: 36px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255,255,255,0.05); position: relative; }
-.admin-card::before { content: ''; position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px; border-radius: 18px; background: linear-gradient(135deg, #f43f5e, #8b5cf6); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: 0.35; }
+.admin-card::before { content: ''; position: absolute; top: -1px; inset-inline-start: -1px; inset-inline-end: -1px; bottom: -1px; border-radius: 18px; background: linear-gradient(135deg, #f43f5e, #8b5cf6); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: 0.35; }
 .admin-card h2 { font-size: 20px; font-weight: 800; color: #f1f5f9; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
 .admin-card .sub { font-size: 13px; color: var(--text-dim); margin-bottom: 24px; }
 
@@ -48,7 +48,7 @@
 .offer-card:hover .offer-img { transform: scale(1.05); }
 .offer-img-fallback { font-size: 72px; filter: drop-shadow(0 0 12px rgba(255,255,255,0.08)); }
 
-.price-tag { position: absolute; bottom: 16px; right: 16px; background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(244, 63, 94, 0.3); color: #f43f5e; padding: 6px 14px; border-radius: 12px; font-weight: 800; font-size: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 10; display: flex; align-items: center; gap: 4px; }
+.price-tag { position: absolute; bottom: 16px; inset-inline-end: 16px; background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(244, 63, 94, 0.3); color: #f43f5e; padding: 6px 14px; border-radius: 12px; font-weight: 800; font-size: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 10; display: flex; align-items: center; gap: 4px; }
 
 /* Pulsing Savings Badge */
 @keyframes pulseGlow {
@@ -56,13 +56,13 @@
     50% { transform: scale(1.03); box-shadow: 0 0 16px rgba(34, 197, 94, 0.6); }
     100% { transform: scale(1); box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
 }
-.savings-badge { position: absolute; top: 16px; left: 16px; background: #22c55e; color: #052e16; padding: 5px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; z-index: 10; animation: pulseGlow 2.5s infinite ease-in-out; }
+.savings-badge { position: absolute; top: 16px; inset-inline-start: 16px; background: #22c55e; color: #052e16; padding: 5px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; z-index: 10; animation: pulseGlow 2.5s infinite ease-in-out; }
 
 .offer-body { padding: 24px; display: flex; flex-direction: column; flex: 1; }
 .offer-title { font-size: 20px; font-weight: 800; color: #f8fafc; margin-bottom: 10px; letter-spacing: -0.3px; }
 .offer-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; margin-bottom: 20px; flex: 1; }
 
-.offer-note { background: rgba(59, 130, 246, 0.03); border-left: 3px solid #3b82f6; padding: 10px 14px; border-radius: 0 10px 10px 0; margin-bottom: 24px; font-size: 12.5px; color: #94a3b8; font-style: italic; line-height: 1.5; border-top: 1px solid rgba(59, 130, 246, 0.05); border-bottom: 1px solid rgba(59, 130, 246, 0.05); }
+.offer-note { background: rgba(59, 130, 246, 0.03); border-inline-start: 3px solid #3b82f6; padding: 10px 14px; border-radius: 0 10px 10px 0; margin-bottom: 24px; font-size: 12.5px; color: #94a3b8; font-style: italic; line-height: 1.5; border-top: 1px solid rgba(59, 130, 246, 0.05); border-bottom: 1px solid rgba(59, 130, 246, 0.05); }
 
 .offer-footer { display: flex; flex-direction: column; align-items: stretch; margin-top: auto; gap: 8px; width: 100%; }
 
@@ -70,7 +70,7 @@
 .purchases-section { margin-top: 48px; }
 .purchase-table-container { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
 .purchase-table { width: 100%; border-collapse: collapse; }
-.purchase-table th { text-align: left; font-size: 11px; text-transform: uppercase; color: var(--text-muted); padding: 14px; border-bottom: 1px solid var(--border); letter-spacing: 0.8px; font-weight: 700; }
+.purchase-table th { text-align: start; font-size: 11px; text-transform: uppercase; color: var(--text-muted); padding: 14px; border-bottom: 1px solid var(--border); letter-spacing: 0.8px; font-weight: 700; }
 .purchase-table td { padding: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.02); font-size: 13.5px; color: var(--text-dim); }
 .purchase-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
 .reqs-cell { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; color: var(--blue); text-decoration: underline; font-weight: 500; }
@@ -82,14 +82,14 @@
 @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Purchase Modal */
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); z-index: 100000; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); align-items: center; justify-content: center; }
+.modal-overlay { display: none; position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); z-index: 100000; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); align-items: center; justify-content: center; }
 .modal-overlay.show { display: flex; }
 .modal-card { background: rgba(13, 13, 23, 0.98); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 32px; max-width: 540px; width: 92%; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 20px 50px rgba(0,0,0,0.6); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; min-height: 0; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 .modal-card h3 { font-size: 20px; font-weight: 800; color: #f8fafc; margin-bottom: 8px; letter-spacing: -0.3px; }
 .modal-card p { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; }
 .modal-card form { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
-.modal-form-body { flex: 1; overflow-y: auto; padding-right: 8px; margin-bottom: 20px; min-height: 0; }
+.modal-form-body { flex: 1; overflow-y: auto; padding-inline-end: 8px; margin-bottom: 20px; min-height: 0; }
 .modal-form-body::-webkit-scrollbar { width: 6px; }
 .modal-form-body::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 3px; }
 .modal-form-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 3px; }
@@ -225,7 +225,7 @@
                 
                 <span class="price-tag">
                     {% if offer.original_price|float > offer.price|float %}
-                    <span style="text-decoration: line-through; font-size: 12px; color: #94a3b8; margin-right: 6px; font-weight: 500;">
+                    <span style="text-decoration: line-through; font-size: 12px; color: #94a3b8; margin-inline-end: 6px; font-weight: 500;">
                         ${{ "%.2f"|format(offer.original_price|float) }}
                     </span>
                     {% endif %}
@@ -385,7 +385,7 @@
                 <tbody>
                     {% for k in inventory_keys %}
                     <tr>
-                        <td style="font-family: monospace; font-size: 12.5px; color: #e2e8f0; word-break: break-all;">{{ k.key_content }}</td>
+                        <td style="font-family: 'Cairo', monospace; font-size: 12.5px; color: #e2e8f0; word-break: break-all;">{{ k.key_content }}</td>
                         <td style="font-weight: 600; color: #94a3b8;">{{ k.offer_title }}</td>
                         <td>
                             {% if k.is_used == 1 %}

@@ -27,9 +27,9 @@
   --card:rgba(10,10,20,0.8);--radius:16px;
 }
 html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.7;overflow-x:hidden}
+body{font-family: 'Cairo', 'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.7;overflow-x:hidden}
 ::selection{background:rgba(0,240,255,0.25);color:#fff}
-.bg-layer{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.bg-layer{position:fixed;top:0;inset-inline-start: 0;width:100%;height:100%;pointer-events:none;z-index:0}
 .bg-grid{
   background-image:
     linear-gradient(rgba(0,240,255,0.03) 1px,transparent 1px),
@@ -40,12 +40,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .glow-orb{
   position:fixed;width:500px;height:500px;border-radius:50%;pointer-events:none;
   background:rgba(0,240,255,0.05);filter:blur(120px);
-  top:-100px;left:50%;transform:translateX(-50%);z-index:0;
+  top:-100px;inset-inline-start: 50%;transform:translateX(-50%);z-index:0;
 }
 .container{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:60px 24px}
 .header{text-align:center;margin-bottom:48px}
 .header h1{
-  font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,5vw,42px);
+  font-family: 'Cairo', 'Space Grotesk',sans-serif;font-size:clamp(28px,5vw,42px);
   font-weight:900;letter-spacing:-1.5px;margin-bottom:12px;line-height:1.2;
 }
 .header h1 .gradient{
@@ -64,13 +64,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .search-form input{
   width:100%;padding:14px 18px;background:rgba(255,255,255,0.04);
   border:1px solid var(--border);border-radius:12px;color:var(--text);
-  font-size:16px;font-family:'Inter',sans-serif;transition:all .25s;
+  font-size:16px;font-family: 'Cairo', 'Inter',sans-serif;transition:all .25s;
 }
 .search-form input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 20px rgba(0,240,255,0.1)}
 .search-form input::placeholder{color:var(--dim)}
 .btn{
   padding:14px 36px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;
-  transition:all .25s;border:none;font-family:'Inter',sans-serif;white-space:nowrap;
+  transition:all .25s;border:none;font-family: 'Cairo', 'Inter',sans-serif;white-space:nowrap;
 }
 .btn-search{
   background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;
@@ -95,7 +95,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   padding:18px 24px;border-bottom:1px solid var(--border);
   display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
 }
-.results-card .card-hdr h3{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:var(--text)}
+.results-card .card-hdr h3{font-family: 'Cairo', 'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:var(--text)}
 .results-card .card-hdr .count{font-size:12px;color:var(--muted);font-weight:600}
 .app-row{
   display:flex;align-items:center;gap:16px;padding:18px 24px;
@@ -117,7 +117,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .stage-rejected{background:rgba(239,68,68,.12);color:#fca5a5}
 .stage-discovered{background:rgba(245,158,11,.12);color:#fbbf24}
 .stage-followed_up{background:rgba(245,158,11,.12);color:#fbbf24}
-.app-salary{font-family:monospace;font-size:12px;font-weight:600;white-space:nowrap;text-align:right;min-width:110px}
+.app-salary{font-family: 'Cairo', monospace;font-size:12px;font-weight:600;white-space:nowrap;text-align: end;min-width:110px}
 .app-salary.high{color:#22c55e}
 .app-salary.medium{color:#fbbf24}
 .app-salary.entry{color:#94a3b8}
@@ -134,7 +134,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   .search-form{flex-direction:column}
   .search-form .btn{width:100%}
   .app-row{flex-direction:column;align-items:flex-start;gap:10px}
-  .app-salary{text-align:left}
+  .app-salary{text-align: start}
 }
 </style>
 </head>
@@ -202,7 +202,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <div style="text-align:center;margin-top:24px;">
     <a href="/" class="btn-back">&#x2190; Back to Home</a>
     {% if results is not none %}
-    <a href="/track-application" class="btn-back" style="margin-left:8px;">&#x1F50D; Search Another Email</a>
+    <a href="/track-application" class="btn-back" style="margin-inline-start:8px;">&#x1F50D; Search Another Email</a>
     {% endif %}
   </div>
 </div>

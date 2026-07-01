@@ -9,7 +9,7 @@
  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
  <style>
  *{margin:0;padding:0;box-sizing:border-box}
- body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#e2e8f0;min-height:100vh}
+ body{font-family: 'Cairo', 'Inter',sans-serif;background:#0a0a0f;color:#e2e8f0;min-height:100vh}
  .container{max-width:1400px;margin:0 auto;padding:40px 24px}
  h1{font-size:28px;margin-bottom:4px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:inline-block}
  .subtitle{color:#64748b;margin-bottom:32px;font-size:14px}
@@ -22,13 +22,13 @@
  .chart-card{background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px;margin-bottom:16px}
  .chart-card h3{font-size:14px;margin-bottom:20px;color:#94a3b8}
  .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
- .bar-row .bar-label{width:140px;font-size:11px;color:#94a3b8;text-align:right;flex-shrink:0}
+ .bar-row .bar-label{width:140px;font-size:11px;color:#94a3b8;text-align: end;flex-shrink:0}
  .bar-row .bar-track{flex:1;height:28px;background:rgba(255,255,255,0.04);border-radius:6px;overflow:hidden}
  .bar-row .bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:10px;font-weight:700;color:#fff;min-width:40px;transition:width 1s}
  .revenue-chart{display:flex;align-items:flex-end;gap:8px;height:200px;padding-top:16px}
  .revenue-bar{flex:1;border-radius:6px 6px 0 0;position:relative;min-width:20px;transition:height 0.5s}
- .revenue-bar .bar-val{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;white-space:nowrap}
- .revenue-bar .bar-month{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:9px;color:#64748b;text-transform:uppercase}
+ .revenue-bar .bar-val{position:absolute;top:-18px;inset-inline-start: 50%;transform:translateX(-50%);font-size:9px;font-weight:700;white-space:nowrap}
+ .revenue-bar .bar-month{position:absolute;bottom:-22px;inset-inline-start: 50%;transform:translateX(-50%);font-size:9px;color:#64748b;text-transform:uppercase}
  .tier-card{padding:12px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
  .tier-card .tier-name{font-weight:600;font-size:13px}
  .tier-card .tier-stats{font-size:11px;color:#94a3b8}

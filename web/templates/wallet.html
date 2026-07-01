@@ -54,7 +54,7 @@
 .invoice-modal h2 { font-size:20px; color:#e2e8f0; margin:0 0 8px; }
 .invoice-modal .sub { font-size:12px; color:#64748b; margin:0 0 20px; }
 .invoice-modal .qr-placeholder { width:120px; height:120px; margin:0 auto 16px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:48px; }
-.invoice-modal .pay-addr { font-size:11px; color:#94a3b8; word-break:break-all; background:rgba(0,0,0,.4); padding:12px; border-radius:10px; margin-bottom:12px; font-family:monospace; }
+.invoice-modal .pay-addr { font-size:11px; color:#94a3b8; word-break:break-all; background:rgba(0,0,0,.4); padding:12px; border-radius:10px; margin-bottom:12px; font-family: 'Cairo', monospace; }
 .invoice-modal .pay-amount { font-size:14px; color:#f59e0b; font-weight:700; margin-bottom:16px; }
 .invoice-modal .btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 .invoice-modal .btn-pay { padding:12px 28px; background:linear-gradient(135deg,#22c55e,#16a34a); border:none; border-radius:12px; color:#fff; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; transition:all .2s; }
@@ -85,9 +85,9 @@
 .redeem-card h3 { font-size:14px; color:#e2e8f0; margin:0 0 6px; }
 .redeem-card p { font-size:12px; color:#64748b; margin:0 0 16px; }
 .redeem-form { display:flex; gap:10px; flex-wrap:wrap; }
-.redeem-input { flex:1; min-width:200px; padding:12px 16px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#e2e8f0; font-size:14px; font-family:monospace; letter-spacing:1px; outline:none; transition:border .2s; }
+.redeem-input { flex:1; min-width:200px; padding:12px 16px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#e2e8f0; font-size:14px; font-family: 'Cairo', monospace; letter-spacing:1px; outline:none; transition:border .2s; }
 .redeem-input:focus { border-color:rgba(59,130,246,.5); }
-.redeem-input::placeholder { color:#475569; font-family:sans-serif; letter-spacing:0; }
+.redeem-input::placeholder { color:#475569; font-family: 'Cairo', sans-serif; letter-spacing:0; }
 .btn-redeem { padding:12px 28px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); border:none; border-radius:12px; color:#fff; font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; }
 .btn-redeem:hover { filter:brightness(1.15); transform:translateY(-1px); }
 </style>
@@ -131,7 +131,7 @@
     <div>
       <div style="font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:2px;">مفتاح API الخاص بك</div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <code id="apiKeyDisplay" style="font-size:13px;color:#94a3b8;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:6px;font-family:monospace;">••••••••••••••••••••••••</code>
+        <code id="apiKeyDisplay" style="font-size:13px;color:#94a3b8;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:6px;font-family: 'Cairo', monospace;">••••••••••••••••••••••••</code>
         <button id="toggleKeyBtn" class="btn-wallet" style="padding:2px 8px;font-size:11px;min-height:24px;line-height:1;" onclick="toggleApiKey()">👁️ Show</button>
       </div>
     </div>

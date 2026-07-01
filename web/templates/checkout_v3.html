@@ -47,7 +47,7 @@ body {
 .checkout-v3::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0; inset-inline-start: 0; inset-inline-end: 0;
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--accent-primary), var(--accent-secondary), transparent);
   opacity: 0.6;
@@ -306,7 +306,7 @@ body {
   word-break: break-all;
   cursor: pointer;
   transition: all var(--transition-fast);
-  text-align: left;
+  text-align: start;
   line-height: 1.6;
   user-select: all;
 }

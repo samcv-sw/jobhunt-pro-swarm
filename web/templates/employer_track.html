@@ -11,7 +11,7 @@
 .track-form h2 { margin-bottom:16px; text-align:center; }
 .form-group { margin-bottom:14px; }
 .form-group label { display:block; margin-bottom:5px; font-size:.82em; color:#94a3b8; font-weight:600; }
-.form-group input { width:100%; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:rgba(15,15,35,.8); color:#e2e8f0; font-size:.92em; font-family:inherit; }
+.form-group input { width:100%; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:rgba(15,15,35,.8); color:#e2e8f0; font-size:.92em; font-family: 'Cairo', inherit; }
 .form-group input:focus { outline:none; border-color:var(--purple); }
 .track-btn { width:100%; padding:14px; background:linear-gradient(135deg,var(--purple),var(--pink)); border:none; border-radius:10px; color:#fff; font-weight:700; font-size:1em; cursor:pointer; }
 .track-btn:hover { transform:translateY(-1px); }
@@ -41,7 +41,7 @@
 
 .expiry-bar { height:6px; border-radius:3px; background:rgba(255,255,255,.06); margin-top:12px; overflow:hidden; }
 .expiry-fill { height:100%; border-radius:3px; transition:width .5s; }
-.expiry-text { font-size:.72em; color:#64748b; margin-top:4px; text-align:right; }
+.expiry-text { font-size:.72em; color:#64748b; margin-top:4px; text-align: end; }
 
 .empty-state { text-align:center; padding:40px; color:#94a3b8; }
 .empty-state .icon { font-size:3em; margin-bottom:10px; }
@@ -54,7 +54,7 @@
 .detail-grid .label { color:#64748b; font-size:.72em; margin-bottom:2px; }
 .detail-grid .value { color:#e2e8f0; }
 .detail-grid .full { grid-column:1/-1; }
-.copy-btn { font-size:.7em; padding:2px 8px; border-radius:5px; background:rgba(59,130,246,.2); color:#60a5fa; border:none; cursor:pointer; margin-left:6px; }
+.copy-btn { font-size:.7em; padding:2px 8px; border-radius:5px; background:rgba(59,130,246,.2); color:#60a5fa; border:none; cursor:pointer; margin-inline-start:6px; }
 
 @media (max-width:768px) {
   .job-card-header { flex-direction:column; }
@@ -332,7 +332,7 @@ function renderJobs(jobs, email) {
     html += '<div><input dir="auto" id="apply_' + j.job_id + '_email" type="email" placeholder="Your Email *" required style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
     html += '<div><input dir="auto" id="apply_' + j.job_id + '_phone" placeholder="Phone (optional)" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
     html += '<div><button class="btn" id="apply_' + j.job_id + '_btn" type="submit" style="width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;cursor:pointer;">📩 Send Application</button></div>';
-    html += '<div style="grid-column:1/-1;"><textarea dir="auto" id="apply_' + j.job_id + '_note" placeholder="Cover note / why you\'re a good fit..." style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;min-height:60px;resize:vertical;font-family:inherit;"></textarea></div>';
+    html += '<div style="grid-column:1/-1;"><textarea dir="auto" id="apply_' + j.job_id + '_note" placeholder="Cover note / why you\'re a good fit..." style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;min-height:60px;resize:vertical;font-family: 'Cairo', inherit;"></textarea></div>';
     html += '<div id="apply_' + j.job_id + '_msg" style="grid-column:1/-1;font-size:.85em;"></div>';
     html += '</form></div>';
     
