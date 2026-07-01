@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
@@ -9,8 +9,8 @@
   <title>Login — JobHunt Pro</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
 <!-- Login v2 — Enhanced with password strength meter, toggle visibility, loading states, improved animations -->
-<link rel="stylesheet" href="/static/css/dashboard-v4.css?v=20260629_v2">
-<link rel="stylesheet" href="/static/css/auth-v2.css?v=20260629_v2">
+<link rel="stylesheet" href="/static/css/dashboard-v4-rtl.css?v=20260629_v2">
+<link rel="stylesheet" href="/static/css/auth-v2-rtl.css?v=20260629_v2">
 <style>
 /* ═══════════════════════════════════════════
    LOGIN v2 — Page-Specific Styles
@@ -39,7 +39,7 @@
 .bg-particles .particle:nth-child(3) { inset-inline-start: 45%; top: 10%; animation-delay: 4s; animation-duration: 25s; }
 .bg-particles .particle:nth-child(4) { inset-inline-start: 65%; top: 70%; animation-delay: 1s; animation-duration: 20s; width: 5px; height: 5px; }
 .bg-particles .particle:nth-child(5) { inset-inline-start: 80%; top: 30%; animation-delay: 3s; animation-duration: 23s; }
-.bg-particles .particle:nth-child(6) { inset-inline-start: 50%; top: 80%; animation-delay: 5s; animation-duration: 19s; width: 3px; height: 3px; }
+.bg-particles .particle:nth-child(6) { left: 50%; top: 80%; animation-delay: 5s; animation-duration: 19s; width: 3px; height: 3px; }
 .bg-particles .particle:nth-child(7) { inset-inline-start: 15%; top: 85%; animation-delay: 6s; animation-duration: 21s; }
 .bg-particles .particle:nth-child(8) { inset-inline-start: 90%; top: 50%; animation-delay: 2.5s; animation-duration: 24s; }
 @keyframes floatParticle {
@@ -92,8 +92,8 @@
       <div class="plan-badge">
         <span class="plan-badge-icon">🚀</span>
         <div class="plan-badge-info">
-          <strong>{{ plan }} Plan Selected</strong>
-          <span>Continue with your chosen plan. You can change anytime.</span>
+          <strong>الخطة المختارة {{ plan }}</strong>
+          <span>تابع بخطتك المختارة. يمكنك التغيير في أي وقت.</span>
         </div>
       </div>
       {% endif %}
@@ -114,7 +114,7 @@
         </a>
       </div>
 
-      <div class="oauth-divider">OR</div>
+      <div class="oauth-divider">أو</div>
 
       <form method="POST" action="/login" id="loginForm" onsubmit="handleLogin(event)">
         <div class="form-group">
@@ -151,9 +151,9 @@
     </div>
 
     <div class="trust-strip">
-      <span>🔒 256-bit encrypted</span>
-      <span>🛡️ 30-Day Money-Back</span>
-      <span>🤖 200 AI Agents</span>
+      <span>🔒 تشفير 256-بت</span>
+      <span>🛡️ ضمان استرداد 30 يوم</span>
+      <span>🤖 200 وكيل ذكي</span>
     </div>
   </div>
 </div>
@@ -192,7 +192,7 @@ function checkPwStrength(val) {
   if (/\d/.test(val)) score++;
   if (/[^a-zA-Z0-9]/.test(val)) score++;
   var levels = ['', 'weak', 'fair', 'good', 'strong'];
-  var labels = ['', 'Weak — Try adding numbers & symbols', 'Fair — Add uppercase & special chars', 'Good — Almost there!', 'Strong — Great password!'];
+  var labels = ['', 'ضعيف — جرب إضافة أرقام ورموز', 'مقبول — أضف أحرف كبيرة ورموز خاصة', 'جيد — اقتربت!', 'قوي — كلمة مرور ممتازة!'];
   bar.className = 'pw-strength-bar ' + levels[score];
   label.textContent = labels[score];
   label.className = 'pw-strength-label ' + levels[score];

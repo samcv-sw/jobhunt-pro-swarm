@@ -630,3 +630,8 @@
   .auth-header h1 { font-size: 24px; }
   .oauth-row { flex-direction: column; gap: 8px; }
 }
+
+/* FIX: Arabic Shaping */
+[dir="rtl"] *, :lang(ar) *, :lang(ar) {
+    letter-spacing: normal !important;
+}

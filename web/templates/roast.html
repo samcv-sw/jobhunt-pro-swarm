@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Roast My Resume - JobHunt Pro{% endblock %}
+{% block title %}قيّم سيرتي الذاتية - JobHunt Pro{% endblock %}
 {% block head %}
-<meta name="description" content="Roast My Resume — Get a brutally honest, AI-powered critique of your CV to find out why you are not landing job interviews.">
+<meta name="description" content="تقييم سيرتي الذاتية القاسي — احصل على نقد صريح جداً مدعوم بالذكاء الاصطناعي لسيرتك الذاتية لمعرفة سبب عدم حصولك على مقابلات عمل.">
 {% endblock %}
 {% block content %}
 {% include '_public_nav.html' %}
 
 <div class="glass-panel" style="padding-top:140px;max-width: 600px; margin: 120px auto 50px; text-align: center;">
-    <h1 style="color: var(--danger);">🔥 Roast My Resume</h1>
-    <p>Upload your PDF and let our brutally honest AI destroy your ego.</p>
+    <h1 style="color: var(--danger);">🔥 تقييم سيرتي الذاتية القاسي</h1>
+    <p>ارفع ملف الـ PDF الخاص بك ودع الذكاء الاصطناعي الصريح جداً لدينا يحطم غرورك.</p>
     
     <div style="margin: 30px 0;">
         <input dir="auto" type="file" id="resumeFile" accept="application/pdf" class="glass-input" style="margin-bottom: 20px;">
-        <button id="roastBtn" class="btn-primary" style="width: 100%; background: var(--danger);">Roast Me Now</button>
+        <button id="roastBtn" class="btn-primary" style="width: 100%; background: var(--danger);">قيّم سيرتي الآن</button>
     </div>
     
     <!-- Skeleton Loader -->
@@ -28,16 +28,16 @@
         <p id="roastText" style="font-size: 1.2rem; font-style: italic; margin: 20px 0;">...</p>
         
         <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <a id="shareTwitter" href="#" target="_blank" class="btn-primary" style="background: #1DA1F2; text-decoration: none; padding: 10px 20px;">🐦 Share on X</a>
-            <a id="shareLinkedIn" href="#" target="_blank" class="btn-primary" style="background: #0077b5; text-decoration: none; padding: 10px 20px;">💼 Share on LinkedIn</a>
-            <a id="shareWhatsApp" href="#" target="_blank" class="btn-primary" style="background: #25D366; text-decoration: none; padding: 10px 20px;">📱 Share on WhatsApp</a>
+            <a id="shareTwitter" href="#" target="_blank" class="btn-primary" style="background: #1DA1F2; text-decoration: none; padding: 10px 20px;">🐦 شارك على X</a>
+            <a id="shareLinkedIn" href="#" target="_blank" class="btn-primary" style="background: #0077b5; text-decoration: none; padding: 10px 20px;">💼 شارك على لينكد إن</a>
+            <a id="shareWhatsApp" href="#" target="_blank" class="btn-primary" style="background: #25D366; text-decoration: none; padding: 10px 20px;">📱 شارك على واتساب</a>
         </div>
         
         <hr style="border-color: var(--glass-border); margin: 30px 0;">
         <div style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); padding: 20px; border-radius: 12px;">
-            <h4 style="margin-top:0;">Want to fix this garbage CV and get hired?</h4>
-            <p style="font-size: 14px; color: #94a3b8;">Join 10,000+ engineers using our AI to automate job applications and tailor resumes instantly.</p>
-            <a href="/register?ref=roast_tool" class="btn-primary" style="text-decoration: none; display: block; margin-top:15px; background: linear-gradient(135deg, #3b82f6, #8b5cf6);">🚀 Get Your Free AI Agent Now</a>
+            <h4 style="margin-top:0;">هل تريد إصلاح هذه السيرة الذاتية السيئة والحصول على وظيفة؟</h4>
+            <p style="font-size: 14px; color: #94a3b8;">انضم إلى أكثر من 10,000 مهندس يستخدمون الذكاء الاصطناعي الخاص بنا لأتمتة التقديم على الوظائف وتخصيص السير الذاتية فوراً.</p>
+            <a href="/register?ref=roast_tool" class="btn-primary" style="text-decoration: none; display: block; margin-top:15px; background: linear-gradient(135deg, #3b82f6, #8b5cf6);">🚀 احصل على وكيل الذكاء الاصطناعي المجاني الآن</a>
         </div>
     </div>
 </div>
@@ -51,7 +51,7 @@
 document.getElementById('roastBtn').addEventListener('click', async () => {
     const fileInput = document.getElementById('resumeFile');
     if (!fileInput.files[0]) {
-        alert("Upload a PDF first!");
+        alert("يرجى رفع ملف PDF أولاً!");
         return;
     }
 
@@ -74,19 +74,19 @@ document.getElementById('roastBtn').addEventListener('click', async () => {
             document.getElementById('scoreText').innerText = data.score + "/100";
             document.getElementById('roastText').innerText = `"${data.roast}"`;
             
-            const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(data.share_text + " 🔥 Get yours roasted: " + window.location.origin + "/roast")}`;
+            const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(data.share_text + " 🔥 قيّم سيرتك الذاتية: " + window.location.origin + "/roast")}`;
             document.getElementById('shareTwitter').href = tweetUrl;
             
-            const liUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(data.share_text + " 🔥 Get yours roasted: " + window.location.origin + "/roast")}`;
+            const liUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(data.share_text + " 🔥 قيّم سيرتك الذاتية: " + window.location.origin + "/roast")}`;
             document.getElementById('shareLinkedIn').href = liUrl;
             
-            const waUrl = `https://wa.me/?text=${encodeURIComponent(data.share_text + " 🔥 Get yours roasted: " + window.location.origin + "/roast")}`;
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(data.share_text + " 🔥 قيّم سيرتك الذاتية: " + window.location.origin + "/roast")}`;
             document.getElementById('shareWhatsApp').href = waUrl;
             
             document.getElementById('resultBox').style.display = 'block';
         }
     } catch (e) {
-        alert("Failed to connect to the roaster.");
+        alert("فشل الاتصال بخدمة التقييم. يرجى المحاولة لاحقاً.");
     } finally {
         document.getElementById('loader').style.display = 'none';
     }

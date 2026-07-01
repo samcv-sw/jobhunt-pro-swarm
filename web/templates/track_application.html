@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
@@ -10,8 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
   .headroom{min-height:60px;background:rgba(10,10,15,.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px;margin-bottom:24px}
-  .headroom .brand{font-size:18px;font-weight:800;color:#3b82f6;letter-spacing:-.5px}
-  .headroom nav{display:flex;gap:18px}
+  .headroom .brand{font-size:18px;font-weight:800;color:#3b82f6;gap:18px}
   .headroom nav a{font-size:13px;color:#94a3b8;font-weight:500;padding:6px 0;border-bottom:2px solid transparent;text-decoration:none}
   .headroom nav a:hover{border-color:#3b82f6;color:#e2e8f0}
   .headroom nav a.active{color:#60a5fa;border-color:#60a5fa}
@@ -40,13 +39,13 @@ body{font-family: 'Cairo', 'Inter',sans-serif;background:var(--bg);color:var(--t
 .glow-orb{
   position:fixed;width:500px;height:500px;border-radius:50%;pointer-events:none;
   background:rgba(0,240,255,0.05);filter:blur(120px);
-  top:-100px;inset-inline-start: 50%;transform:translateX(-50%);z-index:0;
+  top:-100px;left: 50%;transform:translateX(-50%);z-index:0;
 }
 .container{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:60px 24px}
 .header{text-align:center;margin-bottom:48px}
 .header h1{
   font-family: 'Cairo', 'Space Grotesk',sans-serif;font-size:clamp(28px,5vw,42px);
-  font-weight:900;letter-spacing:-1.5px;margin-bottom:12px;line-height:1.2;
+  font-weight:900;margin-bottom:12px;line-height:1.2;
 }
 .header h1 .gradient{
   background:linear-gradient(135deg,var(--cyan),var(--magenta));
@@ -60,7 +59,7 @@ body{font-family: 'Cairo', 'Inter',sans-serif;background:var(--bg);color:var(--t
 }
 .search-form{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
 .search-form .form-group{flex:1;min-width:240px}
-.search-form label{display:block;font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.search-form label{display:block;font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
 .search-form input{
   width:100%;padding:14px 18px;background:rgba(255,255,255,0.04);
   border:1px solid var(--border);border-radius:12px;color:var(--text);
@@ -121,10 +120,7 @@ body{font-family: 'Cairo', 'Inter',sans-serif;background:var(--bg);color:var(--t
 .app-salary.high{color:#22c55e}
 .app-salary.medium{color:#fbbf24}
 .app-salary.entry{color:#94a3b8}
-.bonus-tag{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.bonus-yes{color:#22c55e}
-.bonus-no{color:#52525b}
-.empty-state{text-align:center;padding:48px 20px;color:var(--dim)}
+.bonus-tag{font-size:8px;font-weight:700;text-transform:uppercase;padding:48px 20px;color:var(--dim)}
 .empty-state .emoji{font-size:48px;margin-bottom:12px;display:block}
 .empty-state p{font-size:14px;margin-bottom:16px}
 .footer{text-align:center;padding:40px;color:var(--dim);font-size:11px}
@@ -147,17 +143,17 @@ body{font-family: 'Cairo', 'Inter',sans-serif;background:var(--bg);color:var(--t
 
 <div class="container" style="padding-top:130px">
   <div class="header">
-    <h1>Track Your <span class="gradient">Applications</span></h1>
-    <p>Enter the email you used in your job applications to see real-time status across all positions.</p>
+    <h1>تتبع <span class="gradient">طلباتك</span></h1>
+    <p>أدخل البريد الإلكتروني الذي استخدمته في طلبات التوظيف لرؤية الحالة في الوقت الفعلي لجميع الوظائف.</p>
   </div>
 
   <div class="search-card">
     <form method="POST" action="/track-application" class="search-form">
       <div class="form-group">
-        <label>Your Email Address</label>
+        <label>عنوان بريدك الإلكتروني</label>
         <input dir="auto" type="email" name="email" value="{{ email or '' }}" placeholder="you@email.com" required autofocus>
       </div>
-      <button type="submit" class="btn btn-search">&#x1F50D; Track Applications</button>
+      <button type="submit" class="btn btn-search">&#x1F50D; تتبع الطلبات</button>
     </form>
   </div>
 
@@ -168,15 +164,15 @@ body{font-family: 'Cairo', 'Inter',sans-serif;background:var(--bg);color:var(--t
   {% if results is not none and results|length > 0 %}
   <div class="results-card">
     <div class="card-hdr">
-      <h3>&#x1F4CB; {{ count }} Application{% if count != 1 %}s{% endif %} Found</h3>
-      <span class="count">for {{ email }}</span>
+      <h3>&#x1F4CB; تم العثور على {{ count }} طلب{% if count != 1 %}ات{% endif %}</h3>
+      <span class="count">لـ {{ email }}</span>
     </div>
     {% for app in results %}
     <div class="app-row">
       <div class="app-info">
-        <div class="app-company">{{ app.company_name or 'Unknown Company' }}</div>
-        <div class="app-title">{{ app.job_title or 'Untitled Position' }}</div>
-        <div class="app-date">&#x1F4C5; Applied {{ app.date_applied }}</div>
+        <div class="app-company">{{ app.company_name or 'شركة غير معروفة' }}</div>
+        <div class="app-title">{{ app.job_title or 'منصب غير مسمى' }}</div>
+        <div class="app-date">&#x1F4C5; تم التقديم في {{ app.date_applied }}</div>
         {% if app.location %}<div class="app-location">&#x1F4CD; {{ app.location }}</div>{% endif %}
       </div>
       {% if app.salary_display %}
@@ -193,16 +189,16 @@ body{font-family: 'Cairo', 'Inter',sans-serif;background:var(--bg);color:var(--t
   <div class="results-card">
     <div class="empty-state">
       <span class="emoji">&#x1F4ED;</span>
-      <p>No applications found for <strong>{{ email }}</strong></p>
-      <p style="color:var(--dim);font-size:12px;">Make sure you entered the same email used when applying. Applications may take a few minutes to appear.</p>
+      <p>لم يتم العثور على طلبات لـ <strong>{{ email }}</strong></p>
+      <p style="color:var(--dim);font-size:12px;">تأكد من إدخال نفس البريد الإلكتروني المستخدم عند التقديم. قد تستغرق الطلبات بضع دقائق للظهور.</p>
     </div>
   </div>
   {% endif %}
 
   <div style="text-align:center;margin-top:24px;">
-    <a href="/" class="btn-back">&#x2190; Back to Home</a>
+    <a href="/" class="btn-back">&#x2190; العودة للرئيسية</a>
     {% if results is not none %}
-    <a href="/track-application" class="btn-back" style="margin-inline-start:8px;">&#x1F50D; Search Another Email</a>
+    <a href="/track-application" class="btn-back" style="margin-inline-start:8px;">&#x1F50D; البحث عن بريد إلكتروني آخر</a>
     {% endif %}
   </div>
 </div>

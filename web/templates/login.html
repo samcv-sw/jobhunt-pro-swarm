@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
@@ -7,7 +7,7 @@
   <meta name="description" content="Login to JobHunt Pro — your AI-powered automated job application platform. Manage campaigns, track applications, and land your dream job faster.">
   <meta name="robots" content="noindex, follow">
   <title>Login &mdash; JobHunt Pro</title>
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
+  <link rel="stylesheet" href="/static/css/cyberpunk-rtl.css">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -56,7 +56,7 @@ body {
 @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
 .auth-header{text-align:center;margin-bottom:28px}
-.auth-header h1{font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
+.auth-header h1{font-size:28px;font-weight:800;margin-bottom:6px}
 .auth-header .sub{color:var(--text-muted);font-size:14px}
 
 .plan-badge{display:flex;align-items:center;gap:10px;background:rgba(0,240,255,0.06);border:1px solid rgba(0,240,255,0.15);border-radius:12px;padding:12px 16px;margin-bottom:24px}
@@ -73,7 +73,7 @@ body {
 .pw-row a{color:var(--accent-cyan);text-decoration:none;font-size:13px}
 .pw-row a:hover{text-decoration:underline}
 
-.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent-magenta),var(--accent-cyan));color:#020c1b;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:'Cairo',sans-serif;letter-spacing:-0.2px;position:relative;overflow:hidden;}
+.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent-magenta),var(--accent-cyan));color:#020c1b;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:'Cairo',sans-serif;position:relative;overflow:hidden;}
 .btn-submit::before{content:'';position:absolute;top:0;inset-inline-start: -100%;width:200%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:left 0.5s ease;}
 .btn-submit:hover::before{inset-inline-start: 100%;}
 .btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(79,172,254,0.35);}
@@ -108,7 +108,7 @@ body {
 
   {% include '_public_nav.html' %}
 
-  <div class="page-wrap" style="padding-top:140px;">
+  <div class="page-wrap" style="margin-top:140px;">
     <div class="auth-container">
       <div class="auth-card">
         <div class="auth-header">
@@ -141,21 +141,21 @@ body {
           </a>
         </div>
         
-        <div class="oauth-divider">OR</div>
+        <div class="oauth-divider">أو</div>
 
         <form method="POST" action="/login">
           <div class="form-group">
             <label for="email">البريد الإلكتروني</label>
-            <input dir="auto" type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>
+            <input dir="ltr" style="text-align: right;" type="email" id="email" name="email" placeholder="اسمك@مثال.com" required autocomplete="email" autofocus>
           </div>
           <div class="form-group">
             <label for="password">كلمة المرور</label>
-            <input dir="auto" type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password">
+            <input dir="ltr" style="text-align: right;" type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password">
           </div>
-          <div class="pw-row">
+          <div class="pw-row" style="justify-content: flex-end;">
             <a href="/forgot-password">نسيت كلمة المرور؟</a>
           </div>
-          <button type="submit" class="btn-submit" id="loginBtn">🔐 دخول إلى غرفة القيادة</button>
+          <button type="submit" class="btn-submit" id="loginBtn">دخول إلى غرفة القيادة 🔐</button>
         </form>
 
         <div class="auth-footer">

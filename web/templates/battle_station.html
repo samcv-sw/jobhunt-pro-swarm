@@ -3,7 +3,7 @@
 <style>
 /* Battle Station Premium Styles */
 .bs-topbar { margin-bottom: 30px; }
-.bs-title { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 8px; letter-spacing: -0.5px; }
+.bs-title { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 8px;  }
 .bs-subtitle { font-size: 15px; color: #94a3b8; line-height: 1.5; }
 
 .bs-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
@@ -14,10 +14,10 @@
     box-shadow: 0 4px 20px rgba(0,0,0,.2);
 }
 .bs-stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,.4); border-color: rgba(255,255,255,.15); }
-.bs-stat-num { font-size: 34px; font-weight: 800; line-height: 1.1; margin-bottom: 8px; letter-spacing: -1px; color: #fff; }
-.bs-stat-lbl { font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+.bs-stat-num { font-size: 34px; font-weight: 800; line-height: 1.1; margin-bottom: 8px;  color: #fff; }
+.bs-stat-lbl { font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase;  }
 
-.bs-section-hdr { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 16px; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+.bs-section-hdr { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 16px;  display: flex; align-items: center; gap: 8px; }
 
 .bs-actions { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
 .bs-btn {
@@ -50,7 +50,7 @@
 .bs-dot.green { color: #4ade80; background: #4ade80; }
 .bs-dot.yellow { color: #fbbf24; background: #fbbf24; }
 .bs-dot.red { color: #ef4444; background: #ef4444; }
-.bs-status { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 20px; }
+.bs-status { font-size: 11px; font-weight: 700; text-transform: uppercase;  padding: 4px 10px; border-radius: 20px; }
 .bs-status.running { background: rgba(74,222,128,.15); color: #4ade80; }
 .bs-status.paused { background: rgba(251,191,36,.15); color: #fbbf24; }
 .bs-status.completed { background: rgba(96,165,250,.15); color: #60a5fa; }
@@ -175,8 +175,8 @@
 <!-- ═══════════════ TOP BAR ═══════════════ -->
  <div class="bs-topbar">
    <div>
-     <h1 class="bs-title">⚔️ Battle Station</h1>
-     <p class="bs-subtitle">Live Campaign Command Center — monitor and control all active offensives</p>
+     <h1 class="bs-title">⚔️ محطة المعركة</h1>
+     <p class="bs-subtitle">مركز قيادة الحملات المباشر — راقب وتحكم في جميع الهجمات النشطة</p>
    </div>
  </div>
 
@@ -190,18 +190,18 @@
         </div>
         <div>
           <h2 style="font-size: 16px; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px;">
-            🤖 AUTOPILOT ENGINE ACTIVE
+            🤖 محرك التقديم التلقائي نشط
           </h2>
           <p style="font-size: 13px; color: #94a3b8; margin: 4px 0 0 0;">
-            The browser autopilot is driving applications. Keep this page open to automatically apply to new companies.
+            نظام التقديم التلقائي في المتصفح يقوم بتقديم الطلبات. أبق هذه الصفحة مفتوحة للتقديم التلقائي على الشركات الجديدة.
           </p>
         </div>
       </div>
       
       <div style="text-align: center; background: rgba(0,0,0,.3); padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,.05); min-width: 200px;">
-        <div style="font-size: 9px; color: #60a5fa; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px;">Next Auto-Apply Scan</div>
-        <div id="autopilot-countdown" style="font-size: 28px; font-weight: 800; color: #60a5fa; font-family: 'Cairo', monospace; letter-spacing: 1px; line-height: 1;">01:15</div>
-        <div id="autopilot-status" style="font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 4px;">Initializing autopilot...</div>
+        <div style="font-size: 9px; color: #60a5fa; font-weight: 800;  text-transform: uppercase; margin-bottom: 2px;">الفحص التلقائي التالي</div>
+        <div id="autopilot-countdown" style="font-size: 28px; font-weight: 800; color: #60a5fa; font-family: 'Cairo', monospace;  line-height: 1;">01:15</div>
+        <div id="autopilot-status" style="font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 4px;">جاري تهيئة نظام التقديم التلقائي...</div>
       </div>
     </div>
     
@@ -209,9 +209,9 @@
     <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 12px;">
       <span style="font-size: 20px; margin-top: 2px;">⚠️</span>
       <div style="font-size: 13px; color: #fde047; font-weight: 600; line-height: 1.5; flex: 1;">
-        <strong>CRITICAL OPERATIONAL REQUIREMENT:</strong>
+        <strong>متطلب تشغيلي هام جداً:</strong>
         <br>
-        You must keep this browser tab <span style="text-decoration: underline; color: #fff;">OPEN and ACTIVE</span>. If you close this tab, close your browser, or put your computer to sleep, the autopilot will pause and stop applying to jobs!
+        يجب ترك علامة التبويب هذه <span style="text-decoration: underline; color: #fff;">مفتوحة ونشطة دائماً</span>. إذا قمت بإغلاق هذه الصفحة، أو قمت بقفل المتصفح، أو دخل الكومبيوتر في وضع السكون (Sleep)، سيتوقف محرك التقديم التلقائي فوراً!
         <br>
         <span style="display: block; margin-top: 6px; font-size: 13px; color: #fef08a;">
           <strong>تنبيه تشغيلي هام جداً:</strong>
@@ -226,42 +226,42 @@
  <div class="bs-stats-grid">
    <div class="bs-stat-card">
      <div class="bs-stat-num">{{ campaigns|length }}</div>
-     <div class="bs-stat-lbl">🎯 Total Campaigns</div>
+     <div class="bs-stat-lbl">🎯 إجمالي الحملات</div>
    </div>
    <div class="bs-stat-card">
      <div class="bs-stat-num" style="color:#4ade80;">{{ running_count }}</div>
-     <div class="bs-stat-lbl">⚡ Active Offensives</div>
+     <div class="bs-stat-lbl">⚡ الهجمات النشطة</div>
    </div>
    <div class="bs-stat-card">
      <div class="bs-stat-num" style="color:#60a5fa;">{{ total_sent }}</div>
-     <div class="bs-stat-lbl">📨 Apps Deployed</div>
+     <div class="bs-stat-lbl">📨 الطلبات المُرسلة</div>
    </div>
    <div class="bs-stat-card">
      <div class="bs-stat-num" style="color:#a78bfa;">{{ total_responses }}</div>
-     <div class="bs-stat-lbl">💬 Responses</div>
+     <div class="bs-stat-lbl">💬 الردود</div>
    </div>
  </div>
 
  <!-- ═══════════════ COMMAND & CONTROL ═══════════════ -->
-  <div class="bs-section-hdr">🎮 Command &amp; Control</div>
+  <div class="bs-section-hdr">🎮 القيادة والتحكم</div>
   <div class="bs-actions">
-    <button class="bs-btn green" onclick="bsStartAll()">▶ Start All</button>
-    <button class="bs-btn red" onclick="bsStopAll()">⏹ Stop All</button>
-    <button class="bs-btn green" style="background: linear-gradient(135deg, #10b981, #059669); border-color: rgba(16,185,129,.3);" onclick="forceScanNow()">🚀 Force Scan &amp; Apply</button>
-    <a href="/new-campaign" class="bs-btn amber">➕ New Campaign</a>
-    <a href="/sent-emails" class="bs-btn">📊 View Reports</a>
+    <button class="bs-btn green" onclick="bsStartAll()">▶ تشغيل الكل</button>
+    <button class="bs-btn red" onclick="bsStopAll()">⏹ إيقاف الكل</button>
+    <button class="bs-btn green" style="background: linear-gradient(135deg, #10b981, #059669); border-color: rgba(16,185,129,.3);" onclick="forceScanNow()">🚀 فرض الفحص والتقديم</button>
+    <a href="/new-campaign" class="bs-btn amber">➕ حملة جديدة</a>
+    <a href="/sent-emails" class="bs-btn">📊 عرض التقارير</a>
   </div>
 
  <!-- ═══════════════ LAUNCH CTA ═══════════════ -->
  <div class="bs-cta">
-   <div class="bs-cta-title">⚔️ Ready to Strike?</div>
-   <div class="bs-cta-sub">Deploy a new campaign offensive. Your weapons are loaded, targets identified — one click to glory.</div>
-   <a href="/new-campaign" class="bs-cta-btn">🚀 Launch New Offensive</a>
+   <div class="bs-cta-title">⚔️ مستعد للهجوم؟</div>
+   <div class="bs-cta-sub">انشر حملة هجومية جديدة. أسلحتك جاهزة، الأهداف محددة — نقرة واحدة نحو المجد.</div>
+   <a href="/new-campaign" class="bs-cta-btn">🚀 إطلاق هجوم جديد</a>
  </div>
 
  <!-- ═══════════════ ACTIVE CAMPAIGNS ═══════════════ -->
  <div class="bs-panel">
-   <div class="bs-section-hdr">🛡️ Active Campaigns</div>
+   <div class="bs-section-hdr">🛡️ الحملات النشطة</div>
    {% if campaigns %}
      {% for c in campaigns %}
        {% set wc = c.get('premium_weapons', 0) or 0 %}
@@ -285,21 +285,21 @@
          </div>
          <div class="bs-prog-wrap">
             <div class="bs-prog-info">
-              <span>Progress
+              <span>التقدم
                 {% if status in ['running', 'pending'] %}
                   {% set remaining = total - sent %}
                   {% if remaining > 0 %}
                     {% set eta_minutes = remaining * 2 %}
                     {% if eta_minutes < 60 %}
-                      · Time Left: ~{{ eta_minutes }} mins
+                      · الوقت المتبقي: ~{{ eta_minutes }} دقائق
                     {% else %}
-                      · Time Left: ~{{ (eta_minutes / 60)|round(1) }} hours
+                      · الوقت المتبقي: ~{{ (eta_minutes / 60)|round(1) }} ساعات
                     {% endif %}
                   {% else %}
-                    · Time Left: Calculating...
+                    · الوقت المتبقي: جاري الحساب...
                   {% endif %}
                 {% elif status == 'completed' %}
-                  · Done
+                  · مكتمل
                 {% endif %}
               </span>
               <span>{{ '%.0f'|format(progress) }}%</span>
@@ -309,20 +309,20 @@
            </div>
          </div>
          <div class="bs-camp-stats">
-           <div class="bs-camp-stat">📨 <span class="val">{{ sent }}</span> sent</div>
-           <div class="bs-camp-stat">🏢 <span class="val">{{ total }}</span> companies</div>
-           <div class="bs-camp-stat">📬 <span class="val">{{ c.get('open_count', 0) or 0 }}</span> opened</div>
-           <div class="bs-camp-stat">💬 <span class="val">{{ c.get('response_count', 0) or 0 }}</span> replies</div>
-           <div class="bs-camp-stat">⚔️ <span class="val">{{ wc }}</span>/15 weapons</div>
-           <a href="/campaign/{{ c['campaign_id'] }}/war-room" class="bs-btn bs-btn-sm" style="margin-inline-start:auto;">⚔️ War Room</a>
+           <div class="bs-camp-stat">📨 <span class="val">{{ sent }}</span> أُرسلت</div>
+           <div class="bs-camp-stat">🏢 <span class="val">{{ total }}</span> شركات</div>
+           <div class="bs-camp-stat">📬 <span class="val">{{ c.get('open_count', 0) or 0 }}</span> فُتحت</div>
+           <div class="bs-camp-stat">💬 <span class="val">{{ c.get('response_count', 0) or 0 }}</span> ردود</div>
+           <div class="bs-camp-stat">⚔️ <span class="val">{{ wc }}</span>/15 أسلحة</div>
+           <a href="/campaign/{{ c['campaign_id'] }}/war-room" class="bs-btn bs-btn-sm" style="margin-inline-start:auto;">⚔️ غرفة الحرب</a>
          </div>
        </div>
      {% endfor %}
    {% else %}
      <div class="bs-empty">
        <div class="bs-empty-icon">⚔️</div>
-       <div class="bs-empty-text">No campaigns deployed yet. Ready your arsenal and launch your first offensive!</div>
-       <a href="/new-campaign" class="bs-cta-btn">🚀 Launch First Campaign</a>
+       <div class="bs-empty-text">لم يتم نشر أي حملات بعد. جهّز ترسانتك وأطلق هجومك الأول!</div>
+       <a href="/new-campaign" class="bs-cta-btn">🚀 إطلاق الحملة الأولى</a>
      </div>
    {% endif %}
  </div>
@@ -331,7 +331,7 @@
  <div class="bs-grid">
    <!-- Live Activity Feed -->
    <div class="bs-panel">
-     <div class="bs-section-hdr">📡 Live Activity Feed</div>
+     <div class="bs-section-hdr">📡 سجل النشاط المباشر</div>
      <div class="bs-feed">
        {% if campaigns %}
          {% for c in campaigns[:8] %}
@@ -340,8 +340,8 @@
            <div class="bs-feed-item">
              <div class="bs-feed-icon">{{ fi }}</div>
              <div class="bs-feed-body">
-               <strong>Campaign #{{ c['campaign_id'][:8] }}</strong>
-               — {{ st|capitalize }} · {{ c.get('sent_count', 0) or 0 }} apps sent · {{ c.get('total_companies', 0) or 0 }} targets
+               <strong>حملة #{{ c['campaign_id'][:8] }}</strong>
+               — {{ st|capitalize }} · {{ c.get('sent_count', 0) or 0 }} طلبات أُرسلت · {{ c.get('total_companies', 0) or 0 }} أهداف
              </div>
              <div class="bs-feed-time">{{ c.get('created_at', '')[:10] }}</div>
            </div>
@@ -349,8 +349,8 @@
        {% else %}
          <div class="bs-feed-item">
            <div class="bs-feed-icon">🛡️</div>
-           <div class="bs-feed-body">Battle Station is online. Awaiting your first deployment orders.</div>
-           <div class="bs-feed-time">now</div>
+           <div class="bs-feed-body">محطة المعركة متصلة بالإنترنت. في انتظار أوامر النشر الأولى.</div>
+           <div class="bs-feed-time">الآن</div>
          </div>
        {% endif %}
      </div>
@@ -358,37 +358,37 @@
 
    <!-- System Health -->
    <div class="bs-panel">
-     <div class="bs-section-hdr">❤️ System Health</div>
+     <div class="bs-section-hdr">❤️ حالة النظام</div>
      <div>
        <div class="bs-health-row">
          <div class="bs-health-label">
-           <span class="bs-dot green"></span> Healthy (Running)
+           <span class="bs-dot green"></span> سليم (قيد التشغيل)
          </div>
          <span class="bs-health-val" style="color:#4ade80;">{{ running_count }}</span>
        </div>
        <div class="bs-health-row">
          <div class="bs-health-label">
-           <span class="bs-dot yellow"></span> Attention (Paused)
+           <span class="bs-dot yellow"></span> تنبيه (موقف مؤقتاً)
          </div>
          <span class="bs-health-val" style="color:#fbbf24;">{{ paused_count }}</span>
        </div>
        <div class="bs-health-row">
          <div class="bs-health-label">
-           <span class="bs-dot yellow"></span> Completed
+           <span class="bs-dot yellow"></span> مكتمل
          </div>
          <span class="bs-health-val" style="color:#60a5fa;">{{ completed_count }}</span>
        </div>
        <div class="bs-health-row">
          <div class="bs-health-label">
-           <span class="bs-dot red"></span> Critical (Failed)
+           <span class="bs-dot red"></span> حرج (فشل)
          </div>
          <span class="bs-health-val" style="color:#fca5a5;">{{ failed_count }}</span>
        </div>
        <div class="bs-health-row">
          <div class="bs-health-label">
-           <span>🛡️</span> Total Arsenal
+           <span>🛡️</span> إجمالي الترسانة
          </div>
-         <span class="bs-health-val" style="color:#e2e8f0;">{{ campaigns|length }} campaigns</span>
+         <span class="bs-health-val" style="color:#e2e8f0;">{{ campaigns|length }} حملات</span>
        </div>
      </div>
    </div>
@@ -396,8 +396,8 @@
 
  <!-- ═══════════════ BOTTOM CTA ═══════════════ -->
  <div class="bs-bottom-cta">
-   <p>⚔️ The war for your dream job is won one campaign at a time. Keep pushing forward.</p>
-   <a href="/new-campaign" class="bs-cta-btn">🚀 Launch New Offensive</a>
+   <p>⚔️ الحرب من أجل وظيفة أحلامك يتم الفوز بها حملة تلو الأخرى. استمر في المضي قدماً.</p>
+   <a href="/new-campaign" class="bs-cta-btn">🚀 إطلاق هجوم جديد</a>
  </div>
 
 <div class="toast" id="bsToast"></div>
@@ -425,7 +425,7 @@ function setButtonsDisabled(disabled) {
 
 function bsStartAll() {
   setButtonsDisabled(true);
-  bsShowToast('Starting all campaigns...', 'info');
+  bsShowToast('جاري بدء جميع الحملات...', 'info');
   fetch('/api/campaign/start-all', { method: 'POST' })
     .then(r => r.json())
     .then(data => {
@@ -434,17 +434,17 @@ function bsStartAll() {
         bsShowToast('✅ ' + data.message, 'success');
         setTimeout(() => location.reload(), 1500);
       } else {
-        bsShowToast('❌ Error: ' + data.error, 'error');
+        bsShowToast('❌ خطأ: ' + data.error, 'error');
       }
     }).catch(e => {
       setButtonsDisabled(false);
-      bsShowToast('❌ Network error', 'error');
+      bsShowToast('❌ خطأ في الشبكة', 'error');
     });
 }
 
 function bsStopAll() {
   setButtonsDisabled(true);
-  bsShowToast('Pausing all campaigns...', 'info');
+  bsShowToast('جاري إيقاف جميع الحملات مؤقتاً...', 'info');
   fetch('/api/campaign/stop-all', { method: 'POST' })
     .then(r => r.json())
     .then(data => {
@@ -453,11 +453,11 @@ function bsStopAll() {
         bsShowToast('✅ ' + data.message, 'success');
         setTimeout(() => location.reload(), 1500);
       } else {
-        bsShowToast('❌ Error: ' + data.error, 'error');
+        bsShowToast('❌ خطأ: ' + data.error, 'error');
       }
     }).catch(e => {
       setButtonsDisabled(false);
-      bsShowToast('❌ Network error', 'error');
+      bsShowToast('❌ خطأ في الشبكة', 'error');
     });
 }
 
@@ -471,11 +471,11 @@ async function forceScanNow() {
   if (!countdownEl) return;
   
   setButtonsDisabled(true);
-  bsShowToast('Force triggering scan and application blast...', 'info');
+  bsShowToast('جاري فرض الفحص وإرسال الطلبات...', 'info');
   clearInterval(autopilotTimer);
   countdownEl.textContent = "00:00";
   countdownEl.style.color = "#fbbf24";
-  statusEl.textContent = "🚀 Deploying Applications...";
+  statusEl.textContent = "🚀 جاري نشر الطلبات...";
   statusEl.style.color = "#fbbf24";
   
   try {
@@ -490,16 +490,16 @@ async function forceScanNow() {
       const data = await res.json();
       const sent = data.sent || data.emails_sent || 0;
       if (sent > 0) {
-        statusEl.textContent = `✅ Success! Sent ${sent} applications.`;
+        statusEl.textContent = `✅ نجاح! تم إرسال ${sent} طلبات.`;
         statusEl.style.color = "#4ade80";
         countdownEl.style.color = "#4ade80";
-        bsShowToast(`✅ Success! Deployed ${sent} applications.`, 'success');
+        bsShowToast(`✅ نجاح! تم نشر ${sent} طلبات.`, 'success');
         setTimeout(() => location.reload(), 2000);
       } else {
-        statusEl.textContent = "🔍 Scan complete. No new matching jobs.";
+        statusEl.textContent = "🔍 اكتمل الفحص. لا توجد وظائف جديدة مطابقة.";
         statusEl.style.color = "#94a3b8";
         countdownEl.style.color = "#60a5fa";
-        bsShowToast("🔍 Scan complete. No new jobs matching your profile.", 'info');
+        bsShowToast("🔍 اكتمل الفحص. لا توجد وظائف جديدة مطابقة لملفك الشخصي.", 'info');
         autopilotSeconds = 75;
         startAutopilot();
       }
@@ -509,10 +509,10 @@ async function forceScanNow() {
   } catch (err) {
     setButtonsDisabled(false);
     console.error(err);
-    statusEl.textContent = "❌ Scan timeout/failed.";
+    statusEl.textContent = "❌ انتهت مهلة الفحص/فشل.";
     statusEl.style.color = "#ef4444";
     countdownEl.style.color = "#ef4444";
-    bsShowToast('❌ Scan failed', 'error');
+    bsShowToast('❌ فشل الفحص', 'error');
     setTimeout(() => {
       autopilotSeconds = 30; // retry quickly
       startAutopilot();
@@ -535,7 +535,7 @@ function startAutopilot() {
       clearInterval(autopilotTimer);
       countdownEl.textContent = "00:00";
       countdownEl.style.color = "#fbbf24";
-      statusEl.textContent = "🚀 Deploying Applications...";
+      statusEl.textContent = "🚀 جاري نشر الطلبات...";
       statusEl.style.color = "#fbbf24";
       
       try {
@@ -550,14 +550,14 @@ function startAutopilot() {
           const data = await res.json();
           const sent = data.sent || data.emails_sent || 0;
           if (sent > 0) {
-            statusEl.textContent = `✅ Success! Sent ${sent} applications.`;
+            statusEl.textContent = `✅ نجاح! تم إرسال ${sent} طلبات.`;
             statusEl.style.color = "#4ade80";
             countdownEl.style.color = "#4ade80";
-            bsShowToast(`✅ Success! Deployed ${sent} applications.`, 'success');
+            bsShowToast(`✅ نجاح! تم نشر ${sent} طلبات.`, 'success');
             // Reload page to update UI list and metrics
             setTimeout(() => location.reload(), 3000);
           } else {
-            statusEl.textContent = "🔍 Scan complete. No new matching jobs.";
+            statusEl.textContent = "🔍 اكتمل الفحص. لا توجد وظائف جديدة مطابقة.";
             statusEl.style.color = "#94a3b8";
             countdownEl.style.color = "#60a5fa";
             autopilotSeconds = 75;
@@ -568,7 +568,7 @@ function startAutopilot() {
         }
       } catch (err) {
         console.error(err);
-        statusEl.textContent = "❌ Scan timeout/failed. Retrying...";
+        statusEl.textContent = "❌ انتهت مهلة الفحص/فشل. جاري إعادة المحاولة...";
         statusEl.style.color = "#ef4444";
         countdownEl.style.color = "#ef4444";
         setTimeout(() => {
@@ -580,7 +580,7 @@ function startAutopilot() {
       const mins = Math.floor(autopilotSeconds / 60).toString().padStart(2, '0');
       const secs = (autopilotSeconds % 60).toString().padStart(2, '0');
       countdownEl.textContent = `${mins}:${secs}`;
-      statusEl.textContent = "Scanning for new job targets...";
+      statusEl.textContent = "جاري الفحص بحثاً عن أهداف وظيفية جديدة...";
       statusEl.style.color = "#94a3b8";
       countdownEl.style.color = "#60a5fa";
     }

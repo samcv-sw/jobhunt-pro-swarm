@@ -1,12 +1,4 @@
-﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>لوحة الإدارة — JobHunt Pro</title>
- <style>
+<style>
  * { margin:0; padding:0; box-sizing:border-box; }
  body { font-family: 'Cairo', 'Segoe UI',sans-serif; background:#0a0a0f; color:#e2e8f0; min-height:100vh; }
  .topbar { background:linear-gradient(90deg,#7c3aed,#2563eb); padding:var(--space-2) var(--space-4); display:flex; justify-content:space-between; align-items:center; }
@@ -20,7 +12,7 @@
  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:var(--space-2); margin-bottom:var(--space-4); }
  .stat { background:linear-gradient(135deg,rgba(30,30,50,.9),rgba(20,20,35,.9)); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:20px; text-align:center; }
  .stat .val { font-size:30px; font-weight:700; margin-bottom:4px; }
- .stat .lbl { font-size:12px; color:#94a3b8; text-transform:uppercase; letter-spacing:.5px; }
+ .stat .lbl { font-size:12px; color:#94a3b8; text-transform:uppercase;  }
  .blue{color:#3b82f6;} .green{color:#22c55e;} .purple{color:#8b5cf6;} .orange{color:#f97316;} .pink{color:#ec4899;} .cyan{color:#06b6d4;}
  .section { margin-bottom:var(--space-5); }
  .section-title { font-size:18px; font-weight:600; margin-bottom:var(--space-2); padding-bottom:var(--space-1); border-bottom:1px solid rgba(255,255,255,.08); }
@@ -56,14 +48,57 @@
  .copy-btn:hover { background:rgba(139,92,246,.4); }
  .c-btc { color:#f7931a; } .c-eth { color:#627eea; } .c-usdt { color:#26a17b; } .c-ltc { color:#345d9d; }
  </style>
-</head>
-<body class="cyberpunk-body">
 
-<div class="topbar">
- <h1> لوحة الإدارة</h1>
- <span>جوب هانت برو — تحكم كامل</span>
- <a href="/user-dashboard">&#x2190; لوحة التحكم</a>
-</div>
+<style>
+ * { margin:0; padding:0; box-sizing:border-box; }
+ body { font-family: 'Cairo', 'Segoe UI',sans-serif; background:#0a0a0f; color:#e2e8f0; min-height:100vh; }
+ .topbar { background:linear-gradient(90deg,#7c3aed,#2563eb); padding:var(--space-2) var(--space-4); display:flex; justify-content:space-between; align-items:center; }
+ .topbar h1 { font-size:22px; font-weight:700; }
+ .topbar span { font-size:13px; opacity:.8; }
+ .topbar a { color:#fff; text-decoration:none; background:rgba(255,255,255,.15); padding:6px 14px; border-radius:var(--space-1); font-size:13px; }
+ .container { max-width:1400px; margin:0 auto; padding:var(--space-4) var(--space-3); }
+ .alert { padding:12px 20px; border-radius:10px; margin-bottom:var(--space-3); font-size:14px; word-break:break-all; }
+ .alert.success { background:rgba(34,197,94,.15); border:1px solid rgba(34,197,94,.3); color:#22c55e; }
+ .alert.error { background:rgba(239,68,68,.15); border:1px solid rgba(239,68,68,.3); color:#f87171; }
+ .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:var(--space-2); margin-bottom:var(--space-4); }
+ .stat { background:linear-gradient(135deg,rgba(30,30,50,.9),rgba(20,20,35,.9)); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:20px; text-align:center; }
+ .stat .val { font-size:30px; font-weight:700; margin-bottom:4px; }
+ .stat .lbl { font-size:12px; color:#94a3b8; text-transform:uppercase;  }
+ .blue{color:#3b82f6;} .green{color:#22c55e;} .purple{color:#8b5cf6;} .orange{color:#f97316;} .pink{color:#ec4899;} .cyan{color:#06b6d4;}
+ .section { margin-bottom:var(--space-5); }
+ .section-title { font-size:18px; font-weight:600; margin-bottom:var(--space-2); padding-bottom:var(--space-1); border-bottom:1px solid rgba(255,255,255,.08); }
+ .actions { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; margin-bottom:var(--space-4); }
+ .action-card { background:rgba(30,30,50,.8); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:var(--space-3); }
+ .action-card h3 { font-size:15px; margin-bottom:var(--space-1); color:#e2e8f0; }
+ .action-card p { font-size:12px; color:#64748b; margin-bottom:14px; }
+ .form-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+ input[type=text],input[type=email],input[type=number] { flex:1; min-width:100px; padding:10px 14px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:var(--space-1); color:#fff; font-size:14px; }
+ input:focus { outline:none; border-color:#3b82f6; }
+ .btn { padding:10px 20px; border:none; border-radius:var(--space-1); font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; }
+ .btn-blue { background:#2563eb; color:#fff; }
+ .btn-green { background:#16a34a; color:#fff; }
+ .btn-red { background:#dc2626; color:#fff; }
+ .btn-purple { background:#7c3aed; color:#fff; }
+ .btn:hover { opacity:.85; transform:translateY(-1px); }
+ .table-wrap { overflow-x:auto; border-radius:12px; border:1px solid rgba(255,255,255,.08); }
+ table { width:100%; border-collapse:collapse; font-size:13px; }
+ th { padding:12px var(--space-2); text-align: start; color:#94a3b8; font-size:11px; text-transform:uppercase; background:rgba(255,255,255,.03); border-bottom:1px solid rgba(255,255,255,.08); }
+ td { padding:12px var(--space-2); border-bottom:1px solid rgba(255,255,255,.04); }
+ tr:last-child td { border-bottom:none; }
+ tr:hover td { background:rgba(255,255,255,.02); }
+ .badge { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+ .badge-green { background:rgba(34,197,94,.15); color:#22c55e; }
+ .badge-red { background:rgba(239,68,68,.15); color:#f87171; }
+ .badge-blue { background:rgba(59,130,246,.15); color:#3b82f6; }
+ .badge-orange { background:rgba(249,115,22,.15); color:#f97316; }
+ .badge-gray { background:rgba(148,163,184,.1); color:#94a3b8; }
+ a.link { color:#3b82f6; text-decoration:none; }
+ a.link:hover { text-decoration:underline; }
+ .mono { font-family: 'Cairo', monospace; font-size:12px; }
+ .copy-btn { margin-inline-start:6px; padding:2px var(--space-1); background:rgba(139,92,246,.2); border:none; border-radius:4px; color:#a78bfa; cursor:pointer; font-size:11px; }
+ .copy-btn:hover { background:rgba(139,92,246,.4); }
+ .c-btc { color:#f7931a; } .c-eth { color:#627eea; } .c-usdt { color:#26a17b; } .c-ltc { color:#345d9d; }
+ </style>
 
 <div class="container">
 
@@ -84,8 +119,8 @@
  <div class="stat"><div class="val pink">${{ stats.total_wallets }}</div><div class="lbl">المحافظ</div></div>
  <div class="stat"><div class="val" style="color:#fbbf24;">{{ payment_stats.total_payments }}</div><div class="lbl">مدفوعات الكريبتو</div></div>
  <div class="stat"><div class="val" style="color:#fbbf24;">${{ "%.2f"|format(payment_stats.total_received_usd) }}</div><div class="lbl">الكريبتو المستلم</div></div>
- <div class="stat"><div class="val" style="color:#34d399;">{{ stats.manual_emails }}</div><div class="lbl">Manual Emails</div></div>
- <div class="stat"><div class="val" style="color:#34d399;">${{ "%.2f"|format(stats.manual_email_revenue) }}</div><div class="lbl">Manual Revenue</div></div>
+ <div class="stat"><div class="val" style="color:#34d399;">{{ stats.manual_emails }}</div><div class="lbl">رسائل يدوية</div></div>
+ <div class="stat"><div class="val" style="color:#34d399;">${{ "%.2f"|format(stats.manual_email_revenue) }}</div><div class="lbl">الأرباح اليدوية</div></div>
  </div>
 
  <!-- Payment Stats (by currency) -->
@@ -95,7 +130,7 @@
  <div class="stat">
  <div class="val c-{{ cur.lower() }}" style="font-size:24px;">{{ cur }}</div>
  <div class="val" style="font-size:18px;">${{ "%.2f"|format(amt) }}</div>
- <div class="lbl">Received</div>
+ <div class="lbl">مستلم</div>
  </div>
  {% endfor %}
  </div>
@@ -115,7 +150,7 @@
  </div>
  <div class="form-row">
  <input dir="auto" type="number" name="amount" placeholder="المبلغ $" step="0.01" min="0.01" required>
- <input dir="auto" type="text" name="note" value="Admin credit">
+ <input dir="auto" type="text" name="note" value="رصيد إداري">
  </div>
  <button type="submit" class="btn btn-green">إضافة رصيد</button>
  </form>
@@ -123,14 +158,14 @@
 
  <div class="action-card">
  <h3>&#x1F39F;&#xFE0F; إنشاء أكواد شحن</h3>
- <p>تظهر الأكواد في الجدول أدناه — click to copy and share with users</p>
+ <p>تظهر الأكواد في الجدول أدناه — انقر للنسخ والمشاركة مع المستخدمين</p>
  <form method="POST" action="/admin/generate-code">
  <div class="form-row">
  <input dir="auto" type="number" name="value" placeholder="القيمة $" step="0.01" min="0.01" required>
- <input dir="auto" type="number" name="count" placeholder="Count" min="1" max="50" value="1">
+ <input dir="auto" type="number" name="count" placeholder="العدد" min="1" max="50" value="1">
  <select name="code_type" style="padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;">
- <option value="sale"> Sale (counts as revenue)</option>
- <option value="admin_free">🆓 Admin Free (no revenue)</option>
+ <option value="sale"> بيع (يُحسب كإيرادات)</option>
+ <option value="admin_free">🆓 مجاني للإدارة (بدون إيرادات)</option>
  </select>
  </div>
  <button type="submit" class="btn btn-purple">إنشاء أكواد</button>
@@ -138,60 +173,60 @@
  </div>
 
  <div class="action-card" style="border-color:#10b981;">
- <h3>🆓 Admin Free Credit</h3>
- <p>Add free credits to your own wallet (not counted in revenue)</p>
+ <h3>🆓 رصيد مجاني للإدارة</h3>
+ <p>أضف رصيدًا مجانيًا إلى محفظتك الخاصة (لا يُحسب ضمن الإيرادات)</p>
  <form method="POST" action="/admin/generate-code">
  <div class="form-row">
  <input dir="auto" type="number" name="value" placeholder="القيمة $" step="0.01" min="0.01" value="100" required>
  <input dir="auto" type="hidden" name="count" value="1">
  <input dir="auto" type="hidden" name="code_type" value="admin_free">
  </div>
- <button type="submit" class="btn btn-green" style="background:#059669;">🆓 Generate Admin Free Code</button>
+ <button type="submit" class="btn btn-green" style="background:#059669;">🆓 إنشاء كود مجاني للإدارة</button>
  </form>
  <p style="color:#94a3b8;font-size:13px;margin-top:8px;">
- <i>Use at /wallet &#x2192; Redeem Code. This credit will NOT appear in profit/sales reports.</i>
+ <i>استخدم في /wallet &#x2192; استرداد الكود. لن يظهر هذا الرصيد في تقارير الأرباح/المبيعات.</i>
  </p>
  </div>
 
  <div class="action-card">
- <h3> Give Free Campaign</h3>
- <p>Create a campaign for a user without charging their wallet</p>
+ <h3> حملة مجانية</h3>
+ <p>إنشاء حملة لمستخدم دون خصم من محفظته</p>
  <form method="POST" action="/admin/free-campaign">
  <div class="form-row">
  <input dir="auto" type="email" name="target_email" placeholder="user@email.com" required>
  <input dir="auto" type="number" name="company_count" value="100" min="5">
  </div>
- <button type="submit" class="btn btn-blue">Give Free Campaign</button>
+ <button type="submit" class="btn btn-blue">منح حملة مجانية</button>
  </form>
  </div>
 
  <div class="action-card">
- <h3> Send Manual Email <span class="badge badge-green" style="font-size:11px;">$0.10/email</span></h3>
- <p>Type any email address, subject & body — send manually via Brevo</p>
+ <h3> إرسال رسالة يدوية <span class="badge badge-green" style="font-size:11px;">0.10$/رسالة</span></h3>
+ <p>اكتب أي عنوان بريد إلكتروني، موضوع، ومحتوى — للإرسال يدويًا عبر Brevo</p>
  <form method="POST" action="/admin/send-manual-email">
  <div class="form-row">
  <input dir="auto" type="email" name="to_email" placeholder="recipient@email.com" required>
- <input dir="auto" type="text" name="subject" placeholder="Email Subject" required>
+ <input dir="auto" type="text" name="subject" placeholder="موضوع الرسالة" required>
  </div>
  <div class="form-row">
- <textarea dir="auto" name="body" placeholder="Email body (HTML or plain text)..." required
+ <textarea dir="auto" name="body" placeholder="محتوى الرسالة (HTML أو نص عادي)..." required
  style="flex:1;min-width:200px;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;font-family: 'Cairo', inherit;min-height:80px;resize:vertical;"></textarea>
  </div>
- <button type="submit" class="btn btn-green" style="background:#059669;">&#x2709;&#xFE0F; Send Email ($0.10)</button>
+ <button type="submit" class="btn btn-green" style="background:#059669;">&#x2709;&#xFE0F; إرسال رسالة (0.10$)</button>
  </form>
  </div>
 
- <!-- Flash Sale Manager -->
+ <!-- إدارة مبيعات الفلاش -->
  <div class="action-card" style="border-color:#ef4444;">
- <h3> Flash Sale Manager</h3>
- <p>Create limited-time discounts to boost sales (shown as countdown timers to users)</p>
+ <h3> إدارة مبيعات الفلاش</h3>
+ <p>إنشاء خصومات لفترة محدودة لزيادة المبيعات (تظهر كمؤقتات عد تنازلي للمستخدمين)</p>
  <form method="POST" action="/admin/create-flash-sale">
  <div class="form-row">
- <input dir="auto" type="text" name="title" placeholder="Sale title (e.g. Weekend Blast)" value="Flash Sale" required>
- <input dir="auto" type="number" name="discount_percent" placeholder="Discount %" value="25" min="1" max="99" required>
- <input dir="auto" type="number" name="duration_hours" placeholder="Hours" value="24" min="1" max="168" required>
+ <input dir="auto" type="text" name="title" placeholder="عنوان التخفيض (مثل: عرض نهاية الأسبوع)" value="تخفيض فلاش" required>
+ <input dir="auto" type="number" name="discount_percent" placeholder="نسبة الخصم %" value="25" min="1" max="99" required>
+ <input dir="auto" type="number" name="duration_hours" placeholder="ساعات" value="24" min="1" max="168" required>
  </div>
- <button type="submit" class="btn" style="background:#dc2626;"> Start Flash Sale</button>
+ <button type="submit" class="btn" style="background:#dc2626;"> بدء التخفيض</button>
  </form>
  </div>
 
@@ -201,25 +236,25 @@
  <!-- Flash Sales Table -->
  {% if flash_sales %}
  <div class="section">
- <div class="section-title"> Flash Sales ({{ flash_sales|length }})</div>
+ <div class="section-title"> مبيعات الفلاش ({{ flash_sales|length }})</div>
  <div class="table-wrap">
  <table class="cyber-table">
  <thead>
- <tr><th>ID</th><th>Title</th><th>Discount</th><th>Status</th><th>Ends</th><th>Action</th></tr>
+ <tr><th>المعرف</th><th>العنوان</th><th>الخصم</th><th>الحالة</th><th>ينتهي</th><th>إجراء</th></tr>
  </thead>
  <tbody>
  {% for s in flash_sales %}
  <tr>
  <td class="mono">{{ s.id }}</td>
  <td>{{ s.title }}</td>
- <td style="color:#ef4444;font-weight:700;">{{ "%.0f"|format(s.discount_percent) }}% OFF</td>
+ <td style="color:#ef4444;font-weight:700;">{{ "%.0f"|format(s.discount_percent) }}% خصم</td>
  <td>
  {% if s.active and s.end_time and s.end_time > now %}
- <span class="badge badge-green">&#x1F7E2; Active</span>
+ <span class="badge badge-green">&#x1F7E2; نشط</span>
  {% elif s.active %}
- <span class="badge badge-red">&#x1F534; Expired</span>
+ <span class="badge badge-red">&#x1F534; منتهي</span>
  {% else %}
- <span class="badge badge-gray">&#x26AB; Ended</span>
+ <span class="badge badge-gray">&#x26AB; انتهى</span>
  {% endif %}
  </td>
  <td class="mono" style="color:#64748b;">{{ (s.end_time or '')[:16] }}</td>
@@ -227,7 +262,7 @@
  {% if s.active %}
  <form method="POST" action="/admin/end-flash-sale" style="display:inline;">
  <input dir="auto" type="hidden" name="sale_id" value="{{ s.id }}">
- <button type="submit" class="btn btn-red" style="padding:4px 10px;font-size:11px;">End</button>
+ <button type="submit" class="btn btn-red" style="padding:4px 10px;font-size:11px;">إنهاء</button>
  </form>
  {% endif %}
  </td>
@@ -239,13 +274,13 @@
  </div>
  {% endif %}
 
- <!-- Redeem Codes (shown first so newly generated codes are visible) -->
+ <!-- أكواد الاسترداد (shown first so newly generated codes are visible) -->
  <div class="section">
- <div class="section-title">&#x1F39F;&#xFE0F; Redeem Codes ({{ redeem_codes|length }})</div>
+ <div class="section-title">&#x1F39F;&#xFE0F; أكواد الاسترداد ({{ redeem_codes|length }})</div>
  <div class="table-wrap">
  <table class="cyber-table">
  <thead>
- <tr><th>Code</th><th>Value</th><th>Type</th><th>Status</th><th>Used By</th><th>Created</th></tr>
+ <tr><th>الكود</th><th>القيمة</th><th>النوع</th><th>الحالة</th><th>استخدم بواسطة</th><th>تاريخ الإنشاء</th></tr>
  </thead>
  <tbody>
  {% for r in redeem_codes %}
@@ -253,22 +288,22 @@
  <td class="mono" style="color:#a78bfa;">
  {{ r.code }}
  {% if not r.is_used %}
- <button class="copy-btn" onclick="copyCode('{{ r.code }}', this)"> Copy</button>
+ <button class="copy-btn" onclick="copyCode('{{ r.code }}', this)"> نسخ</button>
  {% endif %}
  </td>
  <td class="green">${{ "%.2f"|format(r.value_usd or 0) }}</td>
  <td>
  {% if r.code_type == 'admin_free' %}
- <span class="badge" style="background:#059669;color:#fff;">🆓 Free</span>
+ <span class="badge" style="background:#059669;color:#fff;">🆓 مجاني</span>
  {% else %}
- <span class="badge badge-blue"> Sale</span>
+ <span class="badge badge-blue"> بيع</span>
  {% endif %}
  </td>
  <td>
  {% if r.is_used %}
- <span class="badge badge-gray">Used</span>
+ <span class="badge badge-gray">مُستخدم</span>
  {% else %}
- <span class="badge badge-green">Available</span>
+ <span class="badge badge-green">متاح</span>
  {% endif %}
  </td>
  <td style="color:#64748b;">{{ r.used_by or '—' }}</td>
@@ -276,7 +311,7 @@
  </tr>
  {% endfor %}
  {% if not redeem_codes %}
- <tr><td colspan="6" style="text-align:center;padding:20px;color:#64748b;">No codes yet. Generate some above.</td></tr>
+ <tr><td colspan="6" style="text-align:center;padding:20px;color:#64748b;">لا توجد أكواد بعد. قم بإنشاء البعض أعلاه.</td></tr>
  {% endif %}
  </tbody>
  </table>
@@ -285,11 +320,11 @@
 
  <!-- Users -->
  <div class="section">
- <div class="section-title">&#x1F465; Users ({{ users|length }})</div>
+ <div class="section-title">&#x1F465; المستخدمون ({{ users|length }})</div>
  <div class="table-wrap">
  <table class="cyber-table">
  <thead>
- <tr><th>Email</th><th>Name</th><th>Type</th><th>Balance</th><th>Spent</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
+ <tr><th>البريد الإلكتروني</th><th>الاسم</th><th>النوع</th><th>الرصيد</th><th>المنفق</th><th>الحالة</th><th>انضم في</th><th>إجراءات</th></tr>
  </thead>
  <tbody>
  {% for u in users %}
@@ -300,15 +335,15 @@
  <td class="green">${{ "%.2f"|format(u.wallet_balance or 0) }}</td>
  <td>${{ "%.2f"|format(u.total_spent or 0) }}</td>
  <td>
- {% if u.is_active %}<span class="badge badge-green">Active</span>
- {% else %}<span class="badge badge-red">Disabled</span>{% endif %}
+ {% if u.is_active %}<span class="badge badge-green">نشط</span>
+ {% else %}<span class="badge badge-red">معطل</span>{% endif %}
  </td>
  <td class="mono">{{ (u.created_at or '')[:10] }}</td>
  <td>
  <form method="POST" action="/admin/toggle-user" style="display:inline;">
  <input dir="auto" type="hidden" name="target_user_id" value="{{ u.user_id }}">
  <button type="submit" class="btn {% if u.is_active %}btn-red{% else %}btn-green{% endif %}" style="padding:4px 10px;font-size:11px;">
- {% if u.is_active %}Disable{% else %}Enable{% endif %}
+ {% if u.is_active %}تعطيل{% else %}تفعيل{% endif %}
  </button>
  </form>
  </td>
@@ -321,11 +356,11 @@
 
  <!-- Campaigns -->
  <div class="section">
- <div class="section-title"> Recent Campaigns ({{ campaigns|length }})</div>
+ <div class="section-title"> الحملات الأخيرة ({{ campaigns|length }})</div>
  <div class="table-wrap">
  <table class="cyber-table">
  <thead>
- <tr><th>ID</th><th>User</th><th>Status</th><th>Companies</th><th>المرسلة</th><th>Date</th></tr>
+ <tr><th>المعرف</th><th>المستخدم</th><th>الحالة</th><th>الشركات</th><th>المرسلة</th><th>التاريخ</th></tr>
  </thead>
  <tbody>
  {% for c in campaigns %}
@@ -343,7 +378,7 @@
  </tr>
  {% endfor %}
  {% if not campaigns %}
- <tr><td colspan="6" style="text-align:center;padding:20px;color:#64748b;">No campaigns yet.</td></tr>
+ <tr><td colspan="6" style="text-align:center;padding:20px;color:#64748b;">لا توجد حملات بعد.</td></tr>
  {% endif %}
  </tbody>
  </table>
@@ -353,11 +388,11 @@
  <!-- Manual Emails -->
  {% if manual_emails %}
  <div class="section">
- <div class="section-title"> Recent Manual Emails ({{ manual_emails|length }})</div>
+ <div class="section-title"> الرسائل اليدوية الأخيرة ({{ manual_emails|length }})</div>
  <div class="table-wrap">
  <table class="cyber-table">
  <thead>
- <tr><th>To</th><th>Subject</th><th>Price</th><th>Status</th><th>Date</th></tr>
+ <tr><th>إلى</th><th>الموضوع</th><th>السعر</th><th>الحالة</th><th>التاريخ</th></tr>
  </thead>
  <tbody>
  {% for m in manual_emails %}
@@ -369,7 +404,7 @@
  {% if m.status=='sent' %}
  <span class="badge badge-green">المرسلة</span>
  {% else %}
- <span class="badge badge-red">Failed</span>
+ <span class="badge badge-red">فشل</span>
  {% endif %}
  </td>
  <td class="mono">{{ (m.created_at or '')[:16] }}</td>
@@ -381,14 +416,14 @@
  </div>
  {% endif %}
 
- <!-- Recent مدفوعات الكريبتو -->
+ <!-- مدفوعات الكريبتو الأخيرة -->
  {% if payment_stats.recent %}
  <div class="section">
- <div class="section-title">₿ Recent مدفوعات الكريبتو</div>
+ <div class="section-title">₿ مدفوعات الكريبتو الأخيرة</div>
  <div class="table-wrap">
  <table class="cyber-table">
  <thead>
- <tr><th>Payment ID</th><th>Order ID</th><th>Currency</th><th>Amount</th><th>TX Hash</th><th>Customer</th><th>Date</th></tr>
+ <tr><th>معرف الدفع</th><th>معرف الطلب</th><th>العملة</th><th>المبلغ</th><th>تجزئة التحويل</th><th>العميل</th><th>التاريخ</th></tr>
  </thead>
  <tbody>
  {% for p in payment_stats.recent %}
@@ -410,11 +445,11 @@
 
  <!-- Orders -->
  <div class="section">
- <div class="section-title"> Recent Orders ({{ orders|length }})</div>
+ <div class="section-title"> الطلبات الأخيرة ({{ orders|length }})</div>
  <div class="table-wrap">
  <table class="cyber-table">
  <thead>
- <tr><th>Order ID</th><th>User</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr>
+ <tr><th>معرف الطلب</th><th>المستخدم</th><th>النوع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr>
  </thead>
  <tbody>
  {% for o in orders %}
@@ -432,7 +467,7 @@
  </tr>
  {% endfor %}
  {% if not orders %}
- <tr><td colspan="6" style="text-align:center;padding:20px;color:#64748b;">No orders yet.</td></tr>
+ <tr><td colspan="6" style="text-align:center;padding:20px;color:#64748b;">لا توجد طلبات بعد.</td></tr>
  {% endif %}
  </tbody>
  </table>
@@ -445,7 +480,7 @@
 function copyCode(code, btn) {
  navigator.clipboard.writeText(code).then(() => {
  const orig = btn.innerHTML;
- btn.innerHTML = '&#x2705; Copied!';
+ btn.innerHTML = '&#x2705; تم النسخ!';
  btn.style.background = 'rgba(34,197,94,.3)';
  btn.style.color = '#22c55e';
  setTimeout(() => {
@@ -460,11 +495,8 @@ function copyCode(code, btn) {
  ta.select();
  document.execCommand('copy');
  document.body.removeChild(ta);
- btn.innerHTML = '&#x2705; Copied!';
- setTimeout(() => { btn.innerHTML = ' Copy'; }, 2000);
+ btn.innerHTML = '&#x2705; تم النسخ!';
+ setTimeout(() => { btn.innerHTML = ' نسخ'; }, 2000);
  });
 }
 </script>
-</body>
-</html>
-

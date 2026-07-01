@@ -1,12 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!-- Register v2 — Enhanced with plan selector UX, form validation, password strength, improved animations -->
 <html lang="ar" dir="rtl">
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Create your free JobHunt Pro account. Let 200 AI agents apply to thousands of jobs for you — automatically.">
-  <title>Create Account &mdash; JobHunt Pro</title>
+  <meta name="description" content="أنشئ حسابك المجاني في جوب هانت برو. دع 200 وكيل ذكاء اصطناعي يقدمون لآلاف الوظائف نيابة عنك — تلقائياً.">
+  <title>إنشاء حساب &mdash; جوب هانت برو</title>
   <link rel="stylesheet" href="/static/css/dashboard-v4.css?v=20260629_v2">
   <link rel="stylesheet" href="/static/css/auth-v2.css?v=20260629_v2">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -126,8 +126,8 @@
   <!-- LEFT: Registration Form -->
   <div class="auth-card" style="max-width:100%;">
     <div class="auth-header">
-      <h1>Create Account</h1>
-      <p class="sub">Start applying to 1000s of jobs with AI</p>
+      <h1>إنشاء حساب جديد</h1>
+      <p class="sub">ابدأ التقديم لآلاف الوظائف باستخدام الذكاء الاصطناعي</p>
     </div>
 
     {% if error %}<div class="error">{{ error }}</div>{% endif %}
@@ -144,44 +144,44 @@
       </a>
     </div>
 
-    <div class="oauth-divider">OR</div>
+    <div class="oauth-divider">أو</div>
 
     <!-- Plan Picker -->
     <div class="plan-selector">
-      <h3>🎯 Choose Your Plan</h3>
+      <h3>🎯 اختر باقتك</h3>
       <div class="plan-options">
         <label class="plan-option selected" for="plan-starter">
           <input dir="auto" type="radio" name="plan" value="starter" id="plan-starter" checked>
-          <div class="plan-name">Starter</div>
-          <div class="plan-price">$2 <span>one-time</span></div>
-          <div class="plan-apps">10 applications</div>
+          <div class="plan-name">المبدئية</div>
+          <div class="plan-price">$2 <span>مرة واحدة</span></div>
+          <div class="plan-apps">10 تقديم</div>
           <div class="checkmark">✓</div>
         </label>
         <label class="plan-option" for="plan-basic">
           <input dir="auto" type="radio" name="plan" value="basic" id="plan-basic">
-          <span class="plan-badge-tag">POPULAR</span>
-          <div class="plan-name">Basic</div>
-          <div class="plan-price">$5 <span>one-time</span></div>
-          <div class="plan-apps">100 applications</div>
+          <span class="plan-badge-tag">الأكثر طلباً</span>
+          <div class="plan-name">الأساسية</div>
+          <div class="plan-price">$5 <span>مرة واحدة</span></div>
+          <div class="plan-apps">100 تقديم</div>
           <div class="checkmark">✓</div>
         </label>
         <label class="plan-option" for="plan-pro">
           <input dir="auto" type="radio" name="plan" value="pro" id="plan-pro">
           <div class="plan-name">Pro ⭐</div>
-          <div class="plan-price">$15 <span>one-time</span></div>
-          <div class="plan-apps">500 applications</div>
+          <div class="plan-price">$15 <span>مرة واحدة</span></div>
+          <div class="plan-apps">500 تقديم</div>
           <div class="checkmark">✓</div>
         </label>
       </div>
       <div class="savings-banner" id="savingsBanner">
-        💡 <strong id="savingsText">$0.20</strong> per application — less than a coffee ☕
+        💡 <strong id="savingsText">$0.20</strong> لكل تقديم — أقل من ثمن قهوة ☕
       </div>
     </div>
 
     <form method="POST" action="/register" id="registerForm" onsubmit="return handleRegister(event)">
       <!-- PROJECT AEGIS: Invisible Bot Honeypot -->
       <div style="display:none; visibility:hidden;">
-        <label for="aegis_honeypot">Leave this empty if you are human</label>
+        <label for="aegis_honeypot">اترك هذا الحقل فارغاً إذا كنت بشرياً</label>
         <input dir="auto" type="text" name="aegis_honeypot" id="aegis_honeypot" tabindex="-1" autocomplete="off">
       </div>
 
@@ -195,7 +195,7 @@
       </div>
 
       <div class="form-group">
-        <label for="regEmail">Email</label>
+        <label for="regEmail">البريد الإلكتروني</label>
         <input dir="auto" type="email" id="regEmail" name="email" placeholder="you@example.com" required autocomplete="email" oninput="validateEmail(this)">
         <div class="validation-feedback" id="emailFeedback"></div>
       </div>
@@ -218,11 +218,11 @@
         <div class="pw-strength-label" id="regPwStrengthLabel"></div>
         <!-- Password Requirements -->
         <div class="pw-requirements-v2" id="pwReqs">
-          <div class="req" id="reqLength"><span class="req-icon">○</span> At least 8 characters</div>
-          <div class="req" id="reqUpper"><span class="req-icon">○</span> One uppercase letter</div>
-          <div class="req" id="reqLower"><span class="req-icon">○</span> One lowercase letter</div>
-          <div class="req" id="reqNumber"><span class="req-icon">○</span> One number</div>
-          <div class="req" id="reqSpecial"><span class="req-icon">○</span> One special character</div>
+          <div class="req" id="reqLength"><span class="req-icon">○</span> 8 أحرف على الأقل</div>
+          <div class="req" id="reqUpper"><span class="req-icon">○</span> حرف كبير واحد</div>
+          <div class="req" id="reqLower"><span class="req-icon">○</span> حرف صغير واحد</div>
+          <div class="req" id="reqNumber"><span class="req-icon">○</span> رقم واحد</div>
+          <div class="req" id="reqSpecial"><span class="req-icon">○</span> رمز خاص واحد</div>
         </div>
       </div>
 
@@ -231,14 +231,14 @@
       </div>
 
       <button type="submit" class="btn-submit" id="registerBtn">
-        <span class="btn-text">🚀 Create Free Account</span>
+        <span class="btn-text">🚀 إنشاء حساب مجاني</span>
         <span class="btn-spinner"></span>
       </button>
     </form>
 
-    <div class="link-row">Already have an account? <a href="/login">Login</a></div>
+    <div class="link-row">لديك حساب بالفعل؟ <a href="/login">دخول</a></div>
     <div class="trust-strip-green">
-      <span>🔒 No credit card required • 30-day money-back guarantee • Cancel anytime</span>
+      <span>🔒 لا حاجة لبطاقة ائتمان • ضمان استرداد الأموال لمدة 30 يوماً • إلغاء في أي وقت</span>
     </div>
   </div>
 
@@ -255,7 +255,7 @@
     </div>
     <div class="benefit-item">
       <span class="benefit-icon">📧</span>
-      <div><strong>20+ Email Providers</strong><span>Smart rotation keeps your emails out of spam folders</span></div>
+      <div><strong>أكثر من 20 مزود بريد</strong><span>نظام التدوير الذكي يبقي رسائلك بعيدة عن البريد المزعج</span></div>
     </div>
     <div class="benefit-item">
       <span class="benefit-icon">🌍</span>
@@ -263,7 +263,7 @@
     </div>
     <div class="benefit-item">
       <span class="benefit-icon">📊</span>
-      <div><strong>Real-Time Dashboard</strong><span>Track opens, clicks, responses & pipeline progress live</span></div>
+      <div><strong>لوحة تحكم فورية</strong><span>تتبع الفتح، النقرات، الردود وتقدمك بشكل مباشر</span></div>
     </div>
     <div class="benefit-item">
       <span class="benefit-icon">🛡️</span>
@@ -271,11 +271,11 @@
     </div>
     <div class="benefit-item">
       <span class="benefit-icon">🔒</span>
-      <div><strong>تشفير 256-بت</strong><span>سيرتك الذاتية وبياناتك محمية — never shared or sold</span></div>
+      <div><strong>تشفير 256-بت</strong><span>سيرتك الذاتية وبياناتك محمية — لن تتم مشاركتها أو بيعها أبداً</span></div>
     </div>
     <div class="benefit-item">
       <span class="benefit-icon">₿</span>
-      <div><strong>مدفوعات الكريبتو</strong><span>ادفع بـ BTC, ETH, USDT — private & borderless</span></div>
+      <div><strong>مدفوعات الكريبتو</strong><span>ادفع بـ BTC, ETH, USDT — خاصة وبدون حدود</span></div>
     </div>
   </div>
 </div>
@@ -300,7 +300,7 @@ document.querySelectorAll('.plan-option').forEach(function(opt) {
     };
     var p = prices[plan];
     document.getElementById('savingsText').textContent = '$' + p.per;
-    document.querySelector('.savings-banner').innerHTML = '💡 <strong>$' + p.per + '</strong> per application — ' + p.apps + ' apps for just $' + p.price + ' 🚀';
+    document.querySelector('.savings-banner').innerHTML = '💡 <strong>$' + p.per + '</strong> لكل تقديم — ' + p.apps + ' تقديمات فقط بـ $' + p.price + ' 🚀';
   });
 });
 
@@ -333,7 +333,7 @@ function validatePassword(val) {
   if (/\d/.test(val)) score++;
   if (/[^a-zA-Z0-9]/.test(val)) score++;
   var levels = ['', 'weak', 'fair', 'good', 'strong'];
-  var labels = ['', 'Weak — Try adding numbers & symbols', 'Fair — Add uppercase & special chars', 'Good — Almost there!', 'Strong — Great password!'];
+  var labels = ['', 'ضعيف — جرب إضافة أرقام ورموز', 'مقبول — أضف أحرف كبيرة ورموز', 'جيد — اقتربت!', 'قوي — كلمة مرور ممتازة!'];
   bar.className = 'pw-strength-bar ' + levels[score];
   label.textContent = labels[score];
   label.className = 'pw-strength-label ' + levels[score];
@@ -363,11 +363,11 @@ function validateName(el) {
   var fb = document.getElementById('nameFeedback');
   if (el.value.trim().length < 2) {
     el.className = 'input-error';
-    fb.textContent = 'Please enter your full name';
+    fb.textContent = 'يرجى إدخال اسمك الكامل';
     fb.className = 'validation-feedback show error';
   } else {
     el.className = 'input-success';
-    fb.textContent = '✓ Looks good';
+    fb.textContent = '✓ يبدو جيداً';
     fb.className = 'validation-feedback show success';
   }
 }
@@ -378,11 +378,11 @@ function validateEmail(el) {
   var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!re.test(el.value)) {
     el.className = 'input-error';
-    fb.textContent = 'Please enter a valid email address';
+    fb.textContent = 'يرجى إدخال بريد إلكتروني صحيح';
     fb.className = 'validation-feedback show error';
   } else {
     el.className = 'input-success';
-    fb.textContent = '✓ Valid email';
+    fb.textContent = '✓ بريد صحيح';
     fb.className = 'validation-feedback show success';
   }
 }
@@ -394,9 +394,9 @@ function handleRegister(e) {
   var email = document.getElementById('regEmail').value.trim();
   var password = document.getElementById('regPassword').value;
   var errors = [];
-  if (name.length < 2) errors.push('Please enter your full name');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push('Please enter a valid email');
-  if (password.length < 8) errors.push('Password must be at least 8 characters');
+  if (name.length < 2) errors.push('يرجى إدخال اسمك الكامل');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push('يرجى إدخال بريد إلكتروني صحيح');
+  if (password.length < 8) errors.push('يجب أن تتكون كلمة المرور من 8 أحرف على الأقل');
   if (errors.length > 0) {
     alert(errors.join('\n'));
     return false;

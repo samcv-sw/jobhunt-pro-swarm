@@ -1,7 +1,7 @@
 <style>
 /* Email Test — Clean & Working */
 .et-hero { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; flex-wrap:wrap; gap:16px; }
-.et-hero h1 { font-size:28px; font-weight:800; color:#fff; margin:0 0 4px; letter-spacing:-.5px; }
+.et-hero h1 { font-size:28px; font-weight:800; color:#fff; margin:0 0 4px;  }
 .et-hero .subtitle { font-size:13px; color:#94a3b8; margin:0; }
 
 .et-card { background:rgba(15,15,20,.5); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:22px; margin-bottom:18px; }
@@ -10,7 +10,7 @@
 
 .et-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; }
 .et-field { display:flex; flex-direction:column; gap:6px; }
-.et-field label { font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:.5px; }
+.et-field label { font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase;  }
 .et-field input, .et-field textarea { padding:11px 14px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:10px; color:#e2e8f0; font-size:13px; font-family: 'Cairo', Inter,sans-serif; outline:none; transition:border .2s; width:100%; box-sizing:border-box; }
 .et-field input:focus, .et-field textarea:focus { border-color:rgba(59,130,246,.5); background:rgba(0,0,0,.45); }
 .et-field textarea { min-height:180px; resize:vertical; font-family: 'Cairo', 'JetBrains Mono','Cascadia Code','Consolas',monospace; font-size:12px; line-height:1.7; padding:16px; }
@@ -53,7 +53,7 @@
 
 .et-history { margin-top:16px; padding:12px 16px; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.05); border-radius:10px; font-size:12px; color:#64748b; }
 
-.toast { position:fixed; bottom:-60px; inset-inline-start: 50%; transform:translateX(-50%); padding:12px 28px; border-radius:30px; font-size:14px; font-weight:600; transition:all .3s; z-index:1000; opacity:0; pointer-events:none; }
+.toast { position:fixed; bottom:-60px; left: 50%; transform:translateX(-50%); padding:12px 28px; border-radius:30px; font-size:14px; font-weight:600; transition:all .3s; z-index:1000; opacity:0; pointer-events:none; }
 .toast.show { bottom:28px; opacity:1; }
 .toast.ok { background:#22c55e; color:#fff; box-shadow:0 4px 20px rgba(34,197,94,.4); }
 .toast.err { background:#ef4444; color:#fff; box-shadow:0 4px 20px rgba(239,68,68,.4); }
@@ -66,12 +66,12 @@
 <!-- Header -->
 <div class="et-hero">
   <div>
-    <h1>&#x2709;&#xFE0F; Email Composer</h1>
-    <p class="subtitle">Send personalized application emails — <strong>$0.10/email</strong> from wallet</p>
+    <h1>&#x2709;&#xFE0F; محرر البريد الإلكتروني</h1>
+    <p class="subtitle">إرسال رسائل توظيف مخصصة — <strong>0.10$ / رسالة</strong> من المحفظة</p>
   </div>
   <div style="display:flex;gap:8px;align-items:center;">
     {% if ctx.active_profile %}
-    <span class="badge badge-blue">&#x1F4C4; {{ ctx.active_profile.profile_name or 'CV Profile' }}</span>
+    <span class="badge badge-blue">&#x1F4C4; {{ ctx.active_profile.profile_name or 'ملف السيرة الذاتية' }}</span>
     {% endif %}
     <span class="badge badge-gold">&#x1F4B0; ${{ "%.2f"|format(ctx.balance or 0) }}</span>
   </div>
@@ -84,34 +84,34 @@
 <form method="POST" action="/email-test" id="emailForm" enctype="multipart/form-data">
   <!-- CV Upload -->
   <div class="et-card">
-    <div class="et-card-title">&#x1F4C4; Upload CV (PDF) — Auto-fill all fields</div>
+    <div class="et-card-title">&#x1F4C4; رفع السيرة الذاتية (PDF) — تعبئة جميع الحقول تلقائياً</div>
     <div class="upload-zone" id="dropZone">
       <div class="uz-icon">&#x1F4E5;</div>
-      <strong>Drop your CV here or click to browse</strong>
-      <p>PDF only, max 5MB. System will analyze and auto-fill below.</p>
+      <strong>أسقط سيرتك الذاتية هنا أو انقر للتصفح</strong>
+      <p>ملفات PDF فقط، بحد أقصى 5 ميجابايت. سيقوم النظام بالتحليل وتعبئة الحقول أدناه تلقائياً.</p>
       <input dir="auto" type="file" id="cvFileInput" accept=".pdf">
     </div>
     <div class="upload-status" id="uploadStatus">
       <span>&#x1F4CE; <span id="upFileName"></span></span>
-      <span id="upStatus">Analyzing...</span>
+      <span id="upStatus">جارٍ التحليل...</span>
     </div>
   </div>
 
   <!-- Recipient -->
   <div class="et-card">
-    <div class="et-card-title">&#x1F465; Recipient</div>
+    <div class="et-card-title">&#x1F465; المستلم</div>
     <div class="et-row">
       <div class="et-field">
-        <label>To Email *</label>
+        <label>إلى البريد الإلكتروني *</label>
         <input dir="auto" type="email" name="to_email" id="fldTo" value="{{ ctx.to_email or '' }}" placeholder="hr@company.com" required>
       </div>
       <div class="et-field">
-        <label>Company Name</label>
-        <input dir="auto" type="text" name="company_name" id="fldCompany" value="{{ ctx.company_name or '' }}" placeholder="Target Company">
+        <label>اسم الشركة</label>
+        <input dir="auto" type="text" name="company_name" id="fldCompany" value="{{ ctx.company_name or '' }}" placeholder="الشركة المستهدفة">
       </div>
       <div class="et-field">
-        <label>Job Title</label>
-        <input dir="auto" type="text" name="job_title" id="fldJob" value="{{ ctx.job_title or '' }}" placeholder="Network Engineer">
+        <label>المسمى الوظيفي</label>
+        <input dir="auto" type="text" name="job_title" id="fldJob" value="{{ ctx.job_title or '' }}" placeholder="مهندس شبكات">
       </div>
     </div>
   </div>
@@ -119,53 +119,53 @@
   <!-- CV Text -->
   <div class="et-card">
     <div class="et-card-title">
-      <span>&#x1F4C4; CV / Resume</span>
+      <span>&#x1F4C4; السيرة الذاتية</span>
       <div class="et-card-actions">
-        <button type="button" class="btn btn-xs btn-ai" onclick="aiRegen('cv')">&#x2728; AI Rewrite</button>
-        <button type="button" class="btn btn-xs btn-pdf" onclick="downloadPDF('cv')">&#x1F4E5; PDF</button>
+        <button type="button" class="btn btn-xs btn-ai" onclick="aiRegen('cv')">&#x2728; إعادة كتابة بالذكاء الاصطناعي</button>
+        <button type="button" class="btn btn-xs btn-pdf" onclick="downloadPDF('cv')">&#x1F4E5; تنزيل PDF</button>
       </div>
     </div>
     <div class="et-field">
-      <textarea dir="auto" name="cv_text" id="fldCV" placeholder="Your CV text will appear here after uploading PDF...">{{ ctx.cv_text or '' }}</textarea>
+      <textarea dir="auto" name="cv_text" id="fldCV" placeholder="سيظهر نص سيرتك الذاتية هنا بعد رفع ملف PDF...">{{ ctx.cv_text or '' }}</textarea>
     </div>
   </div>
 
   <!-- Cover Letter -->
   <div class="et-card">
     <div class="et-card-title">
-      <span>&#x2709;&#xFE0F; Cover Letter</span>
+      <span>&#x2709;&#xFE0F; رسالة التغطية</span>
       <div class="et-card-actions">
-        <button type="button" class="btn btn-xs btn-ai" onclick="aiRegen('cover')">&#x2728; AI Rewrite</button>
-        <button type="button" class="btn btn-xs btn-pdf" onclick="downloadPDF('cover')">&#x1F4E5; PDF</button>
+        <button type="button" class="btn btn-xs btn-ai" onclick="aiRegen('cover')">&#x2728; إعادة كتابة بالذكاء الاصطناعي</button>
+        <button type="button" class="btn btn-xs btn-pdf" onclick="downloadPDF('cover')">&#x1F4E5; تنزيل PDF</button>
       </div>
     </div>
     <div class="et-field">
-      <textarea dir="auto" name="cover_letter" id="fldCover" placeholder="Cover letter will be auto-generated...">{{ ctx.cover_letter or '' }}</textarea>
+      <textarea dir="auto" name="cover_letter" id="fldCover" placeholder="سيتم إنشاء رسالة التغطية تلقائياً...">{{ ctx.cover_letter or '' }}</textarea>
     </div>
   </div>
 
   <!-- Email Body -->
   <div class="et-card">
     <div class="et-card-title">
-      <span>&#x1F4E8; Email Body</span>
-      <button type="button" class="btn btn-xs btn-ai" onclick="aiRegen('email')">&#x2728; AI Rewrite</button>
+      <span>&#x1F4E8; محتوى البريد الإلكتروني</span>
+      <button type="button" class="btn btn-xs btn-ai" onclick="aiRegen('email')">&#x2728; إعادة كتابة بالذكاء الاصطناعي</button>
     </div>
     <div class="et-field">
-      <textarea dir="auto" name="email_body" id="fldEmail" placeholder="Email body will be auto-generated...">{{ ctx.email_body or '' }}</textarea>
+      <textarea dir="auto" name="email_body" id="fldEmail" placeholder="سيتم إنشاء محتوى البريد الإلكتروني تلقائياً...">{{ ctx.email_body or '' }}</textarea>
     </div>
   </div>
 
   <!-- Submit -->
   <div class="et-footer">
-    <button type="submit" class="btn btn-lg btn-primary">&#x1F680; Send Email — $0.10</button>
-    <button type="button" class="btn btn-md btn-outline" onclick="document.getElementById('emailForm').reset()">&#x21BA; Reset</button>
-    <span class="price">Balance: <strong id="balDisplay">${{ "%.2f"|format(ctx.balance or 0) }}</strong></span>
+    <button type="submit" class="btn btn-lg btn-primary">&#x1F680; إرسال البريد — 0.10$</button>
+    <button type="button" class="btn btn-md btn-outline" onclick="document.getElementById('emailForm').reset()">&#x21BA; إعادة ضبط</button>
+    <span class="price">الرصيد: <strong id="balDisplay">${{ "%.2f"|format(ctx.balance or 0) }}</strong></span>
   </div>
 </form>
 
 {% if ctx.last_test %}
 <div class="et-history">
-  <strong>Last send:</strong> {{ ctx.last_test.to_email }}{% if ctx.last_test.company_name %} &rarr; {{ ctx.last_test.company_name }}{% endif %}
+  <strong>آخر إرسال:</strong> {{ ctx.last_test.to_email }}{% if ctx.last_test.company_name %} &rarr; {{ ctx.last_test.company_name }}{% endif %}
   &middot; <span style="color:{% if ctx.last_test.status=='sent' %}#22c55e{% else %}#ef4444{% endif %};">{{ ctx.last_test.status }}</span>
   {% if ctx.last_test.sent_at %} &middot; <small>{{ ctx.last_test.sent_at[:19] }}</small>{% endif %}
 </div>
@@ -199,9 +199,9 @@ function toast(msg, isErr){
   async function doUpload(){
     var f=fi.files[0];
     if(!f)return;
-    if(f.size>5*1024*1024){toast('File too large (max 5MB)',true);return;}
+    if(f.size>5*1024*1024){toast('الملف كبير جداً (الحد الأقصى 5 ميجابايت)',true);return;}
     dz.style.display='none'; us.classList.add('show');
-    ufn.textContent=f.name; ust.textContent='Analyzing...';
+    ufn.textContent=f.name; ust.textContent='جارٍ التحليل...';
 
     var fd=new FormData(); fd.append('cv_file',f);
     try{
@@ -216,11 +216,11 @@ function toast(msg, isErr){
         var c=document.getElementById('fldCompany');
         if(!c.value.trim()) c.value=d.company_name;
       }
-      ust.textContent='Done! Fields filled.';
-      toast('CV parsed — all fields auto-filled!');
+      ust.textContent='تم! تمت تعبئة الحقول.';
+      toast('تم تحليل السيرة الذاتية — تمت تعبئة جميع الحقول تلقائياً!');
       setTimeout(function(){us.classList.remove('show');dz.style.display='';fi.value='';},2500);
     }catch(e){
-      toast('Upload failed: '+e.message,true);
+      toast('فشل الرفع: '+e.message,true);
       resetUp();
     }
   }
@@ -237,8 +237,8 @@ async function aiRegen(field){
   var orig=ta.value, btn=event.target;
   btn.disabled=true; btn.textContent='...';
 
-  var company=document.getElementById('fldCompany').value||'Target Company';
-  var job=document.getElementById('fldJob').value||'Network Engineer';
+  var company=document.getElementById('fldCompany').value||'الشركة المستهدفة';
+  var job=document.getElementById('fldJob').value||'مهندس شبكات';
   var cvCtx=document.getElementById('fldCV').value.slice(0,800);
 
   try{
@@ -247,17 +247,17 @@ async function aiRegen(field){
       body:JSON.stringify({field:field,content:ta.value,job_title:job,company_name:company,cv_context:cvCtx})
     });
     var d=await r.json();
-    if(d.text){ta.value=d.text; toast(field+' regenerated!');}
-    else toast(d.error||'Regenerate failed',true);
+    if(d.text){ta.value=d.text; toast('تمت إعادة التوليد!');}
+    else toast(d.error||'فشل إعادة التوليد',true);
   }catch(e){toast(e.message,true);}
-  finally{btn.disabled=false; btn.innerHTML='&#x2728; AI Rewrite';}
+  finally{btn.disabled=false; btn.innerHTML='&#x2728; إعادة كتابة بالذكاء الاصطناعي';}
 }
 
 // ── PDF Download ──
 function downloadPDF(type){
   var map={cv:'fldCV',cover:'fldCover'};
   var ta=document.getElementById(map[type]);
-  if(!ta||!ta.value.trim()){toast('Nothing to download',true);return;}
+  if(!ta||!ta.value.trim()){toast('لا يوجد شيء للتنزيل',true);return;}
   var url='/email-test/download-pdf?text='+encodeURIComponent(ta.value)+'&title='+encodeURIComponent(type==='cv'?'CV':'Cover_Letter');
   window.open(url,'_blank');
 }

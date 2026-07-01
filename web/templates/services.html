@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <title>{{ title | default('JobHunt Pro') }}</title>
@@ -42,7 +42,7 @@
  font-family: 'Orbitron', sans-serif;
  font-size: 28px;
  font-weight: 800;
- letter-spacing: 1px;}
+ }
 .page-header h1 .cyan {
  color: var(--cyan);
  text-shadow: 0 0 20px rgba(0,240,255,0.4);}
@@ -59,7 +59,7 @@
  color: var(--muted);
  font-size: 12px;
  text-transform: uppercase;
- letter-spacing: 1px;}
+ }
 .balance-value {
  font-family: 'Orbitron', sans-serif;
  font-size: 26px;
@@ -85,7 +85,7 @@
  font-size: 20px;
  font-weight: 700;
  margin: 40px 0 20px;
- letter-spacing: 2px;
+ 
  display: flex;
  align-items: center;
  gap: 10px;
@@ -128,14 +128,14 @@
  font-weight: 800;
  padding: 4px 30px;
  transform: rotate(45deg);
- letter-spacing: 1px;}
+ }
 .card-header {
  margin-bottom: 16px;}
 .package-badge {
  font-size: 9px;
  color: var(--cyan);
  text-transform: uppercase;
- letter-spacing: 2px;
+ 
  margin-bottom: 6px;
  display: block;}
 .store-card h3 {
@@ -176,7 +176,7 @@
  cursor: pointer;
  transition: all 0.3s;
  border: none;
- letter-spacing: 1px;
+ 
  text-transform: uppercase;}
 .btn-primary {
  background: linear-gradient(135deg, var(--cyan), #0088aa);
@@ -232,7 +232,7 @@
 .dot.green { background: #4ade80;}
 .terminal-title {
  font-size: 11px;
- letter-spacing: 1px;
+ 
  text-transform: uppercase;}
 .terminal-.terminal-row {
  padding: 6px 0;
@@ -493,7 +493,7 @@
  <p>{{ b.description }}</p>
  <div class="card-footer">
  <div>
- <div class="price-label">Bundle السعر</div>
+ <div class="price-label">سعر الباقة</div>
  <div class="price-val" style="color: var(--magenta); text-shadow: 0 0 10px rgba(255, 0, 85, 0.3);">${{ "%.2f"|format(b.price_usd) }}</div>
  </div>
  
@@ -548,7 +548,7 @@
  {% endfor %}
  {% else %}
  <div class="terminal-empty">
- &gt; No active system upgrades detected. افتح features above to populate.
+ &gt; لم يتم اكتشاف ترقيات نشطة في النظام. افتح الميزات أعلاه لملئها.
  </div>
  {% endif %}
  </div>
@@ -559,7 +559,7 @@
  
 <script>
 function confirmافتح(name, price) {
- return confirm('افتح ' + name + ' for $' + price + '? This will be deducted from your wallet balance.');
+ return confirm('افتح ' + name + ' مقابل $' + price + '؟ سيتم خصم هذا من رصيد محفظتك.');
 }
 
 function confirmBulk() {
@@ -570,7 +570,7 @@ function confirmBulk() {
  names.push(c.dataset.name);
  total += parseFloat(c.dataset.price);
  });
- return confirm('Buy ' + checks.length + ' items for $' + total.toFixed(2) + '? This will be deducted from your wallet balance.');
+ return confirm('شراء ' + checks.length + ' عناصر مقابل $' + total.toFixed(2) + '؟ سيتم خصم هذا من رصيد محفظتك.');
 }
 
 // Multi-select logic

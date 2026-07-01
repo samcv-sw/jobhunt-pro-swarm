@@ -65,34 +65,34 @@
 <div style="max-width: 1200px; margin: 0 auto; padding: 30px;">
 <!-- HERO -->
 <div class="hero">
-  <h1>📊 Track Your Job Postings</h1>
-  <p>Enter your email to see all your jobs, or email + Job ID for a specific post.</p>
+  <h1>📊 تتبع إعلانات الوظائف الخاصة بك</h1>
+  <p>أدخل بريدك الإلكتروني لرؤية جميع وظائفك، أو البريد الإلكتروني + معرف الوظيفة لمنشور محدد.</p>
   <div style="margin-top:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(59,130,246,.08);padding:8px 16px;border-radius:10px;border:1px solid rgba(59,130,246,.2);">
       <input dir="auto" type="checkbox" id="notifyCheck" style="accent-color:#3b82f6;" onchange="toggleNotifications()">
-      <span style="font-size:.85em;">📩 Notify me by email when someone applies</span>
+      <span style="font-size:.85em;">📩 إشعاري عبر البريد الإلكتروني عند تقدم شخص ما</span>
     </label>
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(139,92,246,.08);padding:8px 16px;border-radius:10px;border:1px solid rgba(139,92,246,.2);">
       <input dir="auto" type="checkbox" id="liveRefresh" style="accent-color:#8b5cf6;" onchange="toggleLiveRefresh()">
-      <span style="font-size:.85em;">🔄 Auto-refresh every 30s</span>
+      <span style="font-size:.85em;">🔄 تحديث تلقائي كل 30 ثانية</span>
     </label>
   </div>
 </div>
 
 <!-- TRACK FORM -->
 <div class="track-form">
-  <h2>🔍 Find Your Jobs</h2>
+  <h2>🔍 ابحث عن وظائفك</h2>
   <div class="form-group">
-    <label>📧 Your Email *</label>
+    <label>📧 بريدك الإلكتروني *</label>
     <input dir="auto" type="email" id="trackEmail" placeholder="hr@yourcompany.com" required>
   </div>
   <div class="form-group">
-    <label>🆔 Job ID (optional — for specific job)</label>
+    <label>🆔 معرف الوظيفة (اختياري — لوظيفة محددة)</label>
     <input dir="auto" type="text" id="trackJobId" placeholder="job_xxxxxxxxxxxx">
   </div>
-  <button class="track-btn" onclick="trackJobs()">🔍 Find My Jobs</button>
+  <button class="track-btn" onclick="trackJobs()">🔍 ابحث عن وظائفك</button>
   <div class="msg" id="trackMsg"></div>
-  <div class="alt-action"><a href="#" onclick="document.getElementById('trackEmail').value='samsalameh.cv@gmail.com';trackJobs();return false;">👀 Demo: See sample jobs</a></div>
+  <div class="alt-action"><a href="#" onclick="document.getElementById('trackEmail').value='samsalameh.cv@gmail.com';trackJobs();return false;">👀 تجريبي: رؤية نماذج للوظائف</a></div>
 </div>
 
 <!-- RESULTS -->
@@ -110,14 +110,14 @@ function trackJobs() {
   currentJobId = document.getElementById('trackJobId').value.trim();
   const btn = document.querySelector('.track-btn');
   
-  if (!currentEmail) { showMsg('Please enter your email address.', '#ef4444'); return; }
+  if (!currentEmail) { showMsg('الرجاء إدخال عنوان بريدك الإلكتروني.', '#ef4444'); return; }
   
   btn.disabled = true;
-  btn.textContent = '⏳ Searching...';
+  btn.textContent = '⏳ جاري البحث...';
   
   loadDashboard(currentEmail, currentJobId).then(() => {
     btn.disabled = false;
-    btn.textContent = '🔍 Find My Jobs';
+    btn.textContent = '🔍 ابحث عن وظائفك';
     // Load notification preference
     loadNotificationPref(currentEmail);
   });
@@ -133,12 +133,12 @@ function loadDashboard(email, jobId) {
       if (data.status === 'ok') {
         renderJobs(data.jobs, email);
       } else {
-        showMsg('❌ ' + (data.message || 'No jobs found.'), '#ef4444');
+        showMsg('❌ ' + (data.message || 'لم يتم العثور على وظائف.'), '#ef4444');
         document.getElementById('resultsArea').innerHTML = '';
       }
     })
     .catch(err => {
-      showMsg('❌ Network error.', '#ef4444');
+      showMsg('❌ خطأ في الشبكة.', '#ef4444');
     });
 }
 
@@ -154,7 +154,7 @@ function toggleNotifications() {
     .then(r => r.json())
     .then(data => {
       const label = document.querySelector('#notifyCheck').parentElement.querySelector('span');
-      label.textContent = checked ? '📩 ✅ Notifications ON' : '📩 Notify me by email when someone applies';
+      label.textContent = checked ? '📩 ✅ الإشعارات مفعّلة' : '📩 إشعاري عبر البريد الإلكتروني عند تقدم شخص ما';
     });
 }
 
@@ -166,7 +166,7 @@ function loadNotificationPref(email) {
         const on = data.preferences.notify_email === 1 || data.preferences.notify_email === '1';
         document.getElementById('notifyCheck').checked = on;
         const label = document.querySelector('#notifyCheck').parentElement.querySelector('span');
-        label.textContent = on ? '📩 ✅ Notifications ON' : '📩 Notify me by email when someone applies';
+        label.textContent = on ? '📩 ✅ الإشعارات مفعّلة' : '📩 إشعاري عبر البريد الإلكتروني عند تقدم شخص ما';
       }
     });
 }
@@ -217,13 +217,13 @@ function submitApplication(jobId) {
   const note = document.getElementById(prefix + 'note').value.trim();
   
   if (!name || !email) {
-    alert('Please fill in your name and email.');
+    alert('الرجاء تعبئة اسمك وبريدك الإلكتروني.');
     return;
   }
   
   const btn = document.getElementById(prefix + 'btn');
   btn.disabled = true;
-  btn.textContent = '⏳ Submitting...';
+  btn.textContent = '⏳ جاري الإرسال...';
   
   const formData = new FormData();
   formData.append('applicant_name', name);
@@ -236,36 +236,36 @@ function submitApplication(jobId) {
     .then(data => {
       const msgEl = document.getElementById(prefix + 'msg');
       if (data.status === 'ok') {
-        msgEl.innerHTML = '<span style="color:#22c55e;">✅ Application sent! Employer will review.</span>';
+        msgEl.innerHTML = '<span style="color:#22c55e;">✅ تم إرسال الطلب! سيقوم صاحب العمل بمراجعته.</span>';
         document.getElementById('applyForm_' + jobId).querySelector('form').reset();
       } else {
         msgEl.innerHTML = '<span style="color:#ef4444;">❌ ' + data.message + '</span>';
       }
       btn.disabled = false;
-      btn.textContent = 'Send Application';
+      btn.textContent = 'إرسال الطلب';
     })
     .catch(err => {
-      document.getElementById(prefix + 'msg').innerHTML = '<span style="color:#ef4444;">❌ Network error.</span>';
+      document.getElementById(prefix + 'msg').innerHTML = '<span style="color:#ef4444;">❌ خطأ في الشبكة.</span>';
       btn.disabled = false;
-      btn.textContent = 'Send Application';
+      btn.textContent = 'إرسال الطلب';
     });
 }
 
 function renderJobs(jobs, email) {
   const area = document.getElementById('resultsArea');
   if (!jobs || jobs.length === 0) {
-    area.innerHTML = '<div class="empty-state"><div class="icon">📭</div><h3>No Jobs Found</h3><p>No jobs found for <strong>' + escapeHtml(email) + '</strong>.<br>Try a different email or post a new job.</p></div>';
+    area.innerHTML = '<div class="empty-state"><div class="icon">📭</div><h3>لم يتم العثور على وظائف</h3><p>لم يتم العثور على وظائف لـ <strong>' + escapeHtml(email) + '</strong>.<br>جرب بريداً مختلفاً أو انشر وظيفة جديدة.</p></div>';
     showMsg('', '');
     return;
   }
   
-  const totalViews = jobs.reduce((s,j) => s+(j.views||0),0);
+  const totalمشاهدات = jobs.reduce((s,j) => s+(j.views||0),0);
   const totalApps = jobs.reduce((s,j) => s+(j.applications||0),0);
   
-  let html = '<div class="jobs-section"><h2>📋 ' + jobs.length + ' Job(s) for ' + escapeHtml(email) + '</h2>';
+  let html = '<div class="jobs-section"><h2>📋 ' + jobs.length + ' وظائف لـ ' + escapeHtml(email) + '</h2>';
   html += '<div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">';
-  html += '<div class="stat-badge views">👁️ ' + totalViews + ' Total Views</div>';
-  html += '<div class="stat-badge apps">📩 ' + totalApps + ' Total Applications</div>';
+  html += '<div class="stat-badge views">👁️ ' + totalمشاهدات + ' إجمالي المشاهدات</div>';
+  html += '<div class="stat-badge apps">📩 ' + totalApps + ' إجمالي الطلبات</div>';
   html += '</div>';
   
   jobs.forEach(j => {
@@ -286,53 +286,53 @@ function renderJobs(jobs, email) {
     html += '<div class="job-card-company">🏢 ' + escapeHtml(j.company_name) + ' · 📍 ' + escapeHtml(j.location) + '</div></div>';
     html += '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
     html += '<span class="stat-badge tier">' + (j.tier||'basic').toUpperCase() + '</span>';
-    if (hasUrgent) html += '<span class="stat-badge urgent">🚨 URGENT</span>';
+    if (hasUrgent) html += '<span class="stat-badge urgent">🚨 عاجل</span>';
     html += '<span class="stat-badge status">' + getStatusLabel(j) + '</span>';
     html += '</div></div>';
     
     html += '<div class="job-card-meta">';
-    html += '<span>🗓️ Posted: ' + (created ? created.toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'}) : 'N/A') + '</span>';
-    html += '<span>⏰ Expires: ' + (expires ? expires.toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'}) : 'N/A') + '</span>';
-    html += '<span>💰 Paid: $' + (j.price||0).toFixed(2) + '</span>';
-    if (j.duration_days) html += '<span>📅 ' + j.duration_days + 'd listing</span>';
+    html += '<span>🗓️ نُشر: ' + (created ? created.toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'}) : 'N/A') + '</span>';
+    html += '<span>⏰ ينتهي: ' + (expires ? expires.toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'}) : 'N/A') + '</span>';
+    html += '<span>💰 مدفوع: $' + (j.price||0).toFixed(2) + '</span>';
+    if (j.duration_days) html += '<span>📅 ' + j.duration_days + 'd إدراج</span>';
     html += '</div>';
     
     // Add-ons
-    if (addonNames) html += '<div style="font-size:.78em;color:#94a3b8;margin-top:6px;">💎 Power-Ups: ' + escapeHtml(addonNames) + '</div>';
+    if (addonNames) html += '<div style="font-size:.78em;color:#94a3b8;margin-top:6px;">💎 إضافات مميزة: ' + escapeHtml(addonNames) + '</div>';
     
     // Stats
     html += '<div class="job-stats">';
-    html += '<span class="stat-badge views">👁️ ' + (j.views||0) + ' Views</span>';
-    html += '<span class="stat-badge apps">📩 ' + (j.applications||0) + ' Applications</span>';
-    html += '<button class="btn" onclick="toggleApplyForm(\'' + j.job_id + '\')" style="font-size:.75em;padding:6px 14px;border-radius:8px;border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.1);color:#4ade80;cursor:pointer;font-weight:700;">📩 Apply Now</button>';
-    html += '<button class="btn" onclick="toggleDetail(\'detail_' + j.job_id + '\')" style="font-size:.75em;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#94a3b8;cursor:pointer;">📋 Details ▼</button>';
+    html += '<span class="stat-badge views">👁️ ' + (j.views||0) + ' مشاهدات</span>';
+    html += '<span class="stat-badge apps">📩 ' + (j.applications||0) + ' طلبات</span>';
+    html += '<button class="btn" onclick="toggleApplyForm(\'' + j.job_id + '\')" style="font-size:.75em;padding:6px 14px;border-radius:8px;border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.1);color:#4ade80;cursor:pointer;font-weight:700;">📩 قدم الآن</button>';
+    html += '<button class="btn" onclick="toggleDetail(\'detail_' + j.job_id + '\')" style="font-size:.75em;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#94a3b8;cursor:pointer;">📋 تفاصيل ▼</button>';
     html += '</div>';
     
     // Expiry bar
     html += '<div class="expiry-bar"><div class="expiry-fill" style="width:' + pctLeft.toFixed(0) + '%;background:' + pctColor + '"></div></div>';
-    html += '<div class="expiry-text">' + daysLeft + ' days remaining</div>';
+    html += '<div class="expiry-text">' + daysLeft + ' أيام متبقية</div>';
     
     // Detail section
     html += '<div class="detail-section" id="detail_' + j.job_id + '">';
     html += '<div class="detail-grid">';
-    html += '<div><div class="label">Job ID</div><div class="value">' + j.job_id + '<button class="copy-btn" onclick="copyText(\'' + j.job_id + '\')">Copy</button></div></div>';
-    html += '<div><div class="label">Category</div><div class="value">' + (j.category||'N/A') + '</div></div>';
-    html += '<div><div class="label">Salary</div><div class="value">' + (j.salary||'Not specified') + '</div></div>';
-    html += '<div><div class="label">Contact</div><div class="value">' + escapeHtml(j.contact_email) + '</div></div>';
-    html += '<div class="full"><div class="label">Description</div><div class="value" style="white-space:pre-wrap;max-height:120px;overflow-y:auto;">' + escapeHtml(j.description||'') + '</div></div>';
-    if (j.apply_url) html += '<div class="full"><div class="label">Apply URL</div><div class="value"><a href="' + escapeHtml(j.apply_url) + '" target="_blank" style="color:#60a5fa;">' + escapeHtml(j.apply_url) + '</a></div></div>';
-    html += '<div class="full"><div class="label">Tracking Link</div><div class="value"><a href="' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '" style="color:#60a5fa;">' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '</a> <button class="copy-btn" onclick="copyText(\'' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '\')">Copy</button></div></div>';
+    html += '<div><div class="label">معرّف الوظيفة</div><div class="value">' + j.job_id + '<button class="copy-btn" onclick="copyText(\'' + j.job_id + '\')">نسخ</button></div></div>';
+    html += '<div><div class="label">الفئة</div><div class="value">' + (j.category||'N/A') + '</div></div>';
+    html += '<div><div class="label">الراتب</div><div class="value">' + (j.salary||'غير محدد') + '</div></div>';
+    html += '<div><div class="label">التواصل</div><div class="value">' + escapeHtml(j.contact_email) + '</div></div>';
+    html += '<div class="full"><div class="label">الوصف</div><div class="value" style="white-space:pre-wrap;max-height:120px;overflow-y:auto;">' + escapeHtml(j.description||'') + '</div></div>';
+    if (j.apply_url) html += '<div class="full"><div class="label">رابط التقديم</div><div class="value"><a href="' + escapeHtml(j.apply_url) + '" target="_blank" style="color:#60a5fa;">' + escapeHtml(j.apply_url) + '</a></div></div>';
+    html += '<div class="full"><div class="label">رابط التتبع</div><div class="value"><a href="' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '" style="color:#60a5fa;">' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '</a> <button class="copy-btn" onclick="copyText(\'' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '\')">نسخ</button></div></div>';
     html += '</div></div>';
     
     // Application form (hidden by default)
     html += '<div class="detail-section" id="applyForm_' + j.job_id + '" style="border:1px solid rgba(34,197,94,.2);background:rgba(34,197,94,.03);">';
-    html += '<h4 style="margin-bottom:10px;color:#4ade80;">📩 Apply for this position</h4>';
+    html += '<h4 style="margin-bottom:10px;color:#4ade80;">📩 التقديم على هذه الوظيفة</h4>';
     html += '<form onsubmit="event.preventDefault();submitApplication(\'' + j.job_id + '\');" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
-    html += '<div><input dir="auto" id="apply_' + j.job_id + '_name" placeholder="Your Full Name *" required style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
-    html += '<div><input dir="auto" id="apply_' + j.job_id + '_email" type="email" placeholder="Your Email *" required style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
-    html += '<div><input dir="auto" id="apply_' + j.job_id + '_phone" placeholder="Phone (optional)" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
-    html += '<div><button class="btn" id="apply_' + j.job_id + '_btn" type="submit" style="width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;cursor:pointer;">📩 Send Application</button></div>';
-    html += '<div style="grid-column:1/-1;"><textarea dir="auto" id="apply_' + j.job_id + '_note" placeholder="Cover note / why you\'re a good fit..." style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;min-height:60px;resize:vertical;font-family: 'Cairo', inherit;"></textarea></div>';
+    html += '<div><input dir="auto" id="apply_' + j.job_id + '_name" placeholder="الاسم الكامل *" required style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
+    html += '<div><input dir="auto" id="apply_' + j.job_id + '_email" type="email" placeholder="البريد الإلكتروني *" required style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
+    html += '<div><input dir="auto" id="apply_' + j.job_id + '_phone" placeholder="رقم الهاتف (اختياري)" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
+    html += '<div><button class="btn" id="apply_' + j.job_id + '_btn" type="submit" style="width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;cursor:pointer;">📩 إرسال الطلب</button></div>';
+    html += '<div style="grid-column:1/-1;"><textarea dir="auto" id="apply_' + j.job_id + '_note" placeholder="رسالة تغطية / ليش إنت مناسب للوظيفة..." style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;min-height:60px;resize:vertical;font-family: 'Cairo', inherit;"></textarea></div>';
     html += '<div id="apply_' + j.job_id + '_msg" style="grid-column:1/-1;font-size:.85em;"></div>';
     html += '</form></div>';
     
@@ -341,7 +341,7 @@ function renderJobs(jobs, email) {
   
   html += '</div>';
   area.innerHTML = html;
-  showMsg('✅ Found ' + jobs.length + ' job(s)!', '#22c55e');
+  showMsg('✅ تم العثور على ' + jobs.length + ' وظيفة/وظائف!', '#22c55e');
 }
 
 function toggleDetail(id) {
@@ -351,10 +351,10 @@ function toggleDetail(id) {
 }
 
 function getStatusLabel(j) {
-  if (!j.expires_at) return 'Active';
+  if (!j.expires_at) return 'نشط';
   const exp = new Date(j.expires_at.replace(' ','T')+'Z');
-  if (exp < new Date()) return '⏰ Expired';
-  return '✅ Active';
+  if (exp < new Date()) return '⏰ منتهي';
+  return '✅ نشط';
 }
 
 function copyText(text) {

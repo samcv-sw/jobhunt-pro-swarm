@@ -1,0 +1,181 @@
+<link rel="stylesheet" href="/static/css/cyberpunk.css">
+  
+<style>
+/* Contact Page Styles */
+.contact-container{padding:0 0 40px;max-width:1100px;margin:0 auto}
+.contact-hero{margin-bottom:20px}
+.contact-hero h1{font-size:26px;font-weight:800;color:#fff;margin:0 0 6px;letter-spacing:-0.5px}
+.contact-hero .subtitle{font-size:13px;color:#94a3b8;line-height:1.5;margin:0}
+
+.contact-alert{padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:13px}
+.contact-alert.success{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.15);color:#4ade80}
+.contact-alert.error{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.15);color:#ef4444}
+
+.response-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.12);border-radius:20px;font-size:12px;color:#64748b;margin-bottom:24px}
+.pulse-dot{width:8px;height:8px;background:#4ade80;border-radius:50%;animation:contactPulse 2s infinite}
+@keyframes contactPulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,.4)}50%{opacity:.6;box-shadow:0 0 0 6px rgba(74,222,128,0)}}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:768px){.contact-grid{grid-template-columns:1fr}}
+
+.form-panel{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:28px}
+.form-panel h2{font-size:18px;font-weight:700;color:#e2e8f0;margin:0 0 4px}
+.form-subtitle{font-size:12px;color:#64748b;margin:0 0 20px}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:480px){.form-row{grid-template-columns:1fr}}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+
+.glass-input{width:100%;padding:14px 16px;margin-top:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#e2e8f0;font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:all .2s;box-sizing:border-box}
+.glass-input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+select.glass-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
+textarea.glass-input{min-height:140px;resize:vertical;line-height:1.6}
+
+.btn-submit{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.btn-submit:hover{filter:brightness(1.15);transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,130,246,.25)}
+
+/* Support Cards */
+.support-cards{display:flex;flex-direction:column;gap:12px}
+.support-card{display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px;text-decoration:none;transition:all .2s;cursor:pointer}
+.support-card:hover{border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.04);transform:translateY(-1px)}
+.support-card.whatsapp{border-color:rgba(37,211,102,.15);background:rgba(37,211,102,.04)}
+.support-card.whatsapp:hover{border-color:rgba(37,211,102,.25)}
+.support-card .sc-icon{font-size:24px;line-height:1}
+.support-card h3{font-size:14px;font-weight:600;color:#e2e8f0;margin:0}
+.support-card p{font-size:12px;color:#94a3b8;line-height:1.5;margin:0}
+
+.hours-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px}
+.hours-card h3{font-size:14px;font-weight:600;color:#e2e8f0;margin:0 0 14px}
+.hours-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.hours-row:last-child{border-bottom:none}
+.hours-row .day{color:#94a3b8}
+.hours-row .time{color:#64748b;font-weight:500}
+.hours-row .time.highlight{color:#4ade80;font-weight:600}
+
+/* WhatsApp Float */
+.wa-float{position:fixed;bottom:28px;right:28px;display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border-radius:30px;text-decoration:none;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(37,211,102,.25);z-index:999;transition:all .2s}
+.wa-float:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(37,211,102,.35)}
+@media(max-width:480px){.wa-float{bottom:16px;right:16px;padding:10px 16px;font-size:12px}}
+</style>
+
+<div class="main contact-container">
+        <!-- Success/Error Messages -->
+        {% if msg %}
+        <div class="contact-alert success">
+            &#10004; {{ msg }}
+        </div>
+        {% endif %}
+        {% if error %}
+        <div class="contact-alert error">
+            &#9888; {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Hero -->
+        <div class="contact-hero">
+            <h1>&#x1F4AC; Contact &amp; Support</h1>
+            <p class="subtitle">Need help? Have feedback? Want to suggest a feature? We're here for you — every message shapes JobHunt Pro.</p>
+        </div>
+
+        <!-- Response time badge -->
+        <div class="response-badge">
+            <span class="pulse-dot"></span>
+            We typically respond within 2 hours during business hours
+        </div>
+
+        <!-- Two-column layout -->
+        <div class="contact-grid">
+            <!-- LEFT: Contact Form -->
+            <div class="form-panel">
+                <h2>&#x1F4DD; Send Us a Message</h2>
+                <p class="form-subtitle">All fields marked with * are required</p>
+                <form method="post" action="/contact">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Your Name *</label>
+                            <input dir="auto" type="text" id="name" name="name" class="glass-input" placeholder="John Doe" value="{{ user_name or '' }}" required autocomplete="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input dir="auto" type="email" id="email" name="email" class="glass-input" placeholder="you@example.com" value="{{ user_email or '' }}" required autocomplete="email">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject *</label>
+                        <select id="subject" name="subject" class="glass-input" required>
+                            <option value="">Select a topic...</option>
+                            <option value="support">&#x1F527; Technical Support</option>
+                            <option value="billing">&#x1F4B3; Billing &amp; Payments</option>
+                            <option value="feature">&#x1F4A1; Feature Request</option>
+                            <option value="bug">&#x1F41B; Bug Report</option>
+                            <option value="feedback">&#x1F4AC; General Feedback</option>
+                            <option value="account">&#x1F464; Account Help</option>
+                            <option value="other">&#x2753; Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Your Message *</label>
+                        <textarea dir="auto" id="message" name="message" class="glass-input" placeholder="Tell us what's on your mind... Be as detailed as you like — we read every word." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">&#x1F680; Send Message</button>
+                </form>
+            </div>
+
+            <!-- RIGHT: Support Cards + Office Hours -->
+            <div class="support-cards">
+                <!-- WhatsApp Card -->
+                <a href="https://wa.me/96171019053?text=Hi%20JobHunt%20Pro%20Team!%20I%20need%20help%20with..." target="_blank" class="support-card whatsapp">
+                    <span class="sc-icon">&#x1F7E2;</span>
+                    <h3>WhatsApp Support</h3>
+                    <p>Chat with us directly on WhatsApp for the fastest response. Available for urgent issues and quick questions.</p>
+                </a>
+
+                <!-- Email Card -->
+                <a href="mailto:support@jobhuntpro.ai?subject=JobHunt%20Pro%20Support" class="support-card email-card-support">
+                    <span class="sc-icon">&#x2709;&#xFE0F;</span>
+                    <h3>Email Us</h3>
+                    <p>Prefer email? Reach us at <strong>support@jobhuntpro.ai</strong>. Great for detailed feedback and feature suggestions.</p>
+                </a>
+
+                <!-- FAQ Card -->
+                <a href="/faq" class="support-card">
+                    <span class="sc-icon">&#x1F4D6;</span>
+                    <h3>FAQ &amp; Knowledge Base</h3>
+                    <p>Check our frequently asked questions for instant answers to common questions about JobHunt Pro.</p>
+                </a>
+
+                <!-- Office Hours -->
+                <div class="hours-card">
+                    <h3>&#x1F550; Office Hours (GMT+3, Beirut)</h3>
+                    <div class="hours-row">
+                        <span class="day">Monday — Friday</span>
+                        <span class="time highlight">9:00 AM — 8:00 PM</span>
+                    </div>
+                    <div class="hours-row">
+                        <span class="day">Saturday</span>
+                        <span class="time">10:00 AM — 4:00 PM</span>
+                    </div>
+                    <div class="hours-row">
+                        <span class="day">Sunday</span>
+                        <span class="time">Limited availability</span>
+                    </div>
+                </div>
+
+                {% if is_admin %}
+                <!-- Admin Logs Button -->
+                <a href="/admin/logs" class="support-card" style="border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.05); margin-top: 10px;">
+                    <span class="sc-icon">&#x1F5A5;&#xFE0F;</span>
+                    <h3 style="color: #f87171;">System Logs (Admin Only)</h3>
+                    <p>View server and error logs to debug PythonAnywhere unhandled exceptions.</p>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/96171019053?text=Hi%20Sam!%20I%20need%20support%20with%20JobHunt%20Pro" target="_blank" class="wa-float">
+        <span class="wa-icon">&#x1F7E2;</span> WhatsApp Us
+    </a>
+

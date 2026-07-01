@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="/static/css/cyberpunk.css">
   
 {% set wallet_balance = user.wallet_balance if user else 0 %}
-{% set user_name = user.name if user else "User" %}
+{% set user_name = user.name if user else "مستخدم" %}
 {% set user_email = user.email if user else "" %}
 {% set toast_msg = error or success or "" %}
 {% set toast_type = "error" if error else ("success" if success else "") %}
@@ -12,7 +12,7 @@
 @media (max-width:768px) { .wallet-header { grid-template-columns:1fr; } }
 .wallet-balance-card { background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(139,92,246,.10)); border:1px solid rgba(59,130,246,.18); border-radius:20px; padding:28px 24px; text-align:center; }
 .wallet-balance-card .balance-amount { font-size:44px; font-weight:800; color:#3b82f6; line-height:1.1; margin-bottom:2px; }
-.wallet-balance-card .balance-label { font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:1.2px; }
+.wallet-balance-card .balance-label { font-size:11px; color:#64748b; text-transform:uppercase;  }
 .wallet-actions { display:flex; gap:8px; margin-top:14px; justify-content:center; flex-wrap:wrap; }
 .btn-wallet { padding:9px 18px; border-radius:10px; border:1px solid rgba(59,130,246,.18); background:rgba(59,130,246,.08); color:#60a5fa; cursor:pointer; font-size:12px; font-weight:600; transition:all .2s; text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
 .btn-wallet:hover { background:rgba(59,130,246,.15); transform:translateY(-1px); }
@@ -22,8 +22,8 @@
 @media (max-width:500px) { .wallet-stats { grid-template-columns:1fr 1fr; } }
 .wallet-stat-card { background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.05); border-radius:14px; padding:16px 12px; text-align:center; }
 .wallet-stat-card .stat-val { font-size:22px; font-weight:700; line-height:1.2; }
-.wallet-stat-card .stat-label { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:.5px; margin-top:2px; }
-.section-title { color:#94a3b8; font-size:12px; text-transform:uppercase; letter-spacing:.6px; margin-bottom:14px; }
+.wallet-stat-card .stat-label { font-size:10px; color:#64748b; text-transform:uppercase;  margin-top:2px; }
+.section-title { color:#94a3b8; font-size:12px; text-transform:uppercase;  margin-bottom:14px; }
 
 /* Top-Up Form */
 .topup-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:24px; margin-bottom:24px; }
@@ -35,7 +35,7 @@
 .preset-btn.selected { background:rgba(59,130,246,.15); border-color:#3b82f6; color:#60a5fa; }
 .topup-row { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-bottom:16px; }
 .topup-amount { flex:1; min-width:160px; }
-.topup-amount label { display:block; font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+.topup-amount label { display:block; font-size:11px; color:#64748b; text-transform:uppercase;  margin-bottom:6px; }
 .topup-amount input { width:100%; padding:12px 16px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#e2e8f0; font-size:18px; font-weight:700; outline:none; transition:border .2s; }
 .topup-amount input:focus { border-color:#3b82f6; }
 .coin-select { display:flex; gap:4px; flex-wrap:wrap; }
@@ -70,7 +70,7 @@
 .crypto-card .crypto-addr { font-size:11px; color:#64748b; word-break:break-all; background:rgba(0,0,0,.3); padding:8px; border-radius:8px; margin-top:8px; }
 
 .transaction-table { width:100%; border-collapse:collapse; }
-.transaction-table th { text-align:start; font-size:11px; text-transform:uppercase; color:#64748b; padding:12px 8px; border-bottom:1px solid rgba(255,255,255,.05); letter-spacing:.5px; }
+.transaction-table th { text-align:start; font-size:11px; text-transform:uppercase; color:#64748b; padding:12px 8px; border-bottom:1px solid rgba(255,255,255,.05);  }
 .transaction-table td { padding:12px 8px; border-bottom:1px solid rgba(255,255,255,.03); font-size:13px; }
 .transaction-table tr:hover td { background:rgba(255,255,255,.02); }
 .tx-type { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; }
@@ -85,9 +85,9 @@
 .redeem-card h3 { font-size:14px; color:#e2e8f0; margin:0 0 6px; }
 .redeem-card p { font-size:12px; color:#64748b; margin:0 0 16px; }
 .redeem-form { display:flex; gap:10px; flex-wrap:wrap; }
-.redeem-input { flex:1; min-width:200px; padding:12px 16px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#e2e8f0; font-size:14px; font-family: 'Cairo', monospace; letter-spacing:1px; outline:none; transition:border .2s; }
+.redeem-input { flex:1; min-width:200px; padding:12px 16px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#e2e8f0; font-size:14px; font-family: 'Cairo', monospace;  outline:none; transition:border .2s; }
 .redeem-input:focus { border-color:rgba(59,130,246,.5); }
-.redeem-input::placeholder { color:#475569; font-family: 'Cairo', sans-serif; letter-spacing:0; }
+.redeem-input::placeholder { color:#475569; font-family: 'Cairo', sans-serif;  }
 .btn-redeem { padding:12px 28px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); border:none; border-radius:12px; color:#fff; font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; }
 .btn-redeem:hover { filter:brightness(1.15); transform:translateY(-1px); }
 </style>
@@ -129,17 +129,17 @@
   <div style="display:flex;align-items:center;gap:10px;">
     <span style="font-size:18px;">🔑</span>
     <div>
-      <div style="font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:2px;">مفتاح API الخاص بك</div>
+      <div style="font-size:12px;text-transform:uppercase;color:#64748b;margin-bottom:2px;">مفتاح API الخاص بك</div>
       <div style="display:flex;align-items:center;gap:8px;">
         <code id="apiKeyDisplay" style="font-size:13px;color:#94a3b8;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:6px;font-family: 'Cairo', monospace;">••••••••••••••••••••••••</code>
-        <button id="toggleKeyBtn" class="btn-wallet" style="padding:2px 8px;font-size:11px;min-height:24px;line-height:1;" onclick="toggleApiKey()">👁️ Show</button>
+        <button id="toggleKeyBtn" class="btn-wallet" style="padding:2px 8px;font-size:11px;min-height:24px;line-height:1;" onclick="toggleApiKey()">👁️ عرض</button>
       </div>
     </div>
   </div>
   <div style="display:flex;gap:8px;align-items:center;">
-    <button class="btn-wallet" onclick="navigator.clipboard.writeText('{{ user.api_key }}');this.innerHTML='✅ Copied!';setTimeout(()=>this.innerHTML='📋 Copy',2000)">📋 Copy</button>
+    <button class="btn-wallet" onclick="navigator.clipboard.writeText('{{ user.api_key }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)">📋 نسخ</button>
     <form method="POST" action="/wallet/regenerate-key" style="margin:0;">
-      <button type="submit" class="btn-wallet" style="color:#f59e0b;border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.08);">🔄 Regenerate</button>
+      <button type="submit" class="btn-wallet" style="color:#f59e0b;border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.08);">🔄 إعادة توليد</button>
     </form>
   </div>
 </div>
@@ -150,11 +150,11 @@ function toggleApiKey() {
   const btn = document.getElementById('toggleKeyBtn');
   const realKey = '{{ user.api_key or "" }}';
   if (code.textContent.includes('•')) {
-    code.textContent = realKey || "No key generated";
-    btn.textContent = '👁️ Hide';
+    code.textContent = realKey || "لم يتم توليد مفتاح";
+    btn.textContent = '👁️ إخفاء';
   } else {
     code.textContent = '••••••••••••••••••••••••';
-    btn.textContent = '👁️ Show';
+    btn.textContent = '👁️ عرض';
   }
 }
 </script>
@@ -175,31 +175,31 @@ function toggleApiKey() {
             <input dir="auto" type="number" id="topupالمبلغ" value="25" min="10" max="1000" step="1" />
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;">
-            <label style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;">ادفع بـ</label>
+            <label style="font-size:11px;color:#64748b;text-transform:uppercase;">ادفع بـ</label>
             <div class="coin-select" id="coinSelect">
                 <button class="coin-btn selected" data-coin="USDT">USDT (TRC20)</button>
                 <button class="coin-btn" data-coin="BTC">BTC</button>
                 <button class="coin-btn" data-coin="ETH">ETH</button>
                 <button class="coin-btn" data-coin="LTC">LTC</button>
                 <button class="coin-btn" data-coin="TRX">TRX</button>
-                <button class="coin-btn" data-coin="ANY">Other Crypto</button>
+                <button class="coin-btn" data-coin="ANY">عملات أخرى</button>
             </div>
         </div>
-        <button class="btn-topup" id="btnTopup" onclick="createTopup()">⚡ Pay Now</button>
+        <button class="btn-topup" id="btnTopup" onclick="createTopup()">⚡ ادفع الآن</button>
     </div>
 </div>
 
 <!-- Invoice Modal -->
 <div class="invoice-overlay" id="invoiceOverlay">
     <div class="invoice-modal">
-        <h2 id="invTitle">🪙 Send Payment</h2>
-        <p class="sub" id="invSub">Send exactly the amount shown below</p>
+        <h2 id="invTitle">🪙 إرسال الدفعة</h2>
+        <p class="sub" id="invSub">أرسل نفس المبلغ الموضح أدناه بالضبط</p>
         <div class="qr-placeholder">🏦</div>
         <div class="pay-amount" id="invالمبلغ">0.00 BTC</div>
-        <div class="pay-addr" id="invAddr">Loading...</div>
-        <p style="font-size:11px;color:#64748b;margin-bottom:16px;">Order: <span id="invOrder">---</span></p>
+        <div class="pay-addr" id="invAddr">جاري التحميل...</div>
+        <p style="font-size:11px;color:#64748b;margin-bottom:16px;">الطلب: <span id="invOrder">---</span></p>
         <div class="btn-row">
-            <a class="btn-pay" id="btnPayUrl" href="#" target="_blank">💳 Open Payment Page</a>
+            <a class="btn-pay" id="btnPayUrl" href="#" target="_blank">💳 افتح صفحة الدفع</a>
             <button class="btn-close" onclick="closeInvoice()">إغلاق</button>
         </div>
     </div>
@@ -218,13 +218,13 @@ function toggleApiKey() {
         </div>
         <div class="crypto-name">{{ coin.upper() }}</div>
         <div class="crypto-addr" title="{{ addr }}">{{ addr[:20] }}...{{ addr[-8:] }}</div>
-        <button class="btn" style="margin-top:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#94a3b8;cursor:pointer;font-size:11px;" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ Copied!';setTimeout(()=>this.innerHTML='📋 Copy',2000)">📋 Copy</button>
+        <button class="btn" style="margin-top:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#94a3b8;cursor:pointer;font-size:11px;" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)">📋 نسخ</button>
     </div>
     {% endif %}
     {% endfor %}
     {% if not has_addr %}
     <div class="crypto-card" style="grid-column:1/-1;padding:30px;text-align:center;color:#64748b;">
-        💳 Payment addresses will appear here after your first deposit request.
+        💳 ستظهر عناوين الدفع هنا بعد طلب الإيداع الأول لك.
     </div>
     {% endif %}
 </div>
@@ -234,7 +234,7 @@ function toggleApiKey() {
   <p>لديك بطاقة هدية أو كود ترويجي؟ أدخله أدناه لإضافة رصيد فوري إلى محفظتك.</p>
   <form class="redeem-form" method="POST" action="/redeem">
     <input dir="auto" class="redeem-input" type="text" name="code" placeholder="XXXX-XXXX-XXXX" required autocomplete="off" />
-    <button class="btn-redeem" type="submit">✨ Redeem</button>
+    <button class="btn-redeem" type="submit">✨ استرداد</button>
   </form>
 </div>
 
@@ -263,7 +263,7 @@ function toggleApiKey() {
 {% else %}
 <div style="text-align:center;padding:40px;color:#64748b;">
     <div style="font-size:48px;margin-bottom:12px;">💰</div>
-    <div>No transactions yet. Funds earned from referrals and campaigns will appear here.</div>
+    <div>لا توجد عمليات بعد. ستظهر الأموال المكتسبة من الإحالات والحملات هنا.</div>
 </div>
 {% endif %}
 
@@ -295,11 +295,11 @@ window.createTopup = async function(){
     var btn = document.getElementById('btnTopup');
     var amount = parseFloat(document.getElementById('topupالمبلغ').value);
     var selectedCoin = document.querySelector('#coinSelect .coin-btn.selected');
-    if (!selectedCoin) { alert('Please select a currency first'); return; }
+    if (!selectedCoin) { alert('الرجاء تحديد العملة أولاً'); return; }
     var coin = selectedCoin.dataset.coin;
-    if (!amount || amount < 10){ alert('Minimum $10.00'); return; }
+    if (!amount || amount < 10){ alert('الحد الأدنى 10.00$'); return; }
 
-    btn.disabled = true; btn.textContent = 'Creating...';
+    btn.disabled = true; btn.textContent = 'جاري الإنشاء...';
     try {
         var r = await fetch('/wallet/create-topup', {
             method:'POST', headers:{'Content-النوع':'application/json'},
@@ -309,22 +309,22 @@ window.createTopup = async function(){
         if (d.mode === 'nowpayments'){
             showInvoice(d);
         } else if (d.mode === 'static'){
-            alert('NOWPayments invoice failed. Use static addresses below.\n\n' + (d.message || ''));
+            alert('فشل إنشاء فاتورة NOWPayments. استخدم العناوين الثابتة أدناه.\n\n' + (d.message || ''));
         } else {
-            alert(d.error || 'Unknown error');
+            alert(d.error || 'خطأ غير معروف');
         }
     } catch(e){
-        alert('Connection error: ' + e.message);
+        alert('خطأ في الاتصال: ' + e.message);
     } finally {
-        btn.disabled = false; btn.textContent = '⚡ Pay Now';
+        btn.disabled = false; btn.textContent = '⚡ ادفع الآن';
     }
 };
 
 window.showInvoice = function(d){
-    document.getElementById('invTitle').textContent = '🪙 Complete Payment';
-    document.getElementById('invSub').textContent = 'Select your crypto on the NOWPayments page';
+    document.getElementById('invTitle').textContent = '🪙 أكمل الدفع';
+    document.getElementById('invSub').textContent = 'اختر عملتك الرقمية في صفحة NOWPayments';
     document.getElementById('invالمبلغ').textContent = '$' + d.amount_usd.toFixed(2) + ' USD';
-    document.getElementById('invAddr').textContent = 'Click below to open the secure payment page';
+    document.getElementById('invAddr').textContent = 'انقر أدناه لفتح صفحة الدفع الآمنة';
     document.getElementById('invOrder').textContent = d.order_id;
     document.getElementById('btnPayUrl').href = d.invoice_url;
     document.getElementById('invoiceOverlay').classList.add('show');

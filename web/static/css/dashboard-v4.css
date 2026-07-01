@@ -1117,3 +1117,8 @@ tr:hover td {
   .btn { padding: 10px 18px; font-size: 14px; }
   .tabs { overflow-x: auto; }
 }
+
+/* FIX: Arabic Shaping */
+[dir="rtl"] *, :lang(ar) *, :lang(ar) {
+    letter-spacing: normal !important;
+}

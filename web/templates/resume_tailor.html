@@ -20,7 +20,7 @@
   font-weight: 600;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  
   margin-bottom: 12px;
   display: flex;
   align-items: center;
@@ -156,7 +156,7 @@
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  
   border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 .diff-panel-header.original { background: rgba(239,68,68,0.08); color: #fca5a5; }
@@ -197,7 +197,7 @@
   font-weight: 500;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  
 }
 
 /* Keyword tags */
@@ -207,7 +207,7 @@
   font-weight: 600;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  
   margin-bottom: 8px;
 }
 .kw-added {
@@ -299,17 +299,17 @@
         }
       </style>
 
-<h1>🤖 AI Resume Tailoring</h1>
-<p class="subtitle">Paste your base resume and a job description — AI tailors your resume to match the job perfectly.</p>
+<h1>🤖 تخصيص السيرة الذاتية بالذكاء الاصطناعي</h1>
+<p class="subtitle">قم بلصق سيرتك الذاتية الأساسية والوصف الوظيفي — سيقوم الذكاء الاصطناعي بتخصيص سيرتك الذاتية لتطابق الوظيفة بشكل مثالي.</p>
 
 <div class="tailor-container">
   <!-- Left: Base Resume -->
   <div class="tailor-panel">
-    <h3>📄 Your Base Resume</h3>
+    <h3>📄 سيرتك الذاتية الأساسية</h3>
     <div class="file-drop" id="resume-drop" onclick="document.getElementById('tailor-resume').focus()">
-      📎 Drop your resume file here or click to paste text below
+      📎 أسقط ملف سيرتك الذاتية هنا أو انقر للصق النص أدناه
     </div>
-    <textarea dir="auto" id="tailor-resume" placeholder="Paste your full resume / CV text here...
+    <textarea dir="auto" id="tailor-resume" placeholder="الصق نص سيرتك الذاتية بالكامل هنا...
 
 SAM SALAMEH
 Senior Network Engineer | CCNA, Fortinet NSE, MikroTik MTCNA
@@ -321,8 +321,8 @@ PROFESSIONAL SUMMARY
 
   <!-- Right: Job Description -->
   <div class="tailor-panel">
-    <h3>🎯 Target Job Description</h3>
-    <textarea dir="auto" id="tailor-job" placeholder="Paste the job description you want to tailor for...
+    <h3>🎯 الوصف الوظيفي المستهدف</h3>
+    <textarea dir="auto" id="tailor-job" placeholder="الصق الوصف الوظيفي الذي تريد التخصيص له...
 
 Network Engineer — Beirut, Lebanon
 
@@ -332,7 +332,7 @@ Requirements:
 • Strong BGP, OSPF, MPLS knowledge
 • Fortinet firewall experience
 ..."></textarea>
-    <input dir="auto" type="text" id="tailor-job-title" placeholder="Job title (optional, helps AI context)"
+    <input dir="auto" type="text" id="tailor-job-title" placeholder="المسمى الوظيفي (اختياري، يساعد في سياق الذكاء الاصطناعي)"
       style="margin-top:10px;width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e2e8f0;font-size:13px;font-family: 'Cairo', 'Inter',sans-serif;">
   </div>
 </div>
@@ -341,16 +341,16 @@ Requirements:
 <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
   <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#94a3b8;">
     <input dir="auto" type="checkbox" id="tailor-premium" style="accent-color:#f59e0b;">
-    <span>✨ <strong style="color:#fbbf24;">Premium Mode</strong> — Enhanced tailoring with cover letter generation</span>
+    <span>✨ <strong style="color:#fbbf24;">الوضع المميز</strong> — تخصيص متقدم مع إنشاء رسالة تغطية</span>
   </label>
 </div>
 
 <!-- Actions -->
 <div class="tailor-actions">
   <button class="btn btn-ai" onclick="tailorResume()" id="btn-tailor" style="font-size:16px;padding:13px 28px;">
-    🤖 Tailor My Resume
+    🤖 تخصيص سيرتي الذاتية
   </button>
-  <span style="color:#64748b;font-size:12px;">⚡ AI-powered customization — takes ~10 seconds</span>
+  <span style="color:#64748b;font-size:12px;">⚡ تخصيص مدعوم بالذكاء الاصطناعي — يستغرق حوالي 10 ثوانٍ</span>
 </div>
 
 <!-- Error -->
@@ -359,7 +359,7 @@ Requirements:
 <!-- Loading -->
 <div class="tailor-loading" id="tailor-loading">
   <div class="tailor-spinner"></div>
-  <div style="color:#94a3b8;font-size:14px;">AI is tailoring your resume... matching keywords, optimizing bullet points...</div>
+  <div style="color:#94a3b8;font-size:14px;">يقوم الذكاء الاصطناعي بتخصيص سيرتك الذاتية... مطابقة الكلمات المفتاحية، تحسين النقاط...</div>
 </div>
 
 <!-- Results -->
@@ -369,26 +369,26 @@ Requirements:
 
   <!-- Added/Removed keywords -->
   <div class="keywords-section" id="keywords-section" style="display:none;">
-    <h4>🔑 Keywords Added</h4>
+    <h4>🔑 الكلمات المفتاحية المضافة</h4>
     <div id="kw-added-list"></div>
-    <h4 style="margin-top:12px;">🗑️ Rephrased / Removed</h4>
+    <h4 style="margin-top:12px;">🗑️ تمت إعادة صياغتها / إزالتها</h4>
     <div id="kw-removed-list"></div>
   </div>
 
   <!-- Diff toggle -->
   <div class="diff-toggle-bar">
-    <button class="diff-toggle-btn active" onclick="switchView('tailored')" id="toggle-tailored">📝 Tailored Resume</button>
-    <button class="diff-toggle-btn" onclick="switchView('diff')" id="toggle-diff">🔄 Side-by-Side Diff</button>
+    <button class="diff-toggle-btn active" onclick="switchView('tailored')" id="toggle-tailored">📝 السيرة الذاتية المخصصة</button>
+    <button class="diff-toggle-btn" onclick="switchView('diff')" id="toggle-diff">🔄 مقارنة جنباً إلى جنب</button>
   </div>
 
   <!-- Side-by-side diff -->
   <div class="diff-panels" id="diff-panels" style="display:none;">
     <div class="diff-panel">
-      <div class="diff-panel-header original">📄 Original Resume</div>
+      <div class="diff-panel-header original">📄 السيرة الذاتية الأصلية</div>
       <div class="diff-panel-body" id="diff-original"></div>
     </div>
     <div class="diff-panel">
-      <div class="diff-panel-header tailored">✨ Tailored Resume</div>
+      <div class="diff-panel-header tailored">✨ السيرة الذاتية المخصصة</div>
       <div class="diff-panel-body" id="diff-tailored"></div>
     </div>
   </div>
@@ -396,10 +396,10 @@ Requirements:
   <!-- Full tailored output -->
   <div class="tailor-output-panel" id="tailored-panel">
     <div class="tailor-output-header">
-      <h3>✨ Your Tailored Resume</h3>
+      <h3>✨ سيرتك الذاتية المخصصة</h3>
       <div class="tailor-output-actions">
-        <button class="btn btn-outline btn-sm" onclick="copyToClipboard()">📋 Copy</button>
-        <button class="btn btn-primary btn-sm" onclick="downloadAsPDF()">📥 Download PDF</button>
+        <button class="btn btn-outline btn-sm" onclick="copyToClipboard()">📋 نسخ</button>
+        <button class="btn btn-primary btn-sm" onclick="downloadAsPDF()">📥 تحميل بصيغة PDF</button>
       </div>
     </div>
     <div class="tailor-output-body" id="tailored-output"></div>
@@ -489,19 +489,19 @@ function displayResults(data) {
   document.getElementById('changes-cards').innerHTML = `
     <div class="change-card">
       <div class="change-value">${matchScore}%</div>
-      <div class="change-label">ATS Match Score</div>
+      <div class="change-label">درجة مطابقة ATS</div>
     </div>
     <div class="change-card">
       <div class="change-value">+${keywordsAdded}</div>
-      <div class="change-label">Keywords Added</div>
+      <div class="change-label">الكلمات المفتاحية المضافة</div>
     </div>
     <div class="change-card">
       <div class="change-value">${bulletPoints}</div>
-      <div class="change-label">Bullet Points Optimized</div>
+      <div class="change-label">النقاط المحسنة</div>
     </div>
     <div class="change-card">
       <div class="change-value">${wordDiff >= 0 ? '+' + wordDiff : wordDiff}</div>
-      <div class="change-label">Word Count Change</div>
+      <div class="change-label">تغيير عدد الكلمات</div>
     </div>
   `;
 
@@ -531,9 +531,9 @@ function displayResults(data) {
   // Meta
   const model = data.model || 'llama-3.1-8b-instant';
   document.getElementById('tailor-meta').innerHTML = `
-    <span class="tailor-meta-item">🤖 Model: <strong>${escapeHtml(model)}</strong></span>
-    <span class="tailor-meta-item">📊 Match: <strong>${matchScore}%</strong></span>
-    <span class="tailor-meta-item">📝 Job: <strong>${escapeHtml(data.job_title || 'Custom')}</strong></span>
+    <span class="tailor-meta-item">🤖 النموذج: <strong>${escapeHtml(model)}</strong></span>
+    <span class="tailor-meta-item">📊 التطابق: <strong>${matchScore}%</strong></span>
+    <span class="tailor-meta-item">📝 الوظيفة: <strong>${escapeHtml(data.job_title || 'مخصص')}</strong></span>
   `;
 
   // Reset to tailored view

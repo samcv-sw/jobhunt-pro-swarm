@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <title>{{ title | default('JobHunt Pro') }}</title>
@@ -69,7 +69,7 @@
  background: linear-gradient(135deg, var(--cyan), var(--magenta));
  -webkit-background-clip: text;
  -webkit-text-fill-color: transparent;
- letter-spacing: 1px;
+ 
  }
  .nav-links { display: flex; gap: 24px; align-items: center; }
  .nav-links a {
@@ -107,7 +107,7 @@
  color: var(--cyan);
  font-size: 12px;
  font-weight: 600;
- letter-spacing: 1px;
+ 
  text-transform: uppercase;
  margin-bottom: 20px;
  }
@@ -116,7 +116,7 @@
  font-weight: 900;
  line-height: 1.15;
  margin-bottom: 16px;
- letter-spacing: -1px;
+ 
  }
  .hero h1 .cyan { color: var(--cyan); }
  .hero h1 .magenta { color: var(--magenta); }
@@ -146,7 +146,7 @@
  font-size: 12px;
  color: var(--muted);
  text-transform: uppercase;
- letter-spacing: 1px;
+ 
  margin-top: 4px;
  }
 
@@ -168,7 +168,7 @@
  border-radius: 4px;
  font-size: 11px;
  font-weight: 700;
- letter-spacing: 2px;
+ 
  text-transform: uppercase;
  font-family: var(--mono);
  margin-bottom: 12px;
@@ -222,7 +222,7 @@
  font-size: 10px;
  font-weight: 700;
  text-transform: uppercase;
- letter-spacing: 1px;
+ 
  font-family: var(--mono);
  margin-bottom: 8px;
  display: block;
@@ -272,7 +272,7 @@
  font-size: 10px;
  color: var(--muted);
  text-transform: uppercase;
- letter-spacing: 1px;
+ 
  }
  .price-value {
  font-size: 28px;
@@ -293,7 +293,7 @@
  transition: all 0.3s;
  text-decoration: none;
  display: inline-block;
- letter-spacing: 0.5px;
+ 
  text-transform: uppercase;
  }
  .btn-buy-micro {
@@ -339,7 +339,7 @@
  font-weight: 800;
  padding: 4px 30px;
  transform: rotate(45deg);
- letter-spacing: 1px;
+ 
  }
  .bouquet-card h3 {
  font-size: 20px;
@@ -396,7 +396,7 @@
  transition: all 0.3s;
  text-decoration: none;
  text-transform: uppercase;
- letter-spacing: 0.5px;
+ 
  }
  .btn-bouquet:hover {
  box-shadow: 0 0 25px rgba(255,0,85,0.3);
@@ -763,7 +763,7 @@
 <!-- Hero -->
 <section class="hero">
  <div class="hero-badge">تسليم آلي فوري</div>
- <h1>مميزة Job Search<br><span class="cyan">خدمات</span><span class="magenta">$2 to $20</span></h1>
+ <h1>خدمات <span class="cyan">البحث عن عمل</span><br><span class="magenta">من $2 إلى $20</span></h1>
  <p>عزز بحثك عن عمل بأدوات الذكاء الاصطناعي. ادفع مرة واحدة عبر العملات المشفرة، واستلم طلباتك فوراً عبر الإيميل. لا اشتراكات، ولا رسوم مخفية.</p>
  <div class="hero-stats">
  <div class="hero-stat">
@@ -788,14 +788,14 @@
 <!-- TIER 1: MICRO ($2-$5) -->
 <section class="section" id="micro">
  <div class="section-header">
- <div class="section-tag tag-micro">Tier 1: مصغرة</div>
+ <div class="section-tag tag-micro">المستوى 1: مصغرة</div>
  <h2>مكاسب سريعة — <span style="color:var(--cyan);">$2 إلى $5</span></h2>
- <p class="section-desc">فوري digital deliverables to level up your job search in minutes.</p>
+ <p class="section-desc">تسليم رقمي فوري لترقية بحثك عن عمل في دقائق.</p>
  </div>
  <div class="service-grid">
  {% for s in micro %}
  <div class="service-card" style="border-top-color:var(--cyan);">
- <span class="card-tag tag-micro">فوري تسليم</span>
+ <span class="card-tag tag-micro">تسليم فوري</span>
  <h3>{{ s.name }}</h3>
  <p>{{ s.description }}</p>
  <ul class="features-list">
@@ -878,7 +878,7 @@
 <!-- BOUQUETS -->
 <section class="section" id="bouquets">
  <div class="section-header">
- <div class="section-tag tag-premium">Value باقات</div>
+ <div class="section-tag tag-premium">باقات قيّمة</div>
  <h2>باقات <span class="magenta">متكاملة</span></h2>
  <p class="section-desc">جمع خدمات متعددة بخصم. قوة أكبر، تكلفة أقل.</p>
  </div>
@@ -920,8 +920,8 @@
  </div>
  <div class="step-card">
  <div class="step-number">2</div>
- <h3>Pay via كريبتو</h3>
- <p>Send BTC, ETH, USDT, or LTC to the generated address. فوري confirmation.</p>
+ <h3>ادفع بالكريبتو</h3>
+ <p>أرسل BTC، ETH، USDT، أو LTC للعنوان المولد. تأكيد فوري.</p>
  </div>
  <div class="step-card">
  <div class="step-number">3</div>
@@ -931,7 +931,7 @@
  </div>
 
  <div style="text-align:center; margin-top: 40px;">
- <div style="color:var(--muted); font-size:15px; margin-bottom: 12px;">Accepted كريبتوcurrencies</div>
+ <div style="color:var(--muted); font-size:15px; margin-bottom: 12px;">العملات الرقمية المقبولة</div>
  <div class="payment-methods">
  <span class="payment-badge">BTC</span>
  <span class="payment-badge">ETH</span>
@@ -1002,7 +1002,7 @@
 
  <div class="modal-error" id="modalError">Error message here</div>
 
- <button type="submit" class="btn-submit" id="submitBtn">Continue to دفع</button>
+ <button type="submit" class="btn-submit" id="submitBtn">المتابعة للدفع</button>
  </form>
  </div>
 </div>

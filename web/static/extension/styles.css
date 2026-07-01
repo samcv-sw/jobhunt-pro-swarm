@@ -20,7 +20,7 @@
   cursor: pointer;
   box-shadow: 0 4px 24px rgba(59, 130, 246, 0.4), 0 0 60px rgba(139, 92, 246, 0.25);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  letter-spacing: 0.3px;
+  
   animation: jh-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -60,7 +60,7 @@
   font-size: 10px;
   font-weight: 400;
   opacity: 0.75;
-  letter-spacing: 0.5px;
+  
 }
 
 /* Settings Modal */
@@ -114,7 +114,7 @@
   font-weight: 600;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  
   margin-bottom: 6px;
 }
 

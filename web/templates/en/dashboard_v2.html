@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Monitor your AI job campaigns in real time.">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Dashboard — JobHunt Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<!-- Dashboard content rendered inside _build_dashboard_shell -->
+<style>
+/* ═══════════════════════════════════════════
+   DASHBOARD v8 — Ultra Premium SaaS (Dark Slate & Neon)
+   ═══════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg-main: #0B0F19;
+  --bg-card: rgba(18, 24, 38, 0.7);
+  --bg-card-hover: rgba(26, 35, 50, 0.9);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glass-hover: rgba(255, 255, 255, 0.15);
+  
+  --accent-primary: #6366F1; /* Indigo */
+  --accent-secondary: #EC4899; /* Pink */
+  --accent-success: #10B981; /* Emerald */
+  --accent-warning: #F59E0B; /* Amber */
+  --accent-danger: #EF4444; /* Rose */
+  
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-dark: #334155;
+  
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+  --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+}
+
+body {
+  background-color: var(--bg-main);
+  background-image: 
+    radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+  background-attachment: fixed;
+  font-family: var(--font-sans);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+}
+
+/* Animations */
+@keyframes fadeSlideUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 10px rgba(99, 102, 241, 0.2); }
+  50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.5); }
+  100% { box-shadow: 0 0 10px rgba(99, 102, 241, 0.2); }
+}
+
+.dashboard-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Generic Glass Card ── */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-glass);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: var(--shadow-card);
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card:hover {
+  border-color: var(--border-glass-hover);
+  transform: translateY(-4px);
+  background: var(--bg-card-hover);
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.glass-card:hover::before {
+  opacity: 1;
+}
+
+/* ── Hero Section ── */
+.hero-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(30,30,50,0.8) 0%, rgba(15,15,25,0.9) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 40px rgba(99, 102, 241, 0.1);
+}
+
+.hero-content h1 {
+  font-size: 36px;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  background: linear-gradient(to right, #fff, #a5b4fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
+}
+
+.hero-content p {
+  color: var(--text-muted);
+  font-size: 16px;
+  margin: 0;
+  max-width: 500px;
+}
+
+/* ── Badge & Premium Tag ── */
+.badge-premium {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.2));
+  border: 1px solid rgba(236, 72, 153, 0.4);
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #fbcfe8;
+  animation: pulseGlow 3s infinite;
+}
+
+/* ── Grid Layouts ── */
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .grid-4, .grid-3 { grid-template-columns: 1fr; }
+  .hero-section { flex-direction: column; align-items: flex-start; gap: 24px; }
+}
+
+/* ── Stat Boxes ── */
+.stat-box {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-value {
+  font-size: 42px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  line-height: 1;
+}
+
+.stat-trend.up { color: var(--accent-success); }
+.stat-trend.down { color: var(--accent-danger); }
+
+/* ── Action Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-family: var(--font-sans);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-primary), #818CF8);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #4F46E5, var(--accent-primary));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
+}
+
+.btn-microsoft {
+  background: #0078D4;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0, 120, 212, 0.3);
+}
+.btn-microsoft:hover {
+  background: #005a9e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 120, 212, 0.5);
+}
+
+.btn-google {
+  background: #fff;
+  color: #333;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+.btn-google:hover {
+  background: #f1f5f9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+}
+
+/* ── Lists & Tables ── */
+.glass-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.glass-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.02);
+  transition: background 0.3s;
+}
+
+.glass-list-item:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── Connect Account Banner ── */
+.smtp-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 30px;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-left: 4px solid var(--accent-success);
+  border-radius: 16px;
+}
+
+/* ── Chart Container ── */
+.chart-container {
+  height: 300px;
+  width: 100%;
+  margin-top: 20px;
+}
+</style>
+</head>
+<body class="dashboard-body">
+
+
+<div class="dashboard-container">
+  
+  <!-- HERO WELCOME -->
+  <div class="glass-card hero-section">
+    <div class="hero-content">
+      <h1>Welcome back, {{ user.name.split(' ')[0] if user.name else 'Hunter' }}</h1>
+      <p>Your AI agents are actively hunting and negotiating the best roles for you. You currently have 
+        <strong style="color:var(--accent-primary)">{{ stats.emails_sent }}</strong> active applications in the market.</p>
+    </div>
+    
+    <div class="hero-actions">
+      {% if 'microsoft' in (user.get('oauth_provider') or '') %}
+        <div class="badge-premium" style="border-color: #0078D4; color: #60A5FA;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zm12.6 0H12.6V0H24v11.4z"/></svg>
+          Microsoft Connected
+        </div>
+      {% elif 'google' in (user.get('oauth_provider') or '') %}
+        <div class="badge-premium" style="border-color: #34A853; color: #86EFAC;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google Connected
+        </div>
+      {% else %}
+        <div class="badge-premium">
+          <span>⭐</span> Premium Services Active
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- CONNECT SMTP BANNER (Cost Savings feature requested by user) -->
+  {% if not user.get('oauth_provider') %}
+  <div class="smtp-banner">
+    <div>
+      <h3 style="margin:0 0 5px 0; color:#fff;">Activate Premium AI Inbox Delivery</h3>
+      <p style="margin:0; color:var(--text-muted); font-size:14px;">Connect your professional email account. Our AI will automatically optimize your sending patterns and utilize dedicated IP routing to guarantee the highest employer response rates.</p>
+    </div>
+    <div style="display:flex; gap:12px;">
+      <a href="/oauth/microsoft/login" class="btn btn-microsoft">Connect Microsoft</a>
+      <a href="/oauth/google/login" class="btn btn-google">Connect Google</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- KPI STATS GRID -->
+  <div class="grid-4">
+    <div class="glass-card stat-box">
+      <div class="stat-header">
+        <span>Active Applications</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-primary)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+      </div>
+      <div class="stat-value">{{ stats.emails_sent }}</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Sent across platforms</div>
+    </div>
+    
+    <div class="glass-card stat-box">
+      <div class="stat-header">
+        <span>Match Rate</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-success)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      </div>
+      <div class="stat-value">92%</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">High compatibility roles</div>
+    </div>
+    
+    <div class="glass-card stat-box">
+      <div class="stat-header">
+        <span>Tokens Saved</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-secondary)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+      </div>
+      <div class="stat-value">12.5k</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Via Local Resume Trimmer</div>
+    </div>
+
+    <div class="glass-card stat-box">
+      <div class="stat-header">
+        <span>Time Saved</span>
+        <svg width="24" height="24" fill="none" stroke="var(--accent-warning)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      </div>
+      <div class="stat-value" style="font-size: 32px; padding: 5px 0;">
+        {% set total_mins = (stats.emails_sent | default(0)) * 2 %}
+        {% if total_mins >= 60 %}
+          {{ total_mins // 60 }}h{{ total_mins % 60 }}m
+        {% else %}
+          {{ total_mins }}m
+        {% endif %}
+      </div>
+      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Automation equivalent</div>
+    </div>
+  </div>
+
+  <!-- MAIN TWO-COLUMN SECTION -->
+  <div class="grid-2">
+    <!-- Left Col: Pipeline Chart -->
+    <div class="glass-card">
+      <h2 style="margin:0 0 24px 0; font-size:20px; font-weight:600;">Application Pipeline Conversion</h2>
+      <div class="chart-container">
+        <canvas id="pipelineChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Right Col: Premium Weapons & Recent Activity -->
+    <div style="display:flex; flex-direction:column; gap:24px;">
+      
+      <!-- Premium Status -->
+      <div class="glass-card" style="padding: 24px; background: linear-gradient(to bottom right, rgba(99, 102, 241, 0.1), rgba(18, 24, 38, 0.8));">
+        <h3 style="margin:0 0 16px 0; font-size:16px; color:#a5b4fc; text-transform:uppercase; letter-spacing:1px;">Active Arsenal</h3>
+        {% set total_weapons = 0 %}
+        {% for c in campaigns %}
+          {% set total_weapons = total_weapons + (c.premium_weapons|default(0)|int) %}
+        {% endfor %}
+        
+        {% if total_weapons > 0 %}
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+            <div style="font-size:36px;">🔫</div>
+            <div>
+              <div style="font-size:24px; font-weight:700; color:#fff;">{{ total_weapons }} Weapons Active</div>
+              <div style="color:var(--accent-success); font-size:13px;">Bypassing rate limits & prioritizing delivery</div>
+            </div>
+          </div>
+        {% else %}
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+            <div style="font-size:36px; opacity:0.5;">🔒</div>
+            <div>
+              <div style="font-size:20px; font-weight:600; color:#fff;">No Weapons Equipped</div>
+              <div style="color:var(--text-muted); font-size:13px;">Standard delivery queue</div>
+            </div>
+          </div>
+          <a href="/services" class="btn btn-primary" style="width:100%; padding:10px;">Visit Arsenal</a>
+        {% endif %}
+      </div>
+
+      <!-- Recent Live Applications -->
+      <div class="glass-card" style="flex: 1; display:flex; flex-direction:column;">
+        <h3 style="margin:0 0 16px 0; font-size:18px;">Recent Dispatches</h3>
+        {% if pipeline_emails %}
+          <ul class="glass-list" style="flex:1; overflow-y:auto; max-height:200px;">
+            {% for email in pipeline_emails[:4] %}
+            <li class="glass-list-item" style="padding: 12px;">
+              <div>
+                <div style="color:#fff; font-weight:600; font-size:14px;">{{ email.company_name }}</div>
+                <div style="color:var(--text-muted); font-size:12px;">{{ email.job_title }}</div>
+              </div>
+              <div>
+                {% if email.status in ('brevo_failed', 'gmail_failed', 'failed') %}
+                  <span style="background:rgba(239, 68, 68, 0.2); color:var(--accent-danger); padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;">FAILED</span>
+                {% elif email.pipeline_stage == 'interview' %}
+                  <span style="background:rgba(16, 185, 129, 0.2); color:var(--accent-success); padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;">INTERVIEW</span>
+                {% elif email.opened_at %}
+                  <span style="background:rgba(245, 158, 11, 0.2); color:var(--accent-warning); padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;">OPENED</span>
+                {% else %}
+                  <span style="background:rgba(99, 102, 241, 0.2); color:var(--accent-primary); padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;">DELIVERED</span>
+                {% endif %}
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div style="text-align:center; padding:40px 0; color:var(--text-muted);">
+            <p>No applications dispatched yet.</p>
+            <a href="/new-campaign" class="btn btn-primary">Start Campaign</a>
+          </div>
+        {% endif %}
+      </div>
+      
+    </div>
+  </div>
+
+</div>
+
+<!-- CHART.JS LOGIC -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const ctx = document.getElementById('pipelineChart');
+  if(!ctx) return;
+  
+  // Create gradient
+  const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+  gradient.addColorStop(0, 'rgba(99, 102, 241, 0.8)');
+  gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Discovered', 'Applied', 'Followed Up', 'Interviewing', 'Offers'],
+      datasets: [{
+        label: 'Candidates',
+        data: [
+          {{ pipeline_counts.discovered | default(0) }},
+          {{ pipeline_counts.applied | default(0) }},
+          {{ pipeline_counts.followed_up | default(0) }},
+          {{ pipeline_counts.interview | default(0) }},
+          {{ pipeline_counts.offer | default(0) }}
+        ],
+        backgroundColor: gradient,
+        borderColor: '#6366F1',
+        borderWidth: 2,
+        borderRadius: 8,
+        barPercentage: 0.6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.9)',
+          titleColor: '#fff',
+          bodyColor: '#cbd5e1',
+          padding: 12,
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+          ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#94a3b8', font: { family: 'Inter', size: 13, weight: '500' } }
+        }
+      },
+      animation: {
+        duration: 2000,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>

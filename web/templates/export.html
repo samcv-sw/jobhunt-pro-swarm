@@ -21,26 +21,26 @@
 }
 </style>
 
-<h1>📥 Export Applications</h1>
-<p class="subtitle">Filter by date range, status, and format before downloading your data.</p>
+<h1>📥 تصدير الطلبات</h1>
+<p class="subtitle">تصفية حسب النطاق الزمني، الحالة، والصيغة قبل تنزيل بياناتك.</p>
 
 <!-- 📅 DATE RANGE -->
 <div class="card">
-  <div class="card-title">📅 Date Range</div>
+  <div class="card-title">📅 النطاق الزمني</div>
   <div class="pill-group" id="pills">
-    <button class="pill" onclick="setPreset(1,this)">Today</button>
-    <button class="pill" onclick="setPreset(7,this)">Last 7 Days</button>
-    <button class="pill active" onclick="setPreset(30,this)">Last 30 Days</button>
-    <button class="pill" onclick="setPreset(90,this)">Last 90 Days</button>
-    <button class="pill" onclick="setPreset(0,this)">📅 All Time</button>
+    <button class="pill" onclick="setPreset(1,this)">اليوم</button>
+    <button class="pill" onclick="setPreset(7,this)">آخر 7 أيام</button>
+    <button class="pill active" onclick="setPreset(30,this)">آخر 30 يوم</button>
+    <button class="pill" onclick="setPreset(90,this)">آخر 90 يوم</button>
+    <button class="pill" onclick="setPreset(0,this)">📅 كل الوقت</button>
   </div>
   <div class="row">
     <div class="form-group">
-      <label>From Date</label>
+      <label>من تاريخ</label>
       <input dir="auto" type="date" id="from_date">
     </div>
     <div class="form-group">
-      <label>To Date</label>
+      <label>إلى تاريخ</label>
       <input dir="auto" type="date" id="to_date">
     </div>
   </div>
@@ -48,25 +48,25 @@
 
 <!-- 🔧 FILTERS -->
 <div class="card">
-  <div class="card-title">🔧 Filters</div>
+  <div class="card-title">🔧 التصفية</div>
   <div class="row">
     <div class="form-group">
-      <label>Status Filter</label>
+      <label>تصفية الحالة</label>
       <select id="status_filter">
-        <option value="all">📋 All Statuses</option>
-        <option value="sent">✉️ Sent</option>
-        <option value="opened">👁️ Opened</option>
-        <option value="responded">✅ Responded</option>
-        <option value="interview">🎤 Interview</option>
-        <option value="offer">🎯 Offer</option>
-        <option value="failed">❌ Failed / Bounced</option>
+        <option value="all">📋 جميع الحالات</option>
+        <option value="sent">✉️ مُرسل</option>
+        <option value="opened">👁️ تم الفتح</option>
+        <option value="responded">✅ تم الرد</option>
+        <option value="interview">🎤 مقابلة</option>
+        <option value="offer">🎯 عرض وظيفي</option>
+        <option value="failed">❌ فشل / ارتد</option>
       </select>
     </div>
     <div class="form-group">
-      <label>Export Format</label>
+      <label>صيغة التصدير</label>
       <select id="format">
-        <option value="csv">📊 CSV (Excel)</option>
-        <option value="json">🔧 JSON (Developer)</option>
+        <option value="csv">📊 CSV (إكسل)</option>
+        <option value="json">🔧 JSON (للمطورين)</option>
       </select>
     </div>
   </div>
@@ -74,25 +74,25 @@
 
 <!-- 📦 EXPORT OPTIONS -->
 <div class="card">
-  <div class="card-title">📦 What to Export</div>
+  <div class="card-title">📦 ماذا تريد أن تصدر</div>
   <label class="export-option">
     <input dir="auto" type="radio" name="exportType" value="applications" checked onchange="updateExportType(this.value)">
     <div class="opt-info">
-      <div class="opt-title">📩 Job Applications</div>
-      <div class="opt-desc">All your sent applications with status, company, and tracking info</div>
+      <div class="opt-title">📩 طلبات التوظيف</div>
+      <div class="opt-desc">جميع طلباتك المُرسلة مع الحالة، الشركة، ومعلومات التتبع</div>
     </div>
   </label>
   <label class="export-option">
     <input dir="auto" type="radio" name="exportType" value="jobs" onchange="updateExportType(this.value)">
     <div class="opt-info">
-      <div class="opt-title">🏢 Posted Jobs</div>
-      <div class="opt-desc">Jobs you've posted as an employer (views, applications, status)</div>
+      <div class="opt-title">🏢 الوظائف المنشورة</div>
+      <div class="opt-desc">الوظائف التي نشرتها كصاحب عمل (المشاهدات، الطلبات، الحالة)</div>
     </div>
   </label>
 </div>
 
 <!-- ⬇️ DOWNLOAD -->
-<button class="btn btn-export" onclick="doExport()">⬇️ Download Export</button>
+<button class="btn btn-export" onclick="doExport()">⬇️ تنزيل التصدير</button>
 
 <div class="toast" id="toast"></div>
 
@@ -112,9 +112,9 @@ function updateExportType(type) {
   currentExportType = type;
   var opts;
   if (type === 'jobs') {
-    opts = '<option value="all">📋 All Statuses</option><option value="active">✅ Active</option><option value="expired">⏰ Expired</option><option value="draft">📝 Draft</option>';
+    opts = '<option value="all">📋 جميع الحالات</option><option value="active">✅ نشط</option><option value="expired">⏰ منتهي</option><option value="draft">📝 مسودة</option>';
   } else {
-    opts = '<option value="all">📋 All Statuses</option><option value="sent">✉️ Sent</option><option value="opened">👁️ Opened</option><option value="responded">✅ Responded</option><option value="interview">🎤 Interview</option><option value="offer">🎯 Offer</option><option value="failed">❌ Failed / Bounced</option>';
+    opts = '<option value="all">📋 جميع الحالات</option><option value="sent">✉️ مُرسل</option><option value="opened">👁️ تم الفتح</option><option value="responded">✅ تم الرد</option><option value="interview">🎤 مقابلة</option><option value="offer">🎯 عرض وظيفي</option><option value="failed">❌ فشل / ارتد</option>';
   }
   document.getElementById('status_filter').innerHTML = opts;
 }

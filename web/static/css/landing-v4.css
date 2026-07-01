@@ -763,3 +763,13 @@ ul { list-style: none; }
   .feature-card { padding: 20px 16px; }
   .trust-grid { grid-template-columns: 1fr; max-width: 280px; margin: 0 auto; }
 }
+
+/* FIX: Arabic Shaping */
+[dir="rtl"] *, :lang(ar) *, :lang(ar) {
+    letter-spacing: normal !important;
+}
+
+/* Fix Hero Spacing */
+.hero {
+    padding-top: 140px !important; 
+}

@@ -1,12 +1,4 @@
-﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>User Detail — Admin</title>
- <style>
+<style>
  * { margin:0; padding:0; box-sizing:border-box; }
  body { font-family: 'Cairo', 'Segoe UI',sans-serif; background:#0a0a0f; color:#e2e8f0; }
  .topbar { background:linear-gradient(90deg,#7c3aed,#2563eb); padding:16px 32px; display:flex; justify-content:space-between; align-items:center; }
@@ -33,26 +25,21 @@
  .btn-green { background:#16a34a; color:#fff; }
  input[type=number],input[type=text] { padding:8px 12px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:8px; color:#fff; font-size:13px; }
  </style>
-</head>
-<body class="cyberpunk-body">
-<div class="topbar">
- <h1>&#x1F464; User: {{ user.email }}</h1>
- <a href="/admin">&#x2190; Back to Admin</a>
-</div>
+
 <div class="container">
 
  <!-- User Info -->
  <div class="card">
- <h2>User Info</h2>
+ <h2>معلومات المستخدم</h2>
  <div class="info-grid">
- <div class="info-item"><label>Name</label><span>{{ user.name or '—' }}</span></div>
- <div class="info-item"><label>Email</label><span class="blue">{{ user.email }}</span></div>
- <div class="info-item"><label>Type</label><span>{{ user.user_type }}</span></div>
- <div class="info-item"><label>💰 Wallet</label><span class="green">${{ "%.2f"|format(user.wallet_balance or 0) }}</span></div>
- <div class="info-item"><label>Total Spent</label><span>${{ "%.2f"|format(user.total_spent or 0) }}</span></div>
- <div class="info-item"><label>Status</label><span>{% if user.is_active %}<span class="badge badge-green">Active</span>{% else %}<span class="badge badge-red">Disabled</span>{% endif %}</span></div>
- <div class="info-item"><label>Joined</label><span class="mono">{{ (user.created_at or '')[:16] }}</span></div>
- <div class="info-item"><label>API Key</label><span class="mono" style="font-size:11px;">{{ (user.api_key or '')[:24] }}...</span></div>
+ <div class="info-item"><label>الاسم</label><span>{{ user.name or '—' }}</span></div>
+ <div class="info-item"><label>البريد الإلكتروني</label><span class="blue">{{ user.email }}</span></div>
+ <div class="info-item"><label>النوع</label><span>{{ user.user_type }}</span></div>
+ <div class="info-item"><label>💰 المحفظة</label><span class="green">${{ "%.2f"|format(user.wallet_balance or 0) }}</span></div>
+ <div class="info-item"><label>إجمالي المنفق</label><span>${{ "%.2f"|format(user.total_spent or 0) }}</span></div>
+ <div class="info-item"><label>الحالة</label><span>{% if user.is_active %}<span class="badge badge-green">نشط</span>{% else %}<span class="badge badge-red">معطل</span>{% endif %}</span></div>
+ <div class="info-item"><label>تاريخ الانضمام</label><span class="mono">{{ (user.created_at or '')[:16] }}</span></div>
+ <div class="info-item"><label>مفتاح API</label><span class="mono" style="font-size:11px;">{{ (user.api_key or '')[:24] }}...</span></div>
  </div>
 
  <!-- Quick add credits -->
@@ -60,7 +47,7 @@
  <form method="POST" action="/admin/add-credits" style="display:flex; gap:8px; align-items:center;">
  <input dir="auto" type="hidden" name="target_email" value="{{ user.email }}">
  <input dir="auto" type="number" name="amount" placeholder="$" step="0.01" min="0.01" style="width:100px;">
- <input dir="auto" type="text" name="note" value="Admin credit" style="width:150px;">
+ <input dir="auto" type="text" name="note" value="رصيد إداري" style="width:150px;">
  <button type="submit" class="btn btn-green">+ إضافة رصيد</button>
  </form>
  </div>
@@ -68,10 +55,10 @@
 
  <!-- Campaigns -->
  <div class="card">
- <h2>Campaigns ({{ campaigns|length }})</h2>
+ <h2>الحملات ({{ campaigns|length }})</h2>
  <div class="table-wrap">
  <table class="cyber-table">
- <thead><tr><th>ID</th><th>Status</th><th>Companies</th><th>المرسلة</th><th>Date</th></tr></thead>
+ <thead><tr><th>المعرف</th><th>الحالة</th><th>الشركات</th><th>المرسلة</th><th>التاريخ</th></tr></thead>
  <tbody>
  {% for c in campaigns %}
  <tr>
@@ -82,7 +69,7 @@
  <td class="mono">{{ (c.created_at or '')[:16] }}</td>
  </tr>
  {% endfor %}
- {% if not campaigns %}<tr><td colspan="5" style="color:#64748b;text-align:center;padding:20px;">No campaigns</td></tr>{% endif %}
+ {% if not campaigns %}<tr><td colspan="5" style="color:#64748b;text-align:center;padding:20px;">لا توجد حملات</td></tr>{% endif %}
  </tbody>
  </table>
  </div>
@@ -90,10 +77,10 @@
 
  <!-- Transactions -->
  <div class="card">
- <h2>Wallet Transactions ({{ transactions|length }})</h2>
+ <h2>معاملات المحفظة ({{ transactions|length }})</h2>
  <div class="table-wrap">
  <table class="cyber-table">
- <thead><tr><th>Type</th><th>Amount</th><th>Balance After</th><th>Description</th><th>Date</th></tr></thead>
+ <thead><tr><th>النوع</th><th>المبلغ</th><th>الرصيد بعد</th><th>الوصف</th><th>التاريخ</th></tr></thead>
  <tbody>
  {% for t in transactions %}
  <tr>
@@ -104,7 +91,7 @@
  <td class="mono">{{ (t.created_at or '')[:16] }}</td>
  </tr>
  {% endfor %}
- {% if not transactions %}<tr><td colspan="5" style="color:#64748b;text-align:center;padding:20px;">No transactions</td></tr>{% endif %}
+ {% if not transactions %}<tr><td colspan="5" style="color:#64748b;text-align:center;padding:20px;">لا توجد معاملات</td></tr>{% endif %}
  </tbody>
  </table>
  </div>
@@ -112,10 +99,10 @@
 
  <!-- Orders -->
  <div class="card">
- <h2>Orders ({{ orders|length }})</h2>
+ <h2>الطلبات ({{ orders|length }})</h2>
  <div class="table-wrap">
  <table class="cyber-table">
- <thead><tr><th>Order ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+ <thead><tr><th>معرف الطلب</th><th>النوع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr></thead>
  <tbody>
  {% for o in orders %}
  <tr>
@@ -126,13 +113,10 @@
  <td class="mono">{{ (o.created_at or '')[:16] }}</td>
  </tr>
  {% endfor %}
- {% if not orders %}<tr><td colspan="5" style="color:#64748b;text-align:center;padding:20px;">No orders</td></tr>{% endif %}
+ {% if not orders %}<tr><td colspan="5" style="color:#64748b;text-align:center;padding:20px;">لا توجد طلبات</td></tr>{% endif %}
  </tbody>
  </table>
  </div>
  </div>
 
 </div>
-</body>
-</html>
-

@@ -62,7 +62,7 @@
 .funnel-stat-value {
   font-size: 28px;
   font-weight: 800;
-  letter-spacing: -0.5px;
+  
   line-height: 1;
   margin-bottom: 6px;
 }
@@ -71,7 +71,7 @@
   font-weight: 500;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  
   margin-bottom: 4px;
 }
 .funnel-stat-conv {
@@ -113,7 +113,7 @@
   font-weight: 600;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  
   margin-bottom: 14px;
 }
 .funnel-stage {
@@ -168,7 +168,7 @@
   font-weight: 600;
 }
 
-/* Drop-off indicators */
+/* التراجع indicators */
 .funnel-dropoff {
   text-align: center;
   font-size: 11px;
@@ -198,7 +198,7 @@
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  
 }
 .funnel-table td {
   padding: 12px 16px;
@@ -262,7 +262,7 @@
   font-size: 32px;
   font-weight: 800;
   color: #60a5fa;
-  letter-spacing: -1px;
+  
 }
 
 /* Responsive */
@@ -273,16 +273,16 @@
 }
 </style>
 
-<h1>📊 Application Funnel Analytics</h1>
-<p class="subtitle">Track your conversion rates from search to hire. See where you're losing candidates and optimize.</p>
+<h1>📊 تحليلات مسار الطلبات</h1>
+<p class="subtitle">تتبع معدلات التحويل من البحث للتوظيف. شوف وين عم تخسر مرشحين وحسّن العملية.</p>
 
 <!-- Period filter -->
 <div class="funnel-header-row">
   <div class="funnel-filters" id="funnel-filters">
-    <button class="funnel-filter-btn active" data-period="7">Last 7 Days</button>
-    <button class="funnel-filter-btn" data-period="30">Last 30 Days</button>
-    <button class="funnel-filter-btn" data-period="90">Last 90 Days</button>
-    <button class="funnel-filter-btn" data-period="all">All Time</button>
+    <button class="funnel-filter-btn active" data-period="7">آخر 7 أيام</button>
+    <button class="funnel-filter-btn" data-period="30">آخر 30 يوم</button>
+    <button class="funnel-filter-btn" data-period="90">آخر 90 يوم</button>
+    <button class="funnel-filter-btn" data-period="all">كل الوقت</button>
   </div>
   <span id="funnel-updated" style="color:#52525b;font-size:12px;"></span>
 </div>
@@ -290,7 +290,7 @@
 <!-- Loading state -->
 <div class="funnel-loading" id="funnel-loading">
   <div class="funnel-spinner"></div>
-  <div style="color:#94a3b8;">Loading analytics data...</div>
+  <div style="color:#94a3b8;">جاري تحميل بيانات التحليلات...</div>
 </div>
 
 <!-- Data state -->
@@ -299,8 +299,8 @@
   <div class="total-banner">
     <div class="banner-icon">📈</div>
     <div class="banner-info">
-      <h3>Total Applications</h3>
-      <p>Applications sent in selected period</p>
+      <h3>إجمالي الطلبات</h3>
+      <p>الطلبات المُرسلة في الفترة المحددة</p>
     </div>
     <div class="banner-value" id="funnel-total">0</div>
   </div>
@@ -310,17 +310,17 @@
 
   <!-- Funnel visualization -->
   <div class="funnel-visual" id="funnel-visual-wrap">
-    <h3>🎯 Conversion Funnel</h3>
+    <h3>🎯 مسار التحويل</h3>
     <div id="funnel-visual"></div>
   </div>
 
   <!-- Bar chart -->
   <div class="funnel-chart-container">
     <div class="funnel-chart-header">
-      <h3>📊 Stage Breakdown</h3>
+      <h3>📊 تفصيل المراحل</h3>
       <div style="display:flex;gap:12px;font-size:11px;color:#64748b;">
-        <span>🔵 Applications</span>
-        <span>🟢 Conversions</span>
+        <span>🔵 الطلبات</span>
+        <span>🟢 التحويلات</span>
       </div>
     </div>
     <div class="funnel-chart-wrapper">
@@ -333,11 +333,11 @@
     <table class="cyber-table">
       <thead>
         <tr>
-          <th>Stage</th>
-          <th>Count</th>
-          <th>% of Previous</th>
-          <th>% of Total</th>
-          <th>Drop-off</th>
+          <th>المرحلة</th>
+          <th>العدد</th>
+          <th>% من السابق</th>
+          <th>% من الإجمالي</th>
+          <th>التراجع</th>
         </tr>
       </thead>
       <tbody id="funnel-table-body"></tbody>
@@ -348,8 +348,8 @@
 <!-- Empty state -->
 <div id="funnel-empty" style="display:none;text-align:center;padding:60px 20px;">
   <div style="font-size:48px;margin-bottom:12px;">📭</div>
-  <h3 style="color:#94a3b8;margin-bottom:8px;">No Data Yet</h3>
-  <p style="color:#52525b;font-size:13px;">Start sending applications to see your funnel analytics here.</p>
+  <h3 style="color:#94a3b8;margin-bottom:8px;">ما في بيانات بعد</h3>
+  <p style="color:#52525b;font-size:13px;">بلّش ابعت طلبات لتشوف تحليلاتك هون.</p>
 </div>
 
 <script>
@@ -359,12 +359,12 @@ let chartInstance = null;
 
 const STAGE_COLORS = ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#10b981'];
 const STAGES = [
-  { key: 'applied', label: 'Applied', icon: '📨', color: '#3b82f6' },
-  { key: 'viewed', label: 'Viewed', icon: '👁️', color: '#6366f1' },
-  { key: 'responded', label: 'Responded', icon: '💬', color: '#8b5cf6' },
-  { key: 'interview', label: 'Interviewed', icon: '🎤', color: '#a855f7' },
-  { key: 'offer', label: 'Offered', icon: '💎', color: '#d946ef' },
-  { key: 'hired', label: 'Hired', icon: '🏆', color: '#10b981' }
+  { key: 'applied', label: 'تم التقديم', icon: '📨', color: '#3b82f6' },
+  { key: 'viewed', label: 'تمت المشاهدة', icon: '👁️', color: '#6366f1' },
+  { key: 'responded', label: 'تم الرد', icon: '💬', color: '#8b5cf6' },
+  { key: 'interview', label: 'تمت المقابلة', icon: '🎤', color: '#a855f7' },
+  { key: 'offer', label: 'عُرضت وظيفة', icon: '💎', color: '#d946ef' },
+  { key: 'hired', label: 'تم التوظيف', icon: '🏆', color: '#10b981' }
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -402,7 +402,7 @@ async function loadFunnelData() {
     funnelData = await resp.json();
     renderFunnel();
     document.getElementById('funnel-updated').textContent =
-      'Updated ' + new Date().toLocaleTimeString();
+      'تم التحديث ' + new Date().toLocaleTimeString();
   } catch (e) {
     console.error('Funnel load error:', e);
     // Fallback to existing /api/v1/funnel
@@ -439,12 +439,12 @@ function renderFunnel() {
 
   // Stats row
   const stages = [
-    { label: 'Applied', value: applied, color: '#3b82f6' },
-    { label: 'Viewed', value: viewed, color: '#6366f1', conv: applied > 0 ? ((viewed / applied) * 100).toFixed(1) + '% view' : '0%' },
-    { label: 'Responded', value: responded, color: '#8b5cf6', conv: applied > 0 ? ((responded / applied) * 100).toFixed(1) + '% resp' : '0%' },
-    { label: 'Interviewed', value: interview, color: '#a855f7', conv: applied > 0 ? ((interview / applied) * 100).toFixed(1) + '% int' : '0%' },
-    { label: 'Offered', value: offer, color: '#ec4899', conv: applied > 0 ? ((offer / applied) * 100).toFixed(1) + '% offer' : '0%' },
-    { label: 'Hired', value: hired, color: '#10b981', conv: applied > 0 ? ((hired / applied) * 100).toFixed(1) + '% hired' : '0%' },
+    { label: 'تم التقديم', value: applied, color: '#3b82f6' },
+    { label: 'تمت المشاهدة', value: viewed, color: '#6366f1', conv: applied > 0 ? ((viewed / applied) * 100).toFixed(1) + '% view' : '0%' },
+    { label: 'تم الرد', value: responded, color: '#8b5cf6', conv: applied > 0 ? ((responded / applied) * 100).toFixed(1) + '% resp' : '0%' },
+    { label: 'تمت المقابلة', value: interview, color: '#a855f7', conv: applied > 0 ? ((interview / applied) * 100).toFixed(1) + '% int' : '0%' },
+    { label: 'عُرضت وظيفة', value: offer, color: '#ec4899', conv: applied > 0 ? ((offer / applied) * 100).toFixed(1) + '% offer' : '0%' },
+    { label: 'تم التوظيف', value: hired, color: '#10b981', conv: applied > 0 ? ((hired / applied) * 100).toFixed(1) + '% hired' : '0%' },
   ];
 
   document.getElementById('funnel-stats-row').innerHTML = stages.map(s => `
@@ -496,7 +496,7 @@ function renderFunnelVisual(data) {
       </div>`;
 
     if (i > 0 && dropOff > 0) {
-      html += `<div class="funnel-dropoff">⬇ ${dropOff.toLocaleString()} dropped (${convRate}% conversion)</div>`;
+      html += `<div class="funnel-dropoff">⬇ ${dropOff.toLocaleString()} تراجع (${convRate}% تحويل)</div>`;
     }
   }
   document.getElementById('funnel-visual').innerHTML = html;
@@ -530,7 +530,7 @@ function renderChart(data) {
       labels: labels,
       datasets: [
         {
-          label: 'Applications',
+          label: 'الطلبات',
           data: values,
           backgroundColor: STAGE_COLORS.map(c => c + 'CC'),
           borderColor: STAGE_COLORS,
@@ -556,8 +556,8 @@ function renderChart(data) {
             label: function(ctx) {
               const idx = ctx.dataIndex;
               return [
-                'Count: ' + ctx.raw.toLocaleString(),
-                'Conversion: ' + pctLabels[idx]
+                'العدد: ' + ctx.raw.toLocaleString(),
+                'نسبة التحويل: ' + pctLabels[idx]
               ];
             }
           }
@@ -600,9 +600,9 @@ function renderTable(data) {
 
   let rows = '';
 
-  // First row: Applied
+  // First row: تم التقديم
   rows += `<tr>
-    <td><span style="font-weight:600;">📨 Applied</span></td>
+    <td><span style="font-weight:600;">📨 تم التقديم</span></td>
     <td><strong>${applied.toLocaleString()}</strong></td>
     <td>-</td>
     <td>100%</td>

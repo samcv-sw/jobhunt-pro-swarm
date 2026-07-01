@@ -1,12 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Complete your JobHunt Pro purchase securely.">
+  <meta name="description" content="أكمل عملية شراء JobHunt Pro بأمان.">
   <meta name="robots" content="noindex,follow">
-  <title>Checkout — JobHunt Pro</title>
+  <title>إتمام الدفع — JobHunt Pro</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
 <!-- Checkout v3 — Enhanced with payment progress steps, QR codes, shared design tokens -->
 <link rel="stylesheet" href="/static/css/dashboard-v4.css">
@@ -136,7 +136,7 @@ body {
   font-size: 12px;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  
   margin-bottom: 4px;
 }
 
@@ -210,7 +210,7 @@ body {
   font-size: 11px;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  
   margin-bottom: 8px;
 }
 
@@ -219,7 +219,7 @@ body {
   font-weight: 900;
   font-family: var(--font-mono);
   color: var(--accent-primary);
-  letter-spacing: 4px;
+  
   user-select: all;
   cursor: pointer;
   transition: color var(--transition-fast);
@@ -339,7 +339,7 @@ body {
   color: var(--text-dim);
   margin-top: 6px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  
 }
 
 /* ── Instruction Text ── */
@@ -480,23 +480,23 @@ body {
   <div class="progress-steps">
     <div class="progress-step {% if order.status in ('pending','pending_payment') %}active{% else %}completed{% endif %}">
       <span class="step-circle">{% if order.status in ('paid','delivered') %}✓{% else %}1{% endif %}</span>
-      <span class="step-label">Order</span>
+      <span class="step-label">الطلب</span>
     </div>
     <div class="progress-connector {% if order.status in ('paid','delivered') %}completed{% endif %}"></div>
     <div class="progress-step {% if order.status == 'paid' %}active{% elif order.status == 'delivered' %}completed{% endif %}">
       <span class="step-circle">{% if order.status == 'delivered' %}✓{% else %}2{% endif %}</span>
-      <span class="step-label">Payment</span>
+      <span class="step-label">الدفع</span>
     </div>
     <div class="progress-connector {% if order.status == 'delivered' %}completed{% endif %}"></div>
     <div class="progress-step {% if order.status == 'delivered' %}completed{% endif %}">
       <span class="step-circle">{% if order.status == 'delivered' %}✓{% else %}3{% endif %}</span>
-      <span class="step-label">Delivered</span>
+      <span class="step-label">تم التسليم</span>
     </div>
   </div>
 
   <!-- Order Summary -->
   <div class="order-summary-v3">
-    <div class="order-label-v3">Service</div>
+    <div class="order-label-v3">الخدمة</div>
     {% if order.item_type == 'bulk' and order.items %}
     <div class="order-service-v3" style="font-size:13px;">
       {% for item in order.items %}
@@ -507,27 +507,27 @@ body {
       {% endfor %}
     </div>
     <div class="order-amount-v3">${{ "%.2f"|format(order.total_price or order.price) }}</div>
-    <div style="font-size:11px;color:var(--text-dim);">{{ order.items|length }} item(s) in this order</div>
+    <div style="font-size:11px;color:var(--text-dim);">{{ order.items|length }} عنصر في هذا الطلب</div>
     {% else %}
     <div class="order-service-v3">{{ order.service_name }}</div>
     <div class="order-amount-v3">${{ "%.2f"|format(order.price) }}</div>
     {% endif %}
-    <div class="order-id-v3">Order ID: {{ order.order_id }}</div>
+    <div class="order-id-v3">رقم الطلب: {{ order.order_id }}</div>
     <div class="order-status-v3
       {% if order.status in ('pending', 'pending_payment') %}status-pending-v3{% elif order.status == 'paid' %}status-paid-v3{% elif order.status == 'delivered' %}status-delivered-v3{% endif %}">
       {{ order.status|upper }}
     </div>
     <div class="order-customer-v3">
-      Customer: {{ order.customer_name }} <{{ order.customer_email }}>
+      العميل: {{ order.customer_name }} <{{ order.customer_email }}>
     </div>
   </div>
 
   {% if order.payment_code %}
   <!-- Payment Code -->
   <div class="payment-code-box">
-    <div class="pc-label">YOUR PAYMENT CODE</div>
-    <div class="pc-code" onclick="copyPaymentCodeV3(this)" title="Click to copy">{{ order.payment_code }}</div>
-    <div class="pc-hint">Click to copy • You will need this code to verify your payment</div>
+    <div class="pc-label">رمز الدفع الخاص بك</div>
+    <div class="pc-code" onclick="copyPaymentCodeV3(this)" title="انقر للنسخ">{{ order.payment_code }}</div>
+    <div class="pc-hint">انقر للنسخ • ستحتاج إلى هذا الرمز للتحقق من الدفع</div>
   </div>
   {% endif %}
 
@@ -537,7 +537,7 @@ body {
   <!-- NOWPayments -->
   <div style="margin-bottom:24px; padding:20px; background:var(--accent-primary-dim); border:1px solid rgba(99,102,241,0.15); border-radius:var(--radius-lg);">
     <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
-      Pay instantly with credit/debit card or crypto
+      ادفع فوراً عبر البطاقة الائتمانية أو العملات الرقمية
     </div>
     <button class="btn-nowpayments-v3"
       data-order-id="{{ order.order_id }}"
@@ -545,15 +545,15 @@ body {
       data-service-name="{{ order.service_name }}"
       data-customer-email="{{ order.customer_email }}"
       onclick="payWithNOWPaymentsV3(this)">
-      Pay with NOWPayments
+      الدفع عبر NOWPayments
     </button>
     <div id="nowpaymentsStatusV3" style="font-size:12px; color:var(--text-dim); margin-top:8px; display:none;"></div>
   </div>
 
   <!-- Manual Crypto Payment -->
   <p class="instruction-text-v3">
-    Or send the exact amount in crypto to one of the addresses below.
-    Your deliverable will be auto-generated and emailed to you within seconds of payment confirmation.
+    أو أرسل المبلغ الدقيق بالعملات الرقمية إلى أحد العناوين أدناه.
+    سيتم إنشاء طلبك تلقائياً وإرساله إلى بريدك الإلكتروني خلال ثوانٍ من تأكيد الدفع.
   </p>
 
   <div class="crypto-section-v3">
@@ -572,35 +572,35 @@ body {
       <!-- QR Code -->
       <div class="qr-section">
         <div id="qrV3_{{ currency }}"></div>
-        <div class="qr-label">Scan to copy {{ currency }} address</div>
+        <div class="qr-label">امسح لنسخ عنوان {{ currency }}</div>
       </div>
-      <div class="address-box-v3" onclick="copyAddressV3(this, '{{ addr }}')" title="Click to copy">
+      <div class="address-box-v3" onclick="copyAddressV3(this, '{{ addr }}')" title="انقر للنسخ">
         {{ addr }}
       </div>
-      <div class="copy-hint-v3">Click address to copy • Send exactly <strong>${{ "%.2f"|format(order.price) }}</strong> in {{ currency }}</div>
+      <div class="copy-hint-v3">انقر على العنوان للنسخ • أرسل بالضبط <strong>${{ "%.2f"|format(order.price) }}</strong> بعملة {{ currency }}</div>
     </div>
     {% endfor %}
   </div>
 
   <!-- Verify Payment -->
   <div class="verify-section-v3">
-    <h3>Already sent payment? Verify here:</h3>
+    <h3>هل أرسلت الدفعة بالفعل؟ تحقق هنا:</h3>
     <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px; line-height:1.5;">
-      Enter your <strong style="color:var(--accent-primary);">Payment Code</strong> (shown above) and the transaction hash from your crypto wallet.
+      أدخل <strong style="color:var(--accent-primary);">رمز الدفع</strong> (الموضح أعلاه) وتجزئة المعاملة (TxHash) من محفظتك الرقمية.
     </div>
     <div class="verify-input-group-v3">
-      <input dir="auto" type="text" id="paymentCodeV3" placeholder="Payment Code (e.g. A1B2C3D4)" autocomplete="off" style="text-transform:uppercase; letter-spacing:2px;">
-      <input dir="auto" type="text" id="txHashV3" placeholder="Transaction hash / TX ID" autocomplete="off">
-      <button class="btn-verify-v3" id="verifyBtnV3" onclick="verifyPaymentV3('{{ order.order_id }}')">Verify</button>
+      <input dir="auto" type="text" id="paymentCodeV3" placeholder="رمز الدفع (مثل A1B2C3D4)" autocomplete="off" style="text-transform:uppercase; ">
+      <input dir="auto" type="text" id="txHashV3" placeholder="تجزئة المعاملة / TX ID" autocomplete="off">
+      <button class="btn-verify-v3" id="verifyBtnV3" onclick="verifyPaymentV3('{{ order.order_id }}')">تحقق</button>
     </div>
     <div class="verify-result-v3" id="verifyResultV3"></div>
   </div>
 
   {% elif order.status == 'paid' or order.status == 'delivered' %}
   <div class="verify-result-v3 success" style="display:block;">
-    ✅ Payment confirmed! Your deliverable is being generated and will be sent to your email shortly.
+    ✅ تم تأكيد الدفع! يتم تجهيز طلبك وسيُرسل إلى بريدك الإلكتروني قريباً.
   </div>
-  <a href="/services/new" class="btn-done-v3">Browse More Services</a>
+  <a href="/services/new" class="btn-done-v3">تصفح المزيد من الخدمات</a>
   {% endif %}
 </div>
 
@@ -617,7 +617,7 @@ function copyPaymentCodeV3(el) {
   const code = el.textContent.trim();
   navigator.clipboard.writeText(code).then(function() {
     const orig = el.textContent;
-    el.textContent = 'COPIED!';
+    el.textContent = 'تم النسخ!';
     el.style.color = 'var(--accent-success)';
     setTimeout(function() {
       el.textContent = orig;
@@ -647,7 +647,7 @@ function copyAddressV3(el, address) {
   navigator.clipboard.writeText(address).then(function() {
     var hint = el.nextElementSibling;
     var origText = hint.textContent;
-    hint.textContent = 'Copied!';
+    hint.textContent = 'تم النسخ!';
     hint.style.color = 'var(--accent-success)';
     setTimeout(function() {
       hint.textContent = origText;
@@ -671,20 +671,20 @@ async function verifyPaymentV3(orderId) {
 
   if (!paymentCode) {
     result.className = 'verify-result-v3 error';
-    result.textContent = 'Please enter your Payment Code (shown above in the blue box).';
+    result.textContent = 'يرجى إدخال رمز الدفع الخاص بك (الموضح أعلاه في المربع الأزرق).';
     result.style.display = 'block';
     return;
   }
 
   if (!txHash) {
     result.className = 'verify-result-v3 error';
-    result.textContent = 'Please enter a transaction hash.';
+    result.textContent = 'يرجى إدخال تجزئة المعاملة (TxHash).';
     result.style.display = 'block';
     return;
   }
 
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-v3"></span> Verifying...';
+  btn.innerHTML = '<span class="spinner-v3"></span> جارٍ التحقق...';
   result.style.display = 'none';
 
   try {
@@ -697,22 +697,22 @@ async function verifyPaymentV3(orderId) {
 
     if (data.success) {
       result.className = 'verify-result-v3 success';
-      result.textContent = data.message || 'Payment verified! Your deliverable is being prepared and will be emailed to you.';
+      result.textContent = data.message || 'تم التحقق من الدفع! يتم تجهيز طلبك وسيُرسل إليك عبر البريد الإلكتروني.';
       result.style.display = 'block';
       setTimeout(function() { location.reload(); }, 2000);
     } else {
       result.className = 'verify-result-v3 error';
-      result.textContent = data.message || data.error || 'Verification failed. Check your Payment Code and TX hash.';
+      result.textContent = data.message || data.error || 'فشل التحقق. تأكد من رمز الدفع وتجزئة المعاملة.';
       result.style.display = 'block';
     }
   } catch (err) {
     result.className = 'verify-result-v3 error';
-    result.textContent = 'Network error. Please try again.';
+    result.textContent = 'خطأ في الشبكة. يرجى المحاولة مرة أخرى.';
     result.style.display = 'block';
   }
 
   btn.disabled = false;
-  btn.textContent = 'Verify';
+  btn.textContent = 'تحقق';
 }
 
 /* ── NOWPayments ── */
@@ -724,7 +724,7 @@ async function payWithNOWPaymentsV3(btn) {
   var statusEl = document.getElementById('nowpaymentsStatusV3');
 
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-v3"></span> Redirecting...';
+  btn.innerHTML = '<span class="spinner-v3"></span> جارٍ التوجيه...';
   statusEl.style.display = 'none';
 
   try {
@@ -746,24 +746,24 @@ async function payWithNOWPaymentsV3(btn) {
     }
 
     if (data.fallback) {
-      statusEl.textContent = 'One-click payment unavailable. Use manual crypto addresses below.';
+      statusEl.textContent = 'الدفع بنقرة واحدة غير متاح. استخدم عناوين العملات الرقمية اليدوية أدناه.';
       statusEl.style.color = 'var(--accent-warning)';
       statusEl.style.display = 'block';
       btn.style.display = 'none';
       return;
     }
 
-    statusEl.textContent = data.error || 'Failed to create payment. Please try manual crypto payment below.';
+    statusEl.textContent = data.error || 'فشل في إنشاء الدفع. يرجى محاولة الدفع اليدوي بالعملات الرقمية أدناه.';
     statusEl.style.color = 'var(--accent-danger)';
     statusEl.style.display = 'block';
   } catch (err) {
-    statusEl.textContent = 'Network error. Please try again or use manual crypto payment below.';
+    statusEl.textContent = 'خطأ في الشبكة. يرجى المحاولة مرة أخرى أو استخدام الدفع اليدوي بالعملات الرقمية أدناه.';
     statusEl.style.color = 'var(--accent-danger)';
     statusEl.style.display = 'block';
   }
 
   btn.disabled = false;
-  btn.textContent = 'Pay with NOWPayments';
+  btn.textContent = 'الدفع عبر NOWPayments';
 }
 
 /* ── Generate QR Codes ── */

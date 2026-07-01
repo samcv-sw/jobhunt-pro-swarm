@@ -1,12 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Complete your JobHunt Pro purchase securely.">
+  <meta name="description" content="أكمل عملية شراء JobHunt Pro بأمان.">
   <meta name="robots" content="noindex, follow">
-  <title>Checkout &mdash; JobHunt Pro</title>
+  <title>الدفع &mdash; JobHunt Pro</title>
   <link rel="stylesheet" href="/static/css/cyberpunk.css">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -158,14 +158,14 @@
 
 
 <div class="checkout-container">
- <div class="logo">JobHunt Pro Checkout</div>
+ <div class="logo">JobHunt Pro — إتمام الدفع</div>
  
  <div class="order-summary">
- <div class="amount-label">Amount Due</div>
+ <div class="amount-label">المبلغ المستحق</div>
  <div class="amount-display">${{ "%.2f"|format(order.amount_usd) }}</div>
  <div style="margin-bottom:20px;">
  <span class="crypto-badge">{{ currency }}</span>
- <span style="font-size:12px;color:#64748b;margin-inline-start:8px;">Order: {{ order.order_id[:12] }}...</span>
+ <span style="font-size:12px;color:#64748b;margin-inline-start:8px;">الطلب: {{ order.order_id[:12] }}...</span>
  </div>
  <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:20px;"></div>
  </div>
@@ -182,21 +182,21 @@
 
  <div style="background:rgba(255,255,255,0.03);border-radius:16px;padding:20px;margin-bottom:24px;">
  <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:4px;">
- Send <strong>${{ "%.2f"|format(order.amount_usd) }}</strong> in <strong>{{ currency }}</strong> to the address above.
+ أرسل <strong>${{ "%.2f"|format(order.amount_usd) }}</strong> بعملة <strong>{{ currency }}</strong> إلى العنوان أعلاه.
  </div>
  <div style="font-size:12px;color:#475569;text-align:center;">
- After sending, email <strong style="color:#3b82f6;">samsalameh.cv@gmail.com</strong> with your transaction hash.
- <br>Your account will be credited within 24 hours.
+ بعد الإرسال، أرسل بريداً إلكترونياً إلى <strong style="color:#3b82f6;">samsalameh.cv@gmail.com</strong> يحتوي على معرف المعاملة (hash).
+ <br>سيتم إضافة الرصيد لحسابك خلال 24 ساعة.
  </div>
  </div>
  
- <a href="/services"> ✨ Premium Services</a>
- <a href="/wallet" class="btn" style="color: #64748b; background: transparent; text-decoration: none;">Cancel Payment</a>
+ <a href="/services"> ✨ خدمات مميزة</a>
+ <a href="/wallet" class="btn" style="color: #64748b; background: transparent; text-decoration: none;">إلغاء الدفع</a>
 
  <div>
  <span class="status-badge">
  <span class="spinner"></span>
- Awaiting {{ currency }} deposit...
+ في انتظار إيداع {{ currency }}...
  </span>
  </div>
 </div>
@@ -205,7 +205,7 @@
 function copyAddress(el) {
  navigator.clipboard.writeText("{{ address }}").then(() => {
  const orig = el.innerHTML;
- el.innerHTML = '&#x2705; Address Copied!';
+ el.innerHTML = '&#x2705; تم نسخ العنوان!';
  el.style.color = '#22c55e';
  setTimeout(() => { el.innerHTML = orig; el.style.color = ''; }, 2000);
  });
@@ -222,7 +222,7 @@ setInterval(async () => {
  window.location.href = '/wallet?error=invalid_code';
  }
  } catch(e) {
- console.error("Status check failed", e);
+ console.error("فشل التحقق من الحالة", e);
  }
 }, 4000);
 </script>

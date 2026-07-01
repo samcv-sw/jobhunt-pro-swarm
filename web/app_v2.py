@@ -507,7 +507,7 @@ app.add_middleware(GZipMiddleware, minimum_size=500)
 try:
     from web.routers import dashboard, admin, squads, candidate, roast, webhook_bot, b2b_api, calendar_sync, voice_swarm
     app.include_router(dashboard.router)
-    app.include_router(admin.router)
+    # app.include_router(admin.router)  # Conflicts with @app.get("/admin") at bottom of file
     app.include_router(squads.router)
     app.include_router(candidate.router)
     app.include_router(roast.router)
@@ -4031,9 +4031,9 @@ def campaign_detail(request: Request, campaign_id: str):
         (campaign_id,)).fetchall()]
     conn.close()
 
-    return templates.TemplateResponse(request, "campaign_detail.html", {"active_page": "campaign", 
-        "campaign": campaign, "emails": emails
-    })
+    content_html = render_template("campaign_detail.html", request=request,
+        campaign=campaign, emails=emails)
+    return HTMLResponse(_build_dashboard_shell(None, user_id, content_html, f"Campaign {campaign.get('campaign_name', 'Detail')}", "new-campaign"))
 
 @app.get("/campaign/{campaign_id}/war-room", response_class=HTMLResponse)
 def campaign_war_room(request: Request, campaign_id: str):
@@ -4203,12 +4203,14 @@ def view_interview_prep(request: Request, email_id: int):
         
     email_data = dict(row)
     
-    return templates.TemplateResponse(request, "interview_prep.html", {
-        "campaign_id": email_data.get("campaign_id", ""),
-        "company": email_data.get("company_name", ""),
-        "job_title": email_data.get("job_title", ""),
-        "prep_content": email_data.get("interview_prep", "")
-    })
+    content_html = render_template("interview_prep.html", request=request,
+        
+        campaign_id=email_data.get("campaign_id", ""),
+        company=email_data.get("company_name", ""),
+        job_title=email_data.get("job_title", ""),
+        prep_content=email_data.get("interview_prep", "")
+    )
+    return HTMLResponse(_build_dashboard_shell(None, user_id, content_html, "Interview Prep", "interview-prep"))
 
 @app.get("/battle-station", response_class=HTMLResponse)
 def battle_station_page(request: Request):
@@ -6131,17 +6133,19 @@ def admin_analytics(req: Request):
         else:
             top_countries = []
 
-        return templates.TemplateResponse(req, "admin_analytics.html", {
-            "total_revenue": total_revenue,
-            "total_users": total_users, "active_campaigns": active_campaigns,
-            "emails_today": emails_today, "revenue_growth": revenue_growth,
-            "user_growth": user_growth, "campaign_pct": campaign_pct,
-            "deliv_score": deliv_score, "monthly_revenue": monthly_revenue,
-            "max_revenue": max_rev, "tier_breakdown": tier_breakdown,
-            "top_countries": top_countries,
-            "ab_test_a_rate": None, "ab_test_a_sent": 0,
-            "ab_test_b_rate": None, "ab_test_b_sent": 0,
-        })
+        content_html = render_template("admin_analytics.html", request=req,
+            
+            total_revenue=total_revenue,
+            total_users=total_users, active_campaigns=active_campaigns,
+            emails_today=emails_today, revenue_growth=revenue_growth,
+            user_growth=user_growth, campaign_pct=campaign_pct,
+            deliv_score=deliv_score, monthly_revenue=monthly_revenue,
+            max_revenue=max_rev, tier_breakdown=tier_breakdown,
+            top_countries=top_countries,
+            ab_test_a_rate=None, ab_test_a_sent=0,
+            ab_test_b_rate=None, ab_test_b_sent=0
+        )
+        return HTMLResponse(_build_dashboard_shell(None, admin_id, content_html, "Admin Analytics", "admin"))
     except Exception as e:
         return HTMLResponse(f"<h2>Analytics Error</h2><pre>{e}</pre>", status_code=500)
 
@@ -8504,6 +8508,49 @@ def admin_panel(request: Request):
     if not require_admin(request):
         return RedirectResponse("/login", status_code=303)
 
+@app.get("/api/debug/move-templates")
+def move_templates():
+    import shutil
+    import os
+    src_dir = "web/templates/ar"
+    dest_dir = "web/templates"
+    if not os.path.exists(src_dir):
+        return {"status": "error", "message": "Source dir ar/ does not exist or already moved"}
+    files = os.listdir(src_dir)
+    moved = []
+    for f in files:
+        src = os.path.join(src_dir, f)
+        dest = os.path.join(dest_dir, f)
+        try:
+            if os.path.exists(dest):
+                if os.path.isdir(dest):
+                    continue
+                os.remove(dest)
+            shutil.move(src, dest)
+            moved.append(f)
+        except Exception as e:
+            moved.append(f"Failed {f}: {e}")
+    return {"status": "done", "moved": moved}
+
+@app.get("/api/debug/fix-db-schema")
+def fix_db_schema():
+    conn = get_db()
+    columns_to_add = [
+        ("next_retry_at", "TEXT"),
+        ("priority", "INTEGER DEFAULT 5"),
+        ("max_retries", "INTEGER DEFAULT 3"),
+        ("retry_count", "INTEGER DEFAULT 0")
+    ]
+    results = []
+    for col_name, col_type in columns_to_add:
+        try:
+            conn.execute(f"ALTER TABLE job_queue ADD COLUMN {col_name} {col_type}")
+            conn.commit()
+            results.append(f"Added {col_name}")
+        except Exception as e:
+            results.append(f"Error {col_name}: {e}")
+    return {"status": "done", "results": results}
+
     conn = get_db()
 
     # Stats
@@ -8556,8 +8603,9 @@ def admin_panel(request: Request):
     except Exception:
         payment_stats = {"total_payments": 0, "total_received_usd": 0, "by_currency": {}, "recent": []}
 
-    return templates.TemplateResponse(request, "admin.html", {
-        "stats": {
+    content_html = render_template("admin.html", request=request,
+        
+        stats={
             "total_users": total_users,
             "total_campaigns": total_campaigns,
             "total_emails": total_emails,
@@ -8567,14 +8615,15 @@ def admin_panel(request: Request):
             "manual_emails": manual_email_count,
             "manual_email_revenue": round(float(manual_email_revenue), 2),
         },
-        "users": users,
-        "campaigns": campaigns,
-        "orders": orders,
-        "redeem_codes": redeem_codes,
-        "payment_stats": payment_stats,
-        "manual_emails": manual_emails,
-        "flash_sales": flash_sales,
-    })
+        users=users,
+        campaigns=campaigns,
+        orders=orders,
+        redeem_codes=redeem_codes,
+        payment_stats=payment_stats,
+        manual_emails=manual_emails,
+        flash_sales=flash_sales,
+    )
+    return HTMLResponse(_build_dashboard_shell(None, require_admin(request), content_html, "Admin Panel", "admin"))
 
 
 @app.get("/admin/sys-logs", response_class=HTMLResponse)
@@ -9129,10 +9178,11 @@ def admin_user_detail(request: Request, target_user_id: str):
     ).fetchall()]
     conn.close()
 
-    return templates.TemplateResponse(request, "admin_user.html", {
-        "user": user, "campaigns": campaigns,
-        "transactions": transactions, "orders": orders
-    })
+    content_html = render_template("admin_user.html", request=request,
+        user=user, campaigns=campaigns,
+        transactions=transactions, orders=orders
+    )
+    return HTMLResponse(_build_dashboard_shell(None, require_admin(request), content_html, f"User {user.get('name', 'Details')}", "admin"))
 
 
 # ============================================================
@@ -11022,26 +11072,28 @@ def tracking_analytics(request: Request):
         
         total_sent_human = f"{total_sent:,}" if total_sent > 999 else str(total_sent)
         
-        return templates.TemplateResponse(
-            "tracking_analytics.html",
-            {
-                "request": request,
-                "total_sent": total_sent_human,
-                "delivered": f"{delivered:,}" if delivered > 999 else str(delivered),
-                "opened": f"{opened:,}" if opened > 999 else str(opened),
-                "replied": f"{replied:,}" if replied > 999 else str(replied),
-                "bounced": str(bounced),
-                "open_rate": f"{open_rate}%",
-                "response_rate": f"{response_rate}%",
-                "bounce_rate": f"{bounce_rate}%",
-                "open_rate_raw": open_rate,
-                "response_rate_raw": response_rate,
-                "bounce_rate_raw": bounce_rate,
-                "per_campaign": per_campaign,
-                "total_unique": len(per_campaign),
-                "today": datetime.now().strftime("%b %d, %Y"),
-            }
+        content_html = render_template("tracking_analytics.html", 
+                request=request,
+                user=None,
+                total_sent=total_sent_human,
+                delivered=f"{delivered:,}" if delivered > 999 else str(delivered),
+                opened=f"{opened:,}" if opened > 999 else str(opened),
+                replied=f"{replied:,}" if replied > 999 else str(replied),
+                bounced=str(bounced),
+                open_rate=f"{open_rate}%",
+                response_rate=f"{response_rate}%",
+                bounce_rate=f"{bounce_rate}%",
+                open_rate_raw=open_rate,
+                response_rate_raw=response_rate,
+                bounce_rate_raw=bounce_rate,
+                per_campaign=per_campaign,
+                total_unique=len(per_campaign),
+                today=datetime.now().strftime("%b %d, %Y")
         )
+        user_id_val = get_verified_user_id(request)
+        if not user_id_val:
+            user_id_val = "admin"
+        return HTMLResponse(_build_dashboard_shell(None, user_id_val, content_html, "Tracking Analytics", "tracking-analytics"))
     except Exception as e:
         logger.error(f"Tracking analytics error: {e}")
         return HTMLResponse("""

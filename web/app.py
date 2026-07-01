@@ -58,7 +58,19 @@ app = FastAPI(title="JobHunt Pro", version="1.0.0")
 
 BASE_DIR = Path(__file__).parent
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
-templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+class Jinja2TemplatesWrapper:
+    def __init__(self, base_dir):
+        self.en = Jinja2Templates(directory=str(base_dir / "templates" / "en"))
+        self.ar = Jinja2Templates(directory=str(base_dir / "templates" / "ar"))
+
+    def TemplateResponse(self, request: Request, name: str, context: dict, status_code: int = 200, headers: dict = None, media_type: str = None, background: any = None):
+        lang = request.cookies.get("lang", "en")
+        t = self.ar if lang == "ar" else self.en
+        # Ensure lang is available in all templates
+        context["lang"] = lang
+        return t.TemplateResponse(request=request, name=name, context=context, status_code=status_code, headers=headers, media_type=media_type, background=background)
+
+templates = Jinja2TemplatesWrapper(BASE_DIR)
 
 db_path = os.getenv("DB_PATH") or str(BASE_DIR.parent / "jobhunt_saas_v2.db")
 
@@ -253,13 +265,13 @@ def generate_redeem_code() -> str:
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="index_v2.html", context={"request": request})
 
 @app.get("/v4", response_class=HTMLResponse)
 async def home_v4(request: Request):
     earnings = {"total_all": 15000000, "today": 25000}
     fomo_apps_today = 50000
-    return templates.TemplateResponse("index_v4.html", {
+    return templates.TemplateResponse(request=request, name="index_v2.html", context={
         "request": request,
         "earnings": earnings,
         "fomo_apps_today": fomo_apps_today
@@ -289,7 +301,7 @@ async def dashboard_v3(request: Request):
         "SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT 10",
         (user_id,)).fetchall()]
     conn.close()
-    return templates.TemplateResponse("dashboard_v3.html", {
+    return templates.TemplateResponse(request=request, name="dashboard_v3.html", context={
         "request": request, "user": user, "profiles": profiles,
         "campaigns": campaigns, "transactions": transactions
     })
@@ -309,15 +321,15 @@ async def pricing_v3(request: Request):
             {"name": "Interview Prep", "price": 49, "desc": "1-on-1 coaching session"},
         ]
     }
-    return templates.TemplateResponse("pricing_v3.html", {"request": request, "pricing": pricing})
+    return templates.TemplateResponse(request=request, name="pricing_v3.html", context={"request": request, "pricing": pricing})
 
 @app.get("/login/v2", response_class=HTMLResponse)
 async def login_v2(request: Request):
-    return templates.TemplateResponse("login_v2.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="login_v2.html", context={"request": request})
 
 @app.get("/register/v2", response_class=HTMLResponse)
 async def register_v2(request: Request):
-    return templates.TemplateResponse("register_v2.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="register_v2.html", context={"request": request})
 
 @app.get("/checkout/v3", response_class=HTMLResponse)
 async def checkout_v3(request: Request):
@@ -342,14 +354,14 @@ async def checkout_v3(request: Request):
             "USDC": "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18",
         }
     }
-    return templates.TemplateResponse("checkout_v3.html", {"request": request, "order": order})
+    return templates.TemplateResponse(request=request, name="checkout_v3.html", context={"request": request, "order": order})
 
 @app.get("/upload-cv/v3", response_class=HTMLResponse)
 async def upload_cv_v3(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    return templates.TemplateResponse("upload_cv_v3.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="upload_cv_v3.html", context={"request": request})
 
 @app.get("/health")
 async def health():
@@ -360,11 +372,11 @@ async def pricing(request: Request):
     conn = get_db()
     tiers = [dict(r) for r in conn.execute("SELECT * FROM pricing_tiers WHERE is_active = 1 ORDER BY price_usd").fetchall()]
     conn.close()
-    return templates.TemplateResponse("pricing.html", {"request": request, "tiers": tiers})
+    return templates.TemplateResponse(request=request, name="pricing_v3.html", context={"request": request, "pricing": {"tiers": tiers}})
 
 @app.get("/register", response_class=HTMLResponse)
 async def register_page(request: Request):
-    return templates.TemplateResponse("register.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="register.html", context={"request": request})
 
 @app.post("/register")
 async def register(request: Request, email: str = Form(...), password: str = Form(...), name: str = Form(...), phone: str = Form("")):
@@ -372,7 +384,7 @@ async def register(request: Request, email: str = Form(...), password: str = For
     existing = conn.execute("SELECT user_id FROM users WHERE email = ?", (email,)).fetchone()
     if existing:
         conn.close()
-        return templates.TemplateResponse("register.html", {"request": request, "error": "Email already registered"})
+        return templates.TemplateResponse(request=request, name="register.html", context={"request": request, "error": "Email already registered"})
     
     user_id = f"user_{uuid.uuid4().hex[:16]}"
     api_key = generate_api_key()
@@ -385,7 +397,7 @@ async def register(request: Request, email: str = Form(...), password: str = For
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="login.html", context={"request": request})
 
 @app.post("/login")
 async def login(request: Request, email: str = Form(...), password: str = Form(...)):
@@ -394,7 +406,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
     conn.close()
     
     if not user or not verify_password(password, user["password_hash"]):
-        return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
+        return templates.TemplateResponse(request=request, name="login.html", context={"request": request, "error": "Invalid credentials"})
     
     response = RedirectResponse("/dashboard", status_code=303)
     response.set_cookie("user_id", session_serializer.dumps(user["user_id"]))
@@ -407,7 +419,13 @@ async def dashboard(request: Request):
         return RedirectResponse("/login", status_code=303)
     
     conn = get_db()
-    user = dict(conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone())
+    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    if not user_row:
+        conn.close()
+        response = RedirectResponse("/login", status_code=303)
+        response.delete_cookie("user_id")
+        return response
+    user = dict(user_row)
     profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
     campaigns = [dict(r) for r in conn.execute("""
         SELECT c.*, COUNT(ce.id) as total_emails, 
@@ -424,7 +442,7 @@ async def dashboard(request: Request):
         (user_id,)).fetchall()]
     conn.close()
     
-    return templates.TemplateResponse("dashboard.html", {
+    return templates.TemplateResponse(request=request, name="dashboard.html", context={
         "request": request, "user": user, "profiles": profiles,
         "campaigns": campaigns, "transactions": transactions
     })
@@ -434,7 +452,7 @@ async def upload_cv_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    return templates.TemplateResponse("upload_cv.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="upload_cv.html", context={"request": request})
 
 @app.post("/upload-cv")
 async def upload_cv(request: Request, profile_name: str = Form(...), cv_text: str = Form(...),
@@ -474,7 +492,7 @@ async def new_campaign_page(request: Request):
     user = dict(conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone())
     conn.close()
     
-    return templates.TemplateResponse("new_campaign.html", {
+    return templates.TemplateResponse(request=request, name="new_campaign.html", context={
         "request": request, "profiles": profiles, "tiers": tiers, "balance": user["wallet_balance"]
     })
 
@@ -532,7 +550,7 @@ async def campaign_detail(request: Request, campaign_id: str):
         (campaign_id,)).fetchall()]
     conn.close()
     
-    return templates.TemplateResponse("campaign_detail.html", {
+    return templates.TemplateResponse(request=request, name="campaign_detail.html", context={
         "request": request, "campaign": campaign, "emails": emails
     })
 
@@ -556,7 +574,7 @@ async def wallet_page(request: Request):
         "LTC": os.getenv("CRYPTO_LTC_ADDRESS", ""),
     }
     
-    return templates.TemplateResponse("wallet.html", {
+    return templates.TemplateResponse(request=request, name="wallet.html", context={
         "request": request, "user": user, "transactions": transactions,
         "crypto_addresses": crypto_addresses
     })
@@ -581,7 +599,7 @@ async def services_page(request: Request):
     # Build a lookup set of purchased package ids
     active_ids = {p["package_id"] for p in purchased if p["status"] == "active"}
     
-    return templates.TemplateResponse("services.html", {
+    return templates.TemplateResponse(request=request, name="services.html", context={
         "request": request,
         "user": user,
         "services": SERVICE_PACKAGES,
@@ -678,7 +696,7 @@ async def redeem_code(request: Request, code: str = Form(...)):
 
 @app.get("/api/docs", response_class=HTMLResponse)
 async def api_docs(request: Request):
-    return templates.TemplateResponse("api_docs.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="api_docs.html", context={"request": request})
 
 @app.post("/api/v1/campaign")
 async def api_create_campaign(api_key: str = Form(...), profile_cv: str = Form(...),
@@ -998,6 +1016,17 @@ async def health_v2():
     except Exception as e:
         return {"status": "error", "detail": str(e)}
 
+
+@app.get("/lang/{locale}")
+async def set_language(locale: str, request: Request):
+    if locale not in ["en", "ar"]:
+        locale = "en"
+    
+    # Redirect back to where they came from
+    referer = request.headers.get("referer", "/")
+    response = RedirectResponse(url=referer, status_code=303)
+    response.set_cookie(key="lang", value=locale, max_age=31536000, path="/")
+    return response
 
 if __name__ == "__main__":
     import os

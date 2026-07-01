@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
@@ -21,7 +21,7 @@
   font-size: 22px;
   font-weight: 800;
   margin-bottom: 4px;
-  letter-spacing: -0.5px;
+  
 }
 .upload-scale .subtitle {
   font-size: 14px;
@@ -144,7 +144,7 @@
   font-weight: 600;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  
   margin-bottom: 5px;
   display: block;
 }
@@ -575,21 +575,22 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
         <div class="form-group"><label for="email">Email</label><input dir="auto" type="email" id="email" placeholder="your@email.com"></div>
       </div>
       <div class="row">
-        <div class="form-group"><label for="phone">Phone</label><input dir="auto" type="text" id="phone" placeholder="+961 3 123 456"></div>
-        <div class="form-group"><label for="location">Location</label><input dir="auto" type="text" id="location" placeholder="Beirut, Lebanon"></div>
+        <div class="form-group"><label for="phone">الهاتف</label><input dir="auto" type="text" id="phone" placeholder="+961 3 123 456"></div>
+        <div class="form-group"><label for="location">الموقع</label><input dir="auto" type="text" id="location" placeholder="بيروت، لبنان"></div>
       </div>
       <div class="row">
-        <div class="form-group"><label for="currentTitle">Current Title</label><input dir="auto" type="text" id="currentTitle" placeholder="Senior Network Engineer"></div>
-        <div class="form-group"><label for="experienceYears">Experience (years)</label><input dir="auto" type="number" id="experienceYears" min="0" max="50" value="5"></div>
+        <div class="form-group"><label for="currentTitle">المسمى الوظيفي الحالي</label><input dir="auto" type="text" id="currentTitle" placeholder="مهندس شبكات أول"></div>
+        <div class="form-group"><label for="experienceYears">الخبرة (بالسنوات)</label><input dir="auto" type="number" id="experienceYears" min="0" max="50" value="5"></div>
       </div>
       <div class="row">
-        <div class="form-group"><label for="education">Education</label><input dir="auto" type="text" id="education" placeholder="Bachelor of Engineering"></div>
-        <div class="form-group"><label for="linkedin">LinkedIn</label><input dir="auto" type="url" id="linkedin" placeholder="https://linkedin.com/in/..."></div>
+        <div class="form-group"><label for="education">التعليم</label><input dir="auto" type="text" id="education" placeholder="بكالوريوس هندسة"></div>
+        <div class="form-group"><label for="linkedin">لينكد إن</label><input dir="auto" type="url" id="linkedin" placeholder="https://linkedin.com/in/..."></div>
       </div>
-      <div class="form-group"><label for="skillsInput">Skills (comma separated)</label><input dir="auto" type="text" id="skillsInput" placeholder="Cisco, Python, Linux, AWS, MikroTik, Fortinet..."><div class="tag-list" id="skillsTags"></div></div>
-      <div class="form-group"><label for="certsInput">Certifications</label><input dir="auto" type="text" id="certsInput" placeholder="CCNA, NSE, MTCNA..."><div class="tag-list" id="certsTags"></div></div>
-      <div class="form-group"><label for="langsInput">Languages</label><input dir="auto" type="text" id="langsInput" placeholder="English, Arabic, French..."><div class="tag-list" id="langsTags"></div></div>
-      <div class="form-group"><label for="summary">Professional Summary</label><textarea dir="auto" id="summary" placeholder="Brief professional summary..." style="min-height:90px;"></textarea></div>
+      <div class="form-group"><label for="skillsInput">المهارات (مفصولة بفاصلة)</label><input dir="auto" type="text" id="skillsInput" placeholder="Cisco, Python, Linux, AWS, MikroTik, Fortinet..."><div class="tag-list" id="skillsTags"></div></div>
+      <div class="form-group"><label for="certsInput">الشهادات</label><input dir="auto" type="text" id="certsInput" placeholder="CCNA, NSE, MTCNA..."><div class="tag-list" id="certsTags"></div></div>
+      <div class="form-group"><label for="langsInput">اللغات</label><input dir="auto" type="text" id="langsInput" placeholder="English, Arabic, French..."><div class="tag-list" id="langsTags"></div></div>
+      <div class="form-group"><label for="experienceInput">الخبرات (مفصولة بفاصلة)</label><input dir="auto" type="text" id="experienceInput" placeholder="Ogero (2020-2023), Touch (2018-2020)..."><div class="tag-list" id="experienceTags"></div></div>
+      <div class="form-group"><label for="summary">الملخص المهني</label><textarea dir="auto" id="summary" placeholder="ملخص مهني قصير..." style="min-height:90px;"></textarea></div>
     </div>
 
     <!-- Target + Salary -->

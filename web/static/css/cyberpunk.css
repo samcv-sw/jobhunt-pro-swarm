@@ -1206,3 +1206,6 @@ footer, [class*="footer"] {
 .related-card h4 a { color: #fff; text-decoration: none; }
 .related-card h4 a:hover { color: var(--cyan); }
 .related-card p { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin: 0; }
+
+/* FIX: Arabic Shaping */
+[dir=rtl] *, :lang(ar) *, :lang(ar) { letter-spacing: normal !important; }

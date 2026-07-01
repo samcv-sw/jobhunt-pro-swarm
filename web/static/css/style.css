@@ -130,3 +130,19 @@ body {
   .post-header h1 { font-size: 32px; }
   .post-content { font-size: 16px; }
 }
+
+/* FIX: Arabic Shaping */
+[dir="rtl"] *, :lang(ar) *, :lang(ar) {
+    letter-spacing: normal !important;
+}
+
+/* Fix RTL Numbers */
+[dir="rtl"] .num, 
+[dir="rtl"] .stat-num,
+[dir="rtl"] .stat-item .num,
+[dir="rtl"] .price,
+[dir="rtl"] .currency {
+    direction: ltr;
+    display: inline-block;
+    unicode-bidi: isolate;
+}
