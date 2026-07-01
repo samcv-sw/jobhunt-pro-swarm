@@ -2438,6 +2438,7 @@ def _build_dashboard_shell(user, user_id, content_html, title, active_page):
                            title=title,
                            active_page=active_page,
                            is_logged_in=True,
+                           is_dashboard=True,
                            current_year=datetime.now().year)
 
 @app.get("/api/docs", response_class=HTMLResponse)

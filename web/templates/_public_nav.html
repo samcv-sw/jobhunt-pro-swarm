@@ -1,5 +1,5 @@
 <!-- ═══ UNIFIED PUBLIC NAVIGATION ═══ -->
-<nav class="nav" id="nav" style="position:fixed;top:12px;left: 50%;transform:translateX(-50%);z-index:1000;width:calc(100% - 48px);max-width:1300px;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;background:rgba(5,5,15,0.75);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);border:1px solid rgba(255,255,255,0.08);border-radius:24px;transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+<nav class="nav" id="nav" style="padding:14px 28px;display:flex;justify-content:space-between;align-items:center;background:rgba(5,5,15,0.75);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);border:1px solid rgba(255,255,255,0.08);border-radius:24px;">
  <a href="/" class="nav-logo" style="font-family:'Cairo',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(135deg,#00f0ff 0%,#00b8ff 40%,#00f0ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:10px;text-decoration:none;">جوبهانت برو <span class="badge" style="font-size:9px;font-weight:700;background:rgba(0,240,255,0.12);color:#00f0ff;padding:3px 10px;border-radius:20px;border:1px solid rgba(0,240,255,0.2);-webkit-text-fill-color:#00f0ff;">v{{ VERSION|default('16.3') }}</span></a>
  <div class="nav-hamburger" id="hamburger" aria-label="القائمة" onclick="toggleMenu()" style="display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;z-index:1001;">
   <span style="width:24px;height:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;"></span>
@@ -27,6 +27,27 @@
 </nav>
 
 <style>
+#nav {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 48px);
+    max-width: 1300px;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+{% if is_dashboard %}
+@media (min-width: 768px) {
+    #nav {
+        left: auto;
+        transform: none;
+        width: auto;
+        inset-inline-start: 280px;
+        inset-inline-end: 24px;
+    }
+}
+{% endif %}
 /* Handle hover states and mobile menu for inline nav */
 .nav-links a:not(.cta):hover { color: #fff !important; background: rgba(255,255,255,0.05) !important; }
 .nav-links a.cta:hover { box-shadow: 0 0 35px rgba(0,240,255,0.35) !important; transform: translateY(-1px); }
