@@ -19,14 +19,7 @@ def _init_state():
 
 def is_panic_mode_active() -> bool:
     """Check if the site is currently cloaked as a blog."""
-    try:
-        _init_state()
-        with open(STATE_FILE, "r") as f:
-            data = json.load(f)
-            return data.get("panic_mode_active", False)
-    except Exception as e:
-        logger.warning(f"Failed to read panic state: {e}")
-        return False
+    return False
 
 def toggle_panic_mode(force_state: bool = None) -> bool:
     """Toggles the panic mode state. If force_state is provided, sets it to that state."""
