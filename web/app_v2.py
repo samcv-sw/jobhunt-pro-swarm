@@ -942,7 +942,7 @@ def get_db(max_retries: int = 3):
     # 2. Local Fallback (SQLite) - Used only if Turso fails or in local dev
     for attempt in range(max_retries):
         try:
-            conn = sqlite3.connect(db_path, check_same_thread=False, timeout=10)
+            conn = sqlite3.connect(db_path, check_same_thread=False, timeout=60)
             try: conn.row_factory = sqlite3.Row
             except Exception: pass
             try:
@@ -970,7 +970,7 @@ def init_saas_v2_db():
         logger.info("[DB] SUPABASE_MODE: tables already exist in Supabase, skipping init")
         return
     try:
-        with sqlite3.connect(db_path, timeout=60000) as conn:
+        with sqlite3.connect(db_path, check_same_thread=False, timeout=60) as conn:
             try:
                 orders_info = [r[1] for r in conn.execute("PRAGMA table_info(orders)").fetchall()]
                 campaigns_info = [r[1] for r in conn.execute("PRAGMA table_info(campaigns)").fetchall()]
@@ -3148,7 +3148,7 @@ def force_migrate(request: Request):
     if not is_admin:
         return HTMLResponse("<h3>Forbidden</h3><p>Admin access required.</p>", status_code=403)
     
-    conn = sqlite3.connect('jobhunt_saas_v2.db')
+    conn = sqlite3.connect('jobhunt_saas_v2.db', check_same_thread=False, timeout=60)
     try:
         conn.execute("ALTER TABLE users ADD COLUMN oauth_provider TEXT")
     except: pass
@@ -11734,7 +11734,7 @@ async def extension_config(user_id: str = ""):
     daily_limit = 10
     if user_id:
         try:
-            with sqlite3.connect(DB_PATH) as conn:
+            with sqlite3.connect(DB_PATH, check_same_thread=False, timeout=60) as conn:
                 ref_count = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ? AND status='completed'", (user_id,)).fetchone()[0]
                 if ref_count >= 3:
                     daily_limit = 50  # Gamified Growth Unlock!
