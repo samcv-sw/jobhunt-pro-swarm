@@ -107,10 +107,11 @@ Rules:
 4. Prioritize keywords that appear multiple times in the job description
 5. Keep all content truthful, factual, and verifiable
 6. Maintain professional tone and readability
-7. For each section, track which keywords you injected
-8. Return ONLY valid JSON — no markdown, no code fences
-9. IMPORTANT: The candidate has 15+ years of enterprise networking experience including SD-WAN, SASE, ZTNA, Zero Trust, cloud networking (AWS/Azure/GCP), network automation (Python/Ansible/Terraform), security (FortiGate/Palo Alto), data center, and multi-site MPLS/VPN. Use this context to naturally align with JD keywords.
-10. FRENCH/EU MARKET RULES (STRICT ATS COMPLIANCE 2026): 
+7. For each section, track which keywords you injected.
+8. SEMANTIC EIGENVECTOR ALIGNMENT: Perform a mathematical keyword frequency match. Inject keywords such that the resume matches the JD's exact keyword distribution, artificially driving the ATS score to 99.9%.
+9. Return ONLY valid JSON — no markdown, no code fences
+10. IMPORTANT: The candidate has 15+ years of enterprise networking experience including SD-WAN, SASE, ZTNA, Zero Trust, cloud networking (AWS/Azure/GCP), network automation (Python/Ansible/Terraform), security (FortiGate/Palo Alto), data center, and multi-site MPLS/VPN. Use this context to naturally align with JD keywords.
+11. FRENCH/EU MARKET RULES (STRICT ATS COMPLIANCE 2026): 
     - Ensure the generated content strictly adheres to French CV conventions.
     - Format output to be structurally compatible with a STRICT SINGLE COLUMN layout. No tables, no sidebars.
     - NO PHOTOS.

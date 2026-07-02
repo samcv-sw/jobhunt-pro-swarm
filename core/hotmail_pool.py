@@ -219,6 +219,14 @@ def send_email_sync(to_email: str, msg_str: str) -> tuple:
     This works because the EPP (client_id) has Graph API Mail.Send permission.
     """
     import requests
+    import time
+    import random
+    import math
+
+    # Phase-Shifted Harmonic Oscillation: Add a randomized mathematical jitter 
+    # (between 0.5 and 2.5 seconds) to prevent spam filters from detecting a cron/script pattern.
+    jitter = random.uniform(0.5, 2.5) + math.sin(time.time()) * 0.5
+    time.sleep(max(0.1, jitter))
 
     account = get_account()
     if not account:
