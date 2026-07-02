@@ -10724,8 +10724,21 @@ def seo_landing_page(request: Request, job_title: str):
 # ==========================================
 # PYTHONANYWHERE WSGI BRIDGE (a2wsgi)
 # ==========================================
+
+@app.get("/lang/{locale}")
+async def set_language(locale: str, request: Request):
+    if locale not in ["en", "ar"]:
+        locale = "en"
+    
+    # Redirect back to where they came from
+    referer = request.headers.get("referer", "/")
+    response = RedirectResponse(url=referer, status_code=303)
+    response.set_cookie(key="lang", value=locale, max_age=31536000, path="/")
+    return response
+
 # PythonAnywhere only supports WSGI. We use a2wsgi to bridge FastAPI (ASGI) to WSGI.
 from web.sync_asgi_adapter import SyncAsgiToWsgi; wsgi_app = SyncAsgiToWsgi(app)
+
 
 
 
