@@ -10,7 +10,11 @@ import logging
 import os
 import random
 import time
-from curl_cffi.requests import AsyncSession as httpx_AsyncClient
+try:
+    from curl_cffi.requests import AsyncSession as httpx_AsyncClient
+except ImportError:
+    import httpx
+    httpx_AsyncClient = httpx.AsyncClient
 import httpx
 import urllib.request
 from urllib.parse import quote_plus
@@ -427,3 +431,4 @@ def get_lebanon_scraper() -> LebanonCompanyScraper:
     if _lebanon_scraper is None:
         _lebanon_scraper = LebanonCompanyScraper()
     return _lebanon_scraper
+

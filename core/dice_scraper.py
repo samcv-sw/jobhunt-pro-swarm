@@ -25,7 +25,11 @@ import re
 from typing import Dict, List, Optional
 from urllib.parse import quote_plus
 
-from curl_cffi.requests import AsyncSession as httpx_AsyncClient
+try:
+    from curl_cffi.requests import AsyncSession as httpx_AsyncClient
+except ImportError:
+    import httpx
+    httpx_AsyncClient = httpx.AsyncClient
 import httpx
 from bs4 import BeautifulSoup
 
@@ -294,3 +298,4 @@ if __name__ == "__main__":
     if len(jobs) > 10:
         print(f"  ... and {len(jobs) - 10} more")
     print("=" * 60)
+

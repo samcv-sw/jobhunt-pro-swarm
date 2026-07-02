@@ -8,7 +8,11 @@ from typing import List, Dict, Optional
 from urllib.parse import quote_plus, urlencode
 from datetime import datetime
 
-from curl_cffi.requests import AsyncSession as httpx_AsyncClient
+try:
+    from curl_cffi.requests import AsyncSession as httpx_AsyncClient
+except ImportError:
+    import httpx
+    httpx_AsyncClient = httpx.AsyncClient
 import httpx
 
 logger = logging.getLogger(__name__)
@@ -133,3 +137,4 @@ class IndeedRSSScraper:
             self._session.close()
         except Exception:
             pass
+

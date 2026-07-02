@@ -14,7 +14,11 @@ import hashlib
 from typing import List, Dict, Optional
 from urllib.parse import quote_plus
 
-from curl_cffi.requests import AsyncSession as httpx_AsyncClient
+try:
+    from curl_cffi.requests import AsyncSession as httpx_AsyncClient
+except ImportError:
+    import httpx
+    httpx_AsyncClient = httpx.AsyncClient
 import httpx
 from core.stealth import stealth
 from bs4 import BeautifulSoup
@@ -1135,3 +1139,4 @@ class UpworkScraper(BaseScraper):
         except Exception as e:
             logger.error(f"Upwork error: {e}")
             return []
+
