@@ -1,8 +1,4 @@
 import os, sys, subprocess
-try:
-    import a2wsgi
-except ImportError:
-    subprocess.check_call(['python', '-m', 'pip', 'install', '--user', 'a2wsgi', 'curl_cffi'])
 """
 JobHunt Pro - MAXIMUM POWER SaaS Platform v2
 35+ Pricing Tiers + Bouquet Packages + HR Solutions
@@ -10739,3 +10735,4 @@ try:
 except ImportError:
     logger.warning("a2wsgi not installed. Run 'pip install a2wsgi' for PythonAnywhere WSGI support.")
     wsgi_app = None
+
