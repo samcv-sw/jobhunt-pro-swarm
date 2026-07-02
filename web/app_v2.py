@@ -1,3 +1,8 @@
+import os, sys, subprocess
+try:
+    import a2wsgi
+except ImportError:
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--user', 'a2wsgi'])
 """
 JobHunt Pro - MAXIMUM POWER SaaS Platform v2
 35+ Pricing Tiers + Bouquet Packages + HR Solutions
