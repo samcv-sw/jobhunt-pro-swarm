@@ -46,34 +46,37 @@ class SyncAsgiToWsgi:
         response_headers = []
         response_body = []
 
-        receive_state = {"sent_request": False}
+        async def run_asgi():
+            receive_state = {"sent_request": False}
+            response_complete_event = asyncio.Event()
 
-        async def receive():
-            if not receive_state["sent_request"]:
-                receive_state["sent_request"] = True
-                return {"type": "http.request", "body": body, "more_body": False}
-            # Block forever. FastAPI will cancel this task when the request finishes.
-            await asyncio.Future()
+            async def receive():
+                if not receive_state["sent_request"]:
+                    receive_state["sent_request"] = True
+                    return {"type": "http.request", "body": body, "more_body": False}
+                # Wait until the response is fully sent
+                await response_complete_event.wait()
+                return {"type": "http.disconnect"}
 
-        async def send(message):
-            if message["type"] == "http.response.start":
-                status_code[0] = message["status"]
-                for name, value in message.get("headers", []):
-                    response_headers.append((name.decode("latin1"), value.decode("latin1")))
-            elif message["type"] == "http.response.body":
-                response_body.append(message.get("body", b""))
+            async def send(message):
+                if message["type"] == "http.response.start":
+                    status_code[0] = message["status"]
+                    for name, value in message.get("headers", []):
+                        response_headers.append((name.decode("latin1"), value.decode("latin1")))
+                elif message["type"] == "http.response.body":
+                    response_body.append(message.get("body", b""))
+                    if not message.get("more_body", False):
+                        response_complete_event.set()
 
-        async def run_app():
             try:
                 await self.app(scope, receive, send)
-            except asyncio.CancelledError:
-                pass
             except Exception as e:
-                status_code[0] = 500
-                response_body.append(str(e).encode("utf8"))
-                print("ASGI ERROR:", e)
+                if str(e) != "ClientDisconnect" and "disconnect" not in str(e).lower():
+                    status_code[0] = 500
+                    response_body.append(str(e).encode("utf8"))
+                    print("ASGI ERROR:", e)
 
-        asyncio.run(run_app())
+        asyncio.run(run_asgi())
 
         try:
             status_str = f"{status_code[0]} {HTTPStatus(status_code[0]).phrase}"
