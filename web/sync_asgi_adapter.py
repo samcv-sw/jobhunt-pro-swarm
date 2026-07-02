@@ -46,8 +46,16 @@ class SyncAsgiToWsgi:
         response_headers = []
         response_body = []
 
+        receive_state = {"sent_request": False}
+
         async def receive():
-            return {"type": "http.request", "body": body, "more_body": False}
+            if not receive_state["sent_request"]:
+                receive_state["sent_request"] = True
+                return {"type": "http.request", "body": body, "more_body": False}
+            # After sending the request, wait forever so we don't spin, but we can't wait forever
+            # or asyncio.run will hang if the app waits for disconnect!
+            # So we return disconnect.
+            return {"type": "http.disconnect"}
 
         async def send(message):
             if message["type"] == "http.response.start":
@@ -57,12 +65,16 @@ class SyncAsgiToWsgi:
             elif message["type"] == "http.response.body":
                 response_body.append(message.get("body", b""))
 
-        try:
-            asyncio.run(self.app(scope, receive, send))
-        except Exception as e:
-            status_code[0] = 500
-            response_body.append(str(e).encode("utf8"))
-            print("ASGI ERROR:", e)
+        async def run_app():
+            try:
+                await self.app(scope, receive, send)
+            except Exception as e:
+                if str(e) != "ClientDisconnect" and "disconnect" not in str(e).lower():
+                    status_code[0] = 500
+                    response_body.append(str(e).encode("utf8"))
+                    print("ASGI ERROR:", e)
+
+        asyncio.run(run_app())
 
         try:
             status_str = f"{status_code[0]} {HTTPStatus(status_code[0]).phrase}"
