@@ -588,6 +588,13 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Powered-By"] = "PHP/8.1.2"
         
         return response
+@app.middleware("http")
+async def log_request(request, call_next):
+    logger.info(f"===> REQUEST STARTED: {request.url.path}")
+    response = await call_next(request)
+    logger.info(f"<=== REQUEST ENDED: {request.url.path}")
+    return response
+
 app.add_middleware(SecurityHeadersMiddleware)
 # ----------------------------------------
 
@@ -10735,4 +10742,5 @@ try:
 except ImportError:
     logger.warning("a2wsgi not installed. Run 'pip install a2wsgi' for PythonAnywhere WSGI support.")
     wsgi_app = None
+
 
