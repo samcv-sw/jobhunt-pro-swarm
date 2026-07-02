@@ -19,12 +19,7 @@ else:
     import core.pg_sqlite_shim as sqlite3
 import asyncio
 import sys
-if sys.platform != 'win32':
-    try:
-        import uvloop
-        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-    except ImportError:
-        pass
+# uvloop removed
 import logging
 import re
 import requests
@@ -48,13 +43,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 import sys
-if sys.platform != 'win32':
-    try:
-        import uvloop
-        import asyncio
-        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-    except ImportError:
-        pass
+# uvloop removed
 from typing import Optional, List
 import uvicorn
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
@@ -10742,5 +10731,6 @@ try:
 except ImportError:
     logger.warning("a2wsgi not installed. Run 'pip install a2wsgi' for PythonAnywhere WSGI support.")
     wsgi_app = None
+
 
 
