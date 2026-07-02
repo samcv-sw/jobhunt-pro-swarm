@@ -6,8 +6,10 @@ from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 
 
-from core.pricing_manager import , BOUQUET_PACKAGES_MAP
+from core.pricing_manager import PRICING_TIERS
 PRICING_TIERS_MAP = {t['companies']: t for t in PRICING_TIERS}
+from core.pricing_manager import BOUQUET_PACKAGES
+BOUQUET_PACKAGES_MAP = {b['bouquet']: b for b in BOUQUET_PACKAGES}
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
