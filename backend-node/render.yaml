@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: jobhunt-pro-node
+    env: node
+    rootDir: backend-node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: DB_HOST
+        value: ep-steep-cake-ap2mtmij.c-7.us-east-1.aws.neon.tech
+      - key: DB_USER
+        value: neondb_owner
+      - key: DB_NAME
+        value: neondb
+      # Note: Set DB_PASSWORD manually in the Render dashboard for security.
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /health

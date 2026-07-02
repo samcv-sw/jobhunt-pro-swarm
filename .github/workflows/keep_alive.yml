@@ -1,19 +1,15 @@
-name: Keep Backend Alive
+name: Keep Alive
 
 on:
   schedule:
-    - cron: '*/14 * * * *' # Runs every 14 minutes
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+    - cron: "*/15 * * * *" # Runs every 15 minutes
+  workflow_dispatch:
 
 jobs:
-  ping_server:
+  ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping PythonAnywhere Server
+      - name: Ping backend
         run: |
-          curl -s -m 10 https://jhfguf.pythonanywhere.com/api/v1/extension/config > /dev/null
-          echo "Ping successful. Server is awake."
-
-      # Prevents GitHub from disabling the cron job after 60 days of inactivity
-      - name: Keepalive Workflow
-        uses: gautamkrishnar/keepalive-workflow@v2
+          curl -s https://jobhunt-pro.onrender.com/health || echo "Render ping failed"
+          curl -s https://jobhunt-pro.vercel.app/ || echo "Vercel ping failed"
