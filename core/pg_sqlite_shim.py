@@ -581,3 +581,8 @@ InternalError = InternalError
 def get_backend() -> str:
     """Returns current database backend: 'pg' or 'sqlite'."""
     return BACKEND or "unknown"
+
+def get_db(max_retries=3):
+    from web.app_v2 import get_db as _web_get_db
+    return _web_get_db(max_retries)
+

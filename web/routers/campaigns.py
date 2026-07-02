@@ -1,11 +1,13 @@
+from core.pg_sqlite_shim import get_db
 import os
 import logging
 import uuid
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 
-from web.app_v2 import get_db
-from core.pricing_manager import PRICING_TIERS_MAP, BOUQUET_PACKAGES_MAP
+
+from core.pricing_manager import , BOUQUET_PACKAGES_MAP
+PRICING_TIERS_MAP = {t['companies']: t for t in PRICING_TIERS}
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
