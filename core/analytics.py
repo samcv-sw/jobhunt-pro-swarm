@@ -23,9 +23,17 @@ class Analytics:
 
             top_companies = [dict(r) for r in conn.execute("SELECT company, COUNT(*) as count, AVG(match_score) as avg_score FROM jobs GROUP BY company ORDER BY count DESC LIMIT 10").fetchall()]
 
-            total = conn.execute("SELECT COUNT(*) FROM applications").fetchone()[0]
-            opened = conn.execute("SELECT COUNT(*) FROM applications WHERE opened = 1").fetchone()[0]
-            responded = conn.execute("SELECT COUNT(*) FROM applications WHERE responded = 1").fetchone()[0]
+            # Consolidate sequential count queries into a single roundtrip
+            stats_query = """
+                SELECT 
+                    (SELECT COUNT(*) FROM applications) as total,
+                    (SELECT COUNT(*) FROM applications WHERE opened = 1) as opened,
+                    (SELECT COUNT(*) FROM applications WHERE responded = 1) as responded
+            """
+            stats = conn.execute(stats_query).fetchone()
+            total = stats["total"] or 0
+            opened = stats["opened"] or 0
+            responded = stats["responded"] or 0
             response_rates = {"total": total, "opened": opened, "responded": responded, "open_rate": round(opened/total*100, 1) if total > 0 else 0, "response_rate": round(responded/total*100, 1) if total > 0 else 0}
 
             agent_stats = [dict(r) for r in conn.execute("SELECT agent_id, task_type, status, COUNT(*) as count FROM agent_tasks GROUP BY agent_id, task_type, status ORDER BY count DESC LIMIT 20").fetchall()]
@@ -41,12 +49,25 @@ class Analytics:
 
     def get_conversion_funnel(self):
         with sqlite3.connect(self.db_path) as conn:
-            found = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
-            applied = conn.execute("SELECT COUNT(*) FROM jobs WHERE status = 'applied'").fetchone()[0]
-            opened = conn.execute("SELECT COUNT(*) FROM applications WHERE opened = 1").fetchone()[0]
-            responded = conn.execute("SELECT COUNT(*) FROM applications WHERE responded = 1").fetchone()[0]
-            interviews = conn.execute("SELECT COUNT(*) FROM jobs WHERE status = 'interview'").fetchone()[0]
-            offers = conn.execute("SELECT COUNT(*) FROM jobs WHERE status = 'offer'").fetchone()[0]
+            conn.row_factory = sqlite3.Row
+            
+            # Consolidate 6 independent COUNT queries into a single sub-select scalar query
+            funnel_query = """
+                SELECT 
+                    (SELECT COUNT(*) FROM jobs) as found,
+                    (SELECT COUNT(*) FROM jobs WHERE status = 'applied') as applied,
+                    (SELECT COUNT(*) FROM applications WHERE opened = 1) as opened,
+                    (SELECT COUNT(*) FROM applications WHERE responded = 1) as responded,
+                    (SELECT COUNT(*) FROM jobs WHERE status = 'interview') as interviews,
+                    (SELECT COUNT(*) FROM jobs WHERE status = 'offer') as offers
+            """
+            stats = conn.execute(funnel_query).fetchone()
+            found = stats["found"] or 0
+            applied = stats["applied"] or 0
+            opened = stats["opened"] or 0
+            responded = stats["responded"] or 0
+            interviews = stats["interviews"] or 0
+            offers = stats["offers"] or 0
 
             return {
                 "found": found,

@@ -7,7 +7,7 @@
   <meta name="description" content="Monitor your AI job campaigns in real time.">
   <meta name="robots" content="noindex,nofollow">
   <title>Dashboard — JobHunt Pro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
 <!-- Dashboard content rendered inside _build_dashboard_shell -->
 <style>
 /* ═══════════════════════════════════════════
@@ -472,7 +472,7 @@ body {
 </div>
 
 <!-- CHART.JS LOGIC -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
   const ctx = document.getElementById('pipelineChart');

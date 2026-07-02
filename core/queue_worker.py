@@ -34,7 +34,7 @@ async def process_queue():
         
     while True:
         try:
-            task = dequeue_task()
+            task = await asyncio.to_thread(dequeue_task)
             if not task:
                 await asyncio.sleep(10)  # Wait 10 seconds before polling again (reduce DB contention)
                 continue
@@ -64,7 +64,10 @@ async def process_queue():
                         logger.info(f"[ML-SYSTEM] Running campaign {campaign_id} inline (no fork)...")
                         try:
                             send_telegram_message_sync(f"🚀 [NODE-WORKER] Batch task {campaign_id} started processing (inline).")
-                            await run_campaign(campaign_id, get_db, config)
+                            # Offload blocking campaign execution to a separate thread with its own event loop
+                            def _run_campaign_sync(cid):
+                                asyncio.run(run_campaign(cid, get_db, config))
+                            await asyncio.to_thread(_run_campaign_sync, campaign_id)
                             send_telegram_message_sync(f"✅ [NODE-WORKER] Batch task {campaign_id} completed successfully.")
                             complete_task(task_id)
                         except Exception as e:
@@ -144,7 +147,10 @@ async def process_queue():
                             logger.info(f"[ML-SYSTEM] Running cron_tick campaign {cid} inline...")
                             try:
                                 send_telegram_message_sync(f"🚀 [NODE-WORKER] Batch task {cid} started processing (inline).")
-                                await run_campaign(cid, get_db, config)
+                                # Offload blocking campaign execution to a separate thread
+                                def _run_campaign_sync_cron(cid):
+                                    asyncio.run(run_campaign(cid, get_db, config))
+                                await asyncio.to_thread(_run_campaign_sync_cron, cid)
                                 send_telegram_message_sync(f"✅ [NODE-WORKER] Batch task {cid} completed successfully.")
                             except Exception as e:
                                 logger.error(f"Inline cron_tick campaign execution crashed: {e}")
@@ -171,7 +177,7 @@ async def process_queue():
                     engine = EmailEngine()
                     logger.info("[ML-SYSTEM] Triggering automated Data Sync Engine...")
                     send_telegram_message_sync("⏳ [NODE-WORKER] Running Automated Sync Engine...")
-                    asyncio.run(engine.check_and_send_followups(conn))
+                    await engine.check_and_send_followups(conn)
                 except Exception as e:
                     logger.error(f"Error in sync engine: {e}")
                 finally:

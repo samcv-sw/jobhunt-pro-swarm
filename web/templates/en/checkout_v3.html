@@ -7,7 +7,7 @@
   <meta name="description" content="Complete your JobHunt Pro purchase securely.">
   <meta name="robots" content="noindex,follow">
   <title>Checkout — JobHunt Pro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
 <!-- Checkout v3 — Enhanced with payment progress steps, QR codes, shared design tokens -->
 <link rel="stylesheet" href="/static/css/dashboard-v4.css">
 <style>
@@ -604,7 +604,7 @@ body {
   {% endif %}
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
 <script>
 /* ═══════════════════════════════════════════
    CHECKOUT v3 — JavaScript

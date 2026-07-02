@@ -25,6 +25,7 @@ import re
 from typing import Dict, List, Optional
 from urllib.parse import quote_plus
 
+from curl_cffi.requests import AsyncSession as httpx_AsyncClient
 import httpx
 from bs4 import BeautifulSoup
 

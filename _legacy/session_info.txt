@@ -1,3 +1,0 @@
-email: test_audit_64668@temp.com
-password: TestPass123!
-cookies: {'user_id': 'InVzZXJfZmE4NDhmN2MwNTIwNGY1MCI.aiNllA.JpluvUipxC7omFNfdCMG2708rw8'}

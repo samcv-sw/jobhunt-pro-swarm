@@ -865,7 +865,8 @@ class PAJobScraper:
     def search_linkedin_xhr(self, max_jobs: int = 50, query: str = "", location: str = "") -> List[Dict]:
         """Search LinkedIn XHR API (works on PA, no auth needed)."""
         try:
-            import httpx
+            from curl_cffi.requests import AsyncSession as httpx_AsyncClient
+import httpx
             from bs4 import BeautifulSoup
         except ImportError:
             logger.warning("httpx or BeautifulSoup not available")

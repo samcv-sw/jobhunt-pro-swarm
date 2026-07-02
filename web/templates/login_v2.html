@@ -7,7 +7,7 @@
   <meta name="description" content="Login to your JobHunt Pro account.">
   <meta name="robots" content="noindex,follow">
   <title>Login — JobHunt Pro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
 <!-- Login v2 — Enhanced with password strength meter, toggle visibility, loading states, improved animations -->
 <link rel="stylesheet" href="/static/css/dashboard-v4-rtl.css?v=20260629_v2">
 <link rel="stylesheet" href="/static/css/auth-v2-rtl.css?v=20260629_v2">
@@ -105,11 +105,11 @@
       <!-- OAuth Row -->
       <div class="oauth-row">
         <a href="/auth/google/login" class="btn-oauth">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" loading="lazy">
           Google
         </a>
         <a href="/auth/microsoft/login" class="btn-oauth">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" loading="lazy">
           Microsoft
         </a>
       </div>

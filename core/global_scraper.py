@@ -15,6 +15,7 @@ import time
 from typing import List, Dict, Optional
 from urllib.parse import quote_plus, urlparse
 
+from curl_cffi.requests import AsyncSession as httpx_AsyncClient
 import httpx
 try:
     from curl_cffi import requests as cffi_requests

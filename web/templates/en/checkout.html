@@ -8,7 +8,7 @@
   <meta name="robots" content="noindex, follow">
   <title>Checkout &mdash; JobHunt Pro</title>
   <link rel="stylesheet" href="/static/css/cyberpunk.css">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
 
 <style>
  * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -173,7 +173,7 @@
  <div class="qr-section">
  <div class="qr-card">
  <!-- Free secure dynamic QR code API -->
- <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ address }}&color=0-0-0" alt="QR Code">
+ <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ address }}&color=0-0-0" alt="QR Code" loading="lazy">
  </div>
  <div class="address-box" onclick="copyAddress(this)">
  {{ address }} 

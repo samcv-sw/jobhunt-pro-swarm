@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 from urllib.parse import quote_plus
 
+from curl_cffi.requests import AsyncSession as httpx_AsyncClient
 import httpx
 
 logger = logging.getLogger(__name__)
@@ -431,7 +432,7 @@ async def search_hhru(
     all_jobs: List[Dict] = []
     seen_ids: set = set()
 
-    async with httpx.AsyncClient(timeout=30.0, headers={
+    async with httpx_AsyncClient(impersonate='chrome120', timeout=30.0, headers={
         "User-Agent": HHRU_USER_AGENT,
     }) as client:
         for title in job_titles:
@@ -621,7 +622,7 @@ async def fetch_area_tree() -> Dict:
     Useful for discovering new area IDs or building a comprehensive mapper.
     """
     try:
-        async with httpx.AsyncClient(timeout=30.0, headers={
+        async with httpx_AsyncClient(impersonate='chrome120', timeout=30.0, headers={
             "User-Agent": HHRU_USER_AGENT,
         }) as client:
             response = await client.get(f"{HHRU_API_BASE}/areas")

@@ -499,24 +499,28 @@ register_growth_routes(app)
 # --- PERFORMANCE COMPRESSION ---
 from fastapi.middleware.gzip import GZipMiddleware
 app.add_middleware(GZipMiddleware, minimum_size=500)
+
+from core.middlewares import PanicModeMiddleware
+app.add_middleware(PanicModeMiddleware)
+
 # -------------------------------
 
-# --- INJECT CLEAN ARCHITECTURE ROUTERS (Safe import for PA compatibility) ---
-# NOTE: auth.py router REMOVED (duplicate auth system with Argon2 + test TURNSTILE_SECRET).
-# Main auth in app_v2.py (bcrypt + proper Turnstile) is the authoritative system.
+# --- INJECT CLEAN ARCHITECTURE ROUTERS DYNAMICALLY ---
+import importlib
+import pkgutil
+import web.routers
+
 try:
-    from web.routers import dashboard, admin, squads, candidate, roast, webhook_bot, b2b_api, calendar_sync, voice_swarm
-    app.include_router(dashboard.router)
-    # app.include_router(admin.router)  # Conflicts with @app.get("/admin") at bottom of file
-    app.include_router(squads.router)
-    app.include_router(candidate.router)
-    app.include_router(roast.router)
-    app.include_router(webhook_bot.router)
-    app.include_router(b2b_api.router)
-    app.include_router(calendar_sync.router)
-    app.include_router(voice_swarm.router)
-except ImportError as e:
-    logger.warning(f"Router import skipped (PA compatibility): {e}")
+    for _, module_name, _ in pkgutil.iter_modules(web.routers.__path__):
+        try:
+            module = importlib.import_module(f"web.routers.{module_name}")
+            if hasattr(module, "router"):
+                app.include_router(module.router)
+                logger.info(f"Dynamically loaded router: {module_name}")
+        except Exception as e:
+            logger.warning(f"Failed to dynamically load router {module_name}: {e}")
+except Exception as e:
+    logger.warning(f"Dynamic router loading failed: {e}")
 
 # --- CLOUD TICK ROUTER (GH Actions cron integration) ---
 try:
@@ -2269,7 +2273,7 @@ def home(request: Request):
     })
 
 @app.get("/api/ping")
-async def api_ping_v1():
+def api_ping_v1():
     """
     Fast health check (<100ms target).
     Just confirms the app is alive — no DB or external calls.
@@ -3019,639 +3023,9 @@ def _check_rate_limit(store: dict, ip: str, max_count: int, window_seconds: int 
     store[ip] = [last_time, count + 1]
     return True
 
-def _check_login_rate_limit(ip: str) -> bool:
-    """Returns True if allowed, False if rate limited (10 attempts/hour)."""
-    return _check_rate_limit(_login_attempts, ip, max_count=10)
-
-# ==========================================
-# OAUTH 2.0 LOGIN ROUTES
-# ==========================================
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
-GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "https://jhfguf.pythonanywhere.com/auth/google/callback")
-
-@app.get("/auth/google/login")
-def google_login():
-    """Redirects user to Google OAuth consent screen."""
-    scopes = [
-        "openid",
-        "email",
-        "profile",
-        "https://www.googleapis.com/auth/gmail.send"
-    ]
-    scope_str = " ".join(scopes)
-    import urllib.parse
-    auth_url = (
-        "https://accounts.google.com/o/oauth2/v2/auth?"
-        f"client_id={GOOGLE_CLIENT_ID}&"
-        f"redirect_uri={urllib.parse.quote(GOOGLE_REDIRECT_URI)}&"
-        "response_type=code&"
-        f"scope={scope_str}&"
-        "access_type=offline&"
-        "prompt=consent"
-    )
-    return RedirectResponse(auth_url)
-
-@app.get("/auth/google/callback")
-def google_callback(code: str = None, error: str = None):
-    """Handles Google OAuth callback, creates user, and logs them in."""
-    if error or not code:
-        return HTMLResponse("<html><body><h3>OAuth Error</h3><p>Google authentication failed or was cancelled.</p><a href='/login'>Try again</a></body></html>")
-    
-    # Exchange code for token
-    token_url = "https://oauth2.googleapis.com/token"
-    data = {
-        "code": code,
-        "client_id": GOOGLE_CLIENT_ID,
-        "client_secret": GOOGLE_CLIENT_SECRET,
-        "redirect_uri": GOOGLE_REDIRECT_URI,
-        "grant_type": "authorization_code",
-    }
-    resp = requests.post(token_url, data=data)
-    if not resp.ok:
-        return HTMLResponse(f"<html><body><h3>OAuth Error</h3><p>Failed to exchange token. {resp.text}</p></body></html>")
-    
-    tokens = resp.json()
-    access_token = tokens.get("access_token")
-    refresh_token = tokens.get("refresh_token")
-    expires_in = tokens.get("expires_in", 3599)
-    expires_at = time.time() + expires_in
-
-    # Get user info
-    user_info_resp = requests.get(
-        "https://www.googleapis.com/oauth2/v3/userinfo",
-        headers={"Authorization": f"Bearer {access_token}"}
-    )
-    if not user_info_resp.ok:
-        return HTMLResponse("<html><body><h3>OAuth Error</h3><p>Failed to fetch user profile.</p></body></html>")
-    
-    user_info = user_info_resp.json()
-    email = user_info.get("email")
-    name = user_info.get("name", "User")
-    
-    if not email:
-        return HTMLResponse("<html><body><h3>OAuth Error</h3><p>Email address not provided by Google.</p></body></html>")
-    
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-    
-    if not user:
-        # Create new user
-        import secrets
-        import bcrypt
-        temp_pwd = secrets.token_urlsafe(16)
-        pwd_hash = bcrypt.hashpw(temp_pwd.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        
-        import uuid
-        user_id = f"user_{uuid.uuid4().hex[:16]}"
-        api_key = generate_api_key()
-        cursor = conn.execute(
-            """INSERT INTO users (user_id, email, password_hash, name, api_key, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at)
-               VALUES (?, ?, ?, ?, ?, 'google', ?, ?, ?)""",
-            (user_id, email, pwd_hash, name, api_key, access_token, refresh_token, expires_at)
-        )
-        conn.commit()
-    else:
-        user_id = user["user_id"]
-        # Update tokens
-        if refresh_token:
-            conn.execute(
-                "UPDATE users SET oauth_provider='google', oauth_access_token=?, oauth_refresh_token=?, oauth_expires_at=? WHERE user_id=?",
-                (access_token, refresh_token, expires_at, user_id)
-            )
-        else:
-            conn.execute(
-                "UPDATE users SET oauth_provider='google', oauth_access_token=?, oauth_expires_at=? WHERE user_id=?",
-                (access_token, expires_at, user_id)
-            )
-        conn.commit()
-    
-    conn.close()
-    
-    response = RedirectResponse("/user-dashboard", status_code=303)
-    response.set_cookie("user_id", session_serializer.dumps(user_id), httponly=True, samesite="lax", max_age=86400*30)
-    return response
-
-@app.get("/force-migrate")
-def force_migrate(request: Request):
-    """Run DB schema migrations. Requires admin authentication."""
-    # Admin auth check
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    try:
-        row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        is_admin = row and row["email"] in os.getenv("ADMIN_EMAILS", "sam@jobhuntpro.com").lower().split(",")
-    except Exception:
-        is_admin = False
-    finally:
-        conn.close()
-    if not is_admin:
-        return HTMLResponse("<h3>Forbidden</h3><p>Admin access required.</p>", status_code=403)
-    
-    conn = sqlite3.connect('jobhunt_saas_v2.db', check_same_thread=False, timeout=60)
-    try:
-        conn.execute("ALTER TABLE users ADD COLUMN oauth_provider TEXT")
-    except: pass
-    try:
-        conn.execute("ALTER TABLE users ADD COLUMN oauth_access_token TEXT")
-    except: pass
-    try:
-        conn.execute("ALTER TABLE users ADD COLUMN oauth_refresh_token TEXT")
-    except: pass
-    try:
-        conn.execute("ALTER TABLE users ADD COLUMN oauth_expires_at REAL")
-    except: pass
-    conn.commit()
-    conn.close()
-    return {"status": "success"}
-
-# ==========================================
-# MICROSOFT OAUTH LOGIN ROUTES
-# ==========================================
-MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
-MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
-MICROSOFT_REDIRECT_URI = os.getenv("MICROSOFT_REDIRECT_URI", "https://jhfguf.pythonanywhere.com/auth/microsoft/callback")
-
-@app.get("/auth/microsoft/login")
-def microsoft_login():
-    """Redirects user to Microsoft OAuth consent screen."""
-    scopes = [
-        "openid",
-        "email",
-        "profile",
-        "offline_access",
-        "https://graph.microsoft.com/Mail.Send",
-        "https://graph.microsoft.com/User.Read"
-    ]
-    scope_str = " ".join(scopes)
-    import urllib.parse
-    auth_url = (
-        "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?"
-        f"client_id={MICROSOFT_CLIENT_ID}&"
-        f"redirect_uri={urllib.parse.quote(MICROSOFT_REDIRECT_URI)}&"
-        "response_type=code&"
-        f"scope={scope_str.replace(' ', '%20')}&"
-        "prompt=select_account"
-    )
-    return RedirectResponse(auth_url)
-
-@app.get("/auth/microsoft/callback")
-def microsoft_callback(code: str = None, error: str = None):
-    """Handles Microsoft OAuth callback."""
-    if error or not code:
-        return HTMLResponse("<html><body><h3>OAuth Error</h3><p>Microsoft authentication failed.</p><a href='/login'>Try again</a></body></html>")
-    
-    token_url = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
-    data = {
-        "client_id": MICROSOFT_CLIENT_ID,
-        "client_secret": MICROSOFT_CLIENT_SECRET,
-        "code": code,
-        "redirect_uri": MICROSOFT_REDIRECT_URI,
-        "grant_type": "authorization_code"
-    }
-    resp = requests.post(token_url, data=data)
-    if not resp.ok:
-        return HTMLResponse(f"<html><body><h3>OAuth Error</h3><p>Token exchange failed: {resp.text}</p></body></html>")
-    
-    tokens = resp.json()
-    access_token = tokens.get("access_token")
-    refresh_token = tokens.get("refresh_token")
-    expires_in = tokens.get("expires_in", 3599)
-    expires_at = time.time() + expires_in
-
-    # Get user profile from Graph API
-    user_resp = requests.get(
-        "https://graph.microsoft.com/v1.0/me",
-        headers={"Authorization": f"Bearer {access_token}"}
-    )
-    if not user_resp.ok:
-        return HTMLResponse("<html><body><h3>OAuth Error</h3><p>Failed to fetch profile.</p></body></html>")
-    
-    user_info = user_resp.json()
-    email = user_info.get("mail") or user_info.get("userPrincipalName")
-    name = user_info.get("displayName", "User")
-    
-    if not email:
-        return HTMLResponse("<html><body><h3>OAuth Error</h3><p>Email address not provided.</p></body></html>")
-    
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-    
-    if not user:
-        import secrets
-        import bcrypt
-        temp_pwd = secrets.token_urlsafe(16)
-        pwd_hash = bcrypt.hashpw(temp_pwd.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        
-        import uuid
-        user_id = f"user_{uuid.uuid4().hex[:16]}"
-        api_key = generate_api_key()
-        cursor = conn.execute(
-            """INSERT INTO users (user_id, email, password_hash, name, api_key, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at)
-               VALUES (?, ?, ?, ?, ?, 'microsoft', ?, ?, ?)""",
-            (user_id, email, pwd_hash, name, api_key, access_token, refresh_token, expires_at)
-        )
-        conn.commit()
-    else:
-        user_id = user["user_id"]
-        if refresh_token:
-            conn.execute(
-                "UPDATE users SET oauth_provider='microsoft', oauth_access_token=?, oauth_refresh_token=?, oauth_expires_at=? WHERE user_id=?",
-                (access_token, refresh_token, expires_at, user_id)
-            )
-        else:
-            conn.execute(
-                "UPDATE users SET oauth_provider='microsoft', oauth_access_token=?, oauth_expires_at=? WHERE user_id=?",
-                (access_token, expires_at, user_id)
-            )
-        conn.commit()
-    
-    conn.close()
-    
-    response = RedirectResponse("/user-dashboard", status_code=303)
-    response.set_cookie("user_id", session_serializer.dumps(user_id), httponly=True, samesite="lax", max_age=86400*30)
-    return response
-
-@app.get("/login", response_class=HTMLResponse)
-def login_page(request: Request, plan: str = ""):
-    selected_plan = plan or request.cookies.get("last_selected_plan", "starter")
-    return templates.TemplateResponse(request, "login_v2.html", {
-        "selected_plan": selected_plan,
-        "plan": plan,
-        "VERSION": config.VERSION
-    })
-
-@app.post("/login")
-def login(request: Request, email: str = Form(...), password: str = Form(...)):
-    # Rate limiting check
-    client_ip = request.client.host if request.client else "unknown"
-    if not _check_login_rate_limit(client_ip):
-        return templates.TemplateResponse(
-            request, "login_v2.html",
-            {"error": "Too many login attempts. Please try again in 1 hour."}
-        )
-    # Per-account lockout: 5 failed attempts = 30min lock
-    account_key = f"login_lock:{email}"
-    conn = get_db()
-    
-    lockout = None
-    try:
-        lockout = conn.execute("SELECT value FROM system_config WHERE key = ?", (account_key,)).fetchone()
-    except Exception:
-        pass
-        
-    if lockout:
-        from time import time
-        try:
-            lock_ts = float(lockout["value"])
-            if time() - lock_ts < 1800:  # 30 min lockout
-                conn.close()
-                return templates.TemplateResponse(request, "login_v2.html", {"error": "Account locked due to too many failed attempts. Try again in 30 minutes."})
-        except (ValueError, TypeError):
-            pass
-
-    user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-
-    # Check if user is banned/disabled
-    if user and (user.get("is_active") == 0 or user.get("banned") == 1):
-        conn.close()
-        return templates.TemplateResponse(request, "login_v2.html", {"error": "Account has been disabled. Contact support."})
-
-    if not user or not verify_password(password, user["password_hash"]):
-        # Track failed attempt
-        try:
-            fail_key = f"login_fails:{email}"
-            row = conn.execute("SELECT value FROM system_config WHERE key = ?", (fail_key,)).fetchone()
-            fails = int(row["value"]) + 1 if row else 1
-            conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
-                         (fail_key, str(fails)))
-            if fails >= 5:
-                conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
-                             (account_key, str(time())))
-            conn.commit()
-        except Exception:
-            pass
-        conn.close()
-        return templates.TemplateResponse(request, "login_v2.html", {"error": "Invalid credentials"})
-
-    # Successful login — clear failed attempts
-    try:
-        conn.execute("DELETE FROM system_config WHERE key = ?", (f"login_fails:{email}",))
-        conn.execute("DELETE FROM system_config WHERE key = ?", (account_key,))
-        conn.commit()
-    except Exception:
-        pass
-    conn.close()
-
-    # Also set Starlette session for consistency with API-based auth
-    try:
-        request.session["user"] = {
-            "id": user.get("id"),
-            "email": user.get("email"),
-            "name": user.get("name", user.get("email", "").split("@")[0])
-        }
-    except Exception:
-        pass
-
-    response = RedirectResponse("/user-dashboard", status_code=303)
-    response.set_cookie("user_id", session_serializer.dumps(user["user_id"]),
-        httponly=True, samesite="lax", max_age=86400*30)
-    return response
-
-@app.get("/logout")
-def logout(request: Request):
-    """Clear session cookie and redirect to login page."""
-    resp = RedirectResponse("/login", status_code=303)
-    resp.delete_cookie("user_id", path="/")
-    # Also clear Starlette session if present
-    try:
-        request.session.clear()
-    except Exception:
-        pass
-    return resp
-
-@app.get("/forgot-password", response_class=HTMLResponse)
-def forgot_password_page(request: Request):
-    return templates.TemplateResponse(request, "forgot_password.html")
-
-@app.post("/forgot-password")
-def forgot_password(request: Request, email: str = Form(...)):
-    client_ip = request.client.host if request.client else "unknown"
-    if not _check_rate_limit(_forgot_attempts, client_ip, max_count=5):
-        return templates.TemplateResponse(request, "forgot_password.html", {"error": "Too many attempts. Try again in 1 hour."})
-    conn = get_db()
-    user = conn.execute("SELECT user_id FROM users WHERE email = ?", (email,)).fetchone()
-    conn.close()
-
-    # Always show same message to prevent email enumeration
-    email_sent = False
-    reset_link = None
-    if user:
-        token = session_serializer.dumps({"user_id": user["user_id"], "action": "reset"})
-        reset_link = f"{config.SITE_URL}/reset-password?token={token}"
-        # Build email content
-        text_body = f"""Password Reset Request
-
-You requested a password reset for your JobHunt Pro account.
-
-Click this link to reset your password:
-{reset_link}
-
-This link expires in 1 hour.
-If you didn't request this, ignore this email.
-"""
-        html_body = f"""<html><body style="font-family: Arial, sans-serif; padding: 20px;">
-<h2 style="color: #333;">JobHunt Pro - Password Reset</h2>
-<p>You requested a password reset for your JobHunt Pro account.</p>
-<p><a href="{reset_link}" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Reset Password</a></p>
-<p style="color: #666; font-size: 14px;">Or copy this link: <a href="{reset_link}">{reset_link}</a></p>
-<p style="color: #999; font-size: 12px;">This link expires in 1 hour. If you didn't request this, ignore this email.</p>
-</body></html>"""
-        # NO SMTP fallback (port 587 blocked on PA)
-    # NEVER show reset link on page (security - only via email)
-    msg = "If this email exists, a reset link has been sent. Check your inbox."
-    # Return page FIRST (instant response, don't wait for email)
-    response = templates.TemplateResponse(request, "forgot_password.html", {
-        "success": msg,
-        "email": email
-    })
-    # Fire email/Telegram in background thread (WSGI-safe, reliable)
-    if user and reset_link:
-        def _send_notifications():
-            import requests
-            bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "") or getattr(config, "TELEGRAM_BOT_TOKEN", "")
-            chat_id = os.getenv("TELEGRAM_CHAT_ID", "") or getattr(config, "TELEGRAM_CHAT_ID", "")
-            # Method 0: Telegram DM (most reliable - HTTPS always works)
-            try:
-                if bot_token and chat_id:
-                    tg_msg = (
-                        f"\ud83d\udd10 *JobHunt Pro - Password Reset*\n\n"
-                        f"Email: `{email}`\n\n"
-                        f"Reset link (expires 1hr):\n{reset_link}\n\n"
-                        f"[Open Reset Page]({reset_link})"
-                    )
-                    tg = requests.post(
-                        f"https://api.telegram.org/bot{bot_token}/sendMessage",
-                        json={"chat_id": chat_id, "text": tg_msg,
-                              "parse_mode": "Markdown", "disable_web_page_preview": True},
-                        timeout=10,
-                    )
-                    if tg.status_code == 200:
-                        logger.info(f"[RESET] Telegram sent to chat {chat_id}")
-            except Exception as e:
-                logger.error(f"[RESET] Telegram failed: {e}")
-            # Method 1: EmailEngine pool (supports 20+ SMTP/HTTP providers)
-            try:
-                sent = email_engine.send_sync(email, "JobHunt Pro - Password Reset Request", html_body)
-                if sent:
-                    logger.info(f"[RESET] EmailEngine sent reset link to {email}")
-                    return
-            except Exception as e:
-                logger.error(f"[RESET] EmailEngine failed: {e}")
-
-            # Method 2: Direct Brevo fallback if EmailEngine failed
-            try:
-                brevo_key = (os.getenv("BREVO_API_KEY", "") or getattr(config, "BREVO_API_KEY", "")).strip()
-                brevo_from = (os.getenv("BREVO_ACCOUNT_EMAIL", "").strip()
-                              or getattr(config, "BREVO_ACCOUNT_EMAIL", "")
-                              or getattr(config, "CANDIDATE_EMAIL", ""))
-                if brevo_key:
-                    br = requests.post(
-                        "https://api.brevo.com/v3/smtp/email",
-                        json={
-                            "sender": {"email": brevo_from, "name": "JobHunt Pro"},
-                            "to": [{"email": email}],
-                            "subject": "JobHunt Pro - Password Reset Request",
-                            "htmlContent": html_body,
-                        },
-                        headers={"api-key": brevo_key, "Content-Type": "application/json"},
-                        timeout=15,
-                    )
-                    if br.status_code == 201:
-                        logger.info(f"[RESET] Direct Brevo email fallback sent to {email}")
-                        return
-            except Exception as e:
-                logger.warning(f"[RESET] Direct Brevo fallback failed: {e}")
-
-            # Method 3: Direct Gmail SMTP fallback if both failed
-            try:
-                sent = _send_via_gmail_smtp(
-                    email,
-                    "JobHunt Pro - Password Reset Request",
-                    html_body,
-                    "JobHunt Pro",
-                )
-                if sent:
-                    logger.info(f"[RESET] Direct Gmail SMTP fallback sent to {email}")
-            except Exception as e:
-                logger.error(f"[RESET] Direct Gmail SMTP fallback failed: {e}")
-
-
-        threading.Thread(target=_send_notifications, daemon=True).start()
-
-    return response
-
-
-# SECURITY: /admin-force-reset endpoint REMOVED — had no real authentication.
-# Password resets now only through the authenticated /reset-password flow.
 
 
 
-@app.get("/reset-password", response_class=HTMLResponse)
-def reset_password_page(request: Request, token: str = ""):
-    if not token:
-        return RedirectResponse("/forgot-password", status_code=303)
-    try:
-        data = session_serializer.loads(token, max_age=3600)  # 1 hour expiry
-        return templates.TemplateResponse(request, "reset_password.html", {"token": token, "user_id": data["user_id"]})
-    except Exception:
-        return templates.TemplateResponse(request, "forgot_password.html", {"error": "Invalid or expired token"})
-
-@app.post("/reset-password")
-def reset_password(request: Request, token: str = Form(...), password: str = Form(...)):
-    try:
-        data = session_serializer.loads(token, max_age=3600)  # 1 hour expiry
-        user_id = data["user_id"]
-        conn = get_db()
-        conn.execute("UPDATE users SET password_hash = ? WHERE user_id = ?", (hash_password(password), user_id))
-        conn.commit()
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-    except Exception:
-        return templates.TemplateResponse(request, "forgot_password.html", {"error": "Invalid or expired token"})
-
-@app.get("/oauth/google/login")
-def oauth_google_login(request: Request):
-    user_id = get_verified_user_id(request)
-    if not user_id: return RedirectResponse("/login", status_code=303)
-    
-    # Needs gmail.send, userinfo.email
-    client_id = getattr(config, "GOOGLE_CLIENT_ID", "")
-    if not client_id: return HTMLResponse("GOOGLE_CLIENT_ID not configured.", status_code=500)
-    
-    redirect_uri = f"https://{request.url.hostname}/oauth/google/callback"
-    if request.url.hostname in ("localhost", "127.0.0.1"): redirect_uri = "http://localhost:8000/oauth/google/callback"
-    
-    scope = "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email"
-    url = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}&access_type=offline&prompt=consent"
-    return RedirectResponse(url)
-
-@app.get("/oauth/google/callback")
-def oauth_google_callback(request: Request, code: str = None, error: str = None):
-    user_id = get_verified_user_id(request)
-    if not user_id: return RedirectResponse("/login", status_code=303)
-    if error or not code: return RedirectResponse("/dashboard?error=OAuth Failed", status_code=303)
-    
-    client_id = getattr(config, "GOOGLE_CLIENT_ID", "")
-    client_secret = getattr(config, "GOOGLE_CLIENT_SECRET", "")
-    redirect_uri = f"https://{request.url.hostname}/oauth/google/callback"
-    if request.url.hostname in ("localhost", "127.0.0.1"): redirect_uri = "http://localhost:8000/oauth/google/callback"
-    
-    import requests, time
-    resp = requests.post("https://oauth2.googleapis.com/token", data={
-        "client_id": client_id, "client_secret": client_secret, "code": code,
-        "grant_type": "authorization_code", "redirect_uri": redirect_uri
-    })
-    if not resp.ok: return RedirectResponse(f"/dashboard?error=TokenExchangeFailed:{resp.text}", status_code=303)
-    
-    tokens = resp.json()
-    access_token = tokens.get("access_token")
-    refresh_token = tokens.get("refresh_token", "")
-    expires_at = time.time() + tokens.get("expires_in", 3599)
-    
-    # Get user email
-    user_info = requests.get("https://www.googleapis.com/oauth2/v2/userinfo", headers={"Authorization": f"Bearer {access_token}"})
-    oauth_email = user_info.json().get("email", "") if user_info.ok else ""
-    
-    conn = get_db()
-    # Check if we should keep the existing refresh token
-    if not refresh_token:
-        row = conn.execute("SELECT oauth_refresh_token FROM users WHERE user_id=?", (user_id,)).fetchone()
-        if row and row[0]: refresh_token = row[0]
-        
-    conn.execute("""
-        UPDATE users 
-        SET oauth_provider='google', oauth_access_token=?, oauth_refresh_token=?, 
-            oauth_expires_at=?, oauth_email=?, personal_email_sent_today=0 
-        WHERE user_id=?
-    """, (access_token, refresh_token, expires_at, oauth_email, user_id))
-    conn.commit()
-    conn.close()
-    return RedirectResponse("/dashboard?success=Google Account Connected!", status_code=303)
-
-@app.get("/oauth/microsoft/login")
-def oauth_microsoft_login(request: Request):
-    user_id = get_verified_user_id(request)
-    if not user_id: return RedirectResponse("/login", status_code=303)
-    
-    client_id = getattr(config, "MICROSOFT_CLIENT_ID", "")
-    if not client_id: return HTMLResponse("MICROSOFT_CLIENT_ID not configured.", status_code=500)
-    
-    redirect_uri = f"https://{request.url.hostname}/oauth/microsoft/callback"
-    if request.url.hostname in ("localhost", "127.0.0.1"): redirect_uri = "http://localhost:8000/oauth/microsoft/callback"
-    
-    scope = "offline_access Mail.Send User.Read"
-    url = f"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}&prompt=select_account"
-    return RedirectResponse(url)
-
-@app.get("/oauth/microsoft/callback")
-def oauth_microsoft_callback(request: Request, code: str = None, error: str = None):
-    user_id = get_verified_user_id(request)
-    if not user_id: return RedirectResponse("/login", status_code=303)
-    if error or not code: return RedirectResponse("/dashboard?error=OAuth Failed", status_code=303)
-    
-    client_id = getattr(config, "MICROSOFT_CLIENT_ID", "")
-    client_secret = getattr(config, "MICROSOFT_CLIENT_SECRET", "")
-    redirect_uri = f"https://{request.url.hostname}/oauth/microsoft/callback"
-    if request.url.hostname in ("localhost", "127.0.0.1"): redirect_uri = "http://localhost:8000/oauth/microsoft/callback"
-    
-    import requests, time
-    resp = requests.post("https://login.microsoftonline.com/common/oauth2/v2.0/token", data={
-        "client_id": client_id, "client_secret": client_secret, "code": code,
-        "grant_type": "authorization_code", "redirect_uri": redirect_uri
-    })
-    if not resp.ok: return RedirectResponse(f"/dashboard?error=TokenExchangeFailed:{resp.text}", status_code=303)
-    
-    tokens = resp.json()
-    access_token = tokens.get("access_token")
-    refresh_token = tokens.get("refresh_token", "")
-    expires_at = time.time() + tokens.get("expires_in", 3599)
-    
-    user_info = requests.get("https://graph.microsoft.com/v1.0/me", headers={"Authorization": f"Bearer {access_token}"})
-    oauth_email = user_info.json().get("mail", "") or user_info.json().get("userPrincipalName", "") if user_info.ok else ""
-    
-    conn = get_db()
-    if not refresh_token:
-        row = conn.execute("SELECT oauth_refresh_token FROM users WHERE user_id=?", (user_id,)).fetchone()
-        if row and row[0]: refresh_token = row[0]
-        
-    conn.execute("""
-        UPDATE users 
-        SET oauth_provider='microsoft', oauth_access_token=?, oauth_refresh_token=?, 
-            oauth_expires_at=?, oauth_email=?, personal_email_sent_today=0 
-        WHERE user_id=?
-    """, (access_token, refresh_token, expires_at, oauth_email, user_id))
-    conn.commit()
-    conn.close()
-    return RedirectResponse("/dashboard?success=Microsoft Account Connected!", status_code=303)
-
-@app.get("/oauth/disconnect")
-def oauth_disconnect(request: Request):
-    user_id = get_verified_user_id(request)
-    if not user_id: return RedirectResponse("/login", status_code=303)
-    
-    conn = get_db()
-    conn.execute("""
-        UPDATE users 
-        SET oauth_provider=NULL, oauth_access_token=NULL, oauth_refresh_token=NULL, 
-            oauth_expires_at=NULL, oauth_email=NULL 
-        WHERE user_id=?
-    """, (user_id,))
-    conn.commit()
-    conn.close()
-    return RedirectResponse("/dashboard?success=Email Account Disconnected", status_code=303)
 
 @app.get("/user-dashboard", response_class=HTMLResponse)
 def user_dashboard(request: Request):
@@ -3864,397 +3238,6 @@ def user_dashboard(request: Request):
     referral_link = f"{config.SITE_URL}/register?ref={user_id}"
     content = render_template("dashboard_v3.html", request=request, active_page="dashboard", user=user, profiles=profiles, profile_count=len(profiles), campaigns=campaigns, campaign_count=len(campaigns), transactions=transactions, referrals=referrals, referral_link=referral_link, pipeline_emails=pipeline_emails, pipeline_counts=pipeline_counts, manual_emails_user=manual_emails_user, login_streak=login_streak, streak_reward=streak_reward, next_milestone=next_milestone, days_to_next=days_to_next, next_reward=next_reward, flash_sales=active_flash_sales, recent_purchases=recent_purchases, stats=stats, candidates=[])
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Dashboard", "dashboard"))
-
-@app.get("/new-campaign", response_class=HTMLResponse)
-def new_campaign_page(request: Request):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-
-    conn = get_db()
-    profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    if not user_row:
-        return RedirectResponse("/login", status_code=303)
-    user = dict(user_row)
-
-    pricing_data = get_all_pricing()
-
-    content = render_template("new_campaign_v2.html",
-        user=user, user_id=user_id, active_page="new-campaign",
-        profiles=profiles, pricing=pricing_data, balance=user["wallet_balance"]
-    )
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "New Campaign", "new-campaign"))
-
-@app.post("/api/v1/delete-cv-profile")
-async def delete_cv_profile(request: Request):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return JSONResponse({"success": False, "message": "Unauthorized"}, status_code=401)
-    
-    try:
-        data = await request.json()
-        profile_id = data.get("profile_id")
-        if not profile_id:
-            return JSONResponse({"success": False, "message": "Missing profile_id"})
-            
-        conn = get_db()
-        row = conn.execute("SELECT id FROM cv_profiles WHERE id=? AND user_id=?", (profile_id, user_id)).fetchone()
-        if not row:
-            conn.close()
-            return JSONResponse({"success": False, "message": "Profile not found or unauthorized"})
-            
-        conn.execute("DELETE FROM cv_profiles WHERE id=? AND user_id=?", (profile_id, user_id))
-        conn.commit()
-        conn.close()
-        return JSONResponse({"success": True})
-    except Exception as e:
-        return JSONResponse({"success": False, "message": str(e)})
-
-@app.post("/create-campaign")
-@app.post("/api/campaigns")
-def create_campaign(request: Request, profile_id: int = Form(...),
-                          company_count: int = Form(0), bouquet: str = Form(""), bouquet_names: str = Form(""), engine_type: str = Form("cloud")):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-
-    conn = get_db()
-    user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-    user = dict(user_row)
-
-    tier = PRICING_TIERS_MAP.get(company_count)
-
-    bouquet_price = 0
-    bouquets_selected = []
-    if bouquet:
-        # Single bouquet (backward compat)
-        b_pkg = BOUQUET_PACKAGES_MAP.get(bouquet)
-        if b_pkg:
-            bouquet_price = b_pkg["price_usd"]
-            bouquets_selected.append(bouquet)
-            
-    if bouquet_names:
-        # Multiple bouquets from checkboxes
-        for bname in bouquet_names.split(","):
-            bname = bname.strip()
-            b_pkg = BOUQUET_PACKAGES_MAP.get(bname)
-            if b_pkg:
-                bouquet_price += b_pkg["price_usd"]
-                bouquets_selected.append(bname)
-
-    if not tier:
-        conn.close()
-        return RedirectResponse("/new-campaign", status_code=303)
-
-    total_price = tier["price_usd"] + bouquet_price
-    
-    # Pre-check balance before beginning transaction to fail fast
-    if user["wallet_balance"] < total_price:
-        conn.close()
-        return RedirectResponse("/wallet?error=insufficient_funds", status_code=303)
-
-    campaign_id = f"camp_{uuid.uuid4().hex[:16]}"
-    order_id = f"ord_{uuid.uuid4().hex[:16]}"
-
-    try:
-        conn.execute("BEGIN TRANSACTION")
-
-        # Atomic wallet deduction
-        cursor = conn.execute("""
-            UPDATE users 
-            SET wallet_balance = wallet_balance - ?, 
-                total_spent = total_spent + ? 
-            WHERE user_id = ? AND wallet_balance >= ?
-        """, (total_price, total_price, user_id, total_price))
-        
-        if cursor.rowcount == 0:
-            conn.rollback()
-            conn.close()
-            return RedirectResponse("/wallet?error=insufficient_funds", status_code=303)
-            
-        new_balance = user["wallet_balance"] - total_price
-
-        # Record orders and campaigns
-        conn.execute("""INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                     (order_id, user_id, "campaign", tier["tier"], company_count, total_price, "wallet", "completed"))
-        
-        bouquets_str = ",".join(bouquets_selected)
-        conn.execute("""INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, total_companies, bouquets, engine_type)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                     (campaign_id, user_id, order_id, profile_id, company_count, bouquets_str, engine_type))
-
-        # Record transaction history
-        conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-                        VALUES (?, ?, ?, ?, ?)""",
-                     (user_id, "spend", -total_price, new_balance, f"Campaign: {company_count} companies"))
-
-        conn.commit()
-    except Exception as e:
-        conn.rollback()
-        logger.error(f"[DB] Transaction failed in create_campaign: {e}")
-        conn.close()
-        return HTMLResponse("Internal Server Error: Could not process transaction.", status_code=500)
-    finally:
-        conn.close()
-
-    # Enqueue to distributed queue for piggyback worker
-    from core.job_queue import enqueue_task
-    try:
-        enqueue_task("run_campaign", {"campaign_id": campaign_id})
-    except Exception as e:
-        logger.error(f"[QUEUE] Error enqueuing campaign {campaign_id}: {e}")
-
-    # v16.307: Don't launch thread on PA (gets killed by uWSGI).
-    # Cloud tick loop picks up pending campaigns every 30 min.
-    # Use /api/cron-tick to run instantly.
-    return RedirectResponse(f"/campaign/{campaign_id}?queued=1", status_code=303)
-
-@app.get("/campaign/{campaign_id}", response_class=HTMLResponse)
-def campaign_detail(request: Request, campaign_id: str):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-
-    conn = get_db()
-    campaign_row = conn.execute("SELECT * FROM campaigns WHERE campaign_id = ? AND user_id = ?",
-                                 (campaign_id, user_id)).fetchone()
-    if not campaign_row:
-        conn.close()
-        return RedirectResponse("/dashboard", status_code=303)
-    campaign = dict(campaign_row)
-    emails = [dict(r) for r in conn.execute(
-        "SELECT * FROM campaign_emails WHERE campaign_id = ? ORDER BY sent_at DESC",
-        (campaign_id,)).fetchall()]
-    conn.close()
-
-    content_html = render_template("campaign_detail.html", request=request,
-        campaign=campaign, emails=emails)
-    return HTMLResponse(_build_dashboard_shell(None, user_id, content_html, f"Campaign {campaign.get('campaign_name', 'Detail')}", "new-campaign"))
-
-@app.get("/campaign/{campaign_id}/war-room", response_class=HTMLResponse)
-def campaign_war_room(request: Request, campaign_id: str):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    for col, typ in [("cover_html", "TEXT DEFAULT ''"), ("competition_score", "INTEGER DEFAULT 0"), ("followup_scheduled", "INTEGER DEFAULT 0")]:
-        try:
-            conn.execute(f"ALTER TABLE campaign_emails ADD COLUMN {col} {typ}")
-            conn.commit()
-        except Exception:
-            pass  # column already exists
-    campaign_row = conn.execute("SELECT * FROM campaigns WHERE campaign_id = ? AND user_id = ?",
-                                 (campaign_id, user_id)).fetchone()
-    if not campaign_row:
-        conn.close()
-        return RedirectResponse("/dashboard", status_code=303)
-    campaign = dict(campaign_row)
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    user = dict(user_row) if user_row else {}
-    emails = [dict(r) for r in conn.execute(
-        "SELECT * FROM campaign_emails WHERE campaign_id = ? ORDER BY sent_at DESC",
-        (campaign_id,)).fetchall()]
-    conn.close()
-
-    weapon_count = int(campaign.get("premium_weapons", 0) or 0)
-    is_running = campaign.get("status", "") == "running"
-
-    if weapon_count >= 14:
-        weapon_badge = '<span class="wb-god">💀 GOD MODE V4 — 15/15 WEAPONS ACTIVE</span>'
-    elif weapon_count >= 10:
-        weapon_badge = f'<span class="wb-emperor">👑 EMPEROR — {weapon_count}/12 WEAPONS ACTIVE</span>'
-    elif weapon_count >= 3:
-        weapon_badge = f'<span class="wb-pro">🦅 PRO HUNTER V2 — {weapon_count}/5 WEAPONS ACTIVE</span>'
-    elif weapon_count >= 1:
-        weapon_badge = f'<span class="wb-starter">⚡ {weapon_count} WEAPON(S) ACTIVE</span>'
-    else:
-        weapon_badge = '<span class="wb-none">🔒 NO WEAPONS — Visit Premium Services to arm up</span>'
-
-    progress_pct = min(100, int((weapon_count / 15) * 100))
-    sent = sum(1 for e in emails if e.get("status") == "sent")
-    failed = sum(1 for e in emails if e.get("status") in ("pending", "brevo_failed", "gmail_failed"))
-    followups = sum(1 for e in emails if e.get("followup_scheduled"))
-
-    # Comp radar
-    comp_rows = []
-    for e in emails:
-        cs = int(e.get("competition_score") or 0)
-        if cs:
-            heat, heat_cls = (("FIRE HOT", "hot") if cs >= 80 else (("GOOD", "good") if cs >= 70 else ("COLD", "cold")))
-            comp_rows.append({"company": e.get("company_name", "?"), "job_title": e.get("job_title", ""),
-                "score": cs, "heat_label": heat, "heat_cls": heat_cls})
-
-    # LinkedIn
-    linkedin_rows = [{"company": e.get("company_name", "?"), "job_title": e.get("job_title", ""),
-        "message": (e.get("linkedin_message") or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")}
-        for e in emails if (e.get("linkedin_message") or "").strip()]
-
-    # Interview prep
-    interview_rows = [{"company": e.get("company_name", "?"), "job_title": e.get("job_title", ""),
-        "prep": (e.get("interview_prep") or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")}
-        for e in emails if (e.get("interview_prep") or "").strip()]
-
-    # Cover letters
-    cover_rows = []
-    for e in emails[:20]:
-        ch = (e.get("cover_html") or "").strip()
-        status = "SENT" if e.get("status") == "sent" else "FAILED"
-        cover_rows.append({"company": e.get("company_name", "?"), "job_title": e.get("job_title", ""),
-            "id": e.get("id"),
-            "status": status, "status_cls": "sent" if status == "SENT" else "failed",
-            "html": ch.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") if ch else "",
-            "raw_html": ch if ch else "",
-            "has_preview": bool(ch)})
-
-    # Actions
-    st = campaign.get("status", "")
-    if st == "completed":
-        actions = [{"sev": "crit", "label": "CRITICAL", "text": "Send follow-ups to non-responsive companies (Day 3/7/14)"},
-                   {"sev": "high", "label": "HIGH", "text": "Send LinkedIn connection requests (open LinkedIn Station below)"},
-                   {"sev": "high", "label": "HIGH", "text": "Practice interview questions per company (open Armory below)"},
-                   {"sev": "med", "label": "MED", "text": "Launch a new campaign targeting different locations/roles"}]
-    elif st == "running":
-        actions = [{"sev": "info", "label": "INFO", "text": "Campaign is actively sending — this page auto-refreshes"}]
-    elif st == "failed":
-        actions = [{"sev": "crit", "label": "CRITICAL", "text": "Campaign failed — check error details and retry"}]
-    else:
-        actions = [{"sev": "info", "label": "INFO", "text": "Campaign pending — refresh when started"}]
-
-    content = render_template("war_room.html",
-        campaign_id=campaign_id,
-        campaign={"cid": campaign_id[:12], "status": campaign.get("status", "?").upper(),
-            "total_companies": campaign.get("total_companies", 0),
-            "open_count": campaign.get("open_count", 0),
-            "response_count": campaign.get("response_count", 0)},
-        stats={"sent": sent, "failed": failed, "followups": followups},
-        weapon_badge=weapon_badge, progress_pct=progress_pct,
-        auto_refresh=is_running,
-        comp_rows=comp_rows, linkedin_rows=linkedin_rows,
-        interview_rows=interview_rows, cover_rows=cover_rows, actions=actions)
-    user_dict = {"wallet_balance": user.get("wallet_balance", 0)}
-    return HTMLResponse(_build_dashboard_shell(user_dict, user_id, content, "⚔️ War Room", "war-room"))
-
-@app.post("/api/generate-interview-prep/{email_id}")
-async def api_generate_interview_prep(request: Request, email_id: int):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return JSONResponse({"error": "Unauthorized"}, status_code=401)
-    
-    conn = get_db()
-    # verify ownership
-    row = conn.execute("SELECT e.*, c.user_id FROM campaign_emails e JOIN campaigns c ON e.campaign_id = c.campaign_id WHERE e.id = ?", (email_id,)).fetchone()
-    if not row or str(row["user_id"]) != str(user_id):
-        conn.close()
-        return JSONResponse({"error": "Not found"}, status_code=404)
-    
-    email_data = dict(row)
-    
-    # Check if already generated
-    if email_data.get("interview_prep"):
-        conn.close()
-        return {"success": True, "redirect": f"/interview-prep/{email_id}"}
-        
-    company = email_data.get("company_name", "the company")
-    title = email_data.get("job_title", "the role")
-    cover_letter = email_data.get("cover_html", "")
-    
-    # Fetch the user's latest CV for the LangGraph agents
-    profile_row = conn.execute("SELECT cv_text FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
-    cv_text = profile_row["cv_text"] if profile_row and profile_row["cv_text"] else "No CV content provided."
-    
-    # Call the new LangGraph Multi-Agent Pipeline
-    try:
-        from core.agent_graph import run_interview_prep_graph
-        import asyncio
-        
-        # Run the synchronous LangGraph code in a thread to avoid blocking the event loop
-        prep_html = await asyncio.to_thread(
-            run_interview_prep_graph,
-            company=company,
-            job_title=title,
-            cover_letter=cover_letter,
-            cv_text=cv_text
-        )
-        
-        conn.execute("UPDATE campaign_emails SET interview_prep = ? WHERE id = ?", (prep_html, email_id))
-        conn.commit()
-    except Exception as e:
-        conn.close()
-        return JSONResponse({"error": str(e)}, status_code=500)
-        
-    conn.close()
-    return {"success": True, "redirect": f"/interview-prep/{email_id}"}
-
-@app.get("/interview-prep/{email_id}", response_class=HTMLResponse)
-def view_interview_prep(request: Request, email_id: int):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-        
-    conn = get_db()
-    row = conn.execute("SELECT * FROM campaign_emails WHERE id = ?", (email_id,)).fetchone()
-    conn.close()
-    if not row:
-        return RedirectResponse("/dashboard", status_code=303)
-        
-    email_data = dict(row)
-    
-    content_html = render_template("interview_prep.html", request=request,
-        
-        campaign_id=email_data.get("campaign_id", ""),
-        company=email_data.get("company_name", ""),
-        job_title=email_data.get("job_title", ""),
-        prep_content=email_data.get("interview_prep", "")
-    )
-    return HTMLResponse(_build_dashboard_shell(None, user_id, content_html, "Interview Prep", "interview-prep"))
-
-@app.get("/battle-station", response_class=HTMLResponse)
-def battle_station_page(request: Request):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    
-    campaigns = []
-    running_count = paused_count = completed_count = failed_count = total_sent = total_responses = 0
-
-    try:
-        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        if not user_row:
-            conn.close()
-            return RedirectResponse("/login", status_code=303)
-        user = dict(user_row)
-        
-        camp_rows = conn.execute("SELECT * FROM campaigns WHERE user_id = ? ORDER BY created_at DESC", (user_id,)).fetchall()
-        campaigns = [dict(c) for c in camp_rows]
-        
-        running_count = sum(1 for c in campaigns if c.get("status") == "running")
-        paused_count = sum(1 for c in campaigns if c.get("status") == "paused")
-        completed_count = sum(1 for c in campaigns if c.get("status") == "completed")
-        failed_count = sum(1 for c in campaigns if c.get("status") in ("failed", "error"))
-        
-        total_sent = sum(int(c.get("sent_count") or 0) for c in campaigns)
-        
-        total_responses = conn.execute(
-            "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.responded_at IS NOT NULL",
-            (user_id,)
-        ).fetchone()[0]
-    except Exception as e:
-        logger.error(f"Error in /battle-station query for user {user_id}: {e}", exc_info=True)
-        user = {}
-    finally:
-        conn.close()
-    content = render_template("battle_station.html", request=request,
-                              campaigns=campaigns, running_count=running_count,
-                              paused_count=paused_count, completed_count=completed_count,
-                              failed_count=failed_count, total_sent=total_sent, total_responses=total_responses)
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "&#x2694;&#xFE0F; Battle Station", "battle-station"))
 
 @app.get("/wallet", response_class=HTMLResponse)
 def wallet_page(request: Request):
@@ -4694,7 +3677,7 @@ async def offers_add(request: Request):
     return RedirectResponse("/offers?success=offer_added", status_code=303)
 
 @app.post("/api/v2/offers/delete/{offer_id}")
-async def offers_delete(request: Request, offer_id: str):
+def offers_delete(request: Request, offer_id: str):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -4823,7 +3806,7 @@ async def offers_import_keys(request: Request):
     return RedirectResponse(f"/offers?success=keys_imported&count={imported_count}", status_code=303)
 
 @app.post("/api/v2/offers/delete-key/{key_id}")
-async def offers_delete_key(request: Request, key_id: str):
+def offers_delete_key(request: Request, key_id: str):
     """Delete an unused key from the inventory pool."""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -5367,61 +4350,6 @@ def wallet_deposit_create(request: Request, amount: float = Form(...), currency:
 
     return RedirectResponse(f"/checkout/{order_id}", status_code=303)
 
-@app.get("/checkout/{order_id}", response_class=HTMLResponse)
-def checkout_page(request: Request, order_id: str):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-
-    conn = get_db()
-    order = conn.execute("SELECT * FROM orders WHERE order_id = ? AND user_id = ?", (order_id, user_id)).fetchone()
-    if not order:
-        conn.close()
-        return RedirectResponse("/wallet", status_code=303)
-
-    user_row = conn.execute("SELECT name, email FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-
-    if order["payment_status"] == "completed":
-        return RedirectResponse("/wallet?success=redeemed", status_code=303)
-
-    user_name = "Candidate"
-    user_email = ""
-    if user_row:
-        user_name = user_row["name"] or "Candidate"
-        user_email = user_row["email"] or ""
-
-    currency = order["payment_method"]
-    addr = order["pay_address"] if order["pay_address"] else ""
-    if not addr:
-        addresses = get_payment_addresses()
-        addr = addresses.get(currency, "")
-    if not addr:
-        addr = "0xSimulatedTrc20UsdtAddressForAutomatedJobHuntPayments"
-
-    payment_code = order["payment_code"] if "payment_code" in dict(order) else ""
-    if not payment_code:
-        payment_code = order_id[-8:].upper()
-
-    order_dict = {
-        "order_id": order["order_id"],
-        "status": order["payment_status"],
-        "item_type": order["order_type"],
-        "price": order["amount_usd"],
-        "total_price": order["amount_usd"],
-        "service_name": "Wallet Topup" if order["package_name"] == "wallet_topup" else order["package_name"],
-        "customer_name": user_name,
-        "customer_email": user_email,
-        "payment_code": payment_code,
-        "crypto_addresses": {currency: addr} if addr else get_payment_addresses(),
-    }
-
-    return templates.TemplateResponse(request, "checkout_v3.html", {
-        "order": order_dict,
-        "address": addr,
-        "currency": currency,
-        "VERSION": config.VERSION
-    })
 @app.get("/services-v2")
 def services_v2_redirect():
     from fastapi.responses import RedirectResponse
@@ -5432,11 +4360,6 @@ def premium_redirect():
     """Redirect /premium to /services for consistent navigation."""
     from fastapi.responses import RedirectResponse
     return RedirectResponse(url="/services", status_code=303)
-
-@app.get("/checkout")
-def checkout_redirect():
-    from fastapi.responses import RedirectResponse
-    return RedirectResponse(url="/pricing")
 
 @app.get("/api/health")
 def api_health_sanitized():
@@ -6152,7 +5075,7 @@ def admin_analytics(req: Request):
         return HTMLResponse(f"<h2>Analytics Error</h2><pre>{e}</pre>", status_code=500)
 
 @app.exception_handler(404)
-async def custom_404_handler(request: Request, exc):
+def custom_404_handler(request: Request, exc):
     """Custom 404 page with JobHunt Pro styling."""
     is_logged_in = False
     if request.cookies.get("session"):
@@ -8474,7 +7397,7 @@ async def generate_job_followup(req: FollowUpReq):
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 @app.get("/ping")
-async def keep_alive_ping():
+def keep_alive_ping():
     """UptimeRobot Keep-Alive Endpoint (Zero CPU, fast response)"""
     import time
     return {"status": "alive", "time": time.time()}
@@ -9802,19 +8725,6 @@ def services_v2_page(request: Request):
     })
 
 
-# --- Checkout page for new services ---
-
-@app.get("/checkout/v2/{order_id}", response_class=HTMLResponse)
-def checkout_v2_page(request: Request, order_id: str):
-    """Checkout page for a new service order."""
-    order = fulfillment.get_order(order_id)
-    if not order:
-        return HTMLResponse("Order not found", status_code=404)
-    return templates.TemplateResponse(request, "checkout_v2.html", {
-        "order": order,
-    })
-
-
 @app.get("/health/full")
 def health_full():
     """Full system health check &#x2014; services, DB, crypto wallets."""
@@ -10321,7 +9231,7 @@ def schedule_follow_up_emails(campaign_id: str, company: str, title: str, email_
 # ═══════════════════════════════════════════════════════════
 _tg_bot_instance = None
 
-async def _get_tg_bot():
+def _get_tg_bot():
     """Lazy-load Telegram bot instance (only when webhook is hit)."""
     global _tg_bot_instance
     if _tg_bot_instance is None:
@@ -10627,7 +9537,7 @@ async def api_fetch_url(request: Request):
 
 # ============ API v1 Jobs Endpoint (was 404 - FIXED 2026-06-04) ============
 @app.get("/api/v1/jobs")
-async def api_v1_jobs(request: Request):
+def api_v1_jobs(request: Request):
     """Return all jobs for the logged-in user as JSON."""
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -11065,7 +9975,7 @@ def tracking_analytics(request: Request):
 
 @app.get("/api/cron/tick", response_class=JSONResponse)
 @app.post("/api/cron/tick", response_class=JSONResponse)
-async def cron_tick(request: Request, key: str = "", maintenance: str = "",
+def cron_tick(request: Request, key: str = "", maintenance: str = "",
                     reset: str = "", timeout: str = ""):
     """Lightweight cron endpoint for external cron-job.org (no auth needed).
     Delegates heavy execution to the PostgreSQL-backed job queue.
@@ -11405,7 +10315,7 @@ def verify_system_key(request: Request):
 
 
 @app.get('/api/jobs/unscored')
-async def jobs_unscored(request: Request, limit: int = 100):
+def jobs_unscored(request: Request, limit: int = 100):
     import hashlib
     conn = get_db()
     try:
@@ -11526,7 +10436,7 @@ async def cloud_tick_endpoint(request: Request):
 
 
 @app.get("/api/v2/cloud-tick/status")
-async def cloud_tick_status():
+def cloud_tick_status():
     return {
         "status": "ok",
         "pa_token": bool(os.getenv("PA_API_TOKEN")),
@@ -11541,7 +10451,7 @@ async def cloud_tick_status():
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/api/multi-tenant/status")
-async def multi_tenant_status(request: Request):
+def multi_tenant_status(request: Request):
     """Get all tenants and their stats."""
     verify_system_key(request)
     try:
@@ -11554,7 +10464,7 @@ async def multi_tenant_status(request: Request):
 
 
 @app.get("/api/multi-tenant/rita")
-async def rita_status(request: Request):
+def rita_status(request: Request):
     """Get Rita's profile and stats."""
     verify_system_key(request)
     try:
@@ -11567,7 +10477,7 @@ async def rita_status(request: Request):
 
 
 @app.post("/api/system/seed-companies")
-async def seed_companies(request: Request):
+def seed_companies(request: Request):
     """Seed Lebanon company database on PA."""
     verify_system_key(request)
     try:
@@ -11579,7 +10489,7 @@ async def seed_companies(request: Request):
 
 
 @app.get("/api/system/companies-count")
-async def companies_count(request: Request):
+def companies_count(request: Request):
     verify_system_key(request)
     try:
         from core.lebanon_company_seeder import get_companies_count
@@ -11589,7 +10499,7 @@ async def companies_count(request: Request):
 
 
 @app.post("/api/system/force-rita-campaign")
-async def force_rita_campaign(request: Request):
+def force_rita_campaign(request: Request):
     verify_system_key(request)
     try:
         from scripts.force_rita_campaign import force_rita_campaign as frc
@@ -11599,7 +10509,7 @@ async def force_rita_campaign(request: Request):
 
 
 @app.post("/api/system/force-reset-all")
-async def force_reset_all(request: Request):
+def force_reset_all(request: Request):
     """Reset ALL completed campaigns to pending for both tenants."""
     verify_system_key(request)
     try:
@@ -11637,7 +10547,7 @@ async def add_tenant(request: Request):
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/api/system/status")
-async def system_status(request: Request):
+def system_status(request: Request):
     """
     Full system status — RAM, CPU, running campaigns, SMTP health, API keys.
     Uses auto_heal.get_system_health_snapshot() for comprehensive health view.
@@ -11737,7 +10647,7 @@ async def swarm_telemetry(request: Request):
     return JSONResponse({"status": "logged"})
 
 @app.get("/api/v1/extension/config")
-async def extension_config(user_id: str = ""):
+def extension_config(user_id: str = ""):
     """
     Kill-switch and algorithm updater for millions of extensions.
     Implements Gamified Referral System (Unlocks 50/day if referred >= 3).
@@ -11764,14 +10674,14 @@ async def extension_config(user_id: str = ""):
 # HIDDEN AUTH ENDPOINTS FOR 24/7 SESSIONS
 # ==========================================
 @app.post("/auth/refresh-token")
-async def refresh_token(request: Request):
+def refresh_token(request: Request):
     """
     Silently rotate JWT/Session for the Swarm extension so it never logs out.
     """
     return JSONResponse({"status": "refreshed", "token_validity": "24h"})
 
 @app.post("/auth/logout")
-async def logout_api(request: Request):
+def logout_api(request: Request):
     """
     Safely terminate the session.
     """
@@ -11782,7 +10692,7 @@ async def logout_api(request: Request):
 # PROGRAMMATIC SEO ROUTES
 # ==========================================
 @app.get("/tools/auto-apply/{job_title}", response_class=HTMLResponse)
-async def seo_landing_page(request: Request, job_title: str):
+def seo_landing_page(request: Request, job_title: str):
     """
     Programmatic SEO landing page generator.
     Captures traffic for specific long-tail keywords.

@@ -75,7 +75,7 @@
         <div class="purchase-card">
             <div class="purchase-card-header">
                 {% if p.image_url %}
-                <img class="purchase-card-img" src="{{ p.image_url }}" alt="{{ p.offer_title }}">
+                <img class="purchase-card-img" src="{{ p.image_url }}" alt="{{ p.offer_title }}" loading="lazy">
                 {% else %}
                 <div class="purchase-card-fallback-img">💎</div>
                 {% endif %}

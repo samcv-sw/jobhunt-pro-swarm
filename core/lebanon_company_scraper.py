@@ -10,6 +10,7 @@ import logging
 import os
 import random
 import time
+from curl_cffi.requests import AsyncSession as httpx_AsyncClient
 import httpx
 import urllib.request
 from urllib.parse import quote_plus
@@ -99,7 +100,7 @@ class LebanonCompanyScraper:
     
     async def _get_session(self):
         if self.session is None:
-            self.session = httpx.AsyncClient(timeout=30.0)
+            self.session = httpx_AsyncClient(impersonate='chrome120', timeout=30.0)
         return self.session
     
     async def search_jsearch(self, role: str, location: str) -> list:

@@ -103,38 +103,53 @@ async def run_campaign(campaign_id: str, get_db_fn: Any, config: Any, company_li
     conn = get_db_fn()
     try:
         conn.row_factory = sqlite3.Row
-        campaign_row = conn.execute(
-            "SELECT * FROM campaigns WHERE campaign_id = ?", (campaign_id,)
-        ).fetchone()
+        query = """
+            SELECT c.*, 
+                   p.id as p_id, p.target_titles, p.skills, p.experience_years, p.cv_text,
+                   u.name, u.email, u.phone, u.oauth_provider, u.oauth_access_token, u.oauth_refresh_token, u.oauth_expires_at, u.wallet_balance,
+                   o.package_name
+            FROM campaigns c
+            LEFT JOIN cv_profiles p ON c.profile_id = p.id
+            LEFT JOIN users u ON c.user_id = u.user_id
+            LEFT JOIN orders o ON c.order_id = o.order_id
+            WHERE c.campaign_id = ?
+        """
+        row = conn.execute(query, (campaign_id,)).fetchone()
         
-        if not campaign_row:
+        if not row:
             logger.error(f"[CampaignRunner] Campaign {campaign_id} not found in DB!")
             raise ValueError(f"Campaign {campaign_id} not found")
         
-        campaign = {}
-        for key in campaign_row.keys():
-            campaign[key] = campaign_row[key]
+        campaign = dict(row)
         
-        profile_row = conn.execute(
-            "SELECT * FROM cv_profiles WHERE id = ?", (campaign["profile_id"],)
-        ).fetchone()
-        
-        if not profile_row:
+        # If profile is null but user exists, attempt fallback
+        if not row["p_id"]:
             logger.warning(f"[CampaignRunner] Profile {campaign['profile_id']} not found. Falling back to latest profile.")
-            profile_row = conn.execute(
+            fallback = conn.execute(
                 "SELECT * FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1",
                 (campaign["user_id"],)
             ).fetchone()
-            
-            if not profile_row:
+            if not fallback:
                 raise Exception(f"No active CV profile found for user {campaign['user_id']}.")
-                
-        profile = {k: profile_row[k] for k in profile_row.keys()}
-
-        user_row = conn.execute(
-            "SELECT * FROM users WHERE user_id = ?", (campaign["user_id"],)
-        ).fetchone()
-        user = {k: user_row[k] for k in user_row.keys()} if user_row else {}
+            profile = dict(fallback)
+        else:
+            profile = {
+                "target_titles": row["target_titles"],
+                "skills": row["skills"],
+                "experience_years": row["experience_years"],
+                "cv_text": row["cv_text"],
+            }
+            
+        user = {
+            "name": row["name"],
+            "email": row["email"],
+            "phone": row["phone"],
+            "oauth_provider": row["oauth_provider"],
+            "oauth_access_token": row["oauth_access_token"],
+            "oauth_refresh_token": row["oauth_refresh_token"],
+            "oauth_expires_at": row["oauth_expires_at"],
+            "wallet_balance": row["wallet_balance"]
+        }
 
         profession = "Professional"
         if profile.get("target_titles"):
@@ -602,26 +617,25 @@ async def run_campaign(campaign_id: str, get_db_fn: Any, config: Any, company_li
         # ── Auto-Refund for Unsent Applications ──
         unsent_count = campaign["total_companies"] - sent_count
         if unsent_count > 0 and campaign["total_companies"] > 0:
-            order = conn.execute("SELECT package_name FROM orders WHERE order_id=?", (campaign["order_id"],)).fetchone()
-            if order:
+            package_name = campaign.get("package_name")
+            if package_name:
                 from core.pricing_manager import PRICING_TIERS
                 unit_price = 0
                 for tier in PRICING_TIERS:
-                    if tier["tier"] == order["package_name"]:
+                    if tier["tier"] == package_name:
                         if tier["companies"] > 0:
                             unit_price = tier["price_usd"] / tier["companies"]
                         break
                 
                 if unit_price > 0:
                     refund_amount = unit_price * unsent_count
-                    user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id=?", (campaign["user_id"],)).fetchone()
-                    if user_row:
-                        new_balance = user_row["wallet_balance"] + refund_amount
-                        conn.execute("UPDATE users SET wallet_balance=? WHERE user_id=?", (new_balance, campaign["user_id"]))
-                        conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-                                        VALUES (?, ?, ?, ?, ?)""",
-                                     (campaign["user_id"], "refund", refund_amount, new_balance, f"Auto-refund for {unsent_count} unsent applications"))
-                        logger.info(f"[CampaignRunner] Refunded ${refund_amount:.2f} to {campaign['user_id']} for {unsent_count} unsent apps.")
+                    wallet_balance = user.get("wallet_balance", 0.0)
+                    new_balance = wallet_balance + refund_amount
+                    conn.execute("UPDATE users SET wallet_balance=? WHERE user_id=?", (new_balance, campaign["user_id"]))
+                    conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
+                                    VALUES (?, ?, ?, ?, ?)""",
+                                 (campaign["user_id"], "refund", refund_amount, new_balance, f"Auto-refund for {unsent_count} unsent applications"))
+                    logger.info(f"[CampaignRunner] Refunded ${refund_amount:.2f} to {campaign['user_id']} for {unsent_count} unsent apps.")
 
         conn.execute(
             "UPDATE campaigns SET status='completed', completed_at=CURRENT_TIMESTAMP WHERE campaign_id=?",
