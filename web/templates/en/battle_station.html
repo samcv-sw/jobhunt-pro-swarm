@@ -198,9 +198,9 @@
         </div>
       </div>
       
-      <div style="text-align: center; background: rgba(0,0,0,.3); padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,.05); min-inline-size: 200px;">
+      <div style="text-align: center; background: rgba(0,0,0,.3); padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,.05); min-width: 200px;">
         <div style="font-size: 9px; color: #60a5fa; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px;">Next Auto-Apply Scan</div>
-        <div id="autopilot-countdown" style="font-size: 28px; font-weight: 800; color: #60a5fa; font-family: monospace; letter-spacing: 1px; line-block-size: 1;">01:15</div>
+        <div id="autopilot-countdown" style="font-size: 28px; font-weight: 800; color: #60a5fa; font-family: monospace; letter-spacing: 1px; line-height: 1;">01:15</div>
         <div id="autopilot-status" style="font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 4px;">Initializing autopilot...</div>
       </div>
     </div>
@@ -208,7 +208,7 @@
     <!-- Autopilot Keep-Open Warning Banner -->
     <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 12px;">
       <span style="font-size: 20px; margin-top: 2px;">⚠️</span>
-      <div style="font-size: 13px; color: #fde047; font-weight: 600; line-block-size: 1.5; flex: 1;">
+      <div style="font-size: 13px; color: #fde047; font-weight: 600; line-height: 1.5; flex: 1;">
         <strong>CRITICAL OPERATIONAL REQUIREMENT:</strong>
         <br>
         You must keep this browser tab <span style="text-decoration: underline; color: #fff;">OPEN and ACTIVE</span>. If you close this tab, close your browser, or put your computer to sleep, the autopilot will pause and stop applying to jobs!
@@ -305,7 +305,7 @@
               <span>{{ '%.0f'|format(progress) }}%</span>
             </div>
            <div class="bs-prog-bar">
-             <div class="bs-prog-fill{% if progress >= 100 %} done{% endif %}" style="inline-size: {{ progress }}%"></div>
+             <div class="bs-prog-fill{% if progress >= 100 %} done{% endif %}" style="width:{{ progress }}%"></div>
            </div>
          </div>
          <div class="bs-camp-stats">
@@ -314,7 +314,7 @@
            <div class="bs-camp-stat">📬 <span class="val">{{ c.get('open_count', 0) or 0 }}</span> opened</div>
            <div class="bs-camp-stat">💬 <span class="val">{{ c.get('response_count', 0) or 0 }}</span> replies</div>
            <div class="bs-camp-stat">⚔️ <span class="val">{{ wc }}</span>/15 weapons</div>
-           <a href="/campaign/{{ c['campaign_id'] }}/war-room" class="bs-btn bs-btn-sm" style="margin-inline-start: auto;">⚔️ War Room</a>
+           <a href="/campaign/{{ c['campaign_id'] }}/war-room" class="bs-btn bs-btn-sm" style="margin-left:auto;">⚔️ War Room</a>
          </div>
        </div>
      {% endfor %}

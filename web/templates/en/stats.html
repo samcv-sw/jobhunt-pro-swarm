@@ -88,7 +88,7 @@
     <div class="pipeline-bar">
       <div class="stage-label">{{ stage.label }}</div>
       <div class="stage-bar-wrap">
-        <div class="stage-bar" style="inline-size: {{ stage.pct }}%;background:{{ stage.color }}"></div>
+        <div class="stage-bar" style="width:{{ stage.pct }}%;background:{{ stage.color }}"></div>
       </div>
       <div class="stage-count">{{ stage.count }}</div>
     </div>
@@ -103,17 +103,17 @@
     {% if sent_emails > 0 %}
     <div class="perf-bar">
       <div class="perf-bar-label">Sent</div>
-      <div class="perf-bar-track"><div class="perf-bar-fill" style="inline-size: 100%;background:#3b82f6"></div></div>
+      <div class="perf-bar-track"><div class="perf-bar-fill" style="width:100%;background:#3b82f6"></div></div>
       <div class="perf-bar-value">{{ sent_emails }}</div>
     </div>
     <div class="perf-bar">
       <div class="perf-bar-label">Opened</div>
-      <div class="perf-bar-track"><div class="perf-bar-fill" style="inline-size: {{ open_rate }}%;background:#a78bfa"></div></div>
+      <div class="perf-bar-track"><div class="perf-bar-fill" style="width:{{ open_rate }}%;background:#a78bfa"></div></div>
       <div class="perf-bar-value">{{ opened }} ({{ open_rate }}%)</div>
     </div>
     <div class="perf-bar">
       <div class="perf-bar-label">Responded</div>
-      <div class="perf-bar-track"><div class="perf-bar-fill" style="inline-size: {{ response_rate }}%;background:#4ade80"></div></div>
+      <div class="perf-bar-track"><div class="perf-bar-fill" style="width:{{ response_rate }}%;background:#4ade80"></div></div>
       <div class="perf-bar-value">{{ responded }} ({{ response_rate }}%)</div>
     </div>
     {% else %}

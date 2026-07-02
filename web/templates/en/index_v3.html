@@ -1212,13 +1212,13 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 
 
 <!-- ═══ BACKGROUND LAYERS ═══ -->
-<div class="bg-layer bg-grid" style="position: fixed; top: 0; left: 0; inline-size: 100%; block-size: 100%; z-index: -1; pointer-events: none;"></div>
-<div class="bg-layer bg-gradient" style="position: fixed; top: 0; left: 0; inline-size: 100%; block-size: 100%; z-index: -1; pointer-events: none;"></div>
+<div class="bg-layer bg-grid" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></div>
+<div class="bg-layer bg-gradient" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></div>
 <div class="glow-orb-1" style="position: fixed; pointer-events: none; z-index: -1;"></div>
 <div class="glow-orb-2" style="position: fixed; pointer-events: none; z-index: -1;"></div>
 <div class="glow-orb-3" style="position: fixed; pointer-events: none; z-index: -1;"></div>
-<div class="scanline" style="position: fixed; top: 0; left: 0; inline-size: 100%; block-size: 100%; pointer-events: none; z-index: 1;"></div>
-<canvas class="bg-particles" id="particleCanvas" style="position: fixed; top: 0; left: 0; inline-size: 100%; block-size: 100%; z-index: -1; pointer-events: none;"></canvas>
+<div class="scanline" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></div>
+<canvas class="bg-particles" id="particleCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
 
 <!-- ═══ NAVIGATION ═══ -->
 {% include '_public_nav.html' %}
@@ -2018,7 +2018,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
     <div style="text-align:center"><div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--magenta)" id="roiMultiplier">10,000x</div><div style="font-size:10px;color:var(--muted)">ROI Multiplier</div></div>
    </div>
   </div>
-  <a href="/register" class="btn btn-cyan" style="max-inline-size: 300px;display:inline-block;position:relative;z-index:1;margin-top:12px">🚀 Invest $5 — Earn $50K+</a>
+  <a href="/register" class="btn btn-cyan" style="max-width:300px;display:inline-block;position:relative;z-index:1;margin-top:12px">🚀 Invest $5 — Earn $50K+</a>
  </div>
 </section>
 

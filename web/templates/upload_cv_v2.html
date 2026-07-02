@@ -543,7 +543,7 @@
     </div>
     <div style="text-align:center;color:#64748b;font-size:14px;margin:24px 0;position:relative;">
       <span style="background:#0a0a0f;padding:0 14px;position:relative;z-index:1;">OR paste text below</span>
-      <span style="position:absolute;top:50%;inset-inline-start: 0;inset-inline-end: 0;block-size: 1px;background:rgba(255,255,255,0.08);"></span>
+      <span style="position:absolute;top:50%;inset-inline-start: 0;inset-inline-end: 0;height:1px;background:rgba(255,255,255,0.08);"></span>
     </div>
     <div class="form-group">
       <textarea dir="auto" class="large" id="cvText" placeholder="Paste your entire CV / resume text here...
@@ -552,7 +552,7 @@ Include: Full Name, Contact Info, Work Experience, Education, Skills, Certificat
 
 Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea>
     </div>
-    <button type="button" class="btn btn-ai pulse-btn" id="parseBtn" onclick="parseCV()" style="inline-size: 100%;padding:18px;font-size:18px;">
+    <button type="button" class="btn btn-ai pulse-btn" id="parseBtn" onclick="parseCV()" style="width:100%;padding:18px;font-size:18px;">
       ✨ Auto-Fill My Profile with AI
     </button>
   </div>
@@ -590,7 +590,7 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
       <div class="form-group"><label for="certsInput">الشهادات</label><input dir="auto" type="text" id="certsInput" placeholder="CCNA, NSE, MTCNA..."><div class="tag-list" id="certsTags"></div></div>
       <div class="form-group"><label for="langsInput">اللغات</label><input dir="auto" type="text" id="langsInput" placeholder="English, Arabic, French..."><div class="tag-list" id="langsTags"></div></div>
       <div class="form-group"><label for="experienceInput">الخبرات (مفصولة بفاصلة)</label><input dir="auto" type="text" id="experienceInput" placeholder="Ogero (2020-2023), Touch (2018-2020)..."><div class="tag-list" id="experienceTags"></div></div>
-      <div class="form-group"><label for="summary">الملخص المهني</label><textarea dir="auto" id="summary" placeholder="ملخص مهني قصير..." style="min-block-size: 90px;"></textarea></div>
+      <div class="form-group"><label for="summary">الملخص المهني</label><textarea dir="auto" id="summary" placeholder="ملخص مهني قصير..." style="min-height:90px;"></textarea></div>
     </div>
 
     <!-- Target + Salary -->
@@ -716,7 +716,7 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
     <div class="card" style="border-color:rgba(34,197,94,0.3);background:linear-gradient(135deg,rgba(34,197,94,0.05),rgba(59,130,246,0.05));">
       <div class="card-title">🚀 Launch Your Job Hunt</div>
       <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
-        <div style="flex:1;min-inline-size: 240px;">
+        <div style="flex:1;min-width:240px;">
           <div style="font-size:15px;color:#94a3b8;margin-bottom:6px;">🔥 Flash Deal — Limited Time</div>
           <div style="display:flex;align-items:baseline;gap:10px;">
             <span style="font-size:34px;font-weight:900;color:#22c55e;">$9.50</span>
@@ -753,7 +753,7 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
       <button class="preview-tab" onclick="switchPreviewTab('cl')">✉️ Cover Letter</button>
     </div>
     <div class="modal-body">
-      <div id="previewContent"><div style="text-align:center;padding:60px;color:#64748b"><div class="ai-spinner" style="inline-size: 36px;block-size: 36px;margin:0 auto 16px;border-width:3px;"></div><p>Generating your professional preview...</p></div></div>
+      <div id="previewContent"><div style="text-align:center;padding:60px;color:#64748b"><div class="ai-spinner" style="width:36px;height:36px;margin:0 auto 16px;border-width:3px;"></div><p>Generating your professional preview...</p></div></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline btn-sm" onclick="closePreview()">✕ Close</button>
@@ -1045,7 +1045,7 @@ function openPreview(defaultTab) {
     showPreviewContent(defaultTab || 'email');
   } else {
     document.getElementById('previewContent').innerHTML =
-      '<div style="text-align:center;padding:60px;color:#64748b"><div class="ai-spinner" style="inline-size: 36px;block-size: 36px;margin:0 auto 16px;border-width:3px;"></div><p>Generating your professional preview...</p></div>';
+      '<div style="text-align:center;padding:60px;color:#64748b"><div class="ai-spinner" style="width:36px;height:36px;margin:0 auto 16px;border-width:3px;"></div><p>Generating your professional preview...</p></div>';
     previewEmail(true);
   }
 }
@@ -1056,7 +1056,7 @@ async function previewEmail(silent) {
   if (!silent) {
     document.getElementById('previewModal').classList.add('show');
     document.getElementById('previewContent').innerHTML =
-      '<div style="text-align:center;padding:60px;color:#64748b"><div class="ai-spinner" style="inline-size: 36px;block-size: 36px;margin:0 auto 16px;border-width:3px;"></div><p>Generating your professional preview...</p></div>';
+      '<div style="text-align:center;padding:60px;color:#64748b"><div class="ai-spinner" style="width:36px;height:36px;margin:0 auto 16px;border-width:3px;"></div><p>Generating your professional preview...</p></div>';
     document.querySelectorAll('.preview-tab').forEach(function(t, i) { t.classList.toggle('active', i === 0); });
   }
   try {

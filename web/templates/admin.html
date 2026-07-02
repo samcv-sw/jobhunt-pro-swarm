@@ -210,7 +210,7 @@
  </div>
  <div class="form-row">
  <textarea dir="auto" name="body" placeholder="محتوى الرسالة (HTML أو نص عادي)..." required
- style="flex:1;min-inline-size: 200px;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;font-family: 'Cairo', inherit;min-block-size: 80px;resize:vertical;"></textarea>
+ style="flex:1;min-width:200px;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;font-family: 'Cairo', inherit;min-height:80px;resize:vertical;"></textarea>
  </div>
  <button type="submit" class="btn btn-green" style="background:#059669;">&#x2709;&#xFE0F; إرسال رسالة (0.10$)</button>
  </form>
@@ -398,7 +398,7 @@
  {% for m in manual_emails %}
  <tr>
  <td>{{ m.to_email }}</td>
- <td style="max-inline-size: 200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ m.subject }}">{{ m.subject[:40] }}{% if m.subject|length > 40 %}...{% endif %}</td>
+ <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ m.subject }}">{{ m.subject[:40] }}{% if m.subject|length > 40 %}...{% endif %}</td>
  <td class="green">${{ "%.2f"|format(m.price_usd) }}</td>
  <td>
  {% if m.status=='sent' %}
@@ -432,7 +432,7 @@
  <td class="mono">{{ p.order_id[:20] }}...</td>
  <td><span class="badge badge-blue">{{ p.currency }}</span></td>
  <td class="green">${{ "%.2f"|format(p.amount_usd) }}</td>
- <td class="mono" style="color:#64748b;max-inline-size: 120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ p.tx_hash }}">{{ p.tx_hash[:16] }}...</td>
+ <td class="mono" style="color:#64748b;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ p.tx_hash }}">{{ p.tx_hash[:16] }}...</td>
  <td style="color:#64748b;">{{ p.customer_email or '—' }}</td>
  <td class="mono">{{ (p.timestamp or '')[:16] }}</td>
  </tr>

@@ -61,7 +61,7 @@ h1 { font-size: 28px;}
  </div>
  
  <div class="progress">
- <div class="progress-bar" style="inline-size: {{ (campaign.sent_count / campaign.total_companies * 100) if campaign.total_companies > 0 else 0 }}%"></div>
+ <div class="progress-bar" style="width: {{ (campaign.sent_count / campaign.total_companies * 100) if campaign.total_companies > 0 else 0 }}%"></div>
  </div>
  
  <div class="section">

@@ -489,7 +489,7 @@ function renderFunnelVisual(data) {
       <div class="funnel-stage">
         <div class="funnel-stage-label">${stage.icon} ${stage.label}</div>
         <div class="funnel-stage-bar-wrap">
-          <div class="funnel-stage-bar" style="inline-size: ${pct}%;background:${stage.color};">
+          <div class="funnel-stage-bar" style="width:${pct}%;background:${stage.color};">
             ${val > 0 ? '<span style="position:absolute;left:10px;font-size:12px;">' + val.toLocaleString() + '</span>' : ''}
           </div>
         </div>
