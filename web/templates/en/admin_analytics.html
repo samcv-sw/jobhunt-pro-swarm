@@ -59,7 +59,7 @@
  <h3>📈 Monthly Revenue (Last 12 Months)</h3>
  <div class="revenue-chart">
  {% for month in monthly_revenue or [] %}
- <div class="revenue-bar" style="height:{{ (month.amount / (max_revenue or 1) * 180) if max_revenue else 30 }}px;background:linear-gradient(180deg,#3b82f6,#6366f1);">
+ <div class="revenue-bar" style="block-size: {{ (month.amount / (max_revenue or 1) * 180) if max_revenue else 30 }}px;background:linear-gradient(180deg,#3b82f6,#6366f1);">
  <div class="bar-val">${{ month.amount }}</div>
  <div class="bar-month">{{ month.label }}</div>
  </div>
@@ -74,7 +74,7 @@
  <div class="bar-row">
  <div class="bar-label">{{ tier.name }}</div>
  <div class="bar-track">
- <div class="bar-fill" style="width:{{ tier.pct or 0 }}%;background:linear-gradient(90deg,{{ tier.color or '#3b82f6' }},{{ tier.color2 or '#6366f1' }});">{{ tier.count }} sales · ${{ tier.revenue }}</div>
+ <div class="bar-fill" style="inline-size: {{ tier.pct or 0 }}%;background:linear-gradient(90deg,{{ tier.color or '#3b82f6' }},{{ tier.color2 or '#6366f1' }});">{{ tier.count }} sales · ${{ tier.revenue }}</div>
  </div>
  </div>
  {% endfor %}
@@ -87,7 +87,7 @@
  <div class="bar-row">
  <div class="bar-label">{{ country.flag }} {{ country.name }}</div>
  <div class="bar-track">
- <div class="bar-fill" style="width:{{ country.pct or 0 }}%;background:linear-gradient(90deg,{{ country.color }},{{ country.color }});">{{ country.users }} users · {{ country.pct }}%</div>
+ <div class="bar-fill" style="inline-size: {{ country.pct or 0 }}%;background:linear-gradient(90deg,{{ country.color }},{{ country.color }});">{{ country.users }} users · {{ country.pct }}%</div>
  </div>
  </div>
  {% endfor %}

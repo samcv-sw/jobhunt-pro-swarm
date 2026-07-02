@@ -1,10 +1,10 @@
 <!-- ═══ UNIFIED PUBLIC NAVIGATION ═══ -->
-<nav class="nav" id="nav" style="position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:1000;width:calc(100% - 48px);max-width:1300px;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;background:rgba(5,5,15,0.75);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);border:1px solid rgba(255,255,255,0.08);border-radius:24px;transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+<nav class="nav" id="nav" style="position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:1000;inline-size: calc(100% - 48px);max-width:1300px;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;background:rgba(5,5,15,0.75);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);border:1px solid rgba(255,255,255,0.08);border-radius:24px;transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
  <a href="/" class="nav-logo" style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#00f0ff 0%,#00b8ff 40%,#00f0ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:10px;text-decoration:none;">JOBHUNT PRO <span class="badge" style="font-size:9px;font-weight:700;letter-spacing:1.5px;background:rgba(0,240,255,0.12);color:#00f0ff;padding:3px 10px;border-radius:20px;border:1px solid rgba(0,240,255,0.2);-webkit-text-fill-color:#00f0ff;">v{{ VERSION|default('16.3') }}</span></a>
  <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()" style="display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;z-index:1001;">
-  <span style="width:24px;height:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;"></span>
-  <span style="width:24px;height:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;"></span>
-  <span style="width:24px;height:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;"></span>
+  <span style="inline-size: 24px;block-size: 2px;background:#ffffff;border-radius:2px;transition:all 0.3s;"></span>
+  <span style="inline-size: 24px;block-size: 2px;background:#ffffff;border-radius:2px;transition:all 0.3s;"></span>
+  <span style="inline-size: 24px;block-size: 2px;background:#ffffff;border-radius:2px;transition:all 0.3s;"></span>
  </div>
  <div class="nav-links" id="navLinks" style="display:flex;gap:32px;align-items:center;">
   <a href="/services" style="color:#e2e8f0;text-decoration:none;font-size:14px;font-weight:500;transition:all 0.2s;padding:8px 12px;border-radius:12px;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#00f0ff'" onmouseout="this.style.background='transparent';this.style.color='#e2e8f0'">Services</a>
