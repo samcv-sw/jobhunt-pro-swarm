@@ -2,7 +2,7 @@ import os, sys, subprocess
 try:
     import a2wsgi
 except ImportError:
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--user', 'a2wsgi'])
+    subprocess.check_call(['python', '-m', 'pip', 'install', '--user', 'a2wsgi', 'curl_cffi'])
 """
 JobHunt Pro - MAXIMUM POWER SaaS Platform v2
 35+ Pricing Tiers + Bouquet Packages + HR Solutions
@@ -3061,7 +3061,7 @@ def user_dashboard(request: Request):
                 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                 script_path = os.path.join(base_dir, "web", "cron_trigger.py")
                 cmd = [
-                    sys.executable,
+                    'python',
                     script_path,
                     "--company-limit", "15",
                     "--max-campaigns", "3",
@@ -8246,7 +8246,7 @@ def cron_run_cycle(request: Request, key: str = ""):
         script_path = str(BASE_DIR / "cron_trigger.py")
 
         p = subprocess.Popen(
-            [sys.executable, script_path, "--company-limit", "15", "--max-campaigns", "3", "--skip-backup"],
+            ['python', script_path, "--company-limit", "15", "--max-campaigns", "3", "--skip-backup"],
             creationflags=creationflags,
             start_new_session=True,
             stdout=subprocess.DEVNULL,
@@ -10051,7 +10051,7 @@ def cron_tick(request: Request, key: str = "", maintenance: str = "",
                 
                 script_path = str(BASE_DIR.parent / "run_campaign_cli.py")
                 p = subprocess.Popen(
-                    [sys.executable, script_path, cid],
+                    ['python', script_path, cid],
                     creationflags=creationflags,
                     start_new_session=True,
                     stdout=subprocess.DEVNULL,
