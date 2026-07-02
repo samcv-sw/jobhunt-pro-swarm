@@ -1,0 +1,2705 @@
+# Translations template for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-07-02 16:42+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: web/templates/_dashboard_shell.html:28
+msgid "مقياس ATS"
+msgstr ""
+
+#: web/templates/_public_nav.html:11
+msgid "English"
+msgstr ""
+
+#: web/templates/admin.html:181
+msgid ""
+"استخدم في /wallet → استرداد الكود. لن يظهر هذا الرصيد في تقارير "
+"الأرباح/المبيعات."
+msgstr ""
+
+#: web/templates/admin.html:197
+msgid "اكتب أي عنوان بريد إلكتروني، موضوع، ومحتوى — للإرسال يدويًا عبر Brevo"
+msgstr ""
+
+#: web/templates/admin_analytics.html:91
+msgid "🧪 اختبار سطور موضوع A/B"
+msgstr ""
+
+#: web/templates/admin_analytics.html:102
+msgid "\"خبير بنية تحتية — CCNA، Fortinet NSE، MikroTik MTCNA\""
+msgstr ""
+
+#: web/templates/admin_user.html:40
+msgid "مفتاح API"
+msgstr ""
+
+#: web/templates/antigravity.html:12
+msgid "ANTI-GRAVITY MODE — JobHunt Pro"
+msgstr ""
+
+#: web/templates/antigravity.html:227
+msgid "INITIALIZING ANTI-GRAVITY FIELD"
+msgstr ""
+
+#: web/templates/antigravity.html:232
+msgid "JOBHUNT PRO // ANTI-GRAVITY"
+msgstr ""
+
+#: web/templates/antigravity.html:233
+msgid "ZERO G"
+msgstr ""
+
+#: web/templates/antigravity.html:237
+msgid "AGENTS:"
+msgstr ""
+
+#: web/templates/antigravity.html:238
+msgid "CYCLES:"
+msgstr ""
+
+#: web/templates/antigravity.html:239
+msgid "FLOATING:"
+msgstr ""
+
+#: web/templates/antigravity.html:240
+msgid "G-FORCE:"
+msgstr ""
+
+#: web/templates/antigravity.html:240
+msgid "0.0G"
+msgstr ""
+
+#: web/templates/antigravity.html:242
+msgid "CLICK TO LAUNCH // DRAG TO ROTATE // SCROLL TO ZOOM"
+msgstr ""
+
+#: web/templates/antigravity.html:244
+msgid "ANTI-GRAVITY"
+msgstr ""
+
+#: web/templates/antigravity.html:245
+msgid "GRAVITY"
+msgstr ""
+
+#: web/templates/antigravity.html:246
+msgid "BARREL ROLL"
+msgstr ""
+
+#: web/templates/antigravity.html:247
+msgid "SPAWN CARD"
+msgstr ""
+
+#: web/templates/antigravity.html:248
+msgid "PARTICLE BURST"
+msgstr ""
+
+#: web/templates/antigravity.html:249
+msgid "RESET"
+msgstr ""
+
+#: web/templates/api_docs.html:11
+msgid "API Documentation — JobHunt Pro"
+msgstr ""
+
+#: web/templates/api_docs.html:68
+msgid "JobHunt"
+msgstr ""
+
+#: web/templates/api_docs.html:68 web/templates/index_v3.html:2877
+msgid "Pro"
+msgstr ""
+
+#: web/templates/api_docs.html:70
+msgid "Home"
+msgstr ""
+
+#: web/templates/api_docs.html:71 web/templates/index_v4.html:816
+msgid "Pricing"
+msgstr ""
+
+#: web/templates/api_docs.html:72 web/templates/api_docs.html:251
+#: web/templates/index_v4.html:819
+msgid "Blog"
+msgstr ""
+
+#: web/templates/api_docs.html:74
+msgid "Dashboard"
+msgstr ""
+
+#: web/templates/api_docs.html:76
+msgid "Get Started"
+msgstr ""
+
+#: web/templates/api_docs.html:81
+msgid "API Documentation"
+msgstr ""
+
+#: web/templates/api_docs.html:82
+msgid ""
+"Integrate JobHunt Pro into your workflow. All API requests require "
+"authentication via your API key."
+msgstr ""
+
+#: web/templates/api_docs.html:86
+msgid "Your API Key"
+msgstr ""
+
+#: web/templates/api_docs.html:87
+msgid ""
+"Find your API key in the Wallet section of your dashboard. Include it in "
+"the"
+msgstr ""
+
+#: web/templates/api_docs.html:87
+msgid "header on all requests."
+msgstr ""
+
+#: web/templates/api_docs.html:91
+msgid "Endpoints"
+msgstr ""
+
+#: web/templates/api_docs.html:95 web/templates/api_docs.html:110
+#: web/templates/api_docs.html:132 web/templates/api_docs.html:194
+#: web/templates/api_docs.html:217
+msgid "GET"
+msgstr ""
+
+#: web/templates/api_docs.html:96
+msgid "/api/v1/health"
+msgstr ""
+
+#: web/templates/api_docs.html:97
+msgid "Health Check"
+msgstr ""
+
+#: web/templates/api_docs.html:100
+msgid ""
+"Returns the current health status of the platform. No authentication "
+"required."
+msgstr ""
+
+#: web/templates/api_docs.html:111
+msgid "/api/v1/profile"
+msgstr ""
+
+#: web/templates/api_docs.html:112
+msgid "Get Profile"
+msgstr ""
+
+#: web/templates/api_docs.html:115
+msgid "Retrieve your account profile including CV data, skills, and preferences."
+msgstr ""
+
+#: web/templates/api_docs.html:116 web/templates/api_docs.html:138
+#: web/templates/api_docs.html:171 web/templates/api_docs.html:200
+#: web/templates/api_docs.html:223
+msgid "Headers"
+msgstr ""
+
+#: web/templates/api_docs.html:118 web/templates/api_docs.html:140
+#: web/templates/api_docs.html:145 web/templates/api_docs.html:173
+#: web/templates/api_docs.html:179 web/templates/api_docs.html:202
+#: web/templates/api_docs.html:225
+msgid "Name"
+msgstr ""
+
+#: web/templates/api_docs.html:118 web/templates/api_docs.html:140
+#: web/templates/api_docs.html:145 web/templates/api_docs.html:173
+#: web/templates/api_docs.html:179 web/templates/api_docs.html:202
+#: web/templates/api_docs.html:225
+msgid "Type"
+msgstr ""
+
+#: web/templates/api_docs.html:118 web/templates/api_docs.html:140
+#: web/templates/api_docs.html:145 web/templates/api_docs.html:173
+#: web/templates/api_docs.html:179 web/templates/api_docs.html:202
+#: web/templates/api_docs.html:225 web/templates/api_docs.html:241
+msgid "Description"
+msgstr ""
+
+#: web/templates/api_docs.html:119 web/templates/api_docs.html:141
+#: web/templates/api_docs.html:147 web/templates/api_docs.html:174
+#: web/templates/api_docs.html:175 web/templates/api_docs.html:181
+#: web/templates/api_docs.html:182 web/templates/api_docs.html:203
+#: web/templates/api_docs.html:226
+msgid "string"
+msgstr ""
+
+#: web/templates/api_docs.html:119 web/templates/api_docs.html:141
+#: web/templates/api_docs.html:174 web/templates/api_docs.html:175
+#: web/templates/api_docs.html:180 web/templates/api_docs.html:181
+#: web/templates/api_docs.html:183 web/templates/api_docs.html:203
+#: web/templates/api_docs.html:226
+msgid "required"
+msgstr ""
+
+#: web/templates/api_docs.html:119 web/templates/api_docs.html:141
+#: web/templates/api_docs.html:174 web/templates/api_docs.html:203
+#: web/templates/api_docs.html:226
+msgid "Your API key"
+msgstr ""
+
+#: web/templates/api_docs.html:133 web/templates/api_docs.html:166
+msgid "/api/v1/campaigns"
+msgstr ""
+
+#: web/templates/api_docs.html:134
+msgid "List Campaigns"
+msgstr ""
+
+#: web/templates/api_docs.html:137
+msgid "Retrieve all your campaigns with status and statistics."
+msgstr ""
+
+#: web/templates/api_docs.html:143
+msgid "Query Parameters"
+msgstr ""
+
+#: web/templates/api_docs.html:145
+msgid "Default"
+msgstr ""
+
+#: web/templates/api_docs.html:146 web/templates/api_docs.html:180
+#: web/templates/api_docs.html:183
+msgid "integer"
+msgstr ""
+
+#: web/templates/api_docs.html:146
+msgid "Max campaigns to return"
+msgstr ""
+
+#: web/templates/api_docs.html:147
+msgid "Filter by status (pending, running, completed, failed)"
+msgstr ""
+
+#: web/templates/api_docs.html:165
+msgid "POST"
+msgstr ""
+
+#: web/templates/api_docs.html:167
+msgid "Create Campaign"
+msgstr ""
+
+#: web/templates/api_docs.html:170
+msgid "Create and launch a new job application campaign."
+msgstr ""
+
+#: web/templates/api_docs.html:175
+msgid "application/json"
+msgstr ""
+
+#: web/templates/api_docs.html:177
+msgid "Body Parameters"
+msgstr ""
+
+#: web/templates/api_docs.html:180
+msgid "CV profile ID to use"
+msgstr ""
+
+#: web/templates/api_docs.html:181
+msgid "Job search query (e.g. \"network engineer\")"
+msgstr ""
+
+#: web/templates/api_docs.html:182
+msgid "Target location (e.g. \"Dubai, UAE\")"
+msgstr ""
+
+#: web/templates/api_docs.html:183
+msgid "Number of companies to target"
+msgstr ""
+
+#: web/templates/api_docs.html:186
+msgid "\"X-API-Key: jhp_...\""
+msgstr ""
+
+#: web/templates/api_docs.html:187
+msgid "\"Content-Type: application/json\""
+msgstr ""
+
+#: web/templates/api_docs.html:195
+msgid "/api/v1/stats"
+msgstr ""
+
+#: web/templates/api_docs.html:196
+msgid "Application Stats"
+msgstr ""
+
+#: web/templates/api_docs.html:199
+msgid "Get aggregated statistics about your applications."
+msgstr ""
+
+#: web/templates/api_docs.html:218
+msgid "/api/v1/pipeline"
+msgstr ""
+
+#: web/templates/api_docs.html:219
+msgid "Pipeline Data"
+msgstr ""
+
+#: web/templates/api_docs.html:222
+msgid "Get your application pipeline with stage breakdown."
+msgstr ""
+
+#: web/templates/api_docs.html:239
+msgid "Error Codes"
+msgstr ""
+
+#: web/templates/api_docs.html:241
+msgid "Code"
+msgstr ""
+
+#: web/templates/api_docs.html:242
+msgid "Success"
+msgstr ""
+
+#: web/templates/api_docs.html:243
+msgid "Bad request — invalid parameters"
+msgstr ""
+
+#: web/templates/api_docs.html:244
+msgid "Unauthorized — missing or invalid API key"
+msgstr ""
+
+#: web/templates/api_docs.html:245
+msgid "Resource not found"
+msgstr ""
+
+#: web/templates/api_docs.html:246
+msgid "Rate limited — too many requests"
+msgstr ""
+
+#: web/templates/api_docs.html:247
+msgid "Internal server error"
+msgstr ""
+
+#: web/templates/api_docs.html:251
+msgid "FAQ"
+msgstr ""
+
+#: web/templates/api_docs.html:251
+msgid "Terms"
+msgstr ""
+
+#: web/templates/api_docs.html:251
+msgid "Privacy"
+msgstr ""
+
+#: web/templates/api_docs.html:251 web/templates/index_v4.html:825
+msgid "Contact"
+msgstr ""
+
+#: web/templates/api_docs.html:252
+msgid "© 2026 JobHunt Pro. All rights reserved."
+msgstr ""
+
+#: web/templates/ats_scorer.html:7
+msgid "ATS Resume Scorer"
+msgstr ""
+
+#: web/templates/ats_scorer.html:9
+msgid "Optimize your CV against Job Descriptions using AI-powered ATS algorithms."
+msgstr ""
+
+#: web/templates/ats_scorer.html:16
+msgid "Your Resume"
+msgstr ""
+
+#: web/templates/ats_scorer.html:31
+msgid "Paste the full text — the more detail, the better the score."
+msgstr ""
+
+#: web/templates/ats_scorer.html:37
+msgid "Job Description"
+msgstr ""
+
+#: web/templates/ats_scorer.html:45
+msgid "Import"
+msgstr ""
+
+#: web/templates/ats_scorer.html:69
+msgid "Score My Resume"
+msgstr ""
+
+#: web/templates/ats_scorer.html:72
+msgid "Score Against Multiple Jobs"
+msgstr ""
+
+#: web/templates/ats_scorer.html:75
+msgid "Powered by AI Analysis"
+msgstr ""
+
+#: web/templates/ats_scorer.html:83
+msgid "Bulk Scoring"
+msgstr ""
+
+#: web/templates/ats_scorer.html:85
+msgid ""
+"Add job titles to compare your resume against multiple positions at once "
+"(max 10)."
+msgstr ""
+
+#: web/templates/ats_scorer.html:88
+msgid "Run Bulk Score"
+msgstr ""
+
+#: web/templates/ats_scorer.html:95
+msgid "Add Another Job"
+msgstr ""
+
+#: web/templates/ats_scorer.html:106
+msgid "Analyzing Resume..."
+msgstr ""
+
+#: web/templates/ats_scorer.html:107
+msgid "AI is evaluating your profile against the job description."
+msgstr ""
+
+#: web/templates/ats_scorer.html:121
+msgid "Score"
+msgstr ""
+
+#: web/templates/ats_scorer.html:125
+msgid "Analyzing Match"
+msgstr ""
+
+#: web/templates/ats_scorer.html:126
+msgid "Ready to process results"
+msgstr ""
+
+#: web/templates/ats_scorer.html:128
+msgid "Pending"
+msgstr ""
+
+#: web/templates/ats_scorer.html:141
+msgid "Missing Keywords"
+msgstr ""
+
+#: web/templates/ats_scorer.html:148
+msgid "Strengths"
+msgstr ""
+
+#: web/templates/ats_scorer.html:155
+msgid "Suggestions"
+msgstr ""
+
+#: web/templates/ats_scorer.html:164
+msgid "Bulk Scoring Results"
+msgstr ""
+
+#: web/templates/battle_station.html:209 web/templates/battle_station.html:214
+msgid ""
+". إذا قمت بإغلاق هذه الصفحة، أو قمت بقفل المتصفح، أو دخل الكومبيوتر في "
+"وضع السكون (Sleep)، سيتوقف محرك التقديم التلقائي فوراً!"
+msgstr ""
+
+#: web/templates/blog.html:8
+msgid "مدونة JobHunt Pro — نصائح وأدلة للبحث عن عمل بالذكاء الاصطناعي"
+msgstr ""
+
+#: web/templates/blog.html:36
+msgid "📝 مدونة JobHunt Pro"
+msgstr ""
+
+#: web/templates/blog.html:59
+msgid "العودة إلى JobHunt Pro"
+msgstr ""
+
+#: web/templates/blog_post.html:75
+msgid ""
+"يستخدم JobHunt Pro الذكاء الاصطناعي للبحث والتطابق والتقديم لآلاف الوظائف"
+" تلقائياً. توقف عن التقديم اليدوي — دع الذكاء الاصطناعي يقوم بالعمل."
+msgstr ""
+
+#: web/templates/blog_post.html:76
+msgid "جرب JobHunt Pro بـ 2$"
+msgstr ""
+
+#: web/templates/blog_post.html:96
+msgid "JobHunt Pro · تقديم للوظائف بالذكاء الاصطناعي ·"
+msgstr ""
+
+#: web/templates/candidate_profile.html:7
+msgid "JobHunt Pro AI"
+msgstr ""
+
+#: web/templates/checkout.html:10 web/templates/checkout_v2.html:10
+msgid "الدفع — JobHunt Pro"
+msgstr ""
+
+#: web/templates/checkout.html:158
+msgid "JobHunt Pro — إتمام الدفع"
+msgstr ""
+
+#: web/templates/checkout.html:182
+msgid "samsalameh.cv@gmail.com"
+msgstr ""
+
+#: web/templates/checkout.html:182
+msgid "يحتوي على معرف المعاملة (hash)."
+msgstr ""
+
+#: web/templates/checkout_v2.html:276 web/templates/checkout_v3.html:478
+#: web/templates/services.html:340
+msgid "JOBHUNT PRO"
+msgstr ""
+
+#: web/templates/checkout_v2.html:327
+msgid "ادفع عبر NOWPayments"
+msgstr ""
+
+#: web/templates/checkout_v3.html:10
+msgid "إتمام الدفع — JobHunt Pro"
+msgstr ""
+
+#: web/templates/checkout_v3.html:540
+msgid "الدفع عبر NOWPayments"
+msgstr ""
+
+#: web/templates/checkout_v3.html:576
+msgid "(الموضح أعلاه) وتجزئة المعاملة (TxHash) من محفظتك الرقمية."
+msgstr ""
+
+#: web/templates/chromeext.html:9
+msgid "إضافة JobHunt Pro لكروم — تقديم تلقائي للوظائف بنقرة واحدة"
+msgstr ""
+
+#: web/templates/chromeext.html:40
+msgid ""
+"إضافة JobHunt Pro لكروم تقوم بتعبئة طلبات التوظيف تلقائياً، وتولد رسائل "
+"التغطية، وترسل النماذج — كل هذا من متصفحك."
+msgstr ""
+
+#: web/templates/chromeext.html:42
+msgid "يتم تثبيتها في 10 ثوانٍ. تعمل مع LinkedIn و Indeed و Glassdoor والمزيد."
+msgstr ""
+
+#: web/templates/chromeext.html:62
+msgid "فحص توافق ATS"
+msgstr ""
+
+#: web/templates/chromeext.html:63
+msgid ""
+"تحقق من توافق سيرتك الذاتية مع نظام ATS بنقرة واحدة. شاهد نتيجتك، "
+"ومطابقات الكلمات الرئيسية، واقتراحات التحسين."
+msgstr ""
+
+#: web/templates/chromeext.html:67
+msgid "أمان BanShield"
+msgstr ""
+
+#: web/templates/chromeext.html:73
+msgid ""
+"تعمل مع LinkedIn و Indeed و Glassdoor و Bayt و ZipRecruiter و Monster و "
+"Wuzzuf و NaukriGulf و GulfTalent."
+msgstr ""
+
+#: web/templates/chromeext.html:90
+msgid ""
+"اذهب إلى LinkedIn أو Indeed أو أي موقع مدعوم. تصفح الوظائف كما تفعل "
+"دائماً."
+msgstr ""
+
+#: web/templates/chromeext.html:105 web/templates/index_v3.html:2383
+#: web/templates/index_v3.html:2394 web/templates/index_v4.html:152
+#: web/templates/index_v4.html:162 web/templates/index_v4.html:365
+msgid "LinkedIn"
+msgstr ""
+
+#: web/templates/chromeext.html:106 web/templates/index_v3.html:2384
+#: web/templates/index_v3.html:2395 web/templates/index_v4.html:153
+#: web/templates/index_v4.html:163 web/templates/index_v4.html:364
+msgid "Indeed"
+msgstr ""
+
+#: web/templates/chromeext.html:107 web/templates/index_v3.html:2385
+#: web/templates/index_v3.html:2396 web/templates/index_v4.html:154
+#: web/templates/index_v4.html:164
+msgid "Glassdoor"
+msgstr ""
+
+#: web/templates/chromeext.html:108
+msgid "Bayt"
+msgstr ""
+
+#: web/templates/chromeext.html:109 web/templates/index_v3.html:2386
+#: web/templates/index_v3.html:2397 web/templates/index_v4.html:155
+#: web/templates/index_v4.html:165 web/templates/index_v4.html:363
+msgid "ZipRecruiter"
+msgstr ""
+
+#: web/templates/chromeext.html:110
+msgid "Monster"
+msgstr ""
+
+#: web/templates/chromeext.html:111
+msgid "Wuzzuf"
+msgstr ""
+
+#: web/templates/chromeext.html:112 web/templates/index_v3.html:2388
+#: web/templates/index_v3.html:2399 web/templates/index_v4.html:157
+#: web/templates/index_v4.html:167
+msgid "NaukriGulf"
+msgstr ""
+
+#: web/templates/chromeext.html:113
+msgid "GulfTalent"
+msgstr ""
+
+#: web/templates/chromeext.html:119
+msgid "⚡ احصل على JobHunt Pro بـ 2$"
+msgstr ""
+
+#: web/templates/compare.html:9
+msgid "JobHunt Pro مقابل LazyApply و Simplify — أفضل أداة تقديم تلقائي 2026"
+msgstr ""
+
+#: web/templates/compare.html:74 web/templates/index_v4.html:354
+msgid "JobHunt Pro مقابل المنافسين"
+msgstr ""
+
+#: web/templates/compare.html:82 web/templates/index_v3.html:2599
+#: web/templates/index_v3.html:2925 web/templates/index_v4.html:362
+#: web/templates/index_v4.html:804 web/templates/privacy.html:41
+#: web/templates/services.html:356 web/templates/terms.html:41
+msgid "JobHunt Pro"
+msgstr ""
+
+#: web/templates/compare.html:83 web/templates/index_v3.html:2594
+#: web/templates/index_v4.html:366
+msgid "LazyApply"
+msgstr ""
+
+#: web/templates/compare.html:84
+msgid "Simplify.jobs"
+msgstr ""
+
+#: web/templates/compare.html:85 web/templates/index_v3.html:2595
+msgid "LoopCV"
+msgstr ""
+
+#: web/templates/compare.html:86 web/templates/index_v3.html:2597
+msgid "Kickresume"
+msgstr ""
+
+#: web/templates/compare.html:87 web/templates/index_v3.html:2598
+msgid "Jobscan"
+msgstr ""
+
+#: web/templates/compare.html:138 web/templates/index_v3.html:2718
+msgid "Groq AI"
+msgstr ""
+
+#: web/templates/compare.html:142
+msgid "GPT-4"
+msgstr ""
+
+#: web/templates/compare.html:146
+msgid "تحسين الـ ATS"
+msgstr ""
+
+#: web/templates/compare.html:165
+msgid "BanShield"
+msgstr ""
+
+#: web/templates/compare.html:222
+msgid "🏆 الفائز: JobHunt Pro — أفضل قيمة إجمالية"
+msgstr ""
+
+#: web/templates/compare.html:223
+msgid ""
+"، JobHunt Pro بيكتسح بالميزات والسعر. نظام BanShield بيمنع حظر طلباتك — "
+"ميزة مش موجودة عند أي منافس. أداة فحص الـ ATS وتوليد رسائل التغطية مجانية"
+" وما بتلاقيها بهيك سعر."
+msgstr ""
+
+#: web/templates/compare.html:224
+msgid "→ جرب JobHunt Pro بـ 2$"
+msgstr ""
+
+#: web/templates/compare.html:227
+msgid "LazyApply — الأفضل للباحثين عن عمل بأمريكا"
+msgstr ""
+
+#: web/templates/compare.html:228
+msgid ""
+"بوت تقديم تلقائي ممتاز لـ LinkedIn و Indeed و ZipRecruiter. بس محدود بـ "
+"150 طلب باليوم، ومحصور بأمريكا وبريطانيا، وسعره 99$/سنة بدون تجربة "
+"مجانية. ما في رسائل تغطية بالذكاء الاصطناعي، وما في نظام مضاد للاكتشاف. "
+"منيح للباحثين عن عمل العاديين بأمريكا، بس مش منافس للمستخدمين الدوليين أو"
+" اللي بيقدموا طلبات كثيرة."
+msgstr ""
+
+#: web/templates/compare.html:231
+msgid "Simplify.jobs — أفضل خيار مجاني (محدود جداً)"
+msgstr ""
+
+#: web/templates/compare.html:238
+msgid "هل JobHunt Pro أحسن من LazyApply؟"
+msgstr ""
+
+#: web/templates/compare.html:239
+msgid ""
+"إيه. JobHunt Pro بيقدم وكلاء ذكاء اصطناعي أكثر بـ 200 مرة (200 مقابل 1)، "
+"وبيدعم 10+ منصات توظيف (مقابل 4)، وفيه رسائل تغطية بالذكاء الاصطناعي "
+"(مقابل ولا شي)، وعنده نظام BanShield المضاد للاكتشاف (مقابل ولا شي)، "
+"وبيبلش بـ 2$ (مقابل 99$/سنة). أسرع، أذكى، وأرخص بكثير."
+msgstr ""
+
+#: web/templates/compare.html:242
+msgid "فيني أجرب JobHunt Pro مجاناً؟"
+msgstr ""
+
+#: web/templates/compare.html:247
+msgid ""
+"لأ. JobHunt Pro عنده BanShield — نظامنا المضاد للاكتشاف اللي بيغير "
+"التوقيت، وبيدور حسابات الإيميل، وبيقلد السلوك البشري. ما في أي منافس عنده"
+" هالحماية."
+msgstr ""
+
+#: web/templates/compare.html:250
+msgid "شو هي منصات التوظيف اللي بيدعمها JobHunt Pro؟"
+msgstr ""
+
+#: web/templates/compare.html:251
+msgid ""
+"LinkedIn, Indeed, Glassdoor, Bayt, ZipRecruiter, JSearch, GulfTalent, "
+"Wuzzuf, NaukriGulf, وغيرها. 10+ منصات وعم نضيف أكثر كل شهر."
+msgstr ""
+
+#: web/templates/compare.html:269
+msgid ""
+"© 2026 JobHunt Pro. كل الحقوق محفوظة. طلبات توظيف مدعومة بالذكاء "
+"الاصطناعي."
+msgstr ""
+
+#: web/templates/contact.html:75
+msgid ""
+"محتاج مساعدة؟ عندك ملاحظة؟ حابب تقترح ميزة؟ نحن هون كرمالك — كل رسالة "
+"بتساعدنا نطور JobHunt Pro."
+msgstr ""
+
+#: web/templates/contact.html:130
+msgid "System Logs"
+msgstr ""
+
+#: web/templates/contact.html:131
+msgid "View server and error logs to quickly diagnose website issues. Admin only."
+msgstr ""
+
+#: web/templates/contact.html:137
+msgid "support@jobhuntpro.ai"
+msgstr ""
+
+#: web/templates/contact.html:143
+msgid "شوف الأسئلة الشائعة لتحصل على أجوبة فورية للأسئلة المكررة عن JobHunt Pro."
+msgstr ""
+
+#: web/templates/contact.html:147
+msgid "🕐 أوقات العمل (GMT+3، بيروت)"
+msgstr ""
+
+#: web/templates/contact.html:167
+msgid "شوف سجلات السيرفر والأخطاء لمعالجة مشاكل PythonAnywhere."
+msgstr ""
+
+#: web/templates/dashboard_v2.html:10
+msgid "لوحة التحكم — JobHunt Pro"
+msgstr ""
+
+#: web/templates/dashboard_v2.html:336 web/templates/dashboard_v3.html:40
+msgid ""
+"اربط حساب بريدك الإلكتروني المهني. سيقوم الذكاء الاصطناعي لدينا تلقائياً "
+"بتحسين أنماط الإرسال الخاصة بك واستخدام توجيه IP المخصص لضمان أعلى معدلات"
+" الاستجابة من أصحاب العمل."
+msgstr ""
+
+#: web/templates/dashboard_v2.html:368 web/templates/dashboard_v3.html:76
+msgid "12.5k"
+msgstr ""
+
+#: web/templates/dashboard_v2.html:438 web/templates/dashboard_v3.html:195
+msgid "FAILED"
+msgstr ""
+
+#: web/templates/dashboard_v2.html:440 web/templates/dashboard_v3.html:197
+msgid "INTERVIEW"
+msgstr ""
+
+#: web/templates/dashboard_v2.html:442 web/templates/dashboard_v3.html:199
+msgid "OPENED"
+msgstr ""
+
+#: web/templates/dashboard_v2.html:444 web/templates/dashboard_v3.html:201
+msgid "DELIVERED"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:44 web/templates/login.html:141
+#: web/templates/login_v2.html:114 web/templates/register.html:135
+#: web/templates/register_v2.html:144
+msgid "Microsoft"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:47 web/templates/login.html:137
+#: web/templates/login_v2.html:110 web/templates/register.html:131
+#: web/templates/register_v2.html:140
+msgid "Google"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:101
+msgid "Bar"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:102
+msgid "Line"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:103
+msgid "Doughnut"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:171
+msgid "LIVE"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:234
+msgid "N"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:235
+msgid "U"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:236
+msgid "D"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:411
+msgid "Connect Your Email"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:414
+msgid ""
+"Send job applications directly from your own email address to bypass spam"
+" filters and increase response rates."
+msgstr ""
+
+#: web/templates/dashboard_v3.html:417
+msgid "Provider"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:419
+msgid "Google (Gmail/Workspace)"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:420
+msgid "Microsoft (Outlook/Office365)"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:424
+msgid "Email Address"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:428
+msgid "App Password"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:430
+msgid "How to generate an App Password?"
+msgstr ""
+
+#: web/templates/dashboard_v3.html:433
+msgid "Connect Securely"
+msgstr ""
+
+#: web/templates/email_test.html:84
+msgid "📄 رفع السيرة الذاتية (PDF) — تعبئة جميع الحقول تلقائياً"
+msgstr ""
+
+#: web/templates/email_test.html:88
+msgid ""
+"ملفات PDF فقط، بحد أقصى 5 ميجابايت. سيقوم النظام بالتحليل وتعبئة الحقول "
+"أدناه تلقائياً."
+msgstr ""
+
+#: web/templates/email_test.html:120 web/templates/email_test.html:133
+msgid "📥 تنزيل PDF"
+msgstr ""
+
+#: web/templates/export.html:65
+msgid "📊 CSV (إكسل)"
+msgstr ""
+
+#: web/templates/export.html:66
+msgid "🔧 JSON (للمطورين)"
+msgstr ""
+
+#: web/templates/faq.html:9
+msgid "الأسئلة الشائعة — JobHunt Pro"
+msgstr ""
+
+#: web/templates/faq.html:41
+msgid "كل شي بتحتاج تعرفه عن JobHunt Pro — منصتك الذكية لتقديم طلبات التوظيف."
+msgstr ""
+
+#: web/templates/faq.html:43
+msgid "شو هو JobHunt Pro؟"
+msgstr ""
+
+#: web/templates/faq.html:44
+msgid ""
+"JobHunt Pro هو منصة ذكية بتساعدك تلاقي وتقدم عالوظائف المناسبة أسرع. محرك"
+" الذكاء الاصطناعي تبعنا بفتش بمواقع توظيف متعددة، بيكتب رسائل تغطية "
+"(cover letters) مخصصة إلك، وبيدير كل عملية التقديم من الاكتشاف للمقابلة."
+msgstr ""
+
+#: web/templates/faq.html:48
+msgid ""
+"نظام الدفع بـ JobHunt Pro بسيط ولمرة وحدة — ما في اشتراكات ولا رسوم "
+"مخفية. بتشتري الباقة حسب عدد الشركات اللي حابب تستهدفها. كل باقة بتشمل "
+"رسائل تغطية بالذكاء الاصطناعي، إرسال الإيميلات، وتتبع حالة الطلبات."
+msgstr ""
+
+#: web/templates/faq.html:56
+msgid ""
+"الذكاء الاصطناعي تبعنا بيحلل سيرتك الذاتية (CV)، وصف الوظيفة، وبروفايل "
+"الشركة ليولد رسالة تغطية فريدة لكل طلب. كل رسالة بتكون مخصصة لتبرز أهم "
+"مهاراتك وخبراتك لهيدي الوظيفة."
+msgstr ""
+
+#: web/templates/faq.html:68
+msgid ""
+"منقبل الدفع بالعملات الرقمية متل Bitcoin (BTC)، Ethereum (ETH)، USDT "
+"(TRC20 & ERC20)، Litecoin (LTC)، وغيرها. ما في قيود بنكية ولا مفاجآت "
+"بأسعار الصرف."
+msgstr ""
+
+#: web/templates/faq.html:72
+msgid ""
+"لتبلّش ما بتاخد معك أكتر من دقيقتين. بتعمل حساب، بترفع الـ CV تبعك، "
+"بتختار باقة، وبتطلق حملتك. والذكاء الاصطناعي تبعنا بيهتم بالباقي."
+msgstr ""
+
+#: web/templates/for_employers.html:150
+msgid "48h"
+msgstr ""
+
+#: web/templates/for_employers.html:156
+msgid "ليش JobHunt Pro؟ (مقابل لينكد إن 495$/للمنشور)"
+msgstr ""
+
+#: web/templates/for_employers.html:170 web/templates/index_v4.html:264
+msgid "VS"
+msgstr ""
+
+#: web/templates/for_employers.html:172
+msgid "🟢 JobHunt Pro"
+msgstr ""
+
+#: web/templates/for_employers.html:227
+msgid "دعم VIP 💎"
+msgstr ""
+
+#: web/templates/for_employers.html:242
+msgid "وصول API 🔌"
+msgstr ""
+
+#: web/templates/for_employers.html:310
+msgid "كود QR + صفحة هبوط"
+msgstr ""
+
+#: web/templates/for_employers.html:312
+msgid ""
+"كود QR مخصص + صفحة وظيفة محسنة للموبايل. اطبعها على المنشورات وشاركها بكل"
+" مكان."
+msgstr ""
+
+#: web/templates/forgot_password.html:10
+msgid "نسيت كلمة المرور — JobHunt Pro"
+msgstr ""
+
+#: web/templates/forgot_password.html:329
+msgid "🔒 تشفير 256-bit"
+msgstr ""
+
+#: web/templates/index_v2.html:639
+msgid "JOBHUNT برو"
+msgstr ""
+
+#: web/templates/index_v2.html:797
+msgid "85K+"
+msgstr ""
+
+#: web/templates/index_v2.html:868
+msgid "1M"
+msgstr ""
+
+#: web/templates/index_v2.html:876 web/templates/index_v3.html:2908
+msgid "ضمان مستوى الخدمة (SLA)"
+msgstr ""
+
+#: web/templates/index_v2.html:937 web/templates/index_v4.html:596
+msgid "AK"
+msgstr ""
+
+#: web/templates/index_v2.html:939
+msgid "Ahmad K."
+msgstr ""
+
+#: web/templates/index_v2.html:950
+msgid "MR"
+msgstr ""
+
+#: web/templates/index_v2.html:952
+msgid "Mona R."
+msgstr ""
+
+#: web/templates/index_v2.html:963
+msgid "OS"
+msgstr ""
+
+#: web/templates/index_v2.html:965
+msgid "Omar S."
+msgstr ""
+
+#: web/templates/index_v2.html:1032
+msgid ""
+"منقبل العملات الرقمية (BTC, ETH, USDT, LTC) وبطاقات الائتمان. كل الخطط "
+"عبارة عن دفعة وحدة — ما في اشتراكات ولا رسوم مخفية. يلي بتشوفه هو يلي "
+"بتدفعه."
+msgstr ""
+
+#: web/templates/index_v2.html:1058 web/templates/index_v2.html:1080
+msgid "JobHunt برو"
+msgstr ""
+
+#: web/templates/index_v2.html:1081
+msgid "BTC · ETH · USDT · LTC · Credit Card"
+msgstr ""
+
+#: web/templates/index_v3.html:33
+msgid ""
+"JobHunt Pro — تقديم تلقائي للوظائف بالذكاء الاصطناعي | 200 وكيل ذكاء "
+"اصطناعي، 24/7"
+msgstr ""
+
+#: web/templates/index_v3.html:2306
+msgid ""
+"نستخدم ملفات تعريف الارتباط الأساسية لضمان عمل JobHunt Pro. باستخدامك "
+"لموقعنا، فإنك توافق على"
+msgstr ""
+
+#: web/templates/index_v3.html:2339
+msgid "Land Your Dream Job"
+msgstr ""
+
+#: web/templates/index_v3.html:2340
+msgid "Automatically"
+msgstr ""
+
+#: web/templates/index_v3.html:2340
+msgid "While You"
+msgstr ""
+
+#: web/templates/index_v3.html:2345
+msgid "Your personal AI job-hunting engine works"
+msgstr ""
+
+#: web/templates/index_v3.html:2345
+msgid ""
+"— searching thousands of jobs, \n"
+"\n"
+"  crafting personalized applications, and sending them through smart "
+"email rotation."
+msgstr ""
+
+#: web/templates/index_v3.html:2349
+msgid "Less than 7 cents per application."
+msgstr ""
+
+#: web/templates/index_v3.html:2349
+msgid "Get hired or your money back."
+msgstr ""
+
+#: web/templates/index_v3.html:2353
+msgid "🚀 Start Applying Now — It's Free"
+msgstr ""
+
+#: web/templates/index_v3.html:2354
+msgid "💰 View Pricing Plans"
+msgstr ""
+
+#: web/templates/index_v3.html:2357
+msgid "Daily Applications"
+msgstr ""
+
+#: web/templates/index_v3.html:2358
+msgid "Email Providers"
+msgstr ""
+
+#: web/templates/index_v3.html:2359
+msgid "AI Agents"
+msgstr ""
+
+#: web/templates/index_v3.html:2360
+msgid "Countries"
+msgstr ""
+
+#: web/templates/index_v3.html:2361
+msgid "Interview Rate"
+msgstr ""
+
+#: web/templates/index_v3.html:2370
+msgid "30-Day ضمان استرداد المال"
+msgstr ""
+
+#: web/templates/index_v3.html:2371
+msgid "No interviews? Get a full refund. No questions asked. Your risk is ZERO."
+msgstr ""
+
+#: web/templates/index_v3.html:2380
+msgid "SEARCHING ACROSS THESE PLATFORMS + MORE"
+msgstr ""
+
+#: web/templates/index_v3.html:2387 web/templates/index_v3.html:2398
+#: web/templates/index_v4.html:156 web/templates/index_v4.html:166
+msgid "Bayt.com"
+msgstr ""
+
+#: web/templates/index_v3.html:2389 web/templates/index_v3.html:2400
+#: web/templates/index_v4.html:158 web/templates/index_v4.html:168
+msgid "Monster Gulf"
+msgstr ""
+
+#: web/templates/index_v3.html:2390 web/templates/index_v3.html:2401
+#: web/templates/index_v4.html:159 web/templates/index_v4.html:169
+msgid "JSearch API"
+msgstr ""
+
+#: web/templates/index_v3.html:2391 web/templates/index_v3.html:2402
+#: web/templates/index_v4.html:160 web/templates/index_v4.html:170
+msgid "CareerJet"
+msgstr ""
+
+#: web/templates/index_v3.html:2392 web/templates/index_v3.html:2403
+#: web/templates/index_v4.html:161 web/templates/index_v4.html:171
+msgid "Adzuna"
+msgstr ""
+
+#: web/templates/index_v3.html:2413
+msgid "HOT OPPORTUNITIES"
+msgstr ""
+
+#: web/templates/index_v3.html:2414
+msgid "الميزةd"
+msgstr ""
+
+#: web/templates/index_v3.html:2414
+msgid "Jobs"
+msgstr ""
+
+#: web/templates/index_v3.html:2415
+msgid ""
+"Hand-picked premium positions in top companies across MENA/GCC. Apply "
+"instantly with JobHunt Pro."
+msgstr ""
+
+#: web/templates/index_v3.html:2422
+msgid "★ الميزةd"
+msgstr ""
+
+#: web/templates/index_v3.html:2439
+msgid "🚀 Apply Now"
+msgstr ""
+
+#: web/templates/index_v3.html:2457
+msgid "كيف يبدو بحثك عن عمل مع وبدون أتمتة JobHunt Pro"
+msgstr ""
+
+#: web/templates/index_v3.html:2479
+msgid "JobHunt Pro المؤتمت"
+msgstr ""
+
+#: web/templates/index_v3.html:2528
+msgid ""
+"elligent warmup, spam-score checking, and automatic fallback. Your "
+"applications always land in the inbox, never"
+msgstr ""
+
+#: web/templates/index_v3.html:2529
+msgid "🔍 فاحص السيرة الذاتية لـ ATS"
+msgstr ""
+
+#: web/templates/index_v3.html:2530
+msgid "جاهزة لـ ATS؟"
+msgstr ""
+
+#: web/templates/index_v3.html:2531
+msgid ""
+"99% من كبرى الشركات تستخدم نظام تتبع المتقدمين (ATS). يقوم JobHunt Pro "
+"بفحص سيرتك مقابل أوصاف وظيفية حقيقية ويوضح لك بالضبط ما يجب إصلاحه —"
+msgstr ""
+
+#: web/templates/index_v3.html:2538 web/templates/index_v3.html:2561
+msgid "PDF, DOCX, أو TXT (الحد الأقصى 5 ميجابايت)"
+msgstr ""
+
+#: web/templates/index_v3.html:2551 web/templates/index_v3.html:2574
+msgid "التوافق مع ATS"
+msgstr ""
+
+#: web/templates/index_v3.html:2553 web/templates/index_v3.html:2576
+msgid "BGP, OSPF"
+msgstr ""
+
+#: web/templates/index_v3.html:2554
+msgid "style=\"color:var(--cyan)\">free"
+msgstr ""
+
+#: web/templates/index_v3.html:2587
+msgid "JobHunt Pro هي المنصة الوحيدة التي تؤتمت عملية التقديم للوظائف بأكملها"
+msgstr ""
+
+#: web/templates/index_v3.html:2596
+msgid "Simplify"
+msgstr ""
+
+#: web/templates/index_v3.html:2605
+msgid "AI Cover Letters"
+msgstr ""
+
+#: web/templates/index_v3.html:2606
+msgid "★ Groq AI"
+msgstr ""
+
+#: web/templates/index_v3.html:2609
+msgid "Auto-Apply Jobs"
+msgstr ""
+
+#: web/templates/index_v3.html:2610
+msgid "★ FULL AUTO"
+msgstr ""
+
+#: web/templates/index_v3.html:2614
+msgid "✓ 10+ Engines"
+msgstr ""
+
+#: web/templates/index_v3.html:2617
+msgid "Email Rotation"
+msgstr ""
+
+#: web/templates/index_v3.html:2618
+msgid "★ 20+ Providers"
+msgstr ""
+
+#: web/templates/index_v3.html:2622
+msgid "✓ Day 7 & 14"
+msgstr ""
+
+#: web/templates/index_v3.html:2625
+msgid "AI Agent Swarm"
+msgstr ""
+
+#: web/templates/index_v3.html:2626
+msgid "✓ 200 Agents 24/7"
+msgstr ""
+
+#: web/templates/index_v3.html:2629
+msgid "Global Coverage"
+msgstr ""
+
+#: web/templates/index_v3.html:2630
+msgid "★ 50+ Countries"
+msgstr ""
+
+#: web/templates/index_v3.html:2633
+msgid "Real-Time Dashboard"
+msgstr ""
+
+#: web/templates/index_v3.html:2634
+msgid "✓ Full Analytics"
+msgstr ""
+
+#: web/templates/index_v3.html:2637
+msgid "ATS Resume Checker"
+msgstr ""
+
+#: web/templates/index_v3.html:2638
+msgid "★ Built-in"
+msgstr ""
+
+#: web/templates/index_v3.html:2641
+msgid "حماية من الحظر (BanShield)"
+msgstr ""
+
+#: web/templates/index_v3.html:2642
+msgid "★ BanShield"
+msgstr ""
+
+#: web/templates/index_v3.html:2646
+msgid "✓ BTC, ETH, USDT"
+msgstr ""
+
+#: web/templates/index_v3.html:2653
+msgid "✓ 30d"
+msgstr ""
+
+#: web/templates/index_v3.html:2683
+msgid "📊 JobHunt Pro — نظرة حية على لوحة التحكم"
+msgstr ""
+
+#: web/templates/index_v3.html:2690
+msgid "TechCorp International"
+msgstr ""
+
+#: web/templates/index_v3.html:2690 web/templates/index_v3.html:2693
+msgid "Sent"
+msgstr ""
+
+#: web/templates/index_v3.html:2691
+msgid "Global Finance Group"
+msgstr ""
+
+#: web/templates/index_v3.html:2691 web/templates/index_v3.html:2694
+msgid "Opened"
+msgstr ""
+
+#: web/templates/index_v3.html:2692
+msgid "Innovate Solutions Ltd"
+msgstr ""
+
+#: web/templates/index_v3.html:2692
+msgid "Replied"
+msgstr ""
+
+#: web/templates/index_v3.html:2693
+msgid "NextGen Systems"
+msgstr ""
+
+#: web/templates/index_v3.html:2694
+msgid "Prime Industries"
+msgstr ""
+
+#: web/templates/index_v3.html:2719
+msgid "LPU™ Inference — أسرع استجابات للذكاء الاصطناعي"
+msgstr ""
+
+#: web/templates/index_v3.html:2723
+msgid "Brevo SMTP"
+msgstr ""
+
+#: web/templates/index_v3.html:2728
+msgid "Cloudflare"
+msgstr ""
+
+#: web/templates/index_v3.html:2729
+msgid "حماية من البوتات وأمان SSL"
+msgstr ""
+
+#: web/templates/index_v3.html:2733
+msgid "NowPayments"
+msgstr ""
+
+#: web/templates/index_v3.html:2734
+msgid "BTC, ETH, USDT و 100+ عملة رقمية"
+msgstr ""
+
+#: web/templates/index_v3.html:2738
+msgid "Python FastAPI"
+msgstr ""
+
+#: web/templates/index_v3.html:2743
+msgid "Telegram Bot"
+msgstr ""
+
+#: web/templates/index_v3.html:2839 web/templates/index_v4.html:510
+msgid "STARTER"
+msgstr ""
+
+#: web/templates/index_v3.html:2840
+msgid "Starter"
+msgstr ""
+
+#: web/templates/index_v3.html:2841 web/templates/index_v3.html:2859
+#: web/templates/index_v3.html:2878 web/templates/index_v3.html:2900
+msgid "applications"
+msgstr ""
+
+#: web/templates/index_v3.html:2857
+msgid "BASIC"
+msgstr ""
+
+#: web/templates/index_v3.html:2858
+msgid "Basic"
+msgstr ""
+
+#: web/templates/index_v3.html:2876
+msgid "PROFESSIONAL"
+msgstr ""
+
+#: web/templates/index_v3.html:2891
+msgid "دعم VIP ذو أولوية"
+msgstr ""
+
+#: web/templates/index_v3.html:2898
+msgid "ENTERPRISE"
+msgstr ""
+
+#: web/templates/index_v3.html:2899
+msgid "Enterprise"
+msgstr ""
+
+#: web/templates/index_v3.html:2910
+msgid "وصول API"
+msgstr ""
+
+#: web/templates/index_v3.html:2917
+msgid "₿ BTC"
+msgstr ""
+
+#: web/templates/index_v3.html:2917
+msgid "Ξ ETH"
+msgstr ""
+
+#: web/templates/index_v3.html:2917
+msgid "₮ USDT"
+msgstr ""
+
+#: web/templates/index_v3.html:2917
+msgid "Ł LTC"
+msgstr ""
+
+#: web/templates/index_v3.html:2917
+msgid "◎ SOL"
+msgstr ""
+
+#: web/templates/index_v3.html:2917
+msgid "🔷 USDC"
+msgstr ""
+
+#: web/templates/index_v3.html:2997
+msgid ""
+"يتم تشفير جميع البيانات أثناء النقل والحفظ باستخدام AES-256. سيرتك "
+"الذاتية ومعلوماتك الشخصية مؤمنة بقوة."
+msgstr ""
+
+#: web/templates/index_v3.html:3001
+msgid "متوافق مع GDPR"
+msgstr ""
+
+#: web/templates/index_v3.html:3012
+msgid ""
+"ادفع عبر Bitcoin و Ethereum و USDT وغيرها. لا بنوك ولا تتبع — تبقى "
+"مدفوعاتك مجهولة 100%."
+msgstr ""
+
+#: web/templates/index_v3.html:3032
+msgid ""
+"توقيت يحاكي البشر، وتناوب عناوين IP، وتجنب ذكي للاكتشاف. طلباتك تبدو "
+"طبيعية 100%. دائماً."
+msgstr ""
+
+#: web/templates/index_v3.html:3058
+msgid ""
+"نقبل الدفع بالعملات الرقمية بما في ذلك Bitcoin و Ethereum و USDT و "
+"Litecoin و Solana و USDC. الدفع بالعملات الرقمية يوفر الخصوصية والسرعة "
+"ويعمل من أي مكان دون قيود مصرفية. جميع المدفوعات لمرة واحدة — لا "
+"اشتراكات، ولا رسوم خفية."
+msgstr ""
+
+#: web/templates/index_v3.html:3098
+msgid "10,000x"
+msgstr ""
+
+#: web/templates/index_v3.html:3135
+msgid "شارك JobHunt Pro مع الأصدقاء. يحصلون على"
+msgstr ""
+
+#: web/templates/index_v3.html:3742
+msgid "فحص ATS مجاني لسيرتك الذاتية"
+msgstr ""
+
+#: web/templates/index_v3.html:3744
+msgid "✅ نتيجة ATS فورية"
+msgstr ""
+
+#: web/templates/index_v4.html:7
+msgid ""
+"JobHunt Pro — AI-Powered Automated Job Applications | 200 وكيل ذكاء "
+"اصطناعي, 24/7"
+msgstr ""
+
+#: web/templates/index_v4.html:88
+msgid ""
+"نستخدم ملفات تعريف الارتباط الأساسية للحفاظ على عمل JobHunt Pro. "
+"باستخدامك لموقعنا، فإنك توافق على"
+msgstr ""
+
+#: web/templates/index_v4.html:179
+msgid "📡 LIVE"
+msgstr ""
+
+#: web/templates/index_v4.html:222
+msgid ""
+"يبحث وكلاؤنا الـ 200 المدعومون بالذكاء الاصطناعي في LinkedIn، Indeed، "
+"Glassdoor، Bayt، NaukriGulf والمزيد — لإيجاد وظائف تناسب ملفك الشخصي."
+msgstr ""
+
+#: web/templates/index_v4.html:267
+msgid "✅ ذكاء اصطناعي من JobHunt Pro"
+msgstr ""
+
+#: web/templates/index_v4.html:283
+msgid "Everything You Need to احصل على وظيفة أحلامك"
+msgstr ""
+
+#: web/templates/index_v4.html:295
+msgid ""
+"يجمع الوظائف من LinkedIn، Indeed، Glassdoor، ZipRecruiter، Bayt، "
+"NaukriGulf، Monster، وأكثر من 40 موقعاً آخر."
+msgstr ""
+
+#: web/templates/index_v4.html:300
+msgid ""
+"20+ email providers with intelligent rotation to maximize delivery and "
+"avoid spam filters."
+msgstr ""
+
+#: web/templates/index_v4.html:322
+msgid "🧾 فاحص ATS"
+msgstr ""
+
+#: web/templates/index_v4.html:346
+msgid "Enter your details above and click \"تحقق من نتيجتي\""
+msgstr ""
+
+#: web/templates/index_v4.html:373
+msgid "20+ providers"
+msgstr ""
+
+#: web/templates/index_v4.html:386
+msgid "شاهد JobHunt Pro قيد العمل"
+msgstr ""
+
+#: web/templates/index_v4.html:398
+msgid "🤖 Agent #42 applied to"
+msgstr ""
+
+#: web/templates/index_v4.html:398
+msgid "Senior Developer"
+msgstr ""
+
+#: web/templates/index_v4.html:398
+msgid "at Google via LinkedIn"
+msgstr ""
+
+#: web/templates/index_v4.html:399
+msgid "🤖 Agent #17 applied to"
+msgstr ""
+
+#: web/templates/index_v4.html:399
+msgid "Data Scientist"
+msgstr ""
+
+#: web/templates/index_v4.html:399
+msgid "at Amazon via Indeed"
+msgstr ""
+
+#: web/templates/index_v4.html:400
+msgid "🤖 Agent #83 applied to"
+msgstr ""
+
+#: web/templates/index_v4.html:400
+msgid "المنتج Manager"
+msgstr ""
+
+#: web/templates/index_v4.html:400
+msgid "at Microsoft via Glassdoor"
+msgstr ""
+
+#: web/templates/index_v4.html:401
+msgid "🤖 Agent #156 applied to"
+msgstr ""
+
+#: web/templates/index_v4.html:401
+msgid "DevOps Engineer"
+msgstr ""
+
+#: web/templates/index_v4.html:401
+msgid "at Stripe via ZipRecruiter"
+msgstr ""
+
+#: web/templates/index_v4.html:402
+msgid "🤖 Agent #29 applied to"
+msgstr ""
+
+#: web/templates/index_v4.html:402
+msgid "Frontend Lead"
+msgstr ""
+
+#: web/templates/index_v4.html:402
+msgid "at Meta via LinkedIn"
+msgstr ""
+
+#: web/templates/index_v4.html:405
+msgid "Mon"
+msgstr ""
+
+#: web/templates/index_v4.html:406
+msgid "Tue"
+msgstr ""
+
+#: web/templates/index_v4.html:407
+msgid "Wed"
+msgstr ""
+
+#: web/templates/index_v4.html:408
+msgid "Thu"
+msgstr ""
+
+#: web/templates/index_v4.html:409
+msgid "Fri"
+msgstr ""
+
+#: web/templates/index_v4.html:410
+msgid "Sat"
+msgstr ""
+
+#: web/templates/index_v4.html:411
+msgid "Sun"
+msgstr ""
+
+#: web/templates/index_v4.html:424
+msgid "GPT-4 / Claude AI"
+msgstr ""
+
+#: web/templates/index_v4.html:426
+msgid "أكثر من 20 مزود SMTP"
+msgstr ""
+
+#: web/templates/index_v4.html:428 web/templates/index_v4.html:663
+#: web/templates/trust.html:296
+msgid "تشفير AES-256"
+msgstr ""
+
+#: web/templates/index_v4.html:451
+msgid "التقديم اليدوي/Day"
+msgstr ""
+
+#: web/templates/index_v4.html:455
+msgid "مع JobHunt Pro"
+msgstr ""
+
+#: web/templates/index_v4.html:466
+msgid "JobHunt Pro في الوقت الفعلي"
+msgstr ""
+
+#: web/templates/index_v4.html:511
+msgid "/day"
+msgstr ""
+
+#: web/templates/index_v4.html:517
+msgid "✅ أساسي dashboard"
+msgstr ""
+
+#: web/templates/index_v4.html:518
+msgid "❌ AI cover letters"
+msgstr ""
+
+#: web/templates/index_v4.html:525
+msgid "/week"
+msgstr ""
+
+#: web/templates/index_v4.html:532 web/templates/index_v4.html:546
+#: web/templates/index_v4.html:560
+msgid "✅ AI cover letters"
+msgstr ""
+
+#: web/templates/index_v4.html:538
+msgid "PRO"
+msgstr ""
+
+#: web/templates/index_v4.html:539
+msgid "/month"
+msgstr ""
+
+#: web/templates/index_v4.html:543 web/templates/index_v4.html:557
+msgid "✅ 50+ job boards"
+msgstr ""
+
+#: web/templates/index_v4.html:544 web/templates/index_v4.html:558
+msgid "✅ 20+ email accounts"
+msgstr ""
+
+#: web/templates/index_v4.html:549
+msgid "اشترك بـ Pro"
+msgstr ""
+
+#: web/templates/index_v4.html:552
+msgid "LIFETIME"
+msgstr ""
+
+#: web/templates/index_v4.html:553
+msgid "/once"
+msgstr ""
+
+#: web/templates/index_v4.html:561
+msgid "✅ دعم ذو أولوية + API access"
+msgstr ""
+
+#: web/templates/index_v4.html:568
+msgid "₿ BTC · 9 ETH · $ USDT · Ł LTC · ⟰ SOL · $ USDC"
+msgstr ""
+
+#: web/templates/index_v4.html:582
+msgid ""
+"\"لقد بحثت عن وظيفة لمدة 8 أشهر بدون أي عروض. بعد أسبوعين مع JobHunt Pro،"
+" حصلت على 5 مقابلات وقبلت عرضاً بزيادة 30% عن راتبي السابق.\""
+msgstr ""
+
+#: web/templates/index_v4.html:584
+msgid "SM"
+msgstr ""
+
+#: web/templates/index_v4.html:586
+msgid "Sarah M."
+msgstr ""
+
+#: web/templates/index_v4.html:587
+msgid "المنتج Manager at Google"
+msgstr ""
+
+#: web/templates/index_v4.html:598
+msgid "Ahmed K."
+msgstr ""
+
+#: web/templates/index_v4.html:599
+msgid "Software Engineer at Amazon"
+msgstr ""
+
+#: web/templates/index_v4.html:608
+msgid "JR"
+msgstr ""
+
+#: web/templates/index_v4.html:610
+msgid "James R."
+msgstr ""
+
+#: web/templates/index_v4.html:611
+msgid "Senior Developer at Stripe"
+msgstr ""
+
+#: web/templates/index_v4.html:620
+msgid "NL"
+msgstr ""
+
+#: web/templates/index_v4.html:622
+msgid "Nadia L."
+msgstr ""
+
+#: web/templates/index_v4.html:623
+msgid "Data Scientist at Microsoft"
+msgstr ""
+
+#: web/templates/index_v4.html:632
+msgid "CT"
+msgstr ""
+
+#: web/templates/index_v4.html:634
+msgid "Carlos T."
+msgstr ""
+
+#: web/templates/index_v4.html:635
+msgid "Marketing Director at HubSpot"
+msgstr ""
+
+#: web/templates/index_v4.html:642
+msgid ""
+"\"كنت على وشك الاستسلام في بحثي عن وظيفة. أوصى صديق بـ JobHunt Pro وفي "
+"غضون 10 أيام حصلت على عرض. ضمان استرداد الأموال جعل الأمر يستحق المحاولة "
+"بلا تفكير.\""
+msgstr ""
+
+#: web/templates/index_v4.html:644
+msgid "LF"
+msgstr ""
+
+#: web/templates/index_v4.html:646
+msgid "Luis F."
+msgstr ""
+
+#: web/templates/index_v4.html:647
+msgid "DevOps Lead at Netflix"
+msgstr ""
+
+#: web/templates/index_v4.html:664
+msgid "All data encrypted at rest and in transit using military-grade encryption."
+msgstr ""
+
+#: web/templates/index_v4.html:678
+msgid "متوافق مع قوانين حماية البيانات (GDPR)"
+msgstr ""
+
+#: web/templates/index_v4.html:679
+msgid "متوافق بالكامل مع قوانين GDPR، CCPA والقوانين الدولية لحماية البيانات."
+msgstr ""
+
+#: web/templates/index_v4.html:683
+msgid "المصادقة الثنائية 2FA"
+msgstr ""
+
+#: web/templates/index_v4.html:708
+msgid "كل ما تحتاج معرفته عن JobHunt Pro"
+msgstr ""
+
+#: web/templates/index_v4.html:726
+msgid ""
+"بالتأكيد. جميع البيانات مشفرة بـ AES-256 سواء أثناء التخزين أو النقل. نحن"
+" لا نشارك معلوماتك أبدًا مع جهات خارجية، ويمكنك تمكين الحذف التلقائي "
+"لإزالة جميع بياناتك بمجرد اكتمال بحثك عن وظيفة."
+msgstr ""
+
+#: web/templates/index_v4.html:735
+msgid ""
+"نقدم ضمان استرداد الأموال لمدة 30 يوماً. إذا لم تحصل على أي مقابلات خلال "
+"30 يوماً من استخدام JobHunt Pro، فسنقوم برد مدفوعاتك بالكامل — دون أي "
+"أسئلة."
+msgstr ""
+
+#: web/templates/index_v4.html:753
+msgid ""
+"ندعم أكثر من 50 موقع توظيف بما في ذلك LinkedIn و Indeed و Glassdoor و "
+"ZipRecruiter و Bayt.com و NaukriGulf و Monster Gulf و CareerJet و Adzuna "
+"وغيرها الكثير. نحن نضيف مواقع جديدة باستمرار."
+msgstr ""
+
+#: web/templates/index_v4.html:767
+msgid "Do you accept cryptocurrency?"
+msgstr ""
+
+#: web/templates/index_v4.html:771
+msgid ""
+"Yes! We accept Bitcoin (BTC), Ethereum (ETH), Tether (USDT), Litecoin "
+"(LTC), Solana (SOL), and USD Coin (USDC). Crypto payments are processed "
+"instantly with no additional fees."
+msgstr ""
+
+#: web/templates/index_v4.html:776
+msgid "How do I get started?"
+msgstr ""
+
+#: web/templates/index_v4.html:780
+msgid ""
+"Simply click \"Start Applying Now\" and create your account. Upload your "
+"resume, set your preferences, and our AI will begin searching and "
+"applying immediately. You can start seeing results within hours."
+msgstr ""
+
+#: web/templates/index_v4.html:789
+msgid "Ready to احصل على وظيفة أحلامك?"
+msgstr ""
+
+#: web/templates/index_v4.html:794
+msgid "30-Day"
+msgstr ""
+
+#: web/templates/index_v4.html:815
+msgid "الميزةs"
+msgstr ""
+
+#: web/templates/index_v4.html:817
+msgid "Live Demo"
+msgstr ""
+
+#: web/templates/index_v4.html:836
+msgid "© 2026 JobHunt Pro. جميع الحقوق محفوظة."
+msgstr ""
+
+#: web/templates/intel_view.html:62
+msgid "تم الإبلاغ عنها في: Google"
+msgstr ""
+
+#: web/templates/login.html:10 web/templates/login_v2.html:10
+msgid "Login — JobHunt Pro"
+msgstr ""
+
+#: web/templates/offers.html:135 web/templates/offers.html:440
+msgid "السعر المخفض (USD)"
+msgstr ""
+
+#: web/templates/offers.html:139 web/templates/offers.html:444
+msgid "السعر الأصلي (USD) — اختياري"
+msgstr ""
+
+#: web/templates/offers.html:160 web/templates/offers.html:465
+msgid "تكامل API مع موزع (فوري)"
+msgstr ""
+
+#: web/templates/offers.html:165 web/templates/offers.html:470
+msgid "رابط API الموزع"
+msgstr ""
+
+#: web/templates/offers.html:169 web/templates/offers.html:474
+msgid "مفتاح / توكن API الموزع"
+msgstr ""
+
+#: web/templates/offers.html:256
+msgid "⚡ تفعيل فوري عبر API"
+msgstr ""
+
+#: web/templates/privacy.html:10
+msgid "سياسة الخصوصية — JobHunt Pro"
+msgstr ""
+
+#: web/templates/privacy.html:62
+msgid "بياناتك منستعملها بس لتشغيل وتحسين منصة JobHunt Pro:"
+msgstr ""
+
+#: web/templates/privacy.html:64
+msgid ""
+"نكتب رسائل تغطية (Cover Letters) ومواد تقديم مخصصة إلك عبر الذكاء "
+"الاصطناعي"
+msgstr ""
+
+#: web/templates/privacy.html:76
+msgid ""
+"نحنا منطبق معايير أمان عالية، متل التشفير وقت التخزين والنقل، مصادقة API "
+"آمنة، وتدقيق أمني دوري. كلمة المرور تبعك مشفرة وما بتنحفظ بنص واضح أبداً."
+msgstr ""
+
+#: web/templates/privacy.html:84
+msgid "support@jobhuntpro.com"
+msgstr ""
+
+#: web/templates/privacy.html:89 web/templates/terms.html:83
+msgid "© 2026 JobHunt Pro. كل الحقوق محفوظة."
+msgstr ""
+
+#: web/templates/referral.html:4
+msgid "أنت مدعو إلى JobHunt Pro!"
+msgstr ""
+
+#: web/templates/referral.html:13
+msgid "اكتشف المزيد عن JobHunt Pro"
+msgstr ""
+
+#: web/templates/register.html:109
+msgid "⚡ JOBHUNT PRO"
+msgstr ""
+
+#: web/templates/register.html:158 web/templates/register_v2.html:169
+msgid "Pro ⭐"
+msgstr ""
+
+#: web/templates/register.html:236 web/templates/register_v2.html:271
+msgid "ادفع بـ BTC, ETH, USDT — خاصة وبدون حدود"
+msgstr ""
+
+#: web/templates/register_v2.html:243
+msgid "مئات الوكلاء شغالين على مدار الساعة searching & applying"
+msgstr ""
+
+#: web/templates/resume_tailor.html:388
+msgid "📥 تحميل بصيغة PDF"
+msgstr ""
+
+#: web/templates/roast.html:11
+msgid ""
+"ارفع ملف الـ PDF الخاص بك ودع الذكاء الاصطناعي الصريح جداً لدينا يحطم "
+"غرورك."
+msgstr ""
+
+#: web/templates/roast.html:27
+msgid "🐦 شارك على X"
+msgstr ""
+
+#: web/templates/services.html:442
+msgid ""
+"رسائل بريد إلكتروني للمتابعة مدعومة بالذكاء الاصطناعي تتحقق تلقائياً مع "
+"أصحاب العمل الذين لم يردوا. 3 مستويات بناءً على الحجم. كل متابعة مخصصة "
+"بواسطة Groq AI."
+msgstr ""
+
+#: web/templates/services.html:520
+msgid "وحدة_الترقيات_النشطة.sys"
+msgstr ""
+
+#: web/templates/services.html:531
+msgid "[ACTIVE]"
+msgstr ""
+
+#: web/templates/services_v2.html:815
+msgid "Tier 2: قياسية"
+msgstr ""
+
+#: web/templates/services_v2.html:844
+msgid "Tier 3: مميزة"
+msgstr ""
+
+#: web/templates/services_v2.html:915
+msgid "أرسل BTC، ETH، USDT، أو LTC للعنوان المولد. تأكيد فوري."
+msgstr ""
+
+#: web/templates/services_v2.html:926 web/templates/wallet.html:178
+msgid "BTC"
+msgstr ""
+
+#: web/templates/services_v2.html:927 web/templates/wallet.html:179
+msgid "ETH"
+msgstr ""
+
+#: web/templates/services_v2.html:928 web/templates/wallet.html:177
+msgid "USDT (TRC20)"
+msgstr ""
+
+#: web/templates/services_v2.html:929 web/templates/wallet.html:180
+msgid "LTC"
+msgstr ""
+
+#: web/templates/services_v2.html:941
+msgid "🔌 API"
+msgstr ""
+
+#: web/templates/services_v2.html:981
+msgid "Error message here"
+msgstr ""
+
+#: web/templates/terms.html:10
+msgid "شروط الخدمة — JobHunt Pro"
+msgstr ""
+
+#: web/templates/terms.html:58
+msgid ""
+"باستخدامك لـ JobHunt Pro، إنت بتوافق على هالشروط. إذا ما بتوافق، الرجاء "
+"ما تستخدم المنصة. نحنا منحفظ بحقنا بتحديث هالشروط بأي وقت مع إشعار "
+"للمستخدمين."
+msgstr ""
+
+#: web/templates/terms.html:70
+msgid ""
+"إنت بتوافق إنك ما تستخدم JobHunt Pro لأي غرض غير قانوني، أو لتقديم "
+"معلومات غلط أو مضللة، أو تحاول تتجاوز إجراءات الأمان تبعنا، أو تتدخل بشغل"
+" المنصة."
+msgstr ""
+
+#: web/templates/terms.html:74
+msgid ""
+"منصة JobHunt Pro بتقدم أدوات لأتمتة طلبات التوظيف. نحنا ما منضمن نتائج "
+"التوظيف. مسؤوليتنا محصورة بالمبلغ يلي اندفع للخدمة المعنية."
+msgstr ""
+
+#: web/templates/track_application.html:9
+msgid "Track Applications — JobHunt Pro"
+msgstr ""
+
+#: web/templates/track_application.html:178
+msgid "+BONUS"
+msgstr ""
+
+#: web/templates/trust.html:10
+msgid "مركز الثقة — JobHunt Pro"
+msgstr ""
+
+#: web/templates/trust.html:283
+msgid "256-bit"
+msgstr ""
+
+#: web/templates/trust.html:283
+msgid "تشفير AES"
+msgstr ""
+
+#: web/templates/trust.html:297
+msgid ""
+"كل البيانات مشفرة بقاعدة البيانات باستخدام AES-256، نفس معيار التشفير "
+"اللي بتستخدمه الحكومة الأمريكية للمعلومات السرية. كمان بياناتك مشفرة وقت "
+"النقل باستخدام TLS 1.3."
+msgstr ""
+
+#: web/templates/trust.html:301
+msgid "بنية عدم المعرفة (Zero-Knowledge)"
+msgstr ""
+
+#: web/templates/trust.html:317
+msgid ""
+"كلمات المرور مشفرة باستخدام bcrypt مع salt لكل مستخدم. الجلسات موقعة "
+"تشفيرياً وبتنتهي صلاحيتها تلقائياً. حماية من هجمات القوة الغاشمة مع حد "
+"للطلبات على كل نقاط تسجيل الدخول."
+msgstr ""
+
+#: web/templates/trust.html:321
+msgid "حماية من الـ DDoS"
+msgstr ""
+
+#: web/templates/trust.html:322
+msgid ""
+"محمي بتقنية تخفيف الـ DDoS على مستوى الشركات. حد الطلبات، والتحقق منها، "
+"والحظر التلقائي للزيارات الخبيثة بيضمن إنو المنصة تضل شغالة 24/7."
+msgstr ""
+
+#: web/templates/trust.html:338
+msgid "GDPR"
+msgstr ""
+
+#: web/templates/trust.html:339
+msgid "CCPA"
+msgstr ""
+
+#: web/templates/trust.html:340
+msgid "TLS 1.3"
+msgstr ""
+
+#: web/templates/trust.html:341
+msgid "AES-256"
+msgstr ""
+
+#: web/templates/trust.html:342
+msgid "bcrypt"
+msgstr ""
+
+#: web/templates/trust.html:346
+msgid "SOC 2"
+msgstr ""
+
+#: web/templates/trust.html:361
+msgid ""
+"\"بعد 6 شهور من التقديم اليدوي وبدون أي ردود، جربت JobHunt Pro. خلال 3 "
+"أسابيع أجاني 4 مقابلات وعرضين عمل. النظام لقى وظايف ما كنت بعرف إنها "
+"موجودة. رسائل التغطية بالذكاء الاصطناعي خرافية — كل وحدة بتحس كأنو إنسان "
+"كتبها خصيصاً لهالشركة.\""
+msgstr ""
+
+#: web/templates/trust.html:364
+msgid "مهندس شبكات → توظف براتب 78K$"
+msgstr ""
+
+#: web/templates/trust.html:382
+msgid "مصمم UX → وظيفة عن بعد 96K$"
+msgstr ""
+
+#: web/templates/trust.html:391
+msgid "مدير تسويق → 110K$/سنة"
+msgstr ""
+
+#: web/templates/trust.html:421
+msgid ""
+"ادفع بالعملات الرقمية (BTC, ETH, USDT) — بلا اسم، بلا بنك، وبلا أثر. ما "
+"بنطلب هوية شخصية لحتى تستخدم المنصة. بحثك عن وظيفة هو شغلك الخاص. نحنا بس"
+" المحرك اللي بشغله."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:10
+msgid "Upload CV — JobHunt Pro"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:492
+msgid "📝 Upload CV & Create Profile"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:493
+msgid "Upload your CV → AI auto-fills everything → Preview & Save"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:503
+msgid "🚀 How It Works — 3 Simple Steps"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:507
+msgid "Upload CV"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:508
+msgid "Drop your PDF/DOCX or paste text — we support all formats"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:512
+msgid "AI Auto-Fill"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:513
+msgid "Click ✨ Auto-Fill → AI extracts profile + generates all documents"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:517
+msgid "Preview & Save"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:518
+msgid "Review the formatted preview → edit anything → Save profile"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:524
+msgid "📤 Step 1: Upload Your CV"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:527
+msgid "Drop your CV here"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:527
+msgid "or click to browse"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:528
+msgid "PDF, DOCX, DOC, TXT — up to 10MB"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:530
+msgid "📕 PDF"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:531
+msgid "📘 DOCX"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:532
+msgid "📄 TXT"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:538
+msgid "✓ Ready for AI extraction"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:541
+msgid "OR paste text below"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:552
+msgid "✨ Auto-Fill My Profile with AI"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:566
+msgid "👤 Basic Information"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:568
+msgid "Full Name"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:569
+msgid "Email"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:591
+msgid "🎯 Target Job & Salary"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:593
+msgid "Target Company"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:594
+msgid "Target Job Title"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:596
+msgid "💰 Quick Salary Range"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:599
+msgid "Local Jobs"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:599
+msgid "Lebanon, MENA"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:602
+msgid "Worldwide"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:602
+msgid "Gulf, UAE, Qatar"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:605
+msgid "Remote"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:605
+msgid "Work from anywhere"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:609
+msgid "Target Job Titles"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:610
+msgid "Target Locations"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:613
+msgid "Min Local Salary ($)"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:614
+msgid "Min Intl Salary ($)"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:619
+msgid "🎨 Choose Your Style"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:621
+msgid "📧 EMAIL TONE — How the hiring manager reads your application"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:625
+msgid "Professional & Formal"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:626
+msgid "Authority & respect."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:626
+msgid "Best for corporate, banking,"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:626
+msgid "government roles."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:630
+msgid "Friendly & Warm"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:631
+msgid "Personal & approachable."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:631
+msgid "Best for startups, creative,"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:631
+msgid "people-first companies."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:635
+msgid "Confident & Bold"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:636
+msgid "Direct & powerful."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:636
+msgid "Best for senior roles,"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:636
+msgid "tech leaders, consultants."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:642
+msgid "📄 CV ATTACHMENT STYLE"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:646
+msgid "Executive"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:647
+msgid "Key metrics box, project"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:647
+msgid "cards, leadership emphasis."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:651
+msgid "Technical"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:652
+msgid "Terminal-style stats,"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:652
+msgid "build log, deep tech detail."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:656
+msgid "Modern & Clean"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:657
+msgid "Glassmorphism badges,"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:657
+msgid "minimalist layout, sleek."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:663
+msgid "✉️ COVER LETTER STYLE"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:667
+msgid "Storytelling"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:668
+msgid "Narrative flow showing"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:668
+msgid "career journey & impact."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:672
+msgid "Bullet Points"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:673
+msgid "Scannable achievements,"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:673
+msgid "quantified results, fast read."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:677
+msgid "Traditional"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:678
+msgid "Classic business letter,"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:678
+msgid "formal structure, respectful."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:686
+msgid "📑 Your Documents"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:686
+msgid "All Ready"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:689
+msgid "📧 Email Body"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:689 web/templates/upload_cv_v2.html:693
+#: web/templates/upload_cv_v2.html:697
+msgid "Not generated yet"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:693 web/templates/upload_cv_v2.html:741
+msgid "📄 CV Attachment"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:697 web/templates/upload_cv_v2.html:742
+msgid "✉️ Cover Letter"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:701
+msgid "👁️ Preview What Will Be Sent"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:702
+msgid "🔄 Regenerate All"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:707
+msgid "🚀 Launch Your Job Hunt"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:710
+msgid "🔥 Flash Deal — Limited Time"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:716
+msgid "Send to 20 companies in one click"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:720
+msgid "🚀 Generate Emails & Apply"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:723
+msgid "📥 Download PDF"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:725
+msgid "💾 Save Only"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:728
+msgid ""
+"✓ Saves CV, cover letter, email body, profile — then opens campaign page "
+"to launch your applications"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:736
+msgid "📧 Preview — What the Company Will See"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:740
+msgid "📧 Email"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:745
+msgid "Generating your professional preview..."
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:748
+msgid "✕ Close"
+msgstr ""
+
+#: web/templates/upload_cv_v2.html:749
+msgid "🔄 Regenerate"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:26
+msgid "02h 34m 12s"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:27
+msgid "CVPRO30"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:40
+msgid "ارفع سيرتك الذاتية بصيغة PDF أو DOCX أو TXT"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:68
+msgid "PDF"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:69
+msgid "DOCX"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:70
+msgid "TXT"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:77
+msgid "file.pdf"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:78
+msgid "(0 KB)"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:131
+msgid "Python"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:132
+msgid "JavaScript"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:133
+msgid "React"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:145
+msgid "$30k-$50k"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:151
+msgid "$50k-$80k"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:157
+msgid "$80k-$150k"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:175
+msgid "تنسيق نظيف متوافق مع أنظمة التوظيف (ATS)"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:198
+msgid "PDF • آخر تحديث: لم يتم الرفع"
+msgstr ""
+
+#: web/templates/upload_cv_v3.html:212
+msgid "رابط أو PDF • اعرض أعمالك"
+msgstr ""
+
+#: web/templates/wallet.html:131
+msgid "مفتاح API الخاص بك"
+msgstr ""
+
+#: web/templates/wallet.html:162
+msgid "مدعوم بـ NOWPayments — فاتورة فورية، ادفع بعملتك المشفرة المفضلة."
+msgstr ""
+
+#: web/templates/wallet.html:181
+msgid "TRX"
+msgstr ""
+
+#: web/templates/wallet.html:194
+msgid "0.00 BTC"
+msgstr ""
+
+#: web/templates/war_room.html:59
+msgid "$1.5-3K"
+msgstr ""
+
+#: web/templates/war_room.html:60
+msgid "🇱🇧 LEBANON"
+msgstr ""
+
+#: web/templates/war_room.html:64
+msgid "$4-8K"
+msgstr ""
+
+#: web/templates/war_room.html:65
+msgid "🇦🇪 UAE"
+msgstr ""
+
+#: web/templates/war_room.html:69 web/templates/war_room.html:79
+msgid "$3.5-7K"
+msgstr ""
+
+#: web/templates/war_room.html:70
+msgid "🇸🇦 SAUDI"
+msgstr ""
+
+#: web/templates/war_room.html:74
+msgid "$4.5-8.5K"
+msgstr ""
+
+#: web/templates/war_room.html:75
+msgid "🇶🇦 QATAR"
+msgstr ""
+
+#: web/templates/war_room.html:80
+msgid "🇰🇼 KUWAIT"
+msgstr ""
+
+#: web/templates/war_room.html:84
+msgid "$3-6K"
+msgstr ""
+
+#: web/templates/war_room.html:85
+msgid "🇴🇲 OMAN"
+msgstr ""
+
+#: web/templates/war_room.html:165
+msgid "[ اشترِ ذكاء اصطناعي للمقابلة أو \"Interview Ninja\" لتوليد أدلة تلقائية ]"
+msgstr ""
+
+#: web/templates/war_room.html:189
+msgid "نسخ HTML"
+msgstr ""
+

@@ -28,11 +28,8 @@ DEPENDENCIES:
 """
 
 import asyncio
-import hashlib
-import json
 import logging
 import os
-import time
 from typing import Optional, Tuple
 
 import httpx
@@ -48,16 +45,16 @@ IS_TESTNET = os.getenv("TONVERIFIER_TESTNET", "0") == "1"
 # Official Toncenter RPC endpoints (high-availability, rate-limited at 1 req/s free)
 TONCENTER_MAINNET = "https://toncenter.com/api/v2"
 TONCENTER_TESTNET = "https://testnet.toncenter.com/api/v2"
-TONCENTER_BASE    = TONCENTER_TESTNET if IS_TESTNET else TONCENTER_MAINNET
+TONCENTER_BASE = TONCENTER_TESTNET if IS_TESTNET else TONCENTER_MAINNET
 
 # Tonapi.io — faster, supports traces, better for Jetton event tracking
 TONAPI_MAINNET = "https://tonapi.io/v2"
 TONAPI_TESTNET = "https://testnet.tonapi.io/v2"
-TONAPI_BASE    = TONAPI_TESTNET if IS_TESTNET else TONAPI_MAINNET
+TONAPI_BASE = TONAPI_TESTNET if IS_TESTNET else TONAPI_MAINNET
 
 # API keys (optional but removes rate limits)
 TONCENTER_API_KEY = os.getenv("TONCENTER_API_KEY", "")
-TONAPI_KEY        = os.getenv("TONAPI_KEY", "")
+TONAPI_KEY = os.getenv("TONAPI_KEY", "")
 
 # Official USDT (Tether) Jetton Master Contract on TON Mainnet
 # Source: https://tonviewer.com/EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs
@@ -80,6 +77,7 @@ REQUEST_TIMEOUT = 20.0
 # HTTP CLIENT HELPERS
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def _toncenter_headers() -> dict:
     headers = {"Content-Type": "application/json"}
     if TONCENTER_API_KEY:
@@ -94,13 +92,19 @@ def _tonapi_headers() -> dict:
     return headers
 
 
-async def _get(client: httpx.AsyncClient, url: str, params: dict = None, headers: dict = None) -> Optional[dict]:
+async def _get(
+    client: httpx.AsyncClient, url: str, params: dict = None, headers: dict = None
+) -> Optional[dict]:
     """Safe async GET with timeout and error handling."""
     try:
-        resp = await client.get(url, params=params or {}, headers=headers or {}, timeout=REQUEST_TIMEOUT)
+        resp = await client.get(
+            url, params=params or {}, headers=headers or {}, timeout=REQUEST_TIMEOUT
+        )
         if resp.status_code == 200:
             return resp.json()
-        logger.warning(f"[TON-VERIFIER] GET {url} → {resp.status_code}: {resp.text[:200]}")
+        logger.warning(
+            f"[TON-VERIFIER] GET {url} → {resp.status_code}: {resp.text[:200]}"
+        )
         return None
     except Exception as exc:
         logger.error(f"[TON-VERIFIER] Request failed: {url} → {exc}")
@@ -111,7 +115,10 @@ async def _get(client: httpx.AsyncClient, url: str, params: dict = None, headers
 # CORE VERIFICATION FUNCTIONS
 # ─────────────────────────────────────────────────────────────────────────────
 
-async def get_jetton_wallet_address(owner_address: str, jetton_master: str = USDT_MASTER_ADDRESS) -> Optional[str]:
+
+async def get_jetton_wallet_address(
+    owner_address: str, jetton_master: str = USDT_MASTER_ADDRESS
+) -> Optional[str]:
     """
     STAGE 1: Derive the canonical Jetton Wallet address for a given owner.
     ======================================================================
@@ -125,9 +132,9 @@ async def get_jetton_wallet_address(owner_address: str, jetton_master: str = USD
     async with httpx.AsyncClient() as client:
         # Use Toncenter runGetMethod to call the Jetton master contract
         payload = {
-            "address":  jetton_master,
-            "method":   "get_wallet_address",
-            "stack":    [["tvm.Slice", owner_address]],
+            "address": jetton_master,
+            "method": "get_wallet_address",
+            "stack": [["tvm.Slice", owner_address]],
         }
         try:
             resp = await client.post(
@@ -137,7 +144,9 @@ async def get_jetton_wallet_address(owner_address: str, jetton_master: str = USD
                 timeout=REQUEST_TIMEOUT,
             )
             if resp.status_code != 200:
-                logger.warning(f"[TON-VERIFIER] runGetMethod failed: {resp.status_code}")
+                logger.warning(
+                    f"[TON-VERIFIER] runGetMethod failed: {resp.status_code}"
+                )
                 return None
 
             data = resp.json()
@@ -147,7 +156,9 @@ async def get_jetton_wallet_address(owner_address: str, jetton_master: str = USD
                     # Stack[0][1] contains the cell with the Jetton wallet address
                     cell_value = stack[0][1] if len(stack[0]) > 1 else None
                     if cell_value:
-                        logger.info(f"[TON-VERIFIER] ✅ Derived Jetton wallet for {owner_address[:16]}...")
+                        logger.info(
+                            f"[TON-VERIFIER] ✅ Derived Jetton wallet for {owner_address[:16]}..."
+                        )
                         return str(cell_value)
         except Exception as exc:
             logger.error(f"[TON-VERIFIER] get_jetton_wallet_address error: {exc}")
@@ -191,7 +202,7 @@ async def get_transaction_by_hash(tx_hash: str) -> Optional[dict]:
             url=f"{TONCENTER_BASE}/getTransactions",
             params={
                 "address": PLATFORM_WALLET_ADDRESS,
-                "limit":   20,
+                "limit": 20,
             },
             headers=_toncenter_headers(),
         )
@@ -258,6 +269,7 @@ async def is_masterchain_finalized(tx_hash: str) -> Tuple[bool, int]:
 # MAIN VERIFICATION ENTRYPOINT
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class JettonPaymentVerifier:
     """
     APEX MATRIX: Cryptographically secure Jetton payment verification.
@@ -311,12 +323,12 @@ class JettonPaymentVerifier:
               error (str)         : Error message if any
         """
         result = {
-            "verified":       False,
-            "stage_failed":   None,
-            "confirmations":  0,
-            "error":          None,
-            "tx_hash":        tx_hash,
-            "network":        "testnet" if IS_TESTNET else "mainnet",
+            "verified": False,
+            "stage_failed": None,
+            "confirmations": 0,
+            "error": None,
+            "tx_hash": tx_hash,
+            "network": "testnet" if IS_TESTNET else "mainnet",
         }
 
         logger.info(
@@ -327,7 +339,9 @@ class JettonPaymentVerifier:
         # ── STAGE 1: Address Authenticity Check ───────────────────────────────
         # Derive the CANONICAL Jetton wallet for this user from the master contract.
         # If it doesn't match notification_sender → forged notification.
-        canonical_wallet = await get_jetton_wallet_address(owner_address, self.usdt_master)
+        canonical_wallet = await get_jetton_wallet_address(
+            owner_address, self.usdt_master
+        )
 
         if not canonical_wallet:
             result["stage_failed"] = "wallet_derivation_failed"
@@ -336,8 +350,10 @@ class JettonPaymentVerifier:
             return result
 
         # Normalize addresses for comparison (TON addresses have multiple representations)
-        canonical_norm   = canonical_wallet.strip().replace("-", "+").replace("_", "/")
-        notification_norm = notification_sender.strip().replace("-", "+").replace("_", "/")
+        canonical_norm = canonical_wallet.strip().replace("-", "+").replace("_", "/")
+        notification_norm = (
+            notification_sender.strip().replace("-", "+").replace("_", "/")
+        )
 
         if canonical_norm != notification_norm:
             result["stage_failed"] = "address_mismatch"
@@ -346,7 +362,9 @@ class JettonPaymentVerifier:
                 f"canonical Jetton wallet ({canonical_wallet[:16]}...). "
                 f"Possible forged notification attack!"
             )
-            logger.critical(f"[TON-VERIFIER] ❌ Stage 1 FAILED — FORGED NOTIFICATION DETECTED: {result['error']}")
+            logger.critical(
+                f"[TON-VERIFIER] ❌ Stage 1 FAILED — FORGED NOTIFICATION DETECTED: {result['error']}"
+            )
             return result
 
         logger.info(f"[TON-VERIFIER] ✅ Stage 1 PASSED: Sender address is authentic.")
@@ -373,7 +391,7 @@ class JettonPaymentVerifier:
                 if attempt < max_poll_attempts - 1:
                     logger.info(
                         f"[TON-VERIFIER] ⏳ Waiting for finality... "
-                        f"attempt {attempt+1}/{max_poll_attempts} ({confirmations} confirmations so far)"
+                        f"attempt {attempt + 1}/{max_poll_attempts} ({confirmations} confirmations so far)"
                     )
                     await asyncio.sleep(poll_interval_s)
 
@@ -407,6 +425,7 @@ class JettonPaymentVerifier:
 # DATABASE INTEGRATION
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 async def process_verified_ton_payment(
     user_id: str,
     tx_hash: str,
@@ -437,20 +456,20 @@ async def process_verified_ton_payment(
             f"{verification.get('error')}"
         )
         return {
-            "success":         False,
+            "success": False,
             "credited_amount": 0,
-            "error":           verification.get("error"),
-            "stage_failed":    verification.get("stage_failed"),
+            "error": verification.get("error"),
+            "stage_failed": verification.get("stage_failed"),
         }
 
     # Payment is cryptographically verified — safe to credit
     try:
         from core.pg_sqlite_shim import connect
+
         with connect() as conn:
             # Check for duplicate processing (idempotency via tx_hash)
             existing = conn.execute(
-                "SELECT id FROM wallet_transactions WHERE tx_hash = ?",
-                (tx_hash,)
+                "SELECT id FROM wallet_transactions WHERE tx_hash = ?", (tx_hash,)
             ).fetchone()
 
             if existing:
@@ -458,9 +477,9 @@ async def process_verified_ton_payment(
                     f"[TON-VERIFIER] Transaction {tx_hash[:16]}... already processed. Skipping duplicate credit."
                 )
                 return {
-                    "success":         True,
+                    "success": True,
                     "credited_amount": 0,
-                    "error":           "duplicate_transaction",
+                    "error": "duplicate_transaction",
                 }
 
             # Credit the user's wallet
@@ -470,7 +489,7 @@ async def process_verified_ton_payment(
                 SET wallet_balance = wallet_balance + ?, total_spent = total_spent + ?
                 WHERE user_id = ?
                 """,
-                (amount_usdt, amount_usdt, user_id)
+                (amount_usdt, amount_usdt, user_id),
             )
 
             # Record the transaction in the audit ledger
@@ -480,9 +499,12 @@ async def process_verified_ton_payment(
                   (user_id, transaction_type, amount, description, tx_hash)
                 VALUES (?, 'ton_usdt_deposit', ?, ?, ?)
                 """,
-                (user_id, amount_usdt,
-                 f"TON USDT deposit — {verification['confirmations']} MC confirmations",
-                 tx_hash)
+                (
+                    user_id,
+                    amount_usdt,
+                    f"TON USDT deposit — {verification['confirmations']} MC confirmations",
+                    tx_hash,
+                ),
             )
 
         logger.info(
@@ -490,10 +512,10 @@ async def process_verified_ton_payment(
             f"tx={tx_hash[:16]}..."
         )
         return {
-            "success":         True,
+            "success": True,
             "credited_amount": amount_usdt,
-            "confirmations":   verification["confirmations"],
-            "error":           None,
+            "confirmations": verification["confirmations"],
+            "error": None,
         }
 
     except Exception as exc:

@@ -3,6 +3,7 @@ JobHunt Pro v13 — Multi-Provider Email Rotator Pool
 Rotates across Gmail, Brevo, SendGrid, Zoho, Outlook to maximize free-tier sending.
 500+ emails/day with zero cost by rotating across providers.
 """
+
 import asyncio
 import logging
 import smtplib
@@ -14,9 +15,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Union
-from dataclasses import dataclass, field
-from datetime import datetime, date
+from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from datetime import date
 
 import config
 
@@ -26,19 +27,21 @@ logger = logging.getLogger(__name__)
 _db_rate_limited_hosts = {}
 _last_db_rate_limit_check = 0.0
 
+
 def _load_db_rate_limits() -> None:
     """Load rate-limited SMTP hosts from the database to synchronize state across instances."""
     global _db_rate_limited_hosts, _last_db_rate_limit_check
     now = time.time()
     if now - _last_db_rate_limit_check < 60.0:  # Cache for 60 seconds
         return
-        
+
     _last_db_rate_limit_check = now
     new_limits = {}
     conn = None
     try:
         # Try importing from the FastAPI app instance first
         from web.app_v2 import get_db
+
         conn = get_db()
     except Exception:
         try:
@@ -46,7 +49,12 @@ def _load_db_rate_limits() -> None:
             import sqlite3
             import config
             from pathlib import Path
-            db_name = getattr(config, "DB_PATH", None) or os.getenv("DB_PATH") or "jobhunt_saas_v2.db"
+
+            db_name = (
+                getattr(config, "DB_PATH", None)
+                or os.getenv("DB_PATH")
+                or "jobhunt_saas_v2.db"
+            )
             db_path = str(Path(__file__).parent.parent / db_name)
             conn = sqlite3.connect(db_path, timeout=10)
             conn.row_factory = sqlite3.Row
@@ -75,7 +83,7 @@ def _load_db_rate_limits() -> None:
                 conn.close()
             except Exception:
                 pass
-                
+
     _db_rate_limited_hosts = new_limits
 
 
@@ -103,7 +111,11 @@ class EmailAccount:
             return "sendgrid"
         if "zoho" in self.server:
             return "zoho"
-        if "outlook" in self.server or "office365" in self.server or "live" in self.server:
+        if (
+            "outlook" in self.server
+            or "office365" in self.server
+            or "live" in self.server
+        ):
             return "outlook"
         if "mailgun" in self.server:
             return "mailgun"
@@ -117,9 +129,10 @@ class EmailAccount:
 class SMTPConnectionPool:
     """
     High-performance SMTP Connection Pooling (Skeleton).
-    In a Maximum Power architecture, this manages 10-50 simultaneous TLS connections 
+    In a Maximum Power architecture, this manages 10-50 simultaneous TLS connections
     per provider to avoid handshake overhead on every batch send.
     """
+
     def __init__(self, account: EmailAccount, max_connections: int = 10) -> None:
         self.account = account
         self.max_connections = max_connections
@@ -135,7 +148,6 @@ class SMTPConnectionPool:
     async def release(self, conn: smtplib.SMTP) -> None:
         """Return the connection to the pool."""
         pass
-
 
 
 class EmailSenderClient:
@@ -165,16 +177,18 @@ class EmailSenderClient:
         self._reset_daily_if_needed()
         if not self._available:
             return False
-            
+
         # Check database rate-limiting state
         try:
             _load_db_rate_limits()
             if self.account.server in _db_rate_limited_hosts:
-                logger.warning(f"SMTP account {self.account.name} ({self.account.server}) bypassed: marked rate-limited in DB.")
+                logger.warning(
+                    f"SMTP account {self.account.name} ({self.account.server}) bypassed: marked rate-limited in DB."
+                )
                 return False
         except Exception as e:
             logger.debug(f"Failed to check db rate limits: {e}")
-            
+
         return self._sent_today < self.account.daily_limit
 
     def quota_remaining(self) -> int:
@@ -190,7 +204,9 @@ class EmailSenderClient:
             def _connect_sync():
                 if self.account.use_tls:
                     ctx = ssl.create_default_context()
-                    smtp = smtplib.SMTP(self.account.server, self.account.port, timeout=30)
+                    smtp = smtplib.SMTP(
+                        self.account.server, self.account.port, timeout=30
+                    )
                     smtp.ehlo()
                     smtp.starttls(context=ctx)
                     smtp.ehlo()
@@ -203,9 +219,7 @@ class EmailSenderClient:
                 return smtp
 
             self._smtp_conn = await loop.run_in_executor(None, _connect_sync)
-            logger.debug(
-                f"SMTP connected: {self.account.name} ({self.account.user})"
-            )
+            logger.debug(f"SMTP connected: {self.account.name} ({self.account.user})")
             return True
         except smtplib.SMTPAuthenticationError:
             self._last_error = "SMTP authentication failed"
@@ -244,7 +258,9 @@ class EmailSenderClient:
                     loop = asyncio.get_event_loop()
                     await loop.run_in_executor(None, self._smtp_conn.noop)
                 except Exception:
-                    logger.debug(f"SMTP connection stale for {self.account.name}, reconnecting")
+                    logger.debug(
+                        f"SMTP connection stale for {self.account.name}, reconnecting"
+                    )
                     try:
                         self._smtp_conn.quit()
                     except Exception:
@@ -275,7 +291,10 @@ class EmailSenderClient:
                             part.set_payload(f.read())
                             encoders.encode_base64(part)
                             filename = os.path.basename(path)
-                            part.add_header("Content-Disposition", f'attachment; filename="{filename}"')
+                            part.add_header(
+                                "Content-Disposition",
+                                f'attachment; filename="{filename}"',
+                            )
                             msg.attach(part)
 
             try:
@@ -288,7 +307,9 @@ class EmailSenderClient:
 
                 refused = await loop.run_in_executor(None, _send_sync)
                 if refused:
-                    logger.warning(f"[Rotator] Refused via {self.account.name}: {refused}")
+                    logger.warning(
+                        f"[Rotator] Refused via {self.account.name}: {refused}"
+                    )
                     return False
                 self._sent_today += 1
                 self._consecutive_failures = 0
@@ -298,8 +319,12 @@ class EmailSenderClient:
                 )
                 return True
 
-            except (smtplib.SMTPServerDisconnected, smtplib.SMTPSenderRefused,
-                    smtplib.SMTPRecipientsRefused, smtplib.SMTPDataError) as e:
+            except (
+                smtplib.SMTPServerDisconnected,
+                smtplib.SMTPSenderRefused,
+                smtplib.SMTPRecipientsRefused,
+                smtplib.SMTPDataError,
+            ) as e:
                 self._consecutive_failures += 1
                 self._last_error = str(e)
                 self._smtp_conn = None  # Force reconnect next time
@@ -346,7 +371,9 @@ class EmailRotatorPool:
         self._lock = asyncio.Lock()
         self._stats_file = "cache/email_rotator_stats.json"
 
-    def get_provider(self, preferred_account: Optional[str] = None) -> Optional[EmailSenderClient]:
+    def get_provider(
+        self, preferred_account: Optional[str] = None
+    ) -> Optional[EmailSenderClient]:
         """
         Get the next available email provider (round-robin, respecting daily quotas).
         Returns None if all accounts are exhausted.
@@ -442,9 +469,11 @@ class EmailRotatorPool:
         if tenant_id:
             try:
                 from core.multi_tenant import MultiTenantRunner
+
                 provider = MultiTenantRunner.get_tenant_smtp_provider(tenant_id)
                 if provider and provider.get("user") and provider.get("password"):
                     from core.email_rotator_pool import EmailAccount, EmailSenderClient
+
                     account = EmailAccount(
                         name=provider.get("name", f"tenant_{tenant_id}"),
                         server=provider["server"],
@@ -452,15 +481,20 @@ class EmailRotatorPool:
                         user=provider["user"],
                         password=provider["password"],
                         daily_limit=provider.get("daily_limit", 100),
-                        weight=provider.get("weight", 1)
+                        weight=provider.get("weight", 1),
                     )
                     tenant_client = EmailSenderClient(account)
                     success = await tenant_client.send_email(
                         to_email, subject, body_html, body_text, attachments=attachments
                     )
-                    return success, account.name if success else tenant_client._last_error
+                    return (
+                        success,
+                        account.name if success else tenant_client._last_error,
+                    )
             except Exception as e:
-                logger.error(f"[EmailRotatorPool] Failed to send via tenant SMTP provider: {e}")
+                logger.error(
+                    f"[EmailRotatorPool] Failed to send via tenant SMTP provider: {e}"
+                )
 
         async with self._lock:
             if not self._accounts:
@@ -477,7 +511,11 @@ class EmailRotatorPool:
                 for acc in accounts:
                     if acc.account.name == preferred_account:
                         success = await acc.send_email(
-                            to_email, subject, body_html, body_text, attachments=attachments
+                            to_email,
+                            subject,
+                            body_html,
+                            body_text,
+                            attachments=attachments,
                         )
                         self._persist_stats()
                         return success, acc.account.name if success else acc._last_error
@@ -519,18 +557,24 @@ class EmailRotatorPool:
 
         async def send_one(to_email, subject, body_html, body_text):
             async with sem:
-                success, info = await self.send_email(to_email, subject, body_html, body_text)
+                success, info = await self.send_email(
+                    to_email, subject, body_html, body_text
+                )
                 async with lock:
                     if success:
                         results["sent"] += 1
-                        results["by_account"][info] = results["by_account"].get(info, 0) + 1
+                        results["by_account"][info] = (
+                            results["by_account"].get(info, 0) + 1
+                        )
                     else:
                         results["failed"] += 1
-                        results["failures"].append({
-                            "to": to_email,
-                            "subject": subject[:50],
-                            "error": info,
-                        })
+                        results["failures"].append(
+                            {
+                                "to": to_email,
+                                "subject": subject[:50],
+                                "error": info,
+                            }
+                        )
 
         tasks = [send_one(*item) for item in emails]
         await asyncio.gather(*tasks)
@@ -568,8 +612,7 @@ class EmailRotatorPool:
             os.makedirs(os.path.dirname(self._stats_file), exist_ok=True)
             stats = {
                 str(date.today()): {
-                    client.account.name: client._sent_today
-                    for client in self._accounts
+                    client.account.name: client._sent_today for client in self._accounts
                 }
             }
             with open(self._stats_file, "w") as f:

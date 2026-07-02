@@ -5,11 +5,10 @@ Day 1: 10, Day 2: 20, Day 3: 30, Day 4: 50, Day 5+: 200
 """
 
 import logging
-import os
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict
 
 logger = logging.getLogger(__name__)
 

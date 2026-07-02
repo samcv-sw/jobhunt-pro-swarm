@@ -1,5 +1,5 @@
 <!-- Pricing v3 â€” Enhanced with billing toggle, feature detail expansion, shared design tokens -->
-<link rel="stylesheet" href="/static/css/dashboard-v4.css">
+<link href="/static/css/dashboard-v4.css" rel="stylesheet"/>
 <style>
 :root {
   /* Design Tokens */
@@ -461,35 +461,29 @@
   .bulk-calc-v3 { padding: var(--space-3) 18px; }
 }
 </style>
-
-
-<div dir="rtl" class="font-['Cairo']">
+<div class="font-['Cairo']" dir="rtl">
 <div class="pricing-hero-v3">
-  <h1>اختر <span style="color:var(--accent-primary);-webkit-text-fill-color:var(--accent-primary);">مستوى قوتك</span></h1>
-  <p class="subtitle">دفعة لمرة واحدة. بدون اشتراكات. لا رسوم خفية. يبدأ من 5 دولار. ادفع بالعملات الرقمية.</p>
+<h1>اختر <span style="color:var(--accent-primary);-webkit-text-fill-color:var(--accent-primary);">مستوى قوتك</span></h1>
+<p class="subtitle">دفعة لمرة واحدة. بدون اشتراكات. لا رسوم خفية. يبدأ من 5 دولار. ادفع بالعملات الرقمية.</p>
 </div>
-
 <!-- Billing Toggle Removed for one-time payment consistency -->
-
 <!-- Flash Sale Banner -->
 <div class="flash-banner-v3" id="flashBannerV3">
-  <div class="fs-icon">âš¡</div>
-  <div class="fs-deal">
-    <strong id="flashDealNameV3">عرض خاطف</strong>
-    <span class="fs-pct" id="flashDiscountV3">خصم 30%</span>
-  </div>
-  <div class="fs-countdown" id="flashCountdownV3">0h 00m 00s</div>
+<div class="fs-icon">âš¡</div>
+<div class="fs-deal">
+<strong id="flashDealNameV3">عرض خاطف</strong>
+<span class="fs-pct" id="flashDiscountV3">خصم 30%</span>
 </div>
-
+<div class="fs-countdown" id="flashCountdownV3">{{ _('0h 00m 00s') }}</div>
+</div>
 <section class="pricing-section-v3" id="pricing-section">
-  <h2>// باقات الأسعار</h2>
-  <p class="sub">ابدأ حملتك. قم بالترقية عندما تكون مستعدًا.</p>
-
-  <div class="pricing-grid-v3">
+<h2>// باقات الأسعار</h2>
+<p class="sub">ابدأ حملتك. قم بالترقية عندما تكون مستعدًا.</p>
+<div class="pricing-grid-v3">
     {% for tier in pricing.tiers %}
     {% set discount = flash_discount or 0 %}
     {% set discounted = (tier.price_usd * (100 - discount) / 100) if discount > 0 else tier.price_usd %}
-    <div class="pricing-card-v3 {% if tier.highlight %}highlight{% endif %}" data-tier="{{ tier.get('tier', '') }}" data-price="{{ tier.price_usd }}" {% if discount > 0 %}style="border-color:rgba(239,68,68,0.3);"{% endif %}>
+    <div class="pricing-card-v3 {% if tier.highlight %}highlight{% endif %}" data-price="{{ tier.price_usd }}" data-tier="{{ tier.get('tier', '') }}" discount="" if="" {%=""> 0 %}style="border-color:rgba(239,68,68,0.3);"{% endif %}>
       <div class="card-glow"></div>
       {% if tier.badge %}
       <div class="badge-v3 {% if tier.badge == 'PREMIUM' %}premium{% elif tier.badge == 'BEST VALUE' %}best-value{% endif %}">{{ tier.badge }}</div>
@@ -498,14 +492,14 @@
       <div class="badge-v3 flash" style="top:-14px;">خصم {{ "%.0f"|format(discount) }}%</div>
       {% endif %}
       <div class="tier-name-v3">{{ tier.name|upper }}</div>
-      <h3>{{ tier.name }}</h3>
-      <div class="companies-v3">{{ "{:,}".format(tier.companies) }} <span>شركة</span></div>
-      <div class="price-v3 {% if tier.price_usd == 0 %}free{% endif %}">
+<h3>{{ tier.name }}</h3>
+<div class="companies-v3">{{ "{:,}".format(tier.companies) }} <span>شركة</span></div>
+<div class="price-v3 {% if tier.price_usd == 0 %}free{% endif %}">
         {% if tier.price_usd == 0 %}
         مجاني
         {% elif discount > 0 %}
         <span class="original">${{ "%.0f"|format(tier.price_usd) }}</span>
-        <span class="flash-price">${{ "%.0f"|format(discounted) }}</span>
+<span class="flash-price">${{ "%.0f"|format(discounted) }}</span>
         {% else %}
         ${{ "%.0f"|format(tier.price_usd) }}
         {% endif %}
@@ -514,165 +508,155 @@
       <div class="original-price-v3">كان ${{ "%.0f"|format(tier.original_price) }}</div>
       {% endif %}
       <div class="per-v3">{{ tier.per_company }} / شركة</div>
-      <ul>
+<ul>
         {% for feature in tier.features %}
         <li onclick="toggleFeatureDetail(this)">
           {{ feature }}
           <span class="expand-icon"></span>
-          <div class="feature-detail">معلومات تفصيلية حول {{ feature|lower }} — يتضمن الدعم الكامل والإعداد.</div>
-        </li>
+<div class="feature-detail">معلومات تفصيلية حول {{ feature|lower }} — يتضمن الدعم الكامل والإعداد.</div>
+</li>
         {% endfor %}
       </ul>
-      <a href="{{ '/new-campaign' if is_logged_in else '/register' }}" class="btn {{ tier.button_class }}">{{ tier.button_text }}</a>
-    </div>
+<a class="btn {{ tier.button_class }}" href="{{ '/new-campaign' if is_logged_in else '/register' }}">{{ tier.button_text }}</a>
+</div>
     {% endfor %}
   </div>
 </section>
-
 <!-- Bulk Discount Calculator -->
 <section class="pricing-section-v3" style="padding-top:0;">
-  <h2>// حاسبة خصم الكميات</h2>
-  <p class="sub">اشترِ حملات متعددة ووفر الكثير.</p>
-  <div class="bulk-calc-v3">
-    <div style="margin-bottom:20px;">
-      <label>عدد الحملات</label>
-      <input dir="auto" type="range" id="bulkQtyV3" min="1" max="20" value="1" step="1" oninput="updateBulkCalcV3(this.value)">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-top:4px;">
-        <span>1</span><span>5</span><span>10</span><span>15</span><span>20</span>
-      </div>
-    </div>
-    <div class="bulk-qty-display" id="bulkQtyDisplayV3">1</div>
-    <div style="color:var(--text-muted);font-size:12px;text-transform:uppercase;margin-bottom:16px;">حملات</div>
-    <div class="bulk-stats">
-      <div class="bulk-stat">
-        <div class="stat-label">السعر العادي</div>
-        <div class="stat-value strikethrough" id="bulkNormalV3">$0</div>
-      </div>
-      <div class="bulk-stat">
-        <div class="stat-label">سعرك</div>
-        <div class="stat-value flash" id="bulkPriceV3">$0</div>
-      </div>
-      <div class="bulk-stat">
-        <div class="stat-label">أنت توفر</div>
-        <div class="stat-value savings" id="bulkSaveV3">$0</div>
-      </div>
-    </div>
-  </div>
+<h2>// حاسبة خصم الكميات</h2>
+<p class="sub">اشترِ حملات متعددة ووفر الكثير.</p>
+<div class="bulk-calc-v3">
+<div style="margin-bottom:20px;">
+<label>عدد الحملات</label>
+<input dir="auto" id="bulkQtyV3" max="20" min="1" oninput="updateBulkCalcV3(this.value)" step="1" type="range" value="1"/>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-top:4px;">
+<span>1</span><span>5</span><span>10</span><span>15</span><span>20</span>
+</div>
+</div>
+<div class="bulk-qty-display" id="bulkQtyDisplayV3">1</div>
+<div style="color:var(--text-muted);font-size:12px;text-transform:uppercase;margin-bottom:16px;">حملات</div>
+<div class="bulk-stats">
+<div class="bulk-stat">
+<div class="stat-label">السعر العادي</div>
+<div class="stat-value strikethrough" id="bulkNormalV3">$0</div>
+</div>
+<div class="bulk-stat">
+<div class="stat-label">سعرك</div>
+<div class="stat-value flash" id="bulkPriceV3">$0</div>
+</div>
+<div class="bulk-stat">
+<div class="stat-label">أنت توفر</div>
+<div class="stat-value savings" id="bulkSaveV3">$0</div>
+</div>
+</div>
+</div>
 </section>
-
 <!-- Urgency Counter -->
 <section class="pricing-section-v3" style="padding:30px 20px 10px;">
-  <div class="urgency-box-v3">
-    <div class="urgency-stats">
-      <div class="urgency-stat">
-        <div class="ur-value secondary">14</div>
-        <div class="ur-label">أشخاص يشاهدون الآن</div>
-      </div>
-      <div class="urgency-stat">
-        <div class="ur-value primary">3</div>
-        <div class="ur-label">اشتروا اليوم</div>
-      </div>
-      <div class="urgency-stat">
-        <div class="ur-value success">2</div>
-        <div class="ur-label">أماكن محدودة متبقية</div>
-      </div>
-    </div>
-  </div>
+<div class="urgency-box-v3">
+<div class="urgency-stats">
+<div class="urgency-stat">
+<div class="ur-value secondary">14</div>
+<div class="ur-label">أشخاص يشاهدون الآن</div>
+</div>
+<div class="urgency-stat">
+<div class="ur-value primary">3</div>
+<div class="ur-label">اشتروا اليوم</div>
+</div>
+<div class="urgency-stat">
+<div class="ur-value success">2</div>
+<div class="ur-label">أماكن محدودة متبقية</div>
+</div>
+</div>
+</div>
 </section>
-
 <!-- Comparison Table -->
 <section class="pricing-section-v3" style="padding-top:20px;">
-  <h2>// اليدوي مقابل JobHunt Pro</h2>
-  <p class="sub">شاهد الفرق الذي تحدثه الأتمتة.</p>
-  <div class="comparison-table-v3">
-    <div class="comparison-row-v3">
-      <span class="label">الطلبات يومياً</span>
-      <span class="them">5-10 يدوياً</span>
-      <span class="you">+2,000 آلياً</span>
-    </div>
-    <div class="comparison-row-v3">
-      <span class="label">الوقت المستغرق</span>
-      <span class="them">8 ساعات/يوم</span>
-      <span class="you">0 ساعة (آلي)</span>
-    </div>
-    <div class="comparison-row-v3">
-      <span class="label">رسائل التغطية</span>
-      <span class="them">قالب عام</span>
-      <span class="you">مخصصة بالذكاء الاصطناعي</span>
-    </div>
-    <div class="comparison-row-v3">
-      <span class="label">المتابعات</span>
-      <span class="them">نسيان المعظم</span>
-      <span class="you">آلية في 7 + 14 يوم</span>
-    </div>
-    <div class="comparison-row-v3">
-      <span class="label">التكلفة</span>
-      <span class="them">+2,000 دولار/شهر لموظف توظيف</span>
-      <span class="you">5 دولار لمرة واحدة</span>
-    </div>
-    <div class="comparison-row-v3">
-      <span class="label">معدل المقابلات</span>
-      <span class="them">2-5%</span>
-      <span class="you">8-15% (محسن بالذكاء الاصطناعي)</span>
-    </div>
-  </div>
+<h2>{{ _('// اليدوي مقابل JobHunt Pro') }}</h2>
+<p class="sub">شاهد الفرق الذي تحدثه الأتمتة.</p>
+<div class="comparison-table-v3">
+<div class="comparison-row-v3">
+<span class="label">الطلبات يومياً</span>
+<span class="them">5-10 يدوياً</span>
+<span class="you">+2,000 آلياً</span>
+</div>
+<div class="comparison-row-v3">
+<span class="label">الوقت المستغرق</span>
+<span class="them">8 ساعات/يوم</span>
+<span class="you">0 ساعة (آلي)</span>
+</div>
+<div class="comparison-row-v3">
+<span class="label">رسائل التغطية</span>
+<span class="them">قالب عام</span>
+<span class="you">مخصصة بالذكاء الاصطناعي</span>
+</div>
+<div class="comparison-row-v3">
+<span class="label">المتابعات</span>
+<span class="them">نسيان المعظم</span>
+<span class="you">آلية في 7 + 14 يوم</span>
+</div>
+<div class="comparison-row-v3">
+<span class="label">التكلفة</span>
+<span class="them">+2,000 دولار/شهر لموظف توظيف</span>
+<span class="you">5 دولار لمرة واحدة</span>
+</div>
+<div class="comparison-row-v3">
+<span class="label">معدل المقابلات</span>
+<span class="them">2-5%</span>
+<span class="you">8-15% (محسن بالذكاء الاصطناعي)</span>
+</div>
+</div>
 </section>
-
 <!-- A La Carte Services -->
 <section class="pricing-section-v3" style="padding-top:20px;">
-  <h2>// خدمات إضافية حسب الطلب</h2>
-  <p class="sub">تحتاج شيئاً محدداً؟ اختر خدمات فردية.</p>
-  <div class="service-grid-v3">
+<h2>// خدمات إضافية حسب الطلب</h2>
+<p class="sub">تحتاج شيئاً محدداً؟ اختر خدمات فردية.</p>
+<div class="service-grid-v3">
     {% for service in pricing.services %}
     <div class="service-card-v3">
-      <div class="service-info-v3">
-        <h3>{{ service.name }}</h3>
-        <p>{{ service.desc }}</p>
-      </div>
-      <div class="service-price-v3">${{ service.price }}</div>
-    </div>
+<div class="service-info-v3">
+<h3>{{ service.name }}</h3>
+<p>{{ service.desc }}</p>
+</div>
+<div class="service-price-v3">${{ service.price }}</div>
+</div>
     {% endfor %}
   </div>
 </section>
-
 <!-- Crypto Section -->
 <section class="crypto-section-v3">
-  <h2>💎 ادفع بالعملات الرقمية</h2>
-  <p>لا حاجة لبطاقة ائتمان. لا رسوم خفية. تفعيل فوري.</p>
-  <div class="crypto-icons-v3">
-    <span>BTC</span>
-    <span>ETH</span>
-    <span>USDT</span>
-    <span>LTC</span>
-    <span>SOL</span>
-    <span>USDC</span>
-  </div>
+<h2>💎 ادفع بالعملات الرقمية</h2>
+<p>لا حاجة لبطاقة ائتمان. لا رسوم خفية. تفعيل فوري.</p>
+<div class="crypto-icons-v3">
+<span>{{ _('BTC') }}</span>
+<span>{{ _('ETH') }}</span>
+<span>{{ _('USDT') }}</span>
+<span>{{ _('LTC') }}</span>
+<span>{{ _('SOL') }}</span>
+<span>{{ _('USDC') }}</span>
+</div>
 </section>
-
 <!-- Social Proof -->
 <section class="social-proof-v3">
-  <div class="stars">★★★★★</div>
-  <h2>2,847 باحث عن عمل يستخدمون هذا بالفعل</h2>
-  <p>المستخدم العادي يرسل 847 طلباً في شهره الأول. ابدأ حملتك اليوم.</p>
+<div class="stars">★★★★★</div>
+<h2>2,847 باحث عن عمل يستخدمون هذا بالفعل</h2>
+<p>المستخدم العادي يرسل 847 طلباً في شهره الأول. ابدأ حملتك اليوم.</p>
 </section>
-
 <footer class="pricing-footer-v3">
-  &copy; 2026 JOBHUNT PRO. ادفع بالعملات الرقمية: BTC, ETH, USDT, LTC, SOL, USDC. تبدأ الخطط من 2 دولار.
+  {{ _('© 2026 JOBHUNT PRO. ادفع بالعملات الرقمية: BTC, ETH, USDT, LTC, SOL, USDC. تبدأ الخطط من 2 دولار.') }}
 </footer>
-
 <!-- Social Toast -->
 <div class="social-toast-v3" id="socialToastV3">
-  <button class="toast-close-v3" onclick="document.getElementById('socialToastV3').classList.remove('show')">âœ•</button>
-  <div class="st-avatar" id="stAvatarV3"></div>
-  <div class="st-content">
-    <div class="st-name" id="stNameV3"></div>
-    <div class="st-action" id="stActionV3"></div>
-    <div class="st-time" id="stTimeV3"></div>
-  </div>
+<button class="toast-close-v3" onclick="document.getElementById('socialToastV3').classList.remove('show')">âœ•</button>
+<div class="st-avatar" id="stAvatarV3"></div>
+<div class="st-content">
+<div class="st-name" id="stNameV3"></div>
+<div class="st-action" id="stActionV3"></div>
+<div class="st-time" id="stTimeV3"></div>
 </div>
-
 </div>
-
+</div>
 <script>
 // â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• 
 // PRICING v3 â€” JavaScript

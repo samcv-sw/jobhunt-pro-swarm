@@ -4,20 +4,21 @@ Manages virtual async agents across 9 types (7 worker + 2 hierarchy).
 Queue system, rate limiting, health monitoring, and smart dispatch.
 Supports 20,000 hierarchical agent swarms with Team Managers and Squad Leaders.
 """
+
 import asyncio
 import logging
 import time
-import random
 from enum import Enum
 from dataclasses import dataclass, field
 from typing import Callable, Any, Dict, List, Optional, Coroutine
-from datetime import datetime, timedelta
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
 
 class AgentType(Enum):
     """9 agent types — 7 worker types + 2 hierarchy levels."""
+
     # Worker types
     SCRAPER = "scraper"
     AI_SCORER = "ai_scorer"
@@ -183,9 +184,7 @@ class AgentPool:
 
     def __init__(self):
         self.agents: Dict[str, VirtualAgent] = {}
-        self._by_type: Dict[AgentType, List[VirtualAgent]] = {
-            t: [] for t in AgentType
-        }
+        self._by_type: Dict[AgentType, List[VirtualAgent]] = {t: [] for t in AgentType}
         self._round_robin_index: Dict[AgentType, int] = {t: 0 for t in AgentType}
         self._rate_limit_semaphores: Dict[AgentType, asyncio.Semaphore] = {}
         self._rate_limit_intervals: Dict[AgentType, float] = {}
@@ -301,30 +300,40 @@ class AgentPool:
                 age = now - agent.stats.last_heartbeat
                 # If agent hasn't responded in 300s, it's deadlocked.
                 if age > 300 and agent.stats.status == "working":
-                    logger.critical(f"🔥 SWARM AUTO-HEAL: Agent {agent.agent_id} deadlocked for {age:.0f}s. Nuking and restarting.")
-                    
+                    logger.critical(
+                        f"🔥 SWARM AUTO-HEAL: Agent {agent.agent_id} deadlocked for {age:.0f}s. Nuking and restarting."
+                    )
+
                     # 1. Find and cancel the existing task
                     for t in self._tasks:
-                        if not t.done() and t.get_coro().cr_code.co_name == 'run' and getattr(t, '_agent_id', None) == agent.agent_id:
+                        if (
+                            not t.done()
+                            and t.get_coro().cr_code.co_name == "run"
+                            and getattr(t, "_agent_id", None) == agent.agent_id
+                        ):
                             t.cancel()
-                    
+
                     # 2. Reset agent state
                     agent.stats.status = "idle"
                     agent.stats.current_task_start = None
                     agent.stats.last_heartbeat = time.time()
-                    
+
                     # 3. Spawn a fresh task
                     if distributor:
                         new_task = asyncio.create_task(agent.run(distributor))
                         new_task._agent_id = agent.agent_id  # Tag for future tracking
                         self._tasks.append(new_task)
-                    
+
                     revived += 1
             if revived:
-                logger.info(f"Health monitor revived {revived} deadlocked agents via Auto-Heal")
+                logger.info(
+                    f"Health monitor revived {revived} deadlocked agents via Auto-Heal"
+                )
 
     def start_health_monitor(self, distributor: Any = None):
-        self._health_task = asyncio.create_task(self.health_monitor(distributor=distributor))
+        self._health_task = asyncio.create_task(
+            self.health_monitor(distributor=distributor)
+        )
         logger.info("Health monitor started (30s interval)")
 
     def stop_all(self):

@@ -1,11 +1,10 @@
 import asyncio
 import logging
-import time
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Tuple
-import config
 
 logger = logging.getLogger(__name__)
+
 
 class SwarmAgent:
     """A single worker agent capable of executing async tasks."""
@@ -18,7 +17,9 @@ class SwarmAgent:
         self.tasks_failed = 0
         self.started_at: Optional[datetime] = None
 
-    async def execute(self, task_func: Callable, *args: Any, **kwargs: Any) -> Dict[str, Any]:
+    async def execute(
+        self, task_func: Callable, *args: Any, **kwargs: Any
+    ) -> Dict[str, Any]:
         """Execute an async task function, returning a result dict."""
         self.status = "working"
         self.started_at = datetime.now()
@@ -43,6 +44,7 @@ class SwarmAgent:
             "failed": self.tasks_failed,
         }
 
+
 class SwarmOrchestrator:
     """Orchestrates parallel execution across a pool of SwarmAgents."""
 
@@ -61,16 +63,38 @@ class SwarmOrchestrator:
         for i in range(self.max_agents):
             agent_type = self._get_agent_type(i)
             self.agents[f"agent_{i}"] = SwarmAgent(f"agent_{i}", agent_type)
-        logger.info(f"Swarm initialized: {len(self.agents)} agents ({self.max_agents} max)")
+        logger.info(
+            f"Swarm initialized: {len(self.agents)} agents ({self.max_agents} max)"
+        )
 
     def _get_agent_type(self, index: int) -> str:
         """Map agent index to a role type using round-robin."""
         types = {
-            0: "search", 1: "search", 2: "search", 3: "search", 4: "search",
-            5: "research", 6: "research", 7: "research", 8: "research", 9: "research",
-            10: "apply", 11: "apply", 12: "apply", 13: "apply", 14: "apply",
-            15: "followup", 16: "followup", 17: "followup", 18: "followup", 19: "followup",
-            20: "ai", 21: "ai", 22: "ai", 23: "ai", 24: "ai",
+            0: "search",
+            1: "search",
+            2: "search",
+            3: "search",
+            4: "search",
+            5: "research",
+            6: "research",
+            7: "research",
+            8: "research",
+            9: "research",
+            10: "apply",
+            11: "apply",
+            12: "apply",
+            13: "apply",
+            14: "apply",
+            15: "followup",
+            16: "followup",
+            17: "followup",
+            18: "followup",
+            19: "followup",
+            20: "ai",
+            21: "ai",
+            22: "ai",
+            23: "ai",
+            24: "ai",
         }
         return types.get(index % 25, "general")
 

@@ -4,7 +4,7 @@ Provides salary insights and negotiation strategies for Sam
 """
 
 import logging
-from typing import Dict, List, Tuple, Optional
+from typing import Dict
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,12 @@ class SalaryNegotiator:
 
     def get_range(self, location: str, level: str = "senior") -> Dict:
         """Get salary range for a location and level."""
-        loc = location.lower().replace(" ", "_").replace("uae", "dubai").replace("ksa", "saudi_arabia")
+        loc = (
+            location.lower()
+            .replace(" ", "_")
+            .replace("uae", "dubai")
+            .replace("ksa", "saudi_arabia")
+        )
         ranges = self.SALARY_RANGES.get(loc, self.SALARY_RANGES["lebanon"])
         level_data = ranges.get(level, ranges["senior"])
         low, high = level_data
@@ -82,7 +87,9 @@ class SalaryNegotiator:
             "formatted": f"${low:,} - ${high:,}",
         }
 
-    def get_negotiation_advice(self, location: str, offered: int = None, level: str = "senior") -> Dict:
+    def get_negotiation_advice(
+        self, location: str, offered: int = None, level: str = "senior"
+    ) -> Dict:
         """Get negotiation advice for a specific situation."""
         salary_range = self.get_range(location, level)
         advice = {
@@ -95,17 +102,25 @@ class SalaryNegotiator:
             if offered < salary_range["low"]:
                 advice["recommended_strategy"] = "counter_high"
                 advice["gap"] = salary_range["mid"] - offered
-                advice["message"] = f"Offer is ${offered:,} which is below market low (${salary_range['low']:,}). Counter with ${salary_range['mid']:,}."
+                advice["message"] = (
+                    f"Offer is ${offered:,} which is below market low (${salary_range['low']:,}). Counter with ${salary_range['mid']:,}."
+                )
             elif offered < salary_range["mid"]:
                 advice["recommended_strategy"] = "counter_mid"
                 advice["gap"] = salary_range["mid"] - offered
-                advice["message"] = f"Offer is ${offered:,} which is below market mid (${salary_range['mid']:,}). Counter with ${salary_range['mid']:,} - ${salary_range['high']:,}."
+                advice["message"] = (
+                    f"Offer is ${offered:,} which is below market mid (${salary_range['mid']:,}). Counter with ${salary_range['mid']:,} - ${salary_range['high']:,}."
+                )
             elif offered <= salary_range["high"]:
                 advice["recommended_strategy"] = "accept_with_conditions"
-                advice["message"] = f"Offer is ${offered:,} which is within market range. Negotiate benefits instead."
+                advice["message"] = (
+                    f"Offer is ${offered:,} which is within market range. Negotiate benefits instead."
+                )
             else:
                 advice["recommended_strategy"] = "accept"
-                advice["message"] = f"Offer is ${offered:,} which is above market range. Accept with enthusiasm."
+                advice["message"] = (
+                    f"Offer is ${offered:,} which is above market range. Accept with enthusiasm."
+                )
 
         # Get response template
         strategy = advice["recommended_strategy"]

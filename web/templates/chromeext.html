@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-    <link rel="stylesheet" href="/static/css/cyberpunk.css">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إضافة JobHunt Pro لكروم — تقديم تلقائي للوظائف بنقرة واحدة</title>
-    <meta name="description" content="إضافة JobHunt Pro لكروم تقوم بتعبئة طلبات التوظيف تلقائياً، وتولد رسائل التغطية، وترسل النماذج — كل هذا من متصفحك. مجاناً.">
-    <link rel="stylesheet" href="/static/css/style.css">
-    <style>
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{{ _('إضافة JobHunt Pro لكروم — تقديم تلقائي للوظائف بنقرة واحدة') }}</title>
+<meta content="إضافة JobHunt Pro لكروم تقوم بتعبئة طلبات التوظيف تلقائياً، وتولد رسائل التغطية، وترسل النماذج — كل هذا من متصفحك. مجاناً." name="description"/>
+<link href="/static/css/style.css" rel="stylesheet"/>
+<style>
         .ext-hero { text-align: center; padding: 80px 20px 60px; background: linear-gradient(180deg, #0a0a2e 0%, #001a33 100%); }
         .ext-hero h1 { font-size: 2.8em; background: linear-gradient(135deg, #00f0ff, #0088ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .ext-hero p { color: #aaa; font-size: 1.2em; max-width: 650px; margin: 20px auto; }
@@ -35,94 +36,89 @@
 {% include '_public_nav.html' %}
 
     <section class="ext-hero" style="padding-top:120px">
-        <h1>⚡ تقديم تلقائي بنقرة واحدة</h1>
-        <p>إضافة JobHunt Pro لكروم تقوم بتعبئة طلبات التوظيف تلقائياً، وتولد رسائل التغطية، وترسل النماذج — كل هذا من متصفحك.</p>
-        <a href="/register" class="install-btn">احصل على الإضافة (مجاناً)</a>
-        <p style="color:#666;font-size:12px;margin-top:12px;">يتم تثبيتها في 10 ثوانٍ. تعمل مع LinkedIn و Indeed و Glassdoor والمزيد.</p>
-    </section>
-
-    <div class="features-grid">
-        <div class="feature-card">
-            <div class="feature-emoji">🚀</div>
-            <h3>تقديم بنقرة واحدة</h3>
-            <p>انقر على زر "التقديم التلقائي" في أي صفحة وظيفة مدعومة. يقوم الذكاء الاصطناعي بتحليل الوظيفة، ومطابقة مهاراتك، والتقديم تلقائياً.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-emoji">📝</div>
-            <h3>تعبئة النماذج الذكية</h3>
-            <p>لا تقم بكتابة اسمك أو بريدك الإلكتروني أو خبرتك مرة أخرى أبداً. تقوم الإضافة بتعبئة كل حقل بشكل مثالي — الاسم، والمهارات، والخبرة، والتعليم.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-emoji">✍️</div>
-            <h3>رسائل تغطية بالذكاء الاصطناعي</h3>
-            <p>قم بإنشاء رسالة تغطية مخصصة في ثوانٍ. يقرأ الذكاء الاصطناعي الوصف الوظيفي ويكتب رسالة مصممة خصيصاً. يتم نسخها إلى الحافظة على الفور.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-emoji">📊</div>
-            <h3>فحص توافق ATS</h3>
-            <p>تحقق من توافق سيرتك الذاتية مع نظام ATS بنقرة واحدة. شاهد نتيجتك، ومطابقات الكلمات الرئيسية، واقتراحات التحسين.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-emoji">🔒</div>
-            <h3>أمان BanShield</h3>
-            <p>يستخدم أنماط توقيت شبيهة بالبشر ويقوم بتدوير الهويات. تبدو طلباتك طبيعية بنسبة 100٪. لا يوجد خطر حظر إطلاقاً.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-emoji">🌍</div>
-            <h3>دعم لـ 9 مواقع توظيف</h3>
-            <p>تعمل مع LinkedIn و Indeed و Glassdoor و Bayt و ZipRecruiter و Monster و Wuzzuf و NaukriGulf و GulfTalent.</p>
-        </div>
-    </div>
-
-    <div class="how-it-works">
-        <h2>كيف تعمل الإضافة</h2>
-        <div class="steps">
-            <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-text">
-                    <h4>تثبيت الإضافة</h4>
-                    <p>نقرة واحدة من متجر كروم. لا حاجة للتسجيل للتجربة.</p>
-                </div>
-            </div>
-            <div class="step">
-                <div class="step-num">2</div>
-                <div class="step-text">
-                    <h4>تصفح الوظائف بشكل طبيعي</h4>
-                    <p>اذهب إلى LinkedIn أو Indeed أو أي موقع مدعوم. تصفح الوظائف كما تفعل دائماً.</p>
-                </div>
-            </div>
-            <div class="step">
-                <div class="step-num">3</div>
-                <div class="step-text">
-                    <h4>انقر على التقديم التلقائي</h4>
-                    <p>اضغط على الزر ⚡ العائم في أي صفحة وظيفة. انتهى الأمر، والذكاء الاصطناعي يتولى الباقي.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="supported-sites">
-        <h2>مواقع التوظيف المدعومة</h2>
-        <div class="site-badges">
-            <div class="site-badge">LinkedIn</div>
-            <div class="site-badge">Indeed</div>
-            <div class="site-badge">Glassdoor</div>
-            <div class="site-badge">Bayt</div>
-            <div class="site-badge">ZipRecruiter</div>
-            <div class="site-badge">Monster</div>
-            <div class="site-badge">Wuzzuf</div>
-            <div class="site-badge">NaukriGulf</div>
-            <div class="site-badge">GulfTalent</div>
-        </div>
-    </div>
-
-    <section style="text-align:center;padding:60px 20px;">
-        <h2 style="color:#fff;font-size:1.8em;">ابدأ التقديم في ثوانٍ</h2>
-        <p style="color:#888;margin:12px 0 24px;">لا بطاقة ائتمان. لا التزام. فقط تقديم أسرع للوظائف.</p>
-        <a href="/register" class="cta-button" style="display:inline-block;padding:16px 48px;background:linear-gradient(135deg,#00f0ff,#0088ff);color:#000;border-radius:30px;font-weight:700;font-size:18px;text-decoration:none;">⚡ احصل على JobHunt Pro بـ 2$</a>
-    </section>
+<h1>⚡ تقديم تلقائي بنقرة واحدة</h1>
+<p>{{ _('إضافة JobHunt Pro لكروم تقوم بتعبئة طلبات التوظيف تلقائياً، وتولد رسائل التغطية، وترسل النماذج — كل هذا من متصفحك.') }}</p>
+<a class="install-btn" href="/register">احصل على الإضافة (مجاناً)</a>
+<p style="color:#666;font-size:12px;margin-top:12px;">{{ _('يتم تثبيتها في 10 ثوانٍ. تعمل مع LinkedIn و Indeed و Glassdoor والمزيد.') }}</p>
+</section>
+<div class="features-grid">
+<div class="feature-card">
+<div class="feature-emoji">🚀</div>
+<h3>تقديم بنقرة واحدة</h3>
+<p>انقر على زر "التقديم التلقائي" في أي صفحة وظيفة مدعومة. يقوم الذكاء الاصطناعي بتحليل الوظيفة، ومطابقة مهاراتك، والتقديم تلقائياً.</p>
+</div>
+<div class="feature-card">
+<div class="feature-emoji">📝</div>
+<h3>تعبئة النماذج الذكية</h3>
+<p>لا تقم بكتابة اسمك أو بريدك الإلكتروني أو خبرتك مرة أخرى أبداً. تقوم الإضافة بتعبئة كل حقل بشكل مثالي — الاسم، والمهارات، والخبرة، والتعليم.</p>
+</div>
+<div class="feature-card">
+<div class="feature-emoji">✍️</div>
+<h3>رسائل تغطية بالذكاء الاصطناعي</h3>
+<p>قم بإنشاء رسالة تغطية مخصصة في ثوانٍ. يقرأ الذكاء الاصطناعي الوصف الوظيفي ويكتب رسالة مصممة خصيصاً. يتم نسخها إلى الحافظة على الفور.</p>
+</div>
+<div class="feature-card">
+<div class="feature-emoji">📊</div>
+<h3>{{ _('فحص توافق ATS') }}</h3>
+<p>{{ _('تحقق من توافق سيرتك الذاتية مع نظام ATS بنقرة واحدة. شاهد نتيجتك، ومطابقات الكلمات الرئيسية، واقتراحات التحسين.') }}</p>
+</div>
+<div class="feature-card">
+<div class="feature-emoji">🔒</div>
+<h3>{{ _('أمان BanShield') }}</h3>
+<p>يستخدم أنماط توقيت شبيهة بالبشر ويقوم بتدوير الهويات. تبدو طلباتك طبيعية بنسبة 100٪. لا يوجد خطر حظر إطلاقاً.</p>
+</div>
+<div class="feature-card">
+<div class="feature-emoji">🌍</div>
+<h3>دعم لـ 9 مواقع توظيف</h3>
+<p>{{ _('تعمل مع LinkedIn و Indeed و Glassdoor و Bayt و ZipRecruiter و Monster و Wuzzuf و NaukriGulf و GulfTalent.') }}</p>
+</div>
+</div>
+<div class="how-it-works">
+<h2>كيف تعمل الإضافة</h2>
+<div class="steps">
+<div class="step">
+<div class="step-num">1</div>
+<div class="step-text">
+<h4>تثبيت الإضافة</h4>
+<p>نقرة واحدة من متجر كروم. لا حاجة للتسجيل للتجربة.</p>
+</div>
+</div>
+<div class="step">
+<div class="step-num">2</div>
+<div class="step-text">
+<h4>تصفح الوظائف بشكل طبيعي</h4>
+<p>{{ _('اذهب إلى LinkedIn أو Indeed أو أي موقع مدعوم. تصفح الوظائف كما تفعل دائماً.') }}</p>
+</div>
+</div>
+<div class="step">
+<div class="step-num">3</div>
+<div class="step-text">
+<h4>انقر على التقديم التلقائي</h4>
+<p>اضغط على الزر ⚡ العائم في أي صفحة وظيفة. انتهى الأمر، والذكاء الاصطناعي يتولى الباقي.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="supported-sites">
+<h2>مواقع التوظيف المدعومة</h2>
+<div class="site-badges">
+<div class="site-badge">{{ _('LinkedIn') }}</div>
+<div class="site-badge">{{ _('Indeed') }}</div>
+<div class="site-badge">{{ _('Glassdoor') }}</div>
+<div class="site-badge">{{ _('Bayt') }}</div>
+<div class="site-badge">{{ _('ZipRecruiter') }}</div>
+<div class="site-badge">{{ _('Monster') }}</div>
+<div class="site-badge">{{ _('Wuzzuf') }}</div>
+<div class="site-badge">{{ _('NaukriGulf') }}</div>
+<div class="site-badge">{{ _('GulfTalent') }}</div>
+</div>
+</div>
+<section style="text-align:center;padding:60px 20px;">
+<h2 style="color:#fff;font-size:1.8em;">ابدأ التقديم في ثوانٍ</h2>
+<p style="color:#888;margin:12px 0 24px;">لا بطاقة ائتمان. لا التزام. فقط تقديم أسرع للوظائف.</p>
+<a class="cta-button" href="/register" style="display:inline-block;padding:16px 48px;background:linear-gradient(135deg,#00f0ff,#0088ff);color:#000;border-radius:30px;font-weight:700;font-size:18px;text-decoration:none;">{{ _('⚡ احصل على JobHunt Pro بـ 2$') }}</a>
+</section>
 
 {% include '_public_footer.html' %}
 </body>
 </html>
-

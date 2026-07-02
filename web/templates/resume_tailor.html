@@ -276,7 +276,6 @@
 }
 .tailor-meta-item strong { color: #d4d4d8; }
 </style>
-
 <style>
         body {
           font-family: 'Cairo', 'Georgia', 'Times New Roman', serif;
@@ -298,18 +297,16 @@
           body { margin: 0; padding: 20px; }
         }
       </style>
-
 <h1>🤖 تخصيص السيرة الذاتية بالذكاء الاصطناعي</h1>
 <p class="subtitle">قم بلصق سيرتك الذاتية الأساسية والوصف الوظيفي — سيقوم الذكاء الاصطناعي بتخصيص سيرتك الذاتية لتطابق الوظيفة بشكل مثالي.</p>
-
 <div class="tailor-container">
-  <!-- Left: Base Resume -->
-  <div class="tailor-panel">
-    <h3>📄 سيرتك الذاتية الأساسية</h3>
-    <div class="file-drop" id="resume-drop" onclick="document.getElementById('tailor-resume').focus()">
+<!-- Left: Base Resume -->
+<div class="tailor-panel">
+<h3>📄 سيرتك الذاتية الأساسية</h3>
+<div class="file-drop" id="resume-drop" onclick="document.getElementById('tailor-resume').focus()">
       📎 أسقط ملف سيرتك الذاتية هنا أو انقر للصق النص أدناه
     </div>
-    <textarea dir="auto" id="tailor-resume" placeholder="الصق نص سيرتك الذاتية بالكامل هنا...
+<textarea dir="auto" id="tailor-resume" placeholder="الصق نص سيرتك الذاتية بالكامل هنا...
 
 SAM SALAMEH
 Senior Network Engineer | CCNA, Fortinet NSE, MikroTik MTCNA
@@ -317,12 +314,11 @@ samsalameh.cv@gmail.com | +961 70 841 1009
 
 PROFESSIONAL SUMMARY
 15+ years as a Network Engineer specializing in enterprise network design..."></textarea>
-  </div>
-
-  <!-- Right: Job Description -->
-  <div class="tailor-panel">
-    <h3>🎯 الوصف الوظيفي المستهدف</h3>
-    <textarea dir="auto" id="tailor-job" placeholder="الصق الوصف الوظيفي الذي تريد التخصيص له...
+</div>
+<!-- Right: Job Description -->
+<div class="tailor-panel">
+<h3>🎯 الوصف الوظيفي المستهدف</h3>
+<textarea dir="auto" id="tailor-job" placeholder="الصق الوصف الوظيفي الذي تريد التخصيص له...
 
 Network Engineer — Beirut, Lebanon
 
@@ -332,83 +328,71 @@ Requirements:
 • Strong BGP, OSPF, MPLS knowledge
 • Fortinet firewall experience
 ..."></textarea>
-    <input dir="auto" type="text" id="tailor-job-title" placeholder="المسمى الوظيفي (اختياري، يساعد في سياق الذكاء الاصطناعي)"
-      style="margin-top:10px;width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e2e8f0;font-size:13px;font-family: 'Cairo', 'Inter',sans-serif;">
-  </div>
+<input dir="auto" id="tailor-job-title" placeholder="المسمى الوظيفي (اختياري، يساعد في سياق الذكاء الاصطناعي)" style="margin-top:10px;width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e2e8f0;font-size:13px;font-family: 'Cairo', 'Inter',sans-serif;" type="text"/>
 </div>
-
+</div>
 <!-- Premium toggle -->
 <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
-  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#94a3b8;">
-    <input dir="auto" type="checkbox" id="tailor-premium" style="accent-color:#f59e0b;">
-    <span>✨ <strong style="color:#fbbf24;">الوضع المميز</strong> — تخصيص متقدم مع إنشاء رسالة تغطية</span>
-  </label>
+<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#94a3b8;">
+<input dir="auto" id="tailor-premium" style="accent-color:#f59e0b;" type="checkbox"/>
+<span>✨ <strong style="color:#fbbf24;">الوضع المميز</strong> — تخصيص متقدم مع إنشاء رسالة تغطية</span>
+</label>
 </div>
-
 <!-- Actions -->
 <div class="tailor-actions">
-  <button class="btn btn-ai" onclick="tailorResume()" id="btn-tailor" style="font-size:16px;padding:13px 28px;">
+<button class="btn btn-ai" id="btn-tailor" onclick="tailorResume()" style="font-size:16px;padding:13px 28px;">
     🤖 تخصيص سيرتي الذاتية
   </button>
-  <span style="color:#64748b;font-size:12px;">⚡ تخصيص مدعوم بالذكاء الاصطناعي — يستغرق حوالي 10 ثوانٍ</span>
+<span style="color:#64748b;font-size:12px;">⚡ تخصيص مدعوم بالذكاء الاصطناعي — يستغرق حوالي 10 ثوانٍ</span>
 </div>
-
 <!-- Error -->
 <div class="tailor-error" id="tailor-error"></div>
-
 <!-- Loading -->
 <div class="tailor-loading" id="tailor-loading">
-  <div class="tailor-spinner"></div>
-  <div style="color:#94a3b8;font-size:14px;">يقوم الذكاء الاصطناعي بتخصيص سيرتك الذاتية... مطابقة الكلمات المفتاحية، تحسين النقاط...</div>
+<div class="tailor-spinner"></div>
+<div style="color:#94a3b8;font-size:14px;">يقوم الذكاء الاصطناعي بتخصيص سيرتك الذاتية... مطابقة الكلمات المفتاحية، تحسين النقاط...</div>
 </div>
-
 <!-- Results -->
 <div class="tailor-results" id="tailor-results">
-  <!-- Changes summary -->
-  <div class="changes-cards" id="changes-cards"></div>
-
-  <!-- Added/Removed keywords -->
-  <div class="keywords-section" id="keywords-section" style="display:none;">
-    <h4>🔑 الكلمات المفتاحية المضافة</h4>
-    <div id="kw-added-list"></div>
-    <h4 style="margin-top:12px;">🗑️ تمت إعادة صياغتها / إزالتها</h4>
-    <div id="kw-removed-list"></div>
-  </div>
-
-  <!-- Diff toggle -->
-  <div class="diff-toggle-bar">
-    <button class="diff-toggle-btn active" onclick="switchView('tailored')" id="toggle-tailored">📝 السيرة الذاتية المخصصة</button>
-    <button class="diff-toggle-btn" onclick="switchView('diff')" id="toggle-diff">🔄 مقارنة جنباً إلى جنب</button>
-  </div>
-
-  <!-- Side-by-side diff -->
-  <div class="diff-panels" id="diff-panels" style="display:none;">
-    <div class="diff-panel">
-      <div class="diff-panel-header original">📄 السيرة الذاتية الأصلية</div>
-      <div class="diff-panel-body" id="diff-original"></div>
-    </div>
-    <div class="diff-panel">
-      <div class="diff-panel-header tailored">✨ السيرة الذاتية المخصصة</div>
-      <div class="diff-panel-body" id="diff-tailored"></div>
-    </div>
-  </div>
-
-  <!-- Full tailored output -->
-  <div class="tailor-output-panel" id="tailored-panel">
-    <div class="tailor-output-header">
-      <h3>✨ سيرتك الذاتية المخصصة</h3>
-      <div class="tailor-output-actions">
-        <button class="btn btn-outline btn-sm" onclick="copyToClipboard()">📋 نسخ</button>
-        <button class="btn btn-primary btn-sm" onclick="downloadAsPDF()">📥 تحميل بصيغة PDF</button>
-      </div>
-    </div>
-    <div class="tailor-output-body" id="tailored-output"></div>
-  </div>
-
-  <!-- Meta info -->
-  <div class="tailor-meta" id="tailor-meta" style="margin-top:16px;"></div>
+<!-- Changes summary -->
+<div class="changes-cards" id="changes-cards"></div>
+<!-- Added/Removed keywords -->
+<div class="keywords-section" id="keywords-section" style="display:none;">
+<h4>🔑 الكلمات المفتاحية المضافة</h4>
+<div id="kw-added-list"></div>
+<h4 style="margin-top:12px;">🗑️ تمت إعادة صياغتها / إزالتها</h4>
+<div id="kw-removed-list"></div>
 </div>
-
+<!-- Diff toggle -->
+<div class="diff-toggle-bar">
+<button class="diff-toggle-btn active" id="toggle-tailored" onclick="switchView('tailored')">📝 السيرة الذاتية المخصصة</button>
+<button class="diff-toggle-btn" id="toggle-diff" onclick="switchView('diff')">🔄 مقارنة جنباً إلى جنب</button>
+</div>
+<!-- Side-by-side diff -->
+<div class="diff-panels" id="diff-panels" style="display:none;">
+<div class="diff-panel">
+<div class="diff-panel-header original">📄 السيرة الذاتية الأصلية</div>
+<div class="diff-panel-body" id="diff-original"></div>
+</div>
+<div class="diff-panel">
+<div class="diff-panel-header tailored">✨ السيرة الذاتية المخصصة</div>
+<div class="diff-panel-body" id="diff-tailored"></div>
+</div>
+</div>
+<!-- Full tailored output -->
+<div class="tailor-output-panel" id="tailored-panel">
+<div class="tailor-output-header">
+<h3>✨ سيرتك الذاتية المخصصة</h3>
+<div class="tailor-output-actions">
+<button class="btn btn-outline btn-sm" onclick="copyToClipboard()">📋 نسخ</button>
+<button class="btn btn-primary btn-sm" onclick="downloadAsPDF()">{{ _('📥 تحميل بصيغة PDF') }}</button>
+</div>
+</div>
+<div class="tailor-output-body" id="tailored-output"></div>
+</div>
+<!-- Meta info -->
+<div class="tailor-meta" id="tailor-meta" style="margin-top:16px;"></div>
+</div>
 <script>
 let tailoredText = '';
 let originalText = '';
@@ -637,5 +621,5 @@ dropZone.addEventListener('drop', e => {
     showError('Please drop a .txt or .md file, or paste text directly.');
   }
 });
-</script>
-</div>
+
+

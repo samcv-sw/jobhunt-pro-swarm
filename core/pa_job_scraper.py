@@ -26,13 +26,19 @@ import random
 import urllib.request
 import urllib.error
 import xml.etree.ElementTree as ET
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 logger = logging.getLogger(__name__)
 
 # JSearch API config
-JSEARCH_KEY = os.getenv("JSEARCH_API_KEY", "4661cb4462msh784e5b26afc61cfp158ffbjsn19689ea28233")
-JSEARCH_BACKUP = os.getenv("JSEARCH_BACKUP_KEY") or os.getenv("JSEARCH_API_KEY_BACKUP") or "7085d5ad11msh996c8add34ca2a5p106c72jsn7beaa25f86e2"
+JSEARCH_KEY = os.getenv(
+    "JSEARCH_API_KEY", "4661cb4462msh784e5b26afc61cfp158ffbjsn19689ea28233"
+)
+JSEARCH_BACKUP = (
+    os.getenv("JSEARCH_BACKUP_KEY")
+    or os.getenv("JSEARCH_API_KEY_BACKUP")
+    or "7085d5ad11msh996c8add34ca2a5p106c72jsn7beaa25f86e2"
+)
 
 # ── Country Mapping ──────────────────────────────────────────────────────
 COUNTRIES = {
@@ -150,28 +156,28 @@ INDEED_RSS_LOCATIONS = {
     "turkey": "Istanbul, TR",
 }
 
-_CACHE_DIR = os.path.join(os.path.dirname(__file__), '..', 'cache')
+_CACHE_DIR = os.path.join(os.path.dirname(__file__), "..", "cache")
 # Source-specific TTLs in seconds
 _SOURCE_TTLS = {
-    "jsearch":        7200,
-    "hhru":           3600,
-    "indeed_rss":     1800,
-    "glassdoor":      3600,
-    "linkedin_xhr":  10800,
-    "remotive":       3600,
-    "arbeitnow":      3600,
-    "remoteok":       1800,
+    "jsearch": 7200,
+    "hhru": 3600,
+    "indeed_rss": 1800,
+    "glassdoor": 3600,
+    "linkedin_xhr": 10800,
+    "remotive": 3600,
+    "arbeitnow": 3600,
+    "remoteok": 1800,
     "weworkremotely": 1800,
-    "themuse":        7200,
-    "jobicy":         3600,
+    "themuse": 7200,
+    "jobicy": 3600,
 }
 _CACHE_TTL = 7200  # Default global cache TTL in seconds (2 hours)
 
 # ── Per-source circuit-breaker state ─────────────────────────────────────
-_SOURCE_FAILURES: dict = {}          # source_key -> consecutive_failure_count
-_SOURCE_DISABLED_UNTIL: dict = {}    # source_key -> epoch_timestamp
-_CIRCUIT_FAILURE_THRESHOLD = 3       # failures before cooldown
-_CIRCUIT_COOLDOWN_SECONDS = 1800     # 30-minute cooldown
+_SOURCE_FAILURES: dict = {}  # source_key -> consecutive_failure_count
+_SOURCE_DISABLED_UNTIL: dict = {}  # source_key -> epoch_timestamp
+_CIRCUIT_FAILURE_THRESHOLD = 3  # failures before cooldown
+_CIRCUIT_COOLDOWN_SECONDS = 1800  # 30-minute cooldown
 
 
 def _source_is_healthy(source_key: str) -> bool:
@@ -186,7 +192,9 @@ def _record_source_failure(source_key: str):
     _SOURCE_FAILURES[source_key] = count
     if count >= _CIRCUIT_FAILURE_THRESHOLD:
         _SOURCE_DISABLED_UNTIL[source_key] = time.time() + _CIRCUIT_COOLDOWN_SECONDS
-        logger.warning(f"[Circuit] {source_key} disabled for {_CIRCUIT_COOLDOWN_SECONDS//60} min after {count} consecutive failures")
+        logger.warning(
+            f"[Circuit] {source_key} disabled for {_CIRCUIT_COOLDOWN_SECONDS // 60} min after {count} consecutive failures"
+        )
 
 
 def _record_source_success(source_key: str):
@@ -205,13 +213,13 @@ def _load_cache():
             return 0, []
         now = time.time()
         for fname in os.listdir(cache_dir):
-            if not fname.endswith('.json'):
+            if not fname.endswith(".json"):
                 continue
-            source_key = fname.replace('.json', '')
+            source_key = fname.replace(".json", "")
             ttl = _SOURCE_TTLS.get(source_key, 7200)
             fpath = os.path.join(cache_dir, fname)
             try:
-                with open(fpath, 'r') as f:
+                with open(fpath, "r") as f:
                     data = json.load(f)
                 ts = data.get("ts", 0)
                 if (now - ts) < ttl:
@@ -240,7 +248,7 @@ def _save_cache(jobs):
         now = time.time()
         for src, src_jobs in by_source.items():
             fpath = os.path.join(cache_dir, f"{src}.json")
-            with open(fpath, 'w') as f:
+            with open(fpath, "w") as f:
                 json.dump({"ts": now, "jobs": src_jobs}, f)
     except Exception:
         pass
@@ -279,27 +287,35 @@ def _clean_email(company: str, url: str = None) -> str:
     """
     import re
     from urllib.parse import urlparse
-    
+
     domain = ""
     # Try parsing domain from URL first if available
     if url and url.startswith("http"):
         try:
             parsed = urlparse(url)
             netloc = parsed.netloc.lower()
-            for sub in ['www.', 'careers.', 'jobs.', 'recruiting.', 'app.', 'apply.', 'portal.']:
+            for sub in [
+                "www.",
+                "careers.",
+                "jobs.",
+                "recruiting.",
+                "app.",
+                "apply.",
+                "portal.",
+            ]:
                 if netloc.startswith(sub):
-                    netloc = netloc[len(sub):]
-            if '.' in netloc and len(netloc) > 4:
+                    netloc = netloc[len(sub) :]
+            if "." in netloc and len(netloc) > 4:
                 domain = netloc
         except Exception:
             pass
-            
+
     # Fallback to company name normalization
     if not domain:
-        clean_name = re.sub(r'[^a-zA-Z0-9]', '', company).lower()
+        clean_name = re.sub(r"[^a-zA-Z0-9]", "", company).lower()
         if clean_name:
             domain = f"{clean_name}.com"
-            
+
     if domain:
         # Prevent double-generation of careers@careers.
         if domain.startswith("careers."):
@@ -314,14 +330,16 @@ def _clean_email(company: str, url: str = None) -> str:
 # PAJobScraper
 # ══════════════════════════════════════════════════════════════════════════
 
+
 class PAJobScraper:
     def __init__(self):
         self.jsearch_keys = [JSEARCH_KEY, JSEARCH_BACKUP]
         self._key_idx = 0
         self._hhru_user_agent = "JobHuntPro/17.0 (samsalameh.cv@gmail.com)"
 
-    def _fetch_url(self, url: str, headers: dict = None, timeout: int = 15,
-                   retries: int = 3) -> str:
+    def _fetch_url(
+        self, url: str, headers: dict = None, timeout: int = 15, retries: int = 3
+    ) -> str:
         """Fetch URL with exponential backoff, routing through Cloudflare Worker first."""
         last_exc = None
         for attempt in range(retries):
@@ -330,22 +348,29 @@ class PAJobScraper:
             except Exception as exc:
                 last_exc = exc
                 if attempt < retries - 1:
-                    wait = (2 ** attempt) + random.uniform(0, 1)
-                    logger.debug(f"[_fetch_url] attempt {attempt+1} failed ({exc}), retrying in {wait:.1f}s")
+                    wait = (2**attempt) + random.uniform(0, 1)
+                    logger.debug(
+                        f"[_fetch_url] attempt {attempt + 1} failed ({exc}), retrying in {wait:.1f}s"
+                    )
                     time.sleep(wait)
         raise last_exc
 
     def _fetch_url_once(self, url: str, headers: dict = None, timeout: int = 15) -> str:
         """Single-attempt URL fetch routing through Cloudflare Worker scrape endpoint, falling back to direct request."""
-        worker_url = os.getenv("WORKER_URL", "https://jobhunt-pro-router.samsalameh-cv.workers.dev")
+        worker_url = os.getenv(
+            "WORKER_URL", "https://jobhunt-pro-router.samsalameh-cv.workers.dev"
+        )
         scrape_url = f"{worker_url.rstrip('/')}/scrape?url={urllib.request.quote(url)}"
-        
+
         logger.info(f"[PAJobScraper] Routing request via Cloudflare Worker: {url}")
         try:
-            req = urllib.request.Request(scrape_url, headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "Accept": "application/json"
-            })
+            req = urllib.request.Request(
+                scrape_url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    "Accept": "application/json",
+                },
+            )
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 data = json.loads(resp.read())
                 if isinstance(data, dict) and "content" in data:
@@ -353,29 +378,61 @@ class PAJobScraper:
                     if content:
                         content_lower = content.lower()
                         block_indicators = [
-                            "cf-challenge", 
+                            "cf-challenge",
                             "cf-cookie-error",
-                            "cf-browser-verification", 
+                            "cf-browser-verification",
                             "attention required! | cloudflare",
                             "cloudflare ray id",
                             "ray id:",
                             "captcha-bypass",
                             "hcaptcha",
-                            "recaptcha"
+                            "recaptcha",
                         ]
                         if any(ind in content_lower for ind in block_indicators):
-                            logger.warning(f"[PAJobScraper] Worker request for {url} returned a Cloudflare block page. Falling back to direct request.")
+                            logger.warning(
+                                f"[PAJobScraper] Worker request for {url} returned a Cloudflare block page. Falling back to direct request."
+                            )
                         else:
-                            logger.info(f"[PAJobScraper] Successfully fetched {len(content)} bytes via Worker.")
+                            logger.info(
+                                f"[PAJobScraper] Successfully fetched {len(content)} bytes via Worker."
+                            )
                             return content
                 if isinstance(data, dict) and "error" in data:
-                    logger.warning(f"[PAJobScraper] Worker scrape returned error: {data['error']}")
+                    logger.warning(
+                        f"[PAJobScraper] Worker scrape returned error: {data['error']}"
+                    )
         except Exception as e:
-            logger.warning(f"[PAJobScraper] Worker scrape failed: {e}. Falling back to direct request.")
+            logger.warning(
+                f"[PAJobScraper] Worker scrape failed: {e}. Falling back to direct request."
+            )
 
         # Fallback to direct request
         logger.info(f"[PAJobScraper] Direct fallback request: {url}")
-        req = urllib.request.Request(url, headers=headers or {"User-Agent": "Mozilla/5.0"})
+        if not headers or "User-Agent" not in headers:
+            import random
+
+            UAS = [
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3.1 Mobile/15E148 Safari/604.1",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0",
+            ]
+            if not headers:
+                headers = {}
+            headers["User-Agent"] = random.choice(UAS)
+            headers["Accept-Language"] = "en-US,en;q=0.9,ar;q=0.8"
+            headers["Sec-Ch-Ua"] = (
+                '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"'
+            )
+            headers["Sec-Ch-Ua-Mobile"] = "?0"
+            headers["Sec-Ch-Ua-Platform"] = '"Windows"'
+            headers["Sec-Fetch-Dest"] = "empty"
+            headers["Sec-Fetch-Mode"] = "cors"
+            headers["Sec-Fetch-Site"] = "same-origin"
+
+        req = urllib.request.Request(url, headers=headers)
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             return resp.read().decode("utf-8", errors="ignore")
 
@@ -383,7 +440,9 @@ class PAJobScraper:
     # JSearch API (kept for backward compatibility)
     # ══════════════════════════════════════════════════════════════════════
 
-    def _jsearch_request(self, query: str, country_code: str = "", page: int = 1) -> List[Dict]:
+    def _jsearch_request(
+        self, query: str, country_code: str = "", page: int = 1
+    ) -> List[Dict]:
         """Make JSearch API request with key rotation."""
         for attempt in range(len(self.jsearch_keys)):
             key = self.jsearch_keys[self._key_idx % len(self.jsearch_keys)]
@@ -392,11 +451,14 @@ class PAJobScraper:
                 url = f"https://jsearch.p.rapidapi.com/search?query={urllib.request.quote(query)}&page={page}&num_pages=1"
                 if country_code:
                     url += f"&country={country_code}"
-                req = urllib.request.Request(url, headers={
-                    "X-RapidAPI-Key": key,
-                    "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
-                    "User-Agent": "Mozilla/5.0"
-                })
+                req = urllib.request.Request(
+                    url,
+                    headers={
+                        "X-RapidAPI-Key": key,
+                        "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
+                        "User-Agent": "Mozilla/5.0",
+                    },
+                )
                 with urllib.request.urlopen(req, timeout=15) as resp:
                     data = json.loads(resp.read())
                 jobs = []
@@ -414,29 +476,39 @@ class PAJobScraper:
                     else:
                         email = _clean_email(employer, apply_link)
                     if employer and title:
-                        jobs.append({
-                            "id": f"jsearch_{j.get('job_id', str(time.time()))}",
-                            "title": title[:100],
-                            "company": employer[:80],
-                            "location": f"{city}, {country}"[:60] if city else country[:60],
-                            "source": "jsearch",
-                            "url": apply_link,
-                            "email": email,
-                            "snippet": description[:200],
-                            "job_id": j.get("job_id", ""),
-                        })
+                        jobs.append(
+                            {
+                                "id": f"jsearch_{j.get('job_id', str(time.time()))}",
+                                "title": title[:100],
+                                "company": employer[:80],
+                                "location": f"{city}, {country}"[:60]
+                                if city
+                                else country[:60],
+                                "source": "jsearch",
+                                "url": apply_link,
+                                "email": email,
+                                "snippet": description[:200],
+                                "job_id": j.get("job_id", ""),
+                            }
+                        )
                 return jobs
             except Exception as e:
-                logger.warning(f"JSearch attempt {attempt+1} failed: {e}")
+                logger.warning(f"JSearch attempt {attempt + 1} failed: {e}")
                 continue
         return []
 
-    def search_jsearch(self, targets: Dict[str, List[str]] = None, max_total: int = 100, query: str = "", location: str = "") -> List[Dict]:
+    def search_jsearch(
+        self,
+        targets: Dict[str, List[str]] = None,
+        max_total: int = 100,
+        query: str = "",
+        location: str = "",
+    ) -> List[Dict]:
         """Search JSearch API — OPTIMIZED: only 3 queries per call (not 15)."""
         if targets is None:
             if query or location:
                 # Map location to country key
-                country_key = "uae" # Default
+                country_key = "uae"  # Default
                 if location:
                     loc_lower = location.lower()
                     for k in COUNTRIES:
@@ -485,7 +557,9 @@ class PAJobScraper:
     # hh.ru FREE REST API (Russia/CIS — no key needed)
     # ══════════════════════════════════════════════════════════════════════
 
-    def search_hhru(self, max_jobs: int = 100, query: str = "", location: str = "") -> List[Dict]:
+    def search_hhru(
+        self, max_jobs: int = 100, query: str = "", location: str = ""
+    ) -> List[Dict]:
         """
         Search hh.ru for network engineering roles in Russia/CIS.
         Uses the FREE, no-key hh.ru REST API: https://api.hh.ru/vacancies
@@ -545,7 +619,9 @@ class PAJobScraper:
                     f"&search_field=name"
                     f"&order_by=publication_time"
                 )
-                res_text = self._fetch_url(url, headers={"User-Agent": self._hhru_user_agent}, timeout=20)
+                res_text = self._fetch_url(
+                    url, headers={"User-Agent": self._hhru_user_agent}, timeout=20
+                )
                 data = json.loads(res_text)
 
                 items = data.get("items", [])
@@ -588,7 +664,7 @@ class PAJobScraper:
 
                     # Skills
                     skills = []
-                    for skill_obj in (item.get("key_skills") or []):
+                    for skill_obj in item.get("key_skills") or []:
                         sname = skill_obj.get("name", "").strip()
                         if sname:
                             skills.append(sname)
@@ -600,19 +676,21 @@ class PAJobScraper:
                         # Generate email placeholder
                         email = _clean_email(company, alternate_url)
 
-                        all_jobs.append({
-                            "id": jid,
-                            "title": job_title[:100],
-                            "company": company[:80],
-                            "location": location[:60],
-                            "source": "hhru",
-                            "url": alternate_url,
-                            "email": email,
-                            "snippet": snippet[:200],
-                            "job_id": job_id_str,
-                            "salary": salary_str,
-                            "skills": skills,
-                        })
+                        all_jobs.append(
+                            {
+                                "id": jid,
+                                "title": job_title[:100],
+                                "company": company[:80],
+                                "location": location[:60],
+                                "source": "hhru",
+                                "url": alternate_url,
+                                "email": email,
+                                "snippet": snippet[:200],
+                                "job_id": job_id_str,
+                                "salary": salary_str,
+                                "skills": skills,
+                            }
+                        )
 
                 # Rate limit: 0.5s between requests
                 time.sleep(0.5)
@@ -628,7 +706,9 @@ class PAJobScraper:
     # Indeed FREE RSS Feed (no blocks, no API key)
     # ══════════════════════════════════════════════════════════════════════
 
-    def search_indeed_rss(self, max_jobs: int = 50, query: str = "", location: str = "") -> List[Dict]:
+    def search_indeed_rss(
+        self, max_jobs: int = 50, query: str = "", location: str = ""
+    ) -> List[Dict]:
         """
         Search Indeed via FREE RSS feeds for all target countries.
         RSS feeds never return 403 — XML is publicly accessible.
@@ -672,13 +752,18 @@ class PAJobScraper:
 
             try:
                 from urllib.parse import urlencode
+
                 params = {"q": search_query, "l": indeed_loc, "sort": "date"}
                 url = f"https://rss.indeed.com/rss?{urlencode(params)}"
 
-                xml_text = self._fetch_url(url, headers={
-                    "User-Agent": "Mozilla/5.0 (compatible; JobHuntBot/17.0)",
-                    "Accept": "application/rss+xml, application/xml, text/xml",
-                }, timeout=20)
+                xml_text = self._fetch_url(
+                    url,
+                    headers={
+                        "User-Agent": "Mozilla/5.0 (compatible; JobHuntBot/17.0)",
+                        "Accept": "application/rss+xml, application/xml, text/xml",
+                    },
+                    timeout=20,
+                )
 
                 # Parse RSS XML
                 try:
@@ -717,6 +802,7 @@ class PAJobScraper:
                     desc_elem = item.find("description")
                     if desc_elem is not None and desc_elem.text:
                         import re
+
                         snippet = re.sub(r"<[^>]+>", "", desc_elem.text).strip()[:300]
                         loc_match = re.search(r"Location[:\s]+([^\n<]+)", snippet, re.I)
                         if loc_match:
@@ -728,17 +814,20 @@ class PAJobScraper:
                             seen.add(key)
                             count += 1
                             import re
-                            all_jobs.append({
-                                "id": f"indeed_rss_{country_key}_{len(all_jobs)}",
-                                "title": title[:100],
-                                "company": company[:80],
-                                "location": loc[:60],
-                                "source": "indeed_rss",
-                                "url": link,
-                                "email": _clean_email(company, link),
-                                "snippet": snippet[:200],
-                                "job_id": f"ir_{country_key}_{len(all_jobs)}",
-                            })
+
+                            all_jobs.append(
+                                {
+                                    "id": f"indeed_rss_{country_key}_{len(all_jobs)}",
+                                    "title": title[:100],
+                                    "company": company[:80],
+                                    "location": loc[:60],
+                                    "source": "indeed_rss",
+                                    "url": link,
+                                    "email": _clean_email(company, link),
+                                    "snippet": snippet[:200],
+                                    "job_id": f"ir_{country_key}_{len(all_jobs)}",
+                                }
+                            )
 
                 logger.info(f"Indeed RSS [{country_key}]: {count} jobs")
 
@@ -756,7 +845,9 @@ class PAJobScraper:
     # Glassdoor Free Scraper (basic HTTP, best effort)
     # ══════════════════════════════════════════════════════════════════════
 
-    def search_glassdoor(self, max_jobs: int = 30, query: str = "", location: str = "") -> List[Dict]:
+    def search_glassdoor(
+        self, max_jobs: int = 30, query: str = "", location: str = ""
+    ) -> List[Dict]:
         """
         Scrape Glassdoor free job listings via basic HTTP requests.
         Glassdoor has aggressive anti-bot — best-effort.
@@ -800,19 +891,21 @@ class PAJobScraper:
                 # Pattern 1: <a class="job-title" ...>Title</a> ... <span class="company">Company</span>
                 title_pattern = re.findall(
                     r'class="[^"]*job-title[^"]*"[^>]*>(.*?)</a>',
-                    html, re.DOTALL | re.IGNORECASE
+                    html,
+                    re.DOTALL | re.IGNORECASE,
                 )
                 company_pattern = re.findall(
                     r'class="[^"]*(?:employer-name|company-name|job-employer)[^"]*"[^>]*>(.*?)</(?:span|div)>',
-                    html, re.DOTALL | re.IGNORECASE
+                    html,
+                    re.DOTALL | re.IGNORECASE,
                 )
                 location_pattern = re.findall(
                     r'class="[^"]*(?:location|job-location)[^"]*"[^>]*>(.*?)</(?:span|div)>',
-                    html, re.DOTALL | re.IGNORECASE
+                    html,
+                    re.DOTALL | re.IGNORECASE,
                 )
                 link_pattern = re.findall(
-                    r'href="(/Job/[^"]+\.htm[^"]*)"',
-                    html, re.IGNORECASE
+                    r'href="(/Job/[^"]+\.htm[^"]*)"', html, re.IGNORECASE
                 )
 
                 count = 0
@@ -824,11 +917,13 @@ class PAJobScraper:
                     company_text = re.sub(r"<[^>]+>", "", company_pattern[i]).strip()
                     loc_text = (
                         re.sub(r"<[^>]+>", "", location_pattern[i]).strip()
-                        if i < len(location_pattern) else "Remote"
+                        if i < len(location_pattern)
+                        else "Remote"
                     )
                     job_url = (
                         f"https://www.glassdoor.com{link_pattern[i]}"
-                        if i < len(link_pattern) else ""
+                        if i < len(link_pattern)
+                        else ""
                     )
 
                     if title_text and company_text:
@@ -836,17 +931,19 @@ class PAJobScraper:
                         if key not in seen:
                             seen.add(key)
                             count += 1
-                            all_jobs.append({
-                                "id": f"gd_{len(all_jobs)}",
-                                "title": title_text[:100],
-                                "company": company_text[:80],
-                                "location": loc_text[:60],
-                                "source": "glassdoor",
-                                "url": job_url,
-                                "email": _clean_email(company_text, job_url),
-                                "snippet": f"Glassdoor: {title_text} at {company_text}",
-                                "job_id": f"gd_{len(all_jobs)}",
-                            })
+                            all_jobs.append(
+                                {
+                                    "id": f"gd_{len(all_jobs)}",
+                                    "title": title_text[:100],
+                                    "company": company_text[:80],
+                                    "location": loc_text[:60],
+                                    "source": "glassdoor",
+                                    "url": job_url,
+                                    "email": _clean_email(company_text, job_url),
+                                    "snippet": f"Glassdoor: {title_text} at {company_text}",
+                                    "job_id": f"gd_{len(all_jobs)}",
+                                }
+                            )
 
                 logger.info(f"Glassdoor [{query}]: {count} jobs")
                 time.sleep(3)  # Glassdoor is aggressive against bots
@@ -862,11 +959,12 @@ class PAJobScraper:
     # LinkedIn XHR (free, no auth needed on PA)
     # ══════════════════════════════════════════════════════════════════════
 
-    def search_linkedin_xhr(self, max_jobs: int = 50, query: str = "", location: str = "") -> List[Dict]:
+    def search_linkedin_xhr(
+        self, max_jobs: int = 50, query: str = "", location: str = ""
+    ) -> List[Dict]:
         """Search LinkedIn XHR API (works on PA, no auth needed)."""
         try:
-            from curl_cffi.requests import AsyncSession as httpx_AsyncClient
-import httpx
+            from curl_cffi.requests import Session as httpx_Session
             from bs4 import BeautifulSoup
         except ImportError:
             logger.warning("httpx or BeautifulSoup not available")
@@ -891,7 +989,7 @@ import httpx
                 else:
                     custom_city = location
             else:
-                selected_countries = ["uae"] # Default
+                selected_countries = ["uae"]  # Default
         else:
             # Rotate: 3 random countries, 2 random titles per tick
             selected_countries, selected_titles = _get_rotation_selection(3, 2)
@@ -913,9 +1011,11 @@ import httpx
                         f"?keywords={urllib.request.quote(title)}"
                         f"&location={urllib.request.quote(city)}&start=0&count=10"
                     )
-                    html_text = self._fetch_url(url, headers={
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-                    }, timeout=15)
+                    # We use httpx_Session to impersonate a legitimate Chrome browser.
+                    # This ensures the TLS handshake and HTTP/2 pseudo-headers match the User-Agent.
+                    with httpx_Session(impersonate="chrome119") as session:
+                        response = session.get(url, timeout=15)
+                        html_text = response.text
                     if not html_text:
                         continue
                     soup = BeautifulSoup(html_text, "html.parser")
@@ -932,16 +1032,18 @@ import httpx
                         key = (comp.lower().strip(), t.lower().strip())
                         if t and comp and key not in seen:
                             seen.add(key)
-                            all_jobs.append({
-                                "id": f"li_{len(all_jobs)}",
-                                "title": t[:100],
-                                "company": comp[:80],
-                                "location": str(loc or city)[:60],
-                                "source": "linkedin_xhr",
-                                "url": href,
-                                "email": _clean_email(comp, href),
-                                "snippet": "",
-                            })
+                            all_jobs.append(
+                                {
+                                    "id": f"li_{len(all_jobs)}",
+                                    "title": t[:100],
+                                    "company": comp[:80],
+                                    "location": str(loc or city)[:60],
+                                    "source": "linkedin_xhr",
+                                    "url": href,
+                                    "email": _clean_email(comp, href),
+                                    "snippet": "",
+                                }
+                            )
                 except Exception as e:
                     logger.debug(f"LinkedIn XHR [{title}/{city}] error: {e}")
 
@@ -952,7 +1054,9 @@ import httpx
     # Unified search_all() — GLOBAL SCALE with rotation
     # ══════════════════════════════════════════════════════════════════════
 
-    def search_all(self, query: str = "", location: str = "", max_jobs: int = 150) -> List[Dict]:
+    def search_all(
+        self, query: str = "", location: str = "", max_jobs: int = 150
+    ) -> List[Dict]:
         """
         GLOBAL SCALE job search — 8 sources, zero API keys needed for 7.
 
@@ -972,28 +1076,42 @@ import httpx
         cached_ts, cached_jobs = _load_cache()
         if query:
             matching_cached = [
-                j for j in cached_jobs
-                if query.lower() in j.get("title", "").lower() or query.lower() in j.get("snippet", "").lower() or query.lower() in j.get("company", "").lower()
+                j
+                for j in cached_jobs
+                if query.lower() in j.get("title", "").lower()
+                or query.lower() in j.get("snippet", "").lower()
+                or query.lower() in j.get("company", "").lower()
             ]
             if len(matching_cached) >= 10 and (time.time() - cached_ts) < _CACHE_TTL:
-                logger.info(f"📦 Cache hit for query '{query}': {len(matching_cached)} matching jobs")
+                logger.info(
+                    f"📦 Cache hit for query '{query}': {len(matching_cached)} matching jobs"
+                )
                 return matching_cached[:max_jobs]
             else:
-                logger.info(f"Cache miss or insufficient matches for query '{query}' — scraping fresh")
+                logger.info(
+                    f"Cache miss or insufficient matches for query '{query}' — scraping fresh"
+                )
         else:
             if cached_jobs and (time.time() - cached_ts) < _CACHE_TTL:
-                logger.info(f"📦 Cache hit: {len(cached_jobs)} jobs, {int(time.time()-cached_ts)}s old")
+                logger.info(
+                    f"📦 Cache hit: {len(cached_jobs)} jobs, {int(time.time() - cached_ts)}s old"
+                )
                 return cached_jobs[:max_jobs]
 
         all_jobs = []
-        seen_keys: set = set()    # (company, title) dedup
-        seen_urls: set = set()    # URL-based dedup
+        seen_keys: set = set()  # (company, title) dedup
+        seen_urls: set = set()  # URL-based dedup
 
         def _add_jobs(jobs, label):
             added = 0
             for j in jobs:
-                key = (j.get("company", "").lower().strip(), j.get("title", "").lower().strip())
-                url = (j.get("url", "") or "").split("?")[0].rstrip("/")  # canonical URL
+                key = (
+                    j.get("company", "").lower().strip(),
+                    j.get("title", "").lower().strip(),
+                )
+                url = (
+                    (j.get("url", "") or "").split("?")[0].rstrip("/")
+                )  # canonical URL
                 if key in seen_keys:
                     continue
                 if url and url in seen_urls:
@@ -1007,21 +1125,56 @@ import httpx
             return added
 
         # Phase 1: Free sources run concurrently via ThreadPoolExecutor
-        logger.info("=== PAJobScraper v4 GLOBAL: Phase 1 — Concurrent Free Scrapers ===")
+        logger.info(
+            "=== PAJobScraper v4 GLOBAL: Phase 1 — Concurrent Free Scrapers ==="
+        )
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
         # Map circuit-breaker keys to scraper lambdas
         free_scrapers_all = {
-            "Remotive":        ("remotive",        lambda: self.search_remotive(max_jobs=25, query=query)),
-            "Arbeitnow":       ("arbeitnow",       lambda: self.search_arbeitnow(max_jobs=25, query=query)),
-            "RemoteOK":        ("remoteok",        lambda: self.search_remoteok(max_jobs=25, query=query)),
-            "WeWorkRemotely":  ("weworkremotely",  lambda: self.search_weworkremotely(max_jobs=25, query=query)),
-            "TheMuse":         ("themuse",         lambda: self.search_themuse(max_jobs=25, query=query)),
-            "Jobicy":          ("jobicy",          lambda: self.search_jobicy(max_jobs=25, query=query)),
-            "hhru":            ("hhru",            lambda: self.search_hhru(max_jobs=80, query=query, location=location)),
-            "IndeedRSS":       ("indeed_rss",      lambda: self.search_indeed_rss(max_jobs=50, query=query, location=location)),
-            "Glassdoor":       ("glassdoor",       lambda: self.search_glassdoor(max_jobs=30, query=query, location=location)),
-            "LinkedInXHR":     ("linkedin_xhr",    lambda: self.search_linkedin_xhr(max_jobs=50, query=query, location=location)),
+            "Remotive": (
+                "remotive",
+                lambda: self.search_remotive(max_jobs=25, query=query),
+            ),
+            "Arbeitnow": (
+                "arbeitnow",
+                lambda: self.search_arbeitnow(max_jobs=25, query=query),
+            ),
+            "RemoteOK": (
+                "remoteok",
+                lambda: self.search_remoteok(max_jobs=25, query=query),
+            ),
+            "WeWorkRemotely": (
+                "weworkremotely",
+                lambda: self.search_weworkremotely(max_jobs=25, query=query),
+            ),
+            "TheMuse": (
+                "themuse",
+                lambda: self.search_themuse(max_jobs=25, query=query),
+            ),
+            "Jobicy": ("jobicy", lambda: self.search_jobicy(max_jobs=25, query=query)),
+            "hhru": (
+                "hhru",
+                lambda: self.search_hhru(max_jobs=80, query=query, location=location),
+            ),
+            "IndeedRSS": (
+                "indeed_rss",
+                lambda: self.search_indeed_rss(
+                    max_jobs=50, query=query, location=location
+                ),
+            ),
+            "Glassdoor": (
+                "glassdoor",
+                lambda: self.search_glassdoor(
+                    max_jobs=30, query=query, location=location
+                ),
+            ),
+            "LinkedInXHR": (
+                "linkedin_xhr",
+                lambda: self.search_linkedin_xhr(
+                    max_jobs=50, query=query, location=location
+                ),
+            ),
         }
 
         # Skip sources currently in circuit-breaker cooldown
@@ -1051,23 +1204,31 @@ import httpx
 
         # Phase 2: Fallback to JSearch API only if free sources did not yield enough jobs (conserve quota)
         if len(all_jobs) < 15:
-            logger.info("=== PAJobScraper v4 GLOBAL: Phase 2 — JSearch API Fallback ===")
+            logger.info(
+                "=== PAJobScraper v4 GLOBAL: Phase 2 — JSearch API Fallback ==="
+            )
             try:
-                jsearch_jobs = self.search_jsearch(max_total=max_jobs, query=query, location=location)
+                jsearch_jobs = self.search_jsearch(
+                    max_total=max_jobs, query=query, location=location
+                )
                 _add_jobs(jsearch_jobs, "JSearch")
                 _record_source_success("jsearch")
             except Exception as e:
                 logger.warning(f"JSearch fallback failed: {e}")
                 _record_source_failure("jsearch")
         else:
-            logger.info(f"=== PAJobScraper v4: Skipping JSearch ({len(all_jobs)} jobs from free sources) ===")
+            logger.info(
+                f"=== PAJobScraper v4: Skipping JSearch ({len(all_jobs)} jobs from free sources) ==="
+            )
 
         # Save to cache
         if all_jobs:
             _save_cache(all_jobs)
             logger.info(f"💾 Cache saved: {len(all_jobs)} jobs")
 
-        logger.info(f"PAJobScraper v3 GLOBAL: total {len(all_jobs)} jobs from 7 sources")
+        logger.info(
+            f"PAJobScraper v3 GLOBAL: total {len(all_jobs)} jobs from 7 sources"
+        )
         return all_jobs[:max_jobs]
 
     # ══════════════════════════════════════════════════════════════════════
@@ -1077,13 +1238,15 @@ import httpx
     def search_remotive(self, max_jobs: int = 30, query: str = "") -> List[Dict]:
         """Remotive public API — worldwide remote jobs, no key."""
         import json as _json
+
         try:
             search_query = query or "network engineer"
             url = f"https://remotive.com/api/remote-jobs?search={urllib.request.quote(search_query)}&limit=30"
-            res_text = self._fetch_url(url, headers={
-                "User-Agent": "JobHuntPro/17.0",
-                "Accept": "application/json"
-            }, timeout=15)
+            res_text = self._fetch_url(
+                url,
+                headers={"User-Agent": "JobHuntPro/17.0", "Accept": "application/json"},
+                timeout=15,
+            )
             data = _json.loads(res_text)
             jobs = []
             for j in data.get("jobs", []):
@@ -1092,19 +1255,24 @@ import httpx
                 if not title or not company:
                     continue
                 from bs4 import BeautifulSoup
-                desc = BeautifulSoup(j.get("description", ""), "html.parser").get_text()[:300]
-                jobs.append({
-                    "id": f"remotive_{j.get('id', '')}",
-                    "title": title[:100],
-                    "company": company[:80],
-                    "location": j.get("candidate_required_location", "Remote")[:60],
-                    "source": "remotive",
-                    "url": j.get("url", ""),
-                    "email": _clean_email(company, j.get("url", "")),
-                    "snippet": desc[:200],
-                    "salary": j.get("salary", ""),
-                    "job_id": f"rm_{j.get('id', '')}",
-                })
+
+                desc = BeautifulSoup(
+                    j.get("description", ""), "html.parser"
+                ).get_text()[:300]
+                jobs.append(
+                    {
+                        "id": f"remotive_{j.get('id', '')}",
+                        "title": title[:100],
+                        "company": company[:80],
+                        "location": j.get("candidate_required_location", "Remote")[:60],
+                        "source": "remotive",
+                        "url": j.get("url", ""),
+                        "email": _clean_email(company, j.get("url", "")),
+                        "snippet": desc[:200],
+                        "salary": j.get("salary", ""),
+                        "job_id": f"rm_{j.get('id', '')}",
+                    }
+                )
             logger.info(f"Remotive: {len(jobs)} jobs")
             return jobs[:max_jobs]
         except Exception as e:
@@ -1114,15 +1282,18 @@ import httpx
     def search_arbeitnow(self, max_jobs: int = 30, query: str = "") -> List[Dict]:
         """Arbeitnow public API — Europe/Germany jobs, no key."""
         import json as _json
+
         try:
             url = "https://www.arbeitnow.com/api/job-board-api"
-            res_text = self._fetch_url(url, headers={
-                "User-Agent": "JobHuntPro/17.0",
-                "Accept": "application/json"
-            }, timeout=15)
+            res_text = self._fetch_url(
+                url,
+                headers={"User-Agent": "JobHuntPro/17.0", "Accept": "application/json"},
+                timeout=15,
+            )
             data = _json.loads(res_text)
             jobs = []
             from bs4 import BeautifulSoup
+
             for j in data.get("data", []):
                 title = j.get("title", "")
                 company = j.get("company_name", "")
@@ -1130,29 +1301,49 @@ import httpx
                     continue
                 # Filter: match query or default network keywords
                 tl = title.lower()
-                desc_text = BeautifulSoup(j.get("description", ""), "html.parser").get_text().lower()
+                desc_text = (
+                    BeautifulSoup(j.get("description", ""), "html.parser")
+                    .get_text()
+                    .lower()
+                )
                 if query:
                     ql = query.lower()
                     if ql not in tl and ql not in desc_text:
                         continue
                 else:
-                    if not any(kw in tl for kw in ["network", "infrastructure", "system",
-                                                      "devops", "security", "cisco", "cloud",
-                                                      "sysadmin", "administrator", "engineer"]):
+                    if not any(
+                        kw in tl
+                        for kw in [
+                            "network",
+                            "infrastructure",
+                            "system",
+                            "devops",
+                            "security",
+                            "cisco",
+                            "cloud",
+                            "sysadmin",
+                            "administrator",
+                            "engineer",
+                        ]
+                    ):
                         continue
-                desc = BeautifulSoup(j.get("description", ""), "html.parser").get_text()[:300]
+                desc = BeautifulSoup(
+                    j.get("description", ""), "html.parser"
+                ).get_text()[:300]
                 slug = j.get("slug", "")
-                jobs.append({
-                    "id": f"arbeitnow_{slug}",
-                    "title": title[:100],
-                    "company": company[:80],
-                    "location": "Germany/Europe",
-                    "source": "arbeitnow",
-                    "url": f"https://www.arbeitnow.com/view/{slug}" if slug else "",
-                    "email": _clean_email(company, j.get("url", "")),
-                    "snippet": desc[:200],
-                    "job_id": f"an_{slug}",
-                })
+                jobs.append(
+                    {
+                        "id": f"arbeitnow_{slug}",
+                        "title": title[:100],
+                        "company": company[:80],
+                        "location": "Germany/Europe",
+                        "source": "arbeitnow",
+                        "url": f"https://www.arbeitnow.com/view/{slug}" if slug else "",
+                        "email": _clean_email(company, j.get("url", "")),
+                        "snippet": desc[:200],
+                        "job_id": f"an_{slug}",
+                    }
+                )
             logger.info(f"Arbeitnow: {len(jobs)} jobs")
             return jobs[:max_jobs]
         except Exception as e:
@@ -1167,10 +1358,14 @@ import httpx
         """RemoteOK public JSON API — zero cost, no key, great for remote IT roles."""
         try:
             url = "https://remoteok.com/api"
-            res_text = self._fetch_url(url, headers={
-                "User-Agent": "JobHuntPro/18.0 (samsalameh.cv@gmail.com)",
-                "Accept": "application/json",
-            }, timeout=15)
+            res_text = self._fetch_url(
+                url,
+                headers={
+                    "User-Agent": "JobHuntPro/18.0 (samsalameh.cv@gmail.com)",
+                    "Accept": "application/json",
+                },
+                timeout=15,
+            )
             data = json.loads(res_text)
             # First element is a legal notice dict — skip it
             jobs = []
@@ -1187,23 +1382,29 @@ import httpx
                 tags = " ".join(item.get("tags") or []).lower()
                 if query and not any(k in tl or k in tags for k in kw):
                     continue
-                job_url = item.get("url") or f"https://remoteok.com/remote-jobs/{item.get('id', '')}"
+                job_url = (
+                    item.get("url")
+                    or f"https://remoteok.com/remote-jobs/{item.get('id', '')}"
+                )
                 desc = (item.get("description") or "")[:300]
                 # Strip HTML tags
                 import re as _re
+
                 desc = _re.sub(r"<[^>]+>", "", desc).strip()
-                jobs.append({
-                    "id": f"rok_{item.get('id', len(jobs))}",
-                    "title": title[:100],
-                    "company": company[:80],
-                    "location": "Remote",
-                    "source": "remoteok",
-                    "url": job_url,
-                    "email": _clean_email(company, job_url),
-                    "snippet": desc[:200],
-                    "salary": item.get("salary") or "",
-                    "job_id": f"rok_{item.get('id', '')}",
-                })
+                jobs.append(
+                    {
+                        "id": f"rok_{item.get('id', len(jobs))}",
+                        "title": title[:100],
+                        "company": company[:80],
+                        "location": "Remote",
+                        "source": "remoteok",
+                        "url": job_url,
+                        "email": _clean_email(company, job_url),
+                        "snippet": desc[:200],
+                        "salary": item.get("salary") or "",
+                        "job_id": f"rok_{item.get('id', '')}",
+                    }
+                )
                 if len(jobs) >= max_jobs:
                     break
             logger.info(f"RemoteOK: {len(jobs)} jobs")
@@ -1227,14 +1428,19 @@ import httpx
             seen: set = set()
             kw = (query or "network engineer").lower().split()
             import re as _re
+
             for feed_url in feeds:
                 if len(all_jobs) >= max_jobs:
                     break
                 try:
-                    xml_text = self._fetch_url(feed_url, headers={
-                        "User-Agent": "JobHuntPro/18.0",
-                        "Accept": "application/rss+xml",
-                    }, timeout=15)
+                    xml_text = self._fetch_url(
+                        feed_url,
+                        headers={
+                            "User-Agent": "JobHuntPro/18.0",
+                            "Accept": "application/rss+xml",
+                        },
+                        timeout=15,
+                    )
                     root = ET.fromstring(xml_text)
                     for item in root.iter("item"):
                         t_el = item.find("title")
@@ -1263,17 +1469,19 @@ import httpx
                         desc = ""
                         if d_el is not None and d_el.text:
                             desc = _re.sub(r"<[^>]+>", "", d_el.text).strip()[:200]
-                        all_jobs.append({
-                            "id": f"wwr_{len(all_jobs)}",
-                            "title": title[:100],
-                            "company": company[:80],
-                            "location": "Remote",
-                            "source": "weworkremotely",
-                            "url": link,
-                            "email": _clean_email(company, link),
-                            "snippet": desc,
-                            "job_id": f"wwr_{len(all_jobs)}",
-                        })
+                        all_jobs.append(
+                            {
+                                "id": f"wwr_{len(all_jobs)}",
+                                "title": title[:100],
+                                "company": company[:80],
+                                "location": "Remote",
+                                "source": "weworkremotely",
+                                "url": link,
+                                "email": _clean_email(company, link),
+                                "snippet": desc,
+                                "job_id": f"wwr_{len(all_jobs)}",
+                            }
+                        )
                         if len(all_jobs) >= max_jobs:
                             break
                     time.sleep(1)
@@ -1294,33 +1502,46 @@ import httpx
         try:
             search_q = query or "network engineer"
             url = f"https://www.themuse.com/api/public/jobs?query={urllib.request.quote(search_q)}&page=1&descending=true"
-            res_text = self._fetch_url(url, headers={
-                "User-Agent": "JobHuntPro/18.0",
-                "Accept": "application/json",
-            }, timeout=15)
+            res_text = self._fetch_url(
+                url,
+                headers={
+                    "User-Agent": "JobHuntPro/18.0",
+                    "Accept": "application/json",
+                },
+                timeout=15,
+            )
             data = json.loads(res_text)
             jobs = []
             for item in data.get("results", []):
                 title = (item.get("name") or "").strip()
-                co_data = (item.get("company") or {})
-                company = (co_data.get("name") if isinstance(co_data, dict) else str(co_data)).strip()
+                co_data = item.get("company") or {}
+                company = (
+                    co_data.get("name") if isinstance(co_data, dict) else str(co_data)
+                ).strip()
                 if not title or not company:
                     continue
                 locs = item.get("locations") or []
-                loc_str = ", ".join(l.get("name", "") for l in locs if isinstance(l, dict))[:60] or "Remote"
+                loc_str = (
+                    ", ".join(l.get("name", "") for l in locs if isinstance(l, dict))[
+                        :60
+                    ]
+                    or "Remote"
+                )
                 refs = item.get("refs") or {}
                 job_url = refs.get("landing_page") or ""
-                jobs.append({
-                    "id": f"muse_{item.get('id', len(jobs))}",
-                    "title": title[:100],
-                    "company": company[:80],
-                    "location": loc_str,
-                    "source": "themuse",
-                    "url": job_url,
-                    "email": _clean_email(company, job_url),
-                    "snippet": "",
-                    "job_id": f"muse_{item.get('id', '')}",
-                })
+                jobs.append(
+                    {
+                        "id": f"muse_{item.get('id', len(jobs))}",
+                        "title": title[:100],
+                        "company": company[:80],
+                        "location": loc_str,
+                        "source": "themuse",
+                        "url": job_url,
+                        "email": _clean_email(company, job_url),
+                        "snippet": "",
+                        "job_id": f"muse_{item.get('id', '')}",
+                    }
+                )
                 if len(jobs) >= max_jobs:
                     break
             logger.info(f"The Muse: {len(jobs)} jobs")
@@ -1339,10 +1560,14 @@ import httpx
             url = "https://jobicy.com/api/v2/remote-jobs?count=50&industrySlug=it"
             if query:
                 url += f"&tag={urllib.request.quote(query.replace(' ', '-'))}"
-            res_text = self._fetch_url(url, headers={
-                "User-Agent": "JobHuntPro/18.0",
-                "Accept": "application/json",
-            }, timeout=15)
+            res_text = self._fetch_url(
+                url,
+                headers={
+                    "User-Agent": "JobHuntPro/18.0",
+                    "Accept": "application/json",
+                },
+                timeout=15,
+            )
             data = json.loads(res_text)
             jobs = []
             kw = (query or "").lower().split()
@@ -1356,18 +1581,22 @@ import httpx
                     continue
                 job_url = item.get("url") or ""
                 snippet = (item.get("jobExcerpt") or "")[:200]
-                jobs.append({
-                    "id": f"jcy_{item.get('id', len(jobs))}",
-                    "title": title[:100],
-                    "company": company[:80],
-                    "location": (item.get("jobGeo") or "Remote")[:60],
-                    "source": "jobicy",
-                    "url": job_url,
-                    "email": _clean_email(company, job_url),
-                    "snippet": snippet,
-                    "salary": item.get("annualSalaryMin") and f"${item['annualSalaryMin']}-${item.get('annualSalaryMax', '?')}" or "",
-                    "job_id": f"jcy_{item.get('id', '')}",
-                })
+                jobs.append(
+                    {
+                        "id": f"jcy_{item.get('id', len(jobs))}",
+                        "title": title[:100],
+                        "company": company[:80],
+                        "location": (item.get("jobGeo") or "Remote")[:60],
+                        "source": "jobicy",
+                        "url": job_url,
+                        "email": _clean_email(company, job_url),
+                        "snippet": snippet,
+                        "salary": item.get("annualSalaryMin")
+                        and f"${item['annualSalaryMin']}-${item.get('annualSalaryMax', '?')}"
+                        or "",
+                        "job_id": f"jcy_{item.get('id', '')}",
+                    }
+                )
                 if len(jobs) >= max_jobs:
                     break
             logger.info(f"Jobicy: {len(jobs)} jobs")
@@ -1375,4 +1604,3 @@ import httpx
         except Exception as e:
             logger.warning(f"Jobicy search error: {e}")
             return []
-

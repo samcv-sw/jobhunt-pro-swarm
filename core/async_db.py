@@ -6,15 +6,22 @@ from typing import Optional, Dict, Any
 
 logger = logging.getLogger(__name__)
 
-NEON_URI = os.getenv("NEON_URL") or os.getenv("DATABASE_URL") or os.getenv("DATABASE_URL_SYNC") or ""
+NEON_URI = (
+    os.getenv("NEON_URL")
+    or os.getenv("DATABASE_URL")
+    or os.getenv("DATABASE_URL_SYNC")
+    or ""
+)
 if NEON_URI and NEON_URI.startswith("postgresql://"):
     NEON_URI = NEON_URI.replace("postgresql://", "postgresql+asyncpg://", 1)
+
 
 class AsyncDatabase:
     """
     APEX MATRIX: Asynchronous Database Connection Manager
     Supports aiosqlite (fallback) and asyncpg (Neon Postgres) for deep concurrency.
     """
+
     def __init__(self):
         self.backend = "sqlite"
         self.pool = None
@@ -28,19 +35,29 @@ class AsyncDatabase:
             if "postgres" in NEON_URI:
                 try:
                     import asyncpg
+
                     # We strip postgresql+asyncpg:// down to postgresql:// for asyncpg connect
-                    connect_uri = NEON_URI.replace("postgresql+asyncpg://", "postgresql://")
-                    self.pool = await asyncpg.create_pool(dsn=connect_uri, min_size=1, max_size=20)
+                    connect_uri = NEON_URI.replace(
+                        "postgresql+asyncpg://", "postgresql://"
+                    )
+                    self.pool = await asyncpg.create_pool(
+                        dsn=connect_uri, min_size=1, max_size=20
+                    )
                     self.backend = "pg"
-                    logger.info("APEX MATRIX: Connected to Neon Postgres via asyncpg pool.")
+                    logger.info(
+                        "APEX MATRIX: Connected to Neon Postgres via asyncpg pool."
+                    )
                 except Exception as e:
-                    logger.error(f"Failed to connect to Neon asyncpg: {e}. Falling back to aiosqlite.")
+                    logger.error(
+                        f"Failed to connect to Neon asyncpg: {e}. Falling back to aiosqlite."
+                    )
                     await self._init_sqlite()
             else:
                 await self._init_sqlite()
 
     async def _init_sqlite(self):
         import aiosqlite
+
         db_path = os.getenv("SQLITE_PATH", "saas_v2.db")
         self.pool = await aiosqlite.connect(db_path)
         self.pool.row_factory = aiosqlite.Row
@@ -48,8 +65,9 @@ class AsyncDatabase:
         logger.info(f"APEX MATRIX: Connected to SQLite via aiosqlite at {db_path}.")
 
     async def fetch_one(self, query: str, *args) -> Optional[Dict[str, Any]]:
-        if not self.pool: await self.connect()
-        
+        if not self.pool:
+            await self.connect()
+
         if self.backend == "pg":
             # Convert ? to $1, $2 for asyncpg
             pg_query = self._convert_query_to_pg(query)
@@ -62,8 +80,9 @@ class AsyncDatabase:
                 return dict(row) if row else None
 
     async def execute(self, query: str, *args):
-        if not self.pool: await self.connect()
-        
+        if not self.pool:
+            await self.connect()
+
         if self.backend == "pg":
             pg_query = self._convert_query_to_pg(query)
             async with self.pool.acquire() as conn:
@@ -74,7 +93,7 @@ class AsyncDatabase:
 
     def _convert_query_to_pg(self, query: str) -> str:
         # Convert SQLite ? parameters to PostgreSQL $1, $2, etc.
-        parts = query.split('?')
+        parts = query.split("?")
         if len(parts) == 1:
             return query
         result = parts[0]
@@ -82,13 +101,16 @@ class AsyncDatabase:
             result += f"${i}" + part
         return result
 
+
 async_db = AsyncDatabase()
+
 
 async def async_dequeue_task() -> Optional[Dict[str, Any]]:
     """
     APEX MATRIX: Atomically dequeues a task using SKIP LOCKED in asyncpg.
     """
-    if not async_db.pool: await async_db.connect()
+    if not async_db.pool:
+        await async_db.connect()
 
     try:
         if async_db.backend == "pg":
@@ -108,7 +130,11 @@ async def async_dequeue_task() -> Optional[Dict[str, Any]]:
             async with async_db.pool.acquire() as conn:
                 row = await conn.fetchrow(query)
                 if row:
-                    return {"id": row["id"], "task_type": row["task_type"], "payload": json.loads(row["payload"])}
+                    return {
+                        "id": row["id"],
+                        "task_type": row["task_type"],
+                        "payload": json.loads(row["payload"]),
+                    }
         else:
             # SQLite fallback
             query = """
@@ -122,9 +148,16 @@ async def async_dequeue_task() -> Optional[Dict[str, Any]]:
                 row = await cursor.fetchone()
                 if row:
                     task_id = row["id"]
-                    await async_db.pool.execute("UPDATE job_queue SET status = 'running', locked_at = CURRENT_TIMESTAMP WHERE id = ?", (task_id,))
+                    await async_db.pool.execute(
+                        "UPDATE job_queue SET status = 'running', locked_at = CURRENT_TIMESTAMP WHERE id = ?",
+                        (task_id,),
+                    )
                     await async_db.pool.commit()
-                    return {"id": task_id, "task_type": row["task_type"], "payload": json.loads(row["payload"])}
+                    return {
+                        "id": task_id,
+                        "task_type": row["task_type"],
+                        "payload": json.loads(row["payload"]),
+                    }
     except Exception as e:
         logger.error(f"Async dequeue failed: {e}")
     return None

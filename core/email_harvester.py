@@ -9,12 +9,11 @@ Sources:
   4. Job board scraping (public listings)
   5. Pattern generation for target companies
 """
+
 import json
 import logging
-import os
 import re
 import time
-from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, List
 
@@ -36,8 +35,14 @@ EMAIL_PATTERNS = [
 
 # Target domains for job seekers
 JOB_SEEKER_DOMAINS = [
-    "gmail.com", "yahoo.com", "outlook.com", "hotmail.com",
-    "protonmail.com", "mail.com", "aol.com", "icloud.com",
+    "gmail.com",
+    "yahoo.com",
+    "outlook.com",
+    "hotmail.com",
+    "protonmail.com",
+    "mail.com",
+    "aol.com",
+    "icloud.com",
 ]
 
 
@@ -52,12 +57,15 @@ def init(data_dir: Optional[str] = None):
     logger.info(f"EmailHarvester initialized at {HARVEST_DIR}")
 
 
-def load_from_csv(csv_path: str, email_col: int = 0, name_col: int = 1) -> List[Dict[str, str]]:
+def load_from_csv(
+    csv_path: str, email_col: int = 0, name_col: int = 1
+) -> List[Dict[str, str]]:
     """Load emails from CSV file."""
     import csv
+
     recipients = []
 
-    with open(csv_path, 'r', encoding='utf-8-sig') as f:
+    with open(csv_path, "r", encoding="utf-8-sig") as f:
         reader = csv.reader(f)
         for row in reader:
             if not row:
@@ -74,7 +82,7 @@ def load_from_csv(csv_path: str, email_col: int = 0, name_col: int = 1) -> List[
 
 def load_from_json(json_path: str) -> List[Dict[str, str]]:
     """Load emails from JSON file [{"email":..., "name":...}]."""
-    with open(json_path, 'r', encoding='utf-8') as f:
+    with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     recipients = []
@@ -90,7 +98,7 @@ def load_from_json(json_path: str) -> List[Dict[str, str]]:
 def load_from_txt(txt_path: str) -> List[Dict[str, str]]:
     """Load emails from plain text (one per line)."""
     recipients = []
-    with open(txt_path, 'r', encoding='utf-8') as f:
+    with open(txt_path, "r", encoding="utf-8") as f:
         for line in f:
             email = line.strip()
             if _is_valid_email(email):
@@ -109,7 +117,7 @@ def harvest_github_job_seekers(min_stars: int = 0) -> List[Dict[str, str]]:
     recipients = []
     try:
         import requests
-        
+
         # Search for users with "looking for" or "open to work" in bio
         queries = [
             "looking for work type:user",
@@ -118,14 +126,14 @@ def harvest_github_job_seekers(min_stars: int = 0) -> List[Dict[str, str]]:
             "looking for job type:user",
             "#OpenToWork type:user",
         ]
-        
+
         for query in queries[:3]:  # limit to avoid rate limits
             try:
                 r = requests.get(
                     "https://api.github.com/search/users",
                     params={"q": query, "per_page": 30},
                     headers={"Accept": "application/vnd.github.v3+json"},
-                    timeout=10
+                    timeout=10,
                 )
                 if r.status_code == 200:
                     users = r.json().get("items", [])
@@ -134,16 +142,18 @@ def harvest_github_job_seekers(min_stars: int = 0) -> List[Dict[str, str]]:
                         detail_r = requests.get(
                             user["url"],
                             headers={"Accept": "application/vnd.github.v3+json"},
-                            timeout=10
+                            timeout=10,
                         )
                         if detail_r.status_code == 200:
                             detail = detail_r.json()
                             email = detail.get("email", "")
                             if _is_valid_email(email):
-                                recipients.append({
-                                    "email": email,
-                                    "name": detail.get("name", user["login"]),
-                                })
+                                recipients.append(
+                                    {
+                                        "email": email,
+                                        "name": detail.get("name", user["login"]),
+                                    }
+                                )
                 time.sleep(2)  # respect rate limits
             except Exception:
                 continue
@@ -158,26 +168,50 @@ def harvest_github_job_seekers(min_stars: int = 0) -> List[Dict[str, str]]:
 
 
 def generate_emails_for_company(
-    company_domain: str,
-    first_names: List[str] = None,
-    last_names: List[str] = None
+    company_domain: str, first_names: List[str] = None, last_names: List[str] = None
 ) -> List[Dict[str, str]]:
     """
     Generate email address candidates for a company using common patterns.
-    
+
     Args:
         company_domain: e.g. "murex.com"
         first_names: list of common first names
         last_names: list of common last names
-    
+
     Returns list of {"email": candidate, "name": "First Last"}
     """
     if first_names is None:
-        first_names = ["john", "jane", "mike", "sarah", "david", "lisa", "robert",
-                       "maria", "james", "anna", "alex", "emma", "chris", "sophia"]
+        first_names = [
+            "john",
+            "jane",
+            "mike",
+            "sarah",
+            "david",
+            "lisa",
+            "robert",
+            "maria",
+            "james",
+            "anna",
+            "alex",
+            "emma",
+            "chris",
+            "sophia",
+        ]
     if last_names is None:
-        last_names = ["smith", "johnson", "williams", "brown", "jones", "miller",
-                      "davis", "wilson", "anderson", "taylor", "thomas", "jackson"]
+        last_names = [
+            "smith",
+            "johnson",
+            "williams",
+            "brown",
+            "jones",
+            "miller",
+            "davis",
+            "wilson",
+            "anderson",
+            "taylor",
+            "thomas",
+            "jackson",
+        ]
 
     candidates = []
     for first in first_names:
@@ -186,10 +220,12 @@ def generate_emails_for_company(
                 f = first.lower()
                 l = last.lower()
                 fi = f[0]
-                
+
                 email = pattern.format(first=f, last=l, f=fi, domain=company_domain)
                 name = f"{first.title()} {last.title()}"
-                candidates.append({"email": email, "name": name, "company": company_domain})
+                candidates.append(
+                    {"email": email, "name": name, "company": company_domain}
+                )
 
     logger.info(f"Generated {len(candidates)} email candidates for {company_domain}")
     return candidates
@@ -199,7 +235,7 @@ def load_all_from_directory(dir_path: str) -> List[Dict[str, str]]:
     """Load all recipient files from a directory (CSV, JSON, TXT)."""
     all_recipients = []
     d = Path(dir_path)
-    
+
     for f in sorted(d.iterdir()):
         try:
             if f.suffix == ".csv":
@@ -219,14 +255,18 @@ def load_all_from_directory(dir_path: str) -> List[Dict[str, str]]:
             seen.add(r["email"])
             unique.append(r)
 
-    logger.info(f"Directory load: {len(unique)} unique from {len(all_recipients)} total")
+    logger.info(
+        f"Directory load: {len(unique)} unique from {len(all_recipients)} total"
+    )
     return unique
 
 
-def save_recipients(recipients: List[Dict[str, str]], filename: str = "harvested_emails.json"):
+def save_recipients(
+    recipients: List[Dict[str, str]], filename: str = "harvested_emails.json"
+):
     """Save harvested emails to JSON for later blasting."""
     path = HARVEST_DIR / filename
-    with open(path, 'w', encoding='utf-8') as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(recipients, f, indent=2)
     logger.info(f"Saved {len(recipients)} recipients to {path}")
     return str(path)
@@ -241,4 +281,4 @@ def _is_valid_email(email: str) -> bool:
     if len(email) > 254:
         return False
     # Basic regex
-    return bool(re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email))
+    return bool(re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email))

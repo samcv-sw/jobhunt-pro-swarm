@@ -1,0 +1,394 @@
+<style>
+:root { --gold:#f59e0b; --purple:#8b5cf6; --pink:#ec4899; --dark:#0f0f23; --card:rgba(30,30,50,.6); --border:rgba(255,255,255,.08); --green:#22c55e; --red:#ef4444; }
+* { margin:0; padding:0; box-sizing:border-box; }
+
+.hero { text-align:center; padding:35px 20px 25px; border-radius:20px; background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(236,72,153,.08)); border:1px solid rgba(139,92,246,.2); margin-bottom:25px; }
+.hero h1 { font-size:2em; background:linear-gradient(90deg,var(--gold),var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px; }
+.hero p { color:#94a3b8; }
+
+/* ── Track Form ── */
+.track-form { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:30px; max-width:550px; margin:0 auto 25px; }
+.track-form h2 { margin-bottom:16px; text-align:center; }
+.form-group { margin-bottom:14px; }
+.form-group label { display:block; margin-bottom:5px; font-size:.82em; color:#94a3b8; font-weight:600; }
+.form-group input { width:100%; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:rgba(15,15,35,.8); color:#e2e8f0; font-size:.92em; font-family:inherit; }
+.form-group input:focus { outline:none; border-color:var(--purple); }
+.track-btn { width:100%; padding:14px; background:linear-gradient(135deg,var(--purple),var(--pink)); border:none; border-radius:10px; color:#fff; font-weight:700; font-size:1em; cursor:pointer; }
+.track-btn:hover { transform:translateY(-1px); }
+.track-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+.alt-action { text-align:center; margin-top:12px; }
+.alt-action a { color:var(--gold); text-decoration:none; font-size:.85em; }
+.msg { text-align:center; margin-top:10px; display:none; }
+
+/* ── Job Cards ── */
+.jobs-section { margin-top:25px; }
+.jobs-section h2 { margin-bottom:16px; }
+.job-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px; margin-bottom:12px; transition:all .15s; }
+.job-card:hover { border-color:rgba(139,92,246,.3); }
+.job-card-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:10px; }
+.job-card-title { font-size:1.15em; font-weight:700; }
+.job-card-company { color:#94a3b8; }
+.job-card-meta { display:flex; gap:20px; flex-wrap:wrap; font-size:.82em; color:#94a3b8; margin-top:8px; }
+.job-card-meta span { display:flex; align-items:center; gap:5px; }
+.job-stats { display:flex; gap:12px; margin-top:12px; flex-wrap:wrap; }
+.stat-badge { padding:8px 16px; border-radius:10px; font-size:.85em; font-weight:700; }
+.stat-badge.views { background:rgba(59,130,246,.15); color:#60a5fa; }
+.stat-badge.apps { background:rgba(34,197,94,.15); color:#4ade80; }
+.stat-badge.status { background:rgba(245,158,11,.15); color:var(--gold); }
+.stat-badge.tier { background:rgba(139,92,246,.15); color:#a78bfa; }
+.stat-badge.urgent { background:rgba(239,68,68,.2); color:#f87171; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.7; } }
+
+.expiry-bar { height:6px; border-radius:3px; background:rgba(255,255,255,.06); margin-top:12px; overflow:hidden; }
+.expiry-fill { height:100%; border-radius:3px; transition:width .5s; }
+.expiry-text { font-size:.72em; color:#64748b; margin-top:4px; text-align:right; }
+
+.empty-state { text-align:center; padding:40px; color:#94a3b8; }
+.empty-state .icon { font-size:3em; margin-bottom:10px; }
+
+/* ── detail modal ── */
+.detail-section { margin-top:15px; padding:14px; background:rgba(15,15,35,.5); border-radius:10px; display:none; }
+.detail-section.open { display:block; }
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:.85em; }
+.detail-grid div { padding:8px; background:rgba(255,255,255,.03); border-radius:8px; }
+.detail-grid .label { color:#64748b; font-size:.72em; margin-bottom:2px; }
+.detail-grid .value { color:#e2e8f0; }
+.detail-grid .full { grid-column:1/-1; }
+.copy-btn { font-size:.7em; padding:2px 8px; border-radius:5px; background:rgba(59,130,246,.2); color:#60a5fa; border:none; cursor:pointer; margin-left:6px; }
+
+@media (max-width:768px) {
+  .job-card-header { flex-direction:column; }
+  .detail-grid { grid-template-columns:1fr; }
+}
+</style>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 30px;">
+<!-- HERO -->
+<div class="hero">
+  <h1>📊 Track Your Job Postings</h1>
+  <p>Enter your email to see all your jobs, or email + Job ID for a specific post.</p>
+  <div style="margin-top:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(59,130,246,.08);padding:8px 16px;border-radius:10px;border:1px solid rgba(59,130,246,.2);">
+      <input dir="auto" type="checkbox" id="notifyCheck" style="accent-color:#3b82f6;" onchange="toggleNotifications()">
+      <span style="font-size:.85em;">📩 Notify me by email when someone applies</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(139,92,246,.08);padding:8px 16px;border-radius:10px;border:1px solid rgba(139,92,246,.2);">
+      <input dir="auto" type="checkbox" id="liveRefresh" style="accent-color:#8b5cf6;" onchange="toggleLiveRefresh()">
+      <span style="font-size:.85em;">🔄 Auto-refresh every 30s</span>
+    </label>
+  </div>
+</div>
+
+<!-- TRACK FORM -->
+<div class="track-form">
+  <h2>🔍 Find Your Jobs</h2>
+  <div class="form-group">
+    <label>📧 Your Email *</label>
+    <input dir="auto" type="email" id="trackEmail" placeholder="hr@yourcompany.com" required>
+  </div>
+  <div class="form-group">
+    <label>🆔 Job ID (optional — for specific job)</label>
+    <input dir="auto" type="text" id="trackJobId" placeholder="job_xxxxxxxxxxxx">
+  </div>
+  <button class="track-btn" onclick="trackJobs()">🔍 Find My Jobs</button>
+  <div class="msg" id="trackMsg"></div>
+  <div class="alt-action"><a href="#" onclick="document.getElementById('trackEmail').value='samsalameh.cv@gmail.com';trackJobs();return false;">👀 Demo: See sample jobs</a></div>
+</div>
+
+<!-- RESULTS -->
+<div id="resultsArea"></div>
+
+<!-- SCRIPTS -->
+<script>
+const API = '';
+let currentEmail = '';
+let currentJobId = '';
+let liveRefreshTimer = null;
+
+function trackJobs() {
+  currentEmail = document.getElementById('trackEmail').value.trim();
+  currentJobId = document.getElementById('trackJobId').value.trim();
+  const btn = document.querySelector('.track-btn');
+  
+  if (!currentEmail) { showMsg('Please enter your email address.', '#ef4444'); return; }
+  
+  btn.disabled = true;
+  btn.textContent = '⏳ Searching...';
+  
+  loadDashboard(currentEmail, currentJobId).then(() => {
+    btn.disabled = false;
+    btn.textContent = '🔍 Find My Jobs';
+    // Load notification preference
+    loadNotificationPref(currentEmail);
+  });
+}
+
+function loadDashboard(email, jobId) {
+  let url = `${API}/api/employer/dashboard?email=${encodeURIComponent(email)}`;
+  if (jobId) url += `&job_id=${encodeURIComponent(jobId)}`;
+  
+  return fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'ok') {
+        renderJobs(data.jobs, email);
+      } else {
+        showMsg('❌ ' + (data.message || 'No jobs found.'), '#ef4444');
+        document.getElementById('resultsArea').innerHTML = '';
+      }
+    })
+    .catch(err => {
+      showMsg('❌ Network error.', '#ef4444');
+    });
+}
+
+// ── Notification toggle ──
+function toggleNotifications() {
+  if (!currentEmail) return;
+  const checked = document.getElementById('notifyCheck').checked ? 1 : 0;
+  const formData = new FormData();
+  formData.append('email', currentEmail);
+  formData.append('notify_email', checked);
+  
+  fetch(`${API}/api/employer/preferences`, { method:'POST', body:formData })
+    .then(r => r.json())
+    .then(data => {
+      const label = document.querySelector('#notifyCheck').parentElement.querySelector('span');
+      label.textContent = checked ? '📩 ✅ Notifications ON' : '📩 Notify me by email when someone applies';
+    });
+}
+
+function loadNotificationPref(email) {
+  fetch(`${API}/api/employer/preferences?email=${encodeURIComponent(email)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'ok' && data.preferences) {
+        const on = data.preferences.notify_email === 1 || data.preferences.notify_email === '1';
+        document.getElementById('notifyCheck').checked = on;
+        const label = document.querySelector('#notifyCheck').parentElement.querySelector('span');
+        label.textContent = on ? '📩 ✅ Notifications ON' : '📩 Notify me by email when someone applies';
+      }
+    });
+}
+
+// ── Live refresh ──
+function toggleLiveRefresh() {
+  const checked = document.getElementById('liveRefresh').checked;
+  if (checked) {
+    startLiveRefresh();
+  } else {
+    stopLiveRefresh();
+  }
+}
+
+function startLiveRefresh() {
+  stopLiveRefresh();
+  liveRefreshTimer = setInterval(() => {
+    if (currentEmail) {
+      loadDashboard(currentEmail, currentJobId);
+    }
+  }, 30000); // every 30 seconds
+  console.log('🔄 Live refresh started (30s)');
+}
+
+function stopLiveRefresh() {
+  if (liveRefreshTimer) {
+    clearInterval(liveRefreshTimer);
+    liveRefreshTimer = null;
+  }
+}
+
+// ── Apply form ──
+function toggleApplyForm(jobId) {
+  const form = document.getElementById('applyForm_' + jobId);
+  if (form.style.display === 'block') {
+    form.style.display = 'none';
+  } else {
+    form.style.display = 'block';
+    form.scrollIntoView({behavior:'smooth'});
+  }
+}
+
+function submitApplication(jobId) {
+  const prefix = 'apply_' + jobId + '_';
+  const name = document.getElementById(prefix + 'name').value.trim();
+  const email = document.getElementById(prefix + 'email').value.trim();
+  const phone = document.getElementById(prefix + 'phone').value.trim();
+  const note = document.getElementById(prefix + 'note').value.trim();
+  
+  if (!name || !email) {
+    alert('Please fill in your name and email.');
+    return;
+  }
+  
+  const btn = document.getElementById(prefix + 'btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Submitting...';
+  
+  const formData = new FormData();
+  formData.append('applicant_name', name);
+  formData.append('applicant_email', email);
+  formData.append('applicant_phone', phone);
+  formData.append('cover_note', note);
+  
+  fetch(`${API}/api/jobs/apply/${jobId}`, { method:'POST', body:formData })
+    .then(r => r.json())
+    .then(data => {
+      const msgEl = document.getElementById(prefix + 'msg');
+      if (data.status === 'ok') {
+        msgEl.innerHTML = '<span style="color:#22c55e;">✅ Application sent! Employer will review.</span>';
+        document.getElementById('applyForm_' + jobId).querySelector('form').reset();
+      } else {
+        msgEl.innerHTML = '<span style="color:#ef4444;">❌ ' + data.message + '</span>';
+      }
+      btn.disabled = false;
+      btn.textContent = 'Send Application';
+    })
+    .catch(err => {
+      document.getElementById(prefix + 'msg').innerHTML = '<span style="color:#ef4444;">❌ Network error.</span>';
+      btn.disabled = false;
+      btn.textContent = 'Send Application';
+    });
+}
+
+function renderJobs(jobs, email) {
+  const area = document.getElementById('resultsArea');
+  if (!jobs || jobs.length === 0) {
+    area.innerHTML = '<div class="empty-state"><div class="icon">📭</div><h3>No Jobs Found</h3><p>No jobs found for <strong>' + escapeHtml(email) + '</strong>.<br>Try a different email or post a new job.</p></div>';
+    showMsg('', '');
+    return;
+  }
+  
+  const totalViews = jobs.reduce((s,j) => s+(j.views||0),0);
+  const totalApps = jobs.reduce((s,j) => s+(j.applications||0),0);
+  
+  let html = '<div class="jobs-section"><h2>📋 ' + jobs.length + ' Job(s) for ' + escapeHtml(email) + '</h2>';
+  html += '<div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">';
+  html += '<div class="stat-badge views">👁️ ' + totalViews + ' Total Views</div>';
+  html += '<div class="stat-badge apps">📩 ' + totalApps + ' Total Applications</div>';
+  html += '</div>';
+  
+  jobs.forEach(j => {
+    const created = j.created_at ? new Date(j.created_at.replace(' ','T')+'Z') : null;
+    const expires = j.expires_at ? new Date(j.expires_at.replace(' ','T')+'Z') : null;
+    const now = new Date();
+    const totalDays = expires && created ? (expires-created)/(86400000) : 30;
+    const daysLeft = expires ? Math.max(0, Math.ceil((expires-now)/86400000)) : 0;
+    const pctLeft = totalDays > 0 ? Math.min(100, Math.max(0, (daysLeft/totalDays)*100)) : 0;
+    const pctColor = daysLeft < 7 ? '#ef4444' : daysLeft < 30 ? '#f59e0b' : '#22c55e';
+    const addons = safeParseJson(j.addons) || [];
+    const hasUrgent = addons.some(a => a.name === 'urgent');
+    const addonNames = addons.map(a => a.name.replace(/_/g,' ')).join(', ');
+    
+    html += '<div class="job-card">';
+    html += '<div class="job-card-header">';
+    html += '<div><div class="job-card-title">' + escapeHtml(j.job_title) + '</div>';
+    html += '<div class="job-card-company">🏢 ' + escapeHtml(j.company_name) + ' · 📍 ' + escapeHtml(j.location) + '</div></div>';
+    html += '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
+    html += '<span class="stat-badge tier">' + (j.tier||'basic').toUpperCase() + '</span>';
+    if (hasUrgent) html += '<span class="stat-badge urgent">🚨 URGENT</span>';
+    html += '<span class="stat-badge status">' + getStatusLabel(j) + '</span>';
+    html += '</div></div>';
+    
+    html += '<div class="job-card-meta">';
+    html += '<span>🗓️ Posted: ' + (created ? created.toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'}) : 'N/A') + '</span>';
+    html += '<span>⏰ Expires: ' + (expires ? expires.toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'}) : 'N/A') + '</span>';
+    html += '<span>💰 Paid: $' + (j.price||0).toFixed(2) + '</span>';
+    if (j.duration_days) html += '<span>📅 ' + j.duration_days + 'd listing</span>';
+    html += '</div>';
+    
+    // Add-ons
+    if (addonNames) html += '<div style="font-size:.78em;color:#94a3b8;margin-top:6px;">💎 Power-Ups: ' + escapeHtml(addonNames) + '</div>';
+    
+    // Stats
+    html += '<div class="job-stats">';
+    html += '<span class="stat-badge views">👁️ ' + (j.views||0) + ' Views</span>';
+    html += '<span class="stat-badge apps">📩 ' + (j.applications||0) + ' Applications</span>';
+    html += '<button class="btn" onclick="toggleApplyForm(\'' + j.job_id + '\')" style="font-size:.75em;padding:6px 14px;border-radius:8px;border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.1);color:#4ade80;cursor:pointer;font-weight:700;">📩 Apply Now</button>';
+    html += '<button class="btn" onclick="toggleDetail(\'detail_' + j.job_id + '\')" style="font-size:.75em;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#94a3b8;cursor:pointer;">📋 Details ▼</button>';
+    html += '</div>';
+    
+    // Expiry bar
+    html += '<div class="expiry-bar"><div class="expiry-fill" style="width:' + pctLeft.toFixed(0) + '%;background:' + pctColor + '"></div></div>';
+    html += '<div class="expiry-text">' + daysLeft + ' days remaining</div>';
+    
+    // Detail section
+    html += '<div class="detail-section" id="detail_' + j.job_id + '">';
+    html += '<div class="detail-grid">';
+    html += '<div><div class="label">Job ID</div><div class="value">' + j.job_id + '<button class="copy-btn" onclick="copyText(\'' + j.job_id + '\')">Copy</button></div></div>';
+    html += '<div><div class="label">Category</div><div class="value">' + (j.category||'N/A') + '</div></div>';
+    html += '<div><div class="label">Salary</div><div class="value">' + (j.salary||'Not specified') + '</div></div>';
+    html += '<div><div class="label">Contact</div><div class="value">' + escapeHtml(j.contact_email) + '</div></div>';
+    html += '<div class="full"><div class="label">Description</div><div class="value" style="white-space:pre-wrap;max-height:120px;overflow-y:auto;">' + escapeHtml(j.description||'') + '</div></div>';
+    if (j.apply_url) html += '<div class="full"><div class="label">Apply URL</div><div class="value"><a href="' + escapeHtml(j.apply_url) + '" target="_blank" style="color:#60a5fa;">' + escapeHtml(j.apply_url) + '</a></div></div>';
+    html += '<div class="full"><div class="label">Tracking Link</div><div class="value"><a href="' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '" style="color:#60a5fa;">' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '</a> <button class="copy-btn" onclick="copyText(\'' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '\')">Copy</button></div></div>';
+    html += '</div></div>';
+    
+    // Application form (hidden by default)
+    html += '<div class="detail-section" id="applyForm_' + j.job_id + '" style="border:1px solid rgba(34,197,94,.2);background:rgba(34,197,94,.03);">';
+    html += '<h4 style="margin-bottom:10px;color:#4ade80;">📩 Apply for this position</h4>';
+    html += '<form onsubmit="event.preventDefault();submitApplication(\'' + j.job_id + '\');" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+    html += '<div><input dir="auto" id="apply_' + j.job_id + '_name" placeholder="Your Full Name *" required style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
+    html += '<div><input dir="auto" id="apply_' + j.job_id + '_email" type="email" placeholder="Your Email *" required style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
+    html += '<div><input dir="auto" id="apply_' + j.job_id + '_phone" placeholder="Phone (optional)" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
+    html += '<div><button class="btn" id="apply_' + j.job_id + '_btn" type="submit" style="width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;cursor:pointer;">📩 Send Application</button></div>';
+    html += '<div style="grid-column:1/-1;"><textarea dir="auto" id="apply_' + j.job_id + '_note" placeholder="Cover note / why you\'re a good fit..." style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;min-height:60px;resize:vertical;font-family:inherit;"></textarea></div>';
+    html += '<div id="apply_' + j.job_id + '_msg" style="grid-column:1/-1;font-size:.85em;"></div>';
+    html += '</form></div>';
+    
+    html += '</div>';
+  });
+  
+  html += '</div>';
+  area.innerHTML = html;
+  showMsg('✅ Found ' + jobs.length + ' job(s)!', '#22c55e');
+}
+
+function toggleDetail(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  const btn = el.previousElementSibling ? el.parentElement.querySelector('button') : null;
+}
+
+function getStatusLabel(j) {
+  if (!j.expires_at) return 'Active';
+  const exp = new Date(j.expires_at.replace(' ','T')+'Z');
+  if (exp < new Date()) return '⏰ Expired';
+  return '✅ Active';
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    // Brief visual feedback
+  }).catch(() => {});
+}
+
+function safeParseJson(s) {
+  try { return JSON.parse(s); } catch(e) { return null; }
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showMsg(text, color) {
+  const div = document.getElementById('trackMsg');
+  div.textContent = text;
+  div.style.color = color;
+  div.style.display = text ? 'block' : 'none';
+}
+
+// Auto-load if URL has params
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const email = params.get('email');
+  const jobId = params.get('job_id');
+  if (email) {
+    document.getElementById('trackEmail').value = email;
+    if (jobId) document.getElementById('trackJobId').value = jobId;
+    trackJobs();
+  }
+})();
+</div>
+</script>

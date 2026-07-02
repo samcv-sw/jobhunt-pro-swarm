@@ -18,11 +18,10 @@ import os
 import time
 import traceback
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 import httpx
-from httpx import Limits
 
 import config
 
@@ -35,6 +34,7 @@ HEALTH_SNAPSHOT_PATH = Path(__file__).parent.parent / "logs" / "bot_health.json"
 # ══════════════════════════════════════════════════════════════════════
 # 1. 24/7 AUTO-RESTART WATCHDOG
 # ══════════════════════════════════════════════════════════════════════
+
 
 class BotWatchdog:
     """Wraps the Telegram bot with auto-restart on crash."""
@@ -72,17 +72,22 @@ class BotWatchdog:
     async def _notify_admin(self, msg: str):
         """Send crash notification to admin."""
         try:
-            chat_id = getattr(config, 'TELEGRAM_CHAT_ID', None) or os.getenv("TELEGRAM_CHAT_ID")
+            chat_id = getattr(config, "TELEGRAM_CHAT_ID", None) or os.getenv(
+                "TELEGRAM_CHAT_ID"
+            )
             if not chat_id:
                 return
             token = config.TELEGRAM_BOT_TOKEN
             url = f"https://api.telegram.org/bot{token}/sendMessage"
             async with httpx.AsyncClient(timeout=10) as client:
-                await client.post(url, json={
-                    "chat_id": chat_id,
-                    "text": f"⚠️ BOT CRASH #{self.crash_count}\n\n{msg[:1500]}",
-                    "parse_mode": "HTML",
-                })
+                await client.post(
+                    url,
+                    json={
+                        "chat_id": chat_id,
+                        "text": f"⚠️ BOT CRASH #{self.crash_count}\n\n{msg[:1500]}",
+                        "parse_mode": "HTML",
+                    },
+                )
         except Exception:
             pass
 
@@ -126,6 +131,7 @@ class BotWatchdog:
                 # Recreate bot instance to clear stale state
                 try:
                     from core.telegram_bot import TelegramBot
+
                     self.bot = TelegramBot()
                 except Exception:
                     pass
@@ -137,6 +143,7 @@ class BotWatchdog:
 # ══════════════════════════════════════════════════════════════════════
 # 2. AI-POWERED /fix COMMAND (Auto-Diagnose & Fix)
 # ══════════════════════════════════════════════════════════════════════
+
 
 class AIFixer:
     """Uses Groq AI to diagnose and fix system issues."""
@@ -159,7 +166,9 @@ Keep total response under 800 chars. Be practical — if a restart will fix it, 
     async def diagnose(self, context: dict) -> str:
         """Send system context to Groq for AI diagnosis."""
         try:
-            groq_key = getattr(config, 'GROQ_API_KEY', None) or os.getenv("GROQ_API_KEY")
+            groq_key = getattr(config, "GROQ_API_KEY", None) or os.getenv(
+                "GROQ_API_KEY"
+            )
             if not groq_key:
                 return "🔍 AI Fixer unavailable — no GROQ_API_KEY configured."
 
@@ -209,13 +218,18 @@ Provide diagnosis and fix steps."""
 # 3. WEBSITE CONTROL FROM TELEGRAM
 # ══════════════════════════════════════════════════════════════════════
 
+
 class WebsiteController:
     """Control Render and PythonAnywhere deployments from Telegram."""
 
     RENDER_HEALTH_URL = "https://jobhunt-pro.onrender.com/health"
     PA_HEALTH_URL = "https://jhfguf.pythonanywhere.com/health"
     PA_API = "https://www.pythonanywhere.com/api/v0/user/JHFGUF"
-    PA_TOKEN = getattr(config, "PA_API_TOKEN", None) or os.getenv("PA_API_TOKEN") or "7f8bf3e6ad742bcb9e3c25e446cf664d6710b31d"
+    PA_TOKEN = (
+        getattr(config, "PA_API_TOKEN", None)
+        or os.getenv("PA_API_TOKEN")
+        or "7f8bf3e6ad742bcb9e3c25e446cf664d6710b31d"
+    )
 
     async def health_check(self) -> str:
         """Check health of all platforms."""
@@ -226,7 +240,9 @@ class WebsiteController:
             try:
                 r = await client.get(self.RENDER_HEALTH_URL)
                 data = r.json()
-                lines.append(f"🟢 <b>Render:</b> HEALTHY v{data.get('version','?')} | {data.get('platform','?')}")
+                lines.append(
+                    f"🟢 <b>Render:</b> HEALTHY v{data.get('version', '?')} | {data.get('platform', '?')}"
+                )
             except Exception as e:
                 lines.append(f"🔴 <b>Render:</b> DOWN — {str(e)[:80]}")
 
@@ -234,7 +250,9 @@ class WebsiteController:
             try:
                 r = await client.get(self.PA_HEALTH_URL)
                 data = r.json()
-                lines.append(f"🟢 <b>PythonAnywhere:</b> HEALTHY v{data.get('version','?')}")
+                lines.append(
+                    f"🟢 <b>PythonAnywhere:</b> HEALTHY v{data.get('version', '?')}"
+                )
             except Exception as e:
                 lines.append(f"🔴 <b>PythonAnywhere:</b> DOWN — {str(e)[:80]}")
 
@@ -275,7 +293,7 @@ class WebsiteController:
             async with httpx.AsyncClient(timeout=15) as client:
                 r = await client.get(self.RENDER_HEALTH_URL)
                 if r.status_code == 200:
-                    return f"🟢 Render is running HEALTHY v{r.json().get('version','?')}\n\nTo force restart: push to GitHub or use Render Dashboard."
+                    return f"🟢 Render is running HEALTHY v{r.json().get('version', '?')}\n\nTo force restart: push to GitHub or use Render Dashboard."
                 return f"⚠️ Render returned HTTP {r.status_code}\n\nPush new commit to GitHub to trigger redeploy, or restart from Render Dashboard."
         except Exception:
             return "🔴 Render is DOWN!\n\nPush a new commit to GitHub to trigger redeploy:\n<code>git commit --allow-empty -m 'force deploy' && git push</code>"
@@ -293,7 +311,7 @@ class WebsiteController:
             try:
                 rows = conn.execute(
                     "SELECT timestamp, level, message FROM app_logs ORDER BY timestamp DESC LIMIT ?",
-                    (lines,)
+                    (lines,),
                 ).fetchall()
                 if not rows:
                     return "📜 No logs recorded yet."
@@ -314,6 +332,7 @@ class WebsiteController:
 # ══════════════════════════════════════════════════════════════════════
 # 4. HOURLY HEALTH SELF-CHECK
 # ══════════════════════════════════════════════════════════════════════
+
 
 async def health_self_check(bot_send_func, interval_minutes: int = 60):
     """
@@ -363,7 +382,9 @@ async def health_self_check(bot_send_func, interval_minutes: int = 60):
             HEALTH_SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
             HEALTH_SNAPSHOT_PATH.write_text(json.dumps(snapshot, indent=2))
 
-            logger.info(f"🏥 Health check: Render={'OK' if render_ok else 'DOWN'}, PA={'OK' if pa_ok else 'DOWN'}")
+            logger.info(
+                f"🏥 Health check: Render={'OK' if render_ok else 'DOWN'}, PA={'OK' if pa_ok else 'DOWN'}"
+            )
 
         except Exception as e:
             logger.error(f"Health self-check error: {e}")
@@ -373,12 +394,18 @@ async def health_self_check(bot_send_func, interval_minutes: int = 60):
 # 5. SECURITY MIDDLEWARE
 # ══════════════════════════════════════════════════════════════════════
 
+
 class SecurityGuard:
     """Admin-only command protection and rate limiting."""
 
     ADMIN_COMMANDS = {
-        "admin", "admin_credit", "generate_code", "deploy",
-        "restart_web", "flash_sale", "fix",
+        "admin",
+        "admin_credit",
+        "generate_code",
+        "deploy",
+        "restart_web",
+        "flash_sale",
+        "fix",
     }
 
     RATE_LIMITS = {}  # {user_id: [(timestamp, command), ...]}
@@ -423,6 +450,7 @@ class SecurityGuard:
 # ══════════════════════════════════════════════════════════════════════
 # 6. ENHANCED BOT LAUNCHER (Replaces start_telegram_bot)
 # ══════════════════════════════════════════════════════════════════════
+
 
 async def start_telegram_bot_enhanced():
     """

@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="أكمل عملية شراء JobHunt Pro بأمان.">
-  <meta name="robots" content="noindex, follow">
-  <title>الدفع &mdash; JobHunt Pro</title>
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
 
+<html dir="rtl" lang="ar">
+<head>
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="أكمل عملية شراء JobHunt Pro بأمان." name="description"/>
+<meta content="noindex, follow" name="robots"/>
+<title>{{ _('الدفع — JobHunt Pro') }}</title>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <style>
  * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -152,60 +152,51 @@
  }
  </style>
 </head>
-
 <body class="cyberpunk-body">
 <div class="main" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;">
-
-
 <div class="checkout-container">
- <div class="logo">JobHunt Pro — إتمام الدفع</div>
- 
- <div class="order-summary">
- <div class="amount-label">المبلغ المستحق</div>
- <div class="amount-display">${{ "%.2f"|format(order.amount_usd) }}</div>
- <div style="margin-bottom:20px;">
- <span class="crypto-badge">{{ currency }}</span>
- <span style="font-size:12px;color:#64748b;margin-inline-start:8px;">الطلب: {{ order.order_id[:12] }}...</span>
- </div>
- <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:20px;"></div>
- </div>
-
- <div class="qr-section">
- <div class="qr-card">
- <!-- Free secure dynamic QR code API -->
- <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ address }}&color=0-0-0" alt="QR Code" loading="lazy">
- </div>
- <div class="address-box" onclick="copyAddress(this)">
+<div class="logo">{{ _('JobHunt Pro — إتمام الدفع') }}</div>
+<div class="order-summary">
+<div class="amount-label">المبلغ المستحق</div>
+<div class="amount-display">${{ "%.2f"|format(order.amount_usd) }}</div>
+<div style="margin-bottom:20px;">
+<span class="crypto-badge">{{ currency }}</span>
+<span style="font-size:12px;color:#64748b;margin-inline-start:8px;">الطلب: {{ order.order_id[:12] }}...</span>
+</div>
+<div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:20px;"></div>
+</div>
+<div class="qr-section">
+<div class="qr-card">
+<!-- Free secure dynamic QR code API -->
+<img alt="QR Code" loading="lazy" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ address }}&color=0-0-0"/>
+</div>
+<div class="address-box" onclick="copyAddress(this)">
  {{ address }} 
  </div>
- </div>
-
- <div style="background:rgba(255,255,255,0.03);border-radius:16px;padding:20px;margin-bottom:24px;">
- <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:4px;">
+</div>
+<div style="background:rgba(255,255,255,0.03);border-radius:16px;padding:20px;margin-bottom:24px;">
+<div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:4px;">
  أرسل <strong>${{ "%.2f"|format(order.amount_usd) }}</strong> بعملة <strong>{{ currency }}</strong> إلى العنوان أعلاه.
  </div>
- <div style="font-size:12px;color:#475569;text-align:center;">
- بعد الإرسال، أرسل بريداً إلكترونياً إلى <strong style="color:#3b82f6;">samsalameh.cv@gmail.com</strong> يحتوي على معرف المعاملة (hash).
- <br>سيتم إضافة الرصيد لحسابك خلال 24 ساعة.
- </div>
- </div>
- 
- <a href="/services"> ✨ خدمات مميزة</a>
- <a href="/wallet" class="btn" style="color: #64748b; background: transparent; text-decoration: none;">إلغاء الدفع</a>
-
- <div>
- <span class="status-badge">
- <span class="spinner"></span>
- في انتظار إيداع {{ currency }}...
- </span>
+<div style="font-size:12px;color:#475569;text-align:center;">
+ بعد الإرسال، أرسل بريداً إلكترونياً إلى <strong style="color:#3b82f6;">{{ _('samsalameh.cv@gmail.com') }}</strong> {{ _('يحتوي على معرف المعاملة (hash).') }}
+ <br/>سيتم إضافة الرصيد لحسابك خلال 24 ساعة.
  </div>
 </div>
-
+<a href="/services"> ✨ خدمات مميزة</a>
+<a class="btn" href="/wallet" style="color: #64748b; background: transparent; text-decoration: none;">إلغاء الدفع</a>
+<div>
+<span class="status-badge">
+<span class="spinner"></span>
+ في انتظار إيداع {{ currency }}...
+ </span>
+</div>
+</div>
 <script>
 function copyAddress(el) {
  navigator.clipboard.writeText("{{ address }}").then(() => {
  const orig = el.innerHTML;
- el.innerHTML = '&#x2705; تم نسخ العنوان!';
+ el.innerHTML = '✅ تم نسخ العنوان!';
  el.style.color = '#22c55e';
  setTimeout(() => { el.innerHTML = orig; el.style.color = ''; }, 2000);
  });
@@ -226,9 +217,5 @@ setInterval(async () => {
  }
 }, 4000);
 </script>
-
-
-</body>
+</div></body>
 </html>
-
-

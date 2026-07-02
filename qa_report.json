@@ -1,0 +1,47 @@
+{
+    "visited": 29,
+    "status_codes": {
+        "200": [
+            "https://jhfguf.pythonanywhere.com",
+            "https://jhfguf.pythonanywhere.com/privacy",
+            "https://jhfguf.pythonanywhere.com/",
+            "https://jhfguf.pythonanywhere.com/lang/en",
+            "https://jhfguf.pythonanywhere.com/pricing",
+            "https://jhfguf.pythonanywhere.com/blog",
+            "https://jhfguf.pythonanywhere.com/faq",
+            "https://jhfguf.pythonanywhere.com/trust",
+            "https://jhfguf.pythonanywhere.com/contact",
+            "https://jhfguf.pythonanywhere.com/about",
+            "https://jhfguf.pythonanywhere.com/careers",
+            "https://jhfguf.pythonanywhere.com/terms",
+            "https://jhfguf.pythonanywhere.com/cookies",
+            "https://jhfguf.pythonanywhere.com/refund",
+            "https://jhfguf.pythonanywhere.com/services",
+            "https://jhfguf.pythonanywhere.com/compare",
+            "https://jhfguf.pythonanywhere.com/blog/job-search-tips-2026",
+            "https://jhfguf.pythonanywhere.com/blog/apply-to-multiple-jobs-at-once",
+            "https://jhfguf.pythonanywhere.com/blog/job-search-automation",
+            "https://jhfguf.pythonanywhere.com/blog/job-application-bots",
+            "https://jhfguf.pythonanywhere.com/blog/apply-to-100-jobs-fast",
+            "https://jhfguf.pythonanywhere.com/blog/ai-cover-letter-generator",
+            "https://jhfguf.pythonanywhere.com/blog/best-job-search-tools-2026",
+            "https://jhfguf.pythonanywhere.com/blog/automated-job-applications",
+            "https://jhfguf.pythonanywhere.com/blog/ai-job-applications-guide",
+            "https://jhfguf.pythonanywhere.com/blog/auto-apply-to-jobs-guide"
+        ],
+        "404": [
+            "https://jhfguf.pythonanywhere.com/press",
+            "https://jhfguf.pythonanywhere.com/partners",
+            "https://jhfguf.pythonanywhere.com/gdpr"
+        ],
+        "500": [],
+        "other": []
+    },
+    "forms": [
+        {
+            "page": "https://jhfguf.pythonanywhere.com/contact",
+            "action": "/contact",
+            "method": "POST"
+        }
+    ]
+}

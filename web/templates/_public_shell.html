@@ -8,11 +8,43 @@
     <meta property="og:description" content="{{ description }}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://jhfguf.pythonanywhere.com">
+    
+    <!-- Global SEO & Hreflang Tags -->
+    <link rel="canonical" href="https://jhfguf.pythonanywhere.com{{ request.url.path if request else '' }}">
+    <link rel="alternate" hreflang="ar" href="https://jhfguf.pythonanywhere.com{{ request.url.path if request else '' }}">
+    <link rel="alternate" hreflang="en" href="https://jhfguf.pythonanywhere.com/en{{ request.url.path if request else '' }}">
+    <link rel="alternate" hreflang="x-default" href="https://jhfguf.pythonanywhere.com{{ request.url.path if request else '' }}">
+    
+    <!-- JSON-LD Structured Data for Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "JobHunt Pro",
+      "url": "https://jhfguf.pythonanywhere.com",
+      "logo": "https://jhfguf.pythonanywhere.com/static/img/icon-192.png",
+      "description": "AI-Powered Job Hunting Platform",
+      "sameAs": [
+        "https://www.linkedin.com/company/jobhunt-pro"
+      ]
+    }
+    </script>
+
+    <!-- Resource Hints & Preloads -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="/static/css/premium-ui.css" as="style">
+
     <title>{{ title }}</title>
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#0a0a14">
     <link rel="apple-touch-icon" href="/static/img/icon-192.png">
-    <link rel="stylesheet" href="/static/css/cyberpunk-rtl.css?v=20260629_v2">
+    <style>
+        @layer legacy, premium;
+        @import url("/static/css/cyberpunk-rtl.css?v=20260629_v2") layer(legacy);
+        @import url("/static/css/premium-ui.css") layer(premium);
+    </style>
+    
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
     <style>
         :root{--bg:#0a0a0f;--surface:rgba(255,255,255,.03);--border:rgba(255,255,255,.08);--border-light:rgba(255,255,255,.06);--blue:#3b82f6;--blue-dim:rgba(59,130,246,.15);--green:#22c55e;--gold:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--text:#e2e8f0;--text-dim:#94a3b8;--text-muted:#64748b;--radius:12px;--radius-lg:16px;--radius-xl:20px;--shadow:0 4px 16px rgba(0,0,0,.25);--transition:all .2s ease}
@@ -122,7 +154,7 @@
     <!-- GROWTH HACK: Exit-Intent Popup (First Party Data Collection) -->
     <div id="exitPopup" style="display:none; position:fixed; top:0; inset-inline-start:0; width:100%; height:100%; background:rgba(10,10,15,0.9); z-index:9999; backdrop-filter:blur(8px); align-items:center; justify-content:center;">
         <div style="background:#1e1e2e; padding:40px; border-radius:16px; border:1px solid rgba(139,92,246,0.3); max-width:450px; text-align:center; position:relative; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
-            <button onclick="document.getElementById('exitPopup').style.display='none'" style="position:absolute; top:15px; inset-inline-end:20px; background:transparent; border:none; color:#94a3b8; font-size:24px; cursor:pointer;">&times;</button>
+            <button onclick="document.getElementById('exitPopup').style.display='none'" style="position:absolute; top:15px; inset-inline-end:20px; background:transparent; border:none; color:#94a3b8; font-size:24px; cursor:pointer;">×</button>
             <h2 style="font-size:24px; margin-bottom:10px; background:-webkit-linear-gradient(45deg,#3b82f6,#8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">انتظر! قبل أن ترحل...</h2>
             <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">احصل على <strong>"دليل أسرار لينكد إن 2026"</strong> الحصري الذي ساعد أكثر من 10,000 مهندس. مجاني 100%.</p>
             <form onsubmit="event.preventDefault(); this.innerHTML='<p style=\'color:#4ade80;font-weight:bold;\'>🎉 نجاح! تفقد بريدك الإلكتروني خلال 5 دقائق.</p>';">
@@ -152,5 +184,24 @@
         });
     </script>
 <script src="/static/js/global-animations.js" defer></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const animatedElements = document.querySelectorAll('.glow-orb-1, .glow-orb-2, .glow-orb-3, .glass-card, .glass-panel, .btn, .step-card, .feature-card, .stat-card, .testimonial-card');
+        animatedElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                el.style.willChange = 'transform, opacity, box-shadow';
+            });
+            el.addEventListener('transitionend', () => {
+                el.style.willChange = 'auto';
+            });
+            el.addEventListener('mouseleave', () => {
+                setTimeout(() => { el.style.willChange = 'auto'; }, 500);
+            });
+            el.addEventListener('touchstart', () => {
+                el.style.willChange = 'transform, opacity, box-shadow';
+            });
+        });
+    });
+    </script>
 </body>
 </html>

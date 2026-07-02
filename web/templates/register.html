@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="أنشئ حسابك في جوب هانت برو. ابدأ بأتمتة التقديم على الوظائف مع رسائل تغطية مصاغة بالذكاء الاصطناعي وفريق من 200 وكيل. اختر باقتك.">
-  <title>إنشاء حساب &#x2014; جوب هانت برو | 200 وكيل ذكاء اصطناعي، 24/7</title>
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="أنشئ حسابك في جوب هانت برو. ابدأ بأتمتة التقديم على الوظائف مع رسائل تغطية مصاغة بالذكاء الاصطناعي وفريق من 200 وكيل. اختر باقتك." name="description"/>
+<title>إنشاء حساب — جوب هانت برو | 200 وكيل ذكاء اصطناعي، 24/7</title>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap');
@@ -101,148 +102,142 @@ body::before{content:'';position:fixed;top:0;inset-inline-start: 0;width:100%;he
 .btn-oauth:hover { background: rgba(255,255,255,0.1); border-color: var(--glass-border-hover); transform: translateY(-1px); box-shadow:0 4px 15px rgba(0,0,0,0.2) }
 .btn-oauth img { width: 20px; height: 20px; }
 </style>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script async="" defer="" src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
 </head>
 <body>
 <header class="headroom">
-  <a href="/" class="brand">⚡ JOBHUNT PRO <span style="font-size:10px;color:var(--accent-cyan);-webkit-text-fill-color:var(--accent-cyan);margin-inline-start:6px;font-weight:400">v{{ VERSION }}</span></a>
-  <nav>
-    <a href="/">الرئيسية</a>
-    <a href="/pricing">الأسعار</a>
-    <a href="/services">الخدمات</a>
-    <a href="/trust">الثقة</a>
-    <a href="/faq">الأسئلة الشائعة</a>
-    <a href="/login" style="color:var(--accent-cyan)">دخول</a>
-  </nav>
+<a class="brand" href="/">{{ _('⚡ JOBHUNT PRO') }} <span style="font-size:10px;color:var(--accent-cyan);-webkit-text-fill-color:var(--accent-cyan);margin-inline-start:6px;font-weight:400">v{{ VERSION }}</span></a>
+<nav>
+<a href="/">الرئيسية</a>
+<a href="/pricing">الأسعار</a>
+<a href="/services">الخدمات</a>
+<a href="/trust">الثقة</a>
+<a href="/faq">الأسئلة الشائعة</a>
+<a href="/login" style="color:var(--accent-cyan)">دخول</a>
+</nav>
 </header>
-
 <div class="page-wrap">
 <div class="container">
-  <!-- LEFT: Registration Form -->
-  <div class="card">
-    <h1>إنشاء حساب جديد</h1>
-    <p class="subtitle">ابدأ التقديم لآلاف الوظائف باستخدام الذكاء الاصطناعي</p>
+<!-- LEFT: Registration Form -->
+<div class="card">
+<h1>إنشاء حساب جديد</h1>
+<p class="subtitle">ابدأ التقديم لآلاف الوظائف باستخدام الذكاء الاصطناعي</p>
 
     {% if error %}<div class="error">{{ error }}</div>{% endif %}
 
     <div style="display: flex; gap: 10px; margin-top: 10px; margin-bottom: 12px;">
-      <a href="/auth/google/login" class="btn-oauth" style="margin-bottom: 0;">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" loading="lazy">
-        Google
+<a class="btn-oauth" href="/auth/google/login" style="margin-bottom: 0;">
+<img alt="Google" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"/>
+        {{ _('Google') }}
       </a>
-      <a href="/auth/microsoft/login" class="btn-oauth" style="margin-bottom: 0;">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" loading="lazy">
-        Microsoft
+<a class="btn-oauth" href="/auth/microsoft/login" style="margin-bottom: 0;">
+<img alt="Microsoft" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"/>
+        {{ _('Microsoft') }}
       </a>
-    </div>
-    
-    <div class="oauth-divider">أو</div>
-
-    <!-- Plan Picker -->
-    <div class="plan-selector">
-      <h3>🎯 اختر باقتك</h3>
-      <div class="plan-options">
-        <label class="plan-option selected" for="plan-starter">
-          <input dir="auto" type="radio" name="plan" value="starter" id="plan-starter" checked>
-          <div class="plan-name">المبدئية</div>
-          <div class="plan-price">$2 <span>مرة واحدة</span></div>
-          <div class="plan-apps">10 تقديم</div>
-        </label>
-        <label class="plan-option" for="plan-basic">
-          <input dir="auto" type="radio" name="plan" value="basic" id="plan-basic">
-          <span class="plan-badge">الأكثر طلباً</span>
-          <div class="plan-name">الأساسية</div>
-          <div class="plan-price">$5 <span>مرة واحدة</span></div>
-          <div class="plan-apps">100 تقديم</div>
-        </label>
-        <label class="plan-option" for="plan-pro">
-          <input dir="auto" type="radio" name="plan" value="pro" id="plan-pro">
-          <div class="plan-name">Pro ⭐</div>
-          <div class="plan-price">$15 <span>مرة واحدة</span></div>
-          <div class="plan-apps">500 تقديم</div>
-        </label>
-      </div>
-      <div class="savings-banner" id="savings-banner">
+</div>
+<div class="oauth-divider">أو</div>
+<!-- Plan Picker -->
+<div class="plan-selector">
+<h3>🎯 اختر باقتك</h3>
+<div class="plan-options">
+<label class="plan-option selected" for="plan-starter">
+<input checked="" dir="auto" id="plan-starter" name="plan" type="radio" value="starter"/>
+<div class="plan-name">المبدئية</div>
+<div class="plan-price">$2 <span>مرة واحدة</span></div>
+<div class="plan-apps">10 تقديم</div>
+</label>
+<label class="plan-option" for="plan-basic">
+<input dir="auto" id="plan-basic" name="plan" type="radio" value="basic"/>
+<span class="plan-badge">الأكثر طلباً</span>
+<div class="plan-name">الأساسية</div>
+<div class="plan-price">$5 <span>مرة واحدة</span></div>
+<div class="plan-apps">100 تقديم</div>
+</label>
+<label class="plan-option" for="plan-pro">
+<input dir="auto" id="plan-pro" name="plan" type="radio" value="pro"/>
+<div class="plan-name">{{ _('Pro ⭐') }}</div>
+<div class="plan-price">$15 <span>مرة واحدة</span></div>
+<div class="plan-apps">500 تقديم</div>
+</label>
+</div>
+<div class="savings-banner" id="savings-banner">
         💡 <strong id="savings-text">$0.20</strong> لكل تقديم — أقل من ثمن قهوة ☕
       </div>
-    </div>
-
-    <form method="POST" action="/register">
-    <!-- PROJECT AEGIS: Invisible Bot Honeypot -->
-    <div style="display:none; visibility:hidden;">
-        <label>اترك هذا الحقل فارغاً إذا كنت بشرياً</label>
-        <input dir="auto" type="text" name="aegis_honeypot" id="aegis_honeypot" tabindex="-1" autocomplete="off">
-    </div>
-
-    <input dir="auto" type="hidden" name="selected_plan" id="selected-plan" value="starter">
-    <input dir="auto" type="hidden" name="ref" value="{{ ref }}">
-    <div class="form-group">
-      <label>الاسم الكامل</label>
-      <input dir="auto" type="text" name="name" placeholder="مثال: سام سلامة" required autocomplete="name">
-    </div>
-    <div class="form-group">
-      <label>البريد الإلكتروني</label>
-      <input dir="auto" type="email" name="email" placeholder="you@example.com" required autocomplete="email">
-    </div>
-    <div class="form-group">
-      <label>رقم الهاتف (اختياري)</label>
-      <input dir="auto" type="tel" name="phone" placeholder="مثال: +961 70 000 000" autocomplete="tel">
-    </div>
-    <div class="form-group">
-      <label>كلمة المرور</label>
-      <input dir="auto" type="password" name="password" placeholder="8 أحرف على الأقل" required minlength="8" autocomplete="new-password">
-    </div>
+</div>
+<form action="/register" method="POST">
+<!-- PROJECT AEGIS: Invisible Bot Honeypot -->
+<div style="display:none; visibility:hidden;">
+<label>اترك هذا الحقل فارغاً إذا كنت بشرياً</label>
+<input autocomplete="off" dir="auto" id="aegis_honeypot" name="aegis_honeypot" tabindex="-1" type="text"/>
+</div>
+<input dir="auto" id="selected-plan" name="selected_plan" type="hidden" value="starter"/>
+<input dir="auto" name="ref" type="hidden" value="{{ ref }}"/>
+<div class="form-group">
+<label>الاسم الكامل</label>
+<input autocomplete="name" dir="auto" name="name" placeholder="مثال: سام سلامة" required="" type="text"/>
+</div>
+<div class="form-group">
+<label>البريد الإلكتروني</label>
+<input autocomplete="email" dir="auto" name="email" placeholder="you@example.com" required="" type="email"/>
+</div>
+<div class="form-group">
+<label>رقم الهاتف (اختياري)</label>
+<input autocomplete="tel" dir="auto" name="phone" placeholder="مثال: +961 70 000 000" type="tel"/>
+</div>
+<div class="form-group">
+<label>كلمة المرور</label>
+<input autocomplete="new-password" dir="auto" minlength="8" name="password" placeholder="8 أحرف على الأقل" required="" type="password"/>
+</div>
+    {% if turnstile_site_key %}
     <div class="turnstile-wrap">
-      <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key | default('1x00000000000000000000AA') }}" data-theme="dark"></div>
-    </div>
-    <button type="submit" class="btn-submit">🚀 إنشاء حساب مجاني</button>
-    </form>
-
-    <div class="link-row">لديك حساب بالفعل؟ <a href="/login">دخول</a></div>
-    <div class="trust-strip">
-      <span>🔒 لا حاجة لبطاقة ائتمان • ضمان استرداد الأموال لمدة 30 يوماً • إلغاء في أي وقت</span>
-    </div>
-  </div>
-
-  <!-- RIGHT: Benefits -->
-  <div class="benefits-card">
-    <h2>✨ شو بتحصل</h2>
-    <div class="benefit-item">
-      <span class="benefit-icon">🤖</span>
-      <div><strong>200 وكيل ذكاء اصطناعي 24/7</strong><span>مئات الوكلاء شغالين على مدار الساعة للبحث والتقديم التلقائي</span></div>
-    </div>
-    <div class="benefit-item">
-      <span class="benefit-icon">✉️</span>
-      <div><strong>رسائل تغطية مميزة</strong><span>كل تقديم إله رسالة تغطية مخصصة ومكتوبة بالذكاء الاصطناعي</span></div>
-    </div>
-    <div class="benefit-item">
-      <span class="benefit-icon">📧</span>
-      <div><strong>أكثر من 20 مزود بريد</strong><span>نظام التدوير الذكي يبقي رسائلك بعيدة عن البريد المزعج</span></div>
-    </div>
-    <div class="benefit-item">
-      <span class="benefit-icon">🌍</span>
-      <div><strong>أكثر من 50 دولة</strong><span>بحث في لبنان، الإمارات، السعودية، قطر، الكويت، عن بعد وغيرها</span></div>
-    </div>
-    <div class="benefit-item">
-      <span class="benefit-icon">📊</span>
-      <div><strong>لوحة تحكم فورية</strong><span>تتبع الفتح، النقرات، الردود وتقدمك بشكل مباشر</span></div>
-    </div>
-    <div class="benefit-item">
-      <span class="benefit-icon">🛡️</span>
-      <div><strong>استرجاع فلوسك خلال 30 يوم</strong><span>ما في مقابلات؟ بنرجعلك فلوسك. ضمان بدون مخاطر</span></div>
-    </div>
-    <div class="benefit-item">
-      <span class="benefit-icon">🔒</span>
-      <div><strong>تشفير 256-بت</strong><span>سيرتك الذاتية وبياناتك محمية — لن تتم مشاركتها أو بيعها أبداً</span></div>
-    </div>
-    <div class="benefit-item">
-      <span class="benefit-icon">₿</span>
-      <div><strong>مدفوعات الكريبتو</strong><span>ادفع بـ BTC, ETH, USDT — خاصة وبدون حدود</span></div>
-    </div>
-  </div>
+<div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-theme="dark"></div>
+</div>
+    {% endif %}
+    <button class="btn-submit" type="submit">🚀 إنشاء حساب مجاني</button>
+</form>
+<div class="link-row">لديك حساب بالفعل؟ <a href="/login">دخول</a></div>
+<div class="trust-strip">
+<span>🔒 لا حاجة لبطاقة ائتمان • ضمان استرداد الأموال لمدة 30 يوماً • إلغاء في أي وقت</span>
 </div>
 </div>
-
+<!-- RIGHT: Benefits -->
+<div class="benefits-card">
+<h2>✨ شو بتحصل</h2>
+<div class="benefit-item">
+<span class="benefit-icon">🤖</span>
+<div><strong>200 وكيل ذكاء اصطناعي 24/7</strong><span>مئات الوكلاء شغالين على مدار الساعة للبحث والتقديم التلقائي</span></div>
+</div>
+<div class="benefit-item">
+<span class="benefit-icon">✉️</span>
+<div><strong>رسائل تغطية مميزة</strong><span>كل تقديم إله رسالة تغطية مخصصة ومكتوبة بالذكاء الاصطناعي</span></div>
+</div>
+<div class="benefit-item">
+<span class="benefit-icon">📧</span>
+<div><strong>أكثر من 20 مزود بريد</strong><span>نظام التدوير الذكي يبقي رسائلك بعيدة عن البريد المزعج</span></div>
+</div>
+<div class="benefit-item">
+<span class="benefit-icon">🌍</span>
+<div><strong>أكثر من 50 دولة</strong><span>بحث في لبنان، الإمارات، السعودية، قطر، الكويت، عن بعد وغيرها</span></div>
+</div>
+<div class="benefit-item">
+<span class="benefit-icon">📊</span>
+<div><strong>لوحة تحكم فورية</strong><span>تتبع الفتح، النقرات، الردود وتقدمك بشكل مباشر</span></div>
+</div>
+<div class="benefit-item">
+<span class="benefit-icon">🛡️</span>
+<div><strong>استرجاع فلوسك خلال 30 يوم</strong><span>ما في مقابلات؟ بنرجعلك فلوسك. ضمان بدون مخاطر</span></div>
+</div>
+<div class="benefit-item">
+<span class="benefit-icon">🔒</span>
+<div><strong>تشفير 256-بت</strong><span>سيرتك الذاتية وبياناتك محمية — لن تتم مشاركتها أو بيعها أبداً</span></div>
+</div>
+<div class="benefit-item">
+<span class="benefit-icon">₿</span>
+<div><strong>مدفوعات الكريبتو</strong><span>{{ _('ادفع بـ BTC, ETH, USDT — خاصة وبدون حدود') }}</span></div>
+</div>
+</div>
+</div>
+</div>
 <script>
 // Plan selector interactivity
 document.querySelectorAll('.plan-option').forEach(opt => {
@@ -263,5 +258,3 @@ document.querySelectorAll('.plan-option').forEach(opt => {
 </script>
 </body>
 </html>
-
-

@@ -17,8 +17,8 @@ import json
 import logging
 import os
 import re
-from typing import Dict, List, Optional, Tuple
-from datetime import datetime, timedelta
+from typing import Dict, List, Optional
+from datetime import datetime
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)
@@ -31,40 +31,80 @@ DEFAULT_MODEL = "mixtral-8x7b-32768"
 
 # Positive sentiment keywords
 POSITIVE_WORDS = {
-    "great", "excellent", "interested", "impressive", "perfect",
-    "good fit", "schedule", "interview", "proceed", "forward",
-    "looking forward", "pleased", "happy", "wonderful", "amazing",
-    "outstanding", "strong", "qualified", "potential", "next step",
-    "call", "meeting", "discuss", "definitely", "absolutely",
-    "yes", "sure", "let's", "congratulations", "offer",
+    "great",
+    "excellent",
+    "interested",
+    "impressive",
+    "perfect",
+    "good fit",
+    "schedule",
+    "interview",
+    "proceed",
+    "forward",
+    "looking forward",
+    "pleased",
+    "happy",
+    "wonderful",
+    "amazing",
+    "outstanding",
+    "strong",
+    "qualified",
+    "potential",
+    "next step",
+    "call",
+    "meeting",
+    "discuss",
+    "definitely",
+    "absolutely",
+    "yes",
+    "sure",
+    "let's",
+    "congratulations",
+    "offer",
 }
 
 # Negative sentiment keywords
 NEGATIVE_WORDS = {
-    "unfortunately", "not interested", "overqualified", "underqualified",
-    "rejected", "no longer", "sorry", "cannot", "unable",
-    "regret", "decline", "passed", "not a match", "not fit",
-    "other candidates", "not the right", "decided to move forward with",
-    "unfortunately, we", "not selected", "not proceed",
+    "unfortunately",
+    "not interested",
+    "overqualified",
+    "underqualified",
+    "rejected",
+    "no longer",
+    "sorry",
+    "cannot",
+    "unable",
+    "regret",
+    "decline",
+    "passed",
+    "not a match",
+    "not fit",
+    "other candidates",
+    "not the right",
+    "decided to move forward with",
+    "unfortunately, we",
+    "not selected",
+    "not proceed",
 }
 
 # Recruitment stages for conversation flow
 RECRUITMENT_STAGES = [
-    "initial_contact",      # First message sent
-    "screening",            # Basic qualification questions
-    "technical_discussion", # Deep tech/role conversation
+    "initial_contact",  # First message sent
+    "screening",  # Basic qualification questions
+    "technical_discussion",  # Deep tech/role conversation
     "interview_scheduling",  # Setting up interview
     "interview_scheduled",  # Confirmed interview
-    "follow_up",            # Post-interview follow-up
-    "offer_negotiation",    # Salary/offer stage
-    "offer_accepted",       # Hired
-    "rejected",             # Not moving forward
+    "follow_up",  # Post-interview follow-up
+    "offer_negotiation",  # Salary/offer stage
+    "offer_accepted",  # Hired
+    "rejected",  # Not moving forward
 ]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #  AIConversationEngine
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class AIConversationEngine:
     """
@@ -120,13 +160,16 @@ class AIConversationEngine:
         """
         skills = candidate_skills or []
         skills_str = ", ".join(skills[:3]) if skills else "relevant experience"
-        skills_all = ", ".join(skills[:5]) if skills else "relevant experience"
+        ", ".join(skills[:5]) if skills else "relevant experience"
         exp_years = years_of_experience if years_of_experience is not None else 5
 
         if self.groq_key:
             ai_msg = self._ai_generate_greeting(
-                recruiter_name, company, position,
-                candidate_name, skills,
+                recruiter_name,
+                company,
+                position,
+                candidate_name,
+                skills,
             )
             if ai_msg:
                 return ai_msg
@@ -137,12 +180,10 @@ class AIConversationEngine:
             f"and I'm very interested. With my background in {skills_str} and {exp_years}+ years "
             f"of hands-on experience, I believe I'd be a great fit. I've submitted my application "
             f"and would love to connect further. Looking forward to hearing from you!",
-
             f"Hi {recruiter_name}, I'm excited about the {position} role at {company}. "
             f"My expertise in {skills_str} and proven track record in this space align well "
             f"with what you're looking for. I'd appreciate the opportunity to discuss how "
             f"I can contribute to the team. Thanks!",
-
             f"Dear {recruiter_name}, I'm {candidate_name}, a Network Engineer specialized "
             f"in {skills_str}. The {position} position at {company} caught my attention "
             f"because it matches my career trajectory. I've applied via the portal and would "
@@ -150,6 +191,7 @@ class AIConversationEngine:
         ]
 
         import random
+
         return random.choice(templates)
 
     def _ai_generate_greeting(
@@ -161,7 +203,9 @@ class AIConversationEngine:
         candidate_skills: List[str],
     ) -> Optional[str]:
         """Use AI to generate a highly personalized greeting message."""
-        skills_str = ", ".join(candidate_skills[:5]) if candidate_skills else "networking"
+        skills_str = (
+            ", ".join(candidate_skills[:5]) if candidate_skills else "networking"
+        )
         prompt = (
             f"Generate a professional, personalized LinkedIn message (max 300 characters) "
             f"from {candidate_name} to {recruiter_name} at {company} "
@@ -173,6 +217,7 @@ class AIConversationEngine:
 
         try:
             import httpx
+
             resp = httpx.post(
                 "https://api.groq.com/openai/v1/chat/completions",
                 headers={
@@ -190,12 +235,10 @@ class AIConversationEngine:
             if resp.status_code == 200:
                 msg = resp.json()["choices"][0]["message"]["content"].strip()
                 # Clean quotes if present
-                msg = msg.strip('"\'')
+                msg = msg.strip("\"'")
                 return msg
             else:
-                logger.warning(
-                    f"[AI-Greeting] API returned {resp.status_code}"
-                )
+                logger.warning(f"[AI-Greeting] API returned {resp.status_code}")
         except Exception as e:
             logger.warning(f"[AI-Greeting] AI failed, using template: {e}")
 
@@ -227,7 +270,7 @@ class AIConversationEngine:
 
 Candidate profile: {json.dumps(context, indent=2) if context else "Network Engineer with Cisco, Fortinet, MikroTik experience"}
 
-Sentiment of recruiter message: {sentiment['sentiment']}
+Sentiment of recruiter message: {sentiment["sentiment"]}
 
 Suggest a professional reply (max 150 words) that:
 1. Directly addresses the recruiter's question or comment
@@ -244,6 +287,7 @@ Return ONLY the reply text, no explanations or prefixes."""
 
         try:
             import httpx
+
             resp = httpx.post(
                 "https://api.groq.com/openai/v1/chat/completions",
                 headers={
@@ -319,6 +363,7 @@ Return ONLY the message text."""
 
         try:
             import httpx
+
             resp = httpx.post(
                 "https://api.groq.com/openai/v1/chat/completions",
                 headers={
@@ -357,12 +402,8 @@ Return ONLY the message text."""
         msg_lower = message.lower()
 
         # Keyword-based analysis (fast, always available)
-        positive_count = sum(
-            1 for w in POSITIVE_WORDS if w in msg_lower
-        )
-        negative_count = sum(
-            1 for w in NEGATIVE_WORDS if w in msg_lower
-        )
+        positive_count = sum(1 for w in POSITIVE_WORDS if w in msg_lower)
+        negative_count = sum(1 for w in NEGATIVE_WORDS if w in msg_lower)
 
         net = positive_count - negative_count
         total = positive_count + negative_count
@@ -397,8 +438,10 @@ Return ONLY the message text."""
             },
             "should_follow_up": sentiment != "negative",
             "suggested_action": (
-                "schedule_interview" if sentiment == "positive"
-                else "send_follow_up" if sentiment == "neutral"
+                "schedule_interview"
+                if sentiment == "positive"
+                else "send_follow_up"
+                if sentiment == "neutral"
                 else "move_to_other_leads"
             ),
         }
@@ -407,14 +450,15 @@ Return ONLY the message text."""
         """Use AI for deeper sentiment analysis."""
         prompt = (
             f"Analyze the sentiment of this recruiter message. "
-            f"Return JSON: {{\"sentiment\": \"positive|negative|neutral|interested|not_interested\", "
-            f"\"score\": <integer -5 to 5>, \"confidence\": <0.0-1.0>, "
-            f"\"should_follow_up\": <bool>, \"suggested_action\": \"<action>\"}}\n\n"
-            f"Message: \"{message[:500]}\""
+            f'Return JSON: {{"sentiment": "positive|negative|neutral|interested|not_interested", '
+            f'"score": <integer -5 to 5>, "confidence": <0.0-1.0>, '
+            f'"should_follow_up": <bool>, "suggested_action": "<action>"}}\n\n'
+            f'Message: "{message[:500]}"'
         )
 
         try:
             import httpx
+
             resp = httpx.post(
                 "https://api.groq.com/openai/v1/chat/completions",
                 headers={
@@ -431,7 +475,7 @@ Return ONLY the message text."""
             )
             if resp.status_code == 200:
                 content = resp.json()["choices"][0]["message"]["content"].strip()
-                json_match = re.search(r'\{.*\}', content, re.DOTALL)
+                json_match = re.search(r"\{.*\}", content, re.DOTALL)
                 if json_match:
                     return json.loads(json_match.group())
         except Exception as e:
@@ -481,17 +525,16 @@ Return ONLY the message text."""
             for m in history
             if m.get("sentiment")
         ]
-        avg_sentiment = round(
-            sum(sentiments) / max(len(sentiments), 1), 2
-        ) if sentiments else 0
+        avg_sentiment = (
+            round(sum(sentiments) / max(len(sentiments), 1), 2) if sentiments else 0
+        )
 
         # Determine last action needed
         last_role = history[-1]["role"] if history else "candidate"
         needs_reply = last_role == "recruiter"
         days_idle = (
-            (datetime.now() - last_msg).days
-            if last_msg else 0
-        ) if last_msg else 0
+            ((datetime.now() - last_msg).days if last_msg else 0) if last_msg else 0
+        )
 
         return {
             "recruiter_id": recruiter_id,
@@ -504,16 +547,13 @@ Return ONLY the message text."""
             "last_message_at": last_msg.isoformat() if last_msg else None,
         }
 
-    def update_stage(
-        self, recruiter_id: str, new_stage: str
-    ) -> bool:
+    def update_stage(self, recruiter_id: str, new_stage: str) -> bool:
         """Advance the conversation stage."""
         if new_stage in RECRUITMENT_STAGES:
             self.conversation_stages[recruiter_id] = new_stage
             return True
         logger.warning(
-            f"[Conv-Stage] Unknown stage '{new_stage}'. "
-            f"Valid: {RECRUITMENT_STAGES}"
+            f"[Conv-Stage] Unknown stage '{new_stage}'. Valid: {RECRUITMENT_STAGES}"
         )
         return False
 
@@ -538,25 +578,18 @@ Return ONLY the message text."""
         return {
             "history": dict(self.conversation_history),
             "stages": dict(self.conversation_stages),
-            "started": {
-                k: v.isoformat()
-                for k, v in self.conversation_started.items()
-            },
+            "started": {k: v.isoformat() for k, v in self.conversation_started.items()},
             "last_messages": {
-                k: v.isoformat()
-                for k, v in self.last_message_at.items()
+                k: v.isoformat() for k, v in self.last_message_at.items()
             },
         }
 
     def import_conversations(self, data: Dict) -> None:
         """Import previously exported conversations."""
-        self.conversation_history = defaultdict(
-            list, data.get("history", {})
-        )
+        self.conversation_history = defaultdict(list, data.get("history", {}))
         self.conversation_stages = data.get("stages", {})
         self.conversation_started = {
-            k: datetime.fromisoformat(v)
-            for k, v in data.get("started", {}).items()
+            k: datetime.fromisoformat(v) for k, v in data.get("started", {}).items()
         }
         self.last_message_at = {
             k: datetime.fromisoformat(v)
@@ -634,8 +667,14 @@ def format_conversation_for_telegram(
             position=role,
             candidate_name="Sam Salameh",
             candidate_skills=[
-                "Cisco", "Fortinet", "MikroTik", "Ubiquiti",
-                "Python", "Linux", "AWS", "Cloud",
+                "Cisco",
+                "Fortinet",
+                "MikroTik",
+                "Ubiquiti",
+                "Python",
+                "Linux",
+                "AWS",
+                "Cloud",
             ],
         )
         lines = [
@@ -649,10 +688,7 @@ def format_conversation_for_telegram(
 
     elif action == "reply":
         if not message:
-            return (
-                "<b>❌ Reply Error</b>\n\n"
-                "Usage: /converse reply <recruiter_message>"
-            )
+            return "<b>❌ Reply Error</b>\n\nUsage: /converse reply <recruiter_message>"
         suggestion = eng.suggest_reply(
             recruiter_message=message,
             context={
@@ -684,6 +720,7 @@ def format_conversation_for_telegram(
 #  Batch Greeting Generator (for mass outreach)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def generate_batch_greetings(
     recruiters: List[Dict],
     candidate_name: str = "Sam Salameh",
@@ -704,8 +741,13 @@ def generate_batch_greetings(
     """
     eng = engine or AIConversationEngine()
     skills = candidate_skills or [
-        "Cisco", "Fortinet", "MikroTik", "Ubiquiti",
-        "Python", "Linux", "AWS",
+        "Cisco",
+        "Fortinet",
+        "MikroTik",
+        "Ubiquiti",
+        "Python",
+        "Linux",
+        "AWS",
     ]
 
     results = []
@@ -721,7 +763,9 @@ def generate_batch_greetings(
         results.append(entry)
 
         # Track conversation
-        rid = f"{recruiter.get('name', 'unknown')}@{recruiter.get('company', 'unknown')}"
+        rid = (
+            f"{recruiter.get('name', 'unknown')}@{recruiter.get('company', 'unknown')}"
+        )
         eng.track_message(rid, "candidate", greeting)
 
     return results
@@ -730,6 +774,7 @@ def generate_batch_greetings(
 # ═══════════════════════════════════════════════════════════════════════════════
 #  FastAPI / Flask Integration Helpers
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def api_generate_greeting(
     recruiter_name: str,

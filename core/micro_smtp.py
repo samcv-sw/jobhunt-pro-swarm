@@ -3,6 +3,7 @@ Micro SMTP Sender — PA Free Tier Optimized
 Single-SMTP-connection batch sender. No EmailEngine overhead.
 Reads Gmail SMTP credentials from environment, sends plain HTML emails.
 """
+
 import smtplib
 import ssl
 import os
@@ -18,11 +19,13 @@ SMTP_ACCOUNTS = [
     # Format: (email, app_password, display_name)
 ]
 
+
 def _load_smtp_accounts(tenant_id=None):
     """Load SMTP accounts from environment variables or tenant-specific configurations."""
     if tenant_id:
         try:
             from core.multi_tenant import MultiTenantRunner
+
             provider = MultiTenantRunner.get_tenant_smtp_provider(tenant_id)
             if provider and provider.get("user") and provider.get("password"):
                 user = provider["user"]
@@ -30,10 +33,14 @@ def _load_smtp_accounts(tenant_id=None):
                 name = provider.get("name", user.split("@")[0])
                 server = provider.get("server", "smtp.gmail.com")
                 port = provider.get("port", 587)
-                logger.info(f"[MicroSMTP] Loaded tenant-specific SMTP account for {tenant_id}: {user}")
+                logger.info(
+                    f"[MicroSMTP] Loaded tenant-specific SMTP account for {tenant_id}: {user}"
+                )
                 return [(user, passw, name, server, port)]
         except Exception as e:
-            logger.error(f"[MicroSMTP] Failed to load tenant SMTP provider for {tenant_id}: {e}")
+            logger.error(
+                f"[MicroSMTP] Failed to load tenant SMTP provider for {tenant_id}: {e}"
+            )
 
     accounts = []
     # Gmail accounts
@@ -53,14 +60,24 @@ def _load_smtp_accounts(tenant_id=None):
         # Fallback to config.EMAIL_PROVIDERS
         try:
             import config
+
             for p in config.EMAIL_PROVIDERS:
                 if p.get("user") and p.get("password"):
                     server = p.get("server", "smtp.gmail.com")
                     port = p.get("port", 587)
-                    accounts.append((p["user"], p["password"], p.get("name", p["user"].split("@")[0]), server, port))
+                    accounts.append(
+                        (
+                            p["user"],
+                            p["password"],
+                            p.get("name", p["user"].split("@")[0]),
+                            server,
+                            port,
+                        )
+                    )
         except Exception:
             pass
     return accounts
+
 
 def send_via_brevo(
     to_email: str,
@@ -72,17 +89,22 @@ def send_via_brevo(
     """Send via Brevo HTTP API (300/day free, no SMTP rate limits)."""
     import json as _json
     import urllib.request
+
     api_key = os.getenv("BREVO_API_KEY", "")
     if not api_key:
         return False
     try:
-        sender_email = from_email or os.getenv("BREVO_ACCOUNT_EMAIL", "samsalameh.cv@gmail.com")
-        data = _json.dumps({
-            "sender": {"name": from_name, "email": sender_email},
-            "to": [{"email": to_email}],
-            "subject": subject,
-            "htmlContent": html_body,
-        }).encode("utf-8")
+        sender_email = from_email or os.getenv(
+            "BREVO_ACCOUNT_EMAIL", "samsalameh.cv@gmail.com"
+        )
+        data = _json.dumps(
+            {
+                "sender": {"name": from_name, "email": sender_email},
+                "to": [{"email": to_email}],
+                "subject": subject,
+                "htmlContent": html_body,
+            }
+        ).encode("utf-8")
         req = urllib.request.Request(
             "https://api.brevo.com/v3/smtp/email",
             data=data,
@@ -99,6 +121,7 @@ def send_via_brevo(
     except Exception as e:
         logger.warning(f"[Brevo] Failed: {e}")
     return False
+
 
 def send_single_email(
     to_email: str,
@@ -119,19 +142,20 @@ def send_single_email(
         msg["Message-ID"] = email.utils.make_msgid(domain=smtp_user.split("@")[-1])
         msg["Date"] = email.utils.formatdate(localtime=True)
         msg["Reply-To"] = smtp_user
-        
+
         msg.attach(MIMEText(html_body, "html", "utf-8"))
-        
+
         context = ssl.create_default_context()
         with smtplib.SMTP(smtp_server, smtp_port, timeout=15) as server:
             server.starttls(context=context)
             server.login(smtp_user, smtp_pass)
             server.sendmail(smtp_user, to_email, msg.as_string())
-        
+
         return True
     except Exception as e:
         logger.warning(f"[MicroSMTP] Failed to send to {to_email}: {e}")
         return False
+
 
 def send_batch(
     recipients: list,  # [{"email": "...", "company": "...", "subject": "...", "html": "..."}]
@@ -146,45 +170,52 @@ def send_batch(
     """
     accounts = _load_smtp_accounts(tenant_id)
     if not accounts:
-        return {"sent": 0, "failed": len(recipients), "error": "No SMTP accounts configured"}
-    
+        return {
+            "sent": 0,
+            "failed": len(recipients),
+            "error": "No SMTP accounts configured",
+        }
+
     sender_email = accounts[0][0] if accounts else None
-    
+
     sent = 0
     failed = 0
     details = []
     account_idx = 0
     account_sent = {a[0]: 0 for a in accounts}
-    
+
     for r in recipients:
         to_email = r.get("email", "")
         if not to_email or "@" not in to_email:
             failed += 1
-            details.append({"company": r.get("company", "?"), "status": "invalid_email"})
+            details.append(
+                {"company": r.get("company", "?"), "status": "invalid_email"}
+            )
             continue
-        
+
         # 1. Try Brevo first (300/day free, no rate limits)
-        sent_via = None
         success = send_via_brevo(
             to_email=to_email,
             subject=r.get("subject", "Job Application"),
             html_body=r.get("html", ""),
             from_name=from_name,
-            from_email=sender_email
+            from_email=sender_email,
         )
         if success:
             sent += 1
-            details.append({"company": r.get("company", "?"), "status": "sent", "via": "brevo"})
+            details.append(
+                {"company": r.get("company", "?"), "status": "sent", "via": "brevo"}
+            )
             logger.info(f"[MicroSMTP] ✅ Sent to {r.get('company', '?')} via Brevo")
             continue
-        
+
         # 2. Fallback to SMTP accounts
         # Pick account
         acct = accounts[account_idx % len(accounts)]
         user, passw, name = acct[0], acct[1], acct[2]
         server = acct[3] if len(acct) > 3 else "smtp.gmail.com"
         port = acct[4] if len(acct) > 4 else 587
-        
+
         # Rotate if account limit reached
         if account_sent[user] >= max_per_account:
             account_idx += 1
@@ -193,13 +224,15 @@ def send_batch(
             server = acct[3] if len(acct) > 3 else "smtp.gmail.com"
             port = acct[4] if len(acct) > 4 else 587
             account_sent.setdefault(user, 0)
-        
+
         to_email = r.get("email", "")
         if not to_email or "@" not in to_email:
             failed += 1
-            details.append({"company": r.get("company", "?"), "status": "invalid_email"})
+            details.append(
+                {"company": r.get("company", "?"), "status": "invalid_email"}
+            )
             continue
-        
+
         success = send_single_email(
             to_email=to_email,
             subject=r.get("subject", "Job Application"),
@@ -210,11 +243,13 @@ def send_batch(
             smtp_server=server,
             smtp_port=port,
         )
-        
+
         if success:
             sent += 1
             account_sent[user] += 1
-            details.append({"company": r.get("company", "?"), "status": "sent", "via": user})
+            details.append(
+                {"company": r.get("company", "?"), "status": "sent", "via": user}
+            )
             logger.info(f"[MicroSMTP] ✅ Sent to {r.get('company', '?')} via {user}")
         else:
             # Try ALL remaining accounts until one works
@@ -247,16 +282,26 @@ def send_batch(
                 if success2:
                     used_account = u2
                     break
-            
+
             if success2:
                 sent += 1
                 account_sent[used_account] = account_sent.get(used_account, 0) + 1
-                details.append({"company": r.get("company", "?"), "status": "sent", "via": used_account})
-                logger.info(f"[MicroSMTP] ✅ Sent to {r.get('company', '?')} via {used_account} (retry)")
+                details.append(
+                    {
+                        "company": r.get("company", "?"),
+                        "status": "sent",
+                        "via": used_account,
+                    }
+                )
+                logger.info(
+                    f"[MicroSMTP] ✅ Sent to {r.get('company', '?')} via {used_account} (retry)"
+                )
             else:
                 failed += 1
-                details.append({"company": r.get("company", "?"), "status": "all_accounts_failed"})
-        
+                details.append(
+                    {"company": r.get("company", "?"), "status": "all_accounts_failed"}
+                )
+
         account_idx += 1
-    
+
     return {"sent": sent, "failed": failed, "details": details}

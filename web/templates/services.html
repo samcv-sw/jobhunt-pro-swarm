@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-    <meta name="description" content="JobHunt Pro: The world's most advanced AI-powered job application system. Fully automated, invisible, and hyper-efficient.">
-    <meta property="og:title" content="JobHunt Pro - Ultimate AI Auto-Applier">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>{{ title | default('JobHunt Pro') }}</title>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+<meta content="JobHunt Pro: The world's most advanced AI-powered job application system. Fully automated, invisible, and hyper-efficient." name="description"/>
+<meta content="JobHunt Pro - Ultimate AI Auto-Applier" property="og:title"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>{{ title | default('JobHunt Pro') }}</title>
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <style>:root {
  --bg: #050508;
  --card: #0d0e15;
@@ -328,46 +327,39 @@
  transition: all 0.3s;}
 .btn-bulk-buy:hover { box-shadow: 0 0 25px rgba(0,229,255,0.3); transform: translateY(-2px);}
 .btn-bulk-buy:disabled { opacity: 0.4; cursor: not-allowed; transform: none;}</style>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <style>body, h1, h2, h3, h4, p, span, a, div, .btn { font-family: "Cairo", "IBM Plex Arabic", "Tajawal", sans-serif !important; }</style>
 </head>
-
 <body class="cyberpunk-body">
-
-<meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- 
- 
-
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <div class="matrix-bg"></div>
- <div class="scanline"></div>
-
- <!-- ===== Mobile Navbar ===== -->
- <nav class="navbar">
- <div class="nav-brand">JOBHUNT PRO</div>
- <button class="hamburger" onclick="toggleNav()">☰</button>
- <div class="nav-menu" id="navMenu">
- <a href="/user-dashboard"> 📊 لوحة التحكم</a>
- <a href="/upload-cv"> 📝 رفع السيرة الذاتية</a>
- <a href="/new-campaign"> 🚀 حملة جديدة</a>
- <a href="/services" class="active"> ✨ خدمات مميزة</a>
- <a href="/wallet"> 💰 المحفظة</a>
- <a href="/referral"> 🎁 الإحالات</a>
- <a href="/api/docs"> 🔌 واجهة المبرمجين</a>
- <a href="/pricing">💳 معلومات الأسعار</a>
- <a href="/logout"> 🚪 تسجيل خروج</a>
- </div>
- </nav>
-
- <!-- ===== Sidebar ===== -->
- <div class="sidebar">
-<div class="logo">JobHunt Pro</div>
+<div class="scanline"></div>
+<!-- ===== Mobile Navbar ===== -->
+<nav class="navbar">
+<div class="nav-brand">{{ _('JOBHUNT PRO') }}</div>
+<button class="hamburger" onclick="toggleNav()">☰</button>
+<div class="nav-menu" id="navMenu">
+<a href="/user-dashboard"> 📊 لوحة التحكم</a>
+<a href="/upload-cv"> 📝 رفع السيرة الذاتية</a>
+<a href="/new-campaign"> 🚀 حملة جديدة</a>
+<a class="active" href="/services"> ✨ خدمات مميزة</a>
+<a href="/wallet"> 💰 المحفظة</a>
+<a href="/referral"> 🎁 الإحالات</a>
+<a href="/api/docs"> 🔌 واجهة المبرمجين</a>
+<a href="/pricing">💳 معلومات الأسعار</a>
+<a href="/logout"> 🚪 تسجيل خروج</a>
+</div>
+</nav>
+<!-- ===== Sidebar ===== -->
+<div class="sidebar">
+<div class="logo">{{ _('JobHunt Pro') }}</div>
 <nav class="nav">
 <a href="/user-dashboard"> 📊 لوحة التحكم</a>
 <a href="/upload-cv"> 📝 رفع السيرة الذاتية</a>
 <a href="/new-campaign"> 🚀 حملة جديدة</a>
 <a href="/sent-emails" style="color:#3b82f6;"> 📬 البريد المرسل</a>
-<a href="/services" class="active"> ✨ خدمات مميزة</a>
+<a class="active" href="/services"> ✨ خدمات مميزة</a>
 <a href="/wallet"> 💰 المحفظة</a>
 <a href="/referral"> 🎁 الإحالات</a>
 <a href="/stats" style="color: #22c55e;">📈 الإحصائيات</a>
@@ -376,28 +368,27 @@
 <a href="/pricing"> 💎 الأسعار</a>
 <a href="/contact"> 💬 اتصل بنا</a>
 <a href="/export" style="color: #f97316;">📥 تصدير</a>
-<a href="https://wa.me/96171019053?text=Hi%20Sam%21%20JobHunt%20Pro%20Support" target="_blank" style="color: #25D366;">💬 واتساب</a>
+<a href="https://wa.me/96171019053?text=Hi%20Sam%21%20JobHunt%20Pro%20Support" style="color: #25D366;" target="_blank">💬 واتساب</a>
 <a href="/logout" style="margin-top:auto;color:#f87171;"> 🚪 تسجيل خروج</a>
 </nav>
 </div>
 <div class="page-header">
- <div>
- <h1> خدمات <span class="cyan">مميزة</span></h1>
- <p style="color: var(--muted); font-size:12px; margin-top:4px;">افتح أدوات الخبراء عالية الربح مباشرة باستخدام رصيد محفظتك</p>
- </div>
+<div>
+<h1> خدمات <span class="cyan">مميزة</span></h1>
+<p style="color: var(--muted); font-size:12px; margin-top:4px;">افتح أدوات الخبراء عالية الربح مباشرة باستخدام رصيد محفظتك</p>
+</div>
  
  {% if user %}
  <div class="balance-box">
- <div>
- <div class="balance-label">رصيد المحفظة</div>
- <div class="balance-value">${{ "%.2f"|format(user.wallet_balance) }}</div>
- </div>
- <a href="/wallet" class="btn btn-topup">+ تعبئة الرصيد</a>
- </div>
+<div>
+<div class="balance-label">رصيد المحفظة</div>
+<div class="balance-value">${{ "%.2f"|format(user.wallet_balance) }}</div>
+</div>
+<a class="btn btn-topup" href="/wallet">+ تعبئة الرصيد</a>
+</div>
  {% endif %}
  </div>
-
- <!-- Success/Error Feedback -->
+<!-- Success/Error Feedback -->
  {% if request.query_params.get('success') == 'purchased' %}
  <div class="alert success">
  ✅ نجاح! <strong>{{ request.query_params.get('package') }}</strong> تم فتحه بشكل دائم وإضافته إلى ملفك الشخصي.
@@ -417,150 +408,139 @@
  {% endif %}
 
  <!-- A La Carte store -->
- <h2 class="section-title">// ميزات وخدمات حسب الطلب</h2>
- <p class="section-desc">افتح أدوات تحسين الذكاء الاصطناعي المتقدمة وميزات الخبراء لزيادة معدل الاستجابة. بأسعار تتراوح بين 2$ و 20$.</p>
- 
- <div class="store-grid">
+<h2 class="section-title">// ميزات وخدمات حسب الطلب</h2>
+<p class="section-desc">افتح أدوات تحسين الذكاء الاصطناعي المتقدمة وميزات الخبراء لزيادة معدل الاستجابة. بأسعار تتراوح بين 2$ و 20$.</p>
+<div class="store-grid">
  {% for s in services %}
  <div class="store-card {% if s.package in active_ids %}unlocked{% endif %}">
- <input dir="auto" type="checkbox" class="checkbox-select" data-id="{{ s.package }}" data-type="service" data-price="{{ s.price_usd }}" data-name="{{ s.name }}">
- <div class="card-header">
- <span class="package-badge">ميزة إضافية</span>
- <h3>{{ s.name }}</h3>
- </div>
- <p>{{ s.description }}</p>
- <div class="card-footer">
- <div>
- <div class="price-label">السعر</div>
- <div class="price-val cyan-glow">${{ "%.2f"|format(s.price_usd) }}</div>
- </div>
- 
- <form method="POST" action="/services/purchase" onsubmit="return confirmافتح('{{ s.name }}', '{{ s.price_usd }}')">
- <input dir="auto" type="hidden" name="package_id" value="{{ s.package }}">
- <input dir="auto" type="hidden" name="service_type" value="service">
+<input class="checkbox-select" data-id="{{ s.package }}" data-name="{{ s.name }}" data-price="{{ s.price_usd }}" data-type="service" dir="auto" type="checkbox"/>
+<div class="card-header">
+<span class="package-badge">ميزة إضافية</span>
+<h3>{{ s.name }}</h3>
+</div>
+<p>{{ s.description }}</p>
+<div class="card-footer">
+<div>
+<div class="price-label">السعر</div>
+<div class="price-val cyan-glow">${{ "%.2f"|format(s.price_usd) }}</div>
+</div>
+<form action="/services/purchase" method="POST" onsubmit="return confirmافتح('{{ s.name }}', '{{ s.price_usd }}')">
+<input dir="auto" name="package_id" type="hidden" value="{{ s.package }}"/>
+<input dir="auto" name="service_type" type="hidden" value="service"/>
  {% if s.package in active_ids %}
- <button type="button" class="btn btn-secondary" disabled>نشط</button>
+ <button class="btn btn-secondary" disabled="" type="button">نشط</button>
  {% else %}
- <button type="submit" class="btn btn-primary">افتح</button>
+ <button class="btn btn-primary" type="submit">افتح</button>
  {% endif %}
  </form>
- </div>
- </div>
+</div>
+</div>
  {% endfor %}
  </div>
-
- <!-- Follow-Up Automation Highlight -->
- <h2 class="section-title" style="border-inline-start-color: var(--cyan);">// 📬 أتمتة المتابعة (جديد)</h2>
- <p class="section-desc">رسائل بريد إلكتروني للمتابعة مدعومة بالذكاء الاصطناعي تتحقق تلقائياً مع أصحاب العمل الذين لم يردوا. 3 مستويات بناءً على الحجم. كل متابعة مخصصة بواسطة Groq AI.</p>
- <div class="store-grid" style="margin-bottom: 20px;">
+<!-- Follow-Up Automation Highlight -->
+<h2 class="section-title" style="border-inline-start-color: var(--cyan);">// 📬 أتمتة المتابعة (جديد)</h2>
+<p class="section-desc">{{ _('رسائل بريد إلكتروني للمتابعة مدعومة بالذكاء الاصطناعي تتحقق تلقائياً مع أصحاب العمل الذين لم يردوا. 3 مستويات بناءً على الحجم. كل متابعة مخصصة بواسطة Groq AI.') }}</p>
+<div class="store-grid" style="margin-bottom: 20px;">
  {% for s in services %}
  {% if 'follow-up-automation' in s.package %}
  <div class="store-card {% if s.package in active_ids %}unlocked{% endif %}" style="border-inline-start: 3px solid var(--cyan);">
- <input dir="auto" type="checkbox" class="checkbox-select" data-id="{{ s.package }}" data-type="service" data-price="{{ s.price_usd }}" data-name="{{ s.name }}">
- <div class="card-header">
- <span class="package-badge" style="color: var(--cyan);">مستوى المتابعة</span>
- <h3>{{ s.name }}</h3>
- </div>
- <p>{{ s.description }}</p>
- <div class="card-footer">
- <div>
- <div class="price-label">لكل حملة</div>
- <div class="price-val cyan-glow">${{ "%.2f"|format(s.price_usd) }}</div>
- </div>
- <form method="POST" action="/services/purchase" onsubmit="return confirmافتح('{{ s.name }}', '{{ s.price_usd }}')">
- <input dir="auto" type="hidden" name="package_id" value="{{ s.package }}">
- <input dir="auto" type="hidden" name="service_type" value="service">
+<input class="checkbox-select" data-id="{{ s.package }}" data-name="{{ s.name }}" data-price="{{ s.price_usd }}" data-type="service" dir="auto" type="checkbox"/>
+<div class="card-header">
+<span class="package-badge" style="color: var(--cyan);">مستوى المتابعة</span>
+<h3>{{ s.name }}</h3>
+</div>
+<p>{{ s.description }}</p>
+<div class="card-footer">
+<div>
+<div class="price-label">لكل حملة</div>
+<div class="price-val cyan-glow">${{ "%.2f"|format(s.price_usd) }}</div>
+</div>
+<form action="/services/purchase" method="POST" onsubmit="return confirmافتح('{{ s.name }}', '{{ s.price_usd }}')">
+<input dir="auto" name="package_id" type="hidden" value="{{ s.package }}"/>
+<input dir="auto" name="service_type" type="hidden" value="service"/>
  {% if s.package in active_ids %}
- <button type="button" class="btn btn-secondary" disabled>نشط</button>
+ <button class="btn btn-secondary" disabled="" type="button">نشط</button>
  {% else %}
- <button type="submit" class="btn btn-primary">افتح</button>
+ <button class="btn btn-primary" type="submit">افتح</button>
  {% endif %}
  </form>
- </div>
- </div>
+</div>
+</div>
  {% endif %}
  {% endfor %}
  </div>
-
- <!-- Bouquet Packages store -->
- <h2 class="section-title">// باقات مجمعة</h2>
- <p class="section-desc">اجمع ميزات متعددة ووصول أكبر للمرشحين بأسعار مخفضة بالجملة.</p>
- 
- <div class="store-grid">
+<!-- Bouquet Packages store -->
+<h2 class="section-title">// باقات مجمعة</h2>
+<p class="section-desc">اجمع ميزات متعددة ووصول أكبر للمرشحين بأسعار مخفضة بالجملة.</p>
+<div class="store-grid">
  {% for b in bouquets %}
  <div class="store-card {% if b.bouquet in active_ids %}unlocked{% endif %}">
- <input dir="auto" type="checkbox" class="checkbox-select" data-id="{{ b.bouquet }}" data-type="bouquet" data-price="{{ b.price_usd }}" data-name="{{ b.name }}">
- <div class="card-header">
- <span class="package-badge" style="color: var(--magenta);">باقة التوفير</span>
- <h3>{{ b.name }}</h3>
- </div>
- <p>{{ b.description }}</p>
- <div class="card-footer">
- <div>
- <div class="price-label">سعر الباقة</div>
- <div class="price-val" style="color: var(--magenta); text-shadow: 0 0 10px rgba(255, 0, 85, 0.3);">${{ "%.2f"|format(b.price_usd) }}</div>
- </div>
- 
- <form method="POST" action="/services/purchase" onsubmit="return confirmافتح('{{ b.name }}', '{{ b.price_usd }}')">
- <input dir="auto" type="hidden" name="package_id" value="{{ b.bouquet }}">
- <input dir="auto" type="hidden" name="service_type" value="bouquet">
+<input class="checkbox-select" data-id="{{ b.bouquet }}" data-name="{{ b.name }}" data-price="{{ b.price_usd }}" data-type="bouquet" dir="auto" type="checkbox"/>
+<div class="card-header">
+<span class="package-badge" style="color: var(--magenta);">باقة التوفير</span>
+<h3>{{ b.name }}</h3>
+</div>
+<p>{{ b.description }}</p>
+<div class="card-footer">
+<div>
+<div class="price-label">سعر الباقة</div>
+<div class="price-val" style="color: var(--magenta); text-shadow: 0 0 10px rgba(255, 0, 85, 0.3);">${{ "%.2f"|format(b.price_usd) }}</div>
+</div>
+<form action="/services/purchase" method="POST" onsubmit="return confirmافتح('{{ b.name }}', '{{ b.price_usd }}')">
+<input dir="auto" name="package_id" type="hidden" value="{{ b.bouquet }}"/>
+<input dir="auto" name="service_type" type="hidden" value="bouquet"/>
  {% if b.bouquet in active_ids %}
- <button type="button" class="btn btn-secondary" disabled>نشط</button>
+ <button class="btn btn-secondary" disabled="" type="button">نشط</button>
  {% else %}
- <button type="submit" class="btn btn-magenta">شراء الباقة</button>
+ <button class="btn btn-magenta" type="submit">شراء الباقة</button>
  {% endif %}
  </form>
- </div>
- </div>
+</div>
+</div>
  {% endfor %}
  </div>
-
- <!-- Bulk purchase bar -->
- <form id="bulkForm" method="POST" action="/services/purchase-bulk" onsubmit="return confirmBulk()">
- <div class="bulk-bar" id="bulkBar">
- <div class="bulk-count">
- المحدد: <strong id="selectedCount">0</strong> عناصر &nbsp;|&nbsp; الإجمالي: <strong id="selectedTotal">$0.00</strong>
- </div>
- <button type="submit" class="btn-bulk-buy" id="bulkBtn" disabled>شراء المحدد</button>
- </div>
- <input dir="auto" type="hidden" name="selected_items" id="selectedInput" value="">
- </form>
-
- <!-- Terminal log for active upgrades -->
- <div class="terminal-wrap">
- <div class="terminal-header">
- <div class="terminal-dots">
- <div class="dot red"></div>
- <div class="dot yellow"></div>
- <div class="dot green"></div>
- </div>
- <div class="terminal-title">وحدة_الترقيات_النشطة.sys</div>
- <div>اتصال آمن</div>
- </div>
- <div class="terminal-body">
+<!-- Bulk purchase bar -->
+<form action="/services/purchase-bulk" id="bulkForm" method="POST" onsubmit="return confirmBulk()">
+<div class="bulk-bar" id="bulkBar">
+<div class="bulk-count">
+ المحدد: <strong id="selectedCount">0</strong> عناصر  |  الإجمالي: <strong id="selectedTotal">$0.00</strong>
+</div>
+<button class="btn-bulk-buy" disabled="" id="bulkBtn" type="submit">شراء المحدد</button>
+</div>
+<input dir="auto" id="selectedInput" name="selected_items" type="hidden" value=""/>
+</form>
+<!-- Terminal log for active upgrades -->
+<div class="terminal-wrap">
+<div class="terminal-header">
+<div class="terminal-dots">
+<div class="dot red"></div>
+<div class="dot yellow"></div>
+<div class="dot green"></div>
+</div>
+<div class="terminal-title">{{ _('وحدة_الترقيات_النشطة.sys') }}</div>
+<div>اتصال آمن</div>
+</div>
+<div class="terminal-body">
  {% if purchased %}
  {% for p in purchased %}
  <div class="terminal-row">
- <span>
- <span class="date">[{{ p.created_at[:16] }}]</span>
- <span style="color: #888;">فتح_النظام:</span>
- <span class="name">{{ p.package_name }}</span>
- <span style="color: var(--green); font-size:10px; font-weight:700; margin-inline-start:8px;">[ACTIVE]</span>
- </span>
- <span class="price">${{ "%.2f"|format(p.price_paid) }}</span>
- </div>
+<span>
+<span class="date">[{{ p.created_at[:16] }}]</span>
+<span style="color: #888;">فتح_النظام:</span>
+<span class="name">{{ p.package_name }}</span>
+<span style="color: var(--green); font-size:10px; font-weight:700; margin-inline-start:8px;">{{ _('[ACTIVE]') }}</span>
+</span>
+<span class="price">${{ "%.2f"|format(p.price_paid) }}</span>
+</div>
  {% endfor %}
  {% else %}
  <div class="terminal-empty">
- &gt; لم يتم اكتشاف ترقيات نشطة في النظام. افتح الميزات أعلاه لملئها.
+ > لم يتم اكتشاف ترقيات نشطة في النظام. افتح الميزات أعلاه لملئها.
  </div>
  {% endif %}
  </div>
- </div>
+</div>
 
- </div>
-
- 
 <script>
 function confirmافتح(name, price) {
  return confirm('افتح ' + name + ' مقابل $' + price + '؟ سيتم خصم هذا من رصيد محفظتك.');
@@ -599,8 +579,6 @@ function updateBulkBar() {
  document.getElementById('bulkBtn').disabled = (count === 0);
 }
 </script>
-</div>
 
 </body>
 </html>
-

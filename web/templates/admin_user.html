@@ -25,98 +25,91 @@
  .btn-green { background:#16a34a; color:#fff; }
  input[type=number],input[type=text] { padding:8px 12px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:8px; color:#fff; font-size:13px; }
  </style>
-
 <div class="container">
-
- <!-- User Info -->
- <div class="card">
- <h2>معلومات المستخدم</h2>
- <div class="info-grid">
- <div class="info-item"><label>الاسم</label><span>{{ user.name or '—' }}</span></div>
- <div class="info-item"><label>البريد الإلكتروني</label><span class="blue">{{ user.email }}</span></div>
- <div class="info-item"><label>النوع</label><span>{{ user.user_type }}</span></div>
- <div class="info-item"><label>💰 المحفظة</label><span class="green">${{ "%.2f"|format(user.wallet_balance or 0) }}</span></div>
- <div class="info-item"><label>إجمالي المنفق</label><span>${{ "%.2f"|format(user.total_spent or 0) }}</span></div>
- <div class="info-item"><label>الحالة</label><span>{% if user.is_active %}<span class="badge badge-green">نشط</span>{% else %}<span class="badge badge-red">معطل</span>{% endif %}</span></div>
- <div class="info-item"><label>تاريخ الانضمام</label><span class="mono">{{ (user.created_at or '')[:16] }}</span></div>
- <div class="info-item"><label>مفتاح API</label><span class="mono" style="font-size:11px;">{{ (user.api_key or '')[:24] }}...</span></div>
- </div>
-
- <!-- Quick add credits -->
- <div style="margin-top:20px; display:flex; gap:10px; align-items:center;">
- <form method="POST" action="/admin/add-credits" style="display:flex; gap:8px; align-items:center;">
- <input dir="auto" type="hidden" name="target_email" value="{{ user.email }}">
- <input dir="auto" type="number" name="amount" placeholder="$" step="0.01" min="0.01" style="width:100px;">
- <input dir="auto" type="text" name="note" value="رصيد إداري" style="width:150px;">
- <button type="submit" class="btn btn-green">+ إضافة رصيد</button>
- </form>
- </div>
- </div>
-
- <!-- Campaigns -->
- <div class="card">
- <h2>الحملات ({{ campaigns|length }})</h2>
- <div class="table-wrap">
- <table class="cyber-table">
- <thead><tr><th>المعرف</th><th>الحالة</th><th>الشركات</th><th>المرسلة</th><th>التاريخ</th></tr></thead>
- <tbody>
+<!-- User Info -->
+<div class="card">
+<h2>معلومات المستخدم</h2>
+<div class="info-grid">
+<div class="info-item"><label>الاسم</label><span>{{ user.name or '—' }}</span></div>
+<div class="info-item"><label>البريد الإلكتروني</label><span class="blue">{{ user.email }}</span></div>
+<div class="info-item"><label>النوع</label><span>{{ user.user_type }}</span></div>
+<div class="info-item"><label>💰 المحفظة</label><span class="green">${{ "%.2f"|format(user.wallet_balance or 0) }}</span></div>
+<div class="info-item"><label>إجمالي المنفق</label><span>${{ "%.2f"|format(user.total_spent or 0) }}</span></div>
+<div class="info-item"><label>الحالة</label><span>{% if user.is_active %}<span class="badge badge-green">نشط</span>{% else %}<span class="badge badge-red">معطل</span>{% endif %}</span></div>
+<div class="info-item"><label>تاريخ الانضمام</label><span class="mono">{{ (user.created_at or '')[:16] }}</span></div>
+<div class="info-item"><label>{{ _('مفتاح API') }}</label><span class="mono" style="font-size:11px;">{{ (user.api_key or '')[:24] }}...</span></div>
+</div>
+<!-- Quick add credits -->
+<div style="margin-top:20px; display:flex; gap:10px; align-items:center;">
+<form action="/admin/add-credits" method="POST" style="display:flex; gap:8px; align-items:center;">
+<input dir="auto" name="target_email" type="hidden" value="{{ user.email }}"/>
+<input dir="auto" min="0.01" name="amount" placeholder="$" step="0.01" style="width:100px;" type="number"/>
+<input dir="auto" name="note" style="width:150px;" type="text" value="رصيد إداري"/>
+<button class="btn btn-green" type="submit">+ إضافة رصيد</button>
+</form>
+</div>
+</div>
+<!-- Campaigns -->
+<div class="card">
+<h2>الحملات ({{ campaigns|length }})</h2>
+<div class="table-wrap">
+<table class="cyber-table">
+<thead><tr><th>المعرف</th><th>الحالة</th><th>الشركات</th><th>المرسلة</th><th>التاريخ</th></tr></thead>
+<tbody>
  {% for c in campaigns %}
  <tr>
- <td class="mono">{{ c.campaign_id[:24] }}</td>
- <td><span class="badge {% if c.status=='completed' %}badge-green{% elif c.status=='running' %}badge-blue{% elif c.status=='failed' %}badge-red{% else %}badge-orange{% endif %}">{{ c.status }}</span></td>
- <td>{{ c.total_companies }}</td>
- <td>{{ c.sent_count }}</td>
- <td class="mono">{{ (c.created_at or '')[:16] }}</td>
- </tr>
+<td class="mono">{{ c.campaign_id[:24] }}</td>
+<td><span class="badge {% if c.status=='completed' %}badge-green{% elif c.status=='running' %}badge-blue{% elif c.status=='failed' %}badge-red{% else %}badge-orange{% endif %}">{{ c.status }}</span></td>
+<td>{{ c.total_companies }}</td>
+<td>{{ c.sent_count }}</td>
+<td class="mono">{{ (c.created_at or '')[:16] }}</td>
+</tr>
  {% endfor %}
  {% if not campaigns %}<tr><td colspan="5" style="color:#64748b;text-align:center;padding:20px;">لا توجد حملات</td></tr>{% endif %}
  </tbody>
- </table>
- </div>
- </div>
-
- <!-- Transactions -->
- <div class="card">
- <h2>معاملات المحفظة ({{ transactions|length }})</h2>
- <div class="table-wrap">
- <table class="cyber-table">
- <thead><tr><th>النوع</th><th>المبلغ</th><th>الرصيد بعد</th><th>الوصف</th><th>التاريخ</th></tr></thead>
- <tbody>
+</table>
+</div>
+</div>
+<!-- Transactions -->
+<div class="card">
+<h2>معاملات المحفظة ({{ transactions|length }})</h2>
+<div class="table-wrap">
+<table class="cyber-table">
+<thead><tr><th>النوع</th><th>المبلغ</th><th>الرصيد بعد</th><th>الوصف</th><th>التاريخ</th></tr></thead>
+<tbody>
  {% for t in transactions %}
  <tr>
- <td><span class="badge {% if t.amount > 0 %}badge-green{% else %}badge-red{% endif %}">{{ t.transaction_type }}</span></td>
- <td style="color:{% if t.amount > 0 %}#22c55e{% else %}#f87171{% endif %};">{{ '+' if t.amount > 0 else '' }}${{ "%.2f"|format(t.amount or 0) }}</td>
- <td>${{ "%.2f"|format(t.balance_after or 0) }}</td>
- <td>{{ t.description or '—' }}</td>
- <td class="mono">{{ (t.created_at or '')[:16] }}</td>
- </tr>
+<td><span class="badge {% if t.amount > 0 %}badge-green{% else %}badge-red{% endif %}">{{ t.transaction_type }}</span></td>
+<td style="color:{% if t.amount > 0 %}#22c55e{% else %}#f87171{% endif %};">{{ '+' if t.amount > 0 else '' }}${{ "%.2f"|format(t.amount or 0) }}</td>
+<td>${{ "%.2f"|format(t.balance_after or 0) }}</td>
+<td>{{ t.description or '—' }}</td>
+<td class="mono">{{ (t.created_at or '')[:16] }}</td>
+</tr>
  {% endfor %}
  {% if not transactions %}<tr><td colspan="5" style="color:#64748b;text-align:center;padding:20px;">لا توجد معاملات</td></tr>{% endif %}
  </tbody>
- </table>
- </div>
- </div>
-
- <!-- Orders -->
- <div class="card">
- <h2>الطلبات ({{ orders|length }})</h2>
- <div class="table-wrap">
- <table class="cyber-table">
- <thead><tr><th>معرف الطلب</th><th>النوع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr></thead>
- <tbody>
+</table>
+</div>
+</div>
+<!-- Orders -->
+<div class="card">
+<h2>الطلبات ({{ orders|length }})</h2>
+<div class="table-wrap">
+<table class="cyber-table">
+<thead><tr><th>معرف الطلب</th><th>النوع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+<tbody>
  {% for o in orders %}
  <tr>
- <td class="mono">{{ o.order_id[:24] }}</td>
- <td>{{ o.order_type }}</td>
- <td class="green">${{ "%.2f"|format(o.amount_usd or 0) }}</td>
- <td><span class="badge {% if o.payment_status=='completed' %}badge-green{% elif o.payment_status=='pending' %}badge-orange{% else %}badge-red{% endif %}">{{ o.payment_status }}</span></td>
- <td class="mono">{{ (o.created_at or '')[:16] }}</td>
- </tr>
+<td class="mono">{{ o.order_id[:24] }}</td>
+<td>{{ o.order_type }}</td>
+<td class="green">${{ "%.2f"|format(o.amount_usd or 0) }}</td>
+<td><span class="badge {% if o.payment_status=='completed' %}badge-green{% elif o.payment_status=='pending' %}badge-orange{% else %}badge-red{% endif %}">{{ o.payment_status }}</span></td>
+<td class="mono">{{ (o.created_at or '')[:16] }}</td>
+</tr>
  {% endfor %}
  {% if not orders %}<tr><td colspan="5" style="color:#64748b;text-align:center;padding:20px;">لا توجد طلبات</td></tr>{% endif %}
  </tbody>
- </table>
- </div>
- </div>
-
+</table>
+</div>
+</div>
 </div>

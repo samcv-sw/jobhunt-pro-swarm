@@ -57,7 +57,7 @@
         .stat-label {
             font-size: 12px;
             color: #888;
-            margin-top: 4px;
+            margin-block-start: 4px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -97,20 +97,20 @@
             gap: 12px;
         }
         .funnel-label {
-            width: 80px;
+            inline-size: 80px;
             font-size: 12px;
-            text-align: right;
+            text-align: end;
         }
         .funnel-fill {
-            height: 24px;
+            block-size: 24px;
             border-radius: 12px;
             background: linear-gradient(90deg, var(--gold), #ff9800);
-            transition: width 0.5s ease;
+            transition: inline-size 0.5s ease;
         }
         .funnel-num {
             font-size: 14px;
             font-weight: 700;
-            margin-left: 8px;
+            margin-inline-start: 8px;
         }
         .alert-badge {
             display: inline-block;
@@ -118,7 +118,7 @@
             border-radius: 12px;
             font-size: 11px;
             font-weight: 700;
-            margin-top: 8px;
+            margin-block-start: 8px;
         }
         .loading {
             text-align: center;
@@ -295,10 +295,10 @@
                 const val = data[stage.key] || 0;
                 const pct = Math.round((val / maxVal) * 100);
                 html += `
-                <div class="funnel-bar">
+                <div class="funnel-bar" style="content-visibility: auto;">
                     <div class="funnel-label">${stage.label}</div>
                     <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:12px;">
-                        <div class="funnel-fill" style="width:${pct}%;background:${stage.color};"></div>
+                        <div class="funnel-fill" style="inline-size:${pct}%;background:${stage.color};"></div>
                     </div>
                     <div class="funnel-num">${val}</div>
                 </div>`;
@@ -317,10 +317,10 @@
             for (const c of data.companies) {
                 const pct = Math.round((c.count / maxCount) * 100);
                 html += `
-                <div class="funnel-bar">
-                    <div class="funnel-label" style="width:120px;text-align:left;">${c.company}</div>
+                <div class="funnel-bar" style="content-visibility: auto;">
+                    <div class="funnel-label" style="inline-size:120px;text-align:start;">${c.company}</div>
                     <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:12px;">
-                        <div class="funnel-fill" style="width:${pct}%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);"></div>
+                        <div class="funnel-fill" style="inline-size:${pct}%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);"></div>
                     </div>
                     <div class="funnel-num">${c.count}</div>
                 </div>`;
@@ -382,6 +382,20 @@
 
         // Initial load
         loadDashboard();
+
+        // Ephemeral Hardware Acceleration toggling
+        const hwElements = ['stat-card', 'tab', 'funnel-bar'];
+        const toggleHardwareAccel = (e, val) => {
+            if (e.target.classList && hwElements.some(c => e.target.classList.contains(c))) {
+                e.target.style.willChange = val;
+            }
+        };
+
+        document.body.addEventListener('mouseenter', (e) => toggleHardwareAccel(e, 'transform'), true);
+        document.body.addEventListener('mouseleave', (e) => toggleHardwareAccel(e, 'auto'), true);
+        document.body.addEventListener('touchstart', (e) => toggleHardwareAccel(e, 'transform'), {passive: true, capture: true});
+        document.body.addEventListener('touchend', (e) => toggleHardwareAccel(e, 'auto'), {passive: true, capture: true});
+
     </script>
 </body>
 </html>

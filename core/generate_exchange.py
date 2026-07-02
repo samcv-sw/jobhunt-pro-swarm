@@ -10,13 +10,17 @@ import os
 import random
 import logging
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] EXCHANGE-GEN: %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] EXCHANGE-GEN: %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # Resolved relative to project root
 from pathlib import Path
+
 try:
     import config
+
     db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
 except ImportError:
     db_name = "jobhunt_saas_v2.db"
@@ -171,12 +175,13 @@ ROW_TEMPLATE = """
 </tr>
 """
 
+
 def generate_stock_exchange():
     """Generates the exchange.html dashboard."""
     logger.info("Initializing Genesis Protocol: Talent Stock Exchange Generator...")
-    
+
     assets = []
-    
+
     # Try to fetch from DB, fallback to mock if DB empty
     if os.path.exists(DB_PATH):
         try:
@@ -185,59 +190,74 @@ def generate_stock_exchange():
             cur = conn.cursor()
             cur.execute("SELECT id, name, skills FROM users LIMIT 15")
             rows = cur.fetchall()
-            
+
             for row in rows:
-                skill_list = row['skills'].split(',') if row['skills'] else ["Python", "JS"]
-                assets.append({
-                    "id": row['id'],
-                    "skills": ", ".join(skill_list[:3]),
-                    "country": random.choice(["IND", "BRA", "NGA", "PHL", "EGY", "MEX"])
-                })
+                skill_list = (
+                    row["skills"].split(",") if row["skills"] else ["Python", "JS"]
+                )
+                assets.append(
+                    {
+                        "id": row["id"],
+                        "skills": ", ".join(skill_list[:3]),
+                        "country": random.choice(
+                            ["IND", "BRA", "NGA", "PHL", "EGY", "MEX"]
+                        ),
+                    }
+                )
             conn.close()
         except Exception as e:
             logger.error(f"DB Error: {e}")
-            
+
     # Mock data if not enough assets
     if len(assets) < 5:
         mock_countries = ["IND", "BRA", "NGA", "PHL", "EGY", "MEX"]
-        mock_skills = [("React", "Node.js"), ("Python", "Django"), ("Go", "Docker"), ("Rust", "WASM"), ("Java", "Spring")]
+        mock_skills = [
+            ("React", "Node.js"),
+            ("Python", "Django"),
+            ("Go", "Docker"),
+            ("Rust", "WASM"),
+            ("Java", "Spring"),
+        ]
         for i in range(10):
-            assets.append({
-                "id": random.randint(1000, 9999),
-                "skills": ", ".join(random.choice(mock_skills)),
-                "country": random.choice(mock_countries)
-            })
-            
+            assets.append(
+                {
+                    "id": random.randint(1000, 9999),
+                    "skills": ", ".join(random.choice(mock_skills)),
+                    "country": random.choice(mock_countries),
+                }
+            )
+
     rows_html = ""
     for asset in assets:
         symbol = f"ENG-{asset['country']}-{asset['id']}"
         value = 500  # Standard B2B acquisition fee
-        
+
         # Simulate stock market metrics
         momentum = round(random.uniform(-5.0, 25.0), 2)
         trend_class = "positive-trend" if momentum >= 0 else "negative-trend"
         trend_str = f"▲ +{momentum}%" if momentum >= 0 else f"▼ {momentum}%"
-        
+
         interviews = random.randint(3, 42)
-        
+
         row = ROW_TEMPLATE.format(
             symbol=symbol,
-            skills=asset['skills'],
+            skills=asset["skills"],
             value=value,
             trend_class=trend_class,
             trend=trend_str,
             interviews=interviews,
-            B2B_ACQUIRE_LINK=B2B_ACQUIRE_LINK
+            B2B_ACQUIRE_LINK=B2B_ACQUIRE_LINK,
         )
         rows_html += row
-        
+
     final_html = HTML_TEMPLATE.replace("{TABLE_ROWS}", rows_html)
-    
+
     with open(OUTPUT_HTML, "w", encoding="utf-8") as f:
         f.write(final_html)
-        
+
     logger.info(f"Successfully generated {OUTPUT_HTML}")
     return True
+
 
 if __name__ == "__main__":
     generate_stock_exchange()

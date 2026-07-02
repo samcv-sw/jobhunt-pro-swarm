@@ -2,10 +2,11 @@
 JobHunt Pro - Response Parser
 Parse email responses and auto-reply with Calendly link for interview requests.
 """
+
 import logging
 import os
 import re
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple
 from dataclasses import dataclass
 from enum import Enum
 import config
@@ -67,42 +68,90 @@ Best regards,
 {candidate_name}"""
 
 INTERVIEW_KEYWORDS = [
-    "interview", "schedule", "call", "meeting", "discuss",
-    "available", "calendar", "book", "slot", "time",
-    "phone screen", "phone call", "video call", "zoom",
-    "teams", "google meet", "face to face", "in person",
-    "next steps", "move forward", "proceed", "shortlisted",
-    "selected", "impressed", "strong candidate"
+    "interview",
+    "schedule",
+    "call",
+    "meeting",
+    "discuss",
+    "available",
+    "calendar",
+    "book",
+    "slot",
+    "time",
+    "phone screen",
+    "phone call",
+    "video call",
+    "zoom",
+    "teams",
+    "google meet",
+    "face to face",
+    "in person",
+    "next steps",
+    "move forward",
+    "proceed",
+    "shortlisted",
+    "selected",
+    "impressed",
+    "strong candidate",
 ]
 
 REJECTION_KEYWORDS = [
-    "unfortunately", "regret", "not selected", "not chosen",
-    "position has been filled", "other candidates", "more qualified",
-    "decided to move forward with", "not advancing",
-    "will not be moving forward", "closing your application",
-    "better fit", "not a match"
+    "unfortunately",
+    "regret",
+    "not selected",
+    "not chosen",
+    "position has been filled",
+    "other candidates",
+    "more qualified",
+    "decided to move forward with",
+    "not advancing",
+    "will not be moving forward",
+    "closing your application",
+    "better fit",
+    "not a match",
 ]
 
 OFFER_KEYWORDS = [
-    "offer", "congratulations", "pleased to offer",
-    "salary", "compensation", "start date", "joining date",
-    "welcome to the team", "accepted", "terms of employment"
+    "offer",
+    "congratulations",
+    "pleased to offer",
+    "salary",
+    "compensation",
+    "start date",
+    "joining date",
+    "welcome to the team",
+    "accepted",
+    "terms of employment",
 ]
 
 FOLLOWUP_KEYWORDS = [
-    "update", "status", "checking in", "following up",
-    "still interested", "any update", "timeline"
+    "update",
+    "status",
+    "checking in",
+    "following up",
+    "still interested",
+    "any update",
+    "timeline",
 ]
 
 AUTO_REPLY_KEYWORDS = [
-    "out of office", "auto-reply", "automated",
-    "on vacation", "away from office", "will respond shortly",
-    "received your email", "thank you for your email"
+    "out of office",
+    "auto-reply",
+    "automated",
+    "on vacation",
+    "away from office",
+    "will respond shortly",
+    "received your email",
+    "thank you for your email",
 ]
 
 SPAM_KEYWORDS = [
-    "unsubscribe", "marketing", "promotion",
-    "special offer", "limited time", "click here"
+    "unsubscribe",
+    "marketing",
+    "promotion",
+    "special offer",
+    "limited time",
+    "click here",
 ]
 
 
@@ -118,12 +167,15 @@ class ResponseParser:
 
     def _build_patterns(self, keywords: list) -> re.Pattern:
         """Compile all keywords into one union regex for O(1) per-category scan."""
-        union = "|".join(r'\b' + re.escape(kw) + r'\b' for kw in keywords)
+        union = "|".join(r"\b" + re.escape(kw) + r"\b" for kw in keywords)
         return re.compile(union, re.IGNORECASE)
 
     def _is_negated(self, text: str, keyword: str) -> bool:
         """Check if a keyword is preceded by a negation word within 3 words."""
-        pattern = r"\b(not|cannot|unable|won't|don't|can't|unfortunate|unfortunately|sorry|decided not to|choose not to|stop|no longer)\s+(?:[\w']+\s+){0,3}" + re.escape(keyword)
+        pattern = (
+            r"\b(not|cannot|unable|won't|don't|can't|unfortunate|unfortunately|sorry|decided not to|choose not to|stop|no longer)\s+(?:[\w']+\s+){0,3}"
+            + re.escape(keyword)
+        )
         return bool(re.search(pattern, text, re.IGNORECASE))
 
     def _count_matches(self, text: str, pattern: re.Pattern) -> Tuple[int, list]:
@@ -135,8 +187,10 @@ class ResponseParser:
         try:
             text = f"{subject} {body}".lower()
 
-            interview_count, interview_kw = self._count_matches(text, self.interview_patterns)
-            
+            interview_count, interview_kw = self._count_matches(
+                text, self.interview_patterns
+            )
+
             # Negation adjustment
             negated_count = 0
             for kw in interview_kw:
@@ -144,9 +198,13 @@ class ResponseParser:
                     negated_count += 1
             interview_count = max(0, interview_count - negated_count)
 
-            rejection_count, rejection_kw = self._count_matches(text, self.rejection_patterns)
+            rejection_count, rejection_kw = self._count_matches(
+                text, self.rejection_patterns
+            )
             offer_count, offer_kw = self._count_matches(text, self.offer_patterns)
-            followup_count, followup_kw = self._count_matches(text, self.followup_patterns)
+            followup_count, followup_kw = self._count_matches(
+                text, self.followup_patterns
+            )
             auto_count, auto_kw = self._count_matches(text, self.auto_reply_patterns)
             spam_count, spam_kw = self._count_matches(text, self.spam_patterns)
 
@@ -169,7 +227,14 @@ class ResponseParser:
             else:
                 response_type = max_type
                 confidence = min(max_score / 10, 1.0)
-                all_kw = interview_kw + rejection_kw + offer_kw + followup_kw + auto_kw + spam_kw
+                all_kw = (
+                    interview_kw
+                    + rejection_kw
+                    + offer_kw
+                    + followup_kw
+                    + auto_kw
+                    + spam_kw
+                )
                 keywords_found = list(set(all_kw))
 
             if response_type == ResponseType.INTERVIEW:
@@ -181,7 +246,9 @@ class ResponseParser:
             else:
                 sentiment = "neutral"
 
-            should_reply, reply_text = self._generate_reply(response_type, body, from_email)
+            should_reply, reply_text = self._generate_reply(
+                response_type, body, from_email
+            )
 
             return ParseResult(
                 response_type=response_type,
@@ -190,10 +257,12 @@ class ResponseParser:
                 sentiment=sentiment,
                 should_reply=should_reply,
                 reply_text=reply_text,
-                calendar_link=self.calendly_link
+                calendar_link=self.calendly_link,
             )
         except Exception as e:
-            logger.error(f"[ResponseParser] parse() failed unexpectedly: {e}", exc_info=True)
+            logger.error(
+                f"[ResponseParser] parse() failed unexpectedly: {e}", exc_info=True
+            )
             return ParseResult(
                 response_type=ResponseType.UNKNOWN,
                 confidence=0.0,
@@ -204,15 +273,16 @@ class ResponseParser:
                 calendar_link=self.calendly_link,
             )
 
-    def _generate_reply(self, response_type: ResponseType, body: str,
-                        from_email: str) -> Tuple[bool, str]:
+    def _generate_reply(
+        self, response_type: ResponseType, body: str, from_email: str
+    ) -> Tuple[bool, str]:
         if response_type == ResponseType.INTERVIEW:
             reply = CALENDLY_REPLY.format(
                 scheduling_link=self.calendly_link,
                 candidate_name=config.CANDIDATE_NAME,
                 candidate_title=config.CANDIDATE_TITLE,
                 candidate_email=config.CANDIDATE_EMAIL,
-                candidate_phone=config.CANDIDATE_PHONE
+                candidate_phone=config.CANDIDATE_PHONE,
             )
             return True, reply
 
@@ -225,14 +295,12 @@ class ResponseParser:
                 candidate_name=config.CANDIDATE_NAME,
                 candidate_title=config.CANDIDATE_TITLE,
                 candidate_email=config.CANDIDATE_EMAIL,
-                candidate_phone=config.CANDIDATE_PHONE
+                candidate_phone=config.CANDIDATE_PHONE,
             )
             return True, reply
 
         elif response_type == ResponseType.FOLLOWUP:
-            reply = FOLLOWUP_REPLY.format(
-                candidate_name=config.CANDIDATE_NAME
-            )
+            reply = FOLLOWUP_REPLY.format(candidate_name=config.CANDIDATE_NAME)
             return True, reply
 
         elif response_type == ResponseType.AUTO_REPLY:
@@ -271,7 +339,9 @@ class ResponseParser:
                 if result.should_reply:
                     stats["should_reply"] += 1
             except Exception as e:
-                logger.warning(f"[ResponseParser] parse_batch: skipping malformed email: {e}")
+                logger.warning(
+                    f"[ResponseParser] parse_batch: skipping malformed email: {e}"
+                )
                 stats["errors"] += 1
                 stats["unknown"] += 1
 
@@ -320,14 +390,24 @@ Please let me know if you need any additional information.
 Best regards,
 Sam Salameh"""
 
-    def get_followup(self, company: str, title: str, followup_number: int,
-                     days_since_application: int) -> str:
+    def get_followup(
+        self,
+        company: str,
+        title: str,
+        followup_number: int,
+        days_since_application: int,
+    ) -> str:
         template_index = min(followup_number - 1, len(self.followup_templates) - 1)
         template = self.followup_templates[template_index]
         return template(company, title, days_since_application)
 
-    def should_send_followup(self, days_since: int, followup_count: int,
-                             last_response_type: str, recipient_email: str = "") -> bool:
+    def should_send_followup(
+        self,
+        days_since: int,
+        followup_count: int,
+        last_response_type: str,
+        recipient_email: str = "",
+    ) -> bool:
         if last_response_type in ("interview", "offer", "rejection"):
             return False
 
@@ -336,9 +416,12 @@ Sam Salameh"""
 
         # Add a stable, randomized jitter (0 to 2 days) based on recipient email
         import hashlib
+
         jitter = 0
         if recipient_email:
-            h = int(hashlib.md5(recipient_email.lower().strip().encode()).hexdigest(), 16)
+            h = int(
+                hashlib.md5(recipient_email.lower().strip().encode()).hexdigest(), 16
+            )
             jitter = h % 3  # 0, 1, or 2 days
 
         target_days = [4, 7, 14]

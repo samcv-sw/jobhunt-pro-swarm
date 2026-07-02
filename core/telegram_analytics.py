@@ -7,8 +7,9 @@ company intelligence, and comprehensive personal dashboards.
 
 Used by telegram_bot.py handlers: /stats, /trend, /funnel, /companies
 """
+
 import os
-import sys
+
 if not os.getenv("FORCE_SQLITE"):
     try:
         from core import pg_sqlite_shim as sqlite3
@@ -17,10 +18,8 @@ if not os.getenv("FORCE_SQLITE"):
 else:
     import sqlite3
 import time
-import json
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, Any
 from datetime import datetime, timedelta
-from pathlib import Path
 import logging
 
 logger = logging.getLogger(__name__)
@@ -50,32 +49,30 @@ class TelegramAnalytics:
         try:
             conn = self._get_conn()
             now = time.time()
-            today_start = now - (now % 86400)
-            week_start = now - 86400 * 7
+            now - (now % 86400)
+            now - 86400 * 7
             today_str = datetime.now().strftime("%Y-%m-%d")
             week_ago_str = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
 
             # ── Application counts ──────────────────────────────
             apps_today = conn.execute(
-                "SELECT COUNT(*) FROM applications WHERE sent_at >= ?",
-                (today_str,)
+                "SELECT COUNT(*) FROM applications WHERE sent_at >= ?", (today_str,)
             ).fetchone()[0]
 
             apps_week = conn.execute(
-                "SELECT COUNT(*) FROM applications WHERE sent_at >= ?",
-                (week_ago_str,)
+                "SELECT COUNT(*) FROM applications WHERE sent_at >= ?", (week_ago_str,)
             ).fetchone()[0]
 
-            apps_all = conn.execute(
-                "SELECT COUNT(*) FROM applications"
-            ).fetchone()[0]
+            apps_all = conn.execute("SELECT COUNT(*) FROM applications").fetchone()[0]
 
             # ── Responses & interviews ──────────────────────────
             responded = conn.execute(
                 "SELECT COUNT(*) FROM applications WHERE responded = 1"
             ).fetchone()[0]
 
-            response_rate = round((responded / apps_all) * 100, 1) if apps_all > 0 else 0.0
+            response_rate = (
+                round((responded / apps_all) * 100, 1) if apps_all > 0 else 0.0
+            )
 
             interviews = conn.execute(
                 "SELECT COUNT(*) FROM applications WHERE response_type = 'interview'"
@@ -101,22 +98,34 @@ class TelegramAnalytics:
 
             emails_today = conn.execute(
                 "SELECT COUNT(*) FROM campaign_emails WHERE date(sent_at) = ?",
-                (today_str,)
+                (today_str,),
             ).fetchone()[0]
 
             # ── Open / Click / Response rates ───────────────────
-            open_rate = round((emails_opened / emails_sent) * 100, 1) if emails_sent > 0 else 0.0
-            click_rate = round((emails_clicked / emails_sent) * 100, 1) if emails_sent > 0 else 0.0
-            email_response_rate = round((emails_responded / emails_sent) * 100, 1) if emails_sent > 0 else 0.0
+            open_rate = (
+                round((emails_opened / emails_sent) * 100, 1)
+                if emails_sent > 0
+                else 0.0
+            )
+            click_rate = (
+                round((emails_clicked / emails_sent) * 100, 1)
+                if emails_sent > 0
+                else 0.0
+            )
+            email_response_rate = (
+                round((emails_responded / emails_sent) * 100, 1)
+                if emails_sent > 0
+                else 0.0
+            )
 
             # ── Active campaigns ────────────────────────────────
             active_campaigns = conn.execute(
                 "SELECT COUNT(*) FROM campaigns WHERE status IN ('running', 'pending', 'active')"
             ).fetchone()[0]
 
-            total_campaigns = conn.execute(
-                "SELECT COUNT(*) FROM campaigns"
-            ).fetchone()[0]
+            total_campaigns = conn.execute("SELECT COUNT(*) FROM campaigns").fetchone()[
+                0
+            ]
 
             # ── ATS match average ───────────────────────────────
             avg_ats = conn.execute(
@@ -132,8 +141,7 @@ class TelegramAnalytics:
             # ── Jobs found ──────────────────────────────────────
             jobs_found = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
             jobs_today = conn.execute(
-                "SELECT COUNT(*) FROM jobs WHERE date(created_at) = ?",
-                (today_str,)
+                "SELECT COUNT(*) FROM jobs WHERE date(created_at) = ?", (today_str,)
             ).fetchone()[0]
 
             jobs_applied = conn.execute(
@@ -141,8 +149,12 @@ class TelegramAnalytics:
             ).fetchone()[0]
 
             # ── Money / wallet ──────────────────────────────────
-            wallet = conn.execute("SELECT COALESCE(SUM(wallet_balance), 0) FROM users").fetchone()[0]
-            total_spent = conn.execute("SELECT COALESCE(SUM(total_spent), 0) FROM users").fetchone()[0]
+            wallet = conn.execute(
+                "SELECT COALESCE(SUM(wallet_balance), 0) FROM users"
+            ).fetchone()[0]
+            total_spent = conn.execute(
+                "SELECT COALESCE(SUM(total_spent), 0) FROM users"
+            ).fetchone()[0]
 
             # ── Revenue from orders ─────────────────────────────
             revenue = conn.execute(
@@ -151,7 +163,8 @@ class TelegramAnalytics:
 
             # ── Source breakdown ────────────────────────────────
             sources = [
-                dict(r) for r in conn.execute(
+                dict(r)
+                for r in conn.execute(
                     "SELECT source, COUNT(*) as cnt FROM jobs WHERE source IS NOT NULL "
                     "GROUP BY source ORDER BY cnt DESC LIMIT 5"
                 ).fetchall()
@@ -159,7 +172,8 @@ class TelegramAnalytics:
 
             # ── Status breakdown ────────────────────────────────
             statuses = [
-                dict(r) for r in conn.execute(
+                dict(r)
+                for r in conn.execute(
                     "SELECT status, COUNT(*) as cnt FROM applications "
                     "GROUP BY status ORDER BY cnt DESC"
                 ).fetchall()
@@ -380,7 +394,9 @@ class TelegramAnalytics:
             available = 32 - max_label_len - 1 - 7 - 7
             displayed_bar = bar[:available] if len(bar) > available else bar
 
-            lines.append(f"│ {label_padded} {displayed_bar} {count_str:>4} {pct_str:>6} │")
+            lines.append(
+                f"│ {label_padded} {displayed_bar} {count_str:>4} {pct_str:>6} │"
+            )
 
         lines.append("└──────────────────────────────────────┘</pre>")
 
@@ -389,11 +405,17 @@ class TelegramAnalytics:
         lines.append(f"<b>📈 Funnel Summary</b>")
         if baseline > 0:
             lines.append(f"Open Rate: <b>{(data['opened'] / baseline * 100):.1f}%</b>")
-            lines.append(f"Response Rate: <b>{(data['responded'] / baseline * 100):.1f}%</b>")
+            lines.append(
+                f"Response Rate: <b>{(data['responded'] / baseline * 100):.1f}%</b>"
+            )
             if data["responded"] > 0:
-                lines.append(f"Interview Rate: <b>{(data['interview'] / data['responded'] * 100):.1f}%</b>")
+                lines.append(
+                    f"Interview Rate: <b>{(data['interview'] / data['responded'] * 100):.1f}%</b>"
+                )
             if data["interview"] > 0:
-                lines.append(f"Offer Rate: <b>{(data['offer'] / max(data['interview'], 1) * 100):.1f}%</b>")
+                lines.append(
+                    f"Offer Rate: <b>{(data['offer'] / max(data['interview'], 1) * 100):.1f}%</b>"
+                )
 
         return "\n".join(lines)
 
@@ -438,36 +460,37 @@ class TelegramAnalytics:
                 # Count apps sent that day
                 apps = conn.execute(
                     "SELECT COUNT(*) FROM applications WHERE date(sent_at) = ?",
-                    (date_str,)
+                    (date_str,),
                 ).fetchone()[0]
 
                 # Count emails sent that day
                 emails = conn.execute(
                     "SELECT COUNT(*) FROM campaign_emails WHERE date(sent_at) = ?",
-                    (date_str,)
+                    (date_str,),
                 ).fetchone()[0]
 
                 # Count responses that day
                 responses = conn.execute(
                     "SELECT COUNT(*) FROM campaign_emails WHERE date(responded_at) = ?",
-                    (date_str,)
+                    (date_str,),
                 ).fetchone()[0]
 
                 # Count jobs found that day
                 jobs_new = conn.execute(
-                    "SELECT COUNT(*) FROM jobs WHERE date(created_at) = ?",
-                    (date_str,)
+                    "SELECT COUNT(*) FROM jobs WHERE date(created_at) = ?", (date_str,)
                 ).fetchone()[0]
 
-                daily_data.append({
-                    "date": date_str,
-                    "day": day_name,
-                    "apps": apps,
-                    "emails": emails,
-                    "responses": responses,
-                    "jobs_found": jobs_new,
-                    "total": apps + emails,  # total activity
-                })
+                daily_data.append(
+                    {
+                        "date": date_str,
+                        "day": day_name,
+                        "apps": apps,
+                        "emails": emails,
+                        "responses": responses,
+                        "jobs_found": jobs_new,
+                        "total": apps + emails,  # total activity
+                    }
+                )
 
             # Compute stats
             total_apps = sum(d["apps"] for d in daily_data)
@@ -476,16 +499,24 @@ class TelegramAnalytics:
             total_jobs_found = sum(d["jobs_found"] for d in daily_data)
 
             best_day = max(daily_data, key=lambda d: d["total"]) if daily_data else None
-            worst_day = min(daily_data, key=lambda d: d["total"]) if daily_data else None
+            worst_day = (
+                min(daily_data, key=lambda d: d["total"]) if daily_data else None
+            )
             avg_per_day = round(total_apps / days, 1) if days > 0 else 0
 
             # Growth/decline: compare first half vs second half
             half = days // 2
-            first_half_total = sum(d["apps"] for d in daily_data[:half]) if half > 0 else 0
-            second_half_total = sum(d["apps"] for d in daily_data[half:]) if half > 0 else 0
+            first_half_total = (
+                sum(d["apps"] for d in daily_data[:half]) if half > 0 else 0
+            )
+            second_half_total = (
+                sum(d["apps"] for d in daily_data[half:]) if half > 0 else 0
+            )
 
             if first_half_total > 0:
-                growth_pct = round((second_half_total - first_half_total) / first_half_total * 100, 1)
+                growth_pct = round(
+                    (second_half_total - first_half_total) / first_half_total * 100, 1
+                )
             else:
                 growth_pct = 0.0 if second_half_total == 0 else 100.0
 
@@ -551,34 +582,52 @@ class TelegramAnalytics:
         for d in daily:
             bar_len = int(round(d["total"] / max_val * max_bar))
             bar = "█" * bar_len + "░" * (max_bar - bar_len)
-            marker = "🔴" if d["total"] == 0 else ("🟢" if d["total"] >= max_val * 0.5 else "🟡")
+            marker = (
+                "🔴"
+                if d["total"] == 0
+                else ("🟢" if d["total"] >= max_val * 0.5 else "🟡")
+            )
             lines.append(f"{marker} {d['day']} {d['date'][5:]} {bar} {d['total']:>3}")
 
         lines.append("</pre>")
 
         # Stats summary
-        trend_arrow = "📈" if data["growth_pct"] > 0 else ("📉" if data["growth_pct"] < 0 else "➡️")
-        growth_str = f"+{data['growth_pct']}%" if data["growth_pct"] > 0 else f"{data['growth_pct']}%"
+        trend_arrow = (
+            "📈"
+            if data["growth_pct"] > 0
+            else ("📉" if data["growth_pct"] < 0 else "➡️")
+        )
+        growth_str = (
+            f"+{data['growth_pct']}%"
+            if data["growth_pct"] > 0
+            else f"{data['growth_pct']}%"
+        )
 
-        lines.extend([
-            "",
-            "<b>📊 Trend Stats</b>",
-            f"Total Apps:    <b>{data['total_apps']}</b>",
-            f"Total Emails:  <b>{data['total_emails']}</b>",
-            f"Avg/Day:       <b>{data['avg_per_day']}</b>",
-            f"Growth:        <b>{trend_arrow} {growth_str}</b>",
-            f"Active Days:   <b>{data['active_days']}/{data['days']}</b>",
-            f"Streak:        <b>{data['current_streak']} days</b> (best: {data['longest_streak']})",
-        ])
+        lines.extend(
+            [
+                "",
+                "<b>📊 Trend Stats</b>",
+                f"Total Apps:    <b>{data['total_apps']}</b>",
+                f"Total Emails:  <b>{data['total_emails']}</b>",
+                f"Avg/Day:       <b>{data['avg_per_day']}</b>",
+                f"Growth:        <b>{trend_arrow} {growth_str}</b>",
+                f"Active Days:   <b>{data['active_days']}/{data['days']}</b>",
+                f"Streak:        <b>{data['current_streak']} days</b> (best: {data['longest_streak']})",
+            ]
+        )
 
         if data["best_day"]:
             bd = data["best_day"]
-            lines.append(f"Best Day:      <b>{bd['day']} {bd['date']}</b> ({bd['total']} sent)")
+            lines.append(
+                f"Best Day:      <b>{bd['day']} {bd['date']}</b> ({bd['total']} sent)"
+            )
         if data["worst_day"]:
             wd = data["worst_day"]
             # Don't show worst if it's a day with 0 (could be today hasn't started)
-            if wd["total"] > 0 or data['days'] > 7:
-                lines.append(f"Worst Day:     <b>{wd['day']} {wd['date']}</b> ({wd['total']} sent)")
+            if wd["total"] > 0 or data["days"] > 7:
+                lines.append(
+                    f"Worst Day:     <b>{wd['day']} {wd['date']}</b> ({wd['total']} sent)"
+                )
 
         return "\n".join(lines)
 
@@ -594,7 +643,8 @@ class TelegramAnalytics:
 
             # Top companies by application count
             top = [
-                dict(r) for r in conn.execute(
+                dict(r)
+                for r in conn.execute(
                     "SELECT a.company, COUNT(*) as apps, "
                     "SUM(CASE WHEN a.status = 'responded' OR a.responded = 1 THEN 1 ELSE 0 END) as responses, "
                     "AVG(j.match_score) as avg_score "
@@ -602,18 +652,19 @@ class TelegramAnalytics:
                     "LEFT JOIN jobs j ON a.company = j.company "
                     "WHERE a.company IS NOT NULL AND a.company != '' "
                     "GROUP BY a.company ORDER BY apps DESC LIMIT ?",
-                    (limit,)
+                    (limit,),
                 ).fetchall()
             ]
 
             # Also check jobs table for companies
             jobs_top = [
-                dict(r) for r in conn.execute(
+                dict(r)
+                for r in conn.execute(
                     "SELECT company, COUNT(*) as jobs, "
                     "AVG(match_score) as avg_score "
                     "FROM jobs WHERE company IS NOT NULL AND company != '' "
                     "GROUP BY company ORDER BY jobs DESC LIMIT ?",
-                    (limit,)
+                    (limit,),
                 ).fetchall()
             ]
 
@@ -641,7 +692,9 @@ class TelegramAnalytics:
                     }
 
             # Sort by application count descending
-            result = sorted(merged.values(), key=lambda x: x["apps"], reverse=True)[:limit]
+            result = sorted(merged.values(), key=lambda x: x["apps"], reverse=True)[
+                :limit
+            ]
 
             return {
                 "error": None,
@@ -663,44 +716,51 @@ class TelegramAnalytics:
 
             # Applications to this company
             apps = [
-                dict(r) for r in conn.execute(
+                dict(r)
+                for r in conn.execute(
                     "SELECT title, status, responded, response_type, sent_at, "
                     "opened_at, responded_at "
                     "FROM applications WHERE company LIKE ? "
                     "ORDER BY sent_at DESC LIMIT 30",
-                    (f"%{company_name}%",)
+                    (f"%{company_name}%",),
                 ).fetchall()
             ]
 
             # Jobs from this company
             jobs = [
-                dict(r) for r in conn.execute(
+                dict(r)
+                for r in conn.execute(
                     "SELECT title, status, match_score, created_at "
                     "FROM jobs WHERE company LIKE ? "
                     "ORDER BY created_at DESC LIMIT 30",
-                    (f"%{company_name}%",)
+                    (f"%{company_name}%",),
                 ).fetchall()
             ]
 
             # Emails to this company
             emails = [
-                dict(r) for r in conn.execute(
+                dict(r)
+                for r in conn.execute(
                     "SELECT job_title, status, sent_at, opened_at, responded_at, response_type "
                     "FROM campaign_emails WHERE company_name LIKE ? "
                     "ORDER BY sent_at DESC LIMIT 30",
-                    (f"%{company_name}%",)
+                    (f"%{company_name}%",),
                 ).fetchall()
             ]
 
             # Exact match first
             exact = conn.execute(
                 "SELECT company, COUNT(*) as cnt FROM applications WHERE company = ?",
-                (company_name,)
+                (company_name,),
             ).fetchone()
 
             total_apps = exact["cnt"] if exact else len(apps)
-            responded_count = sum(1 for a in apps if a.get("responded") or a.get("response_type"))
-            response_rate = round((responded_count / total_apps) * 100, 1) if total_apps > 0 else 0
+            responded_count = sum(
+                1 for a in apps if a.get("responded") or a.get("response_type")
+            )
+            response_rate = (
+                round((responded_count / total_apps) * 100, 1) if total_apps > 0 else 0
+            )
 
             return {
                 "error": None,
@@ -735,10 +795,22 @@ class TelegramAnalytics:
         ]
 
         for i, c in enumerate(companies, 1):
-            emoji = "🥇" if i == 1 else ("🥈" if i == 2 else ("🥉" if i == 3 else f"{i}."))
-            resp_str = f" | {c.get('responses', 0)} replies" if c.get("responses", 0) > 0 else ""
-            score_str = f" | ATS {c.get('avg_score', 0):.1f}%" if c.get("avg_score", 0) > 0 else ""
-            lines.append(f"{emoji} <b>{c['company']}</b> — {c['apps']} apps{resp_str}{score_str}")
+            emoji = (
+                "🥇" if i == 1 else ("🥈" if i == 2 else ("🥉" if i == 3 else f"{i}."))
+            )
+            resp_str = (
+                f" | {c.get('responses', 0)} replies"
+                if c.get("responses", 0) > 0
+                else ""
+            )
+            score_str = (
+                f" | ATS {c.get('avg_score', 0):.1f}%"
+                if c.get("avg_score", 0) > 0
+                else ""
+            )
+            lines.append(
+                f"{emoji} <b>{c['company']}</b> — {c['apps']} apps{resp_str}{score_str}"
+            )
 
         return "\n".join(lines)
 
@@ -762,9 +834,14 @@ class TelegramAnalytics:
             lines.append("<b>📬 Recent Applications:</b>")
             for a in apps[:10]:
                 status_icon = {
-                    "responded": "✅", "pending": "⏳", "sent": "📤",
-                    "interview": "🎯", "offer": "🏆", "hired": "💼",
-                    "viewed": "👁", "opened": "👁",
+                    "responded": "✅",
+                    "pending": "⏳",
+                    "sent": "📤",
+                    "interview": "🎯",
+                    "offer": "🏆",
+                    "hired": "💼",
+                    "viewed": "👁",
+                    "opened": "👁",
                 }.get(a.get("status", "pending"), "📌")
 
                 resp = ""
@@ -782,7 +859,11 @@ class TelegramAnalytics:
             lines.append("")
             lines.append("<b>💼 Jobs Found:</b>")
             for j in jobs[:5]:
-                ats = f" (ATS: {j.get('match_score', 'N/A')})" if j.get("match_score") else ""
+                ats = (
+                    f" (ATS: {j.get('match_score', 'N/A')})"
+                    if j.get("match_score")
+                    else ""
+                )
                 title = (j.get("title") or "Unknown")[:40]
                 lines.append(f"  📋 {title}{ats}")
 
@@ -793,10 +874,7 @@ class TelegramAnalytics:
     # ═══════════════════════════════════════════════════════════════
 
     def generate_ascii_chart(
-        self,
-        data: Dict[str, int],
-        max_width: int = 20,
-        title: str = ""
+        self, data: Dict[str, int], max_width: int = 20, title: str = ""
     ) -> str:
         """Generate a generic ASCII bar chart for Telegram display."""
         if not data:
@@ -824,6 +902,7 @@ class TelegramAnalytics:
 # ═══════════════════════════════════════════════════════════════════
 #  Module-level convenience
 # ═══════════════════════════════════════════════════════════════════
+
 
 def create_analytics(db_path: str) -> TelegramAnalytics:
     """Factory for creating TelegramAnalytics with a given DB path."""

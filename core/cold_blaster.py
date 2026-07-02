@@ -12,6 +12,7 @@ Architecture:
 
 CAN-SPAM compliant: unsubscribe links, physical address, honest headers.
 """
+
 import json
 import logging
 import random
@@ -27,22 +28,27 @@ import threading
 logger = logging.getLogger(__name__)
 
 # ── Configuration ──────────────────────────────────────────────
-BLAST_DAILY_CAP = 38000    # headroom below 42K theoretical max
+BLAST_DAILY_CAP = 38000  # headroom below 42K theoretical max
 BLAST_HOURLY_CAP = 4800
-MIN_DELAY_SEC = 2.0        # minimum between sends
-MAX_DELAY_SEC = 5.0        # maximum randomized delay
+MIN_DELAY_SEC = 2.0  # minimum between sends
+MAX_DELAY_SEC = 5.0  # maximum randomized delay
 TRACKING_ENABLED = True
 import sys
 from pathlib import Path
+
 _ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(_ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(_ROOT_DIR))
 try:
     import config
-    SITE_URL = getattr(config, 'SITE_URL', 'https://jhfguf.pythonanywhere.com').rstrip('/')
+
+    SITE_URL = getattr(config, "SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip(
+        "/"
+    )
 except Exception:
     import os
-    SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip('/')
+
+    SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
 UNSUBSCRIBE_URL = f"{SITE_URL}/unsubscribe"
 PHYSICAL_ADDRESS = "Beirut, Lebanon"
 
@@ -96,7 +102,6 @@ Unsubscribe: {unsubscribe_url}
 
 JobHunt Pro · Beirut, Lebanon · Built by job seekers, for job seekers
 """,
-
     """{name},
 
 What if you could apply to every relevant job in your field — automatically — while you sleep?
@@ -120,7 +125,6 @@ Unsubscribe: {unsubscribe_url}
 
 JobHunt Pro · Beirut, Lebanon
 """,
-
     """Hello {name},
 
 Quick question: how many job applications did you send this week?
@@ -169,6 +173,7 @@ def init(data_dir: Optional[str] = None):
     # Init hotmail pool
     try:
         from core.hotmail_pool import init as hp_init
+
         hp_init(str(_data_dir))
     except ImportError:
         logger.warning("Hotmail pool import failed — blaster will use fallback SMTP")
@@ -182,7 +187,7 @@ def _load_stats():
     stats_file = _data_dir / "blast_stats.json"
     if stats_file.exists():
         try:
-            with open(stats_file, 'r') as f:
+            with open(stats_file, "r") as f:
                 saved = json.load(f)
                 _campaign_stats.update(saved)
         except Exception:
@@ -195,7 +200,7 @@ def _save_stats():
     try:
         with _state_lock:
             _campaign_stats["last_updated"] = datetime.utcnow().isoformat()
-        with open(stats_file, 'w') as f:
+        with open(stats_file, "w") as f:
             json.dump(_campaign_stats, f, indent=2)
     except Exception as e:
         logger.error(f"Failed to save blast stats: {e}")
@@ -206,7 +211,7 @@ def send_blast(
     campaign_name: str = "default",
     max_sends: Optional[int] = None,
     test_mode: bool = False,
-    ai_personalize: bool = True
+    ai_personalize: bool = True,
 ) -> Dict:
     """
     Send cold email blast.
@@ -222,7 +227,12 @@ def send_blast(
     """
     try:
         from core import hotmail_pool
-        from core.ban_shield import can_send_gmail, record_send, get_daily_stats, get_safe_send_window
+        from core.ban_shield import (
+            can_send_gmail,
+            record_send,
+            get_daily_stats,
+            get_safe_send_window,
+        )
     except ImportError as e:
         logger.error(f"Cannot import deps: {e}")
         return {"error": str(e), "sent": 0, "failed": 0}
@@ -236,13 +246,21 @@ def send_blast(
         max_sends = min(BLAST_DAILY_CAP - _daily_sent[today], len(recipients))
 
     if max_sends <= 0:
-        return {"sent": 0, "failed": 0, "rate_limited": 0, "detail": "daily cap reached"}
+        return {
+            "sent": 0,
+            "failed": 0,
+            "rate_limited": 0,
+            "detail": "daily cap reached",
+        }
 
     # Test mode override
     if test_mode:
         try:
             import config
-            recipients = [{"email": config.CANDIDATE_EMAIL, "name": config.CANDIDATE_NAME}]
+
+            recipients = [
+                {"email": config.CANDIDATE_EMAIL, "name": config.CANDIDATE_NAME}
+            ]
             max_sends = 1
         except ImportError:
             pass
@@ -258,20 +276,22 @@ def send_blast(
         "total": max_sends,
         "sent": 0,
         "failed": 0,
-        "status": "running"
+        "status": "running",
     }
 
     for i, recipient in enumerate(recipients[:max_sends]):
         # Check daily cap
         if _daily_sent[today] >= BLAST_DAILY_CAP:
-            rate_limited += (max_sends - i)
+            rate_limited += max_sends - i
             break
 
         # BanShield gate — check if we can send
         window = get_safe_send_window()
         if not window.get("can_send", True):
             delay = 30 + random.randint(0, 30)
-            logger.info(f"BanShield cooldown: {delay}s (reason: {window.get('reason', 'unknown')})")
+            logger.info(
+                f"BanShield cooldown: {delay}s (reason: {window.get('reason', 'unknown')})"
+            )
             time.sleep(delay)
             rate_limited += 1
             continue
@@ -286,7 +306,7 @@ def send_blast(
                 name=name,
                 site_url=SITE_URL,
                 unsubscribe_url=f"{UNSUBSCRIBE_URL}?email={to_email}",
-                tracking_pixel=_tracking_pixel_html() if TRACKING_ENABLED else ""
+                tracking_pixel=_tracking_pixel_html() if TRACKING_ENABLED else "",
             )
 
             # AI personalize if enabled
@@ -314,7 +334,9 @@ def send_blast(
                 logger.debug(f"✓ Sent to {to_email}")
             else:
                 failed += 1
-                logger.warning(f"✗ Failed {to_email}: {result.get('error', 'unknown') if result else 'no result'}")
+                logger.warning(
+                    f"✗ Failed {to_email}: {result.get('error', 'unknown') if result else 'no result'}"
+                )
 
         except Exception as e:
             logger.error(f"Blast error for {recipient.get('email', '?')}: {e}")
@@ -324,12 +346,14 @@ def send_blast(
         time.sleep(MIN_DELAY_SEC + random.uniform(0, MAX_DELAY_SEC - MIN_DELAY_SEC))
 
     # Update campaign
-    _active_campaigns[campaign_id].update({
-        "sent": sent,
-        "failed": failed,
-        "status": "completed",
-        "finished": datetime.utcnow().isoformat()
-    })
+    _active_campaigns[campaign_id].update(
+        {
+            "sent": sent,
+            "failed": failed,
+            "status": "completed",
+            "finished": datetime.utcnow().isoformat(),
+        }
+    )
 
     # Update global stats
     with _state_lock:
@@ -356,15 +380,19 @@ def _tracking_pixel_html() -> str:
     return f'<img src="{SITE_URL}/api/track/o/{tid}" width="1" height="1" alt="" style="display:none">'
 
 
-def _ai_personalize(to_email: str, name: str, subject: str, body: str) -> Tuple[str, str]:
+def _ai_personalize(
+    to_email: str, name: str, subject: str, body: str
+) -> Tuple[str, str]:
     """Use Groq to personalize subject + body for recipient."""
     try:
         import os
+
         api_key = os.getenv("GROQ_API_KEY", "")
         if not api_key:
             return subject, body
 
         import requests
+
         prompt = f"""Personalize this cold email for {name} ({to_email}).
 Make it feel genuinely helpful, not spammy. Keep same structure.
 Subject: {subject}
@@ -374,21 +402,25 @@ Return JSON: {{"subject": "...", "body": "..."}}"""
 
         r = requests.post(
             "https://api.groq.com/openai/v1/chat/completions",
-            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
             json={
                 "model": "llama-3.3-70b-versatile",
                 "messages": [{"role": "user", "content": prompt}],
                 "temperature": 0.8,
                 "max_tokens": 800,
             },
-            timeout=15
+            timeout=15,
         )
 
         if r.status_code == 200:
             content = r.json()["choices"][0]["message"]["content"]
             # Extract JSON from response
             import re
-            m = re.search(r'\{.*\}', content, re.DOTALL)
+
+            m = re.search(r"\{.*\}", content, re.DOTALL)
             if m:
                 result = json.loads(m.group())
                 return result.get("subject", subject), result.get("body", body)
@@ -410,7 +442,9 @@ def get_stats() -> Dict:
         "all_time_opens": _campaign_stats["opens"],
         "all_time_clicks": _campaign_stats["clicks"],
         "all_time_signups": _campaign_stats["signups"],
-        "active_campaigns": len([c for c in _active_campaigns.values() if c["status"] == "running"]),
+        "active_campaigns": len(
+            [c for c in _active_campaigns.values() if c["status"] == "running"]
+        ),
         "total_campaigns": len(_active_campaigns),
     }
 
@@ -434,14 +468,19 @@ def load_recipients_from_file(path: str) -> List[Dict[str, str]]:
         raise FileNotFoundError(f"Recipient file not found: {path}")
 
     if p.suffix == ".json":
-        with open(p, 'r', encoding='utf-8') as f:
+        with open(p, "r", encoding="utf-8") as f:
             data = json.load(f)
-        return [{"email": r["email"], "name": r.get("name", "")} for r in data if "email" in r]
+        return [
+            {"email": r["email"], "name": r.get("name", "")}
+            for r in data
+            if "email" in r
+        ]
 
     elif p.suffix == ".csv":
         import csv
+
         recipients = []
-        with open(p, 'r', encoding='utf-8-sig') as f:
+        with open(p, "r", encoding="utf-8-sig") as f:
             reader = csv.reader(f)
             for row in reader:
                 if not row or not row[0]:
@@ -454,12 +493,14 @@ def load_recipients_from_file(path: str) -> List[Dict[str, str]]:
 
     else:
         # Plain text — one email per line
-        with open(p, 'r', encoding='utf-8') as f:
+        with open(p, "r", encoding="utf-8") as f:
             lines = [l.strip() for l in f if "@" in l and "." in l]
         return [{"email": l, "name": ""} for l in lines]
 
 
-def send_from_file(file_path: str, campaign_name: str = None, max_sends: int = None) -> Dict:
+def send_from_file(
+    file_path: str, campaign_name: str = None, max_sends: int = None
+) -> Dict:
     """Convenience: load recipients from file & blast."""
     if campaign_name is None:
         campaign_name = Path(file_path).stem

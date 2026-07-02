@@ -21,17 +21,16 @@ Worker distribution (18,000):
 Squad Leaders (1,500) distributed proportionally across types.
 Team Managers (500) distributed proportionally across types.
 """
+
 import asyncio
 import logging
 import time
 import random
-import json
-from typing import Optional, Dict, Any, List, Callable, Coroutine, Tuple
-from enum import Enum
+from typing import Optional, Dict, Any, List, Callable, Coroutine
 from datetime import datetime
 
 import config
-from core.agent_pool import AgentPool, AgentType, VirtualAgent, AgentStats, AGENT_RATE_LIMITS
+from core.agent_pool import AgentType, VirtualAgent, AgentStats, AGENT_RATE_LIMITS
 
 logger = logging.getLogger(__name__)
 
@@ -76,11 +75,16 @@ MEGA_TEAM_MANAGER_DISTRIBUTION: Dict[AgentType, int] = {
 MEGA_TOTAL_WORKERS = sum(MEGA_WORKER_DISTRIBUTION.values())
 MEGA_TOTAL_SQUAD_LEADERS = sum(MEGA_SQUAD_LEADER_DISTRIBUTION.values())
 MEGA_TOTAL_TEAM_MANAGERS = sum(MEGA_TEAM_MANAGER_DISTRIBUTION.values())
-MEGA_TOTAL_AGENTS = MEGA_TOTAL_WORKERS + MEGA_TOTAL_SQUAD_LEADERS + MEGA_TOTAL_TEAM_MANAGERS
+MEGA_TOTAL_AGENTS = (
+    MEGA_TOTAL_WORKERS + MEGA_TOTAL_SQUAD_LEADERS + MEGA_TOTAL_TEAM_MANAGERS
+)
 
 logger.info(
     "Mega Swarm distribution: %d workers + %d squad leaders + %d team managers = %d total",
-    MEGA_TOTAL_WORKERS, MEGA_TOTAL_SQUAD_LEADERS, MEGA_TOTAL_TEAM_MANAGERS, MEGA_TOTAL_AGENTS
+    MEGA_TOTAL_WORKERS,
+    MEGA_TOTAL_SQUAD_LEADERS,
+    MEGA_TOTAL_TEAM_MANAGERS,
+    MEGA_TOTAL_AGENTS,
 )
 
 # Rate limits for hierarchy agents
@@ -95,13 +99,16 @@ MEGA_RATE_LIMITS: Dict[AgentType, int] = {
 # HIERARCHY AGENT TYPES
 # =============================================================================
 
+
 class SquadLeaderAgent:
     """
     Sub-of-sub agent: manages a squad of ~12 worker agents.
     Receives tasks from TeamManager, distributes to workers, collects results.
     """
 
-    def __init__(self, leader_id: str, agent_type: AgentType, worker_agents: List[VirtualAgent]):
+    def __init__(
+        self, leader_id: str, agent_type: AgentType, worker_agents: List[VirtualAgent]
+    ):
         self.leader_id = leader_id
         self.agent_type = agent_type
         self.workers = worker_agents
@@ -110,7 +117,9 @@ class SquadLeaderAgent:
         self._active_tasks: Dict[str, asyncio.Task] = {}
         logger.info(
             "SquadLeader %s created (%s, %d workers)",
-            leader_id, agent_type.value, len(worker_agents)
+            leader_id,
+            agent_type.value,
+            len(worker_agents),
         )
 
     async def dispatch_to_workers(
@@ -175,7 +184,9 @@ class SquadLeaderAgent:
             "tasks_failed": self.stats.tasks_failed,
             "last_heartbeat": datetime.fromtimestamp(
                 self.stats.last_heartbeat
-            ).isoformat() if self.stats.last_heartbeat else "never",
+            ).isoformat()
+            if self.stats.last_heartbeat
+            else "never",
         }
 
 
@@ -185,7 +196,12 @@ class TeamManagerAgent:
     Receives tasks from MegaSwarmMaster, delegates to squad leaders, aggregates results.
     """
 
-    def __init__(self, manager_id: str, agent_type: AgentType, squad_leaders: List[SquadLeaderAgent]):
+    def __init__(
+        self,
+        manager_id: str,
+        agent_type: AgentType,
+        squad_leaders: List[SquadLeaderAgent],
+    ):
         self.manager_id = manager_id
         self.agent_type = agent_type
         self.squad_leaders = squad_leaders
@@ -194,8 +210,10 @@ class TeamManagerAgent:
         self._active_tasks: Dict[str, asyncio.Task] = {}
         logger.info(
             "TeamManager %s created (%s, %d squad leaders, ~%d workers)",
-            manager_id, agent_type.value, len(squad_leaders),
-            sum(sl.get_worker_count() for sl in squad_leaders)
+            manager_id,
+            agent_type.value,
+            len(squad_leaders),
+            sum(sl.get_worker_count() for sl in squad_leaders),
         )
 
     async def delegate(
@@ -209,9 +227,13 @@ class TeamManagerAgent:
         for i, batch in enumerate(args_batches):
             sl = self._next_squad_leader()
             if sl is None:
-                logger.warning("TeamManager %s: no squad leaders available", self.manager_id)
+                logger.warning(
+                    "TeamManager %s: no squad leaders available", self.manager_id
+                )
                 continue
-            squad_results = await sl.dispatch_to_workers(task_func, batch, result_callback)
+            squad_results = await sl.dispatch_to_workers(
+                task_func, batch, result_callback
+            )
             results.extend(squad_results)
         self.stats.tasks_completed += sum(len(b) for b in args_batches)
         self.stats.last_heartbeat = time.time()
@@ -259,13 +281,16 @@ class TeamManagerAgent:
             "tasks_failed": self.stats.tasks_failed,
             "last_heartbeat": datetime.fromtimestamp(
                 self.stats.last_heartbeat
-            ).isoformat() if self.stats.last_heartbeat else "never",
+            ).isoformat()
+            if self.stats.last_heartbeat
+            else "never",
         }
 
 
 # =============================================================================
 # MEGA AGENT POOL (20,000 agents with hierarchy)
 # =============================================================================
+
 
 class MegaAgentPool:
     """
@@ -288,7 +313,9 @@ class MegaAgentPool:
         pass
         """Build 18,000 worker agents across 7 types."""
         agent_id = 0
-        for agent_type, count in sorted(MEGA_WORKER_DISTRIBUTION.items(), key=lambda x: x[0].value):
+        for agent_type, count in sorted(
+            MEGA_WORKER_DISTRIBUTION.items(), key=lambda x: x[0].value
+        ):
             for _ in range(count):
                 aid = f"worker_{agent_id:05d}"
                 a = VirtualAgent(aid, agent_type)
@@ -323,14 +350,17 @@ class MegaAgentPool:
         Distributed dispatch: Enqueue tasks to the job_queue natively.
         """
         from core.job_queue import enqueue_bulk_tasks
+
         tasks_to_enqueue = []
         for batch in args_batches:
             for args in batch:
-                tasks_to_enqueue.append({
-                    "task_type": f"mega_task_{agent_type.name.lower()}",
-                    "payload": {"args": args}
-                })
-                
+                tasks_to_enqueue.append(
+                    {
+                        "task_type": f"mega_task_{agent_type.name.lower()}",
+                        "payload": {"args": args},
+                    }
+                )
+
         count = enqueue_bulk_tasks(tasks_to_enqueue)
         return count
 
@@ -341,7 +371,7 @@ class MegaAgentPool:
         args: tuple = (),
     ) -> int:
         """Broadcast a task to ALL workers of a given type via hierarchy."""
-        return 0 # Deprecated in distributed mode
+        return 0  # Deprecated in distributed mode
 
     def get_pool_stats(self) -> Dict[str, Any]:
         """Get comprehensive stats for the entire 20,000 agent pool."""
@@ -356,11 +386,15 @@ class MegaAgentPool:
                 "team_managers": len(teams),
                 "total": len(workers) + len(squads) + len(teams),
                 "workers_busy": sum(1 for a in workers if a.is_busy),
-                "workers_available": sum(1 for a in workers if not a.is_busy and a.queue_size < 10),
+                "workers_available": sum(
+                    1 for a in workers if not a.is_busy and a.queue_size < 10
+                ),
             }
 
         return {
-            "total_agents": len(self.workers) + len(self.squad_leaders) + len(self.team_managers),
+            "total_agents": len(self.workers)
+            + len(self.squad_leaders)
+            + len(self.team_managers),
             "total_workers": len(self.workers),
             "total_squad_leaders": len(self.squad_leaders),
             "total_team_managers": len(self.team_managers),
@@ -372,6 +406,7 @@ class MegaAgentPool:
 # =============================================================================
 # MEGA SWARM MASTER — Top-level orchestrator for 20,000 agents
 # =============================================================================
+
 
 class MegaSwarmMaster:
     """
@@ -416,8 +451,10 @@ class MegaSwarmMaster:
 
         logger.info(
             "Mega Swarm initialized: %d agents ready (%d workers + %d squad leaders + %d team managers)",
-            MEGA_TOTAL_AGENTS, MEGA_TOTAL_WORKERS,
-            MEGA_TOTAL_SQUAD_LEADERS, MEGA_TOTAL_TEAM_MANAGERS
+            MEGA_TOTAL_AGENTS,
+            MEGA_TOTAL_WORKERS,
+            MEGA_TOTAL_SQUAD_LEADERS,
+            MEGA_TOTAL_TEAM_MANAGERS,
         )
         return self
 
@@ -489,7 +526,9 @@ class MegaSwarmMaster:
         total = sum(results.values())
         logger.info(
             "=== MEGA CYCLE #%d COMPLETE: %d tasks dispatched across %d agents ===",
-            self._cycle_count, total, MEGA_TOTAL_AGENTS
+            self._cycle_count,
+            total,
+            MEGA_TOTAL_AGENTS,
         )
         for phase, count in results.items():
             logger.info("  %s: %d tasks", phase, count)
@@ -508,7 +547,17 @@ class MegaSwarmMaster:
 
         # Build search queries
         queries = []
-        keywords = getattr(config, "JOB_KEYWORDS", ["Network Engineer", "DevOps Engineer", "Cloud Architect", "Systems Administrator", "IT Support"])
+        keywords = getattr(
+            config,
+            "JOB_KEYWORDS",
+            [
+                "Network Engineer",
+                "DevOps Engineer",
+                "Cloud Architect",
+                "Systems Administrator",
+                "IT Support",
+            ],
+        )
         for keyword in keywords[:5]:
             for location in ["remote", "beirut", "middle east"]:
                 queries.append((keyword, location))
@@ -528,7 +577,7 @@ class MegaSwarmMaster:
         batch_size = 12
         args_batches = []
         for i in range(0, len(queries), batch_size):
-            batch = [(q[0], q[1]) for q in queries[i:i + batch_size]]
+            batch = [(q[0], q[1]) for q in queries[i : i + batch_size]]
             args_batches.append(batch)
 
         # Distribute via hierarchy: TeamManager -> SquadLeader -> Worker
@@ -554,16 +603,18 @@ class MegaSwarmMaster:
 
         # Fetch unscored jobs from DB
         unscored_jobs = []
-        if self._orchestrator and hasattr(self._orchestrator, 'db'):
+        if self._orchestrator and hasattr(self._orchestrator, "db"):
             try:
                 rows = await self._orchestrator.db.get_unscored_jobs(limit=200)
                 for row in rows:
-                    unscored_jobs.append({
-                        "id": row.get("id", 0),
-                        "title": row.get("title", ""),
-                        "company": row.get("company", ""),
-                        "description": (row.get("snippet", "") or "")[:500],
-                    })
+                    unscored_jobs.append(
+                        {
+                            "id": row.get("id", 0),
+                            "title": row.get("title", ""),
+                            "company": row.get("company", ""),
+                            "description": (row.get("snippet", "") or "")[:500],
+                        }
+                    )
             except Exception as e:
                 logger.debug("Could not fetch unscored jobs: %s", e)
 
@@ -571,26 +622,41 @@ class MegaSwarmMaster:
             # Generate synthetic jobs for the 3,000 scorers to work on
             logger.info("No DB jobs found, using synthetic scoring targets")
             for i in range(200):
-                unscored_jobs.append({
-                    "id": i,
-                    "title": random.choice([
-                        "Network Engineer", "Senior Network Engineer", "DevOps Engineer",
-                        "Cloud Architect", "Security Engineer", "Systems Administrator",
-                        "IT Manager", "Infrastructure Engineer", "Network Architect",
-                        "Technical Support Engineer"
-                    ]),
-                    "company": random.choice([
-                        "Cisco", "Amazon", "Microsoft", "Google", "Fortinet",
-                        "MikroTik", "IBM", "Oracle", "Dell", "HPE"
-                    ]),
-                    "description": f"Network engineering position requiring 5+ years experience.",
-                })
+                unscored_jobs.append(
+                    {
+                        "id": i,
+                        "title": random.choice(
+                            [
+                                "Network Engineer",
+                                "Senior Network Engineer",
+                                "DevOps Engineer",
+                                "Cloud Architect",
+                                "Security Engineer",
+                                "Systems Administrator",
+                                "IT Manager",
+                                "Infrastructure Engineer",
+                                "Network Architect",
+                                "Technical Support Engineer",
+                            ]
+                        ),
+                        "company": random.choice(
+                            [
+                                "Cisco",
+                                "Amazon",
+                                "Microsoft",
+                                "Google",
+                                "Fortinet",
+                                "MikroTik",
+                                "IBM",
+                                "Oracle",
+                                "Dell",
+                                "HPE",
+                            ]
+                        ),
+                        "description": f"Network engineering position requiring 5+ years experience.",
+                    }
+                )
 
-        system_prompt = (
-            f"Score this job for {config.CANDIDATE_NAME}, "
-            f"a {config.CANDIDATE_TITLE} with {config.YEARS_EXPERIENCE} years experience. "
-            f"Return JSON with score (0-100) and reasons."
-        )
 
         async def score_worker(job: dict) -> Dict[str, Any]:
             """Individual scoring worker task."""
@@ -601,7 +667,7 @@ class MegaSwarmMaster:
         batch_size = 12
         args_batches = []
         for i in range(0, len(unscored_jobs), batch_size):
-            batch = [(j,) for j in unscored_jobs[i:i + batch_size]]
+            batch = [(j,) for j in unscored_jobs[i : i + batch_size]]
             args_batches.append(batch)
 
         dispatched = await self.mega_pool.dispatch(
@@ -627,17 +693,26 @@ class MegaSwarmMaster:
         # Generate synthetic jobs for cover letters
         jobs = []
         for i in range(150):
-            jobs.append({
-                "id": i,
-                "title": random.choice([
-                    "Network Engineer", "Senior Network Engineer", "DevOps Engineer",
-                    "Cloud Architect", "Security Engineer"
-                ]),
-                "company": random.choice([
-                    "Cisco", "Amazon", "Microsoft", "Google", "Fortinet", "IBM"
-                ]),
-                "location": random.choice(["Remote", "Beirut", "Dubai", "London", "New York"]),
-            })
+            jobs.append(
+                {
+                    "id": i,
+                    "title": random.choice(
+                        [
+                            "Network Engineer",
+                            "Senior Network Engineer",
+                            "DevOps Engineer",
+                            "Cloud Architect",
+                            "Security Engineer",
+                        ]
+                    ),
+                    "company": random.choice(
+                        ["Cisco", "Amazon", "Microsoft", "Google", "Fortinet", "IBM"]
+                    ),
+                    "location": random.choice(
+                        ["Remote", "Beirut", "Dubai", "London", "New York"]
+                    ),
+                }
+            )
 
         async def cover_letter_worker(job: dict) -> Dict[str, Any]:
             """Individual cover letter worker task."""
@@ -652,7 +727,7 @@ class MegaSwarmMaster:
         batch_size = 12
         args_batches = []
         for i in range(0, len(jobs), batch_size):
-            batch = [(j,) for j in jobs[i:i + batch_size]]
+            batch = [(j,) for j in jobs[i : i + batch_size]]
             args_batches.append(batch)
 
         dispatched = await self.mega_pool.dispatch(
@@ -662,7 +737,9 @@ class MegaSwarmMaster:
         )
 
         await asyncio.sleep(1)
-        logger.info("[%s] Phase 3 dispatched %d cover letter tasks", cycle_id, dispatched)
+        logger.info(
+            "[%s] Phase 3 dispatched %d cover letter tasks", cycle_id, dispatched
+        )
         return dispatched
 
     # -------------------------------------------------------------------------
@@ -677,30 +754,38 @@ class MegaSwarmMaster:
 
         # Prepare recipients
         recipients = []
-        if self._orchestrator and hasattr(self._orchestrator, 'db'):
+        if self._orchestrator and hasattr(self._orchestrator, "db"):
             try:
                 rows = await self._orchestrator.db.get_scored_jobs(
                     min_score=config.MIN_MATCH_SCORE, limit=200
                 )
                 for row in rows:
-                    recipients.append({
-                        "id": row.get("id", 0),
-                        "to_email": row.get("email", ""),
-                        "title": row.get("title", ""),
-                        "company": row.get("company", ""),
-                    })
+                    recipients.append(
+                        {
+                            "id": row.get("id", 0),
+                            "to_email": row.get("email", ""),
+                            "title": row.get("title", ""),
+                            "company": row.get("company", ""),
+                        }
+                    )
             except Exception:
                 pass
 
         # Generate synthetic recipients if none found
         if not recipients:
             for i in range(100):
-                recipients.append({
-                    "id": i,
-                    "to_email": f"hiring@{random.choice(['company', 'corp', 'tech', 'global'])}.com",
-                    "title": random.choice(["Network Engineer", "DevOps Engineer", "Cloud Architect"]),
-                    "company": random.choice(["Tech Corp", "Global Systems", "Net Solutions"]),
-                })
+                recipients.append(
+                    {
+                        "id": i,
+                        "to_email": f"hiring@{random.choice(['company', 'corp', 'tech', 'global'])}.com",
+                        "title": random.choice(
+                            ["Network Engineer", "DevOps Engineer", "Cloud Architect"]
+                        ),
+                        "company": random.choice(
+                            ["Tech Corp", "Global Systems", "Net Solutions"]
+                        ),
+                    }
+                )
 
         async def email_worker(recipient: dict) -> Dict[str, Any]:
             """Individual email worker task."""
@@ -715,7 +800,7 @@ class MegaSwarmMaster:
         batch_size = 12
         args_batches = []
         for i in range(0, len(recipients), batch_size):
-            batch = [(r,) for r in recipients[i:i + batch_size]]
+            batch = [(r,) for r in recipients[i : i + batch_size]]
             args_batches.append(batch)
 
         dispatched = await self.mega_pool.dispatch(
@@ -733,22 +818,38 @@ class MegaSwarmMaster:
     # -------------------------------------------------------------------------
     async def _phase_collect(self, cycle_id: str) -> int:
         """Phase 5: Deploy 1,500 data collectors to gather results."""
-        logger.info("[%s] PHASE 5: Mega Data Collection (1,500 collector workers)", cycle_id)
+        logger.info(
+            "[%s] PHASE 5: Mega Data Collection (1,500 collector workers)", cycle_id
+        )
 
         if not self.mega_pool:
             return 0
 
         # Collect DB stats
-        collected_data = {"total_jobs": 0, "applied": 0, "new": 0, "failed": 0, "scored": 0}
-        if self._orchestrator and hasattr(self._orchestrator, 'db'):
+        collected_data = {
+            "total_jobs": 0,
+            "applied": 0,
+            "new": 0,
+            "failed": 0,
+            "scored": 0,
+        }
+        if self._orchestrator and hasattr(self._orchestrator, "db"):
             try:
-                new_jobs = await self._orchestrator.db.get_jobs_by_status("new", limit=2000)
+                new_jobs = await self._orchestrator.db.get_jobs_by_status(
+                    "new", limit=2000
+                )
                 collected_data["new"] = len(new_jobs)
                 failed_jobs = await self._orchestrator.db.get_failed_jobs(limit=2000)
                 collected_data["failed"] = len(failed_jobs)
-                applied_jobs = await self._orchestrator.db.get_jobs_by_status("applied", limit=2000)
+                applied_jobs = await self._orchestrator.db.get_jobs_by_status(
+                    "applied", limit=2000
+                )
                 collected_data["applied"] = len(applied_jobs)
-                collected_data["total_jobs"] = collected_data["new"] + collected_data["applied"] + collected_data["failed"]
+                collected_data["total_jobs"] = (
+                    collected_data["new"]
+                    + collected_data["applied"]
+                    + collected_data["failed"]
+                )
             except Exception as e:
                 logger.debug("Data collection error: %s", e)
 
@@ -765,7 +866,7 @@ class MegaSwarmMaster:
         batch_size = 12
         args_batches = []
         for i in range(0, len(batches), batch_size):
-            batch = [(b[0], b[1]) for b in batches[i:i + batch_size]]
+            batch = [(b[0], b[1]) for b in batches[i : i + batch_size]]
             args_batches.append(batch)
 
         dispatched = await self.mega_pool.dispatch(
@@ -789,10 +890,14 @@ class MegaSwarmMaster:
             return 0
 
         db_stats = {"total_new": 0, "total_applied": 0, "total_failed": 0}
-        if self._orchestrator and hasattr(self._orchestrator, 'db'):
+        if self._orchestrator and hasattr(self._orchestrator, "db"):
             try:
-                new_jobs = await self._orchestrator.db.get_jobs_by_status("new", limit=2000)
-                applied = await self._orchestrator.db.get_jobs_by_status("applied", limit=2000)
+                new_jobs = await self._orchestrator.db.get_jobs_by_status(
+                    "new", limit=2000
+                )
+                applied = await self._orchestrator.db.get_jobs_by_status(
+                    "applied", limit=2000
+                )
                 failed = await self._orchestrator.db.get_failed_jobs(limit=2000)
                 db_stats = {
                     "total_new": len(new_jobs),
@@ -803,9 +908,16 @@ class MegaSwarmMaster:
                 pass
 
         analysis_types = [
-            "score_distribution", "application_funnel", "company_engagement",
-            "location_trends", "status_breakdown", "skill_gap_analysis",
-            "salary_trends", "market_demand", "response_rate", "competitor_analysis",
+            "score_distribution",
+            "application_funnel",
+            "company_engagement",
+            "location_trends",
+            "status_breakdown",
+            "skill_gap_analysis",
+            "salary_trends",
+            "market_demand",
+            "response_rate",
+            "competitor_analysis",
         ]
 
         async def analyze_worker(analysis_type: str, stats: dict) -> Dict[str, Any]:
@@ -838,27 +950,35 @@ class MegaSwarmMaster:
 
         # Get applied jobs for follow-up
         applied_jobs = []
-        if self._orchestrator and hasattr(self._orchestrator, 'db'):
+        if self._orchestrator and hasattr(self._orchestrator, "db"):
             try:
-                rows = await self._orchestrator.db.get_jobs_by_status("applied", limit=200)
+                rows = await self._orchestrator.db.get_jobs_by_status(
+                    "applied", limit=200
+                )
                 for row in rows:
-                    applied_jobs.append({
-                        "id": row.get("id", 0),
-                        "company": row.get("company", ""),
-                        "title": row.get("title", ""),
-                        "email": row.get("email", ""),
-                    })
+                    applied_jobs.append(
+                        {
+                            "id": row.get("id", 0),
+                            "company": row.get("company", ""),
+                            "title": row.get("title", ""),
+                            "email": row.get("email", ""),
+                        }
+                    )
             except Exception:
                 pass
 
         if not applied_jobs:
             for i in range(80):
-                applied_jobs.append({
-                    "id": i,
-                    "company": random.choice(["Tech Corp", "Global Systems", "Net Solutions"]),
-                    "title": random.choice(["Network Engineer", "DevOps Engineer"]),
-                    "email": f"hr@{random.choice(['company', 'corp'])}.com",
-                })
+                applied_jobs.append(
+                    {
+                        "id": i,
+                        "company": random.choice(
+                            ["Tech Corp", "Global Systems", "Net Solutions"]
+                        ),
+                        "title": random.choice(["Network Engineer", "DevOps Engineer"]),
+                        "email": f"hr@{random.choice(['company', 'corp'])}.com",
+                    }
+                )
 
         async def followup_worker(job_ref: dict) -> Dict[str, Any]:
             """Individual follow-up worker task."""
@@ -873,7 +993,7 @@ class MegaSwarmMaster:
         batch_size = 12
         args_batches = []
         for i in range(0, len(applied_jobs), batch_size):
-            batch = [(j,) for j in applied_jobs[i:i + batch_size]]
+            batch = [(j,) for j in applied_jobs[i : i + batch_size]]
             args_batches.append(batch)
 
         dispatched = await self.mega_pool.dispatch(

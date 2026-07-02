@@ -21,7 +21,7 @@ import os
 import asyncio
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field, asdict
 
 import config
@@ -30,17 +30,23 @@ logger = logging.getLogger(__name__)
 
 # ── Dataclasses ─────────────────────────────────────────────────────────────
 
+
 @dataclass
 class OptimizedSection:
     """A single optimized section of the resume."""
-    section_name: str       # e.g. "Professional Summary", "Technical Skills"
-    original_text: str      # Original content before optimization
-    optimized_text: str     # Keyword-enriched optimized content
-    injected_keywords: List[str] = field(default_factory=list)  # Keywords added to this section
+
+    section_name: str  # e.g. "Professional Summary", "Technical Skills"
+    original_text: str  # Original content before optimization
+    optimized_text: str  # Keyword-enriched optimized content
+    injected_keywords: List[str] = field(
+        default_factory=list
+    )  # Keywords added to this section
+
 
 @dataclass
 class ATSOptimizationResult:
     """Full result of the ATS resume optimization pipeline."""
+
     target_job_title: str = ""
     target_company: str = ""
     extracted_keywords: List[str] = field(default_factory=list)
@@ -56,7 +62,9 @@ class ATSOptimizationResult:
         return {
             "target_job_title": self.target_job_title,
             "target_company": self.target_company,
-            "extracted_keywords": json.dumps(self.extracted_keywords, ensure_ascii=False),
+            "extracted_keywords": json.dumps(
+                self.extracted_keywords, ensure_ascii=False
+            ),
             "optimized_sections": json.dumps(
                 [asdict(s) for s in self.optimized_sections],
                 ensure_ascii=False,
@@ -127,6 +135,7 @@ Return format:
 
 # ── Resume Optimizer ────────────────────────────────────────────────────────
 
+
 class ResumeOptimizer:
     """AI-powered ATS resume optimizer using LLM provider pool + direct Groq fallback."""
 
@@ -159,30 +168,32 @@ class ResumeOptimizer:
     def _extract_json(text: str) -> dict:
         """Robustly extract and parse JSON object from LLM response."""
         text_clean = (text or "").strip()
-        
+
         # 1. Try parsing directly
         try:
             return json.loads(text_clean)
         except json.JSONDecodeError:
             pass
-            
+
         # 2. Try extracting content inside code blocks ```json ... ```
-        code_block_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text_clean, re.IGNORECASE)
+        code_block_match = re.search(
+            r"```(?:json)?\s*([\s\S]*?)\s*```", text_clean, re.IGNORECASE
+        )
         if code_block_match:
             try:
                 return json.loads(code_block_match.group(1).strip())
             except json.JSONDecodeError:
                 pass
-                
+
         # 3. Find first '{' and last '}' to extract raw JSON block
         start_idx = text_clean.find("{")
         end_idx = text_clean.rfind("}")
         if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
             try:
-                return json.loads(text_clean[start_idx:end_idx + 1])
+                return json.loads(text_clean[start_idx : end_idx + 1])
             except json.JSONDecodeError:
                 pass
-                
+
         # Fallback to direct json.loads (will raise JSONDecodeError with helpful context)
         return json.loads(text_clean)
 
@@ -205,6 +216,7 @@ class ResumeOptimizer:
         if self._llm_pool:
             try:
                 from core.llm_provider_pool import LLMProvider
+
                 preferred = LLMProvider.GROQ if prefer_groq else None
                 result = await self._llm_pool.complete(
                     system_prompt=system_prompt,
@@ -216,7 +228,9 @@ class ResumeOptimizer:
                 if result:
                     return result.strip()
             except Exception as e:
-                logger.warning(f"LLM pool call failed: {e}, falling back to direct Groq")
+                logger.warning(
+                    f"LLM pool call failed: {e}, falling back to direct Groq"
+                )
 
         # Fallback: direct Groq AsyncClient
         if not self._groq_keys:
@@ -249,7 +263,9 @@ class ResumeOptimizer:
 
     # ── Parse Job Keywords ─────────────────────────────────────────────────
 
-    async def parse_job_keywords(self, job_description: str, job_title: str = "") -> Dict[str, List[str]]:
+    async def parse_job_keywords(
+        self, job_description: str, job_title: str = ""
+    ) -> Dict[str, List[str]]:
         """Extract categorized keywords from a job description using AI.
 
         Args:
@@ -276,11 +292,19 @@ class ResumeOptimizer:
         try:
             result = self._extract_json(raw)
             # Ensure all categories exist
-            categories = ["technical_skills", "soft_skills", "certifications", "tools", "domain_knowledge"]
+            categories = [
+                "technical_skills",
+                "soft_skills",
+                "certifications",
+                "tools",
+                "domain_knowledge",
+            ]
             for cat in categories:
                 if cat not in result or not isinstance(result[cat], list):
                     result[cat] = []
-            if "all_keywords" not in result or not isinstance(result["all_keywords"], list):
+            if "all_keywords" not in result or not isinstance(
+                result["all_keywords"], list
+            ):
                 # Build merged deduplicated list
                 seen = set()
                 all_kw = []
@@ -302,6 +326,7 @@ class ResumeOptimizer:
             asyncio.get_running_loop()
             # Active event loop running! Run in a separate thread.
             from concurrent.futures import ThreadPoolExecutor
+
             with ThreadPoolExecutor(max_workers=1) as executor:
                 future = executor.submit(lambda: asyncio.run(coro))
                 return future.result()
@@ -309,7 +334,9 @@ class ResumeOptimizer:
             # No running event loop
             return asyncio.run(coro)
 
-    def parse_job_keywords_sync(self, job_description: str, job_title: str = "") -> Dict[str, List[str]]:
+    def parse_job_keywords_sync(
+        self, job_description: str, job_title: str = ""
+    ) -> Dict[str, List[str]]:
         """Synchronous wrapper for parse_job_keywords."""
         return self._run_sync(self.parse_job_keywords(job_description, job_title))
 
@@ -331,9 +358,9 @@ class ResumeOptimizer:
 
         # Match certifications
         cert_patterns = [
-            r'\b(ccna|ccnp|ccie|comptia|nse|mtcna|mtcre)\b',
-            r'\b(certified|certification)\s+\w+',
-            r'\b(pmp|itil|aws\s+solutions|azure\s+administrator)\b',
+            r"\b(ccna|ccnp|ccie|comptia|nse|mtcna|mtcre)\b",
+            r"\b(certified|certification)\s+\w+",
+            r"\b(pmp|itil|aws\s+solutions|azure\s+administrator)\b",
         ]
         for pattern in cert_patterns:
             for match in re.finditer(pattern, text, re.IGNORECASE):
@@ -341,8 +368,8 @@ class ResumeOptimizer:
 
         # Match tools
         tool_patterns = [
-            r'\b(wireshark|prtg|nagios|zabbix|solarwinds|ansible|terraform)\b',
-            r'\b(docker|kubernetes|jenkins|gitlab|jira|confluence)\b',
+            r"\b(wireshark|prtg|nagios|zabbix|solarwinds|ansible|terraform)\b",
+            r"\b(docker|kubernetes|jenkins|gitlab|jira|confluence)\b",
         ]
         for pattern in tool_patterns:
             for match in re.finditer(pattern, text, re.IGNORECASE):
@@ -350,8 +377,8 @@ class ResumeOptimizer:
 
         # Match domain knowledge
         domain_patterns = [
-            r'\b(ospf|bgp|mpls|vlan|vxlan|sdn|nfv|vpn|ipsec|ssl)\b',
-            r'\b(firewall|load\s*balancer|proxy|vpc|nat|acl)\b',
+            r"\b(ospf|bgp|mpls|vlan|vxlan|sdn|nfv|vpn|ipsec|ssl)\b",
+            r"\b(firewall|load\s*balancer|proxy|vpc|nat|acl)\b",
         ]
         for pattern in domain_patterns:
             for match in re.finditer(pattern, text, re.IGNORECASE):
@@ -402,8 +429,8 @@ class ResumeOptimizer:
         all_keywords = keywords.get("all_keywords", [])
         keyword_summary = json.dumps(keywords, ensure_ascii=False, indent=2)
 
-        user_prompt = f"""Job Title: {job_title or 'N/A'}
-Target Company: {company or 'N/A'}
+        user_prompt = f"""Job Title: {job_title or "N/A"}
+Target Company: {company or "N/A"}
 
 Keywords to inject (categorized):
 {keyword_summary[:2000]}
@@ -411,7 +438,7 @@ Keywords to inject (categorized):
 Candidate Resume:
 {cv_text[:5000]}
 
-Sections to optimize: {sections_to_optimize or 'Auto-detect from resume'}
+Sections to optimize: {sections_to_optimize or "Auto-detect from resume"}
 
 Rewrite each section naturally incorporating the target keywords.
 Preserve all factual experience — do NOT fabricate.
@@ -431,7 +458,9 @@ Track which keywords were injected per section."""
         try:
             data = self._extract_json(raw)
         except json.JSONDecodeError as e:
-            logger.warning(f"Failed to parse optimization JSON: {e}, returning fallback")
+            logger.warning(
+                f"Failed to parse optimization JSON: {e}, returning fallback"
+            )
             return self._fallback_optimize(cv_text, keywords, job_title, company)
 
         # Build result
@@ -477,7 +506,9 @@ Track which keywords were injected per section."""
         result.suggestions = data.get("suggestions", [])
         if not isinstance(result.suggestions, list):
             result.suggestions = []
-        result.match_score_estimate = min(100, max(0, int(data.get("estimated_match_score", 0))))
+        result.match_score_estimate = min(
+            100, max(0, int(data.get("estimated_match_score", 0)))
+        )
 
         logger.info(
             f"Resume optimized for '{job_title}' at '{company}': "
@@ -496,9 +527,11 @@ Track which keywords were injected per section."""
         company: str = "",
     ) -> ATSOptimizationResult:
         """Synchronous wrapper for optimize_resume_sections."""
-        return self._run_sync(self.optimize_resume_sections(
-            cv_text, keywords, sections_to_optimize, job_title, company
-        ))
+        return self._run_sync(
+            self.optimize_resume_sections(
+                cv_text, keywords, sections_to_optimize, job_title, company
+            )
+        )
 
     # ── Fallback Optimize ──────────────────────────────────────────────────
 
@@ -576,14 +609,18 @@ Track which keywords were injected per section."""
             cv_text = await self._load_cv_text(cv_path)
 
         if not cv_text:
-            raise ValueError("No CV text available — provide cv_text or a valid cv_path")
+            raise ValueError(
+                "No CV text available — provide cv_text or a valid cv_path"
+            )
 
         # Step 2: Parse job keywords
         logger.info(f"Parsing keywords from job description...")
         keywords = await self.parse_job_keywords(job_description, job_title)
         kw_count = len(keywords.get("all_keywords", []))
-        logger.info(f"Extracted {kw_count} keywords across "
-                     f"{sum(1 for v in keywords.values() if isinstance(v, list))} categories")
+        logger.info(
+            f"Extracted {kw_count} keywords across "
+            f"{sum(1 for v in keywords.values() if isinstance(v, list))} categories"
+        )
 
         # Step 3: Optimize resume sections
         logger.info(f"Optimizing resume for '{job_title}' at '{company}'...")
@@ -596,7 +633,10 @@ Track which keywords were injected per section."""
 
         # Step 4: Save to file if requested
         if output_path:
-            os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else ".", exist_ok=True)
+            os.makedirs(
+                os.path.dirname(output_path) if os.path.dirname(output_path) else ".",
+                exist_ok=True,
+            )
             with open(output_path, "w", encoding="utf-8") as f:
                 f.write(result.optimized_full_text)
             logger.info(f"Optimized resume saved to {output_path}")
@@ -613,14 +653,16 @@ Track which keywords were injected per section."""
         company: str = "",
     ) -> ATSOptimizationResult:
         """Synchronous wrapper for generate_ats_resume."""
-        return self._run_sync(self.generate_ats_resume(
-            cv_path=cv_path,
-            cv_text=cv_text,
-            job_description=job_description,
-            output_path=output_path,
-            job_title=job_title,
-            company=company,
-        ))
+        return self._run_sync(
+            self.generate_ats_resume(
+                cv_path=cv_path,
+                cv_text=cv_text,
+                job_description=job_description,
+                output_path=output_path,
+                job_title=job_title,
+                company=company,
+            )
+        )
 
     # ── CV Text Loader ─────────────────────────────────────────────────────
 
@@ -644,6 +686,7 @@ Track which keywords were injected per section."""
             # 1. Try pdfplumber (preferred, preserves layout spacing)
             try:
                 import pdfplumber
+
                 with pdfplumber.open(cv_path) as pdf:
                     text = "\n".join(page.extract_text() or "" for page in pdf.pages)
                 if text.strip():
@@ -656,6 +699,7 @@ Track which keywords were injected per section."""
             # 2. Try pypdf (modern standard fallback)
             try:
                 import pypdf
+
                 with open(cv_path, "rb") as f:
                     reader = pypdf.PdfReader(f)
                     text = "\n".join(page.extract_text() or "" for page in reader.pages)
@@ -669,6 +713,7 @@ Track which keywords were injected per section."""
             # 3. Try PyPDF2 (legacy fallback)
             try:
                 import PyPDF2
+
                 with open(cv_path, "rb") as f:
                     reader = PyPDF2.PdfReader(f)
                     text = "\n".join(page.extract_text() or "" for page in reader.pages)
@@ -679,12 +724,15 @@ Track which keywords were injected per section."""
             except Exception as e:
                 logger.warning(f"PyPDF2 fallback failed: {e}")
 
-            logger.warning("No functional PDF reader available (please install pdfplumber or pypdf)")
+            logger.warning(
+                "No functional PDF reader available (please install pdfplumber or pypdf)"
+            )
             return ""
 
         elif ext == ".docx":
             try:
                 from docx import Document
+
                 doc = Document(cv_path)
                 return "\n".join(p.text for p in doc.paragraphs)
             except ImportError:
@@ -701,7 +749,10 @@ Track which keywords were injected per section."""
 
 # ── Standalone API ──────────────────────────────────────────────────────────
 
-def parse_job_keywords(job_description: str, job_title: str = "") -> Dict[str, List[str]]:
+
+def parse_job_keywords(
+    job_description: str, job_title: str = ""
+) -> Dict[str, List[str]]:
     """Quick one-shot keyword extraction — no optimizer instance needed.
 
     Example:
@@ -712,17 +763,24 @@ def parse_job_keywords(job_description: str, job_title: str = "") -> Dict[str, L
     return opt.parse_job_keywords_sync(job_description, job_title)
 
 
-def optimize_resume(cv_text: str, job_description: str,
-                    job_title: str = "", company: str = "") -> ATSOptimizationResult:
+def optimize_resume(
+    cv_text: str, job_description: str, job_title: str = "", company: str = ""
+) -> ATSOptimizationResult:
     """Quick one-shot resume optimization — no optimizer instance needed."""
     opt = ResumeOptimizer()
     keywords = opt.parse_job_keywords_sync(job_description, job_title)
-    return opt.optimize_resume_sections_sync(cv_text, keywords, job_title=job_title, company=company)
+    return opt.optimize_resume_sections_sync(
+        cv_text, keywords, job_title=job_title, company=company
+    )
 
 
-def generate_ats_resume(cv_path: str, job_description: str,
-                        output_path: Optional[str] = None,
-                        job_title: str = "", company: str = "") -> ATSOptimizationResult:
+def generate_ats_resume(
+    cv_path: str,
+    job_description: str,
+    output_path: Optional[str] = None,
+    job_title: str = "",
+    company: str = "",
+) -> ATSOptimizationResult:
     """Quick one-shot end-to-end ATS resume generation."""
     opt = ResumeOptimizer()
     return opt.generate_ats_resume_sync(

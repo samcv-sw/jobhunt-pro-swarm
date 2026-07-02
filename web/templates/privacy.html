@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="سياسة خصوصية JobHunt Pro — كيف منسحب وبنحمي بياناتك وسيرتك الذاتية.">
-    <title>سياسة الخصوصية &mdash; JobHunt Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
-    <style>
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="سياسة خصوصية JobHunt Pro — كيف منسحب وبنحمي بياناتك وسيرتك الذاتية." name="description"/>
+<title>{{ _('سياسة الخصوصية — JobHunt Pro') }}</title>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
+<style>
         :root {
             --text-x-direction: -1;
         }
@@ -35,59 +36,57 @@
         @media(max-width:768px){.headroom{padding-inline:12px}.headroom nav{gap:10px}.headroom nav a{font-size:14px}.container{padding-block-start:40px;padding-inline:16px;padding-block-end:60px}h1{font-size:26px}.section h2{font-size:17px}}
     </style>
 </head>
-
 <body class="cyberpunk-body">
 <header class="headroom">
-    <div class="brand">JobHunt Pro</div>
-    <nav>
-        <a href="/">الرئيسية</a>
-        <a href="/services">خدماتنا</a>
-        <a href="/pricing">الأسعار</a>
-        <a href="/faq">أسئلة شائعة</a>
-        <a href="/blog">المدونة</a>
-        <a href="/contact">تواصل معنا</a>
-        <a href="/login">تسجيل الدخول</a>
-        <a href="/register" class="btn-nav">بلّش هلق</a>
-    </nav>
+<div class="brand">{{ _('JobHunt Pro') }}</div>
+<nav>
+<a href="/">الرئيسية</a>
+<a href="/services">خدماتنا</a>
+<a href="/pricing">الأسعار</a>
+<a href="/faq">أسئلة شائعة</a>
+<a href="/blog">المدونة</a>
+<a href="/contact">تواصل معنا</a>
+<a href="/login">تسجيل الدخول</a>
+<a class="btn-nav" href="/register">بلّش هلق</a>
+</nav>
 </header>
 <div class="container">
-    <h1>سياسة الخصوصية</h1>
-    <p class="subtitle">آخر تحديث: حزيران 2026</p>
-
-    <div class="section">
-        <h2><span class="icon">&#x1F512;</span> المعلومات يلي منجمعها</h2>
-        <p>نحنا منجمع المعلومات يلي بتقدمها مباشرة: اسمك، بريدك الإلكتروني، سيرتك الذاتية، خبرتك المهنية، مهاراتك، وتفضيلاتك للشغل. وكمان منجمع بيانات الاستخدام: الصفحات يلي زرتها، الميزات يلي استعملتها، ومقاييس أداء حملاتك.</p>
-    </div>
-    <div class="section">
-        <h2><span class="icon">&#x1F4E1;</span> كيف منستعمل معلوماتك</h2>
-        <p>بياناتك منستعملها بس لتشغيل وتحسين منصة JobHunt Pro:</p>
-        <ul>
-            <li>نكتب رسائل تغطية (Cover Letters) ومواد تقديم مخصصة إلك عبر الذكاء الاصطناعي</li>
-            <li>نبعت طلبات التوظيف لأصحاب العمل بالنيابة عنك</li>
-            <li>نتابع حالة طلباتك ونعطيك تحليلات</li>
-            <li>نحسّن خوارزميات المطابقة وميزات المنصة تبعنا</li>
-        </ul>
-    </div>
-    <div class="section">
-        <h2><span class="icon">&#x1F465;</span> مشاركة البيانات</h2>
-        <p>نحنا ما منبيع معلوماتك الشخصية أبداً. سيرتك الذاتية وبيانات التقديم منشاركها بس مع أصحاب العمل يلي إنت بتختار تقدم لعندن. ممكن نستعمل بيانات مجمّعة ومجهولة المصدر لتحليلات المنصة.</p>
-    </div>
-    <div class="section">
-        <h2><span class="icon">&#x1F6E1;&#xFE0F;</span> أمان البيانات</h2>
-        <p>نحنا منطبق معايير أمان عالية، متل التشفير وقت التخزين والنقل، مصادقة API آمنة، وتدقيق أمني دوري. كلمة المرور تبعك مشفرة وما بتنحفظ بنص واضح أبداً.</p>
-    </div>
-    <div class="section">
-        <h2><span class="icon">&#x1F4C5;</span> الاحتفاظ بالبيانات</h2>
-        <p>نحنا منحتفظ ببياناتك طول ما حسابك فعال. فيك تطلب حذف حسابك وكل البيانات المرتبطة فيه بأي وقت عبر التواصل مع الدعم.</p>
-    </div>
-    <div class="section">
-        <h2><span class="icon">&#x1F4AC;</span> تواصل معنا</h2>
-        <p>لأي استفسارات بتخص الخصوصية، تواصل معنا على <a href="mailto:support@jobhuntpro.com" dir="ltr">support@jobhuntpro.com</a> أو عبر <a href="/contact">نموذج التواصل</a> تبعنا.</p>
-    </div>
+<h1>سياسة الخصوصية</h1>
+<p class="subtitle">آخر تحديث: حزيران 2026</p>
+<div class="section">
+<h2><span class="icon">🔒</span> المعلومات يلي منجمعها</h2>
+<p>نحنا منجمع المعلومات يلي بتقدمها مباشرة: اسمك، بريدك الإلكتروني، سيرتك الذاتية، خبرتك المهنية، مهاراتك، وتفضيلاتك للشغل. وكمان منجمع بيانات الاستخدام: الصفحات يلي زرتها، الميزات يلي استعملتها، ومقاييس أداء حملاتك.</p>
+</div>
+<div class="section">
+<h2><span class="icon">📡</span> كيف منستعمل معلوماتك</h2>
+<p>{{ _('بياناتك منستعملها بس لتشغيل وتحسين منصة JobHunt Pro:') }}</p>
+<ul>
+<li>{{ _('نكتب رسائل تغطية (Cover Letters) ومواد تقديم مخصصة إلك عبر الذكاء الاصطناعي') }}</li>
+<li>نبعت طلبات التوظيف لأصحاب العمل بالنيابة عنك</li>
+<li>نتابع حالة طلباتك ونعطيك تحليلات</li>
+<li>نحسّن خوارزميات المطابقة وميزات المنصة تبعنا</li>
+</ul>
+</div>
+<div class="section">
+<h2><span class="icon">👥</span> مشاركة البيانات</h2>
+<p>نحنا ما منبيع معلوماتك الشخصية أبداً. سيرتك الذاتية وبيانات التقديم منشاركها بس مع أصحاب العمل يلي إنت بتختار تقدم لعندن. ممكن نستعمل بيانات مجمّعة ومجهولة المصدر لتحليلات المنصة.</p>
+</div>
+<div class="section">
+<h2><span class="icon">🛡️</span> أمان البيانات</h2>
+<p>{{ _('نحنا منطبق معايير أمان عالية، متل التشفير وقت التخزين والنقل، مصادقة API آمنة، وتدقيق أمني دوري. كلمة المرور تبعك مشفرة وما بتنحفظ بنص واضح أبداً.') }}</p>
+</div>
+<div class="section">
+<h2><span class="icon">📅</span> الاحتفاظ بالبيانات</h2>
+<p>نحنا منحتفظ ببياناتك طول ما حسابك فعال. فيك تطلب حذف حسابك وكل البيانات المرتبطة فيه بأي وقت عبر التواصل مع الدعم.</p>
+</div>
+<div class="section">
+<h2><span class="icon">💬</span> تواصل معنا</h2>
+<p>لأي استفسارات بتخص الخصوصية، تواصل معنا على <a dir="ltr" href="mailto:support@jobhuntpro.com">{{ _('support@jobhuntpro.com') }}</a> أو عبر <a href="/contact">نموذج التواصل</a> تبعنا.</p>
+</div>
 </div>
 <footer class="footer">
-    <a href="/faq">الأسئلة الشائعة</a> &middot; <a href="/terms">الشروط</a> &middot; <a href="/privacy">الخصوصية</a> &middot; <a href="/blog">المدونة</a> &middot; <a href="/contact">تواصل معنا</a>
-    <p style="margin-top:12px;">&copy; 2026 JobHunt Pro. كل الحقوق محفوظة.</p>
+<a href="/faq">الأسئلة الشائعة</a> · <a href="/terms">الشروط</a> · <a href="/privacy">الخصوصية</a> · <a href="/blog">المدونة</a> · <a href="/contact">تواصل معنا</a>
+<p style="margin-top:12px;">{{ _('© 2026 JobHunt Pro. كل الحقوق محفوظة.') }}</p>
 </footer>
 </body>
 </html>

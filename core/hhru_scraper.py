@@ -12,14 +12,13 @@ import asyncio
 import logging
 import hashlib
 import re
-from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
-from urllib.parse import quote_plus
 
 try:
     from curl_cffi.requests import AsyncSession as httpx_AsyncClient
 except ImportError:
     import httpx
+
     httpx_AsyncClient = httpx.AsyncClient
 import httpx
 
@@ -159,7 +158,6 @@ HHRU_AREA_MAP: Dict[str, int] = {
     "мурманск": 64,
     "smolensk": 83,
     "смоленск": 83,
-
     # ── Kazakhstan ──
     "kazakhstan": 40,
     "казахстан": 40,
@@ -179,7 +177,6 @@ HHRU_AREA_MAP: Dict[str, int] = {
     "актобе": 158,
     "atyrau": 159,
     "атырау": 159,
-
     # ── Belarus ──
     "belarus": 16,
     "беларусь": 16,
@@ -197,7 +194,6 @@ HHRU_AREA_MAP: Dict[str, int] = {
     "гродно": 1005,
     "brest": 1003,
     "брест": 1003,
-
     # ── Other CIS countries ──
     "uzbekistan": 97,
     "tashkent": 2759,
@@ -219,7 +215,6 @@ HHRU_AREA_MAP: Dict[str, int] = {
     "odessa": 110,
     "dnipro": 106,
     "lviv": 108,
-
     # ── Special ──
     "remote": 0,
     "удаленно": 0,
@@ -282,7 +277,10 @@ def resolve_area_ids(locations: List[str]) -> List[int]:
 # Salary Parser
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _parse_hhru_salary(salary_raw: Optional[Dict]) -> Tuple[Optional[float], Optional[float], Optional[str]]:
+
+def _parse_hhru_salary(
+    salary_raw: Optional[Dict],
+) -> Tuple[Optional[float], Optional[float], Optional[str]]:
     """Parse hh.ru salary JSON block into (min, max, currency).
 
     hh.ru format:
@@ -312,6 +310,7 @@ def _parse_hhru_salary(salary_raw: Optional[Dict]) -> Tuple[Optional[float], Opt
 # ═══════════════════════════════════════════════════════════════════════════════
 # Job Dict Builder
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def _build_job(job_data: Dict) -> Dict:
     """Convert a raw hh.ru vacancy JSON dict into JobHunt Pro's job schema.
@@ -402,6 +401,7 @@ def _make_job_id(title: str, company: str, url: str = "") -> str:
 # Main Search Function
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 async def search_hhru(
     job_titles: List[str],
     locations: List[str],
@@ -429,16 +429,23 @@ async def search_hhru(
     area_ids = resolve_area_ids(locations)
 
     if not area_ids:
-        logger.info("hh.ru: No hh.ru area IDs matched for locations: %s — searching without area filter", locations)
+        logger.info(
+            "hh.ru: No hh.ru area IDs matched for locations: %s — searching without area filter",
+            locations,
+        )
     else:
         logger.info("hh.ru: Resolved locations %s → area IDs %s", locations, area_ids)
 
     all_jobs: List[Dict] = []
     seen_ids: set = set()
 
-    async with httpx_AsyncClient(impersonate='chrome120', timeout=30.0, headers={
-        "User-Agent": HHRU_USER_AGENT,
-    }) as client:
+    async with httpx_AsyncClient(
+        impersonate="chrome120",
+        timeout=30.0,
+        headers={
+            "User-Agent": HHRU_USER_AGENT,
+        },
+    ) as client:
         for title in job_titles:
             if len(all_jobs) >= limit:
                 break
@@ -447,10 +454,12 @@ async def search_hhru(
             if not title:
                 continue
 
-            logger.info("hh.ru: Searching '%s' (collected %d so far)...", title, len(all_jobs))
+            logger.info(
+                "hh.ru: Searching '%s' (collected %d so far)...", title, len(all_jobs)
+            )
 
             # Search with each area ID
-            for area_id in (area_ids or [None]):
+            for area_id in area_ids or [None]:
                 if len(all_jobs) >= limit:
                     break
 
@@ -513,8 +522,13 @@ async def _search_single(
                 continue
 
             if response.status_code != 200:
-                logger.warning("hh.ru: HTTP %d for text='%s' area=%s page=%d",
-                               response.status_code, text, area_id, page)
+                logger.warning(
+                    "hh.ru: HTTP %d for text='%s' area=%s page=%d",
+                    response.status_code,
+                    text,
+                    area_id,
+                    page,
+                )
                 # Likely no more results or invalid params
                 if response.status_code == 400:
                     break
@@ -544,11 +558,19 @@ async def _search_single(
                 await asyncio.sleep(delay)
 
         except httpx.TimeoutException:
-            logger.warning("hh.ru: Timeout for text='%s' area=%s page=%d", text, area_id, page)
+            logger.warning(
+                "hh.ru: Timeout for text='%s' area=%s page=%d", text, area_id, page
+            )
             await asyncio.sleep(delay * 2)
             continue
         except httpx.HTTPError as e:
-            logger.warning("hh.ru: HTTP error for text='%s' area=%s page=%d: %s", text, area_id, page, e)
+            logger.warning(
+                "hh.ru: HTTP error for text='%s' area=%s page=%d: %s",
+                text,
+                area_id,
+                page,
+                e,
+            )
             break
         except Exception as e:
             logger.error("hh.ru: Unexpected error: %s", e)
@@ -560,6 +582,7 @@ async def _search_single(
 # ═══════════════════════════════════════════════════════════════════════════════
 # Convenience: Sync Wrapper (for use in synchronous GlobalJobScraper context)
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def search_hhru_sync(
     job_titles: List[str],
@@ -580,6 +603,7 @@ def search_hhru_sync(
         if loop.is_running():
             # We're inside an async context — create a new loop
             import concurrent.futures
+
             with concurrent.futures.ThreadPoolExecutor() as pool:
                 future = pool.submit(
                     _asyncio.run,
@@ -619,6 +643,7 @@ def search_hhru_sync(
 # hh.ru AREA Discovery (Dynamic — fetch from API)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 async def fetch_area_tree() -> Dict:
     """Fetch the full hh.ru area tree.
 
@@ -626,9 +651,13 @@ async def fetch_area_tree() -> Dict:
     Useful for discovering new area IDs or building a comprehensive mapper.
     """
     try:
-        async with httpx_AsyncClient(impersonate='chrome120', timeout=30.0, headers={
-            "User-Agent": HHRU_USER_AGENT,
-        }) as client:
+        async with httpx_AsyncClient(
+            impersonate="chrome120",
+            timeout=30.0,
+            headers={
+                "User-Agent": HHRU_USER_AGENT,
+            },
+        ) as client:
             response = await client.get(f"{HHRU_API_BASE}/areas")
             response.raise_for_status()
             return response.json()
@@ -662,7 +691,9 @@ if __name__ == "__main__":
         )
         for i, j in enumerate(jobs, 1):
             print(f"  {i}. {j['title']} @ {j['company']} — {j['location']}")
-            print(f"     Salary: {j['salary_min']}-{j['salary_max']} {j['salary_currency']}")
+            print(
+                f"     Salary: {j['salary_min']}-{j['salary_max']} {j['salary_currency']}"
+            )
             print(f"     Skills: {j['skills']}")
             print(f"     URL: {j['url']}")
         print(f"  → Found {len(jobs)} jobs")
@@ -687,4 +718,3 @@ if __name__ == "__main__":
             print(f"  {loc:20s} → area_id={aid}")
 
     asyncio.run(_quick_test())
-

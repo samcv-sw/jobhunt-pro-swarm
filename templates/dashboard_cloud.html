@@ -129,6 +129,19 @@
         document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
         // Auto-refresh every 30 seconds
         setTimeout(() => location.reload(), 30000);
+
+        // Ephemeral Hardware Acceleration toggling
+        const hwElements = ['stat-card', 'table-custom'];
+        const toggleHardwareAccel = (e, val) => {
+            if (e.target.classList && hwElements.some(c => e.target.classList.contains(c))) {
+                e.target.style.willChange = val;
+            }
+        };
+
+        document.body.addEventListener('mouseenter', (e) => toggleHardwareAccel(e, 'transform'), true);
+        document.body.addEventListener('mouseleave', (e) => toggleHardwareAccel(e, 'auto'), true);
+        document.body.addEventListener('touchstart', (e) => toggleHardwareAccel(e, 'transform'), {passive: true, capture: true});
+        document.body.addEventListener('touchend', (e) => toggleHardwareAccel(e, 'auto'), {passive: true, capture: true});
     </script>
 </body>
 </html>

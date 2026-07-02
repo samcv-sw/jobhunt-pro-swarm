@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}قيّم سيرتي الذاتية - JobHunt Pro{% endblock %}
+{% block head %}
+<meta name="description" content="تقييم سيرتي الذاتية القاسي — احصل على نقد صريح جداً مدعوم بالذكاء الاصطناعي لسيرتك الذاتية لمعرفة سبب عدم حصولك على مقابلات عمل.">
+{% endblock %}
+{% block content %}
+{% include '_public_nav.html' %}
+
+<div class="glass-panel" style="padding-top:140px;max-width: 600px; margin: 120px auto 50px; text-align: center;">
+    <h1 style="color: var(--danger);">🔥 تقييم سيرتي الذاتية القاسي</h1>
+    <p>ارفع ملف الـ PDF الخاص بك ودع الذكاء الاصطناعي الصريح جداً لدينا يحطم غرورك.</p>
+    
+    <div style="margin: 30px 0;">
+        <input dir="auto" type="file" id="resumeFile" accept="application/pdf" class="glass-input" style="margin-bottom: 20px;">
+        <button id="roastBtn" class="btn-primary" style="width: 100%; background: var(--danger);">قيّم سيرتي الآن</button>
+    </div>
+    
+    <!-- Skeleton Loader -->
+    <div id="loader" style="display: none; margin: 20px 0;">
+        <div class="skeleton skeleton-text"></div>
+        <div class="skeleton skeleton-text"></div>
+        <div class="skeleton skeleton-text short"></div>
+    </div>
+
+    <!-- Results -->
+    <div id="resultBox" style="display: none; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; margin-top: 20px;">
+        <h2 style="font-size: 3rem; margin: 0; color: #f59e0b;" id="scoreText">0/100</h2>
+        <p id="roastText" style="font-size: 1.2rem; font-style: italic; margin: 20px 0;">...</p>
+        
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <a id="shareTwitter" href="#" target="_blank" class="btn-primary" style="background: #1DA1F2; text-decoration: none; padding: 10px 20px;">🐦 شارك على X</a>
+            <a id="shareLinkedIn" href="#" target="_blank" class="btn-primary" style="background: #0077b5; text-decoration: none; padding: 10px 20px;">💼 شارك على لينكد إن</a>
+            <a id="shareWhatsApp" href="#" target="_blank" class="btn-primary" style="background: #25D366; text-decoration: none; padding: 10px 20px;">📱 شارك على واتساب</a>
+        </div>
+        
+        <hr style="border-color: var(--glass-border); margin: 30px 0;">
+        <div style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); padding: 20px; border-radius: 12px;">
+            <h4 style="margin-top:0;">هل تريد إصلاح هذه السيرة الذاتية السيئة والحصول على وظيفة؟</h4>
+            <p style="font-size: 14px; color: #94a3b8;">انضم إلى أكثر من 10,000 مهندس يستخدمون الذكاء الاصطناعي الخاص بنا لأتمتة التقديم على الوظائف وتخصيص السير الذاتية فوراً.</p>
+            <a href="/register?ref=roast_tool" class="btn-primary" style="text-decoration: none; display: block; margin-top:15px; background: linear-gradient(135deg, #3b82f6, #8b5cf6);">🚀 احصل على وكيل الذكاء الاصطناعي المجاني الآن</a>
+        </div>
+    </div>
+</div>
+
+
+{% include '_public_footer.html' %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('roastBtn').addEventListener('click', async () => {
+    const fileInput = document.getElementById('resumeFile');
+    if (!fileInput.files[0]) {
+        alert("يرجى رفع ملف PDF أولاً!");
+        return;
+    }
+
+    document.getElementById('loader').style.display = 'block';
+    document.getElementById('resultBox').style.display = 'none';
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    try {
+        const response = await fetch("/api/roast", {
+            method: "POST",
+            body: formData
+        });
+        const data = await response.json();
+        
+        if (data.error) {
+            alert(data.error);
+        } else {
+            document.getElementById('scoreText').innerText = data.score + "/100";
+            document.getElementById('roastText').innerText = `"${data.roast}"`;
+            
+            const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(data.share_text + " 🔥 قيّم سيرتك الذاتية: " + window.location.origin + "/roast")}`;
+            document.getElementById('shareTwitter').href = tweetUrl;
+            
+            const liUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(data.share_text + " 🔥 قيّم سيرتك الذاتية: " + window.location.origin + "/roast")}`;
+            document.getElementById('shareLinkedIn').href = liUrl;
+            
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(data.share_text + " 🔥 قيّم سيرتك الذاتية: " + window.location.origin + "/roast")}`;
+            document.getElementById('shareWhatsApp').href = waUrl;
+            
+            document.getElementById('resultBox').style.display = 'block';
+        }
+    } catch (e) {
+        alert("فشل الاتصال بخدمة التقييم. يرجى المحاولة لاحقاً.");
+    } finally {
+        document.getElementById('loader').style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

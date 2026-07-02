@@ -13,10 +13,13 @@ templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templa
 templates.env.globals["VERSION"] = config.VERSION
 ph = None
 
+
 @router.get("/roast")
 async def roast_page(request: Request):
     """Viral Marketing: Un-gated free tool for lead gen."""
-    return templates.TemplateResponse(request, "roast.html", {"VERSION": config.VERSION})
+    return templates.TemplateResponse(
+        request, "roast.html", {"VERSION": config.VERSION}
+    )
 
 
 @router.post("/api/roast")
@@ -25,10 +28,11 @@ async def roast_resume(file: UploadFile = File(...)):
     try:
         content = await file.read()
         text = ""
-        
+
         # 1. Try pdfplumber (preferred)
         try:
             import pdfplumber
+
             with pdfplumber.open(io.BytesIO(content)) as pdf:
                 text = "\n".join(page.extract_text() or "" for page in pdf.pages)
         except ImportError:
@@ -40,6 +44,7 @@ async def roast_resume(file: UploadFile = File(...)):
         if not text.strip():
             try:
                 import pypdf
+
                 reader = pypdf.PdfReader(io.BytesIO(content))
                 text = "\n".join(page.extract_text() or "" for page in reader.pages)
             except ImportError:
@@ -51,6 +56,7 @@ async def roast_resume(file: UploadFile = File(...)):
         if not text.strip():
             try:
                 import PyPDF2
+
                 reader = PyPDF2.PdfReader(io.BytesIO(content))
                 text = "\n".join(page.extract_text() or "" for page in reader.pages)
             except ImportError:
@@ -71,16 +77,16 @@ async def roast_resume(file: UploadFile = File(...)):
         
         Resume text: {text[:2000]}
         """
-        
+
         # Using the $0 Semantic Cached AI call
         result = await ai_tailor._call_ai(prompt, max_tokens=150, temperature=0.9)
-        
+
         if not result:
             return {"error": "AI failed to roast."}
-            
+
         roast_text = "Your resume is so generic it puts AI to sleep."
         score = 12
-        
+
         for line in result.split("\n"):
             if line.startswith("ROAST:"):
                 roast_text = line.replace("ROAST:", "").strip()
@@ -90,11 +96,11 @@ async def roast_resume(file: UploadFile = File(...)):
                     score = int(score_str)
                 except:
                     pass
-                    
+
         return {
             "roast": roast_text,
             "score": score,
-            "share_text": f"I just got a {score}/100 on my resume roast. The AI told me: '{roast_text}' 😂 Get yours roasted at JobHunt Pro!"
+            "share_text": f"I just got a {score}/100 on my resume roast. The AI told me: '{roast_text}' 😂 Get yours roasted at JobHunt Pro!",
         }
     except Exception as e:
         logger.error(f"Roast error: {e}")

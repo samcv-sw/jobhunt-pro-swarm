@@ -1,79 +1,42 @@
 <!DOCTYPE html>
 
-<html lang="ar" dir="rtl">
-
+<html dir="rtl" lang="ar">
 <head>
-
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-
-  <meta charset="UTF-8">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-
-  <link rel="stylesheet" href="/static/css/cyberpunk-rtl.css">
-
- <meta name="description" content="محرك تقديم للوظائف بالذكاء الاصطناعي — قدم على آلاف الوظائف تلقائياً. وكيلك الشخصي للبحث عن عمل يعمل 24/7. احصل على وظيفة أسرع.">
-
- <meta name="keywords" content="تقديم للوظائف, بحث عن وظيفة بالذكاء الاصطناعي, تقديم تلقائي, رسالة تغطية بالذكاء الاصطناعي, بحث عن عمل, منصة توظيف, مسيرة مهنية, توظيف">
-
- <meta name="author" content="JobHunt Pro">
-
- <meta name="robots" content="index, follow">
-
- <link rel="canonical" href="https://jhfguf.pythonanywhere.com/">
-
- <link rel="preconnect" href="https://fonts.googleapis.com">
-
- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
- <!-- Open Graph / Facebook -->
-
- <meta property="og:type" content="website">
-
- <meta property="og:url" content="https://jhfguf.pythonanywhere.com/">
-
- <meta property="og:title" content="JobHunt Pro — تقديم تلقائي للوظائف بالذكاء الاصطناعي">
-
- <meta property="og:description" content="محرك البحث عن الوظائف الشخصي الخاص بك يعمل 24/7 — يبحث في آلاف الوظائف، يصنع طلبات مخصصة، ويرسلها عبر تدوير ذكي للإيميلات. أقل من 7 سنتات لكل طلب.">
-
- <meta property="og:image" content="https://jhfguf.pythonanywhere.com/static/img/og-image.png">
-
- <meta property="og:image:width" content="1200">
-
- <meta property="og:image:height" content="630">
-
- <meta property="og:site_name" content="JobHunt Pro">
-
- <meta property="og:locale" content="ar_AE">
-
- <!-- Twitter Card -->
-
- <meta name="twitter:card" content="summary_large_image">
-
- <meta name="twitter:url" content="https://jhfguf.pythonanywhere.com/">
-
- <meta name="twitter:title" content="JobHunt Pro — تقديم تلقائي للوظائف بالذكاء الاصطناعي">
-
- <meta name="twitter:description" content="محرك البحث عن الوظائف الشخصي الخاص بك يعمل 24/7. احصل على وظيفة أسرع. أقل من 7 سنتات لكل طلب.">
-
- <meta name="twitter:image" content="https://jhfguf.pythonanywhere.com/static/img/og-image.png">
-
- <meta name="twitter:site" content="@jobhuntpro">
-
- <title>JobHunt Pro — تقديم تلقائي للوظائف بالذكاء الاصطناعي | 200 وكيل ذكاء اصطناعي، 24/7</title>
-
- <link rel="manifest" href="{{ url_for('static', path='manifest.json') }}">
-
- <meta name="theme-color" content="#0a0a14">
-
- <link rel="apple-touch-icon" href="/static/img/icon-192.png">
-
- <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=IBM+Plex+Arabic:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
-
- <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
-
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
+<link href="/static/css/cyberpunk-rtl.css" rel="stylesheet"/>
+<meta content="محرك تقديم للوظائف بالذكاء الاصطناعي — قدم على آلاف الوظائف تلقائياً. وكيلك الشخصي للبحث عن عمل يعمل 24/7. احصل على وظيفة أسرع." name="description"/>
+<meta content="تقديم للوظائف, بحث عن وظيفة بالذكاء الاصطناعي, تقديم تلقائي, رسالة تغطية بالذكاء الاصطناعي, بحث عن عمل, منصة توظيف, مسيرة مهنية, توظيف" name="keywords"/>
+<meta content="JobHunt Pro" name="author"/>
+<meta content="index, follow" name="robots"/>
+<link href="https://jhfguf.pythonanywhere.com/" rel="canonical"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<!-- Open Graph / Facebook -->
+<meta content="website" property="og:type"/>
+<meta content="https://jhfguf.pythonanywhere.com/" property="og:url"/>
+<meta content="JobHunt Pro — تقديم تلقائي للوظائف بالذكاء الاصطناعي" property="og:title"/>
+<meta content="محرك البحث عن الوظائف الشخصي الخاص بك يعمل 24/7 — يبحث في آلاف الوظائف، يصنع طلبات مخصصة، ويرسلها عبر تدوير ذكي للإيميلات. أقل من 7 سنتات لكل طلب." property="og:description"/>
+<meta content="https://jhfguf.pythonanywhere.com/static/img/og-image.png" property="og:image"/>
+<meta content="1200" property="og:image:width"/>
+<meta content="630" property="og:image:height"/>
+<meta content="JobHunt Pro" property="og:site_name"/>
+<meta content="ar_AE" property="og:locale"/>
+<!-- Twitter Card -->
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="https://jhfguf.pythonanywhere.com/" name="twitter:url"/>
+<meta content="JobHunt Pro — تقديم تلقائي للوظائف بالذكاء الاصطناعي" name="twitter:title"/>
+<meta content="محرك البحث عن الوظائف الشخصي الخاص بك يعمل 24/7. احصل على وظيفة أسرع. أقل من 7 سنتات لكل طلب." name="twitter:description"/>
+<meta content="https://jhfguf.pythonanywhere.com/static/img/og-image.png" name="twitter:image"/>
+<meta content="@jobhuntpro" name="twitter:site"/>
+<title>{{ _('JobHunt Pro — تقديم تلقائي للوظائف بالذكاء الاصطناعي | 200 وكيل ذكاء اصطناعي، 24/7') }}</title>
+<link href="{{ url_for('static', path='manifest.json') }}" rel="manifest"/>
+<meta content="#0a0a14" name="theme-color"/>
+<link href="/static/img/icon-192.png" rel="apple-touch-icon"/>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=IBM+Plex+Arabic:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800;900&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <!-- Schema.org Structured Data -->
-
 <script type="application/ld+json">
 
 {
@@ -119,7 +82,6 @@
 }
 
 </script>
-
 <style>
 
 /* ══════════════════════════════════════════════════════════════
@@ -2157,9 +2119,6 @@ body{
 .hero{padding:140px 20px 50px}.featured-grid{grid-template-columns:1fr;max-width:400px;margin-inline-start:auto;margin-inline-end:auto;}}
 
 </style>
-
-
-
 <style>
 
 .hero-stats-strip .stat-item .num.counter{font-variant-numeric:tabular-nums}
@@ -2179,11 +2138,6 @@ body{
 .hero-stats-strip .stat-item:nth-child(5){animation-delay:0.5s}
 
 </style>
-
-
-
-
-
 <style>
 
 .cookie-banner{position:fixed;bottom:0;inset-inline-start: 0;inset-inline-end: 0;background:rgba(10,10,25,0.97);border-top:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px 24px;backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
@@ -2205,7 +2159,6 @@ body{
 @media(max-width:600px){.cookie-content{text-align:center}}
 
 </style>
-
 <style>
 
 .guarantee-badge-section{padding:0 24px 40px;display:flex;justify-content:center;position:relative;z-index:2}
@@ -2225,7 +2178,6 @@ body{
 @media(max-width:600px){.guarantee-badge{flex-direction:column;text-align:center;padding:16px 20px}}
 
 </style>
-
 <style>
 
 .ats-checker{padding:80px 24px;position:relative;z-index:2;max-width:1100px;margin:0 auto}
@@ -2267,7 +2219,6 @@ body{
 @media(max-width:768px){.ats-demo{grid-template-columns:1fr}}
 
 </style>
-
 <style>
 
 .referral-section{padding:80px 24px;position:relative;z-index:2;max-width:1100px;margin:0 auto}
@@ -2289,7 +2240,6 @@ body{
 @media(max-width:480px){.referral-grid{grid-template-columns:1fr}}
 
 </style>
-
 <style>
 
 .social-toast-container{position:fixed;bottom:24px;inset-inline-end: 24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
@@ -2307,7 +2257,6 @@ body{
 @media(max-width:600px){.social-toast-container{bottom:12px;inset-inline-end: 8px;inset-inline-start: 8px}.social-toast{max-width:100%}}
 
 </style>
-
 <style>
 
 .exit-overlay{position:fixed;top:0;inset-inline-start: 0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
@@ -2337,7 +2286,6 @@ body{
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
 </style>
-
 <style>
 
 .mobile-cta-bar{display:none;position:fixed;bottom:0;inset-inline-start: 0;inset-inline-end: 0;z-index:999;padding:10px 16px;background:rgba(10,10,25,0.95);border-top:1px solid rgba(0,240,255,0.1);backdrop-filter:blur(12px)}
@@ -2349,33 +2297,16 @@ body{
 @media(max-width:768px){.mobile-cta-bar{display:block}}
 
 </style>
-
 </head>
-
-
-
 <body class="cyberpunk-body">
-
-
-
 <!-- COOKIE CONSENT BANNER -->
-
 <div class="cookie-banner" id="cookieBanner">
-
- <div class="cookie-content">
-
-  <span>&#x1f36a;</span>
-
-  <p>نستخدم ملفات تعريف الارتباط الأساسية لضمان عمل JobHunt Pro. باستخدامك لموقعنا، فإنك توافق على <a href="/privacy">سياسة الخصوصية</a> الخاصة بنا.</p>
-
-  <button class="btn" onclick="acceptCookies()">حسناً &#x2713;</button>
-
- </div>
-
+<div class="cookie-content">
+<span>🍪</span>
+<p>{{ _('نستخدم ملفات تعريف الارتباط الأساسية لضمان عمل JobHunt Pro. باستخدامك لموقعنا، فإنك توافق على') }} <a href="/privacy">سياسة الخصوصية</a> الخاصة بنا.</p>
+<button class="btn" onclick="acceptCookies()">حسناً ✓</button>
 </div>
-
-
-
+</div>
 <script>
 
 function acceptCookies(){document.getElementById('cookieBanner').style.display='none';localStorage.setItem('cookiesAccepted','1');}
@@ -2383,29 +2314,14 @@ function acceptCookies(){document.getElementById('cookieBanner').style.display='
 if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanner').style.display='none';}
 
 </script>
-
-
-
-
-
 <!-- ═══ BACKGROUND LAYERS ═══ -->
-
 <div class="bg-layer bg-grid" style="position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></div>
-
 <div class="bg-layer bg-gradient" style="position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></div>
-
 <div class="glow-orb-1" style="position: fixed; pointer-events: none; z-index: -1;"></div>
-
 <div class="glow-orb-2" style="position: fixed; pointer-events: none; z-index: -1;"></div>
-
 <div class="glow-orb-3" style="position: fixed; pointer-events: none; z-index: -1;"></div>
-
 <div class="scanline" style="position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></div>
-
 <canvas class="bg-particles" id="particleCanvas" style="position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
-
-
-
 <!-- ═══ NAVIGATION ═══ -->
 
 {% include '_public_nav.html' %}
@@ -2413,217 +2329,119 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 
 
 <!-- ═══ HERO ═══ -->
-
 <section class="hero">
-
- <div class="hero-badge">
-
-  <span class="pulse-dot"></span> AI SYSTEM ONLINE — v{{ VERSION }}
+<div class="hero-badge">
+<span class="pulse-dot"></span> AI SYSTEM ONLINE — v{{ VERSION }}
 
  </div>
+<h1>
 
- <h1>
+  {{ _('Land Your Dream Job') }}<br/>
+<span class="cyan glow-line">{{ _('Automatically') }}</span> {{ _('While You') }}<br/>
+<span class="typewriter-wrap"><span class="magenta" id="typewriter"></span><span class="typewriter-cursor"></span></span>
+</h1>
+<p class="hero-sub">
 
-  Land Your Dream Job<br>
+  {{ _('Your personal AI job-hunting engine works') }} <strong style="color:var(--cyan)">24/7</strong> {{ _('— searching thousands of jobs, 
 
-  <span class="cyan glow-line">Automatically</span> While You<br>
+  crafting personalized applications, and sending them through smart email rotation.') }} 
 
-  <span class="typewriter-wrap"><span id="typewriter" class="magenta"></span><span class="typewriter-cursor"></span></span>
-
- </h1>
-
- <p class="hero-sub">
-
-  Your personal AI job-hunting engine works <strong style="color:var(--cyan)">24/7</strong> — searching thousands of jobs, 
-
-  crafting personalized applications, and sending them through smart email rotation. 
-
-  <strong style="color:var(--gold)">Less than 7 cents per application.</strong> Get hired or your money back.
+  <strong style="color:var(--gold)">{{ _('Less than 7 cents per application.') }}</strong> {{ _('Get hired or your money back.') }}
 
  </p>
-
- <div class="hero-buttons">
-
-  <a href="/register" class="primary">🚀 Start Applying Now — It's Free</a>
-
-  <a href="#pricing" class="secondary">💰 View Pricing Plans</a>
-
- </div>
-
- <div class="hero-stats-strip">
-
-  <div class="stat-item"><div class="num counter" data-target="2000">0</div><div class="label">Daily Applications</div></div>
-
-  <div class="stat-item"><div class="num counter" data-target="20">0</div><div class="label">Email Providers</div></div>
-
-  <div class="stat-item"><div class="num counter" data-target="200">0</div><div class="label">AI Agents</div></div>
-
-  <div class="stat-item"><div class="num counter" data-target="50">0</div><div class="label">Countries</div></div>
-
-  <div class="stat-item"><div class="num"><span class="counter" data-target="12">0</span>%</div><div class="label">Interview Rate</div></div>
-
- </div>
-
+<div class="hero-buttons">
+<a class="primary" href="/register">{{ _('🚀 Start Applying Now — It\'s Free') }}</a>
+<a class="secondary" href="#pricing">{{ _('💰 View Pricing Plans') }}</a>
+</div>
+<div class="hero-stats-strip">
+<div class="stat-item"><div class="num counter" data-target="2000">0</div><div class="label">{{ _('Daily Applications') }}</div></div>
+<div class="stat-item"><div class="num counter" data-target="20">0</div><div class="label">{{ _('Email Providers') }}</div></div>
+<div class="stat-item"><div class="num counter" data-target="200">0</div><div class="label">{{ _('AI Agents') }}</div></div>
+<div class="stat-item"><div class="num counter" data-target="50">0</div><div class="label">{{ _('Countries') }}</div></div>
+<div class="stat-item"><div class="num"><span class="counter" data-target="12">0</span>%</div><div class="label">{{ _('Interview Rate') }}</div></div>
+</div>
 </section>
-
-
-
 <!-- ═══ GUARANTEE BADGE ═══ -->
-
 <!-- GUARANTEE BADGE -->
-
 <section class="guarantee-badge-section">
-
- <div class="guarantee-badge">
-
-  <div class="guarantee-icon">&#x1f6e1;&#xfe0f;</div>
-
-  <div class="guarantee-text">
-
-   <strong>30-Day ضمان استرداد المال</strong>
-
-   <span>No interviews? Get a full refund. No questions asked. Your risk is ZERO.</span>
-
-  </div>
-
-  <div class="guarantee-seal">
-
-   <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="var(--cyan)" stroke-width="2"/><text x="20" y="26" text-anchor="middle" fill="var(--cyan)" font-size="18" font-weight="900">&#x2713;</text></svg>
-
-  </div>
-
- </div>
-
+<div class="guarantee-badge">
+<div class="guarantee-icon">🛡️</div>
+<div class="guarantee-text">
+<strong>{{ _('30-Day ضمان استرداد المال') }}</strong>
+<span>{{ _('No interviews? Get a full refund. No questions asked. Your risk is ZERO.') }}</span>
+</div>
+<div class="guarantee-seal">
+<svg height="40" viewbox="0 0 40 40" width="40"><circle cx="20" cy="20" fill="none" r="18" stroke="var(--cyan)" stroke-width="2"></circle><text fill="var(--cyan)" font-size="18" font-weight="900" text-anchor="middle" x="20" y="26">✓</text></svg>
+</div>
+</div>
 </section>
-
-
-
-
-
-
-
 <!-- ═══ INTEGRATIONS BAR (Real Platforms We Connect To) ═══ -->
-
 <section class="trusted-by">
-
- <h3>SEARCHING ACROSS THESE PLATFORMS + MORE</h3>
-
- <div class="logo-marquee" style="--speed:30s">
-
-  <div class="logo-track">
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">💼</span> <strong>LinkedIn</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🔍</span> <strong>Indeed</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">📋</span> <strong>Glassdoor</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">📎</span> <strong>ZipRecruiter</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🏢</span> <strong>Bayt.com</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🇦🇪</span> <strong>NaukriGulf</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🌍</span> <strong>Monster Gulf</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🚀</span> <strong>JSearch API</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🔗</span> <strong>CareerJet</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🌐</span> <strong>Adzuna</strong></div>
-
-   <!-- Duplicate for seamless loop -->
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">💼</span> <strong>LinkedIn</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🔍</span> <strong>Indeed</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">📋</span> <strong>Glassdoor</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">📎</span> <strong>ZipRecruiter</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🏢</span> <strong>Bayt.com</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🇦🇪</span> <strong>NaukriGulf</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🌍</span> <strong>Monster Gulf</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🚀</span> <strong>JSearch API</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🔗</span> <strong>CareerJet</strong></div>
-
-   <div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🌐</span> <strong>Adzuna</strong></div>
-
-  </div>
-
- </div>
-
+<h3>{{ _('SEARCHING ACROSS THESE PLATFORMS + MORE') }}</h3>
+<div class="logo-marquee" style="--speed:30s">
+<div class="logo-track">
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">💼</span> <strong>{{ _('LinkedIn') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🔍</span> <strong>{{ _('Indeed') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">📋</span> <strong>{{ _('Glassdoor') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">📎</span> <strong>{{ _('ZipRecruiter') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🏢</span> <strong>{{ _('Bayt.com') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🇦🇪</span> <strong>{{ _('NaukriGulf') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🌍</span> <strong>{{ _('Monster Gulf') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🚀</span> <strong>{{ _('JSearch API') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🔗</span> <strong>{{ _('CareerJet') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🌐</span> <strong>{{ _('Adzuna') }}</strong></div>
+<!-- Duplicate for seamless loop -->
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">💼</span> <strong>{{ _('LinkedIn') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🔍</span> <strong>{{ _('Indeed') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">📋</span> <strong>{{ _('Glassdoor') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">📎</span> <strong>{{ _('ZipRecruiter') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🏢</span> <strong>{{ _('Bayt.com') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🇦🇪</span> <strong>{{ _('NaukriGulf') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🌍</span> <strong>{{ _('Monster Gulf') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🚀</span> <strong>{{ _('JSearch API') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🔗</span> <strong>{{ _('CareerJet') }}</strong></div>
+<div class="logo-item" style="opacity:0.85;filter:none"><span class="li-icon">🌐</span> <strong>{{ _('Adzuna') }}</strong></div>
+</div>
+</div>
 </section>
-
-
-
-
-
 <!-- ═══ FEATURED JOBS (spy-report quick win #5) ═══ -->
 
 {% if featured_jobs %}
 
 <section class="featured-jobs">
-
- <div class="section-header">
-
-  <div class="overline">HOT OPPORTUNITIES</div>
-
-  <h2>الميزةd <span class="gradient">Jobs</span></h2>
-
-  <p>Hand-picked premium positions in top companies across MENA/GCC. Apply instantly with JobHunt Pro.</p>
-
- </div>
-
- <div class="featured-grid">
+<div class="section-header">
+<div class="overline">{{ _('HOT OPPORTUNITIES') }}</div>
+<h2>{{ _('الميزةd') }} <span class="gradient">{{ _('Jobs') }}</span></h2>
+<p>{{ _('Hand-picked premium positions in top companies across MENA/GCC. Apply instantly with JobHunt Pro.') }}</p>
+</div>
+<div class="featured-grid">
 
   {% for job in featured_jobs %}
 
   <div class="fj-card">
-
-   <span class="fj-badge">&#x2605; الميزةd</span>
-
-   <div class="fj-company-row">
-
-    <div class="fj-logo">
-
-     <img src="https://logo.clearbit.com/{{ job.domain }}" alt="{{ job.company }}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" loading="lazy">
-
-     <span class="fj-logo-fb" style="display:none;">{{ job.company[:2] }}</span>
-
-    </div>
-
-    <div class="fj-company-name">{{ job.company }}<small>{{ job.location }}</small></div>
-
-   </div>
-
-   <div class="fj-title">{{ job.title }}</div>
-
-   <div class="fj-salary-row">
-
-    <span class="fj-salary">{{ job.salary }}</span>
-
-   </div>
-
-   <div class="fj-tags">
+<span class="fj-badge">{{ _('★ الميزةd') }}</span>
+<div class="fj-company-row">
+<div class="fj-logo">
+<img alt="{{ job.company }}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" src="https://logo.clearbit.com/{{ job.domain }}"/>
+<span class="fj-logo-fb" style="display:none;">{{ job.company[:2] }}</span>
+</div>
+<div class="fj-company-name">{{ job.company }}<small>{{ job.location }}</small></div>
+</div>
+<div class="fj-title">{{ job.title }}</div>
+<div class="fj-salary-row">
+<span class="fj-salary">{{ job.salary }}</span>
+</div>
+<div class="fj-tags">
 
     {% for tag in job.tags %}<span class="fj-tag">{{ tag }}</span>{% endfor %}
 
    </div>
-
-   <a href="{{ job.url }}" class="fj-apply-btn">&#x1F680; Apply Now</a>
-
-  </div>
+<a class="fj-apply-btn" href="{{ job.url }}">{{ _('🚀 Apply Now') }}</a>
+</div>
 
   {% endfor %}
 
  </div>
-
 </section>
 
 {% endif %}
@@ -2631,1455 +2449,709 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 
 
 <!-- ═══ HOW IT WORKS ═══ -->
-
 <section class="how" id="how">
-
- <div class="section-header">
-
-  <div cl  <div class="section-header">
-
-  <div class="overline">الفرق</div>
-
-  <h2>البحث عن عمل: <span class="gradient">قبل وبعد</span></h2>
-
-  <p>كيف يبدو بحثك عن عمل مع وبدون أتمتة JobHunt Pro</p>
-
- </div>
-
- <div class="ba-grid">
-
-  <div class="ba-card bad">
-
-   <div class="ba-icon">😰</div>
-
-   <h3 style="color:var(--magenta)">البحث اليدوي عن وظيفة</h3>
-
-   <ul>
-
-    <li>أكثر من 40 ساعة/أسبوع تصفح لمواقع التوظيف</li>
-
-    <li>نسخ ولصق نفس رسالة التغطية</li>
-
-    <li>تفويت 80% من الوظائف الجديدة</li>
-
-    <li>الإيميلات تنتهي في مجلد السبام</li>
-
-    <li>انعدام التتبع للطلبات المرسلة</li>
-
-    <li>نسبة المقابلات 2-3% بالمتوسط</li>
-
-    <li>إرهاق خلال 3-4 أسابيع</li>
-
-   </ul>
-
-  </div>
-
-  <div style="text-align:center">
-
-   <div class="ba-vs">ضد</div>
-
-   <div class="ba-hint">الخيار واضح</div>
-
-  </div>
-
-  <div class="ba-card good">
-
-   <div class="ba-icon">🚀</div>
-
-   <h3 style="color:var(--green)">JobHunt Pro المؤتمت</h3>
-
-   <ul>
-
-    <li>0 ساعة/أسبوع — مؤتمت بالكامل</li>
-
-    <li>الذكاء الاصطناعي يكتب رسائل تغطية فريدة لكل شركة</li>
-
-    <li>يلتقط كل وظيفة جديدة فوراً</li>
-
-    <li>20+ مزود إيميل متناوب = 99% في صندوق الوارد</li>
-
-    <li>لوحة تحكم حية تتبع كل شيء</li>
-
-    <li>نسبة المقابلات 8-15% (أعلى بـ 4 أضعاف)</li>
-
-    <li>مستدام — يعمل 24/7 وأنت نائم</li>
-
-   </ul>
-
-  </div>� -->
+<div class="section-header">
+<div <div="" cl="" class="section-header">
+<div class="overline">الفرق</div>
+<h2>البحث عن عمل: <span class="gradient">قبل وبعد</span></h2>
+<p>{{ _('كيف يبدو بحثك عن عمل مع وبدون أتمتة JobHunt Pro') }}</p>
+</div>
+<div class="ba-grid">
+<div class="ba-card bad">
+<div class="ba-icon">😰</div>
+<h3 style="color:var(--magenta)">البحث اليدوي عن وظيفة</h3>
+<ul>
+<li>أكثر من 40 ساعة/أسبوع تصفح لمواقع التوظيف</li>
+<li>نسخ ولصق نفس رسالة التغطية</li>
+<li>تفويت 80% من الوظائف الجديدة</li>
+<li>الإيميلات تنتهي في مجلد السبام</li>
+<li>انعدام التتبع للطلبات المرسلة</li>
+<li>نسبة المقابلات 2-3% بالمتوسط</li>
+<li>إرهاق خلال 3-4 أسابيع</li>
+</ul>
+</div>
+<div style="text-align:center">
+<div class="ba-vs">ضد</div>
+<div class="ba-hint">الخيار واضح</div>
+</div>
+<div class="ba-card good">
+<div class="ba-icon">🚀</div>
+<h3 style="color:var(--green)">{{ _('JobHunt Pro المؤتمت') }}</h3>
+<ul>
+<li>0 ساعة/أسبوع — مؤتمت بالكامل</li>
+<li>الذكاء الاصطناعي يكتب رسائل تغطية فريدة لكل شركة</li>
+<li>يلتقط كل وظيفة جديدة فوراً</li>
+<li>20+ مزود إيميل متناوب = 99% في صندوق الوارد</li>
+<li>لوحة تحكم حية تتبع كل شيء</li>
+<li>نسبة المقابلات 8-15% (أعلى بـ 4 أضعاف)</li>
+<li>مستدام — يعمل 24/7 وأنت نائم</li>
+</ul>
+</div>� -->
 
 <section class="before-after">
-
- <div class="section-header">
-
-  <div class="overline">  <div class="section-header">
-
-  <div class="overline">ميزات المنصة</div>
-
-  <h2>كل ما <span class="gradient">تحتاجه</span></h2>
-
-  <p>ترسانة متكاملة للتقديم على الوظائف — كل أداة تحتاجها لأتمتة بحثك بالكامل مبنية هنا.</p>
-
- </div>
-
- <div class="feature-grid">
-
-  <div class="feature-card" onmousemove="tiltCard(event,this)">
-
-   <div class="fc-icon-wrap">🧠</div>
-
-   <h3>تخصيص بالذكاء الاصطناعي</h3>
-
-   <p>الذكاء الاصطناعي يصنع رسائل تغطية مخصصة وفريدة لكل شركة. يقرأ الوصف الوظيفي، يفهم المتطلبات، ويخصص بشكل مثالي — لا توجد قوالب عامة.</p>
-
-  </div>
-
-  <div class="feature-card" onmousemove="tiltCard(event,this)">
-
-   <div class="fc-icon-wrap">📧</div>
-
-   <h3>نظام إيميلات متعدد المزودين</h3>
-
-   <p>تناوب ذكي بين 20+ مزود إيميل مع إحماء ذكي وفحص لمستوى السبام. طلباتك تصل دائماً لصندوق الوارد، وليس السبام أبداً.</p>
-
-  </div>
-
-  <div class="feature-card" onmousemove="tiltCard(event,this)">
-
-   <div class="fc-icon-wrap">🔍</div>
-
-   <h3>بحث متعدد المحركات</h3>
-
-   <p>نبحث في جميع المنصات الكبرى — كل موقع توظيف، وكل صفحة وظائف شركة، وكل إعلان عالمياً. 50+ دولة، كل الصناعات، كل المستويات.</p>
-
-  </div>
-
-  <div class="feature-card" onmousemove="tiltCard(event,this)">
-
-   <div class="fc-icon-wrap">🛡️</div>
-
-   <h3>حماية خفية</h3>
-
-   <p>تأخير ذكي، توقيت يشبه البشر، وتجنب متطور للاكتشاف. خوارزمياتنا تبقيك تحت الرادار تماماً.</p>
-
-  </div>
-
-  <div class="feature-card" onmousemove="tiltCard(event,this)">
-
-   <div class="fc-icon-wrap">📊</div>
-
-   <h3>تحليلات حية</h3>
-
-   <p>خط سير مرئي يتتبع كل طلب: اُكتشف → تم التقديم → تم المتابعة → مقابلة → عرض. تتبع الفتح، النقر، والردود بالوقت الفعلي من لوحة تحكمك الشخصية.</p>
-
-  </div>
-
-  <div class="feature-card" onmousemove="tiltCard(event,this)">
-
-   <div class="fc-icon-wrap">🔄</div>
-
-   <h3>متابعات تلقائية</h3>
-
-   <p>في حال عدم الرد، يقوم نظامنا بإرسال إيميلات متابعة مهذبة ومخصصة. يرفع نسبة الردود حتى 40%. لا تفوت أي فرصة فقط لأنك نسيت المتابعة.</p>
-
-  </div>elligent warmup, spam-score checking, and automatic fallback. Your applications always land in the inbox, never   <div class="section-header">
-
-  <div class="overline">&#x1f50d; فاحص السيرة الذاتية لـ ATS</div>
-
-  <h2>هل سيرتك <span class="gradient">جاهزة لـ ATS؟</span></h2>
-
-  <p>99% من كبرى الشركات تستخدم نظام تتبع المتقدمين (ATS). يقوم JobHunt Pro بفحص سيرتك مقابل أوصاف وظيفية حقيقية ويوضح لك بالضبط ما يجب إصلاحه — <strong style="color:var(--cyan)">مجاناً</strong>.</p>
-
- </div>
-
- <div class="ats-demo">
-
-  <div class="ats-left">
-
-   <div class="ats-upload-zone">
-
-    <div class="ats-upload-icon">&#x1f4c4;</div>
-
-    <p>اسحب سيرتك الذاتية هنا أو انقر للرفع</p>
-
-    <span>PDF, DOCX, أو TXT (الحد الأقصى 5 ميجابايت)</span>
-
-    <a href="/register" class="ats-scan-btn">&#x1f50d; افحص سيرتي الذاتية — مجاناً</a>
-
-   </div>
-
-  </div>
-
-  <div class="ats-right">
-
-   <div class="ats-score-preview">
-
-    <div class="ats-score-circle">
-
-     <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/><circle cx="60" cy="60" r="50" fill="none" stroke="var(--cyan)" stroke-width="8" stroke-dasharray="235 314" stroke-linecap="round" transform="rotate(-90 60 60)"/></svg>
-
-     <div class="ats-score-text"><span class="ats-score-num">75</span><span class="ats-score-total">/100</span></div>
-
-    </div>
-
-    <p class="ats-sample-label">مثال: سيرة ذاتية لمهندس شبكات أول</p>
-
-    <div class="ats-breakdown">
-
-     <div class="ats-row"><span>تطابق الكلمات المفتاحية</span><span style="color:var(--green)">&#x2713; 82%</span></div>
-
-     <div class="ats-row"><span>التوافق مع ATS</span><span style="color:var(--cyan)">~ 78%</span></div>
-
-     <div class="ats-row"><span>مشاكل التنسيق</span><span style="color:var(--gold)">&#x26a0; 3 وُجدت</span></div>
-
-     <div class="ats-row"><span>مهارات مفقودة</span><span style="color:var(--magenta)">BGP, OSPF</span></div>
-
-    </div>style="color:var(--cyan)">free</strong>.</p>
-
- </div>
-
- <div class="ats-demo">
-
-  <div class="ats-left">
-
-   <div class="ats-upload-zone">
-
-    <div class="ats-upload-icon">&#x1f4c4;</div>
-
-    <p>اسحب سيرتك الذاتية هنا أو انقر للرفع</p>
-
-    <span>PDF, DOCX, أو TXT (الحد الأقصى 5 ميجابايت)</span>
-
-    <a href="/register" class="ats-scan-btn">&#x1f50d; افحص سيرتي الذاتية — مجاناً</a>
-
-   </div>
-
-  </div>
-
-  <div class="ats-right">
-
-   <div class="ats-score-preview">
-
-    <div class="ats-score-circle">
-
-     <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/><circle cx="60" cy="60" r="50" fill="none" stroke="var(--cyan)" stroke-width="8" stroke-dasharray="235 314" stroke-linecap="round" transform="rotate(-90 60 60)"/></svg>
-
-     <div class="ats-score-text"><span class="ats-score-num">75</span><span class="ats-score-total">/100</span></div>
-
-    </div>
-
-    <p class="ats-sample-label">مثال: سيرة ذاتية لمهندس شبكات أول</p>
-
-    <div class="ats-breakdown">
-
-     <div class="ats-row"><span>تطابق الكلمات المفتاحية</span><span style="color:var(--green)">&#x2713; 82%</span></div>
-
-     <div class="ats-row"><span>التوافق مع ATS</span><span style="color:var(--cyan)">~ 78%</span></div>
-
-     <div class="ats-row"><span>مشاكل التنسيق</span><span style="color:var(--gold)">&#x26a0; 3 وُجدت</span></div>
-
-     <div class="ats-row"><span>مهارات مفقودة</span><span style="color:var(--magenta)">BGP, OSPF</span></div>
-
-    </div>
-
-   </div>
-
-  </div>
-
- </div>
-
-</section>
-
-
-
-
-
+<div class="section-header">
+<div class="overline"> <div class="section-header">
+<div class="overline">ميزات المنصة</div>
+<h2>كل ما <span class="gradient">تحتاجه</span></h2>
+<p>ترسانة متكاملة للتقديم على الوظائف — كل أداة تحتاجها لأتمتة بحثك بالكامل مبنية هنا.</p>
+</div>
+<div class="feature-grid">
+<div class="feature-card" onmousemove="tiltCard(event,this)">
+<div class="fc-icon-wrap">🧠</div>
+<h3>تخصيص بالذكاء الاصطناعي</h3>
+<p>الذكاء الاصطناعي يصنع رسائل تغطية مخصصة وفريدة لكل شركة. يقرأ الوصف الوظيفي، يفهم المتطلبات، ويخصص بشكل مثالي — لا توجد قوالب عامة.</p>
+</div>
+<div class="feature-card" onmousemove="tiltCard(event,this)">
+<div class="fc-icon-wrap">📧</div>
+<h3>نظام إيميلات متعدد المزودين</h3>
+<p>تناوب ذكي بين 20+ مزود إيميل مع إحماء ذكي وفحص لمستوى السبام. طلباتك تصل دائماً لصندوق الوارد، وليس السبام أبداً.</p>
+</div>
+<div class="feature-card" onmousemove="tiltCard(event,this)">
+<div class="fc-icon-wrap">🔍</div>
+<h3>بحث متعدد المحركات</h3>
+<p>نبحث في جميع المنصات الكبرى — كل موقع توظيف، وكل صفحة وظائف شركة، وكل إعلان عالمياً. 50+ دولة، كل الصناعات، كل المستويات.</p>
+</div>
+<div class="feature-card" onmousemove="tiltCard(event,this)">
+<div class="fc-icon-wrap">🛡️</div>
+<h3>حماية خفية</h3>
+<p>تأخير ذكي، توقيت يشبه البشر، وتجنب متطور للاكتشاف. خوارزمياتنا تبقيك تحت الرادار تماماً.</p>
+</div>
+<div class="feature-card" onmousemove="tiltCard(event,this)">
+<div class="fc-icon-wrap">📊</div>
+<h3>تحليلات حية</h3>
+<p>خط سير مرئي يتتبع كل طلب: اُكتشف → تم التقديم → تم المتابعة → مقابلة → عرض. تتبع الفتح، النقر، والردود بالوقت الفعلي من لوحة تحكمك الشخصية.</p>
+</div>
+<div class="feature-card" onmousemove="tiltCard(event,this)">
+<div class="fc-icon-wrap">🔄</div>
+<h3>متابعات تلقائية</h3>
+<p>في حال عدم الرد، يقوم نظامنا بإرسال إيميلات متابعة مهذبة ومخصصة. يرفع نسبة الردود حتى 40%. لا تفوت أي فرصة فقط لأنك نسيت المتابعة.</p>
+</div>{{ _('elligent warmup, spam-score checking, and automatic fallback. Your applications always land in the inbox, never') }}   <div class="section-header">
+<div class="overline">{{ _('🔍 فاحص السيرة الذاتية لـ ATS') }}</div>
+<h2>هل سيرتك <span class="gradient">{{ _('جاهزة لـ ATS؟') }}</span></h2>
+<p>{{ _('99% من كبرى الشركات تستخدم نظام تتبع المتقدمين (ATS). يقوم JobHunt Pro بفحص سيرتك مقابل أوصاف وظيفية حقيقية ويوضح لك بالضبط ما يجب إصلاحه —') }} <strong style="color:var(--cyan)">مجاناً</strong>.</p>
+</div>
+<div class="ats-demo">
+<div class="ats-left">
+<div class="ats-upload-zone">
+<div class="ats-upload-icon">📄</div>
+<p>اسحب سيرتك الذاتية هنا أو انقر للرفع</p>
+<span>{{ _('PDF, DOCX, أو TXT (الحد الأقصى 5 ميجابايت)') }}</span>
+<a class="ats-scan-btn" href="/register">🔍 افحص سيرتي الذاتية — مجاناً</a>
+</div>
+</div>
+<div class="ats-right">
+<div class="ats-score-preview">
+<div class="ats-score-circle">
+<svg viewbox="0 0 120 120"><circle cx="60" cy="60" fill="none" r="50" stroke="rgba(255,255,255,0.06)" stroke-width="8"></circle><circle cx="60" cy="60" fill="none" r="50" stroke="var(--cyan)" stroke-dasharray="235 314" stroke-linecap="round" stroke-width="8" transform="rotate(-90 60 60)"></circle></svg>
+<div class="ats-score-text"><span class="ats-score-num">75</span><span class="ats-score-total">/100</span></div>
+</div>
+<p class="ats-sample-label">مثال: سيرة ذاتية لمهندس شبكات أول</p>
+<div class="ats-breakdown">
+<div class="ats-row"><span>تطابق الكلمات المفتاحية</span><span style="color:var(--green)">✓ 82%</span></div>
+<div class="ats-row"><span>{{ _('التوافق مع ATS') }}</span><span style="color:var(--cyan)">~ 78%</span></div>
+<div class="ats-row"><span>مشاكل التنسيق</span><span style="color:var(--gold)">⚠ 3 وُجدت</span></div>
+<div class="ats-row"><span>مهارات مفقودة</span><span style="color:var(--magenta)">{{ _('BGP, OSPF') }}</span></div>
+</div>{{ _('style="color:var(--cyan)">free') }}.
+</div>
+<div class="ats-demo">
+<div class="ats-left">
+<div class="ats-upload-zone">
+<div class="ats-upload-icon">📄</div>
+<p>اسحب سيرتك الذاتية هنا أو انقر للرفع</p>
+<span>{{ _('PDF, DOCX, أو TXT (الحد الأقصى 5 ميجابايت)') }}</span>
+<a class="ats-scan-btn" href="/register">🔍 افحص سيرتي الذاتية — مجاناً</a>
+</div>
+</div>
+<div class="ats-right">
+<div class="ats-score-preview">
+<div class="ats-score-circle">
+<svg viewbox="0 0 120 120"><circle cx="60" cy="60" fill="none" r="50" stroke="rgba(255,255,255,0.06)" stroke-width="8"></circle><circle cx="60" cy="60" fill="none" r="50" stroke="var(--cyan)" stroke-dasharray="235 314" stroke-linecap="round" stroke-width="8" transform="rotate(-90 60 60)"></circle></svg>
+<div class="ats-score-text"><span class="ats-score-num">75</span><span class="ats-score-total">/100</span></div>
+</div>
+<p class="ats-sample-label">مثال: سيرة ذاتية لمهندس شبكات أول</p>
+<div class="ats-breakdown">
+<div class="ats-row"><span>تطابق الكلمات المفتاحية</span><span style="color:var(--green)">✓ 82%</span></div>
+<div class="ats-row"><span>{{ _('التوافق مع ATS') }}</span><span style="color:var(--cyan)">~ 78%</span></div>
+<div class="ats-row"><span>مشاكل التنسيق</span><span style="color:var(--gold)">⚠ 3 وُجدت</span></div>
+<div class="ats-row"><span>مهارات مفقودة</span><span style="color:var(--magenta)">{{ _('BGP, OSPF') }}</span></div>
+</div>
+</div>
+</div>
+</div>
+</div></div></div></div></div></section>
 <!-- ═══ COMPETITOR COMPARISON TABLE ═══ -->
-
 <section class="comparison">
-
- <div class="section-header">
-
-  <div class="overline">لماذا نحن في الصدارة</div>
-
-  <h2>كيف <span class="gradient">نقارن</span></h2>
-
-  <p>JobHunt Pro هي المنصة الوحيدة التي تؤتمت عملية التقديم للوظائف بأكملها</p>
-
- </div>
-
- <div class="comp-wrapper">
-
-  <table class="comp-table">
-
-   <thead>
-
-    <tr>
-
-     <th>الميزة</th>
-
-     <th>LazyApply</th>
-
-     <th>LoopCV</th>
-
-     <th>Simplify</th>
-
-     <th>Kickresume</th>
-
-     <th>Jobscan</th>
-
-     <th class="highlight">JobHunt Pro</th>
-
-    </tr>
-
-   </thead>
-
-   <tbody>
-
-   <tbody>
-
-    <tr>
-
-     <td>AI Cover Letters</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td>
-
-     <td class="highlight comp-star">★ Groq AI</td>
-
-    </tr>
-
-    <tr>
-
-     <td>Auto-Apply Jobs</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
-
-     <td class="highlight comp-star">★ FULL AUTO</td>
-
-    </tr>
-
-    <tr>
-
-     <td>بحث متعدد المحركات</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
-
-     <td class="highlight comp-check">✓ 10+ Engines</td>
-
-    </tr>
-
-    <tr>
-
-     <td>Email Rotation</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
-
-     <td class="highlight comp-star">★ 20+ Providers</td>
-
-    </tr>
-
-    <tr>
-
-     <td>متابعات تلقائية</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
-
-     <td class="highlight comp-check">✓ Day 7 &amp; 14</td>
-
-    </tr>
-
-    <tr>
-
-     <td>AI Agent Swarm</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
-
-     <td class="highlight comp-check">✓ 200 Agents 24/7</td>
-
-    </tr>
-
-    <tr>
-
-     <td>Global Coverage</td><td class="comp-cross">✗</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
-
-     <td class="highlight comp-star">★ 50+ Countries</td>
-
-    </tr>
-
-    <tr>
-
-     <td>Real-Time Dashboard</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-check">✓</td>
-
-     <td class="highlight comp-check">✓ Full Analytics</td>
-
-    </tr>
-
-    <tr>
-
-     <td>ATS Resume Checker</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-check">✓</td>
-
-     <td class="highlight comp-star">★ Built-in</td>
-
-    </tr>
-
-    <tr>
-
-     <td>حماية من الحظر (BanShield)</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
-
-     <td class="highlight comp-star">★ BanShield</td>
-
-    </tr>
-
-    <tr>
-
-     <td>الدفع بالعملات الرقمية</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
-
-     <td class="highlight comp-check">✓ BTC, ETH, USDT</td>
-
-    </tr>
-
-    <tr>
-
-     <td>باقة مجانية</td><td class="comp-cross">✗</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-check">✓</td>
-
-     <td class="highlight comp-star">★ من $2</td>
-
-    </tr>
-
-    <tr>
-
-     <td>ضمان استرداد المال</td><td class="comp-check">✓ 30d</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
-
-     <td class="highlight comp-check">✓ 30 يوم</td>
-
-    </tr>
-
-   </tbody>
-
-  
-
-   <tfoot>
-
-   <tfoot>
-
-    <tr>
-
-     <td style="font-weight:700">يبدأ السعر من</td>
-
-     <td style="color:var(--muted)">99$/سنة</td>
-
-     <td style="color:var(--muted)">15$/شهر</td>
-
-     <td style="color:var(--muted)">مجاني+</td>
-
-     <td style="color:var(--muted)">19$/شهر</td>
-
-     <td style="color:var(--muted)">50$/شهر</td>
-
-     <td class="highlight" style="color:var(--cyan);font-weight:800;font-size:14px">2$ مرة واحدة</td>
-
-    </tr>
-
-   </tfoot>
-
-  
-
-  </table>
-
- </div>
-
+<div class="section-header">
+<div class="overline">لماذا نحن في الصدارة</div>
+<h2>كيف <span class="gradient">نقارن</span></h2>
+<p>{{ _('JobHunt Pro هي المنصة الوحيدة التي تؤتمت عملية التقديم للوظائف بأكملها') }}</p>
+</div>
+<div class="comp-wrapper">
+<table class="comp-table">
+<thead>
+<tr>
+<th>الميزة</th>
+<th>{{ _('LazyApply') }}</th>
+<th>{{ _('LoopCV') }}</th>
+<th>{{ _('Simplify') }}</th>
+<th>{{ _('Kickresume') }}</th>
+<th>{{ _('Jobscan') }}</th>
+<th class="highlight">{{ _('JobHunt Pro') }}</th>
+</tr>
+</thead>
+<tbody>
+<tbody>
+<tr>
+<td>{{ _('AI Cover Letters') }}</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td>
+<td class="highlight comp-star">{{ _('★ Groq AI') }}</td>
+</tr>
+<tr>
+<td>{{ _('Auto-Apply Jobs') }}</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+<td class="highlight comp-star">{{ _('★ FULL AUTO') }}</td>
+</tr>
+<tr>
+<td>بحث متعدد المحركات</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+<td class="highlight comp-check">{{ _('✓ 10+ Engines') }}</td>
+</tr>
+<tr>
+<td>{{ _('Email Rotation') }}</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+<td class="highlight comp-star">{{ _('★ 20+ Providers') }}</td>
+</tr>
+<tr>
+<td>متابعات تلقائية</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+<td class="highlight comp-check">{{ _('✓ Day 7 & 14') }}</td>
+</tr>
+<tr>
+<td>{{ _('AI Agent Swarm') }}</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+<td class="highlight comp-check">{{ _('✓ 200 Agents 24/7') }}</td>
+</tr>
+<tr>
+<td>{{ _('Global Coverage') }}</td><td class="comp-cross">✗</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+<td class="highlight comp-star">{{ _('★ 50+ Countries') }}</td>
+</tr>
+<tr>
+<td>{{ _('Real-Time Dashboard') }}</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-check">✓</td>
+<td class="highlight comp-check">{{ _('✓ Full Analytics') }}</td>
+</tr>
+<tr>
+<td>{{ _('ATS Resume Checker') }}</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-check">✓</td>
+<td class="highlight comp-star">{{ _('★ Built-in') }}</td>
+</tr>
+<tr>
+<td>{{ _('حماية من الحظر (BanShield)') }}</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+<td class="highlight comp-star">{{ _('★ BanShield') }}</td>
+</tr>
+<tr>
+<td>الدفع بالعملات الرقمية</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+<td class="highlight comp-check">{{ _('✓ BTC, ETH, USDT') }}</td>
+</tr>
+<tr>
+<td>باقة مجانية</td><td class="comp-cross">✗</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-check">✓</td>
+<td class="highlight comp-star">★ من $2</td>
+</tr>
+<tr>
+<td>ضمان استرداد المال</td><td class="comp-check">{{ _('✓ 30d') }}</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+<td class="highlight comp-check">✓ 30 يوم</td>
+</tr>
+</tbody>
+<tfoot>
+<tfoot>
+<tr>
+<td style="font-weight:700">يبدأ السعر من</td>
+<td style="color:var(--muted)">99$/سنة</td>
+<td style="color:var(--muted)">15$/شهر</td>
+<td style="color:var(--muted)">مجاني+</td>
+<td style="color:var(--muted)">19$/شهر</td>
+<td style="color:var(--muted)">50$/شهر</td>
+<td class="highlight" style="color:var(--cyan);font-weight:800;font-size:14px">2$ مرة واحدة</td>
+</tr>
+</tfoot>
+</tfoot></tbody></table>
+</div>
 </section>
-
-
-
 <!-- ═══ LIVE DEMO / PREVIEW ═══ -->
-
 <section class="demo">
-
- <div class="demo-wrapper">
-
-  <div class="section-header">
-
-   <div class="overline">نظرة حية على المنصة</div>
-
-   <h2>شاهد <span class="gradient">لوحة التحكم</span> مباشرة</h2>
-
-   <p>مركز قيادتك الشخصي لكامل عملية البحث عن عمل. تتبع، تحليلات، ورؤى في الوقت الفعلي.</p>
-
-  </div>
-
-  <div class="demo-preview">
-
-   <div class="demo-header">
-
-    <div class="demo-dot r"></div><div class="demo-dot y"></div><div class="demo-dot g"></div>
-
-    <div class="demo-title">📊 JobHunt Pro — نظرة حية على لوحة التحكم</div>
-
-   </div>
-
-   <div class="demo-body">
-
-    <div class="demo-stat-card"><div class="d-num" id="demoApps">{{ earnings.total_all | default(0) | int | round }} Apps</div><div class="d-label">الإيرادات المحققة</div></div>
-
-    <div class="demo-stat-card"><div class="d-num" id="demoInterviews">{{ earnings.total_24h | default(0) | int | round }} USD</div><div class="d-label">نشاط اليوم</div></div>
-
-    <div class="demo-stat-card"><div class="d-num" id="demoJobs">{{ fomo_apps_today }}</div><div class="d-label">طلبات التقديم اليوم</div></div>
-
-    <div class="demo-activity">
-
-     <div class="da-row"><span class="da-company">TechCorp International</span><span class="da-status sent">Sent</span></div>
-
-     <div class="da-row"><span class="da-company">Global Finance Group</span><span class="da-status opened">Opened</span></div>
-
-     <div class="da-row"><span class="da-company">Innovate Solutions Ltd</span><span class="da-status replied">Replied</span></div>
-
-     <div class="da-row"><span class="da-company">NextGen Systems</span><span class="da-status sent">Sent</span></div>
-
-     <div class="da-row"><span class="da-company">Prime Industries</span><span class="da-status opened">Opened</span></div>
-
-    </div>
-
-    <div class="demo-bar-chart">
-
-     <div class="bar-label">أداء التقديم الأسبوعي</div>
-
-     <div class="demo-bar"><div class="fill cyan demo-fill" data-width="78"></div></div>
-
-     <div class="bar-label" style="margin-top:8px;margin-bottom:6px">نسبة الفتح</div>
-
-     <div class="demo-bar"><div class="fill magenta demo-fill" data-width="52"></div></div>
-
-     <div class="bar-label" style="margin-top:8px;margin-bottom:6px">نسبة الرد</div>
-
-     <div class="demo-bar"><div class="fill gold demo-fill" data-width="31"></div></div>
-
-    </div>
-
-   </div>
-
-  </div>
-
- </div>
-
+<div class="demo-wrapper">
+<div class="section-header">
+<div class="overline">نظرة حية على المنصة</div>
+<h2>شاهد <span class="gradient">لوحة التحكم</span> مباشرة</h2>
+<p>مركز قيادتك الشخصي لكامل عملية البحث عن عمل. تتبع، تحليلات، ورؤى في الوقت الفعلي.</p>
+</div>
+<div class="demo-preview">
+<div class="demo-header">
+<div class="demo-dot r"></div><div class="demo-dot y"></div><div class="demo-dot g"></div>
+<div class="demo-title">{{ _('📊 JobHunt Pro — نظرة حية على لوحة التحكم') }}</div>
+</div>
+<div class="demo-body">
+<div class="demo-stat-card"><div class="d-num" id="demoApps">{{ earnings.total_all | default(0) | int | round }} Apps</div><div class="d-label">الإيرادات المحققة</div></div>
+<div class="demo-stat-card"><div class="d-num" id="demoInterviews">{{ earnings.total_24h | default(0) | int | round }} USD</div><div class="d-label">نشاط اليوم</div></div>
+<div class="demo-stat-card"><div class="d-num" id="demoJobs">{{ fomo_apps_today }}</div><div class="d-label">طلبات التقديم اليوم</div></div>
+<div class="demo-activity">
+<div class="da-row"><span class="da-company">{{ _('TechCorp International') }}</span><span class="da-status sent">{{ _('Sent') }}</span></div>
+<div class="da-row"><span class="da-company">{{ _('Global Finance Group') }}</span><span class="da-status opened">{{ _('Opened') }}</span></div>
+<div class="da-row"><span class="da-company">{{ _('Innovate Solutions Ltd') }}</span><span class="da-status replied">{{ _('Replied') }}</span></div>
+<div class="da-row"><span class="da-company">{{ _('NextGen Systems') }}</span><span class="da-status sent">{{ _('Sent') }}</span></div>
+<div class="da-row"><span class="da-company">{{ _('Prime Industries') }}</span><span class="da-status opened">{{ _('Opened') }}</span></div>
+</div>
+<div class="demo-bar-chart">
+<div class="bar-label">أداء التقديم الأسبوعي</div>
+<div class="demo-bar"><div class="fill cyan demo-fill" data-width="78"></div></div>
+<div class="bar-label" style="margin-top:8px;margin-bottom:6px">نسبة الفتح</div>
+<div class="demo-bar"><div class="fill magenta demo-fill" data-width="52"></div></div>
+<div class="bar-label" style="margin-top:8px;margin-bottom:6px">نسبة الرد</div>
+<div class="demo-bar"><div class="fill gold demo-fill" data-width="31"></div></div>
+</div>
+</div>
+</div>
+</div>
 </section>
-
-
-
 <!-- ═══ AS SEEN ON / MEDIA MENTIONS ═══ -->
-
 <section class="as-seen">
-
- <div class="section-header">
-
-  <div class="overline">التكنولوجيا والأمان</div>
-
-  <h2>مبني <span class="gradient">باحترافية</span></h2>
-
-  <p>بنية تحتية بمستوى المؤسسات تشغل كل طلب توظيف</p>
-
- </div>
-
- <div class="as-seen-grid">
-
-  <div class="as-seen-item">
-
-   <div class="as-icon">🧠</div>
-
-   <div class="as-name">Groq AI</div>
-
-   <div class="as-desc">LPU™ Inference — أسرع استجابات للذكاء الاصطناعي</div>
-
-  </div>
-
-  <div class="as-seen-item">
-
-   <div class="as-icon">📨</div>
-
-   <div class="as-name">Brevo SMTP</div>
-
-   <div class="as-desc">تسليم وتتبع الإيميلات بمستوى المؤسسات</div>
-
-  </div>
-
-  <div class="as-seen-item">
-
-   <div class="as-icon">🛡️</div>
-
-   <div class="as-name">Cloudflare</div>
-
-   <div class="as-desc">حماية من البوتات وأمان SSL</div>
-
-  </div>
-
-  <div class="as-seen-item">
-
-   <div class="as-icon">₿</div>
-
-   <div class="as-name">NowPayments</div>
-
-   <div class="as-desc">BTC, ETH, USDT و 100+ عملة رقمية</div>
-
-  </div>
-
-  <div class="as-seen-item">
-
-   <div class="as-icon">🐍</div>
-
-   <div class="as-name">Python FastAPI</div>
-
-   <div class="as-desc">خلفية برمجية عالية الأداء</div>
-
-  </div>
-
-  <div class="as-seen-item">
-
-   <div class="as-icon">📱</div>
-
-   <div class="as-name">Telegram Bot</div>
-
-   <div class="as-desc">تنبيهات حية وتحكم بالحملة</div>
-
-  </div>
-
- </div>
-
+<div class="section-header">
+<div class="overline">التكنولوجيا والأمان</div>
+<h2>مبني <span class="gradient">باحترافية</span></h2>
+<p>بنية تحتية بمستوى المؤسسات تشغل كل طلب توظيف</p>
+</div>
+<div class="as-seen-grid">
+<div class="as-seen-item">
+<div class="as-icon">🧠</div>
+<div class="as-name">{{ _('Groq AI') }}</div>
+<div class="as-desc">{{ _('LPU™ Inference — أسرع استجابات للذكاء الاصطناعي') }}</div>
+</div>
+<div class="as-seen-item">
+<div class="as-icon">📨</div>
+<div class="as-name">{{ _('Brevo SMTP') }}</div>
+<div class="as-desc">تسليم وتتبع الإيميلات بمستوى المؤسسات</div>
+</div>
+<div class="as-seen-item">
+<div class="as-icon">🛡️</div>
+<div class="as-name">{{ _('Cloudflare') }}</div>
+<div class="as-desc">{{ _('حماية من البوتات وأمان SSL') }}</div>
+</div>
+<div class="as-seen-item">
+<div class="as-icon">₿</div>
+<div class="as-name">{{ _('NowPayments') }}</div>
+<div class="as-desc">{{ _('BTC, ETH, USDT و 100+ عملة رقمية') }}</div>
+</div>
+<div class="as-seen-item">
+<div class="as-icon">🐍</div>
+<div class="as-name">{{ _('Python FastAPI') }}</div>
+<div class="as-desc">خلفية برمجية عالية الأداء</div>
+</div>
+<div class="as-seen-item">
+<div class="as-icon">📱</div>
+<div class="as-name">{{ _('Telegram Bot') }}</div>
+<div class="as-desc">تنبيهات حية وتحكم بالحملة</div>
+</div>
+</div>
 </section>
-
-
-
 <!-- ═══ SALARY CALCULATOR ═══ -->
-
 <section class="salary-calc">
-
- <div class="section-header">
-
-  <div class="overline">إمكانيات الأرباح</div>
-
-  <h2>كم يمكنك أن <span class="gradient">تربح؟</span></h2>
-
-  <p>حدد هدفك — نحن نجد الوظائف التي تطابق توقعات راتبك</p>
-
- </div>
-
- <div class="calc-box">
-
-  <div class="calc-tabs" id="calcTabs">
-
-   <button class="calc-tab active" onclick="showCalc('local')">🇱🇧 وظائف محلية</button>
-
-   <button class="calc-tab" onclick="showCalc('worldwide')">🌍 الخليج / الشرق الأوسط</button>
-
-   <button class="calc-tab" onclick="showCalc('remote')">🏠 عن بُعد عالمياً</button>
-
-  </div>
-
-  <div class="calc-result" id="calcAmount">$24,000</div>
-
-  <div class="calc-label" id="calcLabel">الراتب السنوي التقديري — وظائف محلية</div>
-
-  <div class="calc-savings" id="calcSavings">💡 تكلفة الطلب أقل من 7 سنتات — عائد الاستثمار يتجاوز 100,000%</div>
-
- </div>
-
+<div class="section-header">
+<div class="overline">إمكانيات الأرباح</div>
+<h2>كم يمكنك أن <span class="gradient">تربح؟</span></h2>
+<p>حدد هدفك — نحن نجد الوظائف التي تطابق توقعات راتبك</p>
+</div>
+<div class="calc-box">
+<div class="calc-tabs" id="calcTabs">
+<button class="calc-tab active" onclick="showCalc('local')">🇱🇧 وظائف محلية</button>
+<button class="calc-tab" onclick="showCalc('worldwide')">🌍 الخليج / الشرق الأوسط</button>
+<button class="calc-tab" onclick="showCalc('remote')">🏠 عن بُعد عالمياً</button>
+</div>
+<div class="calc-result" id="calcAmount">$24,000</div>
+<div class="calc-label" id="calcLabel">الراتب السنوي التقديري — وظائف محلية</div>
+<div class="calc-savings" id="calcSavings">💡 تكلفة الطلب أقل من 7 سنتات — عائد الاستثمار يتجاوز 100,000%</div>
+</div>
 </section>
-
-
-
 <!-- ═══ PLATFORM CAPABILITIES ═══ -->
-
 <section class="stats-section">
-
- <div class="section-header">
-
-  <div class="overline">قوة المنصة</div>
-
-  <h2>ما الذي <span class="gradient">يشغل</span> بحثك</h2>
-
-  <p>بنية تحتية متطورة تعمل 24/7 لإيجاد وظيفتك القادمة</p>
-
- </div>
-
- <div class="stats-grid">
-
-  <div class="stat-card">
-
-   <div class="sc-icon">🤖</div>
-
-   <div class="sc-num"><span class="counter" data-target="200">0</span></div>
-
-   <div class="sc-label">وكيل ذكاء اصطناعي يعمل 24/7</div>
-
-  </div>
-
-  <div class="stat-card">
-
-   <div class="sc-icon">🌍</div>
-
-   <div class="sc-num"><span class="counter" data-target="50">0</span>+</div>
-
-   <div class="sc-label">دول يتم البحث فيها</div>
-
-  </div>
-
-  <div class="stat-card">
-
-   <div class="sc-icon">📧</div>
-
-   <div class="sc-num"><span class="counter" data-target="20">0</span>+</div>
-
-   <div class="sc-label">مزودي إيميل يتناوبون</div>
-
-  </div>
-
-  <div class="stat-card">
-
-   <div class="sc-icon">🔍</div>
-
-   <div class="sc-num"><span class="counter" data-target="10">0</span>+</div>
-
-   <div class="sc-label">محركات بحث وظيفي</div>
-
-  </div>
-
- </div>
-
+<div class="section-header">
+<div class="overline">قوة المنصة</div>
+<h2>ما الذي <span class="gradient">يشغل</span> بحثك</h2>
+<p>بنية تحتية متطورة تعمل 24/7 لإيجاد وظيفتك القادمة</p>
+</div>
+<div class="stats-grid">
+<div class="stat-card">
+<div class="sc-icon">🤖</div>
+<div class="sc-num"><span class="counter" data-target="200">0</span></div>
+<div class="sc-label">وكيل ذكاء اصطناعي يعمل 24/7</div>
+</div>
+<div class="stat-card">
+<div class="sc-icon">🌍</div>
+<div class="sc-num"><span class="counter" data-target="50">0</span>+</div>
+<div class="sc-label">دول يتم البحث فيها</div>
+</div>
+<div class="stat-card">
+<div class="sc-icon">📧</div>
+<div class="sc-num"><span class="counter" data-target="20">0</span>+</div>
+<div class="sc-label">مزودي إيميل يتناوبون</div>
+</div>
+<div class="stat-card">
+<div class="sc-icon">🔍</div>
+<div class="sc-num"><span class="counter" data-target="10">0</span>+</div>
+<div class="sc-label">محركات بحث وظيفي</div>
+</div>
+</div>
 </section>
-
-
-
 <!-- ═══ FOMO COUNTER STRIP ═══ -->
-
 <section class="fomo-strip">
-
- <div class="fomo-box">
-
-  <div class="fomo-item">
-
-   <div class="fomo-icon">👥</div>
-
-   <div>
-
-    <div class="fomo-val"><span class="fomo-pulse"></span><span id="fomoActive">47</span></div>
-
-    <div class="fomo-label">باحثون عن عمل نشطون الآن</div>
-
-   </div>
-
-  </div>
-
-  <div class="fomo-item">
-
-   <div class="fomo-icon">📧</div>
-
-   <div>
-
-    <div class="fomo-val" id="fomoApps">{{ fomo_apps_today }}</div>
-
-    <div class="fomo-label">طلبات أُرسلت اليوم</div>
-
-   </div>
-
-  </div>
-
-  <div class="fomo-item">
-
-   <div class="fomo-icon">🎯</div>
-
-   <div>
-
-    <div class="fomo-val">8-15%</div>
-
-    <div class="fomo-label">متوسط نسبة المقابلات</div>
-
-   </div>
-
-  </div>
-
-  <div class="fomo-item">
-
-   <div class="fomo-icon">⏱️</div>
-
-   <div>
-
-    <div class="fomo-val">&lt;$0.07</div>
-
-    <div class="fomo-label">تكلفة الطلب الواحد</div>
-
-   </div>
-
-  </div>
-
- </div>
-
+<div class="fomo-box">
+<div class="fomo-item">
+<div class="fomo-icon">👥</div>
+<div>
+<div class="fomo-val"><span class="fomo-pulse"></span><span id="fomoActive">47</span></div>
+<div class="fomo-label">باحثون عن عمل نشطون الآن</div>
+</div>
+</div>
+<div class="fomo-item">
+<div class="fomo-icon">📧</div>
+<div>
+<div class="fomo-val" id="fomoApps">{{ fomo_apps_today }}</div>
+<div class="fomo-label">طلبات أُرسلت اليوم</div>
+</div>
+</div>
+<div class="fomo-item">
+<div class="fomo-icon">🎯</div>
+<div>
+<div class="fomo-val">8-15%</div>
+<div class="fomo-label">متوسط نسبة المقابلات</div>
+</div>
+</div>
+<div class="fomo-item">
+<div class="fomo-icon">⏱️</div>
+<div>
+<div class="fomo-val"><$0.07</div>
+<div class="fomo-label">تكلفة الطلب الواحد</div>
+</div>
+</div>
+</div>
 </section>
-
-
-
 <!-- ═══ PRICING ═══ -->
-
 <section class="pricing" id="pricing">
-
- <div class="section-header">
-
-  <div class="overline">خطط الأسعار</div>
-
-  <h2>أسعار بسيطة <span class="gradient">وشفافة</span></h2>
-
-  <p>دفع لمرة واحدة. لا اشتراكات. لا رسوم خفية. ادفع بالعملات الرقمية.</p>
-
- </div>
-
- <div class="pricing-grid">
-
-  <!-- Tier 1: Starter -->
-
-  <div class="price-card">
-
-   <div class="price-tier">STARTER</div>
-
-   <h3>Starter</h3>
-
-   <div class="price-apps">10<span> applications</span></div>
-
-   <div class="price-amount"><span class="currency">$</span>2</div>
-
-   <div class="price-per">فقط 0.20$ لكل شركة</div>
-
-   <ul>
-
-    <li>10 طلبات موجهة</li>
-
-    <li>رسائل تغطية بالذكاء الاصطناعي</li>
-
-    <li>لوحة تحكم تحليلات أساسية</li>
-
-    <li>تتبع فتح الإيميلات</li>
-
-    <li>مزود إيميل واحد</li>
-
-    <li>دعم لمدة 7 أيام</li>
-
-   </ul>
-
-   <a href="/register?plan=starter" class="btn btn-cyan">ابدأ الآن</a>
-
-  </div>
-
-  <!-- Tier 2: Basic (MOST POPULAR) -->
-
-  <div class="price-card">
-
-   <div class="price-badge hot">🔥 الأكثر شعبية</div>
-
-   <div class="price-tier">BASIC</div>
-
-   <h3>Basic</h3>
-
-   <div class="price-apps">100<span> applications</span></div>
-
-   <div class="price-amount"><span class="currency">$</span>5</div>
-
-   <div class="price-per">فقط 0.05$ لكل شركة</div>
-
-   <ul>
-
-    <li>100 طلب موجه</li>
-
-    <li>تخصيص متقدم بالذكاء الاصطناعي</li>
-
-    <li>حزمة تحليلات كاملة</li>
-
-    <li>تتبع الإيميلات والمتابعة</li>
-
-    <li>5 مزودي إيميل</li>
-
-    <li>دعم أولوية 24/7</li>
-
-    <li>متابعات تلقائية (اليوم 7 و 14)</li>
-
-   </ul>
-
-   <a href="/register?plan=basic" class="btn btn-magenta">احصل على الأساسية الآن</a>
-
-  </div>
-
-  <!-- Tier 3: Pro (BEST VALUE) -->
-
-  <div class="price-card popular">
-
-   <div class="price-badge best">⭐ أفضل قيمة</div>
-
-   <div class="price-tier">PROFESSIONAL</div>
-
-   <h3>Pro</h3>
-
-   <div class="price-apps">500<span> applications</span></div>
-
-   <div class="price-amount"><span class="currency">$</span>15</div>
-
-   <div class="price-per">فقط 0.03$ لكل شركة</div>
-
-   <div class="price-save-badge">💎 أكبر عدد من الطلبات</div>
-
-   <ul>
-
-    <li>500 طلب للشركات</li>
-
-    <li>رسائل تغطية بمحرك ذكاء اصطناعي مزدوج</li>
-
-    <li>تتبع وتحليلات حية</li>
-
-    <li>متابعات تلقائية (7 + 14 يوم)</li>
-
-    <li>200 وكيل ذكاء اصطناعي 24/7</li>
-
-    <li>20 مزود إيميل يتناوبون</li>
-
-    <li>بحث عن الشركات ورؤى</li>
-
-    <li>مولّد التحضير للمقابلات</li>
-
-    <li>دعم VIP ذو أولوية</li>
-
-   </ul>
-
-   <a href="/register?plan=pro" class="btn btn-cyan">🔥 احصل على برو الآن</a>
-
-  </div>
-
-  <!-- Tier 4: Enterprise -->
-
-  <div class="price-card">
-
-   <div class="price-badge new">✨ الشركات</div>
-
-   <div class="price-tier">ENTERPRISE</div>
-
-   <h3>Enterprise</h3>
-
-   <div class="price-apps">2,000<span> applications</span></div>
-
-   <div class="price-amount"><span class="currency">$</span>50</div>
-
-   <div class="price-per">فقط 0.025$ لكل شركة</div>
-
-   <ul>
-
-    <li>2,000 طلب</li>
-
-    <li>كل شيء في برو +</li>
-
-    <li>تدريب نموذج ذكاء اصطناعي مخصص</li>
-
-    <li>مدير حساب مخصص</li>
-
-    <li>ضمان مستوى الخدمة (SLA)</li>
-
-    <li>خيار العلامة البيضاء</li>
-
-    <li>وصول API</li>
-
-    <li>لوحة تحكم متعددة المستخدمين</li>
-
-   </ul>
-
-   <a href="/contact" class="btn btn-gold">تواصل مع المبيعات</a>
-
-  </div>
-
- </div>
-
- <div class="crypto-row">
-
-  <span>₿ BTC</span><span>Ξ ETH</span><span>₮ USDT</span><span>Ł LTC</span><span>◎ SOL</span><span>🔷 USDC</span>
-
- </div>
-
+<div class="section-header">
+<div class="overline">خطط الأسعار</div>
+<h2>أسعار بسيطة <span class="gradient">وشفافة</span></h2>
+<p>دفع لمرة واحدة. لا اشتراكات. لا رسوم خفية. ادفع بالعملات الرقمية.</p>
+</div>
+<div class="pricing-grid">
+<!-- Tier 1: Starter -->
+<div class="price-card">
+<div class="price-tier">{{ _('STARTER') }}</div>
+<h3>{{ _('Starter') }}</h3>
+<div class="price-apps">10<span> {{ _('applications') }}</span></div>
+<div class="price-amount"><span class="currency">$</span>2</div>
+<div class="price-per">فقط 0.20$ لكل شركة</div>
+<ul>
+<li>10 طلبات موجهة</li>
+<li>رسائل تغطية بالذكاء الاصطناعي</li>
+<li>لوحة تحكم تحليلات أساسية</li>
+<li>تتبع فتح الإيميلات</li>
+<li>مزود إيميل واحد</li>
+<li>دعم لمدة 7 أيام</li>
+</ul>
+<a class="btn btn-cyan" href="/register?plan=starter">ابدأ الآن</a>
+</div>
+<!-- Tier 2: Basic (MOST POPULAR) -->
+<div class="price-card">
+<div class="price-badge hot">🔥 الأكثر شعبية</div>
+<div class="price-tier">{{ _('BASIC') }}</div>
+<h3>{{ _('Basic') }}</h3>
+<div class="price-apps">100<span> {{ _('applications') }}</span></div>
+<div class="price-amount"><span class="currency">$</span>5</div>
+<div class="price-per">فقط 0.05$ لكل شركة</div>
+<ul>
+<li>100 طلب موجه</li>
+<li>تخصيص متقدم بالذكاء الاصطناعي</li>
+<li>حزمة تحليلات كاملة</li>
+<li>تتبع الإيميلات والمتابعة</li>
+<li>5 مزودي إيميل</li>
+<li>دعم أولوية 24/7</li>
+<li>متابعات تلقائية (اليوم 7 و 14)</li>
+</ul>
+<a class="btn btn-magenta" href="/register?plan=basic">احصل على الأساسية الآن</a>
+</div>
+<!-- Tier 3: Pro (BEST VALUE) -->
+<div class="price-card popular">
+<div class="price-badge best">⭐ أفضل قيمة</div>
+<div class="price-tier">{{ _('PROFESSIONAL') }}</div>
+<h3>{{ _('Pro') }}</h3>
+<div class="price-apps">500<span> {{ _('applications') }}</span></div>
+<div class="price-amount"><span class="currency">$</span>15</div>
+<div class="price-per">فقط 0.03$ لكل شركة</div>
+<div class="price-save-badge">💎 أكبر عدد من الطلبات</div>
+<ul>
+<li>500 طلب للشركات</li>
+<li>رسائل تغطية بمحرك ذكاء اصطناعي مزدوج</li>
+<li>تتبع وتحليلات حية</li>
+<li>متابعات تلقائية (7 + 14 يوم)</li>
+<li>200 وكيل ذكاء اصطناعي 24/7</li>
+<li>20 مزود إيميل يتناوبون</li>
+<li>بحث عن الشركات ورؤى</li>
+<li>مولّد التحضير للمقابلات</li>
+<li>{{ _('دعم VIP ذو أولوية') }}</li>
+</ul>
+<a class="btn btn-cyan" href="/register?plan=pro">🔥 احصل على برو الآن</a>
+</div>
+<!-- Tier 4: Enterprise -->
+<div class="price-card">
+<div class="price-badge new">✨ الشركات</div>
+<div class="price-tier">{{ _('ENTERPRISE') }}</div>
+<h3>{{ _('Enterprise') }}</h3>
+<div class="price-apps">2,000<span> {{ _('applications') }}</span></div>
+<div class="price-amount"><span class="currency">$</span>50</div>
+<div class="price-per">فقط 0.025$ لكل شركة</div>
+<ul>
+<li>2,000 طلب</li>
+<li>كل شيء في برو +</li>
+<li>تدريب نموذج ذكاء اصطناعي مخصص</li>
+<li>مدير حساب مخصص</li>
+<li>{{ _('ضمان مستوى الخدمة (SLA)') }}</li>
+<li>خيار العلامة البيضاء</li>
+<li>{{ _('وصول API') }}</li>
+<li>لوحة تحكم متعددة المستخدمين</li>
+</ul>
+<a class="btn btn-gold" href="/contact">تواصل مع المبيعات</a>
+</div>
+</div>
+<div class="crypto-row">
+<span>{{ _('₿ BTC') }}</span><span>{{ _('Ξ ETH') }}</span><span>{{ _('₮ USDT') }}</span><span>{{ _('Ł LTC') }}</span><span>{{ _('◎ SOL') }}</span><span>{{ _('🔷 USDC') }}</span>
+</div>
 </section>
-
-
-
 <!-- ═══ ميزات مُختبرة ومُثبتة ═══ -->
-
 <section class="testimonials">
-
- <div class="testimonials-wrapper">
-
-  <div class="section-header">
-
-   <div class="overline">ميزات مُختبرة ومُثبتة</div>
-
-   <h2>ما الذي يجعل <span class="gradient">JobHunt Pro</span> مختلفاً</h2>
-
-   <p>مُصمم لأقصى النتائج — كل ميزة مُختبرة عبر آلاف الحملات الحقيقية</p>
-
-  </div>
-
-  <div class="testimonial-grid">
-
-   <div class="testimonial-card">
-
-    <div class="glow-line-top"></div>
-
-    <div class="testimonial-stars">🤖 محرك حملات آلي</div>
-
-    <div class="testimonial-quote">تقنيتنا الخاصة للأتمتة تتولى العمل الشاق، وتطلق حملات تواصل ضخمة فوراً. تتم مطابقة ملفك الشخصي تلقائياً وإرساله لآلاف أصحاب العمل في نفس الوقت بدون طوابير انتظار.</div>
-
-    <div class="testimonial-author">
-
-     <div class="testimonial-avatar ta1" style="background:rgba(0,240,255,0.15)">⚡</div>
-
-     <div class="testimonial-info"><div class="ti-name">معالجة بسرعة البرق</div><div class="ti-role">أقصى عدد طلبات يومي</div></div>
-
-    </div>
-
-   </div>
-
-   <div class="testimonial-card">
-
-    <div class="glow-line-top"></div>
-
-    <div class="testimonial-stars">✉️ تسليم صندوق وارد للمؤسسات</div>
-
-    <div class="testimonial-quote">نستخدم بنية تحتية متطورة للتسليم مع توجيه ذكي لضمان هبوط طلباتك مباشرة في صناديق الوارد الأساسية لصناع القرار. تمتع بأفضل قدرة تسليم في المجال بينما تظل سمعتك نظيفة.</div>
-
-    <div class="testimonial-author">
-
-     <div class="testimonial-avatar ta2" style="background:rgba(255,0,85,0.15)">📧</div>
-
-     <div class="testimonial-info"><div class="ti-name">شبكة تسليم مميزة</div><div class="ti-role">نسبة تسليم للصندوق 99.7%</div></div>
-
-    </div>
-
-   </div>
-
-   <div class="testimonial-card">
-
-    <div class="glow-line-top"></div>
-
-    <div class="testimonial-stars">🧠 تخصيص متقدم</div>
-
-    <div class="testimonial-quote">كل طلب مصمم بشكل فريد للدور والشركة. تقوم طبقة الذكاء لدينا بتحليل أوصاف الوظائف وتعيين مهاراتك الفريدة بسلاسة، لضمان اجتيازك لأدوات الفحص الآلي دائماً.</div>
-
-    <div class="testimonial-author">
-
-     <div class="testimonial-avatar ta3" style="background:rgba(255,179,0,0.15)">🎯</div>
-
-     <div class="testimonial-info"><div class="ti-name">رسائل تغطية ذكية</div><div class="ti-role">تنسيق فريد في كل مرة</div></div>
-
-    </div>
-
-   </div>
-
-   <div class="testimonial-card">
-
-    <div class="glow-line-top"></div>
-
-    <div class="testimonial-stars">🌍 شبكة وصول عالمية</div>
-
-    <div class="testimonial-quote">احصل على وصول لشبكة خاصة ضخمة من منصات التوظيف والقوائم الخاصة في أكثر من 50 دولة. نحدد الأدوار الدقيقة التي تطابق متطلبات راتبك وموقعك دون أن ترفع إصبعاً.</div>
-
-    <div class="testimonial-author">
-
-     <div class="testimonial-avatar ta4" style="background:rgba(0,240,255,0.15)">🔍</div>
-
-     <div class="testimonial-info"><div class="ti-name">بحث عالمي</div><div class="ti-role">فرص حصرية</div></div>
-
-    </div>
-
-   </div>
-
-   <div class="testimonial-card">
-
-    <div class="glow-line-top"></div>
-
-    <div class="testimonial-stars">📊 رؤى في الوقت الفعلي</div>
-
-    <div class="testimonial-quote">شاهد نجاحك يتكشف مع لوحة تحكم التحليلات الحية الأنيقة الخاصة بنا. تتبع متى يتم تسليم طلباتك، فتحها، ومراجعتها من قبل مسؤولي التوظيف. ابقَ على اطلاع بإشعارات فورية على هاتفك المحمول.</div>
-
-    <div class="testimonial-author">
-
-     <div class="testimonial-avatar ta5" style="background:rgba(255,0,85,0.15)">📈</div>
-
-     <div class="testimonial-info"><div class="ti-name">تحليلات الأداء</div><div class="ti-role">رؤية كاملة لخط السير</div></div>
-
-    </div>
-
-   </div>
-
-   <div class="testimonial-card">
-
-    <div class="glow-line-top"></div>
-
-    <div class="testimonial-stars">🔐 بروتوكولات أمان متقدمة</div>
-
-    <div class="testimonial-quote">بياناتك الشخصية وحساباتك محمية بطبقات أمان بمستوى المؤسسات. نستخدم تقنيات التخفي والتوجيه الذكي لضمان تشغيل حملاتك بأمان وسلاسة، 24/7.</div>
-
-    <div class="testimonial-author">
-
-     <div class="testimonial-avatar ta6" style="background:rgba(255,179,0,0.15)">🛡️</div>
-
-     <div class="testimonial-info"><div class="ti-name">أمان بمستوى المؤسسات</div><div class="ti-role">نظام حماية متعدد الطبقات</div></div>
-
-    </div>
-
-   </div>
-
-  </div>
-
- </div>
-
+<div class="testimonials-wrapper">
+<div class="section-header">
+<div class="overline">ميزات مُختبرة ومُثبتة</div>
+<h2>ما الذي يجعل <span class="gradient">{{ _('JobHunt Pro') }}</span> مختلفاً</h2>
+<p>مُصمم لأقصى النتائج — كل ميزة مُختبرة عبر آلاف الحملات الحقيقية</p>
+</div>
+<div class="testimonial-grid">
+<div class="testimonial-card">
+<div class="glow-line-top"></div>
+<div class="testimonial-stars">🤖 محرك حملات آلي</div>
+<div class="testimonial-quote">تقنيتنا الخاصة للأتمتة تتولى العمل الشاق، وتطلق حملات تواصل ضخمة فوراً. تتم مطابقة ملفك الشخصي تلقائياً وإرساله لآلاف أصحاب العمل في نفس الوقت بدون طوابير انتظار.</div>
+<div class="testimonial-author">
+<div class="testimonial-avatar ta1" style="background:rgba(0,240,255,0.15)">⚡</div>
+<div class="testimonial-info"><div class="ti-name">معالجة بسرعة البرق</div><div class="ti-role">أقصى عدد طلبات يومي</div></div>
+</div>
+</div>
+<div class="testimonial-card">
+<div class="glow-line-top"></div>
+<div class="testimonial-stars">✉️ تسليم صندوق وارد للمؤسسات</div>
+<div class="testimonial-quote">نستخدم بنية تحتية متطورة للتسليم مع توجيه ذكي لضمان هبوط طلباتك مباشرة في صناديق الوارد الأساسية لصناع القرار. تمتع بأفضل قدرة تسليم في المجال بينما تظل سمعتك نظيفة.</div>
+<div class="testimonial-author">
+<div class="testimonial-avatar ta2" style="background:rgba(255,0,85,0.15)">📧</div>
+<div class="testimonial-info"><div class="ti-name">شبكة تسليم مميزة</div><div class="ti-role">نسبة تسليم للصندوق 99.7%</div></div>
+</div>
+</div>
+<div class="testimonial-card">
+<div class="glow-line-top"></div>
+<div class="testimonial-stars">🧠 تخصيص متقدم</div>
+<div class="testimonial-quote">كل طلب مصمم بشكل فريد للدور والشركة. تقوم طبقة الذكاء لدينا بتحليل أوصاف الوظائف وتعيين مهاراتك الفريدة بسلاسة، لضمان اجتيازك لأدوات الفحص الآلي دائماً.</div>
+<div class="testimonial-author">
+<div class="testimonial-avatar ta3" style="background:rgba(255,179,0,0.15)">🎯</div>
+<div class="testimonial-info"><div class="ti-name">رسائل تغطية ذكية</div><div class="ti-role">تنسيق فريد في كل مرة</div></div>
+</div>
+</div>
+<div class="testimonial-card">
+<div class="glow-line-top"></div>
+<div class="testimonial-stars">🌍 شبكة وصول عالمية</div>
+<div class="testimonial-quote">احصل على وصول لشبكة خاصة ضخمة من منصات التوظيف والقوائم الخاصة في أكثر من 50 دولة. نحدد الأدوار الدقيقة التي تطابق متطلبات راتبك وموقعك دون أن ترفع إصبعاً.</div>
+<div class="testimonial-author">
+<div class="testimonial-avatar ta4" style="background:rgba(0,240,255,0.15)">🔍</div>
+<div class="testimonial-info"><div class="ti-name">بحث عالمي</div><div class="ti-role">فرص حصرية</div></div>
+</div>
+</div>
+<div class="testimonial-card">
+<div class="glow-line-top"></div>
+<div class="testimonial-stars">📊 رؤى في الوقت الفعلي</div>
+<div class="testimonial-quote">شاهد نجاحك يتكشف مع لوحة تحكم التحليلات الحية الأنيقة الخاصة بنا. تتبع متى يتم تسليم طلباتك، فتحها، ومراجعتها من قبل مسؤولي التوظيف. ابقَ على اطلاع بإشعارات فورية على هاتفك المحمول.</div>
+<div class="testimonial-author">
+<div class="testimonial-avatar ta5" style="background:rgba(255,0,85,0.15)">📈</div>
+<div class="testimonial-info"><div class="ti-name">تحليلات الأداء</div><div class="ti-role">رؤية كاملة لخط السير</div></div>
+</div>
+</div>
+<div class="testimonial-card">
+<div class="glow-line-top"></div>
+<div class="testimonial-stars">🔐 بروتوكولات أمان متقدمة</div>
+<div class="testimonial-quote">بياناتك الشخصية وحساباتك محمية بطبقات أمان بمستوى المؤسسات. نستخدم تقنيات التخفي والتوجيه الذكي لضمان تشغيل حملاتك بأمان وسلاسة، 24/7.</div>
+<div class="testimonial-author">
+<div class="testimonial-avatar ta6" style="background:rgba(255,179,0,0.15)">🛡️</div>
+<div class="testimonial-info"><div class="ti-name">أمان بمستوى المؤسسات</div><div class="ti-role">نظام حماية متعدد الطبقات</div></div>
+</div>
+</div>
+</div>
+</div>
 </section>
-
-
-
-
-
-
-
 <!-- ═══ TRUST BADGES / SECURITY ═══ -->
-
 <section class="trust-section">
-
- <div class="section-header">
-
-  <div class="overline">أمانك</div>
-
-  <h2>مبني على <span class="gradient">الثقة</span></h2>
-
-  <p>أمان بمستوى المؤسسات، تصميم يضع الخصوصية أولاً، وتحكم كامل بالبيانات</p>
-
- </div>
-
- <div class="trust-grid">
-
-  <div class="trust-badge-card">
-
-   <div class="tb-icon">🔒</div>
-
-   <h4>تشفير 256-بت</h4>
-
-   <p>يتم تشفير جميع البيانات أثناء النقل والحفظ باستخدام AES-256. سيرتك الذاتية ومعلوماتك الشخصية مؤمنة بقوة.</p>
-
-  </div>
-
-  <div class="trust-badge-card">
-
-   <div class="tb-icon">🛡️</div>
-
-   <h4>متوافق مع GDPR</h4>
-
-   <p>امتثال كامل للوائح الخصوصية العالمية. أنت تتحكم في بياناتك — قم بتنزيلها أو حذفها في أي وقت.</p>
-
-  </div>
-
-  <div class="trust-badge-card">
-
-   <div class="tb-icon">🪪</div>
-
-   <h4>لا لبيع البيانات</h4>
-
-   <p>لن نبيع أو نشارك بياناتك الشخصية أبداً. بحثك عن عمل هو شأنك الخاص — نحن فقط المحرك الذي يدعمه.</p>
-
-  </div>
-
-  <div class="trust-badge-card">
-
-   <div class="tb-icon">🔐</div>
-
-   <h4>خصوصية العملات الرقمية أولاً</h4>
-
-   <p>ادفع عبر Bitcoin و Ethereum و USDT وغيرها. لا بنوك ولا تتبع — تبقى مدفوعاتك مجهولة 100%.</p>
-
-  </div>
-
-  <div class="trust-badge-card">
-
-   <div class="tb-icon">🔄</div>
-
-   <h4>نسخ احتياطي تلقائي</h4>
-
-   <p>نسخ احتياطي مشفر كل ساعة مع احتفاظ لمدة 30 يوماً. حملاتك وطلباتك آمنة دائماً وقابلة للاسترجاع.</p>
-
-  </div>
-
-  <div class="trust-badge-card">
-
-   <div class="tb-icon">✅</div>
-
-   <h4>استرداد المال خلال 30 يوم</h4>
-
-   <p>لا مقابلات خلال 30 يوم؟ استرد كامل مبلغك — بلا أسئلة. نحن ننجح فقط عندما تنجح. ضمان خالي من المخاطر.</p>
-
-  </div>
-
-  <div class="trust-badge-card">
-
-   <div class="tb-icon">📊</div>
-
-   <h4>مقاييس شفافة</h4>
-
-   <p>شاهد كل طلب، كل فتح إيميل، كل نقرة. رؤية كاملة لأداء حملتك — لا شيء مخفي.</p>
-
-  </div>
-
-  <div class="trust-badge-card">
-
-   <div class="tb-icon">🕵️</div>
-
-   <h4>تقنية التخفي</h4>
-
-   <p>توقيت يحاكي البشر، وتناوب عناوين IP، وتجنب ذكي للاكتشاف. طلباتك تبدو طبيعية 100%. دائماً.</p>
-
-  </div>
-
- </div>
-
+<div class="section-header">
+<div class="overline">أمانك</div>
+<h2>مبني على <span class="gradient">الثقة</span></h2>
+<p>أمان بمستوى المؤسسات، تصميم يضع الخصوصية أولاً، وتحكم كامل بالبيانات</p>
+</div>
+<div class="trust-grid">
+<div class="trust-badge-card">
+<div class="tb-icon">🔒</div>
+<h4>تشفير 256-بت</h4>
+<p>{{ _('يتم تشفير جميع البيانات أثناء النقل والحفظ باستخدام AES-256. سيرتك الذاتية ومعلوماتك الشخصية مؤمنة بقوة.') }}</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon">🛡️</div>
+<h4>{{ _('متوافق مع GDPR') }}</h4>
+<p>امتثال كامل للوائح الخصوصية العالمية. أنت تتحكم في بياناتك — قم بتنزيلها أو حذفها في أي وقت.</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon">🪪</div>
+<h4>لا لبيع البيانات</h4>
+<p>لن نبيع أو نشارك بياناتك الشخصية أبداً. بحثك عن عمل هو شأنك الخاص — نحن فقط المحرك الذي يدعمه.</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon">🔐</div>
+<h4>خصوصية العملات الرقمية أولاً</h4>
+<p>{{ _('ادفع عبر Bitcoin و Ethereum و USDT وغيرها. لا بنوك ولا تتبع — تبقى مدفوعاتك مجهولة 100%.') }}</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon">🔄</div>
+<h4>نسخ احتياطي تلقائي</h4>
+<p>نسخ احتياطي مشفر كل ساعة مع احتفاظ لمدة 30 يوماً. حملاتك وطلباتك آمنة دائماً وقابلة للاسترجاع.</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon">✅</div>
+<h4>استرداد المال خلال 30 يوم</h4>
+<p>لا مقابلات خلال 30 يوم؟ استرد كامل مبلغك — بلا أسئلة. نحن ننجح فقط عندما تنجح. ضمان خالي من المخاطر.</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon">📊</div>
+<h4>مقاييس شفافة</h4>
+<p>شاهد كل طلب، كل فتح إيميل، كل نقرة. رؤية كاملة لأداء حملتك — لا شيء مخفي.</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon">🕵️</div>
+<h4>تقنية التخفي</h4>
+<p>{{ _('توقيت يحاكي البشر، وتناوب عناوين IP، وتجنب ذكي للاكتشاف. طلباتك تبدو طبيعية 100%. دائماً.') }}</p>
+</div>
+</div>
 </section>
-
-
-
 <!-- ═══ FAQ ACCORDION ═══ -->
-
 <section class="faq" id="faq">
-
- <div class="section-header">
-
-  <div class="overline">عندك أسئلة؟</div>
-
-  <h2>الأسئلة <span class="gradient">الشائعة</span></h2>
-
-  <p>كل ما تحتاج لمعرفته حول التقديم الآلي للوظائف</p>
-
- </div>
-
- <div class="faq-list">
-
-  <div class="faq-item" onclick="toggleFaq(this)">
-
-   <div class="faq-question">كيف يعمل نظام التقديم بالذكاء الاصطناعي؟<span class="faq-icon">+</span></div>
-
-   <div class="faq-answer"><p>يفحص نظام الذكاء الاصطناعي آلاف قوائم الوظائف. يحلل كل وصف وظيفي ثم يصنع رسائل تغطية مخصصة لكل شركة. تُرسل الطلبات عبر مزودي إيميل متناوبين لضمان أقصى قدرة تسليم. ببساطة ارفع سيرتك، حدد تفضيلاتك، ودع الذكاء الاصطناعي يتولى الباقي — 24/7، تلقائياً.</p></div>
-
-  </div>
-
-  <div class="faq-item" onclick="toggleFaq(this)">
-
-   <div class="faq-question">هل ستبدو طلباتي كرسائل سبام أو قوالب عامة؟<span class="faq-icon">+</span></div>
-
-   <div class="faq-answer"><p>إطلاقاً لا. كل رسالة تغطية تُولد بشكل فريد من قِبل الذكاء الاصطناعي لكل شركة. يقرأ الذكاء الاصطناعي الوصف الوظيفي ويربط مهاراتك بما يبحث عنه صاحب العمل. كل رسالة مختلفة تماماً. ومع التناوب الذكي للإيميلات، تبدو طلباتك طبيعية تماماً ولا تُعتبر سبام أبداً.</p></div>
-
-  </div>
-
-  <div class="faq-item" onclick="toggleFaq(this)">
-
-   <div class="faq-question">هل يوجد ضمان لاسترداد المال؟<span class="faq-icon">+</span></div>
-
-   <div class="faq-answer"><p>نعم! إذا لم تتلقَ أي دعوات للمقابلات خلال 30 يوماً من حملتك، فسنقوم برد دفعتك بالكامل — بلا أسئلة. نحن واثقون بنظامنا إلى هذا الحد. أكثر من 85% من مستخدمينا يحصلون على مقابلة واحدة على الأقل خلال أول أسبوعين.</p></div>
-
-  </div>
-
-  <div class="faq-item" onclick="toggleFaq(this)">
-
-   <div class="faq-question">ما هي طرق الدفع المتاحة؟<span class="faq-icon">+</span></div>
-
-   <div class="faq-answer"><p>نقبل الدفع بالعملات الرقمية بما في ذلك Bitcoin و Ethereum و USDT و Litecoin و Solana و USDC. الدفع بالعملات الرقمية يوفر الخصوصية والسرعة ويعمل من أي مكان دون قيود مصرفية. جميع المدفوعات لمرة واحدة — لا اشتراكات، ولا رسوم خفية.</p></div>
-
-  </div>
-
-  <div class="faq-item" onclick="toggleFaq(this)">
-
-   <div class="faq-question">ما هي الدول والصناعات التي تغطيها؟<span class="faq-icon">+</span></div>
-
-   <div class="faq-answer"><p>نغطي أكثر من 50 دولة في الشرق الأوسط (لبنان، الإمارات، السعودية، قطر، الكويت، عمان، البحرين، الأردن، مصر، العراق)، أوروبا، أمريكا الشمالية، وآسيا. محركاتنا تفحص جميع الصناعات الرئيسية. إذا كان هناك وظيفة منشورة على الإنترنت، يمكننا العثور عليها.</p></div>
-
-  </div>
-
-  <div class="faq-item" onclick="toggleFaq(this)">
-
-   <div class="faq-question">كيف تتم حماية بياناتي والحفاظ على خصوصيتي؟<span class="faq-icon">+</span></div>
-
-   <div class="faq-answer"><p>خصوصيتك هي أولويتنا القصوى. بيانات سيرتك الذاتية مشفرة. لا نشارك معلوماتك مع أطراف ثالثة أبداً. يتم تدوير مزودي الإيميل لحماية هويتك. مدفوعات العملات الرقمية مجهولة. أنت تتحكم بالكامل في بياناتك — يمكنك حذفها في أي وقت.</p></div>
-
-  </div>
-
-  <div class="faq-item" onclick="toggleFaq(this)">
-
-   <div class="faq-question">هل يمكنني استهداف شركات أو صناعات محددة؟<span class="faq-icon">+</span></div>
-
-   <div class="faq-answer"><p>نعم! لديك السيطرة الكاملة. يمكنك استهداف مسميات وظيفية معينة، صناعات، نطاقات رواتب، مواقع، وحتى شركات محددة. تريد التقديم فقط لشركات التقنية الكبرى في دبي براتب 80 ألف دولار+؟ يمكنك فعل ذلك.</p></div>
-
-  </div>
-
-  <div class="faq-item" onclick="toggleFaq(this)">
-
-   <div class="faq-question">متى سأبدأ في رؤية النتائج؟<span class="faq-icon">+</span></div>
-
-   <div class="faq-answer"><p>تبدأ الطلبات خلال دقائق من إعداد حملتك. يرى معظم المستخدمين أول فتح للإيميلات خلال 24-48 ساعة، وعادة ما تبدأ دعوات المقابلات بالوصول خلال 5-14 يوماً. متوسط نسبة المقابلات لدينا هو 8-15%، مقارنة بـ 2-3% للمعيار العام.</p></div>
-
-  </div>
-
- </div>
-
+<div class="section-header">
+<div class="overline">عندك أسئلة؟</div>
+<h2>الأسئلة <span class="gradient">الشائعة</span></h2>
+<p>كل ما تحتاج لمعرفته حول التقديم الآلي للوظائف</p>
+</div>
+<div class="faq-list">
+<div class="faq-item" onclick="toggleFaq(this)">
+<div class="faq-question">كيف يعمل نظام التقديم بالذكاء الاصطناعي؟<span class="faq-icon">+</span></div>
+<div class="faq-answer"><p>يفحص نظام الذكاء الاصطناعي آلاف قوائم الوظائف. يحلل كل وصف وظيفي ثم يصنع رسائل تغطية مخصصة لكل شركة. تُرسل الطلبات عبر مزودي إيميل متناوبين لضمان أقصى قدرة تسليم. ببساطة ارفع سيرتك، حدد تفضيلاتك، ودع الذكاء الاصطناعي يتولى الباقي — 24/7، تلقائياً.</p></div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+<div class="faq-question">هل ستبدو طلباتي كرسائل سبام أو قوالب عامة؟<span class="faq-icon">+</span></div>
+<div class="faq-answer"><p>إطلاقاً لا. كل رسالة تغطية تُولد بشكل فريد من قِبل الذكاء الاصطناعي لكل شركة. يقرأ الذكاء الاصطناعي الوصف الوظيفي ويربط مهاراتك بما يبحث عنه صاحب العمل. كل رسالة مختلفة تماماً. ومع التناوب الذكي للإيميلات، تبدو طلباتك طبيعية تماماً ولا تُعتبر سبام أبداً.</p></div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+<div class="faq-question">هل يوجد ضمان لاسترداد المال؟<span class="faq-icon">+</span></div>
+<div class="faq-answer"><p>نعم! إذا لم تتلقَ أي دعوات للمقابلات خلال 30 يوماً من حملتك، فسنقوم برد دفعتك بالكامل — بلا أسئلة. نحن واثقون بنظامنا إلى هذا الحد. أكثر من 85% من مستخدمينا يحصلون على مقابلة واحدة على الأقل خلال أول أسبوعين.</p></div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+<div class="faq-question">ما هي طرق الدفع المتاحة؟<span class="faq-icon">+</span></div>
+<div class="faq-answer"><p>{{ _('نقبل الدفع بالعملات الرقمية بما في ذلك Bitcoin و Ethereum و USDT و Litecoin و Solana و USDC. الدفع بالعملات الرقمية يوفر الخصوصية والسرعة ويعمل من أي مكان دون قيود مصرفية. جميع المدفوعات لمرة واحدة — لا اشتراكات، ولا رسوم خفية.') }}</p></div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+<div class="faq-question">ما هي الدول والصناعات التي تغطيها؟<span class="faq-icon">+</span></div>
+<div class="faq-answer"><p>نغطي أكثر من 50 دولة في الشرق الأوسط (لبنان، الإمارات، السعودية، قطر، الكويت، عمان، البحرين، الأردن، مصر، العراق)، أوروبا، أمريكا الشمالية، وآسيا. محركاتنا تفحص جميع الصناعات الرئيسية. إذا كان هناك وظيفة منشورة على الإنترنت، يمكننا العثور عليها.</p></div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+<div class="faq-question">كيف تتم حماية بياناتي والحفاظ على خصوصيتي؟<span class="faq-icon">+</span></div>
+<div class="faq-answer"><p>خصوصيتك هي أولويتنا القصوى. بيانات سيرتك الذاتية مشفرة. لا نشارك معلوماتك مع أطراف ثالثة أبداً. يتم تدوير مزودي الإيميل لحماية هويتك. مدفوعات العملات الرقمية مجهولة. أنت تتحكم بالكامل في بياناتك — يمكنك حذفها في أي وقت.</p></div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+<div class="faq-question">هل يمكنني استهداف شركات أو صناعات محددة؟<span class="faq-icon">+</span></div>
+<div class="faq-answer"><p>نعم! لديك السيطرة الكاملة. يمكنك استهداف مسميات وظيفية معينة، صناعات، نطاقات رواتب، مواقع، وحتى شركات محددة. تريد التقديم فقط لشركات التقنية الكبرى في دبي براتب 80 ألف دولار+؟ يمكنك فعل ذلك.</p></div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+<div class="faq-question">متى سأبدأ في رؤية النتائج؟<span class="faq-icon">+</span></div>
+<div class="faq-answer"><p>تبدأ الطلبات خلال دقائق من إعداد حملتك. يرى معظم المستخدمين أول فتح للإيميلات خلال 24-48 ساعة، وعادة ما تبدأ دعوات المقابلات بالوصول خلال 5-14 يوماً. متوسط نسبة المقابلات لدينا هو 8-15%، مقارنة بـ 2-3% للمعيار العام.</p></div>
+</div>
+</div>
 </section>
-
-
-
 <!-- ═══ ROI CALCULATOR ═══ -->
-
 <section class="roi-calc">
-
- <div class="section-header">
-
-  <div class="overline">تحليل القيمة</div>
-
-  <h2>حاسبة <span class="gradient">العائد على الاستثمار</span></h2>
-
-  <p>شاهد كم توفر بأتمتة بحثك عن عمل عبر الذكاء الاصطناعي</p>
-
- </div>
-
- <div class="roi-box">
-
-  <div class="roi-slider-wrap">
-
-   <label>الراتب السنوي المستهدف: <strong id="roiLabel" style="color:var(--gold)">$50,000</strong></label>
-
-   <input dir="auto" type="range" class="roi-slider" id="roiSlider" min="12000" max="200000" value="50000" step="1000" oninput="updateROI(this.value)">
-
-  </div>
-
-  <div class="roi-result">
-
-   <span class="roi-val" id="roiSavings">$4,167</span>
-
-   <span class="roi-sub">شهرياً تخسرها ببقائك عاطلاً عن العمل لشهر إضافي</span>
-
-  </div>
-
-  <div style="margin-top:24px;position:relative;z-index:1">
-
-   <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;margin-bottom:12px">
-
-    <div style="text-align:center"><div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)" id="roiCost">$5</div><div style="font-size:10px;color:var(--muted)">تكلفة لمرة واحدة</div></div>
-
-    <div style="text-align:center"><div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--green)" id="roiReturn">$50,000</div><div style="font-size:10px;color:var(--muted)">العائد السنوي</div></div>
-
-    <div style="text-align:center"><div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--magenta)" id="roiMultiplier">10,000x</div><div style="font-size:10px;color:var(--muted)">مضاعف العائد</div></div>
-
-   </div>
-
-  </div>
-
-  <a href="/register" class="btn btn-cyan" style="max-width:300px;display:inline-block;position:relative;z-index:1;margin-top:12px">🚀 استثمر 5$ — اربح 50,000$+</a>
-
- </div>
-
+<div class="section-header">
+<div class="overline">تحليل القيمة</div>
+<h2>حاسبة <span class="gradient">العائد على الاستثمار</span></h2>
+<p>شاهد كم توفر بأتمتة بحثك عن عمل عبر الذكاء الاصطناعي</p>
+</div>
+<div class="roi-box">
+<div class="roi-slider-wrap">
+<label>الراتب السنوي المستهدف: <strong id="roiLabel" style="color:var(--gold)">$50,000</strong></label>
+<input class="roi-slider" dir="auto" id="roiSlider" max="200000" min="12000" oninput="updateROI(this.value)" step="1000" type="range" value="50000"/>
+</div>
+<div class="roi-result">
+<span class="roi-val" id="roiSavings">$4,167</span>
+<span class="roi-sub">شهرياً تخسرها ببقائك عاطلاً عن العمل لشهر إضافي</span>
+</div>
+<div style="margin-top:24px;position:relative;z-index:1">
+<div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;margin-bottom:12px">
+<div style="text-align:center"><div id="roiCost" style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)">$5</div><div style="font-size:10px;color:var(--muted)">تكلفة لمرة واحدة</div></div>
+<div style="text-align:center"><div id="roiReturn" style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--green)">$50,000</div><div style="font-size:10px;color:var(--muted)">العائد السنوي</div></div>
+<div style="text-align:center"><div id="roiMultiplier" style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--magenta)">{{ _('10,000x') }}</div><div style="font-size:10px;color:var(--muted)">مضاعف العائد</div></div>
+</div>
+</div>
+<a class="btn btn-cyan" href="/register" style="max-width:300px;display:inline-block;position:relative;z-index:1;margin-top:12px">🚀 استثمر 5$ — اربح 50,000$+</a>
+</div>
 </section>
-
-
-
 <!-- ═══ URGENCY BANNER ═══ -->
-
 <section class="urgency-banner">
-
- <div class="urgency-box">
-
-  <div class="urgency-item">
-
-   <div class="ur-icon">📈</div>
-
-   <div>
-
-    <div class="ur-val">1,200+</div>
-
-    <div class="ur-label">وظائف نُشرت اليوم</div>
-
-   </div>
-
-  </div>
-
-  <div class="urgency-item">
-
-   <div class="ur-icon">⏰</div>
-
-   <div>
-
-    <div class="ur-val" id="urOffers24">342</div>
-
-    <div class="ur-label">طلبات أُرسلت في آخر ساعة</div>
-
-   </div>
-
-  </div>
-
-  <div class="urgency-item">
-
-   <div class="ur-icon">💎</div>
-
-   <div>
-
-    <div class="ur-val">محدود</div>
-
-    <div class="ur-label">مقاعد باقة برو المتاحة</div>
-
-   </div>
-
-  </div>
-
- </div>
-
+<div class="urgency-box">
+<div class="urgency-item">
+<div class="ur-icon">📈</div>
+<div>
+<div class="ur-val">1,200+</div>
+<div class="ur-label">وظائف نُشرت اليوم</div>
+</div>
+</div>
+<div class="urgency-item">
+<div class="ur-icon">⏰</div>
+<div>
+<div class="ur-val" id="urOffers24">342</div>
+<div class="ur-label">طلبات أُرسلت في آخر ساعة</div>
+</div>
+</div>
+<div class="urgency-item">
+<div class="ur-icon">💎</div>
+<div>
+<div class="ur-val">محدود</div>
+<div class="ur-label">مقاعد باقة برو المتاحة</div>
+</div>
+</div>
+</div>
 </section>
-
-
-
-
-
 <!-- ═══ REFERRAL PROGRAM ═══ -->
-
 <section class="referral-section" id="referral">
-
- <div class="section-header">
-
-  <div class="overline">&#x1f91d; اكسب بينما تشارك</div>
-
-  <h2><span class="gradient">برنامج الإحالة</span></h2>
-
-  <p>شارك JobHunt Pro مع الأصدقاء. يحصلون على <strong style="color:var(--cyan)">خصم 20%</strong> على باقتهم الأولى، وتكسب أنت <strong style="color:var(--gold)">رصيد 5$</strong> لكل إحالة تسجل. بلا حدود.</p>
-
- </div>
-
- <div class="referral-grid">
-
-  <div class="ref-step"><div class="ref-num">1</div><h4>شارك رابطك</h4><p>انسخ رابط الإحالة الخاص بك من لوحة التحكم</p></div>
-
-  <div class="ref-step"><div class="ref-num">2</div><h4>هم يسجلون</h4><p>ينشئ صديقك حساباً بأي باقة</p></div>
-
-  <div class="ref-step"><div class="ref-num">3</div><h4>أنت تكسب 5$</h4><p>يُضاف الرصيد فوراً لمحفظتك</p></div>
-
-  <div class="ref-step"><div class="ref-num">&#x221e;</div><h4>كرر العملية</h4><p>بلا حدود — أحِل قدر ما تشاء</p></div>
-
- </div>
-
- <div style="text-align:center;margin-top:32px">
-
-  <a href="/register" class="primary" style="display:inline-block">&#x1f517; احصل على رابط الإحالة — مجاناً</a>
-
- </div>
-
+<div class="section-header">
+<div class="overline">🤝 اكسب بينما تشارك</div>
+<h2><span class="gradient">برنامج الإحالة</span></h2>
+<p>{{ _('شارك JobHunt Pro مع الأصدقاء. يحصلون على') }} <strong style="color:var(--cyan)">خصم 20%</strong> على باقتهم الأولى، وتكسب أنت <strong style="color:var(--gold)">رصيد 5$</strong> لكل إحالة تسجل. بلا حدود.</p>
+</div>
+<div class="referral-grid">
+<div class="ref-step"><div class="ref-num">1</div><h4>شارك رابطك</h4><p>انسخ رابط الإحالة الخاص بك من لوحة التحكم</p></div>
+<div class="ref-step"><div class="ref-num">2</div><h4>هم يسجلون</h4><p>ينشئ صديقك حساباً بأي باقة</p></div>
+<div class="ref-step"><div class="ref-num">3</div><h4>أنت تكسب 5$</h4><p>يُضاف الرصيد فوراً لمحفظتك</p></div>
+<div class="ref-step"><div class="ref-num">∞</div><h4>كرر العملية</h4><p>بلا حدود — أحِل قدر ما تشاء</p></div>
+</div>
+<div style="text-align:center;margin-top:32px">
+<a class="primary" href="/register" style="display:inline-block">🔗 احصل على رابط الإحالة — مجاناً</a>
+</div>
 </section>
-
-
-
-
-
 <!-- ═══ FINAL CTA ═══ -->
-
 <section class="final-cta">
-
- <div class="cta-glow"></div>
-
- <h2>جاهز لـ <span class="gradient">أتمتة</span><br>بحثك عن عمل؟</h2>
-
- <p>توقف عن قضاء ساعات في التقديم اليدوي. دع الذكاء الاصطناعي يقوم بالعمل بينما تركز أنت على الأهم — التحضير للمقابلات والحصول على وظيفة أحلامك.</p>
-
- <a href="/register" class="cta-btn">🚀 ابدأ حملتك المجانية الآن ←</a>
-
- <p class="cta-sub"><strong>⚠️ يتبقى 12 مقعداً في باقة برو هذا الأسبوع</strong> • <strong>✓ لا حاجة لبطاقة ائتمان</strong> • إعداد في دقيقتين • ضمان استرداد المال لمدة 30 يوم</p>
-
+<div class="cta-glow"></div>
+<h2>جاهز لـ <span class="gradient">أتمتة</span><br/>بحثك عن عمل؟</h2>
+<p>توقف عن قضاء ساعات في التقديم اليدوي. دع الذكاء الاصطناعي يقوم بالعمل بينما تركز أنت على الأهم — التحضير للمقابلات والحصول على وظيفة أحلامك.</p>
+<a class="cta-btn" href="/register">🚀 ابدأ حملتك المجانية الآن ←</a>
+<p class="cta-sub"><strong>⚠️ يتبقى 12 مقعداً في باقة برو هذا الأسبوع</strong> • <strong>✓ لا حاجة لبطاقة ائتمان</strong> • إعداد في دقيقتين • ضمان استرداد المال لمدة 30 يوم</p>
 </section>
-
-
-
 <!-- ═══ FOOTER ═══ -->
 
 {% include "_public_footer.html" %}
@@ -4087,7 +3159,6 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 
 
 <!-- ═══ JAVASCRIPT ═══ -->
-
 <script>
 
 /* ── Mobile Menu Toggle ── */
@@ -4613,13 +3684,8 @@ function toggleFaq(item){
 })();
 
 </script>
-
-
-
 <!-- SOCIAL PROOF TOASTS -->
-
 <div class="social-toast-container" id="socialToastContainer"></div>
-
 <script>
 
 (function(){
@@ -4667,47 +3733,22 @@ function toggleFaq(item){
 })();
 
 </script>
-
-
-
-
-
-
-
 <!-- EXIT-INTENT POPUP -->
-
 <div class="exit-overlay" id="exitOverlay">
-
- <div class="exit-popup">
-
-  <button class="exit-close" onclick="closeExitPopup()">&times;</button>
-
-  <div class="exit-icon">&#x1f4ab;</div>
-
-  <h3>انتظر! لا تغادر خالي الوفين</h3>
-
-  <p>قبل أن تذهب — احصل على <strong style="color:var(--cyan)">فحص ATS مجاني لسيرتك الذاتية</strong> لتعرف سبب رفض الأنظمة الآلية لسيرتك.</p>
-
-  <div class="exit-value-props">
-
-   <span>&#x2705; نتيجة ATS فورية</span>
-
-   <span>&#x2705; تحليل فجوات الكلمات المفتاحية</span>
-
-   <span>&#x2705; مجاني 100% — لا حاجة لبطاقة</span>
-
-  </div>
-
-  <a href="/register" class="exit-cta">&#x1f50d; افحص سيرتي الذاتية مجاناً</a>
-
-  <p class="exit-footnote">موثوق من المحترفين في 50+ دولة</p>
-
- </div>
-
+<div class="exit-popup">
+<button class="exit-close" onclick="closeExitPopup()">×</button>
+<div class="exit-icon">💫</div>
+<h3>انتظر! لا تغادر خالي الوفين</h3>
+<p>قبل أن تذهب — احصل على <strong style="color:var(--cyan)">{{ _('فحص ATS مجاني لسيرتك الذاتية') }}</strong> لتعرف سبب رفض الأنظمة الآلية لسيرتك.</p>
+<div class="exit-value-props">
+<span>{{ _('✅ نتيجة ATS فورية') }}</span>
+<span>✅ تحليل فجوات الكلمات المفتاحية</span>
+<span>✅ مجاني 100% — لا حاجة لبطاقة</span>
 </div>
-
-
-
+<a class="exit-cta" href="/register">🔍 افحص سيرتي الذاتية مجاناً</a>
+<p class="exit-footnote">موثوق من المحترفين في 50+ دولة</p>
+</div>
+</div>
 <script>
 
 (function(){
@@ -4787,24 +3828,11 @@ function toggleFaq(item){
 })();
 
 </script>
-
-
-
-
-
 <!-- FLOATING MOBILE CTA -->
-
 <div class="mobile-cta-bar" id="mobileCtaBar">
-
- <a href="/register" class="mobile-cta-btn">&#x1f680; ابدأ التقديم مجاناً</a>
-
+<a class="mobile-cta-btn" href="/register">🚀 ابدأ التقديم مجاناً</a>
 </div>
-
-
-
-
-
-  <script>
+<script>
 
     if ('serviceWorker' in navigator) {
 
@@ -4817,8 +3845,5 @@ function toggleFaq(item){
     }
 
   </script>
-
-</body>
-
+</div></div></section></body>
 </html>
-

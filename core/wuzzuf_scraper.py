@@ -20,7 +20,6 @@ Returns job dicts: {company, title, location, url, source: "wuzzuf"}
 import asyncio
 import logging
 import time
-import re
 from typing import Dict, List, Optional
 from urllib.parse import quote_plus
 
@@ -28,6 +27,7 @@ try:
     from curl_cffi.requests import AsyncSession as httpx_AsyncClient
 except ImportError:
     import httpx
+
     httpx_AsyncClient = httpx.AsyncClient
 import httpx
 from bs4 import BeautifulSoup
@@ -79,6 +79,7 @@ HEADERS = {
 # ═══════════════════════════════════════════════════════════════════════════════
 # Scraper
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def _build_url(title: str, location: str) -> str:
     """Build Wuzzuf search URL.
@@ -170,16 +171,14 @@ def _parse_job_cards(html: str) -> List[Dict]:
                 if txt:
                     company = txt.rstrip(" -").strip()
                     break
-            
+
             if not company or company in ("—", "-", ""):
                 company = "Unknown"
 
             # ── Location ──
             # Wuzzuf: location in span.css-16x61xq (e.g. "Maadi,Cairo,Egypt")
             loc_el = card.select_one(
-                "span.css-16x61xq, "
-                "span[class*='16x61xq'], "
-                "span[class*='eoyjyou0']"
+                "span.css-16x61xq, span[class*='16x61xq'], span[class*='eoyjyou0']"
             )
             location = ""
             if loc_el:
@@ -189,13 +188,15 @@ def _parse_job_cards(html: str) -> List[Dict]:
             if not company or company in ("—", "-", ""):
                 company = "Unknown"
 
-            jobs.append({
-                "company": company,
-                "title": job_title,
-                "location": location,
-                "url": job_url,
-                "source": "wuzzuf",
-            })
+            jobs.append(
+                {
+                    "company": company,
+                    "title": job_title,
+                    "location": location,
+                    "url": job_url,
+                    "source": "wuzzuf",
+                }
+            )
 
         except Exception as e:
             logger.debug(f"Error parsing Wuzzuf card: {e}")
@@ -210,11 +211,10 @@ def _scrape_location_title(title: str, location_key: str) -> List[Dict]:
 
     try:
         import cloudscraper
-        scraper = cloudscraper.create_scraper(browser={
-            'browser': 'chrome',
-            'platform': 'windows',
-            'desktop': True
-        })
+
+        scraper = cloudscraper.create_scraper(
+            browser={"browser": "chrome", "platform": "windows", "desktop": True}
+        )
         resp = scraper.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
 
         if resp.status_code != 200:
@@ -233,6 +233,7 @@ def _scrape_location_title(title: str, location_key: str) -> List[Dict]:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Public API
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def search_wuzzuf_sync(
     titles: Optional[List[str]] = None,
@@ -259,6 +260,7 @@ def search_wuzzuf_sync(
     combos = [(t, l) for t in titles for l in locations]
     if shuffle:
         import random
+
         random.shuffle(combos)
 
     all_jobs = []
@@ -312,4 +314,3 @@ if __name__ == "__main__":
     if len(jobs) > 10:
         print(f"  ... and {len(jobs) - 10} more")
     print("=" * 60)
-

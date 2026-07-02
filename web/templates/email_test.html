@@ -60,114 +60,106 @@
 
 @media(max-width:600px){ .et-footer{flex-direction:column;align-items:stretch} .et-footer .price{margin-inline-start:0;text-align:center} }
 </style>
-
-<div id="toastBox" class="toast"></div>
-
+<div class="toast" id="toastBox"></div>
 <!-- Header -->
 <div class="et-hero">
-  <div>
-    <h1>&#x2709;&#xFE0F; محرر البريد الإلكتروني</h1>
-    <p class="subtitle">إرسال رسائل توظيف مخصصة — <strong>0.10$ / رسالة</strong> من المحفظة</p>
-  </div>
-  <div style="display:flex;gap:8px;align-items:center;">
-    {% if ctx.active_profile %}
-    <span class="badge badge-blue">&#x1F4C4; {{ ctx.active_profile.profile_name or 'ملف السيرة الذاتية' }}</span>
-    {% endif %}
-    <span class="badge badge-gold">&#x1F4B0; ${{ "%.2f"|format(ctx.balance or 0) }}</span>
-  </div>
+<div>
+<h1>✉️ محرر البريد الإلكتروني</h1>
+<p class="subtitle">إرسال رسائل توظيف مخصصة — <strong>0.10$ / رسالة</strong> من المحفظة</p>
 </div>
-
+<div style="display:flex;gap:8px;align-items:center;">
+    {% if ctx.active_profile %}
+    <span class="badge badge-blue">📄 {{ ctx.active_profile.profile_name or 'ملف السيرة الذاتية' }}</span>
+    {% endif %}
+    <span class="badge badge-gold">💰 ${{ "%.2f"|format(ctx.balance or 0) }}</span>
+</div>
+</div>
 <!-- Alerts -->
-{% if ctx.success %}<div class="alert alert-success">&#x2705; {{ ctx.success }}</div>{% endif %}
-{% if ctx.error %}<div class="alert alert-error">&#x26A0;&#xFE0F; {{ ctx.error }}</div>{% endif %}
+{% if ctx.success %}<div class="alert alert-success">✅ {{ ctx.success }}</div>{% endif %}
+{% if ctx.error %}<div class="alert alert-error">⚠️ {{ ctx.error }}</div>{% endif %}
 
-<form method="POST" action="/email-test" id="emailForm" enctype="multipart/form-data">
-  <!-- CV Upload -->
-  <div class="et-card">
-    <div class="et-card-title">&#x1F4C4; رفع السيرة الذاتية (PDF) — تعبئة جميع الحقول تلقائياً</div>
-    <div class="upload-zone" id="dropZone">
-      <div class="uz-icon">&#x1F4E5;</div>
-      <strong>أسقط سيرتك الذاتية هنا أو انقر للتصفح</strong>
-      <p>ملفات PDF فقط، بحد أقصى 5 ميجابايت. سيقوم النظام بالتحليل وتعبئة الحقول أدناه تلقائياً.</p>
-      <input dir="auto" type="file" id="cvFileInput" accept=".pdf">
-    </div>
-    <div class="upload-status" id="uploadStatus">
-      <span>&#x1F4CE; <span id="upFileName"></span></span>
-      <span id="upStatus">جارٍ التحليل...</span>
-    </div>
-  </div>
-
-  <!-- Recipient -->
-  <div class="et-card">
-    <div class="et-card-title">&#x1F465; المستلم</div>
-    <div class="et-row">
-      <div class="et-field">
-        <label>إلى البريد الإلكتروني *</label>
-        <input dir="auto" type="email" name="to_email" id="fldTo" value="{{ ctx.to_email or '' }}" placeholder="hr@company.com" required>
-      </div>
-      <div class="et-field">
-        <label>اسم الشركة</label>
-        <input dir="auto" type="text" name="company_name" id="fldCompany" value="{{ ctx.company_name or '' }}" placeholder="الشركة المستهدفة">
-      </div>
-      <div class="et-field">
-        <label>المسمى الوظيفي</label>
-        <input dir="auto" type="text" name="job_title" id="fldJob" value="{{ ctx.job_title or '' }}" placeholder="مهندس شبكات">
-      </div>
-    </div>
-  </div>
-
-  <!-- CV Text -->
-  <div class="et-card">
-    <div class="et-card-title">
-      <span>&#x1F4C4; السيرة الذاتية</span>
-      <div class="et-card-actions">
-        <button type="button" class="btn btn-xs btn-ai" onclick="aiRegen('cv')">&#x2728; إعادة كتابة بالذكاء الاصطناعي</button>
-        <button type="button" class="btn btn-xs btn-pdf" onclick="downloadPDF('cv')">&#x1F4E5; تنزيل PDF</button>
-      </div>
-    </div>
-    <div class="et-field">
-      <textarea dir="auto" name="cv_text" id="fldCV" placeholder="سيظهر نص سيرتك الذاتية هنا بعد رفع ملف PDF...">{{ ctx.cv_text or '' }}</textarea>
-    </div>
-  </div>
-
-  <!-- Cover Letter -->
-  <div class="et-card">
-    <div class="et-card-title">
-      <span>&#x2709;&#xFE0F; رسالة التغطية</span>
-      <div class="et-card-actions">
-        <button type="button" class="btn btn-xs btn-ai" onclick="aiRegen('cover')">&#x2728; إعادة كتابة بالذكاء الاصطناعي</button>
-        <button type="button" class="btn btn-xs btn-pdf" onclick="downloadPDF('cover')">&#x1F4E5; تنزيل PDF</button>
-      </div>
-    </div>
-    <div class="et-field">
-      <textarea dir="auto" name="cover_letter" id="fldCover" placeholder="سيتم إنشاء رسالة التغطية تلقائياً...">{{ ctx.cover_letter or '' }}</textarea>
-    </div>
-  </div>
-
-  <!-- Email Body -->
-  <div class="et-card">
-    <div class="et-card-title">
-      <span>&#x1F4E8; محتوى البريد الإلكتروني</span>
-      <button type="button" class="btn btn-xs btn-ai" onclick="aiRegen('email')">&#x2728; إعادة كتابة بالذكاء الاصطناعي</button>
-    </div>
-    <div class="et-field">
-      <textarea dir="auto" name="email_body" id="fldEmail" placeholder="سيتم إنشاء محتوى البريد الإلكتروني تلقائياً...">{{ ctx.email_body or '' }}</textarea>
-    </div>
-  </div>
-
-  <!-- Submit -->
-  <div class="et-footer">
-    <button type="submit" class="btn btn-lg btn-primary">&#x1F680; إرسال البريد — 0.10$</button>
-    <button type="button" class="btn btn-md btn-outline" onclick="document.getElementById('emailForm').reset()">&#x21BA; إعادة ضبط</button>
-    <span class="price">الرصيد: <strong id="balDisplay">${{ "%.2f"|format(ctx.balance or 0) }}</strong></span>
-  </div>
+<form action="/email-test" enctype="multipart/form-data" id="emailForm" method="POST">
+<!-- CV Upload -->
+<div class="et-card">
+<div class="et-card-title">{{ _('📄 رفع السيرة الذاتية (PDF) — تعبئة جميع الحقول تلقائياً') }}</div>
+<div class="upload-zone" id="dropZone">
+<div class="uz-icon">📥</div>
+<strong>أسقط سيرتك الذاتية هنا أو انقر للتصفح</strong>
+<p>{{ _('ملفات PDF فقط، بحد أقصى 5 ميجابايت. سيقوم النظام بالتحليل وتعبئة الحقول أدناه تلقائياً.') }}</p>
+<input accept=".pdf" dir="auto" id="cvFileInput" type="file"/>
+</div>
+<div class="upload-status" id="uploadStatus">
+<span>📎 <span id="upFileName"></span></span>
+<span id="upStatus">جارٍ التحليل...</span>
+</div>
+</div>
+<!-- Recipient -->
+<div class="et-card">
+<div class="et-card-title">👥 المستلم</div>
+<div class="et-row">
+<div class="et-field">
+<label>إلى البريد الإلكتروني *</label>
+<input dir="auto" id="fldTo" name="to_email" placeholder="hr@company.com" required="" type="email" value="{{ ctx.to_email or '' }}"/>
+</div>
+<div class="et-field">
+<label>اسم الشركة</label>
+<input dir="auto" id="fldCompany" name="company_name" placeholder="الشركة المستهدفة" type="text" value="{{ ctx.company_name or '' }}"/>
+</div>
+<div class="et-field">
+<label>المسمى الوظيفي</label>
+<input dir="auto" id="fldJob" name="job_title" placeholder="مهندس شبكات" type="text" value="{{ ctx.job_title or '' }}"/>
+</div>
+</div>
+</div>
+<!-- CV Text -->
+<div class="et-card">
+<div class="et-card-title">
+<span>📄 السيرة الذاتية</span>
+<div class="et-card-actions">
+<button class="btn btn-xs btn-ai" onclick="aiRegen('cv')" type="button">✨ إعادة كتابة بالذكاء الاصطناعي</button>
+<button class="btn btn-xs btn-pdf" onclick="downloadPDF('cv')" type="button">{{ _('📥 تنزيل PDF') }}</button>
+</div>
+</div>
+<div class="et-field">
+<textarea dir="auto" id="fldCV" name="cv_text" placeholder="سيظهر نص سيرتك الذاتية هنا بعد رفع ملف PDF...">{{ ctx.cv_text or '' }}</textarea>
+</div>
+</div>
+<!-- Cover Letter -->
+<div class="et-card">
+<div class="et-card-title">
+<span>✉️ رسالة التغطية</span>
+<div class="et-card-actions">
+<button class="btn btn-xs btn-ai" onclick="aiRegen('cover')" type="button">✨ إعادة كتابة بالذكاء الاصطناعي</button>
+<button class="btn btn-xs btn-pdf" onclick="downloadPDF('cover')" type="button">{{ _('📥 تنزيل PDF') }}</button>
+</div>
+</div>
+<div class="et-field">
+<textarea dir="auto" id="fldCover" name="cover_letter" placeholder="سيتم إنشاء رسالة التغطية تلقائياً...">{{ ctx.cover_letter or '' }}</textarea>
+</div>
+</div>
+<!-- Email Body -->
+<div class="et-card">
+<div class="et-card-title">
+<span>📨 محتوى البريد الإلكتروني</span>
+<button class="btn btn-xs btn-ai" onclick="aiRegen('email')" type="button">✨ إعادة كتابة بالذكاء الاصطناعي</button>
+</div>
+<div class="et-field">
+<textarea dir="auto" id="fldEmail" name="email_body" placeholder="سيتم إنشاء محتوى البريد الإلكتروني تلقائياً...">{{ ctx.email_body or '' }}</textarea>
+</div>
+</div>
+<!-- Submit -->
+<div class="et-footer">
+<button class="btn btn-lg btn-primary" type="submit">🚀 إرسال البريد — 0.10$</button>
+<button class="btn btn-md btn-outline" onclick="document.getElementById('emailForm').reset()" type="button">↺ إعادة ضبط</button>
+<span class="price">الرصيد: <strong id="balDisplay">${{ "%.2f"|format(ctx.balance or 0) }}</strong></span>
+</div>
 </form>
 
 {% if ctx.last_test %}
 <div class="et-history">
-  <strong>آخر إرسال:</strong> {{ ctx.last_test.to_email }}{% if ctx.last_test.company_name %} &rarr; {{ ctx.last_test.company_name }}{% endif %}
-  &middot; <span style="color:{% if ctx.last_test.status=='sent' %}#22c55e{% else %}#ef4444{% endif %};">{{ ctx.last_test.status }}</span>
-  {% if ctx.last_test.sent_at %} &middot; <small>{{ ctx.last_test.sent_at[:19] }}</small>{% endif %}
+<strong>آخر إرسال:</strong> {{ ctx.last_test.to_email }}{% if ctx.last_test.company_name %} → {{ ctx.last_test.company_name }}{% endif %}
+  · <span style="color:{% if ctx.last_test.status=='sent' %}#22c55e{% else %}#ef4444{% endif %};">{{ ctx.last_test.status }}</span>
+  {% if ctx.last_test.sent_at %} · <small>{{ ctx.last_test.sent_at[:19] }}</small>{% endif %}
 </div>
 {% endif %}
 
@@ -250,7 +242,7 @@ async function aiRegen(field){
     if(d.text){ta.value=d.text; toast('تمت إعادة التوليد!');}
     else toast(d.error||'فشل إعادة التوليد',true);
   }catch(e){toast(e.message,true);}
-  finally{btn.disabled=false; btn.innerHTML='&#x2728; إعادة كتابة بالذكاء الاصطناعي';}
+  finally{btn.disabled=false; btn.innerHTML='✨ إعادة كتابة بالذكاء الاصطناعي';}
 }
 
 // ── PDF Download ──

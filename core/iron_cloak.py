@@ -2,10 +2,11 @@
 JobHunt Pro - The Iron Cloak Middleware
 Protects the application from competitor scraping, DMCA bots, and human reviewers.
 """
+
 import logging
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import Response, HTMLResponse
+from starlette.responses import HTMLResponse
 from core.panic_mode import is_panic_mode_active, toggle_panic_mode
 import time
 from collections import defaultdict
@@ -14,7 +15,14 @@ logger = logging.getLogger(__name__)
 
 # Basic list of known datacenter IP ranges or common scraper User-Agents.
 BANNED_USER_AGENTS = [
-    "python-requests", "curl", "wget", "scrapy", "bot", "spider", "crawler", "headless"
+    "python-requests",
+    "curl",
+    "wget",
+    "scrapy",
+    "bot",
+    "spider",
+    "crawler",
+    "headless",
 ]
 
 # Track scraper hits per IP: {ip: [timestamp, timestamp, ...]}
@@ -22,58 +30,74 @@ _scraper_hits = defaultdict(list)
 AUTO_PANIC_THRESHOLD = 5
 AUTO_PANIC_WINDOW = 60  # seconds
 
+
 class IronCloakMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         client_ip = request.client.host if request.client else "unknown"
-        
+
         # 1. Scraper / Competitor Shield (User-Agent check)
         user_agent = request.headers.get("user-agent", "").lower()
         is_bot = any(bot in user_agent for bot in BANNED_USER_AGENTS)
-        
+
         # Allow local testing/audits to bypass bot checks
         if client_ip in ("127.0.0.1", "localhost", "testserver"):
             is_bot = False
-        
+
         if is_bot:
-            logger.warning(f"[IRON CLOAK] Blocked competitor bot: {user_agent} from {client_ip}")
-            
+            logger.warning(
+                f"[IRON CLOAK] Blocked competitor bot: {user_agent} from {client_ip}"
+            )
+
             # Record hit for auto-panic
             now = time.time()
             _scraper_hits[client_ip].append(now)
-            
+
             # Clean up old hits
-            _scraper_hits[client_ip] = [t for t in _scraper_hits[client_ip] if now - t < AUTO_PANIC_WINDOW]
-            
+            _scraper_hits[client_ip] = [
+                t for t in _scraper_hits[client_ip] if now - t < AUTO_PANIC_WINDOW
+            ]
+
             # If threshold exceeded, Auto-Trigger Panic Mode
             if len(_scraper_hits[client_ip]) >= AUTO_PANIC_THRESHOLD:
                 if not is_panic_mode_active():
-                    logger.critical(f"🚨 [AI THREAT DETECTED] Multiple bot requests from {client_ip}. AUTO-ACTIVATING PANIC MODE!")
+                    logger.critical(
+                        f"🚨 [AI THREAT DETECTED] Multiple bot requests from {client_ip}. AUTO-ACTIVATING PANIC MODE!"
+                    )
                     toggle_panic_mode(force_state=True)
-            
-            return HTMLResponse("<h1>403 Forbidden</h1><p>Request denied by security firewall.</p>", status_code=403)
+
+            return HTMLResponse(
+                "<h1>403 Forbidden</h1><p>Request denied by security firewall.</p>",
+                status_code=403,
+            )
 
         # 2. Panic Mode Check
         if is_panic_mode_active():
             # If Panic Mode is ON, hide the SaaS and show the Fake Blog.
             # Real users can bypass this by visiting /login directly, or having a valid session.
             path = request.url.path
-            
+
             # Allow static files and specific backend API routes to function normally
-            if path.startswith("/static") or path.startswith("/assets") or path.startswith("/api/docs"):
+            if (
+                path.startswith("/static")
+                or path.startswith("/assets")
+                or path.startswith("/api/docs")
+            ):
                 pass
             # If they hit the root landing page (where reviewers look), intercept it!
             elif path == "/" or path == "/index":
                 client_ip = request.client.host if request.client else "unknown"
-                logger.info(f"[IRON CLOAK] Panic Mode Active: Serving Fake Blog to {client_ip}")
+                logger.info(
+                    f"[IRON CLOAK] Panic Mode Active: Serving Fake Blog to {client_ip}"
+                )
                 return self._serve_fake_blog()
-                
+
         # 3. Proceed normally
         response = await call_next(request)
         return response
 
     def _serve_fake_blog(self):
         """Returns an innocent HTML page instead of the real SaaS landing page."""
-        html = '''
+        html = """
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -115,5 +139,5 @@ class IronCloakMiddleware(BaseHTTPMiddleware):
             </footer>
         </body>
         </html>
-        '''
+        """
         return HTMLResponse(content=html, status_code=200)

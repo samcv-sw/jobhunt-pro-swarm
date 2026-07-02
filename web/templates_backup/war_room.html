@@ -1,0 +1,334 @@
+{% if auto_refresh %}<meta http-equiv="refresh" content="15">{% endif %}
+
+<div class="relative space-y-6">
+    <!-- Matrix Rain effect background for the header -->
+    <div class="absolute top-2 right-4 font-mono text-[10px] text-green-500/10 leading-none pointer-events-none z-0 animate-pulse">
+        01001010 01001111 01000010 01001000 01010101 01001110 01010100 00100000 01010000 01010010 01001111
+    </div>
+
+    <!-- Header Section -->
+    <div class="relative z-10 bg-slate-900/90 backdrop-blur-md border border-green-500/20 rounded-2xl p-6 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            <div>
+                <h2 class="text-xl font-black text-green-400 tracking-wider font-mono drop-shadow-[0_0_8px_rgba(74,222,128,0.5)]">
+                    [ غرفة الحرب :: الحملة نشطة ]
+                </h2>
+                <p class="text-xs text-slate-400 mt-1 font-mono">
+                    رقم الحملة: {{ campaign.cid }} <span class="text-slate-600 mx-2">|</span> الحالة: <span class="text-white font-bold">{{ campaign.status }}</span> <span class="text-slate-600 mx-2">|</span> الهدف: {{ campaign.total_companies }} شركة
+                </p>
+            </div>
+            <div>
+                {{ weapon_badge|safe }}
+            </div>
+        </div>
+        
+        <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-green-500 via-cyan-400 to-blue-500 transition-all duration-1000" style="width:{{ progress_pct }}%;"></div>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+        <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-4 text-center hover:border-green-500/30 hover:shadow-[0_0_15px_rgba(34,197,94,0.15)] transition-all">
+            <div class="text-2xl font-black text-green-400 font-mono">{{ campaign.total_companies }}</div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">[ الأهداف ]</div>
+        </div>
+        <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-4 text-center hover:border-green-500/30 hover:shadow-[0_0_15px_rgba(34,197,94,0.15)] transition-all">
+            <div class="text-2xl font-black text-green-500 font-mono">{{ stats.sent }}</div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">[ مُرسل ]</div>
+        </div>
+        <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-4 text-center hover:border-cyan-500/30 hover:shadow-[0_0_15px_rgba(6,182,212,0.15)] transition-all">
+            <div class="text-2xl font-black text-cyan-400 font-mono">{{ campaign.open_count }}</div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">[ فُتح ]</div>
+        </div>
+        <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-4 text-center hover:border-blue-500/30 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all">
+            <div class="text-2xl font-black text-blue-400 font-mono">{{ campaign.response_count }}</div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">[ ردود ]</div>
+        </div>
+        <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-4 text-center hover:border-red-500/30 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] transition-all">
+            <div class="text-2xl font-black text-red-500 font-mono">{{ stats.failed }}</div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">[ فشل ]</div>
+        </div>
+        <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-4 text-center hover:border-amber-500/30 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all">
+            <div class="text-2xl font-black text-amber-500 font-mono">{{ stats.followups }}</div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">[ متابعات ]</div>
+        </div>
+    </div>
+
+    <!-- Salary Intelligence Briefing -->
+    <div>
+        <h3 class="text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40">تقرير استخباراتي - الرواتب</h3>
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+            <div class="bg-slate-900/90 border border-green-500/10 rounded-xl p-3 text-center">
+                <div class="text-base font-black text-green-400 font-mono">$1.5-3K</div>
+                <div class="text-[11px] text-slate-400 mt-1">🇱🇧 LEBANON</div>
+                <div class="text-[9px] text-slate-500 mt-1">السوق المحلي</div>
+            </div>
+            <div class="bg-slate-900/90 border border-green-500/10 rounded-xl p-3 text-center">
+                <div class="text-base font-black text-green-400 font-mono">$4-8K</div>
+                <div class="text-[11px] text-slate-400 mt-1">🇦🇪 UAE</div>
+                <div class="text-[9px] text-slate-500 mt-1">معفى من الضريبة</div>
+            </div>
+            <div class="bg-slate-900/90 border border-green-500/10 rounded-xl p-3 text-center">
+                <div class="text-base font-black text-green-400 font-mono">$3.5-7K</div>
+                <div class="text-[11px] text-slate-400 mt-1">🇸🇦 SAUDI</div>
+                <div class="text-[9px] text-slate-500 mt-1">نمو سريع</div>
+            </div>
+            <div class="bg-slate-900/90 border border-green-500/10 rounded-xl p-3 text-center">
+                <div class="text-base font-black text-green-400 font-mono">$4.5-8.5K</div>
+                <div class="text-[11px] text-slate-400 mt-1">🇶🇦 QATAR</div>
+                <div class="text-[9px] text-slate-500 mt-1">سوق مميز</div>
+            </div>
+            <div class="bg-slate-900/90 border border-green-500/10 rounded-xl p-3 text-center">
+                <div class="text-base font-black text-green-400 font-mono">$3.5-7K</div>
+                <div class="text-[11px] text-slate-400 mt-1">🇰🇼 KUWAIT</div>
+                <div class="text-[9px] text-slate-500 mt-1">قطاع النفط</div>
+            </div>
+            <div class="bg-slate-900/90 border border-green-500/10 rounded-xl p-3 text-center">
+                <div class="text-base font-black text-green-400 font-mono">$3-6K</div>
+                <div class="text-[11px] text-slate-400 mt-1">🇴🇲 OMAN</div>
+                <div class="text-[9px] text-slate-500 mt-1">نمو مستقر</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Competition Radar -->
+    <div>
+        <h3 class="text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40">رادار المنافسة</h3>
+        {% if comp_rows %}
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+        {% for c in comp_rows %}
+            <div class="bg-slate-900/90 border border-slate-700/30 rounded-xl p-4 flex items-center gap-3 transition-all hover:border-green-500/20 {{ 'border-l-4 border-l-red-500' if c.heat_cls == 'hot' else 'border-l-4 border-l-amber-500' if c.heat_cls == 'good' else 'border-l-4 border-l-cyan-500' }}">
+                <span class="text-xs font-semibold text-slate-300 min-w-[100px] truncate">{{ c.company }}</span>
+                <span class="text-[10px] text-slate-500 flex-1 truncate">{{ c.job_title }}</span>
+                <div class="flex-1 h-1 bg-slate-800 rounded-full overflow-hidden mx-2 hidden sm:block">
+                    <div class="h-full rounded-full transition-all duration-500 {{ 'bg-gradient-to-r from-red-500 to-orange-500' if c.heat_cls == 'hot' else 'bg-gradient-to-r from-amber-500 to-lime-400' if c.heat_cls == 'good' else 'bg-gradient-to-r from-cyan-500 to-blue-500' }}" style="width:{{ c.score }}%;"></div>
+                </div>
+                <span class="text-[10px] font-bold min-w-[60px] text-right {{ 'text-red-500' if c.heat_cls == 'hot' else 'text-amber-500' if c.heat_cls == 'good' else 'text-cyan-500' }}">
+                    {{ c.heat_label }} · {{ c.score }}%
+                </span>
+            </div>
+        {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-10 px-5 text-slate-500 bg-slate-900/50 border border-slate-800 rounded-xl border-dashed">
+            <i data-lucide="radar" class="w-8 h-8 mx-auto mb-3 opacity-50"></i>
+            <div class="text-xs font-mono">[ لا توجد بيانات منافسة بعد — يتفعل الرادار عند تنفيذ الحملة ]</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- LinkedIn War Station -->
+    <div>
+        <h3 class="text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40">محطة حرب لينكدإن</h3>
+        {% if linkedin_rows %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for l in linkedin_rows %}
+            <div class="bg-slate-900/90 border border-slate-700/30 rounded-xl p-4 transition-all hover:border-green-500/20 hover:shadow-[0_0_15px_rgba(34,197,94,0.05)]">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-sm font-bold text-slate-300">{{ l.company }}</span>
+                    <span class="text-xs text-slate-500">{{ l.job_title }}</span>
+                </div>
+                <div class="text-xs font-mono text-lime-400 bg-black/40 p-3 rounded-lg border-l-2 border-green-500/30 mb-3 max-h-40 overflow-y-auto wr-card-body">
+                    {{ l.message }}
+                </div>
+                <button class="bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1.5 rounded-lg text-xs font-bold font-mono tracking-wider hover:bg-green-500/20 hover:border-green-400 transition-all flex items-center gap-2" onclick="copyText(this)">
+                    <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i> نسخ إلى الحافظة
+                </button>
+            </div>
+        {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-10 px-5 text-slate-500 bg-slate-900/50 border border-slate-800 rounded-xl border-dashed">
+            <i data-lucide="linkedin" class="w-8 h-8 mx-auto mb-3 opacity-50"></i>
+            <div class="text-xs font-mono">[ اشترِ صاروخ التواصل لتوليد رسائل طلب تواصل تلقائية ]</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Interview Prep Armory -->
+    <div>
+        <h3 class="text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40">ترسانة تحضير المقابلات</h3>
+        {% if interview_rows %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for iv in interview_rows %}
+            <div class="bg-slate-900/90 border border-slate-700/30 rounded-xl p-4 transition-all hover:border-green-500/20 hover:shadow-[0_0_15px_rgba(34,197,94,0.05)]">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-sm font-bold text-slate-300">{{ iv.company }}</span>
+                    <span class="text-xs text-slate-500">{{ iv.job_title }}</span>
+                </div>
+                <div class="text-xs font-mono text-lime-400 bg-black/40 p-3 rounded-lg border-l-2 border-green-500/30 mb-3 max-h-48 overflow-y-auto whitespace-pre-wrap wr-card-body">
+                    {{ iv.prep }}
+                </div>
+                <button class="bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1.5 rounded-lg text-xs font-bold font-mono tracking-wider hover:bg-green-500/20 hover:border-green-400 transition-all flex items-center gap-2" onclick="copyGuide(this)">
+                    <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i> نسخ الدليل
+                </button>
+            </div>
+        {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-10 px-5 text-slate-500 bg-slate-900/50 border border-slate-800 rounded-xl border-dashed">
+            <i data-lucide="mic" class="w-8 h-8 mx-auto mb-3 opacity-50"></i>
+            <div class="text-xs font-mono">[ اشترِ ذكاء اصطناعي للمقابلة أو "Interview Ninja" لتوليد أدلة تلقائية ]</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Cover Letter Library -->
+    <div>
+        <h3 class="text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40">مكتبة رسائل التغطية</h3>
+        {% if cover_rows %}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {% for cv in cover_rows %}
+            <div class="bg-slate-900/90 border border-slate-700/30 rounded-xl p-4 transition-all hover:border-green-500/20 hover:shadow-[0_0_15px_rgba(34,197,94,0.05)] wr-card">
+                <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
+                    <span class="text-sm font-bold text-slate-300">{{ cv.company }}</span>
+                    <span class="text-xs text-slate-500">{{ cv.job_title }}</span>
+                    <span class="text-[9px] px-2 py-0.5 rounded-md font-bold tracking-wide {{ 'bg-green-500/10 text-green-400' if cv.status_cls == 'sent' else 'bg-red-500/10 text-red-500' }}">
+                        {{ cv.status }}
+                    </span>
+                </div>
+                <div class="text-xs font-mono text-lime-400 bg-black/40 p-3 rounded-lg border-l-2 border-green-500/30 mb-3 max-h-40 overflow-hidden wr-card-body" style="display:{{ 'block' if cv.has_preview else 'none' }};">
+                    {{ cv.html[:800] if cv.html else '' }}
+                </div>
+                <textarea dir="auto" class="raw-html-data hidden">{{ cv.html }}</textarea>
+                <div class="flex gap-2 flex-wrap mt-3">
+                    <button class="bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1.5 rounded-lg text-xs font-bold font-mono tracking-wider hover:bg-green-500/20 hover:border-green-400 transition-all flex items-center gap-2" onclick="copyHtml(this)">
+                        <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i> نسخ HTML
+                    </button>
+                    <button class="bg-slate-800 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold font-mono tracking-wider hover:bg-slate-700 hover:text-white transition-all flex items-center gap-2" onclick="generateInterviewPrep({{ cv.id }}, this)">
+                        <i data-lucide="brain" class="w-3.5 h-3.5"></i> تحضير المقابلة
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-10 px-5 text-slate-500 bg-slate-900/50 border border-slate-800 rounded-xl border-dashed">
+            <i data-lucide="mail" class="w-8 h-8 mx-auto mb-3 opacity-50"></i>
+            <div class="text-xs font-mono">[ لا توجد رسائل تغطية — يجب أن تكون الحملة نشطة أو منتهية ]</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Next Actions -->
+    <div>
+        <h3 class="text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40">الإجراءات التالية</h3>
+        <div class="space-y-2">
+            {% for act in actions %}
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex items-center gap-3 transition-all hover:border-slate-700 {{ 'border-l-4 border-l-red-500' if act.sev == 'crit' else 'border-l-4 border-l-amber-500' if act.sev == 'high' else 'border-l-4 border-l-blue-500' if act.sev == 'med' else 'border-l-4 border-l-green-500' }}">
+                <span class="text-[9px] font-black px-2.5 py-1 rounded-md tracking-wider min-w-[70px] text-center font-mono {{ 'bg-red-500/15 text-red-500 border border-red-500/30' if act.sev == 'crit' else 'bg-amber-500/15 text-amber-500 border border-amber-500/30' if act.sev == 'high' else 'bg-blue-500/15 text-blue-500 border border-blue-500/30' if act.sev == 'med' else 'bg-green-500/10 text-green-400 border border-green-500/20' }}">
+                    {{ act.label }}
+                </span>
+                <span class="text-sm text-slate-300">{{ act.text }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="pt-4">
+        <a href="/campaign/{{ campaign_id }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-xl text-slate-400 hover:text-white text-sm font-semibold transition-all">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة للحملة
+        </a>
+    </div>
+</div>
+
+<script>
+function fallbackCopyTextToClipboard(text, btn, originalHtml) {
+  var textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.style.top = "0";
+  textArea.style.left = "0";
+  textArea.style.position = "fixed";
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try {
+    var successful = document.execCommand('copy');
+    if(successful) {
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i> COPIED!';
+        btn.classList.add('bg-green-500/20', 'text-white', 'border-green-400');
+        lucide.createIcons();
+        setTimeout(function() { 
+            btn.innerHTML = originalHtml; 
+            btn.classList.remove('bg-green-500/20', 'text-white', 'border-green-400'); 
+            lucide.createIcons();
+        }, 2000);
+    }
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
+  document.body.removeChild(textArea);
+}
+
+function copyToClipboard(text, btn, originalHtml) {
+    if (!text) return;
+    if (!navigator.clipboard) {
+        fallbackCopyTextToClipboard(text, btn, originalHtml);
+        return;
+    }
+    navigator.clipboard.writeText(text).then(function() {
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i> COPIED!';
+        btn.classList.add('bg-green-500/20', 'text-white', 'border-green-400');
+        lucide.createIcons();
+        setTimeout(function() { 
+            btn.innerHTML = originalHtml; 
+            btn.classList.remove('bg-green-500/20', 'text-white', 'border-green-400'); 
+            lucide.createIcons();
+        }, 2000);
+    }, function(err) {
+        fallbackCopyTextToClipboard(text, btn, originalHtml);
+    });
+}
+
+function copyText(btn) {
+    var card = btn.closest('div.bg-slate-900\\/90');
+    var body = card ? card.querySelector('.wr-card-body') : null;
+    var text = body ? body.innerText : '';
+    copyToClipboard(text, btn, '<i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i> COPY TO CLIPBOARD');
+}
+function copyGuide(btn) {
+    var card = btn.closest('div.bg-slate-900\\/90');
+    var body = card ? card.querySelector('.wr-card-body') : null;
+    var text = body ? body.innerText : '';
+    copyToClipboard(text, btn, '<i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i> COPY GUIDE');
+}
+function copyHtml(btn) {
+    var card = btn.closest('.wr-card');
+    var ta = card ? card.querySelector('.raw-html-data') : null;
+    var text = ta ? ta.value : '';
+    copyToClipboard(text, btn, '<i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i> COPY HTML');
+}
+
+async function generateInterviewPrep(emailId, btn) {
+    var originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> GENERATING...';
+    lucide.createIcons();
+    btn.disabled = true;
+    try {
+        const response = await fetch(`/api/generate-interview-prep/${emailId}`, {
+            method: 'POST'
+        });
+        const data = await response.json();
+        if (data.success && data.redirect) {
+            window.location.href = data.redirect;
+        } else {
+            alert("Error: " + (data.error || "Failed to generate"));
+            btn.innerHTML = originalHtml;
+            lucide.createIcons();
+            btn.disabled = false;
+        }
+    } catch (e) {
+        alert("Network error occurred.");
+        btn.innerHTML = originalHtml;
+        lucide.createIcons();
+        btn.disabled = false;
+    }
+}
+
+// Ensure Lucide icons are initialized if this page is loaded directly
+if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+}
+</script>

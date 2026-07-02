@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Upload your CV to start AI-powered job applications.">
-  <meta name="robots" content="noindex,nofollow">
-  <title>Upload CV — JobHunt Pro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="Upload your CV to start AI-powered job applications." name="description"/>
+<meta content="noindex,nofollow" name="robots"/>
+<title>{{ _('Upload CV — JobHunt Pro') }}</title>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <!-- Upload CV content rendered inside _build_dashboard_shell -->
 <style>
 /* ═══ STEP 4: Full-page scaled upload CV layout ═══ */
@@ -485,285 +486,271 @@
 </style>
 </head>
 <body class="dashboard-body">
-
-
 <div class="upload-scale" id="app">
-
-  <div class="page-header-row">
-    <div>
-      <h1>📝 Upload CV &amp; Create Profile</h1>
-      <p class="subtitle" style="margin-bottom:0;">Upload your CV → AI auto-fills everything → Preview &amp; Save</p>
-    </div>
-    <div id="flashBanner" class="flash-banner" style="display:none;">
-      <span class="fb-text">🔥 <span id="flashLabel"></span></span>
-      <span class="fb-timer" id="flashTimer">--:--:--</span>
-      <span class="fb-deal" id="flashDeal"></span>
-    </div>
-  </div>
-
-  <!-- 3-STEP GUIDE -->
-  <div class="card" style="background:linear-gradient(135deg,#1e293b,#0f172a);border-inline-start:4px solid #3b82f6;">
-    <div class="card-title" style="color:#3b82f6;">🚀 How It Works — 3 Simple Steps</div>
-    <div class="steps-grid">
-      <div class="step-box" style="background:rgba(59,130,246,.1);">
-        <div class="step-num">1️⃣</div>
-        <div class="step-title" style="color:#3b82f6;">Upload CV</div>
-        <div class="step-desc">Drop your PDF/DOCX or paste text — we support all formats</div>
-      </div>
-      <div class="step-box" style="background:rgba(139,92,246,.1);">
-        <div class="step-num">2️⃣</div>
-        <div class="step-title" style="color:#8b5cf6;">AI Auto-Fill</div>
-        <div class="step-desc">Click ✨ Auto-Fill → AI extracts profile + generates all documents</div>
-      </div>
-      <div class="step-box" style="background:rgba(34,197,94,.1);">
-        <div class="step-num">3️⃣</div>
-        <div class="step-title" style="color:#22c55e;">Preview &amp; Save</div>
-        <div class="step-desc">Review the formatted preview → edit anything → Save profile</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CV Upload Zone -->
-  <div class="card" id="uploadCard">
-    <div class="card-title">📤 Step 1: Upload Your CV</div>
-    <div class="upload-zone" id="dropZone">
-      <div class="icon" id="uploadIcon">📄</div>
-      <p id="uploadTitle"><strong>Drop your CV here</strong> or click to browse</p>
-      <p style="font-size:14px;color:#475569;" id="uploadSubtitle">PDF, DOCX, DOC, TXT — up to 10MB</p>
-      <div class="format-badges">
-        <span class="fmt-badge pdf">📕 PDF</span>
-        <span class="fmt-badge word">📘 DOCX</span>
-        <span class="fmt-badge txt">📄 TXT</span>
-      </div>
-      <input dir="auto" type="file" id="cvFileInput" accept=".pdf,.doc,.docx,.txt,.rtf">
-    </div>
-    <div class="file-info" id="fileInfo">
-      <span>✅ <span id="fileName"></span></span>
-      <span style="margin-inline-start:auto;font-size:13px;color:#4ade80;">✓ Ready for AI extraction</span>
-    </div>
-    <div style="text-align:center;color:#64748b;font-size:14px;margin:24px 0;position:relative;">
-      <span style="background:#0a0a0f;padding:0 14px;position:relative;z-index:1;">OR paste text below</span>
-      <span style="position:absolute;top:50%;inset-inline-start: 0;inset-inline-end: 0;height:1px;background:rgba(255,255,255,0.08);"></span>
-    </div>
-    <div class="form-group">
-      <textarea dir="auto" class="large" id="cvText" placeholder="Paste your entire CV / resume text here...
+<div class="page-header-row">
+<div>
+<h1>{{ _('📝 Upload CV & Create Profile') }}</h1>
+<p class="subtitle" style="margin-bottom:0;">{{ _('Upload your CV → AI auto-fills everything → Preview & Save') }}</p>
+</div>
+<div class="flash-banner" id="flashBanner" style="display:none;">
+<span class="fb-text">🔥 <span id="flashLabel"></span></span>
+<span class="fb-timer" id="flashTimer">--:--:--</span>
+<span class="fb-deal" id="flashDeal"></span>
+</div>
+</div>
+<!-- 3-STEP GUIDE -->
+<div class="card" style="background:linear-gradient(135deg,#1e293b,#0f172a);border-inline-start:4px solid #3b82f6;">
+<div class="card-title" style="color:#3b82f6;">{{ _('🚀 How It Works — 3 Simple Steps') }}</div>
+<div class="steps-grid">
+<div class="step-box" style="background:rgba(59,130,246,.1);">
+<div class="step-num">1️⃣</div>
+<div class="step-title" style="color:#3b82f6;">{{ _('Upload CV') }}</div>
+<div class="step-desc">{{ _('Drop your PDF/DOCX or paste text — we support all formats') }}</div>
+</div>
+<div class="step-box" style="background:rgba(139,92,246,.1);">
+<div class="step-num">2️⃣</div>
+<div class="step-title" style="color:#8b5cf6;">{{ _('AI Auto-Fill') }}</div>
+<div class="step-desc">{{ _('Click ✨ Auto-Fill → AI extracts profile + generates all documents') }}</div>
+</div>
+<div class="step-box" style="background:rgba(34,197,94,.1);">
+<div class="step-num">3️⃣</div>
+<div class="step-title" style="color:#22c55e;">{{ _('Preview & Save') }}</div>
+<div class="step-desc">{{ _('Review the formatted preview → edit anything → Save profile') }}</div>
+</div>
+</div>
+</div>
+<!-- CV Upload Zone -->
+<div class="card" id="uploadCard">
+<div class="card-title">{{ _('📤 Step 1: Upload Your CV') }}</div>
+<div class="upload-zone" id="dropZone">
+<div class="icon" id="uploadIcon">📄</div>
+<p id="uploadTitle"><strong>{{ _('Drop your CV here') }}</strong> {{ _('or click to browse') }}</p>
+<p id="uploadSubtitle" style="font-size:14px;color:#475569;">{{ _('PDF, DOCX, DOC, TXT — up to 10MB') }}</p>
+<div class="format-badges">
+<span class="fmt-badge pdf">{{ _('📕 PDF') }}</span>
+<span class="fmt-badge word">{{ _('📘 DOCX') }}</span>
+<span class="fmt-badge txt">{{ _('📄 TXT') }}</span>
+</div>
+<input accept=".pdf,.doc,.docx,.txt,.rtf" dir="auto" id="cvFileInput" type="file"/>
+</div>
+<div class="file-info" id="fileInfo">
+<span>✅ <span id="fileName"></span></span>
+<span style="margin-inline-start:auto;font-size:13px;color:#4ade80;">{{ _('✓ Ready for AI extraction') }}</span>
+</div>
+<div style="text-align:center;color:#64748b;font-size:14px;margin:24px 0;position:relative;">
+<span style="background:#0a0a0f;padding:0 14px;position:relative;z-index:1;">{{ _('OR paste text below') }}</span>
+<span style="position:absolute;top:50%;inset-inline-start: 0;inset-inline-end: 0;height:1px;background:rgba(255,255,255,0.08);"></span>
+</div>
+<div class="form-group">
+<textarea class="large" dir="auto" id="cvText" placeholder="Paste your entire CV / resume text here...
 
 Include: Full Name, Contact Info, Work Experience, Education, Skills, Certifications, Languages...
 
 Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea>
-    </div>
-    <button type="button" class="btn btn-ai pulse-btn" id="parseBtn" onclick="parseCV()" style="width:100%;padding:18px;font-size:18px;">
-      ✨ Auto-Fill My Profile with AI
-    </button>
-  </div>
-
-  <!-- Profile Form -->
-  <form method="POST" action="/upload-cv" enctype="multipart/form-data" id="cvForm">
-    <input dir="auto" type="hidden" name="profile_name" id="profileNameHidden">
-    <input dir="auto" type="hidden" name="skills" id="skillsHidden">
-    <input dir="auto" type="hidden" name="target_titles" id="targetTitlesHidden">
-    <input dir="auto" type="hidden" name="target_locations" id="targetLocationsHidden">
-    <input dir="auto" type="hidden" name="cv_full_text" id="cvFullTextHidden">
-    <input dir="auto" type="hidden" name="cover_letter_text" id="coverLetterTextHidden">
-    <input dir="auto" type="hidden" name="email_body" id="emailBodyTextHidden">
-
-    <!-- Basic Info -->
-    <div class="card">
-      <div class="card-title">👤 Basic Information</div>
-      <div class="row">
-        <div class="form-group"><label for="fullName">Full Name <span style="color:#f87171;">*</span></label><input dir="auto" type="text" id="fullName" placeholder="e.g. Sam Salameh"></div>
-        <div class="form-group"><label for="email">Email</label><input dir="auto" type="email" id="email" placeholder="your@email.com"></div>
-      </div>
-      <div class="row">
-        <div class="form-group"><label for="phone">الهاتف</label><input dir="auto" type="text" id="phone" placeholder="+961 3 123 456"></div>
-        <div class="form-group"><label for="location">الموقع</label><input dir="auto" type="text" id="location" placeholder="بيروت، لبنان"></div>
-      </div>
-      <div class="row">
-        <div class="form-group"><label for="currentTitle">المسمى الوظيفي الحالي</label><input dir="auto" type="text" id="currentTitle" placeholder="مهندس شبكات أول"></div>
-        <div class="form-group"><label for="experienceYears">الخبرة (بالسنوات)</label><input dir="auto" type="number" id="experienceYears" min="0" max="50" value="5"></div>
-      </div>
-      <div class="row">
-        <div class="form-group"><label for="education">التعليم</label><input dir="auto" type="text" id="education" placeholder="بكالوريوس هندسة"></div>
-        <div class="form-group"><label for="linkedin">لينكد إن</label><input dir="auto" type="url" id="linkedin" placeholder="https://linkedin.com/in/..."></div>
-      </div>
-      <div class="form-group"><label for="skillsInput">المهارات (مفصولة بفاصلة)</label><input dir="auto" type="text" id="skillsInput" placeholder="Cisco, Python, Linux, AWS, MikroTik, Fortinet..."><div class="tag-list" id="skillsTags"></div></div>
-      <div class="form-group"><label for="certsInput">الشهادات</label><input dir="auto" type="text" id="certsInput" placeholder="CCNA, NSE, MTCNA..."><div class="tag-list" id="certsTags"></div></div>
-      <div class="form-group"><label for="langsInput">اللغات</label><input dir="auto" type="text" id="langsInput" placeholder="English, Arabic, French..."><div class="tag-list" id="langsTags"></div></div>
-      <div class="form-group"><label for="experienceInput">الخبرات (مفصولة بفاصلة)</label><input dir="auto" type="text" id="experienceInput" placeholder="Ogero (2020-2023), Touch (2018-2020)..."><div class="tag-list" id="experienceTags"></div></div>
-      <div class="form-group"><label for="summary">الملخص المهني</label><textarea dir="auto" id="summary" placeholder="ملخص مهني قصير..." style="min-height:90px;"></textarea></div>
-    </div>
-
-    <!-- Target + Salary -->
-    <div class="card">
-      <div class="card-title">🎯 Target Job &amp; Salary</div>
-      <div class="row" style="margin-bottom:20px;">
-        <div class="form-group"><label for="targetCompany">Target Company</label><input dir="auto" type="text" id="targetCompany" placeholder="Murex, Cisco, Bank Audi..."></div>
-        <div class="form-group"><label for="targetJobTitle">Target Job Title</label><input dir="auto" type="text" id="targetJobTitle" placeholder="Senior Network Engineer"></div>
-      </div>
-      <label style="font-size:16px;color:#64748b;margin-bottom:14px;display:block;">💰 Quick Salary Range</label>
-      <div class="salary-presets">
-        <div class="salary-preset selected" id="presetLocal" onclick="selectPreset('local')">
-          <div class="flag">🇱🇧</div><div class="preset-title">Local Jobs</div><div class="preset-range">$1,500-3,000</div><div class="preset-desc">Lebanon, MENA</div>
-        </div>
-        <div class="salary-preset" id="presetWorldwide" onclick="selectPreset('worldwide')">
-          <div class="flag">🌍</div><div class="preset-title">Worldwide</div><div class="preset-range">$6,000-12,000</div><div class="preset-desc">Gulf, UAE, Qatar</div>
-        </div>
-        <div class="salary-preset" id="presetRemote" onclick="selectPreset('remote')">
-          <div class="flag">🏠</div><div class="preset-title">Remote</div><div class="preset-range">$8,000-15,000</div><div class="preset-desc">Work from anywhere</div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="form-group"><label for="targetTitles">Target Job Titles</label><input dir="auto" type="text" id="targetTitles" placeholder="Senior Network Engineer, IT Manager..."></div>
-        <div class="form-group"><label for="targetLocations">Target Locations</label><input dir="auto" type="text" id="targetLocations" placeholder="Dubai, Remote, Riyadh, Beirut..."></div>
-      </div>
-      <div class="row">
-        <div class="form-group"><label for="minLocalSalary">Min Local Salary ($)</label><input dir="auto" type="number" id="minLocalSalary" min="0" step="100" value="1500"></div>
-        <div class="form-group"><label for="minIntlSalary">Min Intl Salary ($)</label><input dir="auto" type="number" id="minIntlSalary" min="0" step="100" value="6000"></div>
-      </div>
-    </div>
-
-    <!-- Style Selection -->
-    <div class="card">
-      <div class="card-title">🎨 Choose Your Style</div>
-      <div style="margin-bottom:24px;">
-        <label style="font-size:13px;font-weight:600;color:#3b82f6;margin-bottom:12px;display:block;">📧 EMAIL TONE — How the hiring manager reads your application</label>
-        <div class="style-cards">
-          <div class="style-card selected" onclick="selectStyle('email','professional',this)" data-style="email">
-            <div class="sc-icon">🏢</div>
-            <div class="sc-name">Professional &amp; Formal</div>
-            <div class="sc-desc">Authority &amp; respect.<br>Best for corporate, banking,<br>government roles.</div>
-          </div>
-          <div class="style-card" onclick="selectStyle('email','friendly',this)" data-style="email">
-            <div class="sc-icon">🤝</div>
-            <div class="sc-name">Friendly &amp; Warm</div>
-            <div class="sc-desc">Personal &amp; approachable.<br>Best for startups, creative,<br>people-first companies.</div>
-          </div>
-          <div class="style-card" onclick="selectStyle('email','confident',this)" data-style="email">
-            <div class="sc-icon">⚡</div>
-            <div class="sc-name">Confident &amp; Bold</div>
-            <div class="sc-desc">Direct &amp; powerful.<br>Best for senior roles,<br>tech leaders, consultants.</div>
-          </div>
-        </div>
-        <input dir="auto" type="hidden" id="emailStyle" value="professional">
-      </div>
-      <div style="margin-bottom:24px;">
-        <label style="font-size:13px;font-weight:600;color:#8b5cf6;margin-bottom:12px;display:block;">📄 CV ATTACHMENT STYLE</label>
-        <div class="style-cards">
-          <div class="style-card selected" onclick="selectStyle('cv','executive',this)" data-style="cv">
-            <div class="sc-icon">👔</div>
-            <div class="sc-name">Executive</div>
-            <div class="sc-desc">Key metrics box, project<br>cards, leadership emphasis.</div>
-          </div>
-          <div class="style-card" onclick="selectStyle('cv','technical',this)" data-style="cv">
-            <div class="sc-icon">💻</div>
-            <div class="sc-name">Technical</div>
-            <div class="sc-desc">Terminal-style stats,<br>build log, deep tech detail.</div>
-          </div>
-          <div class="style-card" onclick="selectStyle('cv','modern',this)" data-style="cv">
-            <div class="sc-icon">✨</div>
-            <div class="sc-name">Modern &amp; Clean</div>
-            <div class="sc-desc">Glassmorphism badges,<br>minimalist layout, sleek.</div>
-          </div>
-        </div>
-        <input dir="auto" type="hidden" id="cvStyle" value="executive">
-      </div>
-      <div>
-        <label style="font-size:13px;font-weight:600;color:#22c55e;margin-bottom:12px;display:block;">✉️ COVER LETTER STYLE</label>
-        <div class="style-cards">
-          <div class="style-card selected" onclick="selectStyle('cl','storytelling',this)" data-style="cl">
-            <div class="sc-icon">📖</div>
-            <div class="sc-name">Storytelling</div>
-            <div class="sc-desc">Narrative flow showing<br>career journey &amp; impact.</div>
-          </div>
-          <div class="style-card" onclick="selectStyle('cl','bullet-points',this)" data-style="cl">
-            <div class="sc-icon">📋</div>
-            <div class="sc-name">Bullet Points</div>
-            <div class="sc-desc">Scannable achievements,<br>quantified results, fast read.</div>
-          </div>
-          <div class="style-card" onclick="selectStyle('cl','traditional',this)" data-style="cl">
-            <div class="sc-icon">📜</div>
-            <div class="sc-name">Traditional</div>
-            <div class="sc-desc">Classic business letter,<br>formal structure, respectful.</div>
-          </div>
-        </div>
-        <input dir="auto" type="hidden" id="clStyle" value="storytelling">
-      </div>
-    </div>
-
-    <!-- Document Status -->
-    <div class="card" id="docStatusCard" style="display:none;">
-      <div class="card-title">📑 Your Documents <span class="completed-badge" id="docsReadyBadge" style="display:none;">All Ready</span></div>
-      <div id="profileStatsLine" style="display:none;padding:8px 0 14px;color:#cbd5e1;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:12px;"></div>
-      <div class="doc-status" id="dsEmail">
-        <div><h4>📧 Email Body</h4><div class="ds-meta" id="dsEmailMeta">Not generated yet</div></div>
-        <span class="ds-pending" id="dsEmailStatus">—</span>
-      </div>
-      <div class="doc-status" id="dsCV">
-        <div><h4>📄 CV Attachment</h4><div class="ds-meta" id="dsCVMeta">Not generated yet</div></div>
-        <span class="ds-pending" id="dsCVStatus">—</span>
-      </div>
-      <div class="doc-status" id="dsCL">
-        <div><h4>✉️ Cover Letter</h4><div class="ds-meta" id="dsCLMeta">Not generated yet</div></div>
-        <span class="ds-pending" id="dsCLStatus">—</span>
-      </div>
-      <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;">
-        <button type="button" class="btn btn-ai" onclick="previewEmail()">👁️ Preview What Will Be Sent</button>
-        <button type="button" class="btn btn-sm btn-outline" onclick="regenerateAll()">🔄 Regenerate All</button>
-      </div>
-    </div>
-
-    <!-- Save & Apply -->
-    <div class="card" style="border-color:rgba(34,197,94,0.3);background:linear-gradient(135deg,rgba(34,197,94,0.05),rgba(59,130,246,0.05));">
-      <div class="card-title">🚀 Launch Your Job Hunt</div>
-      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
-        <div style="flex:1;min-width:240px;">
-          <div style="font-size:15px;color:#94a3b8;margin-bottom:6px;">🔥 Flash Deal — Limited Time</div>
-          <div style="display:flex;align-items:baseline;gap:10px;">
-            <span style="font-size:34px;font-weight:900;color:#22c55e;">$9.50</span>
-            <span style="font-size:18px;color:#64748b;text-decoration:line-through;">$35.00</span>
-            <span style="font-size:13px;background:rgba(34,197,94,0.15);color:#4ade80;padding:3px 10px;border-radius:20px;">-73%</span>
-          </div>
-          <div style="font-size:13px;color:#64748b;margin-top:4px;">Send to 20 companies in one click</div>
-        </div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;">
-          <button type="button" class="btn pulse-btn" onclick="saveAndGoCampaign()" style="padding:16px 32px;font-size:18px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;">
-            🚀 Generate Emails &amp; Apply
-          </button>
-          <button type="button" class="btn btn-outline" onclick="downloadCV()" style="padding:16px 28px;font-size:15px;">
-            📥 Download PDF
-          </button>
-          <button type="button" class="btn btn-sm btn-outline" onclick="saveProfile()" style="font-size:14px;">💾 Save Only</button>
-        </div>
-      </div>
-      <div style="font-size:13px;color:#475569;margin-top:14px;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;">✓ Saves CV, cover letter, email body, profile — then opens campaign page to launch your applications</div>
-    </div>
-  </form>
 </div>
-
+<button class="btn btn-ai pulse-btn" id="parseBtn" onclick="parseCV()" style="width:100%;padding:18px;font-size:18px;" type="button">
+      {{ _('✨ Auto-Fill My Profile with AI') }}
+    </button>
+</div>
+<!-- Profile Form -->
+<form action="/upload-cv" enctype="multipart/form-data" id="cvForm" method="POST">
+<input dir="auto" id="profileNameHidden" name="profile_name" type="hidden"/>
+<input dir="auto" id="skillsHidden" name="skills" type="hidden"/>
+<input dir="auto" id="targetTitlesHidden" name="target_titles" type="hidden"/>
+<input dir="auto" id="targetLocationsHidden" name="target_locations" type="hidden"/>
+<input dir="auto" id="cvFullTextHidden" name="cv_full_text" type="hidden"/>
+<input dir="auto" id="coverLetterTextHidden" name="cover_letter_text" type="hidden"/>
+<input dir="auto" id="emailBodyTextHidden" name="email_body" type="hidden"/>
+<!-- Basic Info -->
+<div class="card">
+<div class="card-title">{{ _('👤 Basic Information') }}</div>
+<div class="row">
+<div class="form-group"><label for="fullName">{{ _('Full Name') }} <span style="color:#f87171;">*</span></label><input dir="auto" id="fullName" placeholder="e.g. Sam Salameh" type="text"/></div>
+<div class="form-group"><label for="email">{{ _('Email') }}</label><input dir="auto" id="email" placeholder="your@email.com" type="email"/></div>
+</div>
+<div class="row">
+<div class="form-group"><label for="phone">الهاتف</label><input dir="auto" id="phone" placeholder="+961 3 123 456" type="text"/></div>
+<div class="form-group"><label for="location">الموقع</label><input dir="auto" id="location" placeholder="بيروت، لبنان" type="text"/></div>
+</div>
+<div class="row">
+<div class="form-group"><label for="currentTitle">المسمى الوظيفي الحالي</label><input dir="auto" id="currentTitle" placeholder="مهندس شبكات أول" type="text"/></div>
+<div class="form-group"><label for="experienceYears">الخبرة (بالسنوات)</label><input dir="auto" id="experienceYears" max="50" min="0" type="number" value="5"/></div>
+</div>
+<div class="row">
+<div class="form-group"><label for="education">التعليم</label><input dir="auto" id="education" placeholder="بكالوريوس هندسة" type="text"/></div>
+<div class="form-group"><label for="linkedin">لينكد إن</label><input dir="auto" id="linkedin" placeholder="https://linkedin.com/in/..." type="url"/></div>
+</div>
+<div class="form-group"><label for="skillsInput">المهارات (مفصولة بفاصلة)</label><input dir="auto" id="skillsInput" placeholder="Cisco, Python, Linux, AWS, MikroTik, Fortinet..." type="text"/><div class="tag-list" id="skillsTags"></div></div>
+<div class="form-group"><label for="certsInput">الشهادات</label><input dir="auto" id="certsInput" placeholder="CCNA, NSE, MTCNA..." type="text"/><div class="tag-list" id="certsTags"></div></div>
+<div class="form-group"><label for="langsInput">اللغات</label><input dir="auto" id="langsInput" placeholder="English, Arabic, French..." type="text"/><div class="tag-list" id="langsTags"></div></div>
+<div class="form-group"><label for="experienceInput">الخبرات (مفصولة بفاصلة)</label><input dir="auto" id="experienceInput" placeholder="Ogero (2020-2023), Touch (2018-2020)..." type="text"/><div class="tag-list" id="experienceTags"></div></div>
+<div class="form-group"><label for="summary">الملخص المهني</label><textarea dir="auto" id="summary" placeholder="ملخص مهني قصير..." style="min-height:90px;"></textarea></div>
+</div>
+<!-- Target + Salary -->
+<div class="card">
+<div class="card-title">{{ _('🎯 Target Job & Salary') }}</div>
+<div class="row" style="margin-bottom:20px;">
+<div class="form-group"><label for="targetCompany">{{ _('Target Company') }}</label><input dir="auto" id="targetCompany" placeholder="Murex, Cisco, Bank Audi..." type="text"/></div>
+<div class="form-group"><label for="targetJobTitle">{{ _('Target Job Title') }}</label><input dir="auto" id="targetJobTitle" placeholder="Senior Network Engineer" type="text"/></div>
+</div>
+<label style="font-size:16px;color:#64748b;margin-bottom:14px;display:block;">{{ _('💰 Quick Salary Range') }}</label>
+<div class="salary-presets">
+<div class="salary-preset selected" id="presetLocal" onclick="selectPreset('local')">
+<div class="flag">🇱🇧</div><div class="preset-title">{{ _('Local Jobs') }}</div><div class="preset-range">$1,500-3,000</div><div class="preset-desc">{{ _('Lebanon, MENA') }}</div>
+</div>
+<div class="salary-preset" id="presetWorldwide" onclick="selectPreset('worldwide')">
+<div class="flag">🌍</div><div class="preset-title">{{ _('Worldwide') }}</div><div class="preset-range">$6,000-12,000</div><div class="preset-desc">{{ _('Gulf, UAE, Qatar') }}</div>
+</div>
+<div class="salary-preset" id="presetRemote" onclick="selectPreset('remote')">
+<div class="flag">🏠</div><div class="preset-title">{{ _('Remote') }}</div><div class="preset-range">$8,000-15,000</div><div class="preset-desc">{{ _('Work from anywhere') }}</div>
+</div>
+</div>
+<div class="row">
+<div class="form-group"><label for="targetTitles">{{ _('Target Job Titles') }}</label><input dir="auto" id="targetTitles" placeholder="Senior Network Engineer, IT Manager..." type="text"/></div>
+<div class="form-group"><label for="targetLocations">{{ _('Target Locations') }}</label><input dir="auto" id="targetLocations" placeholder="Dubai, Remote, Riyadh, Beirut..." type="text"/></div>
+</div>
+<div class="row">
+<div class="form-group"><label for="minLocalSalary">{{ _('Min Local Salary ($)') }}</label><input dir="auto" id="minLocalSalary" min="0" step="100" type="number" value="1500"/></div>
+<div class="form-group"><label for="minIntlSalary">{{ _('Min Intl Salary ($)') }}</label><input dir="auto" id="minIntlSalary" min="0" step="100" type="number" value="6000"/></div>
+</div>
+</div>
+<!-- Style Selection -->
+<div class="card">
+<div class="card-title">{{ _('🎨 Choose Your Style') }}</div>
+<div style="margin-bottom:24px;">
+<label style="font-size:13px;font-weight:600;color:#3b82f6;margin-bottom:12px;display:block;">{{ _('📧 EMAIL TONE — How the hiring manager reads your application') }}</label>
+<div class="style-cards">
+<div class="style-card selected" data-style="email" onclick="selectStyle('email','professional',this)">
+<div class="sc-icon">🏢</div>
+<div class="sc-name">{{ _('Professional & Formal') }}</div>
+<div class="sc-desc">{{ _('Authority & respect.') }}<br/>{{ _('Best for corporate, banking,') }}<br/>{{ _('government roles.') }}</div>
+</div>
+<div class="style-card" data-style="email" onclick="selectStyle('email','friendly',this)">
+<div class="sc-icon">🤝</div>
+<div class="sc-name">{{ _('Friendly & Warm') }}</div>
+<div class="sc-desc">{{ _('Personal & approachable.') }}<br/>{{ _('Best for startups, creative,') }}<br/>{{ _('people-first companies.') }}</div>
+</div>
+<div class="style-card" data-style="email" onclick="selectStyle('email','confident',this)">
+<div class="sc-icon">⚡</div>
+<div class="sc-name">{{ _('Confident & Bold') }}</div>
+<div class="sc-desc">{{ _('Direct & powerful.') }}<br/>{{ _('Best for senior roles,') }}<br/>{{ _('tech leaders, consultants.') }}</div>
+</div>
+</div>
+<input dir="auto" id="emailStyle" type="hidden" value="professional"/>
+</div>
+<div style="margin-bottom:24px;">
+<label style="font-size:13px;font-weight:600;color:#8b5cf6;margin-bottom:12px;display:block;">{{ _('📄 CV ATTACHMENT STYLE') }}</label>
+<div class="style-cards">
+<div class="style-card selected" data-style="cv" onclick="selectStyle('cv','executive',this)">
+<div class="sc-icon">👔</div>
+<div class="sc-name">{{ _('Executive') }}</div>
+<div class="sc-desc">{{ _('Key metrics box, project') }}<br/>{{ _('cards, leadership emphasis.') }}</div>
+</div>
+<div class="style-card" data-style="cv" onclick="selectStyle('cv','technical',this)">
+<div class="sc-icon">💻</div>
+<div class="sc-name">{{ _('Technical') }}</div>
+<div class="sc-desc">{{ _('Terminal-style stats,') }}<br/>{{ _('build log, deep tech detail.') }}</div>
+</div>
+<div class="style-card" data-style="cv" onclick="selectStyle('cv','modern',this)">
+<div class="sc-icon">✨</div>
+<div class="sc-name">{{ _('Modern & Clean') }}</div>
+<div class="sc-desc">{{ _('Glassmorphism badges,') }}<br/>{{ _('minimalist layout, sleek.') }}</div>
+</div>
+</div>
+<input dir="auto" id="cvStyle" type="hidden" value="executive"/>
+</div>
+<div>
+<label style="font-size:13px;font-weight:600;color:#22c55e;margin-bottom:12px;display:block;">{{ _('✉️ COVER LETTER STYLE') }}</label>
+<div class="style-cards">
+<div class="style-card selected" data-style="cl" onclick="selectStyle('cl','storytelling',this)">
+<div class="sc-icon">📖</div>
+<div class="sc-name">{{ _('Storytelling') }}</div>
+<div class="sc-desc">{{ _('Narrative flow showing') }}<br/>{{ _('career journey & impact.') }}</div>
+</div>
+<div class="style-card" data-style="cl" onclick="selectStyle('cl','bullet-points',this)">
+<div class="sc-icon">📋</div>
+<div class="sc-name">{{ _('Bullet Points') }}</div>
+<div class="sc-desc">{{ _('Scannable achievements,') }}<br/>{{ _('quantified results, fast read.') }}</div>
+</div>
+<div class="style-card" data-style="cl" onclick="selectStyle('cl','traditional',this)">
+<div class="sc-icon">📜</div>
+<div class="sc-name">{{ _('Traditional') }}</div>
+<div class="sc-desc">{{ _('Classic business letter,') }}<br/>{{ _('formal structure, respectful.') }}</div>
+</div>
+</div>
+<input dir="auto" id="clStyle" type="hidden" value="storytelling"/>
+</div>
+</div>
+<!-- Document Status -->
+<div class="card" id="docStatusCard" style="display:none;">
+<div class="card-title">{{ _('📑 Your Documents') }} <span class="completed-badge" id="docsReadyBadge" style="display:none;">{{ _('All Ready') }}</span></div>
+<div id="profileStatsLine" style="display:none;padding:8px 0 14px;color:#cbd5e1;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:12px;"></div>
+<div class="doc-status" id="dsEmail">
+<div><h4>{{ _('📧 Email Body') }}</h4><div class="ds-meta" id="dsEmailMeta">{{ _('Not generated yet') }}</div></div>
+<span class="ds-pending" id="dsEmailStatus">—</span>
+</div>
+<div class="doc-status" id="dsCV">
+<div><h4>{{ _('📄 CV Attachment') }}</h4><div class="ds-meta" id="dsCVMeta">{{ _('Not generated yet') }}</div></div>
+<span class="ds-pending" id="dsCVStatus">—</span>
+</div>
+<div class="doc-status" id="dsCL">
+<div><h4>{{ _('✉️ Cover Letter') }}</h4><div class="ds-meta" id="dsCLMeta">{{ _('Not generated yet') }}</div></div>
+<span class="ds-pending" id="dsCLStatus">—</span>
+</div>
+<div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;">
+<button class="btn btn-ai" onclick="previewEmail()" type="button">{{ _('👁️ Preview What Will Be Sent') }}</button>
+<button class="btn btn-sm btn-outline" onclick="regenerateAll()" type="button">{{ _('🔄 Regenerate All') }}</button>
+</div>
+</div>
+<!-- Save & Apply -->
+<div class="card" style="border-color:rgba(34,197,94,0.3);background:linear-gradient(135deg,rgba(34,197,94,0.05),rgba(59,130,246,0.05));">
+<div class="card-title">{{ _('🚀 Launch Your Job Hunt') }}</div>
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
+<div style="flex:1;min-width:240px;">
+<div style="font-size:15px;color:#94a3b8;margin-bottom:6px;">{{ _('🔥 Flash Deal — Limited Time') }}</div>
+<div style="display:flex;align-items:baseline;gap:10px;">
+<span style="font-size:34px;font-weight:900;color:#22c55e;">$9.50</span>
+<span style="font-size:18px;color:#64748b;text-decoration:line-through;">$35.00</span>
+<span style="font-size:13px;background:rgba(34,197,94,0.15);color:#4ade80;padding:3px 10px;border-radius:20px;">-73%</span>
+</div>
+<div style="font-size:13px;color:#64748b;margin-top:4px;">{{ _('Send to 20 companies in one click') }}</div>
+</div>
+<div style="display:flex;gap:12px;flex-wrap:wrap;">
+<button class="btn pulse-btn" onclick="saveAndGoCampaign()" style="padding:16px 32px;font-size:18px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;" type="button">
+            {{ _('🚀 Generate Emails & Apply') }}
+          </button>
+<button class="btn btn-outline" onclick="downloadCV()" style="padding:16px 28px;font-size:15px;" type="button">
+            {{ _('📥 Download PDF') }}
+          </button>
+<button class="btn btn-sm btn-outline" onclick="saveProfile()" style="font-size:14px;" type="button">{{ _('💾 Save Only') }}</button>
+</div>
+</div>
+<div style="font-size:13px;color:#475569;margin-top:14px;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;">{{ _('✓ Saves CV, cover letter, email body, profile — then opens campaign page to launch your applications') }}</div>
+</div>
+</form>
+</div>
 <!-- Preview Modal (outside upload-scale for fixed positioning) -->
 <div class="modal-overlay" id="previewModal">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>📧 Preview — What the Company Will See</h3>
-      <button class="modal-close" onclick="closePreview()">&times;</button>
-    </div>
-    <div class="preview-tabs">
-      <button class="preview-tab active" onclick="switchPreviewTab('email')">📧 Email</button>
-      <button class="preview-tab" onclick="switchPreviewTab('cv')">📄 CV Attachment</button>
-      <button class="preview-tab" onclick="switchPreviewTab('cl')">✉️ Cover Letter</button>
-    </div>
-    <div class="modal-body">
-      <div id="previewContent"><div style="text-align:center;padding:60px;color:#64748b"><div class="ai-spinner" style="width:36px;height:36px;margin:0 auto 16px;border-width:3px;"></div><p>Generating your professional preview...</p></div></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline btn-sm" onclick="closePreview()">✕ Close</button>
-      <button class="btn btn-ai btn-sm" onclick="previewEmail()">🔄 Regenerate</button>
-    </div>
-  </div>
+<div class="modal">
+<div class="modal-header">
+<h3>{{ _('📧 Preview — What the Company Will See') }}</h3>
+<button class="modal-close" onclick="closePreview()">×</button>
 </div>
-
+<div class="preview-tabs">
+<button class="preview-tab active" onclick="switchPreviewTab('email')">{{ _('📧 Email') }}</button>
+<button class="preview-tab" onclick="switchPreviewTab('cv')">{{ _('📄 CV Attachment') }}</button>
+<button class="preview-tab" onclick="switchPreviewTab('cl')">{{ _('✉️ Cover Letter') }}</button>
+</div>
+<div class="modal-body">
+<div id="previewContent"><div style="text-align:center;padding:60px;color:#64748b"><div class="ai-spinner" style="width:36px;height:36px;margin:0 auto 16px;border-width:3px;"></div><p>{{ _('Generating your professional preview...') }}</p></div></div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-outline btn-sm" onclick="closePreview()">{{ _('✕ Close') }}</button>
+<button class="btn btn-ai btn-sm" onclick="previewEmail()">{{ _('🔄 Regenerate') }}</button>
+</div>
+</div>
+</div>
 <div class="toast" id="toast"></div>
-
 <script>
 var previewData = {};
 var documentStore = { body_html: '', cv_html: '', cl_html: '' };
@@ -934,7 +921,7 @@ function updateDocStatus() {
   if (skillCount > 0) statsLine.push('⚙️ <strong>' + skillCount + '</strong> skills');
   var statsEl = document.getElementById('profileStatsLine');
   if (statsEl && statsLine.length > 0) {
-    statsEl.innerHTML = statsLine.join(' &nbsp;|&nbsp; ');
+    statsEl.innerHTML = statsLine.join('  |  ');
     statsEl.style.display = 'block';
   }
   function updateRow(id, meta, ready) {
@@ -1179,5 +1166,3 @@ document.addEventListener('DOMContentLoaded', loadFlashSale);
 </script>
 </body>
 </html>
-
-

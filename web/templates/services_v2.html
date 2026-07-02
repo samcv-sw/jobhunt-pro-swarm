@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-    <meta name="description" content="JobHunt Pro: The world's most advanced AI-powered job application system. Fully automated, invisible, and hyper-efficient.">
-    <meta property="og:title" content="JobHunt Pro - Ultimate AI Auto-Applier">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>{{ title | default('JobHunt Pro') }}</title>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+<meta content="JobHunt Pro: The world's most advanced AI-powered job application system. Fully automated, invisible, and hyper-efficient." name="description"/>
+<meta content="JobHunt Pro - Ultimate AI Auto-Applier" property="og:title"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>{{ title | default('JobHunt Pro') }}</title>
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <style>
  * { margin:0; padding:0; box-sizing:border-box; }
  :root {
@@ -739,278 +738,251 @@
 
 </style>
 </head>
-
 <body class="cyberpunk-body">
-
-<meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- 
- 
-
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <div class="bg-glow"></div>
 <div class="bg-glow-2"></div>
-
 <!-- Navbar -->
 <nav>
- <div class="brand">جوب هانت برو</div>
- <div class="nav-links">
- <a href="#micro">مصغرة</a>
- <a href="#standard">قياسية</a>
- <a href="#premium">مميزة</a>
- <a href="#bouquets">باقات</a>
- <a href="#how">كيف تعمل</a>
- <a href="/login" style="color:#94a3b8;">دخول</a>
- <a href="/register" class="btn-nav">ابدأ الآن</a>
- </div>
+<div class="brand">جوب هانت برو</div>
+<div class="nav-links">
+<a href="#micro">مصغرة</a>
+<a href="#standard">قياسية</a>
+<a href="#premium">مميزة</a>
+<a href="#bouquets">باقات</a>
+<a href="#how">كيف تعمل</a>
+<a href="/login" style="color:#94a3b8;">دخول</a>
+<a class="btn-nav" href="/register">ابدأ الآن</a>
+</div>
 </nav>
-
 <!-- Hero -->
 <section class="hero">
- <div class="hero-badge">تسليم آلي فوري</div>
- <h1>خدمات <span class="cyan">البحث عن عمل</span><br><span class="magenta">من $2 إلى $20</span></h1>
- <p>عزز بحثك عن عمل بأدوات الذكاء الاصطناعي. ادفع مرة واحدة عبر العملات المشفرة، واستلم طلباتك فوراً عبر الإيميل. لا اشتراكات، ولا رسوم مخفية.</p>
- <div class="hero-stats">
- <div class="hero-stat">
- <div class="hero-stat-value" id="statخدمات">20</div>
- <div class="hero-stat-label">خدمات</div>
- </div>
- <div class="hero-stat">
- <div class="hero-stat-value" id="statباقات">5</div>
- <div class="hero-stat-label">باقات</div>
- </div>
- <div class="hero-stat">
- <div class="hero-stat-value" id="statتسليم">فوري</div>
- <div class="hero-stat-label">تسليم</div>
- </div>
- <div class="hero-stat">
- <div class="hero-stat-value" id="statدفع">كريبتو</div>
- <div class="hero-stat-label">دفع</div>
- </div>
- </div>
+<div class="hero-badge">تسليم آلي فوري</div>
+<h1>خدمات <span class="cyan">البحث عن عمل</span><br/><span class="magenta">من $2 إلى $20</span></h1>
+<p>عزز بحثك عن عمل بأدوات الذكاء الاصطناعي. ادفع مرة واحدة عبر العملات المشفرة، واستلم طلباتك فوراً عبر الإيميل. لا اشتراكات، ولا رسوم مخفية.</p>
+<div class="hero-stats">
+<div class="hero-stat">
+<div class="hero-stat-value" id="statخدمات">20</div>
+<div class="hero-stat-label">خدمات</div>
+</div>
+<div class="hero-stat">
+<div class="hero-stat-value" id="statباقات">5</div>
+<div class="hero-stat-label">باقات</div>
+</div>
+<div class="hero-stat">
+<div class="hero-stat-value" id="statتسليم">فوري</div>
+<div class="hero-stat-label">تسليم</div>
+</div>
+<div class="hero-stat">
+<div class="hero-stat-value" id="statدفع">كريبتو</div>
+<div class="hero-stat-label">دفع</div>
+</div>
+</div>
 </section>
-
 <!-- TIER 1: MICRO ($2-$5) -->
 <section class="section" id="micro">
- <div class="section-header">
- <div class="section-tag tag-micro">المستوى 1: مصغرة</div>
- <h2>مكاسب سريعة — <span style="color:var(--cyan);">$2 إلى $5</span></h2>
- <p class="section-desc">تسليم رقمي فوري لترقية بحثك عن عمل في دقائق.</p>
- </div>
- <div class="service-grid">
+<div class="section-header">
+<div class="section-tag tag-micro">المستوى 1: مصغرة</div>
+<h2>مكاسب سريعة — <span style="color:var(--cyan);">$2 إلى $5</span></h2>
+<p class="section-desc">تسليم رقمي فوري لترقية بحثك عن عمل في دقائق.</p>
+</div>
+<div class="service-grid">
  {% for s in micro %}
  <div class="service-card" style="border-top-color:var(--cyan);">
- <span class="card-tag tag-micro">تسليم فوري</span>
- <h3>{{ s.name }}</h3>
- <p>{{ s.description }}</p>
- <ul class="features-list">
+<span class="card-tag tag-micro">تسليم فوري</span>
+<h3>{{ s.name }}</h3>
+<p>{{ s.description }}</p>
+<ul class="features-list">
  {% for f in s.features[:3] %}
  <li>{{ f }}</li>
  {% endfor %}
  </ul>
- <div class="card-footer">
- <div class="price-box">
- <div class="price-label">لمرة واحدة</div>
- <div class="price-value micro">${{ s.price }}</div>
- </div>
- <button class="btn-buy btn-buy-micro" onclick="addToCart('{{ s.id }}', '{{ s.name }}', {{ s.price }})">اشتري هلق</button>
- </div>
- </div>
+<div class="card-footer">
+<div class="price-box">
+<div class="price-label">لمرة واحدة</div>
+<div class="price-value micro">${{ s.price }}</div>
+</div>
+<button class="btn-buy btn-buy-micro" onclick="addToCart('{{ s.id }}', '{{ s.name }}', {{ s.price }})">اشتري هلق</button>
+</div>
+</div>
  {% endfor %}
  </div>
 </section>
-
 <!-- TIER 2: STANDARD ($6-$10) -->
 <section class="section" id="standard">
- <div class="section-header">
- <div class="section-tag tag-standard">Tier 2: قياسية</div>
- <h2>تأثير عميق — <span style="color:var(--gold);">$6 إلى $10</span></h2>
- <p class="section-desc">خدمات شاملة بتعطيك أفضلية جدية على باقي المرشحين.</p>
- </div>
- <div class="service-grid">
+<div class="section-header">
+<div class="section-tag tag-standard">{{ _('Tier 2: قياسية') }}</div>
+<h2>تأثير عميق — <span style="color:var(--gold);">$6 إلى $10</span></h2>
+<p class="section-desc">خدمات شاملة بتعطيك أفضلية جدية على باقي المرشحين.</p>
+</div>
+<div class="service-grid">
  {% for s in standard %}
  <div class="service-card" style="border-top-color:var(--gold);">
- <span class="card-tag tag-standard">قياسية</span>
- <h3>{{ s.name }}</h3>
- <p>{{ s.description }}</p>
- <ul class="features-list">
+<span class="card-tag tag-standard">قياسية</span>
+<h3>{{ s.name }}</h3>
+<p>{{ s.description }}</p>
+<ul class="features-list">
  {% for f in s.features[:3] %}
  <li>{{ f }}</li>
  {% endfor %}
  </ul>
- <div class="card-footer">
- <div class="price-box">
- <div class="price-label">لمرة واحدة</div>
- <div class="price-value standard">${{ s.price }}</div>
- </div>
- <button class="btn-buy btn-buy-standard" onclick="addToCart('{{ s.id }}', '{{ s.name }}', {{ s.price }})">اشتري هلق</button>
- </div>
- </div>
+<div class="card-footer">
+<div class="price-box">
+<div class="price-label">لمرة واحدة</div>
+<div class="price-value standard">${{ s.price }}</div>
+</div>
+<button class="btn-buy btn-buy-standard" onclick="addToCart('{{ s.id }}', '{{ s.name }}', {{ s.price }})">اشتري هلق</button>
+</div>
+</div>
  {% endfor %}
  </div>
 </section>
-
 <!-- TIER 3: PREMIUM ($12-$20) -->
 <section class="section" id="premium">
- <div class="section-header">
- <div class="section-tag tag-premium">Tier 3: مميزة</div>
- <h2>قوة قصوى — <span style="color:var(--magenta);">$12 إلى $20</span></h2>
- <p class="section-desc">باقات خدمة كاملة بتتكفل بكل شي عنك. معدل رد أقصى مضمون.</p>
- </div>
- <div class="service-grid">
+<div class="section-header">
+<div class="section-tag tag-premium">{{ _('Tier 3: مميزة') }}</div>
+<h2>قوة قصوى — <span style="color:var(--magenta);">$12 إلى $20</span></h2>
+<p class="section-desc">باقات خدمة كاملة بتتكفل بكل شي عنك. معدل رد أقصى مضمون.</p>
+</div>
+<div class="service-grid">
  {% for s in premium %}
  <div class="service-card" style="border-top-color:var(--magenta);">
- <span class="card-tag tag-premium">مميزة</span>
- <h3>{{ s.name }}</h3>
- <p>{{ s.description }}</p>
- <ul class="features-list">
+<span class="card-tag tag-premium">مميزة</span>
+<h3>{{ s.name }}</h3>
+<p>{{ s.description }}</p>
+<ul class="features-list">
  {% for f in s.features[:3] %}
  <li>{{ f }}</li>
  {% endfor %}
  </ul>
- <div class="card-footer">
- <div class="price-box">
- <div class="price-label">لمرة واحدة</div>
- <div class="price-value premium">${{ s.price }}</div>
- </div>
- <button class="btn-buy btn-buy-premium" onclick="addToCart('{{ s.id }}', '{{ s.name }}', {{ s.price }})">اشتري هلق</button>
- </div>
- </div>
+<div class="card-footer">
+<div class="price-box">
+<div class="price-label">لمرة واحدة</div>
+<div class="price-value premium">${{ s.price }}</div>
+</div>
+<button class="btn-buy btn-buy-premium" onclick="addToCart('{{ s.id }}', '{{ s.name }}', {{ s.price }})">اشتري هلق</button>
+</div>
+</div>
  {% endfor %}
  </div>
 </section>
-
 <!-- BOUQUETS -->
 <section class="section" id="bouquets">
- <div class="section-header">
- <div class="section-tag tag-premium">باقات قيّمة</div>
- <h2>باقات <span class="magenta">متكاملة</span></h2>
- <p class="section-desc">جمع خدمات متعددة بخصم. قوة أكبر، تكلفة أقل.</p>
- </div>
- <div class="bouquet-grid">
+<div class="section-header">
+<div class="section-tag tag-premium">باقات قيّمة</div>
+<h2>باقات <span class="magenta">متكاملة</span></h2>
+<p class="section-desc">جمع خدمات متعددة بخصم. قوة أكبر، تكلفة أقل.</p>
+</div>
+<div class="bouquet-grid">
  {% for b in bouquets %}
  <div class="bouquet-card">
- <h3>{{ b.name }}</h3>
- <p>{{ b.description }}</p>
- <div class="bouquet-services">
+<h3>{{ b.name }}</h3>
+<p>{{ b.description }}</p>
+<div class="bouquet-services">
  {% for sid in b.services[:5] %}
  <span class="bouquet-service-tag">{{ sid }}</span>
  {% endfor %}
  </div>
- <div class="bouquet-footer">
- <div>
- <div class="bouquet-price">${{ b.price }}</div>
+<div class="bouquet-footer">
+<div>
+<div class="bouquet-price">${{ b.price }}</div>
  {% if b.savings %}
  <div class="bouquet-savings">وفر {{ b.savings }}</div>
  {% endif %}
  </div>
- <button class="btn-bouquet" onclick="addToCart('{{ b.id }}', '{{ b.name }}', {{ b.price }}, true)">اشتري الباقة</button>
- </div>
- </div>
+<button class="btn-bouquet" onclick="addToCart('{{ b.id }}', '{{ b.name }}', {{ b.price }}, true)">اشتري الباقة</button>
+</div>
+</div>
  {% endfor %}
  </div>
 </section>
-
 <!-- HOW IT WORKS -->
 <section class="section" id="how">
- <div class="section-header">
- <h2>كيف <span style="color:var(--cyan);">بتشتغل</span></h2>
- <p class="section-desc">من النقرة للتسليم بأقل من دقيقتين.</p>
- </div>
- <div class="steps-grid">
- <div class="step-card">
- <div class="step-number">1</div>
- <h3>اختار خدمة</h3>
- <p>تصفح كتالوجنا المكون من 20 أداة للبحث عن عمل مدعومة بالذكاء الاصطناعي بأسعار $2-$20.</p>
- </div>
- <div class="step-card">
- <div class="step-number">2</div>
- <h3>ادفع بالكريبتو</h3>
- <p>أرسل BTC، ETH، USDT، أو LTC للعنوان المولد. تأكيد فوري.</p>
- </div>
- <div class="step-card">
- <div class="step-number">3</div>
- <h3>استلم طلبك</h3>
- <p>منولد طلبك تلقائياً ومنبعتلك ياه بالإيميل خلال ثواني من الدفع.</p>
- </div>
- </div>
-
- <div style="text-align:center; margin-top: 40px;">
- <div style="color:var(--muted); font-size:15px; margin-bottom: 12px;">العملات الرقمية المقبولة</div>
- <div class="payment-methods">
- <span class="payment-badge">BTC</span>
- <span class="payment-badge">ETH</span>
- <span class="payment-badge">USDT (TRC20)</span>
- <span class="payment-badge">LTC</span>
- </div>
- </div>
+<div class="section-header">
+<h2>كيف <span style="color:var(--cyan);">بتشتغل</span></h2>
+<p class="section-desc">من النقرة للتسليم بأقل من دقيقتين.</p>
+</div>
+<div class="steps-grid">
+<div class="step-card">
+<div class="step-number">1</div>
+<h3>اختار خدمة</h3>
+<p>تصفح كتالوجنا المكون من 20 أداة للبحث عن عمل مدعومة بالذكاء الاصطناعي بأسعار $2-$20.</p>
+</div>
+<div class="step-card">
+<div class="step-number">2</div>
+<h3>ادفع بالكريبتو</h3>
+<p>{{ _('أرسل BTC، ETH، USDT، أو LTC للعنوان المولد. تأكيد فوري.') }}</p>
+</div>
+<div class="step-card">
+<div class="step-number">3</div>
+<h3>استلم طلبك</h3>
+<p>منولد طلبك تلقائياً ومنبعتلك ياه بالإيميل خلال ثواني من الدفع.</p>
+</div>
+</div>
+<div style="text-align:center; margin-top: 40px;">
+<div style="color:var(--muted); font-size:15px; margin-bottom: 12px;">العملات الرقمية المقبولة</div>
+<div class="payment-methods">
+<span class="payment-badge">{{ _('BTC') }}</span>
+<span class="payment-badge">{{ _('ETH') }}</span>
+<span class="payment-badge">{{ _('USDT (TRC20)') }}</span>
+<span class="payment-badge">{{ _('LTC') }}</span>
+</div>
+</div>
 </section>
-
 <!-- CTA -->
 <section class="cta-section">
- <h2>جاهز تلاقي وظيفة أحلامك؟</h2>
- <p>انضم لأكثر من 1000 باحث عن عمل رفعوا معدل استجابتهم مع جوب هانت برو.</p>
- <a href="/register" class="btn-buy btn-buy-premium" style="padding: 14px 40px; font-size: 14px;">أنشئ حساب مجاني</a>
+<h2>جاهز تلاقي وظيفة أحلامك؟</h2>
+<p>انضم لأكثر من 1000 باحث عن عمل رفعوا معدل استجابتهم مع جوب هانت برو.</p>
+<a class="btn-buy btn-buy-premium" href="/register" style="padding: 14px 40px; font-size: 14px;">أنشئ حساب مجاني</a>
 </section>
-
 <footer>
- جوب هانت برو &copy; 2026 &mdash; مبني بالذكاء الاصطناعي، مدعوم بالكريبتو. |
- <a href="/login">دخول</a> | <a href="/register">تسجيل</a> | <a href="/api/v2/services">🔌 API</a>
+ جوب هانت برو © 2026 — مبني بالذكاء الاصطناعي، مدعوم بالكريبتو. |
+ <a href="/login">دخول</a> | <a href="/register">تسجيل</a> | <a href="/api/v2/services">{{ _('🔌 API') }}</a>
 </footer>
-
-
 <!-- Cart Toggle -->
 <button class="cart-toggle" id="cartToggle" onclick="toggleCart()">
- &#128722;
+ 🛒
  <span class="cart-badge" id="cartBadge">0</span>
 </button>
-
 <!-- Cart Overlay -->
 <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
-
 <!-- Cart Sidebar -->
 <div class="cart-sidebar" id="cartSidebar">
- <h2>
- <span>&#128722; سلة مشترياتك</span>
- <button class="cart-close" onclick="toggleCart()">&times;</button>
- </h2>
- <div class="cart-items" id="cartItems">
- <div class="cart-empty">سلتك فاضية.<br>تصفح الخدمات وضيفها لسلتك.</div>
- </div>
- <div id="cartFooter" style="display:none;">
- <div class="cart-total">
- <span>المجموع</span>
- <span class="cart-total-value" id="cartالمجموع">$0</span>
- </div>
- <button class="cart-checkout" onclick="openCheckoutModal()">تابع للدفع</button>
- </div>
+<h2>
+<span>🛒 سلة مشترياتك</span>
+<button class="cart-close" onclick="toggleCart()">×</button>
+</h2>
+<div class="cart-items" id="cartItems">
+<div class="cart-empty">سلتك فاضية.<br/>تصفح الخدمات وضيفها لسلتك.</div>
 </div>
-
-
+<div id="cartFooter" style="display:none;">
+<div class="cart-total">
+<span>المجموع</span>
+<span class="cart-total-value" id="cartالمجموع">$0</span>
+</div>
+<button class="cart-checkout" onclick="openCheckoutModal()">تابع للدفع</button>
+</div>
+</div>
 <!-- Order Modal -->
 <div class="modal-overlay" id="orderModal">
- <div class="modal-box">
- <button class="modal-close" onclick="closeModal()">&times;</button>
- <h2 id="modalTitle">اطلب الخدمة</h2>
- <div class="modal-price" id="modalPrice">$0</div>
- <p style="color:var(--muted); font-size:15px; margin-bottom:8px;">أدخل بياناتك لتستلم طلبك عبر الإيميل.</p>
-
- <form id="orderForm" onsubmit="submitOrder(event)">
- <input dir="auto" type="hidden" id="serviceId" name="service_id">
- <input dir="auto" type="hidden" id="isBouquet" name="is_bouquet" value="false">
-
- <label for="customerName">اسمك</label>
- <input dir="auto" type="text" id="customerName" required placeholder="مثال: فلان الفلاني">
-
- <label for="customerEmail">إيميلك</label>
- <input dir="auto" type="email" id="customerEmail" required placeholder="مثال: flan@example.com">
-
- <div class="modal-error" id="modalError">Error message here</div>
-
- <button type="submit" class="btn-submit" id="submitBtn">المتابعة للدفع</button>
- </form>
- </div>
+<div class="modal-box">
+<button class="modal-close" onclick="closeModal()">×</button>
+<h2 id="modalTitle">اطلب الخدمة</h2>
+<div class="modal-price" id="modalPrice">$0</div>
+<p style="color:var(--muted); font-size:15px; margin-bottom:8px;">أدخل بياناتك لتستلم طلبك عبر الإيميل.</p>
+<form id="orderForm" onsubmit="submitOrder(event)">
+<input dir="auto" id="serviceId" name="service_id" type="hidden"/>
+<input dir="auto" id="isBouquet" name="is_bouquet" type="hidden" value="false"/>
+<label for="customerName">اسمك</label>
+<input dir="auto" id="customerName" placeholder="مثال: فلان الفلاني" required="" type="text"/>
+<label for="customerEmail">إيميلك</label>
+<input dir="auto" id="customerEmail" placeholder="مثال: flan@example.com" required="" type="email"/>
+<div class="modal-error" id="modalError">{{ _('Error message here') }}</div>
+<button class="btn-submit" id="submitBtn" type="submit">المتابعة للدفع</button>
+</form>
 </div>
-
+</div>
 <script>
 // Cart state
 let cart = [];
@@ -1076,7 +1048,7 @@ function updateCartUI() {
  html += ' <div class="cart-item-type">' + (item.isBouquet ? 'Bundle' : 'Service') + (item.qty > 1 ? ' x' + item.qty : '') + '</div>';
  html += ' </div>';
  html += ' <div class="cart-item-price">$' + itemالمجموع.toFixed(2) + '</div>';
- html += ' <button class="cart-remove" onclick="removeFromCart('' + item.id + '')">&times;</button>';
+ html += ' <button class="cart-remove" onclick="removeFromCart('' + item.id + '')">×</button>';
  html += '</div>';
  });
  itemsDiv.innerHTML = html;
@@ -1220,7 +1192,5 @@ function showToast(msg) {
 // Initial UI update
 updateCartUI();
 </script>
-
 </body>
 </html>
-

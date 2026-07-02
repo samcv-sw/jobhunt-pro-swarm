@@ -2,13 +2,12 @@
 JobHunt Pro - Premium Revenue Engine
 Subscription tiers, API access, resume optimization, salary benchmarking
 """
+
 import logging
-import json
 import hashlib
 import secrets
-from datetime import datetime, timedelta
-from typing import Dict, Optional, List
-from dataclasses import dataclass, asdict
+from datetime import datetime
+from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +38,7 @@ TIERS = {
             "api_access": False,
             "priority_support": False,
             "linkedin_automation": False,
-        }
+        },
     },
     "starter": {
         "name": "Starter",
@@ -66,7 +65,7 @@ TIERS = {
             "api_access": False,
             "priority_support": True,
             "linkedin_automation": False,
-        }
+        },
     },
     "professional": {
         "name": "Professional",
@@ -95,7 +94,7 @@ TIERS = {
             "api_access": False,
             "priority_support": True,
             "linkedin_automation": False,
-        }
+        },
     },
     "enterprise": {
         "name": "Enterprise",
@@ -127,7 +126,7 @@ TIERS = {
             "api_access": True,
             "priority_support": True,
             "linkedin_automation": True,
-        }
+        },
     },
 }
 
@@ -145,8 +144,10 @@ class APIKeyManager:
     @staticmethod
     def validate_api_key(api_key: str) -> bool:
         """Validate API key format."""
-        return bool(api_key) and len(api_key) == 48 and all(
-            c in '0123456789abcdef' for c in api_key
+        return (
+            bool(api_key)
+            and len(api_key) == 48
+            and all(c in "0123456789abcdef" for c in api_key)
         )
 
 
@@ -156,10 +157,25 @@ class ResumeOptimizer:
 
     def __init__(self):
         self.skill_keywords = [
-            "cisco", "mikrotik", "ubiquiti", "fortinet", "juniper",
-            "ospf", "bgp", "mpls", "tcp/ip", "vpn", "firewalls",
-            "network security", "cloud networking", "aws", "azure",
-            "automation", "python", "ansible", "terraform",
+            "cisco",
+            "mikrotik",
+            "ubiquiti",
+            "fortinet",
+            "juniper",
+            "ospf",
+            "bgp",
+            "mpls",
+            "tcp/ip",
+            "vpn",
+            "firewalls",
+            "network security",
+            "cloud networking",
+            "aws",
+            "azure",
+            "automation",
+            "python",
+            "ansible",
+            "terraform",
         ]
 
     def score_resume(self, resume_text: str, job_description: str = "") -> Dict:
@@ -195,7 +211,14 @@ class ResumeOptimizer:
             tips.append("Add professional contact information")
 
         # Experience indicators (15 points)
-        exp_patterns = ["years", "experience", "implemented", "deployed", "managed", "led"]
+        exp_patterns = [
+            "years",
+            "experience",
+            "implemented",
+            "deployed",
+            "managed",
+            "led",
+        ]
         exp_found = sum(1 for p in exp_patterns if p in resume_lower)
         score += min(15, exp_found * 3)
 
@@ -205,25 +228,35 @@ class ResumeOptimizer:
         score += min(15, len(certs_found) * 5)
 
         if not certs_found:
-            tips.append("Add certifications (CCNA/CCNP/NSE dramatically increase responses)")
+            tips.append(
+                "Add certifications (CCNA/CCNP/NSE dramatically increase responses)"
+            )
 
         return {
             "score": min(100, score),
             "grade": self._get_grade(score),
             "skills_found": skills_found,
-            "skills_missing": [s for s in self.skill_keywords[:10] if s not in resume_lower],
+            "skills_missing": [
+                s for s in self.skill_keywords[:10] if s not in resume_lower
+            ],
             "tips": tips,
             "word_count": word_count,
             "certifications": certs_found,
         }
 
     def _get_grade(self, score: int) -> str:
-        if score >= 90: return "A+"
-        if score >= 80: return "A"
-        if score >= 70: return "B+"
-        if score >= 60: return "B"
-        if score >= 50: return "C+"
-        if score >= 40: return "C"
+        if score >= 90:
+            return "A+"
+        if score >= 80:
+            return "A"
+        if score >= 70:
+            return "B+"
+        if score >= 60:
+            return "B"
+        if score >= 50:
+            return "C+"
+        if score >= 40:
+            return "C"
         return "D"
 
 
@@ -233,25 +266,90 @@ class SalaryBenchmarker:
 
     SALARY_DATA = {
         "network_engineer": {
-            "lebanon": {"min": 800, "max": 2500, "median": 1500, "currency": "USD/month"},
-            "uae": {"min": 8000, "max": 25000, "median": 15000, "currency": "USD/month"},
-            "saudi_arabia": {"min": 6000, "max": 20000, "median": 12000, "currency": "SAR/month"},
-            "qatar": {"min": 10000, "max": 30000, "median": 18000, "currency": "QAR/month"},
-            "usa": {"min": 70000, "max": 130000, "median": 95000, "currency": "USD/year"},
+            "lebanon": {
+                "min": 800,
+                "max": 2500,
+                "median": 1500,
+                "currency": "USD/month",
+            },
+            "uae": {
+                "min": 8000,
+                "max": 25000,
+                "median": 15000,
+                "currency": "USD/month",
+            },
+            "saudi_arabia": {
+                "min": 6000,
+                "max": 20000,
+                "median": 12000,
+                "currency": "SAR/month",
+            },
+            "qatar": {
+                "min": 10000,
+                "max": 30000,
+                "median": 18000,
+                "currency": "QAR/month",
+            },
+            "usa": {
+                "min": 70000,
+                "max": 130000,
+                "median": 95000,
+                "currency": "USD/year",
+            },
             "uk": {"min": 40000, "max": 80000, "median": 55000, "currency": "GBP/year"},
-            "remote": {"min": 50000, "max": 120000, "median": 80000, "currency": "USD/year"},
+            "remote": {
+                "min": 50000,
+                "max": 120000,
+                "median": 80000,
+                "currency": "USD/year",
+            },
         },
         "senior_network_engineer": {
-            "lebanon": {"min": 1500, "max": 4000, "median": 2500, "currency": "USD/month"},
-            "uae": {"min": 15000, "max": 35000, "median": 22000, "currency": "USD/month"},
-            "usa": {"min": 100000, "max": 160000, "median": 125000, "currency": "USD/year"},
+            "lebanon": {
+                "min": 1500,
+                "max": 4000,
+                "median": 2500,
+                "currency": "USD/month",
+            },
+            "uae": {
+                "min": 15000,
+                "max": 35000,
+                "median": 22000,
+                "currency": "USD/month",
+            },
+            "usa": {
+                "min": 100000,
+                "max": 160000,
+                "median": 125000,
+                "currency": "USD/year",
+            },
             "uk": {"min": 55000, "max": 95000, "median": 70000, "currency": "GBP/year"},
-            "remote": {"min": 80000, "max": 150000, "median": 110000, "currency": "USD/year"},
+            "remote": {
+                "min": 80000,
+                "max": 150000,
+                "median": 110000,
+                "currency": "USD/year",
+            },
         },
         "network_architect": {
-            "usa": {"min": 120000, "max": 180000, "median": 145000, "currency": "USD/year"},
-            "uk": {"min": 70000, "max": 120000, "median": 90000, "currency": "GBP/year"},
-            "remote": {"min": 100000, "max": 170000, "median": 130000, "currency": "USD/year"},
+            "usa": {
+                "min": 120000,
+                "max": 180000,
+                "median": 145000,
+                "currency": "USD/year",
+            },
+            "uk": {
+                "min": 70000,
+                "max": 120000,
+                "median": 90000,
+                "currency": "GBP/year",
+            },
+            "remote": {
+                "min": 100000,
+                "max": 170000,
+                "median": 130000,
+                "currency": "USD/year",
+            },
         },
     }
 
@@ -265,9 +363,10 @@ class SalaryBenchmarker:
 
         if not salary:
             # Fallback to generic
-            salary = data.get("remote", {
-                "min": 50000, "max": 120000, "median": 80000, "currency": "USD/year"
-            })
+            salary = data.get(
+                "remote",
+                {"min": 50000, "max": 120000, "median": 80000, "currency": "USD/year"},
+            )
 
         return {
             "job_title": job_title,
@@ -306,7 +405,7 @@ class SalaryBenchmarker:
         median = salary["median"]
         return (
             f"Based on market data, the median salary is {median:,} {salary['currency']}. "
-            f"Aim for the 75th percentile ({int(median*1.25):,}) by highlighting "
+            f"Aim for the 75th percentile ({int(median * 1.25):,}) by highlighting "
             f"15+ years of experience, CCNA/CCNP certifications, and multi-vendor expertise."
         )
 
@@ -344,8 +443,7 @@ class SubscriptionManager:
             "yearly_price": yearly_diff,
             "yearly_savings": (monthly_diff * 12) - yearly_diff,
             "features_added": [
-                f for f in target["features"]
-                if f not in current["features"]
+                f for f in target["features"] if f not in current["features"]
             ],
         }
 
@@ -372,13 +470,13 @@ class ReferralEngine:
         "referrer": {
             "bonus_usd": 10,
             "bonus_credits": 50,
-            "message": "You earned $10 credit + 50 application credits!"
+            "message": "You earned $10 credit + 50 application credits!",
         },
         "referred": {
             "discount_percent": 20,
             "bonus_credits": 100,
-            "message": "Welcome! You got 20% off first month + 100 free applications!"
-        }
+            "message": "Welcome! You got 20% off first month + 100 free applications!",
+        },
     }
 
     def generate_referral_code(self, user_id: str) -> str:
@@ -421,7 +519,9 @@ class RevenueAnalytics:
             "average_revenue_per_user": mrr / max(sum(users_by_tier.values()), 1),
         }
 
-    def estimate_daily_revenue(self, daily_signups: int, conversion_rate: float = 0.05) -> Dict:
+    def estimate_daily_revenue(
+        self, daily_signups: int, conversion_rate: float = 0.05
+    ) -> Dict:
         """Estimate daily revenue from signups."""
         paying = int(daily_signups * conversion_rate)
         avg_tier_price = 79  # Professional average

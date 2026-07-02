@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="أكمل عملية شراء JobHunt Pro بأمان.">
-  <meta name="robots" content="noindex,follow">
-  <title>إتمام الدفع — JobHunt Pro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="أكمل عملية شراء JobHunt Pro بأمان." name="description"/>
+<meta content="noindex,follow" name="robots"/>
+<title>{{ _('إتمام الدفع — JobHunt Pro') }}</title>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <!-- Checkout v3 — Enhanced with payment progress steps, QR codes, shared design tokens -->
-<link rel="stylesheet" href="/static/css/dashboard-v4.css">
+<link href="/static/css/dashboard-v4.css" rel="stylesheet"/>
 <style>
 /* ═══════════════════════════════════════════
    CHECKOUT v3 — Page-Specific Styles
@@ -474,94 +475,81 @@ body {
 </head>
 <body>
 <div class="checkout-v3">
-  <div class="checkout-logo">JOBHUNT PRO</div>
-
-  <!-- Progress Steps -->
-  <div class="progress-steps">
-    <div class="progress-step {% if order.status in ('pending','pending_payment') %}active{% else %}completed{% endif %}">
-      <span class="step-circle">{% if order.status in ('paid','delivered') %}✓{% else %}1{% endif %}</span>
-      <span class="step-label">الطلب</span>
-    </div>
-    <div class="progress-connector {% if order.status in ('paid','delivered') %}completed{% endif %}"></div>
-    <div class="progress-step {% if order.status == 'paid' %}active{% elif order.status == 'delivered' %}completed{% endif %}">
-      <span class="step-circle">{% if order.status == 'delivered' %}✓{% else %}2{% endif %}</span>
-      <span class="step-label">الدفع</span>
-    </div>
-    <div class="progress-connector {% if order.status == 'delivered' %}completed{% endif %}"></div>
-    <div class="progress-step {% if order.status == 'delivered' %}completed{% endif %}">
-      <span class="step-circle">{% if order.status == 'delivered' %}✓{% else %}3{% endif %}</span>
-      <span class="step-label">تم التسليم</span>
-    </div>
-  </div>
-
-  <!-- Order Summary -->
-  <div class="order-summary-v3">
-    <div class="order-label-v3">الخدمة</div>
+<div class="checkout-logo">{{ _('JOBHUNT PRO') }}</div>
+<!-- Progress Steps -->
+<div class="progress-steps">
+<div class="progress-step {% if order.status in ('pending','pending_payment') %}active{% else %}completed{% endif %}">
+<span class="step-circle">{% if order.status in ('paid','delivered') %}✓{% else %}1{% endif %}</span>
+<span class="step-label">الطلب</span>
+</div>
+<div class="progress-connector {% if order.status in ('paid','delivered') %}completed{% endif %}"></div>
+<div class="progress-step {% if order.status == 'paid' %}active{% elif order.status == 'delivered' %}completed{% endif %}">
+<span class="step-circle">{% if order.status == 'delivered' %}✓{% else %}2{% endif %}</span>
+<span class="step-label">الدفع</span>
+</div>
+<div class="progress-connector {% if order.status == 'delivered' %}completed{% endif %}"></div>
+<div class="progress-step {% if order.status == 'delivered' %}completed{% endif %}">
+<span class="step-circle">{% if order.status == 'delivered' %}✓{% else %}3{% endif %}</span>
+<span class="step-label">تم التسليم</span>
+</div>
+</div>
+<!-- Order Summary -->
+<div class="order-summary-v3">
+<div class="order-label-v3">الخدمة</div>
     {% if order.item_type == 'bulk' and order.items %}
     <div class="order-service-v3" style="font-size:13px;">
       {% for item in order.items %}
       <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-glass);">
-        <span>{{ item.service_name }}{% if item.quantity > 1 %} x{{ item.quantity }}{% endif %}</span>
-        <span style="font-family:var(--font-mono);color:var(--accent-primary);">${{ "%.2f"|format(item.line_total) }}</span>
-      </div>
+<span>{{ item.service_name }}{% if item.quantity > 1 %} x{{ item.quantity }}{% endif %}</span>
+<span style="font-family:var(--font-mono);color:var(--accent-primary);">${{ "%.2f"|format(item.line_total) }}</span>
+</div>
       {% endfor %}
     </div>
-    <div class="order-amount-v3">${{ "%.2f"|format(order.total_price or order.price) }}</div>
-    <div style="font-size:11px;color:var(--text-dim);">{{ order.items|length }} عنصر في هذا الطلب</div>
+<div class="order-amount-v3">${{ "%.2f"|format(order.total_price or order.price) }}</div>
+<div style="font-size:11px;color:var(--text-dim);">{{ order.items|length }} عنصر في هذا الطلب</div>
     {% else %}
     <div class="order-service-v3">{{ order.service_name }}</div>
-    <div class="order-amount-v3">${{ "%.2f"|format(order.price) }}</div>
+<div class="order-amount-v3">${{ "%.2f"|format(order.price) }}</div>
     {% endif %}
     <div class="order-id-v3">رقم الطلب: {{ order.order_id }}</div>
-    <div class="order-status-v3
-      {% if order.status in ('pending', 'pending_payment') %}status-pending-v3{% elif order.status == 'paid' %}status-paid-v3{% elif order.status == 'delivered' %}status-delivered-v3{% endif %}">
+<div class="order-status-v3 {% if order.status in ('pending', 'pending_payment') %}status-pending-v3{% elif order.status == 'paid' %}status-paid-v3{% elif order.status == 'delivered' %}status-delivered-v3{% endif %}">
       {{ order.status|upper }}
     </div>
-    <div class="order-customer-v3">
+<div class="order-customer-v3">
       العميل: {{ order.customer_name }} <{{ order.customer_email }}>
     </div>
-  </div>
+</div>
 
   {% if order.payment_code %}
   <!-- Payment Code -->
-  <div class="payment-code-box">
-    <div class="pc-label">رمز الدفع الخاص بك</div>
-    <div class="pc-code" onclick="copyPaymentCodeV3(this)" title="انقر للنسخ">{{ order.payment_code }}</div>
-    <div class="pc-hint">انقر للنسخ • ستحتاج إلى هذا الرمز للتحقق من الدفع</div>
-  </div>
+<div class="payment-code-box">
+<div class="pc-label">رمز الدفع الخاص بك</div>
+<div class="pc-code" onclick="copyPaymentCodeV3(this)" title="انقر للنسخ">{{ order.payment_code }}</div>
+<div class="pc-hint">انقر للنسخ • ستحتاج إلى هذا الرمز للتحقق من الدفع</div>
+</div>
   {% endif %}
 
   {% if order.status in ('pending', 'pending_payment') %}
   <!-- Payment Section -->
-
-  <!-- NOWPayments -->
-  <div style="margin-bottom:24px; padding:20px; background:var(--accent-primary-dim); border:1px solid rgba(99,102,241,0.15); border-radius:var(--radius-lg);">
-    <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+<!-- NOWPayments -->
+<div style="margin-bottom:24px; padding:20px; background:var(--accent-primary-dim); border:1px solid rgba(99,102,241,0.15); border-radius:var(--radius-lg);">
+<div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
       ادفع فوراً عبر البطاقة الائتمانية أو العملات الرقمية
     </div>
-    <button class="btn-nowpayments-v3"
-      data-order-id="{{ order.order_id }}"
-      data-amount="{{ order.price }}"
-      data-service-name="{{ order.service_name }}"
-      data-customer-email="{{ order.customer_email }}"
-      onclick="payWithNOWPaymentsV3(this)">
-      الدفع عبر NOWPayments
+<button class="btn-nowpayments-v3" data-amount="{{ order.price }}" data-customer-email="{{ order.customer_email }}" data-order-id="{{ order.order_id }}" data-service-name="{{ order.service_name }}" onclick="payWithNOWPaymentsV3(this)">
+      {{ _('الدفع عبر NOWPayments') }}
     </button>
-    <div id="nowpaymentsStatusV3" style="font-size:12px; color:var(--text-dim); margin-top:8px; display:none;"></div>
-  </div>
-
-  <!-- Manual Crypto Payment -->
-  <p class="instruction-text-v3">
+<div id="nowpaymentsStatusV3" style="font-size:12px; color:var(--text-dim); margin-top:8px; display:none;"></div>
+</div>
+<!-- Manual Crypto Payment -->
+<p class="instruction-text-v3">
     أو أرسل المبلغ الدقيق بالعملات الرقمية إلى أحد العناوين أدناه.
     سيتم إنشاء طلبك تلقائياً وإرساله إلى بريدك الإلكتروني خلال ثوانٍ من تأكيد الدفع.
   </p>
-
-  <div class="crypto-section-v3">
-    <div class="crypto-tabs-v3" id="cryptoTabsV3">
+<div class="crypto-section-v3">
+<div class="crypto-tabs-v3" id="cryptoTabsV3">
       {% for currency, addr in order.crypto_addresses.items() %}
-      <button class="crypto-tab-v3 {% if loop.first %}active{% endif %}"
-        onclick="selectCurrencyV3('{{ currency }}', this)"
-        data-currency="{{ currency }}">
+      <button class="crypto-tab-v3 {% if loop.first %}active{% endif %}" data-currency="{{ currency }}" onclick="selectCurrencyV3('{{ currency }}', this)">
         {{ currency }}
       </button>
       {% endfor %}
@@ -569,42 +557,40 @@ body {
 
     {% for currency, addr in order.crypto_addresses.items() %}
     <div class="crypto-address-v3" id="addrV3_{{ currency }}" style="display: {% if loop.first %}block{% else %}none{% endif %};">
-      <!-- QR Code -->
-      <div class="qr-section">
-        <div id="qrV3_{{ currency }}"></div>
-        <div class="qr-label">امسح لنسخ عنوان {{ currency }}</div>
-      </div>
-      <div class="address-box-v3" onclick="copyAddressV3(this, '{{ addr }}')" title="انقر للنسخ">
+<!-- QR Code -->
+<div class="qr-section">
+<div id="qrV3_{{ currency }}"></div>
+<div class="qr-label">امسح لنسخ عنوان {{ currency }}</div>
+</div>
+<div class="address-box-v3" onclick="copyAddressV3(this, '{{ addr }}')" title="انقر للنسخ">
         {{ addr }}
       </div>
-      <div class="copy-hint-v3">انقر على العنوان للنسخ • أرسل بالضبط <strong>${{ "%.2f"|format(order.price) }}</strong> بعملة {{ currency }}</div>
-    </div>
+<div class="copy-hint-v3">انقر على العنوان للنسخ • أرسل بالضبط <strong>${{ "%.2f"|format(order.price) }}</strong> بعملة {{ currency }}</div>
+</div>
     {% endfor %}
   </div>
-
-  <!-- Verify Payment -->
-  <div class="verify-section-v3">
-    <h3>هل أرسلت الدفعة بالفعل؟ تحقق هنا:</h3>
-    <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px; line-height:1.5;">
-      أدخل <strong style="color:var(--accent-primary);">رمز الدفع</strong> (الموضح أعلاه) وتجزئة المعاملة (TxHash) من محفظتك الرقمية.
+<!-- Verify Payment -->
+<div class="verify-section-v3">
+<h3>هل أرسلت الدفعة بالفعل؟ تحقق هنا:</h3>
+<div style="font-size:12px; color:var(--text-dim); margin-bottom:12px; line-height:1.5;">
+      أدخل <strong style="color:var(--accent-primary);">رمز الدفع</strong> {{ _('(الموضح أعلاه) وتجزئة المعاملة (TxHash) من محفظتك الرقمية.') }}
     </div>
-    <div class="verify-input-group-v3">
-      <input dir="auto" type="text" id="paymentCodeV3" placeholder="رمز الدفع (مثل A1B2C3D4)" autocomplete="off" style="text-transform:uppercase; ">
-      <input dir="auto" type="text" id="txHashV3" placeholder="تجزئة المعاملة / TX ID" autocomplete="off">
-      <button class="btn-verify-v3" id="verifyBtnV3" onclick="verifyPaymentV3('{{ order.order_id }}')">تحقق</button>
-    </div>
-    <div class="verify-result-v3" id="verifyResultV3"></div>
-  </div>
+<div class="verify-input-group-v3">
+<input autocomplete="off" dir="auto" id="paymentCodeV3" placeholder="رمز الدفع (مثل A1B2C3D4)" style="text-transform:uppercase; " type="text"/>
+<input autocomplete="off" dir="auto" id="txHashV3" placeholder="تجزئة المعاملة / TX ID" type="text"/>
+<button class="btn-verify-v3" id="verifyBtnV3" onclick="verifyPaymentV3('{{ order.order_id }}')">تحقق</button>
+</div>
+<div class="verify-result-v3" id="verifyResultV3"></div>
+</div>
 
   {% elif order.status == 'paid' or order.status == 'delivered' %}
   <div class="verify-result-v3 success" style="display:block;">
     ✅ تم تأكيد الدفع! يتم تجهيز طلبك وسيُرسل إلى بريدك الإلكتروني قريباً.
   </div>
-  <a href="/services/new" class="btn-done-v3">تصفح المزيد من الخدمات</a>
+<a class="btn-done-v3" href="/services/new">تصفح المزيد من الخدمات</a>
   {% endif %}
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
 /* ═══════════════════════════════════════════
    CHECKOUT v3 — JavaScript
@@ -787,5 +773,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-
-

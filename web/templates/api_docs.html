@@ -1,17 +1,16 @@
 ﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-    <meta name="description" content="JobHunt Pro: The world's most advanced AI-powered job application system. Fully automated, invisible, and hyper-efficient.">
-    <meta property="og:title" content="JobHunt Pro - Ultimate AI Auto-Applier">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Documentation — JobHunt Pro</title>
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+<meta content="JobHunt Pro: The world's most advanced AI-powered job application system. Fully automated, invisible, and hyper-efficient." name="description"/>
+<meta content="JobHunt Pro - Ultimate AI Auto-Applier" property="og:title"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{{ _('API Documentation — JobHunt Pro') }}</title>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family: 'Cairo', 'Inter',sans-serif;background:#0a0a0f;color:#e2e8f0;min-height:100vh;}
@@ -64,99 +63,90 @@
         @media(max-width:768px){.nav{padding:12px 16px;}.nav-links{gap:12px;}.nav-links a{font-size:11px;}.container{padding:40px 16px 60px;}h1{font-size:26px;}.endpoint-header{flex-wrap:wrap;padding:12px 16px;}.endpoint-desc{min-width:100%;text-align: start;margin-top:4px;}.endpoint-path{font-size:12px;}}
     </style>
 </head>
-
 <body class="cyberpunk-body">
-    
-    
-
 <nav class="nav">
-    <div class="logo">JobHunt<span>Pro</span></div>
-    <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/pricing">Pricing</a>
-        <a href="/blog">Blog</a>
+<div class="logo">{{ _('JobHunt') }}<span>{{ _('Pro') }}</span></div>
+<div class="nav-links">
+<a href="/">{{ _('Home') }}</a>
+<a href="/pricing">{{ _('Pricing') }}</a>
+<a href="/blog">{{ _('Blog') }}</a>
         {% if user_id %}
-        <a href="/dashboard" class="btn">Dashboard</a>
+        <a class="btn" href="/dashboard">{{ _('Dashboard') }}</a>
         {% else %}
-        <a href="/login" class="btn">Get Started</a>
+        <a class="btn" href="/login">{{ _('Get Started') }}</a>
         {% endif %}
     </div>
 </nav>
 <div class="container">
-    <h1>API Documentation</h1>
-    <p class="subtitle">Integrate JobHunt Pro into your workflow. All API requests require authentication via your API key.</p>
-
-    <div class="api-key-section">
-        <div class="key-icon">&#x1F511;</div>
-        <div class="key-info">
-            <h3>Your API Key</h3>
-            <p>Find your API key in the Wallet section of your dashboard. Include it in the <code style="background:rgba(0,240,255,.08);color:#00f0ff;padding:1px 6px;border-radius:3px;font-size:12px;">X-API-Key</code> header on all requests.</p>
-        </div>
-        <div class="key-code">X-API-Key: {{ api_key if api_key else 'jhp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' }}</div>
-    </div>
-
-    <h2 style="font-size:20px;font-weight:700;color:#00f0ff;margin-bottom:20px;">Endpoints</h2>
-
-    <!-- Health Check -->
-    <div class="endpoint">
-        <div class="endpoint-header" onclick="toggleEndpoint(this)">
-            <span class="method get">GET</span>
-            <span class="endpoint-path">/api/v1/health</span>
-            <span class="endpoint-desc">Health Check</span>
-        </div>
-        <div class="endpoint-body">
-            <div class="desc">Returns the current health status of the platform. No authentication required.</div>
-            <div class="response-block"><pre>{
+<h1>{{ _('API Documentation') }}</h1>
+<p class="subtitle">{{ _('Integrate JobHunt Pro into your workflow. All API requests require authentication via your API key.') }}</p>
+<div class="api-key-section">
+<div class="key-icon">🔑</div>
+<div class="key-info">
+<h3>{{ _('Your API Key') }}</h3>
+<p>{{ _('Find your API key in the Wallet section of your dashboard. Include it in the') }} <code style="background:rgba(0,240,255,.08);color:#00f0ff;padding:1px 6px;border-radius:3px;font-size:12px;">X-API-Key</code> {{ _('header on all requests.') }}</p>
+</div>
+<div class="key-code">X-API-Key: {{ api_key if api_key else 'jhp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' }}</div>
+</div>
+<h2 style="font-size:20px;font-weight:700;color:#00f0ff;margin-bottom:20px;">{{ _('Endpoints') }}</h2>
+<!-- Health Check -->
+<div class="endpoint">
+<div class="endpoint-header" onclick="toggleEndpoint(this)">
+<span class="method get">{{ _('GET') }}</span>
+<span class="endpoint-path">{{ _('/api/v1/health') }}</span>
+<span class="endpoint-desc">{{ _('Health Check') }}</span>
+</div>
+<div class="endpoint-body">
+<div class="desc">{{ _('Returns the current health status of the platform. No authentication required.') }}</div>
+<div class="response-block"><pre>{
   "status": "healthy",
   "timestamp": "2026-06-05T08:44:00Z"
 }</pre></div>
-        </div>
-    </div>
-
-    <!-- Profile -->
-    <div class="endpoint">
-        <div class="endpoint-header" onclick="toggleEndpoint(this)">
-            <span class="method get">GET</span>
-            <span class="endpoint-path">/api/v1/profile</span>
-            <span class="endpoint-desc">Get Profile</span>
-        </div>
-        <div class="endpoint-body">
-            <div class="desc">Retrieve your account profile including CV data, skills, and preferences.</div>
-            <h4>Headers</h4>
-            <table class="param-table">
-                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>X-API-Key</code></td><td>string</td><td><span class="required">required</span> Your API key</td></tr>
-            </table>
-            <div class="response-block"><pre>{
+</div>
+</div>
+<!-- Profile -->
+<div class="endpoint">
+<div class="endpoint-header" onclick="toggleEndpoint(this)">
+<span class="method get">{{ _('GET') }}</span>
+<span class="endpoint-path">{{ _('/api/v1/profile') }}</span>
+<span class="endpoint-desc">{{ _('Get Profile') }}</span>
+</div>
+<div class="endpoint-body">
+<div class="desc">{{ _('Retrieve your account profile including CV data, skills, and preferences.') }}</div>
+<h4>{{ _('Headers') }}</h4>
+<table class="param-table">
+<tr><th>{{ _('Name') }}</th><th>{{ _('Type') }}</th><th>{{ _('Description') }}</th></tr>
+<tr><td><code>X-API-Key</code></td><td>{{ _('string') }}</td><td><span class="required">{{ _('required') }}</span> {{ _('Your API key') }}</td></tr>
+</table>
+<div class="response-block"><pre>{
   "user_id": "user_...",
   "email": "...",
   "name": "...",
   "cv_profiles": [...]
 }</pre></div>
-        </div>
-    </div>
-
-    <!-- Campaigns -->
-    <div class="endpoint">
-        <div class="endpoint-header" onclick="toggleEndpoint(this)">
-            <span class="method get">GET</span>
-            <span class="endpoint-path">/api/v1/campaigns</span>
-            <span class="endpoint-desc">List Campaigns</span>
-        </div>
-        <div class="endpoint-body">
-            <div class="desc">Retrieve all your campaigns with status and statistics.</div>
-            <h4>Headers</h4>
-            <table class="param-table">
-                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>X-API-Key</code></td><td>string</td><td><span class="required">required</span> Your API key</td></tr>
-            </table>
-            <h4>Query Parameters</h4>
-            <table class="param-table">
-                <tr><th>Name</th><th>Type</th><th>Default</th><th>Description</th></tr>
-                <tr><td><code>limit</code></td><td>integer</td><td>20</td><td>Max campaigns to return</td></tr>
-                <tr><td><code>status</code></td><td>string</td><td>&mdash;</td><td>Filter by status (pending, running, completed, failed)</td></tr>
-            </table>
-            <div class="response-block"><pre>{
+</div>
+</div>
+<!-- Campaigns -->
+<div class="endpoint">
+<div class="endpoint-header" onclick="toggleEndpoint(this)">
+<span class="method get">{{ _('GET') }}</span>
+<span class="endpoint-path">{{ _('/api/v1/campaigns') }}</span>
+<span class="endpoint-desc">{{ _('List Campaigns') }}</span>
+</div>
+<div class="endpoint-body">
+<div class="desc">{{ _('Retrieve all your campaigns with status and statistics.') }}</div>
+<h4>{{ _('Headers') }}</h4>
+<table class="param-table">
+<tr><th>{{ _('Name') }}</th><th>{{ _('Type') }}</th><th>{{ _('Description') }}</th></tr>
+<tr><td><code>X-API-Key</code></td><td>{{ _('string') }}</td><td><span class="required">{{ _('required') }}</span> {{ _('Your API key') }}</td></tr>
+</table>
+<h4>{{ _('Query Parameters') }}</h4>
+<table class="param-table">
+<tr><th>{{ _('Name') }}</th><th>{{ _('Type') }}</th><th>{{ _('Default') }}</th><th>{{ _('Description') }}</th></tr>
+<tr><td><code>limit</code></td><td>{{ _('integer') }}</td><td>20</td><td>{{ _('Max campaigns to return') }}</td></tr>
+<tr><td><code>status</code></td><td>{{ _('string') }}</td><td>—</td><td>{{ _('Filter by status (pending, running, completed, failed)') }}</td></tr>
+</table>
+<div class="response-block"><pre>{
   "campaigns": [
     {
       "campaign_id": "camp_...",
@@ -167,78 +157,75 @@
     }
   ]
 }</pre></div>
-        </div>
-    </div>
-
-    <!-- Create Campaign -->
-    <div class="endpoint">
-        <div class="endpoint-header" onclick="toggleEndpoint(this)">
-            <span class="method post">POST</span>
-            <span class="endpoint-path">/api/v1/campaigns</span>
-            <span class="endpoint-desc">Create Campaign</span>
-        </div>
-        <div class="endpoint-body">
-            <div class="desc">Create and launch a new job application campaign.</div>
-            <h4>Headers</h4>
-            <table class="param-table">
-                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>X-API-Key</code></td><td>string</td><td><span class="required">required</span> Your API key</td></tr>
-                <tr><td><code>Content-Type</code></td><td>string</td><td><span class="required">required</span> application/json</td></tr>
-            </table>
-            <h4>Body Parameters</h4>
-            <table class="param-table">
-                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>profile_id</code></td><td>integer</td><td><span class="required">required</span> CV profile ID to use</td></tr>
-                <tr><td><code>query</code></td><td>string</td><td><span class="required">required</span> Job search query (e.g. "network engineer")</td></tr>
-                <tr><td><code>location</code></td><td>string</td><td>Target location (e.g. "Dubai, UAE")</td></tr>
-                <tr><td><code>company_count</code></td><td>integer</td><td><span class="required">required</span> Number of companies to target</td></tr>
-            </table>
-            <div class="code-block"><pre>curl -X POST https://jhfguf.pythonanywhere.com/api/v1/campaigns \
-  -H <span class="str">"X-API-Key: jhp_..."</span> \
-  -H <span class="str">"Content-Type: application/json"</span> \
+</div>
+</div>
+<!-- Create Campaign -->
+<div class="endpoint">
+<div class="endpoint-header" onclick="toggleEndpoint(this)">
+<span class="method post">{{ _('POST') }}</span>
+<span class="endpoint-path">{{ _('/api/v1/campaigns') }}</span>
+<span class="endpoint-desc">{{ _('Create Campaign') }}</span>
+</div>
+<div class="endpoint-body">
+<div class="desc">{{ _('Create and launch a new job application campaign.') }}</div>
+<h4>{{ _('Headers') }}</h4>
+<table class="param-table">
+<tr><th>{{ _('Name') }}</th><th>{{ _('Type') }}</th><th>{{ _('Description') }}</th></tr>
+<tr><td><code>X-API-Key</code></td><td>{{ _('string') }}</td><td><span class="required">{{ _('required') }}</span> {{ _('Your API key') }}</td></tr>
+<tr><td><code>Content-Type</code></td><td>{{ _('string') }}</td><td><span class="required">{{ _('required') }}</span> {{ _('application/json') }}</td></tr>
+</table>
+<h4>{{ _('Body Parameters') }}</h4>
+<table class="param-table">
+<tr><th>{{ _('Name') }}</th><th>{{ _('Type') }}</th><th>{{ _('Description') }}</th></tr>
+<tr><td><code>profile_id</code></td><td>{{ _('integer') }}</td><td><span class="required">{{ _('required') }}</span> {{ _('CV profile ID to use') }}</td></tr>
+<tr><td><code>query</code></td><td>{{ _('string') }}</td><td><span class="required">{{ _('required') }}</span> {{ _('Job search query (e.g. "network engineer")') }}</td></tr>
+<tr><td><code>location</code></td><td>{{ _('string') }}</td><td>{{ _('Target location (e.g. "Dubai, UAE")') }}</td></tr>
+<tr><td><code>company_count</code></td><td>{{ _('integer') }}</td><td><span class="required">{{ _('required') }}</span> {{ _('Number of companies to target') }}</td></tr>
+</table>
+<div class="code-block"><pre>curl -X POST https://jhfguf.pythonanywhere.com/api/v1/campaigns \
+  -H <span class="str">{{ _('"X-API-Key: jhp_..."') }}</span> \
+  -H <span class="str">{{ _('"Content-Type: application/json"') }}</span> \
   -d <span class="str">'{"profile_id": 1, "query": "network engineer", "location": "Dubai, UAE", "company_count": 50}'</span></pre></div>
-        </div>
-    </div>
-
-    <!-- Application Stats -->
-    <div class="endpoint">
-        <div class="endpoint-header" onclick="toggleEndpoint(this)">
-            <span class="method get">GET</span>
-            <span class="endpoint-path">/api/v1/stats</span>
-            <span class="endpoint-desc">Application Stats</span>
-        </div>
-        <div class="endpoint-body">
-            <div class="desc">Get aggregated statistics about your applications.</div>
-            <h4>Headers</h4>
-            <table class="param-table">
-                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>X-API-Key</code></td><td>string</td><td><span class="required">required</span> Your API key</td></tr>
-            </table>
-            <div class="response-block"><pre>{
+</div>
+</div>
+<!-- Application Stats -->
+<div class="endpoint">
+<div class="endpoint-header" onclick="toggleEndpoint(this)">
+<span class="method get">{{ _('GET') }}</span>
+<span class="endpoint-path">{{ _('/api/v1/stats') }}</span>
+<span class="endpoint-desc">{{ _('Application Stats') }}</span>
+</div>
+<div class="endpoint-body">
+<div class="desc">{{ _('Get aggregated statistics about your applications.') }}</div>
+<h4>{{ _('Headers') }}</h4>
+<table class="param-table">
+<tr><th>{{ _('Name') }}</th><th>{{ _('Type') }}</th><th>{{ _('Description') }}</th></tr>
+<tr><td><code>X-API-Key</code></td><td>{{ _('string') }}</td><td><span class="required">{{ _('required') }}</span> {{ _('Your API key') }}</td></tr>
+</table>
+<div class="response-block"><pre>{
   "applied": 142,
   "viewed": 48,
   "responded": 12,
   "interview": 4,
   "offer": 1
 }</pre></div>
-        </div>
-    </div>
-
-    <!-- Pipeline -->
-    <div class="endpoint">
-        <div class="endpoint-header" onclick="toggleEndpoint(this)">
-            <span class="method get">GET</span>
-            <span class="endpoint-path">/api/v1/pipeline</span>
-            <span class="endpoint-desc">Pipeline Data</span>
-        </div>
-        <div class="endpoint-body">
-            <div class="desc">Get your application pipeline with stage breakdown.</div>
-            <h4>Headers</h4>
-            <table class="param-table">
-                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-                <tr><td><code>X-API-Key</code></td><td>string</td><td><span class="required">required</span> Your API key</td></tr>
-            </table>
-            <div class="response-block"><pre>{
+</div>
+</div>
+<!-- Pipeline -->
+<div class="endpoint">
+<div class="endpoint-header" onclick="toggleEndpoint(this)">
+<span class="method get">{{ _('GET') }}</span>
+<span class="endpoint-path">{{ _('/api/v1/pipeline') }}</span>
+<span class="endpoint-desc">{{ _('Pipeline Data') }}</span>
+</div>
+<div class="endpoint-body">
+<div class="desc">{{ _('Get your application pipeline with stage breakdown.') }}</div>
+<h4>{{ _('Headers') }}</h4>
+<table class="param-table">
+<tr><th>{{ _('Name') }}</th><th>{{ _('Type') }}</th><th>{{ _('Description') }}</th></tr>
+<tr><td><code>X-API-Key</code></td><td>{{ _('string') }}</td><td><span class="required">{{ _('required') }}</span> {{ _('Your API key') }}</td></tr>
+</table>
+<div class="response-block"><pre>{
   "pipeline": {
     "discovered": 120,
     "applied": 98,
@@ -247,28 +234,25 @@
     "offer": 2
   }
 }</pre></div>
-        </div>
-    </div>
-
-    <h2 style="font-size:20px;font-weight:700;color:#00f0ff;margin:40px 0 20px;">Error Codes</h2>
-    <table class="param-table" style="margin-bottom:40px;">
-        <tr><th>Code</th><th>Description</th></tr>
-        <tr><td>200</td><td>Success</td></tr>
-        <tr><td>400</td><td>Bad request &#8212; invalid parameters</td></tr>
-        <tr><td>401</td><td>Unauthorized &#8212; missing or invalid API key</td></tr>
-        <tr><td>404</td><td>Resource not found</td></tr>
-        <tr><td>429</td><td>Rate limited &#8212; too many requests</td></tr>
-        <tr><td>500</td><td>Internal server error</td></tr>
-    </table>
+</div>
+</div>
+<h2 style="font-size:20px;font-weight:700;color:#00f0ff;margin:40px 0 20px;">{{ _('Error Codes') }}</h2>
+<table class="param-table" style="margin-bottom:40px;">
+<tr><th>{{ _('Code') }}</th><th>{{ _('Description') }}</th></tr>
+<tr><td>200</td><td>{{ _('Success') }}</td></tr>
+<tr><td>400</td><td>{{ _('Bad request — invalid parameters') }}</td></tr>
+<tr><td>401</td><td>{{ _('Unauthorized — missing or invalid API key') }}</td></tr>
+<tr><td>404</td><td>{{ _('Resource not found') }}</td></tr>
+<tr><td>429</td><td>{{ _('Rate limited — too many requests') }}</td></tr>
+<tr><td>500</td><td>{{ _('Internal server error') }}</td></tr>
+</table>
 </div>
 <footer class="footer">
-    <a href="/faq">FAQ</a> &middot; <a href="/terms">Terms</a> &middot; <a href="/privacy">Privacy</a> &middot; <a href="/blog">Blog</a> &middot; <a href="/contact">Contact</a>
-    <p style="margin-top:12px;">&copy; 2026 JobHunt Pro. All rights reserved.</p>
+<a href="/faq">{{ _('FAQ') }}</a> · <a href="/terms">{{ _('Terms') }}</a> · <a href="/privacy">{{ _('Privacy') }}</a> · <a href="/blog">{{ _('Blog') }}</a> · <a href="/contact">{{ _('Contact') }}</a>
+<p style="margin-top:12px;">{{ _('© 2026 JobHunt Pro. All rights reserved.') }}</p>
 </footer>
 <script>
 function toggleEndpoint(el){var ep=el.parentElement;ep.classList.toggle('open');}
 </script>
-
 </body>
 </html>
-

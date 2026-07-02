@@ -1,250 +1,230 @@
 <div class="relative space-y-6 max-w-6xl mx-auto">
-  <!-- Page Header -->
-  <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
-    <div>
-      <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-        <i data-lucide="file-up" class="w-7 h-7 text-green-400"></i>
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
+<div>
+<h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+<i class="w-7 h-7 text-green-400" data-lucide="file-up"></i>
         رفع السيرة الذاتية
       </h1>
-      <p class="text-sm text-slate-400 mt-1">دع الذكاء الاصطناعي يحلل سيرتك الذاتية ويصيغ طلبات التوظيف المثالية</p>
-    </div>
-    <div class="flex gap-3 flex-wrap">
-      <button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 border border-slate-700" onclick="showPreview()">
-        <i data-lucide="eye" class="w-4 h-4"></i> معاينة
-      </button>
-      <button class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.3)] rounded-lg text-sm font-bold transition-all flex items-center gap-2 border border-green-400/50" onclick="startAIAnalysis(event)">
-        <i data-lucide="bot" class="w-4 h-4"></i> تحليل ذكي
-      </button>
-    </div>
-  </div>
-
-  <!-- Flash Sale Banner -->
-  <div class="bg-gradient-to-r from-red-500/20 to-red-500/5 border border-red-500/30 rounded-xl p-4 flex flex-wrap items-center gap-4 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.1)]" id="flashBannerUpload">
-    <div class="flex items-center gap-2">
-      <i data-lucide="zap" class="w-5 h-5 text-red-400"></i>
-      <span class="text-sm font-bold text-red-400">عرض حصري متاح</span>
-    </div>
-    <span class="font-mono text-xl font-black text-red-500" id="flashTimerUpload">02h 34m 12s</span>
-    <span class="text-sm text-slate-300">خصم 30% على تحسين السيرة الذاتية — استخدم الكود: <strong class="text-red-400 bg-red-500/10 px-2 py-0.5 rounded ml-1 tracking-wider">CVPRO30</strong></span>
-  </div>
-
-  <!-- How It Works -->
-  <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
-    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
-      <i data-lucide="rocket" class="w-4 h-4 text-cyan-400"></i> كيف يعمل النظام
-    </h3>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
-        <div class="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-          <i data-lucide="upload" class="w-6 h-6 text-blue-400"></i>
-        </div>
-        <div class="font-bold text-white text-sm mb-1">رفع السيرة الذاتية</div>
-        <div class="text-xs text-slate-400 leading-relaxed">ارفع سيرتك الذاتية بصيغة PDF أو DOCX أو TXT</div>
-      </div>
-      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
-        <div class="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-          <i data-lucide="brain-circuit" class="w-6 h-6 text-green-400"></i>
-        </div>
-        <div class="font-bold text-white text-sm mb-1">التحليل بالذكاء الاصطناعي</div>
-        <div class="text-xs text-slate-400 leading-relaxed">نستخرج مهاراتك وخبراتك ونحسن محتوى السيرة الذاتية</div>
-      </div>
-      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
-        <div class="w-12 h-12 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-          <i data-lucide="rocket" class="w-6 h-6 text-purple-400"></i>
-        </div>
-        <div class="font-bold text-white text-sm mb-1">إطلاق الحملة</div>
-        <div class="text-xs text-slate-400 leading-relaxed">ابدأ التقديم الآلي مع رسائل تغطية مصاغة باحترافية</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Upload Section -->
-  <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
-    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
-      <i data-lucide="upload-cloud" class="w-4 h-4 text-blue-400"></i> ارفع سيرتك الذاتية
-    </h3>
-    
-    <div id="uploadZone" class="relative border-2 border-dashed border-blue-500/30 rounded-xl p-8 text-center cursor-pointer bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-400 transition-all group overflow-hidden" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-      <div class="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-      
-      <i data-lucide="folder-up" id="uploadIcon" class="w-10 h-10 text-blue-400 mx-auto mb-3 group-hover:-translate-y-1 transition-transform"></i>
-      
-      <p id="uploadText" class="text-sm text-slate-300 mb-2">اسحب وأفلت السيرة الذاتية هنا، أو <strong class="text-blue-400">تصفح</strong></p>
-      
-      <div class="flex gap-2 justify-center mt-4">
-        <span class="px-3 py-1 bg-red-500/10 text-red-400 text-[10px] font-bold rounded-full border border-red-500/20">PDF</span>
-        <span class="px-3 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded-full border border-blue-500/20">DOCX</span>
-        <span class="px-3 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20">TXT</span>
-      </div>
-      
-      <input dir="auto" type="file" id="cvFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".pdf,.docx,.doc,.txt" onchange="handleFileSelect(this)">
-    </div>
-
-    <!-- File Info -->
-    <div id="fileInfo" class="hidden mt-4 bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex items-center gap-3">
-      <i data-lucide="check-circle-2" class="w-5 h-5 text-green-400"></i>
-      <span id="fileالاسم" class="text-sm font-semibold text-white">file.pdf</span>
-      <span id="fileSize" class="text-xs text-slate-400">(0 KB)</span>
-      <button class="ml-auto px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-xs font-semibold text-slate-300 transition-colors" onclick="removeFile()">إزالة</button>
-    </div>
-
-    <!-- File Preview -->
-    <div id="filePreview" class="hidden mt-4 bg-slate-950 border border-slate-800 rounded-xl p-4 max-h-64 overflow-y-auto text-xs text-slate-400 font-mono whitespace-pre-wrap leading-relaxed custom-scrollbar"></div>
-
-    <!-- Upload Progress -->
-    <div id="uploadProgress" class="hidden mt-4">
-      <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-        <div id="progressBar" class="h-full bg-gradient-to-r from-blue-500 to-green-400 w-0 transition-all duration-300"></div>
-      </div>
-      <div id="progressText" class="text-xs text-slate-400 mt-2 text-center font-medium">جاري الرفع... 0%</div>
-    </div>
-  </div>
-
-  <!-- Personal Info -->
-  <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
-    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
-      <i data-lucide="user" class="w-4 h-4 text-indigo-400"></i> المعلومات الشخصية
-    </h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-      <div class="space-y-1.5">
-        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">الاسم الكامل</label>
-        <input dir="auto" type="text" placeholder="مثال: سام سلامة" value="{{ user.name if user else '' }}" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
-      </div>
-      <div class="space-y-1.5">
-        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">البريد الإلكتروني</label>
-        <input dir="auto" type="email" placeholder="you@example.com" value="{{ user.email if user else '' }}" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
-      </div>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-      <div class="space-y-1.5">
-        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">رقم الهاتف</label>
-        <input dir="auto" type="tel" placeholder="+961 70 000 000" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
-      </div>
-      <div class="space-y-1.5">
-        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">الموقع</label>
-        <input dir="auto" type="text" placeholder="مثال: بيروت، لبنان" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
-      </div>
-    </div>
-    <div class="space-y-1.5">
-      <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">لينكد إن (اختياري)</label>
-      <input dir="auto" type="url" placeholder="https://linkedin.com/in/yourprofile" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
-    </div>
-  </div>
-
-  <!-- المهارات & Tags -->
-  <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
-    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
-      <i data-lucide="tags" class="w-4 h-4 text-purple-400"></i> المهارات والكلمات المفتاحية
-    </h3>
-    <div class="space-y-1.5 mb-3">
-      <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">إضافة المهارات (مفصولة بفاصلة أو اضغط إدخال)</label>
-      <input dir="auto" type="text" placeholder="Python, JavaScript, Project Management, ..." id="skillsInput" onkeydown="handleSkillTag(event)" class="w-full bg-slate-950 border border-slate-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
-    </div>
-    <div class="flex flex-wrap gap-2" id="skillTags">
-      <span class="px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">Python <i data-lucide="x" class="w-3 h-3"></i></span>
-      <span class="px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">JavaScript <i data-lucide="x" class="w-3 h-3"></i></span>
-      <span class="px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">React <i data-lucide="x" class="w-3 h-3"></i></span>
-    </div>
-  </div>
-
-  <!-- Salary Expectations -->
-  <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
-    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
-      <i data-lucide="coins" class="w-4 h-4 text-amber-400"></i> توقعات الراتب
-    </h3>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-      <div class="salary-preset cursor-pointer bg-slate-950 border-2 border-indigo-500 bg-indigo-500/5 rounded-xl p-4 text-center transition-all shadow-[0_0_15px_rgba(99,102,241,0.1)] group" onclick="selectSalary(this, '$30k-$50k')">
-        <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🇱🇧</div>
-        <div class="text-sm font-bold text-white mb-1">لبنان</div>
-        <div class="text-lg font-black text-green-400 mb-1">$30k-$50k</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider">مبتدئ إلى متوسط</div>
-      </div>
-      <div class="salary-preset cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-4 text-center transition-all group" onclick="selectSalary(this, '$50k-$80k')">
-        <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🇦🇪</div>
-        <div class="text-sm font-bold text-white mb-1">الإمارات</div>
-        <div class="text-lg font-black text-green-400 mb-1">$50k-$80k</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider">متوسط إلى متقدم</div>
-      </div>
-      <div class="salary-preset cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-4 text-center transition-all group" onclick="selectSalary(this, '$80k-$150k')">
-        <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🇺🇸</div>
-        <div class="text-sm font-bold text-white mb-1">أمريكا / عن بُعد</div>
-        <div class="text-lg font-black text-green-400 mb-1">$80k-$150k</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider">متقدم فأكثر</div>
-      </div>
-    </div>
-    <div class="space-y-1.5">
-      <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">نطاق مخصص</label>
-      <input dir="auto" type="text" placeholder="مثال: $60,000 - $90,000" class="w-full md:w-1/2 bg-slate-950 border border-slate-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
-    </div>
-  </div>
-
-  <!-- CV Style -->
-  <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
-    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
-      <i data-lucide="palette" class="w-4 h-4 text-pink-400"></i> نمط السيرة الذاتية
-    </h3>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="style-card cursor-pointer bg-slate-950 border-2 border-indigo-500 bg-indigo-500/5 rounded-xl p-4 text-center transition-all shadow-[0_0_15px_rgba(99,102,241,0.1)] group" onclick="selectStyle(this)">
-        <i data-lucide="file-text" class="w-8 h-8 text-indigo-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
-        <div class="text-sm font-bold text-white mb-1">احترافي</div>
-        <div class="text-xs text-slate-400">تنسيق نظيف متوافق مع أنظمة التوظيف (ATS)</div>
-      </div>
-      <div class="style-card cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-4 text-center transition-all group" onclick="selectStyle(this)">
-        <i data-lucide="paint-brush" class="w-8 h-8 text-pink-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
-        <div class="text-sm font-bold text-white mb-1">إبداعي</div>
-        <div class="text-xs text-slate-400">تصميم عصري بالألوان</div>
-      </div>
-      <div class="style-card cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-4 text-center transition-all group" onclick="selectStyle(this)">
-        <i data-lucide="layout-template" class="w-8 h-8 text-slate-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
-        <div class="text-sm font-bold text-white mb-1">بسيط</div>
-        <div class="text-xs text-slate-400">تنسيق بسيط يركز على النص</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Documents Status -->
-  <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
-    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
-      <i data-lucide="files" class="w-4 h-4 text-slate-400"></i> حالة المستندات
-    </h3>
-    <div class="space-y-3">
-      <div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4">
-        <div>
-          <h4 class="text-sm font-bold text-white mb-1">السيرة الذاتية</h4>
-          <div class="text-xs text-slate-500">PDF • آخر تحديث: لم يتم الرفع</div>
-        </div>
-        <span class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">قيد الانتظار</span>
-      </div>
-      
-      <div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4">
-        <div>
-          <h4 class="text-sm font-bold text-white mb-1">قالب رسالة التغطية</h4>
-          <div class="text-xs text-slate-500">مولد بالذكاء الاصطناعي • سيتم إنشاؤه بعد رفع السيرة الذاتية</div>
-        </div>
-        <span class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">قيد الانتظار</span>
-      </div>
-      
-      <div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4">
-        <div>
-          <h4 class="text-sm font-bold text-white mb-1">معرض الأعمال (اختياري)</h4>
-          <div class="text-xs text-slate-500">رابط أو PDF • اعرض أعمالك</div>
-        </div>
-        <span class="px-3 py-1 bg-slate-800 text-slate-500 text-xs font-bold rounded-lg border border-slate-800 border-dashed">اختياري</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Action Buttons -->
-  <div class="flex flex-wrap gap-3 justify-end pt-4 pb-10">
-    <button class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-bold transition-all border border-slate-700 flex items-center gap-2">
-      <i data-lucide="save" class="w-4 h-4"></i> حفظ كمسودة
-    </button>
-    <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white rounded-xl text-sm font-black tracking-wide shadow-[0_0_20px_rgba(34,197,94,0.3)] transition-all flex items-center gap-2 border border-green-400/50" onclick="startAIAnalysis(event)">
-      <i data-lucide="sparkles" class="w-4 h-4"></i> تحسين بالذكاء الاصطناعي وإطلاق
-    </button>
-  </div>
+<p class="text-sm text-slate-400 mt-1">دع الذكاء الاصطناعي يحلل سيرتك الذاتية ويصيغ طلبات التوظيف المثالية</p>
 </div>
-
+<div class="flex gap-3 flex-wrap">
+<button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 border border-slate-700" onclick="showPreview()">
+<i class="w-4 h-4" data-lucide="eye"></i> معاينة
+      </button>
+<button class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.3)] rounded-lg text-sm font-bold transition-all flex items-center gap-2 border border-green-400/50" onclick="startAIAnalysis(event)">
+<i class="w-4 h-4" data-lucide="bot"></i> تحليل ذكي
+      </button>
+</div>
+</div>
+<!-- Flash Sale Banner -->
+<div class="bg-gradient-to-r from-red-500/20 to-red-500/5 border border-red-500/30 rounded-xl p-4 flex flex-wrap items-center gap-4 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.1)]" id="flashBannerUpload">
+<div class="flex items-center gap-2">
+<i class="w-5 h-5 text-red-400" data-lucide="zap"></i>
+<span class="text-sm font-bold text-red-400">عرض حصري متاح</span>
+</div>
+<span class="font-mono text-xl font-black text-red-500" id="flashTimerUpload">{{ _('02h 34m 12s') }}</span>
+<span class="text-sm text-slate-300">خصم 30% على تحسين السيرة الذاتية — استخدم الكود: <strong class="text-red-400 bg-red-500/10 px-2 py-0.5 rounded ms-1 tracking-wider">{{ _('CVPRO30') }}</strong></span>
+</div>
+<!-- How It Works -->
+<div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
+<h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+<i class="w-4 h-4 text-cyan-400" data-lucide="rocket"></i> كيف يعمل النظام
+    </h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
+<div class="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+<i class="w-6 h-6 text-blue-400" data-lucide="upload"></i>
+</div>
+<div class="font-bold text-white text-sm mb-1">رفع السيرة الذاتية</div>
+<div class="text-xs text-slate-400 leading-relaxed">{{ _('ارفع سيرتك الذاتية بصيغة PDF أو DOCX أو TXT') }}</div>
+</div>
+<div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
+<div class="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+<i class="w-6 h-6 text-green-400" data-lucide="brain-circuit"></i>
+</div>
+<div class="font-bold text-white text-sm mb-1">التحليل بالذكاء الاصطناعي</div>
+<div class="text-xs text-slate-400 leading-relaxed">نستخرج مهاراتك وخبراتك ونحسن محتوى السيرة الذاتية</div>
+</div>
+<div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
+<div class="w-12 h-12 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+<i class="w-6 h-6 text-purple-400" data-lucide="rocket"></i>
+</div>
+<div class="font-bold text-white text-sm mb-1">إطلاق الحملة</div>
+<div class="text-xs text-slate-400 leading-relaxed">ابدأ التقديم الآلي مع رسائل تغطية مصاغة باحترافية</div>
+</div>
+</div>
+</div>
+<!-- Upload Section -->
+<div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
+<h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+<i class="w-4 h-4 text-blue-400" data-lucide="upload-cloud"></i> ارفع سيرتك الذاتية
+    </h3>
+<div class="relative border-2 border-dashed border-blue-500/30 rounded-xl p-8 text-center cursor-pointer bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-400 transition-all group overflow-hidden" id="uploadZone" ondragleave="handleDragLeave(event)" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+<div class="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<i class="w-10 h-10 text-blue-400 mx-auto mb-3 group-hover:-translate-y-1 transition-transform" data-lucide="folder-up" id="uploadIcon"></i>
+<p class="text-sm text-slate-300 mb-2" id="uploadText">اسحب وأفلت السيرة الذاتية هنا، أو <strong class="text-blue-400">تصفح</strong></p>
+<div class="flex gap-2 justify-center mt-4">
+<span class="px-3 py-1 bg-red-500/10 text-red-400 text-[10px] font-bold rounded-full border border-red-500/20">{{ _('PDF') }}</span>
+<span class="px-3 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded-full border border-blue-500/20">{{ _('DOCX') }}</span>
+<span class="px-3 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20">{{ _('TXT') }}</span>
+</div>
+<input accept=".pdf,.docx,.doc,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" dir="auto" id="cvFile" onchange="handleFileSelect(this)" type="file"/>
+</div>
+<!-- File Info -->
+<div class="hidden mt-4 bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex items-center gap-3" id="fileInfo">
+<i class="w-5 h-5 text-green-400" data-lucide="check-circle-2"></i>
+<span class="text-sm font-semibold text-white" id="fileالاسم">{{ _('file.pdf') }}</span>
+<span class="text-xs text-slate-400" id="fileSize">{{ _('(0 KB)') }}</span>
+<button class="ms-auto px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-xs font-semibold text-slate-300 transition-colors" onclick="removeFile()">إزالة</button>
+</div>
+<!-- File Preview -->
+<div class="hidden mt-4 bg-slate-950 border border-slate-800 rounded-xl p-4 max-h-64 overflow-y-auto text-xs text-slate-400 font-mono whitespace-pre-wrap leading-relaxed custom-scrollbar" id="filePreview"></div>
+<!-- Upload Progress -->
+<div class="hidden mt-4" id="uploadProgress">
+<div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-blue-500 to-green-400 w-0 transition-all duration-300" id="progressBar"></div>
+</div>
+<div class="text-xs text-slate-400 mt-2 text-center font-medium" id="progressText">جاري الرفع... 0%</div>
+</div>
+</div>
+<!-- Personal Info -->
+<div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
+<h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+<i class="w-4 h-4 text-indigo-400" data-lucide="user"></i> المعلومات الشخصية
+    </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+<div class="space-y-1.5">
+<label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">الاسم الكامل</label>
+<input class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="مثال: سام سلامة" type="text" value="{{ user.name if user else '' }}"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">البريد الإلكتروني</label>
+<input class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="you@example.com" type="email" value="{{ user.email if user else '' }}"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+<div class="space-y-1.5">
+<label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">رقم الهاتف</label>
+<input class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="+961 70 000 000" type="tel"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">الموقع</label>
+<input class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="مثال: بيروت، لبنان" type="text"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">لينكد إن (اختياري)</label>
+<input class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="https://linkedin.com/in/yourprofile" type="url"/>
+</div>
+</div>
+<!-- المهارات & Tags -->
+<div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
+<h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+<i class="w-4 h-4 text-purple-400" data-lucide="tags"></i> المهارات والكلمات المفتاحية
+    </h3>
+<div class="space-y-1.5 mb-3">
+<label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">إضافة المهارات (مفصولة بفاصلة أو اضغط إدخال)</label>
+<input class="w-full bg-slate-950 border border-slate-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="skillsInput" onkeydown="handleSkillTag(event)" placeholder="Python, JavaScript, Project Management, ..." type="text"/>
+</div>
+<div class="flex flex-wrap gap-2" id="skillTags">
+<span class="px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">{{ _('Python') }} <i class="w-3 h-3" data-lucide="x"></i></span>
+<span class="px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">{{ _('JavaScript') }} <i class="w-3 h-3" data-lucide="x"></i></span>
+<span class="px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">{{ _('React') }} <i class="w-3 h-3" data-lucide="x"></i></span>
+</div>
+</div>
+<!-- Salary Expectations -->
+<div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
+<h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+<i class="w-4 h-4 text-amber-400" data-lucide="coins"></i> توقعات الراتب
+    </h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+<div class="salary-preset cursor-pointer bg-slate-950 border-2 border-indigo-500 bg-indigo-500/5 rounded-xl p-4 text-center transition-all shadow-[0_0_15px_rgba(99,102,241,0.1)] group" onclick="selectSalary(this, '$30k-$50k')">
+<div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🇱🇧</div>
+<div class="text-sm font-bold text-white mb-1">لبنان</div>
+<div class="text-lg font-black text-green-400 mb-1">{{ _('$30k-$50k') }}</div>
+<div class="text-[10px] text-slate-400 uppercase tracking-wider">مبتدئ إلى متوسط</div>
+</div>
+<div class="salary-preset cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-4 text-center transition-all group" onclick="selectSalary(this, '$50k-$80k')">
+<div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🇦🇪</div>
+<div class="text-sm font-bold text-white mb-1">الإمارات</div>
+<div class="text-lg font-black text-green-400 mb-1">{{ _('$50k-$80k') }}</div>
+<div class="text-[10px] text-slate-400 uppercase tracking-wider">متوسط إلى متقدم</div>
+</div>
+<div class="salary-preset cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-4 text-center transition-all group" onclick="selectSalary(this, '$80k-$150k')">
+<div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🇺🇸</div>
+<div class="text-sm font-bold text-white mb-1">أمريكا / عن بُعد</div>
+<div class="text-lg font-black text-green-400 mb-1">{{ _('$80k-$150k') }}</div>
+<div class="text-[10px] text-slate-400 uppercase tracking-wider">متقدم فأكثر</div>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">نطاق مخصص</label>
+<input class="w-full md:w-1/2 bg-slate-950 border border-slate-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="مثال: $60,000 - $90,000" type="text"/>
+</div>
+</div>
+<!-- CV Style -->
+<div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
+<h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+<i class="w-4 h-4 text-pink-400" data-lucide="palette"></i> نمط السيرة الذاتية
+    </h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="style-card cursor-pointer bg-slate-950 border-2 border-indigo-500 bg-indigo-500/5 rounded-xl p-4 text-center transition-all shadow-[0_0_15px_rgba(99,102,241,0.1)] group" onclick="selectStyle(this)">
+<i class="w-8 h-8 text-indigo-400 mx-auto mb-2 group-hover:scale-110 transition-transform" data-lucide="file-text"></i>
+<div class="text-sm font-bold text-white mb-1">احترافي</div>
+<div class="text-xs text-slate-400">{{ _('تنسيق نظيف متوافق مع أنظمة التوظيف (ATS)') }}</div>
+</div>
+<div class="style-card cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-4 text-center transition-all group" onclick="selectStyle(this)">
+<i class="w-8 h-8 text-pink-400 mx-auto mb-2 group-hover:scale-110 transition-transform" data-lucide="paint-brush"></i>
+<div class="text-sm font-bold text-white mb-1">إبداعي</div>
+<div class="text-xs text-slate-400">تصميم عصري بالألوان</div>
+</div>
+<div class="style-card cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-4 text-center transition-all group" onclick="selectStyle(this)">
+<i class="w-8 h-8 text-slate-400 mx-auto mb-2 group-hover:scale-110 transition-transform" data-lucide="layout-template"></i>
+<div class="text-sm font-bold text-white mb-1">بسيط</div>
+<div class="text-xs text-slate-400">تنسيق بسيط يركز على النص</div>
+</div>
+</div>
+</div>
+<!-- Documents Status -->
+<div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
+<h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+<i class="w-4 h-4 text-slate-400" data-lucide="files"></i> حالة المستندات
+    </h3>
+<div class="space-y-3">
+<div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4">
+<div>
+<h4 class="text-sm font-bold text-white mb-1">السيرة الذاتية</h4>
+<div class="text-xs text-slate-500">{{ _('PDF • آخر تحديث: لم يتم الرفع') }}</div>
+</div>
+<span class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">قيد الانتظار</span>
+</div>
+<div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4">
+<div>
+<h4 class="text-sm font-bold text-white mb-1">قالب رسالة التغطية</h4>
+<div class="text-xs text-slate-500">مولد بالذكاء الاصطناعي • سيتم إنشاؤه بعد رفع السيرة الذاتية</div>
+</div>
+<span class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">قيد الانتظار</span>
+</div>
+<div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4">
+<div>
+<h4 class="text-sm font-bold text-white mb-1">معرض الأعمال (اختياري)</h4>
+<div class="text-xs text-slate-500">{{ _('رابط أو PDF • اعرض أعمالك') }}</div>
+</div>
+<span class="px-3 py-1 bg-slate-800 text-slate-500 text-xs font-bold rounded-lg border border-slate-800 border-dashed">اختياري</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-wrap gap-3 justify-end pt-4 pb-10">
+<button class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-bold transition-all border border-slate-700 flex items-center gap-2">
+<i class="w-4 h-4" data-lucide="save"></i> حفظ كمسودة
+    </button>
+<button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white rounded-xl text-sm font-black tracking-wide shadow-[0_0_20px_rgba(34,197,94,0.3)] transition-all flex items-center gap-2 border border-green-400/50" onclick="startAIAnalysis(event)">
+<i class="w-4 h-4" data-lucide="sparkles"></i> تحسين بالذكاء الاصطناعي وإطلاق
+    </button>
+</div>
+</div>
 <script>
 /* ═══════════════════════════════════════════
    UPLOAD CV v3 — JavaScript

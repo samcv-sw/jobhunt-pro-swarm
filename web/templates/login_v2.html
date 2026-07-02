@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Login to your JobHunt Pro account.">
-  <meta name="robots" content="noindex,follow">
-  <title>Login — JobHunt Pro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="Login to your JobHunt Pro account." name="description"/>
+<meta content="noindex,follow" name="robots"/>
+<title>{{ _('Login — JobHunt Pro') }}</title>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <!-- Login v2 — Enhanced with password strength meter, toggle visibility, loading states, improved animations -->
-<link rel="stylesheet" href="/static/css/dashboard-v4-rtl.css?v=20260629_v2">
-<link rel="stylesheet" href="/static/css/auth-v2-rtl.css?v=20260629_v2">
+<link href="/static/css/dashboard-v4-rtl.css?v=20260629_v2" rel="stylesheet"/>
+<link href="/static/css/auth-v2-rtl.css?v=20260629_v2" rel="stylesheet"/>
 <style>
 /* ═══════════════════════════════════════════
    LOGIN v2 — Page-Specific Styles
@@ -73,29 +74,29 @@
 </head>
 <body class="auth-page">
 <div class="bg-particles">
-  <div class="particle"></div><div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div><div class="particle"></div>
-  <div class="particle"></div><div class="particle"></div>
+<div class="particle"></div><div class="particle"></div><div class="particle"></div>
+<div class="particle"></div><div class="particle"></div><div class="particle"></div>
+<div class="particle"></div><div class="particle"></div>
 </div>
 
 {% include '_public_nav.html' %}
 
 <div class="auth-page-wrap" style="padding-top:140px;">
-  <div class="auth-container">
-    <div class="auth-card">
-      <div class="auth-header">
-        <h1>أهلاً وسهلاً بيك 👋</h1>
-        <p class="sub">سجل دخولك لتتحكم بحملاتك</p>
-      </div>
+<div class="auth-container">
+<div class="auth-card">
+<div class="auth-header">
+<h1>أهلاً وسهلاً بيك 👋</h1>
+<p class="sub">سجل دخولك لتتحكم بحملاتك</p>
+</div>
 
       {% if plan %}
       <div class="plan-badge">
-        <span class="plan-badge-icon">🚀</span>
-        <div class="plan-badge-info">
-          <strong>الخطة المختارة {{ plan }}</strong>
-          <span>تابع بخطتك المختارة. يمكنك التغيير في أي وقت.</span>
-        </div>
-      </div>
+<span class="plan-badge-icon">🚀</span>
+<div class="plan-badge-info">
+<strong>الخطة المختارة {{ plan }}</strong>
+<span>تابع بخطتك المختارة. يمكنك التغيير في أي وقت.</span>
+</div>
+</div>
       {% endif %}
 
       {% if error %}
@@ -103,61 +104,56 @@
       {% endif %}
 
       <!-- OAuth Row -->
-      <div class="oauth-row">
-        <a href="/auth/google/login" class="btn-oauth">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" loading="lazy">
-          Google
+<div class="oauth-row">
+<a class="btn-oauth" href="/auth/google/login">
+<img alt="Google" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"/>
+          {{ _('Google') }}
         </a>
-        <a href="/auth/microsoft/login" class="btn-oauth">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" loading="lazy">
-          Microsoft
+<a class="btn-oauth" href="/auth/microsoft/login">
+<img alt="Microsoft" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"/>
+          {{ _('Microsoft') }}
         </a>
-      </div>
-
-      <div class="oauth-divider">أو</div>
-
-      <form method="POST" action="/login" id="loginForm" onsubmit="handleLogin(event)">
-        <div class="form-group">
-          <label for="email">البريد الإلكتروني</label>
-          <input dir="auto" type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>
-        </div>
-        <div class="form-group">
-          <label for="password">كلمة المرور</label>
-          <div class="pw-input-wrap">
-            <input dir="auto" type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password" oninput="checkPwStrength(this.value)">
-            <button type="button" class="pw-toggle-btn" onclick="togglePwVisibility()" id="pwToggle" aria-label="Toggle password visibility">👁️</button>
-          </div>
-          <!-- Password Strength Meter -->
-          <div class="pw-strength-meter">
-            <div class="pw-strength-bar" id="pwStrengthBar"></div>
-          </div>
-          <div class="pw-strength-label" id="pwStrengthLabel"></div>
-        </div>
-        <div class="pw-row">
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);cursor:pointer;">
-            <input dir="auto" type="checkbox" name="remember" style="accent-color:var(--accent-primary);"> تذكرني
-          </label>
-          <a href="/forgot-password">نسيت كلمة المرور؟</a>
-        </div>
-        <button type="submit" class="btn-submit" id="loginBtn">
-          <span class="btn-text">🔐 دخول للوحة التحكم</span>
-          <span class="btn-spinner"></span>
-        </button>
-      </form>
-
-      <div class="auth-footer">
-        جديد عنا؟ <a href="/register">أنشئ حساب مجاني →</a>
-      </div>
-    </div>
-
-    <div class="trust-strip">
-      <span>🔒 تشفير 256-بت</span>
-      <span>🛡️ ضمان استرداد 30 يوم</span>
-      <span>🤖 200 وكيل ذكي</span>
-    </div>
-  </div>
 </div>
-
+<div class="oauth-divider">أو</div>
+<form action="/login" id="loginForm" method="POST" onsubmit="handleLogin(event)">
+<div class="form-group">
+<label for="email">البريد الإلكتروني</label>
+<input autocomplete="email" autofocus="" dir="auto" id="email" name="email" placeholder="you@example.com" required="" type="email"/>
+</div>
+<div class="form-group">
+<label for="password">كلمة المرور</label>
+<div class="pw-input-wrap">
+<input autocomplete="current-password" dir="auto" id="password" name="password" oninput="checkPwStrength(this.value)" placeholder="●●●●●●●●" required="" type="password"/>
+<button aria-label="Toggle password visibility" class="pw-toggle-btn" id="pwToggle" onclick="togglePwVisibility()" type="button">👁️</button>
+</div>
+<!-- Password Strength Meter -->
+<div class="pw-strength-meter">
+<div class="pw-strength-bar" id="pwStrengthBar"></div>
+</div>
+<div class="pw-strength-label" id="pwStrengthLabel"></div>
+</div>
+<div class="pw-row">
+<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);cursor:pointer;">
+<input dir="auto" name="remember" style="accent-color:var(--accent-primary);" type="checkbox"/> تذكرني
+          </label>
+<a href="/forgot-password">نسيت كلمة المرور؟</a>
+</div>
+<button class="btn-submit" id="loginBtn" type="submit">
+<span class="btn-text">🔐 دخول للوحة التحكم</span>
+<span class="btn-spinner"></span>
+</button>
+</form>
+<div class="auth-footer">
+        جديد عنا؟ <a href="/register">أنشئ حساب مجاني →</a>
+</div>
+</div>
+<div class="trust-strip">
+<span>🔒 تشفير 256-بت</span>
+<span>🛡️ ضمان استرداد 30 يوم</span>
+<span>🤖 200 وكيل ذكي</span>
+</div>
+</div>
+</div>
 <script>
 /* ═══════════════════════════════════════════
    LOGIN v2 — JavaScript
@@ -226,5 +222,3 @@ document.addEventListener('DOMContentLoaded', function() {
 {% include '_public_footer.html' %}
 </body>
 </html>
-
-

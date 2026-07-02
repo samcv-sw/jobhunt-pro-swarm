@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Track your job applications in real-time — monitor opens, clicks, and interview invitations with JobHunt Pro's intelligent tracking system.">
-  <title>Track Applications &mdash; JobHunt Pro</title>
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
-  <style>
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="Track your job applications in real-time — monitor opens, clicks, and interview invitations with JobHunt Pro's intelligent tracking system." name="description"/>
+<title>{{ _('Track Applications — JobHunt Pro') }}</title>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
+<style>
   .headroom{min-height:60px;background:rgba(10,10,15,.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px;margin-bottom:24px}
   .headroom .brand{font-size:18px;font-weight:800;color:#3b82f6;gap:18px}
   .headroom nav a{font-size:13px;color:#94a3b8;font-weight:500;padding:6px 0;border-bottom:2px solid transparent;text-decoration:none}
   .headroom nav a:hover{border-color:#3b82f6;color:#e2e8f0}
   .headroom nav a.active{color:#60a5fa;border-color:#60a5fa}
   </style>
-
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -134,79 +134,73 @@ body{font-family: 'Cairo', 'Inter',sans-serif;background:var(--bg);color:var(--t
 }
 </style>
 </head>
-
 <body class="cyberpunk-body">
 {% include '_public_nav.html' %}
 
 <div class="bg-layer bg-grid"></div>
 <div class="glow-orb"></div>
-
 <div class="container" style="padding-top:130px">
-  <div class="header">
-    <h1>تتبع <span class="gradient">طلباتك</span></h1>
-    <p>أدخل البريد الإلكتروني الذي استخدمته في طلبات التوظيف لرؤية الحالة في الوقت الفعلي لجميع الوظائف.</p>
-  </div>
-
-  <div class="search-card">
-    <form method="POST" action="/track-application" class="search-form">
-      <div class="form-group">
-        <label>عنوان بريدك الإلكتروني</label>
-        <input dir="auto" type="email" name="email" value="{{ email or '' }}" placeholder="you@email.com" required autofocus>
-      </div>
-      <button type="submit" class="btn btn-search">&#x1F50D; تتبع الطلبات</button>
-    </form>
-  </div>
+<div class="header">
+<h1>تتبع <span class="gradient">طلباتك</span></h1>
+<p>أدخل البريد الإلكتروني الذي استخدمته في طلبات التوظيف لرؤية الحالة في الوقت الفعلي لجميع الوظائف.</p>
+</div>
+<div class="search-card">
+<form action="/track-application" class="search-form" method="POST">
+<div class="form-group">
+<label>عنوان بريدك الإلكتروني</label>
+<input autofocus="" dir="auto" name="email" placeholder="you@email.com" required="" type="email" value="{{ email or '' }}"/>
+</div>
+<button class="btn btn-search" type="submit">🔍 تتبع الطلبات</button>
+</form>
+</div>
 
   {% if error %}
-  <div class="alert alert-error">&#x26A0; {{ error }}</div>
+  <div class="alert alert-error">⚠ {{ error }}</div>
   {% endif %}
 
   {% if results is not none and results|length > 0 %}
   <div class="results-card">
-    <div class="card-hdr">
-      <h3>&#x1F4CB; تم العثور على {{ count }} طلب{% if count != 1 %}ات{% endif %}</h3>
-      <span class="count">لـ {{ email }}</span>
-    </div>
+<div class="card-hdr">
+<h3>📋 تم العثور على {{ count }} طلب{% if count != 1 %}ات{% endif %}</h3>
+<span class="count">لـ {{ email }}</span>
+</div>
     {% for app in results %}
     <div class="app-row">
-      <div class="app-info">
-        <div class="app-company">{{ app.company_name or 'شركة غير معروفة' }}</div>
-        <div class="app-title">{{ app.job_title or 'منصب غير مسمى' }}</div>
-        <div class="app-date">&#x1F4C5; تم التقديم في {{ app.date_applied }}</div>
-        {% if app.location %}<div class="app-location">&#x1F4CD; {{ app.location }}</div>{% endif %}
+<div class="app-info">
+<div class="app-company">{{ app.company_name or 'شركة غير معروفة' }}</div>
+<div class="app-title">{{ app.job_title or 'منصب غير مسمى' }}</div>
+<div class="app-date">📅 تم التقديم في {{ app.date_applied }}</div>
+        {% if app.location %}<div class="app-location">📍 {{ app.location }}</div>{% endif %}
       </div>
       {% if app.salary_display %}
       <div class="app-salary {{ app.salary_tier or 'entry' }}">
         {{ app.salary_display }}
-        {% if app.has_bonus %}<br><span class="bonus-tag bonus-yes">+BONUS</span>{% endif %}
+        {% if app.has_bonus %}<br/><span class="bonus-tag bonus-yes">{{ _('+BONUS') }}</span>{% endif %}
       </div>
       {% endif %}
       <span class="stage-badge stage-{{ app.app_status or 'applied' }}">{{ app.stage_label }}</span>
-    </div>
+</div>
     {% endfor %}
   </div>
   {% elif results is not none and results|length == 0 and not error %}
   <div class="results-card">
-    <div class="empty-state">
-      <span class="emoji">&#x1F4ED;</span>
-      <p>لم يتم العثور على طلبات لـ <strong>{{ email }}</strong></p>
-      <p style="color:var(--dim);font-size:12px;">تأكد من إدخال نفس البريد الإلكتروني المستخدم عند التقديم. قد تستغرق الطلبات بضع دقائق للظهور.</p>
-    </div>
-  </div>
+<div class="empty-state">
+<span class="emoji">📭</span>
+<p>لم يتم العثور على طلبات لـ <strong>{{ email }}</strong></p>
+<p style="color:var(--dim);font-size:12px;">تأكد من إدخال نفس البريد الإلكتروني المستخدم عند التقديم. قد تستغرق الطلبات بضع دقائق للظهور.</p>
+</div>
+</div>
   {% endif %}
 
   <div style="text-align:center;margin-top:24px;">
-    <a href="/" class="btn-back">&#x2190; العودة للرئيسية</a>
+<a class="btn-back" href="/">← العودة للرئيسية</a>
     {% if results is not none %}
-    <a href="/track-application" class="btn-back" style="margin-inline-start:8px;">&#x1F50D; البحث عن بريد إلكتروني آخر</a>
+    <a class="btn-back" href="/track-application" style="margin-inline-start:8px;">🔍 البحث عن بريد إلكتروني آخر</a>
     {% endif %}
   </div>
 </div>
 
 {% include '_public_footer.html' %}
-</div>
-
 
 </body>
 </html>
-

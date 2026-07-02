@@ -1,0 +1,154 @@
+<style>
+/* ═══════════ EXPORT SPECIFIC STYLES ═══════════ */
+.btn-export{width:100%;padding:16px;font-size:17px;background:linear-gradient(135deg,#f97316,#f59e0b);color:#fff;}
+.btn-export:hover{box-shadow:0 8px 30px rgba(249,115,22,0.35);transform:translateY(-2px);}
+
+.pill-group{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.pill{padding:8px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:25px;color:#94a3b8;font-size:12px;cursor:pointer;font-family: 'Cairo', 'Inter',sans-serif;transition:all .2s;white-space:nowrap;font-weight:500;}
+.pill:hover{background:rgba(59,130,246,0.1);color:#3b82f6;border-color:#3b82f6;}
+.pill.active{background:rgba(59,130,246,0.15);color:#3b82f6;border-color:#3b82f6;font-weight:700;}
+
+.export-option{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .15s;}
+.export-option:hover{background:rgba(59,130,246,0.05);border-color:rgba(59,130,246,0.15);}
+.export-option input[type="radio"]{accent-color:#3b82f6;width:16px;height:16px;cursor:pointer;flex-shrink:0;}
+.export-option .opt-info{flex:1;}
+.export-option .opt-title{font-weight:600;font-size:14px;}
+.export-option .opt-desc{font-size:11px;color:#64748b;margin-top:2px;}
+
+@media(max-width:480px){
+  .pill-group{gap:4px;}
+  .pill{padding:6px 14px;font-size:11px;}
+}
+</style>
+
+<h1>📥 تصدير الطلبات</h1>
+<p class="subtitle">تصفية حسب النطاق الزمني، الحالة، والصيغة قبل تنزيل بياناتك.</p>
+
+<!-- 📅 DATE RANGE -->
+<div class="card">
+  <div class="card-title">📅 النطاق الزمني</div>
+  <div class="pill-group" id="pills">
+    <button class="pill" onclick="setPreset(1,this)">اليوم</button>
+    <button class="pill" onclick="setPreset(7,this)">آخر 7 أيام</button>
+    <button class="pill active" onclick="setPreset(30,this)">آخر 30 يوم</button>
+    <button class="pill" onclick="setPreset(90,this)">آخر 90 يوم</button>
+    <button class="pill" onclick="setPreset(0,this)">📅 كل الوقت</button>
+  </div>
+  <div class="row">
+    <div class="form-group">
+      <label>من تاريخ</label>
+      <input dir="auto" type="date" id="from_date">
+    </div>
+    <div class="form-group">
+      <label>إلى تاريخ</label>
+      <input dir="auto" type="date" id="to_date">
+    </div>
+  </div>
+</div>
+
+<!-- 🔧 FILTERS -->
+<div class="card">
+  <div class="card-title">🔧 التصفية</div>
+  <div class="row">
+    <div class="form-group">
+      <label>تصفية الحالة</label>
+      <select id="status_filter">
+        <option value="all">📋 جميع الحالات</option>
+        <option value="sent">✉️ مُرسل</option>
+        <option value="opened">👁️ تم الفتح</option>
+        <option value="responded">✅ تم الرد</option>
+        <option value="interview">🎤 مقابلة</option>
+        <option value="offer">🎯 عرض وظيفي</option>
+        <option value="failed">❌ فشل / ارتد</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>صيغة التصدير</label>
+      <select id="format">
+        <option value="csv">📊 CSV (إكسل)</option>
+        <option value="json">🔧 JSON (للمطورين)</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- 📦 EXPORT OPTIONS -->
+<div class="card">
+  <div class="card-title">📦 ماذا تريد أن تصدر</div>
+  <label class="export-option">
+    <input dir="auto" type="radio" name="exportType" value="applications" checked onchange="updateExportType(this.value)">
+    <div class="opt-info">
+      <div class="opt-title">📩 طلبات التوظيف</div>
+      <div class="opt-desc">جميع طلباتك المُرسلة مع الحالة، الشركة، ومعلومات التتبع</div>
+    </div>
+  </label>
+  <label class="export-option">
+    <input dir="auto" type="radio" name="exportType" value="jobs" onchange="updateExportType(this.value)">
+    <div class="opt-info">
+      <div class="opt-title">🏢 الوظائف المنشورة</div>
+      <div class="opt-desc">الوظائف التي نشرتها كصاحب عمل (المشاهدات، الطلبات، الحالة)</div>
+    </div>
+  </label>
+</div>
+
+<!-- ⬇️ DOWNLOAD -->
+<button class="btn btn-export" onclick="doExport()">⬇️ تنزيل التصدير</button>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Toast ────────────────────────────────────────────────────
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type === 'error' ? ' error' : type === 'info' ? ' info' : '');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── Export Options ───────────────────────────────────────────
+let currentExportType = 'applications';
+
+function updateExportType(type) {
+  currentExportType = type;
+  var opts;
+  if (type === 'jobs') {
+    opts = '<option value="all">📋 جميع الحالات</option><option value="active">✅ نشط</option><option value="expired">⏰ منتهي</option><option value="draft">📝 مسودة</option>';
+  } else {
+    opts = '<option value="all">📋 جميع الحالات</option><option value="sent">✉️ مُرسل</option><option value="opened">👁️ تم الفتح</option><option value="responded">✅ تم الرد</option><option value="interview">🎤 مقابلة</option><option value="offer">🎯 عرض وظيفي</option><option value="failed">❌ فشل / ارتد</option>';
+  }
+  document.getElementById('status_filter').innerHTML = opts;
+}
+
+function setPreset(days, el) {
+  document.querySelectorAll('#pills .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  if (days === 0) {
+    document.getElementById('from_date').value = '';
+    document.getElementById('to_date').value = '';
+  } else {
+    var d = new Date();
+    document.getElementById('to_date').value = d.toISOString().split('T')[0];
+    d.setDate(d.getDate() - days);
+    document.getElementById('from_date').value = d.toISOString().split('T')[0];
+  }
+}
+
+function doExport() {
+  var f = document.getElementById('from_date').value;
+  var t = document.getElementById('to_date').value;
+  var s = document.getElementById('status_filter').value;
+  var fmt = document.getElementById('format').value;
+  var endpoint = currentExportType === 'jobs' ? '/export/jobs' : '/export/applications';
+  var url = endpoint + '?format=' + fmt;
+  if (f) url += '&date_from=' + f;
+  if (t) url += '&date_to=' + t;
+  if (s !== 'all' && s !== 'active' && s !== 'expired' && s !== 'draft') url += '&status_filter=' + s;
+  if (s === 'active' || s === 'expired' || s === 'draft') url += '&status=' + s;
+  window.location = url;
+}
+
+// Set default preset on load
+(function init() {
+  setPreset(30, document.querySelector('#pills .pill:nth-child(3)'));
+})();
+</script>

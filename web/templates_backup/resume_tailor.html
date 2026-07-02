@@ -1,0 +1,641 @@
+<!-- AI Resume Tailoring — v16 -->
+<style>
+/* Resume Tailor specific styles */
+.tailor-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+@media(max-width:900px) { .tailor-container { grid-template-columns: 1fr; } }
+
+.tailor-panel {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px;
+}
+.tailor-panel h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tailor-panel textarea {
+  width: 100%;
+  min-height: 220px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 14px;
+  color: #e2e8f0;
+  font-family: 'Cairo', 'Inter', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+.tailor-panel textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+}
+.tailor-panel textarea::placeholder { color: #475569; font-style: italic; }
+
+.tailor-panel .file-drop {
+  border: 2px dashed rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #64748b;
+  font-size: 13px;
+}
+.tailor-panel .file-drop:hover {
+  border-color: #3b82f6;
+  background: rgba(59,130,246,0.05);
+  color: #94a3b8;
+}
+.tailor-panel .file-drop.dragover {
+  border-color: #3b82f6;
+  background: rgba(59,130,246,0.08);
+}
+
+/* Actions */
+.tailor-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+/* Results */
+.tailor-results { display: none; margin-top: 20px; }
+.tailor-results.visible { display: block; }
+
+.tailor-output-panel {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.tailor-output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.tailor-output-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+.tailor-output-actions {
+  display: flex;
+  gap: 8px;
+}
+.tailor-output-body {
+  padding: 20px;
+  max-height: 600px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  color: #d4d4d8;
+}
+
+/* Diff view */
+.diff-toggle-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 10px;
+  padding: 4px;
+}
+.diff-toggle-btn {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  font-family: 'Cairo', 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.diff-toggle-btn.active {
+  background: rgba(59,130,246,0.15);
+  color: #3b82f6;
+}
+.diff-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media(max-width:768px) { .diff-panels { grid-template-columns: 1fr; } }
+.diff-panel {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.diff-panel-header {
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.diff-panel-header.original { background: rgba(239,68,68,0.08); color: #fca5a5; }
+.diff-panel-header.tailored { background: rgba(34,197,94,0.08); color: #4ade80; }
+.diff-panel-body {
+  padding: 14px;
+  font-size: 12px;
+  line-height: 1.7;
+  max-height: 400px;
+  overflow-y: auto;
+  color: #d4d4d8;
+  white-space: pre-wrap;
+}
+
+/* Changes summary cards */
+.changes-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.change-card {
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.12);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.change-card .change-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #60a5fa;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.change-card .change-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: uppercase;
+  
+}
+
+/* Keyword tags */
+.keywords-section { margin-bottom: 20px; }
+.keywords-section h4 {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  
+  margin-bottom: 8px;
+}
+.kw-added {
+  display: inline-block;
+  padding: 4px 10px;
+  margin: 3px 4px 3px 0;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  background: rgba(34,197,94,0.12);
+  color: #4ade80;
+}
+.kw-removed {
+  display: inline-block;
+  padding: 4px 10px;
+  margin: 3px 4px 3px 0;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  background: rgba(239,68,68,0.12);
+  color: #fca5a5;
+}
+
+/* Loading */
+.tailor-loading {
+  display: none;
+  text-align: center;
+  padding: 40px;
+}
+.tailor-loading.visible { display: block; }
+.tailor-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255,255,255,0.08);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.tailor-error {
+  display: none;
+  padding: 14px 18px;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 10px;
+  color: #fca5a5;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* Generated metadata */
+.tailor-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 10px;
+}
+.tailor-meta-item {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.tailor-meta-item strong { color: #d4d4d8; }
+</style>
+
+<style>
+        body {
+          font-family: 'Cairo', 'Georgia', 'Times New Roman', serif;
+          font-size: 12px;
+          line-height: 1.6;
+          color: #1a1a1a;
+          max-width: 800px;
+          margin: 40px auto;
+          padding: 20px;
+        }
+        pre {
+          font-family: 'Cairo', 'Georgia', serif;
+          white-space: pre-wrap;
+          font-size: 12px;
+          line-height: 1.6;
+          margin: 0;
+        }
+        @media print {
+          body { margin: 0; padding: 20px; }
+        }
+      </style>
+
+<h1>🤖 تخصيص السيرة الذاتية بالذكاء الاصطناعي</h1>
+<p class="subtitle">قم بلصق سيرتك الذاتية الأساسية والوصف الوظيفي — سيقوم الذكاء الاصطناعي بتخصيص سيرتك الذاتية لتطابق الوظيفة بشكل مثالي.</p>
+
+<div class="tailor-container">
+  <!-- Left: Base Resume -->
+  <div class="tailor-panel">
+    <h3>📄 سيرتك الذاتية الأساسية</h3>
+    <div class="file-drop" id="resume-drop" onclick="document.getElementById('tailor-resume').focus()">
+      📎 أسقط ملف سيرتك الذاتية هنا أو انقر للصق النص أدناه
+    </div>
+    <textarea dir="auto" id="tailor-resume" placeholder="الصق نص سيرتك الذاتية بالكامل هنا...
+
+SAM SALAMEH
+Senior Network Engineer | CCNA, Fortinet NSE, MikroTik MTCNA
+samsalameh.cv@gmail.com | +961 70 841 1009
+
+PROFESSIONAL SUMMARY
+15+ years as a Network Engineer specializing in enterprise network design..."></textarea>
+  </div>
+
+  <!-- Right: Job Description -->
+  <div class="tailor-panel">
+    <h3>🎯 الوصف الوظيفي المستهدف</h3>
+    <textarea dir="auto" id="tailor-job" placeholder="الصق الوصف الوظيفي الذي تريد التخصيص له...
+
+Network Engineer — Beirut, Lebanon
+
+Requirements:
+• 5+ years Cisco/Juniper experience
+• CCNP or equivalent
+• Strong BGP, OSPF, MPLS knowledge
+• Fortinet firewall experience
+..."></textarea>
+    <input dir="auto" type="text" id="tailor-job-title" placeholder="المسمى الوظيفي (اختياري، يساعد في سياق الذكاء الاصطناعي)"
+      style="margin-top:10px;width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e2e8f0;font-size:13px;font-family: 'Cairo', 'Inter',sans-serif;">
+  </div>
+</div>
+
+<!-- Premium toggle -->
+<div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#94a3b8;">
+    <input dir="auto" type="checkbox" id="tailor-premium" style="accent-color:#f59e0b;">
+    <span>✨ <strong style="color:#fbbf24;">الوضع المميز</strong> — تخصيص متقدم مع إنشاء رسالة تغطية</span>
+  </label>
+</div>
+
+<!-- Actions -->
+<div class="tailor-actions">
+  <button class="btn btn-ai" onclick="tailorResume()" id="btn-tailor" style="font-size:16px;padding:13px 28px;">
+    🤖 تخصيص سيرتي الذاتية
+  </button>
+  <span style="color:#64748b;font-size:12px;">⚡ تخصيص مدعوم بالذكاء الاصطناعي — يستغرق حوالي 10 ثوانٍ</span>
+</div>
+
+<!-- Error -->
+<div class="tailor-error" id="tailor-error"></div>
+
+<!-- Loading -->
+<div class="tailor-loading" id="tailor-loading">
+  <div class="tailor-spinner"></div>
+  <div style="color:#94a3b8;font-size:14px;">يقوم الذكاء الاصطناعي بتخصيص سيرتك الذاتية... مطابقة الكلمات المفتاحية، تحسين النقاط...</div>
+</div>
+
+<!-- Results -->
+<div class="tailor-results" id="tailor-results">
+  <!-- Changes summary -->
+  <div class="changes-cards" id="changes-cards"></div>
+
+  <!-- Added/Removed keywords -->
+  <div class="keywords-section" id="keywords-section" style="display:none;">
+    <h4>🔑 الكلمات المفتاحية المضافة</h4>
+    <div id="kw-added-list"></div>
+    <h4 style="margin-top:12px;">🗑️ تمت إعادة صياغتها / إزالتها</h4>
+    <div id="kw-removed-list"></div>
+  </div>
+
+  <!-- Diff toggle -->
+  <div class="diff-toggle-bar">
+    <button class="diff-toggle-btn active" onclick="switchView('tailored')" id="toggle-tailored">📝 السيرة الذاتية المخصصة</button>
+    <button class="diff-toggle-btn" onclick="switchView('diff')" id="toggle-diff">🔄 مقارنة جنباً إلى جنب</button>
+  </div>
+
+  <!-- Side-by-side diff -->
+  <div class="diff-panels" id="diff-panels" style="display:none;">
+    <div class="diff-panel">
+      <div class="diff-panel-header original">📄 السيرة الذاتية الأصلية</div>
+      <div class="diff-panel-body" id="diff-original"></div>
+    </div>
+    <div class="diff-panel">
+      <div class="diff-panel-header tailored">✨ السيرة الذاتية المخصصة</div>
+      <div class="diff-panel-body" id="diff-tailored"></div>
+    </div>
+  </div>
+
+  <!-- Full tailored output -->
+  <div class="tailor-output-panel" id="tailored-panel">
+    <div class="tailor-output-header">
+      <h3>✨ سيرتك الذاتية المخصصة</h3>
+      <div class="tailor-output-actions">
+        <button class="btn btn-outline btn-sm" onclick="copyToClipboard()">📋 نسخ</button>
+        <button class="btn btn-primary btn-sm" onclick="downloadAsPDF()">📥 تحميل بصيغة PDF</button>
+      </div>
+    </div>
+    <div class="tailor-output-body" id="tailored-output"></div>
+  </div>
+
+  <!-- Meta info -->
+  <div class="tailor-meta" id="tailor-meta" style="margin-top:16px;"></div>
+</div>
+
+<script>
+let tailoredText = '';
+let originalText = '';
+
+function showError(msg) {
+  const el = document.getElementById('tailor-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+function setLoading(loading) {
+  document.getElementById('tailor-loading').classList.toggle('visible', loading);
+  document.getElementById('btn-tailor').disabled = loading;
+}
+
+async function tailorResume() {
+  const resume = document.getElementById('tailor-resume').value.trim();
+  const jobDesc = document.getElementById('tailor-job').value.trim();
+  const jobTitle = document.getElementById('tailor-job-title').value.trim();
+  const premium = document.getElementById('tailor-premium').checked;
+
+  if (!resume || !jobDesc) {
+    showError('Please paste both your base resume and the target job description.');
+    return;
+  }
+  if (resume.length < 100 || jobDesc.length < 100) {
+    showError('Both resume and job description should be at least 100 characters for meaningful tailoring.');
+    return;
+  }
+
+  setLoading(true);
+  document.getElementById('tailor-results').classList.remove('visible');
+  document.getElementById('tailor-error').style.display = 'none';
+  originalText = resume;
+
+  try {
+    const resp = await fetch('/api/v1/resume-tailor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        resume: resume,
+        job_description: jobDesc,
+        job_title: jobTitle,
+        premium: premium
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.error || err.detail || `HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    displayResults(data);
+  } catch (e) {
+    showError('Tailoring failed: ' + e.message + '. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+}
+
+function displayResults(data) {
+  tailoredText = data.tailored_resume || '';
+  if (!tailoredText) {
+    showError('AI could not generate a tailored resume. Try again with more detailed input.');
+    return;
+  }
+
+  document.getElementById('tailor-results').classList.add('visible');
+
+  // Changes summary cards
+  const keywordsAdded = data.keywords_added || 0;
+  const matchScore = data.match_score || 0;
+  const bulletPoints = data.bullet_points_optimized || 0;
+  const wordDiff = (tailoredText.split(/\s+/).length - originalText.split(/\s+/).length) || 0;
+
+  document.getElementById('changes-cards').innerHTML = `
+    <div class="change-card">
+      <div class="change-value">${matchScore}%</div>
+      <div class="change-label">درجة مطابقة ATS</div>
+    </div>
+    <div class="change-card">
+      <div class="change-value">+${keywordsAdded}</div>
+      <div class="change-label">الكلمات المفتاحية المضافة</div>
+    </div>
+    <div class="change-card">
+      <div class="change-value">${bulletPoints}</div>
+      <div class="change-label">النقاط المحسنة</div>
+    </div>
+    <div class="change-card">
+      <div class="change-value">${wordDiff >= 0 ? '+' + wordDiff : wordDiff}</div>
+      <div class="change-label">تغيير عدد الكلمات</div>
+    </div>
+  `;
+
+  // Keywords added/removed
+  const kwSection = document.getElementById('keywords-section');
+  if (data.added_keywords && data.added_keywords.length > 0) {
+    kwSection.style.display = 'block';
+    document.getElementById('kw-added-list').innerHTML =
+      data.added_keywords.map(k => `<span class="kw-added">+ ${escapeHtml(k)}</span>`).join(' ');
+  } else {
+    kwSection.style.display = 'none';
+  }
+
+  if (data.removed_keywords && data.removed_keywords.length > 0) {
+    kwSection.style.display = 'block';
+    document.getElementById('kw-removed-list').innerHTML =
+      data.removed_keywords.map(k => `<span class="kw-removed">− ${escapeHtml(k)}</span>`).join(' ');
+  }
+
+  // Full output
+  document.getElementById('tailored-output').textContent = tailoredText;
+
+  // Diff panels
+  document.getElementById('diff-original').textContent = originalText;
+  document.getElementById('diff-tailored').textContent = tailoredText;
+
+  // Meta
+  const model = data.model || 'llama-3.1-8b-instant';
+  document.getElementById('tailor-meta').innerHTML = `
+    <span class="tailor-meta-item">🤖 النموذج: <strong>${escapeHtml(model)}</strong></span>
+    <span class="tailor-meta-item">📊 التطابق: <strong>${matchScore}%</strong></span>
+    <span class="tailor-meta-item">📝 الوظيفة: <strong>${escapeHtml(data.job_title || 'مخصص')}</strong></span>
+  `;
+
+  // Reset to tailored view
+  switchView('tailored');
+
+  // Scroll to results
+  document.getElementById('tailor-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function switchView(view) {
+  const diffPanels = document.getElementById('diff-panels');
+  const tailoredPanel = document.getElementById('tailored-panel');
+  const toggleT = document.getElementById('toggle-tailored');
+  const toggleD = document.getElementById('toggle-diff');
+
+  if (view === 'tailored') {
+    tailoredPanel.style.display = '';
+    diffPanels.style.display = 'none';
+    toggleT.classList.add('active');
+    toggleD.classList.remove('active');
+  } else {
+    tailoredPanel.style.display = 'none';
+    diffPanels.style.display = 'grid';
+    toggleT.classList.remove('active');
+    toggleD.classList.add('active');
+  }
+}
+
+function copyToClipboard() {
+  navigator.clipboard.writeText(tailoredText).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✅ Copied!';
+    btn.style.background = '#10b981';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.background = '';
+    }, 2000);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = tailoredText;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showError('Copied to clipboard! (fallback method)');
+  });
+}
+
+function downloadAsPDF() {
+  if (!tailoredText) {
+    showError('No tailored resume to download. Tailor first!');
+    return;
+  }
+
+  // Create a print-friendly version
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+
+    <pre>${escapeHtml(tailoredText)}</pre>
+      <script>
+        window.onload = function() {
+          window.print();
+          setTimeout(() => window.close(), 1000);
+        };
+      </script>
+  `);
+  printWindow.document.close();
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Keyboard shortcut
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    tailorResume();
+  }
+});
+
+// File drag & drop for resume textarea
+const dropZone = document.getElementById('resume-drop');
+const textarea = document.getElementById('tailor-resume');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md'))) {
+    const reader = new FileReader();
+    reader.onload = ev => { textarea.value = ev.target.result; };
+    reader.readAsText(file);
+  } else if (file) {
+    showError('Please drop a .txt or .md file, or paste text directly.');
+  }
+});
+</script>
+</div>

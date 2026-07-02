@@ -15,15 +15,20 @@ logger = logging.getLogger(__name__)
 
 # Resolved relative to project root
 from pathlib import Path
+
 try:
     import config
+
     db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
 except ImportError:
     db_name = "jobhunt_saas_v2.db"
 DB_PATH = str(Path(__file__).resolve().parent.parent / db_name)
 OUTPUT_DIR = "newsletters"
-SPONSOR_TEXT = "🔥 **SPONSORED BY CLOUDFLARE**: Fast, secure edge networks. Start for free today!"
+SPONSOR_TEXT = (
+    "🔥 **SPONSORED BY CLOUDFLARE**: Fast, secure edge networks. Start for free today!"
+)
 SPONSOR_LINK = "https://cloudflare.com/affiliate"
+
 
 def get_top_jobs_today(limit: int = 10) -> List[Dict[str, Any]]:
     """Retrieve the top daily jobs from the database, falling back to mock data if empty."""
@@ -33,26 +38,45 @@ def get_top_jobs_today(limit: int = 10) -> List[Dict[str, Any]]:
             conn = sqlite3.connect(DB_PATH)
             conn.row_factory = sqlite3.Row
             cur = conn.cursor()
-            cur.execute("SELECT title, company, location, url FROM jobs ORDER BY id DESC LIMIT ?", (limit,))
+            cur.execute(
+                "SELECT title, company, location, url FROM jobs ORDER BY id DESC LIMIT ?",
+                (limit,),
+            )
             jobs = [dict(row) for row in cur.fetchall()]
             conn.close()
         except Exception as e:
             logger.error(f"DB Error: {e}", exc_info=True)
-            
+
     if not jobs:
         # Mock data
         jobs = [
-            {"title": "Senior AI Engineer", "company": "OpenAI", "location": "Remote", "url": "#"},
-            {"title": "Lead Python Dev", "company": "Stripe", "location": "Remote", "url": "#"},
-            {"title": "Cloud Architect", "company": "AWS", "location": "Remote", "url": "#"}
+            {
+                "title": "Senior AI Engineer",
+                "company": "OpenAI",
+                "location": "Remote",
+                "url": "#",
+            },
+            {
+                "title": "Lead Python Dev",
+                "company": "Stripe",
+                "location": "Remote",
+                "url": "#",
+            },
+            {
+                "title": "Cloud Architect",
+                "company": "AWS",
+                "location": "Remote",
+                "url": "#",
+            },
         ]
     return jobs
+
 
 def generate_newsletter_html() -> str:
     """Generate daily premium newsletter curated with top remote jobs, saving it to a local HTML file."""
     jobs = get_top_jobs_today(10)
     date_str = datetime.datetime.now().strftime("%B %d, %Y")
-    
+
     html = f"""
     <!DOCTYPE html>
     <html>
@@ -84,16 +108,16 @@ def generate_newsletter_html() -> str:
             
             <p>Good morning! Here are the top hand-picked remote opportunities for today. These are fresh and actively hiring.</p>
     """
-    
+
     for job in jobs:
         html += f"""
             <div class="job">
-                <h3 class="job-title">{job.get('title')}</h3>
-                <p class="job-company">{job.get('company')} • {job.get('location')}</p>
-                <a href="{job.get('url')}" class="apply-btn">Apply Now</a>
+                <h3 class="job-title">{job.get("title")}</h3>
+                <p class="job-company">{job.get("company")} • {job.get("location")}</p>
+                <a href="{job.get("url")}" class="apply-btn">Apply Now</a>
             </div>
         """
-        
+
     html += """
             <div class="footer">
                 You are receiving this because you subscribed via JobHunt Pro.<br>
@@ -103,17 +127,22 @@ def generate_newsletter_html() -> str:
     </body>
     </html>
     """
-    
+
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
-        
-    filename = os.path.join(OUTPUT_DIR, f"newsletter_{datetime.datetime.now().strftime('%Y%m%d')}.html")
+
+    filename = os.path.join(
+        OUTPUT_DIR, f"newsletter_{datetime.datetime.now().strftime('%Y%m%d')}.html"
+    )
     with open(filename, "w", encoding="utf-8") as f:
         f.write(html)
-        
+
     logger.info(f"Newsletter generated successfully: {filename}")
     return filename
 
+
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
+    )
     generate_newsletter_html()

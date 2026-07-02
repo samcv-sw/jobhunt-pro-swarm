@@ -12,10 +12,7 @@ Max 3 follow-ups per email (1 original + 2 follow-ups).
 Cycle: Day 3 (soft check) → Day 7 (value-add) → Day 14 (final push).
 """
 
-import asyncio
-import json
 import logging
-import os
 import hashlib
 import random
 from datetime import datetime, timedelta, timezone
@@ -35,7 +32,11 @@ MAX_FOLLOWUPS = 2  # max 2 follow-ups after the original email
 FOLLOWUP_PRICING = {
     "starter": {"price": 4.99, "max_followups": 50, "name": "Follow-Up Starter"},
     "pro": {"price": 19.99, "max_followups": 200, "name": "Follow-Up Pro"},
-    "enterprise": {"price": 49.99, "max_followups": 500, "name": "Follow-Up Enterprise"},
+    "enterprise": {
+        "price": 49.99,
+        "max_followups": 500,
+        "name": "Follow-Up Enterprise",
+    },
 }
 
 # AI follow-up tone templates by stage
@@ -57,7 +58,11 @@ _AI_CACHE: Dict[str, str] = {}
 _GROQ_MODELS = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "qwen/qwen3-32b"]
 
 FOLLOWUP_SERVICE_ID = "follow-up-automation-starter"
-FOLLOWUP_PACKAGE_IDS = ["follow-up-automation-starter", "follow-up-automation-pro", "follow-up-automation-enterprise"]
+FOLLOWUP_PACKAGE_IDS = [
+    "follow-up-automation-starter",
+    "follow-up-automation-pro",
+    "follow-up-automation-enterprise",
+]
 
 
 class FollowUpAutomation:
@@ -71,10 +76,10 @@ class FollowUpAutomation:
 
     def check_and_followup(self, campaign_id: str) -> Dict:
         """Check a campaign for emails needing follow-ups and send them.
-        
+
         Args:
             campaign_id: The campaign ID to check.
-        
+
         Returns:
             {"status": "ok", "sent": N, "skipped": N, "failed": N, "message": "..."}
         """
@@ -84,27 +89,37 @@ class FollowUpAutomation:
                 conn = self.get_db()
             else:
                 from web.app_v2 import get_db as _get_db
+
                 conn = _get_db()
 
-            campaign = dict(conn.execute(
-                "SELECT * FROM campaigns WHERE campaign_id = ?", (campaign_id,)
-            ).fetchone())
+            campaign = dict(
+                conn.execute(
+                    "SELECT * FROM campaigns WHERE campaign_id = ?", (campaign_id,)
+                ).fetchone()
+            )
 
             if not campaign:
-                return {"status": "error", "message": f"Campaign {campaign_id} not found"}
+                return {
+                    "status": "error",
+                    "message": f"Campaign {campaign_id} not found",
+                }
 
             user_id = campaign.get("user_id", "admin")
 
             # Verify the user has purchased follow-up-automation
             has_access = self._check_user_access(conn, user_id)
             if not has_access:
-                return {"status": "error", "message": "Follow-up automation not purchased. Unlock on /services page."}
+                return {
+                    "status": "error",
+                    "message": "Follow-up automation not purchased. Unlock on /services page.",
+                }
 
             # Get eligible emails (sent 3+ days ago, no response/open, < MAX_FOLLOWUPS)
             now = datetime.now(timezone.utc).replace(tzinfo=None)
             cutoff = (now - timedelta(days=3)).isoformat()
 
-            emails = conn.execute("""
+            emails = conn.execute(
+                """
                 SELECT ce.*, c.user_id 
                 FROM campaign_emails ce
                 JOIN campaigns c ON ce.campaign_id = c.campaign_id
@@ -115,7 +130,9 @@ class FollowUpAutomation:
                   AND ce.responded_at IS NULL
                   AND COALESCE(ce.followup_count, 0) < ?
                 ORDER BY ce.sent_at ASC
-            """, (campaign_id, cutoff, MAX_FOLLOWUPS)).fetchall()
+            """,
+                (campaign_id, cutoff, MAX_FOLLOWUPS),
+            ).fetchall()
 
             if not emails:
                 return {
@@ -123,7 +140,7 @@ class FollowUpAutomation:
                     "sent": 0,
                     "skipped": 0,
                     "failed": 0,
-                    "message": "No emails eligible for follow-up (need 3+ days since sent, no open/response, < 2 follow-ups)."
+                    "message": "No emails eligible for follow-up (need 3+ days since sent, no open/response, < 2 follow-ups).",
                 }
 
             sent_count = 0
@@ -141,14 +158,19 @@ class FollowUpAutomation:
                 # Check per-campaign follow-up quota
                 user_tier = self._get_user_tier(conn, user_id)
                 current_followups = self._get_campaign_followup_count(conn, campaign_id)
-                max_allowed = FOLLOWUP_PRICING.get(user_tier, FOLLOWUP_PRICING["starter"])["max_followups"]
+                max_allowed = FOLLOWUP_PRICING.get(
+                    user_tier, FOLLOWUP_PRICING["starter"]
+                )["max_followups"]
                 if current_followups >= max_allowed:
                     return {
                         "status": "ok",
                         "sent": sent_count,
-                        "skipped": skipped_count + len(emails) - sent_count - skipped_count,
+                        "skipped": skipped_count
+                        + len(emails)
+                        - sent_count
+                        - skipped_count,
                         "failed": failed_count,
-                        "message": f"Follow-up quota reached ({max_allowed} for {user_tier} tier). Upgrade for more."
+                        "message": f"Follow-up quota reached ({max_allowed} for {user_tier} tier). Upgrade for more.",
                     }
 
                 company = email_record.get("company_name", "the company")
@@ -157,7 +179,9 @@ class FollowUpAutomation:
                 days_since = 0
                 if email_record.get("sent_at"):
                     try:
-                        sent_dt = datetime.fromisoformat(email_record["sent_at"].replace("Z", "+00:00")).replace(tzinfo=None)
+                        sent_dt = datetime.fromisoformat(
+                            email_record["sent_at"].replace("Z", "+00:00")
+                        ).replace(tzinfo=None)
                         days_since = (now - sent_dt).days
                     except Exception:
                         days_since = 3
@@ -190,28 +214,36 @@ class FollowUpAutomation:
                     # Update followup_count
                     conn.execute(
                         "UPDATE campaign_emails SET followup_count = ? WHERE id = ?",
-                        (followup_num, email_record["id"])
+                        (followup_num, email_record["id"]),
                     )
                     # Log in email_campaign_log
-                    conn.execute("""
+                    conn.execute(
+                        """
                         INSERT INTO email_campaign_log (campaign_type, user_id, to_email, subject, status)
                         VALUES (?, ?, ?, ?, 'sent')
-                    """, (
-                        "followup",
-                        user_id,
-                        to_email,
-                        f"Follow-up #{followup_num}: {title} at {company}"
-                    ))
+                    """,
+                        (
+                            "followup",
+                            user_id,
+                            to_email,
+                            f"Follow-up #{followup_num}: {title} at {company}",
+                        ),
+                    )
                     conn.commit()
                     sent_count += 1
-                    logger.info(f"[FollowUp] Sent #{followup_num} to {company} ({to_email}) — campaign {campaign_id}")
+                    logger.info(
+                        f"[FollowUp] Sent #{followup_num} to {company} ({to_email}) — campaign {campaign_id}"
+                    )
                 else:
                     failed_count += 1
-                    logger.warning(f"[FollowUp] Failed #{followup_num} to {company}: {result}")
+                    logger.warning(
+                        f"[FollowUp] Failed #{followup_num} to {company}: {result}"
+                    )
 
                 # Pacing: 45-90s between follow-ups
                 delay = random.uniform(45, 90)
                 import time as _t
+
                 _t.sleep(delay)
 
             conn.commit()
@@ -220,7 +252,7 @@ class FollowUpAutomation:
                 "sent": sent_count,
                 "skipped": skipped_count,
                 "failed": failed_count,
-                "message": f"Follow-up cycle complete. Sent: {sent_count}, Skipped: {skipped_count}, Failed: {failed_count}"
+                "message": f"Follow-up cycle complete. Sent: {sent_count}, Skipped: {skipped_count}, Failed: {failed_count}",
             }
 
         except Exception as e:
@@ -248,20 +280,28 @@ class FollowUpAutomation:
                 conn = self.get_db()
             else:
                 from web.app_v2 import get_db as _get_db
+
                 conn = _get_db()
 
             now = datetime.now(timezone.utc).replace(tzinfo=None)
             cutoff = (now - timedelta(days=3)).isoformat()
 
             # Find active campaigns (running or completed)
-            campaigns = conn.execute("""
+            campaigns = conn.execute(
+                """
                 SELECT DISTINCT c.campaign_id, c.user_id
                 FROM campaigns c
                 WHERE c.status IN ('running', 'completed')
                   AND c.created_at <= ?
-            """, (cutoff,)).fetchall()
+            """,
+                (cutoff,),
+            ).fetchall()
 
-            results = {"campaigns_checked": 0, "campaigns_processed": 0, "total_sent": 0}
+            results = {
+                "campaigns_checked": 0,
+                "campaigns_processed": 0,
+                "total_sent": 0,
+            }
             for crow in campaigns:
                 cid = crow["campaign_id"]
                 results["campaigns_checked"] += 1
@@ -290,30 +330,31 @@ class FollowUpAutomation:
                 conn = self.get_db()
             else:
                 from web.app_v2 import get_db as _get_db
+
                 conn = _get_db()
 
             # Total emails in campaign
             total = conn.execute(
                 "SELECT COUNT(*) FROM campaign_emails WHERE campaign_id = ?",
-                (campaign_id,)
+                (campaign_id,),
             ).fetchone()[0]
 
             # Emails with follow-ups sent
             with_followups = conn.execute(
                 "SELECT COUNT(*) FROM campaign_emails WHERE campaign_id = ? AND followup_count > 0",
-                (campaign_id,)
+                (campaign_id,),
             ).fetchone()[0]
 
             # Total follow-ups sent
             total_followups = conn.execute(
                 "SELECT COALESCE(SUM(followup_count), 0) FROM campaign_emails WHERE campaign_id = ?",
-                (campaign_id,)
+                (campaign_id,),
             ).fetchone()[0]
 
             # Follow-up responses (emails that got response after follow-up)
             responded_after_followup = conn.execute(
                 "SELECT COUNT(*) FROM campaign_emails WHERE campaign_id = ? AND followup_count > 0 AND responded_at IS NOT NULL",
-                (campaign_id,)
+                (campaign_id,),
             ).fetchone()[0]
 
             # Average follow-ups per email
@@ -327,7 +368,11 @@ class FollowUpAutomation:
                 "total_followups_sent": total_followups,
                 "responses_after_followup": responded_after_followup,
                 "avg_followups_per_email": avg_followups,
-                "followup_response_rate": round(responded_after_followup / with_followups * 100, 1) if with_followups > 0 else 0,
+                "followup_response_rate": round(
+                    responded_after_followup / with_followups * 100, 1
+                )
+                if with_followups > 0
+                else 0,
             }
 
         except Exception as e:
@@ -348,17 +393,21 @@ class FollowUpAutomation:
                 conn = self.get_db()
             else:
                 from web.app_v2 import get_db as _get_db
+
                 conn = _get_db()
 
             placeholders = ",".join("?" * len(FOLLOWUP_PACKAGE_IDS))
-            rows = conn.execute(f"""
+            rows = conn.execute(
+                f"""
                 SELECT DISTINCT c.campaign_id 
                 FROM campaigns c
                 JOIN purchased_services ps ON c.user_id = ps.user_id
                 WHERE ps.package_id IN ({placeholders})
                   AND ps.status = 'active'
                   AND c.status IN ('running', 'completed')
-            """, (*FOLLOWUP_PACKAGE_IDS,)).fetchall()
+            """,
+                (*FOLLOWUP_PACKAGE_IDS,),
+            ).fetchall()
 
             return [r["campaign_id"] for r in rows]
 
@@ -380,7 +429,7 @@ class FollowUpAutomation:
             placeholders = ",".join("?" * len(FOLLOWUP_PACKAGE_IDS))
             row = conn.execute(
                 f"SELECT 1 FROM purchased_services WHERE user_id = ? AND package_id IN ({placeholders}) AND status = 'active'",
-                (user_id, *FOLLOWUP_PACKAGE_IDS)
+                (user_id, *FOLLOWUP_PACKAGE_IDS),
             ).fetchone()
             return row is not None
         except Exception:
@@ -392,7 +441,7 @@ class FollowUpAutomation:
             placeholders = ",".join("?" * len(FOLLOWUP_PACKAGE_IDS))
             row = conn.execute(
                 f"SELECT package_id, price_paid FROM purchased_services WHERE user_id = ? AND package_id IN ({placeholders}) AND status = 'active' ORDER BY price_paid DESC LIMIT 1",
-                (user_id, *FOLLOWUP_PACKAGE_IDS)
+                (user_id, *FOLLOWUP_PACKAGE_IDS),
             ).fetchone()
             if row:
                 pid = row[0]
@@ -411,7 +460,7 @@ class FollowUpAutomation:
         try:
             row = conn.execute(
                 "SELECT COALESCE(SUM(followup_count), 0) FROM campaign_emails WHERE campaign_id = ?",
-                (campaign_id,)
+                (campaign_id,),
             ).fetchone()
             return row[0] if row else 0
         except Exception:
@@ -442,9 +491,13 @@ Context:
 - Return ONLY the HTML body paragraphs, nothing else."""
 
         # Check semantic cache
-        cache_key = hashlib.md5(f"{company}|{title}|{followup_number}|{days_since}".encode()).hexdigest()
+        cache_key = hashlib.md5(
+            f"{company}|{title}|{followup_number}|{days_since}".encode()
+        ).hexdigest()
         if cache_key in _AI_CACHE:
-            logger.info(f"[FollowUp AI] Cache hit for {company} follow-up #{followup_number}")
+            logger.info(
+                f"[FollowUp AI] Cache hit for {company} follow-up #{followup_number}"
+            )
             return _AI_CACHE[cache_key]
 
         # Try Groq AI
@@ -454,7 +507,9 @@ Context:
             return ai_body
 
         # Fallback to template
-        return self._get_template_body(company, title, followup_number, days_since, user_name)
+        return self._get_template_body(
+            company, title, followup_number, days_since, user_name
+        )
 
     def _call_groq(self, prompt: str) -> Optional[str]:
         """Call Groq API to generate follow-up text."""
@@ -486,12 +541,16 @@ Context:
                     elif resp.status_code == 429:
                         error_text = resp.text.lower()
                         if "tokens per day" in error_text or "tpd" in error_text:
-                            logger.warning(f"[FollowUp AI] Groq {model} TPD limit exhausted")
+                            logger.warning(
+                                f"[FollowUp AI] Groq {model} TPD limit exhausted"
+                            )
                             continue
                         logger.warning(f"[FollowUp AI] Groq rate limited on {model}")
                         continue
                     else:
-                        logger.warning(f"[FollowUp AI] Groq {model} error: {resp.status_code}")
+                        logger.warning(
+                            f"[FollowUp AI] Groq {model} error: {resp.status_code}"
+                        )
                         continue
             except Exception as e:
                 logger.warning(f"[FollowUp AI] Groq {model} failed: {e}")
@@ -570,13 +629,13 @@ Context:
                 msg["References"] = original_msg_id
 
             import asyncio as _asyncio
-            
+
             async def send_it():
                 provider = await engine.scheduler.wait_for_send_slot()
                 if not provider:
                     return False, "no_providers"
                 return await engine.send_with_retry(provider, msg, max_retries=2)
-                
+
             success, provider = _asyncio.run(send_it())
 
             if success:
@@ -593,6 +652,7 @@ followup_automation = FollowUpAutomation()
 
 
 # ── Pricing Integration ────────────────────────────────────────────────────
+
 
 def get_followup_pricing() -> List[Dict]:
     """Return follow-up automation pricing tiers for the services page."""
@@ -636,10 +696,16 @@ def get_user_followup_quota(conn, user_id: str) -> Dict:
         placeholders = ",".join("?" * len(FOLLOWUP_PACKAGE_IDS))
         row = conn.execute(
             f"SELECT package_id, price_paid FROM purchased_services WHERE user_id = ? AND package_id IN ({placeholders}) AND status = 'active' ORDER BY price_paid DESC LIMIT 1",
-            (user_id, *FOLLOWUP_PACKAGE_IDS)
+            (user_id, *FOLLOWUP_PACKAGE_IDS),
         ).fetchone()
         if not row:
-            return {"has_access": False, "tier": None, "max_followups": 0, "used": 0, "remaining": 0}
+            return {
+                "has_access": False,
+                "tier": None,
+                "max_followups": 0,
+                "used": 0,
+                "remaining": 0,
+            }
 
         pid = row[0]
         if "enterprise" in pid:
@@ -655,7 +721,7 @@ def get_user_followup_quota(conn, user_id: str) -> Dict:
         # Count total follow-ups used across all campaigns
         used_row = conn.execute(
             "SELECT COALESCE(SUM(ce.followup_count), 0) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ?",
-            (user_id,)
+            (user_id,),
         ).fetchone()
         used = used_row[0] if used_row else 0
 
@@ -668,4 +734,10 @@ def get_user_followup_quota(conn, user_id: str) -> Dict:
         }
     except Exception as e:
         logger.error(f"[FollowUp] get_user_followup_quota error: {e}")
-        return {"has_access": False, "tier": None, "max_followups": 0, "used": 0, "remaining": 0}
+        return {
+            "has_access": False,
+            "tier": None,
+            "max_followups": 0,
+            "used": 0,
+            "remaining": 0,
+        }

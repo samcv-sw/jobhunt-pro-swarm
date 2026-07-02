@@ -45,17 +45,17 @@
 
 <div class="stats-hero">
   <div>
-    <h1>&#x1F4CA; تحليلات التقديم</h1>
+    <h1>📊 تحليلات التقديم</h1>
     <p class="subtitle">نظرة عامة على بحثك عن عمل، {{ user_name }}</p>
   </div>
-  <div class="stats-date">&#x1F4C5; {{ today }}</div>
+  <div class="stats-date">📅 {{ today }}</div>
 </div>
 
 <div class="stat-grid">
   <div class="stat-card">
     <div class="stat-value" style="color:#3b82f6">{{ sent_today }}</div>
     <div class="stat-label">أُرسلت اليوم</div>
-    <div class="stat-sub">&#x26A1; في الوقت الفعلي</div>
+    <div class="stat-sub">⚡ في الوقت الفعلي</div>
   </div>
   <div class="stat-card">
     <div class="stat-value" style="color:#fb923c">{{ sent_week }}</div>
@@ -79,7 +79,7 @@
 
 <div class="panels-row">
   <div class="panel">
-    <h3>&#x1F4CA; نظرة عامة على المسار</h3>
+    <h3>📊 نظرة عامة على المسار</h3>
     {% if pipeline %}
     {% for stage in pipeline %}
     <div class="pipeline-bar">
@@ -91,12 +91,12 @@
     </div>
     {% endfor %}
     {% else %}
-    <div class="empty-state"><div class="empty-icon">&#x1F4E6;</div>لا توجد بيانات مسار حتى الآن. ابدأ حملة!</div>
+    <div class="empty-state"><div class="empty-icon">📦</div>لا توجد بيانات مسار حتى الآن. ابدأ حملة!</div>
     {% endif %}
   </div>
 
   <div class="panel">
-    <h3>&#x1F4EC; أداء البريد الإلكتروني</h3>
+    <h3>📬 أداء البريد الإلكتروني</h3>
     {% if sent_emails > 0 %}
     <div class="perf-bar">
       <div class="perf-bar-label">مُرسل</div>
@@ -114,13 +114,13 @@
       <div class="perf-bar-value">{{ responded }} ({{ response_rate }}%)</div>
     </div>
     {% else %}
-    <div class="empty-state"><div class="empty-icon">&#x2709;&#xFE0F;</div>لم يتم إرسال أي رسائل بريد إلكتروني حتى الآن</div>
+    <div class="empty-state"><div class="empty-icon">✉️</div>لم يتم إرسال أي رسائل بريد إلكتروني حتى الآن</div>
     {% endif %}
   </div>
 </div>
 
 <div class="panel">
-  <h3>&#x1F4CB; تفاصيل الحالة</h3>
+  <h3>📋 تفاصيل الحالة</h3>
   {% if statuses %}
   <div class="status-grid">
     {% for s in statuses %}
@@ -131,6 +131,6 @@
     {% endfor %}
   </div>
   {% else %}
-  <div class="empty-state"><div class="empty-icon">&#x1F4AD;</div>لا توجد بيانات حتى الآن</div>
+  <div class="empty-state"><div class="empty-icon">💭</div>لا توجد بيانات حتى الآن</div>
   {% endif %}
 </div>

@@ -1,0 +1,812 @@
+{% set wallet_balance = user.wallet_balance if user else 0 %}
+{% set toast_msg = error or success or "" %}
+{% set toast_type = "error" if error else ("success" if success else "") %}
+
+<style>
+.offers-page { width: 100%; }
+.offers-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+.offers-title-wrapper h1 { font-size: 32px; font-weight: 800; background: linear-gradient(90deg, #f1f5f9, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px;  }
+.offers-title-wrapper p { font-size: 14px; color: var(--text-dim); }
+
+.wallet-badge { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.1)); border: 1px solid rgba(59, 130, 246, 0.25); padding: 10px 18px; border-radius: 14px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1); }
+.wallet-badge span { font-size: 11px; color: var(--text-dim); text-transform: uppercase;  font-weight: 600; }
+.wallet-badge strong { color: #22c55e; font-size: 18px; font-weight: 800;  text-shadow: 0 0 10px rgba(34, 197, 148, 0.2); }
+
+/* Admin Dashboard Panel with Gradient Border Glow */
+.admin-card { background: linear-gradient(135deg, rgba(15, 10, 28, 0.95), rgba(10, 8, 20, 0.95)); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: 18px; padding: 28px; margin-bottom: 36px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255,255,255,0.05); position: relative; }
+.admin-card::before { content: ''; position: absolute; top: -1px; inset-inline-start: -1px; inset-inline-end: -1px; bottom: -1px; border-radius: 18px; background: linear-gradient(135deg, #f43f5e, #8b5cf6); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: 0.35; }
+.admin-card h2 { font-size: 20px; font-weight: 800; color: #f1f5f9; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.admin-card .sub { font-size: 13px; color: var(--text-dim); margin-bottom: 24px; }
+
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+@media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+.form-grid form { display: contents; }
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-group.full-width { grid-column: 1 / -1; }
+.form-group label { font-size: 11px; color: var(--text-dim); text-transform: uppercase;  font-weight: 700; }
+.form-control { width: 100%; padding: 12px 16px; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: var(--text); font-size: 14px; outline: none; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+.form-control:focus { border-color: #3b82f6; background: rgba(0, 0, 0, 0.7); box-shadow: 0 0 12px rgba(59, 130, 246, 0.25), inset 0 2px 4px rgba(0,0,0,0.3); }
+
+.img-preview-box { display: flex; align-items: center; gap: 14px; margin-top: 8px; }
+.img-preview { width: 72px !important; height: 72px !important; flex-shrink: 0; max-width: 72px; max-height: 72px; border-radius: 12px; border: 1.5px solid rgba(59, 130, 246, 0.4); background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--text-muted); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: all 0.2s ease; }
+.img-preview img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block; border-radius: 10px; }
+
+.btn-cyber { padding: 12px 28px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); display: inline-flex; align-items: center; gap: 8px; text-decoration: none; justify-content: center; text-transform: uppercase;  }
+.btn-cyber.primary { background: linear-gradient(135deg, #f43f5e, #ec4899); color: #fff; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.35); position: relative; overflow: hidden; }
+.btn-cyber.primary:hover { filter: brightness(1.1); transform: translateY(-1.5px); box-shadow: 0 6px 20px rgba(244, 63, 94, 0.5); }
+.btn-cyber.primary:active { transform: translateY(0); }
+.btn-cyber.secondary { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text); }
+.btn-cyber.secondary:hover { background: rgba(255, 255, 255, 0.09); border-color: rgba(255, 255, 255, 0.15); transform: translateY(-1px); }
+
+/* Offers Grid */
+.offers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 28px; margin-bottom: 48px; }
+.offer-card { background: linear-gradient(180deg, rgba(17, 17, 30, 0.7) 0%, rgba(13, 13, 23, 0.9) 100%); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); }
+.offer-card:hover { border-color: rgba(244, 63, 94, 0.35); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(244, 63, 94, 0.15), 0 2px 4px rgba(0, 0, 0, 0.2); }
+
+.offer-img-container { height: 180px; width: 100%; background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(139, 92, 246, 0.1)); position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+.offer-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.offer-card:hover .offer-img { transform: scale(1.05); }
+.offer-img-fallback { font-size: 72px; filter: drop-shadow(0 0 12px rgba(255,255,255,0.08)); }
+
+.price-tag { position: absolute; bottom: 16px; inset-inline-end: 16px; background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(244, 63, 94, 0.3); color: #f43f5e; padding: 6px 14px; border-radius: 12px; font-weight: 800; font-size: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 10; display: flex; align-items: center; gap: 4px; }
+
+/* Pulsing Savings Badge */
+@keyframes pulseGlow {
+    0% { transform: scale(1); box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
+    50% { transform: scale(1.03); box-shadow: 0 0 16px rgba(34, 197, 94, 0.6); }
+    100% { transform: scale(1); box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
+}
+.savings-badge { position: absolute; top: 16px; inset-inline-start: 16px; background: #22c55e; color: #052e16; padding: 5px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; text-transform: uppercase;  z-index: 10; animation: pulseGlow 2.5s infinite ease-in-out; }
+
+.offer-body { padding: 24px; display: flex; flex-direction: column; flex: 1; }
+.offer-title { font-size: 20px; font-weight: 800; color: #f8fafc; margin-bottom: 10px;  }
+.offer-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; margin-bottom: 20px; flex: 1; }
+
+.offer-note { background: rgba(59, 130, 246, 0.03); border-inline-start: 3px solid #3b82f6; padding: 10px 14px; border-radius: 0 10px 10px 0; margin-bottom: 24px; font-size: 12.5px; color: #94a3b8; font-style: italic; line-height: 1.5; border-top: 1px solid rgba(59, 130, 246, 0.05); border-bottom: 1px solid rgba(59, 130, 246, 0.05); }
+
+.offer-footer { display: flex; flex-direction: column; align-items: stretch; margin-top: auto; gap: 8px; width: 100%; }
+
+/* Purchases Table */
+.purchases-section { margin-top: 48px; }
+.purchase-table-container { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+.purchase-table { width: 100%; border-collapse: collapse; }
+.purchase-table th { text-align: start; font-size: 11px; text-transform: uppercase; color: var(--text-muted); padding: 14px; border-bottom: 1px solid var(--border);  font-weight: 700; }
+.purchase-table td { padding: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.02); font-size: 13.5px; color: var(--text-dim); }
+.purchase-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+.reqs-cell { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; color: var(--blue); text-decoration: underline; font-weight: 500; }
+
+/* Toast Notifications */
+.toast-msg { padding: 14px 20px; border-radius: 14px; font-size: 13.5px; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+.toast-msg.error { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; }
+.toast-msg.success { background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.2); color: #4ade80; }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Purchase Modal */
+.modal-overlay { display: none; position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); z-index: 100000; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); align-items: center; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal-card { background: rgba(13, 13, 23, 0.98); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 32px; max-width: 540px; width: 92%; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 20px 50px rgba(0,0,0,0.6); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; min-height: 0; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+.modal-card h3 { font-size: 20px; font-weight: 800; color: #f8fafc; margin-bottom: 8px;  }
+.modal-card p { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; }
+.modal-card form { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
+.modal-form-body { flex: 1; overflow-y: auto; padding-inline-end: 8px; margin-bottom: 20px; min-height: 0; }
+.modal-form-body::-webkit-scrollbar { width: 6px; }
+.modal-form-body::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 3px; }
+.modal-form-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 3px; }
+.modal-form-body::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.22); }
+@media (max-height: 700px), (max-width: 576px) {
+    .modal-card { padding: 20px; border-radius: 16px; }
+    .modal-form-body { margin-bottom: 15px; }
+}
+</style>
+
+{% if toast_msg %}
+<div class="toast-msg {{ toast_type }}">
+  {% if toast_type == 'success' %}✅{% else %}⚠️{% endif %}
+  {{ toast_msg }}
+</div>
+{% endif %}
+
+<div class="offers-page">
+    <div class="offers-header">
+        <div class="offers-title-wrapper">
+            <h1>🔥 عروض خاصة</h1>
+            <p>باقات عروض حصرية وطلبات حملات احترافية مخصصة.</p>
+        </div>
+        {% if user %}
+        <div class="wallet-badge">
+            <span>محفظتي</span>
+            <strong>${{ "%.2f"|format(wallet_balance|float) }}</strong>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Admin Panel: Add Offer Form -->
+    {% if is_admin %}
+    <div class="admin-card">
+        <h2>🛠️ لوحة تحكم العروض الخاصة</h2>
+        <p class="sub">أضف عروضاً جديدة أو أدر القوائم النشطة.</p>
+        
+        <form method="POST" action="/api/v2/offers/add" id="addOfferForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="offerTitle">عنوان العرض</label>
+                    <input dir="auto" class="form-control" type="text" name="title" id="offerTitle" placeholder="e.g. Executive CV Makeover + 100 Companies" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="offerPrice">السعر المخفض (USD)</label>
+                    <input dir="auto" class="form-control" type="number" name="price" id="offerPrice" placeholder="e.g. 19.99" step="0.01" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="offerOriginalPrice">السعر الأصلي (USD) &mdash; اختياري</label>
+                    <input dir="auto" class="form-control" type="number" name="original_price" id="offerOriginalPrice" placeholder="e.g. 49.99" step="0.01" min="0">
+                </div>
+                <div class="form-group full-width">
+                    <label for="offerDesc">الوصف</label>
+                    <textarea dir="auto" class="form-control" name="description" id="offerDesc" rows="3" placeholder="Explain what is included in this offer in detail..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="offerImage">صورة العرض</label>
+                    <input dir="auto" class="form-control" type="text" name="image_url" id="offerImage" placeholder="Paste image link URL or upload below..." autocomplete="off">
+                    <div class="img-preview-box">
+                        <input dir="auto" type="file" id="imageFileUploader" accept="image/*" style="display: none;" onchange="convertImageToBase64(this)">
+                        <button type="button" class="btn-cyber secondary" style="padding: 6px 12px; font-size: 11px;" onclick="document.getElementById('imageFileUploader').click()">📤 رفع ملف</button>
+                        <div class="img-preview" id="imagePreview">🖼️</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="offerDeliveryType">طريقة التسليم</label>
+                    <select class="form-control" name="delivery_type" id="offerDeliveryType" onchange="toggleFulfillmentFields(this, 'add')" required>
+                        <option value="manual" selected>معالجة يدوية من المشرف</option>
+                        <option value="instant_pool">تجمع مفاتيح محملة مسبقاً (فوري)</option>
+                        <option value="instant_api">تكامل API مع موزع (فوري)</option>
+                    </select>
+                </div>
+                <div class="form-group full-width api-fields-add" style="display: none; grid-column: 1 / -1; gap: 20px; grid-template-columns: 1fr 1fr;">
+                    <div class="form-group" style="grid-column: span 1;">
+                        <label for="offerApiUrl">رابط API الموزع</label>
+                        <input dir="auto" class="form-control" type="url" name="reseller_api_url" id="offerApiUrl" placeholder="https://api.provider.com/v1/generate">
+                    </div>
+                    <div class="form-group" style="grid-column: span 1;">
+                        <label for="offerApiKey">مفتاح / توكن API الموزع</label>
+                        <input dir="auto" class="form-control" type="text" name="reseller_api_key" id="offerApiKey" placeholder="API Secret Key Token" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="offerNote">ملاحظة هامة (إرشادات/قيود)</label>
+                    <textarea dir="auto" class="form-control" name="note" id="offerNote" rows="2" placeholder="e.g. Note: Delivery takes 48 hours and requires your current CV."></textarea>
+                </div>
+                <div class="form-group full-width" style="margin-top: 8px;">
+                    <button type="submit" class="btn-cyber primary">➕ نشر العرض الخاص</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="admin-card" style="border-color: rgba(59, 130, 246, 0.2); margin-bottom: 36px;">
+        <h2>🔑 مخزون المفاتيح المحملة مسبقاً</h2>
+        <p class="sub">استيراد رموز تسلسلية أو روابط أو حسابات لعروض التسليم الفوري.</p>
+        
+        <form method="POST" action="/api/v2/offers/import-keys">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="importOfferSelect">اختر باقة العرض الخاص</label>
+                    <select class="form-control" name="offer_id" id="importOfferSelect" required>
+                        <option value="" disabled selected>-- اختر عرضاً --</option>
+                        {% for offer in offers %}
+                            <option value="{{ offer.offer_id }}">{{ offer.title }} (Fulfillment: {{ offer.delivery_type }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label for="importKeysText">قائمة مفاتيح/حسابات الاشتراك (كل واحد في سطر)</label>
+                    <textarea dir="auto" class="form-control" name="keys" id="importKeysText" rows="4" placeholder="Paste your keys, account credentials, or links here.&#10;One item per line.&#10;e.g. USER:PASS-IPTV-123&#10;e.g. https://vpn.com/claim?code=abc" required></textarea>
+                </div>
+                <div class="form-group full-width" style="margin-top: 8px;">
+                    <button type="submit" class="btn-cyber primary" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);">📥 استيراد المفاتيح إلى المخزون</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Offers Listings -->
+    {% if offers %}
+    <div class="offers-grid">
+        {% for offer in offers %}
+        <div class="offer-card">
+            <div class="offer-img-container">
+                {% if offer.original_price|float > offer.price|float %}
+                {% set savings_pct = (((offer.original_price|float - offer.price|float) / offer.original_price|float) * 100)|int %}
+                <span class="savings-badge">
+                    🔥 وفر {{ savings_pct }}%
+                </span>
+                {% endif %}
+                
+                <span class="price-tag">
+                    {% if offer.original_price|float > offer.price|float %}
+                    <span style="text-decoration: line-through; font-size: 12px; color: #94a3b8; margin-inline-end: 6px; font-weight: 500;">
+                        ${{ "%.2f"|format(offer.original_price|float) }}
+                    </span>
+                    {% endif %}
+                    ${{ "%.2f"|format(offer.price|float) }}
+                </span>
+                
+                {% if offer.image_url %}
+                <img class="offer-img" src="{{ offer.image_url }}" alt="{{ offer.title }}" loading="lazy">
+                {% else %}
+                <span class="offer-img-fallback">💎</span>
+                {% endif %}
+            </div>
+            
+            <div class="offer-body">
+                <h3 class="offer-title">{{ offer.title }}</h3>
+                <p class="offer-desc">{{ offer.description }}</p>
+                
+                {% if offer.delivery_type == 'instant_pool' %}
+                    {% if offer.keys_in_stock and offer.keys_in_stock|int > 0 %}
+                        <div class="stock-badge in-stock" style="color: #60a5fa; font-size: 11px; font-weight: 800; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(59, 130, 246, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(59, 130, 246, 0.2); text-transform: uppercase; ">
+                            ⚡ تسليم فوري (متبقي {{ offer.keys_in_stock }})
+                        </div>
+                    {% else %}
+                        <div class="stock-badge out-of-stock" style="color: #fbbf24; font-size: 11px; font-weight: 800; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(245, 158, 11, 0.2); text-transform: uppercase; ">
+                            ⏳ تسليم يدوي (جاري إعادة التعبئة)
+                        </div>
+                    {% endif %}
+                {% elif offer.delivery_type == 'instant_api' %}
+                    <div class="stock-badge in-stock" style="color: #a78bfa; font-size: 11px; font-weight: 800; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(139, 92, 246, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(139, 92, 246, 0.2); text-transform: uppercase; ">
+                        ⚡ تفعيل فوري عبر API
+                    </div>
+                {% else %}
+                    <div class="stock-badge manual" style="color: #94a3b8; font-size: 11px; font-weight: 800; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.03); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.08); text-transform: uppercase; ">
+                        ⏳ معالجة يدوية (24-48 ساعة)
+                    </div>
+                {% endif %}
+                
+                {% if offer.original_price|float > offer.price|float %}
+                {% set savings_usd = offer.original_price|float - offer.price|float %}
+                <div class="savings-amount" style="color: #4ade80; font-size: 13px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; background: rgba(34, 197, 94, 0.06); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.15); width: fit-content;">
+                    🏷️ وفر ${{ "%.2f"|format(savings_usd) }} فوراً!
+                </div>
+                {% endif %}
+                
+                {% if offer.note %}
+                <div class="offer-note">
+                    <strong>💡 إرشادات:</strong> {{ offer.note }}
+                </div>
+                {% endif %}
+                
+                <div class="offer-footer">
+                    {% if user %}
+                    <button class="btn-cyber primary" style="width: 100%; justify-content: center;" onclick="openPurchaseModal('{{ offer.offer_id }}', '{{ offer.title }}', '{{ offer.price }}')">⚡ اشترِ الآن</button>
+                    {% else %}
+                    <a href="/login" class="btn-cyber primary" style="width: 100%; justify-content: center;">🔑 سجل الدخول للشراء</a>
+                    {% endif %}
+                    
+                    {% if is_admin %}
+                    <div class="admin-actions-row" style="display: flex; gap: 8px; width: 100%;">
+                        <button type="button" class="btn-cyber secondary" style="flex: 1; color: #f59e0b; border-color: rgba(245,158,11,0.2); background: rgba(245,158,11,0.05); padding: 10px 14px; font-size: 12px; justify-content: center;" title="Edit Offer" onclick="openEditModal(this)"
+                                data-id="{{ offer.offer_id }}"
+                                data-title="{{ offer.title|escape }}"
+                                data-price="{{ offer.price }}"
+                                data-original-price="{{ offer.original_price }}"
+                                data-desc="{{ offer.description|escape }}"
+                                data-image="{{ offer.image_url|escape }}"
+                                data-note="{{ offer.note|escape }}"
+                                data-delivery-type="{{ offer.delivery_type }}"
+                                data-reseller-api-url="{{ offer.reseller_api_url|escape if offer.reseller_api_url else '' }}"
+                                data-reseller-api-key="{{ offer.reseller_api_key|escape if offer.reseller_api_key else '' }}">✏️ تعديل</button>
+                        <form method="POST" action="/api/v2/offers/delete/{{ offer.offer_id }}" style="flex: 1; margin: 0; display: flex;" onsubmit="return confirm('Are you sure you want to delete this offer?');">
+                            <button type="submit" class="btn-cyber secondary" style="width: 100%; color: #ef4444; border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05); padding: 10px 14px; font-size: 12px; justify-content: center;" title="Delete Offer">🗑️ حذف</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 60px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 40px;">
+        <span style="font-size: 48px;">📦</span>
+        <h3 style="font-size: 18px; margin-top: 12px; color: var(--text-dim);">لا توجد عروض خاصة مدرجة حالياً</h3>
+        <p style="font-size: 13px; color: var(--text-muted); max-width: 400px; margin: 6px auto 0;">يرجى التحقق لاحقاً أو التواصل مع الدعم لطلب باقة مخصصة.</p>
+    </div>
+    {% endif %}
+
+    <!-- Admin Panel: Recent Purchases Table -->
+    {% if is_admin %}
+    <div class="purchases-section">
+        <h3 class="section-title">📊 مبيعات العروض الخاصة الأخيرة</h3>
+        {% if purchases %}
+        <div class="purchase-table-container">
+            <table class="purchase-table">
+                <thead>
+                    <tr>
+                        <th>العرض</th>
+                        <th>العميل</th>
+                        <th>السعر المدفوع</th>
+                        <th>التاريخ</th>
+                        <th>المتطلبات</th>
+                        <th>التسليم</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in purchases %}
+                    <tr>
+                        <td style="font-weight: 600; color: #e2e8f0;">{{ p.offer_title }}</td>
+                        <td style="color: #60a5fa;">{{ p.user_email }}</td>
+                        <td style="color: var(--green); font-weight: bold;">${{ "%.2f"|format(p.price_paid|float) }}</td>
+                        <td style="color: var(--text-muted); font-size: 12px;">{{ p.created_at[:16] }}</td>
+                        <td class="reqs-cell" onclick="alert('User Requirements:\n\n' + {{ p.user_requirements|tojson }})">
+                            {{ p.user_requirements }}
+                        </td>
+                        <td style="font-size: 12.5px;">
+                            {% if p.fulfillment_status == 'fulfilled' %}
+                                <span style="color: #4ade80; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;" title="Credentials: {{ p.delivered_credentials|escape }}">✅ تم التسليم</span>
+                            {% else %}
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                    {% if p.fulfillment_status == 'failed' %}
+                                        <span style="color: #f87171; font-weight: 700; font-size: 11px;">⚠️ فشل ({{ p.fulfillment_error[:25] if p.fulfillment_error else 'خطأ في API/المخزون' }})</span>
+                                    {% else %}
+                                        <span style="color: #fbbf24; font-weight: 700; font-size: 11px;">⏳ قيد الانتظار</span>
+                                    {% endif %}
+                                    <button type="button" class="btn-cyber secondary" style="padding: 4px 8px; font-size: 11px; color: #60a5fa; border-color: rgba(59,130,246,0.2); background: rgba(59,130,246,0.05); cursor: pointer; justify-content: center; width: fit-content;" onclick="openFulfillModal('{{ p.purchase_id }}', '{{ p.offer_title|escape }}', '{{ p.user_email|escape }}')">🔑 تسليم يدوي</button>
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 30px; background: rgba(255,255,255,0.01); border: 1px dashed var(--border); border-radius: 12px; color: var(--text-muted);">
+            لم تتم معالجة أي مبيعات بعد.
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Admin Panel: Key Inventory Pool Management -->
+    <div class="purchases-section" style="margin-top: 36px;">
+        <h3 class="section-title">🔑 مخزون المفاتيح النشط</h3>
+        {% if inventory_keys %}
+        <div class="purchase-table-container">
+            <table class="purchase-table">
+                <thead>
+                    <tr>
+                        <th>محتوى المفتاح / بيانات الدخول</th>
+                        <th>باقة العرض الخاص</th>
+                        <th>حالة الاستخدام</th>
+                        <th>تاريخ الاستيراد</th>
+                        <th>إجراء</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for k in inventory_keys %}
+                    <tr>
+                        <td style="font-family: 'Cairo', monospace; font-size: 12.5px; color: #e2e8f0; word-break: break-all;">{{ k.key_content }}</td>
+                        <td style="font-weight: 600; color: #94a3b8;">{{ k.offer_title }}</td>
+                        <td>
+                            {% if k.is_used == 1 %}
+                                <span class="status-badge" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--text-muted); font-size: 10px;" title="Used at: {{ k.used_at }}">مُستخدم بواسطة {{ k.user_email }}</span>
+                            {% else %}
+                                <span class="status-badge fulfilled" style="background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.15); color: #4ade80; font-size: 10px;">متاح</span>
+                            {% endif %}
+                        </td>
+                        <td style="color: var(--text-muted); font-size: 11.5px;">{{ k.created_at[:16] }}</td>
+                        <td>
+                            {% if k.is_used == 0 %}
+                            <form method="POST" action="/api/v2/offers/delete-key/{{ k.key_id }}" style="margin: 0; display: inline;" onsubmit="return confirm('Are you sure you want to delete this key?');">
+                                <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; padding: 0;" title="Delete Key">🗑️ حذف</button>
+                            </form>
+                            {% else %}
+                                <span style="color: var(--text-muted); font-size: 12px; font-style: italic;">مقفول</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 30px; background: rgba(255,255,255,0.01); border: 1px dashed var(--border); border-radius: 12px; color: var(--text-muted);">
+            لا توجد مفاتيح محملة مسبقاً في المخزون. اختر عرضاً بالأعلى لاستيراد بيانات الدخول.
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Purchase Modal Overlay -->
+<div class="modal-overlay" id="purchaseModalOverlay" onclick="closePurchaseModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <h3 id="modalOfferTitle">🛒 تأكيد الشراء</h3>
+        <p id="modalOfferPrice" style="color: var(--green); font-size: 15px; font-weight: 800; margin-bottom: 12px;">السعر: $0.00</p>
+        
+        <form id="purchaseForm" method="POST" action="">
+            <div class="modal-form-body">
+                <div class="form-group">
+                    <label for="modalReqs">أخبرنا بما تحتاجه / متطلباتك:</label>
+                    <textarea dir="auto" class="form-control" name="requirements" id="modalReqs" rows="5" placeholder="Specify your preferences, target industries, links, email text guidelines, or details of what you need..." required></textarea>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn-cyber secondary" onclick="closePurchaseModal()">إلغاء</button>
+                <button type="submit" class="btn-cyber primary">⚡ تأكيد ودفع</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Modal Overlay (only for admin) -->
+{% if is_admin %}
+<div class="modal-overlay" id="editModalOverlay" onclick="closeEditModal()">
+    <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 600px;">
+        <h3>✏️ تعديل العرض الخاص</h3>
+        <p style="font-size:12px; color: var(--text-dim); margin-bottom: 20px;">تعديل تفاصيل قائمة هذا العرض الخاص.</p>
+        
+        <form id="editOfferForm" method="POST" action="">
+            <div class="modal-form-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="editOfferTitle">عنوان العرض</label>
+                        <input dir="auto" class="form-control" type="text" name="title" id="editOfferTitle" placeholder="e.g. Executive CV Makeover + 100 Companies" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="editOfferPrice">السعر المخفض (USD)</label>
+                        <input dir="auto" class="form-control" type="number" name="price" id="editOfferPrice" placeholder="e.g. 19.99" step="0.01" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editOfferOriginalPrice">السعر الأصلي (USD) &mdash; اختياري</label>
+                        <input dir="auto" class="form-control" type="number" name="original_price" id="editOfferOriginalPrice" placeholder="e.g. 49.99" step="0.01" min="0">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="editOfferDesc">الوصف</label>
+                        <textarea dir="auto" class="form-control" name="description" id="editOfferDesc" rows="3" placeholder="Explain what is included in this offer in detail..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editOfferImage">صورة العرض</label>
+                        <input dir="auto" class="form-control" type="text" name="image_url" id="editOfferImage" placeholder="Paste image link URL or upload below..." autocomplete="off">
+                        <div class="img-preview-box">
+                            <input dir="auto" type="file" id="editImageFileUploader" accept="image/*" style="display: none;" onchange="convertEditImageToBase64(this)">
+                            <button type="button" class="btn-cyber secondary" style="padding: 6px 12px; font-size: 11px;" onclick="document.getElementById('editImageFileUploader').click()">📤 رفع ملف</button>
+                            <div class="img-preview" id="editImagePreview">🖼️</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editOfferDeliveryType">طريقة التسليم</label>
+                        <select class="form-control" name="delivery_type" id="editOfferDeliveryType" onchange="toggleFulfillmentFields(this, 'edit')" required>
+                            <option value="manual">معالجة يدوية من المشرف</option>
+                            <option value="instant_pool">تجمع مفاتيح محملة مسبقاً (فوري)</option>
+                            <option value="instant_api">تكامل API مع موزع (فوري)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width api-fields-edit" style="display: none; grid-column: 1 / -1; gap: 20px; grid-template-columns: 1fr 1fr;">
+                        <div class="form-group" style="grid-column: span 1;">
+                            <label for="editOfferApiUrl">رابط API الموزع</label>
+                            <input dir="auto" class="form-control" type="url" name="reseller_api_url" id="editOfferApiUrl" placeholder="https://api.provider.com/v1/generate">
+                        </div>
+                        <div class="form-group" style="grid-column: span 1;">
+                            <label for="editOfferApiKey">مفتاح / توكن API الموزع</label>
+                            <input dir="auto" class="form-control" type="text" name="reseller_api_key" id="editOfferApiKey" placeholder="API Secret Key Token" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editOfferNote">ملاحظة هامة (إرشادات/قيود)</label>
+                        <textarea dir="auto" class="form-control" name="note" id="editOfferNote" rows="2" placeholder="e.g. Note: Delivery takes 48 hours."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <!-- Delete button on the left, Cancel/Save on the right -->
+                <button type="button" class="btn-cyber secondary" style="color: #ef4444; border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05);" onclick="deleteOfferFromModal()">🗑️ حذف العرض</button>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn-cyber secondary" onclick="closeEditModal()">إلغاء</button>
+                    <button type="submit" class="btn-cyber primary">💾 حفظ التغييرات</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<script>
+let currentEditOfferId = null;
+
+// Smart client-side image resizing and compression helper
+function resizeAndCompressImage(file, callback) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const targetWidth = 600;
+            const targetHeight = 400;
+            const canvas = document.createElement('canvas');
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            const ctx = canvas.getContext('2d');
+            
+            const imgRatio = img.width / img.height;
+            const targetRatio = targetWidth / targetHeight;
+            
+            // Check if the image ratio is standard landscape (around 3:2 to 16:9).
+            // If it's a vertical screenshot or extremely wide, do Smart Fit with Blurred Ambient Background.
+            // This preserves the full screenshot/image details beautifully.
+            const isStandardLandscape = (imgRatio >= 1.25 && imgRatio <= 1.75);
+            
+            if (isStandardLandscape) {
+                // Perform clean center cover crop
+                let sx, sy, sw, sh;
+                if (imgRatio > targetRatio) {
+                    sh = img.height;
+                    sw = sh * targetRatio;
+                    sx = (img.width - sw) / 2;
+                    sy = 0;
+                } else {
+                    sw = img.width;
+                    sh = sw / targetRatio;
+                    sx = 0;
+                    sy = (img.height - sh) / 2;
+                }
+                ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetWidth, targetHeight);
+            } else {
+                // SMART FIT WITH AMBIENT BLURRED BACKGROUND (Perfect for screenshots & vertical logos)
+                
+                // 1. Draw blurred, darkened background using the source image (cover mode)
+                ctx.save();
+                let bgWidth, bgHeight, bgX, bgY;
+                if (imgRatio > targetRatio) {
+                    bgHeight = targetHeight;
+                    bgWidth = bgHeight * imgRatio;
+                    bgX = (targetWidth - bgWidth) / 2;
+                    bgY = 0;
+                } else {
+                    bgWidth = targetWidth;
+                    bgHeight = bgWidth / imgRatio;
+                    bgX = 0;
+                    bgY = (targetHeight - bgHeight) / 2;
+                }
+                ctx.drawImage(img, bgX, bgY, bgWidth, bgHeight);
+                
+                // Apply canvas blur filters if supported
+                if (typeof ctx.filter !== 'undefined') {
+                    ctx.filter = 'blur(22px) brightness(0.35)';
+                    ctx.drawImage(canvas, 0, 0);
+                    ctx.filter = 'none';
+                } else {
+                    ctx.fillStyle = 'rgba(10, 10, 20, 0.88)';
+                    ctx.fillRect(0, 0, targetWidth, targetHeight);
+                }
+                ctx.restore();
+                
+                // 2. Draw a dark overlay to guarantee high contrast
+                ctx.fillStyle = 'rgba(10, 10, 18, 0.45)';
+                ctx.fillRect(0, 0, targetWidth, targetHeight);
+                
+                // 3. Dynamic Safe Zone Scale based on aspect ratio
+                // Very vertical images (screenshots) need larger top/bottom safety margins
+                let safeZoneRatio = 0.85;
+                if (imgRatio < 0.7) {
+                    safeZoneRatio = 0.72; // Extra vertical safety margin to absorb card cropping
+                } else if (imgRatio < 1.0) {
+                    safeZoneRatio = 0.80;
+                }
+                
+                const safeWidth = targetWidth * safeZoneRatio;
+                const safeHeight = targetHeight * safeZoneRatio;
+                
+                let fgWidth, fgHeight, fgX, fgY;
+                if (imgRatio > (safeWidth / safeHeight)) {
+                    fgWidth = safeWidth;
+                    fgHeight = fgWidth / imgRatio;
+                    fgX = (targetWidth - fgWidth) / 2;
+                    fgY = (targetHeight - fgHeight) / 2;
+                } else {
+                    fgHeight = safeHeight;
+                    fgWidth = fgHeight * imgRatio;
+                    fgX = (targetWidth - fgWidth) / 2;
+                    fgY = (targetHeight - fgHeight) / 2;
+                }
+                
+                // 4. Draw drop shadow around the rounded rect first
+                ctx.save();
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+                ctx.shadowBlur = 25;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 8;
+                ctx.fillStyle = '#000000';
+                
+                const radius = 10;
+                ctx.beginPath();
+                ctx.moveTo(fgX + radius, fgY);
+                ctx.lineTo(fgX + fgWidth - radius, fgY);
+                ctx.quadraticCurveTo(fgX + fgWidth, fgY, fgX + fgWidth, fgY + radius);
+                ctx.lineTo(fgX + fgWidth, fgY + fgHeight - radius);
+                ctx.quadraticCurveTo(fgX + fgWidth, fgY + fgHeight, fgX + fgWidth - radius, fgY + fgHeight);
+                ctx.lineTo(fgX + radius, fgY + fgHeight);
+                ctx.quadraticCurveTo(fgX, fgY + fgHeight, fgX, fgY + fgHeight - radius);
+                ctx.lineTo(fgX, fgY + radius);
+                ctx.quadraticCurveTo(fgX, fgY, fgX + radius, fgY);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+                
+                // 5. Clip and draw the foreground image inside the rounded card frame
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(fgX + radius, fgY);
+                ctx.lineTo(fgX + fgWidth - radius, fgY);
+                ctx.quadraticCurveTo(fgX + fgWidth, fgY, fgX + fgWidth, fgY + radius);
+                ctx.lineTo(fgX + fgWidth, fgY + fgHeight - radius);
+                ctx.quadraticCurveTo(fgX + fgWidth, fgY + fgHeight, fgX + fgWidth - radius, fgY + fgHeight);
+                ctx.lineTo(fgX + radius, fgY + fgHeight);
+                ctx.quadraticCurveTo(fgX, fgY + fgHeight, fgX, fgY + fgHeight - radius);
+                ctx.lineTo(fgX, fgY + radius);
+                ctx.quadraticCurveTo(fgX, fgY, fgX + radius, fgY);
+                ctx.closePath();
+                ctx.clip();
+                ctx.drawImage(img, fgX, fgY, fgWidth, fgHeight);
+                ctx.restore();
+            }
+            
+            // Compress to JPEG with 80% quality
+            const base64Data = canvas.toDataURL('image/jpeg', 0.8);
+            callback(base64Data);
+        };
+        img.src = e.target.result;
+    };
+    reader.onerror = function(err) {
+        console.error('File reading failed:', err);
+    };
+    reader.readAsDataURL(file);
+}
+
+// Admin Image Upload Base64 conversion helper
+function convertImageToBase64(fileInput) {
+    const file = fileInput.files[0];
+    if (!file) return;
+    
+    resizeAndCompressImage(file, function(base64Data) {
+        document.getElementById('offerImage').value = base64Data;
+        const preview = document.getElementById('imagePreview');
+        preview.innerHTML = `<img src="${base64Data}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`;
+    });
+}
+
+// Edit Image Upload Base64 conversion helper
+function convertEditImageToBase64(fileInput) {
+    const file = fileInput.files[0];
+    if (!file) return;
+    
+    resizeAndCompressImage(file, function(base64Data) {
+        document.getElementById('editOfferImage').value = base64Data;
+        const preview = document.getElementById('editImagePreview');
+        preview.innerHTML = `<img src="${base64Data}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`;
+    });
+}
+
+// Purchase modal helper functions
+function openPurchaseModal(offerId, title, price) {
+    const overlay = document.getElementById('purchaseModalOverlay');
+    document.getElementById('modalOfferTitle').textContent = `🛒 Buy: ${title}`;
+    document.getElementById('modalOfferPrice').textContent = `Price: $${parseFloat(price).toFixed(2)}`;
+    document.getElementById('purchaseForm').action = `/api/v2/offers/buy/${offerId}`;
+    document.getElementById('modalReqs').value = ''; // Reset previous inputs
+    overlay.classList.add('show');
+}
+
+function closePurchaseModal() {
+    document.getElementById('purchaseModalOverlay').classList.remove('show');
+}
+
+// Toggle API inputs based on fulfillment selection
+function toggleFulfillmentFields(select, mode) {
+    const apiFields = document.querySelector(`.api-fields-${mode}`);
+    if (select.value === 'instant_api') {
+        apiFields.style.display = 'grid';
+        apiFields.querySelector('input[type="url"]').required = true;
+    } else {
+        apiFields.style.display = 'none';
+        apiFields.querySelector('input[type="url"]').required = false;
+    }
+}
+
+// Edit modal helper functions
+function openEditModal(btn) {
+    const id = btn.getAttribute('data-id');
+    currentEditOfferId = id; // Track global ID for deletion
+    const title = btn.getAttribute('data-title');
+    const price = btn.getAttribute('data-price');
+    const originalPrice = btn.getAttribute('data-original-price');
+    const desc = btn.getAttribute('data-desc');
+    const image = btn.getAttribute('data-image');
+    const note = btn.getAttribute('data-note');
+    const deliveryType = btn.getAttribute('data-delivery-type') || 'manual';
+    const apiUrl = btn.getAttribute('data-reseller-api-url') || '';
+    const apiKey = btn.getAttribute('data-reseller-api-key') || '';
+    
+    document.getElementById('editOfferTitle').value = title;
+    document.getElementById('editOfferPrice').value = price;
+    document.getElementById('editOfferOriginalPrice').value = originalPrice || '';
+    document.getElementById('editOfferDesc').value = desc;
+    document.getElementById('editOfferImage').value = image;
+    document.getElementById('editOfferNote').value = note;
+    
+    const deliverySelect = document.getElementById('editOfferDeliveryType');
+    deliverySelect.value = deliveryType;
+    toggleFulfillmentFields(deliverySelect, 'edit');
+    
+    document.getElementById('editOfferApiUrl').value = apiUrl;
+    document.getElementById('editOfferApiKey').value = apiKey;
+    
+    const preview = document.getElementById('editImagePreview');
+    if (image) {
+        preview.innerHTML = `<img src="${image}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`;
+    } else {
+        preview.innerHTML = '🖼️';
+    }
+    
+    document.getElementById('editOfferForm').action = `/api/v2/offers/edit/${id}`;
+    document.getElementById('editModalOverlay').classList.add('show');
+}
+
+function closeEditModal() {
+    document.getElementById('editModalOverlay').classList.remove('show');
+}
+
+function deleteOfferFromModal() {
+    if (!currentEditOfferId) return;
+    if (confirm('Are you sure you want to delete this offer?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/api/v2/offers/delete/${currentEditOfferId}`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Manual Fulfillment Modal Helpers
+function openFulfillModal(purchaseId, offerTitle, customerEmail) {
+    document.getElementById('fulfillOfferTitle').value = offerTitle;
+    document.getElementById('fulfillCustomerEmail').value = customerEmail;
+    document.getElementById('fulfillCredentials').value = '';
+    document.getElementById('fulfillForm').action = `/api/v2/offers/fulfill/${purchaseId}`;
+    document.getElementById('fulfillModalOverlay').classList.add('show');
+}
+
+function closeFulfillModal() {
+    document.getElementById('fulfillModalOverlay').classList.remove('show');
+}
+</script>
+
+<!-- Manual Fulfillment Modal Overlay (only for admin) -->
+{% if is_admin %}
+<div class="modal-overlay" id="fulfillModalOverlay" onclick="closeFulfillModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <h3>🔑 تسليم الطلب يدوياً</h3>
+        <p style="font-size:12px; color: var(--text-dim); margin-bottom: 20px;">أرسل بيانات الدخول أو مفاتيح الاشتراك مباشرةً إلى العميل.</p>
+        
+        <form id="fulfillForm" method="POST" action="">
+            <div class="modal-form-body">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>العميل</label>
+                    <input dir="auto" class="form-control" type="text" id="fulfillCustomerEmail" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);">
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>باقة العرض</label>
+                    <input dir="auto" class="form-control" type="text" id="fulfillOfferTitle" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);">
+                </div>
+                <div class="form-group">
+                    <label for="fulfillCredentials">بيانات الدخول المُسلَّمة / مفاتيح الاشتراك / رابط الوصول</label>
+                    <textarea dir="auto" class="form-control" name="credentials" id="fulfillCredentials" rows="4" placeholder="الصق بيانات دخول IPTV، مفتاح الترخيص، تفاصيل الحساب، أو التعليمات هنا..." required></textarea>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                <button type="button" class="btn-cyber secondary" onclick="closeFulfillModal()">إلغاء</button>
+                <button type="submit" class="btn-cyber primary" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);">✅ تسليم الطلب</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}

@@ -1,16 +1,16 @@
 ﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta name="description" content="JobHunt Pro: The world's most advanced AI-powered job application system. Fully automated, invisible, and hyper-efficient.">
-    <meta property="og:title" content="JobHunt Pro - Ultimate AI Auto-Applier">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ANTI-GRAVITY MODE — JobHunt Pro</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+<html dir="rtl" lang="ar">
+<head>
+<meta content="JobHunt Pro: The world's most advanced AI-powered job application system. Fully automated, invisible, and hyper-efficient." name="description"/>
+<meta content="JobHunt Pro - Ultimate AI Auto-Applier" property="og:title"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{{ _('ANTI-GRAVITY MODE — JobHunt Pro') }}</title>
+<script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
@@ -223,38 +223,31 @@ body {
 </style>
 </head>
 <body class="cyberpunk-body">
-
 <div id="loading">
- <div>INITIALIZING ANTI-GRAVITY FIELD</div>
- <div class="loading-bar"><div class="loading-fill"></div></div>
+<div>{{ _('INITIALIZING ANTI-GRAVITY FIELD') }}</div>
+<div class="loading-bar"><div class="loading-fill"></div></div>
 </div>
-
 <div id="three-canvas"></div>
-
 <div class="hud top-bar">
- <div class="logo">JOBHUNT PRO // ANTI-GRAVITY</div>
- <div class="anti-text" id="mode-title">ZERO G</div>
- <div style="width:200px"></div>
+<div class="logo">{{ _('JOBHUNT PRO // ANTI-GRAVITY') }}</div>
+<div class="anti-text" id="mode-title">{{ _('ZERO G') }}</div>
+<div style="width:200px"></div>
 </div>
-
 <div id="stats-display">
- <div class="stat-line">AGENTS: <span id="s-agents">20,000</span></div>
- <div class="stat-line">CYCLES: <span id="s-cycles">0</span></div>
- <div class="stat-line">FLOATING: <span id="s-floating">0</span></div>
- <div class="stat-line">G-FORCE: <span id="s-gforce">0.0G</span></div>
+<div class="stat-line">{{ _('AGENTS:') }} <span id="s-agents">20,000</span></div>
+<div class="stat-line">{{ _('CYCLES:') }} <span id="s-cycles">0</span></div>
+<div class="stat-line">{{ _('FLOATING:') }} <span id="s-floating">0</span></div>
+<div class="stat-line">{{ _('G-FORCE:') }} <span id="s-gforce">{{ _('0.0G') }}</span></div>
 </div>
-
-<div class="hint">CLICK TO LAUNCH // DRAG TO ROTATE // SCROLL TO ZOOM</div>
-
+<div class="hint">{{ _('CLICK TO LAUNCH // DRAG TO ROTATE // SCROLL TO ZOOM') }}</div>
 <div class="controls">
- <button class="ctrl-btn active" id="btn-antigravity" onclick="toggleGravity()">ANTI-GRAVITY</button>
- <button class="ctrl-btn" id="btn-gravity" onclick="toggleGravity()">GRAVITY</button>
- <button class="ctrl-btn" onclick="doBarrelRoll()">BARREL ROLL</button>
- <button class="ctrl-btn" onclick="spawnCard()">SPAWN CARD</button>
- <button class="ctrl-btn" onclick="spawnBurst()">PARTICLE BURST</button>
- <button class="ctrl-btn danger" onclick="resetScene()">RESET</button>
+<button class="ctrl-btn active" id="btn-antigravity" onclick="toggleGravity()">{{ _('ANTI-GRAVITY') }}</button>
+<button class="ctrl-btn" id="btn-gravity" onclick="toggleGravity()">{{ _('GRAVITY') }}</button>
+<button class="ctrl-btn" onclick="doBarrelRoll()">{{ _('BARREL ROLL') }}</button>
+<button class="ctrl-btn" onclick="spawnCard()">{{ _('SPAWN CARD') }}</button>
+<button class="ctrl-btn" onclick="spawnBurst()">{{ _('PARTICLE BURST') }}</button>
+<button class="ctrl-btn danger" onclick="resetScene()">{{ _('RESET') }}</button>
 </div>
-
 <script>
 // ====================================================================
 // WEB AUDIO API - FUTURISTIC SCI-FI SYNTHESIZER
@@ -968,4 +961,3 @@ console.log('Click cards to launch them into space!');
 </script>
 </body>
 </html>
-

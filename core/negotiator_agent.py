@@ -3,10 +3,11 @@ JobHunt Pro - Autonomous Salary Negotiator Agent
 Routes salary/offer emails to an AI-powered negotiation chain.
 Compares offers against user preferences and drafts professional counter-offers.
 """
+
 import logging
 import json
 import re
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 from datetime import datetime
 
 import httpx
@@ -33,9 +34,18 @@ SALARY_PATTERNS = [
 
 # Currency to USD conversion rates (approximate, should be updated via API)
 CURRENCY_RATES = {
-    "USD": 1.0, "EUR": 1.08, "GBP": 1.27, "AED": 0.27,
-    "SAR": 0.27, "KWD": 3.26, "QAR": 0.27, "BHD": 2.65,
-    "OMR": 2.60, "LBP": 0.00066, "CAD": 0.74, "AUD": 0.65,
+    "USD": 1.0,
+    "EUR": 1.08,
+    "GBP": 1.27,
+    "AED": 0.27,
+    "SAR": 0.27,
+    "KWD": 3.26,
+    "QAR": 0.27,
+    "BHD": 2.65,
+    "OMR": 2.60,
+    "LBP": 0.00066,
+    "CAD": 0.74,
+    "AUD": 0.65,
 }
 
 
@@ -112,20 +122,37 @@ def detect_email_type(text: str) -> str:
     text_lower = text.lower()
 
     offer_keywords = [
-        "we are pleased to offer", "job offer", "offer letter",
-        "congratulations", "we would like to extend", "formal offer",
-        "accepted your application", "position has been approved",
-        "delighted to offer", "pleased to inform",
+        "we are pleased to offer",
+        "job offer",
+        "offer letter",
+        "congratulations",
+        "we would like to extend",
+        "formal offer",
+        "accepted your application",
+        "position has been approved",
+        "delighted to offer",
+        "pleased to inform",
     ]
     salary_keywords = [
-        "salary expectation", "expected salary", "salary requirement",
-        "compensation package", "what are you looking for",
-        "salary range", "budget for this role", "remuneration",
+        "salary expectation",
+        "expected salary",
+        "salary requirement",
+        "compensation package",
+        "what are you looking for",
+        "salary range",
+        "budget for this role",
+        "remuneration",
     ]
     negotiation_keywords = [
-        "counter offer", "negotiate", "negotiation",
-        "would like to discuss", "flexible on", "can we discuss",
-        "is there room", "reconsider", "amend",
+        "counter offer",
+        "negotiate",
+        "negotiation",
+        "would like to discuss",
+        "flexible on",
+        "can we discuss",
+        "is there room",
+        "reconsider",
+        "amend",
     ]
 
     for kw in negotiation_keywords:
@@ -157,14 +184,14 @@ def build_negotiation_prompt(
     if offered_salary:
         salary_context = f"""
 OFFERED SALARY:
-- Amount: {offered_salary['currency']} {offered_salary['amount']:,.0f}/year
-- USD Equivalent: ${offered_salary['usd_annual']:,.0f}/year
+- Amount: {offered_salary["currency"]} {offered_salary["amount"]:,.0f}/year
+- USD Equivalent: ${offered_salary["usd_annual"]:,.0f}/year
 - Detection confidence: high
 
 USER'S MINIMUM ACCEPTABLE SALARY:
 - ${user_min_salary:,.0f}/year
 
-GAP: ${user_min_salary - offered_salary['usd_annual']:,.0f}/year ({((user_min_salary / offered_salary['usd_annual']) - 1) * 100:.1f}% increase needed)
+GAP: ${user_min_salary - offered_salary["usd_annual"]:,.0f}/year ({((user_min_salary / offered_salary["usd_annual"]) - 1) * 100:.1f}% increase needed)
 """
     else:
         salary_context = """
@@ -183,16 +210,16 @@ You are a world-class negotiation strategist with expertise in:
 - Executive-level communication
 
 ═══ USER PROFILE ═══
-Name: {user_profile.get('name', config.CANDIDATE_NAME)}
+Name: {user_profile.get("name", config.CANDIDATE_NAME)}
 Title: {job_title}
-Experience: {user_profile.get('years_experience', config.YEARS_EXPERIENCE)} years
-Home Country: {user_profile.get('home_country', 'Lebanon')}
+Experience: {user_profile.get("years_experience", config.YEARS_EXPERIENCE)} years
+Home Country: {user_profile.get("home_country", "Lebanon")}
 Minimum Salary Target: ${user_min_salary:,.0f}/year
 
 ═══ EMAIL CONTEXT ═══
 Sender: {sender_name}
 Company: {company_name}
-Email Type: {email_type.replace('_', ' ').title()}
+Email Type: {email_type.replace("_", " ").title()}
 
 Original Email (for context):
 \"\"\"
@@ -293,7 +320,9 @@ async def negotiate_salary(
     if result:
         try:
             # Try to extract JSON from response
-            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', result, re.DOTALL)
+            json_match = re.search(
+                r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", result, re.DOTALL
+            )
             if json_match:
                 negotiation = json.loads(json_match.group())
                 return {
@@ -351,8 +380,11 @@ async def _call_ai(prompt: str) -> Optional[str]:
 
 
 def _template_negotiation(
-    email_type: str, offered_salary: Optional[Dict],
-    user_min_salary: float, company: str, title: str
+    email_type: str,
+    offered_salary: Optional[Dict],
+    user_min_salary: float,
+    company: str,
+    title: str,
 ) -> Dict:
     """Fallback template-based negotiation when AI is unavailable."""
     target_salary = user_min_salary * 1.15  # Push 15% above minimum

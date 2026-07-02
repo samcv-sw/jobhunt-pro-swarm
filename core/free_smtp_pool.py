@@ -7,7 +7,7 @@ Complements existing SMTP pool (Gmail, Outlook, Brevo, Hotmail, etc.)
 APIs integrated (all free forever tiers):
 1. Resend — 100 emails/day FREE
 2. Mailgun — 100 emails/day FREE (flex plan)
-3. Elastic Email — 100 emails/day FREE  
+3. Elastic Email — 100 emails/day FREE
 4. ZeptoMail — 100 emails/day FREE
 5. turboSMTP — 200 emails/day (6,000/month) FREE
 6. Mailjet — 200 emails/day (6,000/month) FREE
@@ -25,16 +25,14 @@ Created: 2026-06-24 — Ultimate Deep Scan Session
 import os
 import json
 import logging
-import time
 import base64
-import random
 from typing import Any, Dict, List, Optional, Tuple
 
 try:
     import requests as http_requests
+
     HAS_REQUESTS = True
 except ImportError:
-    import urllib.request
     HAS_REQUESTS = False
 
 logger = logging.getLogger(__name__)
@@ -52,78 +50,96 @@ class FreeSMTPPool:
         """Auto-detect configured providers from env vars."""
         # Resend
         if os.getenv("RESEND_API_KEY") and os.getenv("RESEND_FROM_EMAIL"):
-            self._providers.append({
-                "name": "resend",
-                "daily_limit": 100,
-                "weight": 5,  # Best deliverability
-            })
+            self._providers.append(
+                {
+                    "name": "resend",
+                    "daily_limit": 100,
+                    "weight": 5,  # Best deliverability
+                }
+            )
             self._stats["resend"] = {"sent": 0, "failed": 0}
 
         # Mailgun (flex plan — 100/day)
         if os.getenv("MAILGUN_API_KEY") and os.getenv("MAILGUN_DOMAIN"):
-            self._providers.append({
-                "name": "mailgun",
-                "daily_limit": 100,
-                "weight": 4,
-            })
+            self._providers.append(
+                {
+                    "name": "mailgun",
+                    "daily_limit": 100,
+                    "weight": 4,
+                }
+            )
             self._stats["mailgun"] = {"sent": 0, "failed": 0}
 
         # Elastic Email
         if os.getenv("ELASTIC_EMAIL_API_KEY"):
-            self._providers.append({
-                "name": "elastic_email",
-                "daily_limit": 100,
-                "weight": 3,
-            })
+            self._providers.append(
+                {
+                    "name": "elastic_email",
+                    "daily_limit": 100,
+                    "weight": 3,
+                }
+            )
             self._stats["elastic_email"] = {"sent": 0, "failed": 0}
 
         # ZeptoMail
         if os.getenv("ZEPTOMAIL_TOKEN"):
-            self._providers.append({
-                "name": "zeptomail",
-                "daily_limit": 100,
-                "weight": 3,
-            })
+            self._providers.append(
+                {
+                    "name": "zeptomail",
+                    "daily_limit": 100,
+                    "weight": 3,
+                }
+            )
             self._stats["zeptomail"] = {"sent": 0, "failed": 0}
 
         # turboSMTP (6,000/month = 200/day)
         if os.getenv("TURBOSMTP_USER") and os.getenv("TURBOSMTP_PASS"):
-            self._providers.append({
-                "name": "turbosmtp",
-                "daily_limit": 200,
-                "weight": 3,
-            })
+            self._providers.append(
+                {
+                    "name": "turbosmtp",
+                    "daily_limit": 200,
+                    "weight": 3,
+                }
+            )
             self._stats["turbosmtp"] = {"sent": 0, "failed": 0}
 
         # Mailjet
         if os.getenv("MJ_APIKEY_PUBLIC") and os.getenv("MJ_APIKEY_PRIVATE"):
-            self._providers.append({
-                "name": "mailjet",
-                "daily_limit": 200,
-                "weight": 4,
-            })
+            self._providers.append(
+                {
+                    "name": "mailjet",
+                    "daily_limit": 200,
+                    "weight": 4,
+                }
+            )
             self._stats["mailjet"] = {"sent": 0, "failed": 0}
 
         # SendPulse (15,000/month = 500/day)
         if os.getenv("SENDPULSE_CLIENT_ID") and os.getenv("SENDPULSE_CLIENT_SECRET"):
-            self._providers.append({
-                "name": "sendpulse",
-                "daily_limit": 500,
-                "weight": 5,
-            })
+            self._providers.append(
+                {
+                    "name": "sendpulse",
+                    "daily_limit": 500,
+                    "weight": 5,
+                }
+            )
             self._stats["sendpulse"] = {"sent": 0, "failed": 0}
 
         # Postmark
         if os.getenv("POSTMARK_SERVER_TOKEN"):
-            self._providers.append({
-                "name": "postmark",
-                "daily_limit": 100,
-                "weight": 3,
-            })
+            self._providers.append(
+                {
+                    "name": "postmark",
+                    "daily_limit": 100,
+                    "weight": 3,
+                }
+            )
             self._stats["postmark"] = {"sent": 0, "failed": 0}
 
-        logger.info(f"[FreeSMTPPool] {len(self._providers)} HTTP APIs detected: "
-                     f"{[p['name'] for p in self._providers]}")
+        logger.info(
+            f"[FreeSMTPPool] {len(self._providers)} HTTP APIs detected: "
+            f"{[p['name'] for p in self._providers]}"
+        )
 
     def has_providers(self) -> bool:
         return len(self._providers) > 0
@@ -149,7 +165,8 @@ class FreeSMTPPool:
 
         # Weighted random selection (respects daily limits)
         available = [
-            p for p in self._providers
+            p
+            for p in self._providers
             if self._stats.get(p["name"], {}).get("sent", 0) < p["daily_limit"]
         ]
         if not available:
@@ -161,20 +178,42 @@ class FreeSMTPPool:
 
         provider = chosen["name"]
         try:
-            success = self._send_via_provider(provider, to_email, subject, html_body, text_body, from_name, attachments)
+            success = self._send_via_provider(
+                provider,
+                to_email,
+                subject,
+                html_body,
+                text_body,
+                from_name,
+                attachments,
+            )
             if success:
-                self._stats[provider]["sent"] = self._stats.get(provider, {}).get("sent", 0) + 1
+                self._stats[provider]["sent"] = (
+                    self._stats.get(provider, {}).get("sent", 0) + 1
+                )
                 return True, provider
             else:
-                self._stats[provider]["failed"] = self._stats.get(provider, {}).get("failed", 0) + 1
+                self._stats[provider]["failed"] = (
+                    self._stats.get(provider, {}).get("failed", 0) + 1
+                )
                 # Fallback to next provider
                 if len(available) > 1:
                     fallback = available[1]
                     actual_sender_name = from_name or "Sam Salameh"
                     self._stats.setdefault(fallback["name"], {"sent": 0, "failed": 0})
-                    fb_success = self._send_via_provider(fallback["name"], to_email, subject, html_body, text_body, actual_sender_name, attachments)
+                    fb_success = self._send_via_provider(
+                        fallback["name"],
+                        to_email,
+                        subject,
+                        html_body,
+                        text_body,
+                        actual_sender_name,
+                        attachments,
+                    )
                     if fb_success:
-                        self._stats[fallback["name"]]["sent"] = self._stats[fallback["name"]].get("sent", 0) + 1
+                        self._stats[fallback["name"]]["sent"] = (
+                            self._stats[fallback["name"]].get("sent", 0) + 1
+                        )
                         return True, fallback["name"]
                 return False, f"{provider}_failed"
         except Exception as e:
@@ -204,20 +243,48 @@ class FreeSMTPPool:
         }
 
         if provider in dispatch:
-            return dispatch[provider](to_email, subject, html_body, text, name, attachments)
+            return dispatch[provider](
+                to_email, subject, html_body, text, name, attachments
+            )
 
         # Resend, Mailjet, SendPulse are handled by existing functions in email_engine.py
         # Import and call them
         try:
             if provider == "resend":
                 from core.email_engine import send_email_via_resend
-                return send_email_via_resend(to_email, "JobHunt", subject, html_body, sender_name=name, attachments=attachments)
+
+                return send_email_via_resend(
+                    to_email,
+                    "JobHunt",
+                    subject,
+                    html_body,
+                    sender_name=name,
+                    attachments=attachments,
+                )
             elif provider == "mailjet":
                 from core.email_engine import send_email_via_mailjet
-                return send_email_via_mailjet(to_email, "JobHunt", subject, html_body, text, sender_name=name, attachments=attachments)
+
+                return send_email_via_mailjet(
+                    to_email,
+                    "JobHunt",
+                    subject,
+                    html_body,
+                    text,
+                    sender_name=name,
+                    attachments=attachments,
+                )
             elif provider == "sendpulse":
                 from core.email_engine import send_email_via_sendpulse
-                return send_email_via_sendpulse(to_email, "JobHunt", subject, html_body, text, sender_name=name, attachments=attachments)
+
+                return send_email_via_sendpulse(
+                    to_email,
+                    "JobHunt",
+                    subject,
+                    html_body,
+                    text,
+                    sender_name=name,
+                    attachments=attachments,
+                )
         except ImportError as e:
             logger.warning(f"[FreeSMTPPool] Cannot import {provider} sender: {e}")
         return False
@@ -250,16 +317,36 @@ class FreeSMTPPool:
             files = []
             if atts:
                 for att in atts:
-                    files.append(("attachment", (att["filename"], att["content"], att["content_type"])))
-            
+                    files.append(
+                        (
+                            "attachment",
+                            (att["filename"], att["content"], att["content_type"]),
+                        )
+                    )
+
             if HAS_REQUESTS:
-                resp = http_requests.post(url, auth=("api", api_key), data=data, files=files if files else None, timeout=15)
+                resp = http_requests.post(
+                    url,
+                    auth=("api", api_key),
+                    data=data,
+                    files=files if files else None,
+                    timeout=15,
+                )
                 return resp.status_code == 200
             else:
                 import urllib.request
                 import urllib.parse
-                req = urllib.request.Request(url, data=urllib.parse.urlencode(data).encode('utf-8'))
-                req.add_header("Authorization", "Basic " + base64.b64encode(f"api:{api_key}".encode('utf-8')).decode('utf-8'))
+
+                req = urllib.request.Request(
+                    url, data=urllib.parse.urlencode(data).encode("utf-8")
+                )
+                req.add_header(
+                    "Authorization",
+                    "Basic "
+                    + base64.b64encode(f"api:{api_key}".encode("utf-8")).decode(
+                        "utf-8"
+                    ),
+                )
                 resp = urllib.request.urlopen(req, timeout=15)
                 return resp.getcode() == 200
         except Exception as e:
@@ -293,11 +380,13 @@ class FreeSMTPPool:
             if atts:
                 attachments_list = []
                 for att in atts:
-                    attachments_list.append({
-                        "BinaryContent": att["content_b64"],
-                        "Name": att["filename"],
-                        "ContentType": att["content_type"]
-                    })
+                    attachments_list.append(
+                        {
+                            "BinaryContent": att["content_b64"],
+                            "Name": att["filename"],
+                            "ContentType": att["content_type"],
+                        }
+                    )
                 payload["Content"]["Attachments"] = attachments_list
 
             if HAS_REQUESTS:
@@ -313,13 +402,14 @@ class FreeSMTPPool:
                 return resp.status_code in (200, 201)
             else:
                 import urllib.request
+
                 req = urllib.request.Request(
                     "https://api.elasticemail.com/v4/emails/transactional",
-                    data=json.dumps(payload).encode('utf-8'),
+                    data=json.dumps(payload).encode("utf-8"),
                     headers={
                         "X-ElasticEmail-ApiKey": api_key,
                         "Content-Type": "application/json",
-                    }
+                    },
                 )
                 resp = urllib.request.urlopen(req, timeout=15)
                 return resp.getcode() in (200, 201)
@@ -352,11 +442,13 @@ class FreeSMTPPool:
             if atts:
                 attachments_list = []
                 for att in atts:
-                    attachments_list.append({
-                        "content": att["content_b64"],
-                        "mime_type": att["content_type"],
-                        "name": att["filename"]
-                    })
+                    attachments_list.append(
+                        {
+                            "content": att["content_b64"],
+                            "mime_type": att["content_type"],
+                            "name": att["filename"],
+                        }
+                    )
                 payload["attachments"] = attachments_list
 
             if HAS_REQUESTS:
@@ -372,13 +464,14 @@ class FreeSMTPPool:
                 return resp.status_code in (200, 201, 202)
             else:
                 import urllib.request
+
                 req = urllib.request.Request(
                     "https://api.zeptomail.com/v1.1/email",
-                    data=json.dumps(payload).encode('utf-8'),
+                    data=json.dumps(payload).encode("utf-8"),
                     headers={
                         "Authorization": token,
                         "Content-Type": "application/json",
-                    }
+                    },
                 )
                 resp = urllib.request.urlopen(req, timeout=15)
                 return resp.getcode() in (200, 201, 202)
@@ -413,11 +506,13 @@ class FreeSMTPPool:
             if atts:
                 attachments_list = []
                 for att in atts:
-                    attachments_list.append({
-                        "content": att["content_b64"],
-                        "name": att["filename"],
-                        "mime": att["content_type"]
-                    })
+                    attachments_list.append(
+                        {
+                            "content": att["content_b64"],
+                            "name": att["filename"],
+                            "mime": att["content_type"],
+                        }
+                    )
                 payload["attachments"] = attachments_list
 
             if HAS_REQUESTS:
@@ -433,13 +528,14 @@ class FreeSMTPPool:
                 return resp.status_code in (200, 201)
             else:
                 import urllib.request
+
                 req = urllib.request.Request(
                     "https://api.turbo-smtp.com/api/v2/mail/send",
-                    data=json.dumps(payload).encode('utf-8'),
+                    data=json.dumps(payload).encode("utf-8"),
                     headers={
                         "Authorization": f"Bearer {pwd}",
                         "Content-Type": "application/json",
-                    }
+                    },
                 )
                 resp = urllib.request.urlopen(req, timeout=15)
                 return resp.getcode() in (200, 201)
@@ -474,11 +570,13 @@ class FreeSMTPPool:
             if atts:
                 attachments_list = []
                 for att in atts:
-                    attachments_list.append({
-                        "Name": att["filename"],
-                        "Content": att["content_b64"],
-                        "ContentType": att["content_type"]
-                    })
+                    attachments_list.append(
+                        {
+                            "Name": att["filename"],
+                            "Content": att["content_b64"],
+                            "ContentType": att["content_type"],
+                        }
+                    )
                 payload["Attachments"] = attachments_list
 
             if HAS_REQUESTS:
@@ -495,14 +593,15 @@ class FreeSMTPPool:
                 return resp.status_code == 200
             else:
                 import urllib.request
+
                 req = urllib.request.Request(
                     "https://api.postmarkapp.com/email",
-                    data=json.dumps(payload).encode('utf-8'),
+                    data=json.dumps(payload).encode("utf-8"),
                     headers={
                         "Accept": "application/json",
                         "Content-Type": "application/json",
                         "X-Postmark-Server-Token": server_token,
-                    }
+                    },
                 )
                 resp = urllib.request.urlopen(req, timeout=15)
                 return resp.getcode() == 200

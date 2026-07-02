@@ -1,0 +1,582 @@
+<link rel="stylesheet" href="/static/css/cyberpunk.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+  
+<style>
+/* ═══ Services Page Premium Styles ═══ */
+:root{--cyan:#00f0ff;--magenta:#ff0055;--purple:#8b5cf6;--green:#22c55e;--border:rgba(255,255,255,.06);--card:#0d0e15;--muted:#6b7280;--mono:'JetBrains Mono',monospace}
+.services-hero{margin-bottom:28px}
+.services-hero h1{font-size:26px;font-weight:800;color:#fff;margin: 0 0 6px;color:#64748b;line-height:1.5;margin:0}
+
+/* Flash Banner */
+.flash-banner{background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(251,146,60,.08));border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:14px 20px;color:#fca5a5;font-size:13px;margin-bottom:24px}
+
+/* Category Tabs */
+.cat-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px}
+.cat-tab{padding:7px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);color:#94a3b8;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif}
+.cat-tab:hover{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.04)}
+.cat-tab.active{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.3);color:#60a5fa}
+
+/* Section Title */
+.sec-title{font-size:17px;font-weight:700;color:#e2e8f0;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.sec-badge{font-size:10px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;padding:3px 10px;border-radius:20px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:24px}
+.svc-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px;transition:all .25s;display:flex;flex-direction:column;gap:12px;position:relative}
+.svc-card:hover{border-color:rgba(59,130,246,.2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.svc-card.in-cart{border-color:rgba(34,197,94,.2);background:rgba(34,197,94,.02)}
+.svc-icon{font-size:28px;line-height:1}
+.svc-card h3{font-size:15px;font-weight:600;color:#e2e8f0;margin:0}
+.svc-desc{font-size:12px;color:#94a3b8;line-height:1.5;margin:0;flex:1}
+.svc-meta{display:flex;gap:10px;align-items:center}
+.svc-delivery{font-size:11px;color:#64748b;background:rgba(255,255,255,.03);padding:3px 8px;border-radius:6px}
+.svc-features{font-size:11px;color:#52525b;line-height:1.5}
+.svc-price-row{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:12px;border-top:1px solid rgba(255,255,255,.05)}
+.svc-price{font-size:22px;font-weight:800;color:#fff;font-family:var(--mono)}
+.svc-price.free{color:#4ade80}
+.svc-btn{padding:8px 16px;border-radius:10px;border:1px solid rgba(59,130,246,.25);background:rgba(59,130,246,.1);color:#60a5fa;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif}
+.svc-btn:hover{background:rgba(59,130,246,.2);transform:translateY(-1px)}
+.svc-btn.in-cart-btn{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.25);color:#4ade80}
+
+/* Skeleton Loading */
+.skeleton-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:14px;padding:20px;animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.8}}
+.sk-icon{width:32px;height:32px;background:rgba(255,255,255,.06);border-radius:8px;margin-bottom:12px}
+.sk-title{width:60%;height:14px;background:rgba(255,255,255,.05);border-radius:4px;margin-bottom:8px}
+.sk-desc{width:90%;height:10px;background:rgba(255,255,255,.03);border-radius:4px;margin-bottom:16px}
+.sk-price{width:40%;height:18px;background:rgba(255,255,255,.05);border-radius:4px}
+
+/* Bundle Cards */
+.bundles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:24px}
+.bundle-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px;transition:all .25s;position:relative;display:flex;flex-direction:column;gap:12px}
+.bundle-card:hover{border-color:rgba(139,92,246,.2);transform:translateY(-2px)}
+.bundle-card.highlight{border-color:rgba(139,92,246,.2);background:linear-gradient(135deg,rgba(139,92,246,.04),rgba(59,130,246,.02))}
+.bundle-badge{position:absolute;top:-1px;inset-inline-end: 16px;font-size:9px;font-weight:800;padding:4px 12px;border-radius:0 0 8px 8px;text-transform:uppercase;color:#fff}
+.bundle-badge.best{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000}
+.bundle-icon{font-size:28px;line-height:1}
+.bundle-card h3{font-size:15px;font-weight:600;color:#e2e8f0;margin:0}
+.bundle-desc{font-size:12px;color:#94a3b8;line-height:1.5;margin:0}
+.bundle-services{display:flex;flex-wrap:wrap;gap:4px}
+.bundle-services span{padding:3px 8px;border-radius:6px;background:rgba(255,255,255,.04);font-size:10px;color:#94a3b8}
+.bundle-price-row{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:12px;border-top:1px solid rgba(255,255,255,.05)}
+.bundle-orig{font-size:13px;color:#52525b;text-decoration:line-through}
+.bundle-price{font-size:22px;font-weight:800;color:#a78bfa;font-family:var(--mono)}
+.bundle-savings{font-size:11px;font-weight:600;color:#4ade80}
+
+/* No Results */
+.no-results{text-align:center;padding:40px 20px}
+.nr-icon{font-size:36px;margin-bottom:10px;opacity:.5}
+.nr-text{font-size:13px;color:#64748b}
+
+/* Cart FAB */
+.cart-badge-btn{position:fixed;bottom:24px;inset-inline-end: 24px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;color:#fff;font-size:22px;cursor:pointer;z-index:999;box-shadow:0 4px 20px rgba(59,130,246,.3);transition:all .25s}
+.cart-badge-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(59,130,246,.4)}
+.cart-count{position:absolute;top:-6px;inset-inline-end: -6px;min-width:20px;height:20px;border-radius:10px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px}
+
+/* Cart Sidebar */
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;opacity:0;pointer-events:none;transition:opacity .3s}
+.cart-overlay.open{opacity:1;pointer-events:auto}
+.cart-panel{position:fixed;top:0;inset-inline-end: 0;bottom:0;width:380px;max-width:90vw;background:#0f0f18;border-inline-start: 1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;z-index:2001;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.cart-overlay.open .cart-panel{transform:translateX(0)}
+.cart-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.06)}
+.cart-header h2{font-size:16px;font-weight:700;color:#e2e8f0;margin:0}
+.cart-close{background:none;border:none;color:#64748b;font-size:22px;cursor:pointer;padding:4px;line-height:1}
+.cart-close:hover{color:#ef4444}
+.cart-items{flex:1;overflow-y:auto;padding:16px 24px}
+.cart-empty{text-align:center;padding:40px 20px}
+.cart-empty .empty-icon{font-size:40px;margin-bottom:10px;opacity:.4}
+.cart-empty .empty-text{font-size:12px;color:#52525b;line-height:1.5}
+.cart-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.cart-item-icon{font-size:20px;flex-shrink:0}
+.cart-item-info{flex:1;min-width:0}
+.cart-item-name{font-size:13px;font-weight:600;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-item-type{font-size:10px;color:#64748b;text-transform:capitalize}
+.cart-item-price{font-size:13px;font-weight:700;color:#60a5fa;flex-shrink:0}
+.cart-remove{background:none;border:none;color:#52525b;font-size:16px;cursor:pointer;padding:2px 6px;flex-shrink:0;line-height:1}
+.cart-remove:hover{color:#ef4444}
+.cart-footer{padding:16px 24px;border-top:1px solid rgba(255,255,255,.06)}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.cart-total-label{font-size:12px;color:#64748b;text-transform:uppercase;font-weight:800;color:#fff}
+.cart-checkout{width:100%;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif}
+.cart-checkout:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.cart-checkout:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* Purchase Modal */
+.purchase-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:3000;display:none;align-items:center;justify-content:center}
+.purchase-modal.open{display:flex}
+.modal-box{background:#0f0f18;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:32px;text-align:center;max-width:380px;width:90%}
+.check-icon{font-size:48px;margin-bottom:12px}
+.modal-box h2{font-size:18px;font-weight:700;color:#e2e8f0;margin: 0 0 8px}
+.modal-box p{font-size:13px;color:#94a3b8;margin:0 0 20px;line-height:1.5}
+.modal-box .btn{padding:10px 24px;border-radius:10px;border:none;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif}
+
+/* Toast */
+.toast{position:fixed;bottom:80px;inset-inline-end: 24px;padding:12px 20px;background:#0f0f18;border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#e2e8f0;font-size:13px;z-index:4000;opacity:0;transform:translateY(10px);pointer-events:none;transition:all .3s;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.toast.show{opacity:1;transform:translateY(0);pointer-events:auto}
+.toast.error{border-color:rgba(239,68,68,.3)}
+
+@media(max-width:768px){
+  .svc-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+  .bundles-grid{grid-template-columns:1fr;gap:10px}
+  .cat-tabs{gap:4px}
+  .cat-tab{padding:6px 12px;font-size:11px}
+  .cart-panel{width:100vw}
+}
+</style>
+
+<!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Services Hero -->
+  <div class="services-hero">
+    <h1>⭐ خدمات متميزة</h1>
+    <p class="hero-sub">أدوات وخدمات احترافية للبحث عن عمل — تسليم فوري، دفع عبر المحفظة</p>
+  </div>
+
+  <!-- Flash Banner -->
+  <div class="flash-banner" id="flashBanner" style="display:none;">
+    🔥 <strong>وقت محدود</strong> — أفضل الباقات بأسعار خيالية. احجز هلق!
+  </div>
+
+  <!-- Category Tabs -->
+  <div class="cat-tabs" id="catTabs">
+    <button class="cat-tab active" data-cat="all">الكل</button>
+    <button class="cat-tab" data-cat="resume">📄 خدمات السيرة الذاتية</button>
+    <button class="cat-tab" data-cat="email">📧 خدمات الإيميل</button>
+    <button class="cat-tab" data-cat="career">🚀 خدمات المسار المهني</button>
+    <button class="cat-tab" data-cat="ai">🤖 الذكاء الاصطناعي واستراتيجية</button>
+    <button class="cat-tab" data-cat="bundles">🎁 باقات</button>
+  </div>
+
+  <!-- ═══ Services Section ═══ -->
+  <div class="sec-title">
+    ⚡ خدمات حسب الطلب
+    <span class="sec-badge" id="svcCount">20</span>
+  </div>
+
+  <!-- Skeleton Loading -->
+  <div class="svc-grid" id="svcSkeleton">
+    <div class="skeleton-card"><div class="sk-icon"></div><div class="sk-title"></div><div class="sk-desc"></div><div class="sk-price"></div></div>
+    <div class="skeleton-card"><div class="sk-icon"></div><div class="sk-title"></div><div class="sk-desc"></div><div class="sk-price"></div></div>
+    <div class="skeleton-card"><div class="sk-icon"></div><div class="sk-title"></div><div class="sk-desc"></div><div class="sk-price"></div></div>
+    <div class="skeleton-card"><div class="sk-icon"></div><div class="sk-title"></div><div class="sk-desc"></div><div class="sk-price"></div></div>
+    <div class="skeleton-card"><div class="sk-icon"></div><div class="sk-title"></div><div class="sk-desc"></div><div class="sk-price"></div></div>
+    <div class="skeleton-card"><div class="sk-icon"></div><div class="sk-title"></div><div class="sk-desc"></div><div class="sk-price"></div></div>
+  </div>
+
+  <!-- Actual Service Grid -->
+  <div class="svc-grid" id="svcGrid" style="display:none;"></div>
+  <div class="no-results" id="noResults" style="display:none;">
+    <div class="nr-icon">🔍</div>
+    <div class="nr-text">ما في خدمات بهالفئة</div>
+  </div>
+
+  <!-- ═══ Bundles Section ═══ -->
+  <div class="sec-title" style="margin-top: 40px;">
+    🎁 باقات خطيرة
+    <span class="sec-badge" style="background: var(--purple-dim); color: #a78bfa;" id="bdlCount">5</span>
+  </div>
+
+  <!-- Bundle Skeleton -->
+  <div class="bundles-grid" id="bdlSkeleton">
+    <div class="skeleton-card"><div class="sk-icon"></div><div class="sk-title"></div><div class="sk-desc"></div><div class="sk-price"></div></div>
+    <div class="skeleton-card"><div class="sk-icon"></div><div class="sk-title"></div><div class="sk-desc"></div><div class="sk-price"></div></div>
+    <div class="skeleton-card"><div class="sk-icon"></div><div class="sk-title"></div><div class="sk-desc"></div><div class="sk-price"></div></div>
+  </div>
+
+  <!-- Actual Bundle Grid -->
+  <div class="bundles-grid" id="bdlGrid" style="display:none;"></div>
+</div>
+
+<!-- Cart FAB -->
+<button class="cart-badge-btn" id="cartFab" onclick="toggleCart()" aria-label="Cart">
+  🛒
+  <span class="cart-count" id="cartFabCount" style="display:none;">0</span>
+</button>
+
+<!-- Cart Sidebar -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCartOverlay(event)">
+  <div class="cart-panel" id="cartPanel">
+    <div class="cart-header">
+      <h2>🛒 سلة مشترياتك</h2>
+      <button class="cart-close" onclick="closeCart()">&times;</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty">
+        <div class="empty-icon">🛒</div>
+        <div class="empty-text">سلتك فاضية<br>ضيف خدمات لتبلش</div>
+      </div>
+    </div>
+    <div class="cart-footer" id="cartFooter">
+      <div class="cart-total-row">
+        <span class="cart-total-label">المجموع</span>
+        <span class="cart-total-price" id="cartالمجموع">$0</span>
+      </div>
+      <button class="cart-checkout" id="checkoutBtn" disabled onclick="checkout()">
+        تابع للدفع
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Purchase Modal -->
+<div class="purchase-modal" id="purchaseModal">
+  <div class="modal-box">
+    <div class="check-icon">✅</div>
+    <h2 id="modalTitle">تم الشراء!</h2>
+    <p id="modalMsg">تم إضافة طلباتك لحسابك.</p>
+    <button class="btn" onclick="closeModal()">فهمت</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let services = [];
+let bouquets = [];
+let cart = {}; // { id: { type: 'service'|'bouquet', name, price } }
+let activeCat = 'all';
+
+// Category mapping (based on service IDs)
+const CATEGORIES = {
+  'cv-review': 'resume', 'cv-optimization': 'resume', 'cover-letter-basic': 'resume',
+  'skill-gap-report': 'resume', 'cv-keyword': 'resume',
+  'email-template': 'email', 'followup-sequence': 'email', 'application-review': 'email',
+  'job-alert-setup': 'career', 'response-tracker': 'career', 'job-search-plan': 'career',
+  'full-application-pack': 'career', 'company-research': 'career',
+  'networking-plan': 'career', 'linkedin-headline': 'career', 'linkedin-optimization': 'career',
+  'salary-benchmark': 'ai', 'salary-negotiation': 'ai', 'interview-prep': 'ai',
+  'career-consultation': 'ai', 'vip-support-month': 'ai',
+};
+
+const CAT_ICONS = {
+  'resume': '📄', 'email': '📧', 'career': '🚀', 'ai': '🤖', 'bundles': '🎁'
+};
+
+const SERVICE_ICONS = {
+  'cv-review': '📋', 'email-template': '✉️', 'cover-letter-basic': '📝',
+  'linkedin-headline': '🔗', 'job-alert-setup': '🔔', 'skill-gap-report': '📊',
+  'response-tracker': '📈', 'cv-optimization': '🎯', 'company-research': '🔍',
+  'followup-sequence': '📬', 'application-review': '✅', 'networking-plan': '🤝',
+  'salary-benchmark': '💰', 'linkedin-optimization': '💼', 'interview-prep': '🎤',
+  'career-consultation': '🧭', 'full-application-pack': '📦', 'salary-negotiation': '💎',
+  'job-search-plan': '📅', 'vip-support-month': '👑',
+};
+
+// ═══════════════════════════════════════════════
+// DATA FETCHING
+// ═══════════════════════════════════════════════
+async function loadServices() {
+  try {
+    const resp = await fetch('/api/v2/services');
+    if (!resp.ok) throw new Error('Failed to load');
+    const data = await resp.json();
+    if (!data.success) throw new Error('API error');
+    services = data.services || [];
+    bouquets = data.bouquets || [];
+    document.getElementById('svcCount').textContent = services.length;
+    document.getElementById('bdlCount').textContent = bouquets.length;
+  } catch (e) {
+    console.error('Load error:', e);
+    services = [];
+    bouquets = [];
+  }
+
+  // Hide skeletons, show content
+  document.getElementById('svcSkeleton').style.display = 'none';
+  document.getElementById('bdlSkeleton').style.display = 'none';
+  renderالكل();
+}
+
+// ═══════════════════════════════════════════════
+// RENDERING
+// ═══════════════════════════════════════════════
+function getSvcIcon(svc) {
+  return SERVICE_ICONS[svc.id] || '⚡';
+}
+
+function getSvcCategory(svc) {
+  return CATEGORIES[svc.id] || 'career';
+}
+
+function renderالكل() {
+  renderServices();
+  renderBundles();
+}
+
+function renderServices() {
+  const grid = document.getElementById('svcGrid');
+  const noRes = document.getElementById('noResults');
+
+  let filtered = services;
+  if (activeCat !== 'all' && activeCat !== 'bundles') {
+    filtered = services.filter(s => getSvcCategory(s) === activeCat);
+  }
+
+  if (filtered.length === 0) {
+    grid.style.display = 'none';
+    noRes.style.display = 'block';
+    return;
+  }
+
+  noRes.style.display = 'none';
+  grid.style.display = 'grid';
+  grid.innerHTML = filtered.map(s => {
+    const icon = getSvcIcon(s);
+    const inCart = cart[s.id] !== undefined;
+    const features = (s.features || []).slice(0, 3).join(' · ');
+    return `
+      <div class="svc-card${inCart ? ' in-cart' : ''}" data-id="${s.id}">
+        <div class="svc-icon">${icon}</div>
+        <h3>${escHtml(s.name)}</h3>
+        <p class="svc-desc">${escHtml(s.description)}</p>
+        <div class="svc-meta">
+          <span class="svc-delivery">⚡ ${escHtml(s.delivery || 'instant')}</span>
+        </div>
+        ${features ? `<div class="svc-features">${escHtml(features)}</div>` : ''}
+        <div class="svc-price-row">
+          <span class="svc-price${s.price === 0 ? ' free' : ''}">$${s.price}</span>
+          <button class="svc-btn${inCart ? ' in-cart-btn' : ''}" onclick="toggleCartItem('${s.id}','service','${escJs(s.name)}',${s.price})">
+            ${inCart ? '✓ بالسلة' : '+ ضيف للسلة'}
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderBundles() {
+  const grid = document.getElementById('bdlGrid');
+  grid.style.display = 'grid';
+
+  if (activeCat !== 'all' && activeCat !== 'bundles') {
+    grid.innerHTML = '';
+    return;
+  }
+
+  grid.innerHTML = bouquets.map((b, idx) => {
+    const inCart = cart[b.id] !== undefined;
+    const svcNames = (b.services || []).map(sid => {
+      const svc = services.find(s => s.id === sid);
+      return svc ? svc.name.split(' ').slice(0, 2).join(' ') : sid;
+    });
+    const totalOrig = (b.services || []).reduce((sum, sid) => {
+      const svc = services.find(s => s.id === sid);
+      return sum + (svc ? svc.price : 0);
+    }, 0);
+    const highlight = (idx === 1 && b.savings) ? ' highlight' : '';
+    const badge = idx === 1 ? '<div class="bundle-badge popular">الأكثر طلباً</div>'
+                : (idx === 4 ? '<div class="bundle-badge best">أفضل قيمة</div>' : '');
+    return `
+      <div class="bundle-card${highlight}" data-id="${b.id}">
+        ${badge}
+        <div class="bundle-icon">🎁</div>
+        <h3>${escHtml(b.name)}</h3>
+        <p class="bundle-desc">${escHtml(b.description)}</p>
+        <div class="bundle-services">${svcNames.map(n => `<span>${escHtml(n)}</span>`).join('')}</div>
+        <div class="bundle-price-row">
+          <span class="bundle-orig">$${totalOrig || b.price}</span>
+          <span class="bundle-price">$${b.price}</span>
+          ${b.savings ? `<span class="bundle-savings">وفر ${b.savings}</span>` : ''}
+        </div>
+        <button class="svc-btn" onclick="toggleCartItem('${b.id}','bouquet','${escJs(b.name)}',${b.price})">
+          ${inCart ? '✓ بالسلة' : '+ ضيف للسلة'}
+        </button>
+      </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+// CATEGORY FILTERING
+// ═══════════════════════════════════════════════
+document.getElementById('catTabs').addEventListener('click', function(e) {
+  if (!e.target.classList.contains('cat-tab')) return;
+  document.querySelectorالكل('.cat-tab').forEach(t => t.classList.remove('active'));
+  e.target.classList.add('active');
+  activeCat = e.target.dataset.cat;
+  renderالكل();
+});
+
+// ═══════════════════════════════════════════════
+// CART LOGIC
+// ═══════════════════════════════════════════════
+function toggleCartItem(id, type, name, price) {
+  if (cart[id]) {
+    delete cart[id];
+    showToast('انشال من السلة');
+  } else {
+    cart[id] = { type, name, price };
+    showToast('انضاف للسلة');
+  }
+  updateCartUI();
+  renderالكل();
+}
+
+function updateCartUI() {
+  const items = Object.values(cart);
+  const count = items.length;
+  const total = items.reduce((s, i) => s + i.price, 0);
+  const fabCount = document.getElementById('cartFabCount');
+  const cartItems = document.getElementById('cartItems');
+  const totalEl = document.getElementById('cartالمجموع');
+  const checkoutBtn = document.getElementById('checkoutBtn');
+
+  // FAB badge
+  if (count > 0) {
+    fabCount.style.display = 'flex';
+    fabCount.textContent = count;
+  } else {
+    fabCount.style.display = 'none';
+  }
+
+  // Cart items
+  if (count === 0) {
+    cartItems.innerHTML = `
+      <div class="cart-empty">
+        <div class="empty-icon">🛒</div>
+        <div class="empty-text">سلتك فاضية<br>ضيف خدمات لتبلش</div>
+      </div>`;
+    checkoutBtn.disabled = true;
+  } else {
+    cartItems.innerHTML = Object.entries(cart).map(([id, item]) => `
+      <div class="cart-item">
+        <div class="cart-item-icon">${item.type === 'bouquet' ? '🎁' : '⚡'}</div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${escHtml(item.name)}</div>
+          <div class="cart-item-type">${item.type}</div>
+        </div>
+        <span class="cart-item-price">$${item.price}</span>
+        <button class="cart-remove" onclick="removeCartItem('${id}')" title="Remove">&times;</button>
+      </div>`).join('');
+    checkoutBtn.disabled = false;
+  }
+
+  totalEl.textContent = '$' + total;
+}
+
+function removeCartItem(id) {
+  delete cart[id];
+  updateCartUI();
+  renderالكل();
+  showToast('انشال من السلة');
+}
+
+function toggleCart() {
+  document.getElementById('cartOverlay').classList.toggle('open');
+  updateCartUI();
+}
+
+function closeCart() {
+  document.getElementById('cartOverlay').classList.remove('open');
+}
+
+function closeCartOverlay(e) {
+  if (e.target === e.currentTarget) closeCart();
+}
+
+// ═══════════════════════════════════════════════
+// CHECKOUT
+// ═══════════════════════════════════════════════
+async function checkout() {
+  const items = Object.entries(cart);
+  if (items.length === 0) return;
+
+  const total = items.reduce((s, [,i]) => s + i.price, 0);
+  if (!confirm(`بدك تشتري ${items.length} طلب(ات) بـ $${total}؟\nرح ينخصم من رصيد محفظتك.`)) return;
+
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  checkoutBtn.disabled = true;
+  checkoutBtn.textContent = 'عم نعالج...';
+
+  let purchased = 0;
+  let errors = 0;
+  const errMsgs = [];
+
+  for (const [id, item] of items) {
+    try {
+      const fd = new FormData();
+      fd.append('package_id', id);
+      fd.append('service_type', item.type);
+      const resp = await fetch('/services/purchase', { method: 'POST', body: fd });
+      if (resp.redirected) {
+        // Redirect means it went through (to /services?success=...)
+        purchased++;
+      } else {
+        const text = await resp.text();
+        if (text.includes('insufficient') || text.includes('Insufficient')) {
+          errMsgs.push('رصيد المحفظة ما بيكفي');
+          errors++;
+          break; // Can't buy more
+        } else {
+          // Might have succeeded
+          purchased++;
+        }
+      }
+    } catch (e) {
+      errors++;
+      errMsgs.push(e.message);
+    }
+  }
+
+  checkoutBtn.disabled = false;
+  checkoutBtn.textContent = 'تابع للدفع';
+
+  if (purchased > 0) {
+    // Clear cart
+    cart = {};
+    updateCartUI();
+    renderالكل();
+    document.getElementById('cartOverlay').classList.remove('open');
+
+    document.getElementById('modalTitle').textContent = '✅ تم الشراء!';
+    document.getElementById('modalMsg').textContent =
+      `تم شراء ${purchased} عنصر/عناصر بنجاح. هي الآن نشطة في حسابك.`;
+    document.getElementById('purchaseModal').classList.add('open');
+  }
+
+  if (errors > 0) {
+    showToast('⚠️ ' + (errMsgs[0] || 'فشل ببعض الطلبات'), 'error');
+  }
+}
+
+function closeModal() {
+  document.getElementById('purchaseModal').classList.remove('open');
+  location.reload();
+}
+
+// ═══════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast ' + (type || '');
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function escHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escJs(s) {
+  if (!s) return '';
+  return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"');
+}
+
+// ═══════════════════════════════════════════════
+// KEYBOARD SHORTCUT
+// ═══════════════════════════════════════════════
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeCart();
+  }
+});
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+loadServices();
+</script>

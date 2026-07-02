@@ -2,11 +2,13 @@
 JobHunt Pro - Smart Scheduler
 Intelligent email rotation with jitter, hour restrictions, and anti-detection
 """
+
 import asyncio
 import logging
 import os
 import random
 import time
+
 if os.getenv("FORCE_PG") == "1" or os.getenv("CLOUD_MODE") == "true":
     import core.pg_sqlite_shim as sqlite3
 else:
@@ -21,6 +23,7 @@ logger = logging.getLogger(__name__)
 _base_dir = pathlib.Path(__file__).resolve().parent.parent
 try:
     import config
+
     _db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
     DB_PATH = str(_base_dir / _db_name)
 except Exception:
@@ -30,16 +33,24 @@ except Exception:
 def is_pythonanywhere() -> bool:
     """Detect if running on PythonAnywhere (free tier or paid)."""
     return bool(
-        os.environ.get('PYTHONANYWHERE_SITE') or
-        os.environ.get('PYTHONANYWHERE_DOMAIN') or
-        'pythonanywhere' in os.environ.get('HOME', '').lower() or
-        'pythonanywhere' in os.environ.get('HOSTNAME', '').lower()
+        os.environ.get("PYTHONANYWHERE_SITE")
+        or os.environ.get("PYTHONANYWHERE_DOMAIN")
+        or "pythonanywhere" in os.environ.get("HOME", "").lower()
+        or "pythonanywhere" in os.environ.get("HOSTNAME", "").lower()
     )
 
 
 class ProviderState:
-    __slots__ = ("name", "daily_limit", "sent_today", "hourly_limit",
-                 "sent_this_hour", "last_sent", "failures", "disabled_until")
+    __slots__ = (
+        "name",
+        "daily_limit",
+        "sent_today",
+        "hourly_limit",
+        "sent_this_hour",
+        "last_sent",
+        "failures",
+        "disabled_until",
+    )
 
     def __init__(self, name: str, daily_limit: int, hourly_limit: int = 100):
         self.name = name
@@ -77,7 +88,9 @@ class ProviderState:
         self.failures += 1
         if self.failures >= 5:  # More lenient: 5 failures before disabling
             self.disabled_until = time.time() + 600  # 10 min cooldown instead of 1 hour
-            logger.warning(f"Provider {self.name} disabled for 10min after {self.failures} failures")
+            logger.warning(
+                f"Provider {self.name} disabled for 10min after {self.failures} failures"
+            )
 
     def record_success(self):
         self.failures = 0
@@ -134,18 +147,20 @@ class SmartScheduler:
         """tz_offset: hours to add to UTC to get local time (Lebanon = +3)"""
         if tz_offset is None:
             try:
-                tz_offset = int(os.environ.get("TZ_OFFSET", os.environ.get("TIMEZONE_OFFSET", "3")))
+                tz_offset = int(
+                    os.environ.get("TZ_OFFSET", os.environ.get("TIMEZONE_OFFSET", "3"))
+                )
             except ValueError:
                 tz_offset = 3
         self.providers: Dict[str, ProviderState] = {}
-        
+
         # MAXIMUM THROUGHPUT MODE — zero delays, no stealth, pure speed
         self.base_delay = 0.1
         self.min_delay = 0.05
         self.max_delay = 0.5
         self.jitter_range = 0.0
-        self.send_start_hour = 0   # 24/7 mode: allow sending from midnight
-        self.send_end_hour = 24    # 24/7 mode: allow sending all day
+        self.send_start_hour = 0  # 24/7 mode: allow sending from midnight
+        self.send_end_hour = 24  # 24/7 mode: allow sending all day
         self.tz_offset = tz_offset
         self.last_provider = None
         self._send_lock = None
@@ -177,16 +192,19 @@ class SmartScheduler:
         except Exception as e:
             logger.error(f"[Scheduler] Failed to initialize SQLite state table: {e}")
 
-    def _save_provider_state_to_db(self, state: ProviderState, reset_day: str = None, reset_hour: str = None):
+    def _save_provider_state_to_db(
+        self, state: ProviderState, reset_day: str = None, reset_hour: str = None
+    ):
         """Save a single provider's state to the SQLite database."""
         try:
             if not reset_day or not reset_hour:
                 utc_now = datetime.now(timezone.utc)
                 reset_day = utc_now.strftime("%Y-%m-%d")
                 reset_hour = utc_now.strftime("%Y-%m-%d-%H")
-                
+
             with sqlite3.connect(DB_PATH, timeout=10) as conn:
-                conn.execute("""
+                conn.execute(
+                    """
                     INSERT INTO smart_scheduler_state 
                     (provider_name, sent_today, sent_this_hour, failures, disabled_until, last_sent, last_reset_day, last_reset_hour)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -198,23 +216,37 @@ class SmartScheduler:
                         last_sent=excluded.last_sent,
                         last_reset_day=excluded.last_reset_day,
                         last_reset_hour=excluded.last_reset_hour
-                """, (
-                    state.name, state.sent_today, state.sent_this_hour,
-                    state.failures, state.disabled_until, state.last_sent,
-                    reset_day, reset_hour
-                ))
+                """,
+                    (
+                        state.name,
+                        state.sent_today,
+                        state.sent_this_hour,
+                        state.failures,
+                        state.disabled_until,
+                        state.last_sent,
+                        reset_day,
+                        reset_hour,
+                    ),
+                )
                 conn.commit()
         except Exception as e:
-            logger.error(f"[Scheduler] Failed to save provider {state.name} to SQLite: {e}")
+            logger.error(
+                f"[Scheduler] Failed to save provider {state.name} to SQLite: {e}"
+            )
 
     def _update_db_reset_time(self, name: str, field_name: str, value: str):
         """Update just a reset time field in DB."""
         try:
             with sqlite3.connect(DB_PATH, timeout=10) as conn:
-                conn.execute(f"UPDATE smart_scheduler_state SET {field_name}=? WHERE provider_name=?", (value, name))
+                conn.execute(
+                    f"UPDATE smart_scheduler_state SET {field_name}=? WHERE provider_name=?",
+                    (value, name),
+                )
                 conn.commit()
         except Exception as e:
-            logger.error(f"[Scheduler] Failed to update reset time field in SQLite: {e}")
+            logger.error(
+                f"[Scheduler] Failed to update reset time field in SQLite: {e}"
+            )
 
     def _save_provider_states_to_db(self, states: List):
         """Save multiple providers' states to the SQLite database in a single transaction."""
@@ -224,24 +256,32 @@ class SmartScheduler:
             utc_now = datetime.now(timezone.utc)
             default_reset_day = utc_now.strftime("%Y-%m-%d")
             default_reset_hour = utc_now.strftime("%Y-%m-%d-%H")
-            
+
             params = []
             for item in states:
                 if isinstance(item, tuple):
                     state, r_day, r_hour = item
                 else:
                     state, r_day, r_hour = item, None, None
-                
+
                 r_day = r_day or default_reset_day
                 r_hour = r_hour or default_reset_hour
-                params.append((
-                    state.name, state.sent_today, state.sent_this_hour,
-                    state.failures, state.disabled_until, state.last_sent,
-                    r_day, r_hour
-                ))
-                
+                params.append(
+                    (
+                        state.name,
+                        state.sent_today,
+                        state.sent_this_hour,
+                        state.failures,
+                        state.disabled_until,
+                        state.last_sent,
+                        r_day,
+                        r_hour,
+                    )
+                )
+
             with sqlite3.connect(DB_PATH, timeout=10) as conn:
-                conn.executemany("""
+                conn.executemany(
+                    """
                     INSERT INTO smart_scheduler_state 
                     (provider_name, sent_today, sent_this_hour, failures, disabled_until, last_sent, last_reset_day, last_reset_hour)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -253,19 +293,25 @@ class SmartScheduler:
                         last_sent=excluded.last_sent,
                         last_reset_day=excluded.last_reset_day,
                         last_reset_hour=excluded.last_reset_hour
-                """, params)
+                """,
+                    params,
+                )
                 conn.commit()
         except Exception as e:
-            logger.error(f"[Scheduler] Failed to save batch provider states to SQLite: {e}")
+            logger.error(
+                f"[Scheduler] Failed to save batch provider states to SQLite: {e}"
+            )
 
     def _init_providers(self):
         self._init_db()
-        
+
         # Load any existing state from SQLite
         db_states = {}
         try:
             with sqlite3.connect(DB_PATH, timeout=10) as conn:
-                cursor = conn.execute("SELECT provider_name, sent_today, sent_this_hour, failures, disabled_until, last_sent, last_reset_day, last_reset_hour FROM smart_scheduler_state")
+                cursor = conn.execute(
+                    "SELECT provider_name, sent_today, sent_this_hour, failures, disabled_until, last_sent, last_reset_day, last_reset_hour FROM smart_scheduler_state"
+                )
                 for row in cursor.fetchall():
                     db_states[row[0]] = {
                         "sent_today": row[1],
@@ -274,14 +320,14 @@ class SmartScheduler:
                         "disabled_until": row[4],
                         "last_sent": row[5],
                         "last_reset_day": row[6],
-                        "last_reset_hour": row[7]
+                        "last_reset_hour": row[7],
                     }
         except Exception as e:
             logger.error(f"[Scheduler] Failed to load SQLite state: {e}")
 
         today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         hour_str = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H")
-        
+
         states_to_save = []
 
         for config in self.PROVIDER_CONFIGS:
@@ -289,16 +335,16 @@ class SmartScheduler:
             state = ProviderState(
                 name=name,
                 daily_limit=config["daily_limit"],
-                hourly_limit=config["hourly_limit"]
+                hourly_limit=config["hourly_limit"],
             )
-            
+
             # If state exists in DB, load it and handle daily/hourly resets if the day/hour has changed
             if name in db_states:
                 db_st = db_states[name]
                 state.failures = db_st["failures"]
                 state.disabled_until = db_st["disabled_until"]
                 state.last_sent = db_st["last_sent"]
-                
+
                 state_modified = False
                 # Check if daily reset is needed
                 if db_st["last_reset_day"] == today_str:
@@ -308,7 +354,7 @@ class SmartScheduler:
                     state.sent_today = 0
                     r_day = today_str
                     state_modified = True
-                
+
                 # Check if hourly reset is needed
                 if db_st["last_reset_hour"] == hour_str:
                     state.sent_this_hour = db_st["sent_this_hour"]
@@ -317,15 +363,15 @@ class SmartScheduler:
                     state.sent_this_hour = 0
                     r_hour = hour_str
                     state_modified = True
-                    
+
                 if state_modified:
                     states_to_save.append((state, r_day, r_hour))
             else:
                 # Insert initial row in DB
                 states_to_save.append((state, today_str, hour_str))
-                
+
             self.providers[name] = state
-            
+
         if states_to_save:
             self._save_provider_states_to_db(states_to_save)
 
@@ -372,7 +418,7 @@ class SmartScheduler:
 
     def should_send_now(self) -> Tuple[bool, str]:
         """Check if we should send based on Predictive Open-Rate Engine (Item 6).
-        
+
         24/7 MODE: All time-based restrictions removed for continuous cloud operation.
         Weekend holds, lunch hour dead zones, and late afternoon penalties are disabled.
         """
@@ -392,11 +438,11 @@ class SmartScheduler:
         # Optimal open rates are Tuesday-Thursday, 9:00 AM - 11:30 AM
         current_day = now.weekday()
         current_hour = local_hour
-        
+
         # High priority dispatch window
         if current_day in (1, 2, 3) and current_hour in (9, 10, 11):
             return True, "PREDICTIVE_OPTIMAL: High Open Rate Window"
-            
+
         # Weekend penalty — DISABLED for 24/7 cloud operation
         # if current_day >= 5:
         #     if random.random() < 0.8:
@@ -406,7 +452,7 @@ class SmartScheduler:
         # if current_hour in (12, 13):
         #     if random.random() < 0.2:
         #         return False, "PREDICTIVE_HOLD: Lunch hour dead zone"
-                
+
         # Late afternoon penalty — DISABLED for 24/7 cloud operation
         # if current_hour >= 16:
         #     if random.random() < 0.1:
@@ -448,7 +494,7 @@ class SmartScheduler:
                     "failures": p.failures,
                 }
                 for name, p in self.providers.items()
-            }
+            },
         }
 
     def reset_daily(self):
@@ -475,7 +521,7 @@ class SmartScheduler:
         """
         if self._send_lock is None:
             self._send_lock = asyncio.Lock()
-            
+
         async with self._send_lock:
             max_wait_cycles = 20  # More retries before giving up
             for _ in range(max_wait_cycles):
@@ -528,7 +574,9 @@ class SmartScheduler:
 
 # Detect dynamic timezone offset from environment, default to Lebanon (UTC+3) for cloud deployments
 try:
-    _tz_offset = int(os.environ.get("TZ_OFFSET", os.environ.get("TIMEZONE_OFFSET", "3")))
+    _tz_offset = int(
+        os.environ.get("TZ_OFFSET", os.environ.get("TIMEZONE_OFFSET", "3"))
+    )
 except ValueError:
     _tz_offset = 3
 scheduler = SmartScheduler(tz_offset=_tz_offset)

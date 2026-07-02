@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
- <meta name="description" content="مركز الثقة JobHunt Pro — الأمان، الخصوصية، وقصص النجاح. أمان على مستوى الشركات لبحثك التلقائي عن وظيفة.">
- <title>مركز الثقة — JobHunt Pro</title>
- <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
+<meta content="مركز الثقة JobHunt Pro — الأمان، الخصوصية، وقصص النجاح. أمان على مستوى الشركات لبحثك التلقائي عن وظيفة." name="description"/>
+<title>{{ _('مركز الثقة — JobHunt Pro') }}</title>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -263,7 +264,6 @@ body{
 </style>
 </head>
 <body class="cyberpunk-body">
-
 <div class="bg-layer bg-grid"></div>
 <div class="bg-layer bg-gradient"></div>
 <div class="scanline"></div>
@@ -271,188 +271,178 @@ body{
 {% include '_public_nav.html' %}
 
 <div class="container" style="padding-top:140px;">
-
 <!-- Hero -->
 <section class="trust-hero">
- <div class="badge">🔒 مركز الثقة والأمان</div>
- <h1>بياناتك، <span class="gradient">خصوصيتك</span>،<br>مسيرتك المهنية</h1>
- <p>نحنا بناخد خصوصيتك بجدية متل ما بتاخد مسيرتك المهنية. كل قرار بناخده ببلش بسؤال واحد: "هل هالشي بيحمي مستخدمينا؟"</p>
+<div class="badge">🔒 مركز الثقة والأمان</div>
+<h1>بياناتك، <span class="gradient">خصوصيتك</span>،<br/>مسيرتك المهنية</h1>
+<p>نحنا بناخد خصوصيتك بجدية متل ما بتاخد مسيرتك المهنية. كل قرار بناخده ببلش بسؤال واحد: "هل هالشي بيحمي مستخدمينا؟"</p>
 </section>
-
 <!-- Trust Stats -->
 <section class="trust-stats">
- <div class="tstat-card"><div class="ts-num">99.97%</div><div class="ts-label">وقت التشغيل</div></div>
- <div class="tstat-card"><div class="ts-num">256-bit</div><div class="ts-label">تشفير AES</div></div>
- <div class="tstat-card"><div class="ts-num">0</div><div class="ts-label">اختراقات للبيانات</div></div>
- <div class="tstat-card"><div class="ts-num">30 يوم</div><div class="ts-label">استرداد المصاري</div></div>
+<div class="tstat-card"><div class="ts-num">99.97%</div><div class="ts-label">وقت التشغيل</div></div>
+<div class="tstat-card"><div class="ts-num">{{ _('256-bit') }}</div><div class="ts-label">{{ _('تشفير AES') }}</div></div>
+<div class="tstat-card"><div class="ts-num">0</div><div class="ts-label">اختراقات للبيانات</div></div>
+<div class="tstat-card"><div class="ts-num">30 يوم</div><div class="ts-label">استرداد المصاري</div></div>
 </section>
-
 <!-- Security Infrastructure -->
 <section class="section-header">
- <div class="overline">البنية التحتية للأمان</div>
- <h2>حماية <span class="gradient">على مستوى الشركات</span></h2>
- <p>سيرتك الذاتية، طلباتك، وبياناتك الشخصية محمية بنفس مستوى الأمان اللي بتستخدمه البنوك والحكومات.</p>
+<div class="overline">البنية التحتية للأمان</div>
+<h2>حماية <span class="gradient">على مستوى الشركات</span></h2>
+<p>سيرتك الذاتية، طلباتك، وبياناتك الشخصية محمية بنفس مستوى الأمان اللي بتستخدمه البنوك والحكومات.</p>
 </section>
-
 <div class="security-grid">
- <div class="sec-card">
-  <div class="sec-icon">🔐</div>
-  <h4>تشفير AES-256</h4>
-  <p>كل البيانات مشفرة بقاعدة البيانات باستخدام AES-256، نفس معيار التشفير اللي بتستخدمه الحكومة الأمريكية للمعلومات السرية. كمان بياناتك مشفرة وقت النقل باستخدام TLS 1.3.</p>
- </div>
- <div class="sec-card">
-  <div class="sec-icon">🛡️</div>
-  <h4>بنية عدم المعرفة (Zero-Knowledge)</h4>
-  <p>بياناتك الشخصية بتبقى إلك. نحنا بنستخدم بنية عدم المعرفة لحتى نشفر المعلومات الحساسة قبل ما توصل لسيرفراتنا. حتى مهندسينا ما بيقدروا يوصلوا لبيانات سيرتك الذاتية الخام.</p>
- </div>
- <div class="sec-card">
-  <div class="sec-icon">📊</div>
-  <h4>نسخ احتياطي تلقائي</h4>
-  <p>نسخ احتياطية مشفرة كل ساعة لقاعدة البيانات مع الاحتفاظ فيها لمدة 30 يوم. بيتم اختبار التعافي من الكوارث كل أسبوع. حملاتك وبياناتك دايماً بأمان وبنقدر نسترجعها بدقايق.</p>
- </div>
- <div class="sec-card">
-  <div class="sec-icon">🕵️</div>
-  <h4>تكنولوجيا التخفي للإيميل</h4>
-  <p>نظامنا المضاد للاكتشاف بيستخدم أنماط توقيت بشرية، وتدوير لمزودي الإيميل، وإحماء ذكي لحتى نضمن إنو طلباتك تبين عضوية 100%. ما في علامات سبام، أبداً.</p>
- </div>
- <div class="sec-card">
-  <div class="sec-icon">🔑</div>
-  <h4>مصادقة آمنة</h4>
-  <p>كلمات المرور مشفرة باستخدام bcrypt مع salt لكل مستخدم. الجلسات موقعة تشفيرياً وبتنتهي صلاحيتها تلقائياً. حماية من هجمات القوة الغاشمة مع حد للطلبات على كل نقاط تسجيل الدخول.</p>
- </div>
- <div class="sec-card">
-  <div class="sec-icon">⚡</div>
-  <h4>حماية من الـ DDoS</h4>
-  <p>محمي بتقنية تخفيف الـ DDoS على مستوى الشركات. حد الطلبات، والتحقق منها، والحظر التلقائي للزيارات الخبيثة بيضمن إنو المنصة تضل شغالة 24/7.</p>
- </div>
-</section>
+<div class="sec-card">
+<div class="sec-icon">🔐</div>
+<h4>{{ _('تشفير AES-256') }}</h4>
+<p>{{ _('كل البيانات مشفرة بقاعدة البيانات باستخدام AES-256، نفس معيار التشفير اللي بتستخدمه الحكومة الأمريكية للمعلومات السرية. كمان بياناتك مشفرة وقت النقل باستخدام TLS 1.3.') }}</p>
+</div>
+<div class="sec-card">
+<div class="sec-icon">🛡️</div>
+<h4>{{ _('بنية عدم المعرفة (Zero-Knowledge)') }}</h4>
+<p>بياناتك الشخصية بتبقى إلك. نحنا بنستخدم بنية عدم المعرفة لحتى نشفر المعلومات الحساسة قبل ما توصل لسيرفراتنا. حتى مهندسينا ما بيقدروا يوصلوا لبيانات سيرتك الذاتية الخام.</p>
+</div>
+<div class="sec-card">
+<div class="sec-icon">📊</div>
+<h4>نسخ احتياطي تلقائي</h4>
+<p>نسخ احتياطية مشفرة كل ساعة لقاعدة البيانات مع الاحتفاظ فيها لمدة 30 يوم. بيتم اختبار التعافي من الكوارث كل أسبوع. حملاتك وبياناتك دايماً بأمان وبنقدر نسترجعها بدقايق.</p>
+</div>
+<div class="sec-card">
+<div class="sec-icon">🕵️</div>
+<h4>تكنولوجيا التخفي للإيميل</h4>
+<p>نظامنا المضاد للاكتشاف بيستخدم أنماط توقيت بشرية، وتدوير لمزودي الإيميل، وإحماء ذكي لحتى نضمن إنو طلباتك تبين عضوية 100%. ما في علامات سبام، أبداً.</p>
+</div>
+<div class="sec-card">
+<div class="sec-icon">🔑</div>
+<h4>مصادقة آمنة</h4>
+<p>{{ _('كلمات المرور مشفرة باستخدام bcrypt مع salt لكل مستخدم. الجلسات موقعة تشفيرياً وبتنتهي صلاحيتها تلقائياً. حماية من هجمات القوة الغاشمة مع حد للطلبات على كل نقاط تسجيل الدخول.') }}</p>
+</div>
+<div class="sec-card">
+<div class="sec-icon">⚡</div>
+<h4>{{ _('حماية من الـ DDoS') }}</h4>
+<p>{{ _('محمي بتقنية تخفيف الـ DDoS على مستوى الشركات. حد الطلبات، والتحقق منها، والحظر التلقائي للزيارات الخبيثة بيضمن إنو المنصة تضل شغالة 24/7.') }}</p>
+</div>
 
 <!-- Compliance -->
 <section class="compliance-section">
- <div class="section-header">
-  <div class="overline">المعايير والشهادات</div>
-  <h2><span class="gradient">امتثال</span> بتقدر توثق فيه</h2>
-  <p>نحنا بنتبع أصرم المعايير العالمية لحماية البيانات والخصوصية</p>
- </div>
- <div style="overflow-x:auto">
- <table class="compliance-table">
-  <thead>
-   <tr><th>المعيار</th><th>الوصف</th><th>الحالة</th></tr>
-  </thead>
-  <tbody>
-   <tr><td>GDPR</td><td>اللائحة العامة لحماية البيانات (الاتحاد الأوروبي) — أقوى قانون خصوصية بالعالم</td><td class="cc-yes">✓ متوافق</td></tr>
-   <tr><td>CCPA</td><td>قانون خصوصية المستهلك في كاليفورنيا — الحق بالمعرفة، الحذف، والانسحاب</td><td class="cc-yes">✓ متوافق</td></tr>
-   <tr><td>TLS 1.3</td><td>أحدث أمان لطبقة النقل لكل البيانات أثناء النقل</td><td class="cc-yes">✓ مفعل</td></tr>
-   <tr><td>AES-256</td><td>تشفير بدرجة عسكرية لكل البيانات بقاعدة البيانات</td><td class="cc-yes">✓ مفعل</td></tr>
-   <tr><td>bcrypt</td><td>تشفير قياسي بقطاع الصناعة لكلمات المرور</td><td class="cc-yes">✓ مفعل</td></tr>
-   <tr><td>الحق بالحذف</td><td>احذف كل بياناتك فوراً، بدون أي أسئلة</td><td class="cc-yes">✓ مضمون</td></tr>
-   <tr><td>نقل البيانات</td><td>صدّر كل بياناتك بصيغ قياسية بأي وقت</td><td class="cc-yes">✓ متوفر</td></tr>
-   <tr><td>عدم بيع البيانات</td><td>نحنا ما بنبيع، ما بنشارك، وما بنستفيد مادياً من بياناتك الشخصية</td><td class="cc-yes">✓ مضمون</td></tr>
-   <tr><td>SOC 2</td><td>التحكم بتنظيم الخدمات — تدقيق أمني من جهة خارجية</td><td class="cc-na">قيد الإنجاز</td></tr>
-  </tbody>
- </table>
- </div>
+<div class="section-header">
+<div class="overline">المعايير والشهادات</div>
+<h2><span class="gradient">امتثال</span> بتقدر توثق فيه</h2>
+<p>نحنا بنتبع أصرم المعايير العالمية لحماية البيانات والخصوصية</p>
+</div>
+<div style="overflow-x:auto">
+<table class="compliance-table">
+<thead>
+<tr><th>المعيار</th><th>الوصف</th><th>الحالة</th></tr>
+</thead>
+<tbody>
+<tr><td>{{ _('GDPR') }}</td><td>اللائحة العامة لحماية البيانات (الاتحاد الأوروبي) — أقوى قانون خصوصية بالعالم</td><td class="cc-yes">✓ متوافق</td></tr>
+<tr><td>{{ _('CCPA') }}</td><td>قانون خصوصية المستهلك في كاليفورنيا — الحق بالمعرفة، الحذف، والانسحاب</td><td class="cc-yes">✓ متوافق</td></tr>
+<tr><td>{{ _('TLS 1.3') }}</td><td>أحدث أمان لطبقة النقل لكل البيانات أثناء النقل</td><td class="cc-yes">✓ مفعل</td></tr>
+<tr><td>{{ _('AES-256') }}</td><td>تشفير بدرجة عسكرية لكل البيانات بقاعدة البيانات</td><td class="cc-yes">✓ مفعل</td></tr>
+<tr><td>{{ _('bcrypt') }}</td><td>تشفير قياسي بقطاع الصناعة لكلمات المرور</td><td class="cc-yes">✓ مفعل</td></tr>
+<tr><td>الحق بالحذف</td><td>احذف كل بياناتك فوراً، بدون أي أسئلة</td><td class="cc-yes">✓ مضمون</td></tr>
+<tr><td>نقل البيانات</td><td>صدّر كل بياناتك بصيغ قياسية بأي وقت</td><td class="cc-yes">✓ متوفر</td></tr>
+<tr><td>عدم بيع البيانات</td><td>نحنا ما بنبيع، ما بنشارك، وما بنستفيد مادياً من بياناتك الشخصية</td><td class="cc-yes">✓ مضمون</td></tr>
+<tr><td>{{ _('SOC 2') }}</td><td>التحكم بتنظيم الخدمات — تدقيق أمني من جهة خارجية</td><td class="cc-na">قيد الإنجاز</td></tr>
+</tbody>
+</table>
+</div>
 </section>
-
 <!-- Success Stories -->
 <section class="section-header">
- <div class="overline">نتائج حقيقية</div>
- <h2>قصص <span class="gradient">نجاح</span> موثقة</h2>
- <p>أشخاص حقيقيين. وظايف حقيقية. تغييرات حقيقية.</p>
+<div class="overline">نتائج حقيقية</div>
+<h2>قصص <span class="gradient">نجاح</span> موثقة</h2>
+<p>أشخاص حقيقيين. وظايف حقيقية. تغييرات حقيقية.</p>
 </section>
-
 <div class="stories-grid">
- <div class="story-card">
-  <div class="story-metric">18 يوم</div>
-  <div class="story-result">✅ من 0 مقابلات لتوظيف براتب 78 ألف دولار/سنة</div>
-  <div class="story-quote">"بعد 6 شهور من التقديم اليدوي وبدون أي ردود، جربت JobHunt Pro. خلال 3 أسابيع أجاني 4 مقابلات وعرضين عمل. النظام لقى وظايف ما كنت بعرف إنها موجودة. رسائل التغطية بالذكاء الاصطناعي خرافية — كل وحدة بتحس كأنو إنسان كتبها خصيصاً لهالشركة."</div>
-  <div class="story-author">
-   <div class="story-avatar sa1">أحمد</div>
-   <div class="story-info"><div class="si-name">أحمد ك.</div><div class="si-role">مهندس شبكات → توظف براتب 78K$</div></div>
-  </div>
- </div>
- <div class="story-card">
-  <div class="story-metric">12%</div>
-  <div class="story-result">✅ معدل المقابلات (4 أضعاف متوسط الصناعة)</div>
-  <div class="story-quote">"بعتت 800 طلب من خلال المنصة بأول أسبوع. أجاني 96 رد و 12 اتصال للمقابلة. نظام تدوير الإيميل عبقرية خالصة — طلباتي عن جد عم توصل لمدراء التوظيف بدل ما تروح عالسبام. أصلاً نصحت فيه كل حدا بعرفه عم يدور ع شغل."</div>
-  <div class="story-author">
-   <div class="story-avatar sa2">ماريا</div>
-   <div class="story-info"><div class="si-name">ماريا س.</div><div class="si-role">مطور برمجيات → توظفت عن بعد</div></div>
-  </div>
- </div>
- <div class="story-card">
-  <div class="story-metric">22 يوم</div>
-  <div class="story-result">✅ وظيفة عن بعد براتب أمريكي من بيروت</div>
-  <div class="story-quote">"كنت متشككة إني أدفع لأداة بحث عن عمل. بس 120$ لـ 5000 طلب تلقائي؟ هيدا أقل من 3 سنت للطلب. حصلت على وظيفة عن بعد بشركة أمريكية براتب 96 ألف دولار/سنة وأنا عايشة بلبنان. العائد على الاستثمار حرفياً غيّر حياتي. أفضل استثمار بحياتي."</div>
-  <div class="story-author">
-   <div class="story-avatar sa3">ليلى</div>
-   <div class="story-info"><div class="si-name">ليلى س.</div><div class="si-role">مصمم UX → وظيفة عن بعد 96K$</div></div>
-  </div>
- </div>
- <div class="story-card">
-  <div class="story-metric">5 عروض</div>
-  <div class="story-result">✅ عروض منافسة متعددة خلال 3 أسابيع</div>
-  <div class="story-quote">"نظام المتابعة لحاله بيسوى 10 أضعاف السعر. المتابعات التلقائية والمهذبة باليوم 7 و 14 رفعت معدل الردود بنسبة 40%. تحولت من باحث عن عمل يائس لواحد عنده 5 عروض عم تتنافس عليّ. فعلياً الشركات كانت عم تزايد على بعضها كرمالي. تجربة خيالية."</div>
-  <div class="story-author">
-   <div class="story-avatar sa4">سامر</div>
-   <div class="story-info"><div class="si-name">سامر ك.</div><div class="si-role">مدير تسويق → 110K$/سنة</div></div>
-  </div>
- </div>
+<div class="story-card">
+<div class="story-metric">18 يوم</div>
+<div class="story-result">✅ من 0 مقابلات لتوظيف براتب 78 ألف دولار/سنة</div>
+<div class="story-quote">{{ _('"بعد 6 شهور من التقديم اليدوي وبدون أي ردود، جربت JobHunt Pro. خلال 3 أسابيع أجاني 4 مقابلات وعرضين عمل. النظام لقى وظايف ما كنت بعرف إنها موجودة. رسائل التغطية بالذكاء الاصطناعي خرافية — كل وحدة بتحس كأنو إنسان كتبها خصيصاً لهالشركة."') }}</div>
+<div class="story-author">
+<div class="story-avatar sa1">أحمد</div>
+<div class="story-info"><div class="si-name">أحمد ك.</div><div class="si-role">{{ _('مهندس شبكات → توظف براتب 78K$') }}</div></div>
 </div>
-
+</div>
+<div class="story-card">
+<div class="story-metric">12%</div>
+<div class="story-result">✅ معدل المقابلات (4 أضعاف متوسط الصناعة)</div>
+<div class="story-quote">"بعتت 800 طلب من خلال المنصة بأول أسبوع. أجاني 96 رد و 12 اتصال للمقابلة. نظام تدوير الإيميل عبقرية خالصة — طلباتي عن جد عم توصل لمدراء التوظيف بدل ما تروح عالسبام. أصلاً نصحت فيه كل حدا بعرفه عم يدور ع شغل."</div>
+<div class="story-author">
+<div class="story-avatar sa2">ماريا</div>
+<div class="story-info"><div class="si-name">ماريا س.</div><div class="si-role">مطور برمجيات → توظفت عن بعد</div></div>
+</div>
+</div>
+<div class="story-card">
+<div class="story-metric">22 يوم</div>
+<div class="story-result">✅ وظيفة عن بعد براتب أمريكي من بيروت</div>
+<div class="story-quote">"كنت متشككة إني أدفع لأداة بحث عن عمل. بس 120$ لـ 5000 طلب تلقائي؟ هيدا أقل من 3 سنت للطلب. حصلت على وظيفة عن بعد بشركة أمريكية براتب 96 ألف دولار/سنة وأنا عايشة بلبنان. العائد على الاستثمار حرفياً غيّر حياتي. أفضل استثمار بحياتي."</div>
+<div class="story-author">
+<div class="story-avatar sa3">ليلى</div>
+<div class="story-info"><div class="si-name">ليلى س.</div><div class="si-role">{{ _('مصمم UX → وظيفة عن بعد 96K$') }}</div></div>
+</div>
+</div>
+<div class="story-card">
+<div class="story-metric">5 عروض</div>
+<div class="story-result">✅ عروض منافسة متعددة خلال 3 أسابيع</div>
+<div class="story-quote">"نظام المتابعة لحاله بيسوى 10 أضعاف السعر. المتابعات التلقائية والمهذبة باليوم 7 و 14 رفعت معدل الردود بنسبة 40%. تحولت من باحث عن عمل يائس لواحد عنده 5 عروض عم تتنافس عليّ. فعلياً الشركات كانت عم تزايد على بعضها كرمالي. تجربة خيالية."</div>
+<div class="story-author">
+<div class="story-avatar sa4">سامر</div>
+<div class="story-info"><div class="si-name">سامر ك.</div><div class="si-role">{{ _('مدير تسويق → 110K$/سنة') }}</div></div>
+</div>
+</div>
+</div>
 <!-- Privacy Principles -->
 <section class="privacy-section">
- <div class="section-header">
-  <div class="overline">وعدنا إلك</div>
-  <h2>مبادئ <span class="gradient">الخصوصية</span></h2>
-  <p>هيدي مش مجرد كلمات — هيدي الأساس لكل شي بنبنيه</p>
- </div>
- <div class="privacy-list">
-  <div class="privacy-item">
-   <div class="pi-icon">🚫</div>
-   <div class="pi-content">
-    <h4>نحنا ما بنبيع بياناتك أبداً</h4>
-    <p>نقطة عالسطر. سيرتك الذاتية، إيميلك، رقم تلفونك، تفضيلاتك الوظيفية، وبيانات طلباتك هي إلك وبس. نحنا ما بنبيع، ما بنشارك، ما بنأجر، وما بنستفيد مادياً من أي معلومات شخصية إلك مع أطراف تالتة. لا للموظفين، لا للمعلنين، ولا لأي حدا.</p>
-   </div>
-  </div>
-  <div class="privacy-item">
-   <div class="pi-icon">🔑</div>
-   <div class="pi-content">
-    <h4>أنت بتتحكم ببياناتك</h4>
-    <p>نزّل كل بياناتك بأي وقت بصيغ قياسية. احذف حسابك وكل البيانات المرتبطة فيه فوراً بكبسة زر. ما في حيل للاحتفاظ بالبيانات، ما في فترات "تبريد"، وما في نسخ مخفية. لما تقول احذف، منكبّها — بالكامل وبشكل لا رجعة فيه.</p>
-   </div>
-  </div>
-  <div class="privacy-item">
-   <div class="pi-icon">🪪</div>
-   <div class="pi-content">
-    <h4>أسماء مستعارة بالتصميم</h4>
-    <p>ادفع بالعملات الرقمية (BTC, ETH, USDT) — بلا اسم، بلا بنك، وبلا أثر. ما بنطلب هوية شخصية لحتى تستخدم المنصة. بحثك عن وظيفة هو شغلك الخاص. نحنا بس المحرك اللي بشغله.</p>
-   </div>
-  </div>
-  <div class="privacy-item">
-   <div class="pi-icon">📊</div>
-   <div class="pi-content">
-    <h4>جمع بيانات بالحد الأدنى</h4>
-    <p>نحنا بس بنجمع اللي لازمنا تماماً لحتى نشغل حملات بحثك عن عمل. ما في تتبع لسجل التصفح، ما في بصمة للجهاز، ما في تتبع للموقع، وما في ملفات تعريف ارتباط (كوكيز) عبر المواقع. نحنا مش بشغل البيانات — نحنا بشغل إيجاد الوظايف.</p>
-   </div>
-  </div>
-  <div class="privacy-item">
-   <div class="pi-icon">🔍</div>
-   <div class="pi-content">
-    <h4>عمليات شفافة</h4>
-    <p>كل إيميل بينبعت، كل طلب بيتقدم، كل تغيير بالحالة — بتقدر تشوفه كله بلوحة التحكم المباشرة تبعك. ما في شي مخفي. نحنا بنأمن إنك بتستحق رؤية كاملة لشو عم يعمل الذكاء الاصطناعي نيابة عنك.</p>
-   </div>
-  </div>
- </div>
+<div class="section-header">
+<div class="overline">وعدنا إلك</div>
+<h2>مبادئ <span class="gradient">الخصوصية</span></h2>
+<p>هيدي مش مجرد كلمات — هيدي الأساس لكل شي بنبنيه</p>
+</div>
+<div class="privacy-list">
+<div class="privacy-item">
+<div class="pi-icon">🚫</div>
+<div class="pi-content">
+<h4>نحنا ما بنبيع بياناتك أبداً</h4>
+<p>نقطة عالسطر. سيرتك الذاتية، إيميلك، رقم تلفونك، تفضيلاتك الوظيفية، وبيانات طلباتك هي إلك وبس. نحنا ما بنبيع، ما بنشارك، ما بنأجر، وما بنستفيد مادياً من أي معلومات شخصية إلك مع أطراف تالتة. لا للموظفين، لا للمعلنين، ولا لأي حدا.</p>
+</div>
+</div>
+<div class="privacy-item">
+<div class="pi-icon">🔑</div>
+<div class="pi-content">
+<h4>أنت بتتحكم ببياناتك</h4>
+<p>نزّل كل بياناتك بأي وقت بصيغ قياسية. احذف حسابك وكل البيانات المرتبطة فيه فوراً بكبسة زر. ما في حيل للاحتفاظ بالبيانات، ما في فترات "تبريد"، وما في نسخ مخفية. لما تقول احذف، منكبّها — بالكامل وبشكل لا رجعة فيه.</p>
+</div>
+</div>
+<div class="privacy-item">
+<div class="pi-icon">🪪</div>
+<div class="pi-content">
+<h4>أسماء مستعارة بالتصميم</h4>
+<p>{{ _('ادفع بالعملات الرقمية (BTC, ETH, USDT) — بلا اسم، بلا بنك، وبلا أثر. ما بنطلب هوية شخصية لحتى تستخدم المنصة. بحثك عن وظيفة هو شغلك الخاص. نحنا بس المحرك اللي بشغله.') }}</p>
+</div>
+</div>
+<div class="privacy-item">
+<div class="pi-icon">📊</div>
+<div class="pi-content">
+<h4>جمع بيانات بالحد الأدنى</h4>
+<p>نحنا بس بنجمع اللي لازمنا تماماً لحتى نشغل حملات بحثك عن عمل. ما في تتبع لسجل التصفح، ما في بصمة للجهاز، ما في تتبع للموقع، وما في ملفات تعريف ارتباط (كوكيز) عبر المواقع. نحنا مش بشغل البيانات — نحنا بشغل إيجاد الوظايف.</p>
+</div>
+</div>
+<div class="privacy-item">
+<div class="pi-icon">🔍</div>
+<div class="pi-content">
+<h4>عمليات شفافة</h4>
+<p>كل إيميل بينبعت، كل طلب بيتقدم، كل تغيير بالحالة — بتقدر تشوفه كله بلوحة التحكم المباشرة تبعك. ما في شي مخفي. نحنا بنأمن إنك بتستحق رؤية كاملة لشو عم يعمل الذكاء الاصطناعي نيابة عنك.</p>
+</div>
+</div>
+</div>
 </section>
-
 <!-- CTA -->
 <section class="trust-cta">
- <h3>جاهز لتسلم <span class="gradient">بحثك عن وظيفة</span> للذكاء الاصطناعي؟</h3>
- <p>أكتر من 10,847 باحث عن عمل وثقوا فينا. انضم إلهم بدون مخاطرة مع ضمان استرداد المصاري خلال 30 يوم.</p>
- <a href="/register" class="btn-cyan">🚀 ابدأ حملتك الآمنة هلق →</a>
+<h3>جاهز لتسلم <span class="gradient">بحثك عن وظيفة</span> للذكاء الاصطناعي؟</h3>
+<p>أكتر من 10,847 باحث عن عمل وثقوا فينا. انضم إلهم بدون مخاطرة مع ضمان استرداد المصاري خلال 30 يوم.</p>
+<a class="btn-cyan" href="/register">🚀 ابدأ حملتك الآمنة هلق →</a>
 </section>
-
 </div>
 
 {% include '_public_footer.html' %}
@@ -462,5 +452,5 @@ window.addEventListener('scroll',()=>{
  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>50);
 });
 </script>
-</body>
+</div></body>
 </html>

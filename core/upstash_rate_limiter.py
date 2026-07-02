@@ -70,9 +70,9 @@ class RateLimiter:
                 data=payload,
                 headers={
                     "Authorization": f"Bearer {self.token}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
-                method="POST"
+                method="POST",
             )
             with urllib.request.urlopen(req, timeout=5) as resp:
                 data = json.loads(resp.read())
@@ -112,7 +112,9 @@ class RateLimiter:
                 self._fallback[key] = []
 
             # Remove old entries
-            self._fallback[key] = [t for t in self._fallback[key] if t > now - window_seconds]
+            self._fallback[key] = [
+                t for t in self._fallback[key] if t > now - window_seconds
+            ]
 
             if len(self._fallback[key]) >= max_count:
                 return False
@@ -159,10 +161,12 @@ def check_api_rate(api_key: str) -> bool:
 def check_email_rate(provider: str) -> bool:
     """Rate limit email sends: per provider caps."""
     caps = {
-        "gmail": (100, 86400),      # 100/day
-        "hotmail": (500, 3600),     # 500/hour
-        "brevo": (250, 86400),      # 250/day
-        "smtp": (50, 3600),         # 50/hour generic
+        "gmail": (100, 86400),  # 100/day
+        "hotmail": (500, 3600),  # 500/hour
+        "brevo": (250, 86400),  # 250/day
+        "smtp": (50, 3600),  # 50/hour generic
     }
     max_count, window = caps.get(provider, (50, 3600))
-    return rate_limiter.allow(f"email:{provider}", max_count=max_count, window_seconds=window)
+    return rate_limiter.allow(
+        f"email:{provider}", max_count=max_count, window_seconds=window
+    )

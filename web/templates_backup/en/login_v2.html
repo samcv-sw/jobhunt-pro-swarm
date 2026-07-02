@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Login to your JobHunt Pro account.">
+  <meta name="robots" content="noindex,follow">
+  <title>Login — JobHunt Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+<!-- Login v2 — Enhanced with password strength meter, toggle visibility, loading states, improved animations -->
+<link rel="stylesheet" href="/static/css/dashboard-v4.css?v=20260629_v2">
+<link rel="stylesheet" href="/static/css/auth-v2.css?v=20260629_v2">
+<style>
+/* ═══════════════════════════════════════════
+   LOGIN v2 — Page-Specific Styles
+   ═══════════════════════════════════════════ */
+
+.auth-card {
+  animation: fadeSlideUp 0.5s ease-out;
+}
+
+/* ── Background particles (CSS only) ── */
+.bg-particles {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.bg-particles .particle {
+  position: absolute;
+  width: 4px; height: 4px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  opacity: 0.15;
+  animation: floatParticle 20s infinite linear;
+}
+.bg-particles .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; animation-duration: 18s; }
+.bg-particles .particle:nth-child(2) { left: 25%; top: 60%; animation-delay: 2s; animation-duration: 22s; width: 3px; height: 3px; }
+.bg-particles .particle:nth-child(3) { left: 45%; top: 10%; animation-delay: 4s; animation-duration: 25s; }
+.bg-particles .particle:nth-child(4) { left: 65%; top: 70%; animation-delay: 1s; animation-duration: 20s; width: 5px; height: 5px; }
+.bg-particles .particle:nth-child(5) { left: 80%; top: 30%; animation-delay: 3s; animation-duration: 23s; }
+.bg-particles .particle:nth-child(6) { left: 50%; top: 80%; animation-delay: 5s; animation-duration: 19s; width: 3px; height: 3px; }
+.bg-particles .particle:nth-child(7) { left: 15%; top: 85%; animation-delay: 6s; animation-duration: 21s; }
+.bg-particles .particle:nth-child(8) { left: 90%; top: 50%; animation-delay: 2.5s; animation-duration: 24s; }
+@keyframes floatParticle {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.15; }
+  90% { opacity: 0.15; }
+  100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+}
+
+/* ── Success animation ── */
+@keyframes successPop {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.success-check {
+  display: none;
+  text-align: center; padding: 40px 20px;
+  animation: successPop 0.5s ease-out;
+}
+.success-check .check-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--accent-success); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; margin: 0 auto 16px;
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+}
+.success-check h2 { font-size: 22px; margin-bottom: 8px; }
+.success-check p { color: var(--text-muted); font-size: 14px; }
+</style>
+</head>
+<body class="auth-page">
+<div class="bg-particles">
+  <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div>
+</div>
+
+{% include '_public_nav.html' %}
+
+<div class="auth-page-wrap" style="padding-top:140px;">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>Welcome Back 👋</h1>
+        <p class="sub">Login to manage your AI job campaigns</p>
+      </div>
+
+      {% if plan %}
+      <div class="plan-badge">
+        <span class="plan-badge-icon">🚀</span>
+        <div class="plan-badge-info">
+          <strong>{{ plan }} Plan Selected</strong>
+          <span>Continue with your chosen plan. You can change anytime.</span>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if error %}
+      <div class="error">⚠️ {{ error }}</div>
+      {% endif %}
+
+      <!-- OAuth Row -->
+      <div class="oauth-row">
+        <a href="/auth/google/login" class="btn-oauth">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" loading="lazy">
+          Google
+        </a>
+        <a href="/auth/microsoft/login" class="btn-oauth">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" loading="lazy">
+          Microsoft
+        </a>
+      </div>
+
+      <div class="oauth-divider">OR</div>
+
+      <form method="POST" action="/login" id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input dir="auto" type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="pw-input-wrap">
+            <input dir="auto" type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password" oninput="checkPwStrength(this.value)">
+            <button type="button" class="pw-toggle-btn" onclick="togglePwVisibility()" id="pwToggle" aria-label="Toggle password visibility">👁️</button>
+          </div>
+          <!-- Password Strength Meter -->
+          <div class="pw-strength-meter">
+            <div class="pw-strength-bar" id="pwStrengthBar"></div>
+          </div>
+          <div class="pw-strength-label" id="pwStrengthLabel"></div>
+        </div>
+        <div class="pw-row">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);cursor:pointer;">
+            <input dir="auto" type="checkbox" name="remember" style="accent-color:var(--accent-primary);"> Remember me
+          </label>
+          <a href="/forgot-password">Forgot password?</a>
+        </div>
+        <button type="submit" class="btn-submit" id="loginBtn">
+          <span class="btn-text">🔐 Login to Dashboard</span>
+          <span class="btn-spinner"></span>
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        New to JobHunt Pro? <a href="/register">Create free account →</a>
+      </div>
+    </div>
+
+    <div class="trust-strip">
+      <span>🔒 256-bit encrypted</span>
+      <span>🛡️ 30-Day Money-Back</span>
+      <span>🤖 200 AI Agents</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   LOGIN v2 — JavaScript
+   ═══════════════════════════════════════════ */
+
+/* ── Password Visibility Toggle ── */
+function togglePwVisibility() {
+  var pw = document.getElementById('password');
+  var toggle = document.getElementById('pwToggle');
+  if (pw.type === 'password') {
+    pw.type = 'text';
+    toggle.textContent = '🙈';
+  } else {
+    pw.type = 'password';
+    toggle.textContent = '👁️';
+  }
+}
+
+/* ── Password Strength Check ── */
+function checkPwStrength(val) {
+  var bar = document.getElementById('pwStrengthBar');
+  var label = document.getElementById('pwStrengthLabel');
+  if (!val) {
+    bar.className = 'pw-strength-bar';
+    label.textContent = '';
+    return;
+  }
+  var score = 0;
+  if (val.length >= 8) score++;
+  if (val.length >= 12) score++;
+  if (/[a-z]/.test(val) && /[A-Z]/.test(val)) score++;
+  if (/\d/.test(val)) score++;
+  if (/[^a-zA-Z0-9]/.test(val)) score++;
+  var levels = ['', 'weak', 'fair', 'good', 'strong'];
+  var labels = ['', 'Weak — Try adding numbers & symbols', 'Fair — Add uppercase & special chars', 'Good — Almost there!', 'Strong — Great password!'];
+  bar.className = 'pw-strength-bar ' + levels[score];
+  label.textContent = labels[score];
+  label.className = 'pw-strength-label ' + levels[score];
+}
+
+/* ── Form Submit with Loading State ── */
+function handleLogin(e) {
+  e.preventDefault();
+  var btn = document.getElementById('loginBtn');
+  btn.classList.add('loading');
+  // Allow form to submit naturally after brief delay for UX
+  setTimeout(function() {
+    document.getElementById('loginForm').submit();
+  }, 300);
+}
+
+/* ── Scroll Reveal ── */
+document.addEventListener('DOMContentLoaded', function() {
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(function(el) {
+    observer.observe(el);
+  });
+});
+</script>
+{% include '_public_footer.html' %}
+</body>
+</html>

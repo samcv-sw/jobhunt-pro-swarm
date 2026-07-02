@@ -2,13 +2,15 @@
 BLAST QUEUE: API queues → cron picks up → Graph API sends
 Works on PA $0 tier. No blocking. No timeouts.
 """
-import json, os, logging, time
+
+import json, logging
 from datetime import datetime
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 QUEUE_DIR = None
+
 
 def init(data_dir: str = None):
     global QUEUE_DIR
@@ -19,9 +21,13 @@ def init(data_dir: str = None):
     QUEUE_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def enqueue(recipients_file: str, max_sends: int,
-            campaign: str = "blast", subject: str = None,
-            body: str = None) -> dict:
+def enqueue(
+    recipients_file: str,
+    max_sends: int,
+    campaign: str = "blast",
+    subject: str = None,
+    body: str = None,
+) -> dict:
     """Queue a blast. Returns immediately."""
     job_id = f"blast_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{campaign}"
 
@@ -39,7 +45,7 @@ def enqueue(recipients_file: str, max_sends: int,
     }
 
     job_file = QUEUE_DIR / f"{job_id}.json"
-    json.dump(job, open(job_file, 'w', encoding='utf-8'), indent=2)
+    json.dump(job, open(job_file, "w", encoding="utf-8"), indent=2)
     logger.info(f"Job queued: {job_id} ({max_sends} emails)")
     return job
 
@@ -53,16 +59,18 @@ def get_status() -> dict:
     failed_total = 0
     for f in sorted(QUEUE_DIR.glob("blast_*.json")):
         try:
-            job = json.load(open(f, 'r', encoding='utf-8'))
-            jobs.append({
-                "id": job["id"],
-                "campaign": job["campaign"],
-                "status": job.get("status", "unknown"),
-                "max_sends": job.get("max_sends", 0),
-                "sent": job.get("sent", 0),
-                "failed": job.get("failed", 0),
-                "created": job.get("created", ""),
-            })
+            job = json.load(open(f, "r", encoding="utf-8"))
+            jobs.append(
+                {
+                    "id": job["id"],
+                    "campaign": job["campaign"],
+                    "status": job.get("status", "unknown"),
+                    "max_sends": job.get("max_sends", 0),
+                    "sent": job.get("sent", 0),
+                    "failed": job.get("failed", 0),
+                    "created": job.get("created", ""),
+                }
+            )
             sent_total += job.get("sent", 0)
             failed_total += job.get("failed", 0)
         except Exception:
@@ -86,7 +94,7 @@ def process_queue(limit: int = 50) -> dict:
 
     for job_file in sorted(QUEUE_DIR.glob("blast_*.json")):
         try:
-            job = json.load(open(job_file, 'r', encoding='utf-8'))
+            job = json.load(open(job_file, "r", encoding="utf-8"))
         except Exception:
             continue
 
@@ -95,7 +103,7 @@ def process_queue(limit: int = 50) -> dict:
 
         # Mark as running
         job["status"] = "running"
-        json.dump(job, open(job_file, 'w', encoding='utf-8'), indent=2)
+        json.dump(job, open(job_file, "w", encoding="utf-8"), indent=2)
 
         try:
             # Load recipients (chunked for memory)
@@ -103,13 +111,14 @@ def process_queue(limit: int = 50) -> dict:
             if not recip_file.exists():
                 job["status"] = "failed"
                 job["error"] = f"File not found: {job['recipients_file']}"
-                json.dump(job, open(job_file, 'w', encoding='utf-8'), indent=2)
+                json.dump(job, open(job_file, "w", encoding="utf-8"), indent=2)
                 continue
 
-            recipients = json.load(open(recip_file, 'r', encoding='utf-8'))
+            recipients = json.load(open(recip_file, "r", encoding="utf-8"))
             max_sends = min(job.get("max_sends", 100), limit)
 
             from core.graph_sender import init as gs_init, send_bulk
+
             gs_init()
 
             result = send_bulk(
@@ -135,7 +144,7 @@ def process_queue(limit: int = 50) -> dict:
             job["error"] = str(e)[:500]
             logger.error(f"Blast job failed: {e}")
 
-        json.dump(job, open(job_file, 'w', encoding='utf-8'), indent=2)
+        json.dump(job, open(job_file, "w", encoding="utf-8"), indent=2)
 
         if total_sent >= limit:
             break  # respect batch limit

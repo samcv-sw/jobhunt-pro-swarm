@@ -1,5 +1,4 @@
-<link rel="stylesheet" href="/static/css/cyberpunk.css">
-  
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
 <style>
 /* Contact Page Styles */
 .contact-container{padding:0 0 40px;max-width:1100px;margin:0 auto}
@@ -57,124 +56,121 @@ textarea.glass-input{min-height:140px;resize:vertical;line-height:1.6}
 .wa-float:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(37,211,102,.35)}
 @media(max-width:480px){.wa-float{inset-block-end:16px;inset-inline-end:16px;padding:10px 16px;font-size:12px}}
 </style>
-
 <div class="main contact-container">
-        <!-- Success/Error Messages -->
+<!-- Success/Error Messages -->
         {% if msg %}
         <div class="contact-alert success">
-            &#10004; {{ msg }}
+            ✔ {{ msg }}
         </div>
         {% endif %}
         {% if error %}
         <div class="contact-alert error">
-            &#9888; {{ error }}
+            ⚠ {{ error }}
         </div>
         {% endif %}
 
         <!-- Hero -->
-        <div class="contact-hero">
-            <h1>&#x1F4AC; تواصل ودعم</h1>
-            <p class="subtitle">محتاج مساعدة؟ عندك ملاحظة؟ حابب تقترح ميزة؟ نحن هون كرمالك &mdash; كل رسالة بتساعدنا نطور JobHunt Pro.</p>
-        </div>
-
-        <!-- Response time badge -->
-        <div class="response-badge">
-            <span class="pulse-dot"></span>
+<div class="contact-hero">
+<h1>💬 تواصل ودعم</h1>
+<p class="subtitle">{{ _('محتاج مساعدة؟ عندك ملاحظة؟ حابب تقترح ميزة؟ نحن هون كرمالك — كل رسالة بتساعدنا نطور JobHunt Pro.') }}</p>
+</div>
+<!-- Response time badge -->
+<div class="response-badge">
+<span class="pulse-dot"></span>
             بالعادة منرد خلال ساعتين بأوقات العمل
         </div>
-
-        <!-- Two-column layout -->
-        <div class="contact-grid">
-            <!-- LEFT: Contact Form -->
-            <div class="form-panel">
-                <h2>&#x1F4DD; ابعتلنا رسالة</h2>
-                <p class="form-subtitle">كل الخانات اللي حدها * مطلوبة</p>
-                <form method="post" action="/contact">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="name">اسمك *</label>
-                            <input dir="auto" type="text" id="name" name="name" class="glass-input" placeholder="اسمك الكريم" value="{{ user_name or '' }}" required autocomplete="name">
-                        </div>
-                        <div class="form-group">
-                            <label for="email">بريدك الإلكتروني *</label>
-                            <input dir="auto" type="email" id="email" name="email" class="glass-input" placeholder="you@example.com" value="{{ user_email or '' }}" required autocomplete="email">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="subject">الموضوع *</label>
-                        <select id="subject" name="subject" class="glass-input" required>
-                            <option value="">اختار موضوع...</option>
-                            <option value="support">&#x1F527; دعم فني</option>
-                            <option value="billing">&#x1F4B3; الفواتير والدفع</option>
-                            <option value="feature">&#x1F4A1; طلب ميزة جديدة</option>
-                            <option value="bug">&#x1F41B; تبليغ عن مشكلة</option>
-                            <option value="feedback">&#x1F4AC; ملاحظات عامة</option>
-                            <option value="account">&#x1F464; مساعدة بالحساب</option>
-                            <option value="other">&#x2753; غير هيك</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">رسالتك *</label>
-                        <textarea dir="auto" id="message" name="message" class="glass-input" placeholder="خبرنا شو ببالك... فيك تحط تفاصيل قد ما بدك &mdash; منقرا كل كلمة." required></textarea>
-                    </div>
-                    <button type="submit" class="btn-submit">&#x1F680; ابعت الرسالة</button>
-                </form>
-            </div>
-
-            <!-- RIGHT: Support Cards + Office Hours -->
-            <div class="support-cards">
-                <!-- WhatsApp Card -->
-                <a href="https://wa.me/96171019053?text=مرحبا%20فريق%20JobHunt%20Pro!%20محتاج%20مساعدة%20بـ..." target="_blank" class="support-card whatsapp">
-                    <span class="sc-icon">&#x1F7E2;</span>
-                    <h3>دعم عبر واتساب</h3>
-                    <p>احكينا دغري عالواتساب لأسرع رد. موجودين للمشاكل الطارئة والأسئلة السريعة.</p>
-                </a>
-
-                <!-- Email Card -->
-                <a href="mailto:support@jobhuntpro.ai?subject=دعم%20JobHunt%20Pro" class="support-card email-card-support">
-                    <span class="sc-icon">&#x2709;&#xFE0F;</span>
-                    <h3>ابعتلنا إيميل</h3>
-                    <p>بتفضل الإيميل؟ تواصل معنا على <strong>support@jobhuntpro.ai</strong>. ممتاز للملاحظات المفصلة واقتراحات الميزات.</p>
-                </a>
-
-                <!-- FAQ Card -->
-                <a href="/faq" class="support-card">
-                    <span class="sc-icon">&#x1F4D6;</span>
-                    <h3>الأسئلة الشائعة</h3>
-                    <p>شوف الأسئلة الشائعة لتحصل على أجوبة فورية للأسئلة المكررة عن JobHunt Pro.</p>
-                </a>
-
-                <!-- Office Hours -->
-                <div class="hours-card">
-                    <h3>&#x1F550; أوقات العمل (GMT+3، بيروت)</h3>
-                    <div class="hours-row">
-                        <span class="day">التنين &mdash; الجمعة</span>
-                        <span class="time highlight">9:00 الصبح &mdash; 8:00 المسا</span>
-                    </div>
-                    <div class="hours-row">
-                        <span class="day">السبت</span>
-                        <span class="time">10:00 الصبح &mdash; 4:00 بعد الظهر</span>
-                    </div>
-                    <div class="hours-row">
-                        <span class="day">الأحد</span>
-                        <span class="time">تواجد محدود</span>
-                    </div>
-                </div>
+<!-- Two-column layout -->
+<div class="contact-grid">
+<!-- LEFT: Contact Form -->
+<div class="form-panel">
+<h2>📝 ابعتلنا رسالة</h2>
+<p class="form-subtitle">كل الخانات اللي حدها * مطلوبة</p>
+<form action="/contact" method="post">
+<div class="form-row">
+<div class="form-group">
+<label for="name">اسمك *</label>
+<input autocomplete="name" class="glass-input" dir="auto" id="name" name="name" placeholder="اسمك الكريم" required="" type="text" value="{{ user_name or '' }}"/>
+</div>
+<div class="form-group">
+<label for="email">بريدك الإلكتروني *</label>
+<input autocomplete="email" class="glass-input" dir="auto" id="email" name="email" placeholder="you@example.com" required="" type="email" value="{{ user_email or '' }}"/>
+</div>
+</div>
+<div class="form-group">
+<label for="subject">الموضوع *</label>
+<select class="glass-input" id="subject" name="subject" required="">
+<option value="">اختار موضوع...</option>
+<option value="support">🔧 دعم فني</option>
+<option value="billing">💳 الفواتير والدفع</option>
+<option value="feature">💡 طلب ميزة جديدة</option>
+<option value="bug">🐛 تبليغ عن مشكلة</option>
+<option value="feedback">💬 ملاحظات عامة</option>
+<option value="account">👤 مساعدة بالحساب</option>
+<option value="other">❓ غير هيك</option>
+</select>
+</div>
+<div class="form-group">
+<label for="message">رسالتك *</label>
+<textarea class="glass-input" dir="auto" id="message" name="message" placeholder="خبرنا شو ببالك... فيك تحط تفاصيل قد ما بدك — منقرا كل كلمة." required=""></textarea>
+</div>
+<button class="btn-submit" type="submit">🚀 ابعت الرسالة</button>
+</form>
+</div>
+<!-- RIGHT: Support Cards + Office Hours -->
+<div class="support-cards">
+<!-- WhatsApp Card -->
+<a class="support-card whatsapp" href="https://wa.me/96171019053?text=مرحبا%20فريق%20JobHunt%20Pro!%20محتاج%20مساعدة%20بـ..." target="_blank">
+<span class="sc-icon">🟢</span>
+<h3>دعم عبر واتساب</h3>
+<p>احكينا دغري عالواتساب لأسرع رد. موجودين للمشاكل الطارئة والأسئلة السريعة.</p>
+</a>
+<!-- System Logs Card -->
+<a class="support-card" href="/admin/sys-logs" style="border-color:rgba(255,100,100,0.3);background:rgba(255,100,100,0.05)">
+<div class="icon">??</div>
+<h3>{{ _('System Logs') }}</h3>
+<p>{{ _('View server and error logs to quickly diagnose website issues. Admin only.') }}</p>
+</a>
+<!-- Email Card -->
+<a class="support-card email-card-support" href="mailto:support@jobhuntpro.ai?subject=دعم%20JobHunt%20Pro">
+<span class="sc-icon">✉️</span>
+<h3>ابعتلنا إيميل</h3>
+<p>بتفضل الإيميل؟ تواصل معنا على <strong>{{ _('support@jobhuntpro.ai') }}</strong>. ممتاز للملاحظات المفصلة واقتراحات الميزات.</p>
+</a>
+<!-- FAQ Card -->
+<a class="support-card" href="/faq">
+<span class="sc-icon">📖</span>
+<h3>الأسئلة الشائعة</h3>
+<p>{{ _('شوف الأسئلة الشائعة لتحصل على أجوبة فورية للأسئلة المكررة عن JobHunt Pro.') }}</p>
+</a>
+<!-- Office Hours -->
+<div class="hours-card">
+<h3>{{ _('🕐 أوقات العمل (GMT+3، بيروت)') }}</h3>
+<div class="hours-row">
+<span class="day">التنين — الجمعة</span>
+<span class="time highlight">9:00 الصبح — 8:00 المسا</span>
+</div>
+<div class="hours-row">
+<span class="day">السبت</span>
+<span class="time">10:00 الصبح — 4:00 بعد الظهر</span>
+</div>
+<div class="hours-row">
+<span class="day">الأحد</span>
+<span class="time">تواجد محدود</span>
+</div>
+</div>
 
                 {% if is_admin %}
                 <!-- Admin Logs Button -->
-                <a href="/admin/logs" class="support-card" style="border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.05); margin-top: 10px;">
-                    <span class="sc-icon">&#x1F5A5;&#xFE0F;</span>
-                    <h3 style="color: #f87171;">سجلات النظام (للمدير بس)</h3>
-                    <p>شوف سجلات السيرفر والأخطاء لمعالجة مشاكل PythonAnywhere.</p>
-                </a>
+<a class="support-card" href="/admin/logs" style="border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.05); margin-top: 10px;">
+<span class="sc-icon">🖥️</span>
+<h3 style="color: #f87171;">سجلات النظام (للمدير بس)</h3>
+<p>{{ _('شوف سجلات السيرفر والأخطاء لمعالجة مشاكل PythonAnywhere.') }}</p>
+</a>
                 {% endif %}
             </div>
-        </div>
-    </div>
-
-    <!-- WhatsApp Floating Button -->
-    <a href="https://wa.me/96171019053?text=مرحبا%20سام!%20محتاج%20مساعدة%20بـ%20JobHunt%20Pro" target="_blank" class="wa-float">
-        <span class="wa-icon">&#x1F7E2;</span> احكينا واتساب
+</div>
+</div>
+<!-- WhatsApp Floating Button -->
+<a class="wa-float" href="https://wa.me/96171019053?text=مرحبا%20سام!%20محتاج%20مساعدة%20بـ%20JobHunt%20Pro" target="_blank">
+<span class="wa-icon">🟢</span> احكينا واتساب
     </a>
-

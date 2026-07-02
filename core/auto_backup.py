@@ -19,6 +19,7 @@ Env vars required:
     TELEGRAM_CHAT_ID    - Telegram chat/group ID to send backups to
     DB_PATH (optional)  - Path to SQLite DB (default: jobhunt_saas_v2.db)
 """
+
 import os
 import sys
 import gzip
@@ -68,6 +69,7 @@ def _load_env():
     """Load .env if not already loaded (safe for re-entry)."""
     try:
         from dotenv import load_dotenv
+
         load_dotenv(ROOT_DIR / ".env")
     except ImportError:
         pass
@@ -119,7 +121,9 @@ def backup_database() -> str | None:
     db_size_mb = _get_db_size_mb(DB_PATH)
     logger.info(
         "Starting backup: %s (%.2f MB) -> %s",
-        DB_NAME, db_size_mb, backup_name,
+        DB_NAME,
+        db_size_mb,
+        backup_name,
     )
 
     t_start = _time.monotonic()
@@ -136,7 +140,7 @@ def backup_database() -> str | None:
         logger.debug("SQLite .backup() complete in %.1fs", _time.monotonic() - t_start)
 
         # Step 2: Gzip compress
-        t_compress = _time.monotonic()
+        _time.monotonic()
         with open(temp_db_path, "rb") as f_in:
             with gzip.open(str(backup_path), "wb", compresslevel=6) as f_out:
                 shutil.copyfileobj(f_in, f_out, length=1024 * 1024)
@@ -144,7 +148,10 @@ def backup_database() -> str | None:
         elapsed = _time.monotonic() - t_start
         logger.info(
             "Backup complete: %s (%.2f MB -> %.2f MB compressed, %.1fs)",
-            backup_name, db_size_mb, compressed_size_mb, elapsed,
+            backup_name,
+            db_size_mb,
+            compressed_size_mb,
+            elapsed,
         )
         return str(backup_path)
 
@@ -275,7 +282,9 @@ def run_backup() -> dict:
         result["duration_s"] = round(_time.monotonic() - t_start, 2)
         logger.info(
             "Backup cycle: success=%s telegram=%s duration=%.1fs",
-            result["success"], result["telegram_sent"], result["duration_s"],
+            result["success"],
+            result["telegram_sent"],
+            result["duration_s"],
         )
 
     return result
@@ -289,7 +298,8 @@ def run_backup_loop(interval_hours: int = 6):
     """
     logger.info(
         "Backup daemon started — interval=%dh, keep=%d",
-        interval_hours, MAX_BACKUPS,
+        interval_hours,
+        MAX_BACKUPS,
     )
 
     import signal as _signal
@@ -329,15 +339,19 @@ def run_backup_loop(interval_hours: int = 6):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="JobHunt Pro Database Backup")
     parser.add_argument(
-        "--daemon", action="store_true",
+        "--daemon",
+        action="store_true",
         help="Run backup daemon (every 6h)",
     )
     parser.add_argument(
-        "--interval", type=int, default=6,
+        "--interval",
+        type=int,
+        default=6,
         help="Backup interval in hours (default: 6)",
     )
     parser.add_argument(
-        "--no-telegram", action="store_true",
+        "--no-telegram",
+        action="store_true",
         help="Skip Telegram upload (save locally only)",
     )
     args = parser.parse_args()
@@ -357,7 +371,9 @@ if __name__ == "__main__":
             result = run_backup()
             if result["success"]:
                 print(f"✅ Backup complete: {result['backup_path']}")
-                print(f"   Telegram: {'sent' if result['telegram_sent'] else 'skipped'}")
+                print(
+                    f"   Telegram: {'sent' if result['telegram_sent'] else 'skipped'}"
+                )
                 print(f"   Duration: {result['duration_s']}s")
             else:
                 print(f"❌ Backup failed: {result.get('error', 'unknown')}")

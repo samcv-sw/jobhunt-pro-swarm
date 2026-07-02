@@ -2,11 +2,11 @@
 JobHunt Pro - LinkedIn Automation Engine
 Auto-connect with recruiters, personalized messages, pipeline management
 """
+
 import logging
-import asyncio
 import random
-from typing import Dict, List, Optional
-from datetime import datetime, timedelta
+from typing import Dict, List
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -38,19 +38,25 @@ class LinkedInConnector:
     def record_connection(self, recruiter: Dict):
         """Record a sent connection request."""
         self.connected_today += 1
-        self.pending_requests.append({
-            **recruiter,
-            "sent_at": datetime.utcnow().isoformat(),
-            "status": "pending",
-        })
+        self.pending_requests.append(
+            {
+                **recruiter,
+                "sent_at": datetime.utcnow().isoformat(),
+                "status": "pending",
+            }
+        )
 
     def get_stats(self) -> Dict:
         """Get connection stats."""
         return {
             "connected_today": self.connected_today,
             "max_daily": self.max_daily,
-            "pending": len([r for r in self.pending_requests if r["status"] == "pending"]),
-            "accepted": len([r for r in self.pending_requests if r["status"] == "accepted"]),
+            "pending": len(
+                [r for r in self.pending_requests if r["status"] == "pending"]
+            ),
+            "accepted": len(
+                [r for r in self.pending_requests if r["status"] == "accepted"]
+            ),
             "total_connections": len(self.connections),
         }
 
@@ -68,7 +74,9 @@ class LinkedInMessenger:
 
     def generate_followup(self, recruiter: Dict, followup_num: int = 1) -> str:
         """Generate follow-up message."""
-        template = self.FOLLOWUP_TEMPLATES[min(followup_num - 1, len(self.FOLLOWUP_TEMPLATES) - 1)]
+        template = self.FOLLOWUP_TEMPLATES[
+            min(followup_num - 1, len(self.FOLLOWUP_TEMPLATES) - 1)
+        ]
         return template.format(
             name=recruiter.get("name", "there"),
             company=recruiter.get("company", "your company"),

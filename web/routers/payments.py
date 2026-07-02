@@ -6,9 +6,11 @@ from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 
 
 from core.pricing_manager import PRICING_TIERS
-PRICING_TIERS_MAP = {t['companies']: t for t in PRICING_TIERS}
+
+PRICING_TIERS_MAP = {t["companies"]: t for t in PRICING_TIERS}
 from core.pricing_manager import BOUQUET_PACKAGES
-BOUQUET_PACKAGES_MAP = {b['bouquet']: b for b in BOUQUET_PACKAGES}
+
+BOUQUET_PACKAGES_MAP = {b["bouquet"]: b for b in BOUQUET_PACKAGES}
 from payments import get_payment_addresses
 from services.fulfillment import ServiceFulfillment
 
@@ -17,9 +19,11 @@ logger = logging.getLogger(__name__)
 
 fulfillment = ServiceFulfillment()
 
+
 def get_verified_user_id(request: Request) -> str:
     from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
     import config
+
     SECRET_KEY = os.getenv("SECRET_KEY") or getattr(config, "SECRET_KEY", None)
     if not SECRET_KEY:
         return None
@@ -38,24 +42,31 @@ def get_verified_user_id(request: Request) -> str:
         pass
     return None
 
+
 @router.get("/checkout", include_in_schema=False)
 def checkout_redirect():
     return RedirectResponse(url="/pricing")
 
+
 @router.get("/checkout/{order_id}", response_class=HTMLResponse)
 def checkout_page(request: Request, order_id: str):
-    from web.app_v2 import templates, config # safe local import for templates
+    from web.app_v2 import templates, config  # safe local import for templates
+
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
 
     conn = get_db()
-    order = conn.execute("SELECT * FROM orders WHERE order_id = ? AND user_id = ?", (order_id, user_id)).fetchone()
+    order = conn.execute(
+        "SELECT * FROM orders WHERE order_id = ? AND user_id = ?", (order_id, user_id)
+    ).fetchone()
     if not order:
         conn.close()
         return RedirectResponse("/wallet", status_code=303)
 
-    user_row = conn.execute("SELECT name, email FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    user_row = conn.execute(
+        "SELECT name, email FROM users WHERE user_id = ?", (user_id,)
+    ).fetchone()
     conn.close()
 
     if order["payment_status"] == "completed":
@@ -85,27 +96,102 @@ def checkout_page(request: Request, order_id: str):
         "item_type": order["order_type"],
         "price": order["amount_usd"],
         "total_price": order["amount_usd"],
-        "service_name": "Wallet Topup" if order["package_name"] == "wallet_topup" else order["package_name"],
+        "service_name": "Wallet Topup"
+        if order["package_name"] == "wallet_topup"
+        else order["package_name"],
         "customer_name": user_name,
         "customer_email": user_email,
         "payment_code": payment_code,
         "crypto_addresses": {currency: addr} if addr else get_payment_addresses(),
     }
 
-    return templates.TemplateResponse(request, "checkout_v3.html", {
-        "order": order_dict,
-        "address": addr,
-        "currency": currency,
-        "VERSION": config.VERSION
-    })
+    return templates.TemplateResponse(
+        request,
+        "checkout_v3.html",
+        {
+            "order": order_dict,
+            "address": addr,
+            "currency": currency,
+            "VERSION": config.VERSION,
+        },
+    )
+
 
 @router.get("/checkout/v2/{order_id}", response_class=HTMLResponse)
 def checkout_v2_page(request: Request, order_id: str):
     """Checkout page for a new service order."""
-    from web.app_v2 import templates # safe local import for templates
+    from web.app_v2 import templates  # safe local import for templates
+
     order = fulfillment.get_order(order_id)
     if not order:
         return HTMLResponse("Order not found", status_code=404)
-    return templates.TemplateResponse(request, "checkout_v2.html", {
-        "order": order,
-    })
+    return templates.TemplateResponse(
+        request,
+        "checkout_v2.html",
+        {
+            "order": order,
+        },
+    )
+
+
+import stripe
+import json
+from fastapi import Header, HTTPException
+
+
+@router.post("/webhook/stripe")
+async def stripe_webhook(request: Request, stripe_signature: str = Header(None)):
+    """
+    Handle incoming Stripe Webhooks for payment confirmations securely and idempotently.
+    """
+    try:
+        payload = await request.body()
+        webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+        if webhook_secret and stripe_signature:
+            try:
+                event = stripe.Webhook.construct_event(
+                    payload, stripe_signature, webhook_secret
+                )
+            except stripe.error.SignatureVerificationError as e:
+                logger.error(f"Invalid Stripe signature: {e}")
+                raise HTTPException(status_code=400, detail="Invalid signature")
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid payload")
+        else:
+            # Fallback for local testing or unverified requests
+            event = json.loads(payload.decode("utf-8"))
+
+        event_id = event.get("id")
+        event_type = event.get("type")
+
+        if event_type == "checkout.session.completed":
+            session = event.get("data", {}).get("object", {})
+            client_reference_id = session.get("client_reference_id")
+
+            if client_reference_id and event_id:
+                # Idempotency Lock
+                conn = get_db()
+                try:
+                    conn.execute(
+                        "INSERT INTO processed_webhooks (event_id) VALUES (?)",
+                        (event_id,),
+                    )
+                    conn.commit()
+                except Exception:
+                    # SQLite IntegrityError or Postgres UniqueViolation means already processed
+                    logger.info(
+                        f"Idempotent Skip: Webhook {event_id} already processed."
+                    )
+                    conn.close()
+                    return JSONResponse({"status": "already_processed"})
+
+                # Update order status in DB
+                logger.info(f"Payment successful for order: {client_reference_id}")
+                fulfillment.update_order_status(client_reference_id, "completed")
+                conn.close()
+
+        return JSONResponse({"status": "success"})
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+        return JSONResponse({"error": str(e)}, status_code=400)

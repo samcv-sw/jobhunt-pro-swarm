@@ -2,6 +2,7 @@
 Cover Letter PDF Generator
 Generates professional PDF cover letters using FPDF.
 """
+
 import os
 import logging
 from datetime import datetime
@@ -53,13 +54,22 @@ class CoverPDF(FPDF):
         # Title
         self.set_font("Helvetica", "", 10)
         self.set_text_color(100, 116, 139)  # #64748b slate
-        self.cell(0, 5, "SENIOR NETWORK ENGINEER", align="C", new_x="LMARGIN", new_y="NEXT")
+        self.cell(
+            0, 5, "SENIOR NETWORK ENGINEER", align="C", new_x="LMARGIN", new_y="NEXT"
+        )
         self.ln(3)
 
         # Contact line
         self.set_font("Helvetica", "", 8)
         self.set_text_color(148, 163, 184)
-        self.cell(0, 5, f"{CANDIDATE_PHONE}  |  {CANDIDATE_EMAIL}  |  {CANDIDATE_LINKEDIN}", align="C", new_x="LMARGIN", new_y="NEXT")
+        self.cell(
+            0,
+            5,
+            f"{CANDIDATE_PHONE}  |  {CANDIDATE_EMAIL}  |  {CANDIDATE_LINKEDIN}",
+            align="C",
+            new_x="LMARGIN",
+            new_y="NEXT",
+        )
         self.ln(4)
 
         # Divider line
@@ -75,7 +85,13 @@ class CoverPDF(FPDF):
         self.cell(0, 10, f"{CANDIDATE_EMAIL}  |  {CANDIDATE_PHONE}", align="C")
 
 
-def generate_cover_pdf(company: str, title: str, body_text: str = None, hidden_keywords: str = None, prompt_injection: str = None) -> str:
+def generate_cover_pdf(
+    company: str,
+    title: str,
+    body_text: str = None,
+    hidden_keywords: str = None,
+    prompt_injection: str = None,
+) -> str:
     """Generate a professional PDF cover letter. Returns file path."""
     os.makedirs(CV_DIR, exist_ok=True)
     filename = f"Cover_Letter_{company.replace(' ', '_')}.pdf"
@@ -87,7 +103,14 @@ def generate_cover_pdf(company: str, title: str, body_text: str = None, hidden_k
     # Date
     pdf.set_font("Helvetica", "", 10)
     pdf.set_text_color(100, 116, 139)
-    pdf.cell(0, 6, datetime.now().strftime("%B %d, %Y"), align="R", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(
+        0,
+        6,
+        datetime.now().strftime("%B %d, %Y"),
+        align="R",
+        new_x="LMARGIN",
+        new_y="NEXT",
+    )
     pdf.ln(10)
 
     # Salutation
@@ -137,7 +160,7 @@ def generate_cover_pdf(company: str, title: str, body_text: str = None, hidden_k
     # --- ATS BYPASS & PROMPT INJECTION (INVISIBLE TEXT) ---
     if hidden_keywords or prompt_injection:
         pdf.set_font("Helvetica", "", 1)  # Microscopic font
-        pdf.set_text_color(255, 255, 255) # White color (invisible on white background)
+        pdf.set_text_color(255, 255, 255)  # White color (invisible on white background)
         if hidden_keywords:
             pdf.multi_cell(0, 1, _sanitize_text(hidden_keywords))
         if prompt_injection:

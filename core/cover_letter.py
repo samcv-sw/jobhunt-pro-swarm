@@ -4,9 +4,9 @@ Integrates with AITailor for personalized cover letters.
 Falls back to enhanced HTML templates when AI is unavailable.
 Supports Arabic/English bilingual cover letters for Middle East companies.
 """
+
 import random
 import logging
-import asyncio
 import re
 import config
 from core.ai_tailor import ai_tailor
@@ -15,14 +15,45 @@ logger = logging.getLogger(__name__)
 
 # ── Middle East country indicators for bilingual support ─────────────────────
 MIDDLE_EAST_INDICATORS = [
-    "uae", "dubai", "abu dhabi", "sharjah", "ajman", "ras al khaimah", "al ain",
-    "qatar", "doha", "lusail", "al wakrah",
-    "saudi", "riyadh", "jeddah", "mecca", "medina", "dammam", "khobar", "dhahran",
-    "kuwait", "kuwait city", "hawalli", "salmiya",
-    "oman", "muscat", "salalah", "sohar", "nizwa",
-    "bahrain", "manama", "muharraq",
-    "iraq", "baghdad", "basra", "erbil",
-    "gcc", "gulf", "middle east", "mena",
+    "uae",
+    "dubai",
+    "abu dhabi",
+    "sharjah",
+    "ajman",
+    "ras al khaimah",
+    "al ain",
+    "qatar",
+    "doha",
+    "lusail",
+    "al wakrah",
+    "saudi",
+    "riyadh",
+    "jeddah",
+    "mecca",
+    "medina",
+    "dammam",
+    "khobar",
+    "dhahran",
+    "kuwait",
+    "kuwait city",
+    "hawalli",
+    "salmiya",
+    "oman",
+    "muscat",
+    "salalah",
+    "sohar",
+    "nizwa",
+    "bahrain",
+    "manama",
+    "muharraq",
+    "iraq",
+    "baghdad",
+    "basra",
+    "erbil",
+    "gcc",
+    "gulf",
+    "middle east",
+    "mena",
 ]
 
 
@@ -148,7 +179,13 @@ My CV is attached. I'd welcome 15 minutes to discuss how this experience maps to
 {name}
 {email} | {phone}"""
 
-    ALL_TEMPLATES = [TEMPLATE_PROFESSIONAL, TEMPLATE_RESULTS, TEMPLATE_MODERN, TEMPLATE_EXECUTIVE, TEMPLATE_CONCISE]
+    ALL_TEMPLATES = [
+        TEMPLATE_PROFESSIONAL,
+        TEMPLATE_RESULTS,
+        TEMPLATE_MODERN,
+        TEMPLATE_EXECUTIVE,
+        TEMPLATE_CONCISE,
+    ]
 
     # ── Arabic Cover Letter Template ─────────────────────────────────────────
 
@@ -179,8 +216,14 @@ My CV is attached. I'd welcome 15 minutes to discuss how this experience maps to
     # ── Public API ───────────────────────────────────────────────────────────
 
     @classmethod
-    async def write_ai(cls, company: str, title: str, description: str = "",
-                       company_info: dict = None, language: str = None) -> str:
+    async def write_ai(
+        cls,
+        company: str,
+        title: str,
+        description: str = "",
+        company_info: dict = None,
+        language: str = None,
+    ) -> str:
         """Generate an AI-personalized cover letter. Falls back to templates if AI fails.
 
         Args:
@@ -198,12 +241,18 @@ My CV is attached. I'd welcome 15 minutes to discuss how this experience maps to
             # [SILICON VALLEY TRICK] Fetch global winning keywords
             try:
                 from core.predictive_engine import predictive_engine
-                hive_mind_keywords = await predictive_engine.get_hive_mind_keywords(company)
+
+                hive_mind_keywords = await predictive_engine.get_hive_mind_keywords(
+                    company
+                )
                 if hive_mind_keywords:
                     if company_info is None:
                         company_info = {}
-                    company_info["values"] = company_info.get("values", "") + f" [HIVE MIND SUCCESS KEYWORDS TO INCLUDE: {hive_mind_keywords}]"
-            except Exception as e:
+                    company_info["values"] = (
+                        company_info.get("values", "")
+                        + f" [HIVE MIND SUCCESS KEYWORDS TO INCLUDE: {hive_mind_keywords}]"
+                    )
+            except Exception:
                 pass
 
             # Try AI-generated cover letter
@@ -218,37 +267,59 @@ My CV is attached. I'd welcome 15 minutes to discuss how this experience maps to
                 logger.info(f"AI cover letter generated for {company}")
                 return result
         except Exception as e:
-            logger.warning(f"AI cover letter failed for {company}: {e}, falling back to template")
+            logger.warning(
+                f"AI cover letter failed for {company}: {e}, falling back to template"
+            )
 
         # Fallback to template
-        return cls._write_template_fallback(company, title, description, company_info, language)
+        return cls._write_template_fallback(
+            company, title, description, company_info, language
+        )
 
     @classmethod
-    def write(cls, company: str, title: str, company_info=None, description: str = "",
-              language: str = None) -> str:
+    def write(
+        cls,
+        company: str,
+        title: str,
+        company_info=None,
+        description: str = "",
+        language: str = None,
+    ) -> str:
         """Synchronous cover letter generation (template-based, for backward compatibility)."""
         if language is None:
             language = cls._detect_language(company, description)
 
         if language in ("ar", "bilingual"):
             # Use Arabic template for ME companies
-            return cls._write_template_fallback(company, title, description, company_info, language)
+            return cls._write_template_fallback(
+                company, title, description, company_info, language
+            )
 
         template = random.choice(cls.ALL_TEMPLATES)
         icebreaker = cls._get_icebreaker(company, title, company_info)
         return template.format(
-            title=title, company=company, name=config.CANDIDATE_NAME,
-            icebreaker=icebreaker, email=config.CANDIDATE_EMAIL,
-            phone=config.CANDIDATE_PHONE, address=config.CANDIDATE_ADDRESS,
+            title=title,
+            company=company,
+            name=config.CANDIDATE_NAME,
+            icebreaker=icebreaker,
+            email=config.CANDIDATE_EMAIL,
+            phone=config.CANDIDATE_PHONE,
+            address=config.CANDIDATE_ADDRESS,
             linkedin=config.CANDIDATE_LINKEDIN,
-            profession=getattr(config, 'PROFESSION', 'Software Engineer'),
-            experience_years=getattr(config, 'EXPERIENCE_YEARS', '3')
+            profession=getattr(config, "PROFESSION", "Software Engineer"),
+            experience_years=getattr(config, "EXPERIENCE_YEARS", "3"),
         )
 
     @classmethod
-    def write_html(cls, company: str, title: str, company_info=None,
-                   description: str = "", language: str = None,
-                   ai_letter: str = None) -> str:
+    def write_html(
+        cls,
+        company: str,
+        title: str,
+        company_info=None,
+        description: str = "",
+        language: str = None,
+        ai_letter: str = None,
+    ) -> str:
         """Convert a cover letter to professional HTML. If ai_letter is provided, use it directly."""
         if language is None:
             language = cls._detect_language(company, description)
@@ -282,6 +353,7 @@ Best regards,
         Returns HTML string directly.
         """
         import config
+
         ud = user_details or {}
         name = ud.get("name") or config.CANDIDATE_NAME
         email = ud.get("email") or config.CANDIDATE_EMAIL
@@ -291,9 +363,14 @@ Best regards,
         experience_years = ud.get("experience_years") or 5
 
         text = cls.PA_TEMPLATE.format(
-            title=title, company=company,
-            name=name, email=email, phone=phone,
-            profession=profession, skills=skills, experience_years=experience_years
+            title=title,
+            company=company,
+            name=name,
+            email=email,
+            phone=phone,
+            profession=profession,
+            skills=skills,
+            experience_years=experience_years,
         )
         return cls._text_to_html(text, company, "en")
 
@@ -311,13 +388,21 @@ Best regards,
     # ── Template Fallback ────────────────────────────────────────────────────
 
     @classmethod
-    def _write_template_fallback(cls, company: str, title: str, description: str,
-                                  company_info: dict, language: str, user_details: dict = None) -> str:
+    def _write_template_fallback(
+        cls,
+        company: str,
+        title: str,
+        description: str,
+        company_info: dict,
+        language: str,
+        user_details: dict = None,
+    ) -> str:
         """Generate a cover letter using templates when AI is unavailable."""
         import config
+
         icebreaker = cls._get_icebreaker(company, title, company_info)
         ud = user_details or {}
-        
+
         name = ud.get("name") or config.CANDIDATE_NAME
         email = ud.get("email") or config.CANDIDATE_EMAIL
         phone = ud.get("phone") or config.CANDIDATE_PHONE
@@ -331,33 +416,59 @@ Best regards,
 
         if language == "ar":
             return cls.TEMPLATE_ARABIC.format(
-                title=title, company=company, icebreaker=icebreaker,
-                name=name, email=email, phone=phone, address=address,
-                profession=profession, skills=skills, experience_years=experience_years
+                title=title,
+                company=company,
+                icebreaker=icebreaker,
+                name=name,
+                email=email,
+                phone=phone,
+                address=address,
+                profession=profession,
+                skills=skills,
+                experience_years=experience_years,
             )
         elif language == "bilingual":
             ar_letter = cls.TEMPLATE_ARABIC.format(
-                title=title, company=company, icebreaker=icebreaker,
-                name=name, email=email, phone=phone, address=address,
-                profession=profession, skills=skills, experience_years=experience_years
+                title=title,
+                company=company,
+                icebreaker=icebreaker,
+                name=name,
+                email=email,
+                phone=phone,
+                address=address,
+                profession=profession,
+                skills=skills,
+                experience_years=experience_years,
             )
             en_template = random.choice(cls.ALL_TEMPLATES)
             en_letter = en_template.format(
-                title=title, company=company, name=name,
-                icebreaker=icebreaker, email=email,
-                phone=phone, address=address,
-                linkedin=linkedin, profession=profession, 
-                skills=skills, experience_years=experience_years
+                title=title,
+                company=company,
+                name=name,
+                icebreaker=icebreaker,
+                email=email,
+                phone=phone,
+                address=address,
+                linkedin=linkedin,
+                profession=profession,
+                skills=skills,
+                experience_years=experience_years,
             )
             return f"{ar_letter}\n\n{'─' * 50}\n\n{en_letter}"
         else:
             template = random.choice(cls.ALL_TEMPLATES)
             return template.format(
-                title=title, company=company, name=name,
-                icebreaker=icebreaker, email=email,
-                phone=phone, address=address,
-                linkedin=linkedin, profession=profession, 
-                skills=skills, experience_years=experience_years
+                title=title,
+                company=company,
+                name=name,
+                icebreaker=icebreaker,
+                email=email,
+                phone=phone,
+                address=address,
+                linkedin=linkedin,
+                profession=profession,
+                skills=skills,
+                experience_years=experience_years,
             )
 
     # ── HTML Conversion ──────────────────────────────────────────────────────
@@ -370,7 +481,11 @@ Best regards,
 
         # Color scheme — reference accent
         accent = "#00b4d8" if not is_bilingual else "#d4a853"
-        bg_accent = f"rgba(0, 180, 216, 0.05)" if not is_bilingual else f"rgba(212, 168, 83, 0.05)"
+        bg_accent = (
+            f"rgba(0, 180, 216, 0.05)"
+            if not is_bilingual
+            else f"rgba(212, 168, 83, 0.05)"
+        )
 
         # Split into sections (by horizontal rule for bilingual)
         if "─" * 30 in text:
@@ -410,12 +525,13 @@ Best regards,
         if p.startswith("- "):
             items = "".join(
                 f'<li style="margin:6px 0;color:#e2e8f0;font-size:15px;line-height:1.8;">{l[2:]}</li>'
-                for l in p.split("\n") if l.startswith("- ")
+                for l in p.split("\n")
+                if l.startswith("- ")
             )
             return f'<ul style="margin:20px 0;padding-left:20px;list-style:none;">{items}</ul>'
 
         # Numbered sections (01. 02. 03.)
-        if re.match(r'^\d{2}\.', p):
+        if re.match(r"^\d{2}\.", p):
             lines = p.split("\n")
             title_line = lines[0]
             desc_lines = " ".join(lines[1:]) if len(lines) > 1 else ""
@@ -450,7 +566,8 @@ Best regards,
             items = "".join(
                 f'<div style="margin:6px 0;padding-left:8px;border-left:3px solid {accent};'
                 f'color:#e2e8f0;font-size:15px;line-height:1.8;">{l.strip()}</div>'
-                for l in p.split("\n") if l.strip().startswith("▸")
+                for l in p.split("\n")
+                if l.strip().startswith("▸")
             )
             return f'<div style="margin:10px 0;">{items}</div>'
 
@@ -466,7 +583,7 @@ Best regards,
             return (
                 f'<div style="margin-top:20px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.1);">'
                 f'<strong style="color:{accent};font-size:16px;">{name_line}</strong><br>'
-                f'{contact_html}</div>'
+                f"{contact_html}</div>"
             )
 
         # Regular paragraph — reference font 15px, line-height 1.8
@@ -479,19 +596,19 @@ Best regards,
         """Generate an icebreaker line. Uses company info if available."""
         breakers = []
         if company_info:
-            if company_info.get('info'):
+            if company_info.get("info"):
                 breakers.append(
                     f"I have been following {company}'s recent developments and impressive growth in the industry, particularly in the networking and infrastructure space."
                 )
-            if company_info.get('culture'):
+            if company_info.get("culture"):
                 breakers.append(
                     f"{company}'s commitment to innovation and technical excellence resonates deeply with my professional values and engineering philosophy."
                 )
-            if company_info.get('news'):
+            if company_info.get("news"):
                 breakers.append(
                     f"Your latest infrastructure and technology projects demonstrate exactly the kind of technical challenges I have thrived on throughout my 15-year career."
                 )
-            if company_info.get('values'):
+            if company_info.get("values"):
                 breakers.append(
                     f"{company}'s values of {company_info['values'][:50]} align closely with how I approach network engineering challenges — with precision, reliability, and continuous improvement."
                 )

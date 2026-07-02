@@ -1,13 +1,9 @@
-import imaplib
-import smtplib
-import email
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import asyncio
 import logging
 from core.ai_tailor import ai_tailor
 
 logger = logging.getLogger(__name__)
+
 
 class EmailNegotiator:
     def __init__(self, imap_server, smtp_server, email_addr, password):
@@ -31,15 +27,19 @@ class EmailNegotiator:
         # mail.login(self.email_addr, self.password)
         # mail.select("inbox")
         # _, search_data = mail.search(None, '(UNSEEN)')
-        
-        logger.info(f"Checking IMAP inbox {self.email_addr} for unread interview requests...")
+
+        logger.info(
+            f"Checking IMAP inbox {self.email_addr} for unread interview requests..."
+        )
         # Simulate an incoming email from HR
         mock_inbound = "We'd love to interview you! Are you available next Tuesday? What are your salary expectations?"
-        
+
         # We run the async AI call synchronously inside this thread
         reply_draft = asyncio.run(self._draft_reply_via_ai(mock_inbound))
         if reply_draft:
-            self._sync_send_reply("hr@company.com", "Re: Interview Request", reply_draft)
+            self._sync_send_reply(
+                "hr@company.com", "Re: Interview Request", reply_draft
+            )
 
     async def _draft_reply_via_ai(self, inbound_text: str):
         prompt = f"""
@@ -54,7 +54,9 @@ class EmailNegotiator:
         return await ai_tailor._call_ai(prompt, max_tokens=200)
 
     def _sync_send_reply(self, to_email: str, subject: str, body: str):
-        logger.info(f"Auto-negotiating! Sending email to {to_email} with subject: {subject}")
+        logger.info(
+            f"Auto-negotiating! Sending email to {to_email} with subject: {subject}"
+        )
         # Mocking SMTP
         # msg = MIMEMultipart()
         # msg['From'] = self.email_addr
@@ -67,5 +69,8 @@ class EmailNegotiator:
         # server.quit()
         logger.debug(f"Email body drafted by AI:\n{body}")
 
+
 # Global instance for the queue worker to use
-email_agent = EmailNegotiator("imap.gmail.com", "smtp.gmail.com", "dummy@gmail.com", "dummy_pass")
+email_agent = EmailNegotiator(
+    "imap.gmail.com", "smtp.gmail.com", "dummy@gmail.com", "dummy_pass"
+)

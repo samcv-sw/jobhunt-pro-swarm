@@ -3,7 +3,8 @@ pricing_manager.py - Clean pricing configuration for JobHunt Pro v2
 4 tiers: Free ($0), Basic ($5), Pro ($15), Enterprise ($50)
 All payment buttons link to /register or /wallet for crypto payments.
 """
-from typing import List, Dict, Any, Optional
+
+from typing import Dict, Any, Optional
 
 PRICING_TIERS = [
     {
@@ -98,43 +99,275 @@ PRICING_TIERS = [
 
 SERVICE_PACKAGES = [
     # --- V3 Weapons ---
-    {"package": "ats-dominator", "name": "🧠 ATS++ Keyword Dominator", "price_usd": 5, "description": "Scans job descriptions → rewrites your CV with exact keywords → 2.6x higher ATS pass rate", "icon": "🧠", "result": "+160% ATS pass rate"},
-    {"package": "the-insider", "name": "🕵️ The Insider", "price_usd": 5, "description": "Real-time company intel: financials, Glassdoor, news, CEO, culture → personalized application", "icon": "🕵️", "result": "Stand out with insider knowledge"},
-    {"package": "penetration-letter", "name": "✍️ Penetration Letter", "price_usd": 3, "description": "Cover letter that name-drops company news + aligns your skills to THEIR pain points", "icon": "✍️", "result": "5x more likely to be read"},
-    {"package": "follow-up-trio", "name": "📬 The 3-Tap Follow-Up", "price_usd": 5, "description": "Day 3 gentle → Day 7 value-add → Day 14 closing. Auto-scheduled, different tone each", "icon": "📬", "result": "3 extra chances to land interview"},
-    {"package": "interview-arsenal", "name": "🎙️ Interview Arsenal", "price_usd": 10, "description": "15+ predicted questions with model answers → tech + behavioral + company-specific", "icon": "🎙️", "result": "Walk in fully prepared"},
-    {"package": "warp-speed", "name": "⚡ Warp Speed", "price_usd": 8, "description": "Llama 70B AI (9x smarter) + priority processing queue → 3x faster, higher quality", "icon": "⚡", "result": "Smarter AI, no waiting"},
-    {"package": "global-strike", "name": "🌍 Global Strike", "price_usd": 10, "description": "Multi-platform auto-apply: LinkedIn Easy Apply + company portals + job boards at once", "icon": "🌍", "result": "3x more applications"},
-    {"package": "competition-radar", "name": "👁️ Competition Radar", "price_usd": 7, "description": "Analyzes who else applied → ranks YOUR odds → tells you where you win", "icon": "👁️", "result": "Apply where you have the edge"},
+    {
+        "package": "ats-dominator",
+        "name": "🧠 ATS++ Keyword Dominator",
+        "price_usd": 5,
+        "description": "Scans job descriptions → rewrites your CV with exact keywords → 2.6x higher ATS pass rate",
+        "icon": "🧠",
+        "result": "+160% ATS pass rate",
+    },
+    {
+        "package": "the-insider",
+        "name": "🕵️ The Insider",
+        "price_usd": 5,
+        "description": "Real-time company intel: financials, Glassdoor, news, CEO, culture → personalized application",
+        "icon": "🕵️",
+        "result": "Stand out with insider knowledge",
+    },
+    {
+        "package": "penetration-letter",
+        "name": "✍️ Penetration Letter",
+        "price_usd": 3,
+        "description": "Cover letter that name-drops company news + aligns your skills to THEIR pain points",
+        "icon": "✍️",
+        "result": "5x more likely to be read",
+    },
+    {
+        "package": "follow-up-trio",
+        "name": "📬 The 3-Tap Follow-Up",
+        "price_usd": 5,
+        "description": "Day 3 gentle → Day 7 value-add → Day 14 closing. Auto-scheduled, different tone each",
+        "icon": "📬",
+        "result": "3 extra chances to land interview",
+    },
+    {
+        "package": "interview-arsenal",
+        "name": "🎙️ Interview Arsenal",
+        "price_usd": 10,
+        "description": "15+ predicted questions with model answers → tech + behavioral + company-specific",
+        "icon": "🎙️",
+        "result": "Walk in fully prepared",
+    },
+    {
+        "package": "warp-speed",
+        "name": "⚡ Warp Speed",
+        "price_usd": 8,
+        "description": "Llama 70B AI (9x smarter) + priority processing queue → 3x faster, higher quality",
+        "icon": "⚡",
+        "result": "Smarter AI, no waiting",
+    },
+    {
+        "package": "global-strike",
+        "name": "🌍 Global Strike",
+        "price_usd": 10,
+        "description": "Multi-platform auto-apply: LinkedIn Easy Apply + company portals + job boards at once",
+        "icon": "🌍",
+        "result": "3x more applications",
+    },
+    {
+        "package": "competition-radar",
+        "name": "👁️ Competition Radar",
+        "price_usd": 7,
+        "description": "Analyzes who else applied → ranks YOUR odds → tells you where you win",
+        "icon": "👁️",
+        "result": "Apply where you have the edge",
+    },
     # --- V4 Weapons (NEW) ---
-    {"package": "mock-interview", "name": "🎭 Mock Interview AI", "price_usd": 15, "description": "Interactive voice/video interview simulator → AI grades answers, flags weaknesses, suggests improvements", "icon": "🎭", "result": "Ace every interview"},
-    {"package": "linkedin-dominator", "name": "🔗 LinkedIn Dominator", "price_usd": 10, "description": "AI rewrites entire LinkedIn profile: headline, About, Skills, Experience → keyword-optimized for recruiters", "icon": "🔗", "result": "5x more recruiter InMails"},
-    {"package": "salary-negotiator", "name": "💸 Salary Negotiator", "price_usd": 8, "description": "Real-time market salary data + custom negotiation scripts + counter-offer email generator", "icon": "💸", "result": "Get paid what you're worth"},
-    {"package": "career-agent", "name": "🧠 Career Agent 24/7", "price_usd": 12, "description": "AI chatbot that knows your CV, target market, skills → answers any career question instantly", "icon": "🧠", "result": "Your personal career advisor"},
-    {"package": "networking-missile", "name": "🎯 Networking Missile", "price_usd": 7, "description": "Auto-finds hiring managers → crafts personalized LinkedIn messages → tracks response rates", "icon": "🎯", "result": "Turn strangers into interviews"},
-    {"package": "interview-ninja", "name": "🥷 Interview Ninja", "price_usd": 20, "description": "Live browser overlay during video interviews → real-time answer prompts + anti-ramble detection", "icon": "🥷", "result": "Secret weapon in live interviews"},
-    {"package": "mena-multilang", "name": "🌍 MENA Multi-Lang Pro", "price_usd": 5, "description": "Professional CV + cover letter translation: Arabic ↔ English ↔ French, culturally adapted", "icon": "🌍", "result": "Dominate MENA & Gulf market"},
+    {
+        "package": "mock-interview",
+        "name": "🎭 Mock Interview AI",
+        "price_usd": 15,
+        "description": "Interactive voice/video interview simulator → AI grades answers, flags weaknesses, suggests improvements",
+        "icon": "🎭",
+        "result": "Ace every interview",
+    },
+    {
+        "package": "linkedin-dominator",
+        "name": "🔗 LinkedIn Dominator",
+        "price_usd": 10,
+        "description": "AI rewrites entire LinkedIn profile: headline, About, Skills, Experience → keyword-optimized for recruiters",
+        "icon": "🔗",
+        "result": "5x more recruiter InMails",
+    },
+    {
+        "package": "salary-negotiator",
+        "name": "💸 Salary Negotiator",
+        "price_usd": 8,
+        "description": "Real-time market salary data + custom negotiation scripts + counter-offer email generator",
+        "icon": "💸",
+        "result": "Get paid what you're worth",
+    },
+    {
+        "package": "career-agent",
+        "name": "🧠 Career Agent 24/7",
+        "price_usd": 12,
+        "description": "AI chatbot that knows your CV, target market, skills → answers any career question instantly",
+        "icon": "🧠",
+        "result": "Your personal career advisor",
+    },
+    {
+        "package": "networking-missile",
+        "name": "🎯 Networking Missile",
+        "price_usd": 7,
+        "description": "Auto-finds hiring managers → crafts personalized LinkedIn messages → tracks response rates",
+        "icon": "🎯",
+        "result": "Turn strangers into interviews",
+    },
+    {
+        "package": "interview-ninja",
+        "name": "🥷 Interview Ninja",
+        "price_usd": 20,
+        "description": "Live browser overlay during video interviews → real-time answer prompts + anti-ramble detection",
+        "icon": "🥷",
+        "result": "Secret weapon in live interviews",
+    },
+    {
+        "package": "mena-multilang",
+        "name": "🌍 MENA Multi-Lang Pro",
+        "price_usd": 5,
+        "description": "Professional CV + cover letter translation: Arabic ↔ English ↔ French, culturally adapted",
+        "icon": "🌍",
+        "result": "Dominate MENA & Gulf market",
+    },
     # --- Follow-Up Automation (PAID add-on) ---
-    {"package": "follow-up-automation-starter", "name": "📬 Follow-Up Automation – Starter", "price_usd": 4.99, "description": "Up to 50 AI follow-ups per campaign. Day 3 + Day 7 auto follow-ups with Groq AI messages. Boosts response rate +40%.", "icon": "📬", "result": "+40% response rate", "tier": "starter", "max_followups": 50},
-    {"package": "follow-up-automation-pro", "name": "📬 Follow-Up Automation – Pro", "price_usd": 19.99, "description": "Up to 200 AI follow-ups per campaign. Full 2-cycle automation with personalized Groq AI messages. +65% response rate.", "icon": "📬", "result": "+65% response rate", "tier": "pro", "max_followups": 200},
-    {"package": "follow-up-automation-enterprise", "name": "📬 Follow-Up Automation – Enterprise", "price_usd": 49.99, "description": "Up to 500 AI follow-ups per campaign. Maximum coverage with priority AI + multi-tone follow-up cycles.", "icon": "📬", "result": "+85% response rate", "tier": "enterprise", "max_followups": 500},
+    {
+        "package": "follow-up-automation-starter",
+        "name": "📬 Follow-Up Automation – Starter",
+        "price_usd": 4.99,
+        "description": "Up to 50 AI follow-ups per campaign. Day 3 + Day 7 auto follow-ups with Groq AI messages. Boosts response rate +40%.",
+        "icon": "📬",
+        "result": "+40% response rate",
+        "tier": "starter",
+        "max_followups": 50,
+    },
+    {
+        "package": "follow-up-automation-pro",
+        "name": "📬 Follow-Up Automation – Pro",
+        "price_usd": 19.99,
+        "description": "Up to 200 AI follow-ups per campaign. Full 2-cycle automation with personalized Groq AI messages. +65% response rate.",
+        "icon": "📬",
+        "result": "+65% response rate",
+        "tier": "pro",
+        "max_followups": 200,
+    },
+    {
+        "package": "follow-up-automation-enterprise",
+        "name": "📬 Follow-Up Automation – Enterprise",
+        "price_usd": 49.99,
+        "description": "Up to 500 AI follow-ups per campaign. Maximum coverage with priority AI + multi-tone follow-up cycles.",
+        "icon": "📬",
+        "result": "+85% response rate",
+        "tier": "enterprise",
+        "max_followups": 500,
+    },
 ]
 
 # Bundle definitions: which features are unlocked by each bouquet
 BOUQUET_FEATURES = {
     "quick-strike": ["ats-dominator", "penetration-letter"],
-    "pro-hunter": ["ats-dominator", "penetration-letter", "the-insider", "follow-up-trio", "linkedin-dominator"],
-    "the-king": ["ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", "interview-arsenal", "warp-speed", "global-strike", "competition-radar", "mock-interview", "linkedin-dominator", "salary-negotiator", "career-agent"],
-    "mena-warlord": ["ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", "interview-arsenal", "warp-speed", "global-strike", "competition-radar", "mock-interview", "linkedin-dominator", "salary-negotiator", "career-agent", "networking-missile", "mena-multilang"],
-    "god-mode": ["ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", "interview-arsenal", "warp-speed", "global-strike", "competition-radar", "mock-interview", "linkedin-dominator", "salary-negotiator", "career-agent", "networking-missile", "interview-ninja", "mena-multilang"],
+    "pro-hunter": [
+        "ats-dominator",
+        "penetration-letter",
+        "the-insider",
+        "follow-up-trio",
+        "linkedin-dominator",
+    ],
+    "the-king": [
+        "ats-dominator",
+        "the-insider",
+        "penetration-letter",
+        "follow-up-trio",
+        "interview-arsenal",
+        "warp-speed",
+        "global-strike",
+        "competition-radar",
+        "mock-interview",
+        "linkedin-dominator",
+        "salary-negotiator",
+        "career-agent",
+    ],
+    "mena-warlord": [
+        "ats-dominator",
+        "the-insider",
+        "penetration-letter",
+        "follow-up-trio",
+        "interview-arsenal",
+        "warp-speed",
+        "global-strike",
+        "competition-radar",
+        "mock-interview",
+        "linkedin-dominator",
+        "salary-negotiator",
+        "career-agent",
+        "networking-missile",
+        "mena-multilang",
+    ],
+    "god-mode": [
+        "ats-dominator",
+        "the-insider",
+        "penetration-letter",
+        "follow-up-trio",
+        "interview-arsenal",
+        "warp-speed",
+        "global-strike",
+        "competition-radar",
+        "mock-interview",
+        "linkedin-dominator",
+        "salary-negotiator",
+        "career-agent",
+        "networking-missile",
+        "interview-ninja",
+        "mena-multilang",
+    ],
 }
 
 BOUQUET_PACKAGES = [
-    {"bouquet": "quick-strike", "name": "⚡ Quick Strike", "price_usd": 5, "description": "ATS Dominator + Penetration Letter — highest impact for $5", "includes": "2 weapons", "value": "$8", "savings": "40%", "icon": "⚡", "badge": "BUDGET"},
-    {"bouquet": "pro-hunter", "name": "🦅 Pro Hunter V2", "price_usd": 25, "description": "4 weapons + LinkedIn Dominator — full application + profile dominance", "includes": "5 weapons", "value": "$28", "savings": "11%", "icon": "🦅", "badge": "MOST POPULAR"},
-    {"bouquet": "the-king", "name": "👑 The Emperor", "price_usd": 69, "description": "12 weapons — ATS, interview, LinkedIn, salary, career agent — the complete arsenal", "includes": "12 weapons", "value": "$95", "savings": "27%", "icon": "👑", "badge": ""},
-    {"bouquet": "mena-warlord", "name": "🇱🇧 MENA Warlord V2", "price_usd": 49, "description": "14 weapons: all features + Arabic/English/French translation + MENA networking", "includes": "14 weapons", "value": "$120", "savings": "59%", "icon": "🇱🇧", "badge": "REGIONAL KING"},
-    {"bouquet": "god-mode", "name": "💀 God Mode V4", "price_usd": 99, "description": "ALL 15 weapons — including Interview Ninja live overlay. The ultimate job-hunting machine.", "includes": "15 weapons", "value": "$140", "savings": "29%", "icon": "💀", "badge": "ULTIMATE"},
+    {
+        "bouquet": "quick-strike",
+        "name": "⚡ Quick Strike",
+        "price_usd": 5,
+        "description": "ATS Dominator + Penetration Letter — highest impact for $5",
+        "includes": "2 weapons",
+        "value": "$8",
+        "savings": "40%",
+        "icon": "⚡",
+        "badge": "BUDGET",
+    },
+    {
+        "bouquet": "pro-hunter",
+        "name": "🦅 Pro Hunter V2",
+        "price_usd": 25,
+        "description": "4 weapons + LinkedIn Dominator — full application + profile dominance",
+        "includes": "5 weapons",
+        "value": "$28",
+        "savings": "11%",
+        "icon": "🦅",
+        "badge": "MOST POPULAR",
+    },
+    {
+        "bouquet": "the-king",
+        "name": "👑 The Emperor",
+        "price_usd": 69,
+        "description": "12 weapons — ATS, interview, LinkedIn, salary, career agent — the complete arsenal",
+        "includes": "12 weapons",
+        "value": "$95",
+        "savings": "27%",
+        "icon": "👑",
+        "badge": "",
+    },
+    {
+        "bouquet": "mena-warlord",
+        "name": "🇱🇧 MENA Warlord V2",
+        "price_usd": 49,
+        "description": "14 weapons: all features + Arabic/English/French translation + MENA networking",
+        "includes": "14 weapons",
+        "value": "$120",
+        "savings": "59%",
+        "icon": "🇱🇧",
+        "badge": "REGIONAL KING",
+    },
+    {
+        "bouquet": "god-mode",
+        "name": "💀 God Mode V4",
+        "price_usd": 99,
+        "description": "ALL 15 weapons — including Interview Ninja live overlay. The ultimate job-hunting machine.",
+        "includes": "15 weapons",
+        "value": "$140",
+        "savings": "29%",
+        "icon": "💀",
+        "badge": "ULTIMATE",
+    },
 ]
 
 
@@ -153,30 +386,77 @@ CHECKOUT_SERVICE_MAPPING = {
     "linkedin-optimization": {"linkedin-dominator"},
     "interview-prep": {"mock-interview", "interview-arsenal"},
     "career-consultation": {"career-agent"},
-    "full-application-pack": {"ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", "warp-speed", "global-strike"},
+    "full-application-pack": {
+        "ats-dominator",
+        "the-insider",
+        "penetration-letter",
+        "follow-up-trio",
+        "warp-speed",
+        "global-strike",
+    },
     "salary-negotiation": {"salary-negotiator"},
     "vip-support-month": {
-        "ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", "interview-arsenal", 
-        "warp-speed", "global-strike", "competition-radar", "mock-interview", "linkedin-dominator", 
-        "salary-negotiator", "career-agent", "networking-missile", "interview-ninja", "mena-multilang"
-    }
+        "ats-dominator",
+        "the-insider",
+        "penetration-letter",
+        "follow-up-trio",
+        "interview-arsenal",
+        "warp-speed",
+        "global-strike",
+        "competition-radar",
+        "mock-interview",
+        "linkedin-dominator",
+        "salary-negotiator",
+        "career-agent",
+        "networking-missile",
+        "interview-ninja",
+        "mena-multilang",
+    },
 }
 
 # Map checkout bouquet IDs (from services/catalog.py) to backend feature IDs
 CHECKOUT_BOUQUET_MAPPING = {
     "starter-pack": {"ats-dominator", "penetration-letter"},
     "linkedin-pack": {"linkedin-dominator"},
-    "application-pack": {"ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", "warp-speed", "global-strike"},
+    "application-pack": {
+        "ats-dominator",
+        "the-insider",
+        "penetration-letter",
+        "follow-up-trio",
+        "warp-speed",
+        "global-strike",
+    },
     "premium-pack": {
-        "ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", "warp-speed", "global-strike",
-        "linkedin-dominator", "career-agent", "mock-interview", "interview-arsenal"
+        "ats-dominator",
+        "the-insider",
+        "penetration-letter",
+        "follow-up-trio",
+        "warp-speed",
+        "global-strike",
+        "linkedin-dominator",
+        "career-agent",
+        "mock-interview",
+        "interview-arsenal",
     },
     "vip-month": {
-        "ats-dominator", "the-insider", "penetration-letter", "follow-up-trio", "interview-arsenal", 
-        "warp-speed", "global-strike", "competition-radar", "mock-interview", "linkedin-dominator", 
-        "salary-negotiator", "career-agent", "networking-missile", "interview-ninja", "mena-multilang"
-    }
+        "ats-dominator",
+        "the-insider",
+        "penetration-letter",
+        "follow-up-trio",
+        "interview-arsenal",
+        "warp-speed",
+        "global-strike",
+        "competition-radar",
+        "mock-interview",
+        "linkedin-dominator",
+        "salary-negotiator",
+        "career-agent",
+        "networking-missile",
+        "interview-ninja",
+        "mena-multilang",
+    },
 }
+
 
 def get_unlocked_features(user_id: str) -> set:
     """Return the set of feature IDs unlocked by user's purchases (services + bouquets)."""
@@ -184,7 +464,7 @@ def get_unlocked_features(user_id: str) -> set:
     import os
     import sys
     from pathlib import Path
-    
+
     if os.getenv("FORCE_PG") == "1" or os.getenv("CLOUD_MODE") == "true":
         try:
             import core.pg_sqlite_shim as sqlite3
@@ -199,6 +479,7 @@ def get_unlocked_features(user_id: str) -> set:
         if root_dir not in sys.path:
             sys.path.insert(0, root_dir)
         import config
+
         db_path = getattr(config, "DB_PATH", "jobhunt_saas_v2.db")
     except Exception:
         pass
@@ -215,12 +496,12 @@ def get_unlocked_features(user_id: str) -> set:
         conn.row_factory = sqlite3.Row
         purchases = conn.execute(
             "SELECT package_id, service_type FROM purchased_services WHERE user_id = ? AND status = 'active'",
-            (user_id,)
+            (user_id,),
         ).fetchall()
         for p in purchases:
             pid = p["package_id"]
             stype = p["service_type"]
-            
+
             # Apply checkout mappings first, falling back to direct names
             if stype == "service":
                 if pid in CHECKOUT_SERVICE_MAPPING:
@@ -233,7 +514,9 @@ def get_unlocked_features(user_id: str) -> set:
                 elif pid in BOUQUET_FEATURES:
                     unlocked.update(BOUQUET_FEATURES[pid])
     except Exception as e:
-        logger.error(f"[pricing_manager] Failed to query purchased services for {user_id}: {e}")
+        logger.error(
+            f"[pricing_manager] Failed to query purchased services for {user_id}: {e}"
+        )
     finally:
         if conn:
             try:
@@ -241,7 +524,6 @@ def get_unlocked_features(user_id: str) -> set:
             except Exception:
                 pass
     return unlocked
-
 
 
 def get_all_pricing() -> Dict[str, Any]:

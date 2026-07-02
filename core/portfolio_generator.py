@@ -2,12 +2,20 @@
 JobHunt Pro - Zero-Click Portfolio Generator (Item 3)
 Generates a highly-aesthetic, responsive HTML/JS portfolio from the user's CV.
 """
-import os
-import json
 
-def generate_portfolio(user_name: str, profession: str, email: str, linkedin_url: str, about: str, skills: list) -> str:
+import os
+
+
+def generate_portfolio(
+    user_name: str,
+    profession: str,
+    email: str,
+    linkedin_url: str,
+    about: str,
+    skills: list,
+) -> str:
     """Generates an ultra-modern Next.js-style static HTML portfolio."""
-    
+
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,16 +85,18 @@ def generate_portfolio(user_name: str, profession: str, email: str, linkedin_url
     </div>
 </body>
 </html>"""
-    
+
     # Save the portfolio
-    output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "web", "static", "portfolios")
+    output_dir = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "web", "static", "portfolios"
+    )
     os.makedirs(output_dir, exist_ok=True)
-    
+
     # URL-friendly filename
     safe_name = user_name.lower().replace(" ", "_")
     file_path = os.path.join(output_dir, f"{safe_name}.html")
-    
+
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(html_content)
-        
+
     return f"/static/portfolios/{safe_name}.html"

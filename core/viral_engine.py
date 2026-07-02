@@ -15,12 +15,10 @@ Product Hunt launch assets:
   4. Launch checklist
   5. Upvote campaign manager
 """
-import json
+
 import logging
-import os
-from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +39,17 @@ def init(data_dir: str = None):
 REFERRAL_TIERS = [
     {"name": "Starter", "referrals": 3, "reward": "1 month free Starter plan"},
     {"name": "Bronze", "referrals": 10, "reward": "3 months free Pro plan"},
-    {"name": "Silver", "referrals": 25, "reward": "6 months free Pro plan + featured user"},
+    {
+        "name": "Silver",
+        "referrals": 25,
+        "reward": "6 months free Pro plan + featured user",
+    },
     {"name": "Gold", "referrals": 50, "reward": "Lifetime Pro access (worth $500)"},
-    {"name": "Platinum", "referrals": 100, "reward": "Lifetime + 100 free job applications/month to others"},
+    {
+        "name": "Platinum",
+        "referrals": 100,
+        "reward": "Lifetime + 100 free job applications/month to others",
+    },
 ]
 
 REFERRAL_SHARE_TEXT = [
@@ -61,37 +67,45 @@ def get_referral_tiers() -> List[Dict]:
 
 def get_share_text() -> str:
     import random
-    return random.choice(REFERRAL_SHARE_TEXT).format(link="https://jhfguf.pythonanywhere.com?ref=USERNAME")
+
+    return random.choice(REFERRAL_SHARE_TEXT).format(
+        link="https://jhfguf.pythonanywhere.com?ref=USERNAME"
+    )
+
 
 # ── Chinese Viral Loop: Golden Ticket (Hongbao) ──────────────
+
 
 def generate_golden_ticket(user_id: int) -> Dict[str, str]:
     """[CHINESE VIRAL TRICK] Generate a shareable 'Red Envelope' link that grants free applications."""
     import hashlib
     import time
-    
+
     # Generate unique ticket hash
     raw = f"golden_{user_id}_{time.time()}"
     ticket_hash = hashlib.md5(raw.encode()).hexdigest()[:12]
-    
+
     # In a real DB, save this ticket hash linked to user_id
     # We will simulate the generation here
     link = f"https://jhfguf.pythonanywhere.com/redeem?ticket={ticket_hash}"
-    
+
     return {
         "ticket_id": ticket_hash,
         "link": link,
-        "message": f"🎁 I just sent you a Golden Ticket! Claim your 50 free AI job applications here: {link}"
+        "message": f"🎁 I just sent you a Golden Ticket! Claim your 50 free AI job applications here: {link}",
     }
+
 
 def redeem_golden_ticket(ticket_id: str, new_user_email: str) -> Dict[str, any]:
     """Redeem a Golden Ticket. Both the sender and receiver get rewards."""
     # Simulation of DB update
-    logger.info(f"[VIRAL] Ticket {ticket_id} redeemed by {new_user_email}. Awarding 50 apps to receiver, 100 to sender!")
+    logger.info(
+        f"[VIRAL] Ticket {ticket_id} redeemed by {new_user_email}. Awarding 50 apps to receiver, 100 to sender!"
+    )
     return {
         "success": True,
         "reward_granted": 50,
-        "message": "Golden Ticket redeemed successfully!"
+        "message": "Golden Ticket redeemed successfully!",
     }
 
 
@@ -136,17 +150,22 @@ SOCIAL_CARD_TEMPLATES = {
 def get_share_card(tool: str, data: Dict = None) -> Dict[str, str]:
     """Generate shareable social cards for viral tools."""
     templates = SOCIAL_CARD_TEMPLATES.get(tool, {})
-    
+
     if tool == "ats_score" and data:
         score = data.get("score", 75)
         return {k: v.format(score=score) for k, v in templates.items()}
-    
+
     if tool == "salary" and data:
-        return {k: v.format(
-            low=data.get("low", 50), high=data.get("high", 120),
-            job=data.get("job", "your role"), location=data.get("location", "your area")
-        ) for k, v in templates.items()}
-    
+        return {
+            k: v.format(
+                low=data.get("low", 50),
+                high=data.get("high", 120),
+                job=data.get("job", "your role"),
+                location=data.get("location", "your area"),
+            )
+            for k, v in templates.items()
+        }
+
     return templates
 
 
@@ -176,7 +195,6 @@ So I built JobHunt Pro — an AI that applies to jobs FOR you.
 Job hunting is broken. 250+ applicants per position, ATS systems filtering before humans see anything, and hours wasted on repetitive forms. AI can fix this.
 
 I'd love your feedback and questions! AMA in the comments 🙏""",
-
     "first_comment": """Thanks for checking out JobHunt Pro! 
 
 A few things I wanted to highlight:
@@ -186,7 +204,6 @@ A few things I wanted to highlight:
 • Free ATS checker and cover letter generator at /free-tools
 
 This is v1.0 — I'm shipping updates weekly based on feedback. What features would you want to see next?""",
-
     "topics": ["Artificial Intelligence", "SaaS", "Productivity", "Career"],
     "gallery_images": [
         "Homepage dashboard",
@@ -224,21 +241,21 @@ def get_ph_checklist() -> List[Dict]:
 def get_ph_listing_html() -> str:
     """Generate Product Hunt listing preview HTML."""
     return f"""<div class="ph-listing-preview">
-    <h1>🚀 {PH_ASSETS['tagline']}</h1>
-    <p>{PH_ASSETS['description']}</p>
+    <h1>🚀 {PH_ASSETS["tagline"]}</h1>
+    <p>{PH_ASSETS["description"]}</p>
     
     <div class="ph-maker-comment">
         <h3>Maker's Comment</h3>
-        <p>{PH_ASSETS['maker_comment'].replace(chr(10), '<br>')}</p>
+        <p>{PH_ASSETS["maker_comment"].replace(chr(10), "<br>")}</p>
     </div>
     
     <div class="ph-first-comment">
         <h3>First Comment</h3>
-        <p>{PH_ASSETS['first_comment']}</p>
+        <p>{PH_ASSETS["first_comment"]}</p>
     </div>
     
     <div class="ph-topics">
-        {''.join(f'<span class="topic-badge">{t}</span>' for t in PH_ASSETS['topics'])}
+        {"".join(f'<span class="topic-badge">{t}</span>' for t in PH_ASSETS["topics"])}
     </div>
 </div>"""
 
@@ -261,6 +278,7 @@ SOCIAL_PROOF_UPDATES = [
 
 def get_random_social_proof() -> Dict:
     import random
+
     return random.choice(SOCIAL_PROOF_UPDATES)
 
 

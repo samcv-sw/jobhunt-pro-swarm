@@ -6,13 +6,13 @@ rotates SMTP accounts, checks API keys, auto-reloads PA if RAM > 90%.
 DESIGNED FOR: PythonAnywhere free tier (no subprocess, limited RAM, 250s timeout)
 Uses asyncio for background tasks — never spawns OS processes.
 """
+
 import asyncio
 import logging
 import os
 import time
 import json
 import threading
-import sys
 import gc
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Any
@@ -59,6 +59,7 @@ _last_prune_time = 0.0
 # History Persistence
 # ═══════════════════════════════════════════════════════════════
 
+
 def _load_history() -> List[Dict]:
     try:
         if HEAL_HISTORY_FILE.exists():
@@ -73,13 +74,17 @@ def _save_history(entry: Dict):
     try:
         HEAL_HISTORY_FILE.parent.mkdir(parents=True, exist_ok=True)
         history = _load_history()
-        history.append({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            **entry,
-        })
+        history.append(
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                **entry,
+            }
+        )
         # Keep last 500 entries
         history = history[-500:]
-        HEAL_HISTORY_FILE.write_text(json.dumps(history, indent=2, default=str), encoding="utf-8")
+        HEAL_HISTORY_FILE.write_text(
+            json.dumps(history, indent=2, default=str), encoding="utf-8"
+        )
     except Exception as e:
         logger.warning(f"Failed to save heal history: {e}")
 
@@ -88,6 +93,7 @@ def _save_history(entry: Dict):
 # Telegram Alerting (non-blocking)
 # ═══════════════════════════════════════════════════════════════
 
+
 def _get_telegram_creds():
     """Get Telegram credentials from env or config."""
     token = os.getenv("TELEGRAM_BOT_TOKEN", "")
@@ -95,6 +101,7 @@ def _get_telegram_creds():
     if not token:
         try:
             import config
+
             token = getattr(config, "TELEGRAM_BOT_TOKEN", "")
             chat_id = getattr(config, "TELEGRAM_CHAT_ID", "")
         except ImportError:
@@ -109,6 +116,7 @@ def _telegram_alert_sync(message: str) -> bool:
         return False
     try:
         import requests
+
         url = f"https://api.telegram.org/bot{token}/sendMessage"
         payload = {
             "chat_id": chat_id,
@@ -131,10 +139,12 @@ async def _telegram_alert(message: str) -> bool:
 # Database Helpers (lazy import to avoid circular deps)
 # ═══════════════════════════════════════════════════════════════
 
+
 def _get_db():
     """Lazily import and return a DB connection."""
     try:
         from web.app_v2 import get_db as _web_get_db
+
         return _web_get_db()
     except Exception:
         logger.error("Cannot get DB connection — app_v2 not importable")
@@ -145,9 +155,10 @@ def _get_db():
 # Health Checks
 # ═══════════════════════════════════════════════════════════════
 
+
 def _get_cgroup_memory_usage() -> Optional[float]:
     """
-    Attempt to read Docker cgroup memory metrics (v1 and v2) to get 
+    Attempt to read Docker cgroup memory metrics (v1 and v2) to get
     accurate container-specific RAM usage on Render/Fly.io.
     Returns the percentage (0.0 to 100.0) if successful, otherwise None.
     """
@@ -155,11 +166,11 @@ def _get_cgroup_memory_usage() -> Optional[float]:
         # Check Cgroup v2 (typically on modern Linux / Docker hosts)
         cgroup_v2_usage_path = Path("/sys/fs/cgroup/memory.current")
         cgroup_v2_limit_path = Path("/sys/fs/cgroup/memory.max")
-        
+
         if cgroup_v2_usage_path.exists() and cgroup_v2_limit_path.exists():
             usage_str = cgroup_v2_usage_path.read_text().strip()
             limit_str = cgroup_v2_limit_path.read_text().strip()
-            
+
             if usage_str.isdigit():
                 usage = int(usage_str)
                 if limit_str.isdigit():
@@ -171,11 +182,11 @@ def _get_cgroup_memory_usage() -> Optional[float]:
         # Check Cgroup v1
         cgroup_v1_usage_path = Path("/sys/fs/cgroup/memory/memory.usage_in_bytes")
         cgroup_v1_limit_path = Path("/sys/fs/cgroup/memory/memory.limit_in_bytes")
-        
+
         if cgroup_v1_usage_path.exists() and cgroup_v1_limit_path.exists():
             usage_str = cgroup_v1_usage_path.read_text().strip()
             limit_str = cgroup_v1_limit_path.read_text().strip()
-            
+
             if usage_str.isdigit():
                 usage = int(usage_str)
                 if limit_str.isdigit():
@@ -197,6 +208,7 @@ def _check_ram_usage() -> float:
     # 2. Fall back to host VM memory if cgroups is not restricted or fails
     try:
         import psutil
+
         return psutil.virtual_memory().percent
     except ImportError:
         pass
@@ -219,6 +231,7 @@ def _check_ram_usage() -> float:
     # Ultimate fallback
     try:
         import sys
+
         if hasattr(sys, "getallocatedblocks"):
             # Very rough approximation from CPython internals
             return 50.0
@@ -234,6 +247,7 @@ def _check_groq_api() -> Dict[str, Any]:
         return {"status": "missing", "healthy": False, "error": "GROQ_API_KEY not set"}
     try:
         import httpx
+
         # Simple models list — doesn't consume credits
         resp = httpx.get(
             "https://api.groq.com/openai/v1/models",
@@ -244,11 +258,19 @@ def _check_groq_api() -> Dict[str, Any]:
             models = resp.json().get("data", [])
             return {"status": "ok", "healthy": True, "models_count": len(models)}
         elif resp.status_code == 401:
-            return {"status": "unauthorized", "healthy": False, "error": "Invalid API key"}
+            return {
+                "status": "unauthorized",
+                "healthy": False,
+                "error": "Invalid API key",
+            }
         elif resp.status_code == 429:
             return {"status": "rate_limited", "healthy": False, "error": "Rate limited"}
         else:
-            return {"status": "error", "healthy": False, "error": f"HTTP {resp.status_code}"}
+            return {
+                "status": "error",
+                "healthy": False,
+                "error": f"HTTP {resp.status_code}",
+            }
     except Exception as e:
         return {"status": "error", "healthy": False, "error": str(e)}
 
@@ -260,6 +282,7 @@ async def _check_groq_api_async() -> Dict[str, Any]:
 # ═══════════════════════════════════════════════════════════════
 # Heal Actions
 # ═══════════════════════════════════════════════════════════════
+
 
 def _clear_stuck_campaigns() -> int:
     """
@@ -273,9 +296,11 @@ def _clear_stuck_campaigns() -> int:
     if not conn:
         return 0
     try:
-        cutoff = (datetime.now(timezone.utc) - timedelta(minutes=_STUCK_THRESHOLD_MINUTES)).isoformat()
+        cutoff = (
+            datetime.now(timezone.utc) - timedelta(minutes=_STUCK_THRESHOLD_MINUTES)
+        ).isoformat()
         stuck_total = 0
-        
+
         # Table list to scan
         for table, status_col, time_col in [
             ("campaigns", "status", "started_at"),
@@ -286,46 +311,54 @@ def _clear_stuck_campaigns() -> int:
             try:
                 # 1. Ensure retry_count column exists
                 # Dynamic SQLite migration for auto-heal resilience
-                cols = [r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
+                cols = [
+                    r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()
+                ]
                 if "retry_count" not in cols:
                     try:
-                        conn.execute(f"ALTER TABLE {table} ADD COLUMN retry_count INTEGER DEFAULT 0")
+                        conn.execute(
+                            f"ALTER TABLE {table} ADD COLUMN retry_count INTEGER DEFAULT 0"
+                        )
                         conn.commit()
                         cols.append("retry_count")
                     except Exception:
                         pass
-                
+
                 id_col = "campaign_id" if "campaign_id" in cols else "id"
                 name_col = "name" if "name" in cols else id_col
-                
+
                 # 2. Select stuck campaigns
                 query = f"SELECT {id_col}, user_id, retry_count, {name_col} FROM {table} WHERE {status_col} = 'running' AND {time_col} < ?"
                 stuck_rows = conn.execute(query, (cutoff,)).fetchall()
-                
+
                 for row in stuck_rows:
-                    row_dict = dict(row) if hasattr(row, "keys") else {
-                        id_col: row[0],
-                        "user_id": row[1],
-                        "retry_count": row[2],
-                        name_col: row[3]
-                    }
-                    
+                    row_dict = (
+                        dict(row)
+                        if hasattr(row, "keys")
+                        else {
+                            id_col: row[0],
+                            "user_id": row[1],
+                            "retry_count": row[2],
+                            name_col: row[3],
+                        }
+                    )
+
                     cid = row_dict.get(id_col)
                     user_id = row_dict.get("user_id", "unknown")
                     retry = row_dict.get("retry_count")
                     if retry is None:
                         retry = 0
                     cname = row_dict.get(name_col, cid)
-                    
+
                     if retry < 3:
                         new_retry = retry + 1
                         # Reset to pending to retry processing
                         conn.execute(
                             f"UPDATE {table} SET {status_col} = 'pending', retry_count = ?, started_at = NULL WHERE {id_col} = ?",
-                            (new_retry, cid)
+                            (new_retry, cid),
                         )
                         stuck_total += 1
-                        
+
                         # Send Telegram notification of resilient auto-recovery
                         msg = (
                             f"🔧 <b>Resilient Auto-Healer Alert</b>\n\n"
@@ -338,10 +371,10 @@ def _clear_stuck_campaigns() -> int:
                         # Max retries exceeded - stall it to protect credentials/credits
                         conn.execute(
                             f"UPDATE {table} SET {status_col} = 'stalled' WHERE {id_col} = ?",
-                            (cid,)
+                            (cid,),
                         )
                         stuck_total += 1
-                        
+
                         # Send Telegram notification of stalled lockout
                         msg = (
                             f"🚨 <b>Resilient Auto-Healer Lockout</b>\n\n"
@@ -352,10 +385,12 @@ def _clear_stuck_campaigns() -> int:
                         _telegram_alert_sync(msg)
             except Exception as e:
                 logger.debug(f"Scan table {table} failed: {e}")
-                
+
         conn.commit()
         if stuck_total > 0:
-            logger.warning(f"Resiliently recovered/stalled {stuck_total} stuck campaigns")
+            logger.warning(
+                f"Resiliently recovered/stalled {stuck_total} stuck campaigns"
+            )
         return stuck_total
     except Exception as e:
         logger.error(f"Failed to clear stuck campaigns: {e}")
@@ -371,7 +406,6 @@ def _clear_stuck_campaigns() -> int:
             pass
 
 
-
 def _clear_dead_locks() -> int:
     """Remove lock entries that are older than 1 hour (dead locks)."""
     conn = _get_db()
@@ -380,24 +414,23 @@ def _clear_dead_locks() -> int:
     try:
         cutoff = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
         removed = 0
-        
+
         for table in ["locks", "job_locks", "distributed_locks", "mutex_locks"]:
             try:
                 for time_col in ["acquired_at", "created_at", "locked_at"]:
                     try:
                         result = conn.execute(
-                            f"DELETE FROM {table} WHERE {time_col} < ?",
-                            (cutoff,)
+                            f"DELETE FROM {table} WHERE {time_col} < ?", (cutoff,)
                         )
                         removed += result.rowcount or 0
                     except Exception:
                         pass
             except Exception:
                 pass
-        
+
         if removed > 0:
             logger.info(f"Removed {removed} dead locks")
-        
+
         conn.commit()
         return removed
     except Exception as e:
@@ -431,37 +464,37 @@ def _prune_old_db_records() -> int:
             # We use standard SQLite syntax compatible with our PG shim translation
             result = conn.execute(
                 "DELETE FROM jobs WHERE created_at < ? AND status NOT IN ('applied', 'followed_up')",
-                (cutoff_jobs,)
+                (cutoff_jobs,),
             )
             pruned += result.rowcount or 0
         except Exception:
             pass
-            
+
         # 2. Prune campaign emails log history older than 90 days
         cutoff_logs = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
         for table in ["campaign_emails", "sent_emails"]:
             try:
                 result = conn.execute(
-                    f"DELETE FROM {table} WHERE created_at < ?",
-                    (cutoff_logs,)
+                    f"DELETE FROM {table} WHERE created_at < ?", (cutoff_logs,)
                 )
                 pruned += result.rowcount or 0
             except Exception:
                 pass
-                
+
         # 3. Clean up resolved/stale rate-limited SMTP entries older than 7 days
         cutoff_smtp = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
         try:
             result = conn.execute(
-                "DELETE FROM smtp_rotation WHERE limited_at < ?",
-                (cutoff_smtp,)
+                "DELETE FROM smtp_rotation WHERE limited_at < ?", (cutoff_smtp,)
             )
             pruned += result.rowcount or 0
         except Exception:
             pass
-            
+
         if pruned > 0:
-            logger.info(f"Database pruning completed: removed {pruned} stale records to conserve storage")
+            logger.info(
+                f"Database pruning completed: removed {pruned} stale records to conserve storage"
+            )
             conn.commit()
         return pruned
     except Exception as e:
@@ -485,35 +518,40 @@ def _rotate_rate_limited_smtp() -> Dict[str, Any]:
     Returns rotation result.
     """
     result = {"rotated": False, "accounts_checked": 0, "rotate_reason": ""}
-    
+
     # Check if any SMTP accounts exist in env
     smtp_hosts = []
     for i in range(1, 6):  # Check SMTP1 through SMTP5
         host = os.getenv(f"SMTP{i}_HOST", "")
         if host:
-            smtp_hosts.append({
-                "index": i,
-                "host": host,
-                "user": os.getenv(f"SMTP{i}_USER", ""),
-                "sent_count": 0,
-            })
-    
+            smtp_hosts.append(
+                {
+                    "index": i,
+                    "host": host,
+                    "user": os.getenv(f"SMTP{i}_USER", ""),
+                    "sent_count": 0,
+                }
+            )
+
     if not smtp_hosts:
         # Try single SMTP config
         host = os.getenv("SMTP_HOST", "") or os.getenv("EMAIL_HOST", "")
         if host:
-            smtp_hosts.append({
-                "index": 0,
-                "host": host,
-                "user": os.getenv("SMTP_USER", "") or os.getenv("EMAIL_HOST_USER", ""),
-                "sent_count": 0,
-            })
-    
+            smtp_hosts.append(
+                {
+                    "index": 0,
+                    "host": host,
+                    "user": os.getenv("SMTP_USER", "")
+                    or os.getenv("EMAIL_HOST_USER", ""),
+                    "sent_count": 0,
+                }
+            )
+
     if not smtp_hosts:
         return result
-    
+
     result["accounts_checked"] = len(smtp_hosts)
-    
+
     # Check sent counts from DB
     conn = _get_db()
     if conn:
@@ -522,13 +560,15 @@ def _rotate_rate_limited_smtp() -> Dict[str, Any]:
                 try:
                     row = conn.execute(
                         "SELECT COUNT(*) as cnt FROM sent_emails WHERE smtp_host = ? AND sent_at > datetime('now', '-1 hour')",
-                        (smtp["host"],)
+                        (smtp["host"],),
                     ).fetchone()
                     if row:
-                        smtp["sent_count"] = row["cnt"] if isinstance(row, dict) else row[0]
+                        smtp["sent_count"] = (
+                            row["cnt"] if isinstance(row, dict) else row[0]
+                        )
                 except Exception:
                     pass
-            
+
             # Check for rate-limited accounts
             for smtp in smtp_hosts:
                 if smtp["sent_count"] > _SMTP_RATE_LIMIT_THRESHOLD:
@@ -536,20 +576,22 @@ def _rotate_rate_limited_smtp() -> Dict[str, Any]:
                         f"SMTP {smtp['index']} ({smtp['host']}) rate limited: "
                         f"{smtp['sent_count']} sends/hour > {_SMTP_RATE_LIMIT_THRESHOLD}"
                     )
-                    
+
                     # Mark as rate-limited in DB so rotator picks next
                     try:
                         conn.execute(
                             "INSERT OR REPLACE INTO smtp_rotation (smtp_host, rate_limited, limited_at) VALUES (?, 1, datetime('now'))",
-                            (smtp["host"],)
+                            (smtp["host"],),
                         )
                         conn.execute(
                             "UPDATE smtp_rotation SET rate_limited = 1, limited_at = datetime('now') WHERE smtp_host = ?",
-                            (smtp["host"],)
+                            (smtp["host"],),
                         )
                         conn.commit()
                         result["rotated"] = True
-                        result["rotate_reason"] = f"SMTP {smtp['index']} rate limited ({smtp['sent_count']}/hr)"
+                        result["rotate_reason"] = (
+                            f"SMTP {smtp['index']} rate limited ({smtp['sent_count']}/hr)"
+                        )
                     except Exception:
                         pass
         except Exception as e:
@@ -559,7 +601,7 @@ def _rotate_rate_limited_smtp() -> Dict[str, Any]:
                 conn.close()
             except Exception:
                 pass
-    
+
     return result
 
 
@@ -571,15 +613,18 @@ def _auto_reload_pa_if_ram_high(ram_pct: float) -> bool:
     """
     if ram_pct <= _RAM_THRESHOLD_PCT:
         return False
-    
-    logger.critical(f"RAM at {ram_pct}% (> {_RAM_THRESHOLD_PCT}%) — triggering auto-heal reload/restart")
-    
+
+    logger.critical(
+        f"RAM at {ram_pct}% (> {_RAM_THRESHOLD_PCT}%) — triggering auto-heal reload/restart"
+    )
+
     pa_token = os.getenv("PA_API_TOKEN", "")
     if pa_token:
         pa_user = os.getenv("PA_USERNAME", "jhfguf")
         pa_domain = os.getenv("PA_DOMAIN", "jhfguf.pythonanywhere.com")
         try:
             import httpx
+
             url = f"https://www.pythonanywhere.com/api/v0/user/{pa_user}/webapps/{pa_domain}/reload/"
             resp = httpx.post(
                 url,
@@ -590,18 +635,22 @@ def _auto_reload_pa_if_ram_high(ram_pct: float) -> bool:
                 logger.info("PA webapp reloaded successfully (high RAM)")
                 return True
             else:
-                logger.error(f"PA reload failed: HTTP {resp.status_code} — {resp.text[:200]}")
+                logger.error(
+                    f"PA reload failed: HTTP {resp.status_code} — {resp.text[:200]}"
+                )
         except Exception as e:
             logger.error(f"PA reload exception: {e}")
 
     # Fallback/Cloud mode: Exit process to trigger Docker/Render/Fly.io auto-restart
-    logger.critical("CLOUD AUTO-HEAL: Exiting process to trigger container restart under memory pressure")
-    
+    logger.critical(
+        "CLOUD AUTO-HEAL: Exiting process to trigger container restart under memory pressure"
+    )
+
     # Run shutdown gracefully by exiting the process after a brief sleep to allow logs to flush
     def exit_process():
         time.sleep(2)
         os._exit(1)
-        
+
     threading.Thread(target=exit_process, daemon=True).start()
     return True
 
@@ -610,17 +659,18 @@ def _auto_reload_pa_if_ram_high(ram_pct: float) -> bool:
 # Main Heal Cycle
 # ═══════════════════════════════════════════════════════════════
 
+
 async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
     """
     Run a full self-healing cycle.
-    
+
     Checks in order:
     1. RAM usage → auto-reload PA if > 90%
     2. Stuck campaigns → reset if running > 30 min
     3. Dead locks → clear if > 1 hour old
     4. SMTP rate limits → rotate flagged accounts
     5. Groq API key → verify health
-    
+
     Returns dict with heal actions taken.
     """
     result = {
@@ -635,16 +685,16 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
         "alerts_sent": [],
         "errors": [],
     }
-    
+
     with _state_lock:
         _heal_state["last_check"] = result["timestamp"]
         _heal_state["total_checks"] += 1
-    
+
     # 1. RAM Check
     try:
         ram_pct = _check_ram_usage()
         result["ram_pct"] = ram_pct
-        
+
         if ram_pct > _RAM_THRESHOLD_PCT or force:
             reloaded = _auto_reload_pa_if_ram_high(ram_pct)
             result["ram_heal"] = reloaded
@@ -661,7 +711,7 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
     except Exception as e:
         result["errors"].append(f"RAM check: {e}")
         logger.error(f"RAM check error: {e}")
-    
+
     # 2. Stuck Campaigns
     try:
         stuck = _clear_stuck_campaigns()
@@ -669,7 +719,7 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
         with _state_lock:
             _heal_state["stuck_campaigns_cleared"] += stuck
             _heal_state["heals_applied"] += 1 if stuck > 0 else 0
-        
+
         if stuck > 0:
             _save_history({"action": "clear_stuck_campaigns", "count": stuck})
             await _telegram_alert(
@@ -682,7 +732,7 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
     except Exception as e:
         result["errors"].append(f"Stuck campaigns: {e}")
         logger.error(f"Stuck campaign check error: {e}")
-    
+
     # 3. Dead Locks
     try:
         locks = _clear_dead_locks()
@@ -690,14 +740,14 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
         with _state_lock:
             _heal_state["dead_locks_removed"] += locks
             _heal_state["heals_applied"] += 1 if locks > 0 else 0
-        
+
         if locks > 0:
             _save_history({"action": "clear_dead_locks", "count": locks})
             logger.info(f"Cleared {locks} dead locks — campaigns unblocked")
     except Exception as e:
         result["errors"].append(f"Dead locks: {e}")
         logger.error(f"Dead lock check error: {e}")
-    
+
     # 4. SMTP Rotation
     try:
         smtp_result = _rotate_rate_limited_smtp()
@@ -706,8 +756,13 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
             with _state_lock:
                 _heal_state["smtp_rotations"] += 1
                 _heal_state["heals_applied"] += 1
-            
-            _save_history({"action": "rotate_smtp", "reason": smtp_result.get("rotate_reason", "")})
+
+            _save_history(
+                {
+                    "action": "rotate_smtp",
+                    "reason": smtp_result.get("rotate_reason", ""),
+                }
+            )
             await _telegram_alert(
                 f"📧 <b>SMTP ACCOUNT ROTATED</b>\n\n"
                 f"<b>Reason:</b> {smtp_result.get('rotate_reason', 'Rate limited')}\n\n"
@@ -717,26 +772,30 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
     except Exception as e:
         result["errors"].append(f"SMTP rotation: {e}")
         logger.error(f"SMTP rotation error: {e}")
-    
+
     # 5. Groq API Key Health
     try:
         global _last_groq_check_time, _last_groq_result, _groq_alerted_unhealthy
         now = time.time()
-        
+
         # Only check every 30 minutes (1800s) if healthy, or every 5 minutes (300s) if unhealthy
         check_interval = 1800
         if _last_groq_result and not _last_groq_result.get("healthy"):
             check_interval = 300
-            
-        if force or (now - _last_groq_check_time > check_interval) or _last_groq_result is None:
+
+        if (
+            force
+            or (now - _last_groq_check_time > check_interval)
+            or _last_groq_result is None
+        ):
             groq_result = await _check_groq_api_async()
             _last_groq_check_time = now
             _last_groq_result = groq_result
         else:
             groq_result = _last_groq_result
-            
+
         result["groq_check"] = groq_result
-        
+
         if not groq_result.get("healthy"):
             # Only alert if we haven't alerted yet about this failure transition
             if not _groq_alerted_unhealthy or force:
@@ -748,14 +807,16 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
                     f"<i>AI features may be degraded. Check your Groq API key.</i>"
                 )
                 result["alerts_sent"].append("groq_issue")
-                _save_history({"action": "groq_alert", "status": groq_result.get("status")})
+                _save_history(
+                    {"action": "groq_alert", "status": groq_result.get("status")}
+                )
         else:
             # Reset the alert flag if it's back to healthy
             _groq_alerted_unhealthy = False
     except Exception as e:
         result["errors"].append(f"Groq check: {e}")
         logger.error(f"Groq check error: {e}")
-    
+
     # 6. Database Pruning (keep Neon DB size within 500MB free cap)
     try:
         global _last_prune_time
@@ -765,22 +826,21 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
             pruned_count = _prune_old_db_records()
             _last_prune_time = now
             if pruned_count > 0:
-                _save_history({"action": "database_pruning", "pruned_records": pruned_count})
+                _save_history(
+                    {"action": "database_pruning", "pruned_records": pruned_count}
+                )
     except Exception as e:
         result["errors"].append(f"DB pruning: {e}")
         logger.error(f"DB pruning error: {e}")
 
     # 7. Scraper Source Circuit-Breaker Health
     try:
-        from core.pa_job_scraper import (
-            _SOURCE_FAILURES, _SOURCE_DISABLED_UNTIL
-        )
+        from core.pa_job_scraper import _SOURCE_FAILURES, _SOURCE_DISABLED_UNTIL
+
         now = time.time()
         total_sources = 10  # total scraper sources in pa_job_scraper v4
         tripped = {
-            src: until
-            for src, until in _SOURCE_DISABLED_UNTIL.items()
-            if until > now
+            src: until for src, until in _SOURCE_DISABLED_UNTIL.items() if until > now
         }
         result["scraper_circuits_tripped"] = list(tripped.keys())
         if tripped:
@@ -801,10 +861,14 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
                     + "\n\n<i>Will auto-recover when cooldown expires.</i>"
                 )
                 result["alerts_sent"].append("scraper_circuit_open")
-                _save_history({"action": "scraper_circuit_alert", "tripped": list(tripped.keys())})
+                _save_history(
+                    {"action": "scraper_circuit_alert", "tripped": list(tripped.keys())}
+                )
             # Force-reset circuits if ALL sources are simultaneously tripped (total deadlock)
             if len(tripped) >= total_sources:
-                logger.critical("[AutoHeal] ALL scraper sources tripped — force-resetting all circuits!")
+                logger.critical(
+                    "[AutoHeal] ALL scraper sources tripped — force-resetting all circuits!"
+                )
                 _SOURCE_DISABLED_UNTIL.clear()
                 _SOURCE_FAILURES.clear()
                 with _state_lock:
@@ -826,6 +890,7 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
 # Background Monitor (asyncio — no subprocess)
 # ═══════════════════════════════════════════════════════════════
 
+
 async def start_background_monitor():
     """
     Start the background self-healing monitor.
@@ -833,35 +898,39 @@ async def start_background_monitor():
     Uses asyncio.sleep — no threads or subprocesses.
     """
     global _heal_state
-    
+
     with _state_lock:
         if _heal_state["running"]:
             logger.info("Auto-heal monitor already running")
             return
         _heal_state["running"] = True
-    
+
     logger.info("🩺 Auto-heal background monitor started (60s interval)")
-    
+
     try:
         while True:
             try:
                 result = await run_heal_cycle(force=False)
-                
+
                 if result["errors"]:
                     logger.warning(f"Heal cycle had {len(result['errors'])} errors")
-                
+
                 # Log summary (not spamming)
-                actions = sum([
-                    result["stuck_campaigns_cleared"],
-                    result["dead_locks_removed"],
-                    1 if result.get("smtp_rotation", {}).get("rotated") else 0,
-                    1 if result["ram_heal"] else 0,
-                ])
+                actions = sum(
+                    [
+                        result["stuck_campaigns_cleared"],
+                        result["dead_locks_removed"],
+                        1 if result.get("smtp_rotation", {}).get("rotated") else 0,
+                        1 if result["ram_heal"] else 0,
+                    ]
+                )
                 if actions > 0:
-                    logger.info(f"Heal cycle: {actions} actions taken | RAM: {result['ram_pct']}%")
-                
+                    logger.info(
+                        f"Heal cycle: {actions} actions taken | RAM: {result['ram_pct']}%"
+                    )
+
                 await asyncio.sleep(_CHECK_INTERVAL)
-                
+
             except asyncio.CancelledError:
                 logger.info("Auto-heal monitor cancelled")
                 break
@@ -885,7 +954,7 @@ def start_background_monitor_sync():
     except RuntimeError:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-    
+
     task = loop.create_task(start_background_monitor())
     logger.info("Auto-heal monitor task created")
     return task
@@ -894,6 +963,7 @@ def start_background_monitor_sync():
 # ═══════════════════════════════════════════════════════════════
 # API Helpers
 # ═══════════════════════════════════════════════════════════════
+
 
 def get_heal_state() -> Dict[str, Any]:
     """Return current heal state for API responses."""
@@ -907,39 +977,49 @@ def get_system_health_snapshot() -> Dict[str, Any]:
     Lightweight — designed for <100ms response.
     """
     ram_pct = _check_ram_usage()
-    
+
     # Try to get campaign/email counts from DB
     campaigns_active = 0
     total_applications = 0
     emails_sent_today = 0
-    
+
     conn = _get_db()
     if conn:
         try:
             # Campaigns
             for table, col in [("campaigns", "status"), ("email_campaigns", "status")]:
                 try:
-                    row = conn.execute(f"SELECT COUNT(*) FROM {table} WHERE {col} = 'running'").fetchone()
+                    row = conn.execute(
+                        f"SELECT COUNT(*) FROM {table} WHERE {col} = 'running'"
+                    ).fetchone()
                     if row:
-                        campaigns_active += row[0] if not isinstance(row, dict) else list(row.values())[0]
+                        campaigns_active += (
+                            row[0]
+                            if not isinstance(row, dict)
+                            else list(row.values())[0]
+                        )
                 except Exception:
                     pass
-            
+
             # Applications
             try:
                 row = conn.execute("SELECT COUNT(*) FROM job_applications").fetchone()
                 if row:
-                    total_applications = row[0] if not isinstance(row, dict) else list(row.values())[0]
+                    total_applications = (
+                        row[0] if not isinstance(row, dict) else list(row.values())[0]
+                    )
             except Exception:
                 pass
-            
+
             # Emails today
             try:
                 row = conn.execute(
                     "SELECT COUNT(*) FROM sent_emails WHERE sent_at > datetime('now', '-1 day')"
                 ).fetchone()
                 if row:
-                    emails_sent_today = row[0] if not isinstance(row, dict) else list(row.values())[0]
+                    emails_sent_today = (
+                        row[0] if not isinstance(row, dict) else list(row.values())[0]
+                    )
             except Exception:
                 pass
         except Exception:
@@ -949,30 +1029,31 @@ def get_system_health_snapshot() -> Dict[str, Any]:
                 conn.close()
             except Exception:
                 pass
-    
+
     # Groq API status
     groq_healthy = bool(os.getenv("GROQ_API_KEY", ""))
-    
+
     # SMTP status
     smtp_configured = bool(
-        os.getenv("SMTP_HOST", "") or
-        os.getenv("SMTP1_HOST", "") or
-        os.getenv("EMAIL_HOST", "")
+        os.getenv("SMTP_HOST", "")
+        or os.getenv("SMTP1_HOST", "")
+        or os.getenv("EMAIL_HOST", "")
     )
-    
+
     # PA config
     pa_configured = bool(os.getenv("PA_API_TOKEN", ""))
-    
+
     # Scraper circuit-breaker states
     scraper_circuits = {}
     try:
         from core.pa_job_scraper import _SOURCE_DISABLED_UNTIL
+
         now = time.time()
         for src, until in _SOURCE_DISABLED_UNTIL.items():
             if until > now:
                 scraper_circuits[src] = {
                     "healthy": False,
-                    "cooldown_remaining_seconds": int(until - now)
+                    "cooldown_remaining_seconds": int(until - now),
                 }
     except Exception:
         pass

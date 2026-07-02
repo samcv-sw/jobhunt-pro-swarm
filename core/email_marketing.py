@@ -20,7 +20,6 @@ from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
-from typing import Optional
 
 import config
 from core.email_engine import send_email_via_brevo_http
@@ -28,7 +27,7 @@ from core.email_engine import send_email_via_brevo_http
 logger = logging.getLogger(__name__)
 
 # ── Campaign intervals (seconds) ───────────────────────────────
-CHECK_INTERVAL = 300           # main loop every 5 min
+CHECK_INTERVAL = 300  # main loop every 5 min
 ABANDONED_CART_MIN_AGE = 1800  # 30 min before sending reminder
 RE_ENGAGE_AFTER_DAYS = 7
 POST_PURCHASE_AFTER_HOURS = 24
@@ -43,8 +42,10 @@ BASE_URL = config.SITE_URL
 #  Email senders (Gmail SMTP primary + Brevo REST API fallback)
 # ════════════════════════════════════════════════════════════════
 
-def _send_via_gmail_smtp(to_email: str, subject: str, html_body: str,
-                         sender_name: str = "Sam Salameh") -> bool:
+
+def _send_via_gmail_smtp(
+    to_email: str, subject: str, html_body: str, sender_name: str = "Sam Salameh"
+) -> bool:
     """Send email via Gmail SMTP. Uses GMAIL_SMTP_USER + GMAIL_APP_PASSWORD_1."""
     gmail_user = os.getenv("GMAIL_SMTP_USER", "").strip()
     gmail_password = os.getenv("GMAIL_APP_PASSWORD_1", "").strip()
@@ -72,6 +73,7 @@ def _send_via_gmail_smtp(to_email: str, subject: str, html_body: str,
 #  DB helpers
 # ════════════════════════════════════════════════════════════════
 
+
 def _get_db():
     """Open a connection to the main SaaS database."""
     db_path = str(Path(__file__).parent.parent / "jobhunt_saas_v2.db")
@@ -87,7 +89,7 @@ def _already_sent(campaign_type: str, user_id: str, since_hours: int = 24) -> bo
         cutoff = (datetime.now() - timedelta(hours=since_hours)).isoformat()
         row = conn.execute(
             "SELECT COUNT(*) as c FROM email_campaign_log WHERE campaign_type=? AND user_id=? AND sent_at>=?",
-            (campaign_type, user_id, cutoff)
+            (campaign_type, user_id, cutoff),
         ).fetchone()
         conn.close()
         return row and row["c"] > 0
@@ -95,14 +97,21 @@ def _already_sent(campaign_type: str, user_id: str, since_hours: int = 24) -> bo
         return False
 
 
-def _log_campaign(campaign_type: str, user_id: str, to_email: str, subject: str,
-                  status: str = "sent", order_id: str = None, error: str = None):
+def _log_campaign(
+    campaign_type: str,
+    user_id: str,
+    to_email: str,
+    subject: str,
+    status: str = "sent",
+    order_id: str = None,
+    error: str = None,
+):
     """Insert a row into email_campaign_log."""
     try:
         conn = _get_db()
         conn.execute(
             "INSERT INTO email_campaign_log (campaign_type, user_id, to_email, subject, status, order_id, error) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (campaign_type, user_id, to_email, subject, status, order_id, error)
+            (campaign_type, user_id, to_email, subject, status, order_id, error),
         )
         conn.commit()
         conn.close()
@@ -113,6 +122,7 @@ def _log_campaign(campaign_type: str, user_id: str, to_email: str, subject: str,
 # ════════════════════════════════════════════════════════════════
 #  HTML email templates
 # ════════════════════════════════════════════════════════════════
+
 
 def _tracking_pixel(campaign_id: int) -> str:
     """1×1 transparent GIF tracking pixel for open detection."""
@@ -185,7 +195,9 @@ def _welcome_email(name: str, campaign_id: int) -> tuple:
     return subject, _wrap_html(body, "Welcome to JobHunt Pro")
 
 
-def _abandoned_cart_email(name: str, service_name: str, price_usd: float, order_id: str, campaign_id: int) -> tuple:
+def _abandoned_cart_email(
+    name: str, service_name: str, price_usd: float, order_id: str, campaign_id: int
+) -> tuple:
     """Return (subject, html_body) for abandoned cart recovery."""
     subject = "⏳ You left something behind — complete your order!"
     body = f"""
@@ -253,14 +265,17 @@ def _post_purchase_email(name: str, service_name: str, campaign_id: int) -> tupl
 #  Campaign logic
 # ════════════════════════════════════════════════════════════════
 
+
 async def send_welcome_email(user_id: str, email: str, name: str) -> bool:
     """Send welcome email to a new user."""
     if _already_sent("welcome", user_id):
         return False
     try:
         conn = _get_db()
-        conn.execute("INSERT INTO email_campaign_log (campaign_type, user_id, to_email, subject, status) VALUES (?, ?, ?, ?, 'sending')",
-                     ("welcome", user_id, email, "🎉 Welcome to JobHunt Pro"))
+        conn.execute(
+            "INSERT INTO email_campaign_log (campaign_type, user_id, to_email, subject, status) VALUES (?, ?, ?, ?, 'sending')",
+            ("welcome", user_id, email, "🎉 Welcome to JobHunt Pro"),
+        )
         conn.commit()
         campaign_id = conn.execute("SELECT last_insert_rowid() as id").fetchone()["id"]
         conn.close()
@@ -285,9 +300,15 @@ async def send_welcome_email(user_id: str, email: str, name: str) -> bool:
 
         # Update status
         conn = _get_db()
-        conn.execute("UPDATE email_campaign_log SET status=? WHERE id=?", ("sent" if success else "failed", campaign_id))
+        conn.execute(
+            "UPDATE email_campaign_log SET status=? WHERE id=?",
+            ("sent" if success else "failed", campaign_id),
+        )
         if not success:
-            conn.execute("UPDATE email_campaign_log SET error='Send failed' WHERE id=?", (campaign_id,))
+            conn.execute(
+                "UPDATE email_campaign_log SET error='Send failed' WHERE id=?",
+                (campaign_id,),
+            )
         conn.commit()
         conn.close()
 
@@ -303,12 +324,14 @@ async def process_abandoned_carts():
     """Find pending orders older than ABANDONED_CART_MIN_AGE and send reminders."""
     try:
         conn = _get_db()
-        cutoff = (datetime.now() - timedelta(seconds=ABANDONED_CART_MIN_AGE)).isoformat()
+        cutoff = (
+            datetime.now() - timedelta(seconds=ABANDONED_CART_MIN_AGE)
+        ).isoformat()
         rows = conn.execute(
             """SELECT o.order_id, o.amount_usd, o.user_id, o.package_name, u.email, COALESCE(u.name,'User') as name
                FROM orders o JOIN users u ON o.user_id = u.user_id
                WHERE o.payment_status='pending' AND o.created_at <= ?""",
-            (cutoff,)
+            (cutoff,),
         ).fetchall()
         conn.close()
 
@@ -338,9 +361,13 @@ async def process_abandoned_carts():
                 )
 
             _log_campaign(
-                "abandoned_cart", row["user_id"], row["email"], subject,
-                "sent" if success else "failed", order_id=row["order_id"],
-                error=None if success else "Send failed"
+                "abandoned_cart",
+                row["user_id"],
+                row["email"],
+                subject,
+                "sent" if success else "failed",
+                order_id=row["order_id"],
+                error=None if success else "Send failed",
             )
             if success:
                 sent += 1
@@ -360,13 +387,15 @@ async def process_re_engagement():
             """SELECT user_id, email, COALESCE(name,'User') as name FROM users
                WHERE (last_login IS NULL OR last_login <= ?)
                AND created_at <= ?""",
-            (cutoff, cutoff)
+            (cutoff, cutoff),
         ).fetchall()
         conn.close()
 
         sent = 0
         for row in rows:
-            if _already_sent("re_engagement", row["user_id"], since_hours=24 * 30):  # once per month
+            if _already_sent(
+                "re_engagement", row["user_id"], since_hours=24 * 30
+            ):  # once per month
                 continue
 
             subject, html = _re_engagement_email(row["name"], 0)
@@ -387,8 +416,11 @@ async def process_re_engagement():
                 )
 
             _log_campaign(
-                "re_engagement", row["user_id"], row["email"], subject,
-                "sent" if success else "failed"
+                "re_engagement",
+                row["user_id"],
+                row["email"],
+                subject,
+                "sent" if success else "failed",
             )
             if success:
                 sent += 1
@@ -403,15 +435,19 @@ async def process_post_purchase():
     """Find completed orders from 24h ago without follow-up sent."""
     try:
         conn = _get_db()
-        cutoff_start = (datetime.now() - timedelta(hours=POST_PURCHASE_AFTER_HOURS)).isoformat()
-        cutoff_end = (datetime.now() - timedelta(hours=1)).isoformat()  # within last 23h window
+        cutoff_start = (
+            datetime.now() - timedelta(hours=POST_PURCHASE_AFTER_HOURS)
+        ).isoformat()
+        cutoff_end = (
+            datetime.now() - timedelta(hours=1)
+        ).isoformat()  # within last 23h window
         rows = conn.execute(
             """SELECT o.order_id, o.user_id, COALESCE(o.package_name,'Service') as service_name,
                       u.email, COALESCE(u.name,'User') as name
                FROM orders o JOIN users u ON o.user_id = u.user_id
                WHERE o.payment_status='completed'
                AND o.completed_at BETWEEN ? AND ?""",
-            (cutoff_start, cutoff_end)
+            (cutoff_start, cutoff_end),
         ).fetchall()
         conn.close()
 
@@ -438,8 +474,12 @@ async def process_post_purchase():
                 )
 
             _log_campaign(
-                "post_purchase", row["user_id"], row["email"], subject,
-                "sent" if success else "failed", order_id=row["order_id"]
+                "post_purchase",
+                row["user_id"],
+                row["email"],
+                subject,
+                "sent" if success else "failed",
+                order_id=row["order_id"],
             )
             if success:
                 sent += 1
@@ -453,6 +493,7 @@ async def process_post_purchase():
 # ════════════════════════════════════════════════════════════════
 #  Background loop
 # ════════════════════════════════════════════════════════════════
+
 
 async def email_marketing_loop():
     """Background loop that runs every CHECK_INTERVAL seconds."""
@@ -486,7 +527,9 @@ def get_campaign_stats() -> dict:
             """SELECT campaign_type, status, COUNT(*) as cnt
                FROM email_campaign_log GROUP BY campaign_type, status"""
         ).fetchall()
-        total = conn.execute("SELECT COUNT(*) as c FROM email_campaign_log").fetchone()["c"]
+        total = conn.execute("SELECT COUNT(*) as c FROM email_campaign_log").fetchone()[
+            "c"
+        ]
         conn.close()
 
         stats = {"total": total, "breakdown": {}}

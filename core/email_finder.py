@@ -13,6 +13,7 @@ Usage (from campaign_runner.py):
     finder = EmailFinder()
     result = await finder.find_emails("Murex", "HR Coordinator", "Beirut")
 """
+
 import asyncio
 import logging
 import random
@@ -20,7 +21,7 @@ import re
 import socket
 import time
 from typing import Dict, List, Optional, Set, Tuple
-from urllib.parse import quote_plus, urlparse
+from urllib.parse import urlparse
 
 import httpx
 import dns.resolver
@@ -42,59 +43,130 @@ logger = logging.getLogger(__name__)
 
 # Suffixes to strip from company names before domain guessing
 COMPANY_SUFFIXES = [
-    r'\bLLC\b', r'\bInc\.?\b', r'\bLtd\.?\b', r'\bLtd\b', r'\bCorp\.?\b',
-    r'\bCorporation\b', r'\bCo\.?\b', r'\bCo\b', r'\bCompany\b', r'\bGroup\b',
-    r'\bHoldings?\b', r'\bInternational\b', r'\bGlobal\b', r'\bSolutions?\b',
-    r'\bTechnologies?\b', r'\bServices?\b', r'\bNetworks?\b', r'\bSystems?\b',
-    r'\bLimited\b', r'\bAssociates?\b', r'\bPartners?\b', r'\bEnterprises?\b',
-    r'\bIndustries?\b', r'\bConsulting\b', r'\bAdvisory\b', r'\bCapital\b',
-    r'\bVentures?\b', r'\bInvestment\b', r'\bManagement\b', r'\bAgency\b',
-    r'\bStudio\b', r'\bDigital\b', r'\bSoftware\b', r'\bS\.?A\.?L\.?\b', r'\bSAL\b',
-    r'\bS\.?A\.?R\.?L\.?\b', r'\bSARL\b', r'\bS\.?A\.?\b', r'\bGmbH\b', r'\bBV\b',
-    r'\bPty\.?\s*Ltd\.?\b', r'\bInc\b', r'\bIncorporated\b',
+    r"\bLLC\b",
+    r"\bInc\.?\b",
+    r"\bLtd\.?\b",
+    r"\bLtd\b",
+    r"\bCorp\.?\b",
+    r"\bCorporation\b",
+    r"\bCo\.?\b",
+    r"\bCo\b",
+    r"\bCompany\b",
+    r"\bGroup\b",
+    r"\bHoldings?\b",
+    r"\bInternational\b",
+    r"\bGlobal\b",
+    r"\bSolutions?\b",
+    r"\bTechnologies?\b",
+    r"\bServices?\b",
+    r"\bNetworks?\b",
+    r"\bSystems?\b",
+    r"\bLimited\b",
+    r"\bAssociates?\b",
+    r"\bPartners?\b",
+    r"\bEnterprises?\b",
+    r"\bIndustries?\b",
+    r"\bConsulting\b",
+    r"\bAdvisory\b",
+    r"\bCapital\b",
+    r"\bVentures?\b",
+    r"\bInvestment\b",
+    r"\bManagement\b",
+    r"\bAgency\b",
+    r"\bStudio\b",
+    r"\bDigital\b",
+    r"\bSoftware\b",
+    r"\bS\.?A\.?L\.?\b",
+    r"\bSAL\b",
+    r"\bS\.?A\.?R\.?L\.?\b",
+    r"\bSARL\b",
+    r"\bS\.?A\.?\b",
+    r"\bGmbH\b",
+    r"\bBV\b",
+    r"\bPty\.?\s*Ltd\.?\b",
+    r"\bInc\b",
+    r"\bIncorporated\b",
 ]
 
 # TLDs to try when guessing domains (ordered by business likelihood)
-TLD_ORDER = ['.com', '.co', '.net', '.org', '.io', '.me', '.ai']
+TLD_ORDER = [".com", ".co", ".net", ".org", ".io", ".me", ".ai"]
 
 # Multi-pattern email matrix — prioritized role prefixes (Direct-to-Manager Routing)
 EMAIL_PREFIXES_PRIORITY = [
     # Tier 1: Founders / C-Suite (Decision Makers)
-    "ceo", "founder", "cto", "founders",
+    "ceo",
+    "founder",
+    "cto",
+    "founders",
     # Tier 2: Department Heads (Engineering/Tech)
-    "engineering", "tech", "dev", "developers", "lead",
+    "engineering",
+    "tech",
+    "dev",
+    "developers",
+    "lead",
     # Tier 3: Talent/Hiring (Direct HR, avoiding generic info)
-    "talent", "hiring", "recruiting",
+    "talent",
+    "hiring",
+    "recruiting",
     # Tier 4: General HR (fallback)
-    "careers", "hr", "jobs",
+    "careers",
+    "hr",
+    "jobs",
 ]
 
 # Email regex — stricter than job search version
 _EMAIL_RE = re.compile(
-    r'[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}'
+    r"[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}"
 )
 
 # Blocked email patterns (noise to filter out)
 BLOCKED_EMAIL_PATTERNS = [
-    'noreply@', 'no-reply@', 'donotreply@', 'do-not-reply@',
-    'example.com', 'test.com', 'domain.com', 'yourcompany',
-    'w3.org', 'schema.org', 'sentry', 'webpack',
-    'facebook.com', 'google.com', 'github.com', 'microsoft.com',
-    'apple.com', 'cloudflare.com', 'jquery.com', 'wikipedia.org',
-    'youtube.com', 'twitter.com', 'instagram.com', 'linkedin.com',
-    'tiktok.com', 'sentry.io', 'noreply.', 'no-reply.',
-    'email.com', 'mail.com', 'gmail.com', 'yahoo.com',
-    'hotmail.com', 'outlook.com', 'aol.com', 'protonmail.com',
+    "noreply@",
+    "no-reply@",
+    "donotreply@",
+    "do-not-reply@",
+    "example.com",
+    "test.com",
+    "domain.com",
+    "yourcompany",
+    "w3.org",
+    "schema.org",
+    "sentry",
+    "webpack",
+    "facebook.com",
+    "google.com",
+    "github.com",
+    "microsoft.com",
+    "apple.com",
+    "cloudflare.com",
+    "jquery.com",
+    "wikipedia.org",
+    "youtube.com",
+    "twitter.com",
+    "instagram.com",
+    "linkedin.com",
+    "tiktok.com",
+    "sentry.io",
+    "noreply.",
+    "no-reply.",
+    "email.com",
+    "mail.com",
+    "gmail.com",
+    "yahoo.com",
+    "hotmail.com",
+    "outlook.com",
+    "aol.com",
+    "protonmail.com",
 ]
 
 # User agents for scraping
 USER_AGENTS = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
 ]
 
 
@@ -102,14 +174,15 @@ USER_AGENTS = [
 # Helpers
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def _clean_company_name(company: str) -> str:
     """Strip corporate suffixes and normalize company name for domain guessing."""
     cleaned = company.strip()
     for suffix in COMPANY_SUFFIXES:
-        cleaned = re.sub(suffix, '', cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(suffix, "", cleaned, flags=re.IGNORECASE)
     # Remove remaining non-alphanumeric (except spaces, hyphens)
-    cleaned = re.sub(r'[^\w\s-]', '', cleaned)
-    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+    cleaned = re.sub(r"[^\w\s-]", "", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
     return cleaned if cleaned else company.strip()
 
 
@@ -126,10 +199,10 @@ def _extract_emails(text: str) -> List[str]:
             continue
         if any(p in email for p in BLOCKED_EMAIL_PATTERNS):
             continue
-        if email.endswith(('.png', '.jpg', '.jpeg', '.gif', '.svg', '.css', '.js')):
+        if email.endswith((".png", ".jpg", ".jpeg", ".gif", ".svg", ".css", ".js")):
             continue
-        local, _, domain = email.partition('@')
-        if '.' not in domain:
+        local, _, domain = email.partition("@")
+        if "." not in domain:
             continue
         if email in seen:
             continue
@@ -145,7 +218,7 @@ def _extract_domain_from_url(url: str) -> Optional[str]:
         if not hostname:
             return None
         # Remove www prefix
-        hostname = re.sub(r'^www\d?\.', '', hostname)
+        hostname = re.sub(r"^www\d?\.", "", hostname)
         return hostname.lower()
     except Exception:
         return None
@@ -154,31 +227,63 @@ def _extract_domain_from_url(url: str) -> Optional[str]:
 def _is_likely_company_domain(domain: str) -> bool:
     """Check if a domain looks like a real company site (not a generic platform)."""
     generic_domains = {
-        'linkedin.com', 'indeed.com', 'glassdoor.com', 'bayt.com',
-        'wikipedia.org', 'facebook.com', 'twitter.com', 'instagram.com',
-        'youtube.com', 'crunchbase.com', 'bloomberg.com', 'google.com',
-        'naukrigulf.com', 'gulftalent.com', 'wuzzuf.net', 'monster.com',
-        'seek.com.au', 'reed.co.uk', 'totaljobs.com', 'ziprecruiter.com',
-        'simplyhired.com', 'careerbuilder.com', 'dice.com',
-        'wikimedia.org', 'google.com', 'apple.com', 'microsoft.com',
-        'amazon.com', 'netflix.com', 'yahoo.com', 'bing.com',
-        'duckduckgo.com', 'reddit.com', 'pinterest.com', 'tumblr.com',
-        'github.com', 'gitlab.com', 'bitbucket.org', 'stackoverflow.com',
-        'medium.com', 'quora.com', 'about.com', 'answers.com',
+        "linkedin.com",
+        "indeed.com",
+        "glassdoor.com",
+        "bayt.com",
+        "wikipedia.org",
+        "facebook.com",
+        "twitter.com",
+        "instagram.com",
+        "youtube.com",
+        "crunchbase.com",
+        "bloomberg.com",
+        "google.com",
+        "naukrigulf.com",
+        "gulftalent.com",
+        "wuzzuf.net",
+        "monster.com",
+        "seek.com.au",
+        "reed.co.uk",
+        "totaljobs.com",
+        "ziprecruiter.com",
+        "simplyhired.com",
+        "careerbuilder.com",
+        "dice.com",
+        "wikimedia.org",
+        "google.com",
+        "apple.com",
+        "microsoft.com",
+        "amazon.com",
+        "netflix.com",
+        "yahoo.com",
+        "bing.com",
+        "duckduckgo.com",
+        "reddit.com",
+        "pinterest.com",
+        "tumblr.com",
+        "github.com",
+        "gitlab.com",
+        "bitbucket.org",
+        "stackoverflow.com",
+        "medium.com",
+        "quora.com",
+        "about.com",
+        "answers.com",
     }
     # Check exact match AND subdomain match (e.g. en.wikipedia.org → wikipedia.org)
     domain_lower = domain.lower()
     if domain_lower in generic_domains:
         return False
     # Check if this is a subdomain of a generic domain
-    parts = domain_lower.split('.')
+    parts = domain_lower.split(".")
     for i in range(1, len(parts)):
-        parent = '.'.join(parts[i:])
+        parent = ".".join(parts[i:])
         if parent in generic_domains:
             return False
     if len(parts) < 2:
         return False
-    if any(p in domain_lower for p in ['blogspot', 'wordpress', 'wixsite', 'weebly']):
+    if any(p in domain_lower for p in ["blogspot", "wordpress", "wixsite", "weebly"]):
         return False
     return True
 
@@ -186,6 +291,7 @@ def _is_likely_company_domain(domain: str) -> bool:
 # ═══════════════════════════════════════════════════════════════════════════════
 # EmailFinder Class
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class EmailFinder:
     """
@@ -233,22 +339,24 @@ class EmailFinder:
           careers@harrywinston.com (from "Harry Winston" — correct domain)
           careers@murex.com (from "Murex" — correct domain)
         """
-        if not email or '@' not in email:
+        if not email or "@" not in email:
             return True
 
-        local_part = email.split('@')[0].lower().strip()
-        domain_part = email.split('@')[1].lower().strip()
+        local_part = email.split("@")[0].lower().strip()
+        domain_part = email.split("@")[1].lower().strip()
 
         # Only flag emails with common HR placeholder local parts
-        placeholder_locals = {p.rstrip('@') for p in EMAIL_PREFIXES_PRIORITY}
+        placeholder_locals = {p.rstrip("@") for p in EMAIL_PREFIXES_PRIORITY}
         if local_part not in placeholder_locals:
             return False
 
         # Extract domain base (without TLD)
-        domain_base = domain_part.rsplit('.', 1)[0] if '.' in domain_part else domain_part
+        domain_base = (
+            domain_part.rsplit(".", 1)[0] if "." in domain_part else domain_part
+        )
 
         # Naive domain: all non-alphanumeric stripped (the old broken method)
-        naive_domain = re.sub(r'[^a-z0-9]', '', company.lower())
+        naive_domain = re.sub(r"[^a-z0-9]", "", company.lower())
 
         # Check 1: Does the naive domain match? (confirms it was generated via stripping)
         if not naive_domain or naive_domain not in domain_base:
@@ -259,19 +367,29 @@ class EmailFinder:
         # (NOTE: "Group", "Holdings", "Capital" etc are NOT here — they can be
         # legitimate domain components, e.g. azadeagroup.com, blominvestbank.com)
         legal_suffix_tokens = [
-            'llc', 'inc', 'ltd', 'corp', 'corporation', 'incorporated',
-            'limited', 'company', 'sarl', 'sal', 'gmbh', 'bv',
+            "llc",
+            "inc",
+            "ltd",
+            "corp",
+            "corporation",
+            "incorporated",
+            "limited",
+            "company",
+            "sarl",
+            "sal",
+            "gmbh",
+            "bv",
         ]
         company_lower = company.lower()
         for token in legal_suffix_tokens:
             # Check if token appears in original company name
-            if re.search(r'\b' + re.escape(token) + r'\b', company_lower):
+            if re.search(r"\b" + re.escape(token) + r"\b", company_lower):
                 # If the naive domain matches, this token is baked into the domain
                 return True
 
         # Check 3: Is the naive domain abnormally long? (>15 chars suggests
         # multiple words were smashed together, which is a red flag)
-        if len(naive_domain) > 15 and ' ' in company.strip():
+        if len(naive_domain) > 15 and " " in company.strip():
             return True
 
         return False
@@ -292,10 +410,10 @@ class EmailFinder:
                 limits=httpx.Limits(max_keepalive_connections=10, max_connections=30),
                 follow_redirects=True,
                 headers={
-                    'User-Agent': random.choice(USER_AGENTS),
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                    'Accept-Language': 'en-US,en;q=0.5',
-                    'DNT': '1',
+                    "User-Agent": random.choice(USER_AGENTS),
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                    "Accept-Language": "en-US,en;q=0.5",
+                    "DNT": "1",
                 },
             )
 
@@ -362,16 +480,20 @@ class EmailFinder:
                             if len(parts) >= 2:
                                 try:
                                     pref = int(parts[0])
-                                    host = parts[1].rstrip('.')
+                                    host = parts[1].rstrip(".")
                                     mx_records.append((pref, host))
                                 except ValueError:
                                     pass
                     if mx_records:
                         mx_host = sorted(mx_records, key=lambda x: x[0])[0][1]
-                        logger.info(f"[EmailFinder] Resolved MX via Cloudflare DoH for {domain}: {mx_host}")
+                        logger.info(
+                            f"[EmailFinder] Resolved MX via Cloudflare DoH for {domain}: {mx_host}"
+                        )
                         return mx_host
         except Exception as e:
-            logger.debug(f"[EmailFinder] Cloudflare DoH lookup failed for {domain}: {e}")
+            logger.debug(
+                f"[EmailFinder] Cloudflare DoH lookup failed for {domain}: {e}"
+            )
 
         # 2. Google DoH
         try:
@@ -389,13 +511,15 @@ class EmailFinder:
                             if len(parts) >= 2:
                                 try:
                                     pref = int(parts[0])
-                                    host = parts[1].rstrip('.')
+                                    host = parts[1].rstrip(".")
                                     mx_records.append((pref, host))
                                 except ValueError:
                                     pass
                     if mx_records:
                         mx_host = sorted(mx_records, key=lambda x: x[0])[0][1]
-                        logger.info(f"[EmailFinder] Resolved MX via Google DoH for {domain}: {mx_host}")
+                        logger.info(
+                            f"[EmailFinder] Resolved MX via Google DoH for {domain}: {mx_host}"
+                        )
                         return mx_host
         except Exception as e:
             logger.debug(f"[EmailFinder] Google DoH lookup failed for {domain}: {e}")
@@ -412,10 +536,12 @@ class EmailFinder:
         try:
             loop = asyncio.get_running_loop()
             answers = await loop.run_in_executor(
-                None, lambda: dns.resolver.resolve(domain, 'MX')
+                None, lambda: dns.resolver.resolve(domain, "MX")
             )
             if answers:
-                mx_host = str(sorted(answers, key=lambda r: r.preference)[0].exchange).rstrip('.')
+                mx_host = str(
+                    sorted(answers, key=lambda r: r.preference)[0].exchange
+                ).rstrip(".")
                 self._mx_cache[domain] = mx_host
                 return True
         except Exception:
@@ -434,11 +560,25 @@ class EmailFinder:
     def _is_disposable_domain(domain: str) -> bool:
         """Check if domain is a disposable/temp email provider."""
         disposable_patterns = [
-            'mailinator.com', 'guerrillamail.com', '10minutemail', 'tempmail',
-            'throwaway', 'dispostable', 'yopmail', 'trashmail', 'sharklasers',
-            'guerrillamail', 'maildrop.cc', 'harakirimail', 'spamgourmet',
-            '33mail.com', 'mailnesia', 'anonaddy', 'simplelogin', 'erine.email',
-            'bbyuopsch.it.com',
+            "mailinator.com",
+            "guerrillamail.com",
+            "10minutemail",
+            "tempmail",
+            "throwaway",
+            "dispostable",
+            "yopmail",
+            "trashmail",
+            "sharklasers",
+            "guerrillamail",
+            "maildrop.cc",
+            "harakirimail",
+            "spamgourmet",
+            "33mail.com",
+            "mailnesia",
+            "anonaddy",
+            "simplelogin",
+            "erine.email",
+            "bbyuopsch.it.com",
         ]
         domain_lower = domain.lower()
         return any(d in domain_lower for d in disposable_patterns)
@@ -447,10 +587,19 @@ class EmailFinder:
     def _is_role_based(email: str) -> bool:
         """Check if email is a shared/role-based address (lower deliverability)."""
         role_prefixes = {
-            'info', 'contact', 'hello', 'admin', 'support', 'sales',
-            'webmaster', 'postmaster', 'abuse', 'hostmaster', 'marketing',
+            "info",
+            "contact",
+            "hello",
+            "admin",
+            "support",
+            "sales",
+            "webmaster",
+            "postmaster",
+            "abuse",
+            "hostmaster",
+            "marketing",
         }
-        local = email.split('@')[0].lower() if '@' in email else email.lower()
+        local = email.split("@")[0].lower() if "@" in email else email.lower()
         return local in role_prefixes
 
     async def _bouncify_filter(
@@ -540,7 +689,7 @@ class EmailFinder:
             }
         """
         await self._ensure_client()
-        company_key = company.lower().strip()
+        company.lower().strip()
         result: Dict = {
             "emails": [],
             "domain": "",
@@ -579,7 +728,9 @@ class EmailFinder:
                         self._email_cache[domain] = result["emails"]
                         return result
                     # All dorked emails filtered — fall through to pattern guess
-                    logger.info(f"[EmailFinder] All DDG emails filtered for {domain}, trying patterns")
+                    logger.info(
+                        f"[EmailFinder] All DDG emails filtered for {domain}, trying patterns"
+                    )
             except (asyncio.TimeoutError, Exception):
                 pass  # Fall through to pattern guess
 
@@ -706,14 +857,18 @@ class EmailFinder:
             domain = await self._search_domain_ddg(company)
             if domain and _is_likely_company_domain(domain):
                 self._domain_cache[cache_key] = domain
-                logger.info(f"[EmailFinder] Domain resolved via DDG: {company} → {domain}")
+                logger.info(
+                    f"[EmailFinder] Domain resolved via DDG: {company} → {domain}"
+                )
                 return domain
 
         # Strategy B: Pattern guessing (always used, even in fast mode)
         domain = self._guess_domain(company)
         if domain:
             self._domain_cache[cache_key] = domain
-            logger.info(f"[EmailFinder] Domain resolved via pattern: {company} → {domain}")
+            logger.info(
+                f"[EmailFinder] Domain resolved via pattern: {company} → {domain}"
+            )
             return domain
 
         return None
@@ -728,7 +883,7 @@ class EmailFinder:
 
         # Extract domain from first result that looks like a company website
         for result in results:
-            url = result.get('href') or result.get('url') or ''
+            url = result.get("href") or result.get("url") or ""
             if not url:
                 continue
             domain = _extract_domain_from_url(url)
@@ -741,20 +896,20 @@ class EmailFinder:
         """Guess domain from company name using common patterns."""
         cleaned = _clean_company_name(company)
         # Normalize: lowercase, remove whitespace, keep alphanumeric + hyphens
-        base = re.sub(r'[^a-z0-9-]', '', cleaned.lower())
+        base = re.sub(r"[^a-z0-9-]", "", cleaned.lower())
         # Remove multiple consecutive hyphens
-        base = re.sub(r'-+', '-', base).strip('-')
+        base = re.sub(r"-+", "-", base).strip("-")
 
         if not base:
             return None
 
         # Handle common abbreviations
-        base = re.sub(r'^the\b', '', base).strip('-')
+        base = re.sub(r"^the\b", "", base).strip("-")
 
         for tld in TLD_ORDER:
             domain = f"{base}{tld}"
             # Return .com first (most likely) and .co as backup
-            if tld == '.com':
+            if tld == ".com":
                 return domain
 
         return f"{base}.com"
@@ -774,44 +929,57 @@ class EmailFinder:
         found_emails: Set[str] = set()
 
         # Dork 1: site:{domain} email
-        query1 = f"site:{domain} email OR \"@{domain}\" OR ceo OR founder OR engineering OR contact"
+        query1 = f'site:{domain} email OR "@{domain}" OR ceo OR founder OR engineering OR contact'
         results1 = await self._call_ddg_safe(query1, max_results=5)
         for result in results1:
-            body = result.get('body', '')
-            url = result.get('href', '')
+            body = result.get("body", "")
+            result.get("href", "")
             emails = _extract_emails(body)
             # Only keep emails matching the domain
             for e in emails:
                 if domain in e:
                     found_emails.add(e)
             # Also try to get emails from the result URL snippet
-            snippet = result.get('snippet', '')
+            snippet = result.get("snippet", "")
             if snippet:
                 for e in _extract_emails(snippet):
                     if domain in e:
                         found_emails.add(e)
 
         # Dork 2: company email ceo cto founder engineering lead
-        query2 = f"\"{company}\" email ceo cto founder engineering lead"
+        query2 = f'"{company}" email ceo cto founder engineering lead'
         results2 = await self._call_ddg_safe(query2, max_results=5)
         for result in results2:
-            body = result.get('body', '')
-            snippet = result.get('snippet', '')
-            for e in _extract_emails(body + ' ' + snippet):
+            body = result.get("body", "")
+            snippet = result.get("snippet", "")
+            for e in _extract_emails(body + " " + snippet):
                 if domain in e:
                     found_emails.add(e)
 
         # Sort: HR-related emails first
         result_list = list(found_emails)
-        hr_prefixes = {'ceo', 'founder', 'cto', 'engineering', 'tech', 'dev',
-                       'lead', 'talent', 'hiring', 'careers', 'hr', 'jobs'}
-        result_list.sort(key=lambda e: (
-            0 if e.split('@')[0].lower() in hr_prefixes else 1,
-            e
-        ))
+        hr_prefixes = {
+            "ceo",
+            "founder",
+            "cto",
+            "engineering",
+            "tech",
+            "dev",
+            "lead",
+            "talent",
+            "hiring",
+            "careers",
+            "hr",
+            "jobs",
+        }
+        result_list.sort(
+            key=lambda e: (0 if e.split("@")[0].lower() in hr_prefixes else 1, e)
+        )
 
         if result_list:
-            logger.info(f"[EmailFinder] Dork found {len(result_list)} emails for {domain}")
+            logger.info(
+                f"[EmailFinder] Dork found {len(result_list)} emails for {domain}"
+            )
         return result_list
 
     # ═══════════════════════════════════════════════════════════════════════════
@@ -843,7 +1011,7 @@ class EmailFinder:
         # Deduplicate: try both www and bare, prefer https first then http
         seen_urls: Set[str] = set()
         for page_url in pages:
-            base = re.sub(r'^https?://', '', page_url)
+            base = re.sub(r"^https?://", "", page_url)
             if base in seen_urls:
                 continue
             seen_urls.add(base)
@@ -853,9 +1021,9 @@ class EmailFinder:
             if emails:
                 all_emails.update(emails)
                 # If we found emails on a page, try the http fallback too
-                if page_url.startswith('https://'):
-                    http_url = page_url.replace('https://', 'http://', 1)
-                    base_http = re.sub(r'^https?://', '', http_url)
+                if page_url.startswith("https://"):
+                    http_url = page_url.replace("https://", "http://", 1)
+                    base_http = re.sub(r"^https?://", "", http_url)
                     if base_http not in seen_urls:
                         seen_urls.add(base_http)
                         await self._rate_limit()
@@ -865,15 +1033,26 @@ class EmailFinder:
 
         result_list = list(all_emails)
         # Sort HR-related first
-        hr_prefixes = {'careers', 'hr', 'recruitment', 'jobs', 'talent', 'hiring',
-                       'recruiting', 'people', 'cv', 'apply'}
-        result_list.sort(key=lambda e: (
-            0 if e.split('@')[0].lower() in hr_prefixes else 1,
-            e
-        ))
+        hr_prefixes = {
+            "careers",
+            "hr",
+            "recruitment",
+            "jobs",
+            "talent",
+            "hiring",
+            "recruiting",
+            "people",
+            "cv",
+            "apply",
+        }
+        result_list.sort(
+            key=lambda e: (0 if e.split("@")[0].lower() in hr_prefixes else 1, e)
+        )
 
         if result_list:
-            logger.info(f"[EmailFinder] Scrape found {len(result_list)} emails on {domain}")
+            logger.info(
+                f"[EmailFinder] Scrape found {len(result_list)} emails on {domain}"
+            )
         return result_list
 
     async def _fetch_page_emails(self, url: str, domain: str) -> List[str]:
@@ -881,26 +1060,26 @@ class EmailFinder:
         try:
             resp = await self._client.get(
                 url,
-                headers={'User-Agent': random.choice(USER_AGENTS)},
+                headers={"User-Agent": random.choice(USER_AGENTS)},
             )
             if resp.status_code != 200:
                 logger.debug(f"[EmailFinder] HTTP {resp.status_code} for {url}")
                 return []
 
-            soup = BeautifulSoup(resp.text, 'html.parser')
+            soup = BeautifulSoup(resp.text, "html.parser")
 
             # Remove script and style tags
-            for tag in soup(['script', 'style', 'noscript', 'nav', 'footer']):
+            for tag in soup(["script", "style", "noscript", "nav", "footer"]):
                 tag.decompose()
 
-            text = soup.get_text(' ', strip=True)
+            text = soup.get_text(" ", strip=True)
             # Also check mailto links
-            mailto_links = soup.select('a[href^=mailto:]')
+            mailto_links = soup.select("a[href^=mailto:]")
             mailto_emails = []
             for link in mailto_links:
-                href = link.get('href', '')
-                email = href.replace('mailto:', '').split('?')[0].strip()
-                if email and '@' in email:
+                href = link.get("href", "")
+                email = href.replace("mailto:", "").split("?")[0].strip()
+                if email and "@" in email:
                     mailto_emails.append(email.lower())
 
             text_emails = _extract_emails(text)
@@ -960,18 +1139,24 @@ class EmailFinder:
         # 1. Perform Catch-All check before testing individual candidates
         if domain not in self._catch_all_cache:
             # Generate a highly randomized local part to test catch-all status
-            random_part = f"verify_test_{random.randint(10000, 99999)}_{int(time.time())}"
+            random_part = (
+                f"verify_test_{random.randint(10000, 99999)}_{int(time.time())}"
+            )
             test_email = f"{random_part}@{domain}"
             try:
                 # Check if the server accepts this completely random address
-                is_catch_all = await self._smtp_check(mx_host, test_email, sender_domain)
+                is_catch_all = await self._smtp_check(
+                    mx_host, test_email, sender_domain
+                )
                 self._catch_all_cache[domain] = is_catch_all
                 if is_catch_all:
-                    logger.info(f"[EmailFinder] ⚠️ Catch-All domain detected for {domain}. Disabling SMTP validation as it is inconclusive.")
+                    logger.info(
+                        f"[EmailFinder] ⚠️ Catch-All domain detected for {domain}. Disabling SMTP validation as it is inconclusive."
+                    )
             except Exception as e:
                 logger.debug(f"[EmailFinder] Catch-All check failed for {domain}: {e}")
                 self._catch_all_cache[domain] = False
-        
+
         # 2. If it is a Catch-All domain, SMTP validation is inconclusive.
         # We return an empty list here so the caller falls back to safer bouncify-filtered candidates.
         if self._catch_all_cache.get(domain, False):
@@ -1011,11 +1196,11 @@ class EmailFinder:
             # Run DNS resolution in thread pool (dnspython is synchronous)
             loop = asyncio.get_running_loop()
             answers = await loop.run_in_executor(
-                None, lambda: dns.resolver.resolve(domain, 'MX')
+                None, lambda: dns.resolver.resolve(domain, "MX")
             )
             if answers:
                 mx_records = sorted(answers, key=lambda r: r.preference)
-                mx_host = str(mx_records[0].exchange).rstrip('.')
+                mx_host = str(mx_records[0].exchange).rstrip(".")
                 self._mx_cache[domain] = mx_host
                 return mx_host
         except Exception:
@@ -1060,32 +1245,32 @@ class EmailFinder:
 
                 # Read banner
                 banner = _recv_line(sock)
-                if not banner or not banner.startswith('2'):
+                if not banner or not banner.startswith("2"):
                     return False
 
                 # EHLO
-                _send_cmd(sock, f'EHLO {sender_domain}')
+                _send_cmd(sock, f"EHLO {sender_domain}")
                 _read_multiline(sock)
 
                 # MAIL FROM
-                code, _ = _send_cmd(sock, f'MAIL FROM:<verify@{sender_domain}>')
-                if not code.startswith('2'):
+                code, _ = _send_cmd(sock, f"MAIL FROM:<verify@{sender_domain}>")
+                if not code.startswith("2"):
                     return False
 
                 # RCPT TO
-                code, msg = _send_cmd(sock, f'RCPT TO:<{recipient}>')
-                if code.startswith('2') or code.startswith('25'):
+                code, msg = _send_cmd(sock, f"RCPT TO:<{recipient}>")
+                if code.startswith("2") or code.startswith("25"):
                     # 250 = accepted, 251 = user not local will forward
-                    _send_cmd(sock, 'QUIT')
+                    _send_cmd(sock, "QUIT")
                     return True
-                elif code == '451' or code == '421':
+                elif code == "451" or code == "421":
                     # Temporary failure — might be greylisting, treat as inconclusive
                     # But log it; we won't count as verified
-                    _send_cmd(sock, 'QUIT')
+                    _send_cmd(sock, "QUIT")
                     return False
                 else:
                     # 550, 553, etc. = rejected
-                    _send_cmd(sock, 'QUIT')
+                    _send_cmd(sock, "QUIT")
                     return False
 
             except (socket.timeout, ConnectionRefusedError, OSError) as e:
@@ -1144,7 +1329,7 @@ class EmailFinder:
         """
         Take a list of job dicts (with 'company' field) and enrich each with
         real discovered HR emails, replacing placeholder emails.
-        
+
         When fast=True, skips SMTP verification for speed (PA-safe mode).
 
         Returns the same list with enriched email fields.
@@ -1153,9 +1338,9 @@ class EmailFinder:
             return jobs
 
         # Group jobs by company to avoid redundant lookups
-        companies = list(dict.fromkeys(
-            j.get("company", "") for j in jobs if j.get("company")
-        ))
+        companies = list(
+            dict.fromkeys(j.get("company", "") for j in jobs if j.get("company"))
+        )
         if not companies:
             return jobs
 
@@ -1172,7 +1357,9 @@ class EmailFinder:
                     # Pattern guesses are the same quality as the original placeholder.
                     if fast and source == "pattern_guess" and job.get("email"):
                         # Keep original placeholder — it's as good as our pattern guess
-                        logger.debug(f"[EmailFinder] Keeping placeholder for {company} (fast pattern_guess)")
+                        logger.debug(
+                            f"[EmailFinder] Keeping placeholder for {company} (fast pattern_guess)"
+                        )
                         continue
                     job["email"] = result["emails"][0]
                     job["all_emails"] = result["emails"]
@@ -1208,44 +1395,46 @@ class EmailFinder:
 # SMTP Protocol Helpers (synchronous, run via run_in_executor)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def _recv_line(sock: socket.socket, bufsize: int = 4096) -> str:
     """Read a single line from SMTP socket."""
-    data = b''
+    data = b""
     while True:
         chunk = sock.recv(bufsize)
         if not chunk:
             break
         data += chunk
-        if b'\n' in data:
+        if b"\n" in data:
             break
-    return data.decode('utf-8', errors='replace').strip()
+    return data.decode("utf-8", errors="replace").strip()
 
 
 def _read_multiline(sock: socket.socket, bufsize: int = 4096) -> str:
     """Read multi-line SMTP response (lines start with code-space)."""
-    all_data = ''
+    all_data = ""
     while True:
         line = _recv_line(sock, bufsize)
         if not line:
             break
-        all_data += line + '\n'
+        all_data += line + "\n"
         # Last line has code followed by space (not hyphen)
-        if len(line) >= 4 and line[3] == ' ':
+        if len(line) >= 4 and line[3] == " ":
             break
     return all_data
 
 
 def _send_cmd(sock: socket.socket, cmd: str) -> Tuple[str, str]:
     """Send SMTP command and read response line. Returns (code, message)."""
-    sock.sendall((cmd + '\r\n').encode('utf-8'))
+    sock.sendall((cmd + "\r\n").encode("utf-8"))
     response = _recv_line(sock)
-    code = response[:3] if len(response) >= 3 else ''
-    return code, response[4:] if len(response) > 4 else ''
+    code = response[:3] if len(response) >= 3 else ""
+    return code, response[4:] if len(response) > 4 else ""
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Quick Test
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 async def _quick_test():
     """Run a quick test of the EmailFinder."""
@@ -1276,10 +1465,14 @@ async def _quick_test():
 
         # Test 3: Batch
         print("\n--- Test 3: find_emails_batch ---")
-        batch = await finder.find_emails_batch(["Murex", "CMC Offshore", "Azadea Group"])
+        batch = await finder.find_emails_batch(
+            ["Murex", "CMC Offshore", "Azadea Group"]
+        )
         for company, res in batch.items():
-            print(f"  {company}: domain={res['domain']}, emails={res['emails'][:3]}, "
-                  f"verified={res['verified']}")
+            print(
+                f"  {company}: domain={res['domain']}, emails={res['emails'][:3]}, "
+                f"verified={res['verified']}"
+            )
 
         # Test 4: Cache stats
         print("\n--- Cache Stats ---")
@@ -1292,4 +1485,3 @@ async def _quick_test():
 
 if __name__ == "__main__":
     asyncio.run(_quick_test())
-

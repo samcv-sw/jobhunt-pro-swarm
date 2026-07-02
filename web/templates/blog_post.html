@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ post.title }} — مدونة JobHunt Pro</title>
-    <meta name="description" content="{{ post.meta_description }}">
-    <meta name="keywords" content="{{ post.primary_keyword }}, {{ post.topics|join(', ') }}">
-    <link rel="canonical" href="https://jhfguf.pythonanywhere.com/blog/{{ post.slug }}">
-    <link rel="stylesheet" href="/static/css/cyberpunk.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
-    <style>
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{{ post.title }} — مدونة JobHunt Pro</title>
+<meta content="{{ post.meta_description }}" name="description"/>
+<meta content="{{ post.primary_keyword }}, {{ post.topics|join(', ') }}" name="keywords"/>
+<link href="https://jhfguf.pythonanywhere.com/blog/{{ post.slug }}" rel="canonical"/>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
+<style>
         body, .cyberpunk-body {
             font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
             font-size: 16px;
@@ -27,9 +28,8 @@
             display: inline-block;
         }
     </style>
-    
-    <!-- Schema.org Article structured data -->
-    <script type="application/ld+json">
+<!-- Schema.org Article structured data -->
+<script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
@@ -50,54 +50,50 @@
     {% include '_public_nav.html' %}
 
     <main class="blog-post" style="padding-block-start: 140px;">
-        <article>
-            <header class="post-header">
-                <div class="post-meta">
-                    <span class="post-tag">{{ post.primary_keyword }}</span>
+<article>
+<header class="post-header">
+<div class="post-meta">
+<span class="post-tag">{{ post.primary_keyword }}</span>
                     {% if post.published_at %}
                     <time datetime="{{ post.published_at }}">{{ post.published_at[:10] }}</time>
                     {% endif %}
                     <span class="post-reading-time">{{ post.word_count // 200 }} دقائق قراءة</span>
-                </div>
-                <h1>{{ post.title }}</h1>
-                <div class="post-topics">
+</div>
+<h1>{{ post.title }}</h1>
+<div class="post-topics">
                     {% for topic in post.topics %}
                     <span class="topic-badge">{{ topic }}</span>
                     {% endfor %}
                 </div>
-            </header>
-
-            <div class="post-content">
+</header>
+<div class="post-content">
                 {{ post.content | safe }}
             </div>
-
-            <footer class="post-footer">
-                <div class="post-cta">
-                    <h3>🚀 جاهز لأتمتة بحثك عن عمل؟</h3>
-                    <p>يستخدم JobHunt Pro الذكاء الاصطناعي للبحث والتطابق والتقديم لآلاف الوظائف تلقائياً. توقف عن التقديم اليدوي — دع الذكاء الاصطناعي يقوم بالعمل.</p>
-                    <a href="/register" class="cta-button"><span class="directional-icon">←</span> جرب JobHunt Pro بـ 2$</a>
-                </div>
-            </footer>
-        </article>
+<footer class="post-footer">
+<div class="post-cta">
+<h3>🚀 جاهز لأتمتة بحثك عن عمل؟</h3>
+<p>{{ _('يستخدم JobHunt Pro الذكاء الاصطناعي للبحث والتطابق والتقديم لآلاف الوظائف تلقائياً. توقف عن التقديم اليدوي — دع الذكاء الاصطناعي يقوم بالعمل.') }}</p>
+<a class="cta-button" href="/register"><span class="directional-icon">←</span> {{ _('جرب JobHunt Pro بـ 2$') }}</a>
+</div>
+</footer>
+</article>
 
         {% if related %}
         <aside class="related-posts">
-            <h3>مقالات ذات صلة</h3>
-            <div class="related-grid">
+<h3>مقالات ذات صلة</h3>
+<div class="related-grid">
                 {% for r in related if r.slug != post.slug %}
                 <div class="related-card">
-                    <h4><a href="/blog/{{ r.slug }}">{{ r.title }}</a></h4>
-                    <p>{{ r.meta_description[:100] }}...</p>
-                </div>
+<h4><a href="/blog/{{ r.slug }}">{{ r.title }}</a></h4>
+<p>{{ r.meta_description[:100] }}...</p>
+</div>
                 {% endfor %}
             </div>
-        </aside>
+</aside>
         {% endif %}
     </main>
-
-    <footer class="site-footer">
-        <p>JobHunt Pro · تقديم للوظائف بالذكاء الاصطناعي · <a href="/">ابدأ مجاناً</a></p>
-    </footer>
+<footer class="site-footer">
+<p>{{ _('JobHunt Pro · تقديم للوظائف بالذكاء الاصطناعي ·') }} <a href="/">ابدأ مجاناً</a></p>
+</footer>
 </body>
 </html>
-

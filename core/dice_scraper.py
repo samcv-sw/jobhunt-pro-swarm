@@ -23,12 +23,12 @@ import logging
 import time
 import re
 from typing import Dict, List, Optional
-from urllib.parse import quote_plus
 
 try:
     from curl_cffi.requests import AsyncSession as httpx_AsyncClient
 except ImportError:
     import httpx
+
     httpx_AsyncClient = httpx.AsyncClient
 import httpx
 from bs4 import BeautifulSoup
@@ -80,6 +80,7 @@ HEADERS = {
 # Scraper
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def _build_url(title: str, location: str) -> str:
     """Build Dice.com search URL."""
     loc_encoded = LOCATIONS.get(location.lower().replace(" ", "-"), location)
@@ -129,9 +130,10 @@ def _parse_job_cards(html: str) -> List[Dict]:
         # Fallback: find all links to /job-detail/ and group by parent
         seen_parents = set()
         for a in soup.select("a[href*='/job-detail/']"):
-            card = a.find_parent(
-                "div", class_=lambda c: c and "rounded" in " ".join(c)
-            ) or a.parent
+            card = (
+                a.find_parent("div", class_=lambda c: c and "rounded" in " ".join(c))
+                or a.parent
+            )
             if card and card not in seen_parents:
                 seen_parents.add(card)
                 cards = list(seen_parents)
@@ -142,8 +144,7 @@ def _parse_job_cards(html: str) -> List[Dict]:
         try:
             # ── Company ──
             company_el = card.select_one(
-                "span[class*='logo'], span[class*='company'], "
-                "[class*='logo']"
+                "span[class*='logo'], span[class*='company'], [class*='logo']"
             )
             company = "Unknown"
             if company_el:
@@ -172,19 +173,23 @@ def _parse_job_cards(html: str) -> List[Dict]:
                 seen_urls.add(job_url)
 
                 # ── Location ──
-                loc_el = card.select_one("span[class*='inline-flex h-5 w-full'],[class*='inline-flex'][class*='h-5'][class*='w-full'],span[class*='h-5 w-full']")
+                loc_el = card.select_one(
+                    "span[class*='inline-flex h-5 w-full'],[class*='inline-flex'][class*='h-5'][class*='w-full'],span[class*='h-5 w-full']"
+                )
                 location = ""
                 if loc_el:
                     raw_loc = loc_el.get_text(strip=True)
                     location = _extract_location(raw_loc)
 
-                jobs.append({
-                    "company": company,
-                    "title": title,
-                    "location": location if location else "",
-                    "url": job_url,
-                    "source": "dice",
-                })
+                jobs.append(
+                    {
+                        "company": company,
+                        "title": title,
+                        "location": location if location else "",
+                        "url": job_url,
+                        "source": "dice",
+                    }
+                )
 
         except Exception as e:
             logger.debug(f"Error parsing Dice card: {e}")
@@ -199,11 +204,10 @@ def _scrape_location_title(title: str, location_key: str) -> List[Dict]:
 
     try:
         import cloudscraper
-        scraper = cloudscraper.create_scraper(browser={
-            'browser': 'chrome',
-            'platform': 'windows',
-            'desktop': True
-        })
+
+        scraper = cloudscraper.create_scraper(
+            browser={"browser": "chrome", "platform": "windows", "desktop": True}
+        )
         resp = scraper.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
 
         if resp.status_code != 200:
@@ -222,6 +226,7 @@ def _scrape_location_title(title: str, location_key: str) -> List[Dict]:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Public API
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def search_dice_sync(
     titles: Optional[List[str]] = None,
@@ -248,6 +253,7 @@ def search_dice_sync(
     combos = [(t, l) for t in titles for l in locations]
     if shuffle:
         import random
+
         random.shuffle(combos)
 
     all_jobs = []
@@ -298,4 +304,3 @@ if __name__ == "__main__":
     if len(jobs) > 10:
         print(f"  ... and {len(jobs) - 10} more")
     print("=" * 60)
-

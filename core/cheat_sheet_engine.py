@@ -1,8 +1,8 @@
 import logging
-import asyncio
 from core.ai_tailor import ai_tailor
 
 logger = logging.getLogger(__name__)
+
 
 class CheatSheetEngine:
     async def generate_cheat_sheet(self, company_name: str, job_title: str) -> str:
@@ -22,15 +22,16 @@ class CheatSheetEngine:
         
         Format it in Markdown, keep it extremely brief and high-impact.
         """
-        
+
         # Use Semantic Cached AI call
         logger.info(f"Generating Cheat Sheet for {job_title} at {company_name}...")
         cheat_sheet = await ai_tailor._call_ai(prompt, max_tokens=600, temperature=0.7)
-        
+
         if not cheat_sheet:
             return "Error: Could not generate cheat sheet."
-            
+
         return cheat_sheet
+
 
 # Singleton instance
 cheat_sheet_engine = CheatSheetEngine()

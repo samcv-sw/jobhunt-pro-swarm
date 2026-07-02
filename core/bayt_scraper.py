@@ -22,11 +22,8 @@ Returns clean job dicts: {company, title, location, url, source: "bayt"}.
 import asyncio
 import logging
 import time
-import hashlib
-import re
 import random
-from typing import Dict, List, Optional, Tuple
-from urllib.parse import quote_plus
+from typing import Dict, List, Optional
 
 try:
     import cloudscraper
@@ -75,6 +72,7 @@ REQUEST_TIMEOUT = 20  # seconds per request (Bayt can be slow)
 # ═══════════════════════════════════════════════════════════════════════════════
 # Scraper
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def _get_scraper():
     """Get or create a cloudscraper instance with browser emulation."""
@@ -234,6 +232,7 @@ def _scrape_country_title(country: str, title: str) -> List[Dict]:
 # Public API
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def search_bayt_sync(
     countries: Optional[List[str]] = None,
     titles: Optional[List[str]] = None,
@@ -304,9 +303,7 @@ if __name__ == "__main__":
     print("Bayt.com Scraper Test")
     print("=" * 60)
 
-    jobs = search_bayt_sync(
-        countries=["international"], titles=["network-engineer"]
-    )
+    jobs = search_bayt_sync(countries=["international"], titles=["network-engineer"])
 
     print(f"\nFound {len(jobs)} jobs")
     print("-" * 60)

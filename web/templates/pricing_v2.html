@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
-<meta name="description" content="JobHunt Pro Pricing — automated job applications from less than 7 cents each. Four tiers from free to enterprise with AI cover letters, 20+ email providers, and real-time tracking.">
-<title>Pricing &mdash; JobHunt Pro</title>
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<meta content="JobHunt Pro Pricing — automated job applications from less than 7 cents each. Four tiers from free to enterprise with AI cover letters, 20+ email providers, and real-time tracking." name="description"/>
+<title>{{ _('Pricing — JobHunt Pro') }}</title>
 {% include '_sidebar_head.html' %}
 
 <style>
@@ -379,7 +380,6 @@ header.headroom nav a.pill {
   .bulk-calc { padding: 24px 18px; }
 }
 </style>
-
 <style>
     @keyframes flashPulse {
       0%,100% { box-shadow: 0 0 12px rgba(239,68,68,.15); }
@@ -388,49 +388,41 @@ header.headroom nav a.pill {
     .fs-timer { font-size:26px; font-weight:800; color:var(--red); font-family: 'Cairo', monospace;  }
   </style>
 </head>
-
-
 <body class="cyberpunk-body">
 {% include '_public_nav.html' %}
 
 <div class="pricing-hero">
-  <h1>اختر <span class="blue">مستوى قوتك</span></h1>
-  <p class="subtitle">دفعة لمرة واحدة. بدون اشتراكات. لا رسوم خفية. يبدأ من 5 دولار. ادفع بالعملات الرقمية.</p>
+<h1>اختر <span class="blue">مستوى قوتك</span></h1>
+<p class="subtitle">دفعة لمرة واحدة. بدون اشتراكات. لا رسوم خفية. يبدأ من 5 دولار. ادفع بالعملات الرقمية.</p>
 </div>
-
 <!-- Flash Sale Banner (top) -->
 <div id="flashSaleBanner" style="display:none;max-width:1200px;margin:-20px auto 20px;padding:16px 24px;background:linear-gradient(135deg,rgba(220,38,38,.12),rgba(239,68,68,.06));border:2px solid rgba(239,68,68,.25);border-radius:var(--radius);text-align:center;animation:pulseGlow 2s infinite;position:relative;z-index:10;">
-  
-  <div style="font-size:12px;color:var(--red);text-transform:uppercase;">⚡ عرض خاطف نشط</div>
-  <div style="font-size:17px;font-weight:700;color:var(--text);margin:4px 0;">
-    <span id="fsTitle"></span> — خصم <span id="fsDiscount" style="color:var(--red);font-size:20px;"></span>
-  </div>
-  <div class="fs-timer" id="fsTimer">⏳ جاري التحميل...</div>
+<div style="font-size:12px;color:var(--red);text-transform:uppercase;">⚡ عرض خاطف نشط</div>
+<div style="font-size:17px;font-weight:700;color:var(--text);margin:4px 0;">
+<span id="fsTitle"></span> — خصم <span id="fsDiscount" style="color:var(--red);font-size:20px;"></span>
 </div>
-
+<div class="fs-timer" id="fsTimer">⏳ جاري التحميل...</div>
+</div>
 <div class="scroll-link">
-  <a href="#pricing-section">▼ انتقل إلى الأسعار ▼</a>
+<a href="#pricing-section">▼ انتقل إلى الأسعار ▼</a>
 </div>
-
 <section class="pricing-section" id="pricing-section">
-  <!-- Flash Sale Banner (inline) -->
-  <div class="flash-banner" id="flashBanner">
-    <div class="fs-icon">⚡</div>
-    <div class="fs-deal">
-      <strong id="flashDealName">Flash Sale</strong>
-      <span class="fs-pct" id="flashDiscount">30% OFF</span>
-    </div>
-    <div class="fs-countdown" id="flashCountdown">0h 00m 00s</div>
-  </div>
-
-  <h2>// باقات الأسعار</h2>
-  <p class="sub">ابدأ حملتك. قم بالترقية عندما تكون مستعدًا.</p>
-
-  <div class="pricing-grid">
+<!-- Flash Sale Banner (inline) -->
+<div class="flash-banner" id="flashBanner">
+<div class="fs-icon">⚡</div>
+<div class="fs-deal">
+<strong id="flashDealName">{{ _('Flash Sale') }}</strong>
+<span class="fs-pct" id="flashDiscount">{{ _('30% OFF') }}</span>
+</div>
+<div class="fs-countdown" id="flashCountdown">{{ _('0h 00m 00s') }}</div>
+</div>
+<h2>// باقات الأسعار</h2>
+<p class="sub">ابدأ حملتك. قم بالترقية عندما تكون مستعدًا.</p>
+<div class="pricing-grid">
     {% for tier in pricing.tiers %}
     {% set discount = flash_discount or 0 %}
     {% set discounted = (tier.price_usd * (100 - discount) / 100) if discount > 0 else tier.price_usd %}
-    <div class="pricing-card {% if tier.highlight %}highlight{% endif %}" data-tier="{{ tier.id }}" data-price="{{ tier.price_usd }}" {% if discount > 0 %}style="border-color:rgba(239,68,68,.3);"{% endif %}>
+    <div class="pricing-card {% if tier.highlight %}highlight{% endif %}" data-price="{{ tier.price_usd }}" data-tier="{{ tier.id }}" discount="" if="" {%=""> 0 %}style="border-color:rgba(239,68,68,.3);"{% endif %}>
       {% if tier.badge %}
       <div class="badge {% if tier.badge == 'PREMIUM' %}premium{% elif tier.badge == 'BEST VALUE' %}best-value{% endif %}">{{ tier.badge }}</div>
       {% endif %}
@@ -438,14 +430,14 @@ header.headroom nav a.pill {
       <div class="badge" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-size:10px;padding:6px 14px;top:-14px;">خصم {{ "%.0f"|format(discount) }}%</div>
       {% endif %}
       <div class="tier-name">{{ tier.name|upper }}</div>
-      <h3>{{ tier.name }}</h3>
-      <div class="companies">{{ "{:,}".format(tier.companies) }} <span>شركة</span></div>
-      <div class="price {% if tier.price_usd == 0 %}free{% endif %}">
+<h3>{{ tier.name }}</h3>
+<div class="companies">{{ "{:,}".format(tier.companies) }} <span>شركة</span></div>
+<div class="price {% if tier.price_usd == 0 %}free{% endif %}">
         {% if tier.price_usd == 0 %}
         مجاني
         {% elif discount > 0 %}
         <span style="text-decoration:line-through;color:var(--text-muted);font-size:18px;">${{ "%.0f"|format(tier.price_usd) }}</span>
-        <span style="color:var(--red);">${{ "%.0f"|format(discounted) }}</span>
+<span style="color:var(--red);">${{ "%.0f"|format(discounted) }}</span>
         {% else %}
         ${{ "%.0f"|format(tier.price_usd) }}
         {% endif %}
@@ -454,143 +446,133 @@ header.headroom nav a.pill {
       <div class="original-price">كان ${{ "%.0f"|format(tier.original_price) }}</div>
       {% endif %}
       <div class="per">{{ tier.per_company }} / شركة</div>
-      <ul>
+<ul>
         {% for feature in tier.features %}
         <li>{{ feature }}</li>
         {% endfor %}
       </ul>
-      <a href="{{ '/new-campaign' if is_logged_in else '/register' }}" class="btn {{ tier.button_class }}">{{ tier.button_text }}</a>
-    </div>
+<a class="btn {{ tier.button_class }}" href="{{ '/new-campaign' if is_logged_in else '/register' }}">{{ tier.button_text }}</a>
+</div>
     {% endfor %}
   </div>
 </section>
-
 <!-- Bulk Discount Calculator -->
 <section class="pricing-section" style="padding-top:0;">
-  <h2>// حاسبة خصم الكميات</h2>
-  <p class="sub">اشترِ حملات متعددة ووفر الكثير.</p>
-  <div class="bulk-calc">
-    <div style="margin-bottom:20px;">
-      <label>عدد الحملات</label>
-      <input dir="auto" type="range" id="bulkQty" min="1" max="20" value="1" step="1"
-        style="width:100%;height:8px;-webkit-appearance:none;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:4px;outline:none;"
-        oninput="updateBulkCalc(this.value)">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-top:4px;">
-        <span>1</span><span>5</span><span>10</span><span>15</span><span>20</span>
-      </div>
-    </div>
-    <div class="bulk-qty-display" id="bulkQtyDisplay">1</div>
-    <div style="color:var(--text-muted);font-size:12px;text-transform:uppercase;margin-bottom:16px;">حملات</div>
-    <div class="bulk-stats">
-      <div class="bulk-stat">
-        <div class="stat-label">السعر العادي</div>
-        <div class="stat-value strikethrough" id="bulkNormal">$0</div>
-      </div>
-      <div class="bulk-stat">
-        <div class="stat-label">سعرك</div>
-        <div class="stat-value flash" id="bulkPrice">$0</div>
-      </div>
-      <div class="bulk-stat">
-        <div class="stat-label">أنت توفر</div>
-        <div class="stat-value savings" id="bulkSave">$0</div>
-      </div>
-    </div>
-  </div>
+<h2>// حاسبة خصم الكميات</h2>
+<p class="sub">اشترِ حملات متعددة ووفر الكثير.</p>
+<div class="bulk-calc">
+<div style="margin-bottom:20px;">
+<label>عدد الحملات</label>
+<input dir="auto" id="bulkQty" max="20" min="1" oninput="updateBulkCalc(this.value)" step="1" style="width:100%;height:8px;-webkit-appearance:none;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:4px;outline:none;" type="range" value="1"/>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-top:4px;">
+<span>1</span><span>5</span><span>10</span><span>15</span><span>20</span>
+</div>
+</div>
+<div class="bulk-qty-display" id="bulkQtyDisplay">1</div>
+<div style="color:var(--text-muted);font-size:12px;text-transform:uppercase;margin-bottom:16px;">حملات</div>
+<div class="bulk-stats">
+<div class="bulk-stat">
+<div class="stat-label">السعر العادي</div>
+<div class="stat-value strikethrough" id="bulkNormal">$0</div>
+</div>
+<div class="bulk-stat">
+<div class="stat-label">سعرك</div>
+<div class="stat-value flash" id="bulkPrice">$0</div>
+</div>
+<div class="bulk-stat">
+<div class="stat-label">أنت توفر</div>
+<div class="stat-value savings" id="bulkSave">$0</div>
+</div>
+</div>
+</div>
 </section>
-
 <!-- Urgency Counter -->
 <section class="pricing-section" style="padding:30px 20px 10px;">
-  <div class="urgency-box">
-    <div class="urgency-stats">
-      <div class="urgency-stat">
-        <div class="ur-value purple">14</div>
-        <div class="ur-label">أشخاص يشاهدون الآن</div>
-      </div>
-      <div class="urgency-stat">
-        <div class="ur-value blue">3</div>
-        <div class="ur-label">اشتروا اليوم</div>
-      </div>
-      <div class="urgency-stat">
-        <div class="ur-value green">2</div>
-        <div class="ur-label">أماكن محدودة متبقية</div>
-      </div>
-    </div>
-  </div>
+<div class="urgency-box">
+<div class="urgency-stats">
+<div class="urgency-stat">
+<div class="ur-value purple">14</div>
+<div class="ur-label">أشخاص يشاهدون الآن</div>
+</div>
+<div class="urgency-stat">
+<div class="ur-value blue">3</div>
+<div class="ur-label">اشتروا اليوم</div>
+</div>
+<div class="urgency-stat">
+<div class="ur-value green">2</div>
+<div class="ur-label">أماكن محدودة متبقية</div>
+</div>
+</div>
+</div>
 </section>
-
 <!-- Comparison Table -->
 <section class="pricing-section" style="padding-top:20px;">
-  <h2>// اليدوي مقابل JobHunt Pro</h2>
-  <p class="sub">شاهد الفرق الذي تحدثه الأتمتة.</p>
-  <div class="comparison-table">
-    <div class="comparison-row">
-      <span class="label">الطلبات يومياً</span>
-      <span class="them">5-10 يدوياً</span>
-      <span class="you">+2,000 آلياً</span>
-    </div>
-    <div class="comparison-row">
-      <span class="label">الوقت المستغرق</span>
-      <span class="them">8 ساعات/يوم</span>
-      <span class="you">0 ساعة (آلي)</span>
-    </div>
-    <div class="comparison-row">
-      <span class="label">رسائل التغطية</span>
-      <span class="them">قالب عام</span>
-      <span class="you">مخصصة بالذكاء الاصطناعي</span>
-    </div>
-    <div class="comparison-row">
-      <span class="label">المتابعات</span>
-      <span class="them">نسيان المعظم</span>
-      <span class="you">آلية في 7 + 14 يوم</span>
-    </div>
-    <div class="comparison-row">
-      <span class="label">التكلفة</span>
-      <span class="them">+2,000 دولار/شهر لموظف توظيف</span>
-      <span class="you">5 دولار لمرة واحدة</span>
-    </div>
-    <div class="comparison-row">
-      <span class="label">معدل المقابلات</span>
-      <span class="them">2-5%</span>
-      <span class="you">8-15% (محسن بالذكاء الاصطناعي)</span>
-    </div>
-  </div>
+<h2>{{ _('// اليدوي مقابل JobHunt Pro') }}</h2>
+<p class="sub">شاهد الفرق الذي تحدثه الأتمتة.</p>
+<div class="comparison-table">
+<div class="comparison-row">
+<span class="label">الطلبات يومياً</span>
+<span class="them">5-10 يدوياً</span>
+<span class="you">+2,000 آلياً</span>
+</div>
+<div class="comparison-row">
+<span class="label">الوقت المستغرق</span>
+<span class="them">8 ساعات/يوم</span>
+<span class="you">0 ساعة (آلي)</span>
+</div>
+<div class="comparison-row">
+<span class="label">رسائل التغطية</span>
+<span class="them">قالب عام</span>
+<span class="you">مخصصة بالذكاء الاصطناعي</span>
+</div>
+<div class="comparison-row">
+<span class="label">المتابعات</span>
+<span class="them">نسيان المعظم</span>
+<span class="you">آلية في 7 + 14 يوم</span>
+</div>
+<div class="comparison-row">
+<span class="label">التكلفة</span>
+<span class="them">+2,000 دولار/شهر لموظف توظيف</span>
+<span class="you">5 دولار لمرة واحدة</span>
+</div>
+<div class="comparison-row">
+<span class="label">معدل المقابلات</span>
+<span class="them">2-5%</span>
+<span class="you">8-15% (محسن بالذكاء الاصطناعي)</span>
+</div>
+</div>
 </section>
-
 <!-- A La Carte Services -->
 <section class="pricing-section" style="padding-top:20px;">
-  <h2>// خدمات إضافية حسب الطلب</h2>
-  <p class="sub">تحتاج شيئاً محدداً؟ اختر خدمات فردية.</p>
-  <div class="service-grid">
+<h2>// خدمات إضافية حسب الطلب</h2>
+<p class="sub">تحتاج شيئاً محدداً؟ اختر خدمات فردية.</p>
+<div class="service-grid">
     {% for service in pricing.services %}
     <div class="service-card">
-      <div class="service-info">
-        <h3>{{ service.name }}</h3>
-        <p>{{ service.description }}</p>
-      </div>
-      <div class="service-price">${{ service.price_usd }}</div>
-    </div>
+<div class="service-info">
+<h3>{{ service.name }}</h3>
+<p>{{ service.description }}</p>
+</div>
+<div class="service-price">${{ service.price_usd }}</div>
+</div>
     {% endfor %}
   </div>
 </section>
-
 <!-- Crypto Section -->
 <section class="crypto-section">
-  <h2>💎 ادفع بالعملات الرقمية</h2>
-  <p>BTC • ETH • USDT • LTC — نقبل جميع العملات الرقمية الرئيسية<br>
+<h2>💎 ادفع بالعملات الرقمية</h2>
+<p>{{ _('BTC • ETH • USDT • LTC — نقبل جميع العملات الرقمية الرئيسية') }}<br/>
   لا حاجة لبطاقة ائتمان. لا رسوم خفية. تفعيل فوري.</p>
 </section>
-
 <!-- Social Proof -->
 <section class="social-proof">
-  <div class="stars">★★★★★</div>
-  <h2>2,847 باحث عن عمل يستخدمون هذا بالفعل</h2>
-  <p>المستخدم العادي يرسل 847 طلباً في شهره الأول. ابدأ حملتك اليوم.</p>
+<div class="stars">★★★★★</div>
+<h2>2,847 باحث عن عمل يستخدمون هذا بالفعل</h2>
+<p>المستخدم العادي يرسل 847 طلباً في شهره الأول. ابدأ حملتك اليوم.</p>
 </section>
-
 <footer class="pricing-footer">
-  &copy; 2026 JOBHUNT PRO. ادفع بالعملات الرقمية: BTC, ETH, USDT, LTC. تبدأ الخطط من 2 دولار.
+  {{ _('© 2026 JOBHUNT PRO. ادفع بالعملات الرقمية: BTC, ETH, USDT, LTC. تبدأ الخطط من 2 دولار.') }}
 </footer>
-
 <script>
 // Flash Sale Countdown on Pricing Page
 (function() {
@@ -643,7 +625,6 @@ function updateBulkCalc(qty) {
 }
 document.addEventListener('DOMContentLoaded', function() { updateBulkCalc(1); });
 </script>
-
 <!-- Social Proof Toasts -->
 <script>
 (function(){
@@ -674,17 +655,15 @@ document.addEventListener('DOMContentLoaded', function() { updateBulkCalc(1); })
  setInterval(showToast, 15000 + Math.random()*20000);
 })();
 </script>
-
 <div class="social-toast" id="socialToast">
- <button class="toast-close" onclick="document.getElementById('socialToast').classList.remove('show')">✕</button>
- <div class="st-avatar" id="stAvatar"></div>
- <div class="st-content">
-   <div class="st-name" id="stName"></div>
-   <div class="st-action" id="stAction"></div>
-   <div class="st-time" id="stTime"></div>
- </div>
+<button class="toast-close" onclick="document.getElementById('socialToast').classList.remove('show')">✕</button>
+<div class="st-avatar" id="stAvatar"></div>
+<div class="st-content">
+<div class="st-name" id="stName"></div>
+<div class="st-action" id="stAction"></div>
+<div class="st-time" id="stTime"></div>
 </div>
-
+</div>
 <!-- Flash Sale Live Pricing + Countdown -->
 <script>
 (async function() {

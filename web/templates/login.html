@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Login to JobHunt Pro — your AI-powered automated job application platform. Manage campaigns, track applications, and land your dream job faster.">
-  <meta name="robots" content="noindex, follow">
-  <title>Login &mdash; JobHunt Pro</title>
-  <link rel="stylesheet" href="/static/css/cyberpunk-rtl.css">
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="Login to JobHunt Pro — your AI-powered automated job application platform. Manage campaigns, track applications, and land your dream job faster." name="description"/>
+<meta content="noindex, follow" name="robots"/>
+<title>{{ _('Login — JobHunt Pro') }}</title>
+<link href="/static/css/cyberpunk-rtl.css" rel="stylesheet"/>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap');
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -102,28 +103,28 @@ body {
 </style>
 </head>
 <body>
-  <div class="bg-grid"></div>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
+<div class="bg-grid"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
 
   {% include '_public_nav.html' %}
 
   <div class="page-wrap" style="margin-top:140px;">
-    <div class="auth-container">
-      <div class="auth-card">
-        <div class="auth-header">
-          <h1>أهلاً بعودتك 👋</h1>
-          <p class="sub">سجّل دخولك لإدارة حملاتك الذكية</p>
-        </div>
+<div class="auth-container">
+<div class="auth-card">
+<div class="auth-header">
+<h1>أهلاً بعودتك 👋</h1>
+<p class="sub">سجّل دخولك لإدارة حملاتك الذكية</p>
+</div>
 
         {% if plan %}
         <div class="plan-badge">
-          <span class="plan-badge-icon">🚀</span>
-          <div class="plan-badge-info">
-            <strong>{{ plan }} الخطة المختارة</strong>
-            <span>تابع بخطتك المختارة. يمكنك التغيير في أي وقت.</span>
-          </div>
-        </div>
+<span class="plan-badge-icon">🚀</span>
+<div class="plan-badge-info">
+<strong>{{ plan }} الخطة المختارة</strong>
+<span>تابع بخطتك المختارة. يمكنك التغيير في أي وقت.</span>
+</div>
+</div>
         {% endif %}
 
         {% if error %}
@@ -131,47 +132,42 @@ body {
         {% endif %}
         
         <div class="oauth-row">
-          <a href="/auth/google/login" class="btn-oauth">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" loading="lazy">
-            Google
+<a class="btn-oauth" href="/auth/google/login">
+<img alt="Google" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"/>
+            {{ _('Google') }}
           </a>
-          <a href="/auth/microsoft/login" class="btn-oauth">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" loading="lazy">
-            Microsoft
+<a class="btn-oauth" href="/auth/microsoft/login">
+<img alt="Microsoft" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"/>
+            {{ _('Microsoft') }}
           </a>
-        </div>
-        
-        <div class="oauth-divider">أو</div>
-
-        <form method="POST" action="/login">
-          <div class="form-group">
-            <label for="email">البريد الإلكتروني</label>
-            <input dir="ltr" style="text-align: right;" type="email" id="email" name="email" placeholder="اسمك@مثال.com" required autocomplete="email" autofocus>
-          </div>
-          <div class="form-group">
-            <label for="password">كلمة المرور</label>
-            <input dir="ltr" style="text-align: right;" type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password">
-          </div>
-          <div class="pw-row" style="justify-content: flex-end;">
-            <a href="/forgot-password">نسيت كلمة المرور؟</a>
-          </div>
-          <button type="submit" class="btn-submit" id="loginBtn">دخول إلى غرفة القيادة 🔐</button>
-        </form>
-
-        <div class="auth-footer">
-          جديد على المنصة؟ <a href='/register'>إنشاء حساب مجاني ←</a>
-        </div>
-      </div>
-
-      <div class="trust-strip">
-        <span>🔒 تشفير 256-بت</span>
-        <span>🛡️ ضمان استرداد 30 يوم</span>
-        <span>🤖 200 وكيل ذكي</span>
-      </div>
-    </div>
-  </div>
-
-  <script>
+</div>
+<div class="oauth-divider">أو</div>
+<form action="/login" method="POST">
+<div class="form-group">
+<label for="email">البريد الإلكتروني</label>
+<input autocomplete="email" autofocus="" dir="ltr" id="email" name="email" placeholder="اسمك@مثال.com" required="" style="text-align: right;" type="email"/>
+</div>
+<div class="form-group">
+<label for="password">كلمة المرور</label>
+<input autocomplete="current-password" dir="ltr" id="password" name="password" placeholder="●●●●●●●●" required="" style="text-align: right;" type="password"/>
+</div>
+<div class="pw-row" style="justify-content: flex-end;">
+<a href="/forgot-password">نسيت كلمة المرور؟</a>
+</div>
+<button class="btn-submit" id="loginBtn" type="submit">دخول إلى غرفة القيادة 🔐</button>
+</form>
+<div class="auth-footer">
+          جديد على المنصة؟ <a href="/register">إنشاء حساب مجاني ←</a>
+</div>
+</div>
+<div class="trust-strip">
+<span>🔒 تشفير 256-بت</span>
+<span>🛡️ ضمان استرداد 30 يوم</span>
+<span>🤖 200 وكيل ذكي</span>
+</div>
+</div>
+</div>
+<script>
   document.querySelector('form[action="/login"]').addEventListener('submit', function() {
     var btn = document.getElementById('loginBtn');
     btn.classList.add('loading');
@@ -180,4 +176,3 @@ body {
   </script>
 </body>
 </html>
-

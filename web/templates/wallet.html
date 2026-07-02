@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/static/css/cyberpunk.css">
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
   
 {% set wallet_balance = user.wallet_balance if user else 0 %}
 {% set user_name = user.name if user else "مستخدم" %}
@@ -100,50 +100,48 @@
 {% endif %}
 
 <div class="wallet-header">
-    <div class="wallet-balance-card">
-        <div class="balance-label">رصيد المحفظة</div>
-        <div class="balance-amount">${{ "%.2f"|format(wallet_balance|float if wallet_balance else 0) }}</div>
-        <div class="wallet-actions">
-            <a href="/pricing" class="btn-wallet primary">💎 شراء رصيد</a>
-            <button class="btn-wallet" onclick="navigator.clipboard.writeText('{{ user_email }}');this.innerHTML='✅ تم النسخ!'">📋 نسخ البريد</button>
-        </div>
-    </div>
-    <div class="wallet-stats">
-        <div class="wallet-stat-card">
-            <div class="stat-val" style="color:#4ade80;">{{ transactions|selectattr('transaction_type','equalto','credit')|list|length }}</div>
-            <div class="stat-label">إيداعات</div>
-        </div>
-        <div class="wallet-stat-card">
-            <div class="stat-val" style="color:#f87171;">{{ transactions|selectattr('transaction_type','equalto','debit')|list|length }}</div>
-            <div class="stat-label">سحوبات</div>
-        </div>
-        <div class="wallet-stat-card">
-            <div class="stat-val" style="color:#60a5fa;">{{ transactions|length }}</div>
-            <div class="stat-label">إجمالي العمليات</div>
-        </div>
-    </div>
+<div class="wallet-balance-card">
+<div class="balance-label">رصيد المحفظة</div>
+<div class="balance-amount">${{ "%.2f"|format(wallet_balance|float if wallet_balance else 0) }}</div>
+<div class="wallet-actions">
+<a class="btn-wallet primary" href="/pricing">💎 شراء رصيد</a>
+<button class="btn-wallet" onclick="navigator.clipboard.writeText('{{ user_email }}');this.innerHTML='✅ تم النسخ!'">📋 نسخ البريد</button>
 </div>
-
+</div>
+<div class="wallet-stats">
+<div class="wallet-stat-card">
+<div class="stat-val" style="color:#4ade80;">{{ transactions|selectattr('transaction_type','equalto','credit')|list|length }}</div>
+<div class="stat-label">إيداعات</div>
+</div>
+<div class="wallet-stat-card">
+<div class="stat-val" style="color:#f87171;">{{ transactions|selectattr('transaction_type','equalto','debit')|list|length }}</div>
+<div class="stat-label">سحوبات</div>
+</div>
+<div class="wallet-stat-card">
+<div class="stat-val" style="color:#60a5fa;">{{ transactions|length }}</div>
+<div class="stat-label">إجمالي العمليات</div>
+</div>
+</div>
+</div>
 <!-- API Key -->
 <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-  <div style="display:flex;align-items:center;gap:10px;">
-    <span style="font-size:18px;">🔑</span>
-    <div>
-      <div style="font-size:12px;text-transform:uppercase;color:#64748b;margin-bottom:2px;">مفتاح API الخاص بك</div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <code id="apiKeyDisplay" style="font-size:13px;color:#94a3b8;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:6px;font-family: 'Cairo', monospace;">••••••••••••••••••••••••</code>
-        <button id="toggleKeyBtn" class="btn-wallet" style="padding:2px 8px;font-size:11px;min-height:24px;line-height:1;" onclick="toggleApiKey()">👁️ عرض</button>
-      </div>
-    </div>
-  </div>
-  <div style="display:flex;gap:8px;align-items:center;">
-    <button class="btn-wallet" onclick="navigator.clipboard.writeText('{{ user.api_key }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)">📋 نسخ</button>
-    <form method="POST" action="/wallet/regenerate-key" style="margin:0;">
-      <button type="submit" class="btn-wallet" style="color:#f59e0b;border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.08);">🔄 إعادة توليد</button>
-    </form>
-  </div>
+<div style="display:flex;align-items:center;gap:10px;">
+<span style="font-size:18px;">🔑</span>
+<div>
+<div style="font-size:12px;text-transform:uppercase;color:#64748b;margin-bottom:2px;">{{ _('مفتاح API الخاص بك') }}</div>
+<div style="display:flex;align-items:center;gap:8px;">
+<code id="apiKeyDisplay" style="font-size:13px;color:#94a3b8;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:6px;font-family: 'Cairo', monospace;">••••••••••••••••••••••••</code>
+<button class="btn-wallet" id="toggleKeyBtn" onclick="toggleApiKey()" style="padding:2px 8px;font-size:11px;min-height:24px;line-height:1;">👁️ عرض</button>
 </div>
-
+</div>
+</div>
+<div style="display:flex;gap:8px;align-items:center;">
+<button class="btn-wallet" onclick="navigator.clipboard.writeText('{{ user.api_key }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)">📋 نسخ</button>
+<form action="/wallet/regenerate-key" method="POST" style="margin:0;">
+<button class="btn-wallet" style="color:#f59e0b;border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.08);" type="submit">🔄 إعادة توليد</button>
+</form>
+</div>
+</div>
 <script>
 function toggleApiKey() {
   const code = document.getElementById('apiKeyDisplay');
@@ -158,53 +156,50 @@ function toggleApiKey() {
   }
 }
 </script>
-
 <!-- NOWPayments Top-Up -->
 <div class="topup-card">
-    <h3>🪙 شراء رصيد بالعملة المشفرة</h3>
-    <p class="sub">مدعوم بـ NOWPayments &mdash; فاتورة فورية، ادفع بعملتك المشفرة المفضلة.</p>
-    <div class="preset-grid" id="presetGrid">
-        <button class="preset-btn" data-amount="10">$10</button>
-        <button class="preset-btn selected" data-amount="25">$25</button>
-        <button class="preset-btn" data-amount="50">$50</button>
-        <button class="preset-btn" data-amount="100">$100</button>
-    </div>
-    <div class="topup-row">
-        <div class="topup-amount">
-            <label>المبلغ (دولار)</label>
-            <input dir="auto" type="number" id="topupالمبلغ" value="25" min="10" max="1000" step="1" />
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-            <label style="font-size:11px;color:#64748b;text-transform:uppercase;">ادفع بـ</label>
-            <div class="coin-select" id="coinSelect">
-                <button class="coin-btn selected" data-coin="USDT">USDT (TRC20)</button>
-                <button class="coin-btn" data-coin="BTC">BTC</button>
-                <button class="coin-btn" data-coin="ETH">ETH</button>
-                <button class="coin-btn" data-coin="LTC">LTC</button>
-                <button class="coin-btn" data-coin="TRX">TRX</button>
-                <button class="coin-btn" data-coin="ANY">عملات أخرى</button>
-            </div>
-        </div>
-        <button class="btn-topup" id="btnTopup" onclick="createTopup()">⚡ ادفع الآن</button>
-    </div>
+<h3>🪙 شراء رصيد بالعملة المشفرة</h3>
+<p class="sub">{{ _('مدعوم بـ NOWPayments — فاتورة فورية، ادفع بعملتك المشفرة المفضلة.') }}</p>
+<div class="preset-grid" id="presetGrid">
+<button class="preset-btn" data-amount="10">$10</button>
+<button class="preset-btn selected" data-amount="25">$25</button>
+<button class="preset-btn" data-amount="50">$50</button>
+<button class="preset-btn" data-amount="100">$100</button>
 </div>
-
+<div class="topup-row">
+<div class="topup-amount">
+<label>المبلغ (دولار)</label>
+<input dir="auto" id="topupالمبلغ" max="1000" min="10" step="1" type="number" value="25"/>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px;">
+<label style="font-size:11px;color:#64748b;text-transform:uppercase;">ادفع بـ</label>
+<div class="coin-select" id="coinSelect">
+<button class="coin-btn selected" data-coin="USDT">{{ _('USDT (TRC20)') }}</button>
+<button class="coin-btn" data-coin="BTC">{{ _('BTC') }}</button>
+<button class="coin-btn" data-coin="ETH">{{ _('ETH') }}</button>
+<button class="coin-btn" data-coin="LTC">{{ _('LTC') }}</button>
+<button class="coin-btn" data-coin="TRX">{{ _('TRX') }}</button>
+<button class="coin-btn" data-coin="ANY">عملات أخرى</button>
+</div>
+</div>
+<button class="btn-topup" id="btnTopup" onclick="createTopup()">⚡ ادفع الآن</button>
+</div>
+</div>
 <!-- Invoice Modal -->
 <div class="invoice-overlay" id="invoiceOverlay">
-    <div class="invoice-modal">
-        <h2 id="invTitle">🪙 إرسال الدفعة</h2>
-        <p class="sub" id="invSub">أرسل نفس المبلغ الموضح أدناه بالضبط</p>
-        <div class="qr-placeholder">🏦</div>
-        <div class="pay-amount" id="invالمبلغ">0.00 BTC</div>
-        <div class="pay-addr" id="invAddr">جاري التحميل...</div>
-        <p style="font-size:11px;color:#64748b;margin-bottom:16px;">الطلب: <span id="invOrder">---</span></p>
-        <div class="btn-row">
-            <a class="btn-pay" id="btnPayUrl" href="#" target="_blank">💳 افتح صفحة الدفع</a>
-            <button class="btn-close" onclick="closeInvoice()">إغلاق</button>
-        </div>
-    </div>
+<div class="invoice-modal">
+<h2 id="invTitle">🪙 إرسال الدفعة</h2>
+<p class="sub" id="invSub">أرسل نفس المبلغ الموضح أدناه بالضبط</p>
+<div class="qr-placeholder">🏦</div>
+<div class="pay-amount" id="invالمبلغ">{{ _('0.00 BTC') }}</div>
+<div class="pay-addr" id="invAddr">جاري التحميل...</div>
+<p style="font-size:11px;color:#64748b;margin-bottom:16px;">الطلب: <span id="invOrder">---</span></p>
+<div class="btn-row">
+<a class="btn-pay" href="#" id="btnPayUrl" target="_blank">💳 افتح صفحة الدفع</a>
+<button class="btn-close" onclick="closeInvoice()">إغلاق</button>
 </div>
-
+</div>
+</div>
 <h3 class="section-title" style="margin-top:4px;">🔗 عناوين الإيداع الثابتة</h3>
 <div class="crypto-grid">
     {% set addrs = crypto_addresses if crypto_addresses is mapping else {} %}
@@ -213,13 +208,13 @@ function toggleApiKey() {
     {% if addr %}
     {% set has_addr = true %}
     <div class="crypto-card">
-        <div class="crypto-icon">
+<div class="crypto-icon">
             {% if 'btc' in coin.lower() %}₿{% elif 'eth' in coin.lower() %}Ξ{% elif 'usdt' in coin.lower() or 'usdc' in coin.lower() %}💲{% elif 'ltc' in coin.lower() %}Ł{% elif 'doge' in coin.lower() %}🐕{% else %}💎{% endif %}
         </div>
-        <div class="crypto-name">{{ coin.upper() }}</div>
-        <div class="crypto-addr" title="{{ addr }}">{{ addr[:20] }}...{{ addr[-8:] }}</div>
-        <button class="btn" style="margin-top:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#94a3b8;cursor:pointer;font-size:11px;" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)">📋 نسخ</button>
-    </div>
+<div class="crypto-name">{{ coin.upper() }}</div>
+<div class="crypto-addr" title="{{ addr }}">{{ addr[:20] }}...{{ addr[-8:] }}</div>
+<button class="btn" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)" style="margin-top:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#94a3b8;cursor:pointer;font-size:11px;">📋 نسخ</button>
+</div>
     {% endif %}
     {% endfor %}
     {% if not has_addr %}
@@ -228,42 +223,40 @@ function toggleApiKey() {
     </div>
     {% endif %}
 </div>
-
 <div class="redeem-card">
-  <h3>🎁 استرداد كود</h3>
-  <p>لديك بطاقة هدية أو كود ترويجي؟ أدخله أدناه لإضافة رصيد فوري إلى محفظتك.</p>
-  <form class="redeem-form" method="POST" action="/redeem">
-    <input dir="auto" class="redeem-input" type="text" name="code" placeholder="XXXX-XXXX-XXXX" required autocomplete="off" />
-    <button class="btn-redeem" type="submit">✨ استرداد</button>
-  </form>
+<h3>🎁 استرداد كود</h3>
+<p>لديك بطاقة هدية أو كود ترويجي؟ أدخله أدناه لإضافة رصيد فوري إلى محفظتك.</p>
+<form action="/redeem" class="redeem-form" method="POST">
+<input autocomplete="off" class="redeem-input" dir="auto" name="code" placeholder="XXXX-XXXX-XXXX" required="" type="text"/>
+<button class="btn-redeem" type="submit">✨ استرداد</button>
+</form>
 </div>
-
 <h3 class="section-title" style="margin-top:24px;">📜 سجل العمليات</h3>
 {% if transactions %}
 <div style="overflow-x:auto;">
 <table class="transaction-table">
-    <thead>
-        <tr><th>النوع</th><th>المبلغ</th><th>الوصف</th><th>الرصيد بعد</th><th>التاريخ</th></tr>
-    </thead>
-    <tbody>
+<thead>
+<tr><th>النوع</th><th>المبلغ</th><th>الوصف</th><th>الرصيد بعد</th><th>التاريخ</th></tr>
+</thead>
+<tbody>
         {% for tx in transactions %}
         <tr>
-            <td><span class="tx-type {{ tx.transaction_type }}">{% if tx.transaction_type == 'credit' %}+{% elif tx.transaction_type == 'debit' %}-{% endif %} {{ tx.transaction_type|title }}</span></td>
-            <td style="font-weight:600;{% if tx.transaction_type=='credit' %}color:#4ade80;{% elif tx.transaction_type=='debit' %}color:#f87171;{% else %}color:#fbbf24;{% endif %}">
+<td><span class="tx-type {{ tx.transaction_type }}">{% if tx.transaction_type == 'credit' %}+{% elif tx.transaction_type == 'debit' %}-{% endif %} {{ tx.transaction_type|title }}</span></td>
+<td style="font-weight:600;{% if tx.transaction_type=='credit' %}color:#4ade80;{% elif tx.transaction_type=='debit' %}color:#f87171;{% else %}color:#fbbf24;{% endif %}">
                 {% if tx.transaction_type == 'credit' %}+{% elif tx.transaction_type == 'debit' %}-{% endif %}${{ "%.2f"|format(tx.amount|float if tx.amount else 0) }}
             </td>
-            <td style="color:#94a3b8;">{{ tx.description or tx.note or '' }}</td>
-            <td>${{ "%.2f"|format(tx.balance_after|float if tx.balance_after else (tx.balance_after_amt|float if tx.balance_after_amt else 0)) }}</td>
-            <td style="color:#64748b;font-size:12px;">{{ tx.created_at[:10] if tx.created_at else '' }}</td>
-        </tr>
+<td style="color:#94a3b8;">{{ tx.description or tx.note or '' }}</td>
+<td>${{ "%.2f"|format(tx.balance_after|float if tx.balance_after else (tx.balance_after_amt|float if tx.balance_after_amt else 0)) }}</td>
+<td style="color:#64748b;font-size:12px;">{{ tx.created_at[:10] if tx.created_at else '' }}</td>
+</tr>
         {% endfor %}
     </tbody>
 </table>
 </div>
 {% else %}
 <div style="text-align:center;padding:40px;color:#64748b;">
-    <div style="font-size:48px;margin-bottom:12px;">💰</div>
-    <div>لا توجد عمليات بعد. ستظهر الأموال المكتسبة من الإحالات والحملات هنا.</div>
+<div style="font-size:48px;margin-bottom:12px;">💰</div>
+<div>لا توجد عمليات بعد. ستظهر الأموال المكتسبة من الإحالات والحملات هنا.</div>
 </div>
 {% endif %}
 

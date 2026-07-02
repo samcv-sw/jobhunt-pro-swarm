@@ -3,13 +3,13 @@ JobHunt Pro v15 — Self-Healing Engine
 Auto-detects failures, diagnoses root cause, applies fixes.
 Runs every cycle: API keys → SMTP → DB → Scrapers → Disk → Processes.
 """
+
 import asyncio
 import logging
 import os
 import time
 import json
 import shutil
-import traceback
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
 
@@ -113,8 +113,8 @@ def _get_disk_usage(path: str = ".") -> Tuple[float, float]:
     """Get disk usage: (used_gb, total_gb, percent_used)."""
     try:
         usage = shutil.disk_usage(path)
-        total_gb = usage.total / (1024 ** 3)
-        used_gb = usage.used / (1024 ** 3)
+        total_gb = usage.total / (1024**3)
+        used_gb = usage.used / (1024**3)
         percent = (usage.used / usage.total) * 100
         return used_gb, total_gb, percent
     except Exception:
@@ -142,6 +142,7 @@ class HealingEngine:
         # Try to lazily import and initialize DB
         try:
             from core.database import Database
+
             self.db = Database()
         except Exception as e:
             logger.warning(f"HealingEngine: DB init deferred ({e})")
@@ -149,6 +150,7 @@ class HealingEngine:
         # Try to lazily import email engine singleton
         try:
             from core.email_engine import email_engine
+
             self.email_engine = email_engine
         except Exception as e:
             logger.warning(f"HealingEngine: EmailEngine init deferred ({e})")
@@ -243,50 +245,64 @@ class HealingEngine:
         groq_key = os.getenv("GROQ_API_KEY", "")
         groq_ok = await _test_groq_api(groq_key)
         if not groq_key:
-            issues.append({
-                "check": "groq_api_key",
-                "severity": "warning",
-                "detail": "GROQ_API_KEY is empty — AI tailoring will fail",
-            })
-            fixes.append({
-                "action": "groq_key_missing",
-                "detail": "Set GROQ_API_KEY in .env file manually",
-                "auto_fixable": False,
-            })
+            issues.append(
+                {
+                    "check": "groq_api_key",
+                    "severity": "warning",
+                    "detail": "GROQ_API_KEY is empty — AI tailoring will fail",
+                }
+            )
+            fixes.append(
+                {
+                    "action": "groq_key_missing",
+                    "detail": "Set GROQ_API_KEY in .env file manually",
+                    "auto_fixable": False,
+                }
+            )
         elif not groq_ok:
-            issues.append({
-                "check": "groq_api_key",
-                "severity": "error",
-                "detail": "GROQ_API_KEY test failed",
-            })
-            fixes.append({
-                "action": "groq_fallback_model",
-                "detail": "AI will use llama-3.1-8b-instant as fallback (lower quality but works)",
-                "auto_fixable": True,
-                "applied": True,
-            })
+            issues.append(
+                {
+                    "check": "groq_api_key",
+                    "severity": "error",
+                    "detail": "GROQ_API_KEY test failed",
+                }
+            )
+            fixes.append(
+                {
+                    "action": "groq_fallback_model",
+                    "detail": "AI will use llama-3.1-8b-instant as fallback (lower quality but works)",
+                    "auto_fixable": True,
+                    "applied": True,
+                }
+            )
 
         # 2. JSearch
         jsearch_key = os.getenv("JSEARCH_API_KEY", "")
         jsearch_ok = await _test_jsearch_api(jsearch_key)
         if not jsearch_key:
-            issues.append({
-                "check": "jsearch_api_key",
-                "severity": "info",
-                "detail": "JSEARCH_API_KEY not set — will rely on curated contacts only",
-            })
+            issues.append(
+                {
+                    "check": "jsearch_api_key",
+                    "severity": "info",
+                    "detail": "JSEARCH_API_KEY not set — will rely on curated contacts only",
+                }
+            )
         elif not jsearch_ok:
-            issues.append({
-                "check": "jsearch_api_key",
-                "severity": "warning",
-                "detail": "JSearch API key invalid or quota exhausted",
-            })
-            fixes.append({
-                "action": "jsearch_fallback",
-                "detail": "Scraper will skip JSearch, use curated contacts + LinkedIn only",
-                "auto_fixable": True,
-                "applied": True,
-            })
+            issues.append(
+                {
+                    "check": "jsearch_api_key",
+                    "severity": "warning",
+                    "detail": "JSearch API key invalid or quota exhausted",
+                }
+            )
+            fixes.append(
+                {
+                    "action": "jsearch_fallback",
+                    "detail": "Scraper will skip JSearch, use curated contacts + LinkedIn only",
+                    "auto_fixable": True,
+                    "applied": True,
+                }
+            )
 
         # Return only the first issue+fix pair (most critical)
         issue = issues[0] if issues else None
@@ -303,7 +319,7 @@ class HealingEngine:
         try:
             cb = self.email_engine.circuit_breaker
             disabled = cb._disabled_until if hasattr(cb, "_disabled_until") else {}
-            failures = cb._failures if hasattr(cb, "_failures") else {}
+            cb._failures if hasattr(cb, "_failures") else {}
 
             if disabled:
                 provider_names = list(disabled.keys())
@@ -315,31 +331,38 @@ class HealingEngine:
                     until = disabled.get(name, 0)
                     remaining = until - time.time()
                     if remaining > 0:
-                        issues.append({
-                            "check": f"smtp_circuit_open:{name}",
-                            "severity": "error",
-                            "detail": f"SMTP {name} circuit open for {remaining:.0f}s more",
-                        })
+                        issues.append(
+                            {
+                                "check": f"smtp_circuit_open:{name}",
+                                "severity": "error",
+                                "detail": f"SMTP {name} circuit open for {remaining:.0f}s more",
+                            }
+                        )
 
                         # Try a different provider — rotation is automatic via scheduler
                         if hasattr(self.email_engine, "scheduler"):
                             provider = self.email_engine.scheduler.get_next_provider()
                             if provider and provider != name:
-                                fixes.append({
-                                    "action": f"smtp_rotate:{name}→{provider}",
-                                    "detail": f"Rotated from {name} to {provider}",
-                                    "auto_fixable": True,
-                                    "applied": True,
-                                })
+                                fixes.append(
+                                    {
+                                        "action": f"smtp_rotate:{name}→{provider}",
+                                        "detail": f"Rotated from {name} to {provider}",
+                                        "auto_fixable": True,
+                                        "applied": True,
+                                    }
+                                )
 
                 if issues:
                     return (issues[0], fixes[0] if fixes else None)
 
             # Check quota exhaustion for all providers
-            if hasattr(self.email_engine, "scheduler") and hasattr(self.email_engine.scheduler, "providers"):
+            if hasattr(self.email_engine, "scheduler") and hasattr(
+                self.email_engine.scheduler, "providers"
+            ):
                 schedulers = self.email_engine.scheduler.providers
                 total_available = sum(
-                    1 for p in schedulers.values()
+                    1
+                    for p in schedulers.values()
                     if getattr(p, "sent_today", 0) < getattr(p, "daily_limit", 100)
                 )
                 if total_available == 0 and schedulers:
@@ -439,16 +462,21 @@ class HealingEngine:
 
             # Tables exist — verify a few key ones
             try:
+
                 def _verify_tables():
-                    tables = ["jobs"]  # Note: legacy schema only has "jobs" table, other tables like users/applications are in the PostgreSQL/DatabaseManager schema
+                    tables = [
+                        "jobs"
+                    ]  # Note: legacy schema only has "jobs" table, other tables like users/applications are in the PostgreSQL/DatabaseManager schema
                     with self.db._get_conn() as conn:
                         for table in tables:
                             conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()
-                            
+
                 await asyncio.to_thread(_verify_tables)
             except Exception as e:
                 err_str = str(e).lower()
-                logger.warning(f"DB integrity: table missing or error ({err_str[:100]}), recreating...")
+                logger.warning(
+                    f"DB integrity: table missing or error ({err_str[:100]}), recreating..."
+                )
                 try:
                     await self.db.create_tables()
                     return (
@@ -484,17 +512,21 @@ class HealingEngine:
         if jsearch_key:
             ok = await _test_jsearch_api(jsearch_key)
             if not ok:
-                issues.append({
-                    "check": "scraper_jsearch",
-                    "severity": "warning",
-                    "detail": "JSearch scraper returning errors (quota or timeout)",
-                })
-                fixes.append({
-                    "action": "scraper_jsearch_fallback",
-                    "detail": "Fallback to curated contacts only for job sourcing",
-                    "auto_fixable": True,
-                    "applied": True,
-                })
+                issues.append(
+                    {
+                        "check": "scraper_jsearch",
+                        "severity": "warning",
+                        "detail": "JSearch scraper returning errors (quota or timeout)",
+                    }
+                )
+                fixes.append(
+                    {
+                        "action": "scraper_jsearch_fallback",
+                        "detail": "Fallback to curated contacts only for job sourcing",
+                        "auto_fixable": True,
+                        "applied": True,
+                    }
+                )
 
         # Test LinkedIn-style scraper (generic HTTP test)
         try:
@@ -511,17 +543,21 @@ class HealingEngine:
                     follow_redirects=True,
                 )
                 if resp.status_code in (403, 429):
-                    issues.append({
-                        "check": "scraper_linkedin",
-                        "severity": "warning",
-                        "detail": f"LinkedIn blocking scrapers (HTTP {resp.status_code})",
-                    })
-                    fixes.append({
-                        "action": "scraper_linkedin_fallback",
-                        "detail": "Will use JSearch + curated contacts instead",
-                        "auto_fixable": True,
-                        "applied": True,
-                    })
+                    issues.append(
+                        {
+                            "check": "scraper_linkedin",
+                            "severity": "warning",
+                            "detail": f"LinkedIn blocking scrapers (HTTP {resp.status_code})",
+                        }
+                    )
+                    fixes.append(
+                        {
+                            "action": "scraper_linkedin_fallback",
+                            "detail": "Will use JSearch + curated contacts instead",
+                            "auto_fixable": True,
+                            "applied": True,
+                        }
+                    )
         except Exception as e:
             logger.debug(f"LinkedIn scraper test: {e}")
 
@@ -574,11 +610,13 @@ class HealingEngine:
                 os.path.dirname(os.path.dirname(os.path.abspath(__file__))), db_path
             )
             if not os.path.exists(alt_path):
-                issues.append({
-                    "check": "db_file_missing",
-                    "severity": "warning",
-                    "detail": f"DB file '{db_path}' not found — will create on first use",
-                })
+                issues.append(
+                    {
+                        "check": "db_file_missing",
+                        "severity": "warning",
+                        "detail": f"DB file '{db_path}' not found — will create on first use",
+                    }
+                )
 
         # Check log directory is writable
         log_dir = os.path.join(
@@ -588,11 +626,13 @@ class HealingEngine:
             try:
                 os.makedirs(log_dir, exist_ok=True)
             except Exception:
-                issues.append({
-                    "check": "log_dir_not_writable",
-                    "severity": "warning",
-                    "detail": "Log directory not writable",
-                })
+                issues.append(
+                    {
+                        "check": "log_dir_not_writable",
+                        "severity": "warning",
+                        "detail": "Log directory not writable",
+                    }
+                )
 
         return issues
 
@@ -603,16 +643,12 @@ class HealingEngine:
     def _build_report(self, issues: List[Dict], fixes: List[Dict]) -> Dict:
         """Build a structured report from issues and fixes."""
         total_issues = len(issues)
-        auto_fixed = sum(
-            1 for f in fixes if f.get("auto_fixable") and f.get("applied")
-        )
-        need_attention = sum(
-            1 for f in fixes if not f.get("auto_fixable")
-        ) + sum(
-            1 for i in issues
+        auto_fixed = sum(1 for f in fixes if f.get("auto_fixable") and f.get("applied"))
+        need_attention = sum(1 for f in fixes if not f.get("auto_fixable")) + sum(
+            1
+            for i in issues
             if not any(
-                f.get("action", "").startswith(i["check"].split(":")[0])
-                for f in fixes
+                f.get("action", "").startswith(i["check"].split(":")[0]) for f in fixes
             )
         )
 
@@ -653,16 +689,13 @@ class HealingEngine:
         """Send healing report to Telegram."""
         total = summary["issues_detected"]
         fixed = summary["auto_fixed"]
-        attention = summary["need_attention"]
+        summary["need_attention"]
 
         if total == 0:
             return  # Don't spam if nothing to report
 
         icon = "🟢" if fixed == total else "🟡" if fixed > 0 else "🔴"
-        msg = (
-            f"<b>{icon} Healing Report</b>\n"
-            f"{summary['summary_text'][:2000]}"
-        )
+        msg = f"<b>{icon} Healing Report</b>\n{summary['summary_text'][:2000]}"
 
         await _telegram_notify(msg)
 
@@ -690,7 +723,9 @@ class HealingEngine:
             "most_common_issues": dict(
                 sorted(check_counts.items(), key=lambda x: -x[1])[:5]
             ),
-            "last_checkup": self._history[-1]["timestamp"] if self._history else "never",
+            "last_checkup": self._history[-1]["timestamp"]
+            if self._history
+            else "never",
         }
 
 

@@ -11,6 +11,7 @@ Flow:
   2. Send email via graph.microsoft.com/v1.0/me/sendMail
   3. Rotate through 500 Hotmail accounts
 """
+
 import json, logging, random, time, requests
 from datetime import datetime, date
 from pathlib import Path
@@ -37,15 +38,20 @@ _rotation = 0
 
 import sys
 from pathlib import Path
+
 _ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(_ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(_ROOT_DIR))
 try:
     import config
-    SITE_URL = getattr(config, 'SITE_URL', 'https://jhfguf.pythonanywhere.com').rstrip('/')
+
+    SITE_URL = getattr(config, "SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip(
+        "/"
+    )
 except Exception:
     import os
-    SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip('/')
+
+    SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
 
 
 def init(data_dir: str = None):
@@ -59,8 +65,8 @@ def _load_accounts():
     global _accounts
     pool_file = _data_dir / "hotmail_pool.json"
     if pool_file.exists():
-        data = json.load(open(pool_file, 'r', encoding='utf-8'))
-        _accounts = data.get('accounts', [])
+        data = json.load(open(pool_file, "r", encoding="utf-8"))
+        _accounts = data.get("accounts", [])
         logger.info(f"Loaded {len(_accounts)} Hotmail accounts")
     else:
         logger.warning(f"No hotmail_pool.json found at {pool_file}")
@@ -71,7 +77,7 @@ def _load_daily():
     today = date.today().isoformat()
     df = _data_dir / f"graph_daily_{today}.json"
     if df.exists():
-        _daily_counts = json.load(open(df, 'r', encoding='utf-8'))
+        _daily_counts = json.load(open(df, "r", encoding="utf-8"))
     else:
         _daily_counts = {}
 
@@ -79,7 +85,7 @@ def _load_daily():
 def _save_daily():
     today = date.today().isoformat()
     df = _data_dir / f"graph_daily_{today}.json"
-    json.dump(_daily_counts, open(df, 'w', encoding='utf-8'))
+    json.dump(_daily_counts, open(df, "w", encoding="utf-8"))
     # Save stats
     sf = _data_dir / "graph_stats.json"
     stats = {
@@ -88,13 +94,13 @@ def _save_daily():
         "daily_cap_per_account": DAILY_CAP_PER_ACCOUNT,
         "total_daily_cap": len(_accounts) * DAILY_CAP_PER_ACCOUNT,
     }
-    json.dump(stats, open(sf, 'w', encoding='utf-8'))
+    json.dump(stats, open(sf, "w", encoding="utf-8"))
 
 
 def _refresh_token(account: dict) -> Optional[str]:
     """Exchange refresh token for access token."""
-    refresh = account.get('refresh', '')
-    email = account.get('email', '')
+    refresh = account.get("refresh", "")
+    email = account.get("email", "")
 
     if not refresh:
         return None
@@ -103,24 +109,28 @@ def _refresh_token(account: dict) -> Optional[str]:
     cache_key = email
     if cache_key in _token_cache:
         cached = _token_cache[cache_key]
-        if cached['expires'] > time.time() + 60:
-            return cached['token']
+        if cached["expires"] > time.time() + 60:
+            return cached["token"]
 
     try:
-        r = requests.post(TOKEN_URL, data={
-            'client_id': CLIENT_ID,
-            'refresh_token': refresh,
-            'grant_type': 'refresh_token',
-            'scope': SCOPE,
-        }, timeout=15)
+        r = requests.post(
+            TOKEN_URL,
+            data={
+                "client_id": CLIENT_ID,
+                "refresh_token": refresh,
+                "grant_type": "refresh_token",
+                "scope": SCOPE,
+            },
+            timeout=15,
+        )
 
         if r.status_code == 200:
             data = r.json()
-            access_token = data.get('access_token')
-            expires_in = data.get('expires_in', 3600)
+            access_token = data.get("access_token")
+            expires_in = data.get("expires_in", 3600)
             _token_cache[cache_key] = {
-                'token': access_token,
-                'expires': time.time() + expires_in,
+                "token": access_token,
+                "expires": time.time() + expires_in,
             }
             return access_token
         else:
@@ -131,10 +141,11 @@ def _refresh_token(account: dict) -> Optional[str]:
         return None
 
 
-def _send_one(account: dict, access_token: str, recipient: dict,
-              subject: str, body_html: str) -> bool:
+def _send_one(
+    account: dict, access_token: str, recipient: dict, subject: str, body_html: str
+) -> bool:
     """Send one email via Microsoft Graph API."""
-    email_addr = account.get('email', '')
+    email_addr = account.get("email", "")
 
     msg = {
         "message": {
@@ -143,12 +154,8 @@ def _send_one(account: dict, access_token: str, recipient: dict,
                 "contentType": "HTML",
                 "content": body_html,
             },
-            "toRecipients": [{
-                "emailAddress": {"address": recipient.get('email', '')}
-            }],
-            "from": {
-                "emailAddress": {"address": email_addr}
-            },
+            "toRecipients": [{"emailAddress": {"address": recipient.get("email", "")}}],
+            "from": {"emailAddress": {"address": email_addr}},
         },
         "saveToSentItems": "false",
     }
@@ -159,8 +166,8 @@ def _send_one(account: dict, access_token: str, recipient: dict,
                 f"{GRAPH_BASE}/me/sendMail",
                 json=msg,
                 headers={
-                    'Authorization': f'Bearer {access_token}',
-                    'Content-Type': 'application/json',
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json",
                 },
                 timeout=20,
             )
@@ -188,9 +195,13 @@ def _send_one(account: dict, access_token: str, recipient: dict,
     return False
 
 
-def send_bulk(recipients: list, subject: str = None,
-              body_html: str = None, campaign_name: str = "graph_blast",
-              max_sends: int = None) -> dict:
+def send_bulk(
+    recipients: list,
+    subject: str = None,
+    body_html: str = None,
+    campaign_name: str = "graph_blast",
+    max_sends: int = None,
+) -> dict:
     """
     Send bulk emails via Microsoft Graph API using Hotmail pool.
 
@@ -207,25 +218,29 @@ def send_bulk(recipients: list, subject: str = None,
     global _rotation
 
     if not _accounts:
-        return {'sent': 0, 'failed': 0, 'error': 'No Hotmail accounts loaded'}
+        return {"sent": 0, "failed": 0, "error": "No Hotmail accounts loaded"}
 
-    today = date.today().isoformat()
+    date.today().isoformat()
     sent = 0
     failed = 0
     tokens_expired = 0
     rate_limited = 0
 
-    total_cap = min(len(_accounts) * DAILY_CAP_PER_ACCOUNT, 
-                    len(recipients) if max_sends is None else max_sends)
+    total_cap = min(
+        len(_accounts) * DAILY_CAP_PER_ACCOUNT,
+        len(recipients) if max_sends is None else max_sends,
+    )
 
-    logger.info(f"Graph blast: {campaign_name} | max={total_cap} | accounts={len(_accounts)}")
+    logger.info(
+        f"Graph blast: {campaign_name} | max={total_cap} | accounts={len(_accounts)}"
+    )
 
     for i, recipient in enumerate(recipients[:total_cap]):
         # Pick account via round-robin
         account = _accounts[_rotation % len(_accounts)]
         _rotation += 1
 
-        email_key = account['email']
+        email_key = account["email"]
         if _daily_counts.get(email_key, 0) >= DAILY_CAP_PER_ACCOUNT:
             # Skip this account, try next
             rate_limited += 1
@@ -257,60 +272,68 @@ def send_bulk(recipients: list, subject: str = None,
         # Save state every 50 sends
         if (sent + failed) % 50 == 0:
             _save_daily()
-            logger.info(f"Progress: {sent} sent, {failed} failed, "
-                       f"{tokens_expired} expired tokens")
+            logger.info(
+                f"Progress: {sent} sent, {failed} failed, "
+                f"{tokens_expired} expired tokens"
+            )
 
         # Progress log
         if (i + 1) % 500 == 0:
-            logger.info(f"Blast milestone: {i+1}/{total_cap} processed")
+            logger.info(f"Blast milestone: {i + 1}/{total_cap} processed")
 
     _save_daily()
     return {
-        'sent': sent,
-        'failed': failed,
-        'tokens_expired': tokens_expired,
-        'rate_limited': rate_limited,
-        'accounts_used': len(set(k for k, v in _daily_counts.items() if v > 0)),
+        "sent": sent,
+        "failed": failed,
+        "tokens_expired": tokens_expired,
+        "rate_limited": rate_limited,
+        "accounts_used": len(set(k for k, v in _daily_counts.items() if v > 0)),
     }
 
 
 def get_status() -> dict:
     """Get current blaster status."""
-    today = date.today().isoformat()
+    date.today().isoformat()
     total = len(_accounts) * DAILY_CAP_PER_ACCOUNT
     sent_today = sum(_daily_counts.values())
     return {
-        'accounts_total': len(_accounts),
-        'daily_cap_per_account': DAILY_CAP_PER_ACCOUNT,
-        'daily_cap_total': total,
-        'sent_today': sent_today,
-        'remaining_today': total - sent_today,
-        'accounts_used_today': len([k for k, v in _daily_counts.items() if v > 0]),
-        'token_cache_size': len(_token_cache),
+        "accounts_total": len(_accounts),
+        "daily_cap_per_account": DAILY_CAP_PER_ACCOUNT,
+        "daily_cap_total": total,
+        "sent_today": sent_today,
+        "remaining_today": total - sent_today,
+        "accounts_used_today": len([k for k, v in _daily_counts.items() if v > 0]),
+        "token_cache_size": len(_token_cache),
     }
 
 
 def test_single(account_index: int, to_email: str) -> dict:
     """Send a test email from one account."""
     if not _accounts:
-        return {'ok': False, 'error': 'No accounts loaded'}
+        return {"ok": False, "error": "No accounts loaded"}
 
     account = _accounts[account_index % len(_accounts)]
     access_token = _refresh_token(account)
 
     if not access_token:
-        return {'ok': False, 'error': 'Token refresh failed',
-                'account': account['email']}
+        return {
+            "ok": False,
+            "error": "Token refresh failed",
+            "account": account["email"],
+        }
 
-    ok = _send_one(account, access_token,
-                   {'email': to_email, 'name': 'Test'},
-                   'JobHunt Pro — Test Email 🚀',
-                   '<h2>Test email from JobHunt Pro</h2><p>This is a test.</p>')
+    ok = _send_one(
+        account,
+        access_token,
+        {"email": to_email, "name": "Test"},
+        "JobHunt Pro — Test Email 🚀",
+        "<h2>Test email from JobHunt Pro</h2><p>This is a test.</p>",
+    )
 
     return {
-        'ok': ok,
-        'account': account['email'],
-        'to': to_email,
+        "ok": ok,
+        "account": account["email"],
+        "to": to_email,
     }
 
 
@@ -328,15 +351,15 @@ def _get_ai_subject(recipient: dict) -> str:
         "You're 1 click away from automated job applications",
         "The $2 tool that applies to 1,000 jobs for you",
     ]
-    name = recipient.get('name', 'there')
+    recipient.get("name", "there")
     subj = random.choice(subjects)
     return subj
 
 
 def _get_ai_template(recipient: dict, campaign: str) -> str:
     """Generate HTML email body."""
-    name = recipient.get('name', 'there')
-    name_display = name.split('@')[0] if '@' in name else name
+    name = recipient.get("name", "there")
+    name_display = name.split("@")[0] if "@" in name else name
 
     return f"""<!DOCTYPE html>
 <html><body style="font-family:Arial,sans-serif;background:#0a0a1a;color:#e0e0e0;max-width:600px;margin:0 auto;padding:20px">

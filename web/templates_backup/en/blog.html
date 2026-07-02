@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunt Pro Blog — AI Job Search Tips & Guides</title>
+    <meta name="description" content="Expert guides on AI-powered job applications, automated job search, cover letter tips, and career advice. Level up your job hunt.">
+    <link rel="canonical" href="https://jhfguf.pythonanywhere.com/blog">
+    <link rel="stylesheet" href="/static/css/cyberpunk.css">
+</head>
+<body class="cyberpunk-body">
+    {% include '_public_nav.html' %}
+
+    <main class="blog-index" style="padding-top:140px;">
+        <header class="blog-header">
+            <h1>📝 JobHunt Pro Blog</h1>
+            <p class="blog-subtitle">AI-powered job search strategies, tips, and guides for 2026</p>
+        </header>
+
+        {% if posts %}
+        <div class="blog-grid">
+            {% for post in posts %}
+            <article class="blog-card">
+                <div class="blog-card-meta">
+                    <span class="blog-tag">{{ post.primary_keyword }}</span>
+                    {% if post.published_at %}
+                    <time>{{ post.published_at[:10] }}</time>
+                    {% endif %}
+                </div>
+                <h2><a href="/blog/{{ post.slug }}">{{ post.title }}</a></h2>
+                <p class="blog-excerpt">{{ post.meta_description[:150] }}{% if post.meta_description|length > 150 %}...{% endif %}</p>
+                <a href="/blog/{{ post.slug }}" class="blog-read-more">Read More →</a>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="blog-empty">
+            <p>🚀 Our AI is generating expert content. First posts coming soon!</p>
+            <a href="/" class="cta-button">Back to JobHunt Pro</a>
+        </div>
+        {% endif %}
+
+        {% if stats %}
+        <div class="blog-stats">
+            <span>{{ stats.published }} articles published</span>
+            <span>{{ stats.total_words }} total words</span>
+        </div>
+        {% endif %}
+    </main>
+
+{% include '_public_footer.html' %}
+</body>
+</html>

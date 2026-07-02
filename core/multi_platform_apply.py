@@ -12,9 +12,9 @@ Architecture:
 
   AutoApplyOrchestrator — coordinates search → apply → track across all platforms
 """
+
 import asyncio
 import hashlib
-import json
 import logging
 import os
 import random
@@ -26,7 +26,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-from urllib.parse import quote_plus, urlencode, urlparse
+from urllib.parse import quote_plus, urlencode
 
 import httpx
 from core.stealth import stealth
@@ -39,6 +39,7 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────
 # Constants
 # ─────────────────────────────────────────────
+
 
 def _init_rate_limit_table():
     """Initialize the rate_limit_log table."""
@@ -56,8 +57,10 @@ def _persist_rate_limit(platform: str):
     """Store rate limit data in DB so it survives restarts."""
     conn = _get_conn()
     try:
-        conn.execute("INSERT INTO rate_limit_log (platform, called_at) VALUES (?, ?)", 
-                     (platform, time.time()))
+        conn.execute(
+            "INSERT INTO rate_limit_log (platform, called_at) VALUES (?, ?)",
+            (platform, time.time()),
+        )
         conn.commit()
     except Exception as e:
         logger.debug(f"[RATE-LIMIT] Persist error: {e}")
@@ -72,7 +75,7 @@ def _check_persisted_rate(platform: str) -> bool:
         cutoff = time.time() - 3600
         row = conn.execute(
             "SELECT COUNT(*) as cnt FROM rate_limit_log WHERE platform = ? AND called_at > ?",
-            (platform, cutoff)
+            (platform, cutoff),
         ).fetchone()
         count = row["cnt"] if row else 0
         return count < RATE_LIMIT_PER_PLATFORM
@@ -116,7 +119,9 @@ CREATE INDEX IF NOT EXISTS idx_mpa_status ON multi_platform_apps(status);
 CREATE INDEX IF NOT EXISTS idx_mpa_user ON multi_platform_apps(user_id);
 """
 
-RATE_LIMIT_PER_PLATFORM = int(os.getenv("MULTI_PLATFORM_RATE_LIMIT", "10"))  # max apps/hour per platform
+RATE_LIMIT_PER_PLATFORM = int(
+    os.getenv("MULTI_PLATFORM_RATE_LIMIT", "10")
+)  # max apps/hour per platform
 
 # Rate limit table init
 RATE_LIMIT_TABLE_SQL = """
@@ -140,6 +145,7 @@ USER_AGENTS = [
 # Rate Limiter
 # ─────────────────────────────────────────────
 
+
 class PlatformRateLimiter:
     """Sliding-window rate limiter: max N calls per hour per platform.
     Uses SQLite-backed persistent storage to survive restarts."""
@@ -161,7 +167,7 @@ class PlatformRateLimiter:
             cutoff = time.time() - 3600
             row = conn.execute(
                 "SELECT COUNT(*) as cnt FROM rate_limit_log WHERE platform = ? AND called_at > ?",
-                (platform, cutoff)
+                (platform, cutoff),
             ).fetchone()
             count = row["cnt"] if row else 0
             return max(0, self.max_per_hour - count)
@@ -179,12 +185,12 @@ class PlatformRateLimiter:
         try:
             row = conn.execute(
                 "SELECT MIN(called_at) as oldest FROM rate_limit_log WHERE platform = ?",
-                (platform,)
+                (platform,),
             ).fetchone()
             if row and row["oldest"]:
                 return max(0.0, (row["oldest"] + 3600) - time.time())
             return 0.0
-        except Exception as e:
+        except Exception:
             return 0.0
         finally:
             conn.close()
@@ -203,6 +209,7 @@ class PlatformRateLimiter:
 # ─────────────────────────────────────────────
 # Database helpers (raw SQLite — matches app_v2.py pattern)
 # ─────────────────────────────────────────────
+
 
 def _get_db_path() -> str:
     """Resolve the DB path consistently with the rest of the project."""
@@ -230,7 +237,9 @@ def init_multi_platform_db(db_path: Optional[str] = None):
         conn.executescript(DB_TABLE_SQL)
         conn.executescript(RATE_LIMIT_TABLE_SQL)
         conn.commit()
-        logger.info("[MULTI-PLATFORM DB] Tables 'multi_platform_apps' and 'rate_limit_log' ready")
+        logger.info(
+            "[MULTI-PLATFORM DB] Tables 'multi_platform_apps' and 'rate_limit_log' ready"
+        )
         _prune_rate_limit_log()
     except Exception as e:
         logger.error(f"[MULTI-PLATFORM DB] Init error: {e}")
@@ -259,7 +268,18 @@ def log_multi_platform_application(
             """INSERT INTO multi_platform_apps
                (user_id, campaign_id, platform, job_id, job_title, company, location, url, status, message)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (user_id, campaign_id, platform, job_id, job_title, company, location, url, status, message),
+            (
+                user_id,
+                campaign_id,
+                platform,
+                job_id,
+                job_title,
+                company,
+                location,
+                url,
+                status,
+                message,
+            ),
         )
         conn.commit()
     except Exception as e:
@@ -268,7 +288,9 @@ def log_multi_platform_application(
         conn.close()
 
 
-def get_platform_stats(platform: str, since_hours: int = 24, db_path: Optional[str] = None) -> Dict[str, Any]:
+def get_platform_stats(
+    platform: str, since_hours: int = 24, db_path: Optional[str] = None
+) -> Dict[str, Any]:
     """Get application stats for a platform within the last N hours."""
     conn = _get_conn(db_path)
     try:
@@ -297,6 +319,7 @@ _rate_limiter = PlatformRateLimiter()
 # ─────────────────────────────────────────────
 # Abstract Base
 # ─────────────────────────────────────────────
+
 
 class PlatformBase(ABC):
     """Abstract base for all platform adapters."""
@@ -342,6 +365,7 @@ class PlatformBase(ABC):
 # LinkedIn via JSearch API
 # ─────────────────────────────────────────────
 
+
 class LinkedInScraper(PlatformBase):
     """LinkedIn job search via JSearch API (RapidAPI + OpenWebNinja fallback).
     Follows the same pattern as core/job_search.py JSearchAPI."""
@@ -355,16 +379,26 @@ class LinkedInScraper(PlatformBase):
         return ["US", "AE", "SA", "QA", "KW", "BH", "OM", "LB", "JO", "EG"]
 
     def __init__(self):
-        self.api_key = getattr(config, "JSEARCH_API_KEY", "") or os.getenv("JSEARCH_API_KEY", "")
+        self.api_key = getattr(config, "JSEARCH_API_KEY", "") or os.getenv(
+            "JSEARCH_API_KEY", ""
+        )
         # Try RapidAPI first, then OpenWebNinja fallback
         self._endpoints = [
-            ("https://jsearch.p.rapidapi.com", "rapidapi", {
-                "X-RapidAPI-Key": self.api_key,
-                "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
-            }),
-            ("https://api.openwebninja.com/v1", "openwebninja", {
-                "Authorization": f"Bearer {self.api_key}",
-            }),
+            (
+                "https://jsearch.p.rapidapi.com",
+                "rapidapi",
+                {
+                    "X-RapidAPI-Key": self.api_key,
+                    "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
+                },
+            ),
+            (
+                "https://api.openwebninja.com/v1",
+                "openwebninja",
+                {
+                    "Authorization": f"Bearer {self.api_key}",
+                },
+            ),
         ]
 
     async def search(
@@ -383,14 +417,22 @@ class LinkedInScraper(PlatformBase):
 
         for base, api_type, headers in self._endpoints:
             try:
-                params = {"query": search_q, "page": 1, "num_pages": max(1, max_results // 10)}
+                params = {
+                    "query": search_q,
+                    "page": 1,
+                    "num_pages": max(1, max_results // 10),
+                }
                 if api_type == "openwebninja":
                     params["limit"] = max_results
 
                 async with stealth.get_async_client(timeout=30.0) as client:
-                    resp = await client.get(f"{base}/search", params=params, headers=headers)
+                    resp = await client.get(
+                        f"{base}/search", params=params, headers=headers
+                    )
                     if resp.status_code != 200:
-                        logger.debug(f"[LinkedIn] {api_type} returned {resp.status_code}")
+                        logger.debug(
+                            f"[LinkedIn] {api_type} returned {resp.status_code}"
+                        )
                         continue
 
                     data = resp.json()
@@ -426,7 +468,9 @@ class LinkedInScraper(PlatformBase):
 
         # Try generic Easy Apply flow via LinkedIn API simulation
         try:
-            async with stealth.get_async_client(timeout=15.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(
+                timeout=15.0, follow_redirects=True
+            ) as client:
                 # Step 1: GET job page to find Easy Apply URL
                 headers = self.make_headers()
                 headers["Accept"] = "application/json"
@@ -435,17 +479,22 @@ class LinkedInScraper(PlatformBase):
                 if resp.status_code == 200:
                     # Check if it's a linkedin.com/jobs URL — extract job ID
                     import re as _re
-                    job_id_match = _re.search(r'/jobs/view/(\d+)', url) or _re.search(r'currentJobId=(\d+)', url)
+
+                    job_id_match = _re.search(r"/jobs/view/(\d+)", url) or _re.search(
+                        r"currentJobId=(\d+)", url
+                    )
                     if job_id_match:
                         linkedin_job_id = job_id_match.group(1)
                         # Try the LinkedIn Easy Apply API endpoint
                         apply_url = f"https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{linkedin_job_id}"
-                        apply_resp = await client.get(apply_url, headers=headers, timeout=10.0)
+                        apply_resp = await client.get(
+                            apply_url, headers=headers, timeout=10.0
+                        )
                         if apply_resp.status_code == 200:
                             return (
                                 True,
                                 f"LinkedIn job page loaded: {url}. Easy Apply status determined. "
-                                f"Opening {title} at {company} for manual Easy Apply."
+                                f"Opening {title} at {company} for manual Easy Apply.",
                             )
 
                 # Fallback: return URL for manual apply (LinkedIn blocks programmatic)
@@ -463,7 +512,8 @@ class LinkedInScraper(PlatformBase):
 
     def _normalize(self, item: dict) -> Dict[str, Any]:
         return {
-            "job_id": item.get("job_id", "") or hashlib.md5(
+            "job_id": item.get("job_id", "")
+            or hashlib.md5(
                 (item.get("job_title", "") + item.get("employer_name", "")).encode()
             ).hexdigest()[:12],
             "title": item.get("job_title", ""),
@@ -471,7 +521,9 @@ class LinkedInScraper(PlatformBase):
             "location": item.get("job_city", "") or item.get("job_country", "") or "",
             "url": item.get("job_apply_link", "") or item.get("job_google_link", ""),
             "snippet": item.get("job_description", "")[:500],
-            "salary": item.get("job_min_salary", "") or item.get("job_max_salary", "") or "",
+            "salary": item.get("job_min_salary", "")
+            or item.get("job_max_salary", "")
+            or "",
             "posted_date": item.get("job_posted_at_datetime_utc", ""),
             "source": "linkedin",
         }
@@ -480,6 +532,7 @@ class LinkedInScraper(PlatformBase):
 # ─────────────────────────────────────────────
 # Indeed Scraper
 # ─────────────────────────────────────────────
+
 
 class IndeedScraper(PlatformBase):
     """Indeed job search via web scraping + RSS feed."""
@@ -511,9 +564,13 @@ class IndeedScraper(PlatformBase):
         # Fall back to HTML scraping if RSS returned few results
         if len(jobs) < max_results:
             try:
-                html_jobs = await self._search_html(query, location, max_results - len(jobs))
+                html_jobs = await self._search_html(
+                    query, location, max_results - len(jobs)
+                )
                 # Deduplicate by title+company
-                existing_keys = {(j["title"], j["company"]) for j in jobs if j.get("company")}
+                existing_keys = {
+                    (j["title"], j["company"]) for j in jobs if j.get("company")
+                }
                 for job in html_jobs:
                     key = (job["title"], job.get("company", ""))
                     if key not in existing_keys:
@@ -526,13 +583,17 @@ class IndeedScraper(PlatformBase):
         logger.info(f"[Indeed] Found {len(jobs)} jobs")
         return jobs[:max_results]
 
-    async def _search_rss(self, query: str, location: str, max_results: int) -> List[Dict]:
+    async def _search_rss(
+        self, query: str, location: str, max_results: int
+    ) -> List[Dict]:
         """Indeed RSS feed search."""
         q = quote_plus(f"{query} {location}" if location else query)
         url = f"https://www.indeed.com/rss?q={q}"
 
         headers = self.make_headers()
-        async with stealth.get_async_client(timeout=20.0, follow_redirects=True) as client:
+        async with stealth.get_async_client(
+            timeout=20.0, follow_redirects=True
+        ) as client:
             resp = await client.get(url, headers=headers)
             if resp.status_code != 200:
                 logger.warning(f"[Indeed RSS] HTTP {resp.status_code}")
@@ -556,20 +617,26 @@ class IndeedScraper(PlatformBase):
                     title = parts[0].strip()
                     company = parts[1].strip()
 
-                jobs.append({
-                    "job_id": hashlib.md5(f"indeed:{link}:{title}".encode()).hexdigest()[:12],
-                    "title": title,
-                    "company": company,
-                    "location": self._extract_location_from_rss(desc) or location,
-                    "url": link,
-                    "snippet": desc[:500],
-                    "salary": self._extract_salary_from_rss(desc),
-                    "posted_date": "",
-                    "source": "indeed",
-                })
+                jobs.append(
+                    {
+                        "job_id": hashlib.md5(
+                            f"indeed:{link}:{title}".encode()
+                        ).hexdigest()[:12],
+                        "title": title,
+                        "company": company,
+                        "location": self._extract_location_from_rss(desc) or location,
+                        "url": link,
+                        "snippet": desc[:500],
+                        "salary": self._extract_salary_from_rss(desc),
+                        "posted_date": "",
+                        "source": "indeed",
+                    }
+                )
             return jobs
 
-    async def _search_html(self, query: str, location: str, max_results: int) -> List[Dict]:
+    async def _search_html(
+        self, query: str, location: str, max_results: int
+    ) -> List[Dict]:
         """Indeed HTML search as fallback."""
         params = {
             "q": query,
@@ -579,13 +646,17 @@ class IndeedScraper(PlatformBase):
         url = f"https://www.indeed.com/jobs?{urlencode(params)}"
 
         headers = self.make_headers()
-        async with stealth.get_async_client(timeout=20.0, follow_redirects=True) as client:
+        async with stealth.get_async_client(
+            timeout=20.0, follow_redirects=True
+        ) as client:
             resp = await client.get(url, headers=headers)
             if resp.status_code != 200:
                 return []
 
             soup = BeautifulSoup(resp.text, "lxml")
-            cards = soup.select("div.job_seen_beacon, div[data-testid='job-card'], .jobsearch-SerpJobCard")
+            cards = soup.select(
+                "div.job_seen_beacon, div[data-testid='job-card'], .jobsearch-SerpJobCard"
+            )
             jobs = []
             for card in cards[:max_results]:
                 job = self._parse_card(card)
@@ -600,24 +671,32 @@ class IndeedScraper(PlatformBase):
                 return None
             title = title_el.get_text(strip=True)
 
-            company_el = card.select_one("span.companyName, span[data-testid='company-name'], .company")
+            company_el = card.select_one(
+                "span.companyName, span[data-testid='company-name'], .company"
+            )
             company = company_el.get_text(strip=True) if company_el else ""
 
-            location_el = card.select_one("div.companyLocation, span[data-testid='text-location'], .location")
+            location_el = card.select_one(
+                "div.companyLocation, span[data-testid='text-location'], .location"
+            )
             loc = location_el.get_text(strip=True) if location_el else ""
 
             link = title_el.get("href", "")
             if link and not link.startswith("http"):
                 link = f"https://www.indeed.com{link}"
 
-            salary_el = card.select_one("span.salary, div.metadata.salary-snippet-container, .salaryText")
+            salary_el = card.select_one(
+                "span.salary, div.metadata.salary-snippet-container, .salaryText"
+            )
             salary = salary_el.get_text(strip=True) if salary_el else ""
 
             snippet_el = card.select_one("div.job-snippet, .summary")
             snippet = snippet_el.get_text(strip=True)[:500] if snippet_el else ""
 
             return {
-                "job_id": hashlib.md5(f"indeed:{link}:{title}".encode()).hexdigest()[:12],
+                "job_id": hashlib.md5(f"indeed:{link}:{title}".encode()).hexdigest()[
+                    :12
+                ],
                 "title": title,
                 "company": company,
                 "location": loc,
@@ -638,7 +717,9 @@ class IndeedScraper(PlatformBase):
 
     @staticmethod
     def _extract_salary_from_rss(desc: str) -> str:
-        m = re.search(r"(?:\$[\d,]+(?:\.\d{2})?(?:\s*-\s*\$?[\d,]+(?:\.\d{2})?)?)", desc)
+        m = re.search(
+            r"(?:\$[\d,]+(?:\.\d{2})?(?:\s*-\s*\$?[\d,]+(?:\.\d{2})?)?)", desc
+        )
         return m.group(0) if m else ""
 
     async def apply(
@@ -654,7 +735,9 @@ class IndeedScraper(PlatformBase):
             return False, "No job URL available for Indeed application"
 
         try:
-            async with stealth.get_async_client(timeout=15.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(
+                timeout=15.0, follow_redirects=True
+            ) as client:
                 headers = self.make_headers()
                 # Step 1: GET job page to discover apply URL
                 resp = await client.get(url, headers=headers, timeout=15.0)
@@ -662,8 +745,9 @@ class IndeedScraper(PlatformBase):
                 if resp.status_code == 200:
                     soup = BeautifulSoup(resp.text, "lxml")
                     # Look for Indeed Quick Apply URL in the page
-                    import re as _re
-                    apply_link_tag = soup.select_one("a[data-tn-element='jobApplicationLink'], a[class*='apply'], a[href*='rc/clk']")
+                    apply_link_tag = soup.select_one(
+                        "a[data-tn-element='jobApplicationLink'], a[class*='apply'], a[href*='rc/clk']"
+                    )
                     if apply_link_tag:
                         apply_href = apply_link_tag.get("href", "")
                         if apply_href and not apply_href.startswith("http"):
@@ -672,18 +756,23 @@ class IndeedScraper(PlatformBase):
                         # Attempt POST to apply endpoint with CV data
                         apply_data = {
                             "jid": job.get("job_id", ""),
-                            "resume_text": cv_data.get("cv_text", "") or cv_data.get("skills", ""),
+                            "resume_text": cv_data.get("cv_text", "")
+                            or cv_data.get("skills", ""),
                             "full_name": cv_data.get("name", ""),
                             "email": cv_data.get("email", ""),
                         }
                         apply_resp = await client.post(
-                            apply_href or f"https://www.indeed.com/rc/clk?jk={job.get('job_id', '')}",
+                            apply_href
+                            or f"https://www.indeed.com/rc/clk?jk={job.get('job_id', '')}",
                             data=apply_data,
                             headers=headers,
-                            timeout=15.0
+                            timeout=15.0,
                         )
                         if apply_resp.status_code in (200, 302, 303):
-                            return (True, f"Indeed Quick Apply submitted for {title} at {company}")
+                            return (
+                                True,
+                                f"Indeed Quick Apply submitted for {title} at {company}",
+                            )
 
                 # Fallback
                 return (
@@ -701,6 +790,7 @@ class IndeedScraper(PlatformBase):
 # ─────────────────────────────────────────────
 # Bayt.com Scraper (MENA/GCC — WHITE SPACE)
 # ─────────────────────────────────────────────
+
 
 class BaytScraper(PlatformBase):
     """Bayt.com scraper — the #1 MENA job platform.
@@ -764,11 +854,15 @@ class BaytScraper(PlatformBase):
 
         headers = self.make_headers()
         # Bayt requires a cookie for search results
-        headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        headers["Accept"] = (
+            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        )
         headers["Referer"] = "https://www.bayt.com/"
 
         try:
-            async with stealth.get_async_client(timeout=25.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(
+                timeout=25.0, follow_redirects=True
+            ) as client:
                 # First hit home page to set cookies
                 await client.get("https://www.bayt.com/", headers=headers, timeout=15.0)
                 resp = await client.get(url, headers=headers, timeout=25.0)
@@ -779,7 +873,9 @@ class BaytScraper(PlatformBase):
 
                 soup = BeautifulSoup(resp.text, "lxml")
                 jobs = []
-                cards = soup.select("li[data-jobid], div.job-card, article.is-list, div.has-pointer")
+                cards = soup.select(
+                    "li[data-jobid], div.job-card, article.is-list, div.has-pointer"
+                )
                 if not cards:
                     cards = soup.select("div[class*='job']:not([class*='header'])")
 
@@ -804,7 +900,9 @@ class BaytScraper(PlatformBase):
     def _parse_card(self, card) -> Optional[Dict]:
         try:
             # Title & link
-            title_el = card.select_one("h2 a, a[href*='/job/'], a.job-title, .job-title a, a[class*='title']")
+            title_el = card.select_one(
+                "h2 a, a[href*='/job/'], a.job-title, .job-title a, a[class*='title']"
+            )
             if not title_el:
                 return None
             title = title_el.get_text(strip=True)
@@ -836,11 +934,15 @@ class BaytScraper(PlatformBase):
             location = loc_el.get_text(strip=True) if loc_el else ""
 
             # Snippet
-            snippet_el = card.select_one("p.short-desc, div.short-desc, p[class*='desc'], div[class*='desc']")
+            snippet_el = card.select_one(
+                "p.short-desc, div.short-desc, p[class*='desc'], div[class*='desc']"
+            )
             snippet = snippet_el.get_text(strip=True)[:500] if snippet_el else ""
 
             # Posted date
-            date_el = card.select_one("span[data-date], span[class*='date'], time, .date")
+            date_el = card.select_one(
+                "span[data-date], span[class*='date'], time, .date"
+            )
             posted = date_el.get_text(strip=True) if date_el else ""
 
             return {
@@ -871,7 +973,9 @@ class BaytScraper(PlatformBase):
             return False, "No job URL available for Bayt application"
 
         try:
-            async with stealth.get_async_client(timeout=20.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(
+                timeout=20.0, follow_redirects=True
+            ) as client:
                 headers = self.make_headers()
                 headers["Referer"] = "https://www.bayt.com/"
 
@@ -884,7 +988,9 @@ class BaytScraper(PlatformBase):
                 if resp.status_code == 200:
                     soup = BeautifulSoup(resp.text, "lxml")
                     # Look for apply form/button
-                    apply_btn = soup.select_one("a[href*='/apply/'], button[class*='apply'], a[id*='apply'], a[class*='apply']")
+                    apply_btn = soup.select_one(
+                        "a[href*='/apply/'], button[class*='apply'], a[id*='apply'], a[class*='apply']"
+                    )
                     if apply_btn:
                         apply_url = apply_btn.get("href", "")
                         if apply_url and not apply_url.startswith("http"):
@@ -896,17 +1002,17 @@ class BaytScraper(PlatformBase):
                             "email": cv_data.get("email", ""),
                             "phone": cv_data.get("phone", ""),
                             "cover_letter": f"Application for {title} position at {company}. "
-                                            f"Experienced {cv_data.get('title', 'professional')} with "
-                                            f"{cv_data.get('experience_years', 'over 10')} years of experience.",
+                            f"Experienced {cv_data.get('title', 'professional')} with "
+                            f"{cv_data.get('experience_years', 'over 10')} years of experience.",
                         }
                         post_resp = await client.post(
-                            apply_url,
-                            data=apply_data,
-                            headers=headers,
-                            timeout=20.0
+                            apply_url, data=apply_data, headers=headers, timeout=20.0
                         )
                         if post_resp.status_code in (200, 302, 303):
-                            return (True, f"Bayt.com application submitted for {title} at {company}")
+                            return (
+                                True,
+                                f"Bayt.com application submitted for {title} at {company}",
+                            )
 
                 # Fallback
                 return (
@@ -923,6 +1029,7 @@ class BaytScraper(PlatformBase):
 # ─────────────────────────────────────────────
 # NaukriGulf Scraper (MENA/GCC — WHITE SPACE)
 # ─────────────────────────────────────────────
+
 
 class NaukriGulfScraper(PlatformBase):
     """NaukriGulf.com scraper — strong in UAE/Saudi Arabia.
@@ -963,7 +1070,9 @@ class NaukriGulfScraper(PlatformBase):
         headers["Referer"] = "https://www.naukrigulf.com/"
 
         try:
-            async with stealth.get_async_client(timeout=25.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(
+                timeout=25.0, follow_redirects=True
+            ) as client:
                 resp = await client.get(url, headers=headers, timeout=25.0)
 
                 if resp.status_code != 200:
@@ -1070,7 +1179,9 @@ class NaukriGulfScraper(PlatformBase):
             return False, "No job URL available for NaukriGulf application"
 
         try:
-            async with stealth.get_async_client(timeout=20.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(
+                timeout=20.0, follow_redirects=True
+            ) as client:
                 headers = self.make_headers()
                 headers["Referer"] = "https://www.naukrigulf.com/"
 
@@ -1096,13 +1207,13 @@ class NaukriGulfScraper(PlatformBase):
                             "resume_text": cv_data.get("cv_text", "") or " ",
                         }
                         post_resp = await client.post(
-                            apply_url,
-                            data=apply_data,
-                            headers=headers,
-                            timeout=20.0
+                            apply_url, data=apply_data, headers=headers, timeout=20.0
                         )
                         if post_resp.status_code in (200, 302, 303):
-                            return (True, f"NaukriGulf application submitted for {title} at {company}")
+                            return (
+                                True,
+                                f"NaukriGulf application submitted for {title} at {company}",
+                            )
 
                 return (
                     False,
@@ -1118,6 +1229,7 @@ class NaukriGulfScraper(PlatformBase):
 # ─────────────────────────────────────────────
 # Gulftalent Scraper (MENA premium)
 # ─────────────────────────────────────────────
+
 
 class GulftalentScraper(PlatformBase):
     """Gulftalent.com — premium GCC recruitment for mid-to-senior roles."""
@@ -1147,7 +1259,9 @@ class GulftalentScraper(PlatformBase):
         headers["Referer"] = "https://www.gulftalent.com/"
 
         try:
-            async with stealth.get_async_client(timeout=25.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(
+                timeout=25.0, follow_redirects=True
+            ) as client:
                 resp = await client.get(url, headers=headers, timeout=25.0)
 
                 if resp.status_code != 200:
@@ -1156,7 +1270,9 @@ class GulftalentScraper(PlatformBase):
 
                 soup = BeautifulSoup(resp.text, "lxml")
                 jobs = []
-                cards = soup.select("div.module.job, div[class*='job']:not([class*='header']), li[class*='job']")
+                cards = soup.select(
+                    "div.module.job, div[class*='job']:not([class*='header']), li[class*='job']"
+                )
                 if not cards:
                     cards = soup.select("div.search-result, div[data-job-id]")
 
@@ -1192,10 +1308,14 @@ class GulftalentScraper(PlatformBase):
 
             job_id = hashlib.md5(f"gulftalent:{link}:{title}".encode()).hexdigest()[:12]
 
-            company_el = card.select_one("span[class*='company'], .company, a[class*='company']")
+            company_el = card.select_one(
+                "span[class*='company'], .company, a[class*='company']"
+            )
             company = company_el.get_text(strip=True) if company_el else ""
 
-            loc_el = card.select_one("span[class*='location'], .location, span[class*='loc']")
+            loc_el = card.select_one(
+                "span[class*='location'], .location, span[class*='loc']"
+            )
             location = loc_el.get_text(strip=True) if loc_el else ""
 
             return {
@@ -1225,7 +1345,9 @@ class GulftalentScraper(PlatformBase):
             return False, "No job URL available for Gulftalent application"
 
         try:
-            async with stealth.get_async_client(timeout=20.0, follow_redirects=True) as client:
+            async with stealth.get_async_client(
+                timeout=20.0, follow_redirects=True
+            ) as client:
                 headers = self.make_headers()
                 headers["Referer"] = "https://www.gulftalent.com/"
 
@@ -1248,13 +1370,13 @@ class GulftalentScraper(PlatformBase):
                             "phone": cv_data.get("phone", ""),
                         }
                         post_resp = await client.post(
-                            apply_url,
-                            data=apply_data,
-                            headers=headers,
-                            timeout=20.0
+                            apply_url, data=apply_data, headers=headers, timeout=20.0
                         )
                         if post_resp.status_code in (200, 302, 303):
-                            return (True, f"Gulftalent application submitted for {title} at {company}")
+                            return (
+                                True,
+                                f"Gulftalent application submitted for {title} at {company}",
+                            )
 
                 return (
                     False,
@@ -1301,6 +1423,7 @@ def list_available_platforms() -> List[Dict[str, Any]]:
 # Orchestrator
 # ─────────────────────────────────────────────
 
+
 class AutoApplyOrchestrator:
     """
     Coordinates multi-platform auto-apply.
@@ -1316,12 +1439,20 @@ class AutoApplyOrchestrator:
         daily_limit: int = 200,
     ):
         self.user_id = user_id
-        self.campaign_id = campaign_id or f"mpa-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
+        self.campaign_id = (
+            campaign_id or f"mpa-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
+        )
         self.cv_data = cv_data or self._default_cv_data()
         self.db_path = db_path or _get_db_path()
         self.daily_limit = daily_limit
         self.stats: Dict[str, Dict[str, int]] = defaultdict(
-            lambda: {"found": 0, "applied": 0, "success": 0, "failed": 0, "rate_limited": 0}
+            lambda: {
+                "found": 0,
+                "applied": 0,
+                "success": 0,
+                "failed": 0,
+                "rate_limited": 0,
+            }
         )
 
         # Initialize DB on first use
@@ -1344,7 +1475,9 @@ class AutoApplyOrchestrator:
         }
 
     async def search_all(
-        self, query: str, location: str = "",
+        self,
+        query: str,
+        location: str = "",
         platforms: Optional[List[str]] = None,
         max_per_platform: int = 15,
     ) -> Dict[str, List[Dict]]:
@@ -1379,19 +1512,21 @@ class AutoApplyOrchestrator:
 
         return results
 
-    async def apply_to_job(
-        self, job: Dict[str, Any], platform_name: str
-    ) -> bool:
+    async def apply_to_job(self, job: Dict[str, Any], platform_name: str) -> bool:
         """Apply to a single job on a specific platform. Returns True on success."""
         platform = get_platform(platform_name)
         if not platform:
-            logger.warning(f"[Orchestrator] Unknown platform for apply: {platform_name}")
+            logger.warning(
+                f"[Orchestrator] Unknown platform for apply: {platform_name}"
+            )
             return False
 
         # Rate limit check
         if not _rate_limiter.can_call(platform_name):
             self.stats[platform_name]["rate_limited"] += 1
-            logger.info(f"[Orchestrator] {platform.platform_name}: rate limited, skipping")
+            logger.info(
+                f"[Orchestrator] {platform.platform_name}: rate limited, skipping"
+            )
             return False
 
         # Daily limit check
@@ -1428,9 +1563,13 @@ class AutoApplyOrchestrator:
             _rate_limiter.record_call(platform_name)
 
             if success:
-                logger.info(f"[Orchestrator] Applied: {job.get('title')} @ {job.get('company')} via {platform_name}")
+                logger.info(
+                    f"[Orchestrator] Applied: {job.get('title')} @ {job.get('company')} via {platform_name}"
+                )
             else:
-                logger.info(f"[Orchestrator] Skipped: {job.get('title')} via {platform_name}: {message[:100]}")
+                logger.info(
+                    f"[Orchestrator] Skipped: {job.get('title')} via {platform_name}: {message[:100]}"
+                )
 
             return success
 
@@ -1456,7 +1595,9 @@ class AutoApplyOrchestrator:
             return False
 
     async def run_auto_apply_cycle(
-        self, query: str, location: str = "",
+        self,
+        query: str,
+        location: str = "",
         platforms: Optional[List[str]] = None,
         max_per_platform: int = 15,
         dry_run: bool = False,
@@ -1472,7 +1613,9 @@ class AutoApplyOrchestrator:
         logger.info("=" * 60)
 
         # Phase 1: Search
-        search_results = await self.search_all(query, location, platforms, max_per_platform)
+        search_results = await self.search_all(
+            query, location, platforms, max_per_platform
+        )
 
         # Phase 2: Apply
         total_applied = 0
@@ -1482,7 +1625,9 @@ class AutoApplyOrchestrator:
             if not jobs:
                 continue
 
-            logger.info(f"[Orchestrator] Applying on {platform_name} ({len(jobs)} jobs)...")
+            logger.info(
+                f"[Orchestrator] Applying on {platform_name} ({len(jobs)} jobs)..."
+            )
 
             for job in jobs:
                 success = await self.apply_to_job(job, platform_name)
@@ -1501,7 +1646,9 @@ class AutoApplyOrchestrator:
             await asyncio.sleep(delay)
 
         # Phase 3: Report
-        summary = self.get_summary(total_found=sum(len(j) for j in search_results.values()))
+        summary = self.get_summary(
+            total_found=sum(len(j) for j in search_results.values())
+        )
         logger.info("=" * 60)
         logger.info("  CYCLE COMPLETE")
         for k, v in summary.items():
@@ -1537,9 +1684,12 @@ class AutoApplyOrchestrator:
 # CLI Entry Point (for testing)
 # ─────────────────────────────────────────────
 
+
 async def main():
     """Quick test: search all platforms for a network engineer role."""
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
+    )
 
     orch = AutoApplyOrchestrator(daily_limit=10)
 
@@ -1557,7 +1707,7 @@ async def main():
             print(f"    {j.get('company', 'N/A')} — {j.get('location', 'N/A')}")
             print(f"    {j.get('url', 'N/A')}")
         if len(jobs) > 3:
-            print(f"    ... and {len(jobs)-3} more")
+            print(f"    ... and {len(jobs) - 3} more")
 
     # Quick stats
     print("\n📊 Platform Stats:")

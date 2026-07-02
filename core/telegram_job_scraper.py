@@ -3,19 +3,19 @@ JobHunt Pro v17.1 — Telegram Job Channels Scraper
 Scrapes job postings from public Telegram channels/groups worldwide.
 Zero investment — uses public Telegram web views and t.me RSS feeds.
 """
+
 import re
-import json
 import time
 import random
 import logging
 import hashlib
 from typing import List, Dict, Optional
-from urllib.parse import quote_plus
 
 try:
     from curl_cffi.requests import AsyncSession as httpx_AsyncClient
 except ImportError:
     import httpx
+
     httpx_AsyncClient = httpx.AsyncClient
 import httpx
 from bs4 import BeautifulSoup
@@ -26,55 +26,126 @@ logger = logging.getLogger(__name__)
 TELEGRAM_JOB_CHANNELS = {
     # 🌍 Global / Remote
     "global": [
-        "remoteokjobs", "remote_jobs", "wfh_jobs", "workfromhomejobs",
-        "remoteworker", "digitalnomadjobs", "global_jobs", "remote4dev",
-        "freelance_jobs", "onlinejobs", "worldwide_jobs",
+        "remoteokjobs",
+        "remote_jobs",
+        "wfh_jobs",
+        "workfromhomejobs",
+        "remoteworker",
+        "digitalnomadjobs",
+        "global_jobs",
+        "remote4dev",
+        "freelance_jobs",
+        "onlinejobs",
+        "worldwide_jobs",
     ],
     # 🇺🇸 USA / Canada
     "north_america": [
-        "usajobs", "techjobsusa", "itjobsusa", "canadajobs",
-        "us_jobs_alerts", "nyc_jobs", "sf_jobs", "siliconvalleyjobs",
+        "usajobs",
+        "techjobsusa",
+        "itjobsusa",
+        "canadajobs",
+        "us_jobs_alerts",
+        "nyc_jobs",
+        "sf_jobs",
+        "siliconvalleyjobs",
     ],
     # 🇪🇺 Europe
     "europe": [
-        "europeremotejobs", "ukjobs", "germanyjobs", "netherlandsjobs",
-        "irelandjobs", "polandjobs", "spainjobs", "portugaljobs",
-        "switzerlandjobs", "swedenjobs", "norwayjobs", "denmarkjobs",
-        "francejobs", "italyjobs", "austriajobs", "belgiumjobs",
-        "czechjobs", "romaniajobs", "hungaryjobs", "greecejobs",
+        "europeremotejobs",
+        "ukjobs",
+        "germanyjobs",
+        "netherlandsjobs",
+        "irelandjobs",
+        "polandjobs",
+        "spainjobs",
+        "portugaljobs",
+        "switzerlandjobs",
+        "swedenjobs",
+        "norwayjobs",
+        "denmarkjobs",
+        "francejobs",
+        "italyjobs",
+        "austriajobs",
+        "belgiumjobs",
+        "czechjobs",
+        "romaniajobs",
+        "hungaryjobs",
+        "greecejobs",
     ],
     # 🇷🇺 Russia / CIS
     "cis": [
-        "russiajobs", "it_vacancies_ru", "moscowjobs", "spbjobs",
-        "kazakhstanjobs", "belarusjobs", "ukrainejobs",
-        "remote_cis", "cis_it_jobs",
+        "russiajobs",
+        "it_vacancies_ru",
+        "moscowjobs",
+        "spbjobs",
+        "kazakhstanjobs",
+        "belarusjobs",
+        "ukrainejobs",
+        "remote_cis",
+        "cis_it_jobs",
     ],
     # 🇮🇳 India / South Asia
     "south_asia": [
-        "indiajobs", "itjobsindia", "bangalorejobs", "mumbaijobs",
-        "delhijobs", "hyderabadjobs", "chennaijobs", "punejobs",
-        "srilankajobs", "pakistanjobs", "bangladeshjobs",
+        "indiajobs",
+        "itjobsindia",
+        "bangalorejobs",
+        "mumbaijobs",
+        "delhijobs",
+        "hyderabadjobs",
+        "chennaijobs",
+        "punejobs",
+        "srilankajobs",
+        "pakistanjobs",
+        "bangladeshjobs",
     ],
     # 🌏 Asia Pacific
     "asia_pacific": [
-        "singaporejobs", "malaysiajobs", "indonesiajobs", "thailandjobs",
-        "vietnamjobs", "philippinesjobs", "japanjobs", "koreajobs",
-        "australiajobs", "nzjobs", "taiwanjobs", "hongkongjobs",
-        "dubai_jobs", "uaejobs", "saudijobs", "qatarjobs",
+        "singaporejobs",
+        "malaysiajobs",
+        "indonesiajobs",
+        "thailandjobs",
+        "vietnamjobs",
+        "philippinesjobs",
+        "japanjobs",
+        "koreajobs",
+        "australiajobs",
+        "nzjobs",
+        "taiwanjobs",
+        "hongkongjobs",
+        "dubai_jobs",
+        "uaejobs",
+        "saudijobs",
+        "qatarjobs",
     ],
     # 🌍 Africa / Middle East
     "mena_africa": [
-        "egyptjobs", "moroccojobs", "tunisiajobs", "algeriajobs",
-        "nigeriaremote", "kenyajobs", "southafricajobs",
-        "lebanonjobs", "jordanjobs", "iraqjobs",
-        "gulf_jobs", "middleeastjobs",
+        "egyptjobs",
+        "moroccojobs",
+        "tunisiajobs",
+        "algeriajobs",
+        "nigeriaremote",
+        "kenyajobs",
+        "southafricajobs",
+        "lebanonjobs",
+        "jordanjobs",
+        "iraqjobs",
+        "gulf_jobs",
+        "middleeastjobs",
     ],
     # 💻 Tech-specific
     "tech_specific": [
-        "pythonjobs", "devops_jobs", "networkengineerjobs",
-        "cybersecurityjobs", "cloudjobs", "sre_jobs",
-        "backendjobs", "frontendjobs", "fullstackjobs",
-        "sysadminjobs", "infrastructure_jobs", "it_jobs",
+        "pythonjobs",
+        "devops_jobs",
+        "networkengineerjobs",
+        "cybersecurityjobs",
+        "cloudjobs",
+        "sre_jobs",
+        "backendjobs",
+        "frontendjobs",
+        "fullstackjobs",
+        "sysadminjobs",
+        "infrastructure_jobs",
+        "it_jobs",
     ],
 }
 
@@ -84,15 +155,21 @@ TGRAM_RSS_URL = "https://t.me/s/{channel}?before={before}"
 
 # ── Job extraction patterns ──────────────────────────────────────
 JOB_TITLE_PATTERNS = [
-    r'(?:hiring|we need|looking for|position|vacancy|job opening|urgent)\s*[:\-]?\s*([^\\n]{3,80})',
-    r'(Network Engineer|DevOps|SysAdmin|Cloud Engineer|SRE|Infrastructure)',
-    r'(Python|Java|Go|Rust|Kubernetes|Docker|AWS|Azure|GCP)',
-    r'(Senior|Lead|Principal|Staff|Junior|Mid-level)\s+\w+',
+    r"(?:hiring|we need|looking for|position|vacancy|job opening|urgent)\s*[:\-]?\s*([^\\n]{3,80})",
+    r"(Network Engineer|DevOps|SysAdmin|Cloud Engineer|SRE|Infrastructure)",
+    r"(Python|Java|Go|Rust|Kubernetes|Docker|AWS|Azure|GCP)",
+    r"(Senior|Lead|Principal|Staff|Junior|Mid-level)\s+\w+",
 ]
 
-EMAIL_PATTERN = re.compile(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')
-SALARY_PATTERN = re.compile(r'(?:\$|€|£|AED|SAR|QAR)\s*([\d,]+(?:\.\d{2})?)\s*(?:k|K|/yr|/year|/month|/mo)?', re.IGNORECASE)
-LOCATION_PATTERN = re.compile(r'(?:location|loc|based in|place|city)[:\s]*([A-Za-z\s,]+?)(?:\n|$|\.)', re.IGNORECASE)
+EMAIL_PATTERN = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
+SALARY_PATTERN = re.compile(
+    r"(?:\$|€|£|AED|SAR|QAR)\s*([\d,]+(?:\.\d{2})?)\s*(?:k|K|/yr|/year|/month|/mo)?",
+    re.IGNORECASE,
+)
+LOCATION_PATTERN = re.compile(
+    r"(?:location|loc|based in|place|city)[:\s]*([A-Za-z\s,]+?)(?:\n|$|\.)",
+    re.IGNORECASE,
+)
 
 
 class TelegramJobScraper:
@@ -121,12 +198,14 @@ class TelegramJobScraper:
 
     def _get_headers(self) -> Dict[str, str]:
         return {
-            'User-Agent': random.choice(self._user_agents),
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': random.choice(['en-US,en;q=0.9', 'en-GB,en;q=0.9', 'en;q=0.9']),
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
+            "User-Agent": random.choice(self._user_agents),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": random.choice(
+                ["en-US,en;q=0.9", "en-GB,en;q=0.9", "en;q=0.9"]
+            ),
+            "DNT": "1",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
         }
 
     def _make_job_id(self, title: str, company: str, channel: str) -> str:
@@ -136,8 +215,8 @@ class TelegramJobScraper:
     def _extract_company(self, text: str) -> str:
         """Extract company name from message text."""
         patterns = [
-            r'(?:at|@|for|with|company)[:\s]*([A-Z][A-Za-z0-9\s&.]+?)(?:\n|$|\.|\s+is\s+)',
-            r'^([A-Z][A-Za-z0-9\s&.]+?)(?:\s+(?:is|are|hiring|looking))',
+            r"(?:at|@|for|with|company)[:\s]*([A-Z][A-Za-z0-9\s&.]+?)(?:\n|$|\.|\s+is\s+)",
+            r"^([A-Z][A-Za-z0-9\s&.]+?)(?:\s+(?:is|are|hiring|looking))",
         ]
         for pat in patterns:
             m = re.search(pat, text)
@@ -158,7 +237,7 @@ class TelegramJobScraper:
         m = SALARY_PATTERN.search(text)
         if m:
             try:
-                return float(re.sub(r'[,$\s]', '', m.group(1)))
+                return float(re.sub(r"[,$\s]", "", m.group(1)))
             except ValueError:
                 pass
         return None
@@ -168,7 +247,11 @@ class TelegramJobScraper:
         if m:
             return m.group(1).strip()[:50]
         # Try to find common location keywords
-        locations = re.findall(r'\b(Remote|Worldwide|Dubai|London|Berlin|Amsterdam|Singapore|Tokyo|NYC|San Francisco|Austin|Seattle|Toronto|Sydney|Mumbai|Bangalore|Moscow|Riyadh|Cairo)\b', text, re.IGNORECASE)
+        locations = re.findall(
+            r"\b(Remote|Worldwide|Dubai|London|Berlin|Amsterdam|Singapore|Tokyo|NYC|San Francisco|Austin|Seattle|Toronto|Sydney|Mumbai|Bangalore|Moscow|Riyadh|Cairo)\b",
+            text,
+            re.IGNORECASE,
+        )
         if locations:
             return locations[0]
         return "Remote"
@@ -178,7 +261,7 @@ class TelegramJobScraper:
 
     def _extract_contact(self, text: str) -> str:
         """Extract contact info (Telegram handle or email)."""
-        tg_handle = re.search(r'@(\w+)', text)
+        tg_handle = re.search(r"@(\w+)", text)
         if tg_handle:
             return f"https://t.me/{tg_handle.group(1)}"
         emails = self._extract_emails(text)
@@ -202,7 +285,7 @@ class TelegramJobScraper:
         contact = self._extract_contact(msg_text)
 
         # Build snippet
-        snippet = msg_text[:500].replace('\n', ' ').strip()
+        snippet = msg_text[:500].replace("\n", " ").strip()
 
         return {
             "job_id": self._make_job_id(title, company, channel),
@@ -231,10 +314,12 @@ class TelegramJobScraper:
                 logger.debug(f"Telegram channel '{channel}': HTTP {resp.status_code}")
                 return jobs
 
-            soup = BeautifulSoup(resp.text, 'html.parser')
-            messages = soup.select('.tgme_widget_message_text') or soup.select('.message-text')
+            soup = BeautifulSoup(resp.text, "html.parser")
+            messages = soup.select(".tgme_widget_message_text") or soup.select(
+                ".message-text"
+            )
 
-            for msg in messages[:limit * 2]:  # Fetch more, filter later
+            for msg in messages[: limit * 2]:  # Fetch more, filter later
                 text = msg.get_text(strip=True)
                 job = self._parse_message(text, channel)
                 if job:
@@ -248,7 +333,9 @@ class TelegramJobScraper:
 
         return jobs
 
-    def search(self, query: str = "", location: str = "", limit: int = 10) -> List[Dict]:
+    def search(
+        self, query: str = "", location: str = "", limit: int = 10
+    ) -> List[Dict]:
         """Search across all Telegram job channels."""
         all_jobs = []
         query_lower = query.lower() if query else ""
@@ -259,17 +346,30 @@ class TelegramJobScraper:
             location_lower = location.lower()
             # Prioritize region based on location
             region_map = {
-                "usa": "north_america", "canada": "north_america", "us": "north_america",
-                "uk": "europe", "germany": "europe", "france": "europe",
-                "russia": "cis", "kazakhstan": "cis",
-                "india": "south_asia", "pakistan": "south_asia",
-                "china": "asia_pacific", "japan": "asia_pacific", "singapore": "asia_pacific",
-                "uae": "mena_africa", "saudi": "mena_africa", "egypt": "mena_africa",
-                "remote": "global", "worldwide": "global",
+                "usa": "north_america",
+                "canada": "north_america",
+                "us": "north_america",
+                "uk": "europe",
+                "germany": "europe",
+                "france": "europe",
+                "russia": "cis",
+                "kazakhstan": "cis",
+                "india": "south_asia",
+                "pakistan": "south_asia",
+                "china": "asia_pacific",
+                "japan": "asia_pacific",
+                "singapore": "asia_pacific",
+                "uae": "mena_africa",
+                "saudi": "mena_africa",
+                "egypt": "mena_africa",
+                "remote": "global",
+                "worldwide": "global",
             }
             for key, region in region_map.items():
                 if key in location_lower:
-                    regions_to_search = [region] + [r for r in regions_to_search if r != region]
+                    regions_to_search = [region] + [
+                        r for r in regions_to_search if r != region
+                    ]
                     break
 
         for region in regions_to_search:
@@ -285,7 +385,10 @@ class TelegramJobScraper:
                     if query_lower:
                         title_lower = job["title"].lower()
                         snippet_lower = job["snippet"].lower()
-                        if query_lower not in title_lower and query_lower not in snippet_lower:
+                        if (
+                            query_lower not in title_lower
+                            and query_lower not in snippet_lower
+                        ):
                             continue
                     all_jobs.append(job)
                     if len(all_jobs) >= limit:
@@ -314,7 +417,9 @@ def get_telegram_scraper() -> TelegramJobScraper:
     return _telegram_scraper
 
 
-def search_telegram_jobs(query: str = "", location: str = "", limit: int = 10) -> List[Dict]:
+def search_telegram_jobs(
+    query: str = "", location: str = "", limit: int = 10
+) -> List[Dict]:
     """Convenience function to search Telegram job channels."""
     scraper = get_telegram_scraper()
     try:
@@ -330,4 +435,3 @@ if __name__ == "__main__":
     print(f"Found {len(jobs)} jobs from Telegram:")
     for j in jobs:
         print(f"  - {j['title']} @ {j['company']} ({j['location']}) [{j['source']}]")
-

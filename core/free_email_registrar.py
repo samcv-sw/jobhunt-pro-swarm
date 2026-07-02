@@ -5,13 +5,11 @@ Zero investment — uses free signup flows via API/HTTP.
 Providers: Mail.tm (instant), Temp-Mail, Guerrilla Mail, 10 Minute Mail,
            Yopmail, Outlook/Hotmail (limited), Gmail (requires phone).
 """
-import re
-import json
+
 import time
 import random
 import logging
-from typing import List, Dict, Optional, Tuple
-from urllib.parse import quote_plus
+from typing import List, Dict, Optional
 
 import httpx
 
@@ -32,26 +30,109 @@ TEMPMAIL_API = "https://api.temp-mail.org"
 
 # ── Common email domains for random generation ───────────────────
 COMMON_DOMAINS = [
-    "gmail.com", "outlook.com", "hotmail.com", "yahoo.com",
-    "protonmail.com", "mail.com", "yandex.com", "aol.com",
+    "gmail.com",
+    "outlook.com",
+    "hotmail.com",
+    "yahoo.com",
+    "protonmail.com",
+    "mail.com",
+    "yandex.com",
+    "aol.com",
 ]
 
 # ── Random username generators ───────────────────────────────────
 ADJECTIVES = [
-    "swift", "bright", "cool", "fast", "keen", "bold", "calm", "dark",
-    "eager", "firm", "glad", "kind", "lite", "neat", "pure", "rare",
-    "safe", "tall", "vast", "warm", "zest", "epic", "fair", "gold",
-    "high", "jade", "keen", "lion", "mint", "nova", "onyx", "peak",
-    "quik", "rich", "star", "true", "uber", "vibe", "wild", "zen",
+    "swift",
+    "bright",
+    "cool",
+    "fast",
+    "keen",
+    "bold",
+    "calm",
+    "dark",
+    "eager",
+    "firm",
+    "glad",
+    "kind",
+    "lite",
+    "neat",
+    "pure",
+    "rare",
+    "safe",
+    "tall",
+    "vast",
+    "warm",
+    "zest",
+    "epic",
+    "fair",
+    "gold",
+    "high",
+    "jade",
+    "keen",
+    "lion",
+    "mint",
+    "nova",
+    "onyx",
+    "peak",
+    "quik",
+    "rich",
+    "star",
+    "true",
+    "uber",
+    "vibe",
+    "wild",
+    "zen",
 ]
 
 NOUNS = [
-    "wolf", "fox", "hawk", "owl", "bear", "deer", "dove", "fish",
-    "frog", "hare", "kite", "lark", "lynx", "mole", "newt", "orca",
-    "puma", "raya", "seal", "swan", "toad", "vole", "wren", "yeti",
-    "arch", "beam", "clay", "dawn", "edge", "fern", "gale", "haze",
-    "isle", "jazz", "knot", "lake", "mist", "nest", "oaks", "pine",
-    "quiz", "reef", "sand", "tide", "vale", "wave", "yard", "zone",
+    "wolf",
+    "fox",
+    "hawk",
+    "owl",
+    "bear",
+    "deer",
+    "dove",
+    "fish",
+    "frog",
+    "hare",
+    "kite",
+    "lark",
+    "lynx",
+    "mole",
+    "newt",
+    "orca",
+    "puma",
+    "raya",
+    "seal",
+    "swan",
+    "toad",
+    "vole",
+    "wren",
+    "yeti",
+    "arch",
+    "beam",
+    "clay",
+    "dawn",
+    "edge",
+    "fern",
+    "gale",
+    "haze",
+    "isle",
+    "jazz",
+    "knot",
+    "lake",
+    "mist",
+    "nest",
+    "oaks",
+    "pine",
+    "quiz",
+    "reef",
+    "sand",
+    "tide",
+    "vale",
+    "wave",
+    "yard",
+    "zone",
 ]
 
 
@@ -66,7 +147,7 @@ def _random_username() -> str:
 def _random_password(length: int = 16) -> str:
     """Generate a random password."""
     chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%"
-    return ''.join(random.choice(chars) for _ in range(length))
+    return "".join(random.choice(chars) for _ in range(length))
 
 
 class FreeEmailRegistrar:
@@ -86,10 +167,10 @@ class FreeEmailRegistrar:
 
     def _get_headers(self) -> Dict[str, str]:
         return {
-            'User-Agent': random.choice(self._user_agents),
-            'Accept': 'application/json, text/plain, */*',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Content-Type': 'application/json',
+            "User-Agent": random.choice(self._user_agents),
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Content-Type": "application/json",
         }
 
     # ── Mail.tm (BEST: instant, no phone, unlimited) ─────────────
@@ -106,12 +187,12 @@ class FreeEmailRegistrar:
                 logger.debug("Mail.tm: failed to fetch domains")
                 return None
 
-            domains = resp.json().get('hydra:member', [])
+            domains = resp.json().get("hydra:member", [])
             if not domains:
                 logger.debug("Mail.tm: no domains available")
                 return None
 
-            domain = domains[0]['domain']
+            domain = domains[0]["domain"]
             username = _random_username()
             password = _random_password()
             email = f"{username}@{domain}"
@@ -121,8 +202,8 @@ class FreeEmailRegistrar:
                 MAILTM_ACCOUNTS_URL,
                 headers=self._get_headers(),
                 json={
-                    'address': email,
-                    'password': password,
+                    "address": email,
+                    "password": password,
                 },
             )
 
@@ -134,23 +215,23 @@ class FreeEmailRegistrar:
             resp = self._client.post(
                 MAILTM_TOKEN_URL,
                 headers=self._get_headers(),
-                json={'address': email, 'password': password},
+                json={"address": email, "password": password},
             )
 
             if resp.status_code != 200:
                 logger.debug("Mail.tm: token fetch failed")
                 return None
 
-            token = resp.json().get('token', '')
+            token = resp.json().get("token", "")
 
             account = {
-                'provider': 'mailtm',
-                'email': email,
-                'password': password,
-                'token': token,
-                'smtp_host': None,  # Mail.tm is web-only, no SMTP
-                'smtp_port': None,
-                'daily_limit': 100,  # Conservative estimate
+                "provider": "mailtm",
+                "email": email,
+                "password": password,
+                "token": token,
+                "smtp_host": None,  # Mail.tm is web-only, no SMTP
+                "smtp_port": None,
+                "daily_limit": 100,  # Conservative estimate
             }
             self._registered.append(account)
             logger.info(f"Mail.tm: registered {email}")
@@ -171,9 +252,9 @@ class FreeEmailRegistrar:
             resp = self._client.post(
                 GUERRILLA_MAIL_API,
                 params={
-                    'f': 'get_email_address',
-                    'ip': '',
-                    'agent': 'JobHunt Pro',
+                    "f": "get_email_address",
+                    "ip": "",
+                    "agent": "JobHunt Pro",
                 },
                 headers=self._get_headers(),
             )
@@ -182,23 +263,23 @@ class FreeEmailRegistrar:
                 return None
 
             data = resp.json()
-            email = data.get('email_addr', '')
-            email_hash = data.get('email_hash', '')
-            alias = data.get('alias', '')
+            email = data.get("email_addr", "")
+            email_hash = data.get("email_hash", "")
+            alias = data.get("alias", "")
 
             if not email:
                 return None
 
             account = {
-                'provider': 'guerrillamail',
-                'email': email,
-                'password': '',
-                'token': email_hash,
-                'email_hash': email_hash,
-                'alias': alias,
-                'smtp_host': None,
-                'smtp_port': None,
-                'daily_limit': 50,
+                "provider": "guerrillamail",
+                "email": email,
+                "password": "",
+                "token": email_hash,
+                "email_hash": email_hash,
+                "alias": alias,
+                "smtp_host": None,
+                "smtp_port": None,
+                "daily_limit": 50,
             }
             self._registered.append(account)
             logger.info(f"Guerrilla Mail: registered {email}")
@@ -218,7 +299,7 @@ class FreeEmailRegistrar:
         Returns: List of account dicts
         """
         if providers is None:
-            providers = ['mailtm', 'guerrillamail']
+            providers = ["mailtm", "guerrillamail"]
 
         accounts = []
         provider_cycle = providers * (count // len(providers) + 1)
@@ -227,9 +308,9 @@ class FreeEmailRegistrar:
             provider = provider_cycle[i % len(provider_cycle)]
             account = None
 
-            if provider == 'mailtm':
+            if provider == "mailtm":
                 account = self.register_mailtm()
-            elif provider == 'guerrillamail':
+            elif provider == "guerrillamail":
                 account = self.register_guerrillamail()
 
             if account:
@@ -249,8 +330,8 @@ class FreeEmailRegistrar:
 
     def get_stats(self) -> Dict:
         return {
-            'total_registered': len(self._registered),
-            'by_provider': {},
+            "total_registered": len(self._registered),
+            "by_provider": {},
         }
 
     def close(self):

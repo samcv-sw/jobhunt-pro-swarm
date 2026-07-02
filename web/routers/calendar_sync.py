@@ -6,18 +6,19 @@ import logging
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
 @router.get("/api/v1/calendar/sync/{interview_id}")
 async def generate_calendar_invite(interview_id: str):
     """
     God Mode: Automatically generates an .ics file for the interview.
     When the user opens it on their phone, it syncs directly to Google/Apple Calendar.
     """
-    # Mocking date parsing for demonstration. 
+    # Mocking date parsing for demonstration.
     # In production, the AI parses the exact date/time from the HR email.
-    
+
     start_time = datetime.datetime.now() + datetime.timedelta(days=3)
     end_time = start_time + datetime.timedelta(hours=1)
-    
+
     dtstamp = datetime.datetime.now().strftime("%Y%m%dT%H%M%SZ")
     dtstart = start_time.strftime("%Y%m%dT%H%M%SZ")
     dtend = end_time.strftime("%Y%m%dT%H%M%SZ")
@@ -40,5 +41,7 @@ END:VCALENDAR"""
     return Response(
         content=ics_content,
         media_type="text/calendar",
-        headers={"Content-Disposition": f"attachment; filename=interview_{interview_id}.ics"}
+        headers={
+            "Content-Disposition": f"attachment; filename=interview_{interview_id}.ics"
+        },
     )

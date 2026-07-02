@@ -14,16 +14,15 @@ Usage:
   emails = build_list("network engineer", "lebanon", count=1000)
   # Then: cold_blaster.send_from_file("data/targeted_emails.json")
 """
+
 import csv
 import json
 import logging
-import os
 import random
 import re
-import time
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, List, Set
+from typing import Dict, List, Set
 
 logger = logging.getLogger(__name__)
 
@@ -34,36 +33,80 @@ DATA_DIR = None
 TARGET_AUDIENCES = {
     "job_seekers": {
         "description": "Active job seekers (all fields)",
-        "keywords": ["looking for", "job search", "seeking opportunities", "open to work",
-                     "available for hire", "looking for work", "job hunting"],
+        "keywords": [
+            "looking for",
+            "job search",
+            "seeking opportunities",
+            "open to work",
+            "available for hire",
+            "looking for work",
+            "job hunting",
+        ],
         "platforms": ["linkedin", "github", "stackoverflow", "indeed", "bayt"],
-        "email_domains": ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "protonmail.com"],
+        "email_domains": [
+            "gmail.com",
+            "yahoo.com",
+            "hotmail.com",
+            "outlook.com",
+            "protonmail.com",
+        ],
     },
     "tech_workers": {
         "description": "Software engineers, developers, IT professionals",
-        "keywords": ["software engineer", "developer", "programmer", "devops", "cloud engineer",
-                     "data scientist", "full stack", "frontend", "backend"],
+        "keywords": [
+            "software engineer",
+            "developer",
+            "programmer",
+            "devops",
+            "cloud engineer",
+            "data scientist",
+            "full stack",
+            "frontend",
+            "backend",
+        ],
         "platforms": ["github", "stackoverflow", "linkedin"],
         "email_domains": ["gmail.com", "protonmail.com"],
     },
     "network_engineers": {
         "description": "Network engineers, admins, security specialists",
-        "keywords": ["network engineer", "network admin", "ccna", "ccnp", "network security",
-                     "firewall", "cisco", "mikrotik", "fortinet"],
+        "keywords": [
+            "network engineer",
+            "network admin",
+            "ccna",
+            "ccnp",
+            "network security",
+            "firewall",
+            "cisco",
+            "mikrotik",
+            "fortinet",
+        ],
         "platforms": ["linkedin", "indeed", "bayt"],
         "email_domains": ["gmail.com", "yahoo.com", "hotmail.com"],
     },
     "career_changers": {
         "description": "People transitioning careers",
-        "keywords": ["career change", "transitioning", "new career", "career pivot",
-                     "switching fields", "changing careers"],
+        "keywords": [
+            "career change",
+            "transitioning",
+            "new career",
+            "career pivot",
+            "switching fields",
+            "changing careers",
+        ],
         "platforms": ["linkedin", "reddit", "quora"],
         "email_domains": ["gmail.com", "outlook.com"],
     },
     "fresh_graduates": {
         "description": "Recent graduates entering job market",
-        "keywords": ["fresh graduate", "entry level", "junior", "recent grad",
-                     "first job", "new graduate", "graduated"],
+        "keywords": [
+            "fresh graduate",
+            "entry level",
+            "junior",
+            "recent grad",
+            "first job",
+            "new graduate",
+            "graduated",
+        ],
         "platforms": ["linkedin", "indeed", "github"],
         "email_domains": ["gmail.com", "edu"],
     },
@@ -74,40 +117,134 @@ TARGET_AUDIENCES = {
 
 TOP_TARGET_COMPANIES = [
     # Tech companies
-    "google.com", "microsoft.com", "amazon.com", "apple.com", "meta.com",
-    "netflix.com", "oracle.com", "ibm.com", "salesforce.com", "adobe.com",
-    "intel.com", "cisco.com", "vmware.com", "dell.com", "hp.com",
+    "google.com",
+    "microsoft.com",
+    "amazon.com",
+    "apple.com",
+    "meta.com",
+    "netflix.com",
+    "oracle.com",
+    "ibm.com",
+    "salesforce.com",
+    "adobe.com",
+    "intel.com",
+    "cisco.com",
+    "vmware.com",
+    "dell.com",
+    "hp.com",
     # Telecom (MENA)
-    "orange.com", "vodafone.com", "etisalat.ae", "du.ae", "stc.com.sa",
-    "mobily.com.sa", "zain.com", "ooredoo.com", "batelco.com",
+    "orange.com",
+    "vodafone.com",
+    "etisalat.ae",
+    "du.ae",
+    "stc.com.sa",
+    "mobily.com.sa",
+    "zain.com",
+    "ooredoo.com",
+    "batelco.com",
     # Banks (Lebanon/GCC)
-    "blombank.com", "bankaudi.com.lb", "byblosbank.com.lb",
+    "blombank.com",
+    "bankaudi.com.lb",
+    "byblosbank.com.lb",
     # Engineering/Consulting
-    "accenture.com", "deloitte.com", "pwc.com", "kpmg.com", "ey.com",
-    "mckinsey.com", "bcg.com", "bain.com",
+    "accenture.com",
+    "deloitte.com",
+    "pwc.com",
+    "kpmg.com",
+    "ey.com",
+    "mckinsey.com",
+    "bcg.com",
+    "bain.com",
     # Regional
-    "aramco.com", "adnoc.ae", "emirates.com", "qatarairways.com",
-    "murex.com", "azadea.com", "berytech.org", "cme-offshore.com",
+    "aramco.com",
+    "adnoc.ae",
+    "emirates.com",
+    "qatarairways.com",
+    "murex.com",
+    "azadea.com",
+    "berytech.org",
+    "cme-offshore.com",
     # UAE/GCC
-    "emaar.ae", "dpworld.com", "flydubai.com", "rakbank.ae",
-    "adcb.com", "firstabudhabibank.com", "mashreqbank.com",
+    "emaar.ae",
+    "dpworld.com",
+    "flydubai.com",
+    "rakbank.ae",
+    "adcb.com",
+    "firstabudhabibank.com",
+    "mashreqbank.com",
 ]
 
 
 # Common first/last names for pattern generation
 COMMON_FIRST_NAMES = [
-    "john", "jane", "mike", "sarah", "david", "lisa", "robert", "maria",
-    "james", "anna", "alex", "emma", "chris", "sophia", "daniel", "olivia",
-    "mohamed", "ahmed", "omar", "fatima", "layla", "karim", "nour", "rana",
-    "jad", "rami", "samir", "nadine", "lamia", "zeina", "ghassan", "hadi",
+    "john",
+    "jane",
+    "mike",
+    "sarah",
+    "david",
+    "lisa",
+    "robert",
+    "maria",
+    "james",
+    "anna",
+    "alex",
+    "emma",
+    "chris",
+    "sophia",
+    "daniel",
+    "olivia",
+    "mohamed",
+    "ahmed",
+    "omar",
+    "fatima",
+    "layla",
+    "karim",
+    "nour",
+    "rana",
+    "jad",
+    "rami",
+    "samir",
+    "nadine",
+    "lamia",
+    "zeina",
+    "ghassan",
+    "hadi",
 ]
 
 COMMON_LAST_NAMES = [
-    "smith", "johnson", "williams", "brown", "jones", "miller", "davis",
-    "wilson", "anderson", "taylor", "thomas", "jackson", "white", "harris",
-    "salameh", "khoury", "haddad", "nassar", "rahme", "gemayel", "sfeir",
-    "maamari", "khalil", "mansour", "karam", "fakhoury", "harb", "daher",
-    "al-ali", "al-rashid", "al-ghamdi", "al-shahri", "al-qasimi",
+    "smith",
+    "johnson",
+    "williams",
+    "brown",
+    "jones",
+    "miller",
+    "davis",
+    "wilson",
+    "anderson",
+    "taylor",
+    "thomas",
+    "jackson",
+    "white",
+    "harris",
+    "salameh",
+    "khoury",
+    "haddad",
+    "nassar",
+    "rahme",
+    "gemayel",
+    "sfeir",
+    "maamari",
+    "khalil",
+    "mansour",
+    "karam",
+    "fakhoury",
+    "harb",
+    "daher",
+    "al-ali",
+    "al-rashid",
+    "al-ghamdi",
+    "al-shahri",
+    "al-qasimi",
 ]
 
 EMAIL_FORMATS = [
@@ -133,6 +270,7 @@ def init(data_dir: str = None):
 
 # ── Main builder ────────────────────────────────────────────
 
+
 def build_list(
     audience: str = "job_seekers",
     location: str = None,
@@ -142,14 +280,14 @@ def build_list(
 ) -> List[Dict[str, str]]:
     """
     Build a targeted email list for cold blasting.
-    
+
     Args:
         audience: One of "job_seekers", "tech_workers", "network_engineers", etc.
         location: City/country filter
         job_title: Specific job title to target
         count: Target number of emails
         include_pattern_emails: Generate emails for target companies
-    
+
     Returns: [{"email": "...", "name": "...", "source": "..."}]
     """
     results: List[Dict] = []
@@ -164,15 +302,19 @@ def build_list(
                 for _ in range(5):
                     first = random.choice(COMMON_FIRST_NAMES)
                     last = random.choice(COMMON_LAST_NAMES)
-                    email = fmt.format(first=first, last=last, f=first[0], domain=domain)
+                    email = fmt.format(
+                        first=first, last=last, f=first[0], domain=domain
+                    )
                     if email not in seen:
                         seen.add(email)
-                        results.append({
-                            "email": email,
-                            "name": f"{first.title()} {last.title()}",
-                            "source": f"pattern:{domain}",
-                            "audience": audience,
-                        })
+                        results.append(
+                            {
+                                "email": email,
+                                "name": f"{first.title()} {last.title()}",
+                                "source": f"pattern:{domain}",
+                                "audience": audience,
+                            }
+                        )
                         if len(results) >= count:
                             break
 
@@ -187,25 +329,30 @@ def build_list(
             domain = random.choice(domains)
 
             # Common Gmail formats
-            formats = random.sample([
-                f"{first}.{last}",
-                f"{first}{last}",
-                f"{first}_{last}",
-                f"{first[0]}{last}",
-                f"{first}{random.randint(1, 999)}",
-                f"{first}.{last}.{random.randint(1, 99)}",
-            ], 3)
+            formats = random.sample(
+                [
+                    f"{first}.{last}",
+                    f"{first}{last}",
+                    f"{first}_{last}",
+                    f"{first[0]}{last}",
+                    f"{first}{random.randint(1, 999)}",
+                    f"{first}.{last}.{random.randint(1, 99)}",
+                ],
+                3,
+            )
 
             for fmt in formats:
                 email = f"{fmt}@{domain}"
                 if email not in seen:
                     seen.add(email)
-                    results.append({
-                        "email": email,
-                        "name": f"{first.title()} {last.title()}",
-                        "source": f"generated:{domain}",
-                        "audience": audience,
-                    })
+                    results.append(
+                        {
+                            "email": email,
+                            "name": f"{first.title()} {last.title()}",
+                            "source": f"generated:{domain}",
+                            "audience": audience,
+                        }
+                    )
                     break
 
     logger.info(f"Built {len(results)} emails for {audience}")
@@ -219,7 +366,7 @@ def save_list(recipients: List[Dict], filename: str = None) -> str:
         filename = f"blast_list_{ts}.json"
 
     path = DATA_DIR / filename
-    with open(path, 'w', encoding='utf-8') as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(recipients, f, indent=2)
 
     logger.info(f"Saved {len(recipients)} recipients to {path}")
@@ -229,7 +376,7 @@ def save_list(recipients: List[Dict], filename: str = None) -> str:
 def import_from_csv(csv_path: str, email_col: int = 0, name_col: int = 1) -> str:
     """Import recipients from CSV and save as JSON ready for blaster."""
     recipients = []
-    with open(csv_path, 'r', encoding='utf-8-sig') as f:
+    with open(csv_path, "r", encoding="utf-8-sig") as f:
         reader = csv.reader(f)
         for row in reader:
             if not row or len(row) <= email_col:
@@ -246,7 +393,7 @@ def import_from_csv(csv_path: str, email_col: int = 0, name_col: int = 1) -> str
 def import_from_text(text_path: str) -> str:
     """Import one-email-per-line text file."""
     recipients = []
-    with open(text_path, 'r', encoding='utf-8') as f:
+    with open(text_path, "r", encoding="utf-8") as f:
         for line in f:
             email = line.strip().strip('"').strip("'")
             if _is_valid_email(email):
@@ -271,7 +418,7 @@ def merge_all_lists(output_name: str = "blast_master.json") -> str:
             pass
 
     path = DATA_DIR / output_name
-    json.dump(all_recipients, open(path, 'w'), indent=2)
+    json.dump(all_recipients, open(path, "w"), indent=2)
     logger.info(f"Merged {len(all_recipients)} unique recipients to {path}")
     return str(path)
 
@@ -307,7 +454,7 @@ def _is_valid_email(email: str) -> bool:
     email = email.strip().lower()
     if len(email) > 254:
         return False
-    if not re.match(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$', email):
+    if not re.match(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$", email):
         return False
     # Block disposable domains
     blocked = {"tempmail", "guerrillamail", "10minutemail", "mailinator", "throwaway"}

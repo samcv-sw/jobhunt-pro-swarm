@@ -8,10 +8,10 @@ Target keywords:
   - job application bot, best job search tools, automated job applications
   - AI cover letter generator, job search automation
 """
+
 import json
 import logging
 import os
-import random
 import re
 import time
 from datetime import datetime
@@ -21,7 +21,7 @@ from typing import Optional, Dict, List
 logger = logging.getLogger(__name__)
 
 # ── Configuration ──────────────────────────────────────────────
-POSTS_PER_DAY = 8          # publish max 8/day (natural cadence)
+POSTS_PER_DAY = 8  # publish max 8/day (natural cadence)
 POSTS_DIR = None
 BLOG_DATA = None
 
@@ -32,70 +32,70 @@ KEYWORD_CLUSTERS = [
         "title": "How to Auto-Apply to Jobs: The Complete 2026 Guide",
         "slug": "auto-apply-to-jobs-guide",
         "topics": ["automation", "job search", "AI tools", "productivity"],
-        "cta": "Try JobHunt Pro — auto-apply to 1,000+ jobs"
+        "cta": "Try JobHunt Pro — auto-apply to 1,000+ jobs",
     },
     {
         "primary": "AI job application",
         "title": "AI Job Applications: How Artificial Intelligence Is Changing Job Hunting",
         "slug": "ai-job-applications-guide",
         "topics": ["AI", "automation", "job search", "future of work"],
-        "cta": "Start your AI-powered job search"
+        "cta": "Start your AI-powered job search",
     },
     {
         "primary": "automated job applications",
         "title": "Automated Job Applications 2026: Apply to 1000s While You Sleep",
         "slug": "automated-job-applications",
         "topics": ["automation", "productivity", "career growth"],
-        "cta": "Automate your job search today"
+        "cta": "Automate your job search today",
     },
     {
         "primary": "best job search tools",
         "title": "15 Best Job Search Tools in 2026 (Free & Paid)",
         "slug": "best-job-search-tools-2026",
         "topics": ["tools", "reviews", "comparisons"],
-        "cta": "Try the #1 AI job application tool"
+        "cta": "Try the #1 AI job application tool",
     },
     {
         "primary": "AI cover letter generator",
         "title": "AI Cover Letter Generator: Write Perfect Letters in Seconds",
         "slug": "ai-cover-letter-generator",
         "topics": ["AI", "cover letters", "writing tips"],
-        "cta": "Generate your cover letter with AI"
+        "cta": "Generate your cover letter with AI",
     },
     {
         "primary": "how to apply to 100 jobs fast",
         "title": "How to Apply to 100+ Jobs in One Day (Without Burnout)",
         "slug": "apply-to-100-jobs-fast",
         "topics": ["productivity", "job search", "tips"],
-        "cta": "Apply to 100 jobs in 10 minutes"
+        "cta": "Apply to 100 jobs in 10 minutes",
     },
     {
         "primary": "job application bot",
         "title": "Job Application Bots: The Smart Way to Job Hunt in 2026",
         "slug": "job-application-bots",
         "topics": ["automation", "tools", "technology"],
-        "cta": "Try the most advanced job application bot"
+        "cta": "Try the most advanced job application bot",
     },
     {
         "primary": "job search automation",
         "title": "Job Search Automation: Your 24/7 AI Recruiter",
         "slug": "job-search-automation",
         "topics": ["automation", "career", "technology"],
-        "cta": "Automate your job search now"
+        "cta": "Automate your job search now",
     },
     {
         "primary": "apply to multiple jobs at once",
         "title": "How to Apply to Multiple Jobs at Once (Batch Apply Guide)",
         "slug": "apply-to-multiple-jobs-at-once",
         "topics": ["productivity", "job search", "tips"],
-        "cta": "Batch-apply with AI"
+        "cta": "Batch-apply with AI",
     },
     {
         "primary": "job search tips 2026",
         "title": "50 Game-Changing Job Search Tips for 2026",
         "slug": "job-search-tips-2026",
         "topics": ["tips", "career", "best practices"],
-        "cta": "Supercharge your job search"
+        "cta": "Supercharge your job search",
     },
 ]
 
@@ -111,7 +111,7 @@ def init(data_dir: Optional[str] = None):
 
     BLOG_DATA = POSTS_DIR / "posts.json"
     if not BLOG_DATA.exists():
-        with open(BLOG_DATA, 'w') as f:
+        with open(BLOG_DATA, "w") as f:
             json.dump([], f)
 
     logger.info(f"BlogFarm initialized at {POSTS_DIR}")
@@ -128,18 +128,18 @@ def generate_post(cluster: Dict, groq_key: str = None) -> Optional[Dict]:
 
     try:
         import requests
-        
-        prompt = f"""Write an SEO-optimized blog post for the keyword: "{cluster['primary']}".
 
-Title: {cluster['title']}
-Topics: {', '.join(cluster.get('topics', []))}
+        prompt = f"""Write an SEO-optimized blog post for the keyword: "{cluster["primary"]}".
+
+Title: {cluster["title"]}
+Topics: {", ".join(cluster.get("topics", []))}
 
 Guidelines:
 - 800-1200 words
 - Use H2 and H3 subheadings
 - Include practical tips and actionable advice
 - Naturally mention "JobHunt Pro" 2-3 times (it's an AI-powered auto job application tool)
-- Include a CTA at the end: "{cluster.get('cta', 'Try JobHunt Pro today')}"
+- Include a CTA at the end: "{cluster.get("cta", "Try JobHunt Pro today")}"
 - Write in a helpful, blog-style voice (not salesy)
 - Include 3-5 bullet points where appropriate
 - Add internal link suggestion as [internal_link]
@@ -155,20 +155,23 @@ Output in this JSON format:
 
         r = requests.post(
             "https://api.groq.com/openai/v1/chat/completions",
-            headers={"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"},
+            headers={
+                "Authorization": f"Bearer {groq_key}",
+                "Content-Type": "application/json",
+            },
             json={
                 "model": "llama-3.3-70b-versatile",
                 "messages": [{"role": "user", "content": prompt}],
                 "temperature": 0.7,
                 "max_tokens": 2500,
             },
-            timeout=60
+            timeout=60,
         )
 
         if r.status_code == 200:
             content = r.json()["choices"][0]["message"]["content"]
             # Extract JSON
-            m = re.search(r'\{.*\}', content, re.DOTALL)
+            m = re.search(r"\{.*\}", content, re.DOTALL)
             if m:
                 post = json.loads(m.group())
                 post["slug"] = cluster["slug"]
@@ -177,7 +180,9 @@ Output in this JSON format:
                 post["published"] = False
                 post["created_at"] = datetime.utcnow().isoformat()
                 post["published_at"] = None
-                logger.info(f"Generated: {post['title']} ({post.get('word_count', '?')} words)")
+                logger.info(
+                    f"Generated: {post['title']} ({post.get('word_count', '?')} words)"
+                )
                 return post
         else:
             logger.warning(f"Groq API error {r.status_code}: {r.text[:200]}")
@@ -195,9 +200,9 @@ def _template_post(cluster: Dict) -> Dict:
     title = cluster["title"]
     slug = cluster["slug"]
     topics = cluster.get("topics", [])
-    cta = cluster.get("cta", "Try JobHunt Pro today")
+    cluster.get("cta", "Try JobHunt Pro today")
 
-    content = f"""<h2>Why {title.split(':')[0] if ':' in title else kw.title()} Matters in 2026</h2>
+    content = f"""<h2>Why {title.split(":")[0] if ":" in title else kw.title()} Matters in 2026</h2>
 
 <p>The job market in 2026 is more competitive than ever. With hundreds of applicants per position, standing out requires more than just a good resume — it requires strategy, speed, and the right tools.</p>
 
@@ -246,7 +251,7 @@ def _template_post(cluster: Dict) -> Dict:
 
 <p><strong>Start your free trial today → <a href="https://jhfguf.pythonanywhere.com">JobHunt Pro</a></strong></p>
 
-<p><em>Tags: {', '.join(topics)}, {kw}</em></p>"""
+<p><em>Tags: {", ".join(topics)}, {kw}</em></p>"""
 
     meta = f"Master {kw} with our complete 2026 guide. AI-powered tools, expert strategies, and actionable tips to land more interviews. Start today."
 
@@ -304,14 +309,18 @@ def publish_post(slug: str) -> bool:
     return False
 
 
-def get_posts(published_only: bool = True, limit: int = None, offset: int = 0) -> List[Dict]:
+def get_posts(
+    published_only: bool = True, limit: int = None, offset: int = 0
+) -> List[Dict]:
     """Get blog posts, optionally filtered."""
     posts = _load_posts()
     if published_only:
         posts = [p for p in posts if p.get("published")]
-    
-    posts.sort(key=lambda x: x.get("published_at", x.get("created_at", "")), reverse=True)
-    
+
+    posts.sort(
+        key=lambda x: x.get("published_at", x.get("created_at", "")), reverse=True
+    )
+
     if offset:
         posts = posts[offset:]
     if limit:
@@ -333,7 +342,7 @@ def _load_posts() -> List[Dict]:
     """Load all posts from JSON."""
     if BLOG_DATA and BLOG_DATA.exists():
         try:
-            with open(BLOG_DATA, 'r', encoding='utf-8') as f:
+            with open(BLOG_DATA, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
             return []
@@ -343,7 +352,7 @@ def _load_posts() -> List[Dict]:
 def _save_posts(posts: List[Dict]):
     """Save posts to JSON."""
     if BLOG_DATA:
-        with open(BLOG_DATA, 'w', encoding='utf-8') as f:
+        with open(BLOG_DATA, "w", encoding="utf-8") as f:
             json.dump(posts, f, indent=2, ensure_ascii=False, default=str)
 
 

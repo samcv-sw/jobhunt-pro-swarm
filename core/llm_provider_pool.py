@@ -6,16 +6,15 @@ Supports: Groq, Gemini, HuggingFace, OpenRouter, DeepInfra, Together, Fireworks,
          DeepSeek API, GitHub Models, Qwen (Alibaba), +2 backup.
 ALL FREE TIERS — $0 permanent cost.
 """
+
 import asyncio
 import logging
-import json
 import time
 import random
 import os
-from typing import Optional, Dict, Any, List, AsyncGenerator
-from dataclasses import dataclass, field
+from typing import Optional, Dict, Any, List
+from dataclasses import dataclass
 from enum import Enum
-from datetime import datetime
 
 import httpx
 
@@ -39,6 +38,7 @@ class LLMProvider(Enum):
     GITHUB_MODELS = "github_models"
     QWEN = "qwen"
     DUMMY = "dummy"
+
 
 @dataclass
 class ProviderConfig:
@@ -68,12 +68,17 @@ PROVIDER_CONFIGS = [
         name=LLMProvider.GROQ,
         api_key_env="GROQ_API_KEY",
         base_url="https://api.groq.com/openai/v1/chat/completions",
-        models=["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768", "gemma2-9b-it", "deepseek-r1-distill-llama-70b"],
+        models=[
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+            "mixtral-8x7b-32768",
+            "gemma2-9b-it",
+            "deepseek-r1-distill-llama-70b",
+        ],
         rate_limit_rpm=30,
         weight=3,
         daily_limit=14400,
     ),
-    
     # ═══ GEMINI (free) ═══
     ProviderConfig(
         name=LLMProvider.GEMINI,
@@ -84,7 +89,6 @@ PROVIDER_CONFIGS = [
         weight=10,
         daily_limit=1500,
     ),
-    
     # ═══ HUGGINGFACE (free inference API) ═══
     ProviderConfig(
         name=LLMProvider.HUGGINGFACE,
@@ -95,7 +99,6 @@ PROVIDER_CONFIGS = [
         weight=1,
         daily_limit=1000,
     ),
-    
     # ═══ OPENROUTER (free + community models) ═══
     ProviderConfig(
         name=LLMProvider.OPENROUTER,
@@ -112,40 +115,47 @@ PROVIDER_CONFIGS = [
         weight=2,
         daily_limit=0,
     ),
-    
     # ═══ DEEPINFRA (free tier — signup at deepinfra.com) ═══
     ProviderConfig(
         name=LLMProvider.DEEPINFRA,
         api_key_env="DEEPINFRA_API_KEY",
         base_url="https://api.deepinfra.com/v1/openai/chat/completions",
-        models=["meta-llama/Meta-Llama-3.1-70B-Instruct", "mistralai/Mistral-7B-Instruct-v0.3", "google/gemma-2-9b-it"],
+        models=[
+            "meta-llama/Meta-Llama-3.1-70B-Instruct",
+            "mistralai/Mistral-7B-Instruct-v0.3",
+            "google/gemma-2-9b-it",
+        ],
         rate_limit_rpm=30,
         weight=2,
         daily_limit=0,
     ),
-    
     # ═══ TOGETHER AI (free $1 credit, generous rate limits) ═══
     ProviderConfig(
         name=LLMProvider.TOGETHER,
         api_key_env="TOGETHER_API_KEY",
         base_url="https://api.together.xyz/v1/chat/completions",
-        models=["meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo", "mistralai/Mixtral-8x22B-Instruct-v0.1", "deepseek-ai/deepseek-llm-67b-chat"],
+        models=[
+            "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+            "mistralai/Mixtral-8x22B-Instruct-v0.1",
+            "deepseek-ai/deepseek-llm-67b-chat",
+        ],
         rate_limit_rpm=60,
         weight=2,
         daily_limit=0,
     ),
-    
     # ═══ FIREWORKS AI (free tier) ═══
     ProviderConfig(
         name=LLMProvider.FIREWORKS,
         api_key_env="FIREWORKS_API_KEY",
         base_url="https://api.fireworks.ai/inference/v1/chat/completions",
-        models=["accounts/fireworks/models/llama-v3p1-70b-instruct", "accounts/fireworks/models/mixtral-8x22b-instruct"],
+        models=[
+            "accounts/fireworks/models/llama-v3p1-70b-instruct",
+            "accounts/fireworks/models/mixtral-8x22b-instruct",
+        ],
         rate_limit_rpm=30,
         weight=2,
         daily_limit=0,
     ),
-    
     # ═══ CEREBRAS (30 RPM FREE — fastest inference) ═══
     ProviderConfig(
         name=LLMProvider.CEREBRAS,
@@ -156,29 +166,33 @@ PROVIDER_CONFIGS = [
         weight=5,
         daily_limit=14400,
     ),
-    
     # ═══ SAMBANOVA (free tier — Llama 405B!) ═══
     ProviderConfig(
         name=LLMProvider.SAMBANOVA,
         api_key_env="SAMBANOVA_API_KEY",
         base_url="https://api.sambanova.ai/v1/chat/completions",
-        models=["Meta-Llama-3.1-405B-Instruct", "Meta-Llama-3.1-70B-Instruct", "Meta-Llama-3.1-8B-Instruct"],
+        models=[
+            "Meta-Llama-3.1-405B-Instruct",
+            "Meta-Llama-3.1-70B-Instruct",
+            "Meta-Llama-3.1-8B-Instruct",
+        ],
         rate_limit_rpm=20,
         weight=4,
         daily_limit=0,
     ),
-    
     # ═══ CLOUDFLARE WORKERS AI (on your existing CF account — FREE) ═══
     ProviderConfig(
         name=LLMProvider.CLOUDFLARE,
         api_key_env="CLOUDFLARE_AI_GATEWAY_URL",
         base_url="https://gateway.ai.cloudflare.com/v1/{account_id}/jobhunt/workers-ai/chat/completions",
-        models=["@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b"],
+        models=[
+            "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+            "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b",
+        ],
         rate_limit_rpm=30,
         weight=3,
         daily_limit=10000,
     ),
-    
     # ═══ COHERE (free trial — 100 calls/min) ═══
     ProviderConfig(
         name=LLMProvider.COHERE,
@@ -189,7 +203,6 @@ PROVIDER_CONFIGS = [
         weight=2,
         daily_limit=0,
     ),
-    
     # ═══ XAI / GROK (free tier) ═══
     ProviderConfig(
         name=LLMProvider.XAI,
@@ -200,7 +213,6 @@ PROVIDER_CONFIGS = [
         weight=1,
         daily_limit=0,
     ),
-    
     # ═══ DEEPSEEK API (free tier — DeepSeek-V3, R1) ═══
     ProviderConfig(
         name=LLMProvider.DEEPSEEK_API,
@@ -211,7 +223,6 @@ PROVIDER_CONFIGS = [
         weight=4,
         daily_limit=0,
     ),
-    
     # ═══ GITHUB MODELS (free tier — Azure-hosted) ═══
     ProviderConfig(
         name=LLMProvider.GITHUB_MODELS,
@@ -222,7 +233,6 @@ PROVIDER_CONFIGS = [
         weight=3,
         daily_limit=0,
     ),
-    
     # ═══ QWEN (Alibaba Cloud Model Studio — free tier) ═══
     ProviderConfig(
         name=LLMProvider.QWEN,
@@ -233,7 +243,6 @@ PROVIDER_CONFIGS = [
         weight=2,
         daily_limit=0,
     ),
-    
     # ═══ DUMMY (for testing) ═══
     ProviderConfig(
         name=LLMProvider.DUMMY,
@@ -310,7 +319,9 @@ class ProviderInstance:
         wait = self._check_rate_limit()
         if wait > 0:
             if wait > 15:
-                logger.debug(f"Provider {self.config.name.value} rate limited, waiting {wait:.1f}s")
+                logger.debug(
+                    f"Provider {self.config.name.value} rate limited, waiting {wait:.1f}s"
+                )
                 return None  # Don't block, let caller try another provider
             await asyncio.sleep(wait)
 
@@ -325,10 +336,12 @@ class ProviderInstance:
         if self.config.name == LLMProvider.GEMINI:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
             payload = {
-                "contents": [{
-                    "role": "user",
-                    "parts": [{"text": f"{system_prompt}\n\n{user_prompt}"}],
-                }],
+                "contents": [
+                    {
+                        "role": "user",
+                        "parts": [{"text": f"{system_prompt}\n\n{user_prompt}"}],
+                    }
+                ],
                 "generationConfig": {
                     "temperature": temperature,
                     "maxOutputTokens": max_tokens,
@@ -377,7 +390,12 @@ class ProviderInstance:
                 data = response.json()
                 candidates = data.get("candidates", [])
                 if candidates:
-                    return candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                    return (
+                        candidates[0]
+                        .get("content", {})
+                        .get("parts", [{}])[0]
+                        .get("text", "")
+                    )
                 return None
 
             data = response.json()
@@ -428,7 +446,9 @@ class LLMProviderPool:
 
         return self
 
-    async def get_provider(self, preferred: Optional[LLMProvider] = None) -> Optional[ProviderInstance]:
+    async def get_provider(
+        self, preferred: Optional[LLMProvider] = None
+    ) -> Optional[ProviderInstance]:
         """
         Get the best available provider (by preference, weight, health).
         This is the main entry point for obtaining a provider instance.
@@ -457,7 +477,9 @@ class LLMProviderPool:
 
         return None
 
-    async def rotate_on_failure(self, failed_provider: LLMProvider) -> Optional[ProviderInstance]:
+    async def rotate_on_failure(
+        self, failed_provider: LLMProvider
+    ) -> Optional[ProviderInstance]:
         """
         Called when a provider fails. Marks it unhealthy and returns
         the next best available provider.
@@ -466,10 +488,10 @@ class LLMProviderPool:
             self._health[failed_provider] = False
             instance = self._providers.get(failed_provider)
             if instance:
-                instance._consecutive_failures = max(
-                    instance._consecutive_failures, 4
-                )
-            logger.info(f"Provider {failed_provider.value} marked unhealthy, rotating...")
+                instance._consecutive_failures = max(instance._consecutive_failures, 4)
+            logger.info(
+                f"Provider {failed_provider.value} marked unhealthy, rotating..."
+            )
 
         # Return the next best healthy provider
         return await self.get_provider()

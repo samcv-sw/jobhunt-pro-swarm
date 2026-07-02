@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="أكمل عملية شراء JobHunt Pro بأمان.">
+  <meta name="robots" content="noindex, follow">
+  <title>الدفع — JobHunt Pro</title>
+  <link rel="stylesheet" href="/static/css/cyberpunk.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+
+<style>
+ * { margin: 0; padding: 0; box-sizing: border-box; }
+
+ .checkout-container {
+ width: 100%;
+ max-width: 520px;
+ background: linear-gradient(135deg, rgba(20,20,40,0.9), rgba(12,12,24,0.9));
+ border: 1px solid rgba(0,229,255,0.15);
+ box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 60px rgba(0,229,255,0.03);
+ border-radius: 24px;
+ padding: 36px;
+ text-align: center;
+ }
+ .logo {
+ font-family: 'JetBrains Mono', monospace;
+ font-size: 20px;
+ font-weight: 700;
+ margin-bottom: 24px;
+ background: linear-gradient(135deg, #00e5ff, #ff0055);
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+ }
+ .order-summary {
+ background: rgba(255,255,255,0.03);
+ border: 1px solid rgba(255,255,255,0.06);
+ border-radius: 16px;
+ padding: 24px;
+ margin-bottom: 28px;
+ }
+ .order-label {
+ font-size: 12px;
+ color: #6b7280;
+ text-transform: uppercase;
+ 
+ margin-bottom: 4px;
+ }
+ .order-service {
+ font-size: 20px;
+ font-weight: 700;
+ margin-bottom: 4px;
+ }
+ .order-amount {
+ font-size: 42px;
+ font-weight: 900;
+ font-family: 'JetBrains Mono', monospace;
+ color: #00e5ff;
+ margin: 12px 0;
+ }
+ .order-id {
+ font-size: 11px;
+ color: #6b7280;
+ font-family: monospace;
+ background: rgba(0,0,0,0.3);
+ padding: 4px 10px;
+ border-radius: 4px;
+ display: inline-block;
+ }
+ .order-status {
+ margin-top: 8px;
+ font-size: 12px;
+ padding: 4px 12px;
+ border-radius: 50px;
+ display: inline-block;
+ }
+ .status-pending {
+ background: rgba(245,158,11,0.1);
+ color: #f59e0b;
+ border: 1px solid rgba(245,158,11,0.2);
+ }
+ .status-paid {
+ background: rgba(34,197,94,0.1);
+ color: #22c55e;
+ border: 1px solid rgba(34,197,94,0.2);
+ }
+ .status-delivered {
+ background: rgba(0,229,255,0.1);
+ color: #00e5ff;
+ border: 1px solid rgba(0,229,255,0.2);
+ }
+
+ /* Crypto Addresses */
+ .crypto-section {
+ margin-bottom: 24px;
+ }
+ .crypto-tabs {
+ display: flex;
+ gap: 8px;
+ justify-content: center;
+ margin-bottom: 16px;
+ }
+ .crypto-tab {
+ padding: 8px 16px;
+ border-radius: 8px;
+ border: 1px solid rgba(255,255,255,0.08);
+ background: transparent;
+ color: #6b7280;
+ font-size: 13px;
+ font-weight: 600;
+ font-family: 'JetBrains Mono', monospace;
+ cursor: pointer;
+ transition: all 0.2s;
+ }
+ .crypto-tab.active {
+ border-color: #00e5ff;
+ color: #00e5ff;
+ background: rgba(0,229,255,0.05);
+ }
+ .crypto-tab:hover { border-color: rgba(0,229,255,0.3); }
+
+ .address-box {
+ background: rgba(0,0,0,0.3);
+ border: 1px solid rgba(255,255,255,0.08);
+ border-radius: 12px;
+ padding: 14px 16px;
+ font-family: 'JetBrains Mono', monospace;
+ font-size: 11px;
+ color: #94a3b8;
+ word-break: break-all;
+ cursor: pointer;
+ transition: all 0.2s;
+ text-align: start;
+ line-height: 1.6;
+ user-select: all;
+ }
+ .address-box:hover {
+ border-color: rgba(0,229,255,0.3);
+ color: #fff;
+ }
+ .copy-hint {
+ font-size: 11px;
+ color: #6b7280;
+ margin-top: 6px;
+ }
+
+ .instruction-text {
+ font-size: 13px;
+ color: #94a3b8;
+ margin-bottom: 20px;
+ line-height: 1.6;
+ }
+
+ /* Verify Section */
+ .verify-section {
+ border-top: 1px solid rgba(255,255,255,0.06);
+ padding-top: 24px;
+ margin-top: 8px;
+ }
+ .verify-section h3 {
+ font-size: 14px;
+ font-weight: 600;
+ margin-bottom: 12px;
+ color: #94a3b8;
+ }
+ .verify-input-group {
+ display: flex;
+ gap: 8px;
+ }
+ .verify-input-group input {
+ flex: 1;
+ padding: 12px 16px;
+ border-radius: 10px;
+ border: 1px solid rgba(255,255,255,0.08);
+ background: rgba(255,255,255,0.03);
+ color: #fff;
+ font-size: 13px;
+ font-family: 'JetBrains Mono', monospace;
+ outline: none;
+ }
+ .verify-input-group input:focus {
+ border-color: #00e5ff;
+ }
+ .btn-verify {
+ padding: 12px 20px;
+ border-radius: 10px;
+ border: none;
+ background: linear-gradient(135deg, #00e5ff, #0088aa);
+ color: #000;
+ font-weight: 700;
+ font-size: 13px;
+ cursor: pointer;
+ white-space: nowrap;
+ transition: all 0.3s;
+ }
+ .btn-verify:hover {
+ box-shadow: 0 0 20px rgba(0,229,255,0.3);
+ }
+ .btn-verify:disabled {
+ opacity: 0.5;
+ cursor: not-allowed;
+ }
+
+ .verify-result {
+ margin-top: 12px;
+ font-size: 13px;
+ padding: 10px 14px;
+ border-radius: 8px;
+ display: none;
+ }
+ .verify-result.success {
+ display: block;
+ background: rgba(34,197,94,0.1);
+ border: 1px solid rgba(34,197,94,0.2);
+ color: #22c55e;
+ }
+ .verify-result.error {
+ display: block;
+ background: rgba(239,68,68,0.1);
+ border: 1px solid rgba(239,68,68,0.2);
+ color: #f87171;
+ }
+
+ .btn-done {
+ display: inline-block;
+ margin-top: 20px;
+ padding: 12px 32px;
+ border-radius: 10px;
+ background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+ color: #fff;
+ text-decoration: none;
+ font-weight: 600;
+ font-size: 14px;
+ transition: all 0.3s;
+ }
+ .btn-done:hover {
+ box-shadow: 0 0 30px rgba(59,130,246,0.3);
+ transform: translateY(-2px);
+ }
+
+ .btn-nowpayments {
+ display: block;
+ width: 100%;
+ padding: 16px 24px;
+ border-radius: 12px;
+ border: none;
+ background: linear-gradient(135deg, #00e5ff, #8b5cf6);
+ color: #fff;
+ font-weight: 700;
+ font-size: 16px;
+ font-family: 'Inter', sans-serif;
+ cursor: pointer;
+ transition: all 0.3s;
+ margin-bottom: 24px;
+ }
+ .btn-nowpayments:hover {
+ box-shadow: 0 0 30px rgba(0,229,255,0.3);
+ transform: translateY(-2px);
+ }
+ .btn-nowpayments:disabled {
+ opacity: 0.5;
+ cursor: not-allowed;
+ transform: none;
+ }
+
+ @media (max-width: 480px) {
+ .checkout-container { padding: 20px; }
+ .order-amount { font-size: 32px; }
+ .verify-input-group { flex-direction: column; }
+ }
+ </style>
+</head>
+
+<body class="cyberpunk-body">
+<div class="main" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;">
+
+<div class="checkout-container">
+ <div class="logo">JOBHUNT PRO</div>
+
+ <!-- Order Summary -->
+ <div class="order-summary">
+ <div class="order-label">الخدمة</div>
+ {% if order.item_type == 'bulk' and order.items %}
+ <div class="order-service" style="font-size:13px;">
+ {% for item in order.items %}
+ <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+ <span>{{ item.service_name }}{% if item.quantity > 1 %} x{{ item.quantity }}{% endif %}</span>
+ <span style="font-family:'JetBrains Mono',monospace;color:#00e5ff;">${{ "%.2f"|format(item.line_total) }}</span>
+ </div>
+ {% endfor %}
+ </div>
+ <div class="order-amount">${{ "%.2f"|format(order.total_price or order.price) }}</div>
+ <div style="font-size:11px;color:#6b7280;">{{ order.items|length }} عنصر (عناصر) في هذا الطلب</div>
+ {% else %}
+ <div class="order-service">{{ order.service_name }}</div>
+ <div class="order-amount">${{ "%.2f"|format(order.price) }}</div>
+ {% endif %}
+ <div class="order-id">رقم الطلب: {{ order.order_id }}</div>
+ <div class="order-status
+ {% if order.status in ('pending', 'pending_payment') %}status-pending{% elif order.status == 'paid' %}status-paid{% elif order.status == 'delivered' %}status-delivered{% endif %}">
+ {{ order.status|upper }}
+ </div>
+ <div style="margin-top:12px; font-size:12px; color:#6b7280;">
+ العميل: {{ order.customer_name }} <{{ order.customer_email }}>
+ </div>
+ </div>
+
+ {% if order.payment_code %}
+ <!-- Payment Code Section -->
+ <div style="margin-bottom:24px; padding:20px; background:rgba(0,229,255,0.05); border:1px solid rgba(0,229,255,0.2); border-radius:16px; text-align:center;">
+ <div style="font-size:11px; color:#6b7280; text-transform:uppercase;  margin-bottom:8px;">
+ رمز الدفع الخاص بك
+ </div>
+ <div style="font-size:28px; font-weight:900; font-family:'JetBrains Mono',monospace; color:#00e5ff;  user-select:all; cursor:pointer;"
+ onclick="copyPaymentCode(this)"
+ title="انقر للنسخ">
+ {{ order.payment_code }}
+ </div>
+ <div style="font-size:11px; color:#6b7280; margin-top:8px;">
+ انقر للنسخ &bull; ستحتاج إلى هذا الرمز للتحقق من الدفع
+ </div>
+ </div>
+ {% endif %}
+
+ {% if order.status in ('pending', 'pending_payment') %}
+ <!-- Payment Section -->
+ 
+ <!-- NOWPayments One-Click Payment -->
+ <div class="nowpayments-section" style="margin-bottom:24px; padding:20px; background:rgba(139,92,246,0.05); border:1px solid rgba(139,92,246,0.15); border-radius:16px;">
+ <div style="font-size:13px; color:#94a3b8; margin-bottom:12px;">
+ ادفع فوراً باستخدام البطاقة الائتمانية أو العملات الرقمية
+ </div>
+ <button class="btn-nowpayments"
+ data-order-id="{{ order.order_id }}"
+ data-amount="{{ order.price }}"
+ data-service-name="{{ order.service_name }}"
+ data-customer-email="{{ order.customer_email }}"
+ onclick="payWithNOWPayments(this)">
+ ادفع عبر NOWPayments 
+ </button>
+ <div id="nowpaymentsStatus" style="font-size:12px; color:#6b7280; margin-top:8px; display:none;"></div>
+ </div>
+
+ <!-- Manual Crypto Payment (fallback) -->
+ <p class="instruction-text">
+ أو أرسل المبلغ المحدد بالعملات الرقمية إلى أحد العناوين أدناه.
+ سيتم إنشاء الخدمة المطلوبة وإرسالها إليك عبر البريد الإلكتروني في غضون ثوانٍ من تأكيد الدفع.
+ </p>
+
+ <div class="crypto-section">
+ <div class="crypto-tabs" id="cryptoTabs">
+ {% for currency, addr in order.crypto_addresses.items() %}
+ <button class="crypto-tab {% if loop.first %}active{% endif %}" 
+ onclick="selectCurrency('{{ currency }}', this)" 
+ data-currency="{{ currency }}">
+ {{ currency }}
+ </button>
+ {% endfor %}
+ </div>
+
+ {% for currency, addr in order.crypto_addresses.items() %}
+ <div class="crypto-address" id="addr_{{ currency }}" style="display: {% if loop.first %}block{% else %}none{% endif %};">
+ <div class="address-box" onclick="copyAddress(this, '{{ addr }}')" title="انقر للنسخ">
+ {{ addr }}
+ </div>
+ <div class="copy-hint">انقر على العنوان للنسخ &bull; أرسل بالضبط <strong>${{ "%.2f"|format(order.price) }}</strong> بعملة {{ currency }}</div>
+ </div>
+ {% endfor %}
+ </div>
+
+ <!-- Verify Payment -->
+ <div class="verify-section">
+ <h3>هل أرسلت الدفعة بالفعل؟ تحقق هنا:</h3>
+ <div style="font-size:12px; color:#6b7280; margin-bottom:12px; line-height:1.5;">
+ أدخل <strong style="color:#00e5ff;">رمز الدفع</strong> الخاص بك (الموضح أعلاه) ومعرف المعاملة من محفظتك الرقمية.
+ </div>
+ <div class="verify-input-group" style="margin-bottom:8px;">
+ <input dir="auto" type="text" id="paymentCode" placeholder="رمز الدفع (مثل A1B2C3D4)" autocomplete="off" style="flex:1; padding:12px 16px; border-radius:10px; border:1px solid rgba(0,229,255,0.2); background:rgba(0,229,255,0.03); color:#fff; font-size:13px; font-family:'JetBrains Mono',monospace; outline:none; text-transform:uppercase; ">
+ <input dir="auto" type="text" id="txHash" placeholder="معرف المعاملة / TX ID" autocomplete="off">
+ <button class="btn-verify" id="verifyBtn" onclick="verifyPayment('{{ order.order_id }}')">تحقق</button>
+ </div>
+ <div class="verify-result" id="verifyResult"></div>
+ </div>
+ {% elif order.status == 'paid' or order.status == 'delivered' %}
+ <div class="verify-result success" style="display:block;">
+ تم تأكيد الدفع! جاري إعداد الخدمة المطلوبة وسيتم إرسالها إلى بريدك الإلكتروني قريباً.
+ </div>
+ <a href="/services/new" class="btn-done">تصفح المزيد من الخدمات</a>
+ {% endif %}
+</div>
+
+<script>
+let currentCurrency = '{{ order.crypto_addresses.keys()|first|default("BTC") }}';
+
+function copyPaymentCode(el) {
+ const code = el.textContent.trim();
+ navigator.clipboard.writeText(code).then(() => {
+ const orig = el.textContent;
+ el.textContent = 'تم النسخ!';
+ el.style.color = '#22c55e';
+ setTimeout(() => {
+ el.textContent = orig;
+ el.style.color = '#00e5ff';
+ }, 2000);
+ }).catch(() => {
+ const range = document.createRange();
+ range.selectNodeContents(el);
+ const sel = window.getSelection();
+ sel.removeAllRanges();
+ sel.addRange(range);
+ });
+}
+
+function selectCurrency(currency, btn) {
+ currentCurrency = currency;
+ // Update tabs
+ document.querySelectorAll('.crypto-tab').forEach(t => t.classList.remove('active'));
+ btn.classList.add('active');
+ // Update address display
+ document.querySelectorAll('.crypto-address').forEach(a => a.style.display = 'none');
+ const addrDiv = document.getElementById('addr_' + currency);
+ if (addrDiv) addrDiv.style.display = 'block';
+}
+
+function copyAddress(el, address) {
+ navigator.clipboard.writeText(address).then(() => {
+ const hint = el.nextElementSibling;
+ const origText = hint.textContent;
+ hint.textContent = 'تم النسخ!';
+ hint.style.color = '#22c55e';
+ setTimeout(() => {
+ hint.textContent = origText;
+ hint.style.color = '';
+ }, 2000);
+ }).catch(() => {
+ // Fallback: select the text
+ const range = document.createRange();
+ range.selectNodeContents(el);
+ const sel = window.getSelection();
+ sel.removeAllRanges();
+ sel.addRange(range);
+ });
+}
+
+async function verifyPayment(orderId) {
+ const paymentCode = document.getElementById('paymentCode').value.trim().toUpperCase();
+ const txHash = document.getElementById('txHash').value.trim();
+ const btn = document.getElementById('verifyBtn');
+ const result = document.getElementById('verifyResult');
+
+ if (!paymentCode) {
+ result.className = 'verify-result error';
+ result.textContent = 'يرجى إدخال رمز الدفع الخاص بك (الموضح أعلاه في المربع الأزرق).';
+ result.style.display = 'block';
+ return;
+ }
+
+ if (!txHash) {
+ result.className = 'verify-result error';
+ result.textContent = 'يرجى إدخال معرف المعاملة.';
+ result.style.display = 'block';
+ return;
+ }
+
+ btn.disabled = true;
+ btn.textContent = 'جاري التحقق...';
+ result.style.display = 'none';
+
+ try {
+ const resp = await fetch('/api/v2/orders/verify-payment', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ order_id: orderId, tx_hash: txHash, payment_code: paymentCode })
+ });
+ const data = await resp.json();
+
+ if (data.success) {
+ result.className = 'verify-result success';
+ result.textContent = data.message || 'تم التحقق من الدفع! جاري إعداد الخدمة المطلوبة وسيتم إرسالها إلى بريدك الإلكتروني.';
+ result.style.display = 'block';
+ // Refresh page after 2 seconds to show updated status
+ setTimeout(() => location.reload(), 2000);
+ } else {
+ result.className = 'verify-result error';
+ result.textContent = data.message || data.error || 'فشل التحقق. تحقق من رمز الدفع ومعرف المعاملة.';
+ result.style.display = 'block';
+ }
+ } catch (err) {
+ result.className = 'verify-result error';
+ result.textContent = 'خطأ في الشبكة. يرجى المحاولة مرة أخرى.';
+ result.style.display = 'block';
+ }
+
+ btn.disabled = false;
+ btn.textContent = 'تحقق';
+}
+
+async function payWithNOWPayments(btn) {
+ const orderId = btn.dataset.orderId;
+ const amount = btn.dataset.amount;
+ const serviceName = btn.dataset.serviceName;
+ const customerEmail = btn.dataset.customerEmail;
+ const statusEl = document.getElementById('nowpaymentsStatus');
+
+ btn.disabled = true;
+ btn.textContent = 'جاري إعادة التوجيه للدفع...';
+ statusEl.style.display = 'none';
+
+ try {
+ const resp = await fetch('/api/v2/nowpayments/create-invoice', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({
+ order_id: orderId,
+ amount_usd: parseFloat(amount),
+ customer_email: customerEmail,
+ service_name: serviceName
+ })
+ });
+ const data = await resp.json();
+
+ if (data.success && data.invoice && data.invoice.invoice_url) {
+ // Redirect to NOWPayments checkout
+ window.location.href = data.invoice.invoice_url;
+ return;
+ }
+
+ if (data.fallback) {
+ // NOWPayments not configured — show manual addresses only
+ statusEl.textContent = ' الدفع بنقرة واحدة غير متاح. استخدم عناوين العملات الرقمية اليدوية أدناه.';
+ statusEl.style.color = '#f59e0b';
+ statusEl.style.display = 'block';
+ btn.style.display = 'none';
+ return;
+ }
+
+ statusEl.textContent = data.error || 'فشل إنشاء عملية الدفع. يرجى محاولة الدفع اليدوي بالعملات الرقمية أدناه.';
+ statusEl.style.color = '#f87171';
+ statusEl.style.display = 'block';
+ } catch (err) {
+ statusEl.textContent = 'خطأ في الشبكة. يرجى المحاولة مرة أخرى أو استخدام الدفع اليدوي أدناه.';
+ statusEl.style.color = '#f87171';
+ statusEl.style.display = 'block';
+ }
+
+ btn.disabled = false;
+ btn.textContent = 'ادفع عبر NOWPayments ';
+}
+</script>
+
+</body>
+</html>
+
+

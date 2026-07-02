@@ -24,92 +24,85 @@
  .tier-card .tier-stats{font-size:11px;color:#94a3b8}
  @media(max-width:768px){.grid{grid-template-columns:repeat(2,1fr)}.revenue-chart{overflow-x:auto}.bar-row .bar-label{width:80px;font-size:10px}}
  </style>
-
 <div class="container">
- <h1>📊 تحليلات الإدارة</h1>
- <p class="subtitle">مؤشرات الإيرادات والمستخدمين والحملات في الوقت الفعلي</p>
-
- <!-- Top Stats -->
- <div class="grid">
- <div class="stat-card">
- <div class="label">إجمالي الإيرادات</div>
- <div class="value" style="color:#22c55e;">${{ total_revenue or 0 }}</div>
- <div class="change up">+{{ revenue_growth or 0 }}% هذا الشهر</div>
- </div>
- <div class="stat-card">
- <div class="label">إجمالي المستخدمين</div>
- <div class="value" style="color:#3b82f6;">{{ total_users or 0 }}</div>
- <div class="change up">+{{ user_growth or 0 }} مستخدم جديد اليوم</div>
- </div>
- <div class="stat-card">
- <div class="label">حملات نشطة</div>
- <div class="value" style="color:#8b5cf6;">{{ active_campaigns or 0 }}</div>
- <div class="change up">{{ campaign_pct or 0 }}% معدل النشاط</div>
- </div>
- <div class="stat-card">
- <div class="label">رسائل أُرسلت اليوم</div>
- <div class="value" style="color:#f59e0b;">{{ emails_today or 0 }}</div>
- <div class="change up">قابلية التسليم {{ deliv_score or 95 }}%</div>
- </div>
- </div>
-
- <!-- Revenue Chart -->
- <div class="chart-card">
- <h3>📈 الإيرادات الشهرية (آخر 12 شهراً)</h3>
- <div class="revenue-chart">
+<h1>📊 تحليلات الإدارة</h1>
+<p class="subtitle">مؤشرات الإيرادات والمستخدمين والحملات في الوقت الفعلي</p>
+<!-- Top Stats -->
+<div class="grid">
+<div class="stat-card">
+<div class="label">إجمالي الإيرادات</div>
+<div class="value" style="color:#22c55e;">${{ total_revenue or 0 }}</div>
+<div class="change up">+{{ revenue_growth or 0 }}% هذا الشهر</div>
+</div>
+<div class="stat-card">
+<div class="label">إجمالي المستخدمين</div>
+<div class="value" style="color:#3b82f6;">{{ total_users or 0 }}</div>
+<div class="change up">+{{ user_growth or 0 }} مستخدم جديد اليوم</div>
+</div>
+<div class="stat-card">
+<div class="label">حملات نشطة</div>
+<div class="value" style="color:#8b5cf6;">{{ active_campaigns or 0 }}</div>
+<div class="change up">{{ campaign_pct or 0 }}% معدل النشاط</div>
+</div>
+<div class="stat-card">
+<div class="label">رسائل أُرسلت اليوم</div>
+<div class="value" style="color:#f59e0b;">{{ emails_today or 0 }}</div>
+<div class="change up">قابلية التسليم {{ deliv_score or 95 }}%</div>
+</div>
+</div>
+<!-- Revenue Chart -->
+<div class="chart-card">
+<h3>📈 الإيرادات الشهرية (آخر 12 شهراً)</h3>
+<div class="revenue-chart">
  {% for month in monthly_revenue or [] %}
  <div class="revenue-bar" style="height:{{ (month.amount / (max_revenue or 1) * 180) if max_revenue else 30 }}px;background:linear-gradient(180deg,#3b82f6,#6366f1);">
- <div class="bar-val">${{ month.amount }}</div>
- <div class="bar-month">{{ month.label }}</div>
- </div>
+<div class="bar-val">${{ month.amount }}</div>
+<div class="bar-month">{{ month.label }}</div>
+</div>
  {% endfor %}
  </div>
- </div>
-
- <!-- Tier Breakdown -->
- <div class="chart-card">
- <h3>💎 الإيرادات حسب خطة الاشتراك</h3>
+</div>
+<!-- Tier Breakdown -->
+<div class="chart-card">
+<h3>💎 الإيرادات حسب خطة الاشتراك</h3>
  {% for tier in tier_breakdown or [] %}
  <div class="bar-row">
- <div class="bar-label">{{ tier.name }}</div>
- <div class="bar-track">
- <div class="bar-fill" style="width:{{ tier.pct or 0 }}%;background:linear-gradient(90deg,{{ tier.color or '#3b82f6' }},{{ tier.color2 or '#6366f1' }});">{{ tier.count }} مبيعة · ${{ tier.revenue }}</div>
- </div>
- </div>
+<div class="bar-label">{{ tier.name }}</div>
+<div class="bar-track">
+<div class="bar-fill" style="width:{{ tier.pct or 0 }}%;background:linear-gradient(90deg,{{ tier.color or '#3b82f6' }},{{ tier.color2 or '#6366f1' }});">{{ tier.count }} مبيعة · ${{ tier.revenue }}</div>
+</div>
+</div>
  {% endfor %}
  </div>
-
- <!-- Top Referring Countries -->
- <div class="chart-card">
- <h3>🌍 أبرز الأسواق</h3>
+<!-- Top Referring Countries -->
+<div class="chart-card">
+<h3>🌍 أبرز الأسواق</h3>
  {% for country in top_countries or [] %}
  <div class="bar-row">
- <div class="bar-label">{{ country.flag }} {{ country.name }}</div>
- <div class="bar-track">
- <div class="bar-fill" style="width:{{ country.pct or 0 }}%;background:linear-gradient(90deg,{{ country.color }},{{ country.color }});">{{ country.users }} مستخدم · {{ country.pct }}%</div>
- </div>
- </div>
+<div class="bar-label">{{ country.flag }} {{ country.name }}</div>
+<div class="bar-track">
+<div class="bar-fill" style="width:{{ country.pct or 0 }}%;background:linear-gradient(90deg,{{ country.color }},{{ country.color }});">{{ country.users }} مستخدم · {{ country.pct }}%</div>
+</div>
+</div>
  {% endfor %}
  </div>
-
- <!-- A/B Test Results -->
- <div class="chart-card">
- <h3>🧪 اختبار سطور موضوع A/B</h3>
- <p style="font-size:12px;color:#64748b;margin-bottom:16px;">اختبر موضوعات بريد إلكتروني مختلفة لتعظيم معدلات الفتح</p>
- <div id="abTestContainer" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
- <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:12px;padding:16px;text-align:center;">
- <div style="font-size:11px;color:#64748b;text-transform:uppercase;margin-bottom:8px;">الموضوع أ</div>
- <div style="font-size:13px;margin-bottom:12px;color:#e2e8f0;">"مهندس شبكات أول — خبرة 15+ سنة"</div>
- <div style="font-size:28px;font-weight:900;color:#3b82f6;">{{ ab_test_a_rate or 32 }}%</div>
- <div style="font-size:10px;color:#64748b;">معدل الفتح · {{ ab_test_a_sent or 100 }} مُرسلة</div>
- </div>
- <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:12px;padding:16px;text-align:center;">
- <div style="font-size:11px;color:#64748b;text-transform:uppercase;margin-bottom:8px;">الموضوع ب</div>
- <div style="font-size:13px;margin-bottom:12px;color:#e2e8f0;">"خبير بنية تحتية — CCNA، Fortinet NSE، MikroTik MTCNA"</div>
- <div style="font-size:28px;font-weight:900;color:#8b5cf6;">{{ ab_test_b_rate or 44 }}%</div>
- <div style="font-size:10px;color:#64748b;">معدل الفتح · {{ ab_test_b_sent or 100 }} مُرسلة</div>
- </div>
- </div>
- </div>
-
+<!-- A/B Test Results -->
+<div class="chart-card">
+<h3>{{ _('🧪 اختبار سطور موضوع A/B') }}</h3>
+<p style="font-size:12px;color:#64748b;margin-bottom:16px;">اختبر موضوعات بريد إلكتروني مختلفة لتعظيم معدلات الفتح</p>
+<div id="abTestContainer" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+<div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:12px;padding:16px;text-align:center;">
+<div style="font-size:11px;color:#64748b;text-transform:uppercase;margin-bottom:8px;">الموضوع أ</div>
+<div style="font-size:13px;margin-bottom:12px;color:#e2e8f0;">"مهندس شبكات أول — خبرة 15+ سنة"</div>
+<div style="font-size:28px;font-weight:900;color:#3b82f6;">{{ ab_test_a_rate or 32 }}%</div>
+<div style="font-size:10px;color:#64748b;">معدل الفتح · {{ ab_test_a_sent or 100 }} مُرسلة</div>
+</div>
+<div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:12px;padding:16px;text-align:center;">
+<div style="font-size:11px;color:#64748b;text-transform:uppercase;margin-bottom:8px;">الموضوع ب</div>
+<div style="font-size:13px;margin-bottom:12px;color:#e2e8f0;">{{ _('"خبير بنية تحتية — CCNA، Fortinet NSE، MikroTik MTCNA"') }}</div>
+<div style="font-size:28px;font-weight:900;color:#8b5cf6;">{{ ab_test_b_rate or 44 }}%</div>
+<div style="font-size:10px;color:#64748b;">معدل الفتح · {{ ab_test_b_sent or 100 }} مُرسلة</div>
+</div>
+</div>
+</div>
 </div>

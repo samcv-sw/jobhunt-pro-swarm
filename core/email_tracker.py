@@ -1,6 +1,5 @@
 import logging
 import sqlite3
-from datetime import datetime
 from typing import Any, Dict, Optional
 import config
 
@@ -9,7 +8,9 @@ logger = logging.getLogger(__name__)
 
 class EmailTracker:
     def __init__(self, db_path: Optional[str] = None) -> None:
-        self.db_path = db_path or getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+        self.db_path = (
+            db_path or getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+        )
 
     def generate_tracking_pixel(self, tracking_id: str) -> str:
         if not tracking_id:
@@ -28,7 +29,7 @@ class EmailTracker:
             with sqlite3.connect(self.db_path) as conn:
                 conn.execute(
                     "UPDATE applications SET opened = 1, opened_at = CURRENT_TIMESTAMP WHERE tracking_id = ?",
-                    (tracking_id,)
+                    (tracking_id,),
                 )
                 conn.commit()
                 logger.info(f"Email opened: {tracking_id}")
@@ -44,7 +45,7 @@ class EmailTracker:
             with sqlite3.connect(self.db_path) as conn:
                 conn.execute(
                     "UPDATE applications SET clicked = 1 WHERE tracking_id = ?",
-                    (tracking_id,)
+                    (tracking_id,),
                 )
                 conn.commit()
                 logger.info(f"Link clicked: {tracking_id}")
@@ -60,15 +61,16 @@ class EmailTracker:
             with sqlite3.connect(self.db_path) as conn:
                 conn.execute(
                     "UPDATE applications SET responded = 1, response_type = ? WHERE tracking_id = ?",
-                    (response_type, tracking_id)
+                    (response_type, tracking_id),
                 )
                 row = conn.execute(
-                    "SELECT job_id FROM applications WHERE tracking_id = ?", (tracking_id,)
+                    "SELECT job_id FROM applications WHERE tracking_id = ?",
+                    (tracking_id,),
                 ).fetchone()
                 if row:
                     conn.execute(
                         "UPDATE jobs SET status = 'responded', response_type = ?, responded_at = CURRENT_TIMESTAMP WHERE job_id = ?",
-                        (response_type, row[0])
+                        (response_type, row[0]),
                     )
                 conn.commit()
                 logger.info(f"Response recorded: {tracking_id} -> {response_type}")
@@ -109,7 +111,9 @@ class EmailTracker:
                     "responded": responded,
                     "open_rate": round(opened / total * 100, 1) if total > 0 else 0.0,
                     "click_rate": round(clicked / total * 100, 1) if total > 0 else 0.0,
-                    "response_rate": round(responded / total * 100, 1) if total > 0 else 0.0,
+                    "response_rate": round(responded / total * 100, 1)
+                    if total > 0
+                    else 0.0,
                 }
         except Exception as e:
             logger.warning(f"get_tracking_stats failed: {e}")

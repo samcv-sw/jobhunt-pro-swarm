@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="description" content="JobHunt Pro: The world's most advanced AI-powered job application system. Fully automated, invisible, and hyper-efficient.">
+    <meta property="og:title" content="JobHunt Pro - Ultimate AI Auto-Applier">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{ title | default('JobHunt Pro') }}</title>
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+  <link rel="stylesheet" href="/static/css/cyberpunk.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+<style>:root {
+ --bg: #050508;
+ --card: #0d0e15;
+ --cyan: #00f0ff;
+ --magenta: #ff0055;
+ --green: #22c55e;
+ --text: #ffffff;
+ --muted: #6b7280;
+ --border: rgba(255,255,255,0.06);
+ --gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);}
+.matrix-bg {
+ position: fixed;
+ top: 0; left: 0;
+ width: 100%; height: 100%;
+ background: linear-gradient(180deg, rgba(0,240,255,0.02) 0%, transparent 50%, rgba(255,0,85,0.02) 100%);
+ pointer-events: none;
+ z-index: 0;}
+.scanline {
+ position: fixed;
+ top: 0; left: 0;
+ width: 100%; height: 100%;
+ background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.01) 2px, rgba(0,240,255,0.01) 4px);
+ pointer-events: none;
+ z-index: 1;}
+/* Header & Balance */
+ .page-header {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ margin-bottom: 40px;
+ border-bottom: 1px solid var(--border);
+ padding-bottom: 24px;}
+.page-header h1 {
+ font-family: 'Orbitron', sans-serif;
+ font-size: 28px;
+ font-weight: 800;
+ letter-spacing: 1px;}
+.page-header h1 .cyan {
+ color: var(--cyan);
+ text-shadow: 0 0 20px rgba(0,240,255,0.4);}
+.balance-box {
+ background: rgba(13, 14, 21, 0.8);
+ border: 1px solid var(--cyan);
+ border-radius: 16px;
+ padding: 18px 24px;
+ display: flex;
+ align-items: center;
+ gap: 20px;
+ box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);}
+.balance-label {
+ color: var(--muted);
+ font-size: 12px;
+ text-transform: uppercase;
+ letter-spacing: 1px;}
+.balance-value {
+ font-family: 'Orbitron', sans-serif;
+ font-size: 26px;
+ font-weight: 800;
+ color: var(--cyan);}
+/* Alerts */
+ .alert {
+ padding: 14px 18px;
+ border-radius: 10px;
+ margin-bottom: 24px;
+ font-size: 13px;}
+.alert.success {
+ background: rgba(34, 197, 94, 0.1);
+ border: 1px solid rgba(34, 197, 94, 0.3);
+ color: #22c55e;}
+.alert.error {
+ background: rgba(239, 68, 68, 0.1);
+ border: 1px solid rgba(239, 68, 68, 0.3);
+ color: #f87171;}
+/* Store Section */
+ .section-title {
+ font-family: 'Orbitron', sans-serif;
+ font-size: 20px;
+ font-weight: 700;
+ margin: 40px 0 20px;
+ letter-spacing: 2px;
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ border-left: 4px solid var(--magenta);
+ padding-left: 12px;}
+.section-desc {
+ color: var(--muted);
+ font-size: 12px;
+ margin-bottom: 24px;}
+/* Service Grid */
+ .store-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+ gap: 20px;}
+.store-card {
+ background: var(--card);
+ border: 1px solid var(--border);
+ border-radius: 16px;
+ padding: 24px;
+ display: flex;
+ flex-direction: column;
+ justify-content: space-between;
+ transition: all 0.3s;
+ position: relative;
+ overflow: hidden;}
+.store-card:hover {
+ transform: translateY(-5px);
+ border-color: rgba(255, 0, 85, 0.3);
+ box-shadow: 0 10px 30px rgba(255, 0, 85, 0.05);}
+.store-card.unlocked {
+ border-color: var(--green);
+ box-shadow: 0 0 15px rgba(34, 197, 94, 0.05);}
+.store-card.unlocked::before {
+ content: 'UNLOCKED';
+ position: absolute;
+ top: 15px; right: -30px;
+ background: var(--green);
+ color: #000;
+ font-size: 9px;
+ font-weight: 800;
+ padding: 4px 30px;
+ transform: rotate(45deg);
+ letter-spacing: 1px;}
+.card-header {
+ margin-bottom: 16px;}
+.package-badge {
+ font-size: 9px;
+ color: var(--cyan);
+ text-transform: uppercase;
+ letter-spacing: 2px;
+ margin-bottom: 6px;
+ display: block;}
+.store-card h3 {
+ font-size: 16px;
+ font-weight: 600;
+ margin-bottom: 8px;}
+.store-card p {
+ color: var(--muted);
+ font-size: 11px;
+ line-height: 1.6;
+ margin-bottom: 16px;}
+.card-footer {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ margin-top: auto;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);}
+.price-label {
+ font-size: 10px;
+ color: var(--muted);
+ text-transform: uppercase;}
+.price-val {
+ font-family: 'Orbitron', sans-serif;
+ font-size: 22px;
+ font-weight: 800;
+ color: var(--text);}
+.price-val.cyan-glow {
+ color: var(--cyan);
+ text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);}
+/* Buttons */
+ .btn {
+ padding: 10px 18px;
+ border-radius: 8px;
+ font-family: 'Orbitron', sans-serif;
+ font-size: 11px;
+ font-weight: 700;
+ cursor: pointer;
+ transition: all 0.3s;
+ border: none;
+ letter-spacing: 1px;
+ text-transform: uppercase;}
+.btn-primary {
+ background: linear-gradient(135deg, var(--cyan), #0088aa);
+ color: #000;}
+.btn-primary:hover {
+ box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+ transform: translateY(-1px);}
+.btn-secondary {
+ background: transparent;
+ color: var(--muted);
+ border: 1px solid var(--border);
+ cursor: default;}
+.btn-magenta {
+ background: linear-gradient(135deg, var(--magenta), #cc0044);
+ color: #fff;}
+.btn-magenta:hover {
+ box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+ transform: translateY(-1px);}
+.btn-topup {
+ background: transparent;
+ color: var(--cyan);
+ border: 1px solid var(--cyan);
+ text-decoration: none;
+ display: inline-block;}
+.btn-topup:hover {
+ background: rgba(0, 240, 255, 0.1);
+ box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);}
+/* Terminal component for Active Upgrades */
+ .terminal-wrap {
+ background: #08080c;
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 20px;
+ margin-top: 40px;
+ font-family: monospace;
+ font-size: 12px;}
+.terminal-header {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ border-bottom: 1px solid var(--border);
+ padding-bottom: 12px;
+ margin-bottom: 16px;
+ color: var(--muted);}
+.terminal-dots {
+ display: flex;
+ gap: 6px;}
+.dot {
+ width: 8px; height: 8px;
+ border-radius: 50%;}
+.dot.red { background: #f87171;}
+.dot.yellow { background: #fbbf24;}
+.dot.green { background: #4ade80;}
+.terminal-title {
+ font-size: 11px;
+ letter-spacing: 1px;
+ text-transform: uppercase;}
+.terminal-.terminal-row {
+ padding: 6px 0;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ border-bottom: 1px dashed rgba(255,255,255,0.03);}
+.terminal-row:last-child {
+ border-bottom: none;}
+.terminal-row .date { color: var(--muted);}
+.terminal-row .name { color: var(--cyan);}
+.terminal-row .price { color: var(--magenta);}
+.terminal-empty {
+ color: var(--muted);
+ text-align: center;
+ padding: 20px;
+ font-style: italic;}
+/* Mobile Hamburger & Navbar */
+ .navbar { display: none;}
+.hamburger { display: none;}
+.navbar {
+ display: flex; align-items: center; justify-content: space-between;
+ position: fixed; top: 0; left: 0; right: 0; height: 56px;
+ background: linear-gradient(135deg, #10101f, #050508);
+ border-bottom: 1px solid var(--border);
+ padding: 0 20px; z-index: 1000;}
+.nav-brand {
+ font-family: 'Orbitron', sans-serif;
+ font-size: 18px; font-weight: 900;
+ background: linear-gradient(135deg, var(--cyan), var(--magenta));
+ -webkit-background-clip: text; -webkit-text-fill-color: transparent;}
+.hamburger {
+ display: block; background: none; border: none; color: #fff;
+ font-size: 24px; cursor: pointer; padding: 8px;}
+.nav-menu {
+ display: none;
+ position: fixed; top: 56px; left: 0; right: 0;
+ background: #10101f;
+ border-bottom: 1px solid var(--border);
+ flex-direction: column; padding: 12px; gap: 4px;
+ z-index: 999;}
+.nav-menu.open { display: flex;}
+.nav-menu a {
+ color: #94a3b8; text-decoration: none;
+ padding: 12px 16px; border-radius: 8px;
+ font-size: 14px;}
+.nav-menu a.active {
+ background: rgba(59, 130, 246, 0.2) !important;
+ color: #fff !important;
+ border-left: 3px solid #3b82f6;
+ padding-left: 13px;
+ font-weight: 600;}
+.page-header { flex-direction: column; gap: 20px; align-items: flex-start;}
+.balance-box { width: 100%; justify-content: space-between;}
+/* Multi-select bulk checkout */
+ .checkbox-select {
+ position: absolute;
+ top: 12px; left: 12px;
+ z-index: 2;
+ width: 22px; height: 22px;
+ cursor: pointer;
+ accent-color: var(--cyan);}
+.store-card {
+ position: relative !important;}
+.bulk-bar {
+ position: sticky;
+ bottom: 0;
+ background: rgba(7,7,21,0.95);
+ border-top: 1px solid var(--border);
+ padding: 14px 24px;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ backdrop-filter: blur(12px);
+ z-index: 100;
+ margin-top: 20px;
+ border-radius: 12px 12px 0 0;}
+.bulk-count { font-size: 13px; color: var(--muted);}
+.bulk-count strong { color: var(--cyan); font-family: var(--mono);}
+.btn-bulk-buy {
+ padding: 10px 24px;
+ border-radius: 8px;
+ border: none;
+ background: linear-gradient(135deg, var(--cyan), #0088aa);
+ color: #000;
+ font-size: 14px;
+ font-weight: 700;
+ cursor: pointer;
+ transition: all 0.3s;}
+.btn-bulk-buy:hover { box-shadow: 0 0 25px rgba(0,229,255,0.3); transform: translateY(-2px);}
+.btn-bulk-buy:disabled { opacity: 0.4; cursor: not-allowed; transform: none;}</style>
+</head>
+
+<body class="cyberpunk-body">
+
+<meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ 
+ 
+
+<div class="matrix-bg"></div>
+ <div class="scanline"></div>
+
+ <!-- ===== Mobile Navbar ===== -->
+ <nav class="navbar">
+ <div class="nav-brand">JOBHUNT PRO</div>
+ <button class="hamburger" onclick="toggleNav()">☰</button>
+ <div class="nav-menu" id="navMenu">
+ <a href="/user-dashboard"> 📊 Dashboard</a>
+ <a href="/upload-cv"> 📝 Upload CV</a>
+ <a href="/new-campaign"> 🚀 New Campaign</a>
+ <a href="/services" class="active"> ✨ Premium Services</a>
+ <a href="/wallet"> 💰 Wallet</a>
+ <a href="/referral"> 🎁 Referrals</a>
+ <a href="/api/docs"> 🔌 API</a>
+ <a href="/pricing">💳 Pricing Info</a>
+ <a href="/logout"> 🚪 Logout</a>
+ </div>
+ </nav>
+
+ <!-- ===== Sidebar ===== -->
+ <div class="sidebar">
+<div class="logo">JobHunt Pro</div>
+<nav class="nav">
+<a href="/user-dashboard"> 📊 Dashboard</a>
+<a href="/upload-cv"> 📝 Upload CV</a>
+<a href="/new-campaign"> 🚀 New Campaign</a>
+<a href="/sent-emails" style="color:#3b82f6;"> 📬 Sent Emails</a>
+<a href="/services" class="active"> ✨ Premium Services</a>
+<a href="/wallet"> 💰 Wallet</a>
+<a href="/referral"> 🎁 Referrals</a>
+<a href="/stats" style="color: #22c55e;">📈 Stats</a>
+<a href="/api/docs"> 🔌 API</a>
+<a href="/email-test"> ✉️ Email Test</a>
+<a href="/pricing"> 💎 Pricing</a>
+<a href="/contact"> 💬 Contact</a>
+<a href="/export" style="color: #f97316;">📥 Export</a>
+<a href="https://wa.me/96171019053?text=Hi%20Sam%21%20JobHunt%20Pro%20Support" target="_blank" style="color: #25D366;">💬 WhatsApp</a>
+<a href="/logout" style="margin-top:auto;color:#f87171;"> 🚪 Logout</a>
+</nav>
+</div>
+<div class="page-header">
+ <div>
+ <h1> PREMIUM <span class="cyan">SERVICES</span></h1>
+ <p style="color: var(--muted); font-size:12px; margin-top:4px;">Directly unlock high-profit expert tools using your wallet balance</p>
+ </div>
+ 
+ {% if user %}
+ <div class="balance-box">
+ <div>
+ <div class="balance-label">Wallet Balance</div>
+ <div class="balance-value">${{ "%.2f"|format(user.wallet_balance) }}</div>
+ </div>
+ <a href="/wallet" class="btn btn-topup">+ Top Up</a>
+ </div>
+ {% endif %}
+ </div>
+
+ <!-- Success/Error Feedback -->
+ {% if request.query_params.get('success') == 'purchased' %}
+ <div class="alert success">
+ ✅ Success! <strong>{{ request.query_params.get('package') }}</strong> has been permanently unlocked and credited to your profile.
+ </div>
+ {% endif %}
+ 
+ {% if request.query_params.get('error') == 'insufficient_funds' %}
+ <div class="alert error">
+ ❌ Insufficient wallet balance! Please go to the <strong><a href="/wallet" style="color: #f87171; text-decoration: underline;">💰 Wallet</a></strong> page and top up to unlock this feature.
+ </div>
+ {% endif %}
+ 
+ {% if request.query_params.get('error') == 'invalid_package' %}
+ <div class="alert error">
+ ❌ Invalid service package selected.
+ </div>
+ {% endif %}
+
+ <!-- A La Carte store -->
+ <h2 class="section-title">// A LA CARTE FEATURES & SERVICES</h2>
+ <p class="section-desc">Unlock advanced AI optimization tools and expert features to boost your response rate. Priced between $2 and $20.</p>
+ 
+ <div class="store-grid">
+ {% for s in services %}
+ <div class="store-card {% if s.package in active_ids %}unlocked{% endif %}">
+ <input dir="auto" type="checkbox" class="checkbox-select" data-id="{{ s.package }}" data-type="service" data-price="{{ s.price_usd }}" data-name="{{ s.name }}">
+ <div class="card-header">
+ <span class="package-badge">Add-on Feature</span>
+ <h3>{{ s.name }}</h3>
+ </div>
+ <p>{{ s.description }}</p>
+ <div class="card-footer">
+ <div>
+ <div class="price-label">Price</div>
+ <div class="price-val cyan-glow">${{ "%.2f"|format(s.price_usd) }}</div>
+ </div>
+ 
+ <form method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ s.name }}', '{{ s.price_usd }}')">
+ <input dir="auto" type="hidden" name="package_id" value="{{ s.package }}">
+ <input dir="auto" type="hidden" name="service_type" value="service">
+ {% if s.package in active_ids %}
+ <button type="button" class="btn btn-secondary" disabled>Active</button>
+ {% else %}
+ <button type="submit" class="btn btn-primary">Unlock</button>
+ {% endif %}
+ </form>
+ </div>
+ </div>
+ {% endfor %}
+ </div>
+
+ <!-- Follow-Up Automation Highlight -->
+ <h2 class="section-title" style="border-left-color: var(--cyan);">// 📬 FOLLOW-UP AUTOMATION (NEW)</h2>
+ <p class="section-desc">AI-powered follow-up emails that automatically check in with employers who haven't responded. 3 tiers based on volume. Each follow-up is personalized by Groq AI.</p>
+ <div class="store-grid" style="margin-bottom: 20px;">
+ {% for s in services %}
+ {% if 'follow-up-automation' in s.package %}
+ <div class="store-card {% if s.package in active_ids %}unlocked{% endif %}" style="border-left: 3px solid var(--cyan);">
+ <input dir="auto" type="checkbox" class="checkbox-select" data-id="{{ s.package }}" data-type="service" data-price="{{ s.price_usd }}" data-name="{{ s.name }}">
+ <div class="card-header">
+ <span class="package-badge" style="color: var(--cyan);">FOLLOW-UP TIER</span>
+ <h3>{{ s.name }}</h3>
+ </div>
+ <p>{{ s.description }}</p>
+ <div class="card-footer">
+ <div>
+ <div class="price-label">Per Campaign</div>
+ <div class="price-val cyan-glow">${{ "%.2f"|format(s.price_usd) }}</div>
+ </div>
+ <form method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ s.name }}', '{{ s.price_usd }}')">
+ <input dir="auto" type="hidden" name="package_id" value="{{ s.package }}">
+ <input dir="auto" type="hidden" name="service_type" value="service">
+ {% if s.package in active_ids %}
+ <button type="button" class="btn btn-secondary" disabled>Active</button>
+ {% else %}
+ <button type="submit" class="btn btn-primary">Unlock</button>
+ {% endif %}
+ </form>
+ </div>
+ </div>
+ {% endif %}
+ {% endfor %}
+ </div>
+
+ <!-- Bouquet Packages store -->
+ <h2 class="section-title">// COMBINATION BOUQUET PACKAGES</h2>
+ <p class="section-desc">Combine multiple features and larger candidate reach at bulk discount pricing.</p>
+ 
+ <div class="store-grid">
+ {% for b in bouquets %}
+ <div class="store-card {% if b.bouquet in active_ids %}unlocked{% endif %}">
+ <input dir="auto" type="checkbox" class="checkbox-select" data-id="{{ b.bouquet }}" data-type="bouquet" data-price="{{ b.price_usd }}" data-name="{{ b.name }}">
+ <div class="card-header">
+ <span class="package-badge" style="color: var(--magenta);">Value Bundle</span>
+ <h3>{{ b.name }}</h3>
+ </div>
+ <p>{{ b.description }}</p>
+ <div class="card-footer">
+ <div>
+ <div class="price-label">Bundle Price</div>
+ <div class="price-val" style="color: var(--magenta); text-shadow: 0 0 10px rgba(255, 0, 85, 0.3);">${{ "%.2f"|format(b.price_usd) }}</div>
+ </div>
+ 
+ <form method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ b.name }}', '{{ b.price_usd }}')">
+ <input dir="auto" type="hidden" name="package_id" value="{{ b.bouquet }}">
+ <input dir="auto" type="hidden" name="service_type" value="bouquet">
+ {% if b.bouquet in active_ids %}
+ <button type="button" class="btn btn-secondary" disabled>Active</button>
+ {% else %}
+ <button type="submit" class="btn btn-magenta">Buy Bundle</button>
+ {% endif %}
+ </form>
+ </div>
+ </div>
+ {% endfor %}
+ </div>
+
+ <!-- Bulk purchase bar -->
+ <form id="bulkForm" method="POST" action="/services/purchase-bulk" onsubmit="return confirmBulk()">
+ <div class="bulk-bar" id="bulkBar">
+ <div class="bulk-count">
+ Selected: <strong id="selectedCount">0</strong> items &nbsp;|&nbsp; Total: <strong id="selectedTotal">$0.00</strong>
+ </div>
+ <button type="submit" class="btn-bulk-buy" id="bulkBtn" disabled>Buy Selected</button>
+ </div>
+ <input dir="auto" type="hidden" name="selected_items" id="selectedInput" value="">
+ </form>
+
+ <!-- Terminal log for active upgrades -->
+ <div class="terminal-wrap">
+ <div class="terminal-header">
+ <div class="terminal-dots">
+ <div class="dot red"></div>
+ <div class="dot yellow"></div>
+ <div class="dot green"></div>
+ </div>
+ <div class="terminal-title">active_upgrades_terminal.sys</div>
+ <div>SECURE CONNECTION</div>
+ </div>
+ <div class="terminal-body">
+ {% if purchased %}
+ {% for p in purchased %}
+ <div class="terminal-row">
+ <span>
+ <span class="date">[{{ p.created_at[:16] }}]</span>
+ <span style="color: #888;">SYS_UNLOCK:</span>
+ <span class="name">{{ p.package_name }}</span>
+ <span style="color: var(--green); font-size:10px; font-weight:700; margin-inline-start: 8px;">[ACTIVE]</span>
+ </span>
+ <span class="price">${{ "%.2f"|format(p.price_paid) }}</span>
+ </div>
+ {% endfor %}
+ {% else %}
+ <div class="terminal-empty">
+ &gt; No active system upgrades detected. Unlock features above to populate.
+ </div>
+ {% endif %}
+ </div>
+ </div>
+
+ </div>
+
+ 
+<script>
+function confirmUnlock(name, price) {
+ return confirm('Unlock ' + name + ' for $' + price + '? This will be deducted from your wallet balance.');
+}
+
+function confirmBulk() {
+ var checks = document.querySelectorAll('.checkbox-select:checked');
+ var names = [];
+ var total = 0;
+ checks.forEach(function(c) {
+ names.push(c.dataset.name);
+ total += parseFloat(c.dataset.price);
+ });
+ return confirm('Buy ' + checks.length + ' items for $' + total.toFixed(2) + '? This will be deducted from your wallet balance.');
+}
+
+// Multi-select logic
+document.addEventListener('change', function(e) {
+ if (e.target.classList.contains('checkbox-select')) {
+ updateBulkBar();
+ }
+});
+
+function updateBulkBar() {
+ var checks = document.querySelectorAll('.checkbox-select:checked');
+ var count = checks.length;
+ var total = 0;
+ var items = [];
+ checks.forEach(function(c) {
+ total += parseFloat(c.dataset.price);
+ items.push(c.dataset.id + '|' + c.dataset.type);
+ });
+ document.getElementById('selectedCount').textContent = count;
+ document.getElementById('selectedTotal').textContent = '$' + total.toFixed(2);
+ document.getElementById('selectedInput').value = items.join(',');
+ document.getElementById('bulkBtn').disabled = (count === 0);
+}
+</script>
+</div>
+
+</body>
+</html>

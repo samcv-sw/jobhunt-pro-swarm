@@ -9,18 +9,15 @@ Implements:
 - Data export in machine-readable format
 - Soft-delete with recovery window
 """
-import asyncio
+
 import hashlib
 import logging
 import os
 import shutil
 import uuid
-from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional
+from datetime import datetime, timezone
+from typing import Dict, List
 
-import httpx
-
-import config
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +45,9 @@ class ComplianceEngine:
         self.erasure_log = []
         self.audit_log = []
 
-    async def handle_erasure_request(self, user_id: str, reason: str = "GDPR Art.17") -> Dict:
+    async def handle_erasure_request(
+        self, user_id: str, reason: str = "GDPR Art.17"
+    ) -> Dict:
         """
         Handle a Right to be Forgotten request.
         Steps:
@@ -98,12 +97,16 @@ class ComplianceEngine:
             verification_hash = hashlib.sha256(verification_data.encode()).hexdigest()
             audit_entry["erasure_verification"] = verification_hash
             audit_entry["status"] = "completed"
-            audit_entry["completed_at"] = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
+            audit_entry["completed_at"] = (
+                datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
+            )
 
             # 6. Log to compliance audit trail
             await self._log_audit(audit_entry)
 
-            logger.info(f"GDPR ERASURE COMPLETE: user={user_id}, verification={verification_hash[:16]}")
+            logger.info(
+                f"GDPR ERASURE COMPLETE: user={user_id}, verification={verification_hash[:16]}"
+            )
 
             return {
                 "success": True,
@@ -136,7 +139,9 @@ class ComplianceEngine:
         export_data = {
             "export_info": {
                 "user_id": user_id,
-                "export_date": datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
+                "export_date": datetime.now(timezone.utc)
+                .replace(tzinfo=None)
+                .isoformat(),
                 "format": "JSON",
                 "regulation": "GDPR Article 20",
             },
@@ -183,14 +188,18 @@ class ComplianceEngine:
                 export_data["referrals"] = referrals
 
             # Log the export
-            await self._log_audit({
-                "audit_id": str(uuid.uuid4())[:16],
-                "user_id": user_id,
-                "action": "DATA_EXPORT",
-                "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
-                "data_categories": list(export_data.keys()),
-                "status": "completed",
-            })
+            await self._log_audit(
+                {
+                    "audit_id": str(uuid.uuid4())[:16],
+                    "user_id": user_id,
+                    "action": "DATA_EXPORT",
+                    "timestamp": datetime.now(timezone.utc)
+                    .replace(tzinfo=None)
+                    .isoformat(),
+                    "data_categories": list(export_data.keys()),
+                    "status": "completed",
+                }
+            )
 
             return {
                 "success": True,
@@ -212,13 +221,17 @@ class ComplianceEngine:
         deleted = {}
         try:
             from core.database import Database
+
             db = Database()
             async with db.get_session() as session:
                 from sqlalchemy import text
 
                 # Delete in order (respecting foreign keys)
                 tables = [
-                    ("campaign_emails", "campaign_id IN (SELECT campaign_id FROM campaigns WHERE user_id = :uid)"),
+                    (
+                        "campaign_emails",
+                        "campaign_id IN (SELECT campaign_id FROM campaigns WHERE user_id = :uid)",
+                    ),
                     ("campaigns", "user_id = :uid"),
                     ("wallet_transactions", "user_id = :uid"),
                     ("referrals", "referrer_id = :uid OR referred_id = :uid"),
@@ -231,8 +244,7 @@ class ComplianceEngine:
 
                 for table, condition in tables:
                     result = await session.execute(
-                        text(f"DELETE FROM {table} WHERE {condition}"),
-                        {"uid": user_id}
+                        text(f"DELETE FROM {table} WHERE {condition}"), {"uid": user_id}
                     )
                     deleted[table] = result.rowcount
 
@@ -251,6 +263,7 @@ class ComplianceEngine:
         deleted = {}
         try:
             import redis
+
             redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
             r = redis.from_url(redis_url)
 
@@ -306,18 +319,23 @@ class ComplianceEngine:
         """Erase data from external APIs (email lists, etc.)."""
         # This is where you'd call unsubscribe APIs for external services
         # For now, we just log it
-        logger.info(f"External API erasure: user={user_id} (manual verification required)")
+        logger.info(
+            f"External API erasure: user={user_id} (manual verification required)"
+        )
         return {"status": "manual_verification_required"}
 
     async def _log_audit(self, entry: Dict):
         """Log to compliance audit trail."""
         self.audit_log.append(entry)
         # In production, write to a tamper-evident audit log
-        logger.info(f"AUDIT: {entry.get('action')} user={entry.get('user_id')} status={entry.get('status')}")
+        logger.info(
+            f"AUDIT: {entry.get('action')} user={entry.get('user_id')} status={entry.get('status')}"
+        )
 
     async def _get_db_session(self):
         """Get async database session."""
         from core.database import Database
+
         db = Database()
         return db.get_session()
 
@@ -325,6 +343,7 @@ class ComplianceEngine:
         """Get user by ID."""
         from core.database import User
         from sqlalchemy import select
+
         result = await session.execute(select(User).where(User.user_id == user_id))
         return result.scalar_one_or_none()
 
@@ -332,53 +351,82 @@ class ComplianceEngine:
         """Get user CV profiles."""
         from core.database import CVProfile
         from sqlalchemy import select
+
         result = await session.execute(
             select(CVProfile).where(CVProfile.user_id == user_id)
         )
-        return [{"id": p.id, "name": p.profile_name, "skills": p.skills} for p in result.scalars().all()]
+        return [
+            {"id": p.id, "name": p.profile_name, "skills": p.skills}
+            for p in result.scalars().all()
+        ]
 
     async def _get_user_campaigns(self, session, user_id: str) -> List[Dict]:
         """Get user campaigns."""
         from core.database import Campaign
         from sqlalchemy import select
+
         result = await session.execute(
             select(Campaign).where(Campaign.user_id == user_id)
         )
-        return [{"id": c.campaign_id, "status": c.status, "sent": c.sent_count} for c in result.scalars().all()]
+        return [
+            {"id": c.campaign_id, "status": c.status, "sent": c.sent_count}
+            for c in result.scalars().all()
+        ]
 
     async def _get_user_emails(self, session, user_id: str) -> List[Dict]:
         """Get user sent emails."""
         from core.database import Campaign, CampaignEmail
         from sqlalchemy import select
+
         result = await session.execute(
             select(CampaignEmail)
             .join(Campaign, Campaign.campaign_id == CampaignEmail.campaign_id)
             .where(Campaign.user_id == user_id)
         )
-        return [{"company": e.company_name, "status": e.status} for e in result.scalars().all()]
+        return [
+            {"company": e.company_name, "status": e.status}
+            for e in result.scalars().all()
+        ]
 
     async def _get_user_transactions(self, session, user_id: str) -> List[Dict]:
         """Get user wallet transactions."""
         from core.database import WalletTransaction
         from sqlalchemy import select
+
         result = await session.execute(
             select(WalletTransaction).where(WalletTransaction.user_id == user_id)
         )
-        return [{"type": t.transaction_type, "amount": float(t.amount), "date": str(t.created_at)} for t in result.scalars().all()]
+        return [
+            {
+                "type": t.transaction_type,
+                "amount": float(t.amount),
+                "date": str(t.created_at),
+            }
+            for t in result.scalars().all()
+        ]
 
     async def _get_user_referrals(self, session, user_id: str) -> List[Dict]:
         """Get user referrals."""
         from core.database import Referral
         from sqlalchemy import select
+
         result = await session.execute(
             select(Referral).where(
                 (Referral.referrer_id == user_id) | (Referral.referred_id == user_id)
             )
         )
-        return [{"referrer": r.referrer_id, "referred": r.referred_id, "commission": float(r.commission)} for r in result.scalars().all()]
+        return [
+            {
+                "referrer": r.referrer_id,
+                "referred": r.referred_id,
+                "commission": float(r.commission),
+            }
+            for r in result.scalars().all()
+        ]
 
 
 # ─── Convenience Functions ──────────────────────────────────
+
 
 async def gdpr_erase_user(user_id: str, reason: str = "GDPR Art.17") -> Dict:
     """Convenience function for GDPR erasure."""

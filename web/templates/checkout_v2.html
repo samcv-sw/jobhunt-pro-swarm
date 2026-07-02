@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="أكمل عملية شراء JobHunt Pro بأمان.">
-  <meta name="robots" content="noindex, follow">
-  <title>الدفع — JobHunt Pro</title>
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
 
+<html dir="rtl" lang="ar">
+<head>
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="أكمل عملية شراء JobHunt Pro بأمان." name="description"/>
+<meta content="noindex, follow" name="robots"/>
+<title>{{ _('الدفع — JobHunt Pro') }}</title>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <style>
  * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -270,89 +270,73 @@
  }
  </style>
 </head>
-
 <body class="cyberpunk-body">
 <div class="main" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;">
-
 <div class="checkout-container">
- <div class="logo">JOBHUNT PRO</div>
-
- <!-- Order Summary -->
- <div class="order-summary">
- <div class="order-label">الخدمة</div>
+<div class="logo">{{ _('JOBHUNT PRO') }}</div>
+<!-- Order Summary -->
+<div class="order-summary">
+<div class="order-label">الخدمة</div>
  {% if order.item_type == 'bulk' and order.items %}
  <div class="order-service" style="font-size:13px;">
  {% for item in order.items %}
  <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
- <span>{{ item.service_name }}{% if item.quantity > 1 %} x{{ item.quantity }}{% endif %}</span>
- <span style="font-family:'JetBrains Mono',monospace;color:#00e5ff;">${{ "%.2f"|format(item.line_total) }}</span>
- </div>
+<span>{{ item.service_name }}{% if item.quantity > 1 %} x{{ item.quantity }}{% endif %}</span>
+<span style="font-family:'JetBrains Mono',monospace;color:#00e5ff;">${{ "%.2f"|format(item.line_total) }}</span>
+</div>
  {% endfor %}
  </div>
- <div class="order-amount">${{ "%.2f"|format(order.total_price or order.price) }}</div>
- <div style="font-size:11px;color:#6b7280;">{{ order.items|length }} عنصر (عناصر) في هذا الطلب</div>
+<div class="order-amount">${{ "%.2f"|format(order.total_price or order.price) }}</div>
+<div style="font-size:11px;color:#6b7280;">{{ order.items|length }} عنصر (عناصر) في هذا الطلب</div>
  {% else %}
  <div class="order-service">{{ order.service_name }}</div>
- <div class="order-amount">${{ "%.2f"|format(order.price) }}</div>
+<div class="order-amount">${{ "%.2f"|format(order.price) }}</div>
  {% endif %}
  <div class="order-id">رقم الطلب: {{ order.order_id }}</div>
- <div class="order-status
- {% if order.status in ('pending', 'pending_payment') %}status-pending{% elif order.status == 'paid' %}status-paid{% elif order.status == 'delivered' %}status-delivered{% endif %}">
+<div class="order-status {% if order.status in ('pending', 'pending_payment') %}status-pending{% elif order.status == 'paid' %}status-paid{% elif order.status == 'delivered' %}status-delivered{% endif %}">
  {{ order.status|upper }}
  </div>
- <div style="margin-top:12px; font-size:12px; color:#6b7280;">
+<div style="margin-top:12px; font-size:12px; color:#6b7280;">
  العميل: {{ order.customer_name }} <{{ order.customer_email }}>
  </div>
- </div>
+</div>
 
  {% if order.payment_code %}
  <!-- Payment Code Section -->
- <div style="margin-bottom:24px; padding:20px; background:rgba(0,229,255,0.05); border:1px solid rgba(0,229,255,0.2); border-radius:16px; text-align:center;">
- <div style="font-size:11px; color:#6b7280; text-transform:uppercase;  margin-bottom:8px;">
+<div style="margin-bottom:24px; padding:20px; background:rgba(0,229,255,0.05); border:1px solid rgba(0,229,255,0.2); border-radius:16px; text-align:center;">
+<div style="font-size:11px; color:#6b7280; text-transform:uppercase;  margin-bottom:8px;">
  رمز الدفع الخاص بك
  </div>
- <div style="font-size:28px; font-weight:900; font-family:'JetBrains Mono',monospace; color:#00e5ff;  user-select:all; cursor:pointer;"
- onclick="copyPaymentCode(this)"
- title="انقر للنسخ">
+<div onclick="copyPaymentCode(this)" style="font-size:28px; font-weight:900; font-family:'JetBrains Mono',monospace; color:#00e5ff;  user-select:all; cursor:pointer;" title="انقر للنسخ">
  {{ order.payment_code }}
  </div>
- <div style="font-size:11px; color:#6b7280; margin-top:8px;">
- انقر للنسخ &bull; ستحتاج إلى هذا الرمز للتحقق من الدفع
+<div style="font-size:11px; color:#6b7280; margin-top:8px;">
+ انقر للنسخ • ستحتاج إلى هذا الرمز للتحقق من الدفع
  </div>
- </div>
+</div>
  {% endif %}
 
  {% if order.status in ('pending', 'pending_payment') %}
  <!-- Payment Section -->
- 
- <!-- NOWPayments One-Click Payment -->
- <div class="nowpayments-section" style="margin-bottom:24px; padding:20px; background:rgba(139,92,246,0.05); border:1px solid rgba(139,92,246,0.15); border-radius:16px;">
- <div style="font-size:13px; color:#94a3b8; margin-bottom:12px;">
+<!-- NOWPayments One-Click Payment -->
+<div class="nowpayments-section" style="margin-bottom:24px; padding:20px; background:rgba(139,92,246,0.05); border:1px solid rgba(139,92,246,0.15); border-radius:16px;">
+<div style="font-size:13px; color:#94a3b8; margin-bottom:12px;">
  ادفع فوراً باستخدام البطاقة الائتمانية أو العملات الرقمية
  </div>
- <button class="btn-nowpayments"
- data-order-id="{{ order.order_id }}"
- data-amount="{{ order.price }}"
- data-service-name="{{ order.service_name }}"
- data-customer-email="{{ order.customer_email }}"
- onclick="payWithNOWPayments(this)">
- ادفع عبر NOWPayments 
+<button class="btn-nowpayments" data-amount="{{ order.price }}" data-customer-email="{{ order.customer_email }}" data-order-id="{{ order.order_id }}" data-service-name="{{ order.service_name }}" onclick="payWithNOWPayments(this)">
+ {{ _('ادفع عبر NOWPayments') }} 
  </button>
- <div id="nowpaymentsStatus" style="font-size:12px; color:#6b7280; margin-top:8px; display:none;"></div>
- </div>
-
- <!-- Manual Crypto Payment (fallback) -->
- <p class="instruction-text">
+<div id="nowpaymentsStatus" style="font-size:12px; color:#6b7280; margin-top:8px; display:none;"></div>
+</div>
+<!-- Manual Crypto Payment (fallback) -->
+<p class="instruction-text">
  أو أرسل المبلغ المحدد بالعملات الرقمية إلى أحد العناوين أدناه.
  سيتم إنشاء الخدمة المطلوبة وإرسالها إليك عبر البريد الإلكتروني في غضون ثوانٍ من تأكيد الدفع.
  </p>
-
- <div class="crypto-section">
- <div class="crypto-tabs" id="cryptoTabs">
+<div class="crypto-section">
+<div class="crypto-tabs" id="cryptoTabs">
  {% for currency, addr in order.crypto_addresses.items() %}
- <button class="crypto-tab {% if loop.first %}active{% endif %}" 
- onclick="selectCurrency('{{ currency }}', this)" 
- data-currency="{{ currency }}">
+ <button class="crypto-tab {% if loop.first %}active{% endif %}" data-currency="{{ currency }}" onclick="selectCurrency('{{ currency }}', this)">
  {{ currency }}
  </button>
  {% endfor %}
@@ -360,35 +344,33 @@
 
  {% for currency, addr in order.crypto_addresses.items() %}
  <div class="crypto-address" id="addr_{{ currency }}" style="display: {% if loop.first %}block{% else %}none{% endif %};">
- <div class="address-box" onclick="copyAddress(this, '{{ addr }}')" title="انقر للنسخ">
+<div class="address-box" onclick="copyAddress(this, '{{ addr }}')" title="انقر للنسخ">
  {{ addr }}
  </div>
- <div class="copy-hint">انقر على العنوان للنسخ &bull; أرسل بالضبط <strong>${{ "%.2f"|format(order.price) }}</strong> بعملة {{ currency }}</div>
- </div>
+<div class="copy-hint">انقر على العنوان للنسخ • أرسل بالضبط <strong>${{ "%.2f"|format(order.price) }}</strong> بعملة {{ currency }}</div>
+</div>
  {% endfor %}
  </div>
-
- <!-- Verify Payment -->
- <div class="verify-section">
- <h3>هل أرسلت الدفعة بالفعل؟ تحقق هنا:</h3>
- <div style="font-size:12px; color:#6b7280; margin-bottom:12px; line-height:1.5;">
+<!-- Verify Payment -->
+<div class="verify-section">
+<h3>هل أرسلت الدفعة بالفعل؟ تحقق هنا:</h3>
+<div style="font-size:12px; color:#6b7280; margin-bottom:12px; line-height:1.5;">
  أدخل <strong style="color:#00e5ff;">رمز الدفع</strong> الخاص بك (الموضح أعلاه) ومعرف المعاملة من محفظتك الرقمية.
  </div>
- <div class="verify-input-group" style="margin-bottom:8px;">
- <input dir="auto" type="text" id="paymentCode" placeholder="رمز الدفع (مثل A1B2C3D4)" autocomplete="off" style="flex:1; padding:12px 16px; border-radius:10px; border:1px solid rgba(0,229,255,0.2); background:rgba(0,229,255,0.03); color:#fff; font-size:13px; font-family:'JetBrains Mono',monospace; outline:none; text-transform:uppercase; ">
- <input dir="auto" type="text" id="txHash" placeholder="معرف المعاملة / TX ID" autocomplete="off">
- <button class="btn-verify" id="verifyBtn" onclick="verifyPayment('{{ order.order_id }}')">تحقق</button>
- </div>
- <div class="verify-result" id="verifyResult"></div>
- </div>
+<div class="verify-input-group" style="margin-bottom:8px;">
+<input autocomplete="off" dir="auto" id="paymentCode" placeholder="رمز الدفع (مثل A1B2C3D4)" style="flex:1; padding:12px 16px; border-radius:10px; border:1px solid rgba(0,229,255,0.2); background:rgba(0,229,255,0.03); color:#fff; font-size:13px; font-family:'JetBrains Mono',monospace; outline:none; text-transform:uppercase; " type="text"/>
+<input autocomplete="off" dir="auto" id="txHash" placeholder="معرف المعاملة / TX ID" type="text"/>
+<button class="btn-verify" id="verifyBtn" onclick="verifyPayment('{{ order.order_id }}')">تحقق</button>
+</div>
+<div class="verify-result" id="verifyResult"></div>
+</div>
  {% elif order.status == 'paid' or order.status == 'delivered' %}
  <div class="verify-result success" style="display:block;">
  تم تأكيد الدفع! جاري إعداد الخدمة المطلوبة وسيتم إرسالها إلى بريدك الإلكتروني قريباً.
  </div>
- <a href="/services/new" class="btn-done">تصفح المزيد من الخدمات</a>
+<a class="btn-done" href="/services/new">تصفح المزيد من الخدمات</a>
  {% endif %}
 </div>
-
 <script>
 let currentCurrency = '{{ order.crypto_addresses.keys()|first|default("BTC") }}';
 
@@ -547,8 +529,5 @@ async function payWithNOWPayments(btn) {
  btn.textContent = 'ادفع عبر NOWPayments ';
 }
 </script>
-
-</body>
+</div></body>
 </html>
-
-

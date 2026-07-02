@@ -13,6 +13,7 @@ from typing import Dict, List, Optional
 # Lazy imports for AI-powered nudge (optional)
 try:
     import importlib
+
     _HAS_AI = True
 except ImportError:
     _HAS_AI = False
@@ -103,7 +104,9 @@ class FollowUpSequence:
         except Exception as e:
             logger.warning(f"Followup save failed: {e}")
 
-    def register_application(self, company: str, email: str, role: str, applied_date: str = None):
+    def register_application(
+        self, company: str, email: str, role: str, applied_date: str = None
+    ):
         """Register a new application for follow-up tracking."""
         key = f"{company}_{email}"
         if key not in self.tracker["applications"]:
@@ -134,18 +137,20 @@ class FollowUpSequence:
 
             if days_since >= next_day and next_day in FOLLOWUP_STAGES:
                 stage = FOLLOWUP_STAGES[next_day]
-                due.append({
-                    "key": key,
-                    "company": app["company"],
-                    "email": app["email"],
-                    "role": app["role"],
-                    "applied_date": app["applied_date"],
-                    "days_since": days_since,
-                    "stage": stage["name"],
-                    "subject": stage["subject"],
-                    "body": stage["body"],
-                    "followup_day": next_day,
-                })
+                due.append(
+                    {
+                        "key": key,
+                        "company": app["company"],
+                        "email": app["email"],
+                        "role": app["role"],
+                        "applied_date": app["applied_date"],
+                        "days_since": days_since,
+                        "stage": stage["name"],
+                        "subject": stage["subject"],
+                        "body": stage["body"],
+                        "followup_day": next_day,
+                    }
+                )
 
         return due
 
@@ -153,10 +158,14 @@ class FollowUpSequence:
         """Mark a follow-up as sent and schedule the next one."""
         if key in self.tracker["applications"]:
             app = self.tracker["applications"][key]
-            app["followups_sent"].append({
-                "date": datetime.now().isoformat(),
-                "stage": FOLLOWUP_STAGES.get(app["next_followup_day"], {}).get("name", "unknown"),
-            })
+            app["followups_sent"].append(
+                {
+                    "date": datetime.now().isoformat(),
+                    "stage": FOLLOWUP_STAGES.get(app["next_followup_day"], {}).get(
+                        "name", "unknown"
+                    ),
+                }
+            )
 
             # Schedule next follow-up
             current_day = app["next_followup_day"]
@@ -167,7 +176,9 @@ class FollowUpSequence:
                 app["status"] = "completed"
 
             self._save()
-            logger.info(f"Follow-up marked as sent for {key}, next stage: day {app.get('next_followup_day', 'done')}")
+            logger.info(
+                f"Follow-up marked as sent for {key}, next stage: day {app.get('next_followup_day', 'done')}"
+            )
 
     def get_stats(self) -> Dict:
         """Get follow-up statistics."""
@@ -176,12 +187,16 @@ class FollowUpSequence:
             "total_tracked": len(apps),
             "active": sum(1 for a in apps.values() if a["status"] == "active"),
             "completed": sum(1 for a in apps.values() if a["status"] == "completed"),
-            "total_followups_sent": sum(len(a["followups_sent"]) for a in apps.values()),
+            "total_followups_sent": sum(
+                len(a["followups_sent"]) for a in apps.values()
+            ),
         }
 
     # ── PORTED FROM CHRONOS: AI-powered nudge generation ────────────────────
 
-    def generate_ai_nudge(self, company: str, role: str, followup_number: int = 1) -> Optional[str]:
+    def generate_ai_nudge(
+        self, company: str, role: str, followup_number: int = 1
+    ) -> Optional[str]:
         """[PORTED FROM CHRONOS] Generate a personalized follow-up body using AI.
 
         Falls back to static templates if AI is unavailable.
@@ -189,7 +204,11 @@ class FollowUpSequence:
         """
         try:
             # Try to use JHP's AI infrastructure
-            for module_name in ["core.llm_provider_pool", "core.multi_ai_fallback", "core.ai_tailor"]:
+            for module_name in [
+                "core.llm_provider_pool",
+                "core.multi_ai_fallback",
+                "core.ai_tailor",
+            ]:
                 try:
                     mod = importlib.import_module(module_name)
                     if hasattr(mod, "generate_text"):
@@ -199,9 +218,13 @@ class FollowUpSequence:
                             logger.info(f"[AI-NUDGE] Generated follow-up for {company}")
                             return str(result)
                     elif hasattr(mod, "generate_response"):
-                        result = mod.generate_response(f"Write a brief follow-up email (HTML, 3-4 <p> tags) for {role} at {company}, follow-up #{followup_number}.")
+                        result = mod.generate_response(
+                            f"Write a brief follow-up email (HTML, 3-4 <p> tags) for {role} at {company}, follow-up #{followup_number}."
+                        )
                         if result and len(str(result)) > 50:
-                            logger.info(f"[AI-NUDGE] Generated follow-up via {module_name}")
+                            logger.info(
+                                f"[AI-NUDGE] Generated follow-up via {module_name}"
+                            )
                             return str(result)
                 except (ImportError, AttributeError, Exception) as e:
                     logger.debug(f"[AI-NUDGE] {module_name} unavailable: {e}")
@@ -210,11 +233,17 @@ class FollowUpSequence:
             # Fallback: try config-based AI agent
             try:
                 import config
-                gemini_key = getattr(config, "GEMINI_API_KEY", "") or os.getenv("GEMINI_API_KEY", "")
-                groq_key = getattr(config, "GROQ_API_KEY", "") or os.getenv("GROQ_API_KEY", "")
+
+                gemini_key = getattr(config, "GEMINI_API_KEY", "") or os.getenv(
+                    "GEMINI_API_KEY", ""
+                )
+                groq_key = getattr(config, "GROQ_API_KEY", "") or os.getenv(
+                    "GROQ_API_KEY", ""
+                )
 
                 if gemini_key:
                     import google.generativeai as genai
+
                     genai.configure(api_key=gemini_key)
                     model = genai.GenerativeModel("gemini-2.0-flash")
                     prompt = f"Write a short follow-up email (HTML body only, 3-4 <p> tags) for {role} position at {company}, follow-up #{followup_number}. Professional and concise."
@@ -225,12 +254,18 @@ class FollowUpSequence:
 
                 if groq_key:
                     import httpx
+
                     resp = httpx.post(
                         "https://api.groq.com/openai/v1/chat/completions",
                         headers={"Authorization": f"Bearer {groq_key}"},
                         json={
                             "model": "llama-3.3-70b-versatile",
-                            "messages": [{"role": "user", "content": f"Write a brief follow-up email (HTML body, 3-4 <p> tags) for {role} at {company}, follow-up #{followup_number}. Return ONLY the HTML body."}],
+                            "messages": [
+                                {
+                                    "role": "user",
+                                    "content": f"Write a brief follow-up email (HTML body, 3-4 <p> tags) for {role} at {company}, follow-up #{followup_number}. Return ONLY the HTML body.",
+                                }
+                            ],
                             "temperature": 0.7,
                         },
                         timeout=15,
@@ -248,8 +283,14 @@ class FollowUpSequence:
 
         return None
 
-    def get_followup_body(self, company: str, role: str, followup_number: int,
-                           days_since: int, contact_name: str = "Hiring Team") -> str:
+    def get_followup_body(
+        self,
+        company: str,
+        role: str,
+        followup_number: int,
+        days_since: int,
+        contact_name: str = "Hiring Team",
+    ) -> str:
         """[PORTED FROM CHRONOS] Get follow-up body — AI-generated if possible, static template otherwise."""
         # Try AI first
         ai_body = self.generate_ai_nudge(company, role, followup_number)
@@ -268,7 +309,9 @@ class FollowUpSequence:
         stage = FOLLOWUP_STAGES.get(stage_day, FOLLOWUP_STAGES[3])
         date_str = (datetime.now() - timedelta(days=days_since)).strftime("%Y-%m-%d")
 
-        body = stage["body"].format(contact=contact_name, company=company, role=role, date=date_str)
+        body = stage["body"].format(
+            contact=contact_name, company=company, role=role, date=date_str
+        )
         # Convert plain text to HTML paragraphs
         paragraphs = [f"<p>{p.strip()}</p>" for p in body.split("\n\n") if p.strip()]
         return "\n".join(paragraphs)

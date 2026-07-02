@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html dir="rtl" lang="ar">
 <head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
-  <link rel="stylesheet" href="/static/css/cyberpunk.css">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="شروط خدمة JobHunt Pro — سياسة الاستخدام العادل، وشروط الاسترجاع، وقواعد التقديم التلقائي.">
-    <title>شروط الخدمة &mdash; JobHunt Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
-    <style>
+<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="شروط خدمة JobHunt Pro — سياسة الاستخدام العادل، وشروط الاسترجاع، وقواعد التقديم التلقائي." name="description"/>
+<title>{{ _('شروط الخدمة — JobHunt Pro') }}</title>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
+<style>
         :root {
             --text-x-direction: -1;
         }
@@ -35,53 +36,51 @@
         @media(max-width:768px){.headroom{padding-inline:12px}.headroom nav{gap:10px}.headroom nav a{font-size:14px}.container{padding-block-start:40px;padding-inline:16px;padding-block-end:60px}h1{font-size:26px}.section h2{font-size:17px}}
     </style>
 </head>
-
 <body class="cyberpunk-body">
 <header class="headroom">
-    <div class="brand">JobHunt Pro</div>
-    <nav>
-        <a href="/">الرئيسية</a>
-        <a href="/services">خدماتنا</a>
-        <a href="/pricing">الأسعار</a>
-        <a href="/faq">أسئلة شائعة</a>
-        <a href="/blog">المدونة</a>
-        <a href="/contact">تواصل معنا</a>
-        <a href="/login">تسجيل الدخول</a>
-        <a href="/register" class="btn-nav">بلّش هلق</a>
-    </nav>
+<div class="brand">{{ _('JobHunt Pro') }}</div>
+<nav>
+<a href="/">الرئيسية</a>
+<a href="/services">خدماتنا</a>
+<a href="/pricing">الأسعار</a>
+<a href="/faq">أسئلة شائعة</a>
+<a href="/blog">المدونة</a>
+<a href="/contact">تواصل معنا</a>
+<a href="/login">تسجيل الدخول</a>
+<a class="btn-nav" href="/register">بلّش هلق</a>
+</nav>
 </header>
 <div class="container">
-    <h1>شروط الخدمة</h1>
-    <p class="subtitle">آخر تحديث: حزيران 2026</p>
-
-    <div class="section">
-        <h2><span class="icon">&#x1F4DC;</span> الموافقة على الشروط</h2>
-        <p>باستخدامك لـ JobHunt Pro، إنت بتوافق على هالشروط. إذا ما بتوافق، الرجاء ما تستخدم المنصة. نحنا منحفظ بحقنا بتحديث هالشروط بأي وقت مع إشعار للمستخدمين.</p>
-    </div>
-    <div class="section">
-        <h2><span class="icon">&#x1F464;</span> تسجيل الحساب</h2>
-        <p>لازم تقدم معلومات دقيقة وقت تنشئ حساب. إنت مسؤول عن الحفاظ على سرية بيانات الدخول تبعك وعن كل النشاطات يلي بتصير بحسابك.</p>
-    </div>
-    <div class="section">
-        <h2><span class="icon">&#x1F4B3;</span> الدفع والاسترجاع</h2>
-        <p>كل عمليات الشراء نهائية. الخدمات بتتقدم فوراً بعد تأكيد الدفع عبر العملات الرقمية. طلبات الاسترجاع بتتقيّم كل حالة بحالتها إذا كان في مشاكل تقنية منعت تقديم الخدمة.</p>
-    </div>
-    <div class="section">
-        <h2><span class="icon">&#x26A0;&#xFE0F;</span> الاستخدام المقبول</h2>
-        <p>إنت بتوافق إنك ما تستخدم JobHunt Pro لأي غرض غير قانوني، أو لتقديم معلومات غلط أو مضللة، أو تحاول تتجاوز إجراءات الأمان تبعنا، أو تتدخل بشغل المنصة.</p>
-    </div>
-    <div class="section">
-        <h2><span class="icon">&#x1F4AD;</span> حدود المسؤولية</h2>
-        <p>منصة JobHunt Pro بتقدم أدوات لأتمتة طلبات التوظيف. نحنا ما منضمن نتائج التوظيف. مسؤوليتنا محصورة بالمبلغ يلي اندفع للخدمة المعنية.</p>
-    </div>
-    <div class="section">
-        <h2><span class="icon">&#x1F464;</span> تواصل معنا</h2>
-        <p>لأي أسئلة عن هالشروط، تواصل معنا عبر <a href="/contact">نموذج التواصل</a> تبعنا.</p>
-    </div>
+<h1>شروط الخدمة</h1>
+<p class="subtitle">آخر تحديث: حزيران 2026</p>
+<div class="section">
+<h2><span class="icon">📜</span> الموافقة على الشروط</h2>
+<p>{{ _('باستخدامك لـ JobHunt Pro، إنت بتوافق على هالشروط. إذا ما بتوافق، الرجاء ما تستخدم المنصة. نحنا منحفظ بحقنا بتحديث هالشروط بأي وقت مع إشعار للمستخدمين.') }}</p>
+</div>
+<div class="section">
+<h2><span class="icon">👤</span> تسجيل الحساب</h2>
+<p>لازم تقدم معلومات دقيقة وقت تنشئ حساب. إنت مسؤول عن الحفاظ على سرية بيانات الدخول تبعك وعن كل النشاطات يلي بتصير بحسابك.</p>
+</div>
+<div class="section">
+<h2><span class="icon">💳</span> الدفع والاسترجاع</h2>
+<p>كل عمليات الشراء نهائية. الخدمات بتتقدم فوراً بعد تأكيد الدفع عبر العملات الرقمية. طلبات الاسترجاع بتتقيّم كل حالة بحالتها إذا كان في مشاكل تقنية منعت تقديم الخدمة.</p>
+</div>
+<div class="section">
+<h2><span class="icon">⚠️</span> الاستخدام المقبول</h2>
+<p>{{ _('إنت بتوافق إنك ما تستخدم JobHunt Pro لأي غرض غير قانوني، أو لتقديم معلومات غلط أو مضللة، أو تحاول تتجاوز إجراءات الأمان تبعنا، أو تتدخل بشغل المنصة.') }}</p>
+</div>
+<div class="section">
+<h2><span class="icon">💭</span> حدود المسؤولية</h2>
+<p>{{ _('منصة JobHunt Pro بتقدم أدوات لأتمتة طلبات التوظيف. نحنا ما منضمن نتائج التوظيف. مسؤوليتنا محصورة بالمبلغ يلي اندفع للخدمة المعنية.') }}</p>
+</div>
+<div class="section">
+<h2><span class="icon">👤</span> تواصل معنا</h2>
+<p>لأي أسئلة عن هالشروط، تواصل معنا عبر <a href="/contact">نموذج التواصل</a> تبعنا.</p>
+</div>
 </div>
 <footer class="footer">
-    <a href="/faq">الأسئلة الشائعة</a> &middot; <a href="/terms">الشروط</a> &middot; <a href="/privacy">الخصوصية</a> &middot; <a href="/blog">المدونة</a> &middot; <a href="/contact">تواصل معنا</a>
-    <p style="margin-top:12px;">&copy; 2026 JobHunt Pro. كل الحقوق محفوظة.</p>
+<a href="/faq">الأسئلة الشائعة</a> · <a href="/terms">الشروط</a> · <a href="/privacy">الخصوصية</a> · <a href="/blog">المدونة</a> · <a href="/contact">تواصل معنا</a>
+<p style="margin-top:12px;">{{ _('© 2026 JobHunt Pro. كل الحقوق محفوظة.') }}</p>
 </footer>
 </body>
 </html>

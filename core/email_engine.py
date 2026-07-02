@@ -2,13 +2,13 @@
 JobHunt Pro - Email Engine
 Production email engine with RateLimiter, retry logic, and 20 provider rotation
 """
+
 import asyncio
 import logging
 import os
 import random
 import re
 import smtplib
-import ssl
 import time
 import uuid
 from datetime import datetime
@@ -20,17 +20,16 @@ from typing import Optional, Tuple, Dict, List
 from collections import defaultdict
 
 import base64
-import threading
 
 import httpx
 import requests
 
 import config
-from core.smart_scheduler import scheduler, SmartScheduler
+from core.smart_scheduler import scheduler
 
 logger = logging.getLogger(__name__)
 
-SITE_URL = getattr(config, 'SITE_URL', 'https://jhfguf.pythonanywhere.com').rstrip('/')
+SITE_URL = getattr(config, "SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
 
 
 _HAS_AIOSMTPLIB = True
@@ -38,7 +37,9 @@ try:
     import aiosmtplib
 except ImportError:
     _HAS_AIOSMTPLIB = False
-    logger.info('[EmailEngine] aiosmtplib not available - will use HTTP fallbacks directly')
+    logger.info(
+        "[EmailEngine] aiosmtplib not available - will use HTTP fallbacks directly"
+    )
 
 
 def _extract_years_experience(text: str) -> Optional[str]:
@@ -64,15 +65,20 @@ def _load_suppression_list() -> None:
         return
     try:
         from core.pg_sqlite_shim import connect
+
         with connect() as conn:
             rows = conn.execute(
                 "SELECT email FROM suppression_list WHERE is_active = TRUE"
             ).fetchall()
             _suppression_cache = {row[0].strip().lower() for row in rows if row[0]}
         _suppression_loaded = True
-        logger.info(f"[GDPR] Suppression list loaded: {len(_suppression_cache)} entries.")
+        logger.info(
+            f"[GDPR] Suppression list loaded: {len(_suppression_cache)} entries."
+        )
     except Exception as exc:
-        logger.warning(f"[GDPR] Could not load suppression list (DB may not exist yet): {exc}")
+        logger.warning(
+            f"[GDPR] Could not load suppression list (DB may not exist yet): {exc}"
+        )
         _suppression_loaded = True  # avoid repeated failures
 
 
@@ -98,6 +104,7 @@ def add_to_suppression_list(email: str, reason: str = "user_request") -> bool:
     email = email.strip().lower()
     try:
         from core.pg_sqlite_shim import connect
+
         with connect() as conn:
             conn.execute(
                 """
@@ -106,7 +113,7 @@ def add_to_suppression_list(email: str, reason: str = "user_request") -> bool:
                 ON CONFLICT (email) DO UPDATE SET is_active = TRUE,
                 suppressed_at = CURRENT_TIMESTAMP, reason = ?
                 """,
-                (email, reason, reason)
+                (email, reason, reason),
             )
         _suppression_cache.add(email)
         logger.info(f"[GDPR] ✅ {email} added to suppression list (reason: {reason})")
@@ -123,7 +130,21 @@ def _extract_percentage_metric(text: str) -> Optional[str]:
     m = re.match(r"^([\d.]+%)", text)
     if m:
         pct = m.group(1)
-        for kw in ["uptime", "maintenance", "reduction", "improvement", "efficiency", "performance", "delivery", "quality", "rate", "satisfaction", "cost reduction", "cost savings", "savings"]:
+        for kw in [
+            "uptime",
+            "maintenance",
+            "reduction",
+            "improvement",
+            "efficiency",
+            "performance",
+            "delivery",
+            "quality",
+            "rate",
+            "satisfaction",
+            "cost reduction",
+            "cost savings",
+            "savings",
+        ]:
             if kw in text.lower():
                 return f"{pct} {kw.upper()}"
         return f"{pct} ACHIEVEMENT"
@@ -132,12 +153,16 @@ def _extract_percentage_metric(text: str) -> Optional[str]:
 
 def _extract_action_verb_metric(text: str) -> Optional[str]:
     """Helper to match action verb metrics (e.g. 'Optimized database querying by 30%')."""
-    m = re.match(r"^(Resolved|Reduced|Improved|Managed|Achieved|Delivered|Optimized|Automated|Designed|Implemented|Architected|Migrated|Deployed|Secured|Led|Established|Conducted|Mentored)\b", text, re.I)
+    m = re.match(
+        r"^(Resolved|Reduced|Improved|Managed|Achieved|Delivered|Optimized|Automated|Designed|Implemented|Architected|Migrated|Deployed|Secured|Led|Established|Conducted|Mentored)\b",
+        text,
+        re.I,
+    )
     if not m:
         return None
 
     verb = m.group(1)
-    rest = text[m.end():].strip()
+    rest = text[m.end() :].strip()
     pct = re.search(r"(\d+%)", rest)
     if pct:
         pv = pct.group(1)
@@ -177,15 +202,58 @@ def _extract_action_verb_metric(text: str) -> Optional[str]:
         elif verb_lower.startswith("mentor"):
             return f"{pv} MENTORSHIP"
 
-        after_pct = rest[pct.end():]
-        before_pct = rest[:pct.start()]
-        for kw in ["deployment", "satisfaction", "improvement", "reduction", "optimization", "efficiency", "performance", "delivery", "quality", "rate", "automation", "uptime", "maintenance", "cost", "savings", "budget"]:
+        after_pct = rest[pct.end() :]
+        before_pct = rest[: pct.start()]
+        for kw in [
+            "deployment",
+            "satisfaction",
+            "improvement",
+            "reduction",
+            "optimization",
+            "efficiency",
+            "performance",
+            "delivery",
+            "quality",
+            "rate",
+            "automation",
+            "uptime",
+            "maintenance",
+            "cost",
+            "savings",
+            "budget",
+        ]:
             if kw in before_pct.lower():
                 return f"{pv} {kw.upper()}"
-        for kw in ["deployment", "satisfaction", "improvement", "reduction", "optimization", "efficiency", "performance", "delivery", "quality", "rate", "automation", "uptime", "maintenance", "cost", "savings", "budget"]:
+        for kw in [
+            "deployment",
+            "satisfaction",
+            "improvement",
+            "reduction",
+            "optimization",
+            "efficiency",
+            "performance",
+            "delivery",
+            "quality",
+            "rate",
+            "automation",
+            "uptime",
+            "maintenance",
+            "cost",
+            "savings",
+            "budget",
+        ]:
             if kw in after_pct.lower():
                 return f"{pv} {kw.upper()}"
-        for kw in ["satisfaction", "improvement", "reduction", "efficiency", "performance", "delivery", "cost", "savings"]:
+        for kw in [
+            "satisfaction",
+            "improvement",
+            "reduction",
+            "efficiency",
+            "performance",
+            "delivery",
+            "cost",
+            "savings",
+        ]:
             if kw in text.lower():
                 return f"{pv} {kw.upper()}"
         return f"{pv} IMPACT"
@@ -193,24 +261,157 @@ def _extract_action_verb_metric(text: str) -> Optional[str]:
     num = re.search(r"(\d+[+]?|\d+)", rest)
     if num:
         nv = num.group(1)
-        after_num = rest[num.end():]
-        before_num = rest[:num.start()]
-        for kw in ["deployment", "resolution", "support", "handling", "issues", "tickets", "tasks", "cases", "optimization", "automation", "performance", "maintenance", "operations", "infrastructure", "network", "security", "service", "delivery", "efficiency", "reduction", "improvement", "installation", "configuration", "management", "sites", "locations", "users", "employees", "engineers", "servers", "devices", "routers", "switches", "firewalls", "sites", "branches", "offices", "countries", "regions", "vendors", "providers", "certifications", "audits", "assessments"]:
+        after_num = rest[num.end() :]
+        before_num = rest[: num.start()]
+        for kw in [
+            "deployment",
+            "resolution",
+            "support",
+            "handling",
+            "issues",
+            "tickets",
+            "tasks",
+            "cases",
+            "optimization",
+            "automation",
+            "performance",
+            "maintenance",
+            "operations",
+            "infrastructure",
+            "network",
+            "security",
+            "service",
+            "delivery",
+            "efficiency",
+            "reduction",
+            "improvement",
+            "installation",
+            "configuration",
+            "management",
+            "sites",
+            "locations",
+            "users",
+            "employees",
+            "engineers",
+            "servers",
+            "devices",
+            "routers",
+            "switches",
+            "firewalls",
+            "sites",
+            "branches",
+            "offices",
+            "countries",
+            "regions",
+            "vendors",
+            "providers",
+            "certifications",
+            "audits",
+            "assessments",
+        ]:
             if kw in before_num.lower():
                 if kw == "issues":
                     return f"{nv} RESOLVED"
                 return f"{nv} {kw.upper()}"
-        for kw in ["deployment", "resolution", "support", "handling", "issues", "tickets", "tasks", "cases", "optimization", "automation", "performance", "maintenance", "operations", "infrastructure", "network", "security", "service", "delivery", "efficiency", "reduction", "improvement", "installation", "configuration", "management", "sites", "locations", "users", "employees", "engineers", "servers", "devices", "routers", "switches", "firewalls", "sites", "branches", "offices", "countries", "regions", "vendors", "providers", "certifications", "audits", "assessments"]:
+        for kw in [
+            "deployment",
+            "resolution",
+            "support",
+            "handling",
+            "issues",
+            "tickets",
+            "tasks",
+            "cases",
+            "optimization",
+            "automation",
+            "performance",
+            "maintenance",
+            "operations",
+            "infrastructure",
+            "network",
+            "security",
+            "service",
+            "delivery",
+            "efficiency",
+            "reduction",
+            "improvement",
+            "installation",
+            "configuration",
+            "management",
+            "sites",
+            "locations",
+            "users",
+            "employees",
+            "engineers",
+            "servers",
+            "devices",
+            "routers",
+            "switches",
+            "firewalls",
+            "sites",
+            "branches",
+            "offices",
+            "countries",
+            "regions",
+            "vendors",
+            "providers",
+            "certifications",
+            "audits",
+            "assessments",
+        ]:
             if kw in after_num.lower():
                 if kw == "issues":
                     return f"{nv} RESOLVED"
                 return f"{nv} {kw.upper()}"
-        for kw in ["deployment", "automation", "optimization", "reduction", "improvement", "performance", "maintenance", "infrastructure", "network", "operations", "security", "service", "migration", "architecture", "design", "implementation", "sites", "users", "locations", "countries"]:
+        for kw in [
+            "deployment",
+            "automation",
+            "optimization",
+            "reduction",
+            "improvement",
+            "performance",
+            "maintenance",
+            "infrastructure",
+            "network",
+            "operations",
+            "security",
+            "service",
+            "migration",
+            "architecture",
+            "design",
+            "implementation",
+            "sites",
+            "users",
+            "locations",
+            "countries",
+        ]:
             if kw in rest.lower():
                 return f"{nv} {kw.upper()}"
         return f"{nv} IMPACT"
 
-    for kw in ["network", "performance", "automation", "maintenance", "infrastructure", "operations", "security", "system", "solution", "service", "process", "team", "architecture", "design", "migration", "deployment", "sd-wan", "cloud", "data center", "zero trust", "sase"]:
+    for kw in [
+        "network",
+        "performance",
+        "automation",
+        "maintenance",
+        "infrastructure",
+        "operations",
+        "security",
+        "system",
+        "solution",
+        "service",
+        "process",
+        "team",
+        "architecture",
+        "design",
+        "migration",
+        "deployment",
+        "sd-wan",
+        "cloud",
+        "data center",
+        "zero trust",
+        "sase",
+    ]:
         if kw in rest.lower():
             return f"{verb.upper()} {kw.upper()}"
     return f"{verb.upper()} EXCELLENCE"
@@ -238,10 +439,17 @@ def _extract_highlight_title(text: str) -> str:
     return _fallback_words_title(text)
 
 
-
-def _wrap_in_sovereign_template(company_name, job_title, body_text="", highlights=None, user_details=None, email_log_id: str = "", cv_path: str = None):
+def _wrap_in_sovereign_template(
+    company_name,
+    job_title,
+    body_text="",
+    highlights=None,
+    user_details=None,
+    email_log_id: str = "",
+    cv_path: str = None,
+):
     """Build a complete, well-formed HTML email template for job applications.
-    
+
     Returns a full HTML document with proper structure including <body>, header
     with candidate info, body paragraphs, highlights, and tracking pixel.
     """
@@ -250,9 +458,19 @@ def _wrap_in_sovereign_template(company_name, job_title, body_text="", highlight
         name = user_details.get("name") or config.CANDIDATE_NAME
         candidate_email = user_details.get("email") or config.CANDIDATE_EMAIL
         phone = user_details.get("phone") or config.CANDIDATE_PHONE
-        linkedin = user_details.get("linkedin") or user_details.get("linkedin_url") or config.CANDIDATE_LINKEDIN
-        profession = user_details.get("profession") or user_details.get("target_title") or "Senior Network Engineer"
-        candidate_address = user_details.get("address") or getattr(config, "CANDIDATE_ADDRESS", "Beirut, Lebanon")
+        linkedin = (
+            user_details.get("linkedin")
+            or user_details.get("linkedin_url")
+            or config.CANDIDATE_LINKEDIN
+        )
+        profession = (
+            user_details.get("profession")
+            or user_details.get("target_title")
+            or "Senior Network Engineer"
+        )
+        candidate_address = user_details.get("address") or getattr(
+            config, "CANDIDATE_ADDRESS", "Beirut, Lebanon"
+        )
     else:
         name = config.CANDIDATE_NAME
         candidate_email = config.CANDIDATE_EMAIL
@@ -277,9 +495,13 @@ def _wrap_in_sovereign_template(company_name, job_title, body_text="", highlight
     # Build cover letter body paragraphs
     body_html = ""
     if body_text:
-        paragraphs = [p.strip() for p in body_text.replace("\r\n", "\n").split("\n\n") if p.strip()]
+        paragraphs = [
+            p.strip()
+            for p in body_text.replace("\r\n", "\n").split("\n\n")
+            if p.strip()
+        ]
         for p in paragraphs:
-            body_html += f"<p style=\"margin:20px 0;font-size:15px;color:#e2e8f0;line-height:1.8;\">{p}</p>\n"
+            body_html += f'<p style="margin:20px 0;font-size:15px;color:#e2e8f0;line-height:1.8;">{p}</p>\n'
     else:
         body_html = f"""<p style="margin:20px 0;font-size:15px;color:#e2e8f0;line-height:1.8;">
 Dear Hiring Team,</p>
@@ -296,7 +518,9 @@ I have attached my CV for your review and would welcome the opportunity to discu
         cards = ""
         for i, h in enumerate(highlights[:5], 1):
             title = _extract_highlight_title(str(h))
-            desc = str(h).replace(title.lower().capitalize(), "", 1).strip().lstrip(":.- ")
+            desc = (
+                str(h).replace(title.lower().capitalize(), "", 1).strip().lstrip(":.- ")
+            )
             cards += f"""<tr>
 <td style="vertical-align:top;padding:12px 16px;border-bottom:1px solid #1e293b;">
   <div style="color:#00ff88;font-weight:700;font-size:13px;margin-bottom:4px;">{title}</div>
@@ -311,19 +535,22 @@ I have attached my CV for your review and would welcome the opportunity to discu
     if user_details:
         quote = user_details.get("quote")
         if quote:
-            quote_html = f"<blockquote style=\"border-left:3px solid #00ff88;margin:20px 0;padding:12px 20px;color:#94a3b8;font-style:italic;\">{quote}</blockquote>\n"
+            quote_html = f'<blockquote style="border-left:3px solid #00ff88;margin:20px 0;padding:12px 20px;color:#94a3b8;font-style:italic;">{quote}</blockquote>\n'
 
     # CV attachment message
     attach_html = ""
-    
+
     # TROJAN HORSE PORTFOLIO LINK INJECTION
     portfolio_url = ""
     safe_id = "demo123"
     if user_details and user_details.get("id"):
         import re
-        safe_id = re.sub(r'[^a-zA-Z0-9_]', '', str(user_details.get("id")))
-    portfolio_url = f"https://samcv-sw.github.io/jobhunt-pro-swarm/portfolios/{safe_id}.html"
-    
+
+        safe_id = re.sub(r"[^a-zA-Z0-9_]", "", str(user_details.get("id")))
+    portfolio_url = (
+        f"https://samcv-sw.github.io/jobhunt-pro-swarm/portfolios/{safe_id}.html"
+    )
+
     portfolio_html = f"""
     <div style="margin: 25px 0; padding: 15px; background: #1a1a2e; border-left: 4px solid #00ff88; border-radius: 4px;">
         <p style="margin:0; font-size: 15px; color: #e2e8f0;">
@@ -332,9 +559,9 @@ I have attached my CV for your review and would welcome the opportunity to discu
         </p>
     </div>
     """
-    
+
     if cv_path:
-        attach_html = f"{portfolio_html}<p style=\"margin:20px 0;font-size:14px;color:#94a3b8;\">📎 I have also attached my PDF CV for your ATS.</p>\n"
+        attach_html = f'{portfolio_html}<p style="margin:20px 0;font-size:14px;color:#94a3b8;">📎 I have also attached my PDF CV for your ATS.</p>\n'
     elif user_details and user_details.get("tailored_cv"):
         attach_html = f"{portfolio_html}<pre style='font-family: Arial, sans-serif; white-space: pre-wrap; font-size:13px;color:#94a3b8;'>{user_details['tailored_cv']}</pre>\n"
     else:
@@ -375,7 +602,7 @@ I have attached my CV for your review and would welcome the opportunity to discu
         <tr>
           <td style="color:#94a3b8;font-size:13px;">✉️ <a href="mailto:{candidate_email}" style="color:#94a3b8;text-decoration:none;">{candidate_email}</a></td>
           <td style="color:#94a3b8;font-size:13px;text-align:center;">📞 <a href="tel:{phone}" style="color:#94a3b8;text-decoration:none;">{phone}</a></td>
-          {'<td style="color:#94a3b8;font-size:13px;text-align:right;">🔗 <a href="' + linkedin + '" style="color:#94a3b8;text-decoration:none;">LinkedIn</a></td>' if linkedin else '<td></td>'}
+          {'<td style="color:#94a3b8;font-size:13px;text-align:right;">🔗 <a href="' + linkedin + '" style="color:#94a3b8;text-decoration:none;">LinkedIn</a></td>' if linkedin else "<td></td>"}
         </tr>
       </table>
 
@@ -432,11 +659,11 @@ def _get_smtp_connection(config_data: dict) -> Optional[smtplib.SMTP]:
         port = config_data.get("port")
         user = config_data.get("user") or config_data.get("login")
         password = config_data.get("password")
-        
+
         if not server or not port or not user or not password:
             logger.error(f"Missing config keys in config_data: {config_data}")
             return None
-            
+
         if port == 465:
             conn = smtplib.SMTP_SSL(server, port, timeout=10)
         else:
@@ -462,14 +689,14 @@ class RateLimiter:
             self.sent_times[provider] = [
                 t for t in self.sent_times[provider] if now - t < 3600
             ]
-            
+
             # Simple Warmup Algorithm:
             # If a provider has sent < 50 emails historically (estimated by current load)
             # we restrict their hourly limit to 10 to avoid triggering spam filters.
             actual_limit = hourly_limit
             if hourly_limit > 10 and len(self.sent_times[provider]) < 5:
                 actual_limit = min(hourly_limit, 10)
-                
+
             return len(self.sent_times[provider]) < actual_limit
 
     async def record_send(self, provider: str):
@@ -521,21 +748,23 @@ class EmailValidator:
         if not email or not isinstance(email, str):
             return False, "empty"
         email = email.strip().lower()
-        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+        if not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email):
             return False, "invalid_format"
         # Extract local and domain parts cleanly to prevent blocking legitimate domains like 'latest.com'
-        parts = email.split('@')
+        parts = email.split("@")
         if len(parts) != 2:
             return False, "invalid_format"
         local_part, domain_part = parts[0], parts[1]
-        
+
         # Blocked domains (exact match or subdomain match)
-        blocked_domains = {'test.com', 'example.com', 'fake.com', 'spam.com'}
-        if domain_part in blocked_domains or domain_part.endswith(tuple('.' + d for d in blocked_domains)):
+        blocked_domains = {"test.com", "example.com", "fake.com", "spam.com"}
+        if domain_part in blocked_domains or domain_part.endswith(
+            tuple("." + d for d in blocked_domains)
+        ):
             return False, "blocked_domain"
-            
+
         # Blocked local parts
-        if local_part.startswith('noreply') or 'noreply' in local_part:
+        if local_part.startswith("noreply") or "noreply" in local_part:
             return False, "blocked_domain"
         return True, "ok"
 
@@ -544,25 +773,47 @@ class EmailBuilder:
     """Build professional email messages with correct MIME structure."""
 
     @staticmethod
-    def build(to_email: str, company: str, title: str, cover_html: str,
-              attachments: Optional[list] = None, tracking_id: str = "",
-              highlights: Optional[list] = None,
-              user_details: Optional[dict] = None) -> Tuple[MIMEMultipart, str]:
+    def build(
+        to_email: str,
+        company: str,
+        title: str,
+        cover_html: str,
+        attachments: Optional[list] = None,
+        tracking_id: str = "",
+        highlights: Optional[list] = None,
+        user_details: Optional[dict] = None,
+    ) -> Tuple[MIMEMultipart, str]:
         """Build properly structured MIME email with HTML rendering support.
         attachments: list of file paths to attach (CV PDF, cover letter PDF, etc.)
         Uses 'alternative' wrapping so email clients render HTML, not raw tags.
         highlights: optional list of achievement strings rendered as numbered cards."""
-        
+
         # Determine candidate information
         if user_details:
             name = user_details.get("name") or config.CANDIDATE_NAME
             candidate_email = user_details.get("email") or config.CANDIDATE_EMAIL
             phone = user_details.get("phone") or config.CANDIDATE_PHONE
-            profession = user_details.get("profession") or user_details.get("target_title") or "Senior Network Engineer"
+            profession = (
+                user_details.get("profession")
+                or user_details.get("target_title")
+                or "Senior Network Engineer"
+            )
         else:
-            name = user_details.get("name") or config.CANDIDATE_NAME if user_details else config.CANDIDATE_NAME
-            candidate_email = user_details.get("email") or config.CANDIDATE_EMAIL if user_details else config.CANDIDATE_EMAIL
-            phone = user_details.get("phone") or config.CANDIDATE_PHONE if user_details else config.CANDIDATE_PHONE
+            name = (
+                user_details.get("name") or config.CANDIDATE_NAME
+                if user_details
+                else config.CANDIDATE_NAME
+            )
+            candidate_email = (
+                user_details.get("email") or config.CANDIDATE_EMAIL
+                if user_details
+                else config.CANDIDATE_EMAIL
+            )
+            phone = (
+                user_details.get("phone") or config.CANDIDATE_PHONE
+                if user_details
+                else config.CANDIDATE_PHONE
+            )
             profession = "Senior Network Engineer"
 
         if title.startswith("Fwd: RE:"):
@@ -571,7 +822,14 @@ class EmailBuilder:
             subject = f"Application: {title} - {company}"
 
         # Delegate HTML generation to the single wrap_in_sovereign_template function to avoid duplication
-        html_body = _wrap_in_sovereign_template(company, title, cover_html, highlights, user_details, email_log_id=tracking_id)
+        html_body = _wrap_in_sovereign_template(
+            company,
+            title,
+            cover_html,
+            highlights,
+            user_details,
+            email_log_id=tracking_id,
+        )
 
         # Plain text fallback (same content, no HTML)
         plain_text = f"""{name} - {profession}
@@ -614,7 +872,9 @@ Tracking ID: {tracking_id}"""
                         part.set_payload(f.read())
                         encoders.encode_base64(part)
                         filename = os.path.basename(path)
-                        part.add_header("Content-Disposition", f'attachment; filename="{filename}"')
+                        part.add_header(
+                            "Content-Disposition", f'attachment; filename="{filename}"'
+                        )
                         msg.attach(part)
 
         return msg, subject
@@ -646,7 +906,7 @@ class EmailEngine:
 
     def _ensure_hotmail_pool(self):
         """Lazy-init the Hotmail Graph API pool.
-        
+
         v3.0: Uses Microsoft Graph API instead of SMTP XOAUTH2.
         All 1000 accounts revived — OAuth2 tokens refresh with Mail.Send scope.
         """
@@ -654,12 +914,15 @@ class EmailEngine:
             return
         try:
             from core.hotmail_pool import init, get_stats
+
             init()
             stats = get_stats()
-            if stats['active_accounts'] > 0:
+            if stats["active_accounts"] > 0:
                 self._hotmail_pool = True  # non-None signals initialized
                 self._hotmail_pool_available = True
-                logger.info(f"HotmailPool active: {stats['active_accounts']}/{stats['total_accounts']} accounts via Graph API, {stats['max_daily_capacity']}/day")
+                logger.info(
+                    f"HotmailPool active: {stats['active_accounts']}/{stats['total_accounts']} accounts via Graph API, {stats['max_daily_capacity']}/day"
+                )
             else:
                 self._hotmail_pool = True
                 self._hotmail_pool_available = False
@@ -697,6 +960,7 @@ class EmailEngine:
                 return False
             import concurrent.futures
             from core.hotmail_pool import send_email_sync
+
             msg_str = msg.as_string()
             loop = asyncio.get_event_loop()
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
@@ -710,13 +974,14 @@ class EmailEngine:
             return False
 
         import aiosmtplib
+
         try:
             # SPF Alignment: override From to match authenticated SMTP account
             # This prevents SPF failures from mismatched sender domains
             smtp_user = config_data["login"]
-            sender_name_raw = config_data.get("name", "JobHunt Pro")
+            config_data.get("name", "JobHunt Pro")
             # Extract human-readable name from original From header
-            original_from = str(msg.get("From", ""))
+            str(msg.get("From", ""))
             display_name = config.CANDIDATE_NAME
             try:
                 # Preserve Reply-To before overriding From
@@ -730,41 +995,49 @@ class EmailEngine:
             logger.debug(f"[SPF] From aligned: {display_name} <{smtp_user}>")
 
             # 100% True Async execution using aiosmtplib with context manager to prevent connection/socket leaks
-            use_tls = (config_data["port"] == 465)
+            use_tls = config_data["port"] == 465
             start_tls = not use_tls
             async with aiosmtplib.SMTP(
                 hostname=config_data["smtp"],
                 port=config_data["port"],
                 use_tls=use_tls,
                 start_tls=start_tls,
-                timeout=30
+                timeout=30,
             ) as smtp_client:
                 await smtp_client.login(config_data["login"], config_data["password"])
                 errors, message = await smtp_client.send_message(msg)
-            
+
             if errors:
-                logger.warning(f"[SMTP-ASYNC] Refused recipients via {config_data.get('name', '?')}: {errors}")
+                logger.warning(
+                    f"[SMTP-ASYNC] Refused recipients via {config_data.get('name', '?')}: {errors}"
+                )
                 return False
-                
-            logger.info(f"[SMTP-ASYNC] Successfully sent via {config_data.get('name', config_data['smtp'])}")
+
+            logger.info(
+                f"[SMTP-ASYNC] Successfully sent via {config_data.get('name', config_data['smtp'])}"
+            )
             return True
-            
+
         except aiosmtplib.SMTPAuthenticationError:
             logger.error(f"[SMTP-ASYNC] Auth failed for {config_data.get('smtp', '?')}")
             return False
         except aiosmtplib.SMTPRecipientsRefused:
-            logger.warning(f"[SMTP-ASYNC] Recipient refused via {config_data.get('smtp', '?')}")
+            logger.warning(
+                f"[SMTP-ASYNC] Recipient refused via {config_data.get('smtp', '?')}"
+            )
             return False
         except Exception as e:
             logger.warning(f"[SMTP-ASYNC] Execution error via {provider}: {e}")
             return False
 
-    async def _send_via_google_oauth(self, msg: MIMEMultipart, user_details: dict) -> Tuple[bool, str]:
+    async def _send_via_google_oauth(
+        self, msg: MIMEMultipart, user_details: dict
+    ) -> Tuple[bool, str]:
         """Send email natively via Gmail API using the user's OAuth tokens."""
         import time
         import base64
         import httpx
-        
+
         access_token = user_details.get("oauth_access_token")
         refresh_token = user_details.get("oauth_refresh_token")
         expires_at = user_details.get("oauth_expires_at", 0)
@@ -772,33 +1045,37 @@ class EmailEngine:
 
         async with httpx.AsyncClient(timeout=15.0) as client:
             # Refresh token if expired
-            if time.time() > expires_at - 300: # 5 minutes buffer
+            if time.time() > expires_at - 300:  # 5 minutes buffer
                 if not refresh_token:
                     return False, "Token expired and no refresh token available."
-                
+
                 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
                 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
-                
-                resp = await client.post("https://oauth2.googleapis.com/token", data={
-                    "client_id": GOOGLE_CLIENT_ID,
-                    "client_secret": GOOGLE_CLIENT_SECRET,
-                    "refresh_token": refresh_token,
-                    "grant_type": "refresh_token"
-                })
+
+                resp = await client.post(
+                    "https://oauth2.googleapis.com/token",
+                    data={
+                        "client_id": GOOGLE_CLIENT_ID,
+                        "client_secret": GOOGLE_CLIENT_SECRET,
+                        "refresh_token": refresh_token,
+                        "grant_type": "refresh_token",
+                    },
+                )
                 if resp.status_code != 200:
                     return False, f"Failed to refresh token: {resp.text}"
-                
+
                 tokens = resp.json()
                 access_token = tokens.get("access_token")
                 expires_at = time.time() + tokens.get("expires_in", 3599)
-                
+
                 # Update DB using email
                 try:
                     from web.app_v2 import get_db
+
                     conn = get_db()
                     conn.execute(
                         "UPDATE users SET oauth_access_token=?, oauth_expires_at=? WHERE email=?",
-                        (access_token, expires_at, email)
+                        (access_token, expires_at, email),
                     )
                     conn.commit()
                     conn.close()
@@ -806,23 +1083,32 @@ class EmailEngine:
                     logger.error(f"[OAUTH] Failed to update refreshed token in DB: {e}")
 
             # Send via Gmail API
-            raw_msg = base64.urlsafe_b64encode(msg.as_bytes()).decode('utf-8')
-            headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
+            raw_msg = base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
+            headers = {
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json",
+            }
             payload = {"raw": raw_msg}
 
-            resp = await client.post("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", headers=headers, json=payload)
-            
+            resp = await client.post(
+                "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+                headers=headers,
+                json=payload,
+            )
+
             if resp.status_code == 200:
                 return True, "sent_via_oauth"
             else:
                 return False, f"Gmail API error: {resp.text}"
 
-    async def _send_via_microsoft_oauth(self, msg: MIMEMultipart, user_details: dict) -> Tuple[bool, str]:
+    async def _send_via_microsoft_oauth(
+        self, msg: MIMEMultipart, user_details: dict
+    ) -> Tuple[bool, str]:
         """Send email natively via Microsoft Graph API using the user's OAuth tokens."""
         import time
         import base64
         import httpx
-        
+
         access_token = user_details.get("oauth_access_token")
         refresh_token = user_details.get("oauth_refresh_token")
         expires_at = user_details.get("oauth_expires_at", 0)
@@ -830,53 +1116,67 @@ class EmailEngine:
 
         async with httpx.AsyncClient(timeout=15.0) as client:
             # Refresh token if expired
-            if time.time() > expires_at - 300: # 5 minutes buffer
+            if time.time() > expires_at - 300:  # 5 minutes buffer
                 if not refresh_token:
                     return False, "Token expired and no refresh token available."
-                
+
                 MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
                 MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
-                
-                resp = await client.post("https://login.microsoftonline.com/common/oauth2/v2.0/token", data={
-                    "client_id": MICROSOFT_CLIENT_ID,
-                    "client_secret": MICROSOFT_CLIENT_SECRET,
-                    "refresh_token": refresh_token,
-                    "grant_type": "refresh_token"
-                })
+
+                resp = await client.post(
+                    "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                    data={
+                        "client_id": MICROSOFT_CLIENT_ID,
+                        "client_secret": MICROSOFT_CLIENT_SECRET,
+                        "refresh_token": refresh_token,
+                        "grant_type": "refresh_token",
+                    },
+                )
                 if resp.status_code != 200:
                     return False, f"Failed to refresh token: {resp.text}"
-                
+
                 tokens = resp.json()
                 access_token = tokens.get("access_token")
                 expires_at = time.time() + tokens.get("expires_in", 3599)
-                
+
                 # Update DB
                 try:
                     from web.app_v2 import get_db
+
                     conn = get_db()
                     conn.execute(
                         "UPDATE users SET oauth_access_token=?, oauth_expires_at=? WHERE email=?",
-                        (access_token, expires_at, email)
+                        (access_token, expires_at, email),
                     )
                     conn.commit()
                     conn.close()
                 except Exception as e:
-                    logger.error(f"[OAUTH] Failed to update refreshed Microsoft token in DB: {e}")
+                    logger.error(
+                        f"[OAUTH] Failed to update refreshed Microsoft token in DB: {e}"
+                    )
 
             # Send via Microsoft Graph API
-            raw_msg = base64.b64encode(msg.as_bytes()).decode('utf-8')
-            headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "text/plain"}
+            raw_msg = base64.b64encode(msg.as_bytes()).decode("utf-8")
+            headers = {
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "text/plain",
+            }
 
-            resp = await client.post("https://graph.microsoft.com/v1.0/me/sendMail", headers=headers, content=raw_msg)
-            
+            resp = await client.post(
+                "https://graph.microsoft.com/v1.0/me/sendMail",
+                headers=headers,
+                content=raw_msg,
+            )
+
             # Microsoft returns 202 Accepted on success
             if resp.status_code in (200, 202):
                 return True, "sent_via_oauth"
             else:
                 return False, f"Microsoft Graph API error: {resp.text}"
 
-    async def send_with_retry(self, provider: str, msg: MIMEMultipart,
-                               max_retries: int = 3) -> Tuple[bool, str]:
+    async def send_with_retry(
+        self, provider: str, msg: MIMEMultipart, max_retries: int = 3
+    ) -> Tuple[bool, str]:
         """
         APEX MATRIX: Send email with Exponential Backoff + Stochastic Jitter.
         ======================================================================
@@ -886,7 +1186,9 @@ class EmailEngine:
         - Separates 'logic failure' retries from 'exception' retries
         """
         # DRY RUN MODE: Save to file instead of sending
-        dry_run = getattr(config, 'DRY_RUN', os.getenv("DRY_RUN", "false").lower() == "true")
+        dry_run = getattr(
+            config, "DRY_RUN", os.getenv("DRY_RUN", "false").lower() == "true"
+        )
         if dry_run:
             return await self._dry_run_send(provider, msg)
 
@@ -903,7 +1205,9 @@ class EmailEngine:
 
         # PA optimization: skip SMTP entirely if aiosmtplib is missing
         if not _HAS_AIOSMTPLIB:
-            logger.info(f"[EmailEngine] Skipping SMTP ({provider}) - aiosmtplib not installed, going directly to HTTP fallback")
+            logger.info(
+                f"[EmailEngine] Skipping SMTP ({provider}) - aiosmtplib not installed, going directly to HTTP fallback"
+            )
         else:
             for attempt in range(max_retries):
                 try:
@@ -921,11 +1225,11 @@ class EmailEngine:
                         # Exponential backoff: 5s, 10s, 20s ... capped at 30s
                         # + stochastic jitter of up to 30% of the base delay
                         # to scatter concurrent swarm retries
-                        base_delay = min((2 ** attempt) * 5, 30.0)
+                        base_delay = min((2**attempt) * 5, 30.0)
                         jitter = random.uniform(0, base_delay * 0.30)
                         delay = base_delay + jitter
                         logger.info(
-                            f"[SMTP-BACKOFF] {provider} Retry {attempt+1}/{max_retries} "
+                            f"[SMTP-BACKOFF] {provider} Retry {attempt + 1}/{max_retries} "
                             f"after {delay:.1f}s (base={base_delay:.0f}s + jitter={jitter:.1f}s)"
                         )
                         await asyncio.sleep(delay)
@@ -936,33 +1240,35 @@ class EmailEngine:
                         break
                     if attempt < max_retries - 1:
                         # Exception-path backoff: tighter jitter (15%) to retry quickly
-                        base_delay = min(2 ** attempt * 5, 30.0)
+                        base_delay = min(2**attempt * 5, 30.0)
                         jitter = random.uniform(0, base_delay * 0.15)
                         delay = base_delay + jitter
                         logger.info(
-                            f"[SMTP-BACKOFF] {provider} Exception retry {attempt+1} "
+                            f"[SMTP-BACKOFF] {provider} Exception retry {attempt + 1} "
                             f"in {delay:.1f}s"
                         )
                         await asyncio.sleep(delay)
 
         logger.info(f"[EmailEngine] SMTP skipped/expired. Falling to Brevo HTTP...")
-        
+
         # Extract payload from msg for HTTP APIs
         to_email = msg.get("To", "")
         subject = msg.get("Subject", "")
         body_html = ""
         body_text = ""
-        
+
         try:
             if msg.is_multipart():
                 for part in msg.walk():
                     content_type = part.get_content_type()
                     if content_type == "text/html":
                         payload = part.get_payload(decode=True)
-                        if payload: body_html = payload.decode("utf-8", errors="ignore")
+                        if payload:
+                            body_html = payload.decode("utf-8", errors="ignore")
                     elif content_type == "text/plain":
                         payload = part.get_payload(decode=True)
-                        if payload: body_text = payload.decode("utf-8", errors="ignore")
+                        if payload:
+                            body_text = payload.decode("utf-8", errors="ignore")
             else:
                 content_type = msg.get_content_type()
                 payload = msg.get_payload(decode=True)
@@ -976,6 +1282,7 @@ class EmailEngine:
             attachments = []
             try:
                 import base64
+
                 if msg.is_multipart():
                     for part in msg.walk():
                         if part.is_multipart():
@@ -984,36 +1291,42 @@ class EmailEngine:
                         if filename:
                             payload = part.get_payload(decode=True)
                             if payload:
-                                attachments.append({
-                                    "filename": filename,
-                                    "content": payload,
-                                    "content_b64": base64.b64encode(payload).decode("utf-8"),
-                                    "content_type": part.get_content_type()
-                                })
+                                attachments.append(
+                                    {
+                                        "filename": filename,
+                                        "content": payload,
+                                        "content_b64": base64.b64encode(payload).decode(
+                                            "utf-8"
+                                        ),
+                                        "content_type": part.get_content_type(),
+                                    }
+                                )
             except Exception as att_ex:
                 logger.warning(f"[CASCADE] Attachment extraction failed: {att_ex}")
-                        
+
             # Fallback 1: Brevo HTTP
             logger.info(f"[CASCADE] Attempting Brevo HTTP Fallback for {to_email}...")
             brevo_success = await asyncio.to_thread(
-                send_email_via_brevo_http, 
-                to_email=to_email, 
-                subject=subject, 
+                send_email_via_brevo_http,
+                to_email=to_email,
+                subject=subject,
                 custom_body=body_html or body_text,
-                attachments=attachments
+                attachments=attachments,
             )
             if brevo_success:
                 return True, "brevo_http_fallback"
-                
+
             # Fallback 2: SendGrid HTTP
-            logger.info(f"[CASCADE] Attempting SendGrid HTTP Fallback for {to_email}...")
+            logger.info(
+                f"[CASCADE] Attempting SendGrid HTTP Fallback for {to_email}..."
+            )
             sendgrid_success = await asyncio.to_thread(
-                send_email_via_sendgrid_http, 
-                to_email=to_email, 
-                subject=subject, 
-                body_html=body_html, 
+                send_email_via_sendgrid_http,
+                to_email=to_email,
+                subject=subject,
+                body_html=body_html,
                 body_text=body_text,
-                attachments=attachments
+                attachments=attachments,
             )
             if sendgrid_success:
                 return True, "sendgrid_http_fallback"
@@ -1021,9 +1334,12 @@ class EmailEngine:
             # Fallback 3: FreeSMTPPool (Resend, Mailgun, Elastic Email, ZeptoMail, turboSMTP, Mailjet, SendPulse, Postmark)
             try:
                 from core.free_smtp_pool import get_free_smtp_pool
+
                 pool = get_free_smtp_pool()
                 if pool.has_providers():
-                    logger.info(f"[CASCADE] Attempting FreeSMTPPool Fallback for {to_email}...")
+                    logger.info(
+                        f"[CASCADE] Attempting FreeSMTPPool Fallback for {to_email}..."
+                    )
                     pool_success, pool_provider = await asyncio.to_thread(
                         pool.send,
                         to_email=to_email,
@@ -1031,26 +1347,34 @@ class EmailEngine:
                         html_body=body_html or body_text,
                         text_body=body_text or body_html,
                         from_name=config.CANDIDATE_NAME,
-                        attachments=attachments
+                        attachments=attachments,
                     )
                     if pool_success:
                         return True, f"free_smtp_pool_{pool_provider}"
             except Exception as pool_ex:
                 logger.error(f"[CASCADE] FreeSMTPPool Fallback failed: {pool_ex}")
-                
+
         except Exception as ex:
             logger.error(f"[CASCADE] HTTP Fallback extraction/execution failed: {ex}")
 
         return False, "exhausted"
 
-    async def _dry_run_send(self, provider: str, msg: MIMEMultipart) -> Tuple[bool, str]:
+    async def _dry_run_send(
+        self, provider: str, msg: MIMEMultipart
+    ) -> Tuple[bool, str]:
         """Save email to file instead of sending (dry run mode)."""
         try:
-            sent_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "sent_mails")
+            sent_dir = os.path.join(
+                os.path.dirname(os.path.dirname(__file__)), "sent_mails"
+            )
             os.makedirs(sent_dir, exist_ok=True)
             to_addr = msg.get("To", "unknown").replace("@", "_at_").replace(".", "_")
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            subject = msg.get("Subject", "no_subject")[:50].replace(" ", "_").replace("/", "_")
+            subject = (
+                msg.get("Subject", "no_subject")[:50]
+                .replace(" ", "_")
+                .replace("/", "_")
+            )
             filename = f"{timestamp}_{to_addr}_{subject}.eml"
             filepath = os.path.join(sent_dir, filename)
             with open(filepath, "w", encoding="utf-8") as f:
@@ -1063,10 +1387,16 @@ class EmailEngine:
             logger.error(f"[DRY RUN] Failed to save email: {e}")
             return False, str(e)
 
-    async def send_application(self, to_email: str, company: str, title: str,
-                                cover_html: str, cv_path: Optional[str] = None,
-                                generate_cover_pdf: bool = True,
-                                user_details: Optional[dict] = None) -> Tuple[bool, str]:
+    async def send_application(
+        self,
+        to_email: str,
+        company: str,
+        title: str,
+        cover_html: str,
+        cv_path: Optional[str] = None,
+        generate_cover_pdf: bool = True,
+        user_details: Optional[dict] = None,
+    ) -> Tuple[bool, str]:
         """Send job application email with CV + optional cover letter PDF."""
         valid, reason = self.validator.validate(to_email)
         if not valid:
@@ -1093,6 +1423,7 @@ class EmailEngine:
         if generate_cover_pdf:
             try:
                 from core.pdf_generator import generate_cover_letter_pdf
+
                 cover_pdf_path = generate_cover_letter_pdf(cover_html)
             except Exception as e:
                 logger.warning(f"Cover PDF generation failed: {e}")
@@ -1105,7 +1436,11 @@ class EmailEngine:
             attachment_paths.append(cover_pdf_path)
 
         # SMTP Swarm Optimization: Try User's SMTP First
-        if user_details and user_details.get("smtp_user") and user_details.get("smtp_pass"):
+        if (
+            user_details
+            and user_details.get("smtp_user")
+            and user_details.get("smtp_pass")
+        ):
             try:
                 success, msg_id_or_err = await asyncio.to_thread(
                     send_email_via_gmail_smtp,
@@ -1117,12 +1452,14 @@ class EmailEngine:
                     subject=f"Application: {title} at {company}",
                     smtp_user=user_details["smtp_user"],
                     smtp_pass=user_details["smtp_pass"],
-                    attachment_paths=attachment_paths
+                    attachment_paths=attachment_paths,
                 )
                 if success:
                     return True, f"{tracking_id}|{msg_id_or_err}"
             except Exception as e:
-                logger.warning(f"SMTP Swarm failed, falling back to centralized APIs: {e}")
+                logger.warning(
+                    f"SMTP Swarm failed, falling back to centralized APIs: {e}"
+                )
 
         # Get candidate profile highlights for the email
         highlights = None
@@ -1136,39 +1473,53 @@ class EmailEngine:
         if not highlights:
             try:
                 from core.ai_tailor import CANDIDATE_PROFILE
+
                 highlights = CANDIDATE_PROFILE.get("highlights", [])
             except ImportError:
                 pass
 
         msg, subject = EmailBuilder.build(
-            to_email, company, title, cover_html,
-            attachment_paths, tracking_id, highlights,
-            user_details=user_details
+            to_email,
+            company,
+            title,
+            cover_html,
+            attachment_paths,
+            tracking_id,
+            highlights,
+            user_details=user_details,
         )
-        
+
         msg_id = str(msg.get("Message-ID", ""))
 
         can_use_oauth = False
-        if user_details and user_details.get("user_id") and user_details.get("oauth_provider") in ["google", "microsoft"] and user_details.get("oauth_access_token"):
+        if (
+            user_details
+            and user_details.get("user_id")
+            and user_details.get("oauth_provider") in ["google", "microsoft"]
+            and user_details.get("oauth_access_token")
+        ):
             try:
                 from web.app_v2 import get_db
                 import datetime
+
                 conn = get_db()
-                today_start = datetime.datetime.now().strftime('%Y-%m-%d 00:00:00')
-                
+                today_start = datetime.datetime.now().strftime("%Y-%m-%d 00:00:00")
+
                 # Check how many emails sent by this user today (safeguard)
                 count_row = conn.execute(
                     "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.sent_at >= ?",
-                    (user_details["user_id"], today_start)
+                    (user_details["user_id"], today_start),
                 ).fetchone()
-                
+
                 daily_sent = count_row[0] if count_row else 0
                 conn.close()
-                
+
                 if daily_sent < 20:
                     can_use_oauth = True
                 else:
-                    logger.warning(f"OAuth safety limit reached for user {user_details['user_id']} ({daily_sent} sent today). Falling back to system SMTP to protect account.")
+                    logger.warning(
+                        f"OAuth safety limit reached for user {user_details['user_id']} ({daily_sent} sent today). Falling back to system SMTP to protect account."
+                    )
             except Exception as e:
                 logger.error(f"Failed to check OAuth daily limit: {e}")
                 can_use_oauth = False
@@ -1176,30 +1527,46 @@ class EmailEngine:
         if can_use_oauth and user_details.get("oauth_provider") == "google":
             success, result = await self._send_via_google_oauth(msg, user_details)
             if success:
-                logger.info(f"Email sent to {company} via Google OAuth (tracking: {tracking_id})")
+                logger.info(
+                    f"Email sent to {company} via Google OAuth (tracking: {tracking_id})"
+                )
                 return True, f"{tracking_id}|{msg_id}"
             else:
-                logger.warning(f"Google OAuth sending failed: {result}. Falling back to default provider...")
+                logger.warning(
+                    f"Google OAuth sending failed: {result}. Falling back to default provider..."
+                )
 
         if can_use_oauth and user_details.get("oauth_provider") == "microsoft":
             success, result = await self._send_via_microsoft_oauth(msg, user_details)
             if success:
-                logger.info(f"Email sent to {company} via Microsoft OAuth (tracking: {tracking_id})")
+                logger.info(
+                    f"Email sent to {company} via Microsoft OAuth (tracking: {tracking_id})"
+                )
                 return True, f"{tracking_id}|{msg_id}"
             else:
-                logger.warning(f"Microsoft OAuth sending failed: {result}. Falling back to default provider...")
+                logger.warning(
+                    f"Microsoft OAuth sending failed: {result}. Falling back to default provider..."
+                )
 
         success, result = await self.send_with_retry(provider, msg)
 
         if success:
-            logger.info(f"Email sent to {company} via {provider} (tracking: {tracking_id})")
+            logger.info(
+                f"Email sent to {company} via {provider} (tracking: {tracking_id})"
+            )
             return True, f"{tracking_id}|{msg_id}"
         else:
             logger.warning(f"Email failed to {company}: {result}")
             return False, result
 
-    async def send_followup(self, to_email: str, company: str, title: str,
-                             original_date: str, followup_num: int = 1) -> Tuple[bool, str]:
+    async def send_followup(
+        self,
+        to_email: str,
+        company: str,
+        title: str,
+        original_date: str,
+        followup_num: int = 1,
+    ) -> Tuple[bool, str]:
         """Send follow-up email."""
         prefix = "Second" if followup_num > 1 else "First"
         subject = f"{prefix} Follow-up: {title} Application at {company}"
@@ -1229,8 +1596,9 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
         success, result = await self.send_with_retry(provider, msg)
         return success, tracking_id if success else result
 
-    async def send_bulk(self, recipients: List[Dict], cover_html: str,
-                         cv_path: Optional[str] = None) -> Dict[str, int]:
+    async def send_bulk(
+        self, recipients: List[Dict], cover_html: str, cv_path: Optional[str] = None
+    ) -> Dict[str, int]:
         """Send bulk emails with rate limiting."""
         results = {"sent": 0, "failed": 0, "skipped": 0}
 
@@ -1243,7 +1611,9 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
                 results["skipped"] += 1
                 continue
 
-            success, _ = await self.send_application(to_email, company, title, cover_html, cv_path)
+            success, _ = await self.send_application(
+                to_email, company, title, cover_html, cv_path
+            )
             if success:
                 results["sent"] += 1
             else:
@@ -1253,29 +1623,46 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
 
         return results
 
-    async def send_bulk_parallel(self, jobs: List[Dict], campaign_id: str,
-                                  conn, sent_count: int, already_sent_emails: set,
-                                  cv_path: Optional[str] = None,
-                                  user_details: Optional[dict] = None,
-                                  max_concurrent: int = 10) -> Tuple[int, int, List[Dict]]:
+    async def send_bulk_parallel(
+        self,
+        jobs: List[Dict],
+        campaign_id: str,
+        conn,
+        sent_count: int,
+        already_sent_emails: set,
+        cv_path: Optional[str] = None,
+        user_details: Optional[dict] = None,
+        max_concurrent: int = 10,
+    ) -> Tuple[int, int, List[Dict]]:
         """
         NON-BLOCKING ASYNC: Send ALL emails in parallel using asyncio.gather.
         Uses a semaphore to cap concurrent SMTP connections at max_concurrent.
         Returns (sent_count, failed_count, results_list).
         """
         from core.smart_scheduler import is_pythonanywhere
-        active_prov_count = len(self.scheduler._active_providers) if hasattr(self.scheduler, "_active_providers") else 0
+
+        active_prov_count = (
+            len(self.scheduler._active_providers)
+            if hasattr(self.scheduler, "_active_providers")
+            else 0
+        )
         if is_pythonanywhere():
             optimal_concurrent = min(8, max(2, active_prov_count // 2))
         else:
             optimal_concurrent = min(15, max(4, active_prov_count))
-            
-        concurrency = max_concurrent if max_concurrent != 10 else (optimal_concurrent or max_concurrent)
-        logger.info(f"[EmailEngine] Concurrency dynamic limit set to {concurrency} (active providers: {active_prov_count})")
+
+        concurrency = (
+            max_concurrent
+            if max_concurrent != 10
+            else (optimal_concurrent or max_concurrent)
+        )
+        logger.info(
+            f"[EmailEngine] Concurrency dynamic limit set to {concurrency} (active providers: {active_prov_count})"
+        )
         sem = asyncio.Semaphore(concurrency)
         # OPT#3: Collect tuples then batch commit — avoids per-email SQLite COMMIT overhead
         _pending_inserts = []
-        
+
         async def send_one(job: Dict) -> Dict:
             nonlocal _pending_inserts
             async with sem:
@@ -1283,47 +1670,83 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
                 company = job.get("company", "Unknown Company")
                 title = job.get("title", "Position")
                 cover_html = job.get("pre_drafted_cover", job.get("cover_html", ""))
-                
+
                 if not email_addr or "@" not in email_addr:
-                    return {"company": company, "status": "skipped", "reason": "invalid_email"}
-                
+                    return {
+                        "company": company,
+                        "status": "skipped",
+                        "reason": "invalid_email",
+                    }
+
                 if email_addr.lower() in already_sent_emails:
-                    return {"company": company, "status": "skipped", "reason": "duplicate"}
-                
+                    return {
+                        "company": company,
+                        "status": "skipped",
+                        "reason": "duplicate",
+                    }
+
                 try:
                     success, result = await self.send_application(
-                        email_addr, company, title, cover_html, cv_path,
+                        email_addr,
+                        company,
+                        title,
+                        cover_html,
+                        cv_path,
                         generate_cover_pdf=False,
-                        user_details=user_details
+                        user_details=user_details,
                     )
                     if success:
                         already_sent_emails.add(email_addr.lower())
                         # Collect for batch commit
                         parts = result.split("|")
-                        tracking_id = parts[0] if len(parts) > 0 else str(uuid.uuid4())[:12]
+                        tracking_id = (
+                            parts[0] if len(parts) > 0 else str(uuid.uuid4())[:12]
+                        )
                         msg_id = parts[1] if len(parts) > 1 else ""
-                        _pending_inserts.append((campaign_id, company, title, email_addr, tracking_id, msg_id))
-                        return {"company": company, "status": "sent", "tracking_id": tracking_id}
+                        _pending_inserts.append(
+                            (
+                                campaign_id,
+                                company,
+                                title,
+                                email_addr,
+                                tracking_id,
+                                msg_id,
+                            )
+                        )
+                        return {
+                            "company": company,
+                            "status": "sent",
+                            "tracking_id": tracking_id,
+                        }
                     else:
-                        return {"company": company, "status": "failed", "reason": result}
+                        return {
+                            "company": company,
+                            "status": "failed",
+                            "reason": result,
+                        }
                 except Exception as e:
                     return {"company": company, "status": "error", "reason": str(e)}
-        
+
         results_list = await asyncio.gather(*(send_one(j) for j in jobs))
-        
+
         # OPT#3: Single batch INSERT with one COMMIT
         if _pending_inserts:
             try:
-                conn.executemany("""
+                conn.executemany(
+                    """
                     INSERT INTO campaign_emails
                     (campaign_id, company_name, job_title, email_address, status, tracking_id, sent_at, message_id)
                     VALUES (?, ?, ?, ?, 'sent', ?, CURRENT_TIMESTAMP, ?)
-                """, _pending_inserts)
+                """,
+                    _pending_inserts,
+                )
                 conn.commit()
-                logger.info(f"[EmailEngine] Batch committed {len(_pending_inserts)} sent records")
+                logger.info(
+                    f"[EmailEngine] Batch committed {len(_pending_inserts)} sent records"
+                )
             except Exception as e:
                 logger.warning(f"[EmailEngine] Batch commit failed: {e}")
-        
+
         sent = sum(1 for r in results_list if r.get("status") == "sent")
         failed = sum(1 for r in results_list if r.get("status") in ("failed", "error"))
         return sent, failed, results_list
@@ -1334,9 +1757,8 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
             "circuit_breaker": {
                 "failures": dict(self.circuit_breaker._failures),
                 "disabled": list(self.circuit_breaker._disabled_until.keys()),
-            }
+            },
         }
-
 
     async def send_email(
         self,
@@ -1352,7 +1774,9 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
         """
         try:
             msg = MIMEMultipart("alternative")
-            msg["From"] = f"{from_name or config.CANDIDATE_NAME} <{config.CANDIDATE_EMAIL}>"
+            msg["From"] = (
+                f"{from_name or config.CANDIDATE_NAME} <{config.CANDIDATE_EMAIL}>"
+            )
             msg["To"] = to_email
             msg["Subject"] = subject
             msg["Reply-To"] = config.CANDIDATE_EMAIL
@@ -1366,12 +1790,16 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
 
             provider = await self.scheduler.wait_for_send_slot()
             if not provider:
-                logger.warning(f"No provider available for delivery email to {to_email}")
+                logger.warning(
+                    f"No provider available for delivery email to {to_email}"
+                )
                 return False
 
             can_send = await self.rate_limiter.can_send(provider)
             if not can_send:
-                logger.warning(f"Rate limited for {provider}, delivery email to {to_email}")
+                logger.warning(
+                    f"Rate limited for {provider}, delivery email to {to_email}"
+                )
                 return False
 
             success, _ = await self.send_with_retry(provider, msg)
@@ -1388,6 +1816,7 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
         """
         try:
             import sqlite3, os
+
             db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")
             if not os.path.exists(db_path):
                 # Try project data dir
@@ -1399,7 +1828,7 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
                 "SELECT * FROM email_queue WHERE status='pending' ORDER BY created_at ASC LIMIT ?",
-                (limit,)
+                (limit,),
             ).fetchall()
             conn.close()
             return [dict(r) for r in rows]
@@ -1411,8 +1840,10 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
         """Send a single email from the email_queue table."""
         try:
             to_email = item.get("to_email") or item.get("email") or item.get("to", "")
-            subject = item.get("subject", "")
-            body_html = item.get("body_html") or item.get("html_body") or item.get("body", "")
+            item.get("subject", "")
+            body_html = (
+                item.get("body_html") or item.get("html_body") or item.get("body", "")
+            )
             if not to_email or not body_html:
                 return False
             success, _ = await self.send_application(
@@ -1422,7 +1853,7 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
                 cover_html=body_html,
                 cv_path=self.cv_path,
                 generate_cover_pdf=False,
-                user_details={}
+                user_details={},
             )
             return success
         except Exception as e:
@@ -1433,6 +1864,7 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
         """Sync wrapper for queue draining — creates a minimal asyncio run."""
         try:
             import asyncio
+
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
@@ -1441,14 +1873,10 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
                 msg["To"] = to
                 msg["Subject"] = subject
                 msg.attach(MIMEText(body, "html", "utf-8"))
-                result = loop.run_until_complete(
-                    self.scheduler.wait_for_send_slot()
-                )
+                result = loop.run_until_complete(self.scheduler.wait_for_send_slot())
                 if not result:
                     return False
-                success, _ = loop.run_until_complete(
-                    self.send_with_retry(result, msg)
-                )
+                success, _ = loop.run_until_complete(self.send_with_retry(result, msg))
                 return success
             finally:
                 loop.close()
@@ -1472,7 +1900,6 @@ class AntiGhostingEngine:
         """Check for emails that need follow-up and send them."""
         try:
             from core.response_parser import followup_engine
-            from datetime import timedelta
 
             now = datetime.utcnow()
             results = {"checked": 0, "sent": 0, "skipped": 0, "failed": 0}
@@ -1491,7 +1918,11 @@ class AntiGhostingEngine:
                     for email_record in emails:
                         results["checked"] += 1
 
-                        if email_record["status"] in ("interview", "offer", "rejection"):
+                        if email_record["status"] in (
+                            "interview",
+                            "offer",
+                            "rejection",
+                        ):
                             results["skipped"] += 1
                             continue
 
@@ -1500,7 +1931,9 @@ class AntiGhostingEngine:
                             continue
 
                         if isinstance(sent_at, str):
-                            sent_at = datetime.fromisoformat(sent_at.replace("Z", "+00:00")).replace(tzinfo=None)
+                            sent_at = datetime.fromisoformat(
+                                sent_at.replace("Z", "+00:00")
+                            ).replace(tzinfo=None)
 
                         days_since = (now - sent_at).days
                         followup_count = email_record.get("followup_count", 0)
@@ -1513,8 +1946,10 @@ class AntiGhostingEngine:
                         if followup_engine.should_send_followup(
                             days_since=days_since,
                             followup_count=followup_count,
-                            last_response_type=email_record.get("response_type", "unknown"),
-                            recipient_email=to_email
+                            last_response_type=email_record.get(
+                                "response_type", "unknown"
+                            ),
+                            recipient_email=to_email,
                         ):
                             company = email_record.get("company_name", "the company")
                             title = email_record.get("job_title", "the position")
@@ -1523,11 +1958,11 @@ class AntiGhostingEngine:
                                 results["skipped"] += 1
                                 continue
 
-                            followup_text = followup_engine.get_followup(
+                            followup_engine.get_followup(
                                 company=company,
                                 title=title,
                                 followup_number=followup_count + 1,
-                                days_since_application=days_since
+                                days_since_application=days_since,
                             )
 
                             success, _ = await self.email_engine.send_followup(
@@ -1535,19 +1970,25 @@ class AntiGhostingEngine:
                                 company=company,
                                 title=title,
                                 original_date=sent_at.strftime("%Y-%m-%d"),
-                                followup_num=followup_count + 1
+                                followup_num=followup_count + 1,
                             )
 
                             if success:
                                 results["sent"] += 1
-                                logger.info(f"Follow-up #{followup_count+1} sent to {company}")
+                                logger.info(
+                                    f"Follow-up #{followup_count + 1} sent to {company}"
+                                )
                             else:
                                 results["failed"] += 1
 
-                            await asyncio.sleep(self.email_engine.scheduler.calculate_delay())
+                            await asyncio.sleep(
+                                self.email_engine.scheduler.calculate_delay()
+                            )
 
                 except Exception as e:
-                    logger.error(f"Follow-up check error for campaign {campaign_id}: {e}")
+                    logger.error(
+                        f"Follow-up check error for campaign {campaign_id}: {e}"
+                    )
 
             logger.info(f"Anti-ghosting results: {results}")
             return results
@@ -1559,8 +2000,6 @@ class AntiGhostingEngine:
     async def auto_reply_interview(self, db, tracking_id: str, reply_text: str):
         """Auto-reply to interview requests with Calendly link."""
         try:
-            from core.response_parser import parser
-
             email_record = await db.get_campaign_email_by_tracking(tracking_id)
             if not email_record:
                 logger.warning(f"No email found for tracking_id: {tracking_id}")
@@ -1578,15 +2017,13 @@ class AntiGhostingEngine:
                 return False
 
             success, result = await self.email_engine.send_with_retry(
-                provider,
-                self._build_reply_message(to_email, company, reply_text)
+                provider, self._build_reply_message(to_email, company, reply_text)
             )
 
             if success:
                 logger.info(f"Auto-reply sent to {company} for interview")
                 await db.update_campaign_email_status(
-                    tracking_id=tracking_id,
-                    status="interview_replied"
+                    tracking_id=tracking_id, status="interview_replied"
                 )
 
             return success
@@ -1595,7 +2032,9 @@ class AntiGhostingEngine:
             logger.error(f"Auto-reply error: {e}")
             return False
 
-    def _build_reply_message(self, to_email: str, company: str, body: str) -> MIMEMultipart:
+    def _build_reply_message(
+        self, to_email: str, company: str, body: str
+    ) -> MIMEMultipart:
         msg = MIMEMultipart()
         msg["From"] = f"{config.CANDIDATE_NAME} <{config.CANDIDATE_EMAIL}>"
         msg["To"] = to_email
@@ -1605,9 +2044,8 @@ class AntiGhostingEngine:
         return msg
 
 
-
-
 # ── Brevo REST API (HTTP) ──────────────────────────────────────────────────
+
 
 def send_email_via_brevo_http(
     to_email: str,
@@ -1636,7 +2074,11 @@ def send_email_via_brevo_http(
         return False
 
     if not subject:
-        subject = f"Application Update - {company_name}" if company_name else "JobHunt Pro Update"
+        subject = (
+            f"Application Update - {company_name}"
+            if company_name
+            else "JobHunt Pro Update"
+        )
 
     # Build HTML body
     if custom_body:
@@ -1654,14 +2096,11 @@ def send_email_via_brevo_http(
         "subject": subject.strip() if subject else "Application Update",
         "htmlContent": html_body,
     }
-    
+
     # Attach files if provided, else fallback to CV_PATH
     if attachments:
         payload["attachment"] = [
-            {
-                "content": att["content_b64"],
-                "name": att["filename"]
-            }
+            {"content": att["content_b64"], "name": att["filename"]}
             for att in attachments
         ]
     else:
@@ -1669,13 +2108,11 @@ def send_email_via_brevo_http(
             cv_path = config.CV_PATH
             if cv_path and os.path.exists(cv_path):
                 import base64
+
                 with open(cv_path, "rb") as f:
-                    cv_b64 = base64.b64encode(f.read()).decode('utf-8')
+                    cv_b64 = base64.b64encode(f.read()).decode("utf-8")
                 payload["attachment"] = [
-                    {
-                        "content": cv_b64,
-                        "name": os.path.basename(cv_path)
-                    }
+                    {"content": cv_b64, "name": os.path.basename(cv_path)}
                 ]
         except Exception as e:
             logger.warning(f"[BREVO-HTTP] Failed to attach CV: {e}")
@@ -1693,11 +2130,14 @@ def send_email_via_brevo_http(
             logger.info(f"[BREVO-HTTP] Sent to {to_email} — {subject}")
             return True
         else:
-            logger.warning(f"[BREVO-HTTP] Failed: {resp.status_code} — {resp.text[:200]}")
+            logger.warning(
+                f"[BREVO-HTTP] Failed: {resp.status_code} — {resp.text[:200]}"
+            )
             return False
     except Exception as e:
         logger.warning(f"[BREVO-HTTP] Error sending to {to_email}: {e}")
         return False
+
 
 def send_email_via_sendgrid_http(
     to_email: str,
@@ -1726,9 +2166,9 @@ def send_email_via_sendgrid_http(
         "personalizations": [{"to": [{"email": to_email}]}],
         "from": {"email": sender_email, "name": config.CANDIDATE_NAME},
         "subject": subject,
-        "content": []
+        "content": [],
     }
-    
+
     if body_text:
         payload["content"].append({"type": "text/plain", "value": body_text})
     if body_html:
@@ -1740,7 +2180,7 @@ def send_email_via_sendgrid_http(
                 "content": att["content_b64"],
                 "filename": att["filename"],
                 "type": att["content_type"],
-                "disposition": "attachment"
+                "disposition": "attachment",
             }
             for att in attachments
         ]
@@ -1757,7 +2197,9 @@ def send_email_via_sendgrid_http(
             logger.info(f"[SENDGRID-HTTP] Sent to {to_email} — {subject}")
             return True
         else:
-            logger.warning(f"[SENDGRID-HTTP] Failed: {resp.status_code} — {resp.text[:200]}")
+            logger.warning(
+                f"[SENDGRID-HTTP] Failed: {resp.status_code} — {resp.text[:200]}"
+            )
             return False
     except Exception as e:
         logger.warning(f"[SENDGRID-HTTP] Error sending to {to_email}: {e}")
@@ -1775,25 +2217,32 @@ def send_email_via_gmail_smtp(
     sender_email: str = None,
     smtp_user: str = None,
     smtp_pass: str = None,
-    attachment_paths: list = None
+    attachment_paths: list = None,
 ) -> Tuple[bool, str]:
     """Send via Gmail SMTP with app password. 15s timeout, TLS."""
     import smtplib, ssl
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
-    
+
     if not smtp_user or not smtp_pass:
         return False, "Missing SMTP credentials"
-    
+
     if not sender_email:
         sender_email = smtp_user
     if not subject:
-        subject = f"Application: {job_title} at {company_name}" if company_name else "Job Application"
-    
+        subject = (
+            f"Application: {job_title} at {company_name}"
+            if company_name
+            else "Job Application"
+        )
+
     try:
         import email.utils
+
         msg = MIMEMultipart("alternative")
-        msg_id = email.utils.make_msgid(domain=smtp_user.split('@')[-1] if '@' in smtp_user else 'gmail.com')
+        msg_id = email.utils.make_msgid(
+            domain=smtp_user.split("@")[-1] if "@" in smtp_user else "gmail.com"
+        )
         msg["Message-ID"] = msg_id
         msg["From"] = f"{sender_name} <{sender_email}>"
         msg["To"] = to_email
@@ -1801,12 +2250,13 @@ def send_email_via_gmail_smtp(
         if reply_to:
             msg["Reply-To"] = reply_to
         msg.attach(MIMEText(custom_body, "html", "utf-8"))
-        
+
         # Add attachments if any
         if attachment_paths:
             import os
             from email.mime.base import MIMEBase
             from email import encoders
+
             if isinstance(attachment_paths, str):
                 attachment_paths = [attachment_paths]
             for path in attachment_paths:
@@ -1817,7 +2267,10 @@ def send_email_via_gmail_smtp(
                             part.set_payload(att.read())
                             encoders.encode_base64(part)
                             filename = os.path.basename(path)
-                            part.add_header("Content-Disposition", f"attachment; filename={filename}")
+                            part.add_header(
+                                "Content-Disposition",
+                                f"attachment; filename={filename}",
+                            )
                             msg.attach(part)
                     except Exception as e:
                         logger.warning(f"[GMAIL-SMTP] Failed to attach {path}: {e}")
@@ -1830,7 +2283,9 @@ def send_email_via_gmail_smtp(
             s.starttls(context=ctx)
             s.login(smtp_user, smtp_pass)
             s.send_message(msg)
-        logger.info(f"[GMAIL-SMTP] Sent to {to_email} via {smtp_user} with Message-ID {msg_id}")
+        logger.info(
+            f"[GMAIL-SMTP] Sent to {to_email} via {smtp_user} with Message-ID {msg_id}"
+        )
         return True, msg_id
     except Exception as e:
         logger.warning(f"[GMAIL-SMTP] Failed to {to_email} via {smtp_user}: {e}")
@@ -1872,17 +2327,23 @@ def send_email_via_resend(
 
     resend_from_email = os.getenv("RESEND_FROM_EMAIL", "").strip()
     if not resend_from_email:
-        logger.debug("[RESEND] Skipped: RESEND_FROM_EMAIL not set (need verified domain).")
+        logger.debug(
+            "[RESEND] Skipped: RESEND_FROM_EMAIL not set (need verified domain)."
+        )
         return False
 
     if not subject:
         subject = f"Application: {job_title} - {company_name}"
 
-    html_content = custom_body if custom_body else f"""
+    html_content = (
+        custom_body
+        if custom_body
+        else f"""
     <p>Dear Hiring Team,</p>
     <p>I am writing to express my interest in the <strong>{job_title}</strong> position at <strong>{company_name}</strong>.</p>
     <p>Best regards,<br><strong>{sender_name}</strong></p>
     """
+    )
 
     from_addr = f"{sender_name} <{resend_from_email}>"
     gmail_user = os.getenv("GMAIL_SMTP_USER", "").strip()
@@ -1891,17 +2352,22 @@ def send_email_via_resend(
     attachments_payload = []
     if attachments:
         for att in attachments:
-            attachments_payload.append({
-                "filename": att["filename"],
-                "content": att["content_b64"]
-            })
+            attachments_payload.append(
+                {"filename": att["filename"], "content": att["content_b64"]}
+            )
     elif attachment_paths:
-        for path in attachment_paths if isinstance(attachment_paths, list) else [attachment_paths]:
+        for path in (
+            attachment_paths
+            if isinstance(attachment_paths, list)
+            else [attachment_paths]
+        ):
             if path and os.path.exists(path):
                 try:
                     with open(path, "rb") as f:
                         content = base64.b64encode(f.read()).decode("utf-8")
-                        attachments_payload.append({"filename": os.path.basename(path), "content": content})
+                        attachments_payload.append(
+                            {"filename": os.path.basename(path), "content": content}
+                        )
                 except Exception as e:
                     logger.warning(f"[RESEND] Failed to attach {path}: {e}")
 
@@ -1953,11 +2419,15 @@ def send_email_via_mailjet(
     if not subject:
         subject = f"Application: {job_title} - {company_name}"
 
-    html_content = custom_body if custom_body else f"""
+    html_content = (
+        custom_body
+        if custom_body
+        else f"""
     <p>Dear Hiring Team,</p>
     <p>I am writing to express my interest in the <strong>{job_title}</strong> position at <strong>{company_name}</strong>.</p>
     <p>Best regards,<br><strong>{sender_name}</strong></p>
     """
+    )
 
     sender_email = os.getenv("GMAIL_SMTP_USER", "").strip()
     if not sender_email:
@@ -1966,22 +2436,30 @@ def send_email_via_mailjet(
     attachment_list = []
     if attachments:
         for att in attachments:
-            attachment_list.append({
-                "ContentType": att["content_type"],
-                "Filename": att["filename"],
-                "Base64Content": att["content_b64"]
-            })
+            attachment_list.append(
+                {
+                    "ContentType": att["content_type"],
+                    "Filename": att["filename"],
+                    "Base64Content": att["content_b64"],
+                }
+            )
     elif attachment_paths:
-        for path in attachment_paths if isinstance(attachment_paths, list) else [attachment_paths]:
+        for path in (
+            attachment_paths
+            if isinstance(attachment_paths, list)
+            else [attachment_paths]
+        ):
             if path and os.path.exists(path):
                 try:
                     with open(path, "rb") as f:
                         content = base64.b64encode(f.read()).decode("utf-8")
-                        attachment_list.append({
-                            "ContentType": "application/pdf",
-                            "Filename": os.path.basename(path),
-                            "Base64Content": content,
-                        })
+                        attachment_list.append(
+                            {
+                                "ContentType": "application/pdf",
+                                "Filename": os.path.basename(path),
+                                "Base64Content": content,
+                            }
+                        )
                 except Exception as e:
                     logger.warning(f"[MAILJET] Failed to attach {path}: {e}")
 
@@ -2013,17 +2491,16 @@ def send_email_via_mailjet(
             if messages and messages[0].get("Status") == "success":
                 logger.info(f"[MAILJET] Email sent successfully!")
                 return True
-        logger.warning(f"[MAILJET] Failed: {response.status_code} - {response.text[:200]}")
+        logger.warning(
+            f"[MAILJET] Failed: {response.status_code} - {response.text[:200]}"
+        )
         return False
     except Exception as e:
         logger.error(f"[MAILJET] Exception: {e}")
         return False
 
 
-_SENDPULSE_TOKEN_CACHE = {
-    "token": None,
-    "expires_at": 0
-}
+_SENDPULSE_TOKEN_CACHE = {"token": None, "expires_at": 0}
 
 
 def send_email_via_sendpulse(
@@ -2050,25 +2527,38 @@ def send_email_via_sendpulse(
     if not subject:
         subject = f"Application: {job_title} - {company_name}"
 
-    html_content = custom_body if custom_body else f"""
+    html_content = (
+        custom_body
+        if custom_body
+        else f"""
     <p>Dear Hiring Team,</p>
     <p>I am writing to express my interest in the <strong>{job_title}</strong> position at <strong>{company_name}</strong>.</p>
     <p>Best regards,<br><strong>{sender_name}</strong></p>
     """
+    )
 
-    sender_email = os.getenv("SENDPULSE_SENDER_EMAIL", "").strip() or config.CANDIDATE_EMAIL
+    sender_email = (
+        os.getenv("SENDPULSE_SENDER_EMAIL", "").strip() or config.CANDIDATE_EMAIL
+    )
 
     try:
         if api_key:
             token = api_key
         else:
             now = time.time()
-            if _SENDPULSE_TOKEN_CACHE["token"] and _SENDPULSE_TOKEN_CACHE["expires_at"] > now + 60:
+            if (
+                _SENDPULSE_TOKEN_CACHE["token"]
+                and _SENDPULSE_TOKEN_CACHE["expires_at"] > now + 60
+            ):
                 token = _SENDPULSE_TOKEN_CACHE["token"]
             else:
                 token_resp = requests.post(
                     "https://api.sendpulse.com/oauth/access_token",
-                    json={"grant_type": "client_credentials", "client_id": client_id, "client_secret": client_secret},
+                    json={
+                        "grant_type": "client_credentials",
+                        "client_id": client_id,
+                        "client_secret": client_secret,
+                    },
                     timeout=15,
                 )
                 if token_resp.status_code != 200:
@@ -2082,25 +2572,34 @@ def send_email_via_sendpulse(
                 _SENDPULSE_TOKEN_CACHE["token"] = token
                 _SENDPULSE_TOKEN_CACHE["expires_at"] = now + expires_in
 
-        headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
 
         attachments_payload = {}
         if attachments:
             for att in attachments:
                 attachments_payload[att["filename"]] = att["content_b64"]
         elif attachment_paths:
-            for path in attachment_paths if isinstance(attachment_paths, list) else [attachment_paths]:
+            for path in (
+                attachment_paths
+                if isinstance(attachment_paths, list)
+                else [attachment_paths]
+            ):
                 if path and os.path.exists(path):
                     try:
                         with open(path, "rb") as f:
-                            attachments_payload[os.path.basename(path)] = base64.b64encode(f.read()).decode("utf-8")
+                            attachments_payload[os.path.basename(path)] = (
+                                base64.b64encode(f.read()).decode("utf-8")
+                            )
                     except Exception as e:
                         logger.warning(f"[SENDPULSE] Failed to attach {path}: {e}")
 
         payload = {
             "email": {
                 "html": html_content,
-                "text": re.sub(r'<[^>]+>', '', html_content)[:500],
+                "text": re.sub(r"<[^>]+>", "", html_content)[:500],
                 "subject": subject,
                 "from": {"name": sender_name, "email": sender_email},
                 "to": [{"name": to_email.split("@")[0], "email": to_email}],
@@ -2112,12 +2611,17 @@ def send_email_via_sendpulse(
 
         logger.info(f"[SENDPULSE] Sending via HTTP API to {to_email}...")
         response = requests.post(
-            "https://api.sendpulse.com/smtp/emails", headers=headers, json=payload, timeout=20
+            "https://api.sendpulse.com/smtp/emails",
+            headers=headers,
+            json=payload,
+            timeout=20,
         )
         if response.status_code in (200, 201, 202):
             logger.info(f"[SENDPULSE] Email sent successfully!")
             return True
-        logger.warning(f"[SENDPULSE] Failed: {response.status_code} - {response.text[:200]}")
+        logger.warning(
+            f"[SENDPULSE] Failed: {response.status_code} - {response.text[:200]}"
+        )
         return False
     except Exception as e:
         logger.error(f"[SENDPULSE] Exception: {e}")

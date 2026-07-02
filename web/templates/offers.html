@@ -108,106 +108,105 @@
 {% endif %}
 
 <div class="offers-page">
-    <div class="offers-header">
-        <div class="offers-title-wrapper">
-            <h1>🔥 عروض خاصة</h1>
-            <p>باقات عروض حصرية وطلبات حملات احترافية مخصصة.</p>
-        </div>
+<div class="offers-header">
+<div class="offers-title-wrapper">
+<h1>🔥 عروض خاصة</h1>
+<p>باقات عروض حصرية وطلبات حملات احترافية مخصصة.</p>
+</div>
         {% if user %}
         <div class="wallet-badge">
-            <span>محفظتي</span>
-            <strong>${{ "%.2f"|format(wallet_balance|float) }}</strong>
-        </div>
+<span>محفظتي</span>
+<strong>${{ "%.2f"|format(wallet_balance|float) }}</strong>
+</div>
         {% endif %}
     </div>
-
-    <!-- Admin Panel: Add Offer Form -->
+<!-- Admin Panel: Add Offer Form -->
     {% if is_admin %}
     <div class="admin-card">
-        <h2>🛠️ لوحة تحكم العروض الخاصة</h2>
-        <p class="sub">أضف عروضاً جديدة أو أدر القوائم النشطة.</p>
-        
-        <form method="POST" action="/api/v2/offers/add" id="addOfferForm">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="offerTitle">عنوان العرض</label>
-                    <input dir="auto" class="form-control" type="text" name="title" id="offerTitle" placeholder="e.g. Executive CV Makeover + 100 Companies" required autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label for="offerPrice">السعر المخفض (USD)</label>
-                    <input dir="auto" class="form-control" type="number" name="price" id="offerPrice" placeholder="e.g. 19.99" step="0.01" min="1" required>
-                </div>
-                <div class="form-group">
-                    <label for="offerOriginalPrice">السعر الأصلي (USD) &mdash; اختياري</label>
-                    <input dir="auto" class="form-control" type="number" name="original_price" id="offerOriginalPrice" placeholder="e.g. 49.99" step="0.01" min="0">
-                </div>
-                <div class="form-group full-width">
-                    <label for="offerDesc">الوصف</label>
-                    <textarea dir="auto" class="form-control" name="description" id="offerDesc" rows="3" placeholder="Explain what is included in this offer in detail..." required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="offerImage">صورة العرض</label>
-                    <input dir="auto" class="form-control" type="text" name="image_url" id="offerImage" placeholder="Paste image link URL or upload below..." autocomplete="off">
-                    <div class="img-preview-box">
-                        <input dir="auto" type="file" id="imageFileUploader" accept="image/*" style="display: none;" onchange="convertImageToBase64(this)">
-                        <button type="button" class="btn-cyber secondary" style="padding: 6px 12px; font-size: 11px;" onclick="document.getElementById('imageFileUploader').click()">📤 رفع ملف</button>
-                        <div class="img-preview" id="imagePreview">🖼️</div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="offerDeliveryType">طريقة التسليم</label>
-                    <select class="form-control" name="delivery_type" id="offerDeliveryType" onchange="toggleFulfillmentFields(this, 'add')" required>
-                        <option value="manual" selected>معالجة يدوية من المشرف</option>
-                        <option value="instant_pool">تجمع مفاتيح محملة مسبقاً (فوري)</option>
-                        <option value="instant_api">تكامل API مع موزع (فوري)</option>
-                    </select>
-                </div>
-                <div class="form-group full-width api-fields-add" style="display: none; grid-column: 1 / -1; gap: 20px; grid-template-columns: 1fr 1fr;">
-                    <div class="form-group" style="grid-column: span 1;">
-                        <label for="offerApiUrl">رابط API الموزع</label>
-                        <input dir="auto" class="form-control" type="url" name="reseller_api_url" id="offerApiUrl" placeholder="https://api.provider.com/v1/generate">
-                    </div>
-                    <div class="form-group" style="grid-column: span 1;">
-                        <label for="offerApiKey">مفتاح / توكن API الموزع</label>
-                        <input dir="auto" class="form-control" type="text" name="reseller_api_key" id="offerApiKey" placeholder="API Secret Key Token" autocomplete="off">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="offerNote">ملاحظة هامة (إرشادات/قيود)</label>
-                    <textarea dir="auto" class="form-control" name="note" id="offerNote" rows="2" placeholder="e.g. Note: Delivery takes 48 hours and requires your current CV."></textarea>
-                </div>
-                <div class="form-group full-width" style="margin-top: 8px;">
-                    <button type="submit" class="btn-cyber primary">➕ نشر العرض الخاص</button>
-                </div>
-            </div>
-        </form>
-    </div>
-    
-    <div class="admin-card" style="border-color: rgba(59, 130, 246, 0.2); margin-bottom: 36px;">
-        <h2>🔑 مخزون المفاتيح المحملة مسبقاً</h2>
-        <p class="sub">استيراد رموز تسلسلية أو روابط أو حسابات لعروض التسليم الفوري.</p>
-        
-        <form method="POST" action="/api/v2/offers/import-keys">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="importOfferSelect">اختر باقة العرض الخاص</label>
-                    <select class="form-control" name="offer_id" id="importOfferSelect" required>
-                        <option value="" disabled selected>-- اختر عرضاً --</option>
+<h2>🛠️ لوحة تحكم العروض الخاصة</h2>
+<p class="sub">أضف عروضاً جديدة أو أدر القوائم النشطة.</p>
+<form action="/api/v2/offers/add" id="addOfferForm" method="POST">
+<div class="form-grid">
+<div class="form-group">
+<label for="offerTitle">عنوان العرض</label>
+<input autocomplete="off" class="form-control" dir="auto" id="offerTitle" name="title" placeholder="e.g. Executive CV Makeover + 100 Companies" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="offerPrice">{{ _('السعر المخفض (USD)') }}</label>
+<input class="form-control" dir="auto" id="offerPrice" min="1" name="price" placeholder="e.g. 19.99" required="" step="0.01" type="number"/>
+</div>
+<div class="form-group">
+<label for="offerOriginalPrice">{{ _('السعر الأصلي (USD) — اختياري') }}</label>
+<input class="form-control" dir="auto" id="offerOriginalPrice" min="0" name="original_price" placeholder="e.g. 49.99" step="0.01" type="number"/>
+</div>
+<div class="form-group full-width">
+<label for="offerDesc">الوصف</label>
+<textarea class="form-control" dir="auto" id="offerDesc" name="description" placeholder="Explain what is included in this offer in detail..." required="" rows="3"></textarea>
+</div>
+<div class="form-group">
+<label for="offerImage">صورة العرض</label>
+<input autocomplete="off" class="form-control" dir="auto" id="offerImage" name="image_url" placeholder="Paste image link URL or upload below..." type="text"/>
+<div class="img-preview-box">
+<input accept="image/*" dir="auto" id="imageFileUploader" onchange="convertImageToBase64(this)" style="display: none;" type="file"/>
+<button class="btn-cyber secondary" onclick="document.getElementById('imageFileUploader').click()" style="padding: 6px 12px; font-size: 11px;" type="button">📤 رفع ملف</button>
+<div class="img-preview" id="imagePreview">🖼️</div>
+</div>
+</div>
+<div class="form-group">
+<label for="offerDeliveryType">طريقة التسليم</label>
+<select class="form-control" id="offerDeliveryType" name="delivery_type" onchange="toggleFulfillmentFields(this, 'add')" required="">
+<option selected="" value="manual">معالجة يدوية من المشرف</option>
+<option value="instant_pool">تجمع مفاتيح محملة مسبقاً (فوري)</option>
+<option value="instant_api">{{ _('تكامل API مع موزع (فوري)') }}</option>
+</select>
+</div>
+<div class="form-group full-width api-fields-add" style="display: none; grid-column: 1 / -1; gap: 20px; grid-template-columns: 1fr 1fr;">
+<div class="form-group" style="grid-column: span 1;">
+<label for="offerApiUrl">{{ _('رابط API الموزع') }}</label>
+<input class="form-control" dir="auto" id="offerApiUrl" name="reseller_api_url" placeholder="https://api.provider.com/v1/generate" type="url"/>
+</div>
+<div class="form-group" style="grid-column: span 1;">
+<label for="offerApiKey">{{ _('مفتاح / توكن API الموزع') }}</label>
+<input autocomplete="off" class="form-control" dir="auto" id="offerApiKey" name="reseller_api_key" placeholder="API Secret Key Token" type="text"/>
+</div>
+</div>
+<div class="form-group">
+<label for="offerNote">ملاحظة هامة (إرشادات/قيود)</label>
+<textarea class="form-control" dir="auto" id="offerNote" name="note" placeholder="e.g. Note: Delivery takes 48 hours and requires your current CV." rows="2"></textarea>
+</div>
+<div class="form-group full-width" style="margin-top: 8px;">
+<button class="btn-cyber primary" type="submit">➕ نشر العرض الخاص</button>
+</div>
+</div>
+</form>
+</div>
+<div class="admin-card" style="border-color: rgba(59, 130, 246, 0.2); margin-bottom: 36px;">
+<h2>🔑 مخزون المفاتيح المحملة مسبقاً</h2>
+<p class="sub">استيراد رموز تسلسلية أو روابط أو حسابات لعروض التسليم الفوري.</p>
+<form action="/api/v2/offers/import-keys" method="POST">
+<div class="form-grid">
+<div class="form-group">
+<label for="importOfferSelect">اختر باقة العرض الخاص</label>
+<select class="form-control" id="importOfferSelect" name="offer_id" required="">
+<option disabled="" selected="" value="">-- اختر عرضاً --</option>
                         {% for offer in offers %}
                             <option value="{{ offer.offer_id }}">{{ offer.title }} (Fulfillment: {{ offer.delivery_type }})</option>
                         {% endfor %}
                     </select>
-                </div>
-                <div class="form-group full-width">
-                    <label for="importKeysText">قائمة مفاتيح/حسابات الاشتراك (كل واحد في سطر)</label>
-                    <textarea dir="auto" class="form-control" name="keys" id="importKeysText" rows="4" placeholder="Paste your keys, account credentials, or links here.&#10;One item per line.&#10;e.g. USER:PASS-IPTV-123&#10;e.g. https://vpn.com/claim?code=abc" required></textarea>
-                </div>
-                <div class="form-group full-width" style="margin-top: 8px;">
-                    <button type="submit" class="btn-cyber primary" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);">📥 استيراد المفاتيح إلى المخزون</button>
-                </div>
-            </div>
-        </form>
-    </div>
+</div>
+<div class="form-group full-width">
+<label for="importKeysText">قائمة مفاتيح/حسابات الاشتراك (كل واحد في سطر)</label>
+<textarea class="form-control" dir="auto" id="importKeysText" name="keys" placeholder="Paste your keys, account credentials, or links here.
+One item per line.
+e.g. USER:PASS-IPTV-123
+e.g. https://vpn.com/claim?code=abc" required="" rows="4"></textarea>
+</div>
+<div class="form-group full-width" style="margin-top: 8px;">
+<button class="btn-cyber primary" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);" type="submit">📥 استيراد المفاتيح إلى المخزون</button>
+</div>
+</div>
+</form>
+</div>
     {% endif %}
 
     <!-- Offers Listings -->
@@ -215,7 +214,7 @@
     <div class="offers-grid">
         {% for offer in offers %}
         <div class="offer-card">
-            <div class="offer-img-container">
+<div class="offer-img-container">
                 {% if offer.original_price|float > offer.price|float %}
                 {% set savings_pct = (((offer.original_price|float - offer.price|float) / offer.original_price|float) * 100)|int %}
                 <span class="savings-badge">
@@ -233,15 +232,14 @@
                 </span>
                 
                 {% if offer.image_url %}
-                <img class="offer-img" src="{{ offer.image_url }}" alt="{{ offer.title }}" loading="lazy">
+                <img alt="{{ offer.title }}" class="offer-img" loading="lazy" src="{{ offer.image_url }}"/>
                 {% else %}
                 <span class="offer-img-fallback">💎</span>
                 {% endif %}
             </div>
-            
-            <div class="offer-body">
-                <h3 class="offer-title">{{ offer.title }}</h3>
-                <p class="offer-desc">{{ offer.description }}</p>
+<div class="offer-body">
+<h3 class="offer-title">{{ offer.title }}</h3>
+<p class="offer-desc">{{ offer.description }}</p>
                 
                 {% if offer.delivery_type == 'instant_pool' %}
                     {% if offer.keys_in_stock and offer.keys_in_stock|int > 0 %}
@@ -255,7 +253,7 @@
                     {% endif %}
                 {% elif offer.delivery_type == 'instant_api' %}
                     <div class="stock-badge in-stock" style="color: #a78bfa; font-size: 11px; font-weight: 800; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(139, 92, 246, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(139, 92, 246, 0.2); text-transform: uppercase; ">
-                        ⚡ تفعيل فوري عبر API
+                        {{ _('⚡ تفعيل فوري عبر API') }}
                     </div>
                 {% else %}
                     <div class="stock-badge manual" style="color: #94a3b8; font-size: 11px; font-weight: 800; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.03); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.08); text-transform: uppercase; ">
@@ -272,76 +270,66 @@
                 
                 {% if offer.note %}
                 <div class="offer-note">
-                    <strong>💡 إرشادات:</strong> {{ offer.note }}
+<strong>💡 إرشادات:</strong> {{ offer.note }}
                 </div>
                 {% endif %}
                 
                 <div class="offer-footer">
                     {% if user %}
-                    <button class="btn-cyber primary" style="width: 100%; justify-content: center;" onclick="openPurchaseModal('{{ offer.offer_id }}', '{{ offer.title }}', '{{ offer.price }}')">⚡ اشترِ الآن</button>
+                    <button class="btn-cyber primary" onclick="openPurchaseModal('{{ offer.offer_id }}', '{{ offer.title }}', '{{ offer.price }}')" style="width: 100%; justify-content: center;">⚡ اشترِ الآن</button>
                     {% else %}
-                    <a href="/login" class="btn-cyber primary" style="width: 100%; justify-content: center;">🔑 سجل الدخول للشراء</a>
+                    <a class="btn-cyber primary" href="/login" style="width: 100%; justify-content: center;">🔑 سجل الدخول للشراء</a>
                     {% endif %}
                     
                     {% if is_admin %}
                     <div class="admin-actions-row" style="display: flex; gap: 8px; width: 100%;">
-                        <button type="button" class="btn-cyber secondary" style="flex: 1; color: #f59e0b; border-color: rgba(245,158,11,0.2); background: rgba(245,158,11,0.05); padding: 10px 14px; font-size: 12px; justify-content: center;" title="Edit Offer" onclick="openEditModal(this)"
-                                data-id="{{ offer.offer_id }}"
-                                data-title="{{ offer.title|escape }}"
-                                data-price="{{ offer.price }}"
-                                data-original-price="{{ offer.original_price }}"
-                                data-desc="{{ offer.description|escape }}"
-                                data-image="{{ offer.image_url|escape }}"
-                                data-note="{{ offer.note|escape }}"
-                                data-delivery-type="{{ offer.delivery_type }}"
-                                data-reseller-api-url="{{ offer.reseller_api_url|escape if offer.reseller_api_url else '' }}"
-                                data-reseller-api-key="{{ offer.reseller_api_key|escape if offer.reseller_api_key else '' }}">✏️ تعديل</button>
-                        <form method="POST" action="/api/v2/offers/delete/{{ offer.offer_id }}" style="flex: 1; margin: 0; display: flex;" onsubmit="return confirm('Are you sure you want to delete this offer?');">
-                            <button type="submit" class="btn-cyber secondary" style="width: 100%; color: #ef4444; border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05); padding: 10px 14px; font-size: 12px; justify-content: center;" title="Delete Offer">🗑️ حذف</button>
-                        </form>
-                    </div>
+<button class="btn-cyber secondary" data-delivery-type="{{ offer.delivery_type }}" data-desc="{{ offer.description|escape }}" data-id="{{ offer.offer_id }}" data-image="{{ offer.image_url|escape }}" data-note="{{ offer.note|escape }}" data-original-price="{{ offer.original_price }}" data-price="{{ offer.price }}" data-reseller-api-key="{{ offer.reseller_api_key|escape if offer.reseller_api_key else '' }}" data-reseller-api-url="{{ offer.reseller_api_url|escape if offer.reseller_api_url else '' }}" data-title="{{ offer.title|escape }}" onclick="openEditModal(this)" style="flex: 1; color: #f59e0b; border-color: rgba(245,158,11,0.2); background: rgba(245,158,11,0.05); padding: 10px 14px; font-size: 12px; justify-content: center;" title="Edit Offer" type="button">✏️ تعديل</button>
+<form action="/api/v2/offers/delete/{{ offer.offer_id }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this offer?');" style="flex: 1; margin: 0; display: flex;">
+<button class="btn-cyber secondary" style="width: 100%; color: #ef4444; border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05); padding: 10px 14px; font-size: 12px; justify-content: center;" title="Delete Offer" type="submit">🗑️ حذف</button>
+</form>
+</div>
                     {% endif %}
                 </div>
-            </div>
-        </div>
+</div>
+</div>
         {% endfor %}
     </div>
     {% else %}
     <div style="text-align: center; padding: 60px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 40px;">
-        <span style="font-size: 48px;">📦</span>
-        <h3 style="font-size: 18px; margin-top: 12px; color: var(--text-dim);">لا توجد عروض خاصة مدرجة حالياً</h3>
-        <p style="font-size: 13px; color: var(--text-muted); max-width: 400px; margin: 6px auto 0;">يرجى التحقق لاحقاً أو التواصل مع الدعم لطلب باقة مخصصة.</p>
-    </div>
+<span style="font-size: 48px;">📦</span>
+<h3 style="font-size: 18px; margin-top: 12px; color: var(--text-dim);">لا توجد عروض خاصة مدرجة حالياً</h3>
+<p style="font-size: 13px; color: var(--text-muted); max-width: 400px; margin: 6px auto 0;">يرجى التحقق لاحقاً أو التواصل مع الدعم لطلب باقة مخصصة.</p>
+</div>
     {% endif %}
 
     <!-- Admin Panel: Recent Purchases Table -->
     {% if is_admin %}
     <div class="purchases-section">
-        <h3 class="section-title">📊 مبيعات العروض الخاصة الأخيرة</h3>
+<h3 class="section-title">📊 مبيعات العروض الخاصة الأخيرة</h3>
         {% if purchases %}
         <div class="purchase-table-container">
-            <table class="purchase-table">
-                <thead>
-                    <tr>
-                        <th>العرض</th>
-                        <th>العميل</th>
-                        <th>السعر المدفوع</th>
-                        <th>التاريخ</th>
-                        <th>المتطلبات</th>
-                        <th>التسليم</th>
-                    </tr>
-                </thead>
-                <tbody>
+<table class="purchase-table">
+<thead>
+<tr>
+<th>العرض</th>
+<th>العميل</th>
+<th>السعر المدفوع</th>
+<th>التاريخ</th>
+<th>المتطلبات</th>
+<th>التسليم</th>
+</tr>
+</thead>
+<tbody>
                     {% for p in purchases %}
                     <tr>
-                        <td style="font-weight: 600; color: #e2e8f0;">{{ p.offer_title }}</td>
-                        <td style="color: #60a5fa;">{{ p.user_email }}</td>
-                        <td style="color: var(--green); font-weight: bold;">${{ "%.2f"|format(p.price_paid|float) }}</td>
-                        <td style="color: var(--text-muted); font-size: 12px;">{{ p.created_at[:16] }}</td>
-                        <td class="reqs-cell" onclick="alert('User Requirements:\n\n' + {{ p.user_requirements|tojson }})">
+<td style="font-weight: 600; color: #e2e8f0;">{{ p.offer_title }}</td>
+<td style="color: #60a5fa;">{{ p.user_email }}</td>
+<td style="color: var(--green); font-weight: bold;">${{ "%.2f"|format(p.price_paid|float) }}</td>
+<td style="color: var(--text-muted); font-size: 12px;">{{ p.created_at[:16] }}</td>
+<td class="reqs-cell" onclick="alert('User Requirements:\n\n' + {{ p.user_requirements|tojson }})">
                             {{ p.user_requirements }}
                         </td>
-                        <td style="font-size: 12.5px;">
+<td style="font-size: 12.5px;">
                             {% if p.fulfillment_status == 'fulfilled' %}
                                 <span style="color: #4ade80; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;" title="Credentials: {{ p.delivered_credentials|escape }}">✅ تم التسليم</span>
                             {% else %}
@@ -351,64 +339,63 @@
                                     {% else %}
                                         <span style="color: #fbbf24; font-weight: 700; font-size: 11px;">⏳ قيد الانتظار</span>
                                     {% endif %}
-                                    <button type="button" class="btn-cyber secondary" style="padding: 4px 8px; font-size: 11px; color: #60a5fa; border-color: rgba(59,130,246,0.2); background: rgba(59,130,246,0.05); cursor: pointer; justify-content: center; width: fit-content;" onclick="openFulfillModal('{{ p.purchase_id }}', '{{ p.offer_title|escape }}', '{{ p.user_email|escape }}')">🔑 تسليم يدوي</button>
-                                </div>
+                                    <button class="btn-cyber secondary" onclick="openFulfillModal('{{ p.purchase_id }}', '{{ p.offer_title|escape }}', '{{ p.user_email|escape }}')" style="padding: 4px 8px; font-size: 11px; color: #60a5fa; border-color: rgba(59,130,246,0.2); background: rgba(59,130,246,0.05); cursor: pointer; justify-content: center; width: fit-content;" type="button">🔑 تسليم يدوي</button>
+</div>
                             {% endif %}
                         </td>
-                    </tr>
+</tr>
                     {% endfor %}
                 </tbody>
-            </table>
-        </div>
+</table>
+</div>
         {% else %}
         <div style="text-align: center; padding: 30px; background: rgba(255,255,255,0.01); border: 1px dashed var(--border); border-radius: 12px; color: var(--text-muted);">
             لم تتم معالجة أي مبيعات بعد.
         </div>
         {% endif %}
     </div>
-
-    <!-- Admin Panel: Key Inventory Pool Management -->
-    <div class="purchases-section" style="margin-top: 36px;">
-        <h3 class="section-title">🔑 مخزون المفاتيح النشط</h3>
+<!-- Admin Panel: Key Inventory Pool Management -->
+<div class="purchases-section" style="margin-top: 36px;">
+<h3 class="section-title">🔑 مخزون المفاتيح النشط</h3>
         {% if inventory_keys %}
         <div class="purchase-table-container">
-            <table class="purchase-table">
-                <thead>
-                    <tr>
-                        <th>محتوى المفتاح / بيانات الدخول</th>
-                        <th>باقة العرض الخاص</th>
-                        <th>حالة الاستخدام</th>
-                        <th>تاريخ الاستيراد</th>
-                        <th>إجراء</th>
-                    </tr>
-                </thead>
-                <tbody>
+<table class="purchase-table">
+<thead>
+<tr>
+<th>محتوى المفتاح / بيانات الدخول</th>
+<th>باقة العرض الخاص</th>
+<th>حالة الاستخدام</th>
+<th>تاريخ الاستيراد</th>
+<th>إجراء</th>
+</tr>
+</thead>
+<tbody>
                     {% for k in inventory_keys %}
                     <tr>
-                        <td style="font-family: 'Cairo', monospace; font-size: 12.5px; color: #e2e8f0; word-break: break-all;">{{ k.key_content }}</td>
-                        <td style="font-weight: 600; color: #94a3b8;">{{ k.offer_title }}</td>
-                        <td>
+<td style="font-family: 'Cairo', monospace; font-size: 12.5px; color: #e2e8f0; word-break: break-all;">{{ k.key_content }}</td>
+<td style="font-weight: 600; color: #94a3b8;">{{ k.offer_title }}</td>
+<td>
                             {% if k.is_used == 1 %}
                                 <span class="status-badge" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--text-muted); font-size: 10px;" title="Used at: {{ k.used_at }}">مُستخدم بواسطة {{ k.user_email }}</span>
                             {% else %}
                                 <span class="status-badge fulfilled" style="background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.15); color: #4ade80; font-size: 10px;">متاح</span>
                             {% endif %}
                         </td>
-                        <td style="color: var(--text-muted); font-size: 11.5px;">{{ k.created_at[:16] }}</td>
-                        <td>
+<td style="color: var(--text-muted); font-size: 11.5px;">{{ k.created_at[:16] }}</td>
+<td>
                             {% if k.is_used == 0 %}
-                            <form method="POST" action="/api/v2/offers/delete-key/{{ k.key_id }}" style="margin: 0; display: inline;" onsubmit="return confirm('Are you sure you want to delete this key?');">
-                                <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; padding: 0;" title="Delete Key">🗑️ حذف</button>
-                            </form>
+                            <form action="/api/v2/offers/delete-key/{{ k.key_id }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this key?');" style="margin: 0; display: inline;">
+<button style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; padding: 0;" title="Delete Key" type="submit">🗑️ حذف</button>
+</form>
                             {% else %}
                                 <span style="color: var(--text-muted); font-size: 12px; font-style: italic;">مقفول</span>
                             {% endif %}
                         </td>
-                    </tr>
+</tr>
                     {% endfor %}
                 </tbody>
-            </table>
-        </div>
+</table>
+</div>
         {% else %}
         <div style="text-align: center; padding: 30px; background: rgba(255,255,255,0.01); border: 1px dashed var(--border); border-radius: 12px; color: var(--text-muted);">
             لا توجد مفاتيح محملة مسبقاً في المخزون. اختر عرضاً بالأعلى لاستيراد بيانات الدخول.
@@ -417,97 +404,93 @@
     </div>
     {% endif %}
 </div>
-
 <!-- Purchase Modal Overlay -->
 <div class="modal-overlay" id="purchaseModalOverlay" onclick="closePurchaseModal()">
-    <div class="modal-card" onclick="event.stopPropagation()">
-        <h3 id="modalOfferTitle">🛒 تأكيد الشراء</h3>
-        <p id="modalOfferPrice" style="color: var(--green); font-size: 15px; font-weight: 800; margin-bottom: 12px;">السعر: $0.00</p>
-        
-        <form id="purchaseForm" method="POST" action="">
-            <div class="modal-form-body">
-                <div class="form-group">
-                    <label for="modalReqs">أخبرنا بما تحتاجه / متطلباتك:</label>
-                    <textarea dir="auto" class="form-control" name="requirements" id="modalReqs" rows="5" placeholder="Specify your preferences, target industries, links, email text guidelines, or details of what you need..." required></textarea>
-                </div>
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn-cyber secondary" onclick="closePurchaseModal()">إلغاء</button>
-                <button type="submit" class="btn-cyber primary">⚡ تأكيد ودفع</button>
-            </div>
-        </form>
-    </div>
+<div class="modal-card" onclick="event.stopPropagation()">
+<h3 id="modalOfferTitle">🛒 تأكيد الشراء</h3>
+<p id="modalOfferPrice" style="color: var(--green); font-size: 15px; font-weight: 800; margin-bottom: 12px;">السعر: $0.00</p>
+<form action="" id="purchaseForm" method="POST">
+<div class="modal-form-body">
+<div class="form-group">
+<label for="modalReqs">أخبرنا بما تحتاجه / متطلباتك:</label>
+<textarea class="form-control" dir="auto" id="modalReqs" name="requirements" placeholder="Specify your preferences, target industries, links, email text guidelines, or details of what you need..." required="" rows="5"></textarea>
 </div>
-
+</div>
+<div style="display: flex; gap: 10px; justify-content: flex-end;">
+<button class="btn-cyber secondary" onclick="closePurchaseModal()" type="button">إلغاء</button>
+<button class="btn-cyber primary" type="submit">⚡ تأكيد ودفع</button>
+</div>
+</form>
+</div>
+</div>
 <!-- Edit Modal Overlay (only for admin) -->
 {% if is_admin %}
 <div class="modal-overlay" id="editModalOverlay" onclick="closeEditModal()">
-    <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 600px;">
-        <h3>✏️ تعديل العرض الخاص</h3>
-        <p style="font-size:12px; color: var(--text-dim); margin-bottom: 20px;">تعديل تفاصيل قائمة هذا العرض الخاص.</p>
-        
-        <form id="editOfferForm" method="POST" action="">
-            <div class="modal-form-body">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="editOfferTitle">عنوان العرض</label>
-                        <input dir="auto" class="form-control" type="text" name="title" id="editOfferTitle" placeholder="e.g. Executive CV Makeover + 100 Companies" required autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                        <label for="editOfferPrice">السعر المخفض (USD)</label>
-                        <input dir="auto" class="form-control" type="number" name="price" id="editOfferPrice" placeholder="e.g. 19.99" step="0.01" min="1" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="editOfferOriginalPrice">السعر الأصلي (USD) &mdash; اختياري</label>
-                        <input dir="auto" class="form-control" type="number" name="original_price" id="editOfferOriginalPrice" placeholder="e.g. 49.99" step="0.01" min="0">
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="editOfferDesc">الوصف</label>
-                        <textarea dir="auto" class="form-control" name="description" id="editOfferDesc" rows="3" placeholder="Explain what is included in this offer in detail..." required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="editOfferImage">صورة العرض</label>
-                        <input dir="auto" class="form-control" type="text" name="image_url" id="editOfferImage" placeholder="Paste image link URL or upload below..." autocomplete="off">
-                        <div class="img-preview-box">
-                            <input dir="auto" type="file" id="editImageFileUploader" accept="image/*" style="display: none;" onchange="convertEditImageToBase64(this)">
-                            <button type="button" class="btn-cyber secondary" style="padding: 6px 12px; font-size: 11px;" onclick="document.getElementById('editImageFileUploader').click()">📤 رفع ملف</button>
-                            <div class="img-preview" id="editImagePreview">🖼️</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="editOfferDeliveryType">طريقة التسليم</label>
-                        <select class="form-control" name="delivery_type" id="editOfferDeliveryType" onchange="toggleFulfillmentFields(this, 'edit')" required>
-                            <option value="manual">معالجة يدوية من المشرف</option>
-                            <option value="instant_pool">تجمع مفاتيح محملة مسبقاً (فوري)</option>
-                            <option value="instant_api">تكامل API مع موزع (فوري)</option>
-                        </select>
-                    </div>
-                    <div class="form-group full-width api-fields-edit" style="display: none; grid-column: 1 / -1; gap: 20px; grid-template-columns: 1fr 1fr;">
-                        <div class="form-group" style="grid-column: span 1;">
-                            <label for="editOfferApiUrl">رابط API الموزع</label>
-                            <input dir="auto" class="form-control" type="url" name="reseller_api_url" id="editOfferApiUrl" placeholder="https://api.provider.com/v1/generate">
-                        </div>
-                        <div class="form-group" style="grid-column: span 1;">
-                            <label for="editOfferApiKey">مفتاح / توكن API الموزع</label>
-                            <input dir="auto" class="form-control" type="text" name="reseller_api_key" id="editOfferApiKey" placeholder="API Secret Key Token" autocomplete="off">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="editOfferNote">ملاحظة هامة (إرشادات/قيود)</label>
-                        <textarea dir="auto" class="form-control" name="note" id="editOfferNote" rows="2" placeholder="e.g. Note: Delivery takes 48 hours."></textarea>
-                    </div>
-                </div>
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                <!-- Delete button on the left, Cancel/Save on the right -->
-                <button type="button" class="btn-cyber secondary" style="color: #ef4444; border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05);" onclick="deleteOfferFromModal()">🗑️ حذف العرض</button>
-                <div style="display: flex; gap: 10px;">
-                    <button type="button" class="btn-cyber secondary" onclick="closeEditModal()">إلغاء</button>
-                    <button type="submit" class="btn-cyber primary">💾 حفظ التغييرات</button>
-                </div>
-            </div>
-        </form>
-    </div>
+<div class="modal-card" onclick="event.stopPropagation()" style="max-width: 600px;">
+<h3>✏️ تعديل العرض الخاص</h3>
+<p style="font-size:12px; color: var(--text-dim); margin-bottom: 20px;">تعديل تفاصيل قائمة هذا العرض الخاص.</p>
+<form action="" id="editOfferForm" method="POST">
+<div class="modal-form-body">
+<div class="form-grid">
+<div class="form-group">
+<label for="editOfferTitle">عنوان العرض</label>
+<input autocomplete="off" class="form-control" dir="auto" id="editOfferTitle" name="title" placeholder="e.g. Executive CV Makeover + 100 Companies" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="editOfferPrice">{{ _('السعر المخفض (USD)') }}</label>
+<input class="form-control" dir="auto" id="editOfferPrice" min="1" name="price" placeholder="e.g. 19.99" required="" step="0.01" type="number"/>
+</div>
+<div class="form-group">
+<label for="editOfferOriginalPrice">{{ _('السعر الأصلي (USD) — اختياري') }}</label>
+<input class="form-control" dir="auto" id="editOfferOriginalPrice" min="0" name="original_price" placeholder="e.g. 49.99" step="0.01" type="number"/>
+</div>
+<div class="form-group full-width">
+<label for="editOfferDesc">الوصف</label>
+<textarea class="form-control" dir="auto" id="editOfferDesc" name="description" placeholder="Explain what is included in this offer in detail..." required="" rows="3"></textarea>
+</div>
+<div class="form-group">
+<label for="editOfferImage">صورة العرض</label>
+<input autocomplete="off" class="form-control" dir="auto" id="editOfferImage" name="image_url" placeholder="Paste image link URL or upload below..." type="text"/>
+<div class="img-preview-box">
+<input accept="image/*" dir="auto" id="editImageFileUploader" onchange="convertEditImageToBase64(this)" style="display: none;" type="file"/>
+<button class="btn-cyber secondary" onclick="document.getElementById('editImageFileUploader').click()" style="padding: 6px 12px; font-size: 11px;" type="button">📤 رفع ملف</button>
+<div class="img-preview" id="editImagePreview">🖼️</div>
+</div>
+</div>
+<div class="form-group">
+<label for="editOfferDeliveryType">طريقة التسليم</label>
+<select class="form-control" id="editOfferDeliveryType" name="delivery_type" onchange="toggleFulfillmentFields(this, 'edit')" required="">
+<option value="manual">معالجة يدوية من المشرف</option>
+<option value="instant_pool">تجمع مفاتيح محملة مسبقاً (فوري)</option>
+<option value="instant_api">{{ _('تكامل API مع موزع (فوري)') }}</option>
+</select>
+</div>
+<div class="form-group full-width api-fields-edit" style="display: none; grid-column: 1 / -1; gap: 20px; grid-template-columns: 1fr 1fr;">
+<div class="form-group" style="grid-column: span 1;">
+<label for="editOfferApiUrl">{{ _('رابط API الموزع') }}</label>
+<input class="form-control" dir="auto" id="editOfferApiUrl" name="reseller_api_url" placeholder="https://api.provider.com/v1/generate" type="url"/>
+</div>
+<div class="form-group" style="grid-column: span 1;">
+<label for="editOfferApiKey">{{ _('مفتاح / توكن API الموزع') }}</label>
+<input autocomplete="off" class="form-control" dir="auto" id="editOfferApiKey" name="reseller_api_key" placeholder="API Secret Key Token" type="text"/>
+</div>
+</div>
+<div class="form-group">
+<label for="editOfferNote">ملاحظة هامة (إرشادات/قيود)</label>
+<textarea class="form-control" dir="auto" id="editOfferNote" name="note" placeholder="e.g. Note: Delivery takes 48 hours." rows="2"></textarea>
+</div>
+</div>
+</div>
+<div style="display: flex; gap: 10px; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+<!-- Delete button on the left, Cancel/Save on the right -->
+<button class="btn-cyber secondary" onclick="deleteOfferFromModal()" style="color: #ef4444; border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05);" type="button">🗑️ حذف العرض</button>
+<div style="display: flex; gap: 10px;">
+<button class="btn-cyber secondary" onclick="closeEditModal()" type="button">إلغاء</button>
+<button class="btn-cyber primary" type="submit">💾 حفظ التغييرات</button>
+</div>
+</div>
+</form>
+</div>
 </div>
 {% endif %}
 
@@ -779,34 +762,32 @@ function closeFulfillModal() {
     document.getElementById('fulfillModalOverlay').classList.remove('show');
 }
 </script>
-
 <!-- Manual Fulfillment Modal Overlay (only for admin) -->
 {% if is_admin %}
 <div class="modal-overlay" id="fulfillModalOverlay" onclick="closeFulfillModal()">
-    <div class="modal-card" onclick="event.stopPropagation()">
-        <h3>🔑 تسليم الطلب يدوياً</h3>
-        <p style="font-size:12px; color: var(--text-dim); margin-bottom: 20px;">أرسل بيانات الدخول أو مفاتيح الاشتراك مباشرةً إلى العميل.</p>
-        
-        <form id="fulfillForm" method="POST" action="">
-            <div class="modal-form-body">
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label>العميل</label>
-                    <input dir="auto" class="form-control" type="text" id="fulfillCustomerEmail" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);">
-                </div>
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label>باقة العرض</label>
-                    <input dir="auto" class="form-control" type="text" id="fulfillOfferTitle" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);">
-                </div>
-                <div class="form-group">
-                    <label for="fulfillCredentials">بيانات الدخول المُسلَّمة / مفاتيح الاشتراك / رابط الوصول</label>
-                    <textarea dir="auto" class="form-control" name="credentials" id="fulfillCredentials" rows="4" placeholder="الصق بيانات دخول IPTV، مفتاح الترخيص، تفاصيل الحساب، أو التعليمات هنا..." required></textarea>
-                </div>
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
-                <button type="button" class="btn-cyber secondary" onclick="closeFulfillModal()">إلغاء</button>
-                <button type="submit" class="btn-cyber primary" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);">✅ تسليم الطلب</button>
-            </div>
-        </form>
-    </div>
+<div class="modal-card" onclick="event.stopPropagation()">
+<h3>🔑 تسليم الطلب يدوياً</h3>
+<p style="font-size:12px; color: var(--text-dim); margin-bottom: 20px;">أرسل بيانات الدخول أو مفاتيح الاشتراك مباشرةً إلى العميل.</p>
+<form action="" id="fulfillForm" method="POST">
+<div class="modal-form-body">
+<div class="form-group" style="margin-bottom: 12px;">
+<label>العميل</label>
+<input class="form-control" dir="auto" id="fulfillCustomerEmail" readonly="" style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);" type="text"/>
+</div>
+<div class="form-group" style="margin-bottom: 12px;">
+<label>باقة العرض</label>
+<input class="form-control" dir="auto" id="fulfillOfferTitle" readonly="" style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);" type="text"/>
+</div>
+<div class="form-group">
+<label for="fulfillCredentials">بيانات الدخول المُسلَّمة / مفاتيح الاشتراك / رابط الوصول</label>
+<textarea class="form-control" dir="auto" id="fulfillCredentials" name="credentials" placeholder="الصق بيانات دخول IPTV، مفتاح الترخيص، تفاصيل الحساب، أو التعليمات هنا..." required="" rows="4"></textarea>
+</div>
+</div>
+<div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+<button class="btn-cyber secondary" onclick="closeFulfillModal()" type="button">إلغاء</button>
+<button class="btn-cyber primary" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);" type="submit">✅ تسليم الطلب</button>
+</div>
+</form>
+</div>
 </div>
 {% endif %}

@@ -2,149 +2,138 @@
 {% block main_class %}{% endblock %}
 
 {% block content %}
-<div dir="rtl" class="flex min-h-screen bg-slate-950 text-slate-300 font-['Cairo']">
-    
-    <!-- Sidebar -->
-    <!-- Mobile overlay -->
-    <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-black/50 z-30 md:hidden" x-cloak></div>
-    
-    <aside :class="sidebarOpen ? 'inset-inline-start-0' : '-inset-inline-start-64 md:inset-inline-start-0'" class="w-64 bg-slate-900 border-e border-white/10 flex flex-col fixed inset-y-0 inset-inline-start-0 z-40 transition-all duration-300">
-        <div class="p-6 border-b border-white/10 pt-28">
-            <h2 class="text-sm font-bold text-slate-400 tracking-wider uppercase mb-1">غرفة القيادة</h2>
-            <div class="flex items-center gap-2 mt-2">
-                <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
-                <span class="text-xs text-cyan-400 font-mono">النظام متصل</span>
-            </div>
-        </div>
-
-                <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-            <a href="/dashboard/v3" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'dashboard' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">لوحة القيادة</span>
-            </a>
-            
-            <a href="/upload-cv" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'upload-cv' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">رفع السيرة الذاتية</span>
-            </a>
-
-            <a href="/ats-scorer" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'ats-scorer' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="target" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">مقياس ATS</span>
-            </a>
-
-            <a href="/resume-tailor" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'resume-tailor' else 'text-purple-400 hover:text-purple-300 hover:bg-white/5' }}">
-                <i data-lucide="wand-2" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">تخصيص السيرة الذاتية</span>
-            </a>
-
-            <a href="/new-campaign" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'new-campaign' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="rocket" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">حملة جديدة</span>
-            </a>
-
-            <a href="/sent-emails" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'sent-emails' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="send" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">الرسائل المرسلة</span>
-            </a>
-
-            <a href="/funnel-analytics" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'funnel-analytics' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">تحليلات التوظيف</span>
-            </a>
-
-            <div class="my-4 border-t border-white/5"></div>
-
-            <a href="/battle-station" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'battle-station' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="swords" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">محطة المعركة</span>
-            </a>
-
-            <a href="/services" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'services' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="star" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">الخدمات المميزة</span>
-            </a>
-
-            <a href="/wallet" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'wallet' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="wallet" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">المحفظة</span>
-            </a>
-
-            <a href="/my-purchases" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'my-purchases' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="package" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">اشتراكاتي</span>
-            </a>
-
-            <a href="/stats" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'stats' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="pie-chart" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">الإحصائيات</span>
-            </a>
-
-            <div class="my-4 border-t border-white/5"></div>
-
-            <a href="/admin" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-red-500/10 text-red-400' if active_page == 'admin' else 'text-red-400/70 hover:text-red-400 hover:bg-red-500/5' }}">
-                <i data-lucide="shield-alert" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">لوحة الإدارة</span>
-            </a>
-            
-            <a href="/contact" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'contact' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="message-square" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">الدعم الفني</span>
-            </a>
-        </nav>
-        
-        <div class="p-4 border-t border-white/10 bg-slate-950/50">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold">
+<div class="flex min-h-screen bg-slate-950 text-slate-300 font-['Cairo']" dir="rtl">
+<!-- Sidebar -->
+<!-- Mobile overlay -->
+<div @click="sidebarOpen = false" class="fixed inset-0 bg-black/50 z-30 md:hidden" x-cloak="" x-show="sidebarOpen"></div>
+<aside :class="sidebarOpen ? 'inset-inline-start-0' : '-inset-inline-start-64 md:inset-inline-start-0'" class="w-64 bg-slate-900 border-e border-white/10 flex flex-col fixed inset-y-0 inset-inline-start-0 z-40 transition-all duration-300">
+<div class="p-6 border-b border-white/10 pt-28">
+<h2 class="text-sm font-bold text-slate-400 tracking-wider uppercase mb-1">غرفة القيادة</h2>
+<div class="flex items-center gap-2 mt-2">
+<div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+<span class="text-xs text-cyan-400 font-mono">النظام متصل</span>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'dashboard' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/dashboard/v3">
+<i class="w-5 h-5" data-lucide="layout-dashboard"></i>
+<span class="font-medium text-sm">لوحة القيادة</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'upload-cv' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/upload-cv">
+<i class="w-5 h-5" data-lucide="file-text"></i>
+<span class="font-medium text-sm">رفع السيرة الذاتية</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'ats-scorer' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/ats-scorer">
+<i class="w-5 h-5" data-lucide="target"></i>
+<span class="font-medium text-sm">{{ _('مقياس ATS') }}</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'resume-tailor' else 'text-purple-400 hover:text-purple-300 hover:bg-white/5' }}" href="/resume-tailor">
+<i class="w-5 h-5" data-lucide="wand-2"></i>
+<span class="font-medium text-sm">تخصيص السيرة الذاتية</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'new-campaign' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/new-campaign">
+<i class="w-5 h-5" data-lucide="rocket"></i>
+<span class="font-medium text-sm">حملة جديدة</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'sent-emails' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/sent-emails">
+<i class="w-5 h-5" data-lucide="send"></i>
+<span class="font-medium text-sm">الرسائل المرسلة</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'funnel-analytics' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/funnel-analytics">
+<i class="w-5 h-5" data-lucide="bar-chart-2"></i>
+<span class="font-medium text-sm">تحليلات التوظيف</span>
+</a>
+<div class="my-4 border-t border-white/5"></div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'battle-station' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/battle-station">
+<i class="w-5 h-5" data-lucide="swords"></i>
+<span class="font-medium text-sm">محطة المعركة</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'services' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/services">
+<i class="w-5 h-5" data-lucide="star"></i>
+<span class="font-medium text-sm">الخدمات المميزة</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'wallet' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/wallet">
+<i class="w-5 h-5" data-lucide="wallet"></i>
+<span class="font-medium text-sm">المحفظة</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'my-purchases' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/my-purchases">
+<i class="w-5 h-5" data-lucide="package"></i>
+<span class="font-medium text-sm">اشتراكاتي</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'stats' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/stats">
+<i class="w-5 h-5" data-lucide="pie-chart"></i>
+<span class="font-medium text-sm">الإحصائيات</span>
+</a>
+<div class="my-4 border-t border-white/5"></div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-red-500/10 text-red-400' if active_page == 'admin' else 'text-red-400/70 hover:text-red-400 hover:bg-red-500/5' }}" href="/admin">
+<i class="w-5 h-5" data-lucide="shield-alert"></i>
+<span class="font-medium text-sm">لوحة الإدارة</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'contact' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/contact">
+<i class="w-5 h-5" data-lucide="message-square"></i>
+<span class="font-medium text-sm">الدعم الفني</span>
+</a>
+</nav>
+<div class="p-4 border-t border-white/10 bg-slate-950/50">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold">
                     {{ user.name[0] if user.name else 'U' }}
                 </div>
-                <div>
-                    <p class="text-sm font-medium text-white truncate max-w-[120px]">{{ user.name }}</p>
-                    <p class="text-xs text-slate-400 font-mono">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</p>
-                </div>
-            </div>
-            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors border border-red-500/20 text-sm font-bold">
-                <i data-lucide="log-out" class="w-4 h-4 lucide-dir-aware"></i>
+<div>
+<p class="text-sm font-medium text-white truncate max-w-[120px]">{{ user.name }}</p>
+<p class="text-xs text-slate-400 font-mono">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</p>
+</div>
+</div>
+<a class="flex items-center justify-center gap-2 w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors border border-red-500/20 text-sm font-bold" href="/logout">
+<i class="w-4 h-4 lucide-dir-aware" data-lucide="log-out"></i>
                 قطع الاتصال
             </a>
-        </div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <main class="flex-1 md:ms-64 p-4 md:p-8 pt-24 min-h-screen relative overflow-x-hidden">
-        <!-- Dashboard Header / Welcome -->
-        <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div class="flex items-center gap-3">
-                <button @click="sidebarOpen = true" class="md:hidden p-2 bg-slate-900 border border-white/10 rounded-lg text-slate-300 hover:text-white transition-colors">
-                    <i data-lucide="menu" class="w-5 h-5"></i>
-                </button>
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-display font-bold text-white mb-1">{{ title }}</h1>
-                    <p class="text-slate-400 text-sm">حالة غرفة العمليات: <span class="text-cyan-400 font-mono">ممتاز</span></p>
-                </div>
-            </div>
-            
-            <!-- Quick Stats/Actions -->
-            <div class="flex items-center gap-3">
-                <div class="px-4 py-2 bg-slate-900 border border-white/10 rounded-lg flex items-center gap-2 hover:-translate-y-0.5 transition-transform">
-                    <i data-lucide="coins" class="w-4 h-4 text-gold-400"></i>
-                    <span class="text-sm font-mono text-white">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</span>
-                    <a href="/wallet" class="ms-2 px-2 py-0.5 bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 rounded text-xs transition-colors">إضافة رصيد</a>
-                </div>
-                <a href="/new-campaign" class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white rounded-lg shadow-lg shadow-indigo-500/25 flex items-center gap-2 text-sm font-bold transition-all hover:-translate-y-0.5">
-                    <i data-lucide="rocket" class="w-4 h-4 lucide-dir-aware"></i>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 md:ms-64 p-4 md:p-8 pt-24 min-h-screen relative overflow-x-hidden">
+<!-- Dashboard Header / Welcome -->
+<header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div class="flex items-center gap-3">
+<button @click="sidebarOpen = true" class="md:hidden p-2 bg-slate-900 border border-white/10 rounded-lg text-slate-300 hover:text-white transition-colors">
+<i class="w-5 h-5" data-lucide="menu"></i>
+</button>
+<div>
+<h1 class="text-2xl md:text-3xl font-display font-bold text-white mb-1">{{ title }}</h1>
+<p class="text-slate-400 text-sm">حالة غرفة العمليات: <span class="text-cyan-400 font-mono">ممتاز</span></p>
+</div>
+</div>
+<!-- Quick Stats/Actions -->
+<div class="flex items-center gap-3">
+<div class="px-4 py-2 bg-slate-900 border border-white/10 rounded-lg flex items-center gap-2 hover:-translate-y-0.5 transition-transform">
+<i class="w-4 h-4 text-gold-400" data-lucide="coins"></i>
+<span class="text-sm font-mono text-white">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</span>
+<a class="ms-2 px-2 py-0.5 bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 rounded text-xs transition-colors" href="/wallet">إضافة رصيد</a>
+</div>
+<a class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white rounded-lg shadow-lg shadow-indigo-500/25 flex items-center gap-2 text-sm font-bold transition-all hover:-translate-y-0.5" href="/new-campaign">
+<i class="w-4 h-4 lucide-dir-aware" data-lucide="rocket"></i>
                     إطلاق حملة
                 </a>
-            </div>
-        </header>
-
-        <!-- Dynamic Content injected here -->
+</div>
+</header>
+<!-- Dynamic Content injected here -->
         {{ content_html | safe }}
         
         <!-- Footer -->
-        <footer class="mt-12 pt-6 border-t border-white/10 text-center text-slate-500 text-sm">
-            نظام جوبهانت برو هايدرا v{{ VERSION }} &copy; {{ current_year }} | مشفر بالكامل
+<footer class="mt-12 pt-6 border-t border-white/10 text-center text-slate-500 text-sm">
+            نظام جوبهانت برو هايدرا v{{ VERSION }} © {{ current_year }} | مشفر بالكامل
         </footer>
-    </main>
+</main>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const animatedElements = document.querySelectorAll('.glow-orb-1, .glow-orb-2, .glow-orb-3, .glass-card, .glass-panel, .btn, .step-card, .feature-card, .stat-card, .testimonial-card');
+    animatedElements.forEach(el => {
+        el.addEventListener('mouseenter', () => { el.style.willChange = 'transform, opacity, box-shadow'; });
+        el.addEventListener('transitionend', () => { el.style.willChange = 'auto'; });
+        el.addEventListener('mouseleave', () => { setTimeout(() => { el.style.willChange = 'auto'; }, 500); });
+        el.addEventListener('touchstart', () => { el.style.willChange = 'transform, opacity, box-shadow'; });
+    });
+});
+</script>
 {% endblock %}

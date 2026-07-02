@@ -5,19 +5,24 @@ from fastapi.responses import HTMLResponse
 
 logger = logging.getLogger(__name__)
 
+
 class PanicModeMiddleware(BaseHTTPMiddleware):
     """
-    Panic Mode Middleware: 
+    Panic Mode Middleware:
     When 'panic_mode' flag is active in the database, the server will act as a decoy site
     for all routes except admin and critical paths.
     """
+
     async def dispatch(self, request: Request, call_next):
         try:
             from core.pg_sqlite_shim import get_db
+
             conn = get_db()
-            row = conn.execute("SELECT value FROM system_config WHERE key = 'panic_mode'").fetchone()
+            row = conn.execute(
+                "SELECT value FROM system_config WHERE key = 'panic_mode'"
+            ).fetchone()
             conn.close()
-            
+
             if row and row["value"].lower() == "true":
                 path = request.url.path
                 # Allow static assets and admin routes through
@@ -49,5 +54,5 @@ class PanicModeMiddleware(BaseHTTPMiddleware):
                     return HTMLResponse(content=decoy_html, status_code=503)
         except Exception as e:
             logger.error(f"Panic mode check failed: {e}")
-            
+
         return await call_next(request)

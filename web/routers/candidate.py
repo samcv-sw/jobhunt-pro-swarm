@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))
 
+
 @router.get("/p/{candidate_id}")
 async def view_candidate_profile(request: Request, candidate_id: str):
     """
@@ -18,7 +19,9 @@ async def view_candidate_profile(request: Request, candidate_id: str):
     see a banner advertising JobHunt Pro.
     """
     async with db.pool.acquire() as conn:
-        user = await conn.fetchrow("SELECT name, email, phone FROM users WHERE user_id = $1", candidate_id)
+        user = await conn.fetchrow(
+            "SELECT name, email, phone FROM users WHERE user_id = $1", candidate_id
+        )
         if not user:
             raise HTTPException(status_code=404, detail="Candidate not found")
 
@@ -28,7 +31,9 @@ async def view_candidate_profile(request: Request, candidate_id: str):
             "name": user["name"],
             "title": "Senior Network Engineer",
             "experience": "15+ Years",
-            "skills": ["Cisco", "Fortinet", "Python", "BGP", "OSPF", "Zero Trust"]
+            "skills": ["Cisco", "Fortinet", "Python", "BGP", "OSPF", "Zero Trust"],
         }
 
-    return templates.TemplateResponse(request, "candidate_profile.html", {"cv": cv_data})
+    return templates.TemplateResponse(
+        request, "candidate_profile.html", {"cv": cv_data}
+    )

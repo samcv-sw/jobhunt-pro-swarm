@@ -2,10 +2,9 @@
 JobHunt Pro - Job Board Aggregator
 Indeed, Glassdoor, LinkedIn Jobs, Monster, ZipRecruiter integration
 """
+
 import logging
-import re
-from typing import Dict, List, Optional
-from datetime import datetime
+from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -100,8 +99,10 @@ class JobBoardAggregator:
     def __init__(self):
         self.config = JobBoardConfig()
         self.results_cache = {}
-        self.stats = {board: {"searches": 0, "applications": 0, "hires": 0}
-                      for board in self.config.BOARDS}
+        self.stats = {
+            board: {"searches": 0, "applications": 0, "hires": 0}
+            for board in self.config.BOARDS
+        }
 
     def get_board_status(self) -> Dict:
         """Get status of all job boards."""
@@ -111,7 +112,9 @@ class JobBoardAggregator:
                 "free_limit": info["free_tier"],
                 "priority": info["priority"],
                 "cost_per_hire": info["cost_per_hire"],
-                "stats": self.stats.get(board, {"searches": 0, "applications": 0, "hires": 0}),
+                "stats": self.stats.get(
+                    board, {"searches": 0, "applications": 0, "hires": 0}
+                ),
                 "notes": info.get("notes", ""),
             }
             for board, info in self.config.BOARDS.items()
@@ -150,19 +153,48 @@ class JobMatcher:
     def __init__(self):
         self.skill_weights = {
             # Core network skills
-            "cisco": 10, "mikrotik": 8, "ubiquiti": 7, "fortinet": 9,
-            "juniper": 8, "ospf": 7, "bgp": 7, "mpls": 6,
-            "vpn": 5, "firewalls": 8, "network security": 9,
-            "aws": 6, "azure": 6, "cloud networking": 7,
-            "python": 5, "ansible": 5, "terraform": 5,
+            "cisco": 10,
+            "mikrotik": 8,
+            "ubiquiti": 7,
+            "fortinet": 9,
+            "juniper": 8,
+            "ospf": 7,
+            "bgp": 7,
+            "mpls": 6,
+            "vpn": 5,
+            "firewalls": 8,
+            "network security": 9,
+            "aws": 6,
+            "azure": 6,
+            "cloud networking": 7,
+            "python": 5,
+            "ansible": 5,
+            "terraform": 5,
             # 2025 emerging skills
-            "sd-wan": 9, "sase": 9, "ztna": 8, "zero trust": 8,
-            "kubernetes": 7, "docker": 6, "devops": 6, "devsecops": 8,
-            "ebpf": 8, "cilium": 7, "platform engineering": 8,
-            "cnapp": 8, "cspm": 7, "ciem": 7,
-            "gitops": 6, "argocd": 6, "helm": 5,
-            "opentelemetry": 6, "observability": 6, "sre": 7,
-            "llm": 5, "aiops": 6, "5g": 7, "openran": 7,
+            "sd-wan": 9,
+            "sase": 9,
+            "ztna": 8,
+            "zero trust": 8,
+            "kubernetes": 7,
+            "docker": 6,
+            "devops": 6,
+            "devsecops": 8,
+            "ebpf": 8,
+            "cilium": 7,
+            "platform engineering": 8,
+            "cnapp": 8,
+            "cspm": 7,
+            "ciem": 7,
+            "gitops": 6,
+            "argocd": 6,
+            "helm": 5,
+            "opentelemetry": 6,
+            "observability": 6,
+            "sre": 7,
+            "llm": 5,
+            "aiops": 6,
+            "5g": 7,
+            "openran": 7,
         }
 
     def score_job_match(self, job: Dict, candidate_skills: List[str]) -> Dict:
@@ -178,7 +210,9 @@ class JobMatcher:
                     matched_skills.append(skill)
 
             max_possible = sum(self.skill_weights.values())
-            match_pct = round((score / max_possible) * 100, 1) if max_possible > 0 else 0.0
+            match_pct = (
+                round((score / max_possible) * 100, 1) if max_possible > 0 else 0.0
+            )
 
             return {
                 "match_score": min(100, match_pct),
@@ -209,9 +243,12 @@ class JobMatcher:
         return any(p in location for p in preferred)
 
     def _get_overall_rating(self, pct: float) -> str:
-        if pct >= 70: return "excellent"
-        if pct >= 50: return "good"
-        if pct >= 30: return "fair"
+        if pct >= 70:
+            return "excellent"
+        if pct >= 50:
+            return "good"
+        if pct >= 30:
+            return "fair"
         return "low"
 
 

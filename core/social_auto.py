@@ -11,14 +11,13 @@ Platforms:
 
 Safety: all platforms rate-limited, human-like delays, AI-generated content.
 """
+
 import json
 import logging
 import random
-import time
-import re
-from datetime import datetime, date
+from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -28,11 +27,25 @@ _state = {}
 # ── Content pools ───────────────────────────────────────────
 
 REDDIT_TRIGGER_KEYWORDS = [
-    "job search", "applying to jobs", "job application", "cover letter",
-    "resume help", "ATS", "not getting interviews", "job hunting",
-    "looking for work", "career change", "laid off", "fresher job",
-    "entry level", "no experience", "hundreds of applications",
-    "apply online", "job board", "linkedin jobs", "indeed",
+    "job search",
+    "applying to jobs",
+    "job application",
+    "cover letter",
+    "resume help",
+    "ATS",
+    "not getting interviews",
+    "job hunting",
+    "looking for work",
+    "career change",
+    "laid off",
+    "fresher job",
+    "entry level",
+    "no experience",
+    "hundreds of applications",
+    "apply online",
+    "job board",
+    "linkedin jobs",
+    "indeed",
 ]
 
 REDDIT_COMMENT_TEMPLATES = [
@@ -41,7 +54,6 @@ REDDIT_COMMENT_TEMPLATES = [
 I use JobHunt Pro — it's an AI that searches jobs, scores matches, writes personalized cover letters, and submits applications automatically. Went from 5 applications/day to 100+ without burning out.
 
 The free tier is $2. Worth trying even just for the cover letter AI alone.""",
-
     """Hey, I've been there. Here's what actually worked:
 
 1. Optimize resume for ATS systems (free tool: jhfguf.pythonanywhere.com → Free Tools → ATS Checker)
@@ -49,14 +61,12 @@ The free tier is $2. Worth trying even just for the cover letter AI alone.""",
 3. Automate the repetitive parts (I use JobHunt Pro for this)
 
 The difference between spraying 500 generic apps vs 50 AI-matched ones is night and day. Quality > quantity.""",
-
     """Three things that 10x'd my interview rate:
 - AI-generated cover letters (takes 10 seconds)
 - ATS-optimized resume (check your score first)
 - Automated job matching (AI finds jobs that actually fit)
 
 I built JobHunt Pro to do all three. Free to try, no card needed.""",
-
     """Don't spray and pray. That's why you're not getting responses.
 
 Recruiters can smell a generic application from miles away. Use AI to personalize each one — different cover letter, different skill matching, different approach based on the job description.
@@ -77,7 +87,6 @@ Why? Because AI can:
 The tool I built for this → jhfguf.pythonanywhere.com
 
 #JobSearch #CareerTips #AI #JobHunt""",
-
     """💡 The average job seeker applies to 27 positions before landing an interview.
 
 Want to know the secret of people who get interviews faster? They don't apply to more jobs — they apply SMARTER.
@@ -146,7 +155,7 @@ def _save_state() -> None:
     if STATE_FILE:
         try:
             _state["updated"] = datetime.utcnow().isoformat()
-            with open(STATE_FILE, 'w') as f:
+            with open(STATE_FILE, "w") as f:
                 json.dump(_state, f, indent=2)
         except Exception as e:
             logger.warning(f"[social_auto] Could not save state: {e}")
@@ -154,17 +163,20 @@ def _save_state() -> None:
 
 # ── Reddit Auto-Engagement ───────────────────────────────────
 
+
 def get_reddit_comment(keyword_context: str = "job search") -> str:
     """Generate a Reddit comment based on trigger keyword."""
     comment = random.choice(REDDIT_COMMENT_TEMPLATES)
 
-    intro = random.choice([
-        "This. ",
-        "I feel you. ",
-        "Same here. ",
-        "I struggled with this for months. ",
-        "Been there. ",
-    ])
+    intro = random.choice(
+        [
+            "This. ",
+            "I feel you. ",
+            "Same here. ",
+            "I struggled with this for months. ",
+            "Been there. ",
+        ]
+    )
 
     full = intro + comment
 
@@ -181,12 +193,21 @@ def get_reddit_comment(keyword_context: str = "job search") -> str:
 def get_reddit_posts_to_target() -> List[Dict]:
     """Return list of subreddits + search queries to target."""
     subreddits = [
-        {"sub": "jobs", "queries": ["applying", "application", "cover letter", "resume"]},
+        {
+            "sub": "jobs",
+            "queries": ["applying", "application", "cover letter", "resume"],
+        },
         {"sub": "resumes", "queries": ["review", "ATS", "format", "help"]},
-        {"sub": "careerguidance", "queries": ["job search", "interview", "career change"]},
+        {
+            "sub": "careerguidance",
+            "queries": ["job search", "interview", "career change"],
+        },
         {"sub": "jobsearchhacks", "queries": ["tips", "automation", "tools"]},
         {"sub": "GetEmployed", "queries": ["how to", "help", "advice"]},
-        {"sub": "recruitinghell", "queries": ["applicant", "system", "ATS", "automated"]},
+        {
+            "sub": "recruitinghell",
+            "queries": ["applicant", "system", "ATS", "automated"],
+        },
         {"sub": "cscareerquestions", "queries": ["job hunt", "applying", "resume"]},
         {"sub": "forhire", "queries": ["looking", "seeking", "available"]},
     ]
@@ -194,6 +215,7 @@ def get_reddit_posts_to_target() -> List[Dict]:
 
 
 # ── LinkedIn Auto-Poster ─────────────────────────────────────
+
 
 def get_linkedin_post() -> str:
     """Generate a LinkedIn post."""
@@ -210,6 +232,7 @@ def get_linkedin_post() -> str:
 
 
 # ── Quora Auto-Answerer ─────────────────────────────────────
+
 
 def get_quora_answer(question: str = "") -> str:
     """Generate a Quora answer with natural JobHunt Pro mention."""
@@ -244,6 +267,7 @@ QUORA_SEARCH_QUERIES = [
 
 # ── Twitter/X Auto-Poster ────────────────────────────────────
 
+
 def get_tweet() -> str:
     """Generate a tweet."""
     tweet = random.choice(TWEET_TEMPLATES)
@@ -259,6 +283,7 @@ def get_tweet() -> str:
 
 
 # ── Stats ────────────────────────────────────────────────────
+
 
 def get_stats() -> Dict:
     return {

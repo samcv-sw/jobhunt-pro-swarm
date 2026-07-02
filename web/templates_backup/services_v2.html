@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta name="description" content="JobHunt Pro: The world's most advanced AI-powered job application system. Fully automated, invisible, and hyper-efficient.">
+    <meta property="og:title" content="JobHunt Pro - Ultimate AI Auto-Applier">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{ title | default('JobHunt Pro') }}</title>
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+  <link rel="stylesheet" href="/static/css/cyberpunk.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
+<style>
+ * { margin:0; padding:0; box-sizing:border-box; }
+ :root {
+ --bg: #07070d;
+ --card: #0c0c18;
+ --card2: #111122;
+ --cyan: #00e5ff;
+ --magenta: #ff0055;
+ --green: #22c55e;
+ --gold: #f59e0b;
+ --text: #ffffff;
+ --muted: #6b7280;
+ --border: rgba(255,255,255,0.06);
+ --gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+ --font: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+ --mono: 'JetBrains Mono', monospace;
+ }
+ html { scroll-behavior: smooth; }
+ body {
+ font-family: var(--font);
+ background: var(--bg);
+ color: var(--text);
+ overflow-x: hidden;
+ }
+ .bg-glow {
+ position: fixed;
+ top: -200px; inset-inline-start: -200px;
+ width: 600px; height: 600px;
+ background: radial-gradient(circle, rgba(0,229,255,0.03) 0%, transparent 70%);
+ pointer-events: none;
+ z-index: 0;
+ }
+ .bg-glow-2 {
+ position: fixed;
+ bottom: -200px; inset-inline-end: -200px;
+ width: 600px; height: 600px;
+ background: radial-gradient(circle, rgba(255,0,85,0.03) 0%, transparent 70%);
+ pointer-events: none;
+ z-index: 0;
+ }
+
+ /* Navbar */
+ nav {
+ position: fixed;
+ top: 0; inset-inline-start: 0; inset-inline-end: 0;
+ height: 64px;
+ background: rgba(7,7,13,0.85);
+ backdrop-filter: blur(12px);
+ border-bottom: 1px solid var(--border);
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ padding: 0 40px;
+ z-index: 1000;
+ }
+ .brand {
+ font-family: var(--mono);
+ font-size: 20px;
+ font-weight: 700;
+ background: linear-gradient(135deg, var(--cyan), var(--magenta));
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+ 
+ }
+ .nav-links { display: flex; gap: 24px; align-items: center; }
+ .nav-links a {
+ color: #94a3b8;
+ text-decoration: none;
+ font-size: 14px;
+ font-weight: 500;
+ transition: color 0.2s;
+ }
+ .nav-links a:hover { color: #fff; }
+ .btn-nav {
+ padding: 8px 20px;
+ border-radius: 8px;
+ background: linear-gradient(135deg, var(--cyan), #0088aa);
+ color: #000 !important;
+ font-weight: 700 !important;
+ font-size: 13px !important;
+ }
+
+ /* Hero */
+ .hero {
+ padding: 140px 40px 60px;
+ text-align: center;
+ position: relative;
+ z-index: 1;
+ max-width: 900px;
+ margin: 0 auto;
+ }
+ .hero-badge {
+ display: inline-block;
+ padding: 6px 16px;
+ border-radius: 50px;
+ background: rgba(0,229,255,0.1);
+ border: 1px solid rgba(0,229,255,0.2);
+ color: var(--cyan);
+ font-size: 12px;
+ font-weight: 600;
+ 
+ text-transform: uppercase;
+ margin-bottom: 20px;
+ }
+ .hero h1 {
+ font-size: 52px;
+ font-weight: 900;
+ line-height: 1.15;
+ margin-bottom: 16px;
+ 
+ }
+ .hero h1 .cyan { color: var(--cyan); }
+ .hero h1 .magenta { color: var(--magenta); }
+ .hero p {
+ color: var(--muted);
+ font-size: 18px;
+ line-height: 1.6;
+ max-width: 650px;
+ margin: 0 auto 32px;
+ }
+ .hero-stats {
+ display: flex;
+ justify-content: center;
+ gap: 40px;
+ margin-top: 32px;
+ }
+ .hero-stat {
+ text-align: center;
+ }
+ .hero-stat-value {
+ font-size: 28px;
+ font-weight: 800;
+ font-family: var(--mono);
+ color: var(--cyan);
+ }
+ .hero-stat-label {
+ font-size: 12px;
+ color: var(--muted);
+ text-transform: uppercase;
+ 
+ margin-top: 4px;
+ }
+
+ /* Section */
+ .section {
+ padding: 80px 40px;
+ max-width: 1200px;
+ margin: 0 auto;
+ position: relative;
+ z-index: 1;
+ }
+ .section-header {
+ text-align: center;
+ margin-bottom: 48px;
+ }
+ .section-tag {
+ display: inline-block;
+ padding: 4px 12px;
+ border-radius: 4px;
+ font-size: 11px;
+ font-weight: 700;
+ 
+ text-transform: uppercase;
+ font-family: var(--mono);
+ margin-bottom: 12px;
+ }
+ .tag-micro { background: rgba(0,229,255,0.1); color: var(--cyan); border: 1px solid rgba(0,229,255,0.2); }
+ .tag-standard { background: rgba(245,158,11,0.1); color: var(--gold); border: 1px solid rgba(245,158,11,0.2); }
+ .tag-premium { background: rgba(255,0,85,0.1); color: var(--magenta); border: 1px solid rgba(255,0,85,0.2); }
+ .section h2 {
+ font-size: 32px;
+ font-weight: 800;
+ margin-bottom: 8px;
+ }
+ .section-desc {
+ color: var(--muted);
+ font-size: 15px;
+ max-width: 500px;
+ margin: 0 auto;
+ }
+
+ /* Service Grid */
+ .service-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+ gap: 20px;
+ }
+ .service-card {
+ background: linear-gradient(135deg, var(--card), var(--card2));
+ border: 1px solid var(--border);
+ border-radius: 16px;
+ padding: 28px;
+ transition: all 0.3s ease;
+ position: relative;
+ overflow: hidden;
+ }
+ .service-card::before {
+ content: '';
+ position: absolute;
+ top: 0; inset-inline-start: 0;
+ inset-inline-end: 0; height: 2px;
+ opacity: 0;
+ transition: opacity 0.3s;
+ }
+ .service-card:hover {
+ transform: translateY(-6px);
+ border-color: rgba(59,130,246,0.3);
+ box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+ }
+ .service-card:hover::before { opacity: 1; }
+
+ .card-tag {
+ font-size: 10px;
+ font-weight: 700;
+ text-transform: uppercase;
+ 
+ font-family: var(--mono);
+ margin-bottom: 8px;
+ display: block;
+ }
+ .service-card h3 {
+ font-size: 17px;
+ font-weight: 700;
+ margin-bottom: 10px;
+ }
+ .service-card p {
+ color: var(--muted);
+ font-size: 13px;
+ line-height: 1.6;
+ margin-bottom: 16px;
+ flex-grow: 1;
+ }
+ .features-list {
+ list-style: none;
+ margin-bottom: 20px;
+ }
+ .features-list li {
+ font-size: 12px;
+ color: #94a3b8;
+ padding: 4px 0;
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ }
+ .features-list li::before {
+ content: '>';
+ color: var(--cyan);
+ font-family: var(--mono);
+ font-weight: 700;
+ }
+ .card-footer {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ margin-top: auto;
+ }
+ .price-box {
+ text-align: start;
+ }
+ .price-label {
+ font-size: 10px;
+ color: var(--muted);
+ text-transform: uppercase;
+ 
+ }
+ .price-value {
+ font-size: 28px;
+ font-weight: 800;
+ font-family: var(--mono);
+ }
+ .price-value.micro { color: var(--cyan); }
+ .price-value.standard { color: var(--gold); }
+ .price-value.premium { color: var(--magenta); }
+ .btn-buy {
+ padding: 10px 22px;
+ border-radius: 8px;
+ border: none;
+ font-family: var(--font);
+ font-size: 12px;
+ font-weight: 700;
+ cursor: pointer;
+ transition: all 0.3s;
+ text-decoration: none;
+ display: inline-block;
+ 
+ text-transform: uppercase;
+ }
+ .btn-buy-micro {
+ background: rgba(0,229,255,0.15);
+ color: var(--cyan);
+ border: 1px solid rgba(0,229,255,0.3);
+ }
+ .btn-buy-micro:hover { background: var(--cyan); color: #000; }
+ .btn-buy-standard {
+ background: rgba(245,158,11,0.15);
+ color: var(--gold);
+ border: 1px solid rgba(245,158,11,0.3);
+ }
+ .btn-buy-standard:hover { background: var(--gold); color: #000; }
+ .btn-buy-premium {
+ background: rgba(255,0,85,0.15);
+ color: var(--magenta);
+ border: 1px solid rgba(255,0,85,0.3);
+ }
+ .btn-buy-premium:hover { background: var(--magenta); color: #fff; }
+
+ /* باقات */
+ .bouquet-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+ gap: 20px;
+ }
+ .bouquet-card {
+ background: linear-gradient(135deg, rgba(20,20,40,0.9), rgba(30,10,30,0.9));
+ border: 1px solid rgba(255,0,85,0.15);
+ border-radius: 20px;
+ padding: 32px;
+ position: relative;
+ overflow: hidden;
+ }
+ .bouquet-card::before {
+ content: 'باقة';
+ position: absolute;
+ top: 15px; inset-inline-end: -30px;
+ background: linear-gradient(135deg, var(--magenta), #cc0044);
+ color: #fff;
+ font-size: 9px;
+ font-weight: 800;
+ padding: 4px 30px;
+ transform: rotate(45deg);
+ 
+ }
+ .bouquet-card h3 {
+ font-size: 20px;
+ font-weight: 700;
+ margin-bottom: 8px;
+ }
+ .bouquet-card p {
+ color: var(--muted);
+ font-size: 13px;
+ line-height: 1.6;
+ margin-bottom: 16px;
+ }
+ .bouquet-services {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 6px;
+ margin-bottom: 20px;
+ }
+ .bouquet-service-tag {
+ padding: 4px 10px;
+ border-radius: 4px;
+ background: rgba(255,255,255,0.05);
+ border: 1px solid var(--border);
+ font-size: 11px;
+ color: #94a3b8;
+ }
+ .bouquet-footer {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ }
+ .bouquet-price {
+ font-size: 28px;
+ font-weight: 800;
+ font-family: var(--mono);
+ color: var(--magenta);
+ }
+ .bouquet-savings {
+ font-size: 11px;
+ color: var(--green);
+ font-weight: 600;
+ }
+ .btn-bouquet {
+ padding: 10px 22px;
+ border-radius: 8px;
+ border: none;
+ background: linear-gradient(135deg, var(--magenta), #cc0044);
+ color: #fff;
+ font-size: 12px;
+ font-weight: 700;
+ cursor: pointer;
+ transition: all 0.3s;
+ text-decoration: none;
+ text-transform: uppercase;
+ 
+ }
+ .btn-bouquet:hover {
+ box-shadow: 0 0 25px rgba(255,0,85,0.3);
+ transform: translateY(-2px);
+ }
+
+ /* CTA */
+ .cta-section {
+ text-align: center;
+ padding: 80px 40px;
+ position: relative;
+ z-index: 1;
+ }
+ .cta-section h2 {
+ font-size: 36px;
+ font-weight: 800;
+ margin-bottom: 12px;
+ }
+ .cta-section p {
+ color: var(--muted);
+ font-size: 16px;
+ margin-bottom: 28px;
+ }
+
+ /* How it Works */
+ .steps-grid {
+ display: grid;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 24px;
+ max-width: 900px;
+ margin: 0 auto;
+ }
+ .step-card {
+ background: var(--card);
+ border: 1px solid var(--border);
+ border-radius: 16px;
+ padding: 32px;
+ text-align: center;
+ }
+ .step-number {
+ width: 48px; height: 48px;
+ border-radius: 50%;
+ background: linear-gradient(135deg, var(--cyan), #0088aa);
+ color: #000;
+ font-size: 20px;
+ font-weight: 800;
+ font-family: var(--mono);
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ margin: 0 auto 16px;
+ }
+ .step-card h3 {
+ font-size: 16px;
+ font-weight: 700;
+ margin-bottom: 8px;
+ }
+ .step-card p {
+ color: var(--muted);
+ font-size: 13px;
+ line-height: 1.5;
+ }
+
+ /* دفع section */
+ .payment-methods {
+ display: flex;
+ justify-content: center;
+ gap: 16px;
+ margin-top: 20px;
+ flex-wrap: wrap;
+ }
+ .payment-badge {
+ padding: 8px 16px;
+ border-radius: 8px;
+ background: var(--card);
+ border: 1px solid var(--border);
+ font-family: var(--mono);
+ font-size: 13px;
+ font-weight: 600;
+ color: var(--gold);
+ }
+
+ /* Footer */
+ footer {
+ text-align: center;
+ padding: 40px;
+ border-top: 1px solid var(--border);
+ color: var(--muted);
+ font-size: 13px;
+ position: relative;
+ z-index: 1;
+ }
+ footer a { color: var(--cyan); text-decoration: none; }
+
+ /* Modal */
+ .modal-overlay {
+ display: none;
+ position: fixed;
+ top: 0; inset-inline-start: 0; inset-inline-end: 0; bottom: 0;
+ background: rgba(0,0,0,0.75);
+ backdrop-filter: blur(8px);
+ z-index: 9999;
+ align-items: center;
+ justify-content: center;
+ }
+ .modal-overlay.active { display: flex; }
+ .modal-box {
+ background: var(--card);
+ border: 1px solid var(--border);
+ border-radius: 20px;
+ padding: 40px;
+ max-width: 480px;
+ width: 90%;
+ position: relative;
+ }
+ .modal-close {
+ position: absolute;
+ top: 16px; inset-inline-end: 16px;
+ background: none;
+ border: none;
+ color: var(--muted);
+ font-size: 24px;
+ cursor: pointer;
+ }
+ .modal-box h2 {
+ font-size: 24px;
+ font-weight: 800;
+ margin-bottom: 8px;
+ }
+ .modal-box .modal-price {
+ font-size: 42px;
+ font-weight: 900;
+ font-family: var(--mono);
+ color: var(--cyan);
+ margin: 16px 0;
+ }
+ .modal-box label {
+ display: block;
+ font-size: 13px;
+ font-weight: 600;
+ color: #94a3b8;
+ margin-bottom: 6px;
+ margin-top: 16px;
+ }
+ .modal-box input {
+ width: 100%;
+ padding: 12px 16px;
+ border-radius: 10px;
+ border: 1px solid var(--border);
+ background: rgba(255,255,255,0.03);
+ color: #fff;
+ font-size: 14px;
+ outline: none;
+ transition: border 0.2s;
+ font-family: var(--font);
+ }
+ .modal-box input:focus {
+ border-color: var(--cyan);
+ }
+ .modal-box .btn-submit {
+ width: 100%;
+ padding: 14px;
+ border-radius: 10px;
+ border: none;
+ background: linear-gradient(135deg, var(--cyan), #0088aa);
+ color: #000;
+ font-size: 16px;
+ font-weight: 700;
+ cursor: pointer;
+ margin-top: 24px;
+ transition: all 0.3s;
+ }
+ .modal-box .btn-submit:hover {
+ box-shadow: 0 0 30px rgba(0,229,255,0.3);
+ }
+ .modal-error {
+ color: #f87171;
+ font-size: 13px;
+ margin-top: 8px;
+ display: none;
+ }
+
+ @media (max-width: 768px) {
+ nav { padding: 0 16px; }
+ .nav-links a:not(.btn-nav) { display: none; }
+ .hero { padding: 120px 16px 40px; }
+ .hero h1 { font-size: 32px; }
+ .hero-stats { gap: 20px; flex-wrap: wrap; }
+ .section { padding: 40px 16px; }
+ .service-grid { grid-template-columns: 1fr; }
+ .bouquet-grid { grid-template-columns: 1fr; }
+ .steps-grid { grid-template-columns: 1fr; }
+ }
+ 
+ /* Cart Sidebar */
+ .cart-toggle {
+ position: fixed;
+ bottom: 24px; inset-inline-end: 24px;
+ width: 56px; height: 56px;
+ border-radius: 50%;
+ background: linear-gradient(135deg, var(--magenta), #cc0044);
+ border: none;
+ color: #fff;
+ font-size: 24px;
+ cursor: pointer;
+ z-index: 9998;
+ box-shadow: 0 4px 20px rgba(255,0,85,0.4);
+ transition: all 0.3s;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ }
+ .cart-toggle:hover { transform: scale(1.1); }
+ .cart-badge {
+ position: absolute;
+ top: -6px; inset-inline-end: -6px;
+ width: 24px; height: 24px;
+ border-radius: 50%;
+ background: #ff0055;
+ color: #fff;
+ font-size: 12px;
+ font-weight: 700;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ display: none;
+ }
+ .cart-sidebar {
+ position: fixed;
+ top: 0; inset-inline-end: -400px;
+ width: 380px; height: 100vh;
+ background: var(--card);
+ border-inline-start: 1px solid var(--border);
+ z-index: 9997;
+ transition: right 0.3s ease;
+ padding: 24px;
+ overflow-y: auto;
+ display: flex;
+ flex-direction: column;
+ }
+ .cart-sidebar.open { inset-inline-end: 0; }
+ .cart-sidebar h2 {
+ font-size: 20px;
+ font-weight: 700;
+ margin-bottom: 20px;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ }
+ .cart-close {
+ background: none;
+ border: none;
+ color: var(--muted);
+ font-size: 28px;
+ cursor: pointer;
+ }
+ .cart-items { flex: 1; overflow-y: auto; }
+ .cart-item {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ padding: 12px 0;
+ border-bottom: 1px solid var(--border);
+ }
+ .cart-item-info { flex: 1; }
+ .cart-item-name { font-size: 14px; font-weight: 600; }
+ .cart-item-type { font-size: 11px; color: var(--muted); }
+ .cart-item-price { font-size: 16px; font-weight: 700; color: var(--cyan); font-family: var(--mono); }
+ .cart-remove {
+ background: none;
+ border: none;
+ color: #f87171;
+ font-size: 18px;
+ cursor: pointer;
+ padding: 4px 8px;
+ }
+ .cart-total {
+ padding: 20px 0;
+ border-top: 1px solid var(--border);
+ display: flex;
+ justify-content: space-between;
+ font-size: 18px;
+ font-weight: 800;
+ font-family: var(--mono);
+ }
+ .cart-total-value { color: var(--cyan); }
+ .cart-checkout {
+ width: 100%;
+ padding: 14px;
+ border-radius: 10px;
+ border: none;
+ background: linear-gradient(135deg, var(--cyan), #0088aa);
+ color: #000;
+ font-size: 16px;
+ font-weight: 700;
+ cursor: pointer;
+ transition: all 0.3s;
+ }
+ .cart-checkout:hover { box-shadow: 0 0 30px rgba(0,229,255,0.3); }
+ .cart-empty {
+ text-align: center;
+ color: var(--muted);
+ padding: 40px 0;
+ font-size: 14px;
+ }
+ .btn-add-cart {
+ padding: 8px 14px;
+ border-radius: 6px;
+ border: 1px solid var(--border);
+ background: rgba(255,255,255,0.03);
+ color: var(--muted);
+ font-size: 11px;
+ font-weight: 600;
+ cursor: pointer;
+ transition: all 0.2s;
+ margin-inline-end: 6px;
+ }
+ .btn-add-cart:hover {
+ border-color: var(--cyan);
+ color: var(--cyan);
+ background: rgba(0,229,255,0.1);
+ }
+ .btn-add-cart.in-cart {
+ border-color: var(--green);
+ color: var(--green);
+ background: rgba(34,197,94,0.1);
+ }
+ .cart-overlay {
+ position: fixed;
+ top: 0; inset-inline-start: 0; inset-inline-end: 0; bottom: 0;
+ background: rgba(0,0,0,0.5);
+ z-index: 9996;
+ display: none;
+ }
+ .cart-overlay.active { display: block; }
+
+</style>
+</head>
+
+<body class="cyberpunk-body">
+
+<meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ 
+ 
+
+<div class="bg-glow"></div>
+<div class="bg-glow-2"></div>
+
+<!-- Navbar -->
+<nav>
+ <div class="brand">جوب هانت برو</div>
+ <div class="nav-links">
+ <a href="#micro">مصغرة</a>
+ <a href="#standard">قياسية</a>
+ <a href="#premium">مميزة</a>
+ <a href="#bouquets">باقات</a>
+ <a href="#how">كيف تعمل</a>
+ <a href="/login" style="color:#94a3b8;">دخول</a>
+ <a href="/register" class="btn-nav">ابدأ الآن</a>
+ </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+ <div class="hero-badge">تسليم آلي فوري</div>
+ <h1>خدمات <span class="cyan">البحث عن عمل</span><br><span class="magenta">من $2 إلى $20</span></h1>
+ <p>عزز بحثك عن عمل بأدوات الذكاء الاصطناعي. ادفع مرة واحدة عبر العملات المشفرة، واستلم طلباتك فوراً عبر الإيميل. لا اشتراكات، ولا رسوم مخفية.</p>
+ <div class="hero-stats">
+ <div class="hero-stat">
+ <div class="hero-stat-value" id="statخدمات">20</div>
+ <div class="hero-stat-label">خدمات</div>
+ </div>
+ <div class="hero-stat">
+ <div class="hero-stat-value" id="statباقات">5</div>
+ <div class="hero-stat-label">باقات</div>
+ </div>
+ <div class="hero-stat">
+ <div class="hero-stat-value" id="statتسليم">فوري</div>
+ <div class="hero-stat-label">تسليم</div>
+ </div>
+ <div class="hero-stat">
+ <div class="hero-stat-value" id="statدفع">كريبتو</div>
+ <div class="hero-stat-label">دفع</div>
+ </div>
+ </div>
+</section>
+
+<!-- TIER 1: MICRO ($2-$5) -->
+<section class="section" id="micro">
+ <div class="section-header">
+ <div class="section-tag tag-micro">المستوى 1: مصغرة</div>
+ <h2>مكاسب سريعة — <span style="color:var(--cyan);">$2 إلى $5</span></h2>
+ <p class="section-desc">تسليم رقمي فوري لترقية بحثك عن عمل في دقائق.</p>
+ </div>
+ <div class="service-grid">
+ {% for s in micro %}
+ <div class="service-card" style="border-top-color:var(--cyan);">
+ <span class="card-tag tag-micro">تسليم فوري</span>
+ <h3>{{ s.name }}</h3>
+ <p>{{ s.description }}</p>
+ <ul class="features-list">
+ {% for f in s.features[:3] %}
+ <li>{{ f }}</li>
+ {% endfor %}
+ </ul>
+ <div class="card-footer">
+ <div class="price-box">
+ <div class="price-label">لمرة واحدة</div>
+ <div class="price-value micro">${{ s.price }}</div>
+ </div>
+ <button class="btn-buy btn-buy-micro" onclick="addToCart('{{ s.id }}', '{{ s.name }}', {{ s.price }})">اشتري هلق</button>
+ </div>
+ </div>
+ {% endfor %}
+ </div>
+</section>
+
+<!-- TIER 2: STANDARD ($6-$10) -->
+<section class="section" id="standard">
+ <div class="section-header">
+ <div class="section-tag tag-standard">Tier 2: قياسية</div>
+ <h2>تأثير عميق — <span style="color:var(--gold);">$6 إلى $10</span></h2>
+ <p class="section-desc">خدمات شاملة بتعطيك أفضلية جدية على باقي المرشحين.</p>
+ </div>
+ <div class="service-grid">
+ {% for s in standard %}
+ <div class="service-card" style="border-top-color:var(--gold);">
+ <span class="card-tag tag-standard">قياسية</span>
+ <h3>{{ s.name }}</h3>
+ <p>{{ s.description }}</p>
+ <ul class="features-list">
+ {% for f in s.features[:3] %}
+ <li>{{ f }}</li>
+ {% endfor %}
+ </ul>
+ <div class="card-footer">
+ <div class="price-box">
+ <div class="price-label">لمرة واحدة</div>
+ <div class="price-value standard">${{ s.price }}</div>
+ </div>
+ <button class="btn-buy btn-buy-standard" onclick="addToCart('{{ s.id }}', '{{ s.name }}', {{ s.price }})">اشتري هلق</button>
+ </div>
+ </div>
+ {% endfor %}
+ </div>
+</section>
+
+<!-- TIER 3: PREMIUM ($12-$20) -->
+<section class="section" id="premium">
+ <div class="section-header">
+ <div class="section-tag tag-premium">Tier 3: مميزة</div>
+ <h2>قوة قصوى — <span style="color:var(--magenta);">$12 إلى $20</span></h2>
+ <p class="section-desc">باقات خدمة كاملة بتتكفل بكل شي عنك. معدل رد أقصى مضمون.</p>
+ </div>
+ <div class="service-grid">
+ {% for s in premium %}
+ <div class="service-card" style="border-top-color:var(--magenta);">
+ <span class="card-tag tag-premium">مميزة</span>
+ <h3>{{ s.name }}</h3>
+ <p>{{ s.description }}</p>
+ <ul class="features-list">
+ {% for f in s.features[:3] %}
+ <li>{{ f }}</li>
+ {% endfor %}
+ </ul>
+ <div class="card-footer">
+ <div class="price-box">
+ <div class="price-label">لمرة واحدة</div>
+ <div class="price-value premium">${{ s.price }}</div>
+ </div>
+ <button class="btn-buy btn-buy-premium" onclick="addToCart('{{ s.id }}', '{{ s.name }}', {{ s.price }})">اشتري هلق</button>
+ </div>
+ </div>
+ {% endfor %}
+ </div>
+</section>
+
+<!-- BOUQUETS -->
+<section class="section" id="bouquets">
+ <div class="section-header">
+ <div class="section-tag tag-premium">باقات قيّمة</div>
+ <h2>باقات <span class="magenta">متكاملة</span></h2>
+ <p class="section-desc">جمع خدمات متعددة بخصم. قوة أكبر، تكلفة أقل.</p>
+ </div>
+ <div class="bouquet-grid">
+ {% for b in bouquets %}
+ <div class="bouquet-card">
+ <h3>{{ b.name }}</h3>
+ <p>{{ b.description }}</p>
+ <div class="bouquet-services">
+ {% for sid in b.services[:5] %}
+ <span class="bouquet-service-tag">{{ sid }}</span>
+ {% endfor %}
+ </div>
+ <div class="bouquet-footer">
+ <div>
+ <div class="bouquet-price">${{ b.price }}</div>
+ {% if b.savings %}
+ <div class="bouquet-savings">وفر {{ b.savings }}</div>
+ {% endif %}
+ </div>
+ <button class="btn-bouquet" onclick="addToCart('{{ b.id }}', '{{ b.name }}', {{ b.price }}, true)">اشتري الباقة</button>
+ </div>
+ </div>
+ {% endfor %}
+ </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+ <div class="section-header">
+ <h2>كيف <span style="color:var(--cyan);">بتشتغل</span></h2>
+ <p class="section-desc">من النقرة للتسليم بأقل من دقيقتين.</p>
+ </div>
+ <div class="steps-grid">
+ <div class="step-card">
+ <div class="step-number">1</div>
+ <h3>اختار خدمة</h3>
+ <p>تصفح كتالوجنا المكون من 20 أداة للبحث عن عمل مدعومة بالذكاء الاصطناعي بأسعار $2-$20.</p>
+ </div>
+ <div class="step-card">
+ <div class="step-number">2</div>
+ <h3>ادفع بالكريبتو</h3>
+ <p>أرسل BTC، ETH، USDT، أو LTC للعنوان المولد. تأكيد فوري.</p>
+ </div>
+ <div class="step-card">
+ <div class="step-number">3</div>
+ <h3>استلم طلبك</h3>
+ <p>منولد طلبك تلقائياً ومنبعتلك ياه بالإيميل خلال ثواني من الدفع.</p>
+ </div>
+ </div>
+
+ <div style="text-align:center; margin-top: 40px;">
+ <div style="color:var(--muted); font-size:15px; margin-bottom: 12px;">العملات الرقمية المقبولة</div>
+ <div class="payment-methods">
+ <span class="payment-badge">BTC</span>
+ <span class="payment-badge">ETH</span>
+ <span class="payment-badge">USDT (TRC20)</span>
+ <span class="payment-badge">LTC</span>
+ </div>
+ </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+ <h2>جاهز تلاقي وظيفة أحلامك؟</h2>
+ <p>انضم لأكثر من 1000 باحث عن عمل رفعوا معدل استجابتهم مع جوب هانت برو.</p>
+ <a href="/register" class="btn-buy btn-buy-premium" style="padding: 14px 40px; font-size: 14px;">أنشئ حساب مجاني</a>
+</section>
+
+<footer>
+ جوب هانت برو &copy; 2026 &mdash; مبني بالذكاء الاصطناعي، مدعوم بالكريبتو. |
+ <a href="/login">دخول</a> | <a href="/register">تسجيل</a> | <a href="/api/v2/services">🔌 API</a>
+</footer>
+
+
+<!-- Cart Toggle -->
+<button class="cart-toggle" id="cartToggle" onclick="toggleCart()">
+ &#128722;
+ <span class="cart-badge" id="cartBadge">0</span>
+</button>
+
+<!-- Cart Overlay -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+
+<!-- Cart Sidebar -->
+<div class="cart-sidebar" id="cartSidebar">
+ <h2>
+ <span>&#128722; سلة مشترياتك</span>
+ <button class="cart-close" onclick="toggleCart()">&times;</button>
+ </h2>
+ <div class="cart-items" id="cartItems">
+ <div class="cart-empty">سلتك فاضية.<br>تصفح الخدمات وضيفها لسلتك.</div>
+ </div>
+ <div id="cartFooter" style="display:none;">
+ <div class="cart-total">
+ <span>المجموع</span>
+ <span class="cart-total-value" id="cartالمجموع">$0</span>
+ </div>
+ <button class="cart-checkout" onclick="openCheckoutModal()">تابع للدفع</button>
+ </div>
+</div>
+
+
+<!-- Order Modal -->
+<div class="modal-overlay" id="orderModal">
+ <div class="modal-box">
+ <button class="modal-close" onclick="closeModal()">&times;</button>
+ <h2 id="modalTitle">اطلب الخدمة</h2>
+ <div class="modal-price" id="modalPrice">$0</div>
+ <p style="color:var(--muted); font-size:15px; margin-bottom:8px;">أدخل بياناتك لتستلم طلبك عبر الإيميل.</p>
+
+ <form id="orderForm" onsubmit="submitOrder(event)">
+ <input dir="auto" type="hidden" id="serviceId" name="service_id">
+ <input dir="auto" type="hidden" id="isBouquet" name="is_bouquet" value="false">
+
+ <label for="customerName">اسمك</label>
+ <input dir="auto" type="text" id="customerName" required placeholder="مثال: فلان الفلاني">
+
+ <label for="customerEmail">إيميلك</label>
+ <input dir="auto" type="email" id="customerEmail" required placeholder="مثال: flan@example.com">
+
+ <div class="modal-error" id="modalError">Error message here</div>
+
+ <button type="submit" class="btn-submit" id="submitBtn">المتابعة للدفع</button>
+ </form>
+ </div>
+</div>
+
+<script>
+// Cart state
+let cart = [];
+const cartKey = 'jobhunt_cart';
+
+// Load cart from localStorage
+try {
+ const saved = localStorage.getItem(cartKey);
+ if (saved) cart = JSON.parse(saved);
+} catch(e) {}
+
+function saveCart() {
+ localStorage.setItem(cartKey, JSON.stringify(cart));
+ updateCartUI();
+}
+
+function addToCart(itemId, itemName, price, isBouquet) {
+ const existing = cart.find(function(i) { return i.id === itemId; });
+ if (existing) {
+ existing.qty = (existing.qty || 1) + 1;
+ } else {
+ cart.push({
+ id: itemId,
+ name: itemName,
+ price: price,
+ isBouquet: isBouquet || false,
+ qty: 1
+ });
+ }
+ saveCart();
+ showToast(itemName + ' انضاف للسلة!');
+}
+
+function removeFromCart(itemId) {
+ cart = cart.filter(function(i) { return i.id !== itemId; });
+ saveCart();
+ if (cart.length === 0) toggleCart(false);
+}
+
+function updateCartUI() {
+ var badge = document.getElementById('cartBadge');
+ var count = cart.reduce(function(sum, i) { return sum + (i.qty || 1); }, 0);
+ badge.textContent = count;
+ badge.style.display = count > 0 ? 'flex' : 'none';
+
+ var itemsDiv = document.getElementById('cartItems');
+ var footer = document.getElementById('cartFooter');
+ 
+ if (cart.length === 0) {
+ itemsDiv.innerHTML = '<div class="cart-empty">سلتك فاضية.<br>تصفح الخدمات وضيفها لسلتك.</div>';
+ footer.style.display = 'none';
+ return;
+ }
+
+ var html = '';
+ var total = 0;
+ cart.forEach(function(item) {
+ var itemالمجموع = item.price * (item.qty || 1);
+ total += itemالمجموع;
+ html += '<div class="cart-item">';
+ html += ' <div class="cart-item-info">';
+ html += ' <div class="cart-item-name">' + item.name + '</div>';
+ html += ' <div class="cart-item-type">' + (item.isBouquet ? 'Bundle' : 'Service') + (item.qty > 1 ? ' x' + item.qty : '') + '</div>';
+ html += ' </div>';
+ html += ' <div class="cart-item-price">$' + itemالمجموع.toFixed(2) + '</div>';
+ html += ' <button class="cart-remove" onclick="removeFromCart('' + item.id + '')">&times;</button>';
+ html += '</div>';
+ });
+ itemsDiv.innerHTML = html;
+ document.getElementById('cartالمجموع').textContent = '$' + total.toFixed(2);
+ footer.style.display = 'block';
+}
+
+function toggleCart(forceState) {
+ var sidebar = document.getElementById('cartSidebar');
+ var overlay = document.getElementById('cartOverlay');
+ var isOpen = sidebar.classList.contains('open');
+ var shouldOpen = (forceState !== undefined) ? forceState : !isOpen;
+ 
+ sidebar.classList.toggle('open', shouldOpen);
+ overlay.classList.toggle('active', shouldOpen);
+}
+
+function openCheckoutModal() {
+ toggleCart(false); // Close cart
+ // Set total in modal
+ var total = cart.reduce(function(sum, i) { return sum + i.price * (i.qty || 1); }, 0);
+ document.getElementById('modalTitle').textContent = 'الدفع (' + cart.length + ' طلبات)';
+ document.getElementById('modalPrice').textContent = '$' + total.toFixed(2);
+ document.getElementById('modalError').style.display = 'none';
+ document.getElementById('orderModal').classList.add('active');
+}
+
+function openModal(serviceId, serviceName, price, isBouquet) {
+ document.getElementById('serviceId').value = serviceId;
+ document.getElementById('modalTitle').textContent = serviceName;
+ document.getElementById('modalPrice').textContent = '$' + price;
+ document.getElementById('isBouquet').value = isBouquet ? 'true' : 'false';
+ document.getElementById('modalError').style.display = 'none';
+ document.getElementById('orderModal').classList.add('active');
+}
+
+function closeModal() {
+ document.getElementById('orderModal').classList.remove('active');
+}
+
+// Close on overlay click
+document.getElementById('orderModal').addEventListener('click', function(e) {
+ if (e.target === this) closeModal();
+});
+
+async function submitOrder(event) {
+ event.preventDefault();
+ const btn = document.getElementById('submitBtn');
+ const errorDiv = document.getElementById('modalError');
+
+ btn.disabled = true;
+ btn.textContent = 'عم ننشئ الطلب...';
+ errorDiv.style.display = 'none';
+
+ if (cart.length > 0) {
+ // Multi-item checkout
+ const payload = {
+ items: cart.map(function(i) { return {
+ service_id: i.id,
+ is_bouquet: i.isBouquet,
+ quantity: i.qty || 1
+ }}),
+ customer_name: document.getElementById('customerName').value,
+ customer_email: document.getElementById('customerEmail').value,
+ };
+
+ try {
+ const resp = await fetch('/api/v2/orders/create-bulk', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify(payload)
+ });
+ const data = await resp.json();
+
+ if (!data.success) {
+ errorDiv.textContent = data.error || 'فشل بإنشاء الطلب';
+ errorDiv.style.display = 'block';
+ btn.disabled = false;
+ btn.textContent = 'Continue to دفع';
+ return;
+ }
+
+ // Clear cart
+ cart = [];
+ saveCart();
+ 
+ window.location.href = '/checkout/v2/' + data.order.order_id;
+ } catch (err) {
+ errorDiv.textContent = 'خطأ بالشبكة. جرب مرة تانية.';
+ errorDiv.style.display = 'block';
+ btn.disabled = false;
+ btn.textContent = 'Continue to دفع';
+ }
+ } else {
+ // Single item checkout (fallback)
+ const payload = {
+ service_id: document.getElementById('serviceId').value,
+ customer_name: document.getElementById('customerName').value,
+ customer_email: document.getElementById('customerEmail').value,
+ is_bouquet: document.getElementById('isBouquet').value === 'true'
+ };
+
+ try {
+ const resp = await fetch('/api/v2/orders/create', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify(payload)
+ });
+ const data = await resp.json();
+
+ if (!data.success) {
+ errorDiv.textContent = data.error || 'فشل بإنشاء الطلب';
+ errorDiv.style.display = 'block';
+ btn.disabled = false;
+ btn.textContent = 'Continue to دفع';
+ return;
+ }
+
+ window.location.href = '/checkout/v2/' + data.order.order_id;
+ } catch (err) {
+ errorDiv.textContent = 'خطأ بالشبكة. جرب مرة تانية.';
+ errorDiv.style.display = 'block';
+ btn.disabled = false;
+ btn.textContent = 'Continue to دفع';
+ }
+ }
+}
+
+// Toast notification
+function showToast(msg) {
+ var t = document.createElement('div');
+ t.textContent = msg;
+ t.style.cssText = 'position:fixed;bottom:90px;inset-inline-end: 24px;background:var(--card);border:1px solid var(--green);color:#fff;padding:12px 20px;border-radius:10px;font-size:15px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);animation:fadeInOut 2s ease forwards;';
+ var s = document.createElement('style');
+ s.textContent = '@keyframes fadeInOut{0%{opacity:0;transform:translateY(10px)}15%{opacity:1;transform:translateY(0)}85%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}';
+ document.head.appendChild(s);
+ document.body.appendChild(t);
+ setTimeout(function() { t.remove(); }, 2000);
+}
+
+// Initial UI update
+updateCartUI();
+</script>
+
+</body>
+</html>
+

@@ -196,7 +196,7 @@
   <div class="cart-panel" id="cartPanel">
     <div class="cart-header">
       <h2>🛒 سلة مشترياتك</h2>
-      <button class="cart-close" onclick="closeCart()">&times;</button>
+      <button class="cart-close" onclick="closeCart()">×</button>
     </div>
     <div class="cart-items" id="cartItems">
       <div class="cart-empty">
@@ -443,7 +443,7 @@ function updateCartUI() {
           <div class="cart-item-type">${item.type}</div>
         </div>
         <span class="cart-item-price">$${item.price}</span>
-        <button class="cart-remove" onclick="removeCartItem('${id}')" title="Remove">&times;</button>
+        <button class="cart-remove" onclick="removeCartItem('${id}')" title="Remove">×</button>
       </div>`).join('');
     checkoutBtn.disabled = false;
   }
@@ -559,7 +559,7 @@ function showToast(msg, type) {
 // ═══════════════════════════════════════════════
 function escHtml(s) {
   if (!s) return '';
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return s.replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
 }
 function escJs(s) {
   if (!s) return '';

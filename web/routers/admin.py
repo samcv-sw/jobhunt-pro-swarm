@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Form, Depends, HTTPException
+from fastapi import APIRouter, Request, Form, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 from core.database import db
@@ -13,10 +13,11 @@ templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templa
 
 ADMIN_CODE = "ADMIN99"
 
+
 @router.get("/admin")
 async def admin_dashboard(request: Request):
     user_type = request.session.get("user_type")
-    
+
     if user_type != "admin":
         return templates.TemplateResponse(request, "admin_login.html")
 
@@ -27,29 +28,42 @@ async def admin_dashboard(request: Request):
                 (SELECT COUNT(*) FROM applications) as total_applications,
                 (SELECT COUNT(*) FROM applications WHERE status = 'completed') as successful_applications
         """)
-        
-        users = await conn.fetch("SELECT * FROM users ORDER BY created_at DESC LIMIT 100")
 
-    return templates.TemplateResponse(request, "admin_dashboard.html", {
-        "stats": dict(stats) if stats else {},
-        "users": [dict(u) for u in users]
-    })
+        users = await conn.fetch(
+            "SELECT * FROM users ORDER BY created_at DESC LIMIT 100"
+        )
+
+    return templates.TemplateResponse(
+        request,
+        "admin_dashboard.html",
+        {"stats": dict(stats) if stats else {}, "users": [dict(u) for u in users]},
+    )
+
 
 @router.post("/admin/login")
 async def admin_login(request: Request, admin_code: str = Form(...)):
     if admin_code == ADMIN_CODE:
         request.session["user_type"] = "admin"
         return RedirectResponse(url="/admin", status_code=303)
-    return templates.TemplateResponse(request, "admin_login.html", {"error": "Invalid admin code."})
+    return templates.TemplateResponse(
+        request, "admin_login.html", {"error": "Invalid admin code."}
+    )
+
 
 @router.post("/admin/grant_tokens")
-async def grant_tokens(request: Request, user_id: str = Form(...), tokens: int = Form(...)):
+async def grant_tokens(
+    request: Request, user_id: str = Form(...), tokens: int = Form(...)
+):
     if request.session.get("user_type") != "admin":
         raise HTTPException(status_code=403, detail="Forbidden")
 
     async with db.pool.acquire() as conn:
-        await conn.execute("""
+        await conn.execute(
+            """
             UPDATE users SET tokens = tokens + $1 WHERE user_id = $2
-        """, tokens, user_id)
-        
+        """,
+            tokens,
+            user_id,
+        )
+
     return RedirectResponse(url="/admin", status_code=303)

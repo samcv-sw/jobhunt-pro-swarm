@@ -7,9 +7,13 @@ Zero AI calls = instant generation. Speed: 2000+ applications/hour.
 import logging
 
 from config import (
-    CANDIDATE_NAME, CANDIDATE_TITLE, CANDIDATE_EMAIL,
-    CANDIDATE_PHONE, CANDIDATE_ADDRESS, CANDIDATE_LINKEDIN,
-    YEARS_EXPERIENCE, SKILLS
+    CANDIDATE_NAME,
+    CANDIDATE_TITLE,
+    CANDIDATE_EMAIL,
+    CANDIDATE_PHONE,
+    CANDIDATE_ADDRESS,
+    CANDIDATE_LINKEDIN,
+    YEARS_EXPERIENCE,
 )
 
 logger = logging.getLogger(__name__)
@@ -78,7 +82,6 @@ I am immediately available and welcome the opportunity to discuss how my Cisco e
 Best regards,
 {CANDIDATE_NAME}
 {CANDIDATE_PHONE} | {CANDIDATE_EMAIL}""",
-
     "mikrotik": """Dear Hiring Manager,
 
 I am applying for the {title} position at {company}. I am a MikroTik Certified professional (MTCNA, MTCRE) with deep expertise in RouterOS, RouterBOARD hardware, and large-scale MikroTik deployments across ISP and enterprise environments.
@@ -94,7 +97,6 @@ Available immediately. I look forward to discussing how I can contribute to {com
 Regards,
 {CANDIDATE_NAME}
 {CANDIDATE_PHONE} | {CANDIDATE_EMAIL}""",
-
     "fortinet": """Dear Hiring Manager,
 
 I am writing to apply for the {title} position at {company}. As a Fortinet NSE-certified security professional with {years}+ years in network security, I specialize in FortiGate firewall deployment, FortiManager/FortiAnalyzer management, and multi-layered security architecture.
@@ -110,7 +112,6 @@ I am immediately available and would welcome the opportunity to strengthen {comp
 Best regards,
 {CANDIDATE_NAME}
 {CANDIDATE_PHONE} | {CANDIDATE_EMAIL}""",
-
     "security": """Dear Hiring Manager,
 
 I am applying for the {title} role at {company}. With {years}+ years in network security and certifications from Fortinet (NSE), Cisco (CCNA Security), and CompTIA (Security+), I bring comprehensive security expertise.
@@ -122,7 +123,6 @@ Available immediately. I look forward to discussing how I can enhance {company}'
 Regards,
 {CANDIDATE_NAME}
 {CANDIDATE_PHONE} | {CANDIDATE_EMAIL}""",
-
     "infrastructure": """Dear Hiring Manager,
 
 I am interested in the {title} position at {company}. I am an experienced IT Infrastructure Engineer with {years}+ years of hands-on experience in network design, server management, data center operations, and cloud integration across the MENA region.
@@ -134,7 +134,6 @@ Available immediately for roles in UAE, Saudi Arabia, Qatar, Kuwait, or Lebanon.
 Regards,
 {CANDIDATE_NAME}
 {CANDIDATE_PHONE} | {CANDIDATE_EMAIL}""",
-
     "telecom": """Dear Hiring Manager,
 
 I am applying for the {title} position at {company}. With {years}+ years in telecommunications and ISP networking, I have extensive experience in fiber optic deployment, last-mile connectivity, MPLS/IP core networks, and ISP-grade infrastructure.
@@ -156,18 +155,34 @@ Regards,
 # TEMPLATE SELECTOR – Choose best template based on job title
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def detect_template_key(title: str) -> str:
     """Detect the best template key based on job title keywords."""
     title_lower = title.lower()
-    if any(kw in title_lower for kw in ["security", "firewall", "cyber", "fortinet", "nse"]):
-        return "fortinet" if any(kw in title_lower for kw in ["fortinet", "nse"]) else "security"
+    if any(
+        kw in title_lower for kw in ["security", "firewall", "cyber", "fortinet", "nse"]
+    ):
+        return (
+            "fortinet"
+            if any(kw in title_lower for kw in ["fortinet", "nse"])
+            else "security"
+        )
     if any(kw in title_lower for kw in ["mikrotik", "routeros", "mtcna"]):
         return "mikrotik"
-    if any(kw in title_lower for kw in ["cisco", "ccna", "ccnp", "ccie", "catalyst", "nexus"]):
+    if any(
+        kw in title_lower
+        for kw in ["cisco", "ccna", "ccnp", "ccie", "catalyst", "nexus"]
+    ):
         return "cisco"
-    if any(kw in title_lower for kw in ["telecom", "telecommunication", "isp", "fiber", "service provider"]):
+    if any(
+        kw in title_lower
+        for kw in ["telecom", "telecommunication", "isp", "fiber", "service provider"]
+    ):
         return "telecom"
-    if any(kw in title_lower for kw in ["infrastructure", "data center", "datacenter", "cabling"]):
+    if any(
+        kw in title_lower
+        for kw in ["infrastructure", "data center", "datacenter", "cabling"]
+    ):
         return "infrastructure"
     if any(kw in title_lower for kw in ["short", "quick", "fast", "cold"]):
         return "short"
@@ -176,12 +191,12 @@ def detect_template_key(title: str) -> str:
 
 def get_letter(title: str, company: str, template_key: str = None) -> str:
     """Generate a cover letter from the best matching template.
-    
+
     Args:
         title: Job title
         company: Company name
         template_key: Optional explicit template key. Auto-detected if None.
-    
+
     Returns:
         Formatted cover letter string. Falls back to master template on error.
     """
@@ -210,23 +225,27 @@ def get_letter(title: str, company: str, template_key: str = None) -> str:
     try:
         return template.format(**format_kwargs)
     except KeyError as e:
-        logger.warning(f"[turbo_templates] Template '{template_key}' has unknown key {e}, falling back to MASTER_TEMPLATE")
+        logger.warning(
+            f"[turbo_templates] Template '{template_key}' has unknown key {e}, falling back to MASTER_TEMPLATE"
+        )
         try:
             return MASTER_TEMPLATE.format(**format_kwargs)
         except Exception as ex:
             logger.error(f"[turbo_templates] MASTER_TEMPLATE also failed: {ex}")
             return f"Dear Hiring Manager,\n\nI am applying for the {title} position at {company}.\n\nBest regards,\n{CANDIDATE_NAME}"
     except Exception as e:
-        logger.error(f"[turbo_templates] Unexpected error generating letter: {e}", exc_info=True)
+        logger.error(
+            f"[turbo_templates] Unexpected error generating letter: {e}", exc_info=True
+        )
         return f"Dear Hiring Manager,\n\nI am applying for the {title} position at {company}.\n\nBest regards,\n{CANDIDATE_NAME}"
 
 
 def batch_generate(jobs: list) -> list:
     """Generate cover letters for a batch of jobs.
-    
+
     Args:
         jobs: List of dicts with 'title' and 'company' keys
-    
+
     Returns:
         List of dicts with original data + generated letter. Failed jobs are skipped.
     """
@@ -235,13 +254,17 @@ def batch_generate(jobs: list) -> list:
         try:
             title = job.get("title", "Network Engineer") or "Network Engineer"
             company = job.get("company", "Company") or "Company"
-            result.append({
-                **job,
-                "letter": get_letter(title, company),
-                "template_key": detect_template_key(title),
-            })
+            result.append(
+                {
+                    **job,
+                    "letter": get_letter(title, company),
+                    "template_key": detect_template_key(title),
+                }
+            )
         except Exception as e:
-            logger.error(f"[turbo_templates] Failed to generate letter for job {job.get('company', 'unknown')}: {e}")
+            logger.error(
+                f"[turbo_templates] Failed to generate letter for job {job.get('company', 'unknown')}: {e}"
+            )
             # Include the job without a letter rather than dropping it entirely
             result.append({**job, "letter": "", "template_key": "default"})
     return result

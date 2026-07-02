@@ -13,9 +13,14 @@ from typing import List
 logger = logging.getLogger(__name__)
 
 OUTPUT_DIR = os.path.join("docs", "portfolios")
-B2B_CHECKOUT_LINK = "https://olympus-webhook.samsalameh-cv.workers.dev/api/v1/b2b/candidates"
+B2B_CHECKOUT_LINK = (
+    "https://olympus-webhook.samsalameh-cv.workers.dev/api/v1/b2b/candidates"
+)
 
-def generate_trojan_portfolio(user_id: str, name: str, title: str, skills: List[str], summary: str) -> str:
+
+def generate_trojan_portfolio(
+    user_id: str, name: str, title: str, skills: List[str], summary: str
+) -> str:
     """Automatically generates a stunning, high-converting interactive web portfolio.
 
     Args:
@@ -33,7 +38,9 @@ def generate_trojan_portfolio(user_id: str, name: str, title: str, skills: List[
         if not os.path.exists(OUTPUT_DIR):
             os.makedirs(OUTPUT_DIR, exist_ok=True)
     except Exception as e:
-        logger.error(f"[generate_portfolio] Failed to create output directory {OUTPUT_DIR}: {e}")
+        logger.error(
+            f"[generate_portfolio] Failed to create output directory {OUTPUT_DIR}: {e}"
+        )
         # fallback to local portfolios folder or current directory
         OUTPUT_DIR = "portfolios"
         try:
@@ -41,9 +48,9 @@ def generate_trojan_portfolio(user_id: str, name: str, title: str, skills: List[
                 os.makedirs(OUTPUT_DIR, exist_ok=True)
         except Exception:
             OUTPUT_DIR = "."
-        
+
     skills_html = "".join([f'<span class="skill-tag">{s}</span>' for s in skills])
-    
+
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -180,26 +187,35 @@ def generate_trojan_portfolio(user_id: str, name: str, title: str, skills: List[
 </html>
 """
     # Sanitize user_id for filename
-    safe_id = re.sub(r'[^a-zA-Z0-9_]', '', str(user_id))
+    safe_id = re.sub(r"[^a-zA-Z0-9_]", "", str(user_id))
     filepath = os.path.join(OUTPUT_DIR, f"{safe_id}.html")
-    
+
     try:
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(html)
-        logger.info(f"[generate_portfolio] Successfully generated portfolio at {filepath}")
+        logger.info(
+            f"[generate_portfolio] Successfully generated portfolio at {filepath}"
+        )
     except Exception as e:
-        logger.error(f"[generate_portfolio] Failed to write portfolio to {filepath}: {e}")
+        logger.error(
+            f"[generate_portfolio] Failed to write portfolio to {filepath}: {e}"
+        )
         fallback_filepath = f"{safe_id}_portfolio.html"
         try:
             with open(fallback_filepath, "w", encoding="utf-8") as f:
                 f.write(html)
-            logger.info(f"[generate_portfolio] Generated fallback portfolio at {fallback_filepath}")
+            logger.info(
+                f"[generate_portfolio] Generated fallback portfolio at {fallback_filepath}"
+            )
             return fallback_filepath
         except Exception as ex:
-            logger.critical(f"[generate_portfolio] Critical failure writing fallback portfolio: {ex}")
+            logger.critical(
+                f"[generate_portfolio] Critical failure writing fallback portfolio: {ex}"
+            )
             raise ex
-        
+
     return filepath
+
 
 if __name__ == "__main__":
     # Test generation
@@ -207,7 +223,13 @@ if __name__ == "__main__":
         user_id="demo123",
         name="Sam Salameh",
         title="Senior AI Architect & Python Engineer",
-        skills=["Python", "Cloudflare", "React", "Machine Learning", "System Architecture"],
-        summary="A results-driven technology leader specializing in scalable, zero-investment autonomous agents and viral cloud infrastructure. Proven track record of architecting deep-web level growth hacking systems."
+        skills=[
+            "Python",
+            "Cloudflare",
+            "React",
+            "Machine Learning",
+            "System Architecture",
+        ],
+        summary="A results-driven technology leader specializing in scalable, zero-investment autonomous agents and viral cloud infrastructure. Proven track record of architecting deep-web level growth hacking systems.",
     )
     print("Test portfolio generated.")

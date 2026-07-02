@@ -6,6 +6,7 @@ Countries (25+): GCC-6, MENA-7, CIS-3, ASIA-3, EUROPE-7, Turkey, Remote
 Sources: LinkedIn, Indeed, Google Jobs, Glassdoor, Bayt.com, NaukriGulf, Wuzzuf,
          hh.ru FREE REST API, Indeed RSS, StepStone, Naukri India
 """
+
 import logging
 import os
 import re
@@ -19,10 +20,13 @@ try:
     from curl_cffi.requests import AsyncSession as httpx_AsyncClient
 except ImportError:
     import httpx
+
     httpx_AsyncClient = httpx.AsyncClient
 import httpx
+
 try:
     from curl_cffi import requests as cffi_requests
+
     HAS_CFFI = True
 except ImportError:
     HAS_CFFI = False
@@ -31,7 +35,10 @@ from bs4 import BeautifulSoup
 
 # hh.ru scraper integration (free REST API, Russia/CIS market)
 try:
-    from core.hhru_scraper import search_hhru_sync as _hhru_search_sync, resolve_area_ids as _hhru_resolve_areas
+    from core.hhru_scraper import (
+        search_hhru_sync as _hhru_search_sync,
+        resolve_area_ids as _hhru_resolve_areas,
+    )
 except ImportError:
     _hhru_search_sync = None
     _hhru_resolve_areas = None
@@ -42,17 +49,33 @@ logger = logging.getLogger(__name__)
 
 # Legal suffixes that should NOT appear in domain names
 _LEGAL_SUFFIX_PATTERNS = [
-    r'\bLLC\b', r'\bInc\.?\b', r'\bInc\b', r'\bIncorporated\b',
-    r'\bLtd\.?\b', r'\bLtd\b', r'\bLimited\b', r'\bCorp\.?\b',
-    r'\bCorporation\b', r'\bCo\.?\b', r'\bCompany\b',
-    r'\bS\.?A\.?L\.?\b', r'\bSAL\b', r'\bS\.?A\.?R\.?L\.?\b',
-    r'\bSARL\b', r'\bS\.?A\.?\b', r'\bGmbH\b', r'\bBV\b',
-    r'\bPty\.?\s*Ltd\.?\b', r'\bAssociates?\b', r'\bPartners?\b',
+    r"\bLLC\b",
+    r"\bInc\.?\b",
+    r"\bInc\b",
+    r"\bIncorporated\b",
+    r"\bLtd\.?\b",
+    r"\bLtd\b",
+    r"\bLimited\b",
+    r"\bCorp\.?\b",
+    r"\bCorporation\b",
+    r"\bCo\.?\b",
+    r"\bCompany\b",
+    r"\bS\.?A\.?L\.?\b",
+    r"\bSAL\b",
+    r"\bS\.?A\.?R\.?L\.?\b",
+    r"\bSARL\b",
+    r"\bS\.?A\.?\b",
+    r"\bGmbH\b",
+    r"\bBV\b",
+    r"\bPty\.?\s*Ltd\.?\b",
+    r"\bAssociates?\b",
+    r"\bPartners?\b",
 ]
+
 
 def _smart_domain(company: str) -> str:
     """Generate a smarter domain from company name by stripping legal suffixes first.
-    
+
     Old behavior: 'Network Solutions Inc' -> 'networksolutionsinc.com' (WRONG)
     New behavior: 'Network Solutions Inc' -> 'networksolutions.com' (better guess)
     """
@@ -60,21 +83,23 @@ def _smart_domain(company: str) -> str:
         return ""
     cleaned = company.strip()
     for pat in _LEGAL_SUFFIX_PATTERNS:
-        cleaned = re.sub(pat, '', cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(pat, "", cleaned, flags=re.IGNORECASE)
     # Remove leftover special chars, collapse spaces, lowercase
-    cleaned = re.sub(r'[^a-z0-9\s-]', '', cleaned.lower())
-    cleaned = re.sub(r'\s+', '', cleaned).strip('-')
-    return cleaned if cleaned else re.sub(r'[^a-z0-9]', '', company.lower())
+    cleaned = re.sub(r"[^a-z0-9\s-]", "", cleaned.lower())
+    cleaned = re.sub(r"\s+", "", cleaned).strip("-")
+    return cleaned if cleaned else re.sub(r"[^a-z0-9]", "", company.lower())
+
 
 # ── PA Detection ─────────────────────────────────────────────────────────────
+
 
 def is_pythonanywhere() -> bool:
     """Detect if running on PythonAnywhere (free tier or paid)."""
     return bool(
-        os.environ.get('PYTHONANYWHERE_SITE') or
-        os.environ.get('PYTHONANYWHERE_DOMAIN') or
-        'pythonanywhere' in os.environ.get('HOME', '').lower() or
-        'pythonanywhere' in os.environ.get('HOSTNAME', '').lower()
+        os.environ.get("PYTHONANYWHERE_SITE")
+        or os.environ.get("PYTHONANYWHERE_DOMAIN")
+        or "pythonanywhere" in os.environ.get("HOME", "").lower()
+        or "pythonanywhere" in os.environ.get("HOSTNAME", "").lower()
     )
 
 
@@ -82,21 +107,51 @@ def pa_mode() -> bool:
     """Shorthand alias for PA detection."""
     return is_pythonanywhere()
 
+
 # ── Constants ───────────────────────────────────────────────────────────────
 
 SEARCH_QUERIES = [
-    "network engineer", "senior network engineer", "network security",
-    "network administrator", "network architect", "infrastructure engineer",
-    "IT infrastructure", "network operations", "CCNA", "CCNP",
-    "sysadmin", "systems engineer", "devops engineer",
+    "network engineer",
+    "senior network engineer",
+    "network security",
+    "network administrator",
+    "network architect",
+    "infrastructure engineer",
+    "IT infrastructure",
+    "network operations",
+    "CCNA",
+    "CCNP",
+    "sysadmin",
+    "systems engineer",
+    "devops engineer",
 ]
 
-REMOTE_PREFIXES = ["remote", "work from home", "wfh", "work from anywhere", "global", "anywhere"]
+REMOTE_PREFIXES = [
+    "remote",
+    "work from home",
+    "wfh",
+    "work from anywhere",
+    "global",
+    "anywhere",
+]
 
 # Lebanon cities - deliberately excluding south Lebanon cities
-LEBANON_CITIES = ["beirut", "jbeil", "byblos", "maten", "metn", "jabal lebnen", "mount lebanon",
-                  "keserwan", "jounieh", "zahle", "bekaa", "tripoli",
-                  "north lebanon", "north"]
+LEBANON_CITIES = [
+    "beirut",
+    "jbeil",
+    "byblos",
+    "maten",
+    "metn",
+    "jabal lebnen",
+    "mount lebanon",
+    "keserwan",
+    "jounieh",
+    "zahle",
+    "bekaa",
+    "tripoli",
+    "north lebanon",
+    "north",
+]
 # ☢ EXCLUDED: south, saida, sidon, sour, tyre, nabatiyeh, jnoub
 
 COUNTRY_CONFIGS = {
@@ -105,15 +160,32 @@ COUNTRY_CONFIGS = {
         "code": "LB",
         "currency": "LBP",
         "min_salary_usd": 1500,
-        "cities": ["Beirut", "Jbeil", "Byblos", "Metn", "Maten", "Mount Lebanon", "Keserwan", "Jounieh"],
+        "cities": [
+            "Beirut",
+            "Jbeil",
+            "Byblos",
+            "Metn",
+            "Maten",
+            "Mount Lebanon",
+            "Keserwan",
+            "Jounieh",
+        ],
         "domains": {
             "indeed": "www.indeed.com.lb",
             "linkedin": "www.linkedin.com",
             "bayt": "www.bayt.com",
             "wuzzuf": "wuzzuf.net",
         },
-        "exclude_patterns": [r'\bsouth\b', r'\bsaida\b', r'\bsidon\b', r'\bsour\b', r'\btyre\b',
-                              r'\bnabatiyeh\b', r'\bjnoub\b', r'\bsouthern\b'],
+        "exclude_patterns": [
+            r"\bsouth\b",
+            r"\bsaida\b",
+            r"\bsidon\b",
+            r"\bsour\b",
+            r"\btyre\b",
+            r"\bnabatiyeh\b",
+            r"\bjnoub\b",
+            r"\bsouthern\b",
+        ],
     },
     "uae": {
         "name": "UAE",
@@ -135,7 +207,15 @@ COUNTRY_CONFIGS = {
         "code": "SA",
         "currency": "SAR",
         "min_salary_usd": None,
-        "cities": ["Riyadh", "Jeddah", "Dammam", "Khobar", "Dhahran", "Mecca", "Medina"],
+        "cities": [
+            "Riyadh",
+            "Jeddah",
+            "Dammam",
+            "Khobar",
+            "Dhahran",
+            "Mecca",
+            "Medina",
+        ],
         "domains": {
             "indeed": "www.indeed.com.sa",
             "linkedin": "www.linkedin.com",
@@ -192,7 +272,13 @@ COUNTRY_CONFIGS = {
         "code": "RU",
         "currency": "RUB",
         "min_salary_usd": None,
-        "cities": ["Moscow", "Saint Petersburg", "Novosibirsk", "Yekaterinburg", "Kazan"],
+        "cities": [
+            "Moscow",
+            "Saint Petersburg",
+            "Novosibirsk",
+            "Yekaterinburg",
+            "Kazan",
+        ],
         "domains": {
             "linkedin": "www.linkedin.com",
             "hhru": "api.hh.ru",
@@ -468,42 +554,62 @@ COUNTRY_CONFIGS = {
 
 USER_AGENTS = [
     # Windows Chrome variants (most common)
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
     # Mac Chrome variants
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
     # Firefox variants
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0',
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0",
     # Safari variants
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15',
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15",
     # Linux Chrome
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (X11; Ubuntu; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
     # Edge variants
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0',
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0",
     # Mobile UA for variety
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1',
-    'Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.144 Mobile Safari/537.36',
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1",
+    "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.144 Mobile Safari/537.36",
 ]
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
 
-EMAIL_PATTERN = re.compile(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')
+EMAIL_PATTERN = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
 BLOCKED_EMAILS = [
-    'noreply@', 'no-reply@', 'donotreply@', 'example.com', 'test.com',
-    'w3.org', 'schema.org', 'sentry', 'webpack', 'facebook.com',
-    'google.com', 'github.com', 'microsoft.com', 'apple.com',
-    'cloudflare.com', 'jquery.com', 'wikipedia.org', 'youtube.com',
-    'twitter.com', 'instagram.com', 'linkedin.com', 'tiktok.com',
-    'sentry.io', 'noreply.', 'no-reply.', 'donotreply.',
+    "noreply@",
+    "no-reply@",
+    "donotreply@",
+    "example.com",
+    "test.com",
+    "w3.org",
+    "schema.org",
+    "sentry",
+    "webpack",
+    "facebook.com",
+    "google.com",
+    "github.com",
+    "microsoft.com",
+    "apple.com",
+    "cloudflare.com",
+    "jquery.com",
+    "wikipedia.org",
+    "youtube.com",
+    "twitter.com",
+    "instagram.com",
+    "linkedin.com",
+    "tiktok.com",
+    "sentry.io",
+    "noreply.",
+    "no-reply.",
+    "donotreply.",
 ]
 
 
@@ -517,8 +623,8 @@ def extract_emails(text: str) -> List[str]:
         for e in emails
         if not any(b in e.lower() for b in BLOCKED_EMAILS)
         and len(e) < 100
-        and '.' in e.split('@')[1]
-        and not e.endswith(('.png', '.jpg', '.gif', '.svg'))
+        and "." in e.split("@")[1]
+        and not e.endswith((".png", ".jpg", ".gif", ".svg"))
     ]
 
 
@@ -531,17 +637,17 @@ def make_job_id(title: str, company: str, url: str = "") -> str:
 def get_headers(extra: Dict = None) -> Dict[str, str]:
     """Get random headers for requests."""
     h = {
-        'User-Agent': random.choice(USER_AGENTS),
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'DNT': '1',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'none',
-        'Sec-Fetch-User': '?1',
-        'Cache-Control': 'max-age=0',
+        "User-Agent": random.choice(USER_AGENTS),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "DNT": "1",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Cache-Control": "max-age=0",
     }
     if extra:
         h.update(extra)
@@ -564,27 +670,29 @@ def extract_salary_from_text(text: str) -> Optional[float]:
     if not text:
         return None
     patterns = [
-        re.compile(r'\$\s*([\d,]+(?:\.\d{2})?)\s*(?:k|K)?', re.IGNORECASE),
-        re.compile(r'([\d,]+(?:\.\d{2})?)\s*(?:USD|usd|\$)', re.IGNORECASE),
-        re.compile(r'(?:salary|pay|compensation|wage)[:\s]*\$?\s*([\d,]+)', re.IGNORECASE),
+        re.compile(r"\$\s*([\d,]+(?:\.\d{2})?)\s*(?:k|K)?", re.IGNORECASE),
+        re.compile(r"([\d,]+(?:\.\d{2})?)\s*(?:USD|usd|\$)", re.IGNORECASE),
+        re.compile(
+            r"(?:salary|pay|compensation|wage)[:\s]*\$?\s*([\d,]+)", re.IGNORECASE
+        ),
         # AED
-        re.compile(r'(?:AED|aed|د\.إ)\s*([\d,]+)', re.IGNORECASE),
-        re.compile(r'([\d,]+)\s*(?:AED|aed|د\.إ)', re.IGNORECASE),
+        re.compile(r"(?:AED|aed|د\.إ)\s*([\d,]+)", re.IGNORECASE),
+        re.compile(r"([\d,]+)\s*(?:AED|aed|د\.إ)", re.IGNORECASE),
         # SAR
-        re.compile(r'(?:SAR|sar|﷼)\s*([\d,]+)', re.IGNORECASE),
-        re.compile(r'([\d,]+)\s*(?:SAR|sar|﷼)', re.IGNORECASE),
+        re.compile(r"(?:SAR|sar|﷼)\s*([\d,]+)", re.IGNORECASE),
+        re.compile(r"([\d,]+)\s*(?:SAR|sar|﷼)", re.IGNORECASE),
         # QAR
-        re.compile(r'(?:QAR|qar|ر\.ق)\s*([\d,]+)', re.IGNORECASE),
+        re.compile(r"(?:QAR|qar|ر\.ق)\s*([\d,]+)", re.IGNORECASE),
         # KWD
-        re.compile(r'(?:KWD|kwd|د\.ك)\s*([\d,]+)', re.IGNORECASE),
+        re.compile(r"(?:KWD|kwd|د\.ك)\s*([\d,]+)", re.IGNORECASE),
         # LBP
-        re.compile(r'(?:LBP|lbp|ل\.ل)\s*([\d,]+)', re.IGNORECASE),
+        re.compile(r"(?:LBP|lbp|ل\.ل)\s*([\d,]+)", re.IGNORECASE),
     ]
     for pattern in patterns:
         matches = pattern.findall(text)
         for match in matches:
             try:
-                return float(re.sub(r'[,$\s]', '', match))
+                return float(re.sub(r"[,$\s]", "", match))
             except ValueError:
                 continue
     return None
@@ -606,10 +714,11 @@ def _rate_limit_domain(last_times: Dict[str, float], domain: str, delay: float =
 # GLOBAL JOB SCRAPER - Multi-source, multi-country
 # ============================================================================
 
+
 class GlobalJobScraper:
     """
     GLOBAL multi-source, multi-country job scraper for network engineers (v17.0).
-    
+
     Covers 25+ countries across GCC, MENA, ASIA, EUROPE, and CIS:
       GCC: UAE, Saudi, Qatar, Kuwait, Oman, Bahrain (all 6)
       MENA: Lebanon, Jordan, Egypt, Morocco, Tunisia, Iraq, Syria
@@ -618,7 +727,7 @@ class GlobalJobScraper:
       EUROPE: UK, Germany, Netherlands, Ireland, Poland, Portugal, Spain
       TURKEY: Istanbul, Ankara, Izmir
       REMOTE: worldwide
-    
+
     Sources: LinkedIn, Indeed, Bayt, NaukriGulf, Wuzzuf, Glassdoor, Google Jobs,
              hh.ru FREE REST API (Russia/CIS).
     Uses only FREE scraping (requests + BeautifulSoup + RSS). No paid APIs.
@@ -629,7 +738,9 @@ class GlobalJobScraper:
         self._last_req: Dict[str, float] = {}
         self._session = httpx.Client(timeout=20, follow_redirects=True)
         if HAS_CFFI:
-            self._cffi_session = cffi_requests.Session(impersonate="chrome120", timeout=20)
+            self._cffi_session = cffi_requests.Session(
+                impersonate="chrome120", timeout=20
+            )
         else:
             self._cffi_session = None
         self.stats = {"total_found": 0, "sources_hit": 0, "by_source": {}}
@@ -651,7 +762,9 @@ class GlobalJobScraper:
 
     # ── Public API ──────────────────────────────────────────────────────────
 
-    def search_all_countries(self, limit_per_country: int = 10, max_total: int = 100) -> List[Dict]:
+    def search_all_countries(
+        self, limit_per_country: int = 10, max_total: int = 100
+    ) -> List[Dict]:
         """
         Search ALL configured countries for network engineer jobs.
         Returns deduplicated list of job dicts.
@@ -671,14 +784,18 @@ class GlobalJobScraper:
                     break
 
                 try:
-                    jobs = self.search_country(country_key, query, limit=limit_per_country)
+                    jobs = self.search_country(
+                        country_key, query, limit=limit_per_country
+                    )
                     for job in jobs:
                         jid = job.get("job_id", "")
                         if jid and jid not in seen_ids:
                             seen_ids.add(jid)
                             all_jobs.append(job)
                 except Exception as e:
-                    logger.warning(f"Error searching {config['name']} for '{query}': {e}")
+                    logger.warning(
+                        f"Error searching {config['name']} for '{query}': {e}"
+                    )
 
                 # Brief pause between queries
                 time.sleep(0.5)
@@ -687,45 +804,60 @@ class GlobalJobScraper:
         self.stats["total_found"] = len(all_jobs)
         return all_jobs
 
-    def fast_search(self, country_key: str, query: str = "network engineer",
-                    limit: int = 10, max_search_secs: int = 60) -> List[Dict]:
+    def fast_search(
+        self,
+        country_key: str,
+        query: str = "network engineer",
+        limit: int = 10,
+        max_search_secs: int = 60,
+    ) -> List[Dict]:
         """
         ⚡ FAST search: LinkedIn-only, single city, no slow scrapers, no Google dorking.
         Designed for PythonAnywhere free-tier where every second counts.
-        
+
         Skips: Indeed, Bayt, Glassdoor, Wuzzuf, NaukriGulf, Google Jobs.
         All return 0 on PA due to rate limiting/blocking.
-        
+
         Args:
             country_key: Country config key
             query: Job search query
             limit: Max results
             max_search_secs: Soft timeout in seconds (not enforced programmatically,
                             but the fast scraper completes well within this)
-        
+
         Returns: List of job dicts (~40s vs ~180s for full search)
         """
         logger.info(f"⚡ fast_search({country_key}, '{query}', limit={limit})")
         start = time.time()
-        result = self.search_country(country_key, query, limit=limit,
-                                     enable_fast=True, max_search_secs=max_search_secs)
+        result = self.search_country(
+            country_key,
+            query,
+            limit=limit,
+            enable_fast=True,
+            max_search_secs=max_search_secs,
+        )
         elapsed = time.time() - start
         logger.info(f"⚡ fast_search complete: {len(result)} jobs in {elapsed:.1f}s")
         return result
 
-    def search_country(self, country_key: str, query: str = "network engineer",
-                       limit: int = 10, enable_fast: bool = False,
-                       max_search_secs: int = 60) -> List[Dict]:
+    def search_country(
+        self,
+        country_key: str,
+        query: str = "network engineer",
+        limit: int = 10,
+        enable_fast: bool = False,
+        max_search_secs: int = 60,
+    ) -> List[Dict]:
         """
         Search a single country using ALL available sources.
-        
+
         Args:
             country_key: Country config key (e.g., 'uae', 'lebanon')
             query: Job search query
             limit: Max results to return
             enable_fast: If True, only use LinkedIn (skips Indeed/Bayt/Glassdoor/Wuzzuf/NaukriGulf/Google)
             max_search_secs: Soft timeout in seconds for fast mode (enforced per-source)
-        
+
         Returns list of job dicts.
         """
         config = COUNTRY_CONFIGS.get(country_key)
@@ -745,7 +877,9 @@ class GlobalJobScraper:
             ]
             if "hhru" in config.get("domains", {}):
                 source_handlers.append(("hhru", self._scrape_hhru, config))
-            logger.info(f"  ⚡ FAST MODE: search for {country_name} (max {max_search_secs}s)")
+            logger.info(
+                f"  ⚡ FAST MODE: search for {country_name} (max {max_search_secs}s)"
+            )
         else:
             source_handlers = [
                 ("linkedin", self._scrape_linkedin, config),
@@ -766,11 +900,16 @@ class GlobalJobScraper:
             if len(all_jobs) >= limit * 2:  # fetch extra for dedup
                 break
 
-            domain = cfg["domains"].get(source_name.replace("google_jobs", "indeed"), "")
+            cfg["domains"].get(
+                source_name.replace("google_jobs", "indeed"), ""
+            )
             try:
                 # Faster rate limiting in fast mode
-                _rate_limit_domain(self._last_req, source_name,
-                                  self.rate_limit_delay if not enable_fast else 0.5)
+                _rate_limit_domain(
+                    self._last_req,
+                    source_name,
+                    self.rate_limit_delay if not enable_fast else 0.5,
+                )
 
                 jobs = handler(query, cfg, country_key)
                 for job in jobs:
@@ -785,7 +924,9 @@ class GlobalJobScraper:
                             self.stats["by_source"][source_name] += 1
 
                 self.stats["sources_hit"] += 1
-                logger.info(f"  [{source_name}] {len(jobs)} jobs for '{query}' in {country_name}")
+                logger.info(
+                    f"  [{source_name}] {len(jobs)} jobs for '{query}' in {country_name}"
+                )
 
             except Exception as e:
                 logger.debug(f"  [{source_name}] failed for {country_name}: {e}")
@@ -798,10 +939,12 @@ class GlobalJobScraper:
 
     # ── Source: LinkedIn ────────────────────────────────────────────────────
 
-    def _scrape_linkedin(self, query: str, config: Dict, country_key: str) -> List[Dict]:
+    def _scrape_linkedin(
+        self, query: str, config: Dict, country_key: str
+    ) -> List[Dict]:
         """
         Scrape LinkedIn Jobs with country-specific URL.
-        
+
         Features:
         - Random delay (5-15s) between city searches
         - 403 detection triggers Google dork fallback
@@ -834,10 +977,14 @@ class GlobalJobScraper:
                     continue
 
                 if resp.status_code == 403:
-                    logger.warning(f"LinkedIn BLOCKED request for {city} (403). Switching to Google dork fallback.")
+                    logger.warning(
+                        f"LinkedIn BLOCKED request for {city} (403). Switching to Google dork fallback."
+                    )
                     linkedin_blocked = True
                     # Try Google dork for this city
-                    dork_jobs = self._google_dork_linkedin(query, city, config, country_key)
+                    dork_jobs = self._google_dork_linkedin(
+                        query, city, config, country_key
+                    )
                     jobs.extend(dork_jobs)
                     continue
 
@@ -845,20 +992,23 @@ class GlobalJobScraper:
                     logger.debug(f"LinkedIn {city}: HTTP {resp.status_code}")
                     continue
 
-                soup = BeautifulSoup(resp.text, 'html.parser')
+                soup = BeautifulSoup(resp.text, "html.parser")
                 cards = (
-                    soup.find_all('div', class_='base-card') or
-                    soup.find_all('li', class_='jobs-search-results__list-item') or
-                    soup.find_all('div', {'data-entity-urn': re.compile(r'urn:li:jobPosting', re.I)}) or
-                    soup.select('div.job-search-card') or
-                    soup.select('div.base-search-card') or
-                    soup.select('li.jobs-search__results-item') or
-                    soup.select('div.jobs-search__results-list li')
+                    soup.find_all("div", class_="base-card")
+                    or soup.find_all("li", class_="jobs-search-results__list-item")
+                    or soup.find_all(
+                        "div",
+                        {"data-entity-urn": re.compile(r"urn:li:jobPosting", re.I)},
+                    )
+                    or soup.select("div.job-search-card")
+                    or soup.select("div.base-search-card")
+                    or soup.select("li.jobs-search__results-item")
+                    or soup.select("div.jobs-search__results-list li")
                 )
 
                 # If still empty, try alternate parsing
                 if not cards:
-                    cards = soup.select('[data-job-id]') or soup.select('article') or []
+                    cards = soup.select("[data-job-id]") or soup.select("article") or []
 
                 for card in cards[:5]:  # max 5 per city
                     try:
@@ -881,10 +1031,14 @@ class GlobalJobScraper:
             if jid not in seen:
                 seen.add(jid)
                 unique.append(j)
-        logger.info(f"LinkedIn scraper: {len(unique)} unique jobs (linkedin_blocked={linkedin_blocked})")
+        logger.info(
+            f"LinkedIn scraper: {len(unique)} unique jobs (linkedin_blocked={linkedin_blocked})"
+        )
         return unique
 
-    def _scrape_linkedin_fast(self, query: str, config: Dict, country_key: str) -> List[Dict]:
+    def _scrape_linkedin_fast(
+        self, query: str, config: Dict, country_key: str
+    ) -> List[Dict]:
         """
         FAST LinkedIn scraper: 1 city only, no random delays, no Google dork fallback.
         Designed for PA free-tier where every second counts.
@@ -897,7 +1051,6 @@ class GlobalJobScraper:
         url = f"https://www.linkedin.com/jobs/search/?keywords={quote_plus(search_q)}&location={quote_plus(city)}"
 
         try:
-            all_job_ids = set()
             # Paginate: fetch 3 pages (start=0, 25, 50) → up to 75 unique jobs
             for page_start in [0, 25, 50]:
                 page_url = f"{url}&start={page_start}" if page_start > 0 else url
@@ -909,19 +1062,22 @@ class GlobalJobScraper:
                 if resp.status_code != 200:
                     continue
 
-                soup = BeautifulSoup(resp.text, 'html.parser')
+                soup = BeautifulSoup(resp.text, "html.parser")
                 cards = (
-                    soup.find_all('div', class_='base-card') or
-                    soup.find_all('li', class_='jobs-search-results__list-item') or
-                    soup.find_all('div', {'data-entity-urn': re.compile(r'urn:li:jobPosting', re.I)}) or
-                    soup.select('div.job-search-card') or
-                    soup.select('div.base-search-card') or
-                    soup.select('li.jobs-search__results-item') or
-                    soup.select('div.jobs-search__results-list li')
+                    soup.find_all("div", class_="base-card")
+                    or soup.find_all("li", class_="jobs-search-results__list-item")
+                    or soup.find_all(
+                        "div",
+                        {"data-entity-urn": re.compile(r"urn:li:jobPosting", re.I)},
+                    )
+                    or soup.select("div.job-search-card")
+                    or soup.select("div.base-search-card")
+                    or soup.select("li.jobs-search__results-item")
+                    or soup.select("div.jobs-search__results-list li")
                 )
 
                 if not cards:
-                    cards = soup.select('[data-job-id]') or soup.select('article') or []
+                    cards = soup.select("[data-job-id]") or soup.select("article") or []
                 if not cards:
                     break  # no more results
 
@@ -948,7 +1104,9 @@ class GlobalJobScraper:
         logger.info(f"LinkedIn FAST scraper: {len(unique)} unique jobs in ~5s")
         return unique
 
-    def _google_dork_linkedin(self, query: str, city: str, config: Dict, country_key: str) -> List[Dict]:
+    def _google_dork_linkedin(
+        self, query: str, city: str, config: Dict, country_key: str
+    ) -> List[Dict]:
         """
         Fallback: Use Google search to find LinkedIn job postings.
         LinkedIn blocks direct scraping? Google can still index their jobs.
@@ -956,65 +1114,72 @@ class GlobalJobScraper:
         jobs = []
         try:
             site_query = f"site:linkedin.com/jobs {query} {city} {config['name']}"
-            search_url = f"https://www.google.com/search?q={quote_plus(site_query)}&num=15"
-            
+            search_url = (
+                f"https://www.google.com/search?q={quote_plus(site_query)}&num=15"
+            )
+
             # Use a desktop Chrome UA specifically for Google
             google_headers = get_headers()
-            google_headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            
+            google_headers["User-Agent"] = (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            )
+
             time.sleep(random.uniform(2.0, 5.0))  # Polite delay for Google
             resp = self._session.get(search_url, headers=google_headers, timeout=20)
-            
+
             if resp.status_code != 200:
                 logger.debug(f"Google dork returned HTTP {resp.status_code}")
                 return jobs
-            
-            soup = BeautifulSoup(resp.text, 'html.parser')
-            
+
+            soup = BeautifulSoup(resp.text, "html.parser")
+
             # Parse Google search results
-            for result in soup.select('div.g') or soup.select('[data-hveid]'):
-                link_elem = result.find('a', href=True)
+            for result in soup.select("div.g") or soup.select("[data-hveid]"):
+                link_elem = result.find("a", href=True)
                 if not link_elem:
                     continue
-                href = link_elem.get('href', '')
-                
+                href = link_elem.get("href", "")
+
                 # Only include LinkedIn job links
-                if '/jobs/' not in href and 'linkedin.com' not in href:
+                if "/jobs/" not in href and "linkedin.com" not in href:
                     continue
-                    
+
                 # Clean Google redirect URL
-                if href.startswith('/url?'):
+                if href.startswith("/url?"):
                     from urllib.parse import parse_qs
+
                     parsed = urlparse(href)
                     qs = parse_qs(parsed.query)
-                    href = qs.get('q', [href])[0]
-                
+                    href = qs.get("q", [href])[0]
+
                 # Extract title and company from link text
-                title_elem = result.find('h3')
+                title_elem = result.find("h3")
                 title = title_elem.get_text(strip=True) if title_elem else query.title()
-                
+
                 # Get snippet for company name
-                snippet_elem = result.find('div', class_='VwiC3b') or result.find('span', class_='aCOpRe')
+                snippet_elem = result.find("div", class_="VwiC3b") or result.find(
+                    "span", class_="aCOpRe"
+                )
                 snippet = snippet_elem.get_text(strip=True) if snippet_elem else ""
-                
+
                 # Try to extract company from breadcrumb or snippet
-                company = config['name']  # fallback
+                company = config["name"]  # fallback
                 company_elem = result.select_one('div[role="heading"]')
                 if not company_elem:
                     # Try to find company in breadcrumb citation
-                    cite = result.find('cite')
+                    cite = result.find("cite")
                     if cite:
                         cite_text = cite.get_text(strip=True)
                         # Extract company from LinkedIn URL pattern
-                        m = re.search(r'linkedin\.com/company/([^/]+)', cite_text, re.I)
+                        m = re.search(r"linkedin\.com/company/([^/]+)", cite_text, re.I)
                         if m:
-                            company = m.group(1).replace('-', ' ').title()
-                
+                            company = m.group(1).replace("-", " ").title()
+
                 location = f"{city}, {config['name']}"
-                
+
                 company_domain = _smart_domain(company)
                 placeholder_email = f"careers@{company_domain}.com" if company else ""
-                
+
                 job = {
                     "job_id": make_job_id(title, company, href),
                     "title": title,
@@ -1022,7 +1187,9 @@ class GlobalJobScraper:
                     "email": placeholder_email,
                     "all_emails": [placeholder_email] if placeholder_email else [],
                     "location": location,
-                    "snippet": snippet[:200] if snippet else f"LinkedIn (via Google): {title} at {company}",
+                    "snippet": snippet[:200]
+                    if snippet
+                    else f"LinkedIn (via Google): {title} at {company}",
                     "source": f"linkedin_dork_{country_key}",
                     "url": href,
                     "salary": extract_salary_from_text(snippet),
@@ -1031,43 +1198,44 @@ class GlobalJobScraper:
                 jobs.append(job)
                 if len(jobs) >= 10:
                     break
-                    
+
         except Exception as e:
             logger.debug(f"Google dork fallback failed: {e}")
-        
+
         return jobs
 
-    def _parse_linkedin_card(self, card, config: Dict, country_key: str) -> Optional[Dict]:
+    def _parse_linkedin_card(
+        self, card, config: Dict, country_key: str
+    ) -> Optional[Dict]:
         """Parse a LinkedIn job card."""
         title_elem = (
-            card.find('h3', class_='base-search-card__title') or
-            card.find('h3') or
-            card.find('span', class_='sr-only')
+            card.find("h3", class_="base-search-card__title")
+            or card.find("h3")
+            or card.find("span", class_="sr-only")
         )
         title = title_elem.get_text(strip=True) if title_elem else ""
 
         company_elem = (
-            card.find('h4', class_='base-search-card__subtitle') or
-            card.find('h4') or
-            card.find('a', href=re.compile(r'/company/', re.I))
+            card.find("h4", class_="base-search-card__subtitle")
+            or card.find("h4")
+            or card.find("a", href=re.compile(r"/company/", re.I))
         )
         company = company_elem.get_text(strip=True) if company_elem else ""
 
-        link = card.find('a', href=re.compile(r'/jobs/view/', re.I))
+        link = card.find("a", href=re.compile(r"/jobs/view/", re.I))
         if not link:
-            link = card.find('a', class_='base-card__full-link')
+            link = card.find("a", class_="base-card__full-link")
         if not link:
             # Try any anchor with href
-            link = card.find('a', href=True)
+            link = card.find("a", href=True)
 
-        job_url = link.get('href', '') if link else ""
-        if job_url and not job_url.startswith('http'):
+        job_url = link.get("href", "") if link else ""
+        if job_url and not job_url.startswith("http"):
             job_url = "https://www.linkedin.com" + job_url
 
-        location_elem = (
-            card.find('span', class_='job-search-card__location') or
-            card.find('span', class_='job-card-container__metadata-item')
-        )
+        location_elem = card.find(
+            "span", class_="job-search-card__location"
+        ) or card.find("span", class_="job-card-container__metadata-item")
         location = location_elem.get_text(strip=True) if location_elem else ""
         # Add country for clarity
         if location and config["name"] not in location:
@@ -1082,8 +1250,10 @@ class GlobalJobScraper:
             domain_base = "unknown"
 
         guessed_domain = f"{domain_base}.com"
-        
-        placeholder_email = f"careers@{guessed_domain}" if domain_base != "unknown" else ""
+
+        placeholder_email = (
+            f"careers@{guessed_domain}" if domain_base != "unknown" else ""
+        )
 
         return {
             "job_id": make_job_id(title, company, job_url),
@@ -1107,7 +1277,7 @@ class GlobalJobScraper:
         indeed_domain = config["domains"].get("indeed", "www.indeed.com")
 
         for city in config["cities"]:
-            encoded_q = quote_plus(f"{query} in {city}")
+            quote_plus(f"{query} in {city}")
             url = f"https://{indeed_domain}/jobs?q={quote_plus(query)}&l={quote_plus(city)}"
 
             try:
@@ -1115,20 +1285,22 @@ class GlobalJobScraper:
                 if not resp or resp.status_code not in (200, 301, 302):
                     continue
 
-                soup = BeautifulSoup(resp.text, 'html.parser')
+                soup = BeautifulSoup(resp.text, "html.parser")
 
                 # Indeed card selectors (various versions)
                 cards = (
-                    soup.find_all('div', class_='job_seen_beacon') or
-                    soup.find_all('div', class_='jobsearch-SerpJobCard') or
-                    soup.find_all('div', class_='result') or
-                    soup.select('div.job-card-container') or
-                    soup.select('li.css-5lf6m') or
-                    soup.select('div.cardOutline')
+                    soup.find_all("div", class_="job_seen_beacon")
+                    or soup.find_all("div", class_="jobsearch-SerpJobCard")
+                    or soup.find_all("div", class_="result")
+                    or soup.select("div.job-card-container")
+                    or soup.select("li.css-5lf6m")
+                    or soup.select("div.cardOutline")
                 )
 
                 for card in cards[:5]:
-                    job = self._parse_indeed_card(card, config, country_key, indeed_domain)
+                    job = self._parse_indeed_card(
+                        card, config, country_key, indeed_domain
+                    )
                     if job:
                         jobs.append(job)
 
@@ -1138,50 +1310,52 @@ class GlobalJobScraper:
 
         return jobs
 
-    def _parse_indeed_card(self, card, config: Dict, country_key: str, domain: str) -> Optional[Dict]:
+    def _parse_indeed_card(
+        self, card, config: Dict, country_key: str, domain: str
+    ) -> Optional[Dict]:
         """Parse an Indeed job card."""
         # Title
         title_elem = (
-            card.find('h2', class_='jobTitle') or
-            card.find('a', class_='jcs-JobTitle') or
-            card.find('h2', class_='title') or
-            card.find('a', {'data-jk': True}) or
-            card.find('a', href=re.compile(r'/pagead/clk', re.I))
+            card.find("h2", class_="jobTitle")
+            or card.find("a", class_="jcs-JobTitle")
+            or card.find("h2", class_="title")
+            or card.find("a", {"data-jk": True})
+            or card.find("a", href=re.compile(r"/pagead/clk", re.I))
         )
         title = title_elem.get_text(strip=True) if title_elem else ""
-        title = re.sub(r'\s+', ' ', title).strip()
+        title = re.sub(r"\s+", " ", title).strip()
 
         # Company
         company_elem = (
-            card.find('span', class_='companyName') or
-            card.find('span', class_='company') or
-            card.find('div', class_='company_location') or
-            card.find('span', {'data-testid': 'company-name'})
+            card.find("span", class_="companyName")
+            or card.find("span", class_="company")
+            or card.find("div", class_="company_location")
+            or card.find("span", {"data-testid": "company-name"})
         )
         company = company_elem.get_text(strip=True) if company_elem else ""
 
         # Location
         location_elem = (
-            card.find('div', class_='companyLocation') or
-            card.find('span', class_='location') or
-            card.find('span', {'data-testid': 'text-location'})
+            card.find("div", class_="companyLocation")
+            or card.find("span", class_="location")
+            or card.find("span", {"data-testid": "text-location"})
         )
         location = location_elem.get_text(strip=True) if location_elem else ""
 
         # Extract URL from card
-        link = card.find('a', href=re.compile(r'/jobs|/pagead|/rc/clk', re.I))
+        link = card.find("a", href=re.compile(r"/jobs|/pagead|/rc/clk", re.I))
         job_url = ""
         if link:
-            href = link.get('href', '')
-            job_url = f"https://{domain}{href}" if href.startswith('/') else href
+            href = link.get("href", "")
+            job_url = f"https://{domain}{href}" if href.startswith("/") else href
         if not job_url:
             job_url = f"https://{domain}/jobs?q={quote_plus(title)}"
 
         # Salary
         salary_elem = (
-            card.find('div', class_='salary-snippet') or
-            card.find('span', class_='salaryText') or
-            card.find('span', {'data-testid': 'salary-info'})
+            card.find("div", class_="salary-snippet")
+            or card.find("span", class_="salaryText")
+            or card.find("span", {"data-testid": "salary-info"})
         )
         salary_text = salary_elem.get_text(strip=True) if salary_elem else ""
         salary = extract_salary_from_text(salary_text) if salary_text else None
@@ -1192,7 +1366,7 @@ class GlobalJobScraper:
         company_domain = _smart_domain(company)
         placeholder_email = f"jobs@{company_domain}.com" if company else ""
 
-        full_location = f"{location}, {config['name']}" if location else config['name']
+        full_location = f"{location}, {config['name']}" if location else config["name"]
 
         return {
             "job_id": make_job_id(title, company, job_url),
@@ -1220,20 +1394,23 @@ class GlobalJobScraper:
                 # Bayt search URL
                 url = f"https://www.bayt.com/en/international/jobs/?q={encoded_q}&country={config['code']}&city={quote_plus(city)}"
 
-                resp = self._make_get(url, extra_headers={
-                    'Referer': 'https://www.bayt.com/en/international/',
-                })
+                resp = self._make_get(
+                    url,
+                    extra_headers={
+                        "Referer": "https://www.bayt.com/en/international/",
+                    },
+                )
                 if not resp or resp.status_code not in (200, 301, 302):
                     continue
 
-                soup = BeautifulSoup(resp.text, 'html.parser')
+                soup = BeautifulSoup(resp.text, "html.parser")
 
                 # Find job cards
                 cards = (
-                    soup.find_all('li', class_='has-pointer-d') or
-                    soup.select('div.job-card') or
-                    soup.select('article.is-available') or
-                    soup.find_all('div', class_='card')
+                    soup.find_all("li", class_="has-pointer-d")
+                    or soup.select("div.job-card")
+                    or soup.select("article.is-available")
+                    or soup.find_all("div", class_="card")
                 )
 
                 for card in cards[:5]:
@@ -1251,42 +1428,46 @@ class GlobalJobScraper:
         """Parse a Bayt.com job card."""
         # Title
         title_elem = (
-            card.find('h2', class_='jb-title') or
-            card.find('h2') or
-            card.find('a', class_='job-title') or
-            card.find('a', href=re.compile(r'/en/international/jobs/', re.I))
+            card.find("h2", class_="jb-title")
+            or card.find("h2")
+            or card.find("a", class_="job-title")
+            or card.find("a", href=re.compile(r"/en/international/jobs/", re.I))
         )
         title = title_elem.get_text(strip=True) if title_elem else ""
 
         # Company
         company_elem = (
-            card.find('span', class_='jb-company') or
-            card.find('span', class_='company') or
-            card.find('b', class_='company-name') or
-            card.find('a', href=re.compile(r'/en/company/', re.I))
+            card.find("span", class_="jb-company")
+            or card.find("span", class_="company")
+            or card.find("b", class_="company-name")
+            or card.find("a", href=re.compile(r"/en/company/", re.I))
         )
         company = company_elem.get_text(strip=True) if company_elem else ""
 
         # Location
         location_elem = (
-            card.find('span', class_='jb-location') or
-            card.find('span', class_='location') or
-            card.find('span', class_='job-location')
+            card.find("span", class_="jb-location")
+            or card.find("span", class_="location")
+            or card.find("span", class_="job-location")
         )
-        location = location_elem.get_text(strip=True).strip() if location_elem else config['name']
+        location = (
+            location_elem.get_text(strip=True).strip()
+            if location_elem
+            else config["name"]
+        )
 
         # Job URL
-        link = card.find('a', href=re.compile(r'/en/international/jobs/', re.I))
+        link = card.find("a", href=re.compile(r"/en/international/jobs/", re.I))
         job_url = ""
         if link:
-            href = link.get('href', '')
-            job_url = f"https://www.bayt.com{href}" if href.startswith('/') else href
+            href = link.get("href", "")
+            job_url = f"https://www.bayt.com{href}" if href.startswith("/") else href
 
         # Description snippet
         desc_elem = (
-            card.find('p', class_='jb-desc') or
-            card.find('div', class_='job-description') or
-            card.find('div', class_='jb-description')
+            card.find("p", class_="jb-desc")
+            or card.find("div", class_="job-description")
+            or card.find("div", class_="jb-description")
         )
         snippet = desc_elem.get_text(strip=True)[:300] if desc_elem else ""
 
@@ -1302,7 +1483,9 @@ class GlobalJobScraper:
             "company": company,
             "email": placeholder_email,
             "all_emails": [placeholder_email] if placeholder_email else [],
-            "location": f"{location.strip()}, {config['name']}" if location and config['name'] not in str(location) else str(location),
+            "location": f"{location.strip()}, {config['name']}"
+            if location and config["name"] not in str(location)
+            else str(location),
             "snippet": snippet or f"Bayt: {title} at {company}",
             "source": f"bayt_{country_key}",
             "url": job_url,
@@ -1312,7 +1495,9 @@ class GlobalJobScraper:
 
     # ── Source: NaukriGulf ──────────────────────────────────────────────────
 
-    def _scrape_naukrigulf(self, query: str, config: Dict, country_key: str) -> List[Dict]:
+    def _scrape_naukrigulf(
+        self, query: str, config: Dict, country_key: str
+    ) -> List[Dict]:
         """Scrape NaukriGulf for Gulf region jobs."""
         jobs = []
 
@@ -1324,9 +1509,12 @@ class GlobalJobScraper:
                 encoded_q = quote_plus(f"{query} in {city}")
                 url = f"https://www.naukrigulf.com/{encoded_q}-jobs-in-{quote_plus(city.replace(' ', '-'))}"
 
-                resp = self._make_get(url, extra_headers={
-                    'Referer': 'https://www.naukrigulf.com/',
-                })
+                resp = self._make_get(
+                    url,
+                    extra_headers={
+                        "Referer": "https://www.naukrigulf.com/",
+                    },
+                )
                 if not resp or resp.status_code not in (200, 301, 302):
                     # Try alternative URL
                     url = f"https://www.naukrigulf.com/jobs?q={quote_plus(query)}&l={quote_plus(city)}"
@@ -1334,12 +1522,12 @@ class GlobalJobScraper:
                     if not resp or resp.status_code not in (200, 301, 302):
                         continue
 
-                soup = BeautifulSoup(resp.text, 'html.parser')
+                soup = BeautifulSoup(resp.text, "html.parser")
                 cards = (
-                    soup.find_all('article', class_='jobTuple') or
-                    soup.select('div.row.job') or
-                    soup.find_all('div', class_='job-card') or
-                    soup.select('li.desktop-search-result')
+                    soup.find_all("article", class_="jobTuple")
+                    or soup.select("div.row.job")
+                    or soup.find_all("div", class_="job-card")
+                    or soup.select("li.desktop-search-result")
                 )
 
                 for card in cards[:5]:
@@ -1353,44 +1541,48 @@ class GlobalJobScraper:
 
         return jobs
 
-    def _parse_naukrigulf_card(self, card, config: Dict, country_key: str) -> Optional[Dict]:
+    def _parse_naukrigulf_card(
+        self, card, config: Dict, country_key: str
+    ) -> Optional[Dict]:
         """Parse a NaukriGulf job card."""
         # Title
         title_elem = (
-            card.find('a', class_='title') or
-            card.find('h2', class_='job-title') or
-            card.find('a', href=re.compile(r'/job-', re.I)) or
-            card.find('a', class_='job-card-title')
+            card.find("a", class_="title")
+            or card.find("h2", class_="job-title")
+            or card.find("a", href=re.compile(r"/job-", re.I))
+            or card.find("a", class_="job-card-title")
         )
         title = title_elem.get_text(strip=True) if title_elem else ""
-        title = re.sub(r'\s+', ' ', title).strip()
+        title = re.sub(r"\s+", " ", title).strip()
 
         # Company
         company_elem = (
-            card.find('span', class_='company-name') or
-            card.find('a', class_='company') or
-            card.find('span', class_='subTitle') or
-            card.find('span', class_='company')
+            card.find("span", class_="company-name")
+            or card.find("a", class_="company")
+            or card.find("span", class_="subTitle")
+            or card.find("span", class_="company")
         )
         company = company_elem.get_text(strip=True) if company_elem else ""
 
         # Location
         location_elem = (
-            card.find('span', class_='location') or
-            card.find('span', class_='loc') or
-            card.find('li', class_='location')
+            card.find("span", class_="location")
+            or card.find("span", class_="loc")
+            or card.find("li", class_="location")
         )
         location = location_elem.get_text(strip=True) if location_elem else ""
 
         # URL
-        link = card.find('a', href=re.compile(r'/job-', re.I))
+        link = card.find("a", href=re.compile(r"/job-", re.I))
         job_url = ""
         if link:
-            href = link.get('href', '')
-            job_url = f"https://www.naukrigulf.com{href}" if href.startswith('/') else href
+            href = link.get("href", "")
+            job_url = (
+                f"https://www.naukrigulf.com{href}" if href.startswith("/") else href
+            )
 
         # Salary
-        salary_elem = card.find('span', class_='salary')
+        salary_elem = card.find("span", class_="salary")
         salary_text = salary_elem.get_text(strip=True) if salary_elem else ""
 
         if not title or not company:
@@ -1405,7 +1597,7 @@ class GlobalJobScraper:
             "company": company,
             "email": placeholder_email,
             "all_emails": [placeholder_email] if placeholder_email else [],
-            "location": f"{location}, {config['name']}" if location else config['name'],
+            "location": f"{location}, {config['name']}" if location else config["name"],
             "snippet": f"NaukriGulf: {title} at {company}",
             "source": f"naukrigulf_{country_key}",
             "url": job_url,
@@ -1426,20 +1618,23 @@ class GlobalJobScraper:
             encoded_q = quote_plus(query)
             url = f"https://wuzzuf.net/search/jobs/?q={encoded_q}&country={config['code']}"
 
-            resp = self._make_get(url, extra_headers={
-                'Referer': 'https://wuzzuf.net/',
-            })
+            resp = self._make_get(
+                url,
+                extra_headers={
+                    "Referer": "https://wuzzuf.net/",
+                },
+            )
             if not resp or resp.status_code not in (200, 301, 302):
                 return jobs
 
-            soup = BeautifulSoup(resp.text, 'html.parser')
+            soup = BeautifulSoup(resp.text, "html.parser")
 
             cards = (
-                soup.find_all('div', class_='css-1gq4cwl') or
-                soup.select('div.job-card') or
-                soup.find_all('div', class_='card') or
-                soup.select('a.css-1w3khdb') or
-                soup.find_all('div', class_='job')
+                soup.find_all("div", class_="css-1gq4cwl")
+                or soup.select("div.job-card")
+                or soup.find_all("div", class_="card")
+                or soup.select("a.css-1w3khdb")
+                or soup.find_all("div", class_="job")
             )
 
             for card in cards[:10]:
@@ -1452,31 +1647,33 @@ class GlobalJobScraper:
 
         return jobs
 
-    def _parse_wuzzuf_card(self, card, config: Dict, country_key: str) -> Optional[Dict]:
+    def _parse_wuzzuf_card(
+        self, card, config: Dict, country_key: str
+    ) -> Optional[Dict]:
         """Parse a Wuzzuf job card."""
         # Title
         title_elem = (
-            card.find('h2', class_='css-m604qf') or
-            card.find('h2') or
-            card.find('a', href=re.compile(r'/jobs/', re.I)) or
-            card.find('a', class_='job-title')
+            card.find("h2", class_="css-m604qf")
+            or card.find("h2")
+            or card.find("a", href=re.compile(r"/jobs/", re.I))
+            or card.find("a", class_="job-title")
         )
         title = title_elem.get_text(strip=True) if title_elem else ""
-        title = re.sub(r'\s+', ' ', title).strip()
+        title = re.sub(r"\s+", " ", title).strip()
 
         # Company
         company_elem = (
-            card.find('a', class_='css-17s97q8') or
-            card.find('span', class_='company') or
-            card.find('div', class_='company')
+            card.find("a", class_="css-17s97q8")
+            or card.find("span", class_="company")
+            or card.find("div", class_="company")
         )
         company = company_elem.get_text(strip=True) if company_elem else ""
 
         # Location
         location_elem = (
-            card.find('span', class_='css-5wys0k') or
-            card.find('span', class_='location') or
-            card.find('div', class_='location')
+            card.find("span", class_="css-5wys0k")
+            or card.find("span", class_="location")
+            or card.find("div", class_="location")
         )
         location = location_elem.get_text(strip=True) if location_elem else ""
 
@@ -1484,10 +1681,10 @@ class GlobalJobScraper:
             return None
 
         job_url = ""
-        link = card.find('a', href=re.compile(r'/jobs/', re.I))
+        link = card.find("a", href=re.compile(r"/jobs/", re.I))
         if link:
-            href = link.get('href', '')
-            job_url = f"https://wuzzuf.net{href}" if href.startswith('/') else href
+            href = link.get("href", "")
+            job_url = f"https://wuzzuf.net{href}" if href.startswith("/") else href
 
         company_domain = _smart_domain(company)
         placeholder_email = f"careers@{company_domain}.com" if company else ""
@@ -1498,7 +1695,9 @@ class GlobalJobScraper:
             "company": company,
             "email": placeholder_email,
             "all_emails": [placeholder_email] if placeholder_email else [],
-            "location": f"{location.strip()}, {config['name']}" if location else config['name'],
+            "location": f"{location.strip()}, {config['name']}"
+            if location
+            else config["name"],
             "snippet": f"Wuzzuf: {title} at {company}",
             "source": f"wuzzuf_{country_key}",
             "url": job_url,
@@ -1508,7 +1707,9 @@ class GlobalJobScraper:
 
     # ── Source: Glassdoor ───────────────────────────────────────────────────
 
-    def _scrape_glassdoor(self, query: str, config: Dict, country_key: str) -> List[Dict]:
+    def _scrape_glassdoor(
+        self, query: str, config: Dict, country_key: str
+    ) -> List[Dict]:
         """
         Attempt Glassdoor scraping. Glassdoor aggressively blocks scrapers (403),
         so this is best-effort with fallback to cached/alternative data.
@@ -1522,9 +1723,12 @@ class GlobalJobScraper:
             encoded_q = quote_plus(query)
             url = f"https://www.glassdoor.com/Job/jobs.htm?sc.keyword={encoded_q}&locT=C&locId=0"
 
-            resp = self._make_get(url, extra_headers={
-                'Referer': 'https://www.glassdoor.com/',
-            })
+            resp = self._make_get(
+                url,
+                extra_headers={
+                    "Referer": "https://www.glassdoor.com/",
+                },
+            )
 
             if not resp:
                 return jobs
@@ -1536,12 +1740,12 @@ class GlobalJobScraper:
             if resp.status_code != 200:
                 return jobs
 
-            soup = BeautifulSoup(resp.text, 'html.parser')
+            soup = BeautifulSoup(resp.text, "html.parser")
             cards = (
-                soup.find_all('li', class_='react-job-listing') or
-                soup.select('div.jobListing') or
-                soup.find_all('div', class_='jobTitle') or
-                soup.find_all('a', class_='job-title')
+                soup.find_all("li", class_="react-job-listing")
+                or soup.select("div.jobListing")
+                or soup.find_all("div", class_="jobTitle")
+                or soup.find_all("a", class_="job-title")
             )
 
             for card in cards[:10]:
@@ -1554,27 +1758,29 @@ class GlobalJobScraper:
 
         return jobs
 
-    def _parse_glassdoor_card(self, card, config: Dict, country_key: str) -> Optional[Dict]:
+    def _parse_glassdoor_card(
+        self, card, config: Dict, country_key: str
+    ) -> Optional[Dict]:
         """Parse a Glassdoor job card."""
         title_elem = (
-            card.find('a', class_='job-title') or
-            card.find('h2') or
-            card.find('a', {'data-test': 'job-link'}) or
-            card.find('a', href=re.compile(r'/partner/jobListing', re.I))
+            card.find("a", class_="job-title")
+            or card.find("h2")
+            or card.find("a", {"data-test": "job-link"})
+            or card.find("a", href=re.compile(r"/partner/jobListing", re.I))
         )
         title = title_elem.get_text(strip=True) if title_elem else ""
 
         company_elem = (
-            card.find('span', class_='job-employer') or
-            card.find('span', class_='company-name') or
-            card.find('div', {'data-test': 'employer-name'})
+            card.find("span", class_="job-employer")
+            or card.find("span", class_="company-name")
+            or card.find("div", {"data-test": "employer-name"})
         )
         company = company_elem.get_text(strip=True) if company_elem else ""
 
         location_elem = (
-            card.find('span', class_='job-location') or
-            card.find('span', class_='location') or
-            card.find('div', {'data-test': 'location'})
+            card.find("span", class_="job-location")
+            or card.find("span", class_="location")
+            or card.find("div", {"data-test": "location"})
         )
         location = location_elem.get_text(strip=True) if location_elem else ""
 
@@ -1590,7 +1796,7 @@ class GlobalJobScraper:
             "company": company,
             "email": placeholder_email,
             "all_emails": [placeholder_email] if placeholder_email else [],
-            "location": f"{location}, {config['name']}" if location else config['name'],
+            "location": f"{location}, {config['name']}" if location else config["name"],
             "snippet": f"Glassdoor: {title} at {company}",
             "source": f"glassdoor_{country_key}",
             "url": "",
@@ -1600,7 +1806,9 @@ class GlobalJobScraper:
 
     # ── Source: Google Jobs (via Google Search) ─────────────────────────────
 
-    def _scrape_google_jobs(self, query: str, config: Dict, country_key: str) -> List[Dict]:
+    def _scrape_google_jobs(
+        self, query: str, config: Dict, country_key: str
+    ) -> List[Dict]:
         """
         Google Jobs via organic search. Google Jobs results appear in a special
         widget, but we can also find traditional job board results.
@@ -1618,31 +1826,48 @@ class GlobalJobScraper:
                 "kuwait": "site:linkedin.com OR site:indeed.com.kw OR site:bayt.com OR site:naukrigulf.com",
                 "remote": "site:linkedin.com OR site:indeed.com OR site:remoteok.com OR site:weworkremotely.com OR site:jobspresso.co",
             }
-            site_filter = site_filters.get(country_key, "site:linkedin.com OR site:indeed.com")
+            site_filter = site_filters.get(
+                country_key, "site:linkedin.com OR site:indeed.com"
+            )
 
             search_q = f"{query} {city} {site_filter}"
             url = f"https://www.google.com/search?q={quote_plus(search_q)}&num=15&hl=en"
 
-            resp = self._make_get(url, extra_headers={
-                'Referer': 'https://www.google.com/',
-            })
+            resp = self._make_get(
+                url,
+                extra_headers={
+                    "Referer": "https://www.google.com/",
+                },
+            )
             if not resp or resp.status_code != 200:
                 return jobs
 
             # Extract job URLs from Google search results
             urls = re.findall(r'href="(https?://[^"]+)"', resp.text)
             job_board_domains = [
-                'linkedin.com/jobs', 'indeed.com', 'bayt.com', 'naukrigulf.com',
-                'gulftalent.com', 'wuzzuf.net', 'glassdoor.com', 'monster.com',
-                'remoteok.com', 'weworkremotely.com', 'jobspresso.co',
+                "linkedin.com/jobs",
+                "indeed.com",
+                "bayt.com",
+                "naukrigulf.com",
+                "gulftalent.com",
+                "wuzzuf.net",
+                "glassdoor.com",
+                "monster.com",
+                "remoteok.com",
+                "weworkremotely.com",
+                "jobspresso.co",
             ]
-            job_urls = [u for u in urls if any(d in u.lower() for d in job_board_domains)][:5]
+            job_urls = [
+                u for u in urls if any(d in u.lower() for d in job_board_domains)
+            ][:5]
 
             logger.debug(f"Google Jobs: found {len(job_urls)} URLs for {country_key}")
 
             for job_url in job_urls:
                 try:
-                    _rate_limit_domain(self._last_req, "google_jobs_fetch", self.rate_limit_delay)
+                    _rate_limit_domain(
+                        self._last_req, "google_jobs_fetch", self.rate_limit_delay
+                    )
                     job = self._fetch_job_page(job_url, config, country_key)
                     if job:
                         jobs.append(job)
@@ -1655,7 +1880,9 @@ class GlobalJobScraper:
 
         return jobs
 
-    def _fetch_job_page(self, url: str, config: Dict, country_key: str) -> Optional[Dict]:
+    def _fetch_job_page(
+        self, url: str, config: Dict, country_key: str
+    ) -> Optional[Dict]:
         """Fetch a job page and extract info."""
         try:
             resp = self._make_get(url)
@@ -1663,17 +1890,21 @@ class GlobalJobScraper:
                 return None
 
             emails = extract_emails(resp.text)
-            soup = BeautifulSoup(resp.text, 'html.parser')
+            soup = BeautifulSoup(resp.text, "html.parser")
 
             # Try to get title and company
-            title_elem = soup.find('h1')
-            title = title_elem.get_text(strip=True)[:200] if title_elem else "Unknown Position"
-            title = re.sub(r'\s+', ' ', title).strip()
+            title_elem = soup.find("h1")
+            title = (
+                title_elem.get_text(strip=True)[:200]
+                if title_elem
+                else "Unknown Position"
+            )
+            title = re.sub(r"\s+", " ", title).strip()
 
             # Extract domain as company name
             parsed = urlparse(url)
-            domain = parsed.netloc.replace('www.', '')
-            company = domain.split('.')[0].title()
+            domain = parsed.netloc.replace("www.", "")
+            company = domain.split(".")[0].title()
 
             company_domain = _smart_domain(company)
             placeholder = f"careers@{company_domain}.com"
@@ -1687,7 +1918,7 @@ class GlobalJobScraper:
                 "company": company,
                 "email": emails[0] if emails else placeholder,
                 "all_emails": emails,
-                "location": config['name'],
+                "location": config["name"],
                 "snippet": f"Discovered via Google: {title} at {company}",
                 "source": f"google_jobs_{country_key}",
                 "url": url,
@@ -1713,7 +1944,7 @@ class GlobalJobScraper:
             logger.debug("hh.ru: Module not available, skipping")
             return []
 
-        if not getattr(__import__('config', fromlist=['']), 'HHRU_ENABLED', True):
+        if not getattr(__import__("config", fromlist=[""]), "HHRU_ENABLED", True):
             logger.debug("hh.ru: Disabled in config")
             return []
 
@@ -1726,7 +1957,10 @@ class GlobalJobScraper:
         # Russian transliterations for network engineer roles
         ru_titles = {
             "network engineer": ["сетевой инженер", "инженер сети"],
-            "senior network engineer": ["старший сетевой инженер", "ведущий сетевой инженер"],
+            "senior network engineer": [
+                "старший сетевой инженер",
+                "ведущий сетевой инженер",
+            ],
             "network administrator": ["системный администратор", "администратор сети"],
             "network security engineer": ["инженер по сетевой безопасности"],
             "systems engineer": ["системный инженер"],
@@ -1749,28 +1983,34 @@ class GlobalJobScraper:
             #   salary_min, salary_max, salary_currency, posted_date, source, skills, ...
             adapted = []
             for job in jobs:
-                adapted.append({
-                    "job_id": job.get("job_id", ""),
-                    "title": job.get("title", ""),
-                    "company": job.get("company", ""),
-                    "email": job.get("email", ""),
-                    "all_emails": job.get("all_emails", []),
-                    "location": job.get("location", config["name"]),
-                    "snippet": job.get("snippet", ""),
-                    "source": f"hhru_{country_key}",
-                    "url": job.get("url", ""),
-                    "salary": job.get("salary_min"),  # Use min salary as main salary field
-                    "country": country_key,
-                    # Extended fields (for richer data downstream)
-                    "salary_min": job.get("salary_min"),
-                    "salary_max": job.get("salary_max"),
-                    "salary_currency": job.get("salary_currency"),
-                    "posted_date": job.get("posted_date"),
-                    "skills": job.get("skills", []),
-                    "description": job.get("description", ""),
-                })
+                adapted.append(
+                    {
+                        "job_id": job.get("job_id", ""),
+                        "title": job.get("title", ""),
+                        "company": job.get("company", ""),
+                        "email": job.get("email", ""),
+                        "all_emails": job.get("all_emails", []),
+                        "location": job.get("location", config["name"]),
+                        "snippet": job.get("snippet", ""),
+                        "source": f"hhru_{country_key}",
+                        "url": job.get("url", ""),
+                        "salary": job.get(
+                            "salary_min"
+                        ),  # Use min salary as main salary field
+                        "country": country_key,
+                        # Extended fields (for richer data downstream)
+                        "salary_min": job.get("salary_min"),
+                        "salary_max": job.get("salary_max"),
+                        "salary_currency": job.get("salary_currency"),
+                        "posted_date": job.get("posted_date"),
+                        "skills": job.get("skills", []),
+                        "description": job.get("description", ""),
+                    }
+                )
 
-            logger.info(f"hh.ru scraper: {len(adapted)} jobs for '{query}' in {config['name']}")
+            logger.info(
+                f"hh.ru scraper: {len(adapted)} jobs for '{query}' in {config['name']}"
+            )
             return adapted
 
         except Exception as e:
@@ -1779,11 +2019,17 @@ class GlobalJobScraper:
 
     # ── HTTP Helpers ────────────────────────────────────────────────────────
 
-    def _make_get(self, url: str, extra_headers: Dict = None, timeout: int = 15,
-                  max_retries: int = 3, fast: bool = False) -> Optional[httpx.Response]:
+    def _make_get(
+        self,
+        url: str,
+        extra_headers: Dict = None,
+        timeout: int = 15,
+        max_retries: int = 3,
+        fast: bool = False,
+    ) -> Optional[httpx.Response]:
         """
         Make a GET request with random user-agent, smart delay, and exponential backoff.
-        
+
         Features:
         - Random User-Agent from expanded pool
         - Random delay (fast mode: 0.5-2s, normal: 3-8s) to avoid rate limiting
@@ -1799,36 +2045,50 @@ class GlobalJobScraper:
             try:
                 headers = get_headers(extra_headers)
                 # Add random Accept-Language for each attempt
-                headers['Accept-Language'] = random.choice([
-                    'en-US,en;q=0.9',
-                    'en-GB,en;q=0.8,en-US;q=0.6',
-                    'en-US,en;q=0.5',
-                    'en-CA,en;q=0.9,fr-CA;q=0.5',
-                ])
-                
+                headers["Accept-Language"] = random.choice(
+                    [
+                        "en-US,en;q=0.9",
+                        "en-GB,en;q=0.8,en-US;q=0.6",
+                        "en-US,en;q=0.5",
+                        "en-CA,en;q=0.9,fr-CA;q=0.5",
+                    ]
+                )
+
                 if HAS_CFFI and self._cffi_session:
                     # Use curl_cffi for perfect TLS impersonation
                     try:
-                        cffi_resp = self._cffi_session.get(url, headers=headers, timeout=timeout)
+                        cffi_resp = self._cffi_session.get(
+                            url, headers=headers, timeout=timeout
+                        )
                         # Shim cffi response to look like httpx response
-                        resp = httpx.Response(status_code=cffi_resp.status_code, content=cffi_resp.content, request=httpx.Request("GET", url))
+                        resp = httpx.Response(
+                            status_code=cffi_resp.status_code,
+                            content=cffi_resp.content,
+                            request=httpx.Request("GET", url),
+                        )
                         resp.headers = httpx.Headers(cffi_resp.headers)
                     except Exception as ce:
-                        logger.warning(f"curl_cffi failed ({ce}), falling back to httpx")
+                        logger.warning(
+                            f"curl_cffi failed ({ce}), falling back to httpx"
+                        )
                         resp = self._session.get(url, headers=headers, timeout=timeout)
                 else:
                     resp = self._session.get(url, headers=headers, timeout=timeout)
 
                 if resp.status_code in (429, 503):
-                    retry_after = int(resp.headers.get('Retry-After', str(5 * attempt)))
+                    retry_after = int(resp.headers.get("Retry-After", str(5 * attempt)))
                     sleep_time = min(retry_after + random.uniform(1, 5), 30)
-                    logger.warning(f"Rate limited ({resp.status_code}) on {url[:60]}... "
-                                  f"attempt {attempt}/{max_retries}, waiting {sleep_time:.0f}s")
+                    logger.warning(
+                        f"Rate limited ({resp.status_code}) on {url[:60]}... "
+                        f"attempt {attempt}/{max_retries}, waiting {sleep_time:.0f}s"
+                    )
                     time.sleep(sleep_time)
                     continue
 
                 if resp.status_code == 403:
-                    logger.debug(f"403 Forbidden: {url[:80]}... (attempt {attempt}/{max_retries})")
+                    logger.debug(
+                        f"403 Forbidden: {url[:80]}... (attempt {attempt}/{max_retries})"
+                    )
                     if attempt < max_retries:
                         # Try again with different UA after longer pause
                         time.sleep(random.uniform(10, 20))
@@ -1847,24 +2107,30 @@ class GlobalJobScraper:
                 return resp
 
             except httpx.TimeoutException:
-                logger.debug(f"Timeout: {url[:80]}... (attempt {attempt}/{max_retries})")
+                logger.debug(
+                    f"Timeout: {url[:80]}... (attempt {attempt}/{max_retries})"
+                )
                 if attempt < max_retries:
                     time.sleep(random.uniform(3, 8) * attempt)
                     continue
                 return None
             except httpx.ConnectError:
-                logger.debug(f"Connection error: {url[:80]}... (attempt {attempt}/{max_retries})")
+                logger.debug(
+                    f"Connection error: {url[:80]}... (attempt {attempt}/{max_retries})"
+                )
                 if attempt < max_retries:
                     time.sleep(random.uniform(5, 15) * attempt)
                     continue
                 return None
             except Exception as e:
-                logger.debug(f"Request error for {url[:80]}...: {e} (attempt {attempt}/{max_retries})")
+                logger.debug(
+                    f"Request error for {url[:80]}...: {e} (attempt {attempt}/{max_retries})"
+                )
                 if attempt < max_retries:
                     time.sleep(random.uniform(2, 10))
                     continue
                 return None
-        
+
         return None
 
     # ── Summary ─────────────────────────────────────────────────────────────
@@ -1886,17 +2152,32 @@ class GlobalJobScraper:
 # (Per task example: "Network Solutions Inc" → strip "Inc" → "networksolutions")
 _COMPANY_SUFFIXES = [
     # Legal incorporation suffixes (NEVER part of a real domain)
-    r'\bLLC\b', r'\bInc\.?\b', r'\bLtd\.?\b', r'\bCorp\.?\b',
-    r'\bCorporation\b', r'\bIncorporated\b', r'\bLimited\b',
-    r'\bCompany\b', r'\bCo\.?\b',
+    r"\bLLC\b",
+    r"\bInc\.?\b",
+    r"\bLtd\.?\b",
+    r"\bCorp\.?\b",
+    r"\bCorporation\b",
+    r"\bIncorporated\b",
+    r"\bLimited\b",
+    r"\bCompany\b",
+    r"\bCo\.?\b",
     # Generic corporate groupings (rarely the core domain)
-    r'\bGroup\b', r'\bHoldings\b', r'\bPartners\b',
-    r'\bAssociates\b', r'\bEnterprises\b', r'\bVentures\b',
+    r"\bGroup\b",
+    r"\bHoldings\b",
+    r"\bPartners\b",
+    r"\bAssociates\b",
+    r"\bEnterprises\b",
+    r"\bVentures\b",
     # Middle East specific
-    r'\bS\.?A\.?L\.?\b', r'\bS\.?A\.?R\.?L\.?\b',
-    r'\bS\.?A\.?S\.?\b', r'\bS\.?A\.?\b', r'\bGmbH\b', r'\bBV\b',
-    r'\bPty\.?\s*Ltd\.?\b',
+    r"\bS\.?A\.?L\.?\b",
+    r"\bS\.?A\.?R\.?L\.?\b",
+    r"\bS\.?A\.?S\.?\b",
+    r"\bS\.?A\.?\b",
+    r"\bGmbH\b",
+    r"\bBV\b",
+    r"\bPty\.?\s*Ltd\.?\b",
 ]
+
 
 def _clean_company_for_domain(company: str) -> str:
     """Strip legal/business suffixes then remove special chars/spaces for domain generation.
@@ -1910,13 +2191,13 @@ def _clean_company_for_domain(company: str) -> str:
     name = company.strip()
     # Strip ONLY legal suffixes (not descriptive words like "Solutions", "Network")
     for suffix_pat in _COMPANY_SUFFIXES:
-        name = re.sub(suffix_pat, '', name, flags=re.IGNORECASE)
+        name = re.sub(suffix_pat, "", name, flags=re.IGNORECASE)
     # Remove special chars except alphanumeric and spaces
-    name = re.sub(r'[^\w\s]', '', name)
+    name = re.sub(r"[^\w\s]", "", name)
     # Collapse whitespace, lowercase, remove spaces
-    name = re.sub(r'\s+', '', name.strip().lower())
+    name = re.sub(r"\s+", "", name.strip().lower())
     # Remove any remaining non-alphanumeric
-    name = re.sub(r'[^a-z0-9]', '', name)
+    name = re.sub(r"[^a-z0-9]", "", name)
     return name
 
 
@@ -1930,8 +2211,8 @@ def _validate_domain_http(domain: str, timeout: float = 3.0) -> bool:
         return False
     try:
         url = f"https://{domain}"
-        req = urllib.request.Request(url, method='HEAD')
-        req.add_header('User-Agent', 'Mozilla/5.0 (compatible; JobHuntPro/1.0)')
+        req = urllib.request.Request(url, method="HEAD")
+        req.add_header("User-Agent", "Mozilla/5.0 (compatible; JobHuntPro/1.0)")
         resp = urllib.request.urlopen(req, timeout=timeout)
         # 2xx or 3xx = domain exists
         return resp.status < 400
@@ -1976,4 +2257,3 @@ if __name__ == "__main__":
     scraper.close()
 
     print("\n✓ GlobalJobScraper test complete")
-

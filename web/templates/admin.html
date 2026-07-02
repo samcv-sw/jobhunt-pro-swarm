@@ -48,7 +48,6 @@
  .copy-btn:hover { background:rgba(139,92,246,.4); }
  .c-btc { color:#f7931a; } .c-eth { color:#627eea; } .c-usdt { color:#26a17b; } .c-ltc { color:#345d9d; }
  </style>
-
 <style>
  * { margin:0; padding:0; box-sizing:border-box; }
  body { font-family: 'Cairo', 'Segoe UI',sans-serif; background:#0a0a0f; color:#e2e8f0; min-height:100vh; }
@@ -99,388 +98,372 @@
  .copy-btn:hover { background:rgba(139,92,246,.4); }
  .c-btc { color:#f7931a; } .c-eth { color:#627eea; } .c-usdt { color:#26a17b; } .c-ltc { color:#345d9d; }
  </style>
-
 <div class="container">
 
  {% if request.query_params.get('success') %}
- <div class="alert success">&#x2705; {{ request.query_params.get('success') }}</div>
+ <div class="alert success">✅ {{ request.query_params.get('success') }}</div>
  {% endif %}
  {% if request.query_params.get('error') %}
- <div class="alert error">&#x274C; {{ request.query_params.get('error') }}</div>
+ <div class="alert error">❌ {{ request.query_params.get('error') }}</div>
  {% endif %}
 
  <!-- Stats -->
- <div class="stats">
- <div class="stat"><div class="val blue">{{ stats.total_users }}</div><div class="lbl">المستخدمين</div></div>
- <div class="stat"><div class="val green">{{ stats.total_campaigns }}</div><div class="lbl">الحملات</div></div>
- <div class="stat"><div class="val purple">{{ stats.total_emails }}</div><div class="lbl">الرسائل</div></div>
- <div class="stat"><div class="val cyan">{{ stats.emails_sent }}</div><div class="lbl">المرسلة</div></div>
- <div class="stat"><div class="val orange">${{ stats.total_revenue }}</div><div class="lbl">الأرباح</div></div>
- <div class="stat"><div class="val pink">${{ stats.total_wallets }}</div><div class="lbl">المحافظ</div></div>
- <div class="stat"><div class="val" style="color:#fbbf24;">{{ payment_stats.total_payments }}</div><div class="lbl">مدفوعات الكريبتو</div></div>
- <div class="stat"><div class="val" style="color:#fbbf24;">${{ "%.2f"|format(payment_stats.total_received_usd) }}</div><div class="lbl">الكريبتو المستلم</div></div>
- <div class="stat"><div class="val" style="color:#34d399;">{{ stats.manual_emails }}</div><div class="lbl">رسائل يدوية</div></div>
- <div class="stat"><div class="val" style="color:#34d399;">${{ "%.2f"|format(stats.manual_email_revenue) }}</div><div class="lbl">الأرباح اليدوية</div></div>
- </div>
-
- <!-- Payment Stats (by currency) -->
+<div class="stats">
+<div class="stat"><div class="val blue">{{ stats.total_users }}</div><div class="lbl">المستخدمين</div></div>
+<div class="stat"><div class="val green">{{ stats.total_campaigns }}</div><div class="lbl">الحملات</div></div>
+<div class="stat"><div class="val purple">{{ stats.total_emails }}</div><div class="lbl">الرسائل</div></div>
+<div class="stat"><div class="val cyan">{{ stats.emails_sent }}</div><div class="lbl">المرسلة</div></div>
+<div class="stat"><div class="val orange">${{ stats.total_revenue }}</div><div class="lbl">الأرباح</div></div>
+<div class="stat"><div class="val pink">${{ stats.total_wallets }}</div><div class="lbl">المحافظ</div></div>
+<div class="stat"><div class="val" style="color:#fbbf24;">{{ payment_stats.total_payments }}</div><div class="lbl">مدفوعات الكريبتو</div></div>
+<div class="stat"><div class="val" style="color:#fbbf24;">${{ "%.2f"|format(payment_stats.total_received_usd) }}</div><div class="lbl">الكريبتو المستلم</div></div>
+<div class="stat"><div class="val" style="color:#34d399;">{{ stats.manual_emails }}</div><div class="lbl">رسائل يدوية</div></div>
+<div class="stat"><div class="val" style="color:#34d399;">${{ "%.2f"|format(stats.manual_email_revenue) }}</div><div class="lbl">الأرباح اليدوية</div></div>
+</div>
+<!-- Payment Stats (by currency) -->
  {% if payment_stats.by_currency %}
  <div class="stats" style="margin-top:-16px;">
  {% for cur, amt in payment_stats.by_currency.items() %}
  <div class="stat">
- <div class="val c-{{ cur.lower() }}" style="font-size:24px;">{{ cur }}</div>
- <div class="val" style="font-size:18px;">${{ "%.2f"|format(amt) }}</div>
- <div class="lbl">مستلم</div>
- </div>
+<div class="val c-{{ cur.lower() }}" style="font-size:24px;">{{ cur }}</div>
+<div class="val" style="font-size:18px;">${{ "%.2f"|format(amt) }}</div>
+<div class="lbl">مستلم</div>
+</div>
  {% endfor %}
  </div>
  {% endif %}
 
  <!-- Actions -->
- <div class="section">
- <div class="section-title">&#x1F6E0;&#xFE0F; إجراءات الإدارة</div>
- <div class="actions">
-
- <div class="action-card">
- <h3> إضافة رصيد للمستخدم</h3>
- <p>إضافة رصيد يدوياً لأي مستخدم</p>
- <form method="POST" action="/admin/add-credits">
- <div class="form-row">
- <input dir="auto" type="email" name="target_email" placeholder="user@email.com" required>
- </div>
- <div class="form-row">
- <input dir="auto" type="number" name="amount" placeholder="المبلغ $" step="0.01" min="0.01" required>
- <input dir="auto" type="text" name="note" value="رصيد إداري">
- </div>
- <button type="submit" class="btn btn-green">إضافة رصيد</button>
- </form>
- </div>
-
- <div class="action-card">
- <h3>&#x1F39F;&#xFE0F; إنشاء أكواد شحن</h3>
- <p>تظهر الأكواد في الجدول أدناه — انقر للنسخ والمشاركة مع المستخدمين</p>
- <form method="POST" action="/admin/generate-code">
- <div class="form-row">
- <input dir="auto" type="number" name="value" placeholder="القيمة $" step="0.01" min="0.01" required>
- <input dir="auto" type="number" name="count" placeholder="العدد" min="1" max="50" value="1">
- <select name="code_type" style="padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;">
- <option value="sale"> بيع (يُحسب كإيرادات)</option>
- <option value="admin_free">🆓 مجاني للإدارة (بدون إيرادات)</option>
- </select>
- </div>
- <button type="submit" class="btn btn-purple">إنشاء أكواد</button>
- </form>
- </div>
-
- <div class="action-card" style="border-color:#10b981;">
- <h3>🆓 رصيد مجاني للإدارة</h3>
- <p>أضف رصيدًا مجانيًا إلى محفظتك الخاصة (لا يُحسب ضمن الإيرادات)</p>
- <form method="POST" action="/admin/generate-code">
- <div class="form-row">
- <input dir="auto" type="number" name="value" placeholder="القيمة $" step="0.01" min="0.01" value="100" required>
- <input dir="auto" type="hidden" name="count" value="1">
- <input dir="auto" type="hidden" name="code_type" value="admin_free">
- </div>
- <button type="submit" class="btn btn-green" style="background:#059669;">🆓 إنشاء كود مجاني للإدارة</button>
- </form>
- <p style="color:#94a3b8;font-size:13px;margin-top:8px;">
- <i>استخدم في /wallet &#x2192; استرداد الكود. لن يظهر هذا الرصيد في تقارير الأرباح/المبيعات.</i>
- </p>
- </div>
-
- <div class="action-card">
- <h3> حملة مجانية</h3>
- <p>إنشاء حملة لمستخدم دون خصم من محفظته</p>
- <form method="POST" action="/admin/free-campaign">
- <div class="form-row">
- <input dir="auto" type="email" name="target_email" placeholder="user@email.com" required>
- <input dir="auto" type="number" name="company_count" value="100" min="5">
- </div>
- <button type="submit" class="btn btn-blue">منح حملة مجانية</button>
- </form>
- </div>
-
- <div class="action-card">
- <h3> إرسال رسالة يدوية <span class="badge badge-green" style="font-size:11px;">0.10$/رسالة</span></h3>
- <p>اكتب أي عنوان بريد إلكتروني، موضوع، ومحتوى — للإرسال يدويًا عبر Brevo</p>
- <form method="POST" action="/admin/send-manual-email">
- <div class="form-row">
- <input dir="auto" type="email" name="to_email" placeholder="recipient@email.com" required>
- <input dir="auto" type="text" name="subject" placeholder="موضوع الرسالة" required>
- </div>
- <div class="form-row">
- <textarea dir="auto" name="body" placeholder="محتوى الرسالة (HTML أو نص عادي)..." required
- style="flex:1;min-width:200px;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;font-family: 'Cairo', inherit;min-height:80px;resize:vertical;"></textarea>
- </div>
- <button type="submit" class="btn btn-green" style="background:#059669;">&#x2709;&#xFE0F; إرسال رسالة (0.10$)</button>
- </form>
- </div>
-
- <!-- إدارة مبيعات الفلاش -->
- <div class="action-card" style="border-color:#ef4444;">
- <h3> إدارة مبيعات الفلاش</h3>
- <p>إنشاء خصومات لفترة محدودة لزيادة المبيعات (تظهر كمؤقتات عد تنازلي للمستخدمين)</p>
- <form method="POST" action="/admin/create-flash-sale">
- <div class="form-row">
- <input dir="auto" type="text" name="title" placeholder="عنوان التخفيض (مثل: عرض نهاية الأسبوع)" value="تخفيض فلاش" required>
- <input dir="auto" type="number" name="discount_percent" placeholder="نسبة الخصم %" value="25" min="1" max="99" required>
- <input dir="auto" type="number" name="duration_hours" placeholder="ساعات" value="24" min="1" max="168" required>
- </div>
- <button type="submit" class="btn" style="background:#dc2626;"> بدء التخفيض</button>
- </form>
- </div>
-
- </div>
- </div>
-
- <!-- Flash Sales Table -->
+<div class="section">
+<div class="section-title">🛠️ إجراءات الإدارة</div>
+<div class="actions">
+<div class="action-card">
+<h3> إضافة رصيد للمستخدم</h3>
+<p>إضافة رصيد يدوياً لأي مستخدم</p>
+<form action="/admin/add-credits" method="POST">
+<div class="form-row">
+<input dir="auto" name="target_email" placeholder="user@email.com" required="" type="email"/>
+</div>
+<div class="form-row">
+<input dir="auto" min="0.01" name="amount" placeholder="المبلغ $" required="" step="0.01" type="number"/>
+<input dir="auto" name="note" type="text" value="رصيد إداري"/>
+</div>
+<button class="btn btn-green" type="submit">إضافة رصيد</button>
+</form>
+</div>
+<div class="action-card">
+<h3>🎟️ إنشاء أكواد شحن</h3>
+<p>تظهر الأكواد في الجدول أدناه — انقر للنسخ والمشاركة مع المستخدمين</p>
+<form action="/admin/generate-code" method="POST">
+<div class="form-row">
+<input dir="auto" min="0.01" name="value" placeholder="القيمة $" required="" step="0.01" type="number"/>
+<input dir="auto" max="50" min="1" name="count" placeholder="العدد" type="number" value="1"/>
+<select name="code_type" style="padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;">
+<option value="sale"> بيع (يُحسب كإيرادات)</option>
+<option value="admin_free">🆓 مجاني للإدارة (بدون إيرادات)</option>
+</select>
+</div>
+<button class="btn btn-purple" type="submit">إنشاء أكواد</button>
+</form>
+</div>
+<div class="action-card" style="border-color:#10b981;">
+<h3>🆓 رصيد مجاني للإدارة</h3>
+<p>أضف رصيدًا مجانيًا إلى محفظتك الخاصة (لا يُحسب ضمن الإيرادات)</p>
+<form action="/admin/generate-code" method="POST">
+<div class="form-row">
+<input dir="auto" min="0.01" name="value" placeholder="القيمة $" required="" step="0.01" type="number" value="100"/>
+<input dir="auto" name="count" type="hidden" value="1"/>
+<input dir="auto" name="code_type" type="hidden" value="admin_free"/>
+</div>
+<button class="btn btn-green" style="background:#059669;" type="submit">🆓 إنشاء كود مجاني للإدارة</button>
+</form>
+<p style="color:#94a3b8;font-size:13px;margin-top:8px;">
+<i>{{ _('استخدم في /wallet → استرداد الكود. لن يظهر هذا الرصيد في تقارير الأرباح/المبيعات.') }}</i>
+</p>
+</div>
+<div class="action-card">
+<h3> حملة مجانية</h3>
+<p>إنشاء حملة لمستخدم دون خصم من محفظته</p>
+<form action="/admin/free-campaign" method="POST">
+<div class="form-row">
+<input dir="auto" name="target_email" placeholder="user@email.com" required="" type="email"/>
+<input dir="auto" min="5" name="company_count" type="number" value="100"/>
+</div>
+<button class="btn btn-blue" type="submit">منح حملة مجانية</button>
+</form>
+</div>
+<div class="action-card">
+<h3> إرسال رسالة يدوية <span class="badge badge-green" style="font-size:11px;">0.10$/رسالة</span></h3>
+<p>{{ _('اكتب أي عنوان بريد إلكتروني، موضوع، ومحتوى — للإرسال يدويًا عبر Brevo') }}</p>
+<form action="/admin/send-manual-email" method="POST">
+<div class="form-row">
+<input dir="auto" name="to_email" placeholder="recipient@email.com" required="" type="email"/>
+<input dir="auto" name="subject" placeholder="موضوع الرسالة" required="" type="text"/>
+</div>
+<div class="form-row">
+<textarea dir="auto" name="body" placeholder="محتوى الرسالة (HTML أو نص عادي)..." required="" style="flex:1;min-width:200px;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;font-family: 'Cairo', inherit;min-height:80px;resize:vertical;"></textarea>
+</div>
+<button class="btn btn-green" style="background:#059669;" type="submit">✉️ إرسال رسالة (0.10$)</button>
+</form>
+</div>
+<!-- إدارة مبيعات الفلاش -->
+<div class="action-card" style="border-color:#ef4444;">
+<h3> إدارة مبيعات الفلاش</h3>
+<p>إنشاء خصومات لفترة محدودة لزيادة المبيعات (تظهر كمؤقتات عد تنازلي للمستخدمين)</p>
+<form action="/admin/create-flash-sale" method="POST">
+<div class="form-row">
+<input dir="auto" name="title" placeholder="عنوان التخفيض (مثل: عرض نهاية الأسبوع)" required="" type="text" value="تخفيض فلاش"/>
+<input dir="auto" max="99" min="1" name="discount_percent" placeholder="نسبة الخصم %" required="" type="number" value="25"/>
+<input dir="auto" max="168" min="1" name="duration_hours" placeholder="ساعات" required="" type="number" value="24"/>
+</div>
+<button class="btn" style="background:#dc2626;" type="submit"> بدء التخفيض</button>
+</form>
+</div>
+</div>
+</div>
+<!-- Flash Sales Table -->
  {% if flash_sales %}
  <div class="section">
- <div class="section-title"> مبيعات الفلاش ({{ flash_sales|length }})</div>
- <div class="table-wrap">
- <table class="cyber-table">
- <thead>
- <tr><th>المعرف</th><th>العنوان</th><th>الخصم</th><th>الحالة</th><th>ينتهي</th><th>إجراء</th></tr>
- </thead>
- <tbody>
+<div class="section-title"> مبيعات الفلاش ({{ flash_sales|length }})</div>
+<div class="table-wrap">
+<table class="cyber-table">
+<thead>
+<tr><th>المعرف</th><th>العنوان</th><th>الخصم</th><th>الحالة</th><th>ينتهي</th><th>إجراء</th></tr>
+</thead>
+<tbody>
  {% for s in flash_sales %}
  <tr>
- <td class="mono">{{ s.id }}</td>
- <td>{{ s.title }}</td>
- <td style="color:#ef4444;font-weight:700;">{{ "%.0f"|format(s.discount_percent) }}% خصم</td>
- <td>
+<td class="mono">{{ s.id }}</td>
+<td>{{ s.title }}</td>
+<td style="color:#ef4444;font-weight:700;">{{ "%.0f"|format(s.discount_percent) }}% خصم</td>
+<td>
  {% if s.active and s.end_time and s.end_time > now %}
- <span class="badge badge-green">&#x1F7E2; نشط</span>
+ <span class="badge badge-green">🟢 نشط</span>
  {% elif s.active %}
- <span class="badge badge-red">&#x1F534; منتهي</span>
+ <span class="badge badge-red">🔴 منتهي</span>
  {% else %}
- <span class="badge badge-gray">&#x26AB; انتهى</span>
+ <span class="badge badge-gray">⚫ انتهى</span>
  {% endif %}
  </td>
- <td class="mono" style="color:#64748b;">{{ (s.end_time or '')[:16] }}</td>
- <td>
+<td class="mono" style="color:#64748b;">{{ (s.end_time or '')[:16] }}</td>
+<td>
  {% if s.active %}
- <form method="POST" action="/admin/end-flash-sale" style="display:inline;">
- <input dir="auto" type="hidden" name="sale_id" value="{{ s.id }}">
- <button type="submit" class="btn btn-red" style="padding:4px 10px;font-size:11px;">إنهاء</button>
- </form>
+ <form action="/admin/end-flash-sale" method="POST" style="display:inline;">
+<input dir="auto" name="sale_id" type="hidden" value="{{ s.id }}"/>
+<button class="btn btn-red" style="padding:4px 10px;font-size:11px;" type="submit">إنهاء</button>
+</form>
  {% endif %}
  </td>
- </tr>
+</tr>
  {% endfor %}
  </tbody>
- </table>
- </div>
- </div>
+</table>
+</div>
+</div>
  {% endif %}
 
  <!-- أكواد الاسترداد (shown first so newly generated codes are visible) -->
- <div class="section">
- <div class="section-title">&#x1F39F;&#xFE0F; أكواد الاسترداد ({{ redeem_codes|length }})</div>
- <div class="table-wrap">
- <table class="cyber-table">
- <thead>
- <tr><th>الكود</th><th>القيمة</th><th>النوع</th><th>الحالة</th><th>استخدم بواسطة</th><th>تاريخ الإنشاء</th></tr>
- </thead>
- <tbody>
+<div class="section">
+<div class="section-title">🎟️ أكواد الاسترداد ({{ redeem_codes|length }})</div>
+<div class="table-wrap">
+<table class="cyber-table">
+<thead>
+<tr><th>الكود</th><th>القيمة</th><th>النوع</th><th>الحالة</th><th>استخدم بواسطة</th><th>تاريخ الإنشاء</th></tr>
+</thead>
+<tbody>
  {% for r in redeem_codes %}
  <tr>
- <td class="mono" style="color:#a78bfa;">
+<td class="mono" style="color:#a78bfa;">
  {{ r.code }}
  {% if not r.is_used %}
  <button class="copy-btn" onclick="copyCode('{{ r.code }}', this)"> نسخ</button>
  {% endif %}
  </td>
- <td class="green">${{ "%.2f"|format(r.value_usd or 0) }}</td>
- <td>
+<td class="green">${{ "%.2f"|format(r.value_usd or 0) }}</td>
+<td>
  {% if r.code_type == 'admin_free' %}
  <span class="badge" style="background:#059669;color:#fff;">🆓 مجاني</span>
  {% else %}
  <span class="badge badge-blue"> بيع</span>
  {% endif %}
  </td>
- <td>
+<td>
  {% if r.is_used %}
  <span class="badge badge-gray">مُستخدم</span>
  {% else %}
  <span class="badge badge-green">متاح</span>
  {% endif %}
  </td>
- <td style="color:#64748b;">{{ r.used_by or '—' }}</td>
- <td class="mono" style="color:#64748b;">{{ (r.created_at or '')[:16] }}</td>
- </tr>
+<td style="color:#64748b;">{{ r.used_by or '—' }}</td>
+<td class="mono" style="color:#64748b;">{{ (r.created_at or '')[:16] }}</td>
+</tr>
  {% endfor %}
  {% if not redeem_codes %}
  <tr><td colspan="6" style="text-align:center;padding:20px;color:#64748b;">لا توجد أكواد بعد. قم بإنشاء البعض أعلاه.</td></tr>
  {% endif %}
  </tbody>
- </table>
- </div>
- </div>
-
- <!-- Users -->
- <div class="section">
- <div class="section-title">&#x1F465; المستخدمون ({{ users|length }})</div>
- <div class="table-wrap">
- <table class="cyber-table">
- <thead>
- <tr><th>البريد الإلكتروني</th><th>الاسم</th><th>النوع</th><th>الرصيد</th><th>المنفق</th><th>الحالة</th><th>انضم في</th><th>إجراءات</th></tr>
- </thead>
- <tbody>
+</table>
+</div>
+</div>
+<!-- Users -->
+<div class="section">
+<div class="section-title">👥 المستخدمون ({{ users|length }})</div>
+<div class="table-wrap">
+<table class="cyber-table">
+<thead>
+<tr><th>البريد الإلكتروني</th><th>الاسم</th><th>النوع</th><th>الرصيد</th><th>المنفق</th><th>الحالة</th><th>انضم في</th><th>إجراءات</th></tr>
+</thead>
+<tbody>
  {% for u in users %}
  <tr>
- <td><a href="/admin/user/{{ u.user_id }}" class="link">{{ u.email }}</a></td>
- <td>{{ u.name or '—' }}</td>
- <td><span class="badge badge-blue">{{ u.user_type }}</span></td>
- <td class="green">${{ "%.2f"|format(u.wallet_balance or 0) }}</td>
- <td>${{ "%.2f"|format(u.total_spent or 0) }}</td>
- <td>
+<td><a class="link" href="/admin/user/{{ u.user_id }}">{{ u.email }}</a></td>
+<td>{{ u.name or '—' }}</td>
+<td><span class="badge badge-blue">{{ u.user_type }}</span></td>
+<td class="green">${{ "%.2f"|format(u.wallet_balance or 0) }}</td>
+<td>${{ "%.2f"|format(u.total_spent or 0) }}</td>
+<td>
  {% if u.is_active %}<span class="badge badge-green">نشط</span>
  {% else %}<span class="badge badge-red">معطل</span>{% endif %}
  </td>
- <td class="mono">{{ (u.created_at or '')[:10] }}</td>
- <td>
- <form method="POST" action="/admin/toggle-user" style="display:inline;">
- <input dir="auto" type="hidden" name="target_user_id" value="{{ u.user_id }}">
- <button type="submit" class="btn {% if u.is_active %}btn-red{% else %}btn-green{% endif %}" style="padding:4px 10px;font-size:11px;">
+<td class="mono">{{ (u.created_at or '')[:10] }}</td>
+<td>
+<form action="/admin/toggle-user" method="POST" style="display:inline;">
+<input dir="auto" name="target_user_id" type="hidden" value="{{ u.user_id }}"/>
+<button class="btn {% if u.is_active %}btn-red{% else %}btn-green{% endif %}" style="padding:4px 10px;font-size:11px;" type="submit">
  {% if u.is_active %}تعطيل{% else %}تفعيل{% endif %}
  </button>
- </form>
- </td>
- </tr>
+</form>
+</td>
+</tr>
  {% endfor %}
  </tbody>
- </table>
- </div>
- </div>
-
- <!-- Campaigns -->
- <div class="section">
- <div class="section-title"> الحملات الأخيرة ({{ campaigns|length }})</div>
- <div class="table-wrap">
- <table class="cyber-table">
- <thead>
- <tr><th>المعرف</th><th>المستخدم</th><th>الحالة</th><th>الشركات</th><th>المرسلة</th><th>التاريخ</th></tr>
- </thead>
- <tbody>
+</table>
+</div>
+</div>
+<!-- Campaigns -->
+<div class="section">
+<div class="section-title"> الحملات الأخيرة ({{ campaigns|length }})</div>
+<div class="table-wrap">
+<table class="cyber-table">
+<thead>
+<tr><th>المعرف</th><th>المستخدم</th><th>الحالة</th><th>الشركات</th><th>المرسلة</th><th>التاريخ</th></tr>
+</thead>
+<tbody>
  {% for c in campaigns %}
  <tr>
- <td class="mono">{{ c.campaign_id[:20] }}...</td>
- <td>{{ c.email or c.user_id[:12] }}</td>
- <td>
- <span class="badge {% if c.status=='completed' %}badge-green{% elif c.status=='running' %}badge-blue{% elif c.status=='failed' %}badge-red{% else %}badge-orange{% endif %}">
+<td class="mono">{{ c.campaign_id[:20] }}...</td>
+<td>{{ c.email or c.user_id[:12] }}</td>
+<td>
+<span class="badge {% if c.status=='completed' %}badge-green{% elif c.status=='running' %}badge-blue{% elif c.status=='failed' %}badge-red{% else %}badge-orange{% endif %}">
  {{ c.status }}
  </span>
- </td>
- <td>{{ c.total_companies }}</td>
- <td>{{ c.sent_count }}</td>
- <td class="mono">{{ (c.created_at or '')[:16] }}</td>
- </tr>
+</td>
+<td>{{ c.total_companies }}</td>
+<td>{{ c.sent_count }}</td>
+<td class="mono">{{ (c.created_at or '')[:16] }}</td>
+</tr>
  {% endfor %}
  {% if not campaigns %}
  <tr><td colspan="6" style="text-align:center;padding:20px;color:#64748b;">لا توجد حملات بعد.</td></tr>
  {% endif %}
  </tbody>
- </table>
- </div>
- </div>
-
- <!-- Manual Emails -->
+</table>
+</div>
+</div>
+<!-- Manual Emails -->
  {% if manual_emails %}
  <div class="section">
- <div class="section-title"> الرسائل اليدوية الأخيرة ({{ manual_emails|length }})</div>
- <div class="table-wrap">
- <table class="cyber-table">
- <thead>
- <tr><th>إلى</th><th>الموضوع</th><th>السعر</th><th>الحالة</th><th>التاريخ</th></tr>
- </thead>
- <tbody>
+<div class="section-title"> الرسائل اليدوية الأخيرة ({{ manual_emails|length }})</div>
+<div class="table-wrap">
+<table class="cyber-table">
+<thead>
+<tr><th>إلى</th><th>الموضوع</th><th>السعر</th><th>الحالة</th><th>التاريخ</th></tr>
+</thead>
+<tbody>
  {% for m in manual_emails %}
  <tr>
- <td>{{ m.to_email }}</td>
- <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ m.subject }}">{{ m.subject[:40] }}{% if m.subject|length > 40 %}...{% endif %}</td>
- <td class="green">${{ "%.2f"|format(m.price_usd) }}</td>
- <td>
+<td>{{ m.to_email }}</td>
+<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ m.subject }}">{{ m.subject[:40] }}{% if m.subject|length > 40 %}...{% endif %}</td>
+<td class="green">${{ "%.2f"|format(m.price_usd) }}</td>
+<td>
  {% if m.status=='sent' %}
  <span class="badge badge-green">المرسلة</span>
  {% else %}
  <span class="badge badge-red">فشل</span>
  {% endif %}
  </td>
- <td class="mono">{{ (m.created_at or '')[:16] }}</td>
- </tr>
+<td class="mono">{{ (m.created_at or '')[:16] }}</td>
+</tr>
  {% endfor %}
  </tbody>
- </table>
- </div>
- </div>
+</table>
+</div>
+</div>
  {% endif %}
 
  <!-- مدفوعات الكريبتو الأخيرة -->
  {% if payment_stats.recent %}
  <div class="section">
- <div class="section-title">₿ مدفوعات الكريبتو الأخيرة</div>
- <div class="table-wrap">
- <table class="cyber-table">
- <thead>
- <tr><th>معرف الدفع</th><th>معرف الطلب</th><th>العملة</th><th>المبلغ</th><th>تجزئة التحويل</th><th>العميل</th><th>التاريخ</th></tr>
- </thead>
- <tbody>
+<div class="section-title">₿ مدفوعات الكريبتو الأخيرة</div>
+<div class="table-wrap">
+<table class="cyber-table">
+<thead>
+<tr><th>معرف الدفع</th><th>معرف الطلب</th><th>العملة</th><th>المبلغ</th><th>تجزئة التحويل</th><th>العميل</th><th>التاريخ</th></tr>
+</thead>
+<tbody>
  {% for p in payment_stats.recent %}
  <tr>
- <td class="mono" style="color:#a78bfa;">{{ p.payment_id }}</td>
- <td class="mono">{{ p.order_id[:20] }}...</td>
- <td><span class="badge badge-blue">{{ p.currency }}</span></td>
- <td class="green">${{ "%.2f"|format(p.amount_usd) }}</td>
- <td class="mono" style="color:#64748b;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ p.tx_hash }}">{{ p.tx_hash[:16] }}...</td>
- <td style="color:#64748b;">{{ p.customer_email or '—' }}</td>
- <td class="mono">{{ (p.timestamp or '')[:16] }}</td>
- </tr>
+<td class="mono" style="color:#a78bfa;">{{ p.payment_id }}</td>
+<td class="mono">{{ p.order_id[:20] }}...</td>
+<td><span class="badge badge-blue">{{ p.currency }}</span></td>
+<td class="green">${{ "%.2f"|format(p.amount_usd) }}</td>
+<td class="mono" style="color:#64748b;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ p.tx_hash }}">{{ p.tx_hash[:16] }}...</td>
+<td style="color:#64748b;">{{ p.customer_email or '—' }}</td>
+<td class="mono">{{ (p.timestamp or '')[:16] }}</td>
+</tr>
  {% endfor %}
  </tbody>
- </table>
- </div>
- </div>
+</table>
+</div>
+</div>
  {% endif %}
 
  <!-- Orders -->
- <div class="section">
- <div class="section-title"> الطلبات الأخيرة ({{ orders|length }})</div>
- <div class="table-wrap">
- <table class="cyber-table">
- <thead>
- <tr><th>معرف الطلب</th><th>المستخدم</th><th>النوع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr>
- </thead>
- <tbody>
+<div class="section">
+<div class="section-title"> الطلبات الأخيرة ({{ orders|length }})</div>
+<div class="table-wrap">
+<table class="cyber-table">
+<thead>
+<tr><th>معرف الطلب</th><th>المستخدم</th><th>النوع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr>
+</thead>
+<tbody>
  {% for o in orders %}
  <tr>
- <td class="mono">{{ o.order_id[:20] }}...</td>
- <td>{{ o.email or o.user_id[:12] }}</td>
- <td>{{ o.order_type }}</td>
- <td class="green">${{ "%.2f"|format(o.amount_usd or 0) }}</td>
- <td>
- <span class="badge {% if o.payment_status=='completed' %}badge-green{% elif o.payment_status=='pending' %}badge-orange{% else %}badge-red{% endif %}">
+<td class="mono">{{ o.order_id[:20] }}...</td>
+<td>{{ o.email or o.user_id[:12] }}</td>
+<td>{{ o.order_type }}</td>
+<td class="green">${{ "%.2f"|format(o.amount_usd or 0) }}</td>
+<td>
+<span class="badge {% if o.payment_status=='completed' %}badge-green{% elif o.payment_status=='pending' %}badge-orange{% else %}badge-red{% endif %}">
  {{ o.payment_status }}
  </span>
- </td>
- <td class="mono">{{ (o.created_at or '')[:16] }}</td>
- </tr>
+</td>
+<td class="mono">{{ (o.created_at or '')[:16] }}</td>
+</tr>
  {% endfor %}
  {% if not orders %}
  <tr><td colspan="6" style="text-align:center;padding:20px;color:#64748b;">لا توجد طلبات بعد.</td></tr>
  {% endif %}
  </tbody>
- </table>
- </div>
- </div>
-
+</table>
 </div>
-
+</div>
+</div>
 <script>
 function copyCode(code, btn) {
  navigator.clipboard.writeText(code).then(() => {
  const orig = btn.innerHTML;
- btn.innerHTML = '&#x2705; تم النسخ!';
+ btn.innerHTML = '✅ تم النسخ!';
  btn.style.background = 'rgba(34,197,94,.3)';
  btn.style.color = '#22c55e';
  setTimeout(() => {
@@ -495,7 +478,7 @@ function copyCode(code, btn) {
  ta.select();
  document.execCommand('copy');
  document.body.removeChild(ta);
- btn.innerHTML = '&#x2705; تم النسخ!';
+ btn.innerHTML = '✅ تم النسخ!';
  setTimeout(() => { btn.innerHTML = ' نسخ'; }, 2000);
  });
 }

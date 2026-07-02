@@ -9,10 +9,11 @@ Monitors DB changes and pushes intelligent alerts:
 - Application milestones (10, 50, 100 apps, first interview, first offer)
 - Rate limit / quota warnings
 """
+
 import asyncio
 import time
 import os
-import sys
+
 if not os.getenv("FORCE_SQLITE"):
     try:
         from core import pg_sqlite_shim as sqlite3
@@ -22,7 +23,7 @@ else:
     import sqlite3
 import threading
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Callable, Set
+from typing import Callable, Set
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,18 +31,18 @@ logger = logging.getLogger(__name__)
 
 # ── Milestone thresholds ──────────────────────────────────────────
 MILESTONES = {
-    10:  {"emoji": "🔥", "label": "Double digits!"},
-    50:  {"emoji": "💯", "label": "Half century!"},
+    10: {"emoji": "🔥", "label": "Double digits!"},
+    50: {"emoji": "💯", "label": "Half century!"},
     100: {"emoji": "🏆", "label": "CENTURY!"},
     200: {"emoji": "🚀", "label": "200 — MACHINE!"},
     500: {"emoji": "👑", "label": "500 — LEGENDARY!"},
-    1000:{"emoji": "🌟", "label": "1000 — IMMORTAL!"},
+    1000: {"emoji": "🌟", "label": "1000 — IMMORTAL!"},
 }
 
 # Milestones we only fire ONCE ever
 FIRST_TIME_MILESTONES = {
     "first_interview": ("🎯", "Breakthrough! First interview invitation!"),
-    "first_offer":     ("🎉", "YOU GOT AN OFFER! 🎉🎉🎉"),
+    "first_offer": ("🎉", "YOU GOT AN OFFER! 🎉🎉🎉"),
 }
 
 
@@ -49,7 +50,7 @@ class TelegramNotifier:
     """
     Background notification service.
     Monitors DB and pushes alerts via callbacks.
-    
+
     Runs in a daemon thread — non-blocking, fire-and-forget.
     Checks DB every 5 minutes for new activity.
     """
@@ -60,9 +61,11 @@ class TelegramNotifier:
         self._running = False
         self._thread = None
         self._last_check = time.time()
-        self.notified: Set[int] = set()       # response IDs already alerted
+        self.notified: Set[int] = set()  # response IDs already alerted
         self._milestones_fired: Set[str] = set()  # milestone keys already celebrated
-        self._followups_sent: Set[int] = set()     # application IDs we already sent follow-up for
+        self._followups_sent: Set[int] = (
+            set()
+        )  # application IDs we already sent follow-up for
 
     # ── Lifecycle ─────────────────────────────────────────────────
 
@@ -110,7 +113,7 @@ class TelegramNotifier:
                 c = conn.execute(
                     "SELECT id, company, status, message, created_at "
                     "FROM responses WHERE notified = 0 AND created_at > ?",
-                    (self._last_check,)
+                    (self._last_check,),
                 )
                 rows = c.fetchall()
             except sqlite3.OperationalError:
@@ -247,7 +250,7 @@ class TelegramNotifier:
                     c = conn.execute(
                         f"SELECT id, company, interview_date, notes FROM {table} "
                         "WHERE interview_date IN (?, ?) AND reminded = 0",
-                        (tomorrow, day_after)
+                        (tomorrow, day_after),
                     )
                     rows = c.fetchall()
                     if rows:
@@ -263,7 +266,10 @@ class TelegramNotifier:
                                 f"Notes: {notes}\n\n"
                                 f"🎓 Prep with /prep"
                             )
-                            conn.execute(f"UPDATE {table} SET reminded = 1 WHERE id = ?", (row["id"],))
+                            conn.execute(
+                                f"UPDATE {table} SET reminded = 1 WHERE id = ?",
+                                (row["id"],),
+                            )
                             conn.commit()
                         break
                 except sqlite3.OperationalError:
@@ -324,7 +330,7 @@ class TelegramNotifier:
                 one_hour_ago = (datetime.now() - timedelta(hours=1)).isoformat()
                 sent_last_hour = conn.execute(
                     "SELECT COUNT(*) FROM campaign_emails WHERE sent_at >= ?",
-                    (one_hour_ago,)
+                    (one_hour_ago,),
                 ).fetchone()[0]
             except sqlite3.OperationalError:
                 sent_last_hour = 0
@@ -356,24 +362,22 @@ class TelegramNotifier:
             return
         emoji, label = FIRST_TIME_MILESTONES.get(key, ("✨", key))
         self._send_alert(
-            f"{emoji} *{label}*\n\n"
-            f"Company: *{company}*\n"
-            f"This is a BIG moment! 🎊"
+            f"{emoji} *{label}*\n\nCompany: *{company}*\nThis is a BIG moment! 🎊"
         )
         self._milestones_fired.add(key)
 
     def _status_emoji(self, status: str) -> str:
         return {
-            "positive":     "🟢",
-            "interested":   "🟢",
-            "interview":    "🎯",
-            "offer":        "🏆",
-            "rejected":     "🔴",
-            "pending":      "🟡",
-            "viewed":       "👀",
-            "no_response":  "⚪",
-            "applied":      "📨",
-            "sent":         "📨",
+            "positive": "🟢",
+            "interested": "🟢",
+            "interview": "🎯",
+            "offer": "🏆",
+            "rejected": "🔴",
+            "pending": "🟡",
+            "viewed": "👀",
+            "no_response": "⚪",
+            "applied": "📨",
+            "sent": "📨",
         }.get(status.lower(), "📌")
 
     def _send_alert(self, message: str):

@@ -1,0 +1,58 @@
+<!-- ═══ UNIFIED PUBLIC NAVIGATION ═══ -->
+<nav class="nav" id="nav" style="position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:1000;width:calc(100% - 48px);max-width:1300px;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;background:rgba(5,5,15,0.75);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);border:1px solid rgba(255,255,255,0.08);border-radius:24px;transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+ <a href="/" class="nav-logo" style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#00f0ff 0%,#00b8ff 40%,#00f0ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:10px;text-decoration:none;">JOBHUNT PRO <span class="badge" style="font-size:9px;font-weight:700;letter-spacing:1.5px;background:rgba(0,240,255,0.12);color:#00f0ff;padding:3px 10px;border-radius:20px;border:1px solid rgba(0,240,255,0.2);-webkit-text-fill-color:#00f0ff;">v{{ VERSION|default('16.3') }}</span></a>
+ <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()" style="display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;z-index:1001;">
+  <span style="width:24px;height:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;"></span>
+  <span style="width:24px;height:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;"></span>
+  <span style="width:24px;height:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;"></span>
+ </div>
+ <div class="nav-links" id="navLinks" style="display:flex;gap:32px;align-items:center;">
+  <a href="/services" style="color:#e2e8f0;text-decoration:none;font-size:14px;font-weight:500;transition:all 0.2s;padding:8px 12px;border-radius:12px;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#00f0ff'" onmouseout="this.style.background='transparent';this.style.color='#e2e8f0'">Services</a>
+  <a href="/compare" style="color:#e2e8f0;text-decoration:none;font-size:14px;font-weight:500;transition:all 0.2s;padding:8px 12px;border-radius:12px;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#00f0ff'" onmouseout="this.style.background='transparent';this.style.color='#e2e8f0'">Compare</a>
+  <a href="/lang/ar" class="lang-switcher" style="display:flex;align-items:center;gap:6px;color:#e2e8f0;text-decoration:none;font-size:14px;font-weight:700;padding:6px 12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+    <span style="font-size:16px;">🌐</span> العربية
+  </a>
+  <a href="/" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">Home</a>
+  <a href="/pricing" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">Pricing</a>
+  <a href="/blog" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">Blog</a>
+  <a href="/faq" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">FAQ</a>
+  <a href="/trust" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">Trust</a>
+  <a href="/contact" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">Contact</a>
+  {% if is_logged_in %}
+   <a href="/dashboard" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">Dashboard</a>
+   <a href="/logout" class="cta" style="background:linear-gradient(135deg,#ef4444,#b91c1c);color:#ffffff;font-weight:700;padding:10px 22px;border-radius:12px;box-shadow:0 0 20px rgba(239,68,68,0.15);text-decoration:none;font-size:13px;transition:all 0.3s;">Logout</a>
+  {% else %}
+   <a href="/login" style="color:#8a8a9e;text-decoration:none;font-size:13px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;">Login</a>
+   <a href="/register" class="cta" style="background:linear-gradient(135deg,#6366f1,#a855f7);color:#ffffff;font-weight:700;padding:10px 22px;border-radius:12px;box-shadow:0 0 20px rgba(99,102,241,0.15);text-decoration:none;font-size:13px;transition:all 0.3s;">Get Started Free</a>
+  {% endif %}
+ </div>
+</nav>
+
+<style>
+/* Handle hover states and mobile menu for inline nav */
+.nav-links a:not(.cta):hover { color: #fff !important; background: rgba(255,255,255,0.05) !important; }
+.nav-links a.cta:hover { box-shadow: 0 0 35px rgba(0,240,255,0.35) !important; transform: translateY(-1px); }
+
+@media (max-width: 992px) {
+    .nav-hamburger { display: flex !important; }
+    .nav-links {
+        position: fixed; top: 0; right: -100%; width: 300px; max-width: 100vw; height: 100vh;
+        background: rgba(3,3,12,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border-left: 1px solid rgba(255,255,255,0.05); flex-direction: column; justify-content: center;
+        padding: 40px; transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .nav-links.active { right: 0; }
+    .nav-links a { width: 100%; text-align: center; padding: 15px; font-size: 16px !important; }
+    .nav-hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.active span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+}
+</style>
+<script>
+if(typeof toggleMenu !== 'function') {
+    function toggleMenu() {
+        document.getElementById('hamburger').classList.toggle('active');
+        document.getElementById('navLinks').classList.toggle('active');
+    }
+}
+</script>

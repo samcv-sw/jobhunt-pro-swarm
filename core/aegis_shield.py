@@ -22,7 +22,6 @@ import time
 import math
 import json
 import logging
-import asyncio
 import urllib.request
 import urllib.error
 import os
@@ -36,14 +35,17 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────────────────────────────────────
 # AEGIS CONFIGURATION
 # ─────────────────────────────────────────────────────────────────────────────
-BUCKET_CAPACITY       = int(os.getenv("AEGIS_BUCKET_CAPACITY",   "60"))   # max burst tokens
-REFILL_RATE           = int(os.getenv("AEGIS_REFILL_RATE",       "20"))   # tokens per interval
-REFILL_INTERVAL_S     = int(os.getenv("AEGIS_REFILL_INTERVAL",   "60"))   # refill every N seconds
-BLACKHOLE_DURATION    = 3600    # block normal DDoS IPs for 1 hour
+BUCKET_CAPACITY = int(os.getenv("AEGIS_BUCKET_CAPACITY", "60"))  # max burst tokens
+REFILL_RATE = int(os.getenv("AEGIS_REFILL_RATE", "20"))  # tokens per interval
+REFILL_INTERVAL_S = int(
+    os.getenv("AEGIS_REFILL_INTERVAL", "60")
+)  # refill every N seconds
+BLACKHOLE_DURATION = 3600  # block normal DDoS IPs for 1 hour
 PROBE_BLACKHOLE_DURATION = 86400  # block hacker-probe IPs for 24 hours
-MAX_GLOBAL_CONCURRENCY = 1000   # global load shedding limit
+MAX_GLOBAL_CONCURRENCY = 1000  # global load shedding limit
 
-_current_concurrency  = 0
+_current_concurrency = 0
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # UPSTASH REDIS CLIENT (zero-dependency HTTP REST)
@@ -55,10 +57,10 @@ class _UpstashClient:
     """
 
     def __init__(self):
-        self.url   = os.getenv("UPSTASH_REDIS_URL", "").rstrip("/")
+        self.url = os.getenv("UPSTASH_REDIS_URL", "").rstrip("/")
         self.token = os.getenv("UPSTASH_REDIS_TOKEN", "")
         self._enabled = bool(self.url and self.token)
-        self._mem: dict = {}           # in-memory fallback store
+        self._mem: dict = {}  # in-memory fallback store
 
         if self._enabled:
             logger.info("[AEGIS] Upstash Redis rate-limit backend ENABLED.")
@@ -79,7 +81,7 @@ class _UpstashClient:
                 data=payload,
                 headers={
                     "Authorization": f"Bearer {self.token}",
-                    "Content-Type":  "application/json",
+                    "Content-Type": "application/json",
                 },
                 method="POST",
             )
@@ -143,7 +145,9 @@ return {allowed, remaining, wait}
         if self._enabled:
             # EVAL script on Upstash
             result = self._exec(
-                "EVAL", self._LUA_TOKEN_BUCKET, 1,
+                "EVAL",
+                self._LUA_TOKEN_BUCKET,
+                1,
                 key,
                 str(BUCKET_CAPACITY),
                 str(REFILL_RATE),
@@ -151,20 +155,20 @@ return {allowed, remaining, wait}
                 str(now),
             )
             if result and len(result) == 3:
-                allowed   = bool(result[0])
+                allowed = bool(result[0])
                 remaining = int(result[1])
-                retry     = int(result[2]) if not allowed else 0
+                retry = int(result[2]) if not allowed else 0
                 return allowed, remaining, retry
 
         # ── In-memory fallback ───────────────────────────────────────────────
         state = self._mem.get(key, {"tokens": BUCKET_CAPACITY, "last_refill": now})
-        tokens      = state["tokens"]
+        tokens = state["tokens"]
         last_refill = state["last_refill"]
 
         elapsed = now - last_refill
         periods = math.floor(elapsed / REFILL_INTERVAL_S)
         if periods > 0:
-            tokens      = min(BUCKET_CAPACITY, tokens + periods * REFILL_RATE)
+            tokens = min(BUCKET_CAPACITY, tokens + periods * REFILL_RATE)
             last_refill = last_refill + periods * REFILL_INTERVAL_S
 
         if tokens >= 1:
@@ -182,7 +186,7 @@ _redis = _UpstashClient()
 # ─────────────────────────────────────────────────────────────────────────────
 # BLACKHOLE STATE (in-memory; acceptable — blackholes are per-worker defense)
 # ─────────────────────────────────────────────────────────────────────────────
-_blackhole: dict = {}   # {ip: unblock_timestamp}
+_blackhole: dict = {}  # {ip: unblock_timestamp}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # WAF REGEX PATTERNS (pre-compiled)
@@ -215,13 +219,16 @@ TRAVERSAL_CMD_RE = re.compile(
     re.IGNORECASE,
 )
 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # HELPERS
 # ─────────────────────────────────────────────────────────────────────────────
 def get_client_ip(request: Request) -> str:
     """Safely resolve the real client IP behind Cloudflare and reverse proxies."""
     # 1. Cloudflare header (highest trust)
-    cf_ip = request.headers.get("cf-connecting-ip") or request.headers.get("CF-Connecting-IP")
+    cf_ip = request.headers.get("cf-connecting-ip") or request.headers.get(
+        "CF-Connecting-IP"
+    )
     if cf_ip:
         return cf_ip.strip()
     # 2. X-Real-IP
@@ -229,16 +236,20 @@ def get_client_ip(request: Request) -> str:
     if real_ip:
         return real_ip.strip()
     # 3. X-Forwarded-For (take leftmost / original client)
-    xff = request.headers.get("x-forwarded-for") or request.headers.get("X-Forwarded-For")
+    xff = request.headers.get("x-forwarded-for") or request.headers.get(
+        "X-Forwarded-For"
+    )
     if xff:
         return xff.split(",")[0].strip()
     # 4. Direct connection
     return request.client.host if request.client else "unknown"
 
 
-def _inject_rate_limit_headers(response: Response, remaining: int, retry: int = 0) -> None:
+def _inject_rate_limit_headers(
+    response: Response, remaining: int, retry: int = 0
+) -> None:
     """Inject RFC-style rate-limit headers into a response."""
-    response.headers["Rate-Limit-Ceiling"]   = str(BUCKET_CAPACITY)
+    response.headers["Rate-Limit-Ceiling"] = str(BUCKET_CAPACITY)
     response.headers["Rate-Limit-Remaining"] = str(remaining)
     if retry > 0:
         response.headers["Retry-Delay-Window"] = str(retry)
@@ -266,7 +277,7 @@ class AegisShieldMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         global _current_concurrency
         client_ip = get_client_ip(request)
-        now       = time.time()
+        now = time.time()
 
         # ── 1. IP BLACKHOLE CHECK ─────────────────────────────────────────────
         if client_ip in _blackhole:
@@ -275,14 +286,33 @@ class AegisShieldMiddleware(BaseHTTPMiddleware):
             else:
                 del _blackhole[client_ip]
 
+        # ── 1.5 USER-AGENT VALIDATION (Anti-Bot Shield) ───────────────────────
+        user_agent = request.headers.get("user-agent", "").lower()
+        if (
+            not user_agent
+            or "python-requests" in user_agent
+            or "curl" in user_agent
+            or "urllib" in user_agent
+            or "bot" in user_agent
+        ):
+            logger.warning(
+                f"[AEGIS WAF] Malicious or missing User-Agent from {client_ip}: '{user_agent}'"
+            )
+            return PlainTextResponse(
+                "Forbidden: Request denied by security firewall.", status_code=403
+            )
+
         # ── 2. HOST HEADER VALIDATION ─────────────────────────────────────────
         host = request.headers.get("host", "")
         if host:
             host_clean = host.split(":")[0].lower()
             allowed_hosts = {
-                "localhost", "127.0.0.1", "testserver",
+                "localhost",
+                "127.0.0.1",
+                "testserver",
                 "jhfguf.pythonanywhere.com",
-                "jobhuntpro.com", "www.jobhuntpro.com",
+                "jobhuntpro.com",
+                "www.jobhuntpro.com",
             }
             if (
                 host_clean not in allowed_hosts
@@ -293,7 +323,9 @@ class AegisShieldMiddleware(BaseHTTPMiddleware):
                 and not host_clean.endswith(".fly.dev")
                 and not host_clean.endswith(".onrender.com")
             ):
-                logger.warning(f"[AEGIS WAF] Bad Host header from {client_ip}: '{host}'")
+                logger.warning(
+                    f"[AEGIS WAF] Bad Host header from {client_ip}: '{host}'"
+                )
                 return PlainTextResponse("Invalid Host Header.", status_code=400)
 
         # ── 3. HACKER PROBE DETECTION ─────────────────────────────────────────
@@ -348,7 +380,9 @@ class AegisShieldMiddleware(BaseHTTPMiddleware):
         if content_length:
             try:
                 if int(content_length) > 10 * 1024 * 1024:  # 10 MB
-                    logger.warning(f"[AEGIS SHIELD] Oversized payload from {client_ip}.")
+                    logger.warning(
+                        f"[AEGIS SHIELD] Oversized payload from {client_ip}."
+                    )
                     return PlainTextResponse("Payload Too Large.", status_code=413)
             except (ValueError, TypeError):
                 return PlainTextResponse("Bad Request.", status_code=400)
@@ -359,11 +393,13 @@ class AegisShieldMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
 
             # ── 8. SECURITY RESPONSE HEADERS ──────────────────────────────────
-            response.headers["X-Frame-Options"]        = "DENY"
+            response.headers["X-Frame-Options"] = "DENY"
             response.headers["X-Content-Type-Options"] = "nosniff"
-            response.headers["X-XSS-Protection"]       = "1; mode=block"
-            response.headers["Referrer-Policy"]        = "strict-origin-when-cross-origin"
-            response.headers["Permissions-Policy"]     = "geolocation=(), camera=(), microphone=()"
+            response.headers["X-XSS-Protection"] = "1; mode=block"
+            response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+            response.headers["Permissions-Policy"] = (
+                "geolocation=(), camera=(), microphone=()"
+            )
             response.headers["Content-Security-Policy"] = (
                 "default-src 'self'; "
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval' "

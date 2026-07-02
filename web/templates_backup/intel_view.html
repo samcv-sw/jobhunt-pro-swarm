@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+.intel-container {
+    max-width: 800px;
+    margin: 40px auto;
+}
+.intel-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+.intel-title { font-size: 28px; font-weight: 800; color: #e2e8f0; }
+.intel-sub { color: #94a3b8; font-size: 15px; margin-top: 10px; }
+
+.question-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+.q-num { color: #3b82f6; font-weight: 800; font-size: 18px; margin-inline-end: 10px; }
+.q-text { color: #e2e8f0; font-size: 16px; line-height: 1.5; }
+
+.blurred-card {
+    position: relative;
+    overflow: hidden;
+}
+.blurred-content {
+    filter: blur(6px);
+    opacity: 0.6;
+    user-select: none;
+}
+.paywall-overlay {
+    position: absolute;
+    top: 0; inset-inline-start: 0; inset-inline-end: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15,23,42,0.6);
+    z-index: 10;
+}
+.paywall-overlay h3 { color: #fff; margin-bottom: 10px; font-size: 18px; }
+</style>
+
+<div class="intel-container">
+    <div class="intel-header">
+        <div class="intel-title">معلومات المقابلة: {{ role|title }}</div>
+        <div class="intel-sub">أسئلة مقابلات مسربة من كبرى الشركات لهذا الدور.</div>
+    </div>
+
+    <!-- First question free -->
+    {% if intel and intel|length > 0 %}
+    <div class="question-card">
+        <span class="q-num">س1.</span>
+        <span class="q-text">{{ intel[0].questions.split('\n')[0] if intel[0].questions else "صف مشكلة معقدة قمت بحلها في هذا الدور." }}</span>
+        <div style="margin-top:10px; font-size:12px; color:#64748b;">تم الإبلاغ عنها في: {{ intel[0].company }}</div>
+    </div>
+    {% else %}
+    <div class="question-card">
+        <span class="q-num">س1.</span>
+        <span class="q-text">حدثني عن وقت اضطررت فيه للتعامل مع حادث إنتاج خطير.</span>
+        <div style="margin-top:10px; font-size:12px; color:#64748b;">تم الإبلاغ عنها في: Google</div>
+    </div>
+    {% endif %}
+
+    <!-- Blurred questions -->
+    <div class="question-card blurred-card">
+        <div class="blurred-content">
+            <span class="q-num">س2.</span>
+            <span class="q-text">كيف تصمم بنية قابلة للتوسع لحالة الحافة المحددة هذه...</span>
+            <br><br>
+            <span class="q-num">س3.</span>
+            <span class="q-text">ما هو نهجك في حل الديون التقنية العميقة دون...</span>
+        </div>
+        <div class="paywall-overlay">
+            <h3>افتح 145+ سؤال لـ {{ role|title }}</h3>
+            <p style="color:#cbd5e1; font-size:13px; margin-bottom:15px; text-align:center; max-width:300px;">سجل الدخول لعرض الأسئلة المتبقية والوصول إلى محاكي المقابلات بالذكاء الاصطناعي.</p>
+            <a href="/register" class="btn" style="background:#3b82f6;">إنشاء حساب مجاني</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -2,7 +2,8 @@
 JobHunt Pro - Live Analytics Dashboard v1.0
 Real-time stats API for landing page live counters + social proof.
 """
-import json, logging, os, random, time
+
+import json, logging, random, time
 from datetime import datetime
 from pathlib import Path
 
@@ -49,7 +50,7 @@ def _load_state():
 def _save_state():
     if STATE_FILE:
         _state["last_updated"] = datetime.utcnow().isoformat()
-        json.dump(_state, open(STATE_FILE, 'w'), indent=2)
+        json.dump(_state, open(STATE_FILE, "w"), indent=2)
 
 
 def get_live_stats() -> dict:
@@ -68,11 +69,13 @@ def get_live_stats() -> dict:
     return {
         "total_applications": f"{_state['total_applications']:,}",
         "total_users": f"{_state['total_users']:,}",
-        "active_campaigns_today": _state['active_campaigns_today'],
+        "active_campaigns_today": _state["active_campaigns_today"],
         "cover_letters_generated": f"{_state['cover_letters_generated']:,}",
         "jobs_matched_today": f"{_state['jobs_matched_today']:,}",
         "interviews_landed_this_week": f"{_state['interviews_landed_this_week']:,}",
-        "countries_active": _state['countries_active'],
-        "ai_agents_running": _state['ai_agents_running'],
-        "applications_per_second": round(_state['applications_per_second'] + random.uniform(-0.5, 0.5), 1),
+        "countries_active": _state["countries_active"],
+        "ai_agents_running": _state["ai_agents_running"],
+        "applications_per_second": round(
+            _state["applications_per_second"] + random.uniform(-0.5, 0.5), 1
+        ),
     }

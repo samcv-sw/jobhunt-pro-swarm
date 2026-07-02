@@ -4,15 +4,11 @@ Solves CAPTCHAs using free OCR + audio transcription APIs.
 No paid services (no 2captcha, no Anti-Captcha).
 Strategy: OCR for image CAPTCHAs, Google Speech for audio CAPTCHAs.
 """
+
 import re
-import io
-import time
-import json
 import base64
-import random
 import logging
 from typing import Optional, Dict, Any
-from urllib.parse import urlparse
 
 import httpx
 
@@ -26,6 +22,7 @@ OCR_SPACE_API_KEY = "helloworld"  # Free public key (5 req/sec, 25k/month)
 try:
     import pytesseract
     from PIL import Image
+
     HAS_TESSERACT = True
 except ImportError:
     HAS_TESSERACT = False
@@ -35,6 +32,7 @@ except ImportError:
 # ── Audio CAPTCHA transcription ──────────────────────────────────
 try:
     import speech_recognition as sr
+
     HAS_SPEECH_REC = True
 except ImportError:
     HAS_SPEECH_REC = False
@@ -120,11 +118,11 @@ class CaptchaSolver:
         try:
             # Match patterns like "5 + 3", "12 - 7", "4 * 6", "15 / 3"
             patterns = [
-                (r'(\d+)\s*\+\s*(\d+)', lambda a, b: str(int(a) + int(b))),
-                (r'(\d+)\s*-\s*(\d+)', lambda a, b: str(int(a) - int(b))),
-                (r'(\d+)\s*\*\s*(\d+)', lambda a, b: str(int(a) * int(b))),
-                (r'(\d+)\s*[xX]\s*(\d+)', lambda a, b: str(int(a) * int(b))),
-                (r'(\d+)\s*/\s*(\d+)', lambda a, b: str(int(a) // int(b))),
+                (r"(\d+)\s*\+\s*(\d+)", lambda a, b: str(int(a) + int(b))),
+                (r"(\d+)\s*-\s*(\d+)", lambda a, b: str(int(a) - int(b))),
+                (r"(\d+)\s*\*\s*(\d+)", lambda a, b: str(int(a) * int(b))),
+                (r"(\d+)\s*[xX]\s*(\d+)", lambda a, b: str(int(a) * int(b))),
+                (r"(\d+)\s*/\s*(\d+)", lambda a, b: str(int(a) // int(b))),
             ]
             for pat, func in patterns:
                 m = re.search(pat, text)
@@ -135,10 +133,10 @@ class CaptchaSolver:
 
             # Match "what is X plus/minus/times Y"
             word_patterns = [
-                (r'(\d+)\s*plus\s*(\d+)', lambda a, b: str(int(a) + int(b))),
-                (r'(\d+)\s*minus\s*(\d+)', lambda a, b: str(int(a) - int(b))),
-                (r'(\d+)\s*times\s*(\d+)', lambda a, b: str(int(a) * int(b))),
-                (r'(\d+)\s*divided by\s*(\d+)', lambda a, b: str(int(a) // int(b))),
+                (r"(\d+)\s*plus\s*(\d+)", lambda a, b: str(int(a) + int(b))),
+                (r"(\d+)\s*minus\s*(\d+)", lambda a, b: str(int(a) - int(b))),
+                (r"(\d+)\s*times\s*(\d+)", lambda a, b: str(int(a) * int(b))),
+                (r"(\d+)\s*divided by\s*(\d+)", lambda a, b: str(int(a) // int(b))),
             ]
             for pat, func in word_patterns:
                 m = re.search(pat, text, re.IGNORECASE)
@@ -184,9 +182,12 @@ class CaptchaSolver:
         """
         try:
             # Fetch the page to get the reCAPTCHA site key
-            resp = self._client.get(page_url, headers={
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            })
+            resp = self._client.get(
+                page_url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                },
+            )
             if resp.status_code != 200:
                 return None
 
@@ -210,30 +211,30 @@ class CaptchaSolver:
         """Solve CAPTCHA using OCR.space free API."""
         try:
             # Encode image as base64
-            b64 = base64.b64encode(image_data).decode('utf-8')
+            b64 = base64.b64encode(image_data).decode("utf-8")
 
             resp = self._client.post(
                 OCR_SPACE_API,
                 data={
-                    'base64Image': f'data:image/png;base64,{b64}',
-                    'language': 'eng',
-                    'isOverlayRequired': 'false',
-                    'OCREngine': '2',  # Engine 2 is better for CAPTCHAs
-                    'scale': 'true',
-                    'detectOrientation': 'true',
+                    "base64Image": f"data:image/png;base64,{b64}",
+                    "language": "eng",
+                    "isOverlayRequired": "false",
+                    "OCREngine": "2",  # Engine 2 is better for CAPTCHAs
+                    "scale": "true",
+                    "detectOrientation": "true",
                 },
-                headers={'apikey': OCR_SPACE_API_KEY},
+                headers={"apikey": OCR_SPACE_API_KEY},
                 timeout=15.0,
             )
 
             if resp.status_code == 200:
                 data = resp.json()
-                if data.get('IsErroredOnProcessing') is False:
-                    parsed_results = data.get('ParsedResults', [])
+                if data.get("IsErroredOnProcessing") is False:
+                    parsed_results = data.get("ParsedResults", [])
                     if parsed_results:
-                        text = parsed_results[0].get('ParsedText', '').strip()
+                        text = parsed_results[0].get("ParsedText", "").strip()
                         # Clean OCR output
-                        text = re.sub(r'[^a-zA-Z0-9]', '', text)
+                        text = re.sub(r"[^a-zA-Z0-9]", "", text)
                         if text:
                             return text
 
@@ -257,14 +258,17 @@ class CaptchaSolver:
 
             img = Image.open(temp_path)
             # Preprocess for better OCR: convert to grayscale, threshold
-            img = img.convert('L')  # Grayscale
+            img = img.convert("L")  # Grayscale
             # Apply threshold to make it binary
             img = img.point(lambda x: 0 if x < 128 else 255)
 
-            text = pytesseract.image_to_string(img, config='--psm 8 --oem 3 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
+            text = pytesseract.image_to_string(
+                img,
+                config="--psm 8 --oem 3 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+            )
             os.unlink(temp_path)
 
-            text = re.sub(r'[^a-zA-Z0-9]', '', text.strip())
+            text = re.sub(r"[^a-zA-Z0-9]", "", text.strip())
             return text if text else None
         except Exception as e:
             logger.debug(f"Tesseract failed: {e}")
@@ -274,14 +278,19 @@ class CaptchaSolver:
         """Clean and normalize solved CAPTCHA text."""
         # Remove whitespace, keep alphanumeric
         text = text.strip().upper()
-        text = re.sub(r'[^A-Z0-9]', '', text)
+        text = re.sub(r"[^A-Z0-9]", "", text)
         return text
 
     def get_stats(self) -> Dict[str, Any]:
         return {
             "solved": self._solved_count,
             "failed": self._failed_count,
-            "success_rate": round(self._solved_count / max(1, self._solved_count + self._failed_count) * 100, 1),
+            "success_rate": round(
+                self._solved_count
+                / max(1, self._solved_count + self._failed_count)
+                * 100,
+                1,
+            ),
         }
 
     def close(self):
@@ -302,7 +311,9 @@ def get_captcha_solver() -> CaptchaSolver:
     return _solver
 
 
-def solve_captcha(image_data: bytes, captcha_type: str = "image", hint: str = "") -> Optional[str]:
+def solve_captcha(
+    image_data: bytes, captcha_type: str = "image", hint: str = ""
+) -> Optional[str]:
     """Convenience function to solve any CAPTCHA type."""
     solver = get_captcha_solver()
     try:
@@ -327,5 +338,7 @@ if __name__ == "__main__":
     solver = get_captcha_solver()
     print(f"Math '5 + 3': {solver.solve_math('what is 5 + 3?')}")
     print(f"Math '12 - 7': {solver.solve_math('enter the result of 12 - 7')}")
-    print(f"Text 'type the word: FREEDOM': {solver.solve_text('type the word: FREEDOM')}")
+    print(
+        f"Text 'type the word: FREEDOM': {solver.solve_text('type the word: FREEDOM')}"
+    )
     print(f"Stats: {solver.get_stats()}")
