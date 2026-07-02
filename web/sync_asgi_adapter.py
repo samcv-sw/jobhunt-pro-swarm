@@ -41,7 +41,7 @@ class SyncAsgiToWsgi:
         self.app = app
 
     def __call__(self, environ, start_response):
-        print(">>> WSGI REQUEST STARTED:", environ.get("PATH_INFO"), file=sys.stderr, flush=True)
+        
         scope = build_scope(environ)
         
         body = b""
@@ -51,7 +51,7 @@ class SyncAsgiToWsgi:
                 length = int(content_length)
                 body = environ["wsgi.input"].read(length)
             except Exception as e:
-                print(">>> READ ERROR:", e, file=sys.stderr, flush=True)
+                
 
         status_code = [200]
         response_headers = []
@@ -81,22 +81,23 @@ class SyncAsgiToWsgi:
             try:
                 await self.app(scope, receive, send)
             except Exception as e:
-                print(">>> ASGI ERROR:", e, file=sys.stderr, flush=True)
+                
                 if str(e) != "ClientDisconnect" and "disconnect" not in str(e).lower():
                     status_code[0] = 500
                     response_body.append(str(e).encode("utf8"))
 
-        print(">>> GETTING LOOP", file=sys.stderr, flush=True)
+        
         loop = get_loop()
-        print(">>> RUNNING UNTIL COMPLETE", file=sys.stderr, flush=True)
+        
         loop.run_until_complete(run_asgi())
-        print(">>> RUN FINISHED", file=sys.stderr, flush=True)
+        
 
         try:
             status_str = f"{status_code[0]} {HTTPStatus(status_code[0]).phrase}"
         except ValueError:
             status_str = f"{status_code[0]} Unknown"
 
-        print(">>> SENDING START_RESPONSE", file=sys.stderr, flush=True)
+        
         start_response(status_str, response_headers)
         return response_body
+
