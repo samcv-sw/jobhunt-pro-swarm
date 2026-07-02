@@ -1,6 +1,7 @@
 import asyncio
 from http import HTTPStatus
 import sys
+import threading
 
 def build_scope(environ):
     headers = [
@@ -27,12 +28,20 @@ def build_scope(environ):
     }
     return scope
 
+_thread_locals = threading.local()
+
+def get_loop():
+    if not hasattr(_thread_locals, "loop"):
+        _thread_locals.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(_thread_locals.loop)
+    return _thread_locals.loop
+
 class SyncAsgiToWsgi:
     def __init__(self, app):
         self.app = app
 
     def __call__(self, environ, start_response):
-        print(">>> WSGI REQUEST STARTED:", environ.get("PATH_INFO"), file=sys.stderr)
+        print(">>> WSGI REQUEST STARTED:", environ.get("PATH_INFO"), file=sys.stderr, flush=True)
         scope = build_scope(environ)
         
         body = b""
@@ -40,11 +49,9 @@ class SyncAsgiToWsgi:
         if content_length:
             try:
                 length = int(content_length)
-                print(">>> READING WSGI BODY:", length, file=sys.stderr)
                 body = environ["wsgi.input"].read(length)
-                print(">>> READ DONE", file=sys.stderr)
             except Exception as e:
-                print(">>> READ ERROR:", e, file=sys.stderr)
+                print(">>> READ ERROR:", e, file=sys.stderr, flush=True)
 
         status_code = [200]
         response_headers = []
@@ -55,17 +62,13 @@ class SyncAsgiToWsgi:
             response_complete_event = asyncio.Event()
 
             async def receive():
-                print(">>> ASGI RECEIVE CALLED", file=sys.stderr)
                 if not receive_state["sent_request"]:
                     receive_state["sent_request"] = True
                     return {"type": "http.request", "body": body, "more_body": False}
-                print(">>> ASGI RECEIVE WAITING FOR DISCONNECT", file=sys.stderr)
                 await response_complete_event.wait()
-                print(">>> ASGI RECEIVE RETURNING DISCONNECT", file=sys.stderr)
                 return {"type": "http.disconnect"}
 
             async def send(message):
-                print(">>> ASGI SEND CALLED:", message["type"], file=sys.stderr)
                 if message["type"] == "http.response.start":
                     status_code[0] = message["status"]
                     for name, value in message.get("headers", []):
@@ -73,28 +76,27 @@ class SyncAsgiToWsgi:
                 elif message["type"] == "http.response.body":
                     response_body.append(message.get("body", b""))
                     if not message.get("more_body", False):
-                        print(">>> SETTING COMPLETE EVENT", file=sys.stderr)
                         response_complete_event.set()
 
             try:
-                print(">>> AWAITING APP", file=sys.stderr)
                 await self.app(scope, receive, send)
-                print(">>> APP RETURNED", file=sys.stderr)
             except Exception as e:
-                print(">>> ASGI ERROR:", e, file=sys.stderr)
+                print(">>> ASGI ERROR:", e, file=sys.stderr, flush=True)
                 if str(e) != "ClientDisconnect" and "disconnect" not in str(e).lower():
                     status_code[0] = 500
                     response_body.append(str(e).encode("utf8"))
 
-        print(">>> STARTING ASYNCIO RUN", file=sys.stderr)
-        asyncio.run(run_asgi())
-        print(">>> ASYNCIO RUN FINISHED", file=sys.stderr)
+        print(">>> GETTING LOOP", file=sys.stderr, flush=True)
+        loop = get_loop()
+        print(">>> RUNNING UNTIL COMPLETE", file=sys.stderr, flush=True)
+        loop.run_until_complete(run_asgi())
+        print(">>> RUN FINISHED", file=sys.stderr, flush=True)
 
         try:
             status_str = f"{status_code[0]} {HTTPStatus(status_code[0]).phrase}"
         except ValueError:
             status_str = f"{status_code[0]} Unknown"
 
-        print(">>> SENDING START_RESPONSE", file=sys.stderr)
+        print(">>> SENDING START_RESPONSE", file=sys.stderr, flush=True)
         start_response(status_str, response_headers)
         return response_body
