@@ -314,7 +314,7 @@
            <div class="bs-camp-stat">📬 <span class="val">{{ c.get('open_count', 0) or 0 }}</span> opened</div>
            <div class="bs-camp-stat">💬 <span class="val">{{ c.get('response_count', 0) or 0 }}</span> replies</div>
            <div class="bs-camp-stat">⚔️ <span class="val">{{ wc }}</span>/15 weapons</div>
-           <a href="/campaign/{{ c['campaign_id'] }}/war-room" class="bs-btn bs-btn-sm" style="margin-left:auto;">⚔️ War Room</a>
+           <a href="/campaign/{{ c['campaign_id'] }}/war-room" class="bs-btn bs-btn-sm" style="margin-inline-start: auto;">⚔️ War Room</a>
          </div>
        </div>
      {% endfor %}

@@ -225,7 +225,7 @@
                 
                 <span class="price-tag">
                     {% if offer.original_price|float > offer.price|float %}
-                    <span style="text-decoration: line-through; font-size: 12px; color: #94a3b8; margin-right: 6px; font-weight: 500;">
+                    <span style="text-decoration: line-through; font-size: 12px; color: #94a3b8; margin-inline-end: 6px; font-weight: 500;">
                         ${{ "%.2f"|format(offer.original_price|float) }}
                     </span>
                     {% endif %}
