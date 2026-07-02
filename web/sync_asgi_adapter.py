@@ -32,7 +32,15 @@ class SyncAsgiToWsgi:
 
     def __call__(self, environ, start_response):
         scope = build_scope(environ)
-        body = environ["wsgi.input"].read()
+        
+        body = b""
+        content_length = environ.get("CONTENT_LENGTH", "")
+        if content_length:
+            try:
+                length = int(content_length)
+                body = environ["wsgi.input"].read(length)
+            except ValueError:
+                pass
 
         status_code = [200]
         response_headers = []
@@ -44,7 +52,7 @@ class SyncAsgiToWsgi:
         async def send(message):
             if message["type"] == "http.response.start":
                 status_code[0] = message["status"]
-                for name, value in message["headers"]:
+                for name, value in message.get("headers", []):
                     response_headers.append((name.decode("latin1"), value.decode("latin1")))
             elif message["type"] == "http.response.body":
                 response_body.append(message.get("body", b""))
@@ -53,10 +61,9 @@ class SyncAsgiToWsgi:
             asyncio.run(self.app(scope, receive, send))
         except Exception as e:
             status_code[0] = 500
-            response_body.append(b"Internal Server Error")
+            response_body.append(str(e).encode("utf8"))
             print("ASGI ERROR:", e)
 
-        # Get status string
         try:
             status_str = f"{status_code[0]} {HTTPStatus(status_code[0]).phrase}"
         except ValueError:
