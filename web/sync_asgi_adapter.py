@@ -51,8 +51,7 @@ class SyncAsgiToWsgi:
                 length = int(content_length)
                 body = environ["wsgi.input"].read(length)
             except Exception as e:
-                
-
+                pass
         status_code = [200]
         response_headers = []
         response_body = []
@@ -81,7 +80,7 @@ class SyncAsgiToWsgi:
             try:
                 await self.app(scope, receive, send)
             except Exception as e:
-                
+                pass
                 if str(e) != "ClientDisconnect" and "disconnect" not in str(e).lower():
                     status_code[0] = 500
                     response_body.append(str(e).encode("utf8"))
@@ -100,4 +99,5 @@ class SyncAsgiToWsgi:
         
         start_response(status_str, response_headers)
         return response_body
+
 
