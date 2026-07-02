@@ -4,7 +4,7 @@ import uuid
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 
-from core.pg_sqlite_shim import get_db
+from web.app_v2 import get_db
 from core.pricing_manager import PRICING_TIERS_MAP, BOUQUET_PACKAGES_MAP
 
 router = APIRouter()

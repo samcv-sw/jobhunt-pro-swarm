@@ -8,7 +8,7 @@ import uuid
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from core.pg_sqlite_shim import get_db
+from web.app_v2 import get_db
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
