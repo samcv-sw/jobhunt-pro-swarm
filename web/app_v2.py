@@ -10725,12 +10725,8 @@ def seo_landing_page(request: Request, job_title: str):
 # PYTHONANYWHERE WSGI BRIDGE (a2wsgi)
 # ==========================================
 # PythonAnywhere only supports WSGI. We use a2wsgi to bridge FastAPI (ASGI) to WSGI.
-try:
-    from a2wsgi import ASGIMiddleware
-    wsgi_app = ASGIMiddleware(app)
-except ImportError:
-    logger.warning("a2wsgi not installed. Run 'pip install a2wsgi' for PythonAnywhere WSGI support.")
-    wsgi_app = None
+from web.sync_asgi_adapter import SyncAsgiToWsgi; wsgi_app = SyncAsgiToWsgi(app)
+
 
 
 
