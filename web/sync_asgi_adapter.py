@@ -52,10 +52,8 @@ class SyncAsgiToWsgi:
             if not receive_state["sent_request"]:
                 receive_state["sent_request"] = True
                 return {"type": "http.request", "body": body, "more_body": False}
-            # After sending the request, wait forever so we don't spin, but we can't wait forever
-            # or asyncio.run will hang if the app waits for disconnect!
-            # So we return disconnect.
-            return {"type": "http.disconnect"}
+            # Block forever. FastAPI will cancel this task when the request finishes.
+            await asyncio.Future()
 
         async def send(message):
             if message["type"] == "http.response.start":
@@ -68,11 +66,12 @@ class SyncAsgiToWsgi:
         async def run_app():
             try:
                 await self.app(scope, receive, send)
+            except asyncio.CancelledError:
+                pass
             except Exception as e:
-                if str(e) != "ClientDisconnect" and "disconnect" not in str(e).lower():
-                    status_code[0] = 500
-                    response_body.append(str(e).encode("utf8"))
-                    print("ASGI ERROR:", e)
+                status_code[0] = 500
+                response_body.append(str(e).encode("utf8"))
+                print("ASGI ERROR:", e)
 
         asyncio.run(run_app())
 
