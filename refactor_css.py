@@ -1,35 +1,57 @@
 import re
 
-filepath = r"c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\web\static\css\cyberpunk.css"
+file_path = "web/static/css/cyberpunk.css"
 
-with open(filepath, "r", encoding="utf-8") as f:
+with open(file_path, "r", encoding="utf-8") as f:
     css = f.read()
 
-# Safe replacements for RTL logical properties
-replacements = [
-    (r"\bmargin-left\b", "margin-inline-start"),
-    (r"\bmargin-right\b", "margin-inline-end"),
-    (r"\bpadding-left\b", "padding-inline-start"),
-    (r"\bpadding-right\b", "padding-inline-end"),
-    (r"\bborder-left\b", "border-inline-start"),
-    (r"\bborder-right\b", "border-inline-end"),
-    (r"\bborder-left-color\b", "border-inline-start-color"),
-    (r"\bborder-right-color\b", "border-inline-end-color"),
-    (r"\bborder-top\b", "border-block-start"),
-    (r"\bborder-bottom\b", "border-block-end"),
-    (r"(?<!-)left\s*:\s*", "inset-inline-start: "),
-    (r"(?<!-)right\s*:\s*", "inset-inline-end: "),
-    (r"(?<!-)top\s*:\s*", "inset-block-start: "),
-    (r"(?<!-)bottom\s*:\s*", "inset-block-end: "),
-    # Optional width/height to logical sizes
-    # (r"(?<!-)width\s*:\s*", "inline-size: "),
-    # (r"(?<!-)height\s*:\s*", "block-size: "),
-]
+# 1. width -> inline-size, max-width -> max-inline-size, min-width -> min-inline-size
+css = re.sub(r'\bwidth:', 'inline-size:', css)
+css = re.sub(r'\bmax-width:', 'max-inline-size:', css)
+css = re.sub(r'\bmin-width:', 'min-inline-size:', css)
 
-for pattern, repl in replacements:
-    css = re.sub(pattern, repl, css)
+# 2. height -> block-size, max-height -> max-block-size, min-height -> min-block-size
+css = re.sub(r'\bheight:', 'block-size:', css)
+css = re.sub(r'\bmax-height:', 'max-block-size:', css)
+css = re.sub(r'\bmin-height:', 'min-block-size:', css)
 
-with open(filepath, "w", encoding="utf-8") as f:
+# 3. left/right/top/bottom -> inset-inline-start/end, inset-block-start/end
+css = re.sub(r'\bleft:', 'inset-inline-start:', css)
+css = re.sub(r'\bright:', 'inset-inline-end:', css)
+css = re.sub(r'\btop:', 'inset-block-start:', css)
+css = re.sub(r'\bbottom:', 'inset-block-end:', css)
+
+# 4. padding
+css = re.sub(r'\bpadding-left:', 'padding-inline-start:', css)
+css = re.sub(r'\bpadding-right:', 'padding-inline-end:', css)
+css = re.sub(r'\bpadding-top:', 'padding-block-start:', css)
+css = re.sub(r'\bpadding-bottom:', 'padding-block-end:', css)
+
+# 5. margin
+css = re.sub(r'\bmargin-left:', 'margin-inline-start:', css)
+css = re.sub(r'\bmargin-right:', 'margin-inline-end:', css)
+css = re.sub(r'\bmargin-top:', 'margin-block-start:', css)
+css = re.sub(r'\bmargin-bottom:', 'margin-block-end:', css)
+
+# 6. border
+css = re.sub(r'\bborder-left:', 'border-inline-start:', css)
+css = re.sub(r'\bborder-right:', 'border-inline-end:', css)
+css = re.sub(r'\bborder-top:', 'border-block-start:', css)
+css = re.sub(r'\bborder-bottom:', 'border-block-end:', css)
+
+# 7. Add Glassmorphism Noise & inner borders
+css = css.replace('backdrop-filter:blur(10px)', 'backdrop-filter:blur(20px) contrast(120%) brightness(110%)')
+css = css.replace('-webkit-backdrop-filter:blur(10px)', '-webkit-backdrop-filter:blur(20px) contrast(120%) brightness(110%)')
+
+# Premium Glassmorphism inner shadow on cards
+css = css.replace('.card, [class*="card"], [class*="panel"], [class*="box"]{', '.card, [class*="card"], [class*="panel"], [class*="box"]{box-shadow:inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 20px rgba(0, 0, 0, 0.4) !important; ')
+
+# 8. Add Directional Transform Utility
+css += "\n.dir-icon { transform: scaleX(var(--text-x-direction, 1)); }\n"
+css += "[dir='rtl'] { --text-x-direction: -1; }\n"
+css += "[dir='ltr'] { --text-x-direction: 1; }\n"
+
+with open(file_path, "w", encoding="utf-8") as f:
     f.write(css)
 
-print("Refactored cyberpunk.css for CSS Logical Properties!")
+print("CSS Refactored successfully.")

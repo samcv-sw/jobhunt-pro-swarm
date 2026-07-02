@@ -1,7 +1,6 @@
-
 import os
 import requests
-import concurrent.futures
+import time
 
 PA_USER = os.environ.get('PA_USER', 'jhfguf').lower()
 PA_TOKEN = os.environ.get('PA_TOKEN')
@@ -11,9 +10,7 @@ if not PA_TOKEN:
     print('PA_TOKEN is not set')
     exit(1)
 
-# List of directories and files to upload
 TARGETS = ['core', 'web/templates', 'web/static', 'web/routers', 'web/app_v2.py']
-
 files_to_upload = []
 
 for target in TARGETS:
@@ -29,30 +26,33 @@ def upload_file(local_path):
     url = f'https://www.pythonanywhere.com/api/v0/user/{PA_USER}/files/path{remote_path}'
     headers = {'Authorization': f'Token {PA_TOKEN}'}
     
-    with open(local_path, 'rb') as f:
-        resp = requests.post(url, headers=headers, files={'content': f})
+    for attempt in range(5):
+        with open(local_path, 'rb') as f:
+            resp = requests.post(url, headers=headers, files={'content': f})
         
-    if resp.status_code in [200, 201]:
-        print(f'Uploaded: {local_path}')
-        return True
-    else:
-        print(f'Failed {local_path}: {resp.status_code} - {resp.text}')
-        return False
+        if resp.status_code in [200, 201]:
+            print(f'Uploaded: {local_path}')
+            return True
+        elif resp.status_code == 429:
+            print(f'Throttled on {local_path}. Sleeping 10s...')
+            time.sleep(10)
+        else:
+            print(f'Failed {local_path}: {resp.status_code} - {resp.text}')
+            return False
+    return False
 
-# Upload concurrently to save time
-print(f'Uploading {len(files_to_upload)} files...')
+print(f'Uploading {len(files_to_upload)} files sequentially...')
 success = True
-with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-    results = executor.map(upload_file, files_to_upload)
-    for res in results:
-        if not res:
-            success = False
+for f in files_to_upload:
+    if not upload_file(f):
+        success = False
+        break
+    time.sleep(0.5)
 
 if not success:
     print('Deployment failed')
     exit(1)
 
-# Reload Webapp
 print('Reloading webapp...')
 url = f'https://www.pythonanywhere.com/api/v0/user/{PA_USER}/webapps/{DOMAIN}/reload/'
 headers = {'Authorization': f'Token {PA_TOKEN}'}
