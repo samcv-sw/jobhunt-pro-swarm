@@ -174,3 +174,4 @@ def cleanup_completed_tasks(keep_days: int = 7):
         logger.error(f"Failed to cleanup completed tasks: {e}")
         return 0
 
+
