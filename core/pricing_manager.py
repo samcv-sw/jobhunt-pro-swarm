@@ -526,8 +526,11 @@ def get_unlocked_features(user_id: str) -> set:
     return unlocked
 
 
+import functools
+
+@functools.lru_cache(maxsize=1)
 def get_all_pricing() -> Dict[str, Any]:
-    """Return all pricing info combined."""
+    """Return all pricing info combined (Cached for Zero-Latency)."""
     return {
         "tiers": PRICING_TIERS,
         "services": SERVICE_PACKAGES,
