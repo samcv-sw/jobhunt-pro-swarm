@@ -15,14 +15,12 @@ jobs:
     steps:
       - name: Ping Application
         env:
-          APP_URL: ${{ secrets.RENDER_APP_URL || secrets.FLY_APP_URL }}
+          APP_URL: ${{ secrets.RENDER_APP_URL }}
         run: |
-          if [ -z "$APP_URL" ]; then
-            echo "APP_URL secret is not set. Skipping ping."
-            exit 0
-          fi
-          
-          echo "Pinging $APP_URL/health to prevent sleep..."
-          curl -sS --retry 3 --max-time 10 "$APP_URL/health" > /dev/null
-          
-          echo "✅ Ping successful. App remains awake."
+          # Use secret URL or fall back to the known Render deployment
+          TARGET_URL="${APP_URL:-https://jobhunt-pro.onrender.com}"
+          echo "Pinging $TARGET_URL/health to prevent sleep..."
+          curl -sS --retry 3 --max-time 15 "$TARGET_URL/health" || echo "Ping failed but continuing..."
+          # Also ping the swarm service
+          curl -sS --retry 2 --max-time 10 "https://jobhunt-pro-swarm.onrender.com/health" || true
+          echo "Keep-alive ping complete."
