@@ -57,14 +57,14 @@ import os
 # R1: Cover Letter - Streaming endpoint
 @mock_router.post("/ai/generate-cover-letter/stream")
 async def generate_cover_letter_stream(req: CoverLetterStreamRequest, payload: dict = Depends(verify_jwt)):
+    if not req.user_cv.strip() or not req.job_description.strip():
+        raise HTTPException(status_code=422, detail="CV and Job Description cannot be empty")
+
     if os.getenv("MOCK_STREAM_OVERRIDE") == "1":
         return StreamingResponse(
             backend.ai_engine.generate_smart_cover_letter_stream(req.job_description, req.user_cv, req.tone),
             media_type="text/event-stream"
         )
-
-    if not req.user_cv.strip() or not req.job_description.strip():
-        raise HTTPException(status_code=422, detail="CV and Job Description cannot be empty")
         
     async def sse_generator():
         yield "data: {\"status\": \"started\", \"message\": \"Initiating connection to Groq API...\"}\n\n"

@@ -4,7 +4,7 @@ import jwt
 from fastapi import HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "super-secret-key-jobhunt-pro")
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "jobhunt-pro-secret-key-32bytes-ok!!")
 JWT_ALGORITHM = "HS256"
 
 # We use HTTPBearer security scheme

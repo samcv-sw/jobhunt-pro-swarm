@@ -1,0 +1,38 @@
+--- tests/e2e/test_database.py
++++ tests/e2e/test_database.py
+@@ -171,6 +171,32 @@
+     except SyncWorkerExit:
+         pass
+ 
+-    # The loop should have hit the connect error, logged it, and then called sleep(30)
++    # The loop should have hit the connect error, logged it, and then called sleep(5.0) (initial backoff)
+     assert len(sleep_calls) == 1
+-    assert sleep_calls[0] == 30
++    assert sleep_calls[0] == 5.0
++
++
++@pytest.mark.asyncio
++async def test_sync_outbox_connection_error_exponential_backoff(monkeypatch):
++    """Verify that postgres connection errors result in exponential backoff."""
++    mock_connect = AsyncMock(side_effect=asyncpg.PostgresError("Network failure"))
++    monkeypatch.setattr(asyncpg, "connect", mock_connect)
++    monkeypatch.setattr("backend.sync_worker.REMOTE_PG_URL", "postgresql://remote.com/db")
++
++    sleep_calls = []
++    async def mock_sleep(seconds):
++        sleep_calls.append(seconds)
++        if len(sleep_calls) >= 3:
++            raise SyncWorkerExit()
++
++    monkeypatch.setattr(asyncio, "sleep", mock_sleep)
++
++    try:
++        await sync_outbox_to_cloud()
++    except SyncWorkerExit:
++        pass
++
++    # The loop should hit connection errors 3 times:
++    # 1st fail: sleep 5.0, backoff -> 10.0
++    # 2nd fail: sleep 10.0, backoff -> 20.0
++    # 3rd fail: sleep 20.0, backoff -> 40.0
++    assert sleep_calls == [5.0, 10.0, 20.0]

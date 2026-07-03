@@ -2,7 +2,7 @@ import asyncio
 import random
 import logging
 import urllib.parse
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 import os
 import time
 
@@ -23,7 +23,7 @@ PROXY_LIST = [p.strip() for p in os.getenv("RESIDENTIAL_PROXIES", "").split(",")
 STEALTH_PROFILES = [
     {
         "id": "chrome131",
-        "impersonate": "chrome131",
+        "impersonate": "chrome120",
         "headers": {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -42,7 +42,7 @@ STEALTH_PROFILES = [
     },
     {
         "id": "chrome146",
-        "impersonate": "chrome146",
+        "impersonate": "chrome120",
         "headers": {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -60,7 +60,7 @@ STEALTH_PROFILES = [
     },
     {
         "id": "safari18_0",
-        "impersonate": "safari18_0",
+        "impersonate": "safari17_2_1",
         "headers": {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -74,7 +74,7 @@ STEALTH_PROFILES = [
     },
     {
         "id": "safari2601",
-        "impersonate": "safari2601",
+        "impersonate": "safari17_2_1",
         "headers": {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0.1 Safari/605.1.15",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -88,7 +88,7 @@ STEALTH_PROFILES = [
     },
     {
         "id": "firefox147",
-        "impersonate": "firefox147",
+        "impersonate": "firefox120",
         "headers": {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -180,70 +180,181 @@ def _parse_job_page(html: str, source_url: str) -> dict | None:
         return None
 
 
-async def process_single_job(url: str, session_id: Optional[str] = None) -> dict | None:
+def _parse_page_content(html: str, source_url: str) -> List[Dict[str, Any]]:
+    """
+    Parses a page's content.
+    If multi-card listings are found, returns a list of dictionaries with job details.
+    If no cards are found, falls back to parsing as a single job page.
+    If html is empty or parsing fails, returns [].
+    """
+    if not html:
+        return []
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+        cards = []
+        # Find all cards matching target selectors
+        for selector in [
+            "div.job_seen_beacon",
+            "li.jobs-search-results__list-item",
+            "div.job-card",
+            "article.job-listing"
+        ]:
+            found = soup.select(selector)
+            if found:
+                cards.extend(found)
+        
+        if cards:
+            results = []
+            for card in cards:
+                # 1. Title
+                title = "Unknown Position"
+                # Check for heading elements first (e.g. h1, h2, h3, h4, h5, h6, or tags with title classes)
+                for tag_name in ["h1", "h2", "h3", "h4", "h5", "h6"]:
+                    heading = card.find(tag_name)
+                    if heading:
+                        text = heading.get_text(strip=True)
+                        if text:
+                            title = text
+                            break
+                if title == "Unknown Position":
+                    # Look for elements with "title" in their class
+                    for el in card.find_all(attrs={"class": lambda c: c and any(kw in str(c).lower() for kw in ["title", "jobtitle"])}):
+                        text = el.get_text(strip=True)
+                        if text:
+                            title = text
+                            break
+
+                # 2. Company
+                company = None
+                company_el = card.find(attrs={"class": lambda c: c and "company" in str(c).lower()})
+                if company_el:
+                    company = company_el.get_text(strip=True)
+
+                # 3. URL
+                job_url = source_url
+                a_tags = card.find_all("a")
+                for a in a_tags:
+                    href = a.get("href")
+                    if href:
+                        job_url = urllib.parse.urljoin(source_url, href)
+                        break
+
+                # 4. Description snippet
+                description_snippet = ""
+                # Try finding elements with classes denoting snippets or summaries
+                desc_el = card.find(attrs={"class": lambda c: c and any(kw in str(c).lower() for kw in ["snippet", "description", "summary", "short"])})
+                if desc_el:
+                    description_snippet = desc_el.get_text(strip=True)
+                else:
+                    # Fall back to card text up to 500 chars
+                    card_text = card.get_text(separator=" ", strip=True)
+                    description_snippet = card_text[:500] if card_text else ""
+
+                results.append({
+                    "title": title,
+                    "url": job_url,
+                    "company": company,
+                    "description_snippet": description_snippet
+                })
+            return results
+        else:
+            single = _parse_job_page(html, source_url)
+            return [single] if single else []
+    except Exception as e:
+        logger.error(f"Error parsing page content for {source_url}: {e}")
+        return []
+
+
+async def process_single_job(url: str, session_id: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Fetches a single job URL with stealth session isolation and parses it.
-    Returns a structured job dict or None on failure.
+    Returns a list of structured job dicts or [] on failure.
     Uses Concurrency Semaphore and random delay (jitter).
+    Integrates progressive browser fallbacks if Cloudflare or bot challenge is detected.
     """
-    if not HAS_CFFI:
-        logger.warning("curl_cffi not installed! Bypasses might fail.")
-        return None
-
     # Set up session-id for proxy pinning
     if not session_id:
         session_id = f"sess_{random.randint(100000, 999999)}"
 
+    proxy_config = get_stabilized_proxy(session_id)
+    html_content = ""
+
     async with CONCURRENCY_SEMAPHORE:
-        # Select consistent profile
-        profile = random.choice(STEALTH_PROFILES)
-        proxy_config = get_stabilized_proxy(session_id)
-        
-        # Merge headers. Fallback spoofing X-Forwarded-For if proxy not provided.
-        headers = dict(profile["headers"])
-        if not proxy_config:
-            headers["X-Forwarded-For"] = (
-                f"{random.randint(1,255)}.{random.randint(1,255)}"
-                f".{random.randint(1,255)}.{random.randint(1,255)}"
-            )
+        if HAS_CFFI:
+            # Select consistent profile
+            profile = random.choice(STEALTH_PROFILES)
+            
+            # Merge headers. Fallback spoofing X-Forwarded-For if proxy not provided.
+            headers = dict(profile["headers"])
+            if not proxy_config:
+                headers["X-Forwarded-For"] = (
+                    f"{random.randint(1,255)}.{random.randint(1,255)}"
+                    f".{random.randint(1,255)}.{random.randint(1,255)}"
+                )
 
-        # Inject GA tracking cookies to simulate return visitor
-        cookies = {
-            "_ga": f"GA1.2.{random.randint(100000000, 999999999)}.{int(time.time())}",
-            "_gid": f"GA1.2.{random.randint(100000000, 999999999)}.{int(time.time())}"
-        }
+            # Inject GA tracking cookies to simulate return visitor
+            cookies = {
+                "_ga": f"GA1.2.{random.randint(100000000, 999999999)}.{int(time.time())}",
+                "_gid": f"GA1.2.{random.randint(100000000, 999999999)}.{int(time.time())}"
+            }
 
-        # Initialize spoofed session
-        async with requests.AsyncSession(
-            impersonate=profile["impersonate"],
-            proxies=proxy_config,
-            headers=headers,
-            cookies=cookies,
-        ) as session:
-            parsed_uri = urllib.parse.urlparse(url)
-            root_domain = f"{parsed_uri.scheme}://{parsed_uri.netloc}/"
-
+            # Initialize spoofed session
             try:
-                # 1. Warmup Step A: Fetch robots.txt or root domain (to collect cookies / clear challenge)
-                warmup_url = root_domain if "sannysoft" in root_domain else f"{root_domain}robots.txt"
-                logger.info(f"Warmup: hitting {warmup_url} with profile {profile['id']}")
-                await session.get(warmup_url, timeout=15)
-                
-                # Organic human delay (jitter)
-                await asyncio.sleep(random.uniform(2.5, 6.0))
+                async with requests.AsyncSession(
+                    impersonate=profile["impersonate"],
+                    proxies=proxy_config,
+                    headers=headers,
+                    cookies=cookies,
+                ) as session:
+                    parsed_uri = urllib.parse.urlparse(url)
+                    root_domain = f"{parsed_uri.scheme}://{parsed_uri.netloc}/"
 
-                # 2. Referer setup & Target Fetch
-                session.headers.update({"Referer": root_domain})
-                logger.info(f"Stealth fetching target: {url}")
-                response = await session.get(url, timeout=20)
-                response.raise_for_status()
+                    # 1. Warmup Step A: Fetch robots.txt or root domain (to collect cookies / clear challenge)
+                    warmup_url = root_domain if "sannysoft" in root_domain else f"{root_domain}robots.txt"
+                    logger.info(f"Warmup: hitting {warmup_url} with profile {profile['id']}")
+                    await session.get(warmup_url, timeout=15)
+                    
+                    # Organic human delay (jitter)
+                    await asyncio.sleep(random.uniform(2.5, 6.0))
 
-                # Parse and return
-                return _parse_job_page(response.text, url)
+                    # 2. Referer setup & Target Fetch
+                    session.headers.update({"Referer": root_domain})
+                    logger.info(f"Stealth fetching target: {url}")
+                    response = await session.get(url, timeout=20)
+                    response.raise_for_status()
+
+                    response_text = response.text
+                    # Check if Cloudflare turnstile, captcha, or WAF screens are detected in response.text
+                    if any(k in response_text.lower() for k in ["just a moment", "attention required", "turnstile", "ddg-captcha"]):
+                        logger.warning(f"Bot detection challenge screen detected in response for {url}.")
+                    else:
+                        html_content = response_text
 
             except Exception as e:
-                logger.error(f"Failed to stealth-fetch {url}: {e}")
-                return None
+                logger.warning(f"Failed to stealth-fetch {url} via curl_cffi: {e}")
+        else:
+            logger.warning("curl_cffi not installed! Skipping direct HTTP session.")
+
+        # Progressive Fallbacks: Try browser automation if curl_cffi failed or returned bot challenge
+        if not html_content:
+            logger.warning(f"Stealth fetch returned empty or challenged content. Trying NodriverFallback for {url}.")
+            try:
+                from core.stealth import NodriverFallback
+                html_content = await NodriverFallback.get_page_content(url)
+            except Exception as ne:
+                logger.error(f"NodriverFallback failed for {url}: {ne}")
+
+            # If NodriverFallback failed, returned empty, or also got challenged, try ApexCamoufoxFallback
+            if not html_content or any(k in html_content.lower() for k in ["just a moment", "attention required", "turnstile", "ddg-captcha"]):
+                logger.warning(f"Nodriver fallback failed or was challenged. Trying ApexCamoufoxFallback for {url}.")
+                try:
+                    from core.stealth import ApexCamoufoxFallback
+                    proxy_str = proxy_config.get("http") if proxy_config else None
+                    html_content = await ApexCamoufoxFallback.get_page_content(url, proxy=proxy_str)
+                except Exception as ce:
+                    logger.error(f"ApexCamoufoxFallback failed for {url}: {ce}")
+
+        return _parse_page_content(html_content, url)
 
 
 async def stealth_scrape_jobs(urls: List[str]) -> List[dict]:
@@ -259,9 +370,18 @@ async def stealth_scrape_jobs(urls: List[str]) -> List[dict]:
 
     results_raw = await asyncio.gather(*tasks)
 
-    # Filter out failed fetches
-    results = [r for r in results_raw if r is not None]
-    logger.info(f"Stealth scrape complete: {len(results)}/{len(urls)} pages parsed successfully.")
+    # Flat-map all the lists of dicts returned by process_single_job into a single list of dicts.
+    results = []
+    for r in results_raw:
+        if r is None:
+            continue
+        if isinstance(r, list):
+            results.extend(r)
+        elif isinstance(r, dict):
+            # Fallback if process_single_job gets mocked to return a single dict in tests
+            results.append(r)
+
+    logger.info(f"Stealth scrape complete: {len(results)} jobs parsed successfully.")
     return results
 
 
