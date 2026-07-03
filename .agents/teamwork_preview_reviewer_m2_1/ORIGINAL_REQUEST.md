@@ -1,0 +1,2 @@
+## 2026-07-03T10:37:07Z
+You are Reviewer 1. Your working directory is c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_reviewer_m2_1. Read task.md in your directory. Verify RTL layout, Arabic typography compliance, and CSS Logical Properties in globals.css, layout.tsx, page.tsx, and dashboard/page.tsx. Write handoff.md in your working directory and notify parent when done.

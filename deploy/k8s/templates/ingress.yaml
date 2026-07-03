@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "jobhunt-pro.fullname" . }}-ingress
+  labels:
+    app: jobhunt-pro
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: "jobhuntpro.com"
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "jobhunt-pro.fullname" . }}-backend
+                port:
+                  number: {{ .Values.service.backendPort }}
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "jobhunt-pro.fullname" . }}-frontend
+                port:
+                  number: {{ .Values.service.frontendPort }}

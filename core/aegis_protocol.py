@@ -93,15 +93,15 @@ def execute_enclave_session():
 
     # 3. Execution
     logger.info(f"Routing developer {dev['name']} into secure browser session.")
-    logger.info(f"Developer is modifying code BLINDFOLDED (Zero local access).")
+    logger.info("Developer is modifying code BLINDFOLDED (Zero local access).")
 
     # 4. Completion & Lockdown
     logger.info("Task completed. Developer session terminated and Enclave destroyed.")
     logger.info("Pushing compiled binary patch securely back to client servers.")
 
     logger.info("==================================================")
-    logger.info(f"🛡️ AEGIS PROTOCOL SUCCESS.")
-    logger.info(f"Competitor Advantage: Unreplicable.")
+    logger.info("🛡️ AEGIS PROTOCOL SUCCESS.")
+    logger.info("Competitor Advantage: Unreplicable.")
     logger.info(f"Client {client['name']} secured. IP Theft Probability: 0.00%.")
     logger.info("==================================================")
 

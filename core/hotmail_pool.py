@@ -20,7 +20,10 @@ History:
   v3.1 — Final version: 991/1000 active, SMTP confirmed impossible
 """
 
-import json, os, time, logging
+import json
+import os
+import time
+import logging
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -221,12 +224,14 @@ def send_email_sync(to_email: str, msg_str: str) -> tuple:
     import requests
     import time
     import random
-    import math
 
-    # Phase-Shifted Harmonic Oscillation: Add a randomized mathematical jitter 
-    # (between 0.5 and 2.5 seconds) to prevent spam filters from detecting a cron/script pattern.
-    jitter = random.uniform(0.5, 2.5) + math.sin(time.time()) * 0.5
-    time.sleep(max(0.1, jitter))
+    # Pareto Stochastic Delay (Heavy-tail distribution) instead of periodic sine waves
+    # This prevents automated signature detection of harmonic patterns.
+    try:
+        jitter = random.paretovariate(2.0)
+        time.sleep(max(0.5, min(jitter, 15.0)))
+    except Exception:
+        time.sleep(random.uniform(0.5, 3.0))
 
     account = get_account()
     if not account:
@@ -286,9 +291,15 @@ def send_email_sync(to_email: str, msg_str: str) -> tuple:
         headers = {
             "Authorization": f"Bearer {access_token}",
             "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
         }
+        
+        # Load rotating proxies from environment
+        import os
+        proxy_url = os.getenv("GRAPH_PROXY", None)
+        proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else None
 
-        resp = requests.post(url, headers=headers, json=graph_message, timeout=30)
+        resp = requests.post(url, headers=headers, json=graph_message, timeout=30, proxies=proxies)
 
         if resp.status_code == 202:
             record_send(account["email"])

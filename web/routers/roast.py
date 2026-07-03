@@ -94,7 +94,7 @@ async def roast_resume(file: UploadFile = File(...)):
                 score_str = line.replace("SCORE:", "").split("/")[0].strip()
                 try:
                     score = int(score_str)
-                except:
+                except Exception:
                     pass
 
         return {

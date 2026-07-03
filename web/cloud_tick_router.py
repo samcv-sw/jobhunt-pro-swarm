@@ -4,7 +4,6 @@ Mounted in app_v2.py as:
   from web.cloud_tick_router import router
   app.include_router(router, prefix="/api/v2")
 """
-import json
 import logging
 import os
 if os.getenv("SUPABASE_MODE") == "1":

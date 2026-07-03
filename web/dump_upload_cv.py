@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.abspath('.'))
 
-from app_v2 import app, _build_dashboard_shell, render_template
+from app_v2 import _build_dashboard_shell, render_template
 
 user_mock = {
     "user_id": 1,

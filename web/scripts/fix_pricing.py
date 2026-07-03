@@ -1,5 +1,4 @@
 # Fix pricing_v2.html - add cyberpunk body class
-import re
 import os
 path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates', 'pricing_v2.html')
 with open(path, 'r', encoding='utf-8') as f:

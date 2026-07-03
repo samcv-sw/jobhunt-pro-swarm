@@ -1,20 +1,31 @@
-# Use a lightweight Node.js image for serving the dashboard
-FROM node:20-alpine
+# ============================================
+# JobHunt Pro - Backend (FastAPI + Celery)
+# ============================================
+FROM python:3.12-slim
 
-# Set the working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy the dashboard source code
-COPY dashboard/package*.json ./
-RUN npm install
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY dashboard/ ./
-RUN npm run build
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# We no longer need global serve. Just run the local Node backend.
+# Copy backend code
+COPY backend/ ./backend/
+COPY scrapers/ ./scrapers/
+COPY tests/ ./tests/
 
-# Expose the port (Hugging Face standard is 7860)
-EXPOSE 7860
+# Set Python path so `backend` can be resolved
+ENV PYTHONPATH=/app
 
-# Serve the built dashboard using our secure backend
-CMD ["node", "server.js"]
+# Expose FastAPI port
+EXPOSE 8000
+
+# Default command: start FastAPI
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

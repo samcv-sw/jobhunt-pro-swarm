@@ -1,4 +1,5 @@
-import os, jinja2
+import os
+import jinja2
 
 env = jinja2.Environment(loader=jinja2.FileSystemLoader("templates"))
 errs = 0

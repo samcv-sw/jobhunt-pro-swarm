@@ -98,13 +98,13 @@ class ViralFactory:
         if not audio_path or not os.path.exists(audio_path):
             return {"status": "error", "error": "TTS Failed"}
 
-        logger.info(f"[VIRAL FACTORY] Stitiching MP4 with FFmpeg...")
+        logger.info("[VIRAL FACTORY] Stitiching MP4 with FFmpeg...")
         video_path = await self._generate_video(audio_path, filename)
 
         # Cleanup audio
         try:
             os.remove(audio_path)
-        except:
+        except Exception:
             pass
 
         if not video_path or not os.path.exists(video_path):

@@ -3,7 +3,10 @@ JobHunt Pro - Live Analytics Dashboard v1.0
 Real-time stats API for landing page live counters + social proof.
 """
 
-import json, logging, random, time
+import json
+import logging
+import random
+import time
 from datetime import datetime
 from pathlib import Path
 

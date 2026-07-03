@@ -215,7 +215,7 @@ def main():
 
                 logger.info(f"Enriching {len(feed_jobs)} jobs with emails...")
                 feed_jobs = asyncio.run(enrich())
-                logger.info(f"Enrichment completed.")
+                logger.info("Enrichment completed.")
             except Exception as finder_err:
                 logger.error(f"Failed to enrich jobs with emails: {finder_err}")
 

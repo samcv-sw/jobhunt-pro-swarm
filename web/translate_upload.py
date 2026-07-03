@@ -1,5 +1,4 @@
-﻿import sys
-
+﻿
 file_path = r'C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\web\templates\upload_cv_v3.html'
 with open(file_path, 'r', encoding='utf-8') as f:
     content = f.read()

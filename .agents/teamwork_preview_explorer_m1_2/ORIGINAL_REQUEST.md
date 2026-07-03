@@ -1,0 +1,2 @@
+## 2026-07-03T10:30:54Z
+You are Explorer 2. Your working directory is c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_2. Read task.md in your directory. Analyze LTR/RTL compatibility, Arabic typography (Cairo/Tajawal fonts, min 16px size, line-height 1.8), CSS Logical Properties, and form inputs using dir="auto". Write findings.md in your working directory and notify the parent when done. Do not edit source files.

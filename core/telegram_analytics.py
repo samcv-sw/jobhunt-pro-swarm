@@ -402,7 +402,7 @@ class TelegramAnalytics:
 
         # Summary below the chart
         lines.append("")
-        lines.append(f"<b>📈 Funnel Summary</b>")
+        lines.append("<b>📈 Funnel Summary</b>")
         if baseline > 0:
             lines.append(f"Open Rate: <b>{(data['opened'] / baseline * 100):.1f}%</b>")
             lines.append(
@@ -575,7 +575,7 @@ class TelegramAnalytics:
         # Header
         lines = [
             f"<b>📈 {data['period']} APPLICATION TREND</b>",
-            f"<pre>",
+            "<pre>",
         ]
 
         # Chart: each day gets a bar

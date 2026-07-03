@@ -226,11 +226,11 @@ def _load_cache():
                     merged.extend(data.get("jobs", []))
                     if ts > latest_ts:
                         latest_ts = ts
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[_load_cache] Error parsing file {fpath}: {e}")
         return latest_ts, merged
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"[_load_cache] Error reading cache dir: {e}")
     return 0, []
 
 
@@ -250,8 +250,8 @@ def _save_cache(jobs):
             fpath = os.path.join(cache_dir, f"{src}.json")
             with open(fpath, "w") as f:
                 json.dump({"ts": now, "jobs": src_jobs}, f)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"[_save_cache] Error saving to cache: {e}")
 
 
 # ── Rotation Helper ─────────────────────────────────────────────────────
@@ -307,8 +307,8 @@ def _clean_email(company: str, url: str = None) -> str:
                     netloc = netloc[len(sub) :]
             if "." in netloc and len(netloc) > 4:
                 domain = netloc
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[_clean_email] URL parse fallback: {e}")
 
     # Fallback to company name normalization
     if not domain:
@@ -406,35 +406,40 @@ class PAJobScraper:
                 f"[PAJobScraper] Worker scrape failed: {e}. Falling back to direct request."
             )
 
-        # Fallback to direct request
-        logger.info(f"[PAJobScraper] Direct fallback request: {url}")
-        if not headers or "User-Agent" not in headers:
-            import random
-
-            UAS = [
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
-                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-                "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3.1 Mobile/15E148 Safari/604.1",
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0",
-            ]
+        # Fallback to direct request using curl_cffi for perfect TLS impersonation
+        logger.info(f"[PAJobScraper] Direct fallback request with curl_cffi: {url}")
+        try:
+            from curl_cffi import requests as cffi_requests
+            
             if not headers:
                 headers = {}
-            headers["User-Agent"] = random.choice(UAS)
-            headers["Accept-Language"] = "en-US,en;q=0.9,ar;q=0.8"
-            headers["Sec-Ch-Ua"] = (
-                '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"'
-            )
-            headers["Sec-Ch-Ua-Mobile"] = "?0"
-            headers["Sec-Ch-Ua-Platform"] = '"Windows"'
-            headers["Sec-Fetch-Dest"] = "empty"
-            headers["Sec-Fetch-Mode"] = "cors"
-            headers["Sec-Fetch-Site"] = "same-origin"
-
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return resp.read().decode("utf-8", errors="ignore")
+            if "User-Agent" not in headers:
+                headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                
+            # Organic Warmup: Hit root domain first if we expect Cloudflare
+            try:
+                from urllib.parse import urlparse
+                parsed_url = urlparse(url)
+                root_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+                logger.info(f"[PAJobScraper] Organic warmup for {root_url}")
+                session = cffi_requests.Session(impersonate="chrome120")
+                session.get(root_url, timeout=10)
+            except Exception as w_exc:
+                logger.debug(f"[PAJobScraper] Warmup failed, ignoring: {w_exc}")
+                session = cffi_requests.Session(impersonate="chrome120")
+                
+            resp = session.get(url, headers=headers, timeout=timeout)
+            return resp.text
+        except ImportError:
+            logger.warning("[PAJobScraper] curl_cffi not installed, falling back to urllib (HIGH BAN RISK)")
+            if not headers or "User-Agent" not in headers:
+                import random
+                UAS = ["Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/121.0.0.0 Safari/537.36"]
+                if not headers: headers = {}
+                headers["User-Agent"] = random.choice(UAS)
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return resp.read().decode("utf-8", errors="ignore")
 
     # ══════════════════════════════════════════════════════════════════════
     # JSearch API (kept for backward compatibility)
@@ -1011,11 +1016,7 @@ class PAJobScraper:
                         f"?keywords={urllib.request.quote(title)}"
                         f"&location={urllib.request.quote(city)}&start=0&count=10"
                     )
-                    # We use httpx_Session to impersonate a legitimate Chrome browser.
-                    # This ensures the TLS handshake and HTTP/2 pseudo-headers match the User-Agent.
-                    with httpx_Session(impersonate="chrome119") as session:
-                        response = session.get(url, timeout=15)
-                        html_text = response.text
+                    html_text = self._fetch_url(url)
                     if not html_text:
                         continue
                     soup = BeautifulSoup(html_text, "html.parser")

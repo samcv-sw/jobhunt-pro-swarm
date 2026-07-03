@@ -32,6 +32,32 @@ export default function Home() {
   const [pendingSyncCount, setPendingSyncCount] = useState<number>(0);
   const [localDbStatus, setLocalDbStatus] = useState<string>("Initialized (OPFS)");
 
+  // WebSocket Live Connection
+  const [wsConnected, setWsConnected] = useState<boolean>(false);
+  const [lastMessage, setLastMessage] = useState<string>("");
+
+  useEffect(() => {
+    let ws: WebSocket;
+    const connectWs = () => {
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const host = process.env.NEXT_PUBLIC_API_URL 
+        ? new URL(process.env.NEXT_PUBLIC_API_URL).host 
+        : window.location.host;
+      
+      ws = new WebSocket(`${protocol}//${host}/ws/war-room`);
+      
+      ws.onopen = () => setWsConnected(true);
+      ws.onclose = () => {
+        setWsConnected(false);
+        setTimeout(connectWs, 3000); // Reconnect
+      };
+      ws.onmessage = (event) => setLastMessage(event.data);
+    };
+
+    connectWs();
+    return () => ws?.close();
+  }, []);
+
   // Run hash calculations
   const calculateShard = () => {
     setIsHashing(true);
@@ -136,9 +162,9 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col justify-between p-6 md:p-12" dir={isArabic ? "rtl" : "ltr"}>
       {/* Dynamic Header */}
-      <header className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-zinc-800/60 pb-6 mb-8">
+      <header className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-zinc-800/60 pb-6 mb-8 animate-fade-up">
         <div className="flex items-center gap-4">
-          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.4)] animate-float">
             <div className="absolute inset-0 bg-[#D4AF37]/20 animate-pulse" />
             <div className="w-full h-full flex items-center justify-center font-bold text-[#D4AF37] text-xl">
               H
@@ -147,11 +173,13 @@ export default function Home() {
           <div>
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
               <span className="gold-glow-text">{t.title}</span>
-              <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20 font-normal">
-                {t.activeStatus}
+              <span className={`flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full border font-normal ${wsConnected ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                <span className={wsConnected ? "status-live" : "w-2 h-2 rounded-full bg-red-500"} />
+                {wsConnected ? t.activeStatus : "Disconnected"}
               </span>
             </h1>
             <p className="text-xs md:text-sm text-zinc-400 mt-1">{t.subtitle}</p>
+            {lastMessage && <p className="text-[10px] text-zinc-500 mt-1 font-mono">{lastMessage}</p>}
           </div>
         </div>
 
@@ -161,8 +189,9 @@ export default function Home() {
             {t.capacity}
           </span>
           <button
+            id="toggle-lang-btn"
             onClick={() => setIsArabic(!isArabic)}
-            className="px-4 py-1.5 rounded-lg border border-[#D4AF37]/40 text-xs font-semibold text-[#D4AF37] bg-[#D4AF37]/5 hover:bg-[#D4AF37]/25 transition-all duration-300 cursor-pointer"
+            className="btn-gold"
           >
             {isArabic ? "English" : "العربية (RTL)"}
           </button>
@@ -178,26 +207,28 @@ export default function Home() {
               <span className="text-2xl">🌐</span>
               <h2 className="text-lg font-bold text-white">{t.shardingTitle}</h2>
             </div>
-            <p className="text-xs text-zinc-400 leading-relaxed mb-6">{t.shardingDesc}</p>
+            <p className="text-sm text-zinc-400 leading-relaxed mb-6">{t.shardingDesc}</p>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs text-zinc-500 font-semibold mb-2">
+                <label className="block text-sm text-zinc-500 font-semibold mb-2">
                   {t.tenantLabel}
                 </label>
                 <div className="flex gap-2">
                   <input
+                    id="tenant-name-input"
                     type="text"
                     dir="auto"
                     value={tenantNameInput}
                     onChange={(e) => setTenantNameInput(e.target.value)}
                     placeholder="e.g. Rita Cordahi"
-                    className="flex-1 px-4 py-2 bg-zinc-900/60 border border-zinc-800 rounded-lg text-sm text-white focus:outline-none focus:border-[#D4AF37] transition"
+                    className="input-field flex-1"
                   />
                   <button
+                    id="calculate-shard-btn"
                     onClick={calculateShard}
                     disabled={isHashing}
-                    className="px-6 py-2 bg-gradient-to-r from-[#AA7C11] to-[#D4AF37] text-black text-xs font-bold rounded-lg hover:brightness-110 active:scale-95 transition disabled:opacity-50 cursor-pointer"
+                    className="btn-gold"
                   >
                     {isHashing ? "..." : t.hashButton}
                   </button>
@@ -261,23 +292,23 @@ export default function Home() {
               </h2>
             </div>
             
-            <div className="space-y-4">
-              <div className="border-b border-zinc-800/50 pb-3">
+          <div className="space-y-4">
+              <div className="stat-card">
                 <span className="text-xs text-zinc-500 block">{t.totalShards}</span>
                 <span className="text-sm text-white font-bold">{t.totalShardsVal}</span>
               </div>
-              <div className="border-b border-zinc-800/50 pb-3">
+              <div className="stat-card">
                 <span className="text-xs text-zinc-500 block">{t.redisStatus}</span>
                 <span className="text-sm text-emerald-400 font-semibold">{t.redisVal}</span>
               </div>
-              <div className="border-b border-zinc-800/50 pb-3">
+              <div className="stat-card">
                 <span className="text-xs text-zinc-500 block">{t.smtpFallback}</span>
                 <span className="text-xs text-zinc-300 font-semibold">{t.smtpFallbackVal}</span>
               </div>
-              <div>
+              <div className="stat-card">
                 <span className="text-xs text-zinc-500 block">{t.apiSpeed}</span>
                 <div className="flex items-center gap-2 mt-1">
-                  <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="status-live" />
                   <span className="text-xs text-emerald-400 font-bold">14ms (avg)</span>
                 </div>
               </div>
@@ -317,17 +348,19 @@ export default function Home() {
 
           <div className="flex gap-2 mt-6">
             <button
+              id="sync-now-btn"
               onClick={() => {
                 if (pendingSyncCount === 0) return;
                 setPendingSyncCount(0);
                 alert(isArabic ? "تمت مزامنة البيانات مع خوادم الحافة بنجاح!" : "Local mutations pushed and synced!");
               }}
               disabled={pendingSyncCount === 0}
-              className="flex-1 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-500 transition disabled:opacity-40 cursor-pointer"
+              className="btn-gold flex-1"
             >
               {t.syncNow}
             </button>
             <button
+              id="clear-db-btn"
               onClick={handleClearLocalDb}
               className="py-2 px-3 border border-red-500/20 text-red-400 text-xs font-semibold rounded-lg hover:bg-red-500/10 transition cursor-pointer"
             >
@@ -343,43 +376,46 @@ export default function Home() {
               <span className="text-xl">🔑</span>
               <h2 className="text-lg font-bold text-white">{t.smtpTitle}</h2>
             </div>
-            <p className="text-xs text-zinc-400 leading-relaxed mb-6">{t.smtpDesc}</p>
+            <p className="text-sm text-zinc-400 leading-relaxed mb-6">{t.smtpDesc}</p>
 
             <form onSubmit={handleTestSmtp} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-zinc-500 font-semibold mb-1">
+                  <label className="block text-sm text-zinc-500 font-semibold mb-1">
                     {t.emailLabel}
                   </label>
                   <input
+                    id="smtp-email-input"
                     type="email"
                     dir="auto"
                     value={smtpEmail}
                     onChange={(e) => setSmtpEmail(e.target.value)}
                     placeholder="name@domain.com"
-                    className="w-full px-4 py-2 bg-zinc-900/60 border border-zinc-800 rounded-lg text-sm text-white focus:outline-none focus:border-[#D4AF37] transition"
+                    className="input-field"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-zinc-500 font-semibold mb-1">
+                  <label className="block text-sm text-zinc-500 font-semibold mb-1">
                     {t.passLabel}
                   </label>
                   <input
+                    id="smtp-pass-input"
                     type="password"
                     dir="auto"
                     value={smtpPass}
                     onChange={(e) => setSmtpPass(e.target.value)}
                     placeholder="••••••••••••••••"
-                    className="w-full px-4 py-2 bg-zinc-900/60 border border-zinc-800 rounded-lg text-sm text-white focus:outline-none focus:border-[#D4AF37] transition"
+                    className="input-field"
                   />
                 </div>
               </div>
 
               <div className="flex justify-between items-center gap-4 mt-2">
                 <button
+                  id="smtp-test-btn"
                   type="submit"
                   disabled={smtpStatus === "testing"}
-                  className="px-6 py-2 bg-zinc-900 hover:bg-zinc-800 text-[#D4AF37] border border-[#D4AF37]/30 hover:border-[#D4AF37] text-xs font-bold rounded-lg transition duration-200 cursor-pointer"
+                  className="btn-gold"
                 >
                   {smtpStatus === "testing" ? "..." : t.testBtn}
                 </button>
@@ -392,7 +428,7 @@ export default function Home() {
 
           {/* Test Status Messages */}
           {smtpStatus !== "idle" && (
-            <div className={`mt-6 p-4 rounded-xl text-xs border ${
+            <div className={`mt-6 p-4 rounded-xl text-sm border ${
               smtpStatus === "testing" ? "bg-blue-500/5 border-blue-500/20 text-blue-400" :
               smtpStatus === "success" ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400" :
               "bg-red-500/5 border-red-500/20 text-red-400"

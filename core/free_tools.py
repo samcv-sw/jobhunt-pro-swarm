@@ -24,7 +24,6 @@ DATA_DIR = None
 USAGE_FILE = None
 
 import sys
-from pathlib import Path
 
 _ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(_ROOT_DIR) not in sys.path:

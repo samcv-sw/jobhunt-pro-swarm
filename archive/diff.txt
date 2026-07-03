@@ -1,0 +1,37 @@
+--- original
+
++++ cleaned
+
+@@ -1,13 +1,3 @@
+
+-<!DOCTYPE html>
+-<html lang="en">
+-<head>
+-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+-  <meta charset="UTF-8">
+-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-  <meta name="description" content="Simple, transparent pricing for AI job applications.">
+-  <meta name="robots" content="index,follow">
+-  <title>Pricing — JobHunt Pro</title>
+-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+ <!-- Pricing v3 — Enhanced with billing toggle, feature detail expansion, shared design tokens -->
+ <link rel="stylesheet" href="/static/css/dashboard-v4.css">
+ <style>
+@@ -380,8 +370,7 @@
+
+   .bulk-calc-v3 { padding: 24px 18px; }
+ }
+ </style>
+-</head>
+-<body style="background:var(--bg-main);min-height:100vh;font-family:var(--font-sans);color:var(--text-main);margin:0;">
++
+ {% include '_public_nav.html' %}
+ 
+ <div class="pricing-hero-v3">
+@@ -750,5 +739,3 @@
+
+   updateBulkCalcV3(1);
+ });
+ </script>
+-</body>
+-</html>

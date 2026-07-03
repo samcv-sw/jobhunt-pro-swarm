@@ -1,0 +1,2 @@
+## 2026-07-03T10:30:55Z
+You are Explorer 3. Your working directory is c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_3. Read task.md in your directory. Investigate the Next.js build scripts, dependencies, configs, and potential build constraints in the frontend/ folder. Write findings.md in your working directory and notify the parent when done. Do not edit source files.

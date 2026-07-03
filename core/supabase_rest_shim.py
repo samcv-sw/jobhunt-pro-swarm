@@ -4,7 +4,11 @@ Uses service_role key + Supabase REST API (PostgREST).
 Same interface as pg_sqlite_shim.py for drop-in replacement.
 """
 
-import requests, os, logging, re, urllib.parse
+import requests
+import os
+import logging
+import re
+import urllib.parse
 
 logger = logging.getLogger(__name__)
 

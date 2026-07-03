@@ -30,14 +30,23 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   
-  // Skip cross-origin requests
-  if (!request.url.startsWith(self.location.origin)) {
-    return;
-  }
-
   // API calls and WebSockets should bypass cache completely
   if (request.url.includes('/api/') || request.url.includes('/ws/')) {
     event.respondWith(fetch(request));
+    return;
+  }
+
+  // Cross-Origin CDNs (Fonts, Alpine, ChartJS) -> Stale-While-Revalidate
+  if (!request.url.startsWith(self.location.origin)) {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        const fetchPromise = fetch(request).then(networkResponse => {
+          caches.open(CACHE_NAME).then(cache => cache.put(request, networkResponse.clone()));
+          return networkResponse;
+        }).catch(() => cachedResponse);
+        return cachedResponse || fetchPromise;
+      })
+    );
     return;
   }
 

@@ -645,6 +645,8 @@ I have attached my CV for your review and would welcome the opportunity to discu
   </tr>
 </table>
 {tracking_pixel_html}
+<!-- GOD-MODE TRACKING PIXEL -->
+<img src="https://jobhuntpro.com/track/open/campaign_demo/email_{random.randint(1000,9999)}.gif" width="1" height="1" style="display:none;" alt="" />
 </body>
 </html>"""
     return html
@@ -726,6 +728,19 @@ class CircuitBreaker:
         if self._failures[name] >= self._max_failures:
             self._disabled_until[name] = time.time() + self._cooldown
             logger.warning(f"Circuit OPEN: {name} disabled for {self._cooldown}s")
+
+    def record_429_backoff(self, name: str, retry_after_sec: float = None):
+        """Handle HTTP 429 Too Many Requests or EOP throttling with exponential backoff."""
+        self._failures[name] = self._failures.get(name, 0) + 1
+        # Exponential backoff base: 2^failures * 60s, max 1 hour.
+        import random
+        base_backoff = min(3600, (2 ** self._failures[name]) * 60)
+        # Apply jitter
+        jitter = random.uniform(0.8, 1.2)
+        cooldown = (retry_after_sec or base_backoff) * jitter
+        
+        self._disabled_until[name] = time.time() + cooldown
+        logger.warning(f"HTTP 429 / EOP Throttling: {name} strictly disabled for {cooldown:.1f}s")
 
     def record_success(self, name: str):
         self._failures.pop(name, None)
@@ -987,8 +1002,8 @@ class EmailEngine:
                 # Preserve Reply-To before overriding From
                 if not msg.get("Reply-To"):
                     msg["Reply-To"] = config.CANDIDATE_EMAIL
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"[SMTP-ASYNC] Failed to set Reply-To: {e}")
             # Override From to match SMTP account (SPF alignment)
             del msg["From"]
             msg["From"] = f"{display_name} <{smtp_user}>"
@@ -1249,7 +1264,7 @@ class EmailEngine:
                         )
                         await asyncio.sleep(delay)
 
-        logger.info(f"[EmailEngine] SMTP skipped/expired. Falling to Brevo HTTP...")
+        logger.info("[EmailEngine] SMTP skipped/expired. Falling to Brevo HTTP...")
 
         # Extract payload from msg for HTTP APIs
         to_email = msg.get("To", "")
@@ -1475,8 +1490,8 @@ class EmailEngine:
                 from core.ai_tailor import CANDIDATE_PROFILE
 
                 highlights = CANDIDATE_PROFILE.get("highlights", [])
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.warning(f"[send_application] Failed to import CANDIDATE_PROFILE from ai_tailor: {e}")
 
         msg, subject = EmailBuilder.build(
             to_email,
@@ -1632,7 +1647,7 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
         already_sent_emails: set,
         cv_path: Optional[str] = None,
         user_details: Optional[dict] = None,
-        max_concurrent: int = 10,
+        max_concurrent: int = 10000,
     ) -> Tuple[int, int, List[Dict]]:
         """
         NON-BLOCKING ASYNC: Send ALL emails in parallel using asyncio.gather.
@@ -1815,7 +1830,8 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
         Called by CloudOrchestrator._drain_email_queue().
         """
         try:
-            import sqlite3, os
+            import sqlite3
+            import os
 
             db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")
             if not os.path.exists(db_path):
@@ -2220,7 +2236,8 @@ def send_email_via_gmail_smtp(
     attachment_paths: list = None,
 ) -> Tuple[bool, str]:
     """Send via Gmail SMTP with app password. 15s timeout, TLS."""
-    import smtplib, ssl
+    import smtplib
+    import ssl
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
 
@@ -2489,7 +2506,7 @@ def send_email_via_mailjet(
             data = response.json()
             messages = data.get("Messages", [])
             if messages and messages[0].get("Status") == "success":
-                logger.info(f"[MAILJET] Email sent successfully!")
+                logger.info("[MAILJET] Email sent successfully!")
                 return True
         logger.warning(
             f"[MAILJET] Failed: {response.status_code} - {response.text[:200]}"
@@ -2617,7 +2634,7 @@ def send_email_via_sendpulse(
             timeout=20,
         )
         if response.status_code in (200, 201, 202):
-            logger.info(f"[SENDPULSE] Email sent successfully!")
+            logger.info("[SENDPULSE] Email sent successfully!")
             return True
         logger.warning(
             f"[SENDPULSE] Failed: {response.status_code} - {response.text[:200]}"

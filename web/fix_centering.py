@@ -1,4 +1,5 @@
-import os, re
+import os
+import re
 
 def fix_centering_in_dir(directory):
     for root, _, files in os.walk(directory):

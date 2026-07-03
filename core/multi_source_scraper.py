@@ -13,6 +13,7 @@ import time
 import logging
 import hashlib
 from typing import List, Dict, Optional
+import urllib.parse
 from urllib.parse import quote_plus
 
 try:
@@ -209,8 +210,8 @@ class BaseScraper:
     def close(self):
         try:
             self._session.close()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"{self.source_name}: error closing session: {e}")
 
     def _build_job_dict(
         self,
@@ -769,7 +770,8 @@ class GoogleJobsScraper(BaseScraper):
                     jobs.append(job)
                     if len(jobs) >= limit:
                         break
-                except Exception:
+                except Exception as e:
+                    logger.debug(f"GoogleJobsScraper organic parse error: {e}")
                     continue
 
             # If we didn't get enough from organic, fetch individual pages
@@ -781,7 +783,8 @@ class GoogleJobsScraper(BaseScraper):
                         page_job = self._fetch_page(job_url, location)
                         if page_job:
                             jobs.append(page_job)
-                    except Exception:
+                    except Exception as e:
+                        logger.debug(f"GoogleJobsScraper page fetch error: {e}")
                         continue
 
         except Exception as e:

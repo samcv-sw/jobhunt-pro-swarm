@@ -104,18 +104,18 @@ Rules:
 1. Preserve the candidate's actual experience — NEVER fabricate skills, certifications, or experience
 2. Naturally weave the target keywords into existing content where contextually appropriate using Semantic Context Mapping.
 3. Rephrase bullet points to use exact phrasing from the JD (e.g., "managed network" → "designed and deployed SD-WAN solution" if JD says that)
-4. Prioritize keywords that appear multiple times in the job description
+4. Distinguish between MUST-HAVE and NICE-TO-HAVE keywords. Prioritize MUST-HAVEs aggressively.
 5. Keep all content truthful, factual, and verifiable
 6. Maintain professional tone and readability
 7. For each section, track which keywords you injected.
-8. SEMANTIC EIGENVECTOR ALIGNMENT: Perform a mathematical keyword frequency match. Inject keywords such that the resume matches the JD's exact keyword distribution, artificially driving the ATS score to 99.9%.
+8. SEMANTIC EIGENVECTOR ALIGNMENT: Match specific frequency targets. If a keyword appears 5 times in the JD, aim to include it 3-5 times in the resume. DO NOT exceed this density to avoid keyword stuffing penalties.
 9. Return ONLY valid JSON — no markdown, no code fences
 10. IMPORTANT: The candidate has 15+ years of enterprise networking experience including SD-WAN, SASE, ZTNA, Zero Trust, cloud networking (AWS/Azure/GCP), network automation (Python/Ansible/Terraform), security (FortiGate/Palo Alto), data center, and multi-site MPLS/VPN. Use this context to naturally align with JD keywords.
 11. FRENCH/EU MARKET RULES (STRICT ATS COMPLIANCE 2026): 
     - Ensure the generated content strictly adheres to French CV conventions.
     - Format output to be structurally compatible with a STRICT SINGLE COLUMN layout. No tables, no sidebars.
     - NO PHOTOS.
-    - NO KEYWORD STUFFING: Integrate keywords naturally; ATS systems now penalize unnatural density.
+    - NO KEYWORD STUFFING: Integrate keywords naturally; ATS systems now penalize unnatural density (keep density < 5%).
     - Strict GDPR data minimization (exclude unnecessary personal details).
     - Adopt an anonymous, objective tone where appropriate.
 
@@ -125,7 +125,7 @@ Return format:
     {
       "section_name": "Professional Summary",
       "optimized_text": "Senior Network Engineer with 15+ years designing enterprise networks, SD-WAN, cloud, and security...",
-      "injected_keywords": ["keyword1", "keyword2"]
+      "injected_keywords": [{"keyword": "SD-WAN", "type": "MUST-HAVE"}]
     }
   ],
   "missing_skills": ["skill still absent from resume"],
@@ -615,7 +615,7 @@ Track which keywords were injected per section."""
             )
 
         # Step 2: Parse job keywords
-        logger.info(f"Parsing keywords from job description...")
+        logger.info("Parsing keywords from job description...")
         keywords = await self.parse_job_keywords(job_description, job_title)
         kw_count = len(keywords.get("all_keywords", []))
         logger.info(

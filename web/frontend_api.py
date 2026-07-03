@@ -3,18 +3,14 @@ JobHunt Pro — Frontend-facing API Routes
 Registered by app_v2.py import. Serves the Cloudflare Pages frontend.
 Uses ONLY columns that exist on PA's DB schema.
 """
-import json
 import hashlib
-import hmac
 import logging
 import os
-import re
 if os.getenv("SUPABASE_MODE"):
     import core.supabase_rest_shim as sqlite3_module
 else:
     import core.pg_sqlite_shim as sqlite3_module
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any, Tuple
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse

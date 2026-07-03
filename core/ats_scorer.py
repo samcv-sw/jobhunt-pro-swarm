@@ -44,11 +44,12 @@ else:
 ATS_SYSTEM_PROMPT = """You are an expert ATS (Applicant Tracking System) analyzer with deep experience in HR tech, recruitment, and resume optimization. Your job is to objectively score how well a candidate's resume matches a given job description.
 
 Scoring guidelines:
+- calculation_scratchpad: MUST BE THE FIRST FIELD. Explain your thought process, identify specific gaps in experience, and list what keywords are missing before generating numerical scores.
 - overall_score: The weighted aggregate match (0-100). Weight heavily on skills_match (40%), experience_match (30%), keyword_density (15%), education_match (10%), format_score (5%).
 - skills_match: How many required/desired skills from the JD appear in the resume
 - experience_match: How well the candidate's experience aligns with the role's seniority and domain
 - education_match: How well education/certifications match requirements
-- keyword_density: How many JD keywords are organically present in the resume
+- keyword_density: How many JD keywords are organically present in the resume. Penalize score heavily if keyword density is unnaturally high (>5% repetition) indicating keyword stuffing.
 - format_score: Resume structure, clarity, ATS-friendliness (no images, tables, or complex formatting)
 - missing_keywords: List of important keywords from the JD that are absent from the resume
 - suggestions: 3-5 actionable, specific improvements tailored to this resume+JD pair
@@ -118,9 +119,23 @@ def fallback_score(resume_text: str, job_description: str) -> dict:
         "this",
         "from",
     }
-    important_jd_words = {w for w in jd_words if len(w) > 3 and w not in stop_words}
+    
+    # Smarter Fallback: generate n-grams (bi-grams and tri-grams) to catch multi-word keywords
+    def get_ngrams(words, n):
+        return set([" ".join(words[i:i+n]) for i in range(len(words)-n+1)])
+        
+    jd_words_list = list(WORD_RE.findall(job_description.lower()))
+    resume_words_list = list(WORD_RE.findall(resume_text.lower()))
+    
+    jd_ngrams = get_ngrams(jd_words_list, 2).union(get_ngrams(jd_words_list, 3))
+    resume_ngrams = get_ngrams(resume_words_list, 2).union(get_ngrams(resume_words_list, 3))
 
-    matched = important_jd_words.intersection(resume_words)
+    important_jd_words = {w for w in jd_words if len(w) > 3 and w not in stop_words}
+    important_jd_words.update([g for g in jd_ngrams if len(g.split()) > 1])
+    
+    resume_all_features = resume_words.union(resume_ngrams)
+
+    matched = important_jd_words.intersection(resume_all_features)
     missing = important_jd_words - matched
 
     ratio = len(matched) / max(1, len(important_jd_words))

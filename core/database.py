@@ -25,6 +25,7 @@ engine = create_async_engine(
     NEON_URL,
     poolclass=NullPool,
     connect_args=connect_args,
+    pool_pre_ping=True,  # Mandatory for Serverless / PgBouncer stability
     echo=False
 )
 

@@ -319,14 +319,14 @@ class PgCursorWrapper:
             if res is None:
                 try:
                     self.cursor.close()
-                except:
+                except Exception:
                     pass
                 return None
             return self._wrap_row(tuple(res))
         except Exception as e:
             try:
                 self.cursor.close()
-            except:
+            except Exception:
                 pass
             raise e
 
@@ -337,7 +337,7 @@ class PgCursorWrapper:
         finally:
             try:
                 self.cursor.close()
-            except:
+            except Exception:
                 pass
 
     def fetchmany(self, size: Optional[int] = None) -> List[Any]:
@@ -349,20 +349,20 @@ class PgCursorWrapper:
             if not rows or (size is not None and len(rows) < size):
                 try:
                     self.cursor.close()
-                except:
+                except Exception:
                     pass
             return [self._wrap_row(tuple(r)) for r in rows]
         except Exception as e:
             try:
                 self.cursor.close()
-            except:
+            except Exception:
                 pass
             raise e
 
     def close(self) -> None:
         try:
             self.cursor.close()
-        except:
+        except Exception:
             pass
 
     def __iter__(self) -> "PgCursorWrapper":
@@ -377,7 +377,7 @@ class PgCursorWrapper:
     def __del__(self) -> None:
         try:
             self.cursor.close()
-        except:
+        except Exception:
             pass
 
     @property
@@ -409,12 +409,19 @@ class PgConnectionWrapper:
             except psycopg2.OperationalError as e:
                 raise OperationalError(e)
 
-        try:
-            self.conn = PG_POOL.getconn()
-            self.conn.autocommit = True
-            BACKEND = "pg"
-        except psycopg2.OperationalError as e:
-            raise OperationalError(e)
+        import time
+        max_retries = 5
+        for attempt in range(max_retries):
+            try:
+                self.conn = PG_POOL.getconn()
+                self.conn.autocommit = True
+                BACKEND = "pg"
+                break
+            except psycopg2.OperationalError as e:
+                if attempt < max_retries - 1:
+                    time.sleep(0.1 * (2 ** attempt))
+                else:
+                    raise OperationalError(e)
 
     def execute(
         self,
@@ -505,7 +512,7 @@ class PgConnectionWrapper:
     def __del__(self) -> None:
         try:
             self.close()
-        except:
+        except Exception:
             pass
 
 
@@ -678,17 +685,23 @@ class DictLikeRow(real_sqlite3.Row):
 
 
 # Expose standard SQLite3 properties and error types for compatibility
-Error = real_sqlite3.Error
-DatabaseError = real_sqlite3.DatabaseError
-InterfaceError = real_sqlite3.InterfaceError
-Row = DictLikeRow
-Connection = PgConnectionWrapper
+apilevel = "2.0"
+threadsafety = 1
+paramstyle = "qmark"
 
+Warning = real_sqlite3.Warning
+Error = real_sqlite3.Error
+InterfaceError = real_sqlite3.InterfaceError
+DatabaseError = real_sqlite3.DatabaseError
+DataError = real_sqlite3.DataError
 OperationalError = OperationalError
 IntegrityError = IntegrityError
+InternalError = InternalError
 ProgrammingError = ProgrammingError
 NotSupportedError = NotSupportedError
-InternalError = InternalError
+
+Row = DictLikeRow
+Connection = PgConnectionWrapper
 
 
 def get_backend() -> str:

@@ -282,7 +282,7 @@ class AegisShieldMiddleware(BaseHTTPMiddleware):
         # ── 1. IP BLACKHOLE CHECK ─────────────────────────────────────────────
         if client_ip in _blackhole:
             if now < _blackhole[client_ip]:
-                return PlainTextResponse("Access Denied.", status_code=403)
+                return PlainTextResponse("Access Denied (Blackholed).", status_code=403)
             else:
                 del _blackhole[client_ip]
 
@@ -299,7 +299,7 @@ class AegisShieldMiddleware(BaseHTTPMiddleware):
                 f"[AEGIS WAF] Malicious or missing User-Agent from {client_ip}: '{user_agent}'"
             )
             return PlainTextResponse(
-                "Forbidden: Request denied by security firewall.", status_code=403
+                "Forbidden", status_code=403
             )
 
         # ── 2. HOST HEADER VALIDATION ─────────────────────────────────────────

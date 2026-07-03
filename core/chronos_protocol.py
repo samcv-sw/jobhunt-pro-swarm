@@ -58,12 +58,12 @@ def hijack_algorithm() -> bool:
     """
 
         # 3. Strike
-        logger.info(f"⚡ STRIKE DEPLOYED. Time elapsed: 0.43 seconds.")
+        logger.info("⚡ STRIKE DEPLOYED. Time elapsed: 0.43 seconds.")
         logger.info(f"Payload (First Comment Locked): {ai_reply.strip()}")
 
         # 4. Profit Simulation
         logger.info("==================================================")
-        logger.info(f"⏱️ CHRONOS HIJACK SUCCESSFUL.")
+        logger.info("⏱️ CHRONOS HIJACK SUCCESSFUL.")
         logger.info(
             f"Status: Locked as Top Comment on a post with {target['audience_size']} potential impressions."
         )

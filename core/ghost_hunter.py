@@ -34,7 +34,7 @@ class GhostHunter:
             return
 
         if not urls:
-            logger.info(f"[DATASET-FETCHER] No data points found for query")
+            logger.info("[DATASET-FETCHER] No data points found for query")
             return
 
         urls = list(set(urls))[:max_jobs]

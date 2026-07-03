@@ -1,77 +1,285 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Tajawal:wght@400;500;700&display=swap');
 @import "tailwindcss";
+
+/* ===================================================
+   JobHunt Pro — Apex Design System
+   All layout uses CSS Logical Properties (RTL/LTR safe)
+   =================================================== */
 
 :root {
   --background: #060608;
   --foreground: #f4f4f7;
   --text-x-direction: 1;
-  --gold-primary: #D4AF37;
-  --gold-glow: rgba(212, 175, 55, 0.2);
-  --emerald-success: #10B981;
-  --neon-blue: #3B82F6;
-  --font-arabic: 'Cairo', 'Tajawal', 'IBM Plex Arabic', sans-serif;
+
+  /* Palette */
+  --gold-primary:   #D4AF37;
+  --gold-light:     #FFF6D6;
+  --gold-dark:      #AA7C11;
+  --gold-glow:      rgba(212, 175, 55, 0.2);
+  --emerald-success:#10B981;
+  --neon-blue:      #3B82F6;
+  --error-red:      #EF4444;
+
+  /* Surface layers */
+  --surface-0: #060608;
+  --surface-1: rgba(15, 15, 25, 0.65);
+  --surface-2: rgba(30, 30, 48, 0.50);
+
+  /* Typography */
+  --font-arabic: var(--font-cairo), var(--font-tajawal), 'IBM Plex Arabic', sans-serif;
+  --font-size-base: 16px;
+  --line-height-base: 1.8;
+
+  /* Motion */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 600ms;
 }
 
 [dir="rtl"] {
   --text-x-direction: -1;
 }
 
+[dir="rtl"], [lang="ar"] {
+  letter-spacing: normal !important;
+}
+
+/* ===================================================
+   Base Reset
+   =================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-arabic);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
   min-block-size: 100vh;
   overflow-x: hidden;
+  /* Subtle animated background mesh */
+  background-image:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(212,175,55,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 90%, rgba(59,130,246,0.04) 0%, transparent 60%);
 }
 
-/* Glassmorphism utility card */
+/* ===================================================
+   Glassmorphism Cards
+   =================================================== */
 .glass-panel {
-  background: rgba(15, 15, 25, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--surface-1);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  transition:
+    border-color var(--duration-base) var(--ease-out-quint),
+    box-shadow var(--duration-base) var(--ease-out-quint),
+    transform var(--duration-base) var(--ease-out-quint);
+  will-change: transform;
 }
 
 .glass-panel:hover {
-  border-color: rgba(212, 175, 55, 0.3);
-  box-shadow: 0 12px 40px 0 rgba(212, 175, 55, 0.1);
+  border-color: rgba(212, 175, 55, 0.25);
+  box-shadow:
+    0 16px 48px 0 rgba(212, 175, 55, 0.08),
+    0 2px 8px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(212,175,55,0.1);
+  transform: translateY(-2px);
 }
 
-/* RTL mirrored icons helper */
-.dir-icon {
-  transform: scaleX(var(--text-x-direction));
-  transition: transform 0.2s ease;
-}
-
-/* Glowing text effects */
+/* ===================================================
+   Typography Utilities
+   =================================================== */
 .gold-glow-text {
-  background: linear-gradient(135deg, #FFF6D6 0%, #D4AF37 50%, #AA7C11 100%);
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-primary) 50%, var(--gold-dark) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.3));
+  background-clip: text;
+  filter: drop-shadow(0 2px 10px rgba(212, 175, 55, 0.35));
 }
 
 .emerald-glow-text {
-  background: linear-gradient(135deg, #A7F3D0 0%, #10B981 100%);
+  background: linear-gradient(135deg, #A7F3D0 0%, var(--emerald-success) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Custom scrollbars */
-::-webkit-scrollbar {
-  inline-size: 8px;
+/* ===================================================
+   Directional Icon Helper (RTL/LTR mirroring)
+   =================================================== */
+.dir-icon {
+  display: inline-block;
+  transform: scaleX(var(--text-x-direction));
+  transition: transform var(--duration-fast) ease;
+}
+
+/* ===================================================
+   Button System
+   =================================================== */
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding-block: 0.6rem;
+  padding-inline: 1.25rem;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
+  color: #000;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition:
+    filter var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-spring),
+    box-shadow var(--duration-base) ease;
+  box-shadow: 0 4px 16px rgba(212,175,55,0.2);
+}
+
+.btn-gold:hover:not(:disabled) {
+  filter: brightness(1.12);
+  box-shadow: 0 6px 24px rgba(212,175,55,0.35);
+}
+
+.btn-gold:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.btn-gold:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ===================================================
+   Input System
+   =================================================== */
+.input-field {
+  inline-size: 100%;
+  padding-block: 0.6rem;
+  padding-inline: 1rem;
+  background: rgba(15, 15, 25, 0.8);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: var(--foreground);
+  font-size: 0.9rem;
+  font-family: var(--font-arabic);
+  outline: none;
+  transition:
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+}
+
+.input-field:focus {
+  border-color: rgba(212,175,55,0.5);
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
+}
+
+/* ===================================================
+   Status Badge Animations
+   =================================================== */
+@keyframes pulse-ring {
+  0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+  70%  { transform: scale(1);    box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+
+.status-live {
+  display: inline-block;
   block-size: 8px;
+  inline-size: 8px;
+  border-radius: 50%;
+  background: var(--emerald-success);
+  animation: pulse-ring 2s ease infinite;
 }
-::-webkit-scrollbar-track {
-  background: #060608;
+
+/* ===================================================
+   Micro-animations
+   =================================================== */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-::-webkit-scrollbar-thumb {
-  background: rgba(212, 175, 55, 0.2);
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+.animate-fade-up {
+  animation: fade-up var(--duration-slow) var(--ease-out-quint) both;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.shimmer-bar {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.03) 0%,
+    rgba(212,175,55,0.15) 50%,
+    rgba(255,255,255,0.03) 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 2.5s linear infinite;
+}
+
+/* ===================================================
+   Stat Cards
+   =================================================== */
+.stat-card {
+  padding-block: 0.75rem;
+  padding-inline: 1rem;
+  background: var(--surface-2);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+  transition: background var(--duration-base) ease;
+}
+
+.stat-card:hover {
+  background: rgba(212,175,55,0.06);
+  border-color: rgba(212,175,55,0.15);
+}
+
+/* ===================================================
+   Custom Scrollbars
+   =================================================== */
+::-webkit-scrollbar               { inline-size: 6px; block-size: 6px; }
+::-webkit-scrollbar-track         { background: var(--surface-0); }
+::-webkit-scrollbar-thumb         { background: rgba(212,175,55,0.2); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover   { background: rgba(212,175,55,0.45); }
+
+/* ===================================================
+   Focus-visible accessibility ring
+   =================================================== */
+:focus-visible {
+  outline: 2px solid rgba(212,175,55,0.7);
+  outline-offset: 3px;
   border-radius: 4px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 175, 55, 0.5);
-}
+
+/* ===================================================
+   Stagger animation helper classes
+   =================================================== */
+.stagger-1 { animation-delay: 60ms; }
+.stagger-2 { animation-delay: 120ms; }
+.stagger-3 { animation-delay: 180ms; }
+.stagger-4 { animation-delay: 240ms; }

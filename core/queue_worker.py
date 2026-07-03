@@ -153,7 +153,7 @@ async def process_queue():
                     for i in range(payload.get("count", 5)):
                         await viral_factory.create_viral_video()
                     complete_task(task_id)
-                    logger.info(f"[GROWTH-AI] Successfully generated viral MP4 videos!")
+                    logger.info("[GROWTH-AI] Successfully generated viral MP4 videos!")
                 except Exception as e:
                     fail_task(task_id, str(e))
                     logger.error(f"[GROWTH-AI] Viral Factory failed: {e}")

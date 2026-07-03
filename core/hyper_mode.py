@@ -546,7 +546,7 @@ class HyperScraper:
                     result = future.result(timeout=15)
                     jobs.extend(result)
                 except concurrent.futures.TimeoutError:
-                    logger.warning(f"[HYPER] Scrape timeout for source")
+                    logger.warning("[HYPER] Scrape timeout for source")
                 except Exception as e:
                     logger.error(f"[HYPER] Scrape error: {type(e).__name__}: {e}")
 
@@ -1262,7 +1262,7 @@ def main():
 
         # Print summary
         print(f"\n{'=' * 50}")
-        print(f"📊 HYPER MODE SUMMARY")
+        print("📊 HYPER MODE SUMMARY")
         print(f"{'=' * 50}")
         print(f"  New jobs scraped:  {result.get('new_jobs', 0)}")
         print(f"  Letters generated: {result.get('generated', 0)}")

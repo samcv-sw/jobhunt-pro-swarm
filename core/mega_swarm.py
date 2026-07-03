@@ -653,7 +653,7 @@ class MegaSwarmMaster:
                                 "HPE",
                             ]
                         ),
-                        "description": f"Network engineering position requiring 5+ years experience.",
+                        "description": "Network engineering position requiring 5+ years experience.",
                     }
                 )
 

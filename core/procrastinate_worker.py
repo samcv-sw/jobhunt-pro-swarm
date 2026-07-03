@@ -60,4 +60,8 @@ if __name__ == "__main__":
 
     # Run the worker
     logger.info("Starting Procrastinate worker on queues: ['emails', 'scraping']")
-    app.run_worker(queues=["emails", "scraping"])
+    app.run_worker(
+        queues=["emails", "scraping"],
+        listen_notify=False,
+        fetch_job_polling_interval=0.5
+    )

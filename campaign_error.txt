@@ -1,0 +1,6 @@
+no such column: u.oauth_expires_at
+Traceback (most recent call last):
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 127, in run_campaign
+    row = conn.execute(query, (campaign_id,)).fetchone()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: u.oauth_expires_at

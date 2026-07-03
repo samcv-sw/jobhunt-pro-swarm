@@ -24,7 +24,6 @@ import random
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 
-import time
 from core.health_server import run_in_background
 import config
 from core.agent_pool import AgentPool, AgentType, AGENT_DISTRIBUTION
@@ -175,11 +174,11 @@ class SwarmMaster:
         total_capacity = self.email_pool.get_total_daily_capacity()
         email_count = len(self.email_pool._accounts)
 
-        logger.info(f"  Agent pool: 200 agents built and running")
+        logger.info("  Agent pool: 200 agents built and running")
         logger.info(f"  LLM providers: {len(self.llm_pool._providers)} active")
         logger.info(f"  Email accounts: {email_count} (capacity: {total_capacity}/day)")
         logger.info(
-            f"  Types: "
+            "  Types: "
             + ", ".join(f"{t.value}={n}" for t, n in AGENT_DISTRIBUTION.items())
         )
         logger.info("=" * 60)

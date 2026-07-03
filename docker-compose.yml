@@ -99,6 +99,7 @@ services:
     restart: always
     depends_on:
       - app
+      - frontend
     ports:
       - "80:80"
       - "443:443"
@@ -111,6 +112,51 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: jobhunt-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - app
+
+  # Celery Worker
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jobhunt-celery
+    restart: always
+    command: ["celery", "-A", "backend.celery_app", "worker", "--loglevel=info", "-P", "solo"]
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql+asyncpg://jobhunt:${DB_PASSWORD:-jobhunt_secret_2026}@postgres:5432/jobhunt_pro
+
+  # SQLite Sync Worker
+  sync-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jobhunt-sync
+    restart: always
+    command: ["python", "-m", "backend.sync_worker"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://jobhunt:${DB_PASSWORD:-jobhunt_secret_2026}@postgres:5432/jobhunt_pro
 
   # Certbot for Let's Encrypt SSL (run once to get certs)
   certbot:

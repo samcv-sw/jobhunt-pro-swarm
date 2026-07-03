@@ -83,7 +83,7 @@ def execute_cassandra_protocol():
     logger.info(
         f"Developer {dev['name']} successfully identified a live vulnerability: {bug}"
     )
-    logger.info(f"Developer has written the patch code. Generating blurred proof...")
+    logger.info("Developer has written the patch code. Generating blurred proof...")
 
     # 3. Draft Extortion/FOMO Email
     email_subject = f"URGENT: Live Production Bug on {target['url']} (Fix Attached)"

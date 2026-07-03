@@ -40,10 +40,12 @@
     <meta name="theme-color" content="#0a0a14">
     <link rel="apple-touch-icon" href="/static/img/icon-192.png">
     <style>
-        @layer legacy, premium;
-        @import url("/static/css/cyberpunk-rtl.css?v=20260629_v2") layer(legacy);
+        @layer premium;
         @import url("/static/css/premium-ui.css") layer(premium);
     </style>
+    <!-- Defer legacy CSS -->
+    <link rel="preload" href="/static/css/cyberpunk-rtl.css?v=20260629_v2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/static/css/cyberpunk-rtl.css?v=20260629_v2"></noscript>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
     <style>
@@ -201,7 +203,39 @@
                 el.style.willChange = 'transform, opacity, box-shadow';
             });
         });
-    });
+        }
+    </script>
+    
+    <!-- Phase 8: Social Proof / FOMO Ticker -->
+    <div id="fomo-toast" style="position:fixed; bottom:-100px; inset-inline-start:20px; background:rgba(10,10,15,0.95); border:1px solid #3b82f6; border-radius:12px; padding:16px; color:#fff; display:flex; align-items:center; gap:12px; box-shadow:0 10px 30px rgba(59,130,246,0.3); z-index:9999; transition:bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); direction:rtl; font-family:'Cairo', sans-serif;">
+        <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, #3b82f6, #8b5cf6); display:flex; justify-content:center; align-items:center; font-size:20px;">⚡</div>
+        <div>
+            <div id="fomo-title" style="font-size:14px; font-weight:700; margin-bottom:4px;">مستخدم من دبي</div>
+            <div id="fomo-desc" style="font-size:12px; color:#94a3b8;">اشترك للتو في الباقة الذهبية 🚀</div>
+            <div style="font-size:10px; color:#64748b; margin-top:4px;">منذ 2 دقيقة</div>
+        </div>
+    </div>
+    <script>
+        const fomoNames = ["أحمد من دبي", "سارة من الرياض", "محمد من القاهرة", "عمر من جدة", "خالد من الكويت", "ياسمين من عمّان"];
+        const fomoActions = ["اشترك للتو في الباقة الماسية 💎", "حصل على مقابلة عمل عبر الذكاء الاصطناعي 🎯", "اشترك في الباقة الذهبية 🚀", "استخدم أداة فحص الـ CV مجاناً 📊"];
+        
+        setInterval(() => {
+            if(Math.random() > 0.5) return; // 50% chance to show every interval
+            
+            const name = fomoNames[Math.random() * fomoNames.length | 0];
+            const action = fomoActions[Math.random() * fomoActions.length | 0];
+            
+            document.getElementById('fomo-title').textContent = name;
+            document.getElementById('fomo-desc').textContent = action;
+            
+            const toast = document.getElementById('fomo-toast');
+            toast.style.bottom = '20px';
+            
+            setTimeout(() => {
+                toast.style.bottom = '-100px';
+            }, 5000);
+            
+        }, 15000); // Check every 15s
     </script>
 </body>
 </html>

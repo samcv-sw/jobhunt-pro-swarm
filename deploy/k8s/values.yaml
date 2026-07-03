@@ -1,0 +1,28 @@
+replicaCount: 1
+
+image:
+  backend:
+    repository: jobhunt-pro-backend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  frontend:
+    repository: jobhunt-pro-frontend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+service:
+  type: ClusterIP
+  backendPort: 8000
+  frontendPort: 3000
+
+redis:
+  enabled: true
+  image: "redis:alpine"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

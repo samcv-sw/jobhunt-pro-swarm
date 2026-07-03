@@ -482,9 +482,9 @@ Best regards,
         # Color scheme — reference accent
         accent = "#00b4d8" if not is_bilingual else "#d4a853"
         bg_accent = (
-            f"rgba(0, 180, 216, 0.05)"
+            "rgba(0, 180, 216, 0.05)"
             if not is_bilingual
-            else f"rgba(212, 168, 83, 0.05)"
+            else "rgba(212, 168, 83, 0.05)"
         )
 
         # Split into sections (by horizontal rule for bilingual)
@@ -606,7 +606,7 @@ Best regards,
                 )
             if company_info.get("news"):
                 breakers.append(
-                    f"Your latest infrastructure and technology projects demonstrate exactly the kind of technical challenges I have thrived on throughout my 15-year career."
+                    "Your latest infrastructure and technology projects demonstrate exactly the kind of technical challenges I have thrived on throughout my 15-year career."
                 )
             if company_info.get("values"):
                 breakers.append(

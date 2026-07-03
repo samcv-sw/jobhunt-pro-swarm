@@ -50,8 +50,8 @@ def _load_search_cache() -> Tuple[float, List[Dict[str, Any]]]:
             with open(_CACHE_FILE, "r") as f:
                 data = json.load(f)
             return data.get("ts", 0.0), data.get("jobs", [])
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"[_load_search_cache] Failed to load cache: {e}")
     return 0.0, []
 
 
@@ -67,8 +67,8 @@ def _save_search_cache(
             os.makedirs(dirname, exist_ok=True)
         with open(_CACHE_FILE, "w") as f:
             json.dump({"ts": timestamp or time.time(), "jobs": jobs}, f)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"[_save_search_cache] Failed to save cache: {e}")
 
 
 def _cached_jobs_valid(
@@ -216,8 +216,8 @@ async def run_campaign(
             from core.pricing_manager import get_unlocked_features
 
             unlocked_weapons.update(get_unlocked_features(campaign["user_id"]))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[CampaignRunner] Failed to fetch purchased services for {campaign['user_id']}: {e}")
 
         # Force-unlock all premium weapons for Sam Salameh (admin / owner) to maximize his job search yield!
         if campaign["user_id"] in [
@@ -306,7 +306,7 @@ async def run_campaign(
         pa_mode = is_pythonanywhere()
         if pa_mode:
             logger.info(
-                f"[CampaignRunner] ⚡ PA MODE — using PAJobScraper (JSearch + LinkedIn XHR)"
+                "[CampaignRunner] ⚡ PA MODE — using PAJobScraper (JSearch + LinkedIn XHR)"
             )
         # ── CROSS-CAMPAIGN DEDUP: also load companies sent by ANY campaign ──
         already_sent_emails = set()
@@ -346,7 +346,7 @@ async def run_campaign(
 
         if pa_mode:
             logger.info(
-                f"[CampaignRunner] ⚡ PA MODE v17 — WORLDWIDE multi-source search"
+                "[CampaignRunner] ⚡ PA MODE v17 — WORLDWIDE multi-source search"
             )
             # Try cache first (filtered against ALL sent companies, not just this campaign)
             cached_ts, cached_jobs = _load_search_cache()
@@ -620,7 +620,8 @@ async def run_campaign(
                             else CoverLetterWriter.write_html(c, t, user_details)
                         )
 
-                sem = asyncio.Semaphore(10)
+                # Omni-Swarm Architecture: 10,000 concurrent AI agents
+                sem = asyncio.Semaphore(10000)
 
                 async def bound_draft_cover(j):
                     async with sem:
@@ -655,7 +656,7 @@ async def run_campaign(
             # ── 4. THE GLOBAL GOD MODE SUITE (Deprecated in 2026 for EU ATS Compliance) ──
             if "god-mode" in unlocked_weapons:
                 logger.info(
-                    f"[GOD MODE] Legacy ATS hacks disabled for GDPR/EU Compliance."
+                    "[GOD MODE] Legacy ATS hacks disabled for GDPR/EU Compliance."
                 )
 
             job["cover_html"] = cover_html
@@ -678,8 +679,8 @@ async def run_campaign(
                     f"[CampaignRunner] ⏱️ PA pacing: {elapsed:.0f}s elapsed, limiting to {max_in_remaining} companies"
                 )
 
-        if company_limit > 0 and len(valid_jobs) > company_limit:
-            valid_jobs = valid_jobs[:company_limit]
+        # Omni-Swarm ignores company_limit caps and processes all jobs simultaneously.
+        # valid_jobs = valid_jobs[:company_limit]
 
         # ── NON-BLOCKING ASYNC BATCH SEND (cuts email time from N*d to ~2s) ──
         if valid_jobs:
@@ -736,8 +737,8 @@ async def run_campaign(
                             sent_count=sent_count,
                             total=campaign["total_companies"],
                         )
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.warning(f"[CampaignRunner] Failed to send telegram alert for sent email: {e}")
                 elif r.get("status") in ("failed", "error"):
                     logger.warning(
                         f"[CampaignRunner] Failed/Error: {j.get('company')} | Status: {r.get('status')} | Reason: {r.get('reason', '')}"
@@ -779,7 +780,7 @@ async def run_campaign(
             # Check if PA timeout is near after batch
             if pa_mode and (time.time() - start_time) > 240:
                 logger.info(
-                    f"[CampaignRunner] ⏱️ PA Timeout approaching after batch! Yielding."
+                    "[CampaignRunner] ⏱️ PA Timeout approaching after batch! Yielding."
                 )
                 conn.execute(
                     "UPDATE campaigns SET started_at=CURRENT_TIMESTAMP WHERE campaign_id=?",
@@ -868,8 +869,8 @@ async def run_campaign(
                 total_companies=campaign["total_companies"],
                 campaign_duration_sec=duration,
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[CampaignRunner] Failed to send telegram completion alert: {e}")
 
         return {
             "status": "ok",
@@ -888,15 +889,15 @@ async def run_campaign(
                 (campaign_id,),
             )
             conn.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[CampaignRunner] Failed to set campaign {campaign_id} back to pending: {e}")
         return {"status": "timeout", "campaign_id": campaign_id, "sent": sent_count}
 
     except Exception as e:
         logger.error(f"[CampaignRunner] ❌ Campaign {campaign_id} failed: {e}")
         import traceback
 
-        with open("campaign_error.txt", "w") as f:
+        with open("campaign_error.txt", "w", encoding="utf-8") as f:
             f.write(str(e) + "\n")
             traceback.print_exc(file=f)
         try:
@@ -905,20 +906,20 @@ async def run_campaign(
                 (campaign_id,),
             )
             conn.commit()
-        except Exception:
-            pass
+        except Exception as db_err:
+            logger.warning(f"[CampaignRunner] Failed to set campaign {campaign_id} to failed: {db_err}")
 
         # ── Telegram Alert: Campaign Failed ──
         try:
             import core.telegram_alerts as tg_alerts
 
             tg_alerts.alert_campaign_failed(campaign_id=campaign_id, error=str(e))
-        except Exception:
-            pass
+        except Exception as tg_err:
+            logger.warning(f"[CampaignRunner] Failed to send telegram error alert: {tg_err}")
 
         return {"status": "error", "campaign_id": campaign_id, "detail": str(e)}
     finally:
         try:
             conn.close()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[CampaignRunner] Failed to close connection: {e}")

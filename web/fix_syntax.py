@@ -1,4 +1,3 @@
-import re
 
 APP_FILE = r"C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\web\app_v2.py"
 

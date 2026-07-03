@@ -422,11 +422,11 @@ function initKeyboardShortcuts() {
 </div>
 <div>
 <label class="block text-sm font-medium text-slate-300 mb-1">{{ _('Email Address') }}</label>
-<input class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" id="smtpEmail" placeholder="you@domain.com" type="email"/>
+<input class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" id="smtpEmail" placeholder="you@domain.com" type="email" dir="auto"/>
 </div>
 <div>
 <label class="block text-sm font-medium text-slate-300 mb-1">{{ _('App Password') }}</label>
-<input class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" id="smtpPass" placeholder="16-digit App Password" type="password"/>
+<input class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" id="smtpPass" placeholder="16-digit App Password" type="password" dir="auto"/>
 <p class="text-xs text-slate-500 mt-1"><a class="text-indigo-400 hover:underline" href="https://support.google.com/accounts/answer/185833" target="_blank">{{ _('How to generate an App Password?') }}</a></p>
 </div>
 <button class="w-full rounded-lg bg-indigo-600 py-3 font-bold text-white transition-all hover:bg-indigo-500 mt-4 flex justify-center items-center gap-2" id="smtpConnectBtn" onclick="connectSmtp()">

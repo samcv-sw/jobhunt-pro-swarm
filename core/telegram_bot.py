@@ -1060,7 +1060,7 @@ class TelegramBot:
             logger.warning(f"Telegram photo failed: {e}")
             try:
                 await self.send(f"\U0001f4f8 Photo send failed: {e}")
-            except:
+            except Exception:
                 pass
 
     async def _send_progress(self, progress_id, message, percent=None):
@@ -1122,7 +1122,7 @@ class TelegramBot:
                 resp = await self.http_client.get(url, params=params, timeout=4)
                 if resp.status_code == 409:
                     logger.warning(
-                        f"[BOT] getUpdates 409 Conflict - another poller is active"
+                        "[BOT] getUpdates 409 Conflict - another poller is active"
                     )
                     return ([], True)
                 if resp.status_code in (429, 502, 503, 504):
@@ -1153,8 +1153,8 @@ class TelegramBot:
         """Handle a command with rate limiting."""
         if user_id and not await self._check_rate_limit(user_id):
             await self.send(
-                f"<b>⚠️ Rate Limit</b>\n\nYou're sending commands too fast. "
-                f"Please wait a moment before sending another command."
+                "<b>⚠️ Rate Limit</b>\n\nYou're sending commands too fast. "
+                "Please wait a moment before sending another command."
             )
             return
         if command in self.commands:
@@ -1821,7 +1821,7 @@ class TelegramBot:
                         timeout=5,
                     )
                     groq_ok = "🟢" if r.status_code == 200 else "🔴"
-                except:
+                except Exception:
                     groq_ok = "🔴"
             else:
                 groq_ok = "⚪"
@@ -1964,7 +1964,7 @@ class TelegramBot:
         if smtp_host and smtp_user:
             lines.append(f"🟢 <b>SMTP</b> — {smtp_host}")
         else:
-            lines.append(f"🔴 <b>SMTP</b> — Not configured")
+            lines.append("🔴 <b>SMTP</b> — Not configured")
 
         lines.append("")
         lines.append("<i>Checked at: " + datetime.now().strftime("%H:%M:%S") + "</i>")
@@ -2028,7 +2028,7 @@ class TelegramBot:
         }
         if platform not in valid:
             await self.send(
-                f"❌ Unknown platform. Use: /restart_web pythonanywhere OR /restart_web render"
+                "❌ Unknown platform. Use: /restart_web pythonanywhere OR /restart_web render"
             )
             return
         await self.send(f"<b>🔄 Restarting {valid[platform]}...</b>")
@@ -2237,7 +2237,7 @@ class TelegramBot:
             recent = conn.execute(
                 "SELECT company, title, responded_at FROM jobs WHERE responded_at IS NOT NULL ORDER BY responded_at DESC LIMIT 5"
             ).fetchall()
-            msg = f"<b>📬 INBOX CHECK | فحص الردود</b>\n\n"
+            msg = "<b>📬 INBOX CHECK | فحص الردود</b>\n\n"
             msg += f"📨 Total responses: <b>{responded}</b>\n\n"
             if recent:
                 msg += "<b>Recent responses:</b>\n"
@@ -2561,7 +2561,7 @@ class TelegramBot:
             response_rate = (applied / total_jobs * 100) if total_jobs > 0 else 0
 
             msg = "<b>🔮 ORACLE | أوراكل السوق</b>\n\n"
-            msg += f"<b>📊 Market Overview</b>\n"
+            msg += "<b>📊 Market Overview</b>\n"
             msg += f"💼 Total Jobs: <b>{total_jobs}</b>\n"
             msg += f"✅ Applied: <b>{applied}</b> ({response_rate:.1f}%)\n\n"
             if titles:
@@ -2664,10 +2664,10 @@ class TelegramBot:
         msg = (
             "<b>⚙️ SETTINGS | الإعدادات</b>\n\n"
             "<b>Current Configuration:</b>\n"
-            f"🔄 Refresh Rate: Every 15 minutes\n"
-            f"📧 Email Providers: 20\n"
-            f"🤖 Swarm Agents: 200\n"
-            f"🌍 Target Regions: Global\n\n"
+            "🔄 Refresh Rate: Every 15 minutes\n"
+            "📧 Email Providers: 20\n"
+            "🤖 Swarm Agents: 200\n"
+            "🌍 Target Regions: Global\n\n"
             "<i>Use the web dashboard for full configuration.</i>"
         )
 
@@ -4233,11 +4233,11 @@ class TelegramBot:
                 )
 
             msg += (
-                f"<b>📋 Commands:</b>\n"
-                f"<code>/sales 24h</code> — Last 24 hours\n"
-                f"<code>/sales month</code> — This month\n"
-                f"<code>/sales year</code> — This year\n"
-                f"<code>/sales all</code> — All time"
+                "<b>📋 Commands:</b>\n"
+                "<code>/sales 24h</code> — Last 24 hours\n"
+                "<code>/sales month</code> — This month\n"
+                "<code>/sales year</code> — This year\n"
+                "<code>/sales all</code> — All time"
             )
 
             await self.send(msg)
@@ -5055,7 +5055,7 @@ class TelegramBot:
         import json as _json
 
         status_lines = []
-        status_lines.append(f"Bot Status")
+        status_lines.append("Bot Status")
         status_lines.append(f"Started: {self.bot_start_time}")
         status_lines.append(f"Enabled: {self.enabled}")
         status_lines.append(f"Chat ID: {self.chat_id}")
@@ -5067,7 +5067,7 @@ class TelegramBot:
             is_live = h.get("bot") == "running"
             status_lines.append(f"PA Health: {h.get('bot', '?')}")
         except Exception:
-            status_lines.append(f"PA Health: unreachable")
+            status_lines.append("PA Health: unreachable")
         status_lines.append(f"Live: {is_live}")
         try:
             import psutil

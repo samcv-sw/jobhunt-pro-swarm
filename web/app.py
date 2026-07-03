@@ -5,7 +5,6 @@ v17.1 - Cloud-Native Architecture (Zero PC Dependency)
 """
 import os
 import sys
-import json
 import uuid
 import secrets
 import bcrypt
@@ -15,11 +14,11 @@ import logging
 import time
 import traceback
 import multiprocessing
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Depends, Request, Form, UploadFile, File
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi import FastAPI, HTTPException, Request, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -29,11 +28,8 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import config
-from core.database import Database
+# from core.database import Database
 from core.email_engine import EmailEngine
-from core.job_search import MultiSourceSearch
-from core.cover_letter import CoverLetterWriter
-from core.ai_tailor import AITailor
 from core.job_queue import enqueue_task, dequeue_task, complete_task, fail_task
 from core.campaign_runner import run_campaign
 from core.telegram_bot import send_telegram_message_sync

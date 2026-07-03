@@ -375,7 +375,7 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
                     "login_v2.html",
                     {"error": "Account locked. Try again in 30 minutes."},
                 )
-        except:
+        except Exception:
             pass
 
     user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
@@ -402,7 +402,7 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
                     (account_key, str(time.time())),
                 )
             conn.commit()
-        except:
+        except Exception:
             pass
         conn.close()
         return templates.TemplateResponse(
@@ -415,7 +415,7 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
         )
         conn.execute("DELETE FROM system_config WHERE key = ?", (account_key,))
         conn.commit()
-    except:
+    except Exception:
         pass
     conn.close()
 
@@ -436,6 +436,6 @@ def logout(request: Request):
     resp.delete_cookie("user_id", path="/")
     try:
         request.session.clear()
-    except:
+    except Exception:
         pass
     return resp

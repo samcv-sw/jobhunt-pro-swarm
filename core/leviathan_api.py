@@ -102,11 +102,11 @@ def process_webhook():
         f"Task Completed. Pushing Pull Request back to {payload['client_id']} {payload['source']}..."
     )
     logger.info("==================================================")
-    logger.info(f"♾️ INVISIBLE INFRASTRUCTURE LOCK-IN CONFIRMED.")
+    logger.info("♾️ INVISIBLE INFRASTRUCTURE LOCK-IN CONFIRMED.")
     logger.info(
         f"Client {payload['client_id']} successfully relied on Leviathan API for daily operations."
     )
-    logger.info(f"Monthly Enterprise Retainer Billed: $25,000.")
+    logger.info("Monthly Enterprise Retainer Billed: $25,000.")
     logger.info("==================================================")
 
     return True

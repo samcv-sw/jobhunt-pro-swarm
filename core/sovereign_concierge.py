@@ -105,12 +105,12 @@ def execute_sovereign_order():
     agency_share = order["fee"] - dev_share
     per_dev_payout = dev_share // len(pod)
 
-    logger.info(f"AI Project Manager dividing tasks and coordinating GitHub commits...")
+    logger.info("AI Project Manager dividing tasks and coordinating GitHub commits...")
     logger.info(f"Simulating delivery after {order['deadline_hours']} hours...")
 
     logger.info("==================================================")
     logger.info(f"✅ ORDER FULFILLED FOR {order['client']}")
-    logger.info(f"💰 PROFIT SPLIT:")
+    logger.info("💰 PROFIT SPLIT:")
     logger.info(f"   -> Agency Concierge Fee: ${agency_share} (100% Passive)")
     logger.info(
         f"   -> Developer Pool: ${dev_share} (${per_dev_payout} per developer in the 3rd world)"

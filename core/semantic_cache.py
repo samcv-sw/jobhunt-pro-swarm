@@ -267,7 +267,7 @@ def get_cached_response(prompt_text: str, similarity_threshold: float = 0.95) ->
                         return best_response
                     else:
                         logger.warning(
-                            f"Semantic cache similarity hit contained unresolved placeholders! Invalidation triggered."
+                            "Semantic cache similarity hit contained unresolved placeholders! Invalidation triggered."
                         )
                         try:
                             conn.execute(

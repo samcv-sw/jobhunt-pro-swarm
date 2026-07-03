@@ -4,7 +4,10 @@ pricing_manager.py - Clean pricing configuration for JobHunt Pro v2
 All payment buttons link to /register or /wallet for crypto payments.
 """
 
+import logging
 from typing import Dict, Any, Optional
+
+logger = logging.getLogger(__name__)
 
 PRICING_TIERS = [
     {

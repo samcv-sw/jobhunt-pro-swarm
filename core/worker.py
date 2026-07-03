@@ -30,4 +30,9 @@ async def generate_ai_resume(user_id: int, job_id: int):
 async def start_worker():
     """Start Procrastinate worker asynchronously with aggressive garbage collection."""
     async with app.open_async():
-        await app.run_worker_async(install_signal_handlers=False, delete_jobs="always")
+        await app.run_worker_async(
+            install_signal_handlers=False, 
+            delete_jobs="always",
+            listen_notify=False,
+            fetch_job_polling_interval=0.5
+        )

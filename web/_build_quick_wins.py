@@ -1,7 +1,6 @@
 """
 BUILD-QUICK-WINS Agent - Injects 5 high-impact features into JobHunt Pro
 """
-import re
 import os
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -85,7 +84,7 @@ new_block = """    # Pipeline data for dashboard
                     e['relative_time'] = f"{delta.seconds//3600}h ago"
                 else:
                     e['relative_time'] = f"{delta.seconds//60}m ago"
-            except:
+            except Exception:
                 e['relative_time'] = 'Recently'
                 e['posted_date'] = _dt.now().isoformat()
         if not e.get('relative_time'):

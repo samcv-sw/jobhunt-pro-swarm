@@ -23,6 +23,5 @@ os.environ['SECRET_KEY'] = 'YOUR_SUPER_SECRET_KEY'
 
 # 3. IMPORT THE WSGI APP FROM APP_V2
 # Our code uses a2wsgi to bridge FastAPI to WSGI via the `wsgi_app` variable.
-from app_v2 import wsgi_app as application
 
 # DONE! PythonAnywhere will now route all traffic to FastAPI correctly.

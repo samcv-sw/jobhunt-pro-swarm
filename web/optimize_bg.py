@@ -1,5 +1,4 @@
-﻿import re
-
+﻿
 file_path = r'C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\web\app_v2.py'
 with open(file_path, 'r', encoding='utf-8') as f:
     content = f.read()

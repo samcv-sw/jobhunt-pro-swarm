@@ -34,7 +34,6 @@ MIN_DELAY_SEC = 2.0  # minimum between sends
 MAX_DELAY_SEC = 5.0  # maximum randomized delay
 TRACKING_ENABLED = True
 import sys
-from pathlib import Path
 
 _ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(_ROOT_DIR) not in sys.path:
@@ -316,13 +315,26 @@ def send_blast(
                 except Exception:
                     pass  # fall through with template
 
+            # The Viral Loop Signature (Phase 8)
+            viral_signature = f"""
+            <br><br>
+            <hr style="border: none; border-top: 1px solid #eaeaea; margin: 20px 0;">
+            <p style="font-size: 12px; color: #888;">
+                🚀 <b>Powered by JobHunt Pro</b><br>
+                This application was autonomously sent by an AI agent. <br>
+                <a href="{SITE_URL}/?ref=viral_email" style="color: #3b82f6; text-decoration: none;">Get your own AI Job Hunter here.</a>
+            </p>
+            """
+            
             # Build MIME
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
             msg["To"] = to_email
             msg["List-Unsubscribe"] = f"<{UNSUBSCRIBE_URL}?email={to_email}>"
             msg["Precedence"] = "bulk"
-            msg.attach(MIMEText(body.replace("\n", "<br>\n"), "html", "utf-8"))
+            
+            final_html_body = body.replace("\n", "<br>\n") + viral_signature
+            msg.attach(MIMEText(final_html_body, "html", "utf-8"))
 
             # Send via Hotmail pool
             result = hotmail_pool.send_email(to_email=to_email, msg=msg)
@@ -330,7 +342,7 @@ def send_blast(
             if result and result.get("success"):
                 sent += 1
                 _daily_sent[today] += 1
-                shield.record_send()
+                record_send()
                 logger.debug(f"✓ Sent to {to_email}")
             else:
                 failed += 1
@@ -342,9 +354,14 @@ def send_blast(
             logger.error(f"Blast error for {recipient.get('email', '?')}: {e}")
             failed += 1
 
-        # Human-like delay between sends
-        time.sleep(MIN_DELAY_SEC + random.uniform(0, MAX_DELAY_SEC - MIN_DELAY_SEC))
-
+        # Phase-Shifted Harmonic Jitter for Microsoft EOP evasion
+        import math
+        t = time.time()
+        jitter1 = math.sin(t / 600.0 * 2 * math.pi) * 1.5
+        jitter2 = math.cos(t / 120.0 * 2 * math.pi) * 0.5
+        noise = random.uniform(0.1, 0.5)
+        calculated_delay = max(0.5, MIN_DELAY_SEC + jitter1 + jitter2 + noise)
+        time.sleep(calculated_delay)
     # Update campaign
     _active_campaigns[campaign_id].update(
         {

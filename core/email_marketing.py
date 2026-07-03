@@ -516,8 +516,10 @@ async def email_marketing_loop():
         except Exception as e:
             logger.warning(f"[EMAIL-MARKETING] Loop error: {e}")
 
-        await asyncio.sleep(CHECK_INTERVAL)
-
+        import random
+        # Stagger background loop to avoid exact 5-min intervals
+        jitter = random.randint(-45, 90)
+        await asyncio.sleep(max(60, CHECK_INTERVAL + jitter))
 
 def get_campaign_stats() -> dict:
     """Return aggregated campaign stats for reporting."""

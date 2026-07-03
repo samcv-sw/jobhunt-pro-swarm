@@ -1,4 +1,3 @@
-import os
 
 css_rule = """
 /* Fix RTL Numbers */

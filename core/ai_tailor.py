@@ -903,7 +903,7 @@ Include a mix of:
                     self._SEMANTIC_CACHE[cache_key] = result
                     try:
                         semantic_cache.save_to_cache(prompt, result)
-                    except:
+                    except Exception:
                         pass
                     return result
                 else:

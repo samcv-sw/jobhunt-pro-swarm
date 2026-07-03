@@ -42,6 +42,11 @@ Generated: 2026-06-05
   --shadow: 0 4px 16px rgba(0,0,0,.25);
   --shadow-lg: 0 8px 32px rgba(0,0,0,.35);
   --transition: all .2s ease;
+  --text-x-direction: 1;
+}
+
+[dir='rtl'] {
+  --text-x-direction: -1;
 }
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -182,7 +187,7 @@ h3 { font-size:15px; font-weight:600; color:var(--text-dim); }
 /* Ripple effect */
 .btn::after {
   content:''; position:absolute;
-  top:50%; left: 50%; width:0; height:0;
+  top:50%; inset-inline-start: 50%; width:0; height:0;
   border-radius:50%; background:rgba(255,255,255,.2);
   transform:translate(-50%, -50%);
   transition:width .6s, height .6s, opacity .6s;

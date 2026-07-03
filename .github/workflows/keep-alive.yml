@@ -1,0 +1,28 @@
+name: ⚡ Render Keep-Alive (Zero Cost Uptime)
+
+# Render's free tier spins down instances after 15 minutes of inactivity.
+# This workflow pings your application every 10 minutes so it stays awake 24/7.
+# Result: 0 Investment, Permanent Uptime.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # Runs every 10 minutes
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Application
+        env:
+          APP_URL: ${{ secrets.RENDER_APP_URL || secrets.FLY_APP_URL }}
+        run: |
+          if [ -z "$APP_URL" ]; then
+            echo "APP_URL secret is not set. Skipping ping."
+            exit 0
+          fi
+          
+          echo "Pinging $APP_URL/health to prevent sleep..."
+          curl -sS --retry 3 --max-time 10 "$APP_URL/health" > /dev/null
+          
+          echo "✅ Ping successful. App remains awake."

@@ -119,7 +119,7 @@ def alert_campaign_failed(campaign_id: str, error: str = "") -> bool:
     msg = f"❌ <b>Campaign Failed!</b>\n\n<b>ID:</b> <code>{cid_short}</code>\n"
     if error:
         msg += f"<b>Error:</b> {error[:200]}\n"
-    msg += f"\n<i>Use /retry to re-run this campaign.</i>"
+    msg += "\n<i>Use /retry to re-run this campaign.</i>"
 
     return _send_message(msg)
 

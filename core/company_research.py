@@ -122,7 +122,7 @@ class CompanyResearch:
             )
         if company_info.get("news"):
             breakers.append(
-                f"Your latest initiatives demonstrate exactly the kind of innovation I want to be part of."
+                "Your latest initiatives demonstrate exactly the kind of innovation I want to be part of."
             )
         if company_info.get("culture"):
             breakers.append(

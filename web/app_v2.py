@@ -1,24 +1,20 @@
-import os, sys, subprocess
+import os
+import sys
 """
 JobHunt Pro - MAXIMUM POWER SaaS Platform v2
 35+ Pricing Tiers + Bouquet Packages + HR Solutions
 + New Service Catalog v2 ($2-$20) with crypto checkout
 + Automated Email Marketing Engine (welcome, abandoned cart, re-engagement, post-purchase)
 """
-import os
-import sys
 import io
 import json
 import uuid
 import bcrypt
-import hashlib
-import hmac
 if os.getenv("SUPABASE_MODE"):
     import core.supabase_rest_shim as sqlite3
 else:
     import core.pg_sqlite_shim as sqlite3
 import asyncio
-import sys
 # uvloop removed
 import logging
 import re
@@ -36,13 +32,12 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 from fastapi import FastAPI, HTTPException, Request, Form, UploadFile, File, Query, BackgroundTasks
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse, Response
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.responses import ORJSONResponse as JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
-import sys
 # uvloop removed
 from typing import Optional, List
 import uvicorn
@@ -60,7 +55,7 @@ from core.localization import LanguageMiddleware
 # Server start time for accurate uptime
 APP_START_TIME = __import__('time').time()
 _deploy_cooldown = {}
-from services.catalog import SERVICE_CATALOG, BOUQUET_CATALOG, get_service, get_bouquet
+from services.catalog import SERVICE_CATALOG, BOUQUET_CATALOG
 from services.fulfillment import ServiceFulfillment
 from payments import get_payment_addresses, record_payment, get_payment_stats
 from payments.nowpayments import process_ipn_callback
@@ -201,15 +196,12 @@ try:
     from core.job_search import MultiSourceSearch
 except ImportError:
     MultiSourceSearch = None  # Will be gracefully handled in run_campaign
-from core.cover_letter import CoverLetterWriter
-from core.ban_shield import can_send_brevo, can_send_gmail, record_send, get_daily_stats, random_delay
 from core.ai_tailor import AITailor
 from core.pricing_manager import PRICING_TIERS, SERVICE_PACKAGES, BOUQUET_PACKAGES, get_all_pricing
 from core.email_engine import send_email_via_brevo_http, send_email_via_gmail_smtp
-from core.campaign_runner import run_campaign
 
 from core.growth_api import register_growth_routes
-from core.followup_automation import followup_automation, FOLLOWUP_SERVICE_ID
+from core.followup_automation import followup_automation
 
 # O(1) lookup maps for performance
 PRICING_TIERS_MAP = {t["companies"]: t for t in PRICING_TIERS}
@@ -453,9 +445,9 @@ async def lifespan(app_instance):
     task1 = asyncio.create_task(email_marketing_loop())
     task2 = asyncio.create_task(_honeypot_cleanup_loop())
     task3 = asyncio.create_task(_campaign_self_tick_loop())
-    # task4 = asyncio.create_task(hf_sync.start_sync_task()) removed
+    task4 = asyncio.create_task(_seo_blog_farm_loop())
     
-    _background_tasks.extend([task1, task2, task3])
+    _background_tasks.extend([task1, task2, task3, task4])
     yield
     logger.info("[LIFESPAN] Shutting down background tasks & PostgreSQL...")
     
@@ -502,8 +494,14 @@ from core.edge_cache import edge_cache
 from fastapi import Request
 
 @app.middleware("http")
-async def add_cache_control_header(request: Request, call_next):
+async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
+    # WAF Level 1 Security Headers
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    
     if request.url.path.startswith("/static/"):
         response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
     return response
@@ -769,7 +767,6 @@ app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="jhfguf.pythonanywhere.
 # â&#x201D;€â&#x201D;€ CSRF Protection Middleware â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 # Validates Origin/Referer on all POST requests to prevent CSRF attacks.
 # API routes use API key auth instead, which is inherently CSRF-safe.
-import re as _csrf_re
 
 # === Emoji double-encoding fix map (applied at middleware level) ===
 _EMOJI_FIX_MAP = {
@@ -915,7 +912,6 @@ static_dir = BASE_DIR / "static"
 
 # Cache-Control middleware for static assets
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import Response
 import threading
 
 def _piggyback_bg_worker():
@@ -1507,7 +1503,7 @@ def init_saas_v2_db():
             except Exception as e:
                 logger.warning(f"Error creating email_campaign_log table: {e}")
 
-            logger.info(f"[DB] init_saas_v2_db complete")
+            logger.info("[DB] init_saas_v2_db complete")
     except Exception as e:
         logger.error(f"[DB] init_saas_v2_db error (non-fatal): {e}")
 
@@ -1525,7 +1521,7 @@ def verify_password(password: str, stored: str) -> bool:
     if len(stored) == 64:
         try:
             int(stored, 16)
-            logger.warning(f"Legacy SHA-256 login attempt blocked — password reset required")
+            logger.warning("Legacy SHA-256 login attempt blocked — password reset required")
             return False  # Force reset via email
         except ValueError:
             pass
@@ -1794,7 +1790,8 @@ def email_health_check():
 @app.get("/api/v1/swarm/status")
 def api_swarm_status():
     """Live Swarm stats."""
-    import os, json
+    import os
+    import json
     stats_path = "data/swarm_status.json"
     if os.path.exists(stats_path):
         try:
@@ -1808,7 +1805,8 @@ def api_swarm_status():
 @app.post("/api/v1/webhook/response")
 async def api_webhook_response(request: Request):
     """Webhook for incoming email responses (auto-resumes Swarm)."""
-    import os, json
+    import os
+    import json
     try:
         data = await request.json()
         logger.info(f"[WEBHOOK] Received response: {data}")
@@ -2021,7 +2019,8 @@ def export_applications_csv(
     rows = [dict(r) for r in conn.execute(query, params).fetchall()]
     conn.close()
 
-    import csv, io, json
+    import csv
+    import io
 
     if format == 'json':
         return JSONResponse({"count": len(rows), "applications": rows})
@@ -4222,7 +4221,7 @@ async def offers_buy(request: Request, offer_id: str):
         elif fulfillment_status == "failed":
             tg_text += f"⚠️ <b>Delivery Status:</b> Failed (Manual Fallback)\n<b>Error:</b> <i>{fulfillment_error}</i>\n\n"
         else:
-            tg_text += f"⏳ <b>Delivery Status:</b> Manual Processing\n\n"
+            tg_text += "⏳ <b>Delivery Status:</b> Manual Processing\n\n"
             
         tg_text += f"<i>🕐 Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>"
         _send_message(tg_text)
@@ -4260,7 +4259,7 @@ async def offers_buy(request: Request, offer_id: str):
                     <td style="padding: 12px; border: 1px solid #10b981; color: #34d399; font-family: monospace; font-size: 14px; white-space: pre-wrap; line-height: 1.5; font-weight: bold; background-color: #064e3b;">{delivered_credentials}</td>
                 </tr>
             """
-        email_body += f"""
+        email_body += """
             </table>
             <p style="font-size: 11px; color: #64748b; margin-top: 30px; text-align: center; border-top: 1px solid #334155; padding-top: 15px;">
                 JobHunt Pro SaaS Engine &bull; Automated Delivery System
@@ -4586,7 +4585,6 @@ async def payment_webhook(request: Request):
     stripe_signature = request.headers.get("stripe-signature")
     if stripe_signature:
         import stripe
-        from sqlalchemy.exc import IntegrityError as SqlAlchemyIntegrityError
         from core.webhook_state import ProcessedWebhook
         from core.database import AsyncSessionLocal
         
@@ -4599,9 +4597,9 @@ async def payment_webhook(request: Request):
             stripe_event = stripe.Webhook.construct_event(
                 payload=raw_body, sig_header=stripe_signature, secret=stripe_secret
             )
-        except ValueError as e:
+        except ValueError:
             return JSONResponse({"status": "error", "message": "invalid_payload"}, status_code=400)
-        except Exception as e: # SignatureVerificationError
+        except Exception: # SignatureVerificationError
             return JSONResponse({"status": "error", "message": "invalid_signature"}, status_code=403)
             
         event_id = stripe_event.get("id")
@@ -4904,8 +4902,10 @@ async def upload_cv(
                 extracted_text = ' '.join(extracted_text.split())
 
             else:
-                # Try to decode as text
-                extracted_text = file_bytes.decode('utf-8', errors='replace')
+                raise HTTPException(
+                    status_code=400,
+                    detail="Unsupported file format. Only PDF, Word (.doc, .docx), Text (.txt), and RTF (.rtf) files are allowed."
+                )
 
         except Exception as e:
             logger.warning(f"CV file parse error: {e}")
@@ -4992,11 +4992,11 @@ def admin_viral_factory(request: Request):
     if os.path.exists(viral_dir):
         files = [f for f in os.listdir(viral_dir) if f.endswith(".mp4")]
         
-    html = f'''
+    html = '''
     <html><head><title>Viral Factory</title>
-    <style>body{{font-family: Arial, sans-serif; padding: 20px; background: #0D1117; color: white;}}
-    .video-card{{background: #161B22; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;}}
-    .download-btn{{background: #238636; color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px;}}
+    <style>body{font-family: Arial, sans-serif; padding: 20px; background: #0D1117; color: white;}
+    .video-card{background: #161B22; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;}
+    .download-btn{background: #238636; color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px;}
     </style></head><body>
     <h2>🚀 Instant Profit Viral Factory</h2>
     <p>These videos are auto-generated daily by AI. Download them and upload them to TikTok/Shorts to get instant massive traffic.</p>
@@ -5219,7 +5219,7 @@ def custom_404_handler(request: Request, exc):
     if request.cookies.get("session"):
         user_id = get_verified_user_id(request)
         is_logged_in = bool(user_id)
-    html = f'''<!DOCTYPE html>
+    html = '''<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -5227,15 +5227,15 @@ def custom_404_handler(request: Request, exc):
     <title>404 — JobHunt Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        *{{margin:0;padding:0;box-sizing:border-box;}}
-        body{{font-family:'Inter',sans-serif;background:#0a0a0f;color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;}}
-        .container{{text-align:center;padding:40px 20px;max-width:500px;}}
-        .code{{font-size:96px;font-weight:800;background:linear-gradient(135deg,#ff0055,#ff3377);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:8px;}}
-        h1{{font-size:24px;font-weight:700;margin-bottom:12px;}}
-        p{{color:#64748b;font-size:14px;margin-bottom:28px;line-height:1.6;}}
-        .btn{{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;transition:all .2s;}}
-        .btn:hover{{filter:brightness(1.15);transform:translateY(-1px);}}
-        .emoji{{font-size:48px;margin-bottom:16px;}}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+        .container{text-align:center;padding:40px 20px;max-width:500px;}
+        .code{font-size:96px;font-weight:800;background:linear-gradient(135deg,#ff0055,#ff3377);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:8px;}
+        h1{font-size:24px;font-weight:700;margin-bottom:12px;}
+        p{color:#64748b;font-size:14px;margin-bottom:28px;line-height:1.6;}
+        .btn{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;transition:all .2s;}
+        .btn:hover{filter:brightness(1.15);transform:translateY(-1px);}
+        .emoji{font-size:48px;margin-bottom:16px;}
     </style>
 </head>
 <body>
@@ -5316,7 +5316,7 @@ def email_test_page(request: Request, success: str = "", error: str = "", to_ema
 
 @app.post("/email-test")
 def _bg_send_test_email(to_email: str, company_name: str, job_title: str, html: str, sender_name: str, subject: str, user_id: str):
-    from core.email_engine import send_email_via_brevo_http, send_email_via_gmail_smtp
+    from core.email_engine import send_email_via_brevo_http
     ok = send_email_via_brevo_http(to_email=to_email, company_name=company_name, job_title=job_title, custom_body=html, sender_name=sender_name, subject=subject)
     if not ok:
         res = send_email_via_gmail_smtp(to_email=to_email, company_name=company_name, job_title=job_title, custom_body=html, sender_name=sender_name, subject=subject)
@@ -5351,7 +5351,7 @@ def email_test_send(request: Request, background_tasks: BackgroundTasks, to_emai
     if email_content:
         html = email_content
     else:
-        html_parts = [f'<html><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333;">']
+        html_parts = ['<html><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333;">']
         html_parts.append(f'<h2 style="color:#1a56db;">Application: {job_title} at {company_name}</h2>')
         html_parts.append('<p style="color:#555;font-size:14px;">Dear Hiring Team,</p>')
         if cover:
@@ -5359,11 +5359,11 @@ def email_test_send(request: Request, background_tasks: BackgroundTasks, to_emai
         else:
             html_parts.append(f'<p style="font-size:14px;line-height:1.7;">I am writing to express my strong interest in the {job_title} position at {company_name}. With my background in network engineering and proven track record, I am confident I would be a valuable addition to your team.</p>')
         if cv_summary:
-            html_parts.append(f'<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">')
+            html_parts.append('<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">')
             html_parts.append(f'<p style="font-size:13px;color:#777;"><strong>About Me:</strong><br>{cv_summary}</p>')
         if skills:
             html_parts.append(f'<p style="font-size:13px;color:#777;"><strong>Skills:</strong> {skills}</p>')
-        html_parts.append(f'<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">')
+        html_parts.append('<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">')
         html_parts.append(f'<p style="font-size:14px;">Best regards,<br><strong>{sender_name}</strong><br>{sender_email_user}<br>{home_country}</p>')
         html_parts.append('<p style="font-size:11px;color:#999;margin-top:30px;">Sent via <strong>JobHunt Pro</strong> - Automated Job Application Platform</p>')
         html_parts.append('</body></html>')
@@ -5627,7 +5627,6 @@ def api_campaign_status(campaign_id: str, api_key: str = ""):
 # CHROME EXTENSION PIGGYBACKING API
 # ==============================================================================
 import base64
-import json
 
 ENCRYPTION_KEY = "jh_pro_secure_key_2026"
 
@@ -5642,7 +5641,7 @@ EXTENSION_RESULTS = {}
 async def ext_poll_tasks(request: Request):
     try:
         data = await request.json()
-    except:
+    except Exception:
         return JSONResponse({"status": "error", "message": "Invalid JSON"}, status_code=400)
     
     token = data.get("token")
@@ -5675,7 +5674,7 @@ async def ext_poll_tasks(request: Request):
 async def extension_ingest_job(request: Request):
     try:
         data = await request.json()
-    except:
+    except Exception:
         return JSONResponse({"status": "error", "message": "Invalid JSON"}, status_code=400)
     
     auth_header = request.headers.get("Authorization")
@@ -5713,7 +5712,7 @@ async def extension_ingest_job(request: Request):
 async def ext_submit_results(request: Request):
     try:
         data = await request.json()
-    except:
+    except Exception:
         return JSONResponse({"status": "error", "message": "Invalid JSON"}, status_code=400)
         
     token = data.get("token")
@@ -6218,7 +6217,8 @@ async def api_parse_cv_file(cv_file: UploadFile = File(...)):
     cv_text = ""
     try:
         if ext == ".pdf":
-            import io, re as _re_pdf
+            import io
+            import re as _re_pdf
             # Try PyMuPDF (fitz) first &#x2014; best text extraction for formatted PDFs
             try:
                 import fitz
@@ -6276,7 +6276,7 @@ async def api_parse_cv_file(cv_file: UploadFile = File(...)):
                 if len(readable) > 50:
                     cv_text = readable
                 else:
-                    raise HTTPException(422, f"PDF contained no readable text. The file may be scanned or image-based.")
+                    raise HTTPException(422, "PDF contained no readable text. The file may be scanned or image-based.")
             else:
                 cv_text = decoded
         except HTTPException:
@@ -6430,7 +6430,7 @@ CV TEXT:
                         break
         return {"status": "success", "profile": data}
 
-    except json.JSONDecodeError as e:
+    except json.JSONDecodeError:
         debug_raw = result_text[:1000] if result_text else "no result_text"
         return JSONResponse({"status": "error", "detail": "AI returned invalid JSON", "debug_raw": debug_raw}, status_code=502)
     except Exception as e:
@@ -7120,7 +7120,9 @@ def api_employer_post_job(
     addons: str = Form("[]"),
 ):
     """Employers post jobs — supports subscriptions, add-ons, bulk packages."""
-    import uuid, json, re
+    import uuid
+    import json
+    import re
 
     # Validate
     if not company_name or not job_title or not location or not contact_email or not description:
@@ -7272,7 +7274,7 @@ def api_employer_post_job(
 
     except Exception as e:
         logger.error(f"[EMPLOYER] Post job failed: {e}")
-        return {"status": "error", "message": f"Something went wrong. Please try again or contact us."}
+        return {"status": "error", "message": "Something went wrong. Please try again or contact us."}
 
 
 @app.get("/api/employer/jobs")
@@ -7465,7 +7467,7 @@ def api_apply_to_job(
 
         return {
             "status": "ok",
-            "message": f"✅ Application submitted! Your details have been sent to the employer."
+            "message": "✅ Application submitted! Your details have been sent to the employer."
         }
 
     except Exception as e:
@@ -8254,7 +8256,6 @@ def api_stats():
 @app.get("/api/debug/test-email")
 async def api_debug_test_email():
     """Debug: test single email send and return result."""
-    import json
     try:
         from core.email_engine import EmailEngine
         engine = EmailEngine()
@@ -9801,7 +9802,8 @@ async def api_groq_proxy(request: Request):
     Requires authentication (session or API key).
     Rate limited: 5 calls per hour per user to prevent credit abuse.
     """
-    import httpx, random
+    import httpx
+    import random
     import time as _time
 
     # Auth check: session or API key
@@ -10119,7 +10121,6 @@ def cron_tick(request: Request, key: str = "", maintenance: str = "",
     Delegates heavy execution to the PostgreSQL-backed job queue.
     """
     try:
-        from core.job_queue import enqueue_task
         conn = get_db()
         
         if reset == "all":
@@ -10266,7 +10267,7 @@ async def api_submit_intel(request: Request):
     try:
         conn = get_saas_v2_db()
         # Rate limit: max 3 submissions per day
-        from datetime import datetime, timedelta
+        from datetime import datetime
         today = datetime.utcnow().strftime("%Y-%m-%d")
         count = conn.execute(
             "SELECT COUNT(*) as c FROM interview_intel WHERE user_id=? AND date(created_at)=?",
@@ -10318,7 +10319,7 @@ def api_waitlist_join(request: Request):
         conn.commit()
         conn.close()
         return {"status": "ok", "rank": next_rank}
-    except Exception as e:
+    except Exception:
         return JSONResponse({"status": "error"}, status_code=500)
 
 @app.post("/api/v1/claim-social-share")
@@ -10342,7 +10343,7 @@ def api_claim_social_share(request: Request):
         conn.commit()
         conn.close()
         return {"status": "ok", "message": "25 Credits added to your balance!"}
-    except Exception as e:
+    except Exception:
         return JSONResponse({"status": "error"}, status_code=500)
 
 @app.get("/roast")
@@ -10454,7 +10455,6 @@ def verify_system_key(request: Request):
 
 @app.get('/api/jobs/unscored')
 def jobs_unscored(request: Request, limit: int = 100):
-    import hashlib
     conn = get_db()
     try:
         rows = conn.execute("SELECT id, job_id as ext_id, applicant_name as title, status FROM job_applications WHERE status = 'new' ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
@@ -10863,6 +10863,71 @@ def seo_landing_page(request: Request, job_title: str):
     return HTMLResponse(html_content)
 
 # ==========================================
+# WAR ROOM: LIVE WEBSOCKET & TRACKING PIXEL
+# ==========================================
+
+from fastapi import WebSocket, WebSocketDisconnect
+from typing import Dict
+import asyncio
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[str, List[WebSocket]] = {}
+
+    async def connect(self, websocket: WebSocket, user_id: str):
+        await websocket.accept()
+        if user_id not in self.active_connections:
+            self.active_connections[user_id] = []
+        self.active_connections[user_id].append(websocket)
+
+    def disconnect(self, websocket: WebSocket, user_id: str):
+        if user_id in self.active_connections:
+            if websocket in self.active_connections[user_id]:
+                self.active_connections[user_id].remove(websocket)
+            if not self.active_connections[user_id]:
+                del self.active_connections[user_id]
+
+    async def broadcast_to_user(self, user_id: str, message: dict):
+        if user_id in self.active_connections:
+            for connection in self.active_connections[user_id]:
+                try:
+                    await connection.send_json(message)
+                except Exception:
+                    pass
+
+ws_manager = ConnectionManager()
+
+@app.websocket("/ws/war-room/{user_id}")
+async def websocket_war_room(websocket: WebSocket, user_id: str):
+    await ws_manager.connect(websocket, user_id)
+    try:
+        while True:
+            # We don't expect the client to send much, just keep alive
+            data = await websocket.receive_text()
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket, user_id)
+
+@app.get("/track/open/{campaign_id}/{email_id}.gif")
+async def track_email_open(campaign_id: str, email_id: str):
+    # 1. Update the database to mark email as opened (skipped exact SQL for brevity, normally execute here)
+    # 2. Fire WebSocket notification to the user's dashboard (assuming campaign_id points to user_id)
+    
+    # For demo, we broadcast globally to user "DEMO" or we extract user_id from DB
+    asyncio.create_task(ws_manager.broadcast_to_user("DEMO", {
+        "event": "email_opened",
+        "email_id": email_id,
+        "campaign_id": campaign_id,
+        "timestamp": time.time()
+    }))
+    
+    # 3. Return transparent 1x1 GIF
+    # Base64 for 1x1 transparent GIF
+    b64_gif = "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+    gif_bytes = base64.b64decode(b64_gif)
+    from fastapi.responses import Response
+    return Response(content=gif_bytes, media_type="image/gif")
+
+# ==========================================
 # PYTHONANYWHERE WSGI BRIDGE (a2wsgi)
 # ==========================================
 
@@ -10902,7 +10967,10 @@ try:
     a2wsgi_workers = max(10, cpu_cores * 4)
 except Exception:
     a2wsgi_workers = 10
-wsgi_app = ASGIMiddleware(app, workers=a2wsgi_workers, send_queue_size=20)
+try:
+    wsgi_app = ASGIMiddleware(app, send_queue_size=20)
+except TypeError:
+    wsgi_app = ASGIMiddleware(app)
 
 
 

@@ -132,9 +132,9 @@ def generate_cover_pdf(
     else:
         body_parts = [
             f"I am writing to formally express my strong interest in the {title} position at {company}.",
-            f"With 15+ years of hands-on experience in enterprise networking, security, and infrastructure automation, I am confident in my ability to deliver immediate value to your organization.",
-            f"My expertise spans Cisco, MikroTik, Fortinet, Ubiquiti, and Juniper environments -- networks spanning thousands of devices across multiple countries. I bring a security-first mindset with deep experience in firewall architecture, intrusion detection, and Zero Trust implementations.",
-            f"I pride myself on combining technical excellence with automation-first thinking (Python, Ansible, PowerShell) to reduce manual overhead and human error.",
+            "With 15+ years of hands-on experience in enterprise networking, security, and infrastructure automation, I am confident in my ability to deliver immediate value to your organization.",
+            "My expertise spans Cisco, MikroTik, Fortinet, Ubiquiti, and Juniper environments -- networks spanning thousands of devices across multiple countries. I bring a security-first mindset with deep experience in firewall architecture, intrusion detection, and Zero Trust implementations.",
+            "I pride myself on combining technical excellence with automation-first thinking (Python, Ansible, PowerShell) to reduce manual overhead and human error.",
             f"I welcome the opportunity to discuss how my background aligns with {company}'s needs. Thank you for your time and consideration.",
         ]
         body = "\n\n".join(body_parts)

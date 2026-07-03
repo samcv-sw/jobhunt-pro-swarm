@@ -109,7 +109,7 @@ def dispatch_saas_bounty():
     """
 
     logger.info(
-        f"Dispatched Skill Verification Challenge (Bounty) to Squad. Pretending they are building..."
+        "Dispatched Skill Verification Challenge (Bounty) to Squad. Pretending they are building..."
     )
 
     # 4. Simulate Completion & Deployment

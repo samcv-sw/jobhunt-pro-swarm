@@ -12,7 +12,11 @@ Flow:
   3. Rotate through 500 Hotmail accounts
 """
 
-import json, logging, random, time, requests
+import json
+import logging
+import random
+import time
+import requests
 from datetime import datetime, date
 from pathlib import Path
 from typing import Optional
@@ -37,7 +41,6 @@ _token_cache = {}
 _rotation = 0
 
 import sys
-from pathlib import Path
 
 _ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(_ROOT_DIR) not in sys.path:

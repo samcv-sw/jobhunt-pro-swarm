@@ -10,7 +10,6 @@ Runs the full job cycle: Search → Apply → Follow-up
 PLUS daily database backup (once per day at first run after midnight UTC).
 """
 import sys
-import os
 import asyncio
 import logging
 import urllib.request

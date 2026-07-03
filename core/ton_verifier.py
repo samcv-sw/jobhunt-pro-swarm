@@ -367,7 +367,7 @@ class JettonPaymentVerifier:
             )
             return result
 
-        logger.info(f"[TON-VERIFIER] ✅ Stage 1 PASSED: Sender address is authentic.")
+        logger.info("[TON-VERIFIER] ✅ Stage 1 PASSED: Sender address is authentic.")
 
         # ── STAGE 2: Transaction Existence Check ──────────────────────────────
         tx_data = await get_transaction_by_hash(tx_hash)
@@ -377,7 +377,7 @@ class JettonPaymentVerifier:
             logger.warning(f"[TON-VERIFIER] ❌ Stage 2 FAILED: {result['error']}")
             return result
 
-        logger.info(f"[TON-VERIFIER] ✅ Stage 2 PASSED: Transaction found on chain.")
+        logger.info("[TON-VERIFIER] ✅ Stage 2 PASSED: Transaction found on chain.")
 
         # ── STAGE 3: Masterchain Finality Check ───────────────────────────────
         # Poll until the transaction achieves immutable finality.

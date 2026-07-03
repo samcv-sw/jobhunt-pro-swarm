@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fix remaining templates: add cyberpunk.css link and proper body class."""
-import os, re
+import os
+import re
 
 TEMPLATES = os.path.join(os.path.dirname(__file__), '..', 'templates')
 CSS_LINK = '<link rel="stylesheet" href="/static/css/cyberpunk.css">'
