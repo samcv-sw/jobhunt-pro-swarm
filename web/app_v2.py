@@ -15,8 +15,8 @@ if os.getenv("SUPABASE_MODE"):
 else:
     import core.pg_sqlite_shim as sqlite3
 import asyncio
-# uvloop removed
 import logging
+logger = logging.getLogger("app_v2")
 import re
 import requests
 import httpx

@@ -39,6 +39,7 @@ FALLBACK_DB_PATH = None
 
 # Global Connection Pool
 PG_POOL = None
+POOL_PID = None
 
 
 # Subclass standard sqlite3 errors for robust catch matching
@@ -391,11 +392,22 @@ class PgCursorWrapper:
 
 class PgConnectionWrapper:
     def __init__(self):
-        global PG_POOL, BACKEND
+        global PG_POOL, BACKEND, POOL_PID
         self.row_factory = None
         self._in_transaction = False
         self._last_rowcount = 0
+        current_pid = os.getpid()
+
+        # If PID has changed, clear the inherited pool so we create a fresh one for this worker process
+        if PG_POOL is not None and POOL_PID != current_pid:
+            try:
+                PG_POOL.closeall()
+            except Exception:
+                pass
+            PG_POOL = None
+
         if PG_POOL is None:
+            POOL_PID = current_pid
             try:
                 min_conn = int(os.getenv("PG_POOL_MIN", "5"))
                 max_conn = int(os.getenv("PG_POOL_MAX", "80"))
