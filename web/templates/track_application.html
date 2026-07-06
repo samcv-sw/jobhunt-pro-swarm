@@ -39,7 +39,7 @@ body{font-family: 'Cairo', 'Inter',sans-serif;background:var(--bg);color:var(--t
 .glow-orb{
   position:fixed;width:500px;height:500px;border-radius:50%;pointer-events:none;
   background:rgba(0,240,255,0.05);filter:blur(120px);
-  top:-100px;left: 50%;transform:translateX(-50%);z-index:0;
+  top:-100px;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform:translateX(-50%);z-index:0;
 }
 .container{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:60px 24px}
 .header{text-align:center;margin-bottom:48px}

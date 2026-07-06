@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="ltr" lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta name="description" content="JobHunt Pro: The world's most advanced AI-powered job application system. Fully automated, invisible, and hyper-efficient.">
     <meta property="og:title" content="JobHunt Pro - Ultimate AI Auto-Applier">
@@ -28,7 +28,7 @@ body {
 /* Three.js canvas */
 #three-canvas {
  position: fixed;
- top: 0; left: 0;
+ top: 0; inset-inline-start: 0;
  width: 100vw; height: 100vh;
  z-index: 0;
 }
@@ -43,7 +43,7 @@ body {
 
 /* Top bar */
 .top-bar {
- top: 0; left: 0; right: 0;
+ top: 0; inset-inline-start: 0; inset-inline-end: 0;
  display: flex;
  justify-content: space-between;
  align-items: center;
@@ -82,7 +82,7 @@ body {
 .controls {
  position: fixed;
  bottom: 40px;
- left: 50%;
+ inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;
  transform: translateX(-50%);
  z-index: 10;
  display: flex;
@@ -154,7 +154,7 @@ body {
 .hint {
  position: fixed;
  bottom: 100px;
- left: 50%;
+ inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;
  transform: translateX(-50%);
  z-index: 10;
  font-family: 'Rajdhani', sans-serif;

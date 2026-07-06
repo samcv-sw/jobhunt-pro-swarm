@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="ltr" lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta name="description" content="JobHunt Pro: The world's most advanced AI-powered job application system. Fully automated, invisible, and hyper-efficient.">
     <meta property="og:title" content="JobHunt Pro - Ultimate AI Auto-Applier">
@@ -54,7 +54,7 @@
  /* Navbar */
  nav {
  position: fixed;
- top: 0; left: 0; right: 0;
+ top: 0; inset-inline-start: 0; inset-inline-end: 0;
  height: 64px;
  background: rgba(7,7,13,0.85);
  backdrop-filter: blur(12px);
@@ -209,8 +209,8 @@
  .service-card::before {
  content: '';
  position: absolute;
- top: 0; left: 0;
- right: 0; height: 2px;
+ top: 0; inset-inline-start: 0;
+ inset-inline-end: 0; height: 2px;
  opacity: 0;
  transition: opacity 0.3s;
  }
@@ -498,7 +498,7 @@
  .modal-overlay {
  display: none;
  position: fixed;
- top: 0; left: 0; right: 0; bottom: 0;
+ top: 0; inset-inline-start: 0; inset-inline-end: 0; bottom: 0;
  background: rgba(0,0,0,0.75);
  backdrop-filter: blur(8px);
  z-index: 9999;
@@ -640,7 +640,7 @@
  display: flex;
  flex-direction: column;
  }
- .cart-sidebar.open { right: 0; }
+ .cart-sidebar.open { inset-inline-end: 0; }
  .cart-sidebar h2 {
  font-size: 20px;
  font-weight: 700;
@@ -729,7 +729,7 @@
  }
  .cart-overlay {
  position: fixed;
- top: 0; left: 0; right: 0; bottom: 0;
+ top: 0; inset-inline-start: 0; inset-inline-end: 0; bottom: 0;
  background: rgba(0,0,0,0.5);
  z-index: 9996;
  display: none;

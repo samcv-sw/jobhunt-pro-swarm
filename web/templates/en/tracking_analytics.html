@@ -14,7 +14,7 @@
   .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px}
   .kpi-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:20px 16px;text-align:center;transition:all .3s;position:relative;overflow:hidden}
   .kpi-card:hover{border-color:rgba(0,240,255,0.2);transform:translateY(-2px)}
-  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:.6}
+  .kpi-card::before{content:'';position:absolute;top:0;inset-inline-start: 0;inset-inline-end: 0;height:2px;opacity:.6}
   .kpi-card.primary::before{background:#00f0ff}
   .kpi-card.success::before{background:#4ade80}
   .kpi-card.warning::before{background:#facc15}

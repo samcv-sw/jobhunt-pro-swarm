@@ -80,7 +80,7 @@
 /* Cart Sidebar */
 .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;opacity:0;pointer-events:none;transition:opacity .3s}
 .cart-overlay.open{opacity:1;pointer-events:auto}
-.cart-panel{position:fixed;top:0;right:0;bottom:0;width:380px;max-width:90vw;background:#0f0f18;border-inline-start:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;z-index:2001;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.cart-panel{position:fixed;top:0;inset-inline-end: 0;bottom:0;width:380px;max-width:90vw;background:#0f0f18;border-inline-start:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;z-index:2001;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
 .cart-overlay.open .cart-panel{transform:translateX(0)}
 .cart-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.06)}
 .cart-header h2{font-size:16px;font-weight:700;color:#e2e8f0;margin:0}

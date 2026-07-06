@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html dir="auto">
+<html lang="ar" dir="rtl" dir="auto">
 <head>
 <link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
 <link href="/static/css/cyberpunk-rtl.css" rel="stylesheet"/>
@@ -368,7 +368,7 @@
    z-index:2;
   }
   .popular-badge{
-   position:absolute;top:-15px;left: 50%;transform:translateX(-50%);
+   position:absolute;top:-15px;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform:translateX(-50%);
    background:linear-gradient(135deg,var(--magenta),#ff3377);
    color:#fff;padding:10px 24px;border-radius:50px;
    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:10px;font-weight:700;
@@ -548,7 +548,7 @@
   }
   .cta-inner{max-width:700px;margin:0 auto}
   .cta-glow{
-   position:absolute;top:50%;left: 50%;transform:translate(-50%,-50%);
+   position:absolute;top:50%;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform:translate(-50%,-50%);
    width:500px;height:500px;
    background:radial-gradient(circle,var(--cyan-glow) 0%,transparent 70%);
    pointer-events:none;z-index:-1;
