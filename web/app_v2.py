@@ -68,7 +68,23 @@ session_serializer = URLSafeTimedSerializer(SECRET_KEY)
 # JWT verification for security controls
 from fastapi import Depends, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import jwt
+try:
+    import jwt
+except ImportError:
+    import subprocess as _sp
+    import site as _site
+    # sys.executable can be 'uwsgi' in PythonAnywhere context — use python3 explicitly
+    for _py in ["/usr/local/bin/python3.12", "/usr/bin/python3.12", "/usr/bin/python3", "python3.12", "python3"]:
+        try:
+            _sp.check_call([_py, "-m", "pip", "install", "--user", "-q", "PyJWT>=2.8.0"], timeout=60)
+            # Refresh path
+            _user_site = _site.getusersitepackages()
+            if _user_site not in sys.path:
+                sys.path.insert(0, _user_site)
+            break
+        except Exception:
+            continue
+    import jwt
 
 JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
 if not JWT_SECRET_KEY:
