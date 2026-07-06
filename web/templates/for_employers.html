@@ -341,7 +341,7 @@
 <div class="form-card" id="postForm">
 <h2>📝 انشر وظيفتك</h2>
 <p class="subtitle">عبي التفاصيل تحت. كل ما كانت أكمل، كل ما حصلت على متقدمين أكتر.</p>
-<form id="jobForm" onsubmit="submitJob(event)">
+<form action="/api/employer/post-job" id="jobForm" method="POST" onsubmit="submitJob(event)">
 <div class="form-grid">
 <div class="form-group">
 <label>🏢 اسم الشركة *</label>
@@ -565,7 +565,7 @@ function submitJob(e) {
   formData.append('bulk_count', state.bulkCount);
   formData.append('addons', JSON.stringify(state.addons));
 
-  fetch('/api/employer/منشور-job', { method:'POST', body:formData })
+  fetch('/api/employer/post-job', { method:'POST', body:formData })
     .then(r => r.json())
     .then(res => {
       if (res.status === 'ok') {

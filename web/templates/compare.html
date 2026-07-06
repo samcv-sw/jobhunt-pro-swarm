@@ -272,5 +272,13 @@
 </div>
 <p>{{ _('© 2026 JobHunt Pro. كل الحقوق محفوظة. طلبات توظيف مدعومة بالذكاء الاصطناعي.') }}</p>
 </footer>
+<script>
+document.querySelectorAll('.faq-item h4').forEach(header => {
+    header.addEventListener('click', () => {
+        const item = header.parentElement;
+        item.classList.toggle('open');
+    });
+});
+</script>
 </body>
 </html>

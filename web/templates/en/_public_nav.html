@@ -36,13 +36,13 @@
 @media (max-width: 992px) {
     .nav-hamburger { display: flex !important; }
     .nav-links {
-        position: fixed; top: 0; right: -100%; width: 300px; max-width: 100vw; height: 100vh;
+        position: fixed; top: 0; inset-inline-end: -100%; inline-size: 300px; max-inline-size: 100vw; block-size: 100vh;
         background: rgba(3,3,12,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         border-inline-start: 1px solid rgba(255,255,255,0.05); flex-direction: column; justify-content: center;
-        padding: 40px; transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        padding: 40px; transition: inset-inline-end 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .nav-links.active { inset-inline-end: 0; }
-    .nav-links a { width: 100%; text-align: center; padding: 15px; font-size: 16px !important; }
+    .nav-links a { inline-size: 100%; text-align: center; padding: 15px; font-size: 16px !important; }
     .nav-hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
     .nav-hamburger.active span:nth-child(2) { opacity: 0; }
     .nav-hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }

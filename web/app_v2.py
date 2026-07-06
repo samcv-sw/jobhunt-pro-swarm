@@ -570,10 +570,33 @@ except Exception as e:
     logger.warning(f"Dynamic router loading failed: {e}")
 
 
+class LanguagePrefixMiddleware:
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] not in ["http", "websocket"]:
+            await self.app(scope, receive, send)
+            return
+
+        path = scope.get("path", "")
+        if path.startswith("/en/") or path == "/en":
+            scope["path"] = path[3:] if path.startswith("/en/") else "/"
+            q = scope.get("query_string", b"")
+            scope["query_string"] = b"lang=en&" + q if q else b"lang=en"
+        elif path.startswith("/ar/") or path == "/ar":
+            scope["path"] = path[3:] if path.startswith("/ar/") else "/"
+            q = scope.get("query_string", b"")
+            scope["query_string"] = b"lang=ar&" + q if q else b"lang=ar"
+
+        await self.app(scope, receive, send)
+
+
 # --- 🛡️ THE AEGIS SHIELD (ABSOLUTE FIRST MIDDLEWARE) ---
 try:
     from core.aegis_shield import AegisShieldMiddleware
     app.add_middleware(AegisShieldMiddleware)
+    app.add_middleware(LanguagePrefixMiddleware)
     app.add_middleware(LanguageMiddleware)
     logger.info("🛡️ The Aegis Shield (Anti-DDoS WAF) Activated")
 except Exception as e:
@@ -593,30 +616,7 @@ except Exception as e:
 from core.edge_cache import edge_cache
 from fastapi import Request
 
-class _AddSecurityHeadersMiddleware:
-    """Pure ASGI: add security/cache headers."""
-    def __init__(self, app): self.app = app
-    async def __call__(self, scope, receive, send):
-        if scope["type"] != "http":
-            await self.app(scope, receive, send); return
-        path = scope.get("path", "")
-        is_https = scope.get("scheme", "http") == "https"
-        async def _send(message):
-            if message["type"] == "http.response.start":
-                extra = [
-                    (b"x-frame-options", b"DENY"),
-                    (b"x-content-type-options", b"nosniff"),
-                    (b"referrer-policy", b"strict-origin-when-cross-origin"),
-                ]
-                if is_https:
-                    extra.append((b"strict-transport-security", b"max-age=31536000; includeSubDomains"))
-                if path.startswith("/static/"):
-                    extra.append((b"cache-control", b"public, max-age=31536000, immutable"))
-                message = dict(message)
-                message["headers"] = list(message.get("headers", [])) + extra
-            await send(message)
-        await self.app(scope, receive, _send)
-app.add_middleware(_AddSecurityHeadersMiddleware)
+
 
 class _EdgeCacheRateLimitMiddleware:
     """Pure ASGI: edge cache + IP rate limit."""
@@ -688,6 +688,7 @@ class SecurityHeadersMiddleware:
             return
 
         is_https = scope.get("scheme", "http") == "https"
+        path = scope.get("path", "")
 
         async def send_with_security_headers(message):
             if message["type"] == "http.response.start":
@@ -713,9 +714,19 @@ class SecurityHeadersMiddleware:
                 ]
                 if is_https:
                     extra.append((b"strict-transport-security", b"max-age=31536000; includeSubDomains; preload"))
+                if path.startswith("/static/"):
+                    extra.append((b"cache-control", b"public, max-age=31536000, immutable"))
                 message = dict(message)
                 # Filter out any existing security headers we're replacing
-                skip = {b"server", b"x-powered-by", b"x-uvicorn-version"}
+                skip = {
+                    b"server", b"x-powered-by", b"x-uvicorn-version",
+                    b"x-frame-options", b"x-content-type-options", b"x-xss-protection",
+                    b"referrer-policy", b"permissions-policy",
+                    b"cross-origin-opener-policy", b"cross-origin-resource-policy",
+                    b"content-security-policy", b"strict-transport-security"
+                }
+                if path.startswith("/static/"):
+                    skip.add(b"cache-control")
                 existing = [(k, v) for k, v in message.get("headers", []) if k.lower() not in skip]
                 message["headers"] = existing + extra
             await send(message)
@@ -3002,6 +3013,60 @@ def export_page(request: Request):
     user = dict(user_row) if user_row else {}
     content = render_template("export.html")
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Export", "export", request=request))
+
+@app.get("/login", response_class=HTMLResponse)
+def login_page(request: Request, plan: str = ""):
+    user_id = get_verified_user_id(request)
+    if user_id:
+        return RedirectResponse("/dashboard", status_code=303)
+    return templates.TemplateResponse(request, "login_v2.html", {
+        "plan": plan,
+        "VERSION": config.VERSION,
+        "error": None
+    })
+
+@app.post("/login")
+async def login(request: Request, email: str = Form(...), password: str = Form(...), plan: str = Form("")):
+    conn = get_db()
+    user_row = conn.execute("SELECT user_id, password_hash FROM users WHERE email = ?", (email.strip().lower(),)).fetchone()
+    conn.close()
+    
+    if not user_row or not verify_password(password, user_row["password_hash"]):
+        return templates.TemplateResponse(request, "login_v2.html", {
+            "plan": plan,
+            "VERSION": config.VERSION,
+            "error": "البريد الإلكتروني أو كلمة المرور غير صحيحة" if request.state.locale == "ar" else "Invalid email or password"
+        })
+    
+    signed_uid = session_serializer.dumps(user_row["user_id"])
+    redirect_url = "/dashboard"
+    if plan:
+        redirect_url = f"/new-campaign?plan={plan}"
+    
+    response = RedirectResponse(redirect_url, status_code=303)
+    response.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
+    return response
+
+@app.get("/new-campaign", response_class=HTMLResponse)
+def new_campaign_page(request: Request, plan: str = ""):
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return RedirectResponse(f"/login?plan={plan}" if plan else "/login", status_code=303)
+    
+    conn = get_db()
+    profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
+    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    conn.close()
+    
+    user = dict(user_row) if user_row else {}
+    pricing_data = get_all_pricing()
+    tiers = pricing_data.get("tiers", pricing_data) if isinstance(pricing_data, dict) else pricing_data
+    pricing = {"tiers": tiers}
+    
+    balance = user.get("wallet_balance", 0.0)
+    
+    content = render_template("new_campaign_v2.html", profiles=profiles, user=user, plan=plan, pricing=pricing, balance=balance)
+    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "New Campaign", "new-campaign", request=request))
 
 @app.get("/register", response_class=HTMLResponse)
 def register_page(request: Request, ref: str = ""):

@@ -322,3 +322,32 @@ We have implemented several high-value performance optimizations, connection poo
 - **Fix:** Increased the container top padding from 90px/100px to 130px/140px in `_public_shell.html`, `faq.html`, `contact.html`, `trust.html`, `blog.html`, `blog_post.html`, `login_v2.html`, `register_v2.html`, and other primary public templates, spacing all headers clean below the navbar.
 
 
+# Production Hardening & WSGI Post-Fork Deadlock Resolution (July 6, 2026)
+
+## 1. Post-Fork `a2wsgi` Thread Loss & WSGI Lazy App Wrapper
+- **Location:** [/var/www/jhfguf_pythonanywhere_com_wsgi.py](file:///var/www/jhfguf_pythonanywhere_com_wsgi.py) & [wsgi_test.py](file:///c:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi/wsgi_test.py)
+- **Issue:** The live Starlette application was hanging indefinitely and returning `502 Bad Gateway` / `499 Client Closed Request` on all requests. Under the hood, uWSGI pre-loads the application in the master process and then calls `fork()` to spawn workers. Because UNIX/Linux forks do not duplicate background threads, the worker process inherited a dead asyncio event loop thread pool from `a2wsgi`'s import-time initialization, causing it to block indefinitely on every incoming request.
+- **Fix:** Implemented a pure Python `LazyASGIApp` loader in the WSGI entry point file. This delays imports of `web.app_v2` and instantiation of `a2wsgi.ASGIMiddleware` until the very first HTTP request is received inside the child worker process, guaranteeing that the ASGI event loop and thread pool are spawned inside the active worker process, eliminating all thread loss deadlocks.
+
+## 2. PostgreSQL Firewall Bypass & Local SQLite Fallback
+- **Location:** [core/async_db.py](file:///c:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi/core/async_db.py) & [/var/www/jhfguf_pythonanywhere_com_wsgi.py](file:///var/www/jhfguf_pythonanywhere_com_wsgi.py)
+- **Issue:** PythonAnywhere free tier blocks outbound TCP connections on port 5432. The application previously spent 30 seconds attempting to connect to Neon PostgreSQL database during boot, causing startup timeouts (`slow_startup_error`).
+- **Fix:** Injected `FORCE_SQLITE=1` environment variable and patched `async_db.py` to bypass PostgreSQL pool initialization entirely if `FORCE_SQLITE` is active, executing immediately via the local SQLite fallback database.
+
+## 3. SQLite WAL Mode Conflict in NFS/GlusterFS Deactivator
+- **Location:** [core/pg_sqlite_shim.py](file:///c:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi/core/pg_sqlite_shim.py) & [web/app_v2.py](file:///c:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi/web/app_v2.py)
+- **Issue:** SQLite Write-Ahead Logging (`WAL` mode) is incompatible with network-mounted filesystems like PythonAnywhere's GlusterFS. Multiple processes accessing the DB under WAL mode caused glusterfs file locking collisions, locking the database connection indefinitely and hanging requests.
+- **Fix:** Disabled WAL mode globally. Replaced `journal_mode=WAL` pragmas with safe, network-compatible `journal_mode=DELETE` and `synchronous=FULL` modes in both the SQLAlchemy PG-to-SQLite shim and Starlette db connections.
+
+## 4. Post-Fork Asyncio Lock Initialization Hardening
+- **Location:** [web/app_v2.py](file:///c:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi/web/app_v2.py)
+- **Issue:** `_tick_cache_lock = asyncio.Lock()` was instantiated at the module level. When uWSGI worker forks occurred, the lock was bound to the event loop of the master process, causing workers to deadlock trying to acquire a lock bound to a non-existent loop.
+- **Fix:** Swapped module-level lock initialization for lazy-instantiation inside the route handler on its first call, ensuring the lock binds to the worker's active event loop.
+
+## 5. Security Header Deduplication on ASGI Level
+- **Location:** [web/app_v2.py](file:///c:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi/web/app_v2.py)
+- **Issue:** A test in the suite (`test_security_headers`) failed because the `X-Frame-Options` response header was triplicated (`DENY, DENY, DENY`). This happened because three independent middlewares (Aegis WAF, `_AddSecurityHeadersMiddleware`, and `SecurityHeadersMiddleware`) prepended/appended the same security headers.
+- **Fix:**
+  - Removed the duplicate `_AddSecurityHeadersMiddleware` class.
+  - Modified the primary `SecurityHeadersMiddleware` to maintain a unified `skip` header set (including `x-frame-options`, `x-content-type-options`, `referrer-policy`, `permissions-policy`, `cross-origin-opener-policy`, `content-security-policy`, and `strict-transport-security`) and filter out any pre-existing duplicates before injecting the final secure headers.
+  - Resolved the test failure cleanly: all 253 tests are now fully passing.

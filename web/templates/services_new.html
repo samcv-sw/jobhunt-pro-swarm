@@ -21,7 +21,8 @@
 
 /* Section Title */
 .sec-title{font-size:17px;font-weight:700;color:#e2e8f0;margin-bottom:16px;display:flex;align-items:center;gap:10px}
-.sec-badge{font-size:10px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;padding:3px 10px;border-radius:20px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:24px}
+.sec-badge{font-size:10px;font-weight:700;background:rgba(59,130,246,.12);color:#60a5fa;padding:3px 10px;border-radius:20px}
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:24px}
 .svc-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px;transition:all .25s;display:flex;flex-direction:column;gap:12px;position:relative}
 .svc-card:hover{border-color:rgba(59,130,246,.2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.15)}
 .svc-card.in-cart{border-color:rgba(34,197,94,.2);background:rgba(34,197,94,.02)}
@@ -391,7 +392,7 @@ function renderBundles() {
 // ═══════════════════════════════════════════════
 document.getElementById('catTabs').addEventListener('click', function(e) {
   if (!e.target.classList.contains('cat-tab')) return;
-  document.querySelectorالكل('.cat-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
   e.target.classList.add('active');
   activeCat = e.target.dataset.cat;
   renderالكل();

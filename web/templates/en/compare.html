@@ -275,5 +275,13 @@
         </div>
         <p>&copy; 2026 JobHunt Pro. All rights reserved. AI-Powered Job Applications.</p>
     </footer>
+<script>
+document.querySelectorAll('.faq-item h4').forEach(header => {
+    header.addEventListener('click', () => {
+        const item = header.parentElement;
+        item.classList.toggle('open');
+    });
+});
+</script>
 </body>
 </html>
