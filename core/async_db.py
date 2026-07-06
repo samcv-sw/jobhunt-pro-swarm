@@ -32,6 +32,11 @@ class AsyncDatabase:
             if self.pool:
                 return
 
+            if os.getenv("FORCE_SQLITE") == "1":
+                logger.info("[DB] FORCE_SQLITE=1, bypassing PG connection pool creation")
+                await self._init_sqlite()
+                return
+
             if "postgres" in NEON_URI:
                 try:
                     import asyncpg
