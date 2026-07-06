@@ -1,4 +1,4 @@
-﻿import requests
+import requests
 import time
 
 username = "JHFGUF"
@@ -23,7 +23,7 @@ if response.status_code == 200:
     print(f"Using console ID: {console_id}")
     
     # 2. Send git pull command
-    cmd = 'cd ~/jobhunt-pro-swarm && git pull origin main\n'
+    cmd = 'cd ~/jobhunt && git pull origin main\n'
     requests.post(
         f'https://www.pythonanywhere.com/api/v0/user/{username}/consoles/{console_id}/send_input/',
         headers=headers,
