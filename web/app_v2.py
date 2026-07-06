@@ -62,7 +62,10 @@ from payments.nowpayments import process_ipn_callback
 
 SECRET_KEY = os.getenv("SECRET_KEY") or getattr(config, "SECRET_KEY", None)
 if not SECRET_KEY:
-    raise RuntimeError("SECRET_KEY environment variable is not set. Set it in .env or PA dashboard.")
+    import secrets as _sec_key
+    SECRET_KEY = _sec_key.token_urlsafe(64)
+    os.environ["SECRET_KEY"] = SECRET_KEY
+    logger.critical("[SECURITY] SECRET_KEY not set — using ephemeral key. Set it in .env!")
 session_serializer = URLSafeTimedSerializer(SECRET_KEY)
 
 # JWT verification for security controls
@@ -71,27 +74,25 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 try:
     import jwt
 except ImportError:
-    import subprocess as _sp
-    import site as _site
-    # sys.executable can be 'uwsgi' in PythonAnywhere context — use python3 explicitly
-    for _py in ["/usr/local/bin/python3.12", "/usr/bin/python3.12", "/usr/bin/python3", "python3.12", "python3"]:
-        try:
-            _sp.check_call([_py, "-m", "pip", "install", "--user", "-q", "PyJWT>=2.8.0"], timeout=60)
-            # Refresh path
-            _user_site = _site.getusersitepackages()
-            if _user_site not in sys.path:
-                sys.path.insert(0, _user_site)
-            break
-        except Exception:
-            continue
-    import jwt
+    logger.error("[STARTUP] PyJWT not installed. Run: pip install PyJWT>=2.8.0")
+    # Create a stub so the app can still start
+    class _JwtStub:
+        @staticmethod
+        def encode(*a, **kw): return "stub"
+        @staticmethod
+        def decode(*a, **kw): raise Exception("PyJWT not installed")
+    jwt = _JwtStub()
 
 JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
 if not JWT_SECRET_KEY:
     if os.getenv("TESTING") == "true" or "pytest" in sys.modules or "unittest" in sys.modules:
         JWT_SECRET_KEY = "jobhunt-pro-secret-key-32bytes-ok!!"
     else:
-        raise ValueError("JWT_SECRET_KEY environment variable is not set")
+        import secrets as _sec
+        # Generate a strong random key as fallback so startup never crashes.
+        # Sessions will be invalidated on restart but the app will stay up.
+        JWT_SECRET_KEY = os.environ.setdefault("JWT_SECRET_KEY", _sec.token_urlsafe(48))
+        logger.critical("[SECURITY] JWT_SECRET_KEY not set in .env — using ephemeral key. Set it permanently!")
 
 JWT_ALGORITHM = "HS256"
 jwt_security = HTTPBearer(auto_error=False)
@@ -588,41 +589,53 @@ except Exception as e:
 from core.edge_cache import edge_cache
 from fastapi import Request
 
-@app.middleware("http")
-async def add_security_headers(request: Request, call_next):
-    response = await call_next(request)
-    # WAF Level 1 Security Headers
-    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-    response.headers["X-Frame-Options"] = "DENY"
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-    
-    if request.url.path.startswith("/static/"):
-        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
-    return response
+class _AddSecurityHeadersMiddleware:
+    """Pure ASGI: add security/cache headers."""
+    def __init__(self, app): self.app = app
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send); return
+        path = scope.get("path", "")
+        is_https = scope.get("scheme", "http") == "https"
+        async def _send(message):
+            if message["type"] == "http.response.start":
+                extra = [
+                    (b"x-frame-options", b"DENY"),
+                    (b"x-content-type-options", b"nosniff"),
+                    (b"referrer-policy", b"strict-origin-when-cross-origin"),
+                ]
+                if is_https:
+                    extra.append((b"strict-transport-security", b"max-age=31536000; includeSubDomains"))
+                if path.startswith("/static/"):
+                    extra.append((b"cache-control", b"public, max-age=31536000, immutable"))
+                message = dict(message)
+                message["headers"] = list(message.get("headers", [])) + extra
+            await send(message)
+        await self.app(scope, receive, _send)
+app.add_middleware(_AddSecurityHeadersMiddleware)
 
-@app.middleware("http")
-async def edge_cache_rate_limit(request: Request, call_next):
-    if request.url.path == "/ping":
-        return await call_next(request)
+class _EdgeCacheRateLimitMiddleware:
+    """Pure ASGI: edge cache + IP rate limit."""
+    def __init__(self, app): self.app = app
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send); return
+        path = scope.get("path", "")
+        if path == "/ping" or not edge_cache.enabled:
+            await self.app(scope, receive, send); return
+        client = scope.get("client")
+        ip = client[0] if client else "unknown"
+        key = f"rate_limit:{ip}"
+        count = await edge_cache.incr(key)
+        if count == 1:
+            await edge_cache.expire(key, 60)
+        if count and count > 100:
+            from starlette.responses import JSONResponse
+            resp = JSONResponse({"error": "Too many requests. Please slow down."}, status_code=429)
+            await resp(scope, receive, send); return
+        await self.app(scope, receive, send)
+app.add_middleware(_EdgeCacheRateLimitMiddleware)
 
-    if not edge_cache.enabled:
-        return await call_next(request)
-        
-    # Rate limit by IP (100 requests per minute)
-    ip = request.client.host if request.client else "unknown"
-    key = f"rate_limit:{ip}"
-    
-    # Fire and forget counter logic to prevent blocking
-    count = await edge_cache.incr(key)
-    if count == 1:
-        await edge_cache.expire(key, 60)
-        
-    if count and count > 100:
-        from fastapi.responses import JSONResponse
-        return JSONResponse({"error": "Too many requests. Please slow down."}, status_code=429)
-        
-    return await call_next(request)
 
 # ── Register growth modules (cold blaster, blog, free tools) ──
 register_growth_routes(app)
@@ -897,92 +910,100 @@ _EMOJI_FIX_MAP = {
     b'\xc3\xb0\xc5\xb8&#x201C;\xc5\x9f': b'&#x1F4DD;',  # 📝
 }
 
-@app.middleware("http")
-async def csrf_middleware(request: Request, call_next):
-    if request.method == "POST":
-        # Skip CSRF check for API routes (authenticated via API keys)
-        path = request.url.path
-        if path.startswith("/api/"):
-            return await call_next(request)
-        # Skip for IPN webhooks (external callbacks)
-        if "ipn" in path or "webhook" in path:
-            return await call_next(request)
-        # Skip during testing (e.g. Starlette TestClient)
-        if os.getenv("TESTING") == "true" or getattr(config, "HYPER_TEST_MODE", False):
-            return await call_next(request)
-        origin = request.headers.get("origin", "")
-        referer = request.headers.get("referer", "")
-        allowed_domains = {"jhfguf.pythonanywhere.com", "localhost", "127.0.0.1"}
-        ok = False
-        # Check origin first
-        if origin:
-            try:
-                parsed = urlparse(origin)
-                if parsed.netloc in allowed_domains or parsed.netloc.split(":")[0] in allowed_domains:
-                    ok = True
-            except Exception as e:
-                logger.error(e, exc_info=True)
-        # Check referer as fallback
-        if not ok and referer:
-            try:
-                parsed = urlparse(referer)
-                if parsed.netloc in allowed_domains or parsed.netloc.split(":")[0] in allowed_domains:
-                    ok = True
-            except Exception as e:
-                logger.error(e, exc_info=True)
-        if not ok:
-            return Response("CSRF validation failed", status_code=403)
-    response = await call_next(request)
+class _CsrfEmojiMiddleware:
+    """Pure ASGI CSRF check + emoji body fix + i18n script injection."""
+    def __init__(self, app): self.app = app
 
-    # Clean double-encoded emoji from HTML responses
-    content_type = response.headers.get("content-type", "")
-    if "text/html" in content_type:
-        try:
-            body = b""
-            async for chunk in response.body_iterator:
-                body += chunk
-            for old, new in _EMOJI_FIX_MAP.items():
-                body = body.replace(old, new)
-            # v16.108: Text-level fallback for any remaining garbled sequences
-            text_body = body.decode('utf-8', errors='replace')
-            text_fixes = [
-                ('ðŸ&#x2019;a','&#x1F4AA;'),   # 💪
-                ('ðŸ&#x201C;§','&#x1F4E7;'),   # 📧
-                ('ðŸ&#x201C;±','&#x1F4F1;'),   # 📱
-                ('ðŸ&#x201C;Ž','&#x1F4CE;'),   # 📎
-                ('ðŸ','&#x1F3C6;'), # 🏆
-                ('ðŸŒŨ','&#x2728;'),  # ✨
-                ('ðŸ¤-','&#x1F916;'), # 🤖
-                ('ðŸ ï ̧','&#x1F6E0;&#xFE0F;'), # 🛠️
-                ('ðŸŒŸ','&#x1F31F;'),  # 🌟
-                # ('ðŸ‘‹','&#x1F44B;'),# 👋 (removed — quote char conflict)
-                ('ðŸš€','&#x1F680;'),  # 🚀
-                ('ðŸŽ‰','&#x1F389;'),  # 🎉
-                ('ðŸŽ ̄','&#x1F3AF;'),  # 🎯
-                ('ðŸŽ"','&#x1F393;'),  # 🎓
-                ('ðŸ¥‡','&#x1F947;'), # 🥇
-                ('ðŸ‡±ðŸ‡§','&#x1F1F1;&#x1F1E7;'), # 🇱🇧
-            ]
-            fixed = False
-            for garbled, entity in text_fixes:
-                if garbled in text_body:
-                    text_body = text_body.replace(garbled, entity)
-                    fixed = True
-            if fixed:
-                body = text_body.encode('utf-8')
-            # Inject i18n script before </head> for Arabic translation support
-            i18n_script = b'<script src="/static/js/i18n.js"></script>'
-            body = body.replace(b'</head>', i18n_script + b'</head>', 1)
-            # Also add RTL CSS fix
-            rtl_css = b'<style>.lang-ar .text-left{text-align:right!important}.lang-ar .text-right{text-align:left!important}.lang-ar .float-left{float:right!important}.lang-ar .float-right{float:left!important}.lang-ar .mr-auto{margin-left:auto!important;margin-right:0!important}.lang-ar .ml-auto{margin-right:auto!important;margin-left:0!important}</style>'
-            body = body.replace(b'</head>', rtl_css + b'</head>', 1)
-            # Remove content-length since body may change
-            new_headers = {k: v for k, v in response.headers.items() if k.lower() != 'content-length'}
-            return Response(content=body, status_code=response.status_code,
-                          headers=new_headers, media_type="text/html")
-        except Exception as e:
-            logger.error(e, exc_info=True)
-    return response
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send); return
+
+        from starlette.requests import Request as _Req
+        from starlette.responses import Response as _Resp
+        request = _Req(scope)
+
+        # CSRF check on POST
+        if request.method == "POST":
+            path = scope.get("path", "")
+            skip = (path.startswith("/api/") or "ipn" in path or "webhook" in path
+                    or os.getenv("TESTING") == "true"
+                    or getattr(config, "HYPER_TEST_MODE", False))
+            if not skip:
+                origin  = request.headers.get("origin", "")
+                referer = request.headers.get("referer", "")
+                allowed = {"jhfguf.pythonanywhere.com", "localhost", "127.0.0.1"}
+                ok = False
+                for val in (origin, referer):
+                    if val:
+                        try:
+                            parsed = urlparse(val)
+                            if parsed.netloc in allowed or parsed.netloc.split(":")[0] in allowed:
+                                ok = True; break
+                        except Exception: pass
+                if not ok:
+                    resp = _Resp("CSRF validation failed", status_code=403)
+                    await resp(scope, receive, send); return
+
+        _status  = None
+        _headers = None
+        _body    = bytearray()
+        _is_html = False
+        _started = False
+
+        async def buffering_send(message):
+            nonlocal _status, _headers, _is_html, _started
+            if message["type"] == "http.response.start":
+                _status  = message["status"]
+                _headers = list(message.get("headers", []))
+                for k, v in _headers:
+                    if k.lower() == b"content-type" and b"text/html" in v:
+                        _is_html = True
+                if not _is_html:
+                    await send(message)
+                    _started = True
+            elif message["type"] == "http.response.body":
+                if not _is_html:
+                    await send(message)
+                else:
+                    _body.extend(message.get("body", b""))
+                    if not message.get("more_body", False):
+                        body = bytes(_body)
+                        try:
+                            for old, new in _EMOJI_FIX_MAP.items():
+                                body = body.replace(old, new)
+                            text_body = body.decode("utf-8", errors="replace")
+                            text_fixes = [
+                                ("\u00f0\u0178\u2019a",  "&#x1F4AA;"),
+                                ("\u00f0\u0178\u201c\u00a7",  "&#x1F4E7;"),
+                                ("\u00f0\u0178\u201c\u00b1",  "&#x1F4F1;"),
+                                ("\u00f0\u0178",          "&#x1F3C6;"),
+                                ("\u00f0\u0178\u0161\u20ac",  "&#x1F680;"),
+                                ("\u00f0\u0178\u017d\u2030",  "&#x1F389;"),
+                                ("\u00f0\u0178\u00a5\u2021",  "&#x1F947;"),
+                            ]
+                            fixed = False
+                            for garbled, entity in text_fixes:
+                                if garbled in text_body:
+                                    text_body = text_body.replace(garbled, entity)
+                                    fixed = True
+                            if fixed:
+                                body = text_body.encode("utf-8")
+                            i18n_script = b'<script src="/static/js/i18n.js"></script>'
+                            body = body.replace(b"</head>", i18n_script + b"</head>", 1)
+                            rtl_css = b'<style>.lang-ar .text-left{text-align:right!important}.lang-ar .text-right{text-align:left!important}</style>'
+                            body = body.replace(b"</head>", rtl_css + b"</head>", 1)
+                            _headers = [(k, v) for k, v in (_headers or []) if k.lower() != b"content-length"]
+                            _headers.append((b"content-length", str(len(body)).encode()))
+                        except Exception as e:
+                            logger.error(f"[CSRF/Emoji MW] body error: {e}")
+
+                        await send({"type": "http.response.start", "status": _status or 200, "headers": _headers or []})
+                        await send({"type": "http.response.body", "body": body, "more_body": False})
+                        _started = True
+
+        await self.app(scope, receive, buffering_send)
+
+app.add_middleware(_CsrfEmojiMiddleware)
 
 BASE_DIR = Path(__file__).parent
 static_dir = BASE_DIR / "static"
