@@ -131,6 +131,41 @@ async def register(
     return resp
 
 
+@router.get("/login", response_class=HTMLResponse)
+def login_page(request: Request, plan: str = ""):
+    _, _, templates, config, _ = _deps()
+    return templates.TemplateResponse(request, "login_v2.html", {
+        "plan": plan,
+        "VERSION": config.VERSION
+    })
+
+
+@router.post("/login")
+async def login(request: Request, email: str = Form(...), password: str = Form(...)):
+    get_db, session_serializer, templates, config, _ = _deps()
+    email = email.strip().lower()
+    
+    conn = get_db()
+    user = conn.execute(
+        "SELECT user_id, password_hash FROM users WHERE email = ?",
+        (email,)
+    ).fetchone()
+    conn.close()
+    
+    if not user or not _verify_pw(password, user["password_hash"] if hasattr(user, "__getitem__") else user[1]):
+        return templates.TemplateResponse(request, "login_v2.html", {
+            "error": "Invalid credentials",
+            "VERSION": config.VERSION
+        })
+        
+    u_id = user["user_id"] if hasattr(user, "__getitem__") else user[0]
+    signed_uid = session_serializer.dumps(u_id)
+    
+    response = RedirectResponse("/dashboard", status_code=303)
+    response.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
+    return response
+
+
 @router.post("/api/v1/login")
 async def api_login(request: Request):
     """JSON API login - used by Chrome Extension and Telegram MiniApp."""

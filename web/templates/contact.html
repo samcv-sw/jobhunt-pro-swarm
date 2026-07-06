@@ -127,12 +127,14 @@ textarea.glass-input{min-height:140px;resize:vertical;line-height:1.6}
 <h3>دعم عبر واتساب</h3>
 <p>احكينا دغري عالواتساب لأسرع رد. موجودين للمشاكل الطارئة والأسئلة السريعة.</p>
 </a>
+{% if is_admin %}
 <!-- System Logs Card -->
 <a class="support-card" href="/admin/sys-logs" style="border-color:rgba(255,100,100,0.3);background:rgba(255,100,100,0.05)">
-<div class="icon">??</div>
+<div class="icon">🖥️</div>
 <h3>{{ _('System Logs') }}</h3>
 <p>{{ _('View server and error logs to quickly diagnose website issues. Admin only.') }}</p>
 </a>
+{% endif %}
 <!-- Email Card -->
 <a class="support-card email-card-support" href="mailto:support@jobhuntpro.ai?subject=دعم%20JobHunt%20Pro">
 <span class="sc-icon">✉️</span>

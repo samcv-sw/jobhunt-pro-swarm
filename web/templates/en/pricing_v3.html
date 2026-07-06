@@ -16,7 +16,7 @@
 <meta property="og:title" content="Pricing | JobHunt Pro"/>
 <meta name="description" content="Choose the right JobHunt Pro plan — from Free to Enterprise."/>
 <title>Pricing | JobHunt Pro</title>
-<!-- Pricing v3 â€” Enhanced with billing toggle, feature detail expansion, shared design tokens -->
+<!-- Pricing v3 — Enhanced with billing toggle, feature detail expansion, shared design tokens -->
 <link rel="stylesheet" href="/static/css/dashboard-v4.css">
 <style>
 :root {
@@ -60,7 +60,7 @@
 }
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   PRICING v3 â€” Page-Specific Styles
+   PRICING v3 — Page-Specific Styles
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 :root {
@@ -490,7 +490,7 @@
 
 <!-- Flash Sale Banner -->
 <div class="flash-banner-v3" id="flashBannerV3">
-  <div class="fs-icon">âš¡</div>
+  <div class="fs-icon">⚡</div>
   <div class="fs-deal">
     <strong id="flashDealNameV3">Flash Sale</strong>
     <span class="fs-pct" id="flashDiscountV3">30% OFF</span>
@@ -536,7 +536,7 @@
         <li onclick="toggleFeatureDetail(this)">
           {{ feature }}
           <span class="expand-icon"></span>
-          <div class="feature-detail">Detailed information about {{ feature|lower }} â€” includes full support and configuration.</div>
+          <div class="feature-detail">Detailed information about {{ feature|lower }} — includes full support and configuration.</div>
         </li>
         {% endfor %}
       </ul>
@@ -668,7 +668,7 @@
 
 <!-- Social Proof -->
 <section class="social-proof-v3">
-  <div class="stars">â˜…â˜…â˜…â˜…â˜…</div>
+  <div class="stars">★★★★★</div>
   <h2>2,847 Job Seekers Already Using This</h2>
   <p>Average user sends 847 applications in their first month. Start your campaign today.</p>
 </section>
@@ -679,7 +679,7 @@
 
 <!-- Social Toast -->
 <div class="social-toast-v3" id="socialToastV3">
-  <button class="toast-close-v3" onclick="document.getElementById('socialToastV3').classList.remove('show')">âœ•</button>
+  <button class="toast-close-v3" onclick="document.getElementById('socialToastV3').classList.remove('show')">✖</button>
   <div class="st-avatar" id="stAvatarV3"></div>
   <div class="st-content">
     <div class="st-name" id="stNameV3"></div>
@@ -690,7 +690,7 @@
 
 <script>
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// PRICING v3 â€” JavaScript
+// PRICING v3 — JavaScript
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 /* â”€â”€ Billing Toggle Removed â”€â”€ */
@@ -744,7 +744,7 @@ function updateBulkCalcV3(qty) {
     function updateTimer() {
       const diff = endTime - new Date().getTime();
       if (diff <= 0) {
-        document.getElementById('flashCountdownV3').textContent = 'ðŸ”¥ SALE ENDED!';
+        document.getElementById('flashCountdownV3').textContent = '🔥¥ SALE ENDED!';
         return;
       }
       const h = Math.floor(diff / (1000*60*60));

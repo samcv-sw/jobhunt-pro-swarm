@@ -54,6 +54,21 @@ def upload_cv_page(request: Request):
     content = render_template("upload_cv_v3.html", user=user, user_id=user_id)
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Upload CV", "upload-cv", request=request))
 
+@router.get("/new-campaign", response_class=HTMLResponse)
+def new_campaign_page(request: Request):
+    get_db, get_verified_user_id, _, _, render_template, _build_dashboard_shell = _deps()
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+    conn = get_db()
+    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
+    conn.close()
+    
+    user = dict(user_row) if user_row else {}
+    content = render_template("new_campaign_v2.html", user=user, profiles=profiles, user_id=user_id)
+    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "New Campaign", "new-campaign", request=request))
+
 @router.post("/upload-cv")
 async def upload_cv(
     request: Request,
