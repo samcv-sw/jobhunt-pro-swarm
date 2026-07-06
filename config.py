@@ -1,7 +1,9 @@
 import os
 import logging
+from pathlib import Path
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
 
 # Database Engine strictly enforces PostgreSQL
 # SQLite shim abolished per Enterprise Blueprint

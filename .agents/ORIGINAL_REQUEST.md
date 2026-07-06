@@ -633,3 +633,79 @@ After all changes, run the complete test suite and confirm all 253 tests pass wi
 
 ### Victory
 - [ ] An independent Victory Auditor agent reviews all criteria and writes a signed **VICTORY CONFIRMED** report to `.agents/VICTORY_ROUND5.md`.
+
+## Follow-up — 2026-07-06T10:14:18Z
+
+JobHunt Pro (https://jhfguf.pythonanywhere.com/) needs a complete A-to-Z audit by fetching every page from the live site, identifying ALL issues (broken buttons, missing content, broken links, UI bugs), and fixing every single one until the website is 100% functional and polished.
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+Integrity mode: benchmark
+
+## Current Baseline
+- 253/253 tests passing
+- 0 CSS physical violations
+- 112/136 templates QA-passing
+- VERSION = 17.0
+
+## Requirements
+
+### R1. Live Page-by-Page Audit
+Fetch every public page from https://jhfguf.pythonanywhere.com/ using HTTP requests and inspect the HTML response for:
+- Broken or missing navigation links
+- Buttons with no `href`, `onclick`, or `action` (non-functional)
+- Empty sections or missing content
+- Truncated text (sentences cut mid-word)
+- Missing images or broken `src` attributes
+- Forms with no `action` or `method` attributes
+
+Pages to audit:
+/, /pricing, /login, /register, /faq, /contact, /trust, /blog, /compare, /services, /for-employers, /referral, /privacy, /terms, /en/, /en/pricing, /en/login, /en/register
+
+### R2. Fix ALL Non-Functional Buttons
+Every `<button>` and `<a class="btn">` or `<a class="cta">` on every page must have a valid destination or action:
+- 'ابدأ مجاناً' / 'Get Started Free' buttons must link to /register
+- Pricing plan buttons must link to /checkout or /register
+- All social share buttons must have valid URLs
+- Form submit buttons must be inside a `<form>` with a valid `action`
+- Fix empty href='#' placeholders with real routes
+
+### R3. Fix ALL Content Issues Found on Live Pages
+Every page must have:
+- Complete, non-truncated text in all sections
+- All FAQ questions must have full answers (no empty answer divs)
+- Contact page must have a working contact form (name, email, message + submit)
+- Pricing page must show all plans clearly with prices and features
+- Landing page hero text must be 100% complete
+- No lorem ipsum, TODO, or placeholder copy anywhere
+
+### R4. Fix Navigation Consistency
+- Every page must include the nav and footer
+- Active nav link highlighted correctly on each page
+- Mobile hamburger menu working on all pages
+- Language switcher present and correct on all pages
+
+### R5. Zero Regression
+After all fixes: `python -m pytest tests/ -q` must report 253 passed, 0 failed.
+
+## Acceptance Criteria
+
+### Live Page Audit
+- [ ] All 18 public pages return HTTP 200
+- [ ] Zero buttons with missing href/onclick/action
+
+### Button Functionality  
+- [ ] 'ابدأ مجاناً' on homepage links to /register
+- [ ] All pricing plan CTAs link to /checkout or /register
+- [ ] Contact form has name, email, message fields and submit button with action
+
+### Content Completeness
+- [ ] Zero truncated sentences on any live page
+- [ ] FAQ page has at least 8 complete Q&A pairs
+- [ ] Pricing page shows plans with prices
+
+### Test Suite
+- [ ] `python -m pytest tests/ -q` reports 253 passed, 0 failed
+
+### Victory
+- [ ] Independent Victory Auditor writes `.agents/VICTORY_ROUND7.md`
+

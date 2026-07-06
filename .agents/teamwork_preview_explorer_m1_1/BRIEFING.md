@@ -1,45 +1,46 @@
-# BRIEFING — 2026-07-03T10:35:00Z
+# BRIEFING — 2026-07-06T13:15:27+03:00
 
 ## Mission
-Explore the Next.js workspace under `frontend/` to understand its structure, Tailwind configuration, global styles, and recommend the dashboard UI/UX design, including glassmorphic stats, tables, analytics cards, and responsive design.
+Audit local template/view files and any reports for live site issues on specified routes: /, /pricing, /login, /register, /faq, /contact.
 
 ## 🔒 My Identity
-- Archetype: Explorer 1
-- Roles: Read-only investigator and dashboard UI/UX recommender
+- Archetype: Teamwork explorer
+- Roles: Read-only investigator
 - Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1
-- Original parent: c3f33a57-b110-4914-b2f0-80e0fe12857b
-- Milestone: Milestone 1 - Workspace and Dashboard UX Exploration
+- Original parent: 7a4bf194-0a9b-4a62-9eb6-35e05c0ec597
+- Milestone: M1 Preview Audit
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement or modify source files
-- CSS Logical Properties must be recommended (Arabic/RTL considerations)
-- Follow GCC cultural ergonomics and design standards (Cairo/Tajawal fonts, colors like Green/Gold/Blue)
+- Read-only investigation — do NOT implement
+- Do not access external websites or services (CODE_ONLY mode)
+- Recommend fixing strategies instead of making changes
 
 ## Current Parent
-- Conversation ID: c3f33a57-b110-4914-b2f0-80e0fe12857b
-- Updated: 2026-07-03T10:35:00Z
+- Conversation ID: 7a4bf194-0a9b-4a62-9eb6-35e05c0ec597
+- Updated: not yet
 
 ## Investigation State
 - **Explored paths**:
-  - `frontend/package.json`
-  - `frontend/next.config.ts`
-  - `frontend/tsconfig.json`
-  - `frontend/src/app/globals.css`
-  - `frontend/src/app/layout.tsx`
-  - `frontend/src/app/page.tsx`
-  - `frontend/src/app/db/wasm-db.ts`
-  - `.agents/teamwork_preview_explorer_m1_2/findings.md`
+  - `web/app_v2.py` — Main entry point
+  - `web/append_routes_v3.py` — Appended routes (e.g. `/login/v2`)
+  - `web/routers/` — Sub-routers (auth, public, dashboard, etc.)
+  - `web/templates/` — Arabic templates (index_v4, faq, contact, register_v2, login_v2, pricing_v3)
+  - `web/templates/en/` — English templates (index_v4, faq, contact, register_v2, login_v2, pricing_v3, _public_nav, _public_footer, _public_shell)
+  - `BROWSER_AUDIT_REPORT.md` — Previous audit reports
+  - `qa_report_round4.json` — Round 4 HTML validation results
 - **Key findings**:
-  - Next.js v16.2.9 is running React 19 and uses Tailwind CSS v4. There is no `tailwind.config.js`.
-  - Reconciled layout conflicts with Peer Explorer 2, resolving root HTML directionality (force `dir="rtl"` as stable default) and raising Arabic fonts to minimum 14px size for legibility.
-  - Proposed a zero-cost local WebAssembly SQLite dashboard query structure with mock fallbacks.
-- **Unexplored areas**:
-  - Verification of the next build output with the new page component since we operate in read-only mode and do not write to the active workspace.
+  - Found critical server-side routing bugs: GET `/login`, POST `/login`, and GET `/new-campaign` are entirely missing from `web/app_v2.py` and its routers, causing 404s.
+  - Found template inclusion bugs: All English templates in `web/templates/en/` include the root (Arabic) `_public_nav.html` and `_public_footer.html` instead of their English counterparts.
+  - Found localized metadata bug: English templates for login and registration hardcode Arabic og:title content.
+  - Found security/visibility bug: The "System Logs" card in `contact.html` is shown to all users rather than restricted to admins.
+  - Found CSS conflict: `faq.html` contains duplicate definitions for `font-size` and `margin-bottom` in `h1` style.
+  - Found character encoding issues: Pricing and FAQ templates have multiple broken characters (`â€”`, `âš¡`, etc.) due to UTF-8 parsing mismatch.
+- **Unexplored areas**: None.
 
 ## Key Decisions Made
-- Created a fully compliant, copy-paste-ready `proposed_dashboard_page.tsx` inside our working directory for the Implementer.
-- Enforced strict CSS logical property helpers and typography restrictions in our findings report.
+- Performed a page-by-page audit of the 6 specified routes on both Arabic and English templates.
+- Traced server-side route definitions in `web/app_v2.py` and routers to find missing endpoints.
+- Documented detailed fix strategies for each issue.
 
 ## Artifact Index
-- findings.md — Complete UX/UI and dashboard design report.
-- proposed_dashboard_page.tsx — Clean copy-pasteable Next.js dashboard component code.
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1\handoff.md — Handoff report of the audit
