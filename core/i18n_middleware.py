@@ -1,16 +1,27 @@
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp, Receive, Scope, Send
 from starlette.requests import Request
 from starlette.responses import Response
+from starlette.datastructures import MutableHeaders
 
-class I18nMiddleware(BaseHTTPMiddleware):
+
+class I18nMiddleware:
     """
-    Middleware to intercept incoming requests and determine the locale.
+    Pure ASGI middleware to intercept incoming requests and determine the locale.
     Checks query parameters first (?lang=ar), then cookies, then Accept-Language header.
-    Sets request.state.lang and request.state.dir (rtl/ltr) to be used globally.
+    Sets scope['state']['lang'] and scope['state']['dir'] (rtl/ltr) for use globally.
     """
-    async def dispatch(self, request: Request, call_next) -> Response:
+
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] not in ("http", "websocket"):
+            await self.app(scope, receive, send)
+            return
+
+        request = Request(scope)
         lang = "en"  # default
-        
+
         # 1. Check Query Parameter
         if "lang" in request.query_params:
             lang = request.query_params["lang"]
@@ -27,13 +38,22 @@ class I18nMiddleware(BaseHTTPMiddleware):
         if lang not in ["en", "ar"]:
             lang = "en"
 
-        request.state.lang = lang
-        request.state.dir = "rtl" if lang == "ar" else "ltr"
+        # Store in scope state so request.state.lang works normally
+        if "state" not in scope:
+            scope["state"] = {}
+        scope["state"]["lang"] = lang
+        scope["state"]["dir"] = "rtl" if lang == "ar" else "ltr"
 
-        response = await call_next(request)
-        
-        # If language was changed via query param, set the cookie so it persists
-        if "lang" in request.query_params:
-            response.set_cookie(key="lang", value=lang, max_age=86400 * 365, httponly=False)
-            
-        return response
+        set_cookie = "lang" in request.query_params
+
+        async def send_with_lang_cookie(message):
+            if set_cookie and message["type"] == "http.response.start":
+                message = dict(message)
+                headers = MutableHeaders(scope=message)
+                headers.append(
+                    "set-cookie",
+                    f"lang={lang}; Max-Age={86400 * 365}; Path=/; SameSite=Lax"
+                )
+            await send(message)
+
+        await self.app(scope, receive, send_with_lang_cookie)

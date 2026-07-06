@@ -30,9 +30,20 @@ _scraper_hits = defaultdict(list)
 AUTO_PANIC_THRESHOLD = 5
 AUTO_PANIC_WINDOW = 60  # seconds
 
+class IronCloakMiddleware:
+    def __init__(self, app):
+        self.app = app
 
-class IronCloakMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
+    async def __call__(self, scope, receive, send):
+        if scope["type"] not in ["http", "websocket"]:
+            await self.app(scope, receive, send)
+            return
+
+        from starlette.requests import Request
+        from starlette.responses import HTMLResponse
+        import time
+
+        request = Request(scope)
         client_ip = request.client.host if request.client else "unknown"
 
         # 1. Scraper / Competitor Shield (User-Agent check)
@@ -65,10 +76,12 @@ class IronCloakMiddleware(BaseHTTPMiddleware):
                     )
                     toggle_panic_mode(force_state=True)
 
-            return HTMLResponse(
+            response = HTMLResponse(
                 "<h1>403 Forbidden</h1><p>Request denied by security firewall.</p>",
                 status_code=403,
             )
+            await response(scope, receive, send)
+            return
 
         # 2. Panic Mode Check
         if is_panic_mode_active():
@@ -85,15 +98,15 @@ class IronCloakMiddleware(BaseHTTPMiddleware):
                 pass
             # If they hit the root landing page (where reviewers look), intercept it!
             elif path == "/" or path == "/index":
-                client_ip = request.client.host if request.client else "unknown"
                 logger.info(
                     f"[IRON CLOAK] Panic Mode Active: Serving Fake Blog to {client_ip}"
                 )
-                return self._serve_fake_blog()
+                response = self._serve_fake_blog()
+                await response(scope, receive, send)
+                return
 
         # 3. Proceed normally
-        response = await call_next(request)
-        return response
+        await self.app(scope, receive, send)
 
     def _serve_fake_blog(self):
         """Returns an innocent HTML page instead of the real SaaS landing page."""

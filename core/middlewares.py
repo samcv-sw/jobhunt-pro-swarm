@@ -5,15 +5,19 @@ from fastapi.responses import HTMLResponse
 
 logger = logging.getLogger(__name__)
 
+class PanicModeMiddleware:
+    def __init__(self, app):
+        self.app = app
 
-class PanicModeMiddleware(BaseHTTPMiddleware):
-    """
-    Panic Mode Middleware:
-    When 'panic_mode' flag is active in the database, the server will act as a decoy site
-    for all routes except admin and critical paths.
-    """
+    async def __call__(self, scope, receive, send):
+        if scope["type"] not in ["http", "websocket"]:
+            await self.app(scope, receive, send)
+            return
 
-    async def dispatch(self, request: Request, call_next):
+        from starlette.requests import Request
+        from starlette.responses import HTMLResponse
+
+        request = Request(scope)
         try:
             from core.pg_sqlite_shim import get_db
 
@@ -51,8 +55,10 @@ class PanicModeMiddleware(BaseHTTPMiddleware):
                     </body>
                     </html>
                     """
-                    return HTMLResponse(content=decoy_html, status_code=503)
+                    response = HTMLResponse(content=decoy_html, status_code=503)
+                    await response(scope, receive, send)
+                    return
         except Exception as e:
             logger.error(f"Panic mode check failed: {e}")
 
-        return await call_next(request)
+        await self.app(scope, receive, send)

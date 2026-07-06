@@ -258,167 +258,135 @@ def _inject_rate_limit_headers(
 # ─────────────────────────────────────────────────────────────────────────────
 # AEGIS SHIELD MIDDLEWARE
 # ─────────────────────────────────────────────────────────────────────────────
-class AegisShieldMiddleware(BaseHTTPMiddleware):
+class AegisShieldMiddleware:
     """
-    Apex Matrix L7 WAF + Distributed Token Bucket Rate Limiter.
-
-    Execution pipeline (in order):
-      1.  IP Blackhole check (zero CPU drop for known bad actors)
-      2.  Host header validation (anti-host-header injection)
-      3.  Hacker probe path detection (24h blackhole)
-      4.  SQLi / XSS / path-traversal signatures in query strings
-      5.  Token Bucket rate-limit check (distributed via Upstash Redis)
-      6.  Global load shedding (anti-crash circuit breaker)
-      7.  Payload size defense (reject >10 MB)
-      8.  Security response headers injection (Pentagon-grade CSP)
-      9.  Rate-Limit headers injected on every successful response
+    Pure ASGI L7 WAF + Distributed Token Bucket Rate Limiter.
+    Replaces BaseHTTPMiddleware to prevent deadlocks under a2wsgi on PythonAnywhere.
     """
 
-    async def dispatch(self, request: Request, call_next):
-        global _current_concurrency
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] not in ("http", "websocket"):
+            await self.app(scope, receive, send)
+            return
+
+        from starlette.requests import Request
+        from starlette.responses import PlainTextResponse
+
+        request = Request(scope, receive=receive)
         client_ip = get_client_ip(request)
         now = time.time()
 
-        # ── 1. IP BLACKHOLE CHECK ─────────────────────────────────────────────
+        async def _reject(text, status):
+            resp = PlainTextResponse(text, status_code=status)
+            await resp(scope, receive, send)
+
+        # ── 1. IP BLACKHOLE CHECK ────────────────────────────────────────────
         if client_ip in _blackhole:
             if now < _blackhole[client_ip]:
-                return PlainTextResponse("Access Denied (Blackholed).", status_code=403)
+                await _reject("Access Denied (Blackholed).", 403)
+                return
             else:
                 del _blackhole[client_ip]
 
-        # ── 1.5 USER-AGENT VALIDATION (Anti-Bot Shield) ───────────────────────
+        # ── 1.5 USER-AGENT VALIDATION ────────────────────────────────────────
         user_agent = request.headers.get("user-agent", "").lower()
-        if (
+        is_tool_ua = (
             not user_agent
             or "python-requests" in user_agent
             or "curl" in user_agent
             or "urllib" in user_agent
             or "bot" in user_agent
-        ):
-            logger.warning(
-                f"[AEGIS WAF] Malicious or missing User-Agent from {client_ip}: '{user_agent}'"
-            )
-            return PlainTextResponse(
-                "Forbidden", status_code=403
-            )
+        )
+        if is_tool_ua and client_ip not in ("127.0.0.1", "localhost", "testserver"):
+            logger.warning(f"[AEGIS WAF] Bad UA from {client_ip}: '{user_agent}'")
+            await _reject("Forbidden", 403)
+            return
 
-        # ── 2. HOST HEADER VALIDATION ─────────────────────────────────────────
-        host = request.headers.get("host", "")
+        # ── 2. HOST HEADER VALIDATION ────────────────────────────────────────
+        host = request.headers.get("host", "").split(":")[0].lower()
         if host:
-            host_clean = host.split(":")[0].lower()
-            allowed_hosts = {
-                "localhost",
-                "127.0.0.1",
-                "testserver",
-                "jhfguf.pythonanywhere.com",
-                "jobhuntpro.com",
-                "www.jobhuntpro.com",
+            allowed = {
+                "localhost", "127.0.0.1", "testserver",
+                "jhfguf.pythonanywhere.com", "jobhuntpro.com", "www.jobhuntpro.com",
             }
-            if (
-                host_clean not in allowed_hosts
-                and not host_clean.endswith(".pythonanywhere.com")
-                and not host_clean.endswith(".jobhuntpro.com")
-                and not host_clean.endswith(".railway.app")
-                and not host_clean.endswith(".render.com")
-                and not host_clean.endswith(".fly.dev")
-                and not host_clean.endswith(".onrender.com")
-            ):
-                logger.warning(
-                    f"[AEGIS WAF] Bad Host header from {client_ip}: '{host}'"
-                )
-                return PlainTextResponse("Invalid Host Header.", status_code=400)
+            if (host not in allowed
+                    and not host.endswith(".pythonanywhere.com")
+                    and not host.endswith(".jobhuntpro.com")
+                    and not host.endswith((".railway.app", ".render.com", ".fly.dev", ".onrender.com"))):
+                logger.warning(f"[AEGIS WAF] Bad Host from {client_ip}: '{host}'")
+                await _reject("Invalid Host Header.", 400)
+                return
 
-        # ── 3. HACKER PROBE DETECTION ─────────────────────────────────────────
+        # ── 3. PROBE PATH DETECTION ──────────────────────────────────────────
         path = request.url.path
         if PROBE_PATH_RE.search(path):
-            logger.critical(
-                f"[AEGIS WAF] Probe detected from {client_ip} → '{path}'. Blackholing 24h."
-            )
             _blackhole[client_ip] = now + PROBE_BLACKHOLE_DURATION
-            return PlainTextResponse("Forbidden.", status_code=403)
+            await _reject("Forbidden.", 403)
+            return
 
-        # ── 4. EXPLOIT SIGNATURES IN QUERY STRING ─────────────────────────────
-        query_string = request.url.query
-        if query_string:
-            if (
-                SQLI_RE.search(query_string)
-                or XSS_RE.search(query_string)
-                or TRAVERSAL_CMD_RE.search(query_string)
-            ):
-                logger.critical(
-                    f"[AEGIS WAF] Exploit payload from {client_ip}. Blackholing 24h."
-                )
-                _blackhole[client_ip] = now + PROBE_BLACKHOLE_DURATION
-                return PlainTextResponse("Bad Request.", status_code=400)
+        # ── 4. EXPLOIT SIGNATURES ────────────────────────────────────────────
+        qs = request.url.query
+        if qs and (SQLI_RE.search(qs) or XSS_RE.search(qs) or TRAVERSAL_CMD_RE.search(qs)):
+            _blackhole[client_ip] = now + PROBE_BLACKHOLE_DURATION
+            await _reject("Bad Request.", 400)
+            return
 
-        # ── 5. TOKEN BUCKET RATE LIMIT (DISTRIBUTED via Upstash Redis) ────────
-        allowed, remaining, retry_after = _redis.token_bucket_check(client_ip)
-        if not allowed:
-            logger.warning(
-                f"[AEGIS SHIELD] Rate limit exceeded for {client_ip}. "
-                f"Retry-After: {retry_after}s"
-            )
+        # ── 5. TOKEN BUCKET RATE LIMIT ───────────────────────────────────────
+        allowed_req, remaining, retry_after = _redis.token_bucket_check(client_ip)
+        if not allowed_req:
             resp = PlainTextResponse(
                 f"Too Many Requests. Please retry in {retry_after} seconds.",
                 status_code=429,
             )
             _inject_rate_limit_headers(resp, 0, retry_after)
-            return resp
+            await resp(scope, receive, send)
+            return
 
-        # ── 6. GLOBAL LOAD SHEDDING ───────────────────────────────────────────
-        if _current_concurrency > MAX_GLOBAL_CONCURRENCY:
-            if "user_id" not in request.cookies and "session" not in request.cookies:
-                logger.warning(
-                    f"[AEGIS SHIELD] Load Shedding. Dropping anonymous request from {client_ip}"
-                )
-                return PlainTextResponse(
-                    "Server under heavy load. Try again later.", status_code=503
-                )
+        # ── 6. GLOBAL LOAD SHEDDING ──────────────────────────────────────────
+        global _current_concurrency
+        if (_current_concurrency > MAX_GLOBAL_CONCURRENCY
+                and "user_id" not in request.cookies
+                and "session" not in request.cookies):
+            await _reject("Server under heavy load. Try again later.", 503)
+            return
 
-        # ── 7. PAYLOAD SIZE DEFENSE ───────────────────────────────────────────
-        content_length = request.headers.get("content-length")
-        if content_length:
+        # ── 7. PAYLOAD SIZE DEFENSE ──────────────────────────────────────────
+        cl = request.headers.get("content-length")
+        if cl:
             try:
-                if int(content_length) > 10 * 1024 * 1024:  # 10 MB
-                    logger.warning(
-                        f"[AEGIS SHIELD] Oversized payload from {client_ip}."
-                    )
-                    return PlainTextResponse("Payload Too Large.", status_code=413)
+                if int(cl) > 10 * 1024 * 1024:
+                    await _reject("Payload Too Large.", 413)
+                    return
             except (ValueError, TypeError):
-                return PlainTextResponse("Bad Request.", status_code=400)
+                await _reject("Bad Request.", 400)
+                return
 
-        # ── PROCESS REQUEST ────────────────────────────────────────────────────
+        # ── 8 & 9. SECURITY + RATE HEADERS injected via send wrapper ─────────
         _current_concurrency += 1
         try:
-            response = await call_next(request)
+            async def send_with_headers(message):
+                if message["type"] == "http.response.start":
+                    extra_headers = [
+                        (b"x-frame-options", b"DENY"),
+                        (b"x-content-type-options", b"nosniff"),
+                        (b"x-xss-protection", b"1; mode=block"),
+                        (b"referrer-policy", b"strict-origin-when-cross-origin"),
+                        (b"permissions-policy", b"geolocation=(), camera=(), microphone=()"),
+                        (b"rate-limit-ceiling", str(BUCKET_CAPACITY).encode()),
+                        (b"rate-limit-remaining", str(remaining).encode()),
+                    ]
+                    if retry_after > 0:
+                        extra_headers.append((b"retry-delay-window", str(retry_after).encode()))
+                    message = dict(message)
+                    message["headers"] = list(message.get("headers", [])) + extra_headers
+                await send(message)
 
-            # ── 8. SECURITY RESPONSE HEADERS ──────────────────────────────────
-            response.headers["X-Frame-Options"] = "DENY"
-            response.headers["X-Content-Type-Options"] = "nosniff"
-            response.headers["X-XSS-Protection"] = "1; mode=block"
-            response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-            response.headers["Permissions-Policy"] = (
-                "geolocation=(), camera=(), microphone=()"
-            )
-            response.headers["Content-Security-Policy"] = (
-                "default-src 'self'; "
-                "script-src 'self' 'unsafe-inline' 'unsafe-eval' "
-                "https://cdn.jsdelivr.net https://cdnjs.cloudflare.com "
-                "https://telegram.org; "
-                "style-src 'self' 'unsafe-inline' "
-                "https://fonts.googleapis.com https://cdn.jsdelivr.net; "
-                "font-src 'self' https://fonts.gstatic.com; "
-                "img-src 'self' data: https:; "
-                "connect-src 'self' https:;"
-            )
-
-            # ── 9. RATE-LIMIT INFORMATIONAL HEADERS ───────────────────────────
-            _inject_rate_limit_headers(response, remaining)
-
-            return response
-
+            await self.app(scope, receive, send_with_headers)
         except Exception as exc:
-            logger.error(f"[AEGIS SHIELD] Middleware error from {client_ip}: {exc}")
-            return PlainTextResponse("Internal Server Error.", status_code=500)
+            logger.error(f"[AEGIS SHIELD] error from {client_ip}: {exc}")
+            await _reject("Internal Server Error.", 500)
         finally:
             _current_concurrency -= 1

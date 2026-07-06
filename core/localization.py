@@ -24,9 +24,18 @@ def get_translation(lang: str):
     _translations_cache[lang] = t
     return t
 
+class LanguageMiddleware:
+    def __init__(self, app):
+        self.app = app
 
-class LanguageMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
+    async def __call__(self, scope, receive, send):
+        if scope["type"] not in ["http", "websocket"]:
+            await self.app(scope, receive, send)
+            return
+
+        from starlette.requests import Request
+        request = Request(scope)
+
         # 1. Check Query Parameter
         lang = request.query_params.get("lang")
 
@@ -47,11 +56,12 @@ class LanguageMiddleware(BaseHTTPMiddleware):
             lang = "ar"  # Default system language
 
         # Bind to request state
-        request.state.locale = lang
+        if "state" not in scope:
+            scope["state"] = {}
+        scope["state"]["locale"] = lang
 
         # Get translation object and attach the gettext method
         t = get_translation(lang)
-        request.state._ = t.gettext
+        scope["state"]["_"] = t.gettext
 
-        response = await call_next(request)
-        return response
+        await self.app(scope, receive, send)

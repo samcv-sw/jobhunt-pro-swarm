@@ -659,56 +659,51 @@ except ImportError as e:
 from starlette.middleware.sessions import SessionMiddleware
 app.add_middleware(SessionMiddleware, secret_key=config.SECRET_KEY, max_age=86400*30, https_only=True, same_site="lax")
 
-# --- SECURITY HEADERS MIDDLEWARE ---
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import Response
+# --- SECURITY HEADERS MIDDLEWARE (Pure ASGI - no BaseHTTPMiddleware deadlock) ---
+class SecurityHeadersMiddleware:
+    """Inject all security headers on every response via pure ASGI send wrapper."""
+    def __init__(self, app):
+        self.app = app
 
-class SecurityHeadersMiddleware(BaseHTTPMiddleware):
-    """Inject all security headers on every response."""
-    async def dispatch(self, request, call_next):
-        response = await call_next(request)
-        response.headers["X-Frame-Options"] = "DENY"
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
-        response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
-        response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
-        response.headers["Content-Security-Policy"] = (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://cdn.jsdelivr.net; "
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
-            "font-src 'self' https://fonts.gstatic.com data:; "
-            "img-src 'self' data: https: blob:; "
-            "connect-src 'self' https://api.telegram.org wss: ws: https:; "
-            "frame-src 'self' https://challenges.cloudflare.com https://www.youtube.com; "
-            "frame-ancestors 'none'; "
-            "form-action 'self'; "
-            "base-uri 'self'; "
-            "object-src 'none'"
-        )
-        if hasattr(request, 'url') and request.url.scheme == 'https':
-            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
-            
-        # ANTI-HACKER: MASK SERVER IDENTITY
-        response.headers["Server"] = "cloudflare"
-        response.headers["X-Powered-By"] = "PHP/8.1.2"
-        
-        # Remove default FastAPI/Uvicorn identifying headers if they exist
-        if "x-uvicorn-version" in response.headers:
-            del response.headers["x-uvicorn-version"]
-            
-        # Re-apply the fake headers just in case
-        response.headers["Server"] = "cloudflare"
-        response.headers["X-Powered-By"] = "PHP/8.1.2"
-        
-        return response
-@app.middleware("http")
-async def log_request(request, call_next):
-    logger.info(f"===> REQUEST STARTED: {request.url.path}")
-    response = await call_next(request)
-    logger.info(f"<=== REQUEST ENDED: {request.url.path}")
-    return response
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        is_https = scope.get("scheme", "http") == "https"
+
+        async def send_with_security_headers(message):
+            if message["type"] == "http.response.start":
+                extra = [
+                    (b"x-frame-options", b"DENY"),
+                    (b"x-content-type-options", b"nosniff"),
+                    (b"x-xss-protection", b"1; mode=block"),
+                    (b"referrer-policy", b"strict-origin-when-cross-origin"),
+                    (b"permissions-policy", b"camera=(), microphone=(), geolocation=(), interest-cohort=()"),
+                    (b"cross-origin-opener-policy", b"same-origin"),
+                    (b"cross-origin-resource-policy", b"same-origin"),
+                    (b"content-security-policy",
+                     b"default-src 'self'; "
+                     b"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://cdn.jsdelivr.net; "
+                     b"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
+                     b"font-src 'self' https://fonts.gstatic.com data:; "
+                     b"img-src 'self' data: https: blob:; "
+                     b"connect-src 'self' https://api.telegram.org wss: ws: https:; "
+                     b"frame-src 'self' https://challenges.cloudflare.com https://www.youtube.com; "
+                     b"frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'"),
+                    (b"server", b"cloudflare"),
+                    (b"x-powered-by", b"PHP/8.1.2"),
+                ]
+                if is_https:
+                    extra.append((b"strict-transport-security", b"max-age=31536000; includeSubDomains; preload"))
+                message = dict(message)
+                # Filter out any existing security headers we're replacing
+                skip = {b"server", b"x-powered-by", b"x-uvicorn-version"}
+                existing = [(k, v) for k, v in message.get("headers", []) if k.lower() not in skip]
+                message["headers"] = existing + extra
+            await send(message)
+
+        await self.app(scope, receive, send_with_security_headers)
 
 app.add_middleware(SecurityHeadersMiddleware)
 # ----------------------------------------
@@ -1017,25 +1012,43 @@ def _piggyback_bg_worker():
     except Exception:
         pass
 
-class StaticCacheMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
-        response = await call_next(request)
-        path = request.url.path
-        if path.startswith("/static/"):
-            if path.endswith(('.css','.js','.woff','.woff2','.ttf','.svg','.png','.jpg','.webp','.ico')):
-                response.headers["Cache-Control"] = "public, max-age=604800, immutable"
-            else:
-                response.headers["Cache-Control"] = "public, max-age=86400"
-        elif path in ("/", "/pricing", "/services", "/faq", "/blog", "/trust", "/contact"):
-            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-            response.headers["Pragma"] = "no-cache"
-            response.headers["Expires"] = "0"
-        
+class StaticCacheMiddleware:
+    """Pure ASGI static cache + piggyback middleware."""
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        path = scope.get("path", "")
+
         # Piggyback trigger (5% chance on non-static routes to process background jobs)
         if not path.startswith("/static/") and random.random() < 0.05:
             threading.Thread(target=_piggyback_bg_worker, daemon=True).start()
-            
-        return response
+
+        async def send_with_cache(message):
+            if message["type"] == "http.response.start":
+                cache_headers = []
+                if path.startswith("/static/"):
+                    if path.endswith(('.css', '.js', '.woff', '.woff2', '.ttf', '.svg', '.png', '.jpg', '.webp', '.ico')):
+                        cache_headers = [(b"cache-control", b"public, max-age=604800, immutable")]
+                    else:
+                        cache_headers = [(b"cache-control", b"public, max-age=86400")]
+                elif path in ("/", "/pricing", "/services", "/faq", "/blog", "/trust", "/contact"):
+                    cache_headers = [
+                        (b"cache-control", b"no-cache, no-store, must-revalidate"),
+                        (b"pragma", b"no-cache"),
+                        (b"expires", b"0"),
+                    ]
+                if cache_headers:
+                    message = dict(message)
+                    message["headers"] = list(message.get("headers", [])) + cache_headers
+            await send(message)
+
+        await self.app(scope, receive, send_with_cache)
+
 app.add_middleware(StaticCacheMiddleware)
 
 try:
