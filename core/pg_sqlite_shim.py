@@ -556,15 +556,15 @@ class SqliteConnectionWrapper:
                 raise de
         self.conn.row_factory = DictLikeRow
 
-        # Performance tuning for extreme scalability on SQLite
-        self.conn.execute("PRAGMA journal_mode=WAL")
-        self.conn.execute("PRAGMA synchronous=NORMAL")
-        self.conn.execute("PRAGMA cache_size=-64000")  # 64MB cache
+        # Disable WAL mode on network filesystems (NFS / PythonAnywhere) to prevent locks/hangs
+        self.conn.execute("PRAGMA journal_mode=DELETE")
+        self.conn.execute("PRAGMA synchronous=FULL")
+        self.conn.execute("PRAGMA cache_size=-16000")  # 16MB cache
         self.conn.execute("PRAGMA busy_timeout=30000")
         self.conn.execute("PRAGMA encoding='UTF-8'")
 
         BACKEND = "sqlite"
-        logger.info(f"[DB] Connected to SQLite fallback: {_safe_str(db_path)}")
+        logger.info(f"[DB] Connected to SQLite fallback (DELETE journal mode): {_safe_str(db_path)}")
 
     def execute(
         self,

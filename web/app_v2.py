@@ -1106,8 +1106,8 @@ def get_db(max_retries: int = 3):
             try: conn.row_factory = sqlite3.Row
             except Exception: pass
             try:
-                conn.execute("PRAGMA journal_mode=WAL")
-                conn.execute("PRAGMA synchronous=NORMAL")
+                conn.execute("PRAGMA journal_mode=DELETE")
+                conn.execute("PRAGMA synchronous=FULL")
             except Exception: pass
             return conn
         except sqlite3.OperationalError as e:
