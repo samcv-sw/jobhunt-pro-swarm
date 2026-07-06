@@ -11,6 +11,10 @@ REQUIRED_PACKAGES = ["fpdf", "aiosmtplib"]
 
 def ensure_packages():
     """Install missing packages on PA."""
+    import os
+    if os.getenv("SKIP_INSTALL") == "true" or os.getenv("TESTING") == "true":
+        logger.info("[PACKAGE] Skipping auto-install in verification/testing environment")
+        return
     for pkg in REQUIRED_PACKAGES:
         try:
             __import__(pkg)

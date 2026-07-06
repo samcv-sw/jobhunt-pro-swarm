@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { useLocale } from "./locale-context";
 
 // FNV-1a Hashing helper matching Cloudflare Workers
 function fnv1a(str: string): number {
@@ -14,10 +15,10 @@ function fnv1a(str: string): number {
 }
 
 export default function Home() {
-  const [isArabic, setIsArabic] = useState<boolean>(true);
+  const { locale, isArabic, toggleLocale } = useLocale();
   
   // Sharding Simulator state
-  const [tenantNameInput, setTenantNameInput] = useState<string>("Rita Cordahi");
+  const [tenantNameInput, setTenantNameInput] = useState<string>("Demo User");
   const [shardIndex, setShardIndex] = useState<number | null>(null);
   const [hashValue, setHashValue] = useState<number | null>(null);
   const [isHashing, setIsHashing] = useState<boolean>(false);
@@ -160,37 +161,41 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between p-6 md:p-12" dir={isArabic ? "rtl" : "ltr"}>
+    <div
+      className="flex flex-col justify-between p-6 md:p-12"
+      dir={isArabic ? "rtl" : "ltr"}
+      style={{ minBlockSize: "100vh" }}
+    >
       {/* Dynamic Header */}
       <header className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-zinc-800/60 pb-6 mb-8 animate-fade-up">
         <div className="flex items-center gap-4">
-          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.4)] animate-float">
+          <div className="relative rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.4)] animate-float" style={{ inlineSize: "3rem", blockSize: "3rem" }}>
             <div className="absolute inset-0 bg-[#D4AF37]/20 animate-pulse" />
-            <div className="w-full h-full flex items-center justify-center font-bold text-[#D4AF37] text-xl">
+            <div className="flex items-center justify-center font-bold text-[#D4AF37] text-xl" style={{ inlineSize: "100%", blockSize: "100%" }}>
               H
             </div>
           </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-white flex items-center gap-2">
               <span className="gold-glow-text">{t.title}</span>
-              <span className={`flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full border font-normal ${wsConnected ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
-                <span className={wsConnected ? "status-live" : "w-2 h-2 rounded-full bg-red-500"} />
+              <span className={`flex items-center gap-1.5 text-sm px-2 py-0.5 rounded-full border font-normal leading-[1.8] ${wsConnected ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                <span className={wsConnected ? "status-live" : "rounded-full bg-red-500"} style={wsConnected ? undefined : { inlineSize: "0.5rem", blockSize: "0.5rem" }} />
                 {wsConnected ? t.activeStatus : "Disconnected"}
               </span>
             </h1>
-            <p className="text-xs md:text-sm text-zinc-400 mt-1">{t.subtitle}</p>
+            <p className="text-sm text-zinc-400 mt-1 leading-[1.8]">{t.subtitle}</p>
             {lastMessage && <p className="text-[10px] text-zinc-500 mt-1 font-mono">{lastMessage}</p>}
           </div>
         </div>
 
         {/* Action Controls */}
         <div className="flex items-center gap-3">
-          <span className="text-xs text-zinc-500 border border-zinc-800 rounded-lg px-3 py-1.5 bg-zinc-950/40">
+          <span className="text-sm text-zinc-500 border border-zinc-800 rounded-lg px-3 py-1.5 bg-zinc-950/40 leading-[1.8]">
             {t.capacity}
           </span>
           <button
             id="toggle-lang-btn"
-            onClick={() => setIsArabic(!isArabic)}
+            onClick={toggleLocale}
             className="btn-gold"
           >
             {isArabic ? "English" : "العربية (RTL)"}
@@ -201,13 +206,13 @@ export default function Home() {
       {/* Main Grid */}
       <main className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start mb-8">
         {/* Sharding Card */}
-        <section className="glass-panel p-6 lg:col-span-2 flex flex-col justify-between min-h-[380px]">
+        <section className="glass-panel p-6 lg:col-span-2 flex flex-col justify-between" style={{ minBlockSize: "380px" }}>
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-2xl">🌐</span>
               <h2 className="text-lg font-bold text-white">{t.shardingTitle}</h2>
             </div>
-            <p className="text-sm text-zinc-400 leading-relaxed mb-6">{t.shardingDesc}</p>
+            <p className="text-sm text-zinc-400 leading-[1.8] mb-6">{t.shardingDesc}</p>
 
             <div className="space-y-4">
               <div>
@@ -221,7 +226,7 @@ export default function Home() {
                     dir="auto"
                     value={tenantNameInput}
                     onChange={(e) => setTenantNameInput(e.target.value)}
-                    placeholder="e.g. Rita Cordahi"
+                    placeholder="e.g. Demo User"
                     className="input-field flex-1"
                   />
                   <button
@@ -238,17 +243,17 @@ export default function Home() {
               {shardIndex !== null && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 p-4 bg-zinc-950/50 rounded-xl border border-zinc-800/40">
                   <div className="space-y-1">
-                    <span className="text-xs text-zinc-500 block">{t.hashValLabel}</span>
+                    <span className="text-sm text-zinc-500 block leading-[1.8]">{t.hashValLabel}</span>
                     <span className="font-mono text-xs text-zinc-300 font-bold">{hashValue}</span>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-xs text-zinc-500 block">{t.targetShard}</span>
+                    <span className="text-sm text-zinc-500 block leading-[1.8]">{t.targetShard}</span>
                     <span className="text-sm text-emerald-400 font-extrabold">
                       Shard #{shardIndex}
                     </span>
                   </div>
                   <div className="space-y-1 md:col-span-2 border-t border-zinc-800/40 pt-2 mt-1">
-                    <span className="text-xs text-zinc-500 block">{t.shardUrl}</span>
+                    <span className="text-sm text-zinc-500 block leading-[1.8]">{t.shardUrl}</span>
                     <span className="font-mono text-xs text-[#3B82F6] block break-all">
                       https://jh-shard-{shardIndex}-samsalameh.turso.io/v2/pipeline
                     </span>
@@ -263,17 +268,18 @@ export default function Home() {
             <span className="text-[10px] text-zinc-500 uppercase tracking-widest block mb-2">
               Visual Representation of 500 Shards
             </span>
-            <div className="flex flex-wrap gap-1 max-h-[48px] overflow-hidden">
+            <div className="flex flex-wrap gap-1 overflow-hidden" style={{ maxBlockSize: "48px" }}>
               {Array.from({ length: 120 }).map((_, i) => {
                 const isActive = shardIndex !== null && i === (shardIndex % 120);
                 return (
                   <div
                     key={i}
-                    className={`w-2.5 h-2.5 rounded-sm transition-all duration-500 ${
+                    className={`rounded-sm transition-all duration-500 ${
                       isActive 
                         ? "bg-[#D4AF37] scale-125 shadow-[0_0_8px_#D4AF37]" 
                         : "bg-zinc-800/60 hover:bg-zinc-700"
                     }`}
+                    style={{ inlineSize: "0.625rem", blockSize: "0.625rem" }}
                     title={`Shard ${i}`}
                   />
                 );
@@ -283,7 +289,7 @@ export default function Home() {
         </section>
 
         {/* Sidebar status */}
-        <section className="glass-panel p-6 flex flex-col justify-between min-h-[380px]">
+        <section className="glass-panel p-6 flex flex-col justify-between" style={{ minBlockSize: "380px" }}>
           <div>
             <div className="flex items-center gap-2 mb-4">
               <span className="text-xl">📊</span>
@@ -294,19 +300,19 @@ export default function Home() {
             
           <div className="space-y-4">
               <div className="stat-card">
-                <span className="text-xs text-zinc-500 block">{t.totalShards}</span>
+                <span className="text-sm text-zinc-500 block leading-[1.8]">{t.totalShards}</span>
                 <span className="text-sm text-white font-bold">{t.totalShardsVal}</span>
               </div>
               <div className="stat-card">
-                <span className="text-xs text-zinc-500 block">{t.redisStatus}</span>
+                <span className="text-sm text-zinc-500 block leading-[1.8]">{t.redisStatus}</span>
                 <span className="text-sm text-emerald-400 font-semibold">{t.redisVal}</span>
               </div>
               <div className="stat-card">
-                <span className="text-xs text-zinc-500 block">{t.smtpFallback}</span>
-                <span className="text-xs text-zinc-300 font-semibold">{t.smtpFallbackVal}</span>
+                <span className="text-sm text-zinc-500 block leading-[1.8]">{t.smtpFallback}</span>
+                <span className="text-sm text-zinc-300 font-semibold leading-[1.8]">{t.smtpFallbackVal}</span>
               </div>
               <div className="stat-card">
-                <span className="text-xs text-zinc-500 block">{t.apiSpeed}</span>
+                <span className="text-sm text-zinc-500 block leading-[1.8]">{t.apiSpeed}</span>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="status-live" />
                   <span className="text-xs text-emerald-400 font-bold">14ms (avg)</span>
@@ -316,7 +322,7 @@ export default function Home() {
           </div>
 
           <div className="bg-[#D4AF37]/5 border border-[#D4AF37]/20 p-3 rounded-xl mt-4">
-            <p className="text-[11px] text-[#D4AF37] leading-relaxed">
+            <p className="text-sm text-[#D4AF37] leading-[1.8]">
               {isArabic 
                 ? "💡 البنية التحتية تعمل بشكل كامل على الشبكات الطرفية ولا تكلف أي سنت تشغيل شهرياً."
                 : "💡 Uptime is backed by distributed CDNs. Total running cost is locked at exactly $0.00."}
@@ -325,21 +331,21 @@ export default function Home() {
         </section>
 
         {/* Local WebAssembly DB */}
-        <section className="glass-panel p-6 flex flex-col justify-between min-h-[380px]">
+        <section className="glass-panel p-6 flex flex-col justify-between" style={{ minBlockSize: "380px" }}>
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xl">💾</span>
               <h2 className="text-lg font-bold text-white">{t.localDbTitle}</h2>
             </div>
-            <p className="text-xs text-zinc-400 leading-relaxed mb-6">{t.localDbDesc}</p>
+            <p className="text-sm text-zinc-400 leading-[1.8] mb-6">{t.localDbDesc}</p>
 
             <div className="space-y-4">
-              <div className="flex justify-between items-center bg-zinc-900/40 p-3 rounded-lg border border-zinc-800/40 text-xs">
+              <div className="flex justify-between items-center bg-zinc-900/40 p-3 rounded-lg border border-zinc-800/40 text-sm leading-[1.8]">
                 <span className="text-zinc-500">{t.dbState}</span>
                 <span className="font-mono text-emerald-400 font-semibold">{localDbStatus}</span>
               </div>
 
-              <div className="flex justify-between items-center bg-zinc-900/40 p-3 rounded-lg border border-zinc-800/40 text-xs">
+              <div className="flex justify-between items-center bg-zinc-900/40 p-3 rounded-lg border border-zinc-800/40 text-sm leading-[1.8]">
                 <span className="text-zinc-500">{t.pendingSync}</span>
                 <span className="font-mono text-amber-400 font-bold">{pendingSyncCount}</span>
               </div>
@@ -362,7 +368,7 @@ export default function Home() {
             <button
               id="clear-db-btn"
               onClick={handleClearLocalDb}
-              className="py-2 px-3 border border-red-500/20 text-red-400 text-xs font-semibold rounded-lg hover:bg-red-500/10 transition cursor-pointer"
+              className="py-2 px-3 border border-red-500/20 text-red-400 text-sm font-semibold rounded-lg hover:bg-red-500/10 transition cursor-pointer leading-[1.8]"
             >
               {t.clearDb}
             </button>
@@ -370,13 +376,13 @@ export default function Home() {
         </section>
 
         {/* BYO SMTP Setup Card */}
-        <section className="glass-panel p-6 lg:col-span-2 flex flex-col justify-between min-h-[380px]">
+        <section className="glass-panel p-6 lg:col-span-2 flex flex-col justify-between" style={{ minBlockSize: "380px" }}>
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xl">🔑</span>
               <h2 className="text-lg font-bold text-white">{t.smtpTitle}</h2>
             </div>
-            <p className="text-sm text-zinc-400 leading-relaxed mb-6">{t.smtpDesc}</p>
+            <p className="text-sm text-zinc-400 leading-[1.8] mb-6">{t.smtpDesc}</p>
 
             <form onSubmit={handleTestSmtp} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -419,7 +425,7 @@ export default function Home() {
                 >
                   {smtpStatus === "testing" ? "..." : t.testBtn}
                 </button>
-                <span className="text-[10px] text-zinc-500 block max-w-md">
+                <span className="text-sm text-zinc-500 block leading-[1.8]" style={{ maxInlineSize: "28rem" }}>
                   {t.smtpNote}
                 </span>
               </div>
@@ -434,10 +440,10 @@ export default function Home() {
               "bg-red-500/5 border-red-500/20 text-red-400"
             }`}>
               <div className="flex items-center gap-2">
-                {smtpStatus === "testing" && <div className="h-2 w-2 rounded-full bg-blue-500 animate-ping" />}
+                {smtpStatus === "testing" && <div className="rounded-full bg-blue-500 animate-ping" style={{ inlineSize: "0.5rem", blockSize: "0.5rem" }} />}
                 {smtpStatus === "success" && <span>✓</span>}
                 {smtpStatus === "error" && <span>✗</span>}
-                <p className="font-semibold">{smtpMsg}</p>
+                <p className="font-semibold leading-[1.8]">{smtpMsg}</p>
               </div>
             </div>
           )}

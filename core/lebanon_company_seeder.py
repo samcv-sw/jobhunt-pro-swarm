@@ -8,7 +8,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 import logging
 from pathlib import Path
 from typing import Any, Dict, List
@@ -213,9 +213,9 @@ SAM_COMPANIES = [
 ]
 
 # ═══════════════════════════════════════════════════════
-# RITA'S HR-TARGETED COMPANIES
+# demo_user'S HR-TARGETED COMPANIES
 # ═══════════════════════════════════════════════════════
-RITA_COMPANIES = [
+demo_user_COMPANIES = [
     ("Azadea Group", "Retail/Fashion", "Beirut", "hr@azadea.com", "azadea.com", 92),
     (
         "Chalhoub Group",
@@ -385,7 +385,7 @@ RITA_COMPANIES = [
 
 
 def seed_all_companies() -> Dict[str, Any]:
-    """Seed both Sam and Rita companies into the database.
+    """Seed both Sam and demo_user companies into the database.
 
     Creates the lebanon_companies table if it does not exist, and inserts pre-verified
     records for role types 'tech' and 'hr'.
@@ -396,7 +396,7 @@ def seed_all_companies() -> Dict[str, Any]:
     conn.row_factory = sqlite3.Row
 
     sam_count = 0
-    rita_count = 0
+    demo_user_count = 0
 
     try:
         # Ensure table exists
@@ -432,8 +432,8 @@ def seed_all_companies() -> Dict[str, Any]:
                 logger.debug(f"Failed to insert tech company {name}: {e}")
         conn.commit()
 
-        # Insert Rita's companies
-        for name, industry, location, email, website, score in RITA_COMPANIES:
+        # Insert demo_user's companies
+        for name, industry, location, email, website, score in demo_user_COMPANIES:
             try:
                 conn.execute(
                     """
@@ -444,7 +444,7 @@ def seed_all_companies() -> Dict[str, Any]:
                     (name, industry, location, email, website, score),
                 )
                 if conn.changes > 0:
-                    rita_count += 1
+                    demo_user_count += 1
             except Exception as e:
                 logger.debug(f"Failed to insert HR company {name}: {e}")
         conn.commit()
@@ -459,12 +459,12 @@ def seed_all_companies() -> Dict[str, Any]:
         ).fetchone()[0]
 
         logger.info(
-            f"Seeding completed: {sam_count} tech, {rita_count} HR companies inserted."
+            f"Seeding completed: {sam_count} tech, {demo_user_count} HR companies inserted."
         )
         return {
             "status": "ok",
             "sam_companies_seeded": sam_count,
-            "rita_companies_seeded": rita_count,
+            "demo_user_companies_seeded": demo_user_count,
             "total_in_db": total,
             "tech_companies": tech,
             "hr_companies": hr,
@@ -476,7 +476,7 @@ def seed_all_companies() -> Dict[str, Any]:
             "status": "error",
             "error": str(e),
             "sam_companies_seeded": 0,
-            "rita_companies_seeded": 0,
+            "demo_user_companies_seeded": 0,
             "total_in_db": 0,
             "tech_companies": 0,
             "hr_companies": 0,
@@ -539,9 +539,10 @@ if __name__ == "__main__":
     result = seed_all_companies()
     if result["status"] == "ok":
         print(
-            f"✅ Seeded: {result['sam_companies_seeded']} tech + {result['rita_companies_seeded']} HR"
+            f"✅ Seeded: {result['sam_companies_seeded']} tech + {result['demo_user_companies_seeded']} HR"
         )
         print(f"   Total in DB: {result['total_in_db']}")
         print(f"   Tech: {result['tech_companies']} | HR: {result['hr_companies']}")
     else:
         print(f"❌ Seeding failed: {result.get('error')}")
+

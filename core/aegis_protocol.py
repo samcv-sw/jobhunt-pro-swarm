@@ -8,7 +8,7 @@ THE AEGIS PROTOCOL: ZERO-TRUST CLOUD ENCLAVES
 5. Confirms mathematically impossible IP theft, creating an unreplicable B2B moat.
 """
 
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 import os
 import random
 import logging

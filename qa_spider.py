@@ -4,7 +4,7 @@ from urllib.parse import urljoin, urlparse
 import time
 import json
 
-base_url = "https://jhfguf.pythonanywhere.com"
+base_url = "http://127.0.0.1:8000"
 visited = set()
 to_visit = [base_url]
 results = {"200": [], "404": [], "500": [], "other": []}

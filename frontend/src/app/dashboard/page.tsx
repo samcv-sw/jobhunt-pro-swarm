@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { runLocalQuery } from "../db/wasm-db";
+import { useLocale } from "../locale-context";
 
 interface ScrapeRecord {
   id: number;
@@ -66,7 +67,7 @@ const MOCK_SCRAPES: ScrapeRecord[] = [
 ];
 
 export default function Dashboard() {
-  const [isArabic, setIsArabic] = useState<boolean>(true);
+  const { locale, isArabic, toggleLocale } = useLocale();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [scrapes, setScrapes] = useState<ScrapeRecord[]>([]);
   const [dbLoading, setDbLoading] = useState<boolean>(true);
@@ -229,15 +230,15 @@ export default function Dashboard() {
   return (
     <div
       dir={isArabic ? "rtl" : "ltr"}
-      className="min-h-screen flex flex-col justify-between p-6 md:p-12 bg-[#060608] text-[#f4f4f7] selection:bg-[#D4AF37]/30"
-      style={{ fontFamily: "var(--font-arabic)" }}
+      className="flex flex-col justify-between p-6 md:p-12 bg-[#060608] text-[#f4f4f7] selection:bg-[#D4AF37]/30"
+      style={{ minBlockSize: "100vh", fontFamily: "var(--font-arabic)" }}
     >
       {/* Header */}
       <header className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-zinc-800/60 pb-6 mb-8 animate-fade-up">
         <div className="flex items-center gap-4">
           <div className="relative rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.4)] animate-float" style={{ inlineSize: "3rem", blockSize: "3rem" }}>
             <div className="absolute inset-0 bg-[#D4AF37]/20 animate-pulse" />
-            <div className="w-full h-full flex items-center justify-center font-bold text-[#D4AF37] text-xl">
+            <div className="flex items-center justify-center font-bold text-[#D4AF37] text-xl" style={{ inlineSize: "100%", blockSize: "100%" }}>
               H
             </div>
           </div>
@@ -265,7 +266,7 @@ export default function Dashboard() {
             {t.backHome}
           </Link>
           <button
-            onClick={() => setIsArabic(!isArabic)}
+            onClick={toggleLocale}
             className="btn-gold"
           >
             {isArabic ? "English" : "العربية (RTL)"}
@@ -325,7 +326,7 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-1.5 mt-4 text-sm text-[#3B82F6]">
-              <div className="h-2.5 w-2.5 rounded-full bg-[#3B82F6] animate-ping" />
+              <div className="rounded-full bg-[#3B82F6] animate-ping" style={{ inlineSize: "0.625rem", blockSize: "0.625rem" }} />
               <span>{t.running}</span>
             </div>
           </div>
@@ -374,7 +375,7 @@ export default function Dashboard() {
 
             {/* Responsive Table Container */}
             <div className="overflow-x-auto">
-              <table className="w-full text-start border-collapse text-sm">
+              <table className="text-start border-collapse text-sm" style={{ inlineSize: "100%" }}>
                 <thead>
                   <tr className="border-b border-zinc-800/80 text-zinc-400">
                     <th className="py-3 px-4 text-start font-semibold">{t.colDate}</th>
@@ -408,19 +409,19 @@ export default function Dashboard() {
                         <td className="py-3.5 px-4 whitespace-nowrap">
                           {row.status === "completed" && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 font-medium">
-                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                              <span className="rounded-full bg-emerald-400" style={{ inlineSize: "0.375rem", blockSize: "0.375rem" }} />
                               {t.statusCompleted}
                             </span>
                           )}
                           {row.status === "processing" && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-blue-500/20 bg-blue-500/5 text-blue-400 font-medium">
-                              <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" />
+                              <span className="rounded-full bg-blue-400 animate-pulse" style={{ inlineSize: "0.375rem", blockSize: "0.375rem" }} />
                               {t.statusProcessing}
                             </span>
                           )}
                           {row.status === "failed" && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 font-medium">
-                              <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                              <span className="rounded-full bg-red-400" style={{ inlineSize: "0.375rem", blockSize: "0.375rem" }} />
                               {t.statusFailed}
                             </span>
                           )}
@@ -468,18 +469,18 @@ export default function Dashboard() {
               <span className="text-xl">📊</span>
               <h2 className="text-lg font-bold text-white">{t.analyticsTitle}</h2>
             </div>
-            <p className="text-sm text-zinc-400 leading-relaxed mb-6">{t.analyticsDesc}</p>
+            <p className="text-sm text-zinc-400 leading-[1.8] mb-6">{t.analyticsDesc}</p>
 
             {/* Glassmorphic SVG Chart container */}
             <div className="p-4 bg-zinc-950/40 border border-zinc-900 rounded-xl">
-              <svg viewBox="0 0 500 240" className="w-full h-auto overflow-visible">
-                {/* Horizontal grid lines */}
-                <line x1="40" y1="40" x2="480" y2="40" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
-                <line x1="40" y1="90" x2="480" y2="90" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
-                <line x1="40" y1="140" x2="480" y2="140" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
-                <line x1="40" y1="190" x2="480" y2="190" stroke="rgba(255,255,255,0.1)" />
+              <svg viewBox="0 0 500 240" className="overflow-visible" style={{ inlineSize: "100%", blockSize: "auto" }}>
+              {/* Horizontal grid lines */}
+              <line x1="40" y1="40" x2="480" y2="40" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
+              <line x1="40" y1="90" x2="480" y2="90" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
+              <line x1="40" y1="140" x2="480" y2="140" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
+              <line x1="40" y1="190" x2="480" y2="190" stroke="rgba(255,255,255,0.1)" />
 
-                {/* Y-axis Labels */}
+              {/* Y-axis Labels */}
                 <text x="30" y="44" textAnchor="end" fill="#71717a" className="text-[14px] font-mono">150</text>
                 <text x="30" y="94" textAnchor="end" fill="#71717a" className="text-[14px] font-mono">100</text>
                 <text x="30" y="144" textAnchor="end" fill="#71717a" className="text-[14px] font-mono">50</text>
@@ -586,11 +587,11 @@ export default function Dashboard() {
             {/* Legend */}
             <div className="flex gap-4 justify-center mt-4">
               <div className="flex items-center gap-1.5 text-sm">
-                <span className="inline-block w-3.5 h-1 bg-[#D4AF37] rounded-full" />
+                <span className="inline-block bg-[#D4AF37] rounded-full" style={{ inlineSize: "0.875rem", blockSize: "0.25rem" }} />
                 <span className="text-zinc-400">{t.chartScrapes}</span>
               </div>
               <div className="flex items-center gap-1.5 text-sm">
-                <span className="inline-block w-3.5 h-1 border-t border-dashed border-[#3B82F6]" />
+                <span className="inline-block border-t border-dashed border-[#3B82F6]" style={{ inlineSize: "0.875rem", blockSize: "0.25rem" }} />
                 <span className="text-zinc-400">{t.chartApplications}</span>
               </div>
             </div>
@@ -601,7 +602,7 @@ export default function Dashboard() {
             <h3 className="text-sm font-bold text-[#D4AF37] mb-1">
               {isArabic ? "💡 نصيحة المساعد الذكي" : "💡 AI Recommendation"}
             </h3>
-            <p className="text-sm text-zinc-300 leading-relaxed">
+            <p className="text-sm text-zinc-300 leading-[1.8]">
               {isArabic
                 ? "معدل النجاح مستقر عند 94%. ننصح بالتركيز على سحب الوظائف من LinkedIn خلال الساعات القادمة لتوفر عروض ممتازة مطابقة لملفك."
                 : "Application success is optimal at 94%. We suggest scaling LinkedIn scraping volume in the next 12 hours based on profile matches."}

@@ -1,12 +1,12 @@
 """
 ANTI-BAN PROTECTION SYSTEM
-Ported from Rita Project - Makes bot look human to avoid detection
+Ported from demo_user Project - Makes bot look human to avoid detection
 """
 
 import random
 import asyncio
 import logging
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 import pathlib
 from datetime import datetime, timedelta
 from typing import Dict, List, Set, Optional
@@ -415,3 +415,4 @@ class AntiBanProtection:
 
 # Global instance
 anti_ban = AntiBanProtection()
+

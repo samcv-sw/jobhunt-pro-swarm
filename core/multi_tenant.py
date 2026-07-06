@@ -11,7 +11,7 @@ Architecture:
     ├── Per-tenant profile, CV, SMTP caps
     ├── Parallel execution via asyncio.gather
     ├── Per-tenant stats isolation
-    └── Rita Cordahi pre-configured as tenant #2
+    └── Demo User pre-configured as tenant #2
 
 API Endpoints (to be mounted in app_v2.py):
   POST /api/v2/cloud-tick        → multi-tenant tick (overrides single-tenant)
@@ -660,7 +660,7 @@ class MultiTenantRunner:
     def get_tenant_smtp_provider(tenant_id: str, config_module=None) -> Optional[Dict]:
         """
         Returns an SMTP provider for a given tenant. If the tenant has their own
-        credentials configured (via RITA_* env vars for Rita, or env vars like
+        credentials configured (via demo_user_* env vars for demo_user, or env vars like
         TENANT_<ID>_SMTP_USER etc.), use those. Otherwise falls back to the
         default pool shared by all tenants.
 
@@ -752,11 +752,11 @@ class MultiTenantRunner:
 
                 tenant_email = user_row["email"] or ""
                 if (
-                    "ritacordahi" in tenant_email.lower()
-                    or "rita.cordahi" in tenant_email.lower()
+                    "demo_useruser" in tenant_email.lower()
+                    or "demo_user.user" in tenant_email.lower()
                 ):
                     logger.warning(
-                        "[MultiTenant] Rita Cordahi is deactivated. Blocking SMTP rotation for this tenant."
+                        "[MultiTenant] Demo User is deactivated. Blocking SMTP rotation for this tenant."
                     )
                     return None
 
@@ -1099,3 +1099,4 @@ async def run_multi_tenant_tick(company_limit: int = 15) -> Dict[str, Any]:
     """Convenience function — call from cloud_orchestrator or app router."""
     runner = MultiTenantRunner(company_limit=company_limit, max_campaigns=10)
     return await runner.tick()
+

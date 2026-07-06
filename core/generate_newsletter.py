@@ -5,7 +5,7 @@ Automatically curates the top 10 remote jobs of the day into a premium
 Substack-style newsletter, injecting high-value sponsorships.
 """
 
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 import os
 import datetime
 import logging

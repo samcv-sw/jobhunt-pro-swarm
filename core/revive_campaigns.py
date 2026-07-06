@@ -1,4 +1,4 @@
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 import logging
 
 logging.basicConfig(

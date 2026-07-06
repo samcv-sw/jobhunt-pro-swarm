@@ -1,14 +1,13 @@
-# Scope: Scraper Stealth Hardening (R3)
+# Scope: Scraper Stealth & Proxy Hardening
 
-## Architecture
-- Scraper script located in `scrapers/stealth_ingest.py`
+## Overview
+Audit and refine scrapers to ensure resilient spoofing against high-end anti-bot mitigations and perfect structured data extraction.
 
-## Milestones
-| # | Name | Scope | Dependencies | Status |
-|---|---|---|---|---|
-| 1 | Anti-bot Bypass Upgrade | Upgrade anti-bot bypass mechanism in `stealth_ingest.py` | None | PLANNED |
-| 2 | Structured Output parsing | Parse scraper outputs to return `list[dict]` (with `title`, `url`) | M1 | PLANNED |
-| 3 | Verification & E2E scraper tests | Run scraper tests to ensure correctness | M2 | PLANNED |
+## Requirements & Fixes
+1. **Proxy Leak in Browser Fallback**: Modify `scrapers/stealth_ingest.py` (specifically `NodriverFallback` and any other browser fallback classes like `ApexCamoufoxFallback` if proxy is missing) to inject the active proxy server configuration.
+   - For `NodriverFallback.get_page_content`, pass the proxy IP/port to Chrome launch flags (e.g. `--proxy-server=http://...` or `--proxy-server=socks5://...`). Ensure that when curl_cffi fails and browser fallback is triggered, it does not leak the server's real IP address.
+2. **Structured Output Invariant**: Ensure all scraper code blocks return structured `list[dict]` containing at minimum `title` and `url` keys.
 
-## Interface Contracts
-- `stealth_ingest.py` returns `list[dict]` where each dict has at least `title` and `url` keys.
+## Complete Criteria
+- Nodriver browser runs with proxy settings.
+- Scraper does not bypass proxy configuration and leak host IP on proxy fail.

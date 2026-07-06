@@ -325,8 +325,8 @@ class AITailor:
         trimmed = [w for w in words if w.lower() not in stop_words]
         return " ".join(trimmed)
 
-    def get_dynamic_cv_context(self, title: str) -> str:
-        """Dynamically build CV context based on target job title."""
+    def get_dynamic_cv_context(self, title: str, description: str = "") -> str:
+        """Dynamically build CV context based on target job title and description."""
         context = [
             f"Candidate: {CANDIDATE_PROFILE['name']}",
             f"Target/Current Title: {CANDIDATE_PROFILE['title']}",
@@ -339,7 +339,33 @@ class AITailor:
             f"Infrastructure: {', '.join(CANDIDATE_PROFILE['infrastructure'])}",
             "Key Achievements:",
         ]
-        for highlight in CANDIDATE_PROFILE["highlights"]:
+        
+        highlights = CANDIDATE_PROFILE["highlights"]
+        query = f"{title} {description}".strip()
+        
+        if query and highlights:
+            try:
+                # Perform a fast TF-IDF cosine-similarity subset filter on resume highlight bullets
+                # to minimize token count and improve speed.
+                texts = [query] + list(highlights)
+                vectorizer = TfidfVectorizer().fit_transform(texts)
+                vectors = vectorizer.toarray()
+                query_vector = vectors[0:1]
+                highlight_vectors = vectors[1:]
+                similarities = cosine_similarity(query_vector, highlight_vectors)[0]
+                
+                # Sort highlights by similarity descending
+                sorted_indices = similarities.argsort()[::-1]
+                # Pick top 5 most similar highlights
+                top_n = min(5, len(highlights))
+                selected_highlights = [highlights[i] for i in sorted_indices[:top_n]]
+            except Exception as e:
+                logger.warning(f"TF-IDF cosine similarity filtering failed: {e}. Falling back to top 5.")
+                selected_highlights = highlights[:5]
+        else:
+            selected_highlights = highlights[:5]
+
+        for highlight in selected_highlights:
             context.append(f"- {highlight}")
 
         # Try to append raw text from the CV PDF if available
@@ -398,7 +424,7 @@ class AITailor:
         self, title: str, description: str, company: str = ""
     ) -> dict:
         """Score job relevance 0-100 before applying. Returns {score, reasons, recommendation}."""
-        cv_text = self.get_dynamic_cv_context(title)
+        cv_text = self.get_dynamic_cv_context(title, description)
         cv_text = self.trim_cv_text(cv_text)
 
         prompt = f"""You are a job-matching AI. Score how well this candidate matches the job.

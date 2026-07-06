@@ -34,5 +34,6 @@ async def start_worker():
             install_signal_handlers=False, 
             delete_jobs="always",
             listen_notify=False,
+            concurrency=1, # OPTIMIZATION: Prevents task hoarding by forcing 1 task per worker
             fetch_job_polling_interval=0.5
         )

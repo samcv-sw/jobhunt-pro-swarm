@@ -19,7 +19,7 @@ import logging
 import os
 import random
 import re
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 import time
 from abc import ABC, abstractmethod
 from collections import defaultdict

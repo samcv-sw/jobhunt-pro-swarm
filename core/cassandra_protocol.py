@@ -7,7 +7,7 @@ CASSANDRA PROTOCOL: PROOF OF DESTRUCTION (QA SWARM)
 4. Holds the bug fix ransom for a $299 Acquisition Fee (Developer gets hired).
 """
 
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 import os
 import random
 import logging

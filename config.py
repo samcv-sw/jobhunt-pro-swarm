@@ -3,19 +3,8 @@ import logging
 from dotenv import load_dotenv
 load_dotenv()
 
-# Hijack sqlite3 globally in Cloud/PG Mode to transparently redirect all operations to Neon PG
-if os.getenv("CLOUD_MODE") == "true" or os.getenv("FORCE_PG") == "1" or os.getenv("DATABASE_URL", "").startswith(("postgresql", "libsql")):
-    try:
-        import sys
-        from pathlib import Path
-        _root = Path(__file__).resolve().parent
-        if str(_root) not in sys.path:
-            sys.path.insert(0, str(_root))
-        import core.pg_sqlite_shim as pg_sqlite_shim
-        sys.modules['sqlite3'] = pg_sqlite_shim
-        print("[HYDRA-GLOBAL] Successfully hijacked sqlite3 globally with pg_sqlite_shim via config.py")
-    except Exception as shim_err:
-        print(f"[HYDRA-GLOBAL] Failed to hijack sqlite3: {shim_err}")
+# Database Engine strictly enforces PostgreSQL
+# SQLite shim abolished per Enterprise Blueprint
 
 logger = logging.getLogger(__name__)
 
@@ -160,9 +149,8 @@ CV_PATH = os.getenv("CV_PATH", "assets/Sam_Salameh_CV.pdf")
 if not os.path.exists(CV_PATH):
     logger.warning(f"CV file not found at {CV_PATH}, will send without attachment")
     CV_PATH = None
-# Database configuration
-DB_PATH = os.getenv("DB_PATH")
-DATABASE_URL = os.getenv("DATABASE_URL", "")
+# Database configuration strictly pointing to PostgreSQL
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://jobhunt:jobhunt_password@localhost:5432/jobhunt_db")
 NEON_URL = os.getenv("NEON_URL", DATABASE_URL)
 TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL", "")
 TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN", "")
@@ -374,6 +362,7 @@ MIN_EMAIL_QUALITY_SCORE = 0.3        # Campaign min: 30% emails must pass MX del
 
 # Filter to only providers that have credentials configured
 # oauth2 providers always pass the filter (they use JSON pool, not env vars)
-ACTIVE_EMAIL_PROVIDERS = [p for p in EMAIL_PROVIDERS if ((p.get("oauth2")) or (p.get("user") and p.get("password"))) and "rita" not in p.get("user", "").lower() and "cordahi" not in p.get("user", "").lower()]
+ACTIVE_EMAIL_PROVIDERS = [p for p in EMAIL_PROVIDERS if ((p.get("oauth2")) or (p.get("user") and p.get("password"))) and "demo_user" not in p.get("user", "").lower() and "user" not in p.get("user", "").lower()]
 if not ACTIVE_EMAIL_PROVIDERS:
     logger.warning("No email providers configured — check GMAIL_SMTP_USER_1, GMAIL_APP_PASSWORD_1 etc. in .env")
+

@@ -371,6 +371,9 @@ def try_revive_dead_accounts(force: bool = False) -> int:
     """
     global _last_revival_attempt
 
+    if os.getenv("TESTING") == "true" or os.getenv("SKIP_INSTALL") == "true":
+        return 0
+
     now = time.time()
     if not force and (now - _last_revival_attempt) < _REVIVAL_INTERVAL:
         return 0

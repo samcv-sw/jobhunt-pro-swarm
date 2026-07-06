@@ -1,32 +1,44 @@
-# BRIEFING — 2026-07-03
+# BRIEFING — 2026-07-05T19:59:26+03:00
 
 ## Mission
-Adversarially challenge the styling correctness of the Milestone 2 changes.
+Perform empirical correctness checks, stress-testing, and database integration validation on backend (R2) and AI/Scraper (R3) systems.
 
 ## 🔒 My Identity
 - Archetype: Empirical Challenger
 - Roles: critic, specialist
-- Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\challenger_m2_1
-- Original parent: d862a488-6582-4ff2-b029-8c5f6e3eff43
-- Milestone: Milestone 2
+- Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\challenger_m2_1\
+- Original parent: 668507ba-574e-4afb-ade7-e2da04b80ceb
+- Milestone: m2_1
 - Instance: 1 of 1
 
 ## 🔒 Key Constraints
-- Review-only — do NOT modify implementation code
+- Review-only — do NOT modify implementation code.
+- Write tests and verification scripts. Run them, collect results, and report findings.
+- Do not make changes to implementation files.
 
 ## Current Parent
-- Conversation ID: d862a488-6582-4ff2-b029-8c5f6e3eff43
+- Conversation ID: 668507ba-574e-4afb-ade7-e2da04b80ceb
 - Updated: not yet
 
 ## Review Scope
-- **Files to review**: `web/static/css/style.css`, `web/static/css/index.css`, `web/static/css/tailwind_overrides.css`, `web/static/css/premium-ui.css` (and potentially RTL equivalents)
-- **Interface contracts**: `AGENTS.md` (UI/UX layout directives)
-- **Review criteria**: logical property usage, Arabic constraints (line-height, font-size, letter-spacing)
+- **Files to review**:
+  - core/ats_matcher.py
+  - core/ai_tailor.py
+  - scrapers/stealth_ingest.py
+- **Interface contracts**: PROJECT.md / SCOPE.md (if present)
+- **Review criteria**: Empirical correctness, edge cases, JSON-LD outputs, DB insertion safety.
 
 ## Key Decisions Made
-- Will write a Python parsing script in the working directory `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\challenger_m2_1\challenge_styles.py`.
-- Will run the script using `run_command`.
-- Will report results and write handoff.md.
+- Setup empirical check scripts to execute and stress-test the files.
 
 ## Artifact Index
-- `challenge_styles.py` — Python script to parse files for physical direction properties and check Arabic rules.
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\challenger_m2_1\handoff.md — Handoff and empirical report
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\challenger_m2_1\progress.md — Progress tracker
+
+## Attack Surface
+- **Hypotheses tested**: TBD
+- **Vulnerabilities found**: TBD
+- **Untested angles**: TBD
+
+## Loaded Skills
+- None loaded yet.

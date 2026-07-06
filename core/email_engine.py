@@ -1830,7 +1830,6 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
         Called by CloudOrchestrator._drain_email_queue().
         """
         try:
-            import sqlite3
             import os
 
             db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")

@@ -1,9 +1,15 @@
+# Progress — Backend Sub-Orchestrator
+
 ## Current Status
-Last visited: 2026-07-03T18:50:15Z
-- [ ] Audit FastAPI and Celery integration to guarantee zero blocking on the main event loop (under 50ms) [explorer auditing]
-- [ ] Harden database sync_worker.py with a retry mechanism and logging for asyncpg.PostgresConnectionError [explorer auditing]
-- [ ] Protect all API endpoints (especially /api/v1/*) with JWT Bearer authentication returning 401 [explorer auditing]
-- [ ] Run E2E tests for verification (pytest tests/e2e/test_database.py, test_e2e_backend.py, test_r4_auth.py) [pending]
+Last visited: 2026-07-05T21:00:00+03:00
 
 ## Iteration Status
 Current iteration: 1 / 32
+
+## Checklist
+- [x] Decompose scope into implementation tasks [DONE]
+- [ ] Spawn Worker to apply fixes in backend/billing.py and backend/sync_worker.py [IN_PROGRESS]
+- [ ] Spawn Reviewer to verify correctness and conformance [PLANNED]
+- [ ] Spawn Challenger to run concurrency and database sync tests [PLANNED]
+- [ ] Spawn Auditor to perform forensic integrity check [PLANNED]
+- [ ] Complete milestone and handoff back to Project Orchestrator [PLANNED]

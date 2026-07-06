@@ -1,17 +1,18 @@
-# Scope: Frontend RTL & Glassmorphism Design System (R1)
+# Scope: Frontend UI/UX, Glassmorphism, & RTL Polish
 
-## Architecture
-- Next.js app located in `frontend/`
-- Standard styling is done using Tailwind CSS or CSS files in `frontend/src/`
+## Overview
+Polish frontend layouts, styles, and typography in `frontend/src/` to ensure full logical spacing compliance, smooth transitions, premium glassmorphism effects, and responsiveness on all devices.
 
-## Milestones
-| # | Name | Scope | Dependencies | Status |
-|---|---|---|---|---|
-| 1 | CSS Logical Properties Audit | Audit and replace all physical directional CSS properties in `frontend/src/` | None | PLANNED |
-| 2 | Glassmorphism UX Polish | Enhance glassmorphism components to adhere to AGENTS.md RTL/Arabic guidelines | M1 | PLANNED |
-| 3 | Build Validation | Verify `npm run build` succeeds | M2 | PLANNED |
+## Requirements & Fixes
+1. **Logical Sizing utilities**: Audit files (like `frontend/src/app/page.tsx`, `frontend/src/app/dashboard/page.tsx`, `frontend/src/app/layout.tsx`) and replace physical sizing classes (`w-*`, `h-*`) with logical dimension counterparts using CSS inline styles (e.g. `style={{ inlineSize: "...", blockSize: "..." }}`) or custom Tailwind logical sizing utilities.
+2. **Arabic Typography Guidelines**:
+   - Scale up any sub-16px Arabic text elements (such as status badges, info boxes, metric metadata timestamps, recommendation text) to at least 14px (preferably 16px).
+   - Set logical line-heights explicitly to `1.8 - 2.0` (using Tailwind class `leading-[1.8]` or custom rules) for these elements.
+   - Remove `tracking-tight` from any heading or span containers holding Arabic text.
+3. **Form Directionality**: Add `dir="auto"` to the outer `<form>` elements (such as the SMTP form in `page.tsx`).
+4. **HTML Lang Attribute**: In `layout.tsx`, ensure the `<html>` root element dynamically adjusts `lang` (e.g., `lang={locale}`) and direction based on the current user locale state instead of remaining static.
+5. **Glassmorphism Paint Performance**: Modify `globals.css` to animate hover shadow overlays using the GPU compositor (by transitioning `opacity` of a `::after` pseudo-element) rather than transitioning the `box-shadow` directly, which triggers CPU paint cycles.
 
-## Interface Contracts
-- No physical directional CSS properties should remain in `frontend/src/`.
-- Forms must use `dir="auto"`.
-- Arabic typography must use Cairo/Tajawal, min font-size 16px, line-height 1.6-2.0, and no letter-spacing.
+## Complete Criteria
+- Zero physical sizing/layout styling in templates/stylesheets.
+- Next.js successfully compiles without shell errors (`node node_modules/next/dist/bin/next build` inside `frontend/`).

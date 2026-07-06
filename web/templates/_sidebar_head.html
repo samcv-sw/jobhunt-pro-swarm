@@ -186,8 +186,8 @@ h3 { font-size:15px; font-weight:600; color:var(--text-dim); }
   -webkit-tap-highlight-color:transparent;
 }
 .btn:hover {
-  transform:translateY(-1px);
-  box-shadow:0 6px 20px var(--blue-glow);
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
 }
 .btn:active { transform:translateY(0); }
 .btn:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
@@ -214,7 +214,7 @@ h3 { font-size:15px; font-weight:600; color:var(--text-dim); }
 .btn-outline {
   background:transparent; border:1px solid rgba(255,255,255,.15); color:var(--text-dim);
 }
-.btn-outline:hover { background:var(--surface-hover); box-shadow:none; transform:none; }
+.btn-outline:hover { background:var(--surface-hover); box-shadow:none; transform: scale(1.05); }
 
 .btn-green { background:linear-gradient(135deg, #059669, #10b981); }
 .btn-green:hover { box-shadow:0 6px 20px rgba(5,150,105,.3); }

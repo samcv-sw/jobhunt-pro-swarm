@@ -10,7 +10,6 @@ import os
 if os.getenv("FORCE_PG") == "1" or os.getenv("CLOUD_MODE") == "true":
     import core.pg_sqlite_shim as sqlite3
 else:
-    import sqlite3
 import os
 import time
 import logging
@@ -96,7 +95,7 @@ async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> di
         role_type = "tech"
         if tenant_row:
             email_lower = (tenant_row.get("email") or "").lower()
-            if "rita" in email_lower:
+            if "demo_user" in email_lower:
                 role_type = "hr"
 
         # 3. Get profile
@@ -406,3 +405,4 @@ async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> di
             conn.close()
         except Exception:
             pass
+

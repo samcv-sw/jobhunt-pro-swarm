@@ -2,7 +2,7 @@ import os
 import json
 import logging
 import random
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 import time
 from datetime import datetime, date
 from threading import Lock

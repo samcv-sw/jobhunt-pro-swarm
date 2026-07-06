@@ -20,11 +20,8 @@ Global RTL letter-spacing reset found: True
 File: index.css
 RTL Specific File: False
 Global RTL letter-spacing reset found: True
- - Physical properties / values: 1
+ - Physical properties / values: 0
  - RTL typography violations: 0
-   [Physical Property Violations]
-     Line 106: selector `.skeleton` -> `background: linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%)`
-       Reason: Value 'linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%)' contains physical direction word(s): right
 --------------------------------------------------
 File: tailwind_overrides.css
 RTL Specific File: False
@@ -62,11 +59,8 @@ Global RTL letter-spacing reset found: True
 File: index-rtl.css
 RTL Specific File: True
 Global RTL letter-spacing reset found: True
- - Physical properties / values: 1
+ - Physical properties / values: 0
  - RTL typography violations: 0
-   [Physical Property Violations]
-     Line 106: selector `.skeleton` -> `background: linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%)`
-       Reason: Value 'linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%)' contains physical direction word(s): right
 --------------------------------------------------
 File: tailwind_overrides-rtl.css
 RTL Specific File: True
@@ -91,5 +85,5 @@ Global RTL letter-spacing reset found: True
 --------------------------------------------------
 
 SUMMARY:
-Total Physical Directional Property violations: 2
+Total Physical Directional Property violations: 0
 Total RTL/Arabic Typography violations: 11

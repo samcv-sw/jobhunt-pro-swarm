@@ -80,7 +80,7 @@ SAM_ROLES = [
     "IT Director",
 ]
 
-RITA_ROLES = [
+demo_user_ROLES = [
     "HR Manager",
     "HR Coordinator",
     "HR Operations",
@@ -822,7 +822,7 @@ class LebanonCompanyScraper:
         return result
 
     async def scrape_all_roles(self) -> dict:
-        """Scrape for all roles (Sam + Rita)."""
+        """Scrape for all roles (Sam + demo_user)."""
         results = {}
 
         # Sam's roles
@@ -840,19 +840,19 @@ class LebanonCompanyScraper:
                 sam_unique.append(c)
         results["sam"] = sam_unique[:50]
 
-        # Rita's roles
-        rita_companies = []
-        for role in RITA_ROLES[:3]:
+        # demo_user's roles
+        demo_user_companies = []
+        for role in demo_user_ROLES[:3]:
             companies = await self.scrape_for_role(role, "Beirut", "hr", 15)
-            rita_companies.extend(companies)
+            demo_user_companies.extend(companies)
 
-        seen_rita = set()
-        rita_unique = []
-        for c in rita_companies:
-            if c["company"].lower() not in seen_rita:
-                seen_rita.add(c["company"].lower())
-                rita_unique.append(c)
-        results["rita"] = rita_unique[:50]
+        seen_demo_user = set()
+        demo_user_unique = []
+        for c in demo_user_companies:
+            if c["company"].lower() not in seen_demo_user:
+                seen_demo_user.add(c["company"].lower())
+                demo_user_unique.append(c)
+        results["demo_user"] = demo_user_unique[:50]
 
         return results
 
@@ -866,3 +866,4 @@ def get_lebanon_scraper() -> LebanonCompanyScraper:
     if _lebanon_scraper is None:
         _lebanon_scraper = LebanonCompanyScraper()
     return _lebanon_scraper
+

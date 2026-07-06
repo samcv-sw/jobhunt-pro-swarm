@@ -53,3 +53,6 @@ async def get_db_session():
             else:
                 logger.error("Max database retries reached.")
                 raise e
+
+# Backward compatibility alias for aiosqlite/asyncpg pool manager
+from core.async_db import async_db as db

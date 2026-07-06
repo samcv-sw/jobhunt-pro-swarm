@@ -65,6 +65,42 @@ if not SECRET_KEY:
     raise RuntimeError("SECRET_KEY environment variable is not set. Set it in .env or PA dashboard.")
 session_serializer = URLSafeTimedSerializer(SECRET_KEY)
 
+# JWT verification for security controls
+from fastapi import Depends, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
+
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
+if not JWT_SECRET_KEY:
+    if os.getenv("TESTING") == "true" or "pytest" in sys.modules or "unittest" in sys.modules:
+        JWT_SECRET_KEY = "jobhunt-pro-secret-key-32bytes-ok!!"
+    else:
+        raise ValueError("JWT_SECRET_KEY environment variable is not set")
+
+JWT_ALGORITHM = "HS256"
+jwt_security = HTTPBearer(auto_error=False)
+
+async def verify_jwt(credentials: Optional[HTTPAuthorizationCredentials] = Security(jwt_security)) -> dict:
+    if not credentials:
+        raise HTTPException(
+            status_code=401,
+            detail="Authorization header missing or invalid scheme"
+        )
+    token = credentials.credentials
+    try:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401,
+            detail="Token has expired"
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
+
 # Template engine
 template_dir = Path(__file__).parent / "templates"
 templates = Jinja2Templates(directory=str(template_dir))
@@ -152,6 +188,7 @@ def _public_shell(content: str, title: str = "JobHunt Pro", description: str = "
             pass
     return render_template(
         "_public_shell.html",
+        request=request,
         content=content,
         title=title,
         description=meta_desc,
@@ -411,6 +448,30 @@ async def _honeypot_cleanup_loop():
         except Exception as e:
             logger.warning(f"[CLEANUP] Honeypot cleanup error: {e}")
 
+async def _seo_blog_farm_loop():
+    """Background task to generate and publish blog posts periodically."""
+    import core.seo_blog_farm as blog_farm
+    try:
+        blog_data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
+        blog_farm.init(blog_data_dir)
+    except Exception as e:
+        logger.warning(f"[BLOG-FARM] Initialization failed: {e}")
+        
+    while True:
+        try:
+            await asyncio.sleep(21600)  # run every 6 hours
+            blog_farm.generate_all()
+            posts = blog_farm.get_posts(published_only=False)
+            drafts = [p for p in posts if not p.get("published")]
+            if drafts:
+                drafts.sort(key=lambda x: x.get("created_at", ""))
+                blog_farm.publish_post(drafts[0]["slug"])
+                logger.info(f"[BLOG-FARM] Published new post: {drafts[0]['title']}")
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            logger.warning(f"[BLOG-FARM] Loop error: {e}")
+
 @asynccontextmanager
 async def lifespan(app_instance):
     logger.info("[LIFESPAN] Starting background tasks & PostgreSQL...")
@@ -469,6 +530,24 @@ app = FastAPI(
     redoc_url=None,      # ANTI-HACKER: Disable ReDoc
     openapi_url=None     # ANTI-HACKER: Disable OpenAPI Schema
 )
+
+# --- INJECT CLEAN ARCHITECTURE ROUTERS DYNAMICALLY FIRST ---
+import importlib
+import pkgutil
+import web.routers
+
+try:
+    for _, module_name, _ in pkgutil.iter_modules(web.routers.__path__):
+        try:
+            module = importlib.import_module(f"web.routers.{module_name}")
+            if hasattr(module, "router"):
+                app.include_router(module.router)
+                logger.info(f"Dynamically loaded router first: {module_name}")
+        except Exception as e:
+            logger.warning(f"Failed to dynamically load router {module_name}: {e}")
+except Exception as e:
+    logger.warning(f"Dynamic router loading failed: {e}")
+
 
 # --- 🛡️ THE AEGIS SHIELD (ABSOLUTE FIRST MIDDLEWARE) ---
 try:
@@ -541,22 +620,7 @@ app.add_middleware(PanicModeMiddleware)
 
 # -------------------------------
 
-# --- INJECT CLEAN ARCHITECTURE ROUTERS DYNAMICALLY ---
-import importlib
-import pkgutil
-import web.routers
-
-try:
-    for _, module_name, _ in pkgutil.iter_modules(web.routers.__path__):
-        try:
-            module = importlib.import_module(f"web.routers.{module_name}")
-            if hasattr(module, "router"):
-                app.include_router(module.router)
-                logger.info(f"Dynamically loaded router: {module_name}")
-        except Exception as e:
-            logger.warning(f"Failed to dynamically load router {module_name}: {e}")
-except Exception as e:
-    logger.warning(f"Dynamic router loading failed: {e}")
+# Clean Architecture Routers registered first at initialization.
 
 # --- CLOUD TICK ROUTER (GH Actions cron integration) ---
 try:
@@ -855,6 +919,8 @@ async def csrf_middleware(request: Request, call_next):
                     ok = True
             except Exception as e:
                 logger.error(e, exc_info=True)
+        if not ok:
+            return Response("CSRF validation failed", status_code=403)
     response = await call_next(request)
 
     # Clean double-encoded emoji from HTML responses
@@ -1398,6 +1464,12 @@ def init_saas_v2_db():
             );
             CREATE INDEX IF NOT EXISTS idx_sub_keys_offer ON subscription_keys_inventory(offer_id);
             CREATE INDEX IF NOT EXISTS idx_sub_keys_status ON subscription_keys_inventory(offer_id, is_used);
+            
+            CREATE TABLE IF NOT EXISTS system_config (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );
+            INSERT OR IGNORE INTO system_config (key, value) VALUES ('panic_mode', 'false');
         """)
 
             # Helper for migrations
@@ -5501,14 +5573,14 @@ async def email_test_parse_cv(request: Request, cv_file: UploadFile = File(...))
         return JSONResponse({"error": str(e)[:300]}, status_code=500)
 
 # === DAILY LOGIN REWARD API ===
-@app.get("/api/v1/daily-login")
+@app.get("/api/v1/daily-login", dependencies=[Depends(verify_jwt)])
 def api_daily_login(user_id: str = ""):
     if not user_id:
         raise HTTPException(status_code=400, detail="user_id required")
     result = claim_daily_login(user_id)
     return result
 
-@app.get("/api/v1/login-streak")
+@app.get("/api/v1/login-streak", dependencies=[Depends(verify_jwt)])
 def api_login_streak(user_id: str = ""):
     if not user_id:
         raise HTTPException(status_code=400, detail="user_id required")
@@ -5735,8 +5807,8 @@ async def ext_submit_results(request: Request):
     EXTENSION_RESULTS[task_id] = result_data
     return {"status": "success"}
 
-@app.get("/referral", response_class=HTMLResponse)
-def referral_page(request: Request):
+@app.get("/referrals", response_class=HTMLResponse)
+def referrals_stats_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=302)
@@ -7626,7 +7698,7 @@ def admin_panel(request: Request):
         payment_stats = {"total_payments": 0, "total_received_usd": 0, "by_currency": {}, "recent": []}
 
     content_html = render_template("admin.html", request=request,
-        
+        now=datetime.now(timezone.utc),
         stats={
             "total_users": total_users,
             "total_campaigns": total_campaigns,
@@ -9538,7 +9610,7 @@ def employers_page(request: Request):
     return HTMLResponse(_public_shell(content, "For Employers — JobHunt Pro"))
 
 
-@app.post("/api/v1/ats-score")
+@app.post("/api/v1/ats-score", dependencies=[Depends(verify_jwt)])
 async def api_ats_score(request: Request):
     """Score a resume against a job description"""
     try:
@@ -9563,7 +9635,7 @@ async def api_ats_score(request: Request):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
-@app.post("/api/v1/ats-score-bulk")
+@app.post("/api/v1/ats-score-bulk", dependencies=[Depends(verify_jwt)])
 async def api_ats_score_bulk(request: Request):
     """Score resume against multiple jobs at once (max 10)"""
     try:
@@ -9595,6 +9667,16 @@ async def api_fetch_url(request: Request):
     # Auth required
     user_id = request.session.get("user_id")
     if not user_id:
+        # Fallback to checking JWT token
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+        if auth_header and auth_header.lower().startswith("bearer "):
+            token = auth_header.split(" ", 1)[1]
+            try:
+                payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+                user_id = payload.get("sub")
+            except Exception:
+                pass
+    if not user_id:
         return JSONResponse({"error": "Login required"}, status_code=401)
     try:
         data = await request.json()
@@ -9606,27 +9688,43 @@ async def api_fetch_url(request: Request):
         if not url.startswith(("http://", "https://")):
             url = "https://" + url
 
-        # SSRF protection: block internal/private IPs and metadata endpoints
-        from urllib.parse import urlparse
-        parsed = urlparse(url)
-        hostname = parsed.hostname or ""
-        blocked = ["localhost", "127.0.0.1", "0.0.0.0", "169.254.169.254", "metadata.google.internal",
-                   "10.", "172.16.", "172.17.", "172.18.", "172.19.", "172.20.", "172.21.",
-                   "172.22.", "172.23.", "172.24.", "172.25.", "172.26.", "172.27.",
-                   "172.28.", "172.29.", "172.30.", "172.31.", "192.168."]
-        if any(hostname == b or hostname.startswith(b) for b in blocked):
-            return JSONResponse({"error": "URL blocked for security"}, status_code=403)
-        # Disallow file:// and other non-http schemes
-        if parsed.scheme not in ("http", "https"):
-            return JSONResponse({"error": "Only http/https URLs allowed"}, status_code=400)
+        from urllib.parse import urlparse, urljoin
+        current_url = url
+        redirect_count = 0
+        max_redirects = 5
+        html = ""
 
-        # Try with httpx first
-        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
-            resp = await client.get(url, headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            })
-            resp.raise_for_status()
-            html = resp.text
+        while redirect_count <= max_redirects:
+            parsed = urlparse(current_url)
+            hostname = parsed.hostname or ""
+            blocked = ["localhost", "127.0.0.1", "0.0.0.0", "169.254.169.254", "metadata.google.internal",
+                       "10.", "172.16.", "172.17.", "172.18.", "172.19.", "172.20.", "172.21.",
+                       "172.22.", "172.23.", "172.24.", "172.25.", "172.26.", "172.27.",
+                       "172.28.", "172.29.", "172.30.", "172.31.", "192.168."]
+            if any(hostname == b or hostname.startswith(b) for b in blocked):
+                return JSONResponse({"error": "URL blocked for security"}, status_code=403)
+            # Disallow file:// and other non-http schemes
+            if parsed.scheme not in ("http", "https"):
+                return JSONResponse({"error": "Only http/https URLs allowed"}, status_code=400)
+
+            async with httpx.AsyncClient(timeout=15.0, follow_redirects=False) as client:
+                resp = await client.get(current_url, headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                })
+                if resp.status_code in (301, 302, 303, 307, 308):
+                    location = resp.headers.get("Location")
+                    if not location:
+                        resp.raise_for_status()
+                        html = resp.text
+                        break
+                    current_url = urljoin(current_url, location)
+                    redirect_count += 1
+                else:
+                    resp.raise_for_status()
+                    html = resp.text
+                    break
+        else:
+            return JSONResponse({"error": "Too many redirects"}, status_code=400)
 
         # Basic HTML text extraction
         from html.parser import HTMLParser
@@ -9783,7 +9881,7 @@ async def api_v1_login(request: Request):
         if user_id:
             response = JSONResponse({"user": {"id": user_dict["id"], "email": user_dict["email"], "name": user_dict.get("name")}})
             response.set_cookie("user_id", session_serializer.dumps(user_id),
-                httponly=True, samesite="lax", max_age=86400*30)
+                httponly=True, samesite="lax", max_age=86400*30, secure=True)
             return response
         return JSONResponse({"user": {"id": user_dict["id"], "email": user_dict["email"], "name": user_dict.get("name")}})
     except Exception as e:
@@ -10351,7 +10449,7 @@ def roast_view(request: Request):
     user_id = get_verified_user_id(request)
     return render_template("roast.html", request=request, is_logged_in=bool(user_id))
 
-@app.post("/api/v1/roast")
+@app.post("/api/v1/roast", dependencies=[Depends(verify_jwt)])
 async def api_roast_cv(file: UploadFile = File(...)):
     # Simulating the Groq API roast to avoid external dependency issues if the key is missing/invalid
     content = await file.read()
@@ -10367,10 +10465,10 @@ async def api_roast_cv(file: UploadFile = File(...)):
     roast_text = random.choice(roasts)
     score = random.randint(12, 45)
     
-    return {"status": "ok", "roast": roast_text, "score": mock_score}
+    return {"status": "ok", "roast": roast_text, "score": score}
 
 # === NODRIVER FEED ===
-@app.post("/api/nodriver-feed")
+@app.post("/api/nodriver-feed", dependencies=[Depends(verify_jwt)])
 async def nodriver_feed(request: Request):
     """Receive jobs from local nodriver collector."""
     try:

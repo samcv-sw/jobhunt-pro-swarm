@@ -1,441 +1,203 @@
-from core.pg_sqlite_shim import get_db
-import os
-import logging
-import time
-import requests
-import bcrypt
-import secrets
-import uuid
-from fastapi import APIRouter, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+"""
+routers/auth.py - Authentication Router (FastAPI APIRouter)
+Extracted from app_v2.py - Phase 1 Refactor
+Routes: /register GET+POST, /api/v1/login POST, /logout GET,
+        /auth/refresh-token POST, /auth/logout POST
+"""
+import os, uuid, logging, httpx
+from fastapi import APIRouter, Request, Form, HTTPException
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from itsdangerous import BadSignature, SignatureExpired
+import bcrypt, secrets
 
-
-router = APIRouter()
 logger = logging.getLogger(__name__)
+router = APIRouter(tags=["auth"])
 
-# Constants and environment variables
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
-GOOGLE_REDIRECT_URI = os.getenv(
-    "GOOGLE_REDIRECT_URI", "https://jhfguf.pythonanywhere.com/auth/google/callback"
-)
+_login_attempts: dict = {}
+_register_attempts: dict = {}
 
-MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
-MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
-MICROSOFT_REDIRECT_URI = os.getenv(
-    "MICROSOFT_REDIRECT_URI",
-    "https://jhfguf.pythonanywhere.com/auth/microsoft/callback",
-)
+def _deps():
+    from web.shared import get_db, session_serializer, templates, config, _check_rate_limit
+    return get_db, session_serializer, templates, config, _check_rate_limit
 
-_login_attempts = {}
-_forgot_attempts = {}
+def _hash_pw(pw: str) -> str:
+    return bcrypt.hashpw(pw.encode(), bcrypt.gensalt()).decode()
 
-
-def get_session_serializer():
-    from itsdangerous import URLSafeTimedSerializer
-    import config
-
-    SECRET_KEY = os.getenv("SECRET_KEY") or getattr(config, "SECRET_KEY", None)
-    if not SECRET_KEY:
-        raise RuntimeError("SECRET_KEY not set")
-    return URLSafeTimedSerializer(SECRET_KEY)
-
-
-def generate_api_key():
-    import uuid
-
-    return f"jh_{uuid.uuid4().hex}"
-
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    import bcrypt
-
+def _verify_pw(pw: str, hashed: str) -> bool:
     try:
-        return bcrypt.checkpw(
-            plain_password.encode("utf-8"), hashed_password.encode("utf-8")
-        )
+        return bcrypt.checkpw(pw.encode(), hashed.encode())
     except Exception:
         return False
 
-
-def _check_rate_limit(
-    store: dict, ip: str, window_seconds: int = 3600, max_count: int = 10
-) -> bool:
-    now = time.time()
-    try:
-        conn = get_db()
-        db_key = f"rate_limit:{ip}"
-        row = conn.execute(
-            "SELECT value FROM system_config WHERE key = ?", (db_key,)
-        ).fetchone()
-        if row:
-            db_time, db_count = map(float, row["value"].split(":"))
-            if now - db_time > window_seconds:
-                conn.execute(
-                    "REPLACE INTO system_config (key, value) VALUES (?, ?)",
-                    (db_key, f"{now}:1"),
-                )
-                conn.commit()
-                conn.close()
-                store[ip] = [now, 1]
-                return True
-            if db_count >= max_count:
-                conn.close()
-                return False
-            conn.execute(
-                "REPLACE INTO system_config (key, value) VALUES (?, ?)",
-                (db_key, f"{db_time}:{int(db_count) + 1}"),
-            )
-            conn.commit()
-            conn.close()
-            store[ip] = [db_time, db_count + 1]
-            return True
-        else:
-            conn.execute(
-                "REPLACE INTO system_config (key, value) VALUES (?, ?)",
-                (db_key, f"{now}:1"),
-            )
-            conn.commit()
-            conn.close()
-            store[ip] = [now, 1]
-            return True
-    except Exception:
-        pass  # Fallback to in-memory
-
-    if ip not in store:
-        store[ip] = [now, 1]
-        return True
-
-    last_time, count = store[ip]
-    if now - last_time > window_seconds:
-        store[ip] = [now, 1]
-        return True
-
-    if count >= max_count:
-        return False
-
-    store[ip] = [last_time, count + 1]
-    return True
+def _gen_api_key() -> str:
+    return secrets.token_urlsafe(32)
 
 
-def _check_login_rate_limit(ip: str) -> bool:
-    return _check_rate_limit(_login_attempts, ip, max_count=10)
+@router.get("/register", response_class=HTMLResponse)
+def register_page(request: Request, ref: str = ""):
+    _, _, templates, config, _ = _deps()
+    return templates.TemplateResponse(request, "register_v2.html", {
+        "ref": ref,
+        "VERSION": config.VERSION,
+        "turnstile_site_key": getattr(config, "TURNSTILE_SITE_KEY", ""),
+    })
 
 
-@router.get("/auth/google/login")
-def google_login():
-    scopes = [
-        "openid",
-        "email",
-        "profile",
-        "https://www.googleapis.com/auth/gmail.send",
-    ]
-    import urllib.parse
+@router.post("/register")
+async def register(
+    request: Request,
+    email: str = Form(...),
+    password: str = Form(...),
+    name: str = Form(...),
+    phone: str = Form(""),
+    company_name: str = Form(""),
+    user_type: str = Form("jobseeker"),
+    ref: str = Form(""),
+    selected_plan: str = Form("starter"),
+    cf_turnstile_response: str = Form(None, alias="cf-turnstile-response"),
+    aegis_honeypot: str = Form(""),
+):
+    get_db, _, templates, config, _check_rate_limit = _deps()
 
-    auth_url = (
-        "https://accounts.google.com/o/oauth2/v2/auth?"
-        f"client_id={GOOGLE_CLIENT_ID}&"
-        f"redirect_uri={urllib.parse.quote(GOOGLE_REDIRECT_URI)}&"
-        "response_type=code&"
-        f"scope={' '.join(scopes)}&"
-        "access_type=offline&prompt=consent"
-    )
-    return RedirectResponse(auth_url)
+    if aegis_honeypot:
+        logger.warning(f"[AEGIS] Honeypot triggered from {request.client.host}")
+        return HTMLResponse("403 Forbidden", status_code=403)
 
-
-@router.get("/auth/google/callback")
-def google_callback(code: str = None, error: str = None):
-    if error or not code:
-        return HTMLResponse(
-            "<html><body><h3>OAuth Error</h3><p>Google authentication failed.</p><a href='/login'>Try again</a></body></html>"
-        )
-
-    resp = requests.post(
-        "https://oauth2.googleapis.com/token",
-        data={
-            "code": code,
-            "client_id": GOOGLE_CLIENT_ID,
-            "client_secret": GOOGLE_CLIENT_SECRET,
-            "redirect_uri": GOOGLE_REDIRECT_URI,
-            "grant_type": "authorization_code",
-        },
-    )
-    if not resp.ok:
-        return HTMLResponse(
-            "<html><body><h3>OAuth Error</h3><p>Failed to exchange token.</p></body></html>"
-        )
-
-    tokens = resp.json()
-    access_token = tokens.get("access_token")
-    refresh_token = tokens.get("refresh_token")
-    expires_at = time.time() + tokens.get("expires_in", 3599)
-
-    user_info = requests.get(
-        "https://www.googleapis.com/oauth2/v3/userinfo",
-        headers={"Authorization": f"Bearer {access_token}"},
-    ).json()
-    email, name = user_info.get("email"), user_info.get("name", "User")
-    if not email:
-        return HTMLResponse(
-            "<html><body><h3>OAuth Error</h3><p>Email not provided by Google.</p></body></html>"
-        )
-
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-    if not user:
-        temp_pwd = secrets.token_urlsafe(16)
-        pwd_hash = bcrypt.hashpw(temp_pwd.encode("utf-8"), bcrypt.gensalt()).decode(
-            "utf-8"
-        )
-        user_id = f"user_{uuid.uuid4().hex[:16]}"
-        conn.execute(
-            """INSERT INTO users (user_id, email, password_hash, name, api_key, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at)
-               VALUES (?, ?, ?, ?, ?, 'google', ?, ?, ?)""",
-            (
-                user_id,
-                email,
-                pwd_hash,
-                name,
-                generate_api_key(),
-                access_token,
-                refresh_token,
-                expires_at,
-            ),
-        )
-    else:
-        user_id = user["user_id"]
-        if refresh_token:
-            conn.execute(
-                "UPDATE users SET oauth_provider='google', oauth_access_token=?, oauth_refresh_token=?, oauth_expires_at=? WHERE user_id=?",
-                (access_token, refresh_token, expires_at, user_id),
-            )
-        else:
-            conn.execute(
-                "UPDATE users SET oauth_provider='google', oauth_access_token=?, oauth_expires_at=? WHERE user_id=?",
-                (access_token, expires_at, user_id),
-            )
-    conn.commit()
-    conn.close()
-
-    response = RedirectResponse("/user-dashboard", status_code=303)
-    response.set_cookie(
-        "user_id",
-        get_session_serializer().dumps(user_id),
-        httponly=True,
-        samesite="lax",
-        max_age=86400 * 30,
-    )
-    return response
-
-
-@router.get("/auth/microsoft/login")
-def microsoft_login():
-    scopes = [
-        "openid",
-        "email",
-        "profile",
-        "offline_access",
-        "https://graph.microsoft.com/Mail.Send",
-        "https://graph.microsoft.com/User.Read",
-    ]
-    import urllib.parse
-
-    auth_url = (
-        "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?"
-        f"client_id={MICROSOFT_CLIENT_ID}&"
-        f"redirect_uri={urllib.parse.quote(MICROSOFT_REDIRECT_URI)}&"
-        "response_type=code&"
-        f"scope={'%20'.join(scopes)}&"
-        "prompt=select_account"
-    )
-    return RedirectResponse(auth_url)
-
-
-@router.get("/auth/microsoft/callback")
-def microsoft_callback(code: str = None, error: str = None):
-    if error or not code:
-        return HTMLResponse(
-            "<html><body><h3>OAuth Error</h3><p>Microsoft authentication failed.</p><a href='/login'>Try again</a></body></html>"
-        )
-
-    resp = requests.post(
-        "https://login.microsoftonline.com/common/oauth2/v2.0/token",
-        data={
-            "client_id": MICROSOFT_CLIENT_ID,
-            "client_secret": MICROSOFT_CLIENT_SECRET,
-            "code": code,
-            "redirect_uri": MICROSOFT_REDIRECT_URI,
-            "grant_type": "authorization_code",
-        },
-    )
-    if not resp.ok:
-        return HTMLResponse(
-            "<html><body><h3>OAuth Error</h3><p>Token exchange failed.</p></body></html>"
-        )
-
-    tokens = resp.json()
-    access_token = tokens.get("access_token")
-    refresh_token = tokens.get("refresh_token")
-    expires_at = time.time() + tokens.get("expires_in", 3599)
-
-    user_info = requests.get(
-        "https://graph.microsoft.com/v1.0/me",
-        headers={"Authorization": f"Bearer {access_token}"},
-    ).json()
-    email = user_info.get("mail") or user_info.get("userPrincipalName")
-    name = user_info.get("displayName", "User")
-
-    if not email:
-        return HTMLResponse(
-            "<html><body><h3>OAuth Error</h3><p>Email address not provided.</p></body></html>"
-        )
-
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-
-    if not user:
-        temp_pwd = secrets.token_urlsafe(16)
-        pwd_hash = bcrypt.hashpw(temp_pwd.encode("utf-8"), bcrypt.gensalt()).decode(
-            "utf-8"
-        )
-        user_id = f"user_{uuid.uuid4().hex[:16]}"
-        conn.execute(
-            """INSERT INTO users (user_id, email, password_hash, name, api_key, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at)
-               VALUES (?, ?, ?, ?, ?, 'microsoft', ?, ?, ?)""",
-            (
-                user_id,
-                email,
-                pwd_hash,
-                name,
-                generate_api_key(),
-                access_token,
-                refresh_token,
-                expires_at,
-            ),
-        )
-    else:
-        user_id = user["user_id"]
-        if refresh_token:
-            conn.execute(
-                "UPDATE users SET oauth_provider='microsoft', oauth_access_token=?, oauth_refresh_token=?, oauth_expires_at=? WHERE user_id=?",
-                (access_token, refresh_token, expires_at, user_id),
-            )
-        else:
-            conn.execute(
-                "UPDATE users SET oauth_provider='microsoft', oauth_access_token=?, oauth_expires_at=? WHERE user_id=?",
-                (access_token, expires_at, user_id),
-            )
-    conn.commit()
-    conn.close()
-
-    response = RedirectResponse("/user-dashboard", status_code=303)
-    response.set_cookie(
-        "user_id",
-        get_session_serializer().dumps(user_id),
-        httponly=True,
-        samesite="lax",
-        max_age=86400 * 30,
-    )
-    return response
-
-
-@router.get("/login", response_class=HTMLResponse)
-def login_page(request: Request, plan: str = ""):
-    from web.app_v2 import templates, config
-
-    selected_plan = plan or request.cookies.get("last_selected_plan", "starter")
-    return templates.TemplateResponse(
-        request,
-        "login_v2.html",
-        {"selected_plan": selected_plan, "plan": plan, "VERSION": config.VERSION},
-    )
-
-
-@router.post("/login")
-def login(request: Request, email: str = Form(...), password: str = Form(...)):
-    from web.app_v2 import templates
+    turnstile_secret = getattr(config, "TURNSTILE_SECRET", "") or os.getenv("TURNSTILE_SECRET", "")
+    if turnstile_secret:
+        if not cf_turnstile_response:
+            return templates.TemplateResponse(request, "register_v2.html",
+                {"error": "Please complete the Anti-Bot CAPTCHA.", "ref": ref})
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.post("https://challenges.cloudflare.com/turnstile/v0/siteverify",
+                    data={"secret": turnstile_secret, "response": cf_turnstile_response}, timeout=5.0)
+                if not r.json().get("success"):
+                    return templates.TemplateResponse(request, "register_v2.html",
+                        {"error": "Anti-Bot Verification Failed.", "ref": ref})
+        except Exception as e:
+            logger.error(f"Turnstile error: {e}")
 
     client_ip = request.client.host if request.client else "unknown"
-    if not _check_login_rate_limit(client_ip):
-        return templates.TemplateResponse(
-            request, "login_v2.html", {"error": "Too many login attempts."}
-        )
+    if not _check_rate_limit(_register_attempts, client_ip, max_count=5):
+        return templates.TemplateResponse(request, "register_v2.html",
+            {"error": "Too many attempts. Try again in 1 hour.", "ref": ref})
+
+    if len(password) < 8:
+        return templates.TemplateResponse(request, "register_v2.html",
+            {"error": "Password must be at least 8 characters.", "ref": ref})
+    if not any(c.isupper() for c in password):
+        return templates.TemplateResponse(request, "register_v2.html",
+            {"error": "Password must contain at least one uppercase letter.", "ref": ref})
+    if not any(c.isdigit() for c in password):
+        return templates.TemplateResponse(request, "register_v2.html",
+            {"error": "Password must contain at least one digit.", "ref": ref})
 
     conn = get_db()
-    account_key = f"login_lock:{email}"
-    lockout = conn.execute(
-        "SELECT value FROM system_config WHERE key = ?", (account_key,)
-    ).fetchone()
-    if lockout:
-        try:
-            if time.time() - float(lockout["value"]) < 1800:
-                conn.close()
-                return templates.TemplateResponse(
-                    request,
-                    "login_v2.html",
-                    {"error": "Account locked. Try again in 30 minutes."},
-                )
-        except Exception:
-            pass
-
-    user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-    if user and (user.get("is_active") == 0 or user.get("banned") == 1):
+    existing = conn.execute("SELECT user_id, password_hash FROM users WHERE email = ?", (email,)).fetchone()
+    if existing:
         conn.close()
-        return templates.TemplateResponse(
-            request, "login_v2.html", {"error": "Account disabled."}
-        )
+        return templates.TemplateResponse(request, "register_v2.html", {"error": "Email already registered"})
 
-    if not user or not verify_password(password, user["password_hash"]):
+    user_id = f"user_{uuid.uuid4().hex[:16]}"
+    api_key = _gen_api_key()
+    conn.execute(
+        "INSERT INTO users (user_id, email, password_hash, name, phone, company_name, user_type, api_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (user_id, email, _hash_pw(password), name, phone, company_name, user_type, api_key)
+    )
+    conn.commit()
+
+    if ref:
         try:
-            fail_key = f"login_fails:{email}"
-            row = conn.execute(
-                "SELECT value FROM system_config WHERE key = ?", (fail_key,)
-            ).fetchone()
-            fails = int(row["value"]) + 1 if row else 1
-            conn.execute(
-                "REPLACE INTO system_config (key, value) VALUES (?, ?)",
-                (fail_key, str(fails)),
-            )
-            if fails >= 5:
-                conn.execute(
-                    "REPLACE INTO system_config (key, value) VALUES (?, ?)",
-                    (account_key, str(time.time())),
-                )
-            conn.commit()
-        except Exception:
-            pass
-        conn.close()
-        return templates.TemplateResponse(
-            request, "login_v2.html", {"error": "Invalid credentials"}
-        )
+            referrer = conn.execute("SELECT user_id, wallet_balance FROM users WHERE user_id = ?", (ref,)).fetchone()
+            if referrer:
+                conn.execute("UPDATE users SET wallet_balance = wallet_balance + 5.0 WHERE user_id = ?", (ref,))
+                conn.execute("UPDATE users SET wallet_balance = wallet_balance + 2.0 WHERE user_id = ?", (user_id,))
+                conn.commit()
+        except Exception as e:
+            logger.error(f"Referral credit failed: {e}")
 
-    try:
-        conn.execute(
-            "DELETE FROM system_config WHERE key = ?", (f"login_fails:{email}",)
-        )
-        conn.execute("DELETE FROM system_config WHERE key = ?", (account_key,))
-        conn.commit()
-    except Exception:
-        pass
     conn.close()
 
-    response = RedirectResponse("/user-dashboard", status_code=303)
-    response.set_cookie(
-        "user_id",
-        get_session_serializer().dumps(user["user_id"]),
-        httponly=True,
-        samesite="lax",
-        max_age=86400 * 30,
-    )
-    return response
+    try:
+        import asyncio
+        from core.email_marketing import send_welcome_email
+        asyncio.create_task(send_welcome_email(user_id, email, name))
+    except Exception as e:
+        logger.error(f"Welcome email failed: {e}")
+
+    resp = RedirectResponse(f"/login?plan={selected_plan}", status_code=303)
+    resp.set_cookie("last_selected_plan", selected_plan, max_age=86400)
+    return resp
+
+
+@router.post("/api/v1/login")
+async def api_login(request: Request):
+    """JSON API login - used by Chrome Extension and Telegram MiniApp."""
+    get_db, session_serializer, _, _, _ = _deps()
+    try:
+        data = await request.json()
+        email = data.get("email", "").strip().lower()
+        password = data.get("password", "")
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+
+    if not email or not password:
+        raise HTTPException(status_code=400, detail="email and password required")
+
+    conn = get_db()
+    user = conn.execute(
+        "SELECT user_id, password_hash, name, email, tokens, subscription_status, api_key FROM users WHERE email = ?",
+        (email,)
+    ).fetchone()
+    conn.close()
+
+    if not user or not _verify_pw(password, user["password_hash"] if hasattr(user, "__getitem__") else user[1]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    u = dict(user) if hasattr(user, "keys") else {
+        "user_id": user[0], "password_hash": user[1], "name": user[2],
+        "email": user[3], "tokens": user[4], "subscription_status": user[5], "api_key": user[6]
+    }
+    signed_uid = session_serializer.dumps(u["user_id"])
+    resp = JSONResponse({
+        "status": "ok",
+        "user_id": u["user_id"],
+        "name": u["name"],
+        "email": u["email"],
+        "api_key": u["api_key"],
+        "tokens": u["tokens"],
+        "subscription_status": u["subscription_status"],
+    })
+    resp.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
+    return resp
 
 
 @router.get("/logout")
-def logout(request: Request):
-    resp = RedirectResponse("/login", status_code=303)
-    resp.delete_cookie("user_id", path="/")
+def logout():
+    resp = RedirectResponse("/", status_code=303)
+    resp.delete_cookie("user_id")
+    resp.delete_cookie("session")
+    return resp
+
+
+@router.post("/auth/refresh-token")
+async def refresh_token(request: Request):
+    get_db, session_serializer, _, _, _ = _deps()
+    cookie = request.cookies.get("user_id", "")
+    if not cookie:
+        raise HTTPException(status_code=401, detail="Not authenticated")
     try:
-        request.session.clear()
-    except Exception:
-        pass
+        user_id = session_serializer.loads(cookie, max_age=86400 * 30)
+    except (BadSignature, SignatureExpired):
+        raise HTTPException(status_code=401, detail="Session expired")
+    resp = JSONResponse({"status": "refreshed", "user_id": user_id})
+    resp.set_cookie("user_id", session_serializer.dumps(user_id), max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
+    return resp
+
+
+@router.post("/auth/logout")
+def api_logout():
+    resp = JSONResponse({"status": "logged_out"})
+    resp.delete_cookie("user_id")
     return resp

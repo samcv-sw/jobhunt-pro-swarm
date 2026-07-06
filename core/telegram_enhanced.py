@@ -17,7 +17,7 @@ import json
 import os
 import time
 import traceback
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 from datetime import datetime
 from pathlib import Path
 
@@ -130,7 +130,7 @@ class BotWatchdog:
 
                 # Recreate bot instance to clear stale state
                 try:
-                    from core.telegram_bot import TelegramBot
+                    from core.telegram.bot import TelegramBot
 
                     self.bot = TelegramBot()
                 except Exception:
@@ -458,7 +458,7 @@ async def start_telegram_bot_enhanced():
     and AI auto-fix capabilities. Use this instead of the original
     start_telegram_bot() in production.
     """
-    from core.telegram_bot import TelegramBot
+    from core.telegram.bot import TelegramBot
 
     os.makedirs("logs", exist_ok=True)
 

@@ -47,7 +47,7 @@
 | # | Account Email | Provider | SMTP Server | Daily Cap | Set Up? |
 |---|--------------|----------|-------------|-----------|---------|
 | 1 | salamehnancy88@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
-| 2 | ritacordahi2@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
+| 2 | demo_useruser2@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
 | 3 | aurorafuture8@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
 | 4 | luxurystoresvvip@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
 | 5 | wyn27xauit@bbyuopsch.it.com | Disposable | smtp.gmail.com:587 | 100 | ⚠️ Custom domain → SPF needed |
@@ -58,7 +58,7 @@
 | 10 | heribertstern968@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
 | 11 | jaayivia275@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
 | 12 | UgScheila@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
-| 13 | rita.cordahi01@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
+| 13 | demo_user.user01@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
 | 14 | salamehsam33@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
 | 15 | paula.bassil.69@gmail.com | Gmail | smtp.gmail.com:587 | 100 | ✅ Gmail auto-SPF |
 
@@ -356,3 +356,4 @@ Parse them with: https://dmarcian.com/dmarc-report-parser/
 > 💡 **Pro Tip:** Running on PythonAnywhere? You can't add DNS records there. SPF/DKIM/DMARC are set at your **domain registrar** (Cloudflare / Namecheap / GoDaddy) not on the hosting platform.
 
 > 🎯 **Final Note for Sam:** All @gmail.com and @outlook.com accounts are auto-secured. The ONLY time you need DNS changes is if you use a **custom domain** like `bbyuopsch.it.com`. For your 1000 Hotmail pool → zero DNS work needed.
+

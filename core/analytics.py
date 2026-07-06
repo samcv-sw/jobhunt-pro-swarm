@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 import config
 
 logger = logging.getLogger(__name__)

@@ -1,12 +1,12 @@
 """
-JobHunt Pro - Rita Cordahi Profile
+JobHunt Pro - Demo User Profile
 ===================================
-Profile switcher for running Rita's job search alongside Sam's.
-All Rita-specific env vars prefixed with RITA_ to avoid conflicts.
+Profile switcher for running demo_user's job search alongside Sam's.
+All demo_user-specific env vars prefixed with demo_user_ to avoid conflicts.
 
 Usage:
-    from core.rita_profile import RitaProfile
-    profile = RitaProfile()  # loads from RITA_* env vars
+    from core.demo_user_profile import demo_userProfile
+    profile = demo_userProfile()  # loads from demo_user_* env vars
     print(profile.name, profile.email)
 """
 
@@ -20,26 +20,26 @@ load_dotenv()
 
 
 @dataclass
-class RitaProfile:
-    """Rita Cordahi's job search profile.
+class demo_userProfile:
+    """Demo User's job search profile.
 
     All values fall back to sensible defaults but should be
-    configured via RITA_* environment variables in .env.
+    configured via demo_user_* environment variables in .env.
     """
 
     # ── Identity ───────────────────────────────────────────
-    name: str = os.getenv("RITA_NAME", "Rita Cordahi")
-    title: str = os.getenv("RITA_TITLE", "HR & Customer Operations Specialist")
-    email: str = os.getenv("RITA_EMAIL", "ritacordahi2@gmail.com")
-    phone: str = os.getenv("RITA_PHONE", "+961 76 005 412")
-    address: str = os.getenv("RITA_ADDRESS", "Beirut, Lebanon")
+    name: str = os.getenv("demo_user_NAME", "Demo User")
+    title: str = os.getenv("demo_user_TITLE", "HR & Customer Operations Specialist")
+    email: str = os.getenv("demo_user_EMAIL", "demo_useruser2@gmail.com")
+    phone: str = os.getenv("demo_user_PHONE", "+961 76 005 412")
+    address: str = os.getenv("demo_user_ADDRESS", "Beirut, Lebanon")
     linkedin: str = os.getenv(
-        "RITA_LINKEDIN", "https://www.linkedin.com/in/rita-cordahi/"
+        "demo_user_LINKEDIN", "https://www.linkedin.com/in/demo_user-user/"
     )
-    years_experience: int = int(os.getenv("RITA_YEARS_EXPERIENCE", "6"))
+    years_experience: int = int(os.getenv("demo_user_YEARS_EXPERIENCE", "6"))
 
     # ── CV / Resume ──────────────────────────────────────
-    cv_path: str = os.getenv("RITA_CV_PATH", "assets/Rita_Cordahi_CV.pdf")
+    cv_path: str = os.getenv("demo_user_CV_PATH", "assets/demo_user_user_CV.pdf")
 
     # ── Job Search Config ─────────────────────────────────
     job_titles: List[str] = field(
@@ -104,24 +104,24 @@ class RitaProfile:
         ]
     )
 
-    target_salary: str = os.getenv("RITA_TARGET_SALARY", "1500")
-    min_salary: int = int(os.getenv("RITA_MIN_SALARY", "1000"))
+    target_salary: str = os.getenv("demo_user_TARGET_SALARY", "1500")
+    min_salary: int = int(os.getenv("demo_user_MIN_SALARY", "1000"))
 
-    daily_send_limit: int = int(os.getenv("RITA_DAILY_SEND_LIMIT", "75"))
-    min_match_score: int = int(os.getenv("RITA_MIN_MATCH_SCORE", "50"))
+    daily_send_limit: int = int(os.getenv("demo_user_DAILY_SEND_LIMIT", "75"))
+    min_match_score: int = int(os.getenv("demo_user_MIN_MATCH_SCORE", "50"))
 
     # ── AI / Tech Stack ─────────────────────────────────
-    groq_api_key: str = os.getenv("RITA_GROQ_API_KEY", "")
-    telegram_bot_token: str = os.getenv("RITA_TELEGRAM_BOT_TOKEN", "")
-    telegram_chat_id: str = os.getenv("RITA_TELEGRAM_CHAT_ID", "")
+    groq_api_key: str = os.getenv("demo_user_GROQ_API_KEY", "")
+    telegram_bot_token: str = os.getenv("demo_user_TELEGRAM_BOT_TOKEN", "")
+    telegram_chat_id: str = os.getenv("demo_user_TELEGRAM_CHAT_ID", "")
 
-    # ── Email (Gmail + Brevo for Rita) ──────────────────
-    gmail_smtp_user: str = os.getenv("RITA_GMAIL_SMTP_USER", "")
-    gmail_app_password: str = os.getenv("RITA_GMAIL_APP_PASSWORD", "")
-    brevo_api_key: str = os.getenv("RITA_BREVO_API_KEY", "")
-    brevo_account_email: str = os.getenv("RITA_BREVO_ACCOUNT_EMAIL", "")
-    brevo_smtp_login: str = os.getenv("RITA_BREVO_SMTP_LOGIN", "")
-    brevo_smtp_password: str = os.getenv("RITA_BREVO_SMTP_PASSWORD", "")
+    # ── Email (Gmail + Brevo for demo_user) ──────────────────
+    gmail_smtp_user: str = os.getenv("demo_user_GMAIL_SMTP_USER", "")
+    gmail_app_password: str = os.getenv("demo_user_GMAIL_APP_PASSWORD", "")
+    brevo_api_key: str = os.getenv("demo_user_BREVO_API_KEY", "")
+    brevo_account_email: str = os.getenv("demo_user_BREVO_ACCOUNT_EMAIL", "")
+    brevo_smtp_login: str = os.getenv("demo_user_BREVO_SMTP_LOGIN", "")
+    brevo_smtp_password: str = os.getenv("demo_user_BREVO_SMTP_PASSWORD", "")
 
     # ── Skills ──────────────────────────────────────────
     skills: List[str] = field(
@@ -190,7 +190,7 @@ class RitaProfile:
         """Validate and log profile load."""
         loaded_from = (
             "env vars"
-            if any(os.getenv(k) for k in ["RITA_NAME", "RITA_EMAIL", "RITA_TITLE"])
+            if any(os.getenv(k) for k in ["demo_user_NAME", "demo_user_EMAIL", "demo_user_TITLE"])
             else "defaults"
         )
 
@@ -198,11 +198,11 @@ class RitaProfile:
 
         logger = logging.getLogger(__name__)
         logger.info(
-            f"[RITA-PROFILE] Loaded {self.name} ({self.title}) from {loaded_from}"
+            f"[demo_user-PROFILE] Loaded {self.name} ({self.title}) from {loaded_from}"
         )
-        logger.info(f"[RITA-PROFILE] Email: {self.email} | Phone: {self.phone}")
+        logger.info(f"[demo_user-PROFILE] Email: {self.email} | Phone: {self.phone}")
         logger.info(
-            f"[RITA-PROFILE] Daily limit: {self.daily_send_limit} | Min salary: ${self.min_salary}"
+            f"[demo_user-PROFILE] Daily limit: {self.daily_send_limit} | Min salary: ${self.min_salary}"
         )
 
     def to_dict(self) -> dict:
@@ -241,15 +241,16 @@ class RitaProfile:
 
 # ── Convenience singleton ──────────────────────────────────
 # Import this for quick access in other modules:
-#   from core.rita_profile import rita
-#   print(rita.name)
-rita = RitaProfile()
+#   from core.demo_user_profile import demo_user
+#   print(demo_user.name)
+demo_user = demo_userProfile()
 
 
 # ── CLI Test ────────────────────────────────────────────────
 if __name__ == "__main__":
     import json
 
-    print(rita.summary())
+    print(demo_user.summary())
     print("\n--- Full Profile ---")
-    print(json.dumps(rita.to_dict(), indent=2, default=str))
+    print(json.dumps(demo_user.to_dict(), indent=2, default=str))
+

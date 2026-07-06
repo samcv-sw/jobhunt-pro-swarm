@@ -13,10 +13,12 @@
 @media(max-width:900px) { .tailor-container { grid-template-columns: 1fr; } }
 
 .tailor-panel {
-  background: rgba(255,255,255,0.03);
+  background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
   padding: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .tailor-panel h3 {
   font-size: 13px;
@@ -85,10 +87,12 @@
 .tailor-results.visible { display: block; }
 
 .tailor-output-panel {
-  background: rgba(255,255,255,0.03);
+  background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
   overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .tailor-output-header {
   display: flex;
@@ -282,23 +286,27 @@
 
 <style>
         body {
-          font-family: 'Georgia', 'Times New Roman', serif;
-          font-size: 12px;
+          font-family: 'Inter', 'Outfit', sans-serif;
+          font-size: 14px;
           line-height: 1.6;
-          color: #1a1a1a;
+          color: #e2e8f0;
           max-width: 800px;
           margin: 40px auto;
           padding: 20px;
+          background: linear-gradient(135deg,#0a0a1a 0%,#0d0b1e 50%,#1a0a2e 100%);
+          background-attachment: fixed;
         }
         pre {
-          font-family: 'Georgia', serif;
+          font-family: 'Inter', 'Outfit', sans-serif;
           white-space: pre-wrap;
-          font-size: 12px;
+          font-size: 13px;
           line-height: 1.6;
           margin: 0;
+          color: #e2e8f0;
         }
         @media print {
-          body { margin: 0; padding: 20px; }
+          body { margin: 0; padding: 20px; color: #1a1a1a; background: #ffffff; }
+          pre { color: #1a1a1a; }
         }
       </style>
 

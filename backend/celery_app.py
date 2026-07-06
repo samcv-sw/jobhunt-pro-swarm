@@ -1,13 +1,14 @@
 import os
 from celery import Celery
 
-# Use Redis as the message broker and result backend
+# Use RabbitMQ as the message broker for enterprise durability (Event-Driven Deliverability)
 # Defaulting to localhost for development
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqp://jobhunt:jobhunt_password@localhost:5672//")
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0") # Keep Redis for result backend
 
 celery_app = Celery(
     "jobhunt_tasks",
-    broker=REDIS_URL,
+    broker=RABBITMQ_URL,
     backend=REDIS_URL,
     include=["backend.tasks"]
 )

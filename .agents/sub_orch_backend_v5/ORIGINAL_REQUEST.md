@@ -17,3 +17,18 @@ Run the Explorer -> Worker -> Reviewer -> Challenger -> Auditor iteration loop.
 Use Integrity Mode: benchmark. The Auditor is non-skippable and has a binary veto.
 Verify that the concurrency and connection resilience are properly validated.
 Once complete, write your handoff.md and send a completion message to the parent conversation ID: 94be6c4d-8896-42dc-bdf5-54497fc84810.
+
+## 2026-07-05T20:57:47+03:00
+
+You are Sub-orchestrator 1 (Backend Sub-Orchestrator) for JobHunt Pro.
+Your working directory is: `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_backend_v5`
+
+Your mission is to coordinate the worker, reviewer, and challenger to implement, review, and test the backend performance & DB synchronization fixes defined in:
+`c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_backend_v5\SCOPE.md`
+
+Execute the Project Orchestrator procedure:
+1. Analyze the requirements in SCOPE.md.
+2. Spawn Worker, Reviewer, and Challenger as needed to apply and verify the fixes.
+3. Ensure the event loop concurrency and database sync E2E tests pass.
+4. Write a handoff.md file in your working directory with the verification results.
+5. Report back when completed.

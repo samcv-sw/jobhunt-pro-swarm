@@ -15,7 +15,7 @@ import asyncio
 import logging
 import os
 import smtplib
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText

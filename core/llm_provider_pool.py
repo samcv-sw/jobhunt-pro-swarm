@@ -12,6 +12,7 @@ import logging
 import time
 import random
 import os
+from core import semantic_cache
 from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
 from enum import Enum
@@ -453,8 +454,18 @@ class LLMProviderPool:
         Get the best available provider (by preference, weight, health).
         This is the main entry point for obtaining a provider instance.
         """
+
         if not self._providers:
             return None
+
+        # Check semantic cache first
+        try:
+            cached = semantic_cache.get_cached_response(user_prompt)
+            if cached:
+                return cached
+        except Exception as e:
+            logger.warning(f"Semantic cache lookup failed: {e}")
+
 
         candidates = list(self._providers.keys())
 
@@ -530,8 +541,18 @@ class LLMProviderPool:
         Send a completion request, rotating across providers on failure.
         Returns None if all providers fail.
         """
+
         if not self._providers:
             return None
+
+        # Check semantic cache first
+        try:
+            cached = semantic_cache.get_cached_response(user_prompt)
+            if cached:
+                return cached
+        except Exception as e:
+            logger.warning(f"Semantic cache lookup failed: {e}")
+
 
         # Build ordered list of providers to try
         candidates = list(self._providers.keys())
@@ -559,8 +580,14 @@ class LLMProviderPool:
             async with self._lock:
                 self._last_used[provider_name] = time.time()
 
+
             if result is not None:
+                try:
+                    semantic_cache.save_to_cache(user_prompt, result)
+                except Exception as e:
+                    logger.warning(f"Semantic cache save failed: {e}")
                 return result
+
 
             # Mark as unhealthy if consecutive failures accumulated
             if provider._consecutive_failures > 3:

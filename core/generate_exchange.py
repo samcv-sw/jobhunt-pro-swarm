@@ -5,7 +5,7 @@ Generates a Binance-style B2B "Human IPO" Dashboard.
 Turns developers into "Investable Digital Assets".
 """
 
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 import os
 import random
 import logging

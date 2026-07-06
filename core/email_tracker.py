@@ -1,5 +1,5 @@
 import logging
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 from typing import Any, Dict, Optional
 import config
 

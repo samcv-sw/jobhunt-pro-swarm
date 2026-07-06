@@ -1675,7 +1675,7 @@ Export](http://127.0.0.1:8089/export)
 ### 🔗 Links (6 total, 0 external)
 - [← My Dashboard](http://127.0.0.1:8089/user-dashboard)
 - [testuser12345@example.com](http://127.0.0.1:8089/admin/user/user_fe309d69a55341a8)
-- [ritacordahi2@gmail.com](http://127.0.0.1:8089/admin/user/rita_0ff95097478f)
+- [demo_useruser2@gmail.com](http://127.0.0.1:8089/admin/user/demo_user_0ff95097478f)
 - [test_ui@jobhuntpro.com](http://127.0.0.1:8089/admin/user/user_c70d5f21e55a4720)
 - [demo@jobhuntpro.com](http://127.0.0.1:8089/admin/user/ef8dd99c-f533-4ede-9634-cc7ac31150be)
 - [samsalameh.cv@gmail.com](http://127.0.0.1:8089/admin/user/admin-f31809ba)
@@ -1731,4 +1731,5 @@ Unlock Now ($20 Crypto)"
 **Images:** 0 total, 0 broken
 
 ---
+
 

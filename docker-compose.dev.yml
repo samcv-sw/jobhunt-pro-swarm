@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: jobhunt_postgres_dev
+    environment:
+      POSTGRES_USER: jobhunt
+      POSTGRES_PASSWORD: jobhunt_password
+      POSTGRES_DB: jobhunt_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: jobhunt_rabbitmq_dev
+    environment:
+      RABBITMQ_DEFAULT_USER: jobhunt
+      RABBITMQ_DEFAULT_PASS: jobhunt_password
+    ports:
+      - "5672:5672"
+      - "15672:15672" # Management UI
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

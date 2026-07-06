@@ -1,0 +1,2159 @@
+{
+  "index_v3.html": {
+    "filename": "index_v3.html",
+    "exists": true,
+    "placeholders": [],
+    "dark_gradient_bg": {
+      "classes": [
+        "class=\"bg-layer bg-gradient\""
+      ],
+      "style_vars": [
+        "background:var(--bg)",
+        "background:var(--bg)"
+      ]
+    },
+    "glassmorphism_cards": [
+      [
+        111,
+        "--glass:rgba(255,255,255,0.02);--glass2:rgba(255,255,255,0.04);",
+        [
+          "glass"
+        ]
+      ],
+      [
+        2187,
+        ".ats-upload-zone{background:var(--glass);border:2px dashed rgba(0,240,255,0.2);border-radius:20px;padding:40px 30px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;transition:all var(--transition);cursor:pointer}",
+        [
+          "glass"
+        ]
+      ],
+      [
+        2217,
+        ".ats-row{display:flex;justify-content:space-between;font-size:14px;padding:8px 12px;background:var(--glass2);border-radius:8px}",
+        [
+          "glass"
+        ]
+      ]
+    ],
+    "buttons_hover": [
+      [
+        2307,
+        "<button class=\"btn\" onclick=\"acceptCookies()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        2439,
+        "<a class=\"fj-apply-btn\" href=\"{{ job.url }}\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        2539,
+        "<a class=\"ats-scan-btn\" href=\"/register\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        2562,
+        "<a class=\"ats-scan-btn\" href=\"/register\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        2757,
+        "<button class=\"calc-tab active\" onclick=\"showCalc('local')\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        2758,
+        "<button class=\"calc-tab\" onclick=\"showCalc('worldwide')\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        2759,
+        "<button class=\"calc-tab\" onclick=\"showCalc('remote')\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        2852,
+        "<a class=\"btn btn-cyan\" href=\"/register?plan=starter\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        2871,
+        "<a class=\"btn btn-magenta\" href=\"/register?plan=basic\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        2893,
+        "<a class=\"btn btn-cyan\" href=\"/register?plan=pro\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        2913,
+        "<a class=\"btn btn-gold\" href=\"/contact\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        3101,
+        "<a class=\"btn btn-cyan\" href=\"/register\" style=\"max-width:300px;display:inline-block;position:relative;z-index:1;margin-top:12px\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        3152,
+        "<a class=\"cta-btn\" href=\"/register\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        3739,
+        "<button class=\"exit-close\" onclick=\"closeExitPopup()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        3833,
+        "<a class=\"mobile-cta-btn\" href=\"/register\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ]
+    ],
+    "typography": {
+      "font_families": {
+        "styles": [
+          "'Cairo', monospace",
+          "'Cairo', 'JetBrains Mono',monospace",
+          "'Cairo', 'Inter',-apple-system,BlinkMacSystemFont,sans-serif",
+          "'Cairo', 'Inter',sans-serif",
+          "'Cairo', 'Space Grotesk',sans-serif"
+        ],
+        "classes": []
+      },
+      "size_violations": [
+        [
+          2666,
+          "<td class=\"highlight\" style=\"color:var(--cyan);font-weight:800;font-size:14px\">2$ مرة واحدة</td>"
+        ],
+        [
+          3096,
+          "<div style=\"text-align:center\"><div id=\"roiCost\" style=\"font-family:'Cairo', 'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)\">$5</div><div style=\"font-size:10px;color:var(--muted)\">تكلفة لمرة واحدة</div></div>"
+        ],
+        [
+          3097,
+          "<div style=\"text-align:center\"><div id=\"roiReturn\" style=\"font-family:'Cairo', 'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--green)\">$50,000</div><div style=\"font-size:10px;color:var(--muted)\">العائد السنوي</div></div>"
+        ],
+        [
+          3098,
+          "<div style=\"text-align:center\"><div id=\"roiMultiplier\" style=\"font-family:'Cairo', 'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--magenta)\">{{ _('10,000x') }}</div><div style=\"font-size:10px;color:var(--muted)\">مضاعف العائد</div></div>"
+        ]
+      ],
+      "height_violations": [],
+      "letter_spacing_violations": []
+    },
+    "inputs_dir_auto": [],
+    "physical_properties": []
+  },
+  "pricing_v3.html": {
+    "filename": "pricing_v3.html",
+    "exists": true,
+    "placeholders": [],
+    "dark_gradient_bg": {
+      "classes": [],
+      "style_vars": []
+    },
+    "glassmorphism_cards": [
+      [
+        30,
+        "--border-glass: rgba(255, 255, 255, 0.1);",
+        [
+          "glass"
+        ]
+      ],
+      [
+        31,
+        "--border-glass-hover: rgba(255, 255, 255, 0.2);",
+        [
+          "glass"
+        ]
+      ],
+      [
+        235,
+        "border-bottom: 1px solid var(--border-glass); line-height: 1.5;",
+        [
+          "glass"
+        ]
+      ],
+      [
+        295,
+        "border: 1px solid var(--border-glass);",
+        [
+          "glass"
+        ]
+      ],
+      [
+        349,
+        "padding: 14px 0; border-bottom: 1px solid var(--border-glass);",
+        [
+          "glass"
+        ]
+      ],
+      [
+        363,
+        "border: 1px solid var(--border-glass);",
+        [
+          "glass"
+        ]
+      ],
+      [
+        369,
+        ".service-card-v3:hover { border-color: var(--border-glass-hover); transform: translateY(-2px); }",
+        [
+          "glass"
+        ]
+      ],
+      [
+        385,
+        "border: 1px solid var(--border-glass); border-radius: var(--radius-sm);",
+        [
+          "glass"
+        ]
+      ],
+      [
+        401,
+        "border-top: 1px solid var(--border-glass);",
+        [
+          "glass"
+        ]
+      ]
+    ],
+    "buttons_hover": [
+      [
+        523,
+        "<a class=\"btn {{ tier.button_class }}\" href=\"{{ '/new-campaign' if is_logged_in else '/register' }}\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        654,
+        "<button class=\"toast-close-v3\" onclick=\"document.getElementById('socialToastV3').classList.remove('show')\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ]
+    ],
+    "typography": {
+      "font_families": {
+        "styles": [
+          "var(--font-mono)"
+        ],
+        "classes": []
+      },
+      "size_violations": [
+        [
+          541,
+          "<div style=\"color:var(--text-muted);font-size:12px;text-transform:uppercase;margin-bottom:16px;\">حملات</div>"
+        ]
+      ],
+      "height_violations": [],
+      "letter_spacing_violations": []
+    },
+    "inputs_dir_auto": [],
+    "physical_properties": [
+      [
+        190,
+        "position: absolute; top: -14px; left: 50%; transform: translateX(calc(-50% * var(--text-x-direction, 1)));",
+        [
+          "left: 50%"
+        ]
+      ]
+    ]
+  },
+  "for_employers.html": {
+    "filename": "for_employers.html",
+    "exists": true,
+    "placeholders": [
+      [
+        348,
+        "<input dir=\"auto\" id=\"company_name\" placeholder=\"مثال: Murex, Bank Audi...\" required=\"\" type=\"text\"/>"
+      ],
+      [
+        352,
+        "<input dir=\"auto\" id=\"job_title\" placeholder=\"مثال: مهندس شبكات أول\" required=\"\" type=\"text\"/>"
+      ],
+      [
+        356,
+        "<input dir=\"auto\" id=\"location\" placeholder=\"مثال: بيروت، لبنان\" required=\"\" type=\"text\"/>"
+      ],
+      [
+        374,
+        "<input dir=\"auto\" id=\"salary\" placeholder=\"مثال: 2,500$ - 3,500$/شهر\" type=\"text\"/>"
+      ],
+      [
+        378,
+        "<input dir=\"auto\" id=\"contact_email\" placeholder=\"hr@yourcompany.com\" required=\"\" type=\"email\"/>"
+      ],
+      [
+        383,
+        "<textarea dir=\"auto\" id=\"description\" placeholder=\"اشرح الدور، المسؤوليات، المتطلبات، وليش شركتك مكان رائع للعمل..."
+      ],
+      [
+        389,
+        "<input dir=\"auto\" id=\"apply_url\" placeholder=\"https://yourcompany.com/careers/...\" type=\"url\"/>"
+      ],
+      [
+        393,
+        "<input dir=\"auto\" id=\"logo_url\" placeholder=\"https://yourcompany.com/logo.png\" type=\"url\"/>"
+      ]
+    ],
+    "dark_gradient_bg": {
+      "classes": [],
+      "style_vars": []
+    },
+    "glassmorphism_cards": [],
+    "buttons_hover": [
+      [
+        202,
+        "<button class=\"btn\" style=\"background:linear-gradient(135deg,#64748b,#475569);\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        217,
+        "<button class=\"btn\" style=\"background:linear-gradient(135deg,var(--purple),#7c3aed);\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        232,
+        "<button class=\"btn\" style=\"background:linear-gradient(135deg,var(--gold),#d97706);\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        248,
+        "<button class=\"btn\" style=\"background:linear-gradient(135deg,#ec4899,#8b5cf6);\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        255,
+        "<button class=\"duration-btn selected\" data-days=\"30\" data-discount=\"0\" onclick=\"selectDuration(30, 0, this)\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        258,
+        "<button class=\"duration-btn\" data-days=\"60\" data-discount=\"10\" onclick=\"selectDuration(60, 10, this)\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        261,
+        "<button class=\"duration-btn\" data-days=\"90\" data-discount=\"17\" onclick=\"selectDuration(90, 17, this)\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        264,
+        "<button class=\"duration-btn\" data-days=\"180\" data-discount=\"25\" onclick=\"selectDuration(180, 25, this)\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        267,
+        "<button class=\"duration-btn\" data-days=\"365\" data-discount=\"42\" onclick=\"selectDuration(365, 42, this)\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        417,
+        "<button class=\"submit-btn\" disabled=\"\" id=\"submitBtn\" type=\"submit\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ]
+    ],
+    "typography": {
+      "font_families": {
+        "styles": [
+          "'Cairo', inherit"
+        ],
+        "classes": []
+      },
+      "size_violations": [],
+      "height_violations": [],
+      "letter_spacing_violations": []
+    },
+    "inputs_dir_auto": [
+      [
+        360,
+        "<select id=\"category\">"
+      ]
+    ],
+    "physical_properties": [
+      [
+        47,
+        ".price-card.popular::before { content:'🔥 الأكثر طلباً'; position:absolute; top:-12px; left: 50%; transform:translateX(-50%); background:linear-gradient(135deg,var(--purple),var(--pink)); color:#fff; font-size:.65em; font-weight:700; padding:4px 14px; border-radius:20px; white-space:nowrap; }",
+        [
+          "left: 50%"
+        ]
+      ]
+    ]
+  },
+  "trust.html": {
+    "filename": "trust.html",
+    "exists": true,
+    "placeholders": [],
+    "dark_gradient_bg": {
+      "classes": [
+        "class=\"bg-layer bg-gradient\""
+      ],
+      "style_vars": [
+        "background:var(--bg)",
+        "background:var(--bg)"
+      ]
+    },
+    "glassmorphism_cards": [
+      [
+        23,
+        "--glass:rgba(255,255,255,0.02);--glass2:rgba(255,255,255,0.04);",
+        [
+          "glass"
+        ]
+      ]
+    ],
+    "buttons_hover": [
+      [
+        448,
+        "<a class=\"btn-cyan\" href=\"/register\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ]
+    ],
+    "typography": {
+      "font_families": {
+        "styles": [
+          "'Cairo', sans-serif",
+          "'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif"
+        ],
+        "classes": []
+      },
+      "size_violations": [],
+      "height_violations": [],
+      "letter_spacing_violations": []
+    },
+    "inputs_dir_auto": [],
+    "physical_properties": [
+      [
+        62,
+        "position:fixed;top:12px;left: 50%;transform:translateX(50%);z-index:1000;",
+        [
+          "left: 50%"
+        ]
+      ]
+    ]
+  },
+  "services_v2.html": {
+    "filename": "services_v2.html",
+    "exists": true,
+    "placeholders": [
+      [
+        978,
+        "<input dir=\"auto\" id=\"customerName\" placeholder=\"مثال: فلان الفلاني\" required=\"\" type=\"text\"/>"
+      ],
+      [
+        980,
+        "<input dir=\"auto\" id=\"customerEmail\" placeholder=\"مثال: flan@example.com\" required=\"\" type=\"email\"/>"
+      ]
+    ],
+    "dark_gradient_bg": {
+      "classes": [],
+      "style_vars": [
+        "background: var(--bg)"
+      ]
+    },
+    "glassmorphism_cards": [],
+    "buttons_hover": [
+      [
+        756,
+        "<a class=\"btn-nav\" href=\"/register\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        806,
+        "<button class=\"btn-buy btn-buy-micro\" onclick=\"addToCart('{{ s.id }}', '{{ s.name }}', {{ s.price }})\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        835,
+        "<button class=\"btn-buy btn-buy-standard\" onclick=\"addToCart('{{ s.id }}', '{{ s.name }}', {{ s.price }})\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        864,
+        "<button class=\"btn-buy btn-buy-premium\" onclick=\"addToCart('{{ s.id }}', '{{ s.name }}', {{ s.price }})\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        894,
+        "<button class=\"btn-bouquet\" onclick=\"addToCart('{{ b.id }}', '{{ b.name }}', {{ b.price }}, true)\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        937,
+        "<a class=\"btn-buy btn-buy-premium\" href=\"/register\" style=\"padding: 14px 40px; font-size: 14px;\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        944,
+        "<button class=\"cart-toggle\" id=\"cartToggle\" onclick=\"toggleCart()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        954,
+        "<button class=\"cart-close\" onclick=\"toggleCart()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        964,
+        "<button class=\"cart-checkout\" onclick=\"openCheckoutModal()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        970,
+        "<button class=\"modal-close\" onclick=\"closeModal()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        982,
+        "<button class=\"btn-submit\" id=\"submitBtn\" type=\"submit\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        1051,
+        "<button class=\"cart-remove\" onclick=\"removeFromCart('' + item.id + '')\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ]
+    ],
+    "typography": {
+      "font_families": {
+        "styles": [
+          "'Cairo', var(--mono)",
+          "'Cairo', var(--font)"
+        ],
+        "classes": []
+      },
+      "size_violations": [
+        [
+          924,
+          "<div style=\"color:var(--muted); font-size:15px; margin-bottom: 12px;\">العملات الرقمية المقبولة</div>"
+        ],
+        [
+          937,
+          "<a class=\"btn-buy btn-buy-premium\" href=\"/register\" style=\"padding: 14px 40px; font-size: 14px;\">أنشئ حساب مجاني</a>"
+        ],
+        [
+          973,
+          "<p style=\"color:var(--muted); font-size:15px; margin-bottom:8px;\">أدخل بياناتك لتستلم طلبك عبر الإيميل.</p>"
+        ]
+      ],
+      "height_violations": [],
+      "letter_spacing_violations": []
+    },
+    "inputs_dir_auto": [],
+    "physical_properties": []
+  },
+  "faq.html": {
+    "filename": "faq.html",
+    "exists": true,
+    "placeholders": [],
+    "dark_gradient_bg": {
+      "classes": [],
+      "style_vars": []
+    },
+    "glassmorphism_cards": [],
+    "buttons_hover": [],
+    "typography": {
+      "font_families": {
+        "styles": [
+          "'Cairo', 'Inter', -apple-system, sans-serif"
+        ],
+        "classes": []
+      },
+      "size_violations": [],
+      "height_violations": [],
+      "letter_spacing_violations": []
+    },
+    "inputs_dir_auto": [],
+    "physical_properties": []
+  },
+  "contact.html": {
+    "filename": "contact.html",
+    "exists": true,
+    "placeholders": [
+      [
+        95,
+        "<input autocomplete=\"name\" class=\"glass-input\" dir=\"auto\" id=\"name\" name=\"name\" placeholder=\"اسمك الكريم\" required=\"\" type=\"text\" value=\"{{ user_name or '' }}\"/>"
+      ],
+      [
+        99,
+        "<input autocomplete=\"email\" class=\"glass-input\" dir=\"auto\" id=\"email\" name=\"email\" placeholder=\"you@example.com\" required=\"\" type=\"email\" value=\"{{ user_email or '' }}\"/>"
+      ],
+      [
+        117,
+        "<textarea class=\"glass-input\" dir=\"auto\" id=\"message\" name=\"message\" placeholder=\"خبرنا شو ببالك... فيك تحط تفاصيل قد ما بدك — منقرا كل كلمة.\" required=\"\"></textarea>"
+      ]
+    ],
+    "dark_gradient_bg": {
+      "classes": [],
+      "style_vars": []
+    },
+    "glassmorphism_cards": [
+      [
+        31,
+        ".glass-input{width:100%;padding:14px 16px;margin-top:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#e2e8f0;font-size:15px;font-family:'Cairo', 'Inter', sans-serif;outline:none;transition:all .2s;box-sizing:border-box}",
+        [
+          "glass"
+        ]
+      ],
+      [
+        32,
+        ".glass-input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}",
+        [
+          "glass"
+        ]
+      ],
+      [
+        33,
+        "select.glass-input{appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:left 14px center;padding-inline-end:40px}",
+        [
+          "glass"
+        ]
+      ],
+      [
+        34,
+        "textarea.glass-input{min-height:140px;resize:vertical;line-height:1.6}",
+        [
+          "glass"
+        ]
+      ],
+      [
+        95,
+        "<input autocomplete=\"name\" class=\"glass-input\" dir=\"auto\" id=\"name\" name=\"name\" placeholder=\"اسمك الكريم\" required=\"\" type=\"text\" value=\"{{ user_name or '' }}\"/>",
+        [
+          "glass"
+        ]
+      ],
+      [
+        99,
+        "<input autocomplete=\"email\" class=\"glass-input\" dir=\"auto\" id=\"email\" name=\"email\" placeholder=\"you@example.com\" required=\"\" type=\"email\" value=\"{{ user_email or '' }}\"/>",
+        [
+          "glass"
+        ]
+      ],
+      [
+        104,
+        "<select class=\"glass-input\" id=\"subject\" name=\"subject\" required=\"\">",
+        [
+          "glass"
+        ]
+      ],
+      [
+        117,
+        "<textarea class=\"glass-input\" dir=\"auto\" id=\"message\" name=\"message\" placeholder=\"خبرنا شو ببالك... فيك تحط تفاصيل قد ما بدك — منقرا كل كلمة.\" required=\"\"></textarea>",
+        [
+          "glass"
+        ]
+      ]
+    ],
+    "buttons_hover": [
+      [
+        119,
+        "<button class=\"btn-submit\" type=\"submit\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ]
+    ],
+    "typography": {
+      "font_families": {
+        "styles": [
+          "'Cairo', 'Inter', sans-serif"
+        ],
+        "classes": []
+      },
+      "size_violations": [],
+      "height_violations": [],
+      "letter_spacing_violations": []
+    },
+    "inputs_dir_auto": [
+      [
+        104,
+        "<select class=\"glass-input\" id=\"subject\" name=\"subject\" required=\"\">"
+      ]
+    ],
+    "physical_properties": []
+  },
+  "dashboard_v3.html": {
+    "filename": "dashboard_v3.html",
+    "exists": true,
+    "placeholders": [
+      [
+        484,
+        "<input class=\"w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500\" id=\"smtpEmail\" placeholder=\"you@domain.com\" type=\"email\" dir=\"auto\"/>"
+      ],
+      [
+        488,
+        "<input class=\"w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500\" id=\"smtpPass\" placeholder=\"16-digit App Password\" type=\"password\" dir=\"auto\"/>"
+      ]
+    ],
+    "dark_gradient_bg": {
+      "classes": [
+        "class=\"flex items-center gap-2 rounded-full border border-blue-500/40 bg-gradient-to-r from-indigo-500/20 to-blue-500/20 px-4 py-2 text-sm font-semibold text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.3)] animate-pulse-slow\"",
+        "class=\"flex items-center gap-2 rounded-full border border-emerald-500/40 bg-gradient-to-r from-indigo-500/20 to-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse-slow\"",
+        "class=\"flex items-center gap-2 rounded-full border border-pink-500/40 bg-gradient-to-r from-indigo-500/20 to-pink-500/20 px-4 py-2 text-sm font-semibold text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.3)] animate-pulse-slow\"",
+        "class=\"rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-slate-900/80 p-6 backdrop-blur-md reveal\""
+      ],
+      "style_vars": [
+        "background-image:linear-gradient"
+      ]
+    },
+    "glassmorphism_cards": [
+      [
+        6,
+        ".glass-panel {",
+        [
+          "glass"
+        ]
+      ],
+      [
+        14,
+        ".glass-panel:hover { border-color: rgba(255,255,255,0.13); }",
+        [
+          "glass"
+        ]
+      ],
+      [
+        51,
+        "<div class=\"glass-panel relative overflow-hidden p-8 reveal\">",
+        [
+          "glass"
+        ]
+      ],
+      [
+        77,
+        "<button class=\"flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition-colors hover:bg-white/10 hover:text-white\" onclick=\"document.getElementById('shortcutModal').showModal()\" title=\"اختصارات لوحة المفاتيح\">",
+        [
+          "bg-white/\\d+",
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        85,
+        "<div class=\"glass-panel border-s-4 border-s-emerald-500 p-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center reveal\">",
+        [
+          "glass"
+        ]
+      ],
+      [
+        94,
+        "<a class=\"flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-white/10\" onclick=\"document.getElementById('smtpModal').showModal(); document.getElementById('smtpProvider').value='google'\">",
+        [
+          "bg-white/\\d+",
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        153,
+        "<div class=\"glass-panel p-6 lg:col-span-2 reveal\">",
+        [
+          "glass"
+        ]
+      ],
+      [
+        172,
+        "<div class=\"glass-panel p-6 reveal\">",
+        [
+          "glass"
+        ]
+      ],
+      [
+        175,
+        "<a class=\"group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-indigo-500/50 hover:bg-indigo-500/10 hover:shadow-[0_0_15px_rgba(99,102,241,0.2)]\" href=\"/new-campaign\">",
+        [
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        179,
+        "<a class=\"group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]\" href=\"/upload-cv\">",
+        [
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        183,
+        "<a class=\"group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-amber-500/50 hover:bg-amber-500/10 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]\" href=\"/services\">",
+        [
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        187,
+        "<a class=\"group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-pink-500/50 hover:bg-pink-500/10 hover:shadow-[0_0_15px_rgba(236,72,153,0.2)]\" href=\"/pricing\">",
+        [
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        194,
+        "<div class=\"rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-slate-900/80 p-6 backdrop-blur-md reveal\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        222,
+        "<div class=\"flex min-h-[300px] flex-col rounded-xl border border-white/5 bg-slate-900/50 p-6 backdrop-blur-md reveal\">",
+        [
+          "backdrop-blur",
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        237,
+        "<div class=\"group flex cursor-pointer items-center gap-3 rounded-lg border border-white/5 bg-slate-800/30 p-3 transition-all hover:border-white/10 hover:bg-slate-800/50\">",
+        [
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        282,
+        "<dialog class=\"w-full max-w-md rounded-2xl border border-white/10 bg-slate-900 p-0 text-slate-200 shadow-2xl backdrop-blur-xl backdrop:bg-slate-950/80\" id=\"shortcutModal\">",
+        [
+          "backdrop-blur",
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        283,
+        "<div class=\"border-b border-white/10 p-4\">",
+        [
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        287,
+        "<button class=\"rounded-lg p-1 text-slate-400 hover:bg-white/10 hover:text-white\"><i class=\"h-5 w-5\" data-lucide=\"x\"></i></button>",
+        [
+          "bg-white/\\d+"
+        ]
+      ],
+      [
+        468,
+        "<dialog class=\"modal rounded-xl border border-white/10 bg-slate-900/95 p-6 backdrop-blur-xl text-white shadow-2xl\" id=\"smtpModal\" style=\"width: 100%; max-width: 450px;\">",
+        [
+          "backdrop-blur",
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        469,
+        "<div class=\"flex items-center justify-between border-b border-white/10 pb-4 mb-4\">",
+        [
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        477,
+        "<select class=\"w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500\" id=\"smtpProvider\">",
+        [
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        484,
+        "<input class=\"w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500\" id=\"smtpEmail\" placeholder=\"you@domain.com\" type=\"email\" dir=\"auto\"/>",
+        [
+          "border-white/\\d+"
+        ]
+      ],
+      [
+        488,
+        "<input class=\"w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500\" id=\"smtpPass\" placeholder=\"16-digit App Password\" type=\"password\" dir=\"auto\"/>",
+        [
+          "border-white/\\d+"
+        ]
+      ]
+    ],
+    "buttons_hover": [
+      [
+        77,
+        "<button class=\"flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition-colors hover:bg-white/10 hover:text-white\" onclick=\"document.getElementById('shortcutModal').showModal()\" title=\"اختصارات لوحة المفاتيح\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        160,
+        "<button class=\"rounded-md px-3 py-1.5 text-xs font-medium transition-colors bg-indigo-500/20 text-indigo-300\" onclick=\"switchChart('bar',this)\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        161,
+        "<button class=\"rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-white\" onclick=\"switchChart('line',this)\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        162,
+        "<button class=\"rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-white\" onclick=\"switchChart('doughnut',this)\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        287,
+        "<button class=\"rounded-lg p-1 text-slate-400 hover:bg-white/10 hover:text-white\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        471,
+        "<button class=\"text-slate-400 hover:text-white\" onclick=\"document.getElementById('smtpModal').close()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        491,
+        "<button class=\"w-full rounded-lg bg-indigo-600 py-3 font-bold text-white transition-all hover:bg-indigo-500 mt-4 flex justify-center items-center gap-2\" id=\"smtpConnectBtn\" onclick=\"connectSmtp()\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ]
+    ],
+    "typography": {
+      "font_families": {
+        "styles": [],
+        "classes": []
+      },
+      "size_violations": [
+        [
+          88,
+          "<p class=\"text-sm text-emerald-100/70\">{{ _('اربط حساب بريدك الإلكتروني المهني. سيقوم الذكاء الاصطناعي لدينا تلقائياً بتحسين أنماط الإرسال الخاصة بك واستخدام توجيه IP المخصص لضمان أعلى معدلات الاستجابة من أصحاب العمل.') }}</p>"
+        ],
+        [
+          111,
+          "<div style=\"font-size:11px;color:#64748b;text-transform:uppercase;font-weight:600;\">الطلبات النشطة</div>"
+        ],
+        [
+          112,
+          "<div style=\"font-size:10px;color:#4b5563;margin-block-start:4px;\">تم الإرسال عبر المنصات</div>"
+        ],
+        [
+          119,
+          "<span style=\"font-size:10px;font-weight:700;color:#4ade80;background:rgba(74,222,128,0.1);padding:3px 8px;border-radius:20px;\">عالي</span>"
+        ],
+        [
+          122,
+          "<div style=\"font-size:11px;color:#64748b;text-transform:uppercase;font-weight:600;\">معدل التوافق</div>"
+        ],
+        [
+          123,
+          "<div style=\"font-size:10px;color:#4b5563;margin-block-start:4px;\">أدوار عالية التوافق</div>"
+        ],
+        [
+          133,
+          "<div style=\"font-size:11px;color:#64748b;text-transform:uppercase;font-weight:600;\">الرموز الموفرة</div>"
+        ],
+        [
+          134,
+          "<div style=\"font-size:10px;color:#4b5563;margin-block-start:4px;\">عبر أداة تقليص السيرة الذاتية</div>"
+        ],
+        [
+          141,
+          "<span style=\"font-size:10px;font-weight:700;color:#fbbf24;background:rgba(245,158,11,0.1);padding:3px 8px;border-radius:20px;\">أتمتة</span>"
+        ],
+        [
+          147,
+          "<div class=\"mt-1 text-xs text-slate-500\">ما يعادل الأتمتة</div>"
+        ],
+        [
+          157,
+          "<p class=\"text-sm text-slate-400\">قمع التحويل من الاستكشاف إلى العروض</p>"
+        ],
+        [
+          173,
+          "<h3 class=\"mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400\">إجراءات سريعة</h3>"
+        ],
+        [
+          177,
+          "<span class=\"text-xs font-medium text-slate-300\">حملة</span>"
+        ],
+        [
+          181,
+          "<span class=\"text-xs font-medium text-slate-300\">رفع السيرة الذاتية</span>"
+        ],
+        [
+          185,
+          "<span class=\"text-xs font-medium text-slate-300\">الخدمات</span>"
+        ],
+        [
+          189,
+          "<span class=\"text-xs font-medium text-slate-300\">ترقية</span>"
+        ],
+        [
+          195,
+          "<h3 class=\"mb-4 text-xs font-semibold uppercase tracking-wider text-indigo-300\">الترسانة النشطة</h3>"
+        ],
+        [
+          205,
+          "<div class=\"text-xs text-emerald-400\">تجاوز حدود الإرسال وإعطاء الأولوية للتسليم</div>"
+        ],
+        [
+          215,
+          "<div class=\"text-xs text-slate-400\">طابور الإرسال العادي</div>"
+        ],
+        [
+          218,
+          "<a class=\"block w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-500\" href=\"/services\">زيارة الترسانة</a>"
+        ],
+        [
+          272,
+          "<div class=\"text-sm font-semibold text-white\">لا توجد إرساليات بعد</div>"
+        ],
+        [
+          273,
+          "<div class=\"mb-4 mt-1 text-xs text-slate-400\">وكلاؤك لم يرسلوا أي طلبات تقديم بعد.</div>"
+        ],
+        [
+          274,
+          "<a class=\"rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-500\" href=\"/new-campaign\">بدء حملة</a>"
+        ],
+        [
+          293,
+          "<div class=\"flex items-center justify-between rounded-lg bg-slate-800/50 p-2\"><span class=\"text-sm text-slate-300\">حملة جديدة</span><kbd class=\"rounded border border-slate-700 bg-slate-800 px-2 py-0.5 font-mono text-xs font-semibold text-slate-300 shadow-sm\">{{ _('N') }}</kbd></div>"
+        ],
+        [
+          294,
+          "<div class=\"flex items-center justify-between rounded-lg bg-slate-800/50 p-2\"><span class=\"text-sm text-slate-300\">رفع السيرة الذاتية</span><kbd class=\"rounded border border-slate-700 bg-slate-800 px-2 py-0.5 font-mono text-xs font-semibold text-slate-300 shadow-sm\">{{ _('U') }}</kbd></div>"
+        ],
+        [
+          295,
+          "<div class=\"flex items-center justify-between rounded-lg bg-slate-800/50 p-2\"><span class=\"text-sm text-slate-300\">لوحة التحكم</span><kbd class=\"rounded border border-slate-700 bg-slate-800 px-2 py-0.5 font-mono text-xs font-semibold text-slate-300 shadow-sm\">{{ _('D') }}</kbd></div>"
+        ],
+        [
+          296,
+          "<div class=\"flex items-center justify-between rounded-lg bg-slate-800/50 p-2\"><span class=\"text-sm text-slate-300\">بحث</span><kbd class=\"rounded border border-slate-700 bg-slate-800 px-2 py-0.5 font-mono text-xs font-semibold text-slate-300 shadow-sm\">/</kbd></div>"
+        ]
+      ],
+      "height_violations": [],
+      "letter_spacing_violations": [
+        [
+          173,
+          "<h3 class=\"mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400\">إجراءات سريعة</h3>"
+        ],
+        [
+          195,
+          "<h3 class=\"mb-4 text-xs font-semibold uppercase tracking-wider text-indigo-300\">الترسانة النشطة</h3>"
+        ]
+      ]
+    },
+    "inputs_dir_auto": [
+      [
+        477,
+        "<select class=\"w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500\" id=\"smtpProvider\">"
+      ]
+    ],
+    "physical_properties": []
+  },
+  "upload_cv_v2.html": {
+    "filename": "upload_cv_v2.html",
+    "exists": true,
+    "placeholders": [
+      [
+        546,
+        "<textarea class=\"large\" dir=\"auto\" id=\"cvText\" placeholder=\"Paste your entire CV / resume text here..."
+      ],
+      [
+        569,
+        "<div class=\"form-group\"><label for=\"fullName\">{{ _('Full Name') }} <span style=\"color:#f87171;\">*</span></label><input dir=\"auto\" id=\"fullName\" placeholder=\"e.g. Sam Salameh\" type=\"text\"/></div>"
+      ],
+      [
+        570,
+        "<div class=\"form-group\"><label for=\"email\">{{ _('Email') }}</label><input dir=\"auto\" id=\"email\" placeholder=\"your@email.com\" type=\"email\"/></div>"
+      ],
+      [
+        573,
+        "<div class=\"form-group\"><label for=\"phone\">الهاتف</label><input dir=\"auto\" id=\"phone\" placeholder=\"+961 3 123 456\" type=\"text\"/></div>"
+      ],
+      [
+        574,
+        "<div class=\"form-group\"><label for=\"location\">الموقع</label><input dir=\"auto\" id=\"location\" placeholder=\"بيروت، لبنان\" type=\"text\"/></div>"
+      ],
+      [
+        577,
+        "<div class=\"form-group\"><label for=\"currentTitle\">المسمى الوظيفي الحالي</label><input dir=\"auto\" id=\"currentTitle\" placeholder=\"مهندس شبكات أول\" type=\"text\"/></div>"
+      ],
+      [
+        581,
+        "<div class=\"form-group\"><label for=\"education\">التعليم</label><input dir=\"auto\" id=\"education\" placeholder=\"بكالوريوس هندسة\" type=\"text\"/></div>"
+      ],
+      [
+        582,
+        "<div class=\"form-group\"><label for=\"linkedin\">لينكد إن</label><input dir=\"auto\" id=\"linkedin\" placeholder=\"https://linkedin.com/in/...\" type=\"url\"/></div>"
+      ],
+      [
+        584,
+        "<div class=\"form-group\"><label for=\"skillsInput\">المهارات (مفصولة بفاصلة)</label><input dir=\"auto\" id=\"skillsInput\" placeholder=\"Cisco, Python, Linux, AWS, MikroTik, Fortinet...\" type=\"text\"/><div class=\"tag-list\" id=\"skillsTags\"></div></div>"
+      ],
+      [
+        585,
+        "<div class=\"form-group\"><label for=\"certsInput\">الشهادات</label><input dir=\"auto\" id=\"certsInput\" placeholder=\"CCNA, NSE, MTCNA...\" type=\"text\"/><div class=\"tag-list\" id=\"certsTags\"></div></div>"
+      ],
+      [
+        586,
+        "<div class=\"form-group\"><label for=\"langsInput\">اللغات</label><input dir=\"auto\" id=\"langsInput\" placeholder=\"English, Arabic, French...\" type=\"text\"/><div class=\"tag-list\" id=\"langsTags\"></div></div>"
+      ],
+      [
+        587,
+        "<div class=\"form-group\"><label for=\"experienceInput\">الخبرات (مفصولة بفاصلة)</label><input dir=\"auto\" id=\"experienceInput\" placeholder=\"Ogero (2020-2023), Touch (2018-2020)...\" type=\"text\"/><div class=\"tag-list\" id=\"experienceTags\"></div></div>"
+      ],
+      [
+        588,
+        "<div class=\"form-group\"><label for=\"summary\">الملخص المهني</label><textarea dir=\"auto\" id=\"summary\" placeholder=\"ملخص مهني قصير...\" style=\"min-height:90px;\"></textarea></div>"
+      ],
+      [
+        594,
+        "<div class=\"form-group\"><label for=\"targetCompany\">{{ _('Target Company') }}</label><input dir=\"auto\" id=\"targetCompany\" placeholder=\"Murex, Cisco, Bank Audi...\" type=\"text\"/></div>"
+      ],
+      [
+        595,
+        "<div class=\"form-group\"><label for=\"targetJobTitle\">{{ _('Target Job Title') }}</label><input dir=\"auto\" id=\"targetJobTitle\" placeholder=\"Senior Network Engineer\" type=\"text\"/></div>"
+      ],
+      [
+        610,
+        "<div class=\"form-group\"><label for=\"targetTitles\">{{ _('Target Job Titles') }}</label><input dir=\"auto\" id=\"targetTitles\" placeholder=\"Senior Network Engineer, IT Manager...\" type=\"text\"/></div>"
+      ],
+      [
+        611,
+        "<div class=\"form-group\"><label for=\"targetLocations\">{{ _('Target Locations') }}</label><input dir=\"auto\" id=\"targetLocations\" placeholder=\"Dubai, Remote, Riyadh, Beirut...\" type=\"text\"/></div>"
+      ]
+    ],
+    "dark_gradient_bg": {
+      "classes": [],
+      "style_vars": []
+    },
+    "glassmorphism_cards": [],
+    "buttons_hover": [
+      [
+        552,
+        "<button class=\"btn btn-ai pulse-btn\" id=\"parseBtn\" onclick=\"parseCV()\" style=\"width:100%;padding:18px;font-size:18px;\" type=\"button\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        702,
+        "<button class=\"btn btn-ai\" onclick=\"previewEmail()\" type=\"button\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        703,
+        "<button class=\"btn btn-sm btn-outline\" onclick=\"regenerateAll()\" type=\"button\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        720,
+        "<button class=\"btn pulse-btn\" onclick=\"saveAndGoCampaign()\" style=\"padding:16px 32px;font-size:18px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;\" type=\"button\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        723,
+        "<button class=\"btn btn-outline\" onclick=\"downloadCV()\" style=\"padding:16px 28px;font-size:15px;\" type=\"button\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        726,
+        "<button class=\"btn btn-sm btn-outline\" onclick=\"saveProfile()\" style=\"font-size:14px;\" type=\"button\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        738,
+        "<button class=\"modal-close\" onclick=\"closePreview()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        741,
+        "<button class=\"preview-tab active\" onclick=\"switchPreviewTab('email')\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        742,
+        "<button class=\"preview-tab\" onclick=\"switchPreviewTab('cv')\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        743,
+        "<button class=\"preview-tab\" onclick=\"switchPreviewTab('cl')\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        749,
+        "<button class=\"btn btn-outline btn-sm\" onclick=\"closePreview()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        750,
+        "<button class=\"btn btn-ai btn-sm\" onclick=\"previewEmail()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ]
+    ],
+    "typography": {
+      "font_families": {
+        "styles": [
+          "'Cairo', monospace",
+          "'Cairo', 'Inter', sans-serif"
+        ],
+        "classes": []
+      },
+      "size_violations": [],
+      "height_violations": [],
+      "letter_spacing_violations": []
+    },
+    "inputs_dir_auto": [],
+    "physical_properties": []
+  },
+  "ats_scorer.html": {
+    "filename": "ats_scorer.html",
+    "exists": true,
+    "placeholders": [
+      [
+        21,
+        "<textarea class=\"w-full min-h-[300px] bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-xl p-4 text-sm text-slate-200 font-mono resize-y outline-none transition-all custom-scrollbar\" dir=\"auto\" id=\"ats-resume\" placeholder=\"Paste your full resume text here..."
+      ],
+      [
+        45,
+        "<input class=\"w-full bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-lg ps-9 pe-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all\" dir=\"auto\" id=\"ats-url\" placeholder=\"Or paste a job posting URL...\" type=\"url\"/>"
+      ],
+      [
+        51,
+        "<textarea class=\"w-full flex-1 min-h-[180px] bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-xl p-4 text-sm text-slate-200 font-mono resize-y outline-none transition-all custom-scrollbar mb-4\" dir=\"auto\" id=\"ats-job-desc\" placeholder=\"Paste the job description here..."
+      ],
+      [
+        65,
+        "<input class=\"w-full bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-lg ps-9 pe-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all\" dir=\"auto\" id=\"ats-job-title\" placeholder=\"Job title (optional, e.g. Senior Network Engineer)\" type=\"text\"/>"
+      ],
+      [
+        392,
+        "<input dir=\"auto\" type=\"text\" class=\"bulk-title w-full sm:w-1/3 bg-slate-950/50 border border-slate-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all\" placeholder=\"Job Title (e.g. Developer)\" />"
+      ],
+      [
+        393,
+        "<input dir=\"auto\" type=\"text\" class=\"bulk-desc w-full sm:flex-1 bg-slate-950/50 border border-slate-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all\" placeholder=\"Paste JD or requirements...\" />"
+      ]
+    ],
+    "dark_gradient_bg": {
+      "classes": [
+        "class=\"px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-base font-black tracking-wide shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all flex items-center gap-3 border border-indigo-400/30\"",
+        "class=\"absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity\"",
+        "class=\"absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity\"",
+        "class=\"absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity\""
+      ],
+      "style_vars": []
+    },
+    "glassmorphism_cards": [
+      [
+        17,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-lg\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        38,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-lg flex flex-col\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        82,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-lg mb-8 animate-in fade-in slide-in-from-top-4 duration-300\" id=\"bulk-section\" style=\"display:none;\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        115,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 shadow-[0_8px_30px_rgba(0,0,0,0.3)]\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        141,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-red-500/20 rounded-2xl p-5 shadow-lg relative overflow-hidden group\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        148,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-green-500/20 rounded-2xl p-5 shadow-lg relative overflow-hidden group\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        155,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-yellow-500/20 rounded-2xl p-5 shadow-lg relative overflow-hidden group\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        165,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-lg mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500\" id=\"bulk-results-section\" style=\"display:none;\">",
+        [
+          "backdrop-blur"
+        ]
+      ]
+    ],
+    "buttons_hover": [
+      [
+        47,
+        "<button class=\"px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 border border-slate-700 whitespace-nowrap\" id=\"btn-url-import\" onclick=\"importFromUrl()\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        71,
+        "<button class=\"px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-base font-black tracking-wide shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all flex items-center gap-3 border border-indigo-400/30\" id=\"btn-score\" onclick=\"scoreResume()\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        74,
+        "<button class=\"px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border border-slate-700\" id=\"btn-bulk-toggle\" onclick=\"toggleBulkMode()\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        90,
+        "<button class=\"px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-bold tracking-wide shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all flex items-center gap-2 border border-purple-400/50\" id=\"btn-bulk-score\" onclick=\"scoreBulk()\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        97,
+        "<button class=\"mt-4 px-4 py-2 border border-dashed border-slate-600 text-slate-400 hover:text-white hover:border-slate-400 hover:bg-slate-800/50 rounded-lg text-sm font-medium transition-all flex items-center gap-2 w-full justify-center\" onclick=\"addBulkRow()\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        394,
+        "<button onclick=\"this.closest('.bulk-job-row').remove()\" class=\"p-2 bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 border border-slate-700 hover:border-red-500/30 rounded-lg transition-colors flex-shrink-0\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ]
+    ],
+    "typography": {
+      "font_families": {
+        "styles": [],
+        "classes": []
+      },
+      "size_violations": [],
+      "height_violations": [],
+      "letter_spacing_violations": []
+    },
+    "inputs_dir_auto": [],
+    "physical_properties": []
+  },
+  "resume_tailor.html": {
+    "filename": "resume_tailor.html",
+    "exists": true,
+    "placeholders": [
+      [
+        51,
+        ".tailor-panel textarea::placeholder { color: #475569; font-style: italic; }"
+      ],
+      [
+        312,
+        "<textarea dir=\"auto\" id=\"tailor-resume\" placeholder=\"الصق نص سيرتك الذاتية بالكامل هنا..."
+      ],
+      [
+        324,
+        "<textarea dir=\"auto\" id=\"tailor-job\" placeholder=\"الصق الوصف الوظيفي الذي تريد التخصيص له..."
+      ],
+      [
+        334,
+        "<input dir=\"auto\" id=\"tailor-job-title\" placeholder=\"المسمى الوظيفي (اختياري، يساعد في سياق الذكاء الاصطناعي)\" style=\"margin-top:10px;width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e2e8f0;font-size:13px;font-family: 'Cairo', 'Inter',sans-serif;\" type=\"text\"/>"
+      ]
+    ],
+    "dark_gradient_bg": {
+      "classes": [],
+      "style_vars": []
+    },
+    "glassmorphism_cards": [],
+    "buttons_hover": [
+      [
+        346,
+        "<button class=\"btn btn-ai\" id=\"btn-tailor\" onclick=\"tailorResume()\" style=\"font-size:16px;padding:13px 28px;\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        371,
+        "<button class=\"diff-toggle-btn active\" id=\"toggle-tailored\" onclick=\"switchView('tailored')\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        372,
+        "<button class=\"diff-toggle-btn\" id=\"toggle-diff\" onclick=\"switchView('diff')\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        390,
+        "<button class=\"btn btn-outline btn-sm\" onclick=\"copyToClipboard()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        391,
+        "<button class=\"btn btn-primary btn-sm\" onclick=\"downloadAsPDF()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ]
+    ],
+    "typography": {
+      "font_families": {
+        "styles": [
+          "'Cairo', 'Georgia', 'Times New Roman', serif",
+          "'Cairo', 'Inter', monospace",
+          "'Cairo', 'Inter',sans-serif",
+          "'Cairo', 'Georgia', serif",
+          "'Cairo', 'Inter', sans-serif"
+        ],
+        "classes": []
+      },
+      "size_violations": [
+        [
+          334,
+          "<input dir=\"auto\" id=\"tailor-job-title\" placeholder=\"المسمى الوظيفي (اختياري، يساعد في سياق الذكاء الاصطناعي)\" style=\"margin-top:10px;width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e2e8f0;font-size:13px;font-family: 'Cairo', 'Inter',sans-serif;\" type=\"text\"/>"
+        ],
+        [
+          349,
+          "<span style=\"color:#64748b;font-size:12px;\">⚡ تخصيص مدعوم بالذكاء الاصطناعي — يستغرق حوالي 10 ثوانٍ</span>"
+        ],
+        [
+          356,
+          "<div style=\"color:#94a3b8;font-size:14px;\">يقوم الذكاء الاصطناعي بتخصيص سيرتك الذاتية... مطابقة الكلمات المفتاحية، تحسين النقاط...</div>"
+        ]
+      ],
+      "height_violations": [],
+      "letter_spacing_violations": []
+    },
+    "inputs_dir_auto": [],
+    "physical_properties": []
+  },
+  "wallet.html": {
+    "filename": "wallet.html",
+    "exists": true,
+    "placeholders": [
+      [
+        59,
+        ".invoice-modal .qr-placeholder { width:120px; height:120px; margin:0 auto 16px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:48px; }"
+      ],
+      [
+        93,
+        ".redeem-input::placeholder { color:#475569; font-family: 'Cairo', sans-serif;  }"
+      ],
+      [
+        196,
+        "<div class=\"qr-placeholder\">🏦</div>"
+      ],
+      [
+        233,
+        "<input autocomplete=\"off\" class=\"redeem-input\" dir=\"auto\" name=\"code\" placeholder=\"XXXX-XXXX-XXXX\" required=\"\" type=\"text\"/>"
+      ]
+    ],
+    "dark_gradient_bg": {
+      "classes": [],
+      "style_vars": []
+    },
+    "glassmorphism_cards": [],
+    "buttons_hover": [
+      [
+        110,
+        "<a class=\"btn-wallet primary\" href=\"/pricing\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        111,
+        "<button class=\"btn-wallet\" onclick=\"navigator.clipboard.writeText('{{ user_email }}');this.innerHTML='✅ تم النسخ!'\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        137,
+        "<button class=\"btn-wallet\" id=\"toggleKeyBtn\" onclick=\"toggleApiKey()\" style=\"padding:2px 8px;font-size:11px;min-height:24px;line-height:1;\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        142,
+        "<button class=\"btn-wallet\" onclick=\"navigator.clipboard.writeText('{{ user.api_key }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        144,
+        "<button class=\"btn-wallet\" style=\"color:#f59e0b;border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.08);\" type=\"submit\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        167,
+        "<button class=\"preset-btn\" data-amount=\"10\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        168,
+        "<button class=\"preset-btn selected\" data-amount=\"25\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        169,
+        "<button class=\"preset-btn\" data-amount=\"50\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        170,
+        "<button class=\"preset-btn\" data-amount=\"100\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        180,
+        "<button class=\"coin-btn selected\" data-coin=\"USDT\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        181,
+        "<button class=\"coin-btn\" data-coin=\"BTC\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        182,
+        "<button class=\"coin-btn\" data-coin=\"ETH\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        183,
+        "<button class=\"coin-btn\" data-coin=\"LTC\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        184,
+        "<button class=\"coin-btn\" data-coin=\"TRX\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        185,
+        "<button class=\"coin-btn\" data-coin=\"ANY\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        188,
+        "<button class=\"btn-topup\" id=\"btnTopup\" onclick=\"createTopup()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        201,
+        "<a class=\"btn-pay\" href=\"#\" id=\"btnPayUrl\" target=\"_blank\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        202,
+        "<button class=\"btn-close\" onclick=\"closeInvoice()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        219,
+        "<button class=\"btn\" onclick=\"navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        234,
+        "<button class=\"btn-redeem\" type=\"submit\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ]
+    ],
+    "typography": {
+      "font_families": {
+        "styles": [
+          "'Cairo', monospace",
+          "'Cairo', sans-serif"
+        ],
+        "classes": []
+      },
+      "size_violations": [
+        [
+          134,
+          "<div style=\"font-size:12px;text-transform:uppercase;color:#64748b;margin-bottom:2px;\">{{ _('مفتاح API الخاص بك') }}</div>"
+        ],
+        [
+          137,
+          "<button class=\"btn-wallet\" id=\"toggleKeyBtn\" onclick=\"toggleApiKey()\" style=\"padding:2px 8px;font-size:11px;min-height:24px;line-height:1;\">👁️ عرض</button>"
+        ],
+        [
+          178,
+          "<label style=\"font-size:11px;color:#64748b;text-transform:uppercase;\">ادفع بـ</label>"
+        ],
+        [
+          199,
+          "<p style=\"font-size:11px;color:#64748b;margin-bottom:16px;\">الطلب: <span id=\"invOrder\">---</span></p>"
+        ],
+        [
+          219,
+          "<button class=\"btn\" onclick=\"navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)\" style=\"margin-top:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#94a3b8;cursor:pointer;font-size:11px;\">📋 نسخ</button>"
+        ]
+      ],
+      "height_violations": [],
+      "letter_spacing_violations": []
+    },
+    "inputs_dir_auto": [],
+    "physical_properties": []
+  },
+  "war_room.html": {
+    "filename": "war_room.html",
+    "exists": true,
+    "placeholders": [],
+    "dark_gradient_bg": {
+      "classes": [
+        "class=\"h-full bg-gradient-to-r from-green-500 via-cyan-400 to-blue-500 transition-all duration-1000\"",
+        "class=\"h-full rounded-full transition-all duration-500 {{ 'bg-gradient-to-r from-red-500 to-orange-500' if c.heat_cls == 'hot' else 'bg-gradient-to-r from-amber-500 to-lime-400' if c.heat_cls == 'good' else 'bg-gradient-to-r from-cyan-500 to-blue-500' }}\""
+      ],
+      "style_vars": []
+    },
+    "glassmorphism_cards": [
+      [
+        12,
+        "<div class=\"relative z-10 bg-slate-900/90 backdrop-blur-md border border-green-500/20 rounded-2xl p-6 shadow-[0_0_15px_rgba(34,197,94,0.1)]\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        32,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-4 text-center hover:border-green-500/30 hover:shadow-[0_0_15px_rgba(34,197,94,0.15)] transition-all\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        36,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-4 text-center hover:border-green-500/30 hover:shadow-[0_0_15px_rgba(34,197,94,0.15)] transition-all\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        40,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-4 text-center hover:border-cyan-500/30 hover:shadow-[0_0_15px_rgba(6,182,212,0.15)] transition-all\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        44,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-4 text-center hover:border-blue-500/30 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        48,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-4 text-center hover:border-red-500/30 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)] transition-all\">",
+        [
+          "backdrop-blur"
+        ]
+      ],
+      [
+        52,
+        "<div class=\"bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-4 text-center hover:border-amber-500/30 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all\">",
+        [
+          "backdrop-blur"
+        ]
+      ]
+    ],
+    "buttons_hover": [
+      [
+        132,
+        "<button class=\"bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1.5 rounded-lg text-xs font-bold font-mono tracking-wider hover:bg-green-500/20 hover:border-green-400 transition-all flex items-center gap-2\" onclick=\"copyText(this)\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        159,
+        "<button class=\"bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1.5 rounded-lg text-xs font-bold font-mono tracking-wider hover:bg-green-500/20 hover:border-green-400 transition-all flex items-center gap-2\" onclick=\"copyGuide(this)\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        191,
+        "<button class=\"bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1.5 rounded-lg text-xs font-bold font-mono tracking-wider hover:bg-green-500/20 hover:border-green-400 transition-all flex items-center gap-2\" onclick=\"copyHtml(this)\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        194,
+        "<button class=\"bg-slate-800 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold font-mono tracking-wider hover:bg-slate-700 hover:text-white transition-all flex items-center gap-2\" onclick=\"generateInterviewPrep({{ cv.id }}, this)\">",
+        {
+          "has_hover_transform": true,
+          "has_hover_shadow": false
+        }
+      ]
+    ],
+    "typography": {
+      "font_families": {
+        "styles": [],
+        "classes": []
+      },
+      "size_violations": [
+        [
+          59,
+          "<h3 class=\"text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40\">تقرير استخباراتي - الرواتب</h3>"
+        ],
+        [
+          95,
+          "<h3 class=\"text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40\">رادار المنافسة</h3>"
+        ],
+        [
+          114,
+          "<div class=\"text-xs font-mono\">[ لا توجد بيانات منافسة بعد — يتفعل الرادار عند تنفيذ الحملة ]</div>"
+        ],
+        [
+          120,
+          "<h3 class=\"text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40\">محطة حرب لينكدإن</h3>"
+        ],
+        [
+          141,
+          "<div class=\"text-xs font-mono\">[ اشترِ صاروخ التواصل لتوليد رسائل طلب تواصل تلقائية ]</div>"
+        ],
+        [
+          147,
+          "<h3 class=\"text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40\">ترسانة تحضير المقابلات</h3>"
+        ],
+        [
+          168,
+          "<div class=\"text-xs font-mono\">{{ _('[ اشترِ ذكاء اصطناعي للمقابلة أو \"Interview Ninja\" لتوليد أدلة تلقائية ]') }}</div>"
+        ],
+        [
+          174,
+          "<h3 class=\"text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40\">مكتبة رسائل التغطية</h3>"
+        ],
+        [
+          204,
+          "<div class=\"text-xs font-mono\">[ لا توجد رسائل تغطية — يجب أن تكون الحملة نشطة أو منتهية ]</div>"
+        ],
+        [
+          210,
+          "<h3 class=\"text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40\">الإجراءات التالية</h3>"
+        ]
+      ],
+      "height_violations": [],
+      "letter_spacing_violations": [
+        [
+          34,
+          "<div class=\"text-[10px] text-slate-500 uppercase tracking-widest mt-1\">[ الأهداف ]</div>"
+        ],
+        [
+          38,
+          "<div class=\"text-[10px] text-slate-500 uppercase tracking-widest mt-1\">[ مُرسل ]</div>"
+        ],
+        [
+          42,
+          "<div class=\"text-[10px] text-slate-500 uppercase tracking-widest mt-1\">[ فُتح ]</div>"
+        ],
+        [
+          46,
+          "<div class=\"text-[10px] text-slate-500 uppercase tracking-widest mt-1\">[ ردود ]</div>"
+        ],
+        [
+          50,
+          "<div class=\"text-[10px] text-slate-500 uppercase tracking-widest mt-1\">[ فشل ]</div>"
+        ],
+        [
+          54,
+          "<div class=\"text-[10px] text-slate-500 uppercase tracking-widest mt-1\">[ متابعات ]</div>"
+        ],
+        [
+          59,
+          "<h3 class=\"text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40\">تقرير استخباراتي - الرواتب</h3>"
+        ],
+        [
+          95,
+          "<h3 class=\"text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40\">رادار المنافسة</h3>"
+        ],
+        [
+          120,
+          "<h3 class=\"text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40\">محطة حرب لينكدإن</h3>"
+        ],
+        [
+          147,
+          "<h3 class=\"text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40\">ترسانة تحضير المقابلات</h3>"
+        ],
+        [
+          174,
+          "<h3 class=\"text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40\">مكتبة رسائل التغطية</h3>"
+        ],
+        [
+          210,
+          "<h3 class=\"text-sm font-bold text-green-400 font-mono tracking-wider mb-4 before:content-['[_'] before:text-green-500/40 after:content-['_]'] after:text-green-500/40\">الإجراءات التالية</h3>"
+        ]
+      ]
+    },
+    "inputs_dir_auto": [],
+    "physical_properties": []
+  },
+  "battle_station.html": {
+    "filename": "battle_station.html",
+    "exists": true,
+    "placeholders": [],
+    "dark_gradient_bg": {
+      "classes": [],
+      "style_vars": []
+    },
+    "glassmorphism_cards": [],
+    "buttons_hover": [
+      [
+        246,
+        "<button class=\"bs-btn green\" onclick=\"bsStartAll()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        247,
+        "<button class=\"bs-btn red\" onclick=\"bsStopAll()\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        248,
+        "<button class=\"bs-btn green\" onclick=\"forceScanNow()\" style=\"background: linear-gradient(135deg, #10b981, #059669); border-color: rgba(16,185,129,.3);\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        249,
+        "<a class=\"bs-btn amber\" href=\"/new-campaign\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        250,
+        "<a class=\"bs-btn\" href=\"/sent-emails\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        256,
+        "<a class=\"bs-cta-btn\" href=\"/new-campaign\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        313,
+        "<a class=\"bs-btn bs-btn-sm\" href=\"/campaign/{{ c['campaign_id'] }}/war-room\" style=\"margin-inline-start:auto;\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        321,
+        "<a class=\"bs-cta-btn\" href=\"/new-campaign\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ],
+      [
+        393,
+        "<a class=\"bs-cta-btn\" href=\"/new-campaign\">",
+        {
+          "has_hover_transform": false,
+          "has_hover_shadow": false
+        }
+      ]
+    ],
+    "typography": {
+      "font_families": {
+        "styles": [
+          "'Cairo', monospace",
+          "'Cairo', 'Inter', sans-serif"
+        ],
+        "classes": []
+      },
+      "size_violations": [
+        [
+          203,
+          "<div style=\"font-size: 9px; color: #60a5fa; font-weight: 800;  text-transform: uppercase; margin-bottom: 2px;\">الفحص التلقائي التالي</div>"
+        ],
+        [
+          205,
+          "<div id=\"autopilot-status\" style=\"font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 4px;\">جاري تهيئة نظام التقديم التلقائي...</div>"
+        ]
+      ],
+      "height_violations": [],
+      "letter_spacing_violations": []
+    },
+    "inputs_dir_auto": [],
+    "physical_properties": []
+  }
+}

@@ -167,3 +167,18 @@ footer {
 .pulse {
     animation: pulse 3s infinite ease-in-out;
 }
+
+/* Safe area insets to prevent native UI overlap */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+body {
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bot);
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+}

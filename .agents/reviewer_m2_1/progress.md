@@ -1,9 +1,12 @@
-# Progress - reviewer_m2_1
+# Progress
 
-Last visited: 2026-07-03T09:45:57Z
+Last visited: 2026-07-05T19:59:26+03:00
 
-- [x] Initialize ORIGINAL_REQUEST.md and BRIEFING.md
-- [x] Inspect stylesheet files in `web/static/css/`
-- [x] Run verification tests / build pipeline check
-- [x] Perform Adversarial review & Quality review
-- [x] Generate detailed handoff.md and final report
+## Current Status
+- [x] Initialized BRIEFING.md and ORIGINAL_REQUEST.md
+- [ ] Inspect indentation fixes in `core/telegram/bot.py`
+- [ ] Verify security hardening in `web/app_v2.py` and `backend/auth.py`
+- [ ] Review TF-IDF cosine-similarity in `core/ai_tailor.py`
+- [ ] Verify structured JSON-LD and LLM fallback scraper logic in `scrapers/stealth_ingest.py`
+- [ ] Run pytest on target tests
+- [ ] Write handoff.md and send message

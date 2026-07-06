@@ -170,29 +170,29 @@
 <div class="flex flex-col gap-6">
 <!-- Quick Actions -->
 <div class="glass-panel p-6 reveal">
-<h3 class="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400">إجراءات سريعة</h3>
+<h3 class="mb-4 text-base font-semibold uppercase text-slate-400">إجراءات سريعة</h3>
 <div class="grid grid-cols-2 gap-3">
 <a class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-indigo-500/50 hover:bg-indigo-500/10 hover:shadow-[0_0_15px_rgba(99,102,241,0.2)]" href="/new-campaign">
 <i class="h-6 w-6 text-slate-400 transition-colors group-hover:text-indigo-400" data-lucide="rocket"></i>
-<span class="text-xs font-medium text-slate-300">حملة</span>
+<span class="text-base font-medium text-slate-300">حملة</span>
 </a>
 <a class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]" href="/upload-cv">
 <i class="h-6 w-6 text-slate-400 transition-colors group-hover:text-emerald-400" data-lucide="file-text"></i>
-<span class="text-xs font-medium text-slate-300">رفع السيرة الذاتية</span>
+<span class="text-base font-medium text-slate-300">رفع السيرة الذاتية</span>
 </a>
 <a class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-amber-500/50 hover:bg-amber-500/10 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]" href="/services">
 <i class="h-6 w-6 text-slate-400 transition-colors group-hover:text-amber-400" data-lucide="tool"></i>
-<span class="text-xs font-medium text-slate-300">الخدمات</span>
+<span class="text-base font-medium text-slate-300">الخدمات</span>
 </a>
 <a class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-pink-500/50 hover:bg-pink-500/10 hover:shadow-[0_0_15px_rgba(236,72,153,0.2)]" href="/pricing">
 <i class="h-6 w-6 text-slate-400 transition-colors group-hover:text-pink-400" data-lucide="gem"></i>
-<span class="text-xs font-medium text-slate-300">ترقية</span>
+<span class="text-base font-medium text-slate-300">ترقية</span>
 </a>
 </div>
 </div>
 <!-- Premium Status -->
 <div class="rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-slate-900/80 p-6 backdrop-blur-md reveal">
-<h3 class="mb-4 text-xs font-semibold uppercase tracking-wider text-indigo-300">الترسانة النشطة</h3>
+<h3 class="mb-4 text-base font-semibold uppercase text-indigo-300">الترسانة النشطة</h3>
         {% set total_weapons = 0 %}
         {% for c in campaigns %}{% set total_weapons = total_weapons + (c.premium_weapons|default(0)|int) %}{% endfor %}
         {% if total_weapons > 0 %}
@@ -474,7 +474,7 @@ function initKeyboardShortcuts() {
 <div class="space-y-4">
 <div>
 <label class="block text-sm font-medium text-slate-300 mb-1">{{ _('Provider') }}</label>
-<select class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" id="smtpProvider">
+<select class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" dir="auto" id="smtpProvider">
 <option value="google">{{ _('Google (Gmail/Workspace)') }}</option>
 <option value="microsoft">{{ _('Microsoft (Outlook/Office365)') }}</option>
 </select>

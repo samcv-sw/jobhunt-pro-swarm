@@ -758,7 +758,7 @@ class HyperDB:
 
     def _init_db(self):
         """Initialize database schema."""
-        import sqlite3
+import core.pg_sqlite_shim as sqlite3
 
         try:
             with sqlite3.connect(self.path, timeout=30) as conn:
@@ -805,7 +805,7 @@ class HyperDB:
         Returns:
             Number of new jobs inserted
         """
-        import sqlite3
+import core.pg_sqlite_shim as sqlite3
 
         count = 0
         try:
@@ -843,7 +843,7 @@ class HyperDB:
         Returns:
             List of job dicts with all fields
         """
-        import sqlite3
+import core.pg_sqlite_shim as sqlite3
 
         try:
             with sqlite3.connect(self.path, timeout=10) as conn:
@@ -863,7 +863,7 @@ class HyperDB:
         Args:
             job_ids: List of job database IDs to mark as sent
         """
-        import sqlite3
+import core.pg_sqlite_shim as sqlite3
 
         try:
             with sqlite3.connect(self.path, timeout=10) as conn:
@@ -882,7 +882,7 @@ class HyperDB:
         Args:
             sends: List of tuples (job_id, company, title, recipient, provider, status)
         """
-        import sqlite3
+import core.pg_sqlite_shim as sqlite3
 
         try:
             with sqlite3.connect(self.path, timeout=10) as conn:
@@ -907,7 +907,7 @@ class HyperDB:
         Returns:
             True if URL already exists in database
         """
-        import sqlite3
+import core.pg_sqlite_shim as sqlite3
 
         try:
             with sqlite3.connect(self.path, timeout=5) as conn:
@@ -924,7 +924,7 @@ class HyperDB:
         Returns:
             Dict with total, sent, pending, fail counts
         """
-        import sqlite3
+import core.pg_sqlite_shim as sqlite3
 
         try:
             with sqlite3.connect(self.path, timeout=5) as conn:
@@ -955,7 +955,7 @@ class HyperDB:
         Returns:
             JSON string if path is None
         """
-        import sqlite3
+import core.pg_sqlite_shim as sqlite3
 
         try:
             with sqlite3.connect(self.path, timeout=5) as conn:

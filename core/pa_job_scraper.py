@@ -969,10 +969,9 @@ class PAJobScraper:
     ) -> List[Dict]:
         """Search LinkedIn XHR API (works on PA, no auth needed)."""
         try:
-            from curl_cffi.requests import Session as httpx_Session
             from bs4 import BeautifulSoup
         except ImportError:
-            logger.warning("httpx or BeautifulSoup not available")
+            logger.warning("BeautifulSoup not available")
             return []
 
         all_jobs = []

@@ -4,7 +4,16 @@ import jwt
 from fastapi import HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "jobhunt-pro-secret-key-32bytes-ok!!")
+import sys
+
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
+if not JWT_SECRET_KEY:
+    # Fallback only when running tests to avoid breaking test suite
+    if os.getenv("TESTING") == "true" or "pytest" in sys.modules or "unittest" in sys.modules:
+        JWT_SECRET_KEY = "jobhunt-pro-secret-key-32bytes-ok!!"
+    else:
+        raise ValueError("JWT_SECRET_KEY environment variable is not set in production context.")
+
 JWT_ALGORITHM = "HS256"
 
 # We use HTTPBearer security scheme

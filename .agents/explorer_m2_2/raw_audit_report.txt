@@ -1,0 +1,852 @@
+=== index_v3.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 0 found
+Physical CSS properties in styles: 85 found
+  - left (in <style> block)
+  - left (in <style> block)
+  - left (in <style> block)
+  - left (in <style> block)
+  - right (in <style> block)
+  - left (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - right (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - left (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - right (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - right (in <style> block)
+  - right (in <style> block)
+  - left (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - right (in <style> block)
+  - left (in <style> block)
+  - right (in <style> block)
+  - text-align (in <style> block)
+  - div style contains 'left' (line 1215)
+  - div style contains 'left' (line 1216)
+  - div style contains 'left' (line 1220)
+  - canvas style contains 'left' (line 1221)
+  - div style contains 'text-align' (line 1391)
+  - div style contains 'text-align' (line 2016)
+  - div style contains 'text-align' (line 2017)
+  - div style contains 'text-align' (line 2018)
+  - div style contains 'text-align' (line 2066)
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 102 found
+  - inline font-size 14px (below 16px) in <td> at line 1573
+  - inline font-size 10px (below 16px) in <div> at line 2016
+  - inline font-size 10px (below 16px) in <div> at line 2017
+  - inline font-size 10px (below 16px) in <div> at line 2018
+  - style block font-size 9px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 9px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 9px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 8px (below 16px) in <style> at line style tag
+  - style block font-size 9px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-family ''JetBrains Mono',monospace' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'monospace' is not Inter/Outfit in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+Has Gradient BG: True, Has Glass Card: True
+Buttons/Links with missing hover styles: 5 found
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 1204 (classes: ['btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 1668 (classes: ['calc-tab', 'active'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 1669 (classes: ['calc-tab'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 1670 (classes: ['calc-tab'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 2381 (classes: ['exit-close'])
+
+=== pricing_v3.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 0 found
+Physical CSS properties in styles: 20 found
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - float (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 32 found
+  - inline font-size 12px (below 16px) in <div> at line 542
+  - inline font-size 12px (below 16px) in <div> at line 547
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-family 'var(--font-mono)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--font-mono)' is not Inter/Outfit in <style> at line style tag
+Has Gradient BG: True, Has Glass Card: True
+Buttons/Links with missing hover styles: 1 found
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 667 (classes: ['toast-close-v3'])
+
+=== for_employers.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 1 found
+  - <select> at line 372 (id: category, name: N/A)
+Physical CSS properties in styles: 14 found
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - right (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - h3 style contains 'text-align' (line 262)
+  - div style contains 'text-align' (line 433)
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 0 found
+Has Gradient BG: True, Has Glass Card: False
+Buttons/Links with missing hover styles: 9 found
+  - Button/Link is missing hover:box-shadow in <button> at line 207 (classes: ['btn'])
+  - Button/Link is missing hover:box-shadow in <button> at line 223 (classes: ['btn'])
+  - Button/Link is missing hover:box-shadow in <button> at line 239 (classes: ['btn'])
+  - Button/Link is missing hover:box-shadow in <button> at line 256 (classes: ['btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 264 (classes: ['duration-btn', 'selected'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 267 (classes: ['duration-btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 270 (classes: ['duration-btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 273 (classes: ['duration-btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 276 (classes: ['duration-btn'])
+
+=== trust.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 0 found
+Physical CSS properties in styles: 11 found
+  - left (in <style> block)
+  - left (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 20 found
+  - style block font-size 9px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+Has Gradient BG: True, Has Glass Card: True
+Buttons/Links with missing hover styles: 0 found
+
+=== services_v2.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 0 found
+Physical CSS properties in styles: 25 found
+  - left (in <style> block)
+  - right (in <style> block)
+  - left (in <style> block)
+  - right (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - right (in <style> block)
+  - text-align (in <style> block)
+  - right (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - right (in <style> block)
+  - right (in <style> block)
+  - right (in <style> block)
+  - right (in <style> block)
+  - right (in <style> block)
+  - right (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - right (in <style> block)
+  - div style contains 'text-align' (line 936)
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 45 found
+  - inline font-size 15px (below 16px) in <div> at line 937
+  - inline font-size 14px (below 16px) in <a> at line 951
+  - inline font-size 15px (below 16px) in <p> at line 994
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 9px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-family 'var(--font)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--mono)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--mono)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--mono)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--mono)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--mono)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--mono)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--font)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--mono)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--mono)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--mono)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--mono)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--font)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--mono)' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'var(--mono)' is not Inter/Outfit in <style> at line style tag
+Has Gradient BG: True, Has Glass Card: True
+Buttons/Links with missing hover styles: 10 found
+  - Button/Link is missing hover:transform, hover:box-shadow in <a> at line 762 (classes: ['btn-nav'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 814 (classes: ['btn-buy', 'btn-buy-micro'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 844 (classes: ['btn-buy', 'btn-buy-standard'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 874 (classes: ['btn-buy', 'btn-buy-premium'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <a> at line 951 (classes: ['btn-buy', 'btn-buy-premium'])
+  - Button/Link is missing hover:box-shadow in <button> at line 961 (classes: ['cart-toggle'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 973 (classes: ['cart-close'])
+  - Button/Link is missing hover:transform in <button> at line 983 (classes: ['cart-checkout'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 991 (classes: ['modal-close'])
+  - Button/Link is missing hover:transform in <button> at line 1008 (classes: ['btn-submit'])
+
+=== faq.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 0 found
+Physical CSS properties in styles: 1 found
+  - text-align (in <style> block)
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 9 found
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+Has Gradient BG: True, Has Glass Card: True
+Buttons/Links with missing hover styles: 0 found
+
+=== contact.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 1 found
+  - <select> at line 109 (id: subject, name: subject)
+Physical CSS properties in styles: 3 found
+  - right (in <style> block)
+  - float (in <style> block)
+  - right (in <style> block)
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 13 found
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+Has Gradient BG: True, Has Glass Card: True
+Buttons/Links with missing hover styles: 0 found
+
+=== dashboard_v3.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 3 found
+  - <select> at line 435 (id: smtpProvider, name: N/A)
+  - <input> at line 442 (id: smtpEmail, name: N/A)
+  - <input> at line 446 (id: smtpPass, name: N/A)
+Physical CSS properties in styles: 0 found
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 47 found
+  - Tailwind class 'text-sm' (below 16px) in <div> at line 21
+  - Tailwind class 'text-sm' (below 16px) in <div> at line 25
+  - Tailwind class 'text-sm' (below 16px) in <div> at line 29
+  - Tailwind class 'text-sm' (below 16px) in <p> at line 45
+  - Tailwind class 'text-sm' (below 16px) in <a> at line 48
+  - Tailwind class 'text-sm' (below 16px) in <a> at line 51
+  - Tailwind class 'text-sm' (below 16px) in <span> at line 62
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 66
+  - Tailwind class 'text-sm' (below 16px) in <span> at line 70
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 74
+  - Tailwind class 'text-sm' (below 16px) in <span> at line 78
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 82
+  - Tailwind class 'text-sm' (below 16px) in <span> at line 86
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 93
+  - Tailwind class 'text-sm' (below 16px) in <p> at line 104
+  - Tailwind class 'text-xs' (below 16px) in <button> at line 107
+  - Tailwind class 'text-xs' (below 16px) in <button> at line 108
+  - Tailwind class 'text-xs' (below 16px) in <button> at line 109
+  - Tailwind class 'text-xs' (below 16px) in <h3> at line 122
+  - Tailwind class 'text-xs' (below 16px) in <span> at line 126
+  - Tailwind class 'text-xs' (below 16px) in <span> at line 130
+  - Tailwind class 'text-xs' (below 16px) in <span> at line 134
+  - Tailwind class 'text-xs' (below 16px) in <span> at line 138
+  - Tailwind class 'text-xs' (below 16px) in <h3> at line 145
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 155
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 165
+  - Tailwind class 'text-sm' (below 16px) in <a> at line 168
+  - Tailwind class 'text-[10px]' (below 16px) in <span> at line 176
+  - Tailwind class 'text-sm' (below 16px) in <div> at line 200
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 201
+  - Tailwind class 'text-[10px]' (below 16px) in <span> at line 214
+  - Tailwind class 'text-sm' (below 16px) in <div> at line 224
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 225
+  - Tailwind class 'text-xs' (below 16px) in <a> at line 226
+  - Tailwind class 'text-sm' (below 16px) in <span> at line 247
+  - Tailwind class 'text-xs' (below 16px) in <kbd> at line 247
+  - Tailwind class 'text-sm' (below 16px) in <span> at line 248
+  - Tailwind class 'text-xs' (below 16px) in <kbd> at line 248
+  - Tailwind class 'text-sm' (below 16px) in <span> at line 249
+  - Tailwind class 'text-xs' (below 16px) in <kbd> at line 249
+  - Tailwind class 'text-sm' (below 16px) in <span> at line 250
+  - Tailwind class 'text-xs' (below 16px) in <kbd> at line 250
+  - Tailwind class 'text-sm' (below 16px) in <p> at line 430
+  - Tailwind class 'text-sm' (below 16px) in <label> at line 434
+  - Tailwind class 'text-sm' (below 16px) in <label> at line 441
+  - Tailwind class 'text-sm' (below 16px) in <label> at line 445
+  - Tailwind class 'text-xs' (below 16px) in <p> at line 447
+Has Gradient BG: True, Has Glass Card: True
+Buttons/Links with missing hover styles: 7 found
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 33 (classes: ['flex', 'h-10', 'w-10', 'items-center', 'justify-center', 'rounded-xl', 'border', 'border-white/10', 'bg-white/5', 'text-slate-300', 'transition-colors', 'hover:bg-white/10', 'hover:text-white'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 107 (classes: ['rounded-md', 'px-3', 'py-1.5', 'text-xs', 'font-medium', 'transition-colors', 'bg-indigo-500/20', 'text-indigo-300'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 108 (classes: ['rounded-md', 'px-3', 'py-1.5', 'text-xs', 'font-medium', 'text-slate-400', 'transition-colors', 'hover:text-white'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 109 (classes: ['rounded-md', 'px-3', 'py-1.5', 'text-xs', 'font-medium', 'text-slate-400', 'transition-colors', 'hover:text-white'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 241 (classes: ['rounded-lg', 'p-1', 'text-slate-400', 'hover:bg-white/10', 'hover:text-white'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 428 (classes: ['text-slate-400', 'hover:text-white'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 449 (classes: ['w-full', 'rounded-lg', 'bg-indigo-600', 'py-3', 'font-bold', 'text-white', 'transition-all', 'hover:bg-indigo-500', 'mt-4', 'flex', 'justify-center', 'items-center', 'gap-2'])
+
+=== upload_cv_v2.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 0 found
+Physical CSS properties in styles: 9 found
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - right (in <style> block)
+  - div style contains 'text-align' (line 545)
+  - span style contains 'left' (line 547)
+  - span style contains 'right' (line 547)
+  - div style contains 'text-align' (line 756)
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 40 found
+  - inline font-size 14px (below 16px) in <p> at line 533
+  - inline font-size 13px (below 16px) in <span> at line 543
+  - inline font-size 14px (below 16px) in <div> at line 545
+  - inline font-size 13px (below 16px) in <label> at line 629
+  - inline font-size 13px (below 16px) in <label> at line 650
+  - inline font-size 13px (below 16px) in <label> at line 671
+  - inline font-size 14px (below 16px) in <div> at line 696
+  - inline font-size 15px (below 16px) in <div> at line 720
+  - inline font-size 13px (below 16px) in <span> at line 724
+  - inline font-size 13px (below 16px) in <div> at line 726
+  - inline font-size 15px (below 16px) in <button> at line 732
+  - inline font-size 14px (below 16px) in <button> at line 735
+  - inline font-size 13px (below 16px) in <div> at line 738
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-family 'monospace' is not Inter/Outfit in <style> at line style tag
+Has Gradient BG: True, Has Glass Card: True
+Buttons/Links with missing hover styles: 9 found
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 711 (classes: ['btn', 'btn-sm', 'btn-outline'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 729 (classes: ['btn', 'pulse-btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 732 (classes: ['btn', 'btn-outline'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 735 (classes: ['btn', 'btn-sm', 'btn-outline'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 748 (classes: ['modal-close'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 751 (classes: ['preview-tab', 'active'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 752 (classes: ['preview-tab'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 753 (classes: ['preview-tab'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 759 (classes: ['btn', 'btn-outline', 'btn-sm'])
+
+=== ats_scorer.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 0 found
+Physical CSS properties in styles: 0 found
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 25 found
+  - Tailwind class 'text-sm' (below 16px) in <p> at line 12
+  - Tailwind class 'text-sm' (below 16px) in <h3> at line 19
+  - Tailwind class 'text-sm' (below 16px) in <textarea> at line 22
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 33
+  - Tailwind class 'text-sm' (below 16px) in <h3> at line 41
+  - Tailwind class 'text-sm' (below 16px) in <input> at line 48
+  - Tailwind class 'text-sm' (below 16px) in <button> at line 50
+  - Tailwind class 'text-sm' (below 16px) in <textarea> at line 55
+  - Tailwind class 'text-sm' (below 16px) in <input> at line 70
+  - Tailwind class 'text-sm' (below 16px) in <button> at line 80
+  - Tailwind class 'text-xs' (below 16px) in <span> at line 83
+  - Tailwind class 'text-sm' (below 16px) in <h3> at line 92
+  - Tailwind class 'text-xs' (below 16px) in <p> at line 95
+  - Tailwind class 'text-sm' (below 16px) in <button> at line 97
+  - Tailwind class 'text-sm' (below 16px) in <button> at line 106
+  - Tailwind class 'text-sm' (below 16px) in <p> at line 114
+  - Tailwind class 'text-sm' (below 16px) in <p> at line 121
+  - Tailwind class 'text-[10px]' (below 16px) in <span> at line 137
+  - Tailwind class 'text-sm' (below 16px) in <p> at line 143
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 144
+  - Tailwind class 'text-xs' (below 16px) in <h4> at line 159
+  - Tailwind class 'text-sm' (below 16px) in <div> at line 162
+  - Tailwind class 'text-xs' (below 16px) in <h4> at line 167
+  - Tailwind class 'text-sm' (below 16px) in <div> at line 170
+  - Tailwind class 'text-xs' (below 16px) in <h4> at line 175
+Has Gradient BG: True, Has Glass Card: True
+Buttons/Links with missing hover styles: 5 found
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 50 (classes: ['px-4', 'py-2.5', 'bg-slate-800', 'hover:bg-slate-700', 'text-slate-300', 'rounded-lg', 'text-sm', 'font-semibold', 'transition-all', 'flex', 'items-center', 'justify-center', 'gap-2', 'border', 'border-slate-700', 'whitespace-nowrap'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 77 (classes: ['px-8', 'py-3.5', 'bg-gradient-to-r', 'from-blue-600', 'to-indigo-600', 'hover:from-blue-500', 'hover:to-indigo-500', 'text-white', 'rounded-xl', 'text-base', 'font-black', 'tracking-wide', 'shadow-[0_0_20px_rgba(79,70,229,0.3)]', 'transition-all', 'flex', 'items-center', 'gap-3', 'border', 'border-indigo-400/30'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 80 (classes: ['px-5', 'py-3.5', 'bg-slate-800', 'hover:bg-slate-700', 'text-slate-300', 'rounded-xl', 'text-sm', 'font-bold', 'transition-all', 'flex', 'items-center', 'gap-2', 'border', 'border-slate-700'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 97 (classes: ['px-5', 'py-2.5', 'bg-purple-600', 'hover:bg-purple-500', 'text-white', 'rounded-xl', 'text-sm', 'font-bold', 'tracking-wide', 'shadow-[0_0_15px_rgba(147,51,234,0.3)]', 'transition-all', 'flex', 'items-center', 'gap-2', 'border', 'border-purple-400/50'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 106 (classes: ['mt-4', 'px-4', 'py-2', 'border', 'border-dashed', 'border-slate-600', 'text-slate-400', 'hover:text-white', 'hover:border-slate-400', 'hover:bg-slate-800/50', 'rounded-lg', 'text-sm', 'font-medium', 'transition-all', 'flex', 'items-center', 'gap-2', 'w-full', 'justify-center'])
+
+=== resume_tailor.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 0 found
+Physical CSS properties in styles: 3 found
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 22 found
+  - inline font-size 13px (below 16px) in <input> at line 338
+  - inline font-size 13px (below 16px) in <label> at line 345
+  - inline font-size 12px (below 16px) in <span> at line 356
+  - inline font-size 14px (below 16px) in <div> at line 365
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-family ''Georgia', 'Times New Roman', serif' is not Inter/Outfit in <style> at line style tag
+  - style block font-family ''Georgia', serif' is not Inter/Outfit in <style> at line style tag
+Has Gradient BG: True, Has Glass Card: False
+Buttons/Links with missing hover styles: 5 found
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 353 (classes: ['btn', 'btn-ai'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 383 (classes: ['diff-toggle-btn', 'active'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 384 (classes: ['diff-toggle-btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 404 (classes: ['btn', 'btn-outline', 'btn-sm'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 405 (classes: ['btn', 'btn-primary', 'btn-sm'])
+
+=== wallet.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 0 found
+Physical CSS properties in styles: 8 found
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - div style contains 'text-align' (line 229)
+  - div style contains 'text-align' (line 267)
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 34 found
+  - inline font-size 12px (below 16px) in <div> at line 135
+  - inline font-size 13px (below 16px) in <code> at line 137
+  - inline font-family 'font-size:13px;color:#94a3b8;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:6px;font-family:monospace;' is not Inter/Outfit in <code> at line 137
+  - inline font-size 11px (below 16px) in <button> at line 138
+  - inline font-size 11px (below 16px) in <label> at line 181
+  - inline font-size 11px (below 16px) in <p> at line 203
+  - inline font-size 11px (below 16px) in <button> at line 224
+  - inline font-size 12px (below 16px) in <td> at line 260
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 10px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-family 'monospace' is not Inter/Outfit in <style> at line style tag
+  - style block font-family 'monospace' is not Inter/Outfit in <style> at line style tag
+Has Gradient BG: True, Has Glass Card: True
+Buttons/Links with missing hover styles: 20 found
+  - Button/Link is missing hover:box-shadow in <a> at line 110 (classes: ['btn-wallet', 'primary'])
+  - Button/Link is missing hover:box-shadow in <button> at line 111 (classes: ['btn-wallet'])
+  - Button/Link is missing hover:box-shadow in <button> at line 138 (classes: ['btn-wallet'])
+  - Button/Link is missing hover:box-shadow in <button> at line 143 (classes: ['btn-wallet'])
+  - Button/Link is missing hover:box-shadow in <button> at line 145 (classes: ['btn-wallet'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 170 (classes: ['preset-btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 171 (classes: ['preset-btn', 'selected'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 172 (classes: ['preset-btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 173 (classes: ['preset-btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 183 (classes: ['coin-btn', 'selected'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 184 (classes: ['coin-btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 185 (classes: ['coin-btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 186 (classes: ['coin-btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 187 (classes: ['coin-btn'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 188 (classes: ['coin-btn'])
+  - Button/Link is missing hover:box-shadow in <button> at line 191 (classes: ['btn-topup'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <a> at line 205 (classes: ['btn-pay'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 206 (classes: ['btn-close'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 224 (classes: ['btn'])
+  - Button/Link is missing hover:box-shadow in <button> at line 240 (classes: ['btn-redeem'])
+
+=== war_room.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 0 found
+Physical CSS properties in styles: 0 found
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 42 found
+  - Tailwind class 'text-[10px]' (below 16px) in <div> at line 8
+  - Tailwind class 'text-xs' (below 16px) in <p> at line 19
+  - Tailwind class 'text-[10px]' (below 16px) in <div> at line 37
+  - Tailwind class 'text-[10px]' (below 16px) in <div> at line 41
+  - Tailwind class 'text-[10px]' (below 16px) in <div> at line 45
+  - Tailwind class 'text-[10px]' (below 16px) in <div> at line 49
+  - Tailwind class 'text-[10px]' (below 16px) in <div> at line 53
+  - Tailwind class 'text-[10px]' (below 16px) in <div> at line 57
+  - Tailwind class 'text-sm' (below 16px) in <h3> at line 63
+  - Tailwind class 'text-[11px]' (below 16px) in <div> at line 67
+  - Tailwind class 'text-[11px]' (below 16px) in <div> at line 72
+  - Tailwind class 'text-[11px]' (below 16px) in <div> at line 77
+  - Tailwind class 'text-[11px]' (below 16px) in <div> at line 82
+  - Tailwind class 'text-[11px]' (below 16px) in <div> at line 87
+  - Tailwind class 'text-[11px]' (below 16px) in <div> at line 92
+  - Tailwind class 'text-sm' (below 16px) in <h3> at line 100
+  - Tailwind class 'text-xs' (below 16px) in <span> at line 105
+  - Tailwind class 'text-[10px]' (below 16px) in <span> at line 106
+  - Tailwind class 'text-[10px]' (below 16px) in <span> at line 110
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 119
+  - Tailwind class 'text-sm' (below 16px) in <h3> at line 126
+  - Tailwind class 'text-sm' (below 16px) in <span> at line 132
+  - Tailwind class 'text-xs' (below 16px) in <span> at line 133
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 135
+  - Tailwind class 'text-xs' (below 16px) in <button> at line 138
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 147
+  - Tailwind class 'text-sm' (below 16px) in <h3> at line 154
+  - Tailwind class 'text-sm' (below 16px) in <span> at line 160
+  - Tailwind class 'text-xs' (below 16px) in <span> at line 161
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 163
+  - Tailwind class 'text-xs' (below 16px) in <button> at line 166
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 175
+  - Tailwind class 'text-sm' (below 16px) in <h3> at line 182
+  - Tailwind class 'text-sm' (below 16px) in <span> at line 188
+  - Tailwind class 'text-xs' (below 16px) in <span> at line 189
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 194
+  - Tailwind class 'text-xs' (below 16px) in <button> at line 199
+  - Tailwind class 'text-xs' (below 16px) in <button> at line 202
+  - Tailwind class 'text-xs' (below 16px) in <div> at line 212
+  - Tailwind class 'text-sm' (below 16px) in <h3> at line 219
+  - Tailwind class 'text-sm' (below 16px) in <span> at line 226
+  - Tailwind class 'text-sm' (below 16px) in <a> at line 234
+Has Gradient BG: True, Has Glass Card: True
+Buttons/Links with missing hover styles: 4 found
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 138 (classes: ['bg-green-500/10', 'text-green-400', 'border', 'border-green-500/20', 'px-3', 'py-1.5', 'rounded-lg', 'text-xs', 'font-bold', 'font-mono', 'tracking-wider', 'hover:bg-green-500/20', 'hover:border-green-400', 'transition-all', 'flex', 'items-center', 'gap-2'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 166 (classes: ['bg-green-500/10', 'text-green-400', 'border', 'border-green-500/20', 'px-3', 'py-1.5', 'rounded-lg', 'text-xs', 'font-bold', 'font-mono', 'tracking-wider', 'hover:bg-green-500/20', 'hover:border-green-400', 'transition-all', 'flex', 'items-center', 'gap-2'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 199 (classes: ['bg-green-500/10', 'text-green-400', 'border', 'border-green-500/20', 'px-3', 'py-1.5', 'rounded-lg', 'text-xs', 'font-bold', 'font-mono', 'tracking-wider', 'hover:bg-green-500/20', 'hover:border-green-400', 'transition-all', 'flex', 'items-center', 'gap-2'])
+  - Button/Link is missing hover:transform, hover:box-shadow in <button> at line 202 (classes: ['bg-slate-800', 'text-slate-300', 'border', 'border-slate-700', 'px-3', 'py-1.5', 'rounded-lg', 'text-xs', 'font-bold', 'font-mono', 'tracking-wider', 'hover:bg-slate-700', 'hover:text-white', 'transition-all', 'flex', 'items-center', 'gap-2'])
+
+=== battle_station.html ===
+Placeholders: 0 found
+Inputs without dir='auto': 0 found
+Physical CSS properties in styles: 7 found
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - text-align (in <style> block)
+  - left (in <style> block)
+  - right (in <style> block)
+  - div style contains 'text-align' (line 204)
+Physical Tailwind classes: 0 found
+Typography/Font size issues: 23 found
+  - inline font-size 13px (below 16px) in <p> at line 198
+  - inline font-size 9px (below 16px) in <div> at line 205
+  - inline font-family 'font-size: 28px; font-weight: 800; color: #60a5fa; font-family: monospace; letter-spacing: 1px; line-height: 1;' is not Inter/Outfit in <div> at line 206
+  - inline font-size 10px (below 16px) in <div> at line 207
+  - inline font-size 13px (below 16px) in <div> at line 214
+  - inline font-size 13px (below 16px) in <span> at line 219
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 14px (below 16px) in <style> at line style tag
+  - style block font-size 12px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 11px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-size 15px (below 16px) in <style> at line style tag
+  - style block font-size 13px (below 16px) in <style> at line style tag
+  - style block font-family 'monospace' is not Inter/Outfit in <style> at line style tag
+Has Gradient BG: True, Has Glass Card: True
+Buttons/Links with missing hover styles: 6 found
+  - Button/Link is missing hover:box-shadow in <button> at line 251 (classes: ['bs-btn', 'green'])
+  - Button/Link is missing hover:box-shadow in <button> at line 252 (classes: ['bs-btn', 'red'])
+  - Button/Link is missing hover:box-shadow in <button> at line 253 (classes: ['bs-btn', 'green'])
+  - Button/Link is missing hover:box-shadow in <a> at line 254 (classes: ['bs-btn', 'amber'])
+  - Button/Link is missing hover:box-shadow in <a> at line 255 (classes: ['bs-btn'])
+  - Button/Link is missing hover:box-shadow in <a> at line 320 (classes: ['bs-btn', 'bs-btn-sm'])
+

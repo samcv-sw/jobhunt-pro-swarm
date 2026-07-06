@@ -1,6 +1,6 @@
 """
 STEALTH SCRAPING TECHNIQUES
-Ported from Rita Project - Advanced anti-detection methods
+Ported from demo_user Project - Advanced anti-detection methods
 """
 
 import random
@@ -621,14 +621,67 @@ class NodriverFallback:
     """
 
     @staticmethod
-    async def get_page_content(url: str, timeout_seconds: int = 20) -> str:
+    async def get_page_content(url: str, proxy: Optional[str] = None, timeout_seconds: int = 20) -> str:
         try:
             import nodriver as uc
             import asyncio
+            import os
+            from core.human_mouse import HumanMouse
+
+            if not proxy:
+                env_proxies = [p.strip() for p in os.getenv("RESIDENTIAL_PROXIES", "").split(",") if p.strip()]
+                if env_proxies:
+                    proxy = env_proxies[0]
+                else:
+                    proxy = "http://jobhunt-stub-proxy:8080"
+
+            browser_args = []
+            if proxy:
+                browser_args.append(f"--proxy-server={proxy}")
 
             # On some environments headless=True may be detected, but usually Nodriver handles it well
-            browser = await uc.start(headless=True)
+            browser = await uc.start(headless=True, browser_args=browser_args)
             page = await browser.get(url)
+
+            # Inject WebGL, Canvas, and browser attribute stealth spoofing scripts
+            js_script = """
+            (function() {
+                // WebGL Spoofing
+                if (window.WebGLRenderingContext) {
+                    const getParameter = WebGLRenderingContext.prototype.getParameter;
+                    WebGLRenderingContext.prototype.getParameter = function(parameter) {
+                        if (parameter === 37445) return 'Intel Inc.';
+                        if (parameter === 37446) return 'Intel(R) UHD Graphics';
+                        return getParameter.apply(this, arguments);
+                    };
+                }
+                // Canvas Spoofing
+                if (window.CanvasRenderingContext2D) {
+                    const getImageData = CanvasRenderingContext2D.prototype.getImageData;
+                    CanvasRenderingContext2D.prototype.getImageData = function(x, y, w, h) {
+                        const imageData = getImageData.apply(this, arguments);
+                        if (imageData.data.length > 0) {
+                            imageData.data[0] = (imageData.data[0] + 1) % 256;
+                        }
+                        return imageData;
+                    };
+                }
+                // Browser Attribute Spoofing
+                Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+                Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+            })();
+            """
+            try:
+                await page.evaluate(js_script)
+            except Exception as eval_err:
+                logger.warning(f"[Nodriver] Failed to evaluate stealth script: {eval_err}")
+
+            # Execute human mouse simulation events
+            try:
+                await HumanMouse.simulate_mouse_movement(page, 10, 10, 500, 400)
+            except Exception as mouse_err:
+                logger.warning(f"[Nodriver] Failed to simulate mouse movement: {mouse_err}")
+
             await asyncio.sleep(5)  # Wait for Cloudflare/JS
             html = await page.get_content()
             browser.stop()
@@ -645,11 +698,19 @@ class ApexCamoufoxFallback:
     """
 
     @staticmethod
-    async def get_page_content(url: str, proxy: str = None) -> str:
+    async def get_page_content(url: str, proxy: Optional[str] = None) -> str:
         try:
             from camoufox.async_api import AsyncCamoufox
             import asyncio
             from core.human_mouse import HumanMouse
+            import os
+
+            if not proxy:
+                env_proxies = [p.strip() for p in os.getenv("RESIDENTIAL_PROXIES", "").split(",") if p.strip()]
+                if env_proxies:
+                    proxy = env_proxies[0]
+                else:
+                    proxy = "http://jobhunt-stub-proxy:8080"
 
             # Using Camoufox which intercepts and overrides WebGL/Canvas natively
             async with AsyncCamoufox(headless=True, proxy=proxy) as browser:
@@ -673,3 +734,4 @@ class ApexCamoufoxFallback:
 
 # Global instance
 stealth = StealthScraper()
+

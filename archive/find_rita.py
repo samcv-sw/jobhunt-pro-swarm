@@ -13,21 +13,22 @@ for root, dirs, files in os.walk(project_dir):
             try:
                 with open(path, "r", encoding="utf-8", errors="ignore") as f:
                     content = f.read()
-                    if "rita" in content.lower():
+                    if "demo_user" in content.lower():
                         # Find line numbers
                         lines = content.splitlines()
                         matches = []
                         for i, line in enumerate(lines):
-                            if "rita" in line.lower():
+                            if "demo_user" in line.lower():
                                 matches.append((i+1, line.strip()))
                         found.append((os.path.relpath(path, project_dir), matches))
             except Exception as e:
                 pass
 
-print(f"Found 'Rita' in {len(found)} files:")
+print(f"Found 'demo_user' in {len(found)} files:")
 for rel_path, matches in found:
     print(f"\n[FILE] {rel_path} ({len(matches)} matches):")
     for line_num, text in matches[:10]: # show first 10 matches
         print(f"  Line {line_num}: {text[:100]}")
     if len(matches) > 10:
         print(f"  ... and {len(matches) - 10} more matches")
+

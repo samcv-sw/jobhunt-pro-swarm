@@ -8,6 +8,10 @@
   --green: #22c55e; --red: #ef4444; --blue: #3b82f6;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
+.price-card, .vs-grid, .addon-card, .form-card, .pkg-card {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
 
 /* ── Section headers ── */
 .sec-title { text-align:center; margin:40px 0 20px; font-size:1.6em; }
@@ -369,7 +373,7 @@
       </div>
       <div class="form-group">
         <label>🏷️ Category</label>
-        <select id="category">
+        <select dir="auto" id="category">
           <option value="">Select category...</option>
           <option value="it">💻 IT & Technology</option>
           <option value="finance">🏦 Finance & Banking</option>

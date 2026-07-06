@@ -115,7 +115,7 @@ class ViralFactory:
         # ── AUTONOMOUS DISTRIBUTION (ZERO-TOUCH) ──
         logger.info("[VIRAL FACTORY] Initiating autonomous Telegram broadcast...")
         try:
-            from core.telegram_bot import send_telegram_message_sync
+            from core.telegram.bot import send_telegram_message_sync
 
             # In a real environment, we would also upload the video document itself.
             # For now, we simulate the blast by sending the text and a local reference to the channel.

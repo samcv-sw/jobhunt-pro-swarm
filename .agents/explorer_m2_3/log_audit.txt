@@ -1,0 +1,977 @@
+Total Tracebacks: 7
+Total Unique Warnings: 854
+Total Error/Critical Logs: 34
+
+--- Unique Warnings ---
+- Arbeitnow search error: Expecting value: line 1 column 1 (char 0)
+- CV file not found at assets/Sam_Salameh_CV.pdf, will send without attachment
+- Glassdoor [Senior Network Engineer] error: <urlopen error Tunnel connection failed: 403 Forbidden>
+- Indeed RSS [germany] error: <urlopen error Tunnel connection failed: 403 Forbidden>
+- Indeed RSS [germany]: XML parse error
+- Indeed RSS [india] error: <urlopen error Tunnel connection failed: 403 Forbidden>
+- Indeed RSS [kuwait]: XML parse error
+- Indeed RSS [lebanon]: XML parse error
+- Indeed RSS [morocco]: XML parse error
+- Indeed RSS [netherlands] error: <urlopen error Tunnel connection failed: 403 Forbidden>
+- Indeed RSS [turkey] error: <urlopen error Tunnel connection failed: 403 Forbidden>
+- Indeed RSS [uae] error: <urlopen error Tunnel connection failed: 403 Forbidden>
+- Indeed RSS [uk]: XML parse error
+- Jobicy search error: Expecting value: line 1 column 1 (char 0)
+- No GEMINI_API_KEY for semantic caching.
+- RemoteOK search error: <urlopen error Tunnel connection failed: 403 Forbidden>
+- Telegram send error: HTTPSConnectionPool(host='api.telegram.org', port=443): Max retries exceeded with url: /bot8679211757:AAF_6HZaYRaVG-kCshDe9yqV9o_zL1nFhik/sendMessage (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 503 Service Unavailable')))
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1003","parameters":{"retry_after":1003}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1005","parameters":{"retry_after":1005}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1008","parameters":{"retry_after":1008}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1010","parameters":{"retry_after":1010}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1013","parameters":{"retry_after":1013}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1021","parameters":{"retry_after":1021}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1024","parameters":{"retry_after":1024}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1027","parameters":{"retry_after":1027}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1030","parameters":{"retry_after":1030}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1033","parameters":{"retry_after":1033}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1035","parameters":{"retry_after":1035}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1039","parameters":{"retry_after":1039}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1041","parameters":{"retry_after":1041}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1043","parameters":{"retry_after":1043}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1045","parameters":{"retry_after":1045}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1049","parameters":{"retry_after":1049}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1051","parameters":{"retry_after":1051}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1060","parameters":{"retry_after":1060}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1062","parameters":{"retry_after":1062}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1066","parameters":{"retry_after":1066}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1069","parameters":{"retry_after":1069}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 107","parameters":{"retry_after":107}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1072","parameters":{"retry_after":1072}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1076","parameters":{"retry_after":1076}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1080","parameters":{"retry_after":1080}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1082","parameters":{"retry_after":1082}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1086","parameters":{"retry_after":1086}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1089","parameters":{"retry_after":1089}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1091","parameters":{"retry_after":1091}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1096","parameters":{"retry_after":1096}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1099","parameters":{"retry_after":1099}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 11","parameters":{"retry_after":11}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1101","parameters":{"retry_after":1101}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1104","parameters":{"retry_after":1104}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1108","parameters":{"retry_after":1108}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 111","parameters":{"retry_after":111}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1112","parameters":{"retry_after":1112}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1115","parameters":{"retry_after":1115}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1118","parameters":{"retry_after":1118}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1121","parameters":{"retry_after":1121}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1124","parameters":{"retry_after":1124}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1127","parameters":{"retry_after":1127}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1131","parameters":{"retry_after":1131}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1135","parameters":{"retry_after":1135}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1138","parameters":{"retry_after":1138}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 114","parameters":{"retry_after":114}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1142","parameters":{"retry_after":1142}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1145","parameters":{"retry_after":1145}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1149","parameters":{"retry_after":1149}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1152","parameters":{"retry_after":1152}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1155","parameters":{"retry_after":1155}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1159","parameters":{"retry_after":1159}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1161","parameters":{"retry_after":1161}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1164","parameters":{"retry_after":1164}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1166","parameters":{"retry_after":1166}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1169","parameters":{"retry_after":1169}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1177","parameters":{"retry_after":1177}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1185","parameters":{"retry_after":1185}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1189","parameters":{"retry_after":1189}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 119","parameters":{"retry_after":119}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1192","parameters":{"retry_after":1192}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1196","parameters":{"retry_after":1196}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1199","parameters":{"retry_after":1199}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1204","parameters":{"retry_after":1204}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1207","parameters":{"retry_after":1207}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1211","parameters":{"retry_after":1211}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1213","parameters":{"retry_after":1213}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1218","parameters":{"retry_after":1218}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 122","parameters":{"retry_after":122}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1222","parameters":{"retry_after":1222}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1225","parameters":{"retry_after":1225}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1229","parameters":{"retry_after":1229}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1232","parameters":{"retry_after":1232}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1236","parameters":{"retry_after":1236}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1241","parameters":{"retry_after":1241}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1244","parameters":{"retry_after":1244}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1247","parameters":{"retry_after":1247}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1250","parameters":{"retry_after":1250}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1254","parameters":{"retry_after":1254}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 126","parameters":{"retry_after":126}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1262","parameters":{"retry_after":1262}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1265","parameters":{"retry_after":1265}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1268","parameters":{"retry_after":1268}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1273","parameters":{"retry_after":1273}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1276","parameters":{"retry_after":1276}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1279","parameters":{"retry_after":1279}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1282","parameters":{"retry_after":1282}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1286","parameters":{"retry_after":1286}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1289","parameters":{"retry_after":1289}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 129","parameters":{"retry_after":129}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1293","parameters":{"retry_after":1293}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1296","parameters":{"retry_after":1296}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1299","parameters":{"retry_after":1299}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1301","parameters":{"retry_after":1301}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1305","parameters":{"retry_after":1305}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1308","parameters":{"retry_after":1308}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1311","parameters":{"retry_after":1311}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1315","parameters":{"retry_after":1315}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1318","parameters":{"retry_after":1318}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 132","parameters":{"retry_after":132}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1328","parameters":{"retry_after":1328}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1332","parameters":{"retry_after":1332}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1335","parameters":{"retry_after":1335}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1338","parameters":{"retry_after":1338}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 134","parameters":{"retry_after":134}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1341","parameters":{"retry_after":1341}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1344","parameters":{"retry_after":1344}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1351","parameters":{"retry_after":1351}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1354","parameters":{"retry_after":1354}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1357","parameters":{"retry_after":1357}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1359","parameters":{"retry_after":1359}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1362","parameters":{"retry_after":1362}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1365","parameters":{"retry_after":1365}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1374","parameters":{"retry_after":1374}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1378","parameters":{"retry_after":1378}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1382","parameters":{"retry_after":1382}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 139","parameters":{"retry_after":139}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1390","parameters":{"retry_after":1390}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1392","parameters":{"retry_after":1392}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1396","parameters":{"retry_after":1396}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1399","parameters":{"retry_after":1399}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1402","parameters":{"retry_after":1402}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1405","parameters":{"retry_after":1405}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1407","parameters":{"retry_after":1407}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 141","parameters":{"retry_after":141}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1411","parameters":{"retry_after":1411}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1415","parameters":{"retry_after":1415}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1418","parameters":{"retry_after":1418}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1420","parameters":{"retry_after":1420}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1423","parameters":{"retry_after":1423}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1425","parameters":{"retry_after":1425}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1428","parameters":{"retry_after":1428}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1432","parameters":{"retry_after":1432}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1435","parameters":{"retry_after":1435}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1437","parameters":{"retry_after":1437}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 144","parameters":{"retry_after":144}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1441","parameters":{"retry_after":1441}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1444","parameters":{"retry_after":1444}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1447","parameters":{"retry_after":1447}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1455","parameters":{"retry_after":1455}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1458","parameters":{"retry_after":1458}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 146","parameters":{"retry_after":146}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1461","parameters":{"retry_after":1461}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1465","parameters":{"retry_after":1465}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1468","parameters":{"retry_after":1468}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1471","parameters":{"retry_after":1471}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1474","parameters":{"retry_after":1474}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1476","parameters":{"retry_after":1476}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1480","parameters":{"retry_after":1480}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1483","parameters":{"retry_after":1483}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1487","parameters":{"retry_after":1487}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1490","parameters":{"retry_after":1490}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1493","parameters":{"retry_after":1493}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1497","parameters":{"retry_after":1497}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1502","parameters":{"retry_after":1502}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1504","parameters":{"retry_after":1504}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1507","parameters":{"retry_after":1507}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 151","parameters":{"retry_after":151}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1510","parameters":{"retry_after":1510}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1513","parameters":{"retry_after":1513}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1516","parameters":{"retry_after":1516}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1519","parameters":{"retry_after":1519}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1522","parameters":{"retry_after":1522}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1525","parameters":{"retry_after":1525}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1529","parameters":{"retry_after":1529}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 153","parameters":{"retry_after":153}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1532","parameters":{"retry_after":1532}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1534","parameters":{"retry_after":1534}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1537","parameters":{"retry_after":1537}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1539","parameters":{"retry_after":1539}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1542","parameters":{"retry_after":1542}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1545","parameters":{"retry_after":1545}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1549","parameters":{"retry_after":1549}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1556","parameters":{"retry_after":1556}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1559","parameters":{"retry_after":1559}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 156","parameters":{"retry_after":156}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1578","parameters":{"retry_after":1578}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1582","parameters":{"retry_after":1582}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1586","parameters":{"retry_after":1586}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1590","parameters":{"retry_after":1590}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1592","parameters":{"retry_after":1592}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1597","parameters":{"retry_after":1597}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1599","parameters":{"retry_after":1599}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1602","parameters":{"retry_after":1602}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1605","parameters":{"retry_after":1605}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1608","parameters":{"retry_after":1608}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1611","parameters":{"retry_after":1611}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1614","parameters":{"retry_after":1614}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1617","parameters":{"retry_after":1617}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1620","parameters":{"retry_after":1620}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1623","parameters":{"retry_after":1623}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1626","parameters":{"retry_after":1626}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1634","parameters":{"retry_after":1634}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1637","parameters":{"retry_after":1637}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 164","parameters":{"retry_after":164}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1640","parameters":{"retry_after":1640}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1643","parameters":{"retry_after":1643}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1646","parameters":{"retry_after":1646}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1649","parameters":{"retry_after":1649}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1651","parameters":{"retry_after":1651}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1654","parameters":{"retry_after":1654}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 1661","parameters":{"retry_after":1661}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 172","parameters":{"retry_after":172}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 175","parameters":{"retry_after":175}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 182","parameters":{"retry_after":182}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 185","parameters":{"retry_after":185}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 188","parameters":{"retry_after":188}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 190","parameters":{"retry_after":190}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 199","parameters":{"retry_after":199}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 204","parameters":{"retry_after":204}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 209","parameters":{"retry_after":209}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 21","parameters":{"retry_after":21}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 212","parameters":{"retry_after":212}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 218","parameters":{"retry_after":218}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 221","parameters":{"retry_after":221}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 225","parameters":{"retry_after":225}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 228","parameters":{"retry_after":228}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 232","parameters":{"retry_after":232}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 24","parameters":{"retry_after":24}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 249","parameters":{"retry_after":249}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 252","parameters":{"retry_after":252}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 256","parameters":{"retry_after":256}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 261","parameters":{"retry_after":261}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 263","parameters":{"retry_after":263}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 265","parameters":{"retry_after":265}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 269","parameters":{"retry_after":269}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 271","parameters":{"retry_after":271}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 275","parameters":{"retry_after":275}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 28","parameters":{"retry_after":28}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 280","parameters":{"retry_after":280}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 283","parameters":{"retry_after":283}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 286","parameters":{"retry_after":286}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 289","parameters":{"retry_after":289}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 294","parameters":{"retry_after":294}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 297","parameters":{"retry_after":297}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 30","parameters":{"retry_after":30}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 300","parameters":{"retry_after":300}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 304","parameters":{"retry_after":304}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 308","parameters":{"retry_after":308}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 314","parameters":{"retry_after":314}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 318","parameters":{"retry_after":318}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 322","parameters":{"retry_after":322}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 329","parameters":{"retry_after":329}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 333","parameters":{"retry_after":333}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 336","parameters":{"retry_after":336}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 339","parameters":{"retry_after":339}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 34","parameters":{"retry_after":34}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 342","parameters":{"retry_after":342}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 345","parameters":{"retry_after":345}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 348","parameters":{"retry_after":348}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 353","parameters":{"retry_after":353}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 358","parameters":{"retry_after":358}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 362","parameters":{"retry_after":362}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 365","parameters":{"retry_after":365}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 368","parameters":{"retry_after":368}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 37","parameters":{"retry_after":37}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 371","parameters":{"retry_after":371}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 374","parameters":{"retry_after":374}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 378","parameters":{"retry_after":378}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 381","parameters":{"retry_after":381}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 385","parameters":{"retry_after":385}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 39","parameters":{"retry_after":39}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 393","parameters":{"retry_after":393}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 397","parameters":{"retry_after":397}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 401","parameters":{"retry_after":401}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 412","parameters":{"retry_after":412}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 415","parameters":{"retry_after":415}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 419","parameters":{"retry_after":419}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 423","parameters":{"retry_after":423}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 428","parameters":{"retry_after":428}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 432","parameters":{"retry_after":432}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 437","parameters":{"retry_after":437}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 440","parameters":{"retry_after":440}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 442","parameters":{"retry_after":442}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 446","parameters":{"retry_after":446}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 450","parameters":{"retry_after":450}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 452","parameters":{"retry_after":452}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 455","parameters":{"retry_after":455}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 459","parameters":{"retry_after":459}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 46","parameters":{"retry_after":46}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 462","parameters":{"retry_after":462}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 496","parameters":{"retry_after":496}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 50","parameters":{"retry_after":50}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 507","parameters":{"retry_after":507}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 510","parameters":{"retry_after":510}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 516","parameters":{"retry_after":516}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 520","parameters":{"retry_after":520}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 523","parameters":{"retry_after":523}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 526","parameters":{"retry_after":526}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 53","parameters":{"retry_after":53}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 531","parameters":{"retry_after":531}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 535","parameters":{"retry_after":535}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 538","parameters":{"retry_after":538}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 543","parameters":{"retry_after":543}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 547","parameters":{"retry_after":547}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 55","parameters":{"retry_after":55}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 550","parameters":{"retry_after":550}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 553","parameters":{"retry_after":553}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 558","parameters":{"retry_after":558}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 561","parameters":{"retry_after":561}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 565","parameters":{"retry_after":565}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 568","parameters":{"retry_after":568}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 570","parameters":{"retry_after":570}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 574","parameters":{"retry_after":574}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 576","parameters":{"retry_after":576}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 579","parameters":{"retry_after":579}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 581","parameters":{"retry_after":581}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 588","parameters":{"retry_after":588}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 59","parameters":{"retry_after":59}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 596","parameters":{"retry_after":596}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 611","parameters":{"retry_after":611}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 619","parameters":{"retry_after":619}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 62","parameters":{"retry_after":62}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 633","parameters":{"retry_after":633}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 636","parameters":{"retry_after":636}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 639","parameters":{"retry_after":639}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 641","parameters":{"retry_after":641}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 644","parameters":{"retry_after":644}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 647","parameters":{"retry_after":647}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 655","parameters":{"retry_after":655}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 658","parameters":{"retry_after":658}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 66","parameters":{"retry_after":66}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 662","parameters":{"retry_after":662}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 664","parameters":{"retry_after":664}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 668","parameters":{"retry_after":668}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 671","parameters":{"retry_after":671}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 674","parameters":{"retry_after":674}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 677","parameters":{"retry_after":677}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 68","parameters":{"retry_after":68}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 681","parameters":{"retry_after":681}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 689","parameters":{"retry_after":689}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 691","parameters":{"retry_after":691}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 694","parameters":{"retry_after":694}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 698","parameters":{"retry_after":698}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 701","parameters":{"retry_after":701}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 704","parameters":{"retry_after":704}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 707","parameters":{"retry_after":707}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 71","parameters":{"retry_after":71}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 710","parameters":{"retry_after":710}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 713","parameters":{"retry_after":713}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 716","parameters":{"retry_after":716}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 719","parameters":{"retry_after":719}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 722","parameters":{"retry_after":722}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 725","parameters":{"retry_after":725}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 729","parameters":{"retry_after":729}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 732","parameters":{"retry_after":732}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 734","parameters":{"retry_after":734}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 737","parameters":{"retry_after":737}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 741","parameters":{"retry_after":741}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 745","parameters":{"retry_after":745}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 747","parameters":{"retry_after":747}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 75","parameters":{"retry_after":75}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 750","parameters":{"retry_after":750}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 753","parameters":{"retry_after":753}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 757","parameters":{"retry_after":757}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 760","parameters":{"retry_after":760}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 763","parameters":{"retry_after":763}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 767","parameters":{"retry_after":767}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 770","parameters":{"retry_after":770}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 776","parameters":{"retry_after":776}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 780","parameters":{"retry_after":780}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 79","parameters":{"retry_after":79}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 792","parameters":{"retry_after":792}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 796","parameters":{"retry_after":796}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 800","parameters":{"retry_after":800}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 803","parameters":{"retry_after":803}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 807","parameters":{"retry_after":807}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 81","parameters":{"retry_after":81}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 811","parameters":{"retry_after":811}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 815","parameters":{"retry_after":815}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 817","parameters":{"retry_after":817}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 822","parameters":{"retry_after":822}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 825","parameters":{"retry_after":825}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 829","parameters":{"retry_after":829}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 833","parameters":{"retry_after":833}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 841","parameters":{"retry_after":841}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 844","parameters":{"retry_after":844}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 85","parameters":{"retry_after":85}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 850","parameters":{"retry_after":850}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 853","parameters":{"retry_after":853}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 856","parameters":{"retry_after":856}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 859","parameters":{"retry_after":859}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 862","parameters":{"retry_after":862}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 864","parameters":{"retry_after":864}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 868","parameters":{"retry_after":868}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 873","parameters":{"retry_after":873}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 877","parameters":{"retry_after":877}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 879","parameters":{"retry_after":879}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 88","parameters":{"retry_after":88}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 882","parameters":{"retry_after":882}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 894","parameters":{"retry_after":894}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 898","parameters":{"retry_after":898}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 902","parameters":{"retry_after":902}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 905","parameters":{"retry_after":905}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 908","parameters":{"retry_after":908}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 91","parameters":{"retry_after":91}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 910","parameters":{"retry_after":910}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 913","parameters":{"retry_after":913}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 917","parameters":{"retry_after":917}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 919","parameters":{"retry_after":919}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 923","parameters":{"retry_after":923}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 925","parameters":{"retry_after":925}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 929","parameters":{"retry_after":929}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 932","parameters":{"retry_after":932}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 936","parameters":{"retry_after":936}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 938","parameters":{"retry_after":938}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 94","parameters":{"retry_after":94}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 941","parameters":{"retry_after":941}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 943","parameters":{"retry_after":943}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 948","parameters":{"retry_after":948}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 953","parameters":{"retry_after":953}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 956","parameters":{"retry_after":956}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 959","parameters":{"retry_after":959}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 963","parameters":{"retry_after":963}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 967","parameters":{"retry_after":967}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 97","parameters":{"retry_after":97}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 972","parameters":{"retry_after":972}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 977","parameters":{"retry_after":977}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 987","parameters":{"retry_after":987}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 99","parameters":{"retry_after":99}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 991","parameters":{"retry_after":991}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 993","parameters":{"retry_after":993}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 996","parameters":{"retry_after":996}}
+- Telegram send failed: HTTP 429 — {"ok":false,"error_code":429,"description":"Too Many Requests: retry after 999","parameters":{"retry_after":999}}
+- The Muse search error: <urlopen error Tunnel connection failed: 403 Forbidden>
+- The Muse search error: Expecting value: line 1 column 1 (char 0)
+- [EmailEngine] Batch commit failed: table campaign_emails has no column named message_id
+- [GMAIL-SMTP] Failed to careers@abnamro.nl via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a8aef286csm66895981cf.8 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@abnamro.nl via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@acwapower.com via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@acwapower.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ef55c2a4c2sm48093506d6.10 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@acwapower.com via samatou683@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ee3df5b70esm63618696d6.46 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@adnoc.ae via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ae.linkedin.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ae.linkedin.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df8303ebe1sm297366866d6.49 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@ae.linkedin.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ee9e1aeb2bsm57123056d6.12 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@ae.linkedin.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ee9e1aeb2bsm57136796d6.12 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@ae.linkedin.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ef81bccd86sm38394826d6.44 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@ae.linkedin.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df82692bddsm302032686d6.43 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@ae.linkedin.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8e98a3209d2sm92657526d6.14 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@ae.linkedin.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92600c7aae6sm2039349985a.44 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@ae.linkedin.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e5de1484dsm4531685a.32 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@ae.linkedin.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ae.linkedin.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ae.linkedin.com via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8e961e90897sm93547726d6.27 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@ae.linkedin.com via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@airtel.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@akamai.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f124450276sm2575246d6.1 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@akamai.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@akamai.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@aldar.com via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@aldar.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df7fbdd5f1sm304975816d6.21 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@aldar.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@alrajhibank.com.sa via OAUTH2_POOL: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@alrajhibank.com.sa via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@altice.pt via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@amazon.co.uk via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df82692bddsm302026986d6.43 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@amazon.co.uk via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@amazon.ie via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a514b50b9sm158064291cf.3 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@amazon.ie via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-927c75ca817sm1577811385a.27 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@arabbank.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ea52af6006sm83447266d6.11 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@arabbank.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8e8ce95b5c0sm112057776d6.39 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@aramco.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@aramco.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e53434e85sm214283585a.21 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@arista.com via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@arista.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92600d78c84sm1985143485a.47 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@asiacell.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92600d78c84sm1978240985a.47 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@asiacell.com via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@asiacell.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ef55c2a4c2sm48034906d6.10 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@barclays.com via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a514b5128sm157533351cf.6 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@batelco.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@batelco.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f03e035a77sm22727206d6.8 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@batelco.com via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@blombank.com via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@blombank.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a8aef286csm66937881cf.8 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@blombank.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@catonetworks.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e53434e85sm221266185a.21 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@catonetworks.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@catonetworks.com via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@checkpoint.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@checkpoint.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@cibeg.com via OAUTH2_POOL: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@cibeg.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@cibeg.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e53e7fbf1sm191131185a.30 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@cibeg.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-925fda62876sm2080811485a.18 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@cisco.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@cisco.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51bc3caca49sm55603161cf.7 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@cisco.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-926000c0c0csm2015173985a.25 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@cloudflare.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f019d477easm26250926d6.29 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@cloudflare.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@colt.net via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@colt.net via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df82692bddsm302002226d6.43 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@cyberia.net.lb via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@cyberia.net.lb via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a51b0cc9csm159838571cf.31 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@cyberia.net.lb via samatou683@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ef9147d6e0sm37339706d6.5 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@cyberia.net.lb via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92b00852726sm937206585a.41 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@db.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@difc.ae via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@difc.ae via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a51addb1csm161994041cf.23 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@difc.ae via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@digitalocean.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@digitalocean.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-925fda62876sm2081366085a.18 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@dm.com.lb via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@dm.com.lb via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@dm.com.lb via samatou683@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e5bca9329sm50454185a.31 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@du.ae via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@du.ae via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a51a9bca9sm164455681cf.19 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@du.ae via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-926000c0a45sm2080873985a.22 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@du.ae via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@dubaiholding.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8e98a3209d2sm92617426d6.14 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@dubaiholding.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@dubaiholding.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ee.co.uk via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ee.co.uk via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51c01ff9f9esm12937051cf.20 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@eir.ie via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e51f017ebsm234092885a.5 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@eir.ie via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51bfdc32a93sm19260721cf.25 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@eir.ie via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@eir.ie via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@emaar.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@emiratescloud.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@emiratescloud.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@emiratesnbd.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-925fe040904sm2025249885a.20 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@equinix.co.uk via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-925fda62876sm2081310285a.18 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@equinix.co.uk via samatou683@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a6e7669ebsm110452491cf.12 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@equinix.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@etisalat.ae via OAUTH2_POOL: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@etisalat.ae via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-926004ab5f0sm1968674385a.35 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@etisalat.ae via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@etisalat.ae via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@etisalat.eg via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8e98a3209d2sm91944906d6.14 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@f5.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e5769afd5sm133260585a.10 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@f5.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8e961e90897sm93470496d6.27 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@f5.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@fastly.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@fawry.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@fawry.com via samatou683@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a51a9b10esm159457331cf.15 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@fawry.com via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92600c7aae6sm2028691085a.44 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@fortinet.com via salamehsam33@gmail.com: (421, b'4.3.0 Temporary System Problem. Try again later. For more information, go to\n4.3.0  https://support.google.com/a/answer/3221692 6a1803df08f44-8ef0f2b9df0sm50636196d6.13 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@fortinet.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@gbm.com via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a51addb1csm162603421cf.23 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@gbm.com via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@google.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@google.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e5769afd5sm140135485a.10 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@google.com via samatou683@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a515d68fdsm158247771cf.13 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@google.com via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@google.com.sg via OAUTH2_POOL: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@google.com.sg via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@google.com.sg via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8e961e90897sm93477576d6.27 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@google.com.sg via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@google.ie via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@hcltech.com via OAUTH2_POOL: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@hcltech.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@hcltech.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df823ab84esm302601556d6.37 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@hcltech.com via samatou683@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-925fda62f09sm2001787585a.17 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@hetzner.com via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@hpe.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@hsbc.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@huawei.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92b13be26e1sm931272685a.6 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@huawei.com via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@infosys.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ea681172aasm85270476d6.40 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@infosys.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ing.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8e8ce95b5c0sm111999556d6.39 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@ing.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ing.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@jio.com via OAUTH2_POOL: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@jio.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@jumeirah.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@jumeirah.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@jumeirah.com via samatou683@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a514b4f5dsm159755491cf.1 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@juniper.net via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@juniper.net via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@juniper.net via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df7ef1fe40sm299478066d6.4 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@khatibalam.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@khazna.ae via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@khazna.ae via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a51a9c6b6sm159453931cf.16 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@khazna.ae via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@kpn.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ea681172aasm84585386d6.40 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@kpn.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@kpn.com via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92db08a13c1sm659264185a.37 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@m1.com.sg via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@m1.com.sg via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-926004ab5f0sm1975807485a.35 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@maaden.com.sa via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-925fda621f7sm1945267185a.15 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@maaden.com.sa via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@maaden.com.sa via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@maaden.com.sa via samatou683@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92b00852726sm930098985a.41 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@majidalfuttaim.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92dc13f0279sm651841085a.3 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@majidalfuttaim.com via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@mashreqbank.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@mashreqbank.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df81cde21csm299051926d6.26 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@meta.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@meta.com.sg via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e51b5fa8bsm239922185a.16 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@meta.com.sg via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@meta.com.sg via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@microsoft.com via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@microsoft.ie via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df7fbdd5f1sm304299666d6.21 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@microsoft.ie via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@mobi.net.lb via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df82693b9asm336721126d6.42 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@mobi.net.lb via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-925fda62183sm2030977285a.13 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@mobi.net.lb via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@mobily.com.sa via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a515d68fdsm158775121cf.13 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@mobily.com.sa via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@mubadala.ae via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@mubadala.ae via samatou683@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df81cde21csm299101826d6.26 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@mubadala.ae via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df823ab84esm302623346d6.37 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@nakheel.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@nakheel.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@neom.com via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@neom.com via samatou683@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51c01ff9f9esm12436531cf.20 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@netskope.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@netskope.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-925fd390bd1sm1916087985a.1 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@nos.pt via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@nos.pt via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ooredoo.com.kw via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f019d477easm26210686d6.29 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@ooredoo.com.kw via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ooredoo.com.kw via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ooredoo.qa via OAUTH2_POOL: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ooredoo.qa via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ooredoo.qa via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@orange.eg via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@orange.eg via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e529618a5sm235808385a.19 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@orange.es via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f0b137b6b1sm13227086d6.28 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@orange.jo via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@orange.jo via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a515d68fdsm158770601cf.13 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@orange.pl via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@orange.pl via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df81cde303sm304145406d6.25 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@orange.pl via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ovhcloud.com via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@ovhcloud.com via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-926000c343bsm2048410985a.28 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@paloaltonetworks.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8e89f20295fsm97940616d6.24 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@paloaltonetworks.com via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@play.pl via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@qatarairways.com via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@qf.org.qa via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@qnb.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@qnb.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-926000c0a45sm2080589885a.22 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@qnb.com.eg via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@qnb.com.eg via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e5d1c2715sm15267985a.36 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@remotive.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@remotive.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df81cdec56sm311844356d6.32 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@remotive.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f0fd31f327sm6107396d6.2 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@remotive.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92db8e916f6sm660655985a.32 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@remotive.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92dc13f0279sm651783185a.3 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@remotive.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92dc13f0279sm651795885a.3 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@remotive.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e44f35c08sm548997185a.29 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@remotive.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a51a9b10esm159431431cf.15 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@remotive.com via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@remotive.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a51b0cc9csm160407061cf.31 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@remotive.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f019d477easm26217426d6.29 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@remotive.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92600d78c84sm1984992385a.47 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@remotive.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51bc3caca49sm56175501cf.7 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@remotive.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@remotive.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@remotive.com via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df7ef1fe40sm299482306d6.4 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@sa.zain.com via OAUTH2_POOL: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@sa.zain.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@sa.zain.com via salamehsam33@gmail.com: (421, b'4.3.0 Temporary System Problem. Try again later. For more information, go to\n4.3.0  https://support.google.com/a/answer/3221692 af79cd13be357-926005a2530sm1997721585a.39 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@sabic.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@sabic.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51bf997b6d2sm21724981cf.10 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@sap.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f09b0114f3sm14633576d6.16 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@sap.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@siemens.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ef9147d6e0sm38029986d6.5 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@siemens.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@singtel.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@singtel.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ef81bccd86sm39066396d6.44 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@sky.uk via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a515ccdbbsm160202891cf.11 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@sky.uk via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@sky.uk via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@sodetel.net.lb via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@sodetel.net.lb via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@sodigital.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-925fda62183sm2024051285a.13 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@starhub.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e525739a2sm237773885a.45 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@stc.com.sa via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@stc.com.sa via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@t-mobile.de via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a514b5271sm164836591cf.5 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@t-mobile.de via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f019d477easm26245186d6.29 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@t-mobile.de via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@t-mobile.pl via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@talktalk.co.uk via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@talktalk.co.uk via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a51afc29csm161575511cf.27 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@tatacommunications.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@tcs.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-926000c0c0csm2007721685a.25 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@tcs.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e5c181e1dsm50079185a.33 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@tcs.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@te.eg via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a51addb1csm162005871cf.23 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@te.eg via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e19c3ffa7sm602472885a.43 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@te.eg via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a8aef286csm67182161cf.8 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@te.eg via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@techmahindra.com via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@telefonica.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df81fcb55csm299956006d6.34 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@telekom.de via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@touch.com.lb via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@turkcell.com.tr via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a657f7b2esm124920791cf.30 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@turksat.com.tr via salamehsam33@gmail.com: (421, b'4.3.0 Temporary System Problem. Try again later. For more information, go to\n4.3.0  https://support.google.com/a/answer/3221692 d75a77b69052e-51a51a9b5b4sm156929201cf.18 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@turktelekom.com.tr via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92600a87303sm2034873385a.42 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@turktelekom.com.tr via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@versa-networks.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@versa-networks.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ef866c8ee8sm39129146d6.19 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@vmware.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vmware.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vodafone.co.uk via OAUTH2_POOL: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vodafone.co.uk via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vodafone.co.uk via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vodafone.com.eg via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vodafone.com.eg via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ef81bccd86sm38392026d6.44 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@vodafone.com.eg via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f019d47704sm25617256d6.30 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@vodafone.com.eg via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vodafone.com.tr via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vodafone.de via OAUTH2_POOL: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vodafone.de via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vodafone.de via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vodafone.es via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8e89f20295fsm97933936d6.24 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@vodafone.ie via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8efca02020asm31594186d6.48 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@vodafone.ie via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vodafone.pt via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vodafone.pt via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-926005a1892sm1993878285a.38 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@vodafoneziggo.nl via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@vodafoneziggo.nl via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a515d68fdsm158211261cf.13 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@vodafoneziggo.nl via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a51addb1csm162546311cf.23 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@wipro.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@wipro.com via samatou683@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ee3df5b70esm63630786d6.46 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@zain.com.iq via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@zain.com.iq via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-9260079070bsm2068199985a.40 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@zain.com.kw via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@zain.com.kw via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e5c181e1dsm42846085a.33 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@zain.com.kw via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92b2affb45bsm921941085a.12 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@zain.jo via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e53434e85sm214341085a.21 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@zain.jo via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@zscaler.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to careers@zscaler.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51bf997b6d2sm21185671cf.10 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@zscaler.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a8aef286csm66896101cf.8 - gsmtp')
+- [GMAIL-SMTP] Failed to careers@zscaler.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@alfa.com.lb via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@alfa.com.lb via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df7f01855bsm331389416d6.9 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@alfa.com.lb via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f019d47704sm25564106d6.30 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@alfa.com.lb via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@arabelectric.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-925fda626b9sm2029192485a.14 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@arabelectric.com via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8efca02020asm32312706d6.48 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@arabelectric.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@bahrainTel.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@bahrainTel.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@broadbandplus.net via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8efca02020asm32266216d6.48 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@broadbandplus.net via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@byblosbank.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@byblosbank.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e53e7fbf1sm190974185a.30 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@fransabank.com.lb via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f0ad158de3sm12744006d6.0 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@gcx.net via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a514b5271sm165700001cf.5 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@gcx.net via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@idm.net.lb via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@idm.net.lb via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e53434e85sm221344185a.21 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@idm.net.lb via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@idm.net.lb via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51bf2b175e1sm33204721cf.4 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@idm.net.lb via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@imbank.com.lb via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df823ab84esm301869336d6.37 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@imbank.com.lb via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@infogate.net via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@infogate.net via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@infogate.net via samatou683@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f03e035a77sm22088216d6.8 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@infogate.net via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a515d68fdsm158789441cf.13 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@kipco.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92dc13f0279sm658611385a.3 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@kipco.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@korektelecom.com via OAUTH2_POOL: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@korektelecom.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@korektelecom.com via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e59b968eesm103782285a.24 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@korektelecom.com via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@multilink.net.lb via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@multilink.net.lb via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f03e035a77sm22727316d6.8 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@multilink.net.lb via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@ogero.gov.lb via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e51b5fa8bsm240008785a.16 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@ogero.gov.lb via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df823ab84esm302560576d6.37 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@ogero.gov.lb via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@rakgroup.com via jaayivia275@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@rakgroup.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8e9c28cbbdcsm90408896d6.17 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@solidere.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ef55c2a4c2sm47336206d6.10 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@solidere.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f019d47704sm25576266d6.30 - gsmtp')
+- [GMAIL-SMTP] Failed to hr@solidere.com via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to hr@solidere.com via samsalameh.cv@yahoo.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8df81fcb55csm298826876d6.34 - gsmtp')
+- [GMAIL-SMTP] Failed to info@berytech.org via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e19c3ffa7sm595182085a.43 - gsmtp')
+- [GMAIL-SMTP] Failed to info@berytech.org via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8ea681172aasm85320876d6.40 - gsmtp')
+- [GMAIL-SMTP] Failed to info@berytech.org via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to jobs@remote.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-92e525739a2sm234132785a.45 - gsmtp')
+- [GMAIL-SMTP] Failed to jobs@remote.com via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to jobs@remote.com via wyn27xauit@bbyuopsch.it.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to jobs@toptal.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-51a51addb1csm162006021cf.23 - gsmtp')
+- [GMAIL-SMTP] Failed to jobs@toptal.com via paula.bassil.69@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f0f7ab69desm6628856d6.31 - gsmtp')
+- [GMAIL-SMTP] Failed to jobs@turing.com via UgScheila@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to jobs@turing.com via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8e961e90897sm92796016d6.27 - gsmtp')
+- [GMAIL-SMTP] Failed to recruitment@bankaudi.com.lb via salamehsam33@gmail.com: [Errno 101] Network is unreachable
+- [GMAIL-SMTP] Failed to recruitment@creditlibanais.com.lb via aurorafuture8@gmail.com: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-8f0be47f007sm11017836d6.36 - gsmtp')
+- [GMAIL-SMTP] Failed to recruitment@creditlibanais.com.lb via jrodriguez7476@live.hccc.edu: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-925fda6076esm1913992385a.11 - gsmtp')
+- [GMAIL-SMTP] Failed to recruitment@creditlibanais.com.lb via paula.bassil.69@gmail.com: [Errno 101] Network is unreachable
+- [PAJobScraper] Worker request for https://api.hh.ru/vacancies?text=Senior%20Network%20Engineer&area=1&per_page=100&search_field=name&order_by=publication_time returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://api.hh.ru/vacancies?text=Senior%20Network%20Engineer&area=1002&per_page=100&search_field=name&order_by=publication_time returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://api.hh.ru/vacancies?text=Senior%20Network%20Engineer&area=113&per_page=100&search_field=name&order_by=publication_time returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://api.hh.ru/vacancies?text=Senior%20Network%20Engineer&area=1518&per_page=100&search_field=name&order_by=publication_time returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://api.hh.ru/vacancies?text=Senior%20Network%20Engineer&area=16&per_page=100&search_field=name&order_by=publication_time returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://api.hh.ru/vacancies?text=Senior%20Network%20Engineer&area=160&per_page=100&search_field=name&order_by=publication_time returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://api.hh.ru/vacancies?text=Senior%20Network%20Engineer&area=2&per_page=100&search_field=name&order_by=publication_time returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://api.hh.ru/vacancies?text=Senior%20Network%20Engineer&area=2759&per_page=100&search_field=name&order_by=publication_time returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://api.hh.ru/vacancies?text=Senior%20Network%20Engineer&area=40&per_page=100&search_field=name&order_by=publication_time returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://api.hh.ru/vacancies?text=Senior%20Network%20Engineer&area=9&per_page=100&search_field=name&order_by=publication_time returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://api.hh.ru/vacancies?text=Senior%20Network%20Engineer&area=97&per_page=100&search_field=name&order_by=publication_time returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://jobicy.com/api/v2/remote-jobs?count=50&industrySlug=it&tag=Senior-Network-Engineer returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://remoteok.com/api returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://remotive.com/api/remote-jobs?search=Senior%20Network%20Engineer&limit=30 returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://rss.indeed.com/rss?q=Senior+Network+Engineer&l=Amsterdam%2C+NL&sort=date returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://rss.indeed.com/rss?q=Senior+Network+Engineer&l=Berlin%2C+DE&sort=date returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://rss.indeed.com/rss?q=Senior+Network+Engineer&l=Dubai%2C+AE&sort=date returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://rss.indeed.com/rss?q=Senior+Network+Engineer&l=Istanbul%2C+TR&sort=date returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://rss.indeed.com/rss?q=Senior+Network+Engineer&l=Kuwait+City%2C+KW&sort=date returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://rss.indeed.com/rss?q=Senior+Network+Engineer&l=Mumbai%2C+IN&sort=date returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://weworkremotely.com/categories/remote-devops-sysadmin-jobs.rss returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://weworkremotely.com/categories/remote-programming-jobs.rss returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://www.glassdoor.com/Job/jobs.htm?sc.keyword=Senior%20Network%20Engineer&locT=C&locId=0 returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=Senior%20Network%20Engineer&location=Dubai&start=0&count=10 returned a Cloudflare block page. Falling back to direct request.
+- [PAJobScraper] Worker request for https://www.themuse.com/api/public/jobs?query=Senior%20Network%20Engineer&page=1&descending=true returned a Cloudflare block page. Falling back to direct request.
+- [STEALTH] curl_cffi is missing! Falling back to raw httpx. Cloudflare may block you.
+- hh.ru [Almaty/Senior Network Engineer] error: Expecting value: line 1 column 1 (char 0)
+- hh.ru [Almaty/Senior Network Engineer] error: HTTP Error 403: Forbidden
+- hh.ru [Azerbaijan/Senior Network Engineer] error: Expecting value: line 1 column 1 (char 0)
+- hh.ru [Azerbaijan/Senior Network Engineer] error: HTTP Error 403: Forbidden
+- hh.ru [Baku/Senior Network Engineer] error: Expecting value: line 1 column 1 (char 0)
+- hh.ru [Baku/Senior Network Engineer] error: HTTP Error 403: Forbidden
+- hh.ru [Belarus/Senior Network Engineer] error: Expecting value: line 1 column 1 (char 0)
+- hh.ru [Belarus/Senior Network Engineer] error: HTTP Error 403: Forbidden
+- hh.ru [Kazakhstan/Senior Network Engineer] error: Expecting value: line 1 column 1 (char 0)
+- hh.ru [Kazakhstan/Senior Network Engineer] error: HTTP Error 403: Forbidden
+- hh.ru [Minsk/Senior Network Engineer] error: Expecting value: line 1 column 1 (char 0)
+- hh.ru [Minsk/Senior Network Engineer] error: HTTP Error 403: Forbidden
+- hh.ru [Moscow/Senior Network Engineer] error: Expecting value: line 1 column 1 (char 0)
+- hh.ru [Moscow/Senior Network Engineer] error: HTTP Error 403: Forbidden
+- hh.ru [Russia (all)/Senior Network Engineer] error: Expecting value: line 1 column 1 (char 0)
+- hh.ru [Russia (all)/Senior Network Engineer] error: HTTP Error 403: Forbidden
+- hh.ru [Saint Petersburg/Senior Network Engineer] error: HTTP Error 403: Forbidden
+- hh.ru [Tashkent/Senior Network Engineer] error: Expecting value: line 1 column 1 (char 0)
+- hh.ru [Tashkent/Senior Network Engineer] error: HTTP Error 403: Forbidden
+- hh.ru [Uzbekistan/Senior Network Engineer] error: Expecting value: line 1 column 1 (char 0)
+- hh.ru [Uzbekistan/Senior Network Engineer] error: HTTP Error 403: Forbidden
+
+--- Error Logs / Tracebacks ---
+=== ERROR EVENT ===
+2026-06-29 07:04:01 2026-06-29 07:04:01,034 - PA-WEB - ERROR - 🛡️ [AEGIS SHIELD] Unhandled middleware error from 104.28.154.199: roast.html
+
+=== ERROR EVENT ===
+2026-06-29 07:08:13 2026-06-29 07:08:00,364 - PA-WEB - ERROR - Failed to load Iron Cloak: No module named 'core.iron_cloak'
+
+=== ERROR EVENT ===
+2026-06-29 07:08:13 Traceback (most recent call last):#0122026-06-29 07:08:13,343 - PA-WEB - INFO - [DB] Bypassing PG for non-main database: /home/JHFGUF/jobhunt/jobhunt_saas_v2.db
+2026-06-29 07:08:13 2026-06-29 07:08:13,375 - PA-WEB - INFO - [DB] Connected to SQLite fallback: /home/JHFGUF/jobhunt/jobhunt_saas_v2.db
+
+
+=== ERROR EVENT ===
+2026-06-29 07:08:13 2026-06-29 07:08:13,585 - PA-WEB - ERROR - OSError: write error
+
+=== ERROR EVENT ===
+2026-06-29 07:08:45 2026-06-29 07:08:45,941 - PA-WEB - ERROR - OSError: write error
+
+=== ERROR EVENT ===
+2026-06-29 07:09:10 2026-06-29 07:09:10,877 - PA-WEB - ERROR - 🛡️ [AEGIS SHIELD] Unhandled middleware error from 104.28.154.199: roast.html
+
+=== ERROR EVENT ===
+2026-06-29 07:18:52 2026-06-29 07:18:52,145 - PA-WEB - ERROR - 🛡️ [AEGIS SHIELD] Unhandled middleware error from 104.28.154.199: roast.html
+
+=== ERROR EVENT ===
+2026-06-29 07:28:28 2026-06-29 07:28:23,670 - PA-WEB - ERROR - Failed to load Iron Cloak: No module named 'core.iron_cloak'
+
+=== ERROR EVENT ===
+2026-06-29 07:42:52 2026-06-29 07:42:52,593 - PA-WEB - ERROR - Failed to save to semantic cache: disk I/O error
+
+=== ERROR EVENT ===
+2026-06-29 07:43:22 2026-06-29 07:43:22,255 - PA-WEB - ERROR - disk I/O error#012Traceback (most recent call last):#012  File "/home/JHFGUF/jobhunt/web/app_v2.py", line 2749, in pricing#012    conn = get_db()#012           ^^^^^^^^#012  File "/home/JHFGUF/jobhunt/web/app_v2.py", line 928, in get_db#012    conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30)#012           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#012  File "/home/JHFGUF/jobhunt/core/pg_sqlite_shim.py", line 510, in connect#012    return SqliteConnectionWrapper(target_db)#012           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#012  File "/home/JHFGUF/jobhunt/core/pg_sqlite_shim.py", line 429, in __init__#012    self.conn.execute("PRAGMA journal_mode=WAL")#012sqlite3.OperationalError: disk I/O error
+2026-06-29 07:43:22 2026-06-29 07:43:22,332 - PA-WEB - INFO - [AUTH] cookie user_id: InVzZXJfMjgwMDc1YTViZTQxNDVhNCI.akBPlQ.zEqAlPlnas4B3-Tjpmhbk_tfBFE
+
+
+=== ERROR EVENT ===
+2026-06-29 07:43:23 2026-06-29 07:43:23,250 - PA-WEB - ERROR - Pricing page crashed: disk I/O error#012Traceback (most recent call last):#012  File "/home/JHFGUF/jobhunt/web/app_v2.py", line 2774, in pricing#012    conn2 = get_db()#012            ^^^^^^^^#012  File "/home/JHFGUF/jobhunt/web/app_v2.py", line 928, in get_db#012    conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30)#012           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#012  File "/home/JHFGUF/jobhunt/core/pg_sqlite_shim.py", line 510, in connect#012    return SqliteConnectionWrapper(target_db)#012           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#012  File "/home/JHFGUF/jobhunt/core/pg_sqlite_shim.py", line 429, in __init__#012    self.conn.execute("PRAGMA journal_mode=WAL")#012sqlite3.OperationalError: disk I/O error
+2026-06-29 07:43:23 Mon Jun 29 07:43:23 2026 - SIGPIPE: writing to a closed pipe/socket/fd (probably the client disconnected) on request /pricing (ip 10.0.5.156) !!!
+
+
+=== ERROR EVENT ===
+2026-06-29 07:43:23 2026-06-29 07:43:23,283 - PA-WEB - ERROR - OSError: write error
+
+=== ERROR EVENT ===
+2026-06-29 07:43:24 2026-06-29 07:43:24,236 - PA-WEB - ERROR - file is not a database#012Traceback (most recent call last):#012  File "/home/JHFGUF/jobhunt/web/app_v2.py", line 2749, in pricing#012    conn = get_db()#012           ^^^^^^^^#012  File "/home/JHFGUF/jobhunt/web/app_v2.py", line 928, in get_db#012    conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30)#012           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#012  File "/home/JHFGUF/jobhunt/core/pg_sqlite_shim.py", line 510, in connect#012    return SqliteConnectionWrapper(target_db)#012           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#012  File "/home/JHFGUF/jobhunt/core/pg_sqlite_shim.py", line 429, in __init__#012    self.conn.execute("PRAGMA journal_mode=WAL")#012sqlite3.DatabaseError: file is not a database
+2026-06-29 07:43:24 2026-06-29 07:43:24,263 - PA-WEB - INFO - [AUTH] cookie user_id: InVzZXJfMjgwMDc1YTViZTQxNDVhNCI.akBPlQ.zEqAlPlnas4B3-Tjpmhbk_tfBFE
+
+
+=== ERROR EVENT ===
+2026-06-29 07:43:25 2026-06-29 07:43:25,197 - PA-WEB - ERROR - Pricing page crashed: file is not a database#012Traceback (most recent call last):#012  File "/home/JHFGUF/jobhunt/web/app_v2.py", line 2774, in pricing#012    conn2 = get_db()#012            ^^^^^^^^#012  File "/home/JHFGUF/jobhunt/web/app_v2.py", line 928, in get_db#012    conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30)#012           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#012  File "/home/JHFGUF/jobhunt/core/pg_sqlite_shim.py", line 510, in connect#012    return SqliteConnectionWrapper(target_db)#012           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#012  File "/home/JHFGUF/jobhunt/core/pg_sqlite_shim.py", line 429, in __init__#012    self.conn.execute("PRAGMA journal_mode=WAL")#012sqlite3.DatabaseError: file is not a database
+2026-06-29 07:43:25 2026-06-29 07:43:25,290 - PA-WEB - INFO - HTTP Request: GET https://cloudflare-dns.com/dns-query?name=berytech.com&type=MX "HTTP/1.1 200 OK"
+
+
+=== ERROR EVENT ===
+2026-06-29 07:45:23 2026-06-29 07:45:23,748 - PA-WEB - ERROR - disk I/O error#012Traceback (most recent call last):#012  File "/home/JHFGUF/jobhunt/web/app_v2.py", line 2749, in pricing#012    conn = get_db()#012           ^^^^^^^^#012  File "/home/JHFGUF/jobhunt/web/app_v2.py", line 928, in get_db#012    conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30)#012           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#012  File "/home/JHFGUF/jobhunt/core/pg_sqlite_shim.py", line 510, in connect#012    return SqliteConnectionWrapper(target_db)#012           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#012  File "/home/JHFGUF/jobhunt/core/pg_sqlite_shim.py", line 429, in __init__#012    self.conn.execute("PRAGMA journal_mode=WAL")#012sqlite3.OperationalError: disk I/O error
+2026-06-29 07:45:23 2026-06-29 07:45:23,766 - PA-WEB - INFO - [AUTH] cookie user_id: 
+
+
+=== ERROR EVENT ===
+2026-06-29 07:45:26 2026-06-29 07:45:26,456 - PA-WEB - ERROR - ERROR IN HOME ROUTE: disk I/O error
+
+=== ERROR EVENT ===
+2026-06-29 07:45:26 2026-06-29 07:45:26,463 - PA-WEB - ERROR - Traceback (most recent call last):
+2026-06-29 07:45:26 2026-06-29 07:45:26,464 - PA-WEB - ERROR -   File "/home/JHFGUF/jobhunt/web/app_v2.py", line 2158, in home
+
+
+=== ERROR EVENT ===
+2026-06-29 07:45:26 2026-06-29 07:45:26,465 - PA-WEB - ERROR -     conn = get_db()
+
+=== ERROR EVENT ===
+2026-06-29 07:45:26 2026-06-29 07:45:26,465 - PA-WEB - ERROR -            ^^^^^^^^
+
+=== ERROR EVENT ===
+2026-06-29 07:45:26 2026-06-29 07:45:26,468 - PA-WEB - ERROR -   File "/home/JHFGUF/jobhunt/web/app_v2.py", line 928, in get_db
+
+=== ERROR EVENT ===
+2026-06-29 07:45:26 2026-06-29 07:45:26,470 - PA-WEB - ERROR -     conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30)
+
+=== ERROR EVENT ===
+2026-06-29 07:45:26 2026-06-29 07:45:26,471 - PA-WEB - ERROR -            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+=== ERROR EVENT ===
+2026-06-29 07:45:26 2026-06-29 07:45:26,473 - PA-WEB - ERROR -   File "/home/JHFGUF/jobhunt/core/pg_sqlite_shim.py", line 510, in connect
+
+=== ERROR EVENT ===
+2026-06-29 07:45:26 2026-06-29 07:45:26,473 - PA-WEB - ERROR -     return SqliteConnectionWrapper(target_db)
+
+=== ERROR EVENT ===
+2026-06-29 07:45:26 2026-06-29 07:45:26,474 - PA-WEB - ERROR -            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+=== ERROR EVENT ===
+2026-06-29 07:45:26 2026-06-29 07:45:26,474 - PA-WEB - ERROR -   File "/home/JHFGUF/jobhunt/core/pg_sqlite_shim.py", line 429, in __init__
+
+=== ERROR EVENT ===
+2026-06-29 07:45:26 2026-06-29 07:45:26,477 - PA-WEB - ERROR -     self.conn.execute("PRAGMA journal_mode=WAL")
+
+=== ERROR EVENT ===
+2026-06-29 07:45:26 2026-06-29 07:45:26,477 - PA-WEB - ERROR - sqlite3.OperationalError: disk I/O error
+
+=== ERROR EVENT ===
+2026-06-29 07:45:27 2026-06-29 07:45:27,424 - PA-WEB - ERROR - Error fetching featured jobs: disk I/O error
+
+=== ERROR EVENT ===
+2026-06-29 07:45:51 2026-06-29 07:45:51,047 - PA-WEB - ERROR - 🛡️ [AEGIS SHIELD] Unhandled middleware error from 104.28.154.199: file is not a database
+
+=== ERROR EVENT ===
+2026-06-29 07:46:18 2026-06-29 07:46:18,925 - PA-WEB - ERROR - 🛡️ [AEGIS SHIELD] Unhandled middleware error from 104.28.154.199: file is not a database
+
+=== ERROR EVENT ===
+2026-06-29 07:46:18 2026-06-29 07:46:18,934 - PA-WEB - ERROR - Failed to dequeue task: file is not a database
+
+=== ERROR EVENT ===
+2026-06-29 07:56:26 2026-06-29 07:56:26,847 - PA-WEB - ERROR - OSError: write error
+
+=== ERROR EVENT ===
+2026-06-29 08:07:59 2026-06-29 08:07:55,820 - PA-WEB - ERROR - Failed to load Iron Cloak: No module named 'core.iron_cloak'
+

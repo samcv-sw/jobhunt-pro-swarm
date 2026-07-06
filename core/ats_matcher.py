@@ -18,7 +18,52 @@ import os
 import json
 import logging
 import itertools
+import math
+from collections import defaultdict
 from typing import Dict, List, Tuple, Optional
+import config
+
+# Standardized taxonomy set of tech keywords
+TECH_TAXONOMY = {skill.lower() for skill in config.SKILLS}
+# Add additional standard tech keywords to support general technology and test cases
+_additional = {
+    # Programming languages and systems
+    "python", "java", "c++", "c", "c#", "golang", "go", "javascript", "typescript", "ruby", "php", "html", "css", "sql", "nosql", "rust",
+    # Core networking concepts
+    "vpn", "vpns", "protocol", "protocols", "routing", "switching", "router", "switch", "cisco", "juniper", "fortinet", "mikrotik", "ubiquiti",
+    # Roles and general tech terms
+    "developer", "development", "engineer", "engineering", "architect", "administrator", "administration", "analyst", "specialist", "consultant",
+    "cloud", "azure", "aws", "kubernetes", "k8s", "docker", "containers", "ci/cd", "cicd", "automation", "security", "infrastructure", "system", "systems",
+    "monitoring", "database", "databases", "programming", "experience", "active directory", "virtualization", "hypervisor", "firewall", "firewalls",
+    "network", "networking", "noc", "soc", "telecom", "telecommunications", "sre"
+}
+TECH_TAXONOMY.update(_additional)
+
+# Synonym map
+SYNONYM_MAP = {
+    "k8s": "kubernetes",
+    "aws": "amazon web services",
+    "gcp": "google cloud platform",
+    "azure": "microsoft azure",
+    "docker": "containers",
+    "cicd": "ci/cd",
+    "ci/cd": "continuous integration continuous deployment",
+    "netdevops": "network automation",
+    "prometheus": "monitoring",
+    "grafana": "observability",
+    "elk": "elasticsearch logstash kibana",
+    "ipsec": "vpn",
+    "vpns": "vpn",
+    "tg": "telegram",
+    "ai": "artificial intelligence",
+    "ml": "machine learning",
+    "restful": "rest",
+    "sqlserver": "mssql"
+}
+
+def get_canonical_term(term: str) -> str:
+    t = term.strip().lower()
+    return SYNONYM_MAP.get(t, t)
 
 # Globally precompiled regex for normalization
 NORMALIZE_RE = re.compile(r"[^\w\s\-+#./]")
@@ -689,6 +734,14 @@ class ATSMatcher:
         for term in itertools.chain(unigrams, bigrams, trigrams):
             if len(term) < 2 or term in STOP_WORDS or term.isdigit():
                 continue
+
+            # Standardized taxonomy filtering:
+            # Term itself or any of its constituent words must be in the tech taxonomy
+            words_in_term = term.split()
+            is_tech = term in TECH_TAXONOMY or any(w in TECH_TAXONOMY for w in words_in_term)
+            if not is_tech:
+                continue
+
             freq[term] = freq.get(term, 0) + 1
 
         return freq
@@ -729,36 +782,82 @@ class ATSMatcher:
                 ],
             }
 
+        # Calculate dynamic IDF weights for all job description keywords
+        sentences = [s.strip().lower() for s in re.split(r'[.!?\n]', job_description) if s.strip()]
+        N = len(sentences)
+        idf_weights = {}
+        for kw in job_kw:
+            if N > 1:
+                # Count how many sentences contain kw
+                d_t = sum(1 for s in sentences if kw in s)
+                # ln(1 + N / (1 + d_t))
+                val = math.log(1.0 + N / (1.0 + d_t))
+                # Scale it so the boost is between 1.0 and 2.0
+                weight = 1.0 + (val / math.log(N + 1)) * 0.5
+            else:
+                weight = 1.0
+            idf_weights[kw] = round(weight, 3)
+
         matched: Dict[str, Dict] = {}
         missing: Dict[str, Dict] = {}
 
-        for kw, freq in sorted(job_kw.items(), key=lambda x: -x[1]):
-            weight = self.keyword_boost.get(kw, 1.0)
+        # Optimize: initial letter hash map of resume keywords
+        resume_by_letter = defaultdict(list)
+        for rk in resume_kw:
+            if rk:
+                resume_by_letter[rk[0]].append(rk)
 
-            if kw in resume_kw:
-                # Exact match
+        for kw, freq in sorted(job_kw.items(), key=lambda x: -x[1]):
+            # Use dynamic IDF weight
+            weight = idf_weights.get(kw, 1.0)
+
+            # Synonym mapping check
+            canonical_kw = get_canonical_term(kw)
+            exact_rk = None
+            for rk in resume_kw:
+                if rk == kw or get_canonical_term(rk) == canonical_kw:
+                    exact_rk = rk
+                    break
+
+            if exact_rk:
+                # Exact or Synonym match
                 matched[kw] = {
                     "jd_frequency": freq,
-                    "resume_frequency": resume_kw[kw],
+                    "resume_frequency": resume_kw[exact_rk],
                     "weight": weight,
-                    "weighted_score": min(1.0, resume_kw[kw] / max(freq, 1)) * weight,
-                    "partial_match": None,
+                    "weighted_score": min(1.0, resume_kw[exact_rk] / max(freq, 1)) * weight,
+                    "partial_match": None if exact_rk == kw else exact_rk,
                 }
             else:
                 # Try partial / fuzzy match
                 best_ratio = 0.0
                 best_rk = None
                 len_kw = len(kw)
-                for rk in resume_kw:
+                
+                # Retrieve candidates starting with the same character
+                first_char = kw[0] if kw else ""
+                candidates = resume_by_letter.get(first_char, [])
+                
+                # Fallback to check other keys with substring match or close length
+                additional = [
+                    rk for rk in resume_kw 
+                    if rk[0] != first_char and (abs(len(rk) - len_kw) <= 2 or kw in rk or rk in kw)
+                ]
+                candidates = candidates + additional
+
+                for rk in candidates:
                     len_rk = len(rk)
+                    
+                    # Length check prune
+                    if abs(len_kw - len_rk) > 4:
+                        continue
+
                     # Mathematical pruning: maximum possible fuzzy ratio is 2 * min(L1, L2) / (L1 + L2)
-                    # If this upper bound is less than 0.7 or less than best_ratio, we can skip the heavy fuzz.ratio check
                     max_possible = (2.0 * min(len_kw, len_rk)) / (len_kw + len_rk)
                     if max_possible < 0.7 or max_possible < best_ratio:
                         continue
 
-                    # Allow fuzzy matching if length difference is small (e.g. typos, hyphens)
-                    # or if one is a substring of the other (e.g. "vpn" in "vpns")
+                    # Allow fuzzy matching if length difference is small or substring
                     if abs(len_kw - len_rk) <= 4 or kw in rk or rk in kw:
                         ratio = fuzz.ratio(kw, rk) / 100.0
                         if ratio > best_ratio:

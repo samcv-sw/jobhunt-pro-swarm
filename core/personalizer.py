@@ -1,6 +1,6 @@
 """
 EMAIL PERSONALIZATION SYSTEM
-Ported from Rita Project - Dynamic content for better response rates
+Ported from demo_user Project - Dynamic content for better response rates
 """
 
 import logging
@@ -249,3 +249,4 @@ class EmailPersonalizer:
 
 # Global instance
 personalizer = EmailPersonalizer()
+

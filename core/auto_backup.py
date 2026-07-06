@@ -24,7 +24,7 @@ import os
 import sys
 import gzip
 import shutil
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 import logging
 import argparse
 import time as _time

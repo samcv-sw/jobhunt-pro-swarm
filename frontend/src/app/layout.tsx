@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Cairo, Tajawal } from "next/font/google";
 import "./globals.css";
-
-// Verified compliant with AGENTS.md layout, Arabic typography, and RTL guidelines
+import { LocaleProvider } from "./locale-context";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -36,10 +35,19 @@ export default function RootLayout({
   return (
     <html
       lang="ar"
-      dir="auto"
-      className={`${cairo.variable} ${tajawal.variable} h-full antialiased dark`}
+      dir="rtl"
+      className={`${cairo.variable} ${tajawal.variable} antialiased dark`}
+      style={{ blockSize: "100%" }}
     >
-      <body className="min-h-full flex flex-col bg-[#060608] text-white">{children}</body>
+      <body
+        dir="auto"
+        className="flex flex-col bg-[#060608] text-white"
+        style={{ minBlockSize: "100%" }}
+      >
+        <LocaleProvider>
+          {children}
+        </LocaleProvider>
+      </body>
     </html>
   );
 }

@@ -1,7 +1,10 @@
 import os
 import stripe
+import asyncio
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
+from backend.auth import verify_jwt
+from backend.limiter import rate_limiter
 
 router = APIRouter()
 
@@ -11,7 +14,7 @@ class CheckoutRequest(BaseModel):
     tier: str  # e.g., 'pro', 'enterprise'
     user_id: str
 
-@router.post("/api/v1/checkout")
+@router.post("/api/v1/checkout", dependencies=[Depends(verify_jwt), Depends(rate_limiter)])
 async def create_checkout_session(request: CheckoutRequest):
     tier_prices = {
         "pro": "price_pro_mock_id",
@@ -23,7 +26,8 @@ async def create_checkout_session(request: CheckoutRequest):
         raise HTTPException(status_code=400, detail="Invalid subscription tier")
         
     try:
-        session = stripe.checkout.Session.create(
+        session = await asyncio.to_thread(
+            stripe.checkout.Session.create,
             payment_method_types=['card'],
             line_items=[{
                 'price': price_id,

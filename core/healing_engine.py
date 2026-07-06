@@ -737,3 +737,4 @@ healing_engine = HealingEngine()
 async def run_healing_check(force: bool = False) -> Dict:
     """Run a healing check and return the report."""
     return await healing_engine.diagnose_and_heal(force=force)
+

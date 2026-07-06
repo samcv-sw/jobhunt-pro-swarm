@@ -422,7 +422,7 @@ header.headroom nav a.pill {
     {% for tier in pricing.tiers %}
     {% set discount = flash_discount or 0 %}
     {% set discounted = (tier.price_usd * (100 - discount) / 100) if discount > 0 else tier.price_usd %}
-    <div class="pricing-card {% if tier.highlight %}highlight{% endif %}" data-price="{{ tier.price_usd }}" data-tier="{{ tier.id }}" discount="" if="" {%=""> 0 %}style="border-color:rgba(239,68,68,.3);"{% endif %}>
+    <div class="pricing-card {% if tier.highlight %}highlight{% endif %}" data-price="{{ tier.price_usd }}" data-tier="{{ tier.id }}" {% if discount > 0 %}style="border-color:rgba(239,68,68,.3);"{% endif %}>
       {% if tier.badge %}
       <div class="badge {% if tier.badge == 'PREMIUM' %}premium{% elif tier.badge == 'BEST VALUE' %}best-value{% endif %}">{{ tier.badge }}</div>
       {% endif %}

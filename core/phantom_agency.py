@@ -7,7 +7,7 @@ Deep-Web level Zero-Touch Arbitrage System.
 3. If secured, outsources the work to our own bot users for a 30% cut.
 """
 
-import sqlite3
+import core.pg_sqlite_shim as sqlite3
 import os
 import random
 import logging

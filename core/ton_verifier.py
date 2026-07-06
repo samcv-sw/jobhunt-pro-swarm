@@ -123,7 +123,7 @@ async def get_jetton_wallet_address(
     STAGE 1: Derive the canonical Jetton Wallet address for a given owner.
     ======================================================================
     Calls the Jetton Master Contract's get_wallet_address() method with
-    the owner's address as parameter. Returns the authoritative wallet
+    the owner's address as parameter. Returns the authodemo_usertive wallet
     address that MUST match the transfer notification emitter.
 
     This is the core anti-forgery check: a malicious contract can fake
@@ -531,3 +531,4 @@ async def process_verified_ton_payment(
 # CONVENIENCE: Global singleton verifier
 # ─────────────────────────────────────────────────────────────────────────────
 ton_verifier = JettonPaymentVerifier()
+

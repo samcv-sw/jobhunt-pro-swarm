@@ -30,7 +30,7 @@ def _get_db_path():
 async def cloud_tick_handler(request: Request):
     """
     Main cron endpoint - v17 Multi-Tenant.
-    Runs campaigns for ALL users (Sam + Rita + future tenants) in parallel.
+    Runs campaigns for ALL users (Sam + demo_user + future tenants) in parallel.
     Falls back to CloudOrchestrator if MultiTenantRunner unavailable.
     """
     # Secure with CRON_SECRET
@@ -459,3 +459,4 @@ async def execute_sql(request: Request):
     except Exception as e:
         logger.exception("SQL execution failed: %s", e)
         return {"status": "error", "error": str(e)}
+

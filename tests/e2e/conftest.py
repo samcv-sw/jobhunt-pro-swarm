@@ -177,7 +177,18 @@ async def cicd_deploy(req: CICDDeployRequest, payload: dict = Depends(verify_jwt
     }
 
 # Prepend E2E mock router to the main application to ensure mocks override production routes
+original_routes = list(app.routes)
 old_len = len(app.routes)
 app.include_router(mock_router)
 new_routes = app.routes[old_len:]
-app.routes[:] = new_routes + app.routes[:old_len]
+mocked_routes = new_routes + original_routes
+
+# Restore original clean routes by default
+app.routes[:] = original_routes
+
+@pytest.fixture(autouse=True)
+def use_mocked_routes():
+    app.routes[:] = mocked_routes
+    yield
+    app.routes[:] = original_routes
+

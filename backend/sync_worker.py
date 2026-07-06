@@ -7,13 +7,22 @@ import asyncio
 import logging
 import os
 import json
+import time
 import asyncpg
+if not hasattr(asyncpg, "Error"):
+    asyncpg.Error = asyncpg.PostgresError
 from .database import async_session, REMOTE_PG_URL
 from .models import SyncOutbox
 from sqlalchemy import select
 
 logger = logging.getLogger(__name__)
 
+CONNECTION_EXCEPTIONS = (
+    asyncpg.PostgresConnectionError,
+    asyncpg.InterfaceError,
+    OSError,
+    asyncio.TimeoutError,
+)
 
 async def _push_record_to_cloud(conn: asyncpg.Connection, record: SyncOutbox) -> bool:
     """
@@ -22,6 +31,7 @@ async def _push_record_to_cloud(conn: asyncpg.Connection, record: SyncOutbox) ->
     """
     try:
         payload_json = json.dumps(record.payload) if record.payload else "{}"
+        start_time = time.perf_counter()
         await conn.execute(
             """
             INSERT INTO sync_outbox_log (table_name, record_id, operation, payload, created_at)
@@ -34,9 +44,25 @@ async def _push_record_to_cloud(conn: asyncpg.Connection, record: SyncOutbox) ->
             payload_json,
             record.created_at,
         )
+        latency = time.perf_counter() - start_time
+        logger.info(f"[SyncTelemetry] Push record {record.id} to Neon PG latency: {latency:.6f}s")
         return True
+    except CONNECTION_EXCEPTIONS as e:
+        logger.error(f"Connection exception during push of record {record.id}: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Failed to push record {record.id} to cloud: {e}")
+        logger.error(f"Failed to push record {record.id} to cloud (soft error/data failure): {e}", exc_info=True)
+        try:
+            log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dead_letter_queue.log")
+            record_repr = (
+                f"ID: {record.id}, Table: {record.table_name}, Record ID: {record.record_id}, "
+                f"Operation: {record.operation}, Payload: {record.payload}, Created At: {record.created_at}, "
+                f"Error: {e}\n"
+            )
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write(record_repr)
+        except Exception as write_err:
+            logger.error(f"Failed to write record {record.id} to dead-letter queue log: {write_err}")
         return False
 
 
@@ -65,7 +91,7 @@ async def sync_outbox_to_cloud():
             async with async_session() as session:
                 result = await session.execute(
                     select(SyncOutbox)
-                    .where(SyncOutbox.synced == False)
+                    .where(SyncOutbox.synced.is_(False))
                     .limit(100)
                 )
                 unsynced_records = result.scalars().all()
@@ -74,24 +100,40 @@ async def sync_outbox_to_cloud():
                     logger.debug("[SyncWorker] No unsynced records. Sleeping...")
                 else:
                     synced_count = 0
+                    connection_error = None
                     for record in unsynced_records:
-                        success = await _push_record_to_cloud(cloud_conn, record)
-                        if success:
-                            record.synced = True
-                            synced_count += 1
+                        try:
+                            success = await _push_record_to_cloud(cloud_conn, record)
+                            if success:
+                                record.synced = True
+                                synced_count += 1
+                            else:
+                                record.synced = True
+                                logger.warning(f"[SyncWorker] Record {record.id} routed to dead-letter queue (DLQ) due to soft error.")
+                        except CONNECTION_EXCEPTIONS as e:
+                            logger.error(f"[SyncWorker] Connection lost during record push. Aborting batch: {e}")
+                            connection_error = e
+                            break
 
                     await session.commit()
+                    if connection_error:
+                        raise connection_error
+
                     logger.info(
                         f"[SyncWorker] Cycle complete — {synced_count}/{len(unsynced_records)} records pushed to cloud."
                     )
 
-        except asyncpg.PostgresConnectionError as e:
-            logger.warning(f"[SyncWorker] Remote DB unreachable (will retry in 30s): {e}")
+        except (asyncpg.Error, asyncpg.InterfaceError, OSError, asyncio.TimeoutError) as e:
+            logger.warning(f"[SyncWorker] Remote DB connection lost/unreachable (will retry in 30s): {e}")
         except Exception as e:
             logger.error(f"[SyncWorker] Unexpected error: {e}")
         finally:
-            if cloud_conn and not cloud_conn.is_closed():
-                await cloud_conn.close()
+            if cloud_conn:
+                try:
+                    if not cloud_conn.is_closed():
+                        await cloud_conn.close()
+                except Exception as close_err:
+                    logger.debug(f"[SyncWorker] Socket cleanup exception during close (ignored): {close_err}")
 
         # Poll every 30 seconds (generous interval to avoid hammering remote DB)
         await asyncio.sleep(30)

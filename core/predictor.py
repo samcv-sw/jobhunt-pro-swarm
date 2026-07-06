@@ -1,6 +1,6 @@
 """
 RESPONSE PREDICTION SYSTEM
-Ported from Rita Project - Predict likelihood of response before sending
+Ported from demo_user Project - Predict likelihood of response before sending
 """
 
 import logging
@@ -301,3 +301,4 @@ class ResponsePredictor:
 
 # Global instance
 predictor = ResponsePredictor()
+
