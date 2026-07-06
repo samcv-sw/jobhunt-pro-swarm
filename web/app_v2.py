@@ -506,11 +506,15 @@ async def lifespan(app_instance):
     async def _deferred_init():
         try:
             from core.database import db
-            from core.worker import start_worker
             from core.growth_autopilot import start_autopilot
             await db.connect()
-            task_queue = asyncio.create_task(start_worker())
-            _background_tasks.append(task_queue)
+            
+            if os.getenv("FORCE_SQLITE") != "1":
+                from core.worker import start_worker
+                task_queue = asyncio.create_task(start_worker())
+                _background_tasks.append(task_queue)
+            else:
+                logger.info("[LIFESPAN] FORCE_SQLITE=1, bypassing PostgreSQL Procrastinate worker")
             
             # Start Autonomous AI Client Acquisition!
             start_autopilot()
@@ -10641,12 +10645,16 @@ async def jobs_score(request: Request):
 
 # ── REQUEST DEDUP CACHE: prevent overlapping cron schedules from double-ticking ──
 _tick_cache: dict = {"last_tick": 0, "last_result": None, "pending": False}
-_tick_cache_lock = asyncio.Lock()
+_tick_cache_lock = None
 
 @app.post("/api/v2/cloud-tick")
 async def cloud_tick_endpoint(request: Request):
     """Multi-tenant cloud tick - runs campaigns for ALL users in parallel.
     Deduplicates overlapping requests from cron schedules with 60s cache."""
+    global _tick_cache_lock
+    if _tick_cache_lock is None:
+        _tick_cache_lock = asyncio.Lock()
+        
     company_limit = 10
     force = False
     try:
