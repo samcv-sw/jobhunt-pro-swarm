@@ -93,8 +93,8 @@
  display: flex;
  align-items: center;
  gap: 10px;
- border-left: 4px solid var(--magenta);
- padding-left: 12px;}
+ border-inline-start: 4px solid var(--magenta);
+ padding-inline-start: 12px;}
 .section-desc {
  color: var(--muted);
  font-size: 12px;
@@ -286,8 +286,8 @@
 .nav-menu a.active {
  background: rgba(59, 130, 246, 0.2) !important;
  color: #fff !important;
- border-left: 3px solid #3b82f6;
- padding-left: 13px;
+ border-inline-start: 3px solid #3b82f6;
+ padding-inline-start: 13px;
  font-weight: 600;}
 .page-header { flex-direction: column; gap: 20px; align-items: flex-start;}
 .balance-box { width: 100%; justify-content: space-between;}
@@ -448,12 +448,12 @@
  </div>
 
  <!-- Follow-Up Automation Highlight -->
- <h2 class="section-title" style="border-left-color: var(--cyan);">// 📬 FOLLOW-UP AUTOMATION (NEW)</h2>
+ <h2 class="section-title" style="border-start-color: var(--cyan);">// 📬 FOLLOW-UP AUTOMATION (NEW)</h2>
  <p class="section-desc">AI-powered follow-up emails that automatically check in with employers who haven't responded. 3 tiers based on volume. Each follow-up is personalized by Groq AI.</p>
  <div class="store-grid" style="margin-bottom: 20px;">
  {% for s in services %}
  {% if 'follow-up-automation' in s.package %}
- <div class="store-card {% if s.package in active_ids %}unlocked{% endif %}" style="border-left: 3px solid var(--cyan);">
+ <div class="store-card {% if s.package in active_ids %}unlocked{% endif %}" style="border-inline-start: 3px solid var(--cyan);">
  <input dir="auto" type="checkbox" class="checkbox-select" data-id="{{ s.package }}" data-type="service" data-price="{{ s.price_usd }}" data-name="{{ s.name }}">
  <div class="card-header">
  <span class="package-badge" style="color: var(--cyan);">FOLLOW-UP TIER</span>

@@ -1,3 +1,6 @@
+<meta property="og:title" content="ATS Scorer | JobHunt Pro"/>
+<meta name="description" content="Get an accurate score for your resume and tips to improve it."/>
+<title>ATS Scorer | JobHunt Pro</title>
 <div class="space-y-6 max-w-7xl mx-auto">
   <!-- Page Header -->
   <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
@@ -41,8 +44,8 @@ PROFESSIONAL SUMMARY
       
       <div class="flex flex-col md:flex-row gap-3 mb-4">
         <div class="relative flex-1">
-          <i data-lucide="link" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
-          <input dir="auto" type="url" id="ats-url" placeholder="Or paste a job posting URL..." class="w-full bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all">
+          <i data-lucide="link" class="w-4 h-4 text-slate-500 absolute start-3 top-1/2 -translate-y-1/2"></i>
+          <input dir="auto" type="url" id="ats-url" placeholder="Or paste a job posting URL..." class="w-full bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-lg ps-9 pe-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all">
         </div>
         <button id="btn-url-import" onclick="importFromUrl()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 border border-slate-700 whitespace-nowrap">
           <i data-lucide="download-cloud" class="w-4 h-4"></i> Import
@@ -63,8 +66,8 @@ Requirements:
 ..." class="w-full flex-1 min-h-[180px] bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-xl p-4 text-sm text-slate-200 font-mono resize-y outline-none transition-all custom-scrollbar mb-4"></textarea>
 
       <div class="relative">
-        <i data-lucide="briefcase" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
-        <input dir="auto" type="text" id="ats-job-title" placeholder="Job title (optional, e.g. Senior Network Engineer)" class="w-full bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all">
+        <i data-lucide="briefcase" class="w-4 h-4 text-slate-500 absolute start-3 top-1/2 -translate-y-1/2"></i>
+        <input dir="auto" type="text" id="ats-job-title" placeholder="Job title (optional, e.g. Senior Network Engineer)" class="w-full bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-lg ps-9 pe-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all">
       </div>
     </div>
   </div>
@@ -77,7 +80,7 @@ Requirements:
     <button id="btn-bulk-toggle" onclick="toggleBulkMode()" class="px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border border-slate-700">
       <i data-lucide="layers" class="w-4 h-4"></i> Score Against Multiple Jobs
     </button>
-    <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 ml-auto">
+    <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 ms-auto">
       <i data-lucide="zap" class="w-3.5 h-3.5 text-yellow-500 fill-yellow-500"></i> Powered by AI Analysis
     </span>
   </div>
@@ -135,7 +138,7 @@ Requirements:
         </div>
       </div>
 
-      <div class="flex-1 text-center md:text-left">
+      <div class="flex-1 text-center md:text-start">
         <h2 id="score-verdict" class="text-2xl md:text-3xl font-black text-white tracking-tight mb-2">Analyzing Match</h2>
         <p id="score-subtitle" class="text-sm text-slate-400 mb-4">Ready to process results</p>
         <div id="score-tier" class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-800 text-slate-300">
@@ -511,11 +514,11 @@ function displayBulkResults(results) {
       <i data-lucide="trophy" class="w-4 h-4 text-purple-400"></i>
       <span class="text-slate-300">Best Match:</span> 
       <strong class="text-purple-400 font-bold">${escapeHtml(best.title)}</strong> 
-      <span class="text-slate-400 ml-1">(${best.score}%)</span>
+      <span class="text-slate-400 ms-1">(${best.score}%)</span>
     </div>`;
   }
 
-  html += `<table class="w-full text-left border-collapse whitespace-nowrap">
+  html += `<table class="w-full text-start border-collapse whitespace-nowrap">
     <thead>
       <tr class="border-b border-slate-700/50 bg-slate-900/50">
         <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Job Title</th>
@@ -529,7 +532,7 @@ function displayBulkResults(results) {
 
   results.forEach((r, i) => {
     if (r.error) {
-      html += `<tr class="hover:bg-slate-800/30 transition-colors"><td class="py-3 px-4 text-sm font-medium text-slate-300">${escapeHtml(r.job_title || 'Unknown')}</td><td colspan="4" class="py-3 px-4 text-xs text-red-400"><i data-lucide="alert-circle" class="w-3.5 h-3.5 inline mr-1"></i> Error: ${escapeHtml(r.error)}</td></tr>`;
+      html += `<tr class="hover:bg-slate-800/30 transition-colors"><td class="py-3 px-4 text-sm font-medium text-slate-300">${escapeHtml(r.job_title || 'Unknown')}</td><td colspan="4" class="py-3 px-4 text-xs text-red-400"><i data-lucide="alert-circle" class="w-3.5 h-3.5 inline me-1"></i> Error: ${escapeHtml(r.error)}</td></tr>`;
     } else {
       const s = r.score;
       const score = s.overall_score || 0;

@@ -200,7 +200,7 @@ body{
 
 .glow-orb-2{width:500px;height:500px;background:rgba(255,0,85,0.06);bottom:-150px;inset-inline-end: -100px;animation:floatOrb2 15s ease-in-out infinite}
 
-.glow-orb-3{width:400px;height:400px;background:rgba(255,179,0,0.04);top:50%;left: 50%;transform:translate(-50%,-50%);animation:floatOrb3 10s ease-in-out infinite}
+.glow-orb-3{width:400px;height:400px;background:rgba(255,179,0,0.04);top:50%;inset-inline-start: 50%;transform:translate(-50%,-50%);animation:floatOrb3 10s ease-in-out infinite}
 
 @keyframes floatOrb1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(80px,60px) scale(1.15)}66%{transform:translate(-40px,100px) scale(0.9)}}
 
@@ -214,7 +214,7 @@ body{
 
 .nav{
 
- position:fixed;top:12px;left: 50%;transform:translateX(-50%);z-index:1000;
+ position:fixed;top:12px;inset-inline-start:0;inset-inline-end:0;margin-inline:auto;z-index:1000;
 
  width:calc(100% - 48px);max-width:1300px;
 
@@ -1338,7 +1338,7 @@ body{
 
 .price-badge{
 
- position:absolute;top:-14px;left: 50%;transform:translateX(-50%);
+ position:absolute;top:-14px;inset-inline-start: 50%;transform:translateX(-50%);
 
  padding:6px 20px;border-radius:50px;font-size:9px;font-weight:800;
 
@@ -1618,7 +1618,7 @@ body{
 
 .cta-glow{
 
- position:absolute;top:50%;left: 50%;transform:translate(-50%,-50%);
+ position:absolute;top:50%;inset-inline-start: 50%;transform:translate(-50%,-50%);
 
  width:600px;height:600px;border-radius:50%;
 
@@ -2204,7 +2204,7 @@ body{
 
 .ats-score-circle svg{position:absolute;top:0;inset-inline-start: 0}
 
-.ats-score-text{position:absolute;top:50%;left: 50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;line-height:1}
+.ats-score-text{position:absolute;top:50%;inset-inline-start: 50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;line-height:1}
 
 .ats-score-num{font-size:36px;font-weight:900;color:#fff}
 
@@ -3690,7 +3690,7 @@ function toggleFaq(item){
 
 (function(){
 
- const names = ["Ahmed M.", "Maria K.", "Omar R.", "Fatima S.", "David L.", "Sarah J.", "Karim H.", "Rita C.", "Hassan B.", "Nour A.", "Youssef T.", "Layla Z.", "Tarek W.", "Maya D.", "Rami F."];
+ const names = ["Ahmed M.", "Maria K.", "Omar R.", "Fatima S.", "David L.", "Sarah J.", "Karim H.", "demo_user C.", "Hassan B.", "Nour A.", "Youssef T.", "Layla Z.", "Tarek W.", "Maya D.", "Rami F."];
 
  const cities = ["Dubai", "Riyadh", "Beirut", "Doha", "Kuwait City", "Amman", "Cairo", "Abu Dhabi", "Manama", "Muscat", "London", "Toronto", "Paris", "Remote"];
 
@@ -3847,3 +3847,4 @@ function toggleFaq(item){
   </script>
 </div></div></section></body>
 </html>
+

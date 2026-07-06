@@ -1,59 +1,311 @@
+﻿<!-- Premium Sidebar v3 — standalone version (used by non-shell pages) -->
+<style>
+:root { --text-x-direction: -1; }
+[dir="ltr"] { --text-x-direction: 1; }
+
+.sidebar {
+  width: 200px;
+  background: rgba(10,10,26,0.97);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-inline-end: 1px solid rgba(255,255,255,0.08);
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  block-size: 100vh;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, width 0.25s ease;
+  box-shadow: 4px 0 32px rgba(0,0,0,0.35);
+}
+
+.sidebar .logo {
+  padding: 16px 14px 8px;
+  border-block-end: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.sidebar .logo .logo-brand {
+  font-size: 15px;
+  font-weight: 800;
+  color: #f0c040;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sidebar .logo .logo-brand .logo-sub {
+  font-size: 9px;
+  color: #4b5563;
+  font-weight: 400;
+  display: block;
+  margin-block-start: 2px;
+}
+.sidebar .logo .status-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-block-start: 8px;
+}
+.sidebar .logo .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00d4aa;
+  animation: sbpulse 2s ease-in-out infinite;
+}
+@keyframes sbpulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+.sidebar nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 8px 8px;
+  overflow-y: auto;
+}
+.sidebar nav::-webkit-scrollbar { width: 3px; }
+.sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+.sidebar .nav-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 12px 8px 3px;
+  flex-shrink: 0;
+}
+
+.sidebar nav a {
+  padding: 8px 10px;
+  margin-block-end: 2px;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.18s ease;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+  line-height: 1.3;
+  border-inline-start: 3px solid transparent;
+}
+.sidebar nav a .nav-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.sidebar nav a:hover {
+  color: #e2e8f0;
+  background: rgba(255,255,255,0.06);
+  border-inline-start-color: rgba(240,192,64,0.3);
+}
+.sidebar nav a.active {
+  color: #f0c040;
+  background: rgba(240,192,64,0.1);
+  border-inline-start-color: #f0c040;
+  font-weight: 700;
+}
+.sidebar nav a.logout { color: rgba(248,113,113,0.75); }
+.sidebar nav a.logout:hover { background: rgba(239,68,68,0.1); color: #f87171; border-inline-start-color: rgba(239,68,68,0.4); }
+.sidebar nav .nav-gap { flex-shrink: 0; height: 4px; }
+.sidebar nav .nav-divider {
+  flex-shrink: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.05);
+  margin: 4px 6px;
+}
+
+/* Notification badge */
+.notif-badge {
+  position: absolute;
+  inset-block-start: -6px;
+  inset-inline-end: -8px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  line-height: 1;
+}
+
+/* Hamburger */
+.hamburger {
+  display: none;
+  position: fixed;
+  inset-block-start: 10px;
+  inset-inline-start: 10px;
+  z-index: 200;
+  width: 40px;
+  height: 40px;
+  background: rgba(139,92,246,0.15);
+  border: 1px solid rgba(139,92,246,0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px;
+}
+.hamburger span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: #8b5cf6;
+  border-radius: 1px;
+  transition: all 0.2s;
+}
+.hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(4px,4px); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(4px,-4px); }
+
+/* Notification Panel */
+.notif-panel {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-end: -380px;
+  width: 360px;
+  max-width: 90vw;
+  height: 100vh;
+  background: #080812;
+  border-inline-start: 1px solid rgba(255,255,255,0.08);
+  z-index: 250;
+  transition: inset-inline-end 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: -8px 0 30px rgba(0,0,0,0.5);
+}
+.notif-panel.open { inset-inline-end: 0; }
+.notif-panel-header { display:flex; justify-content:space-between; align-items:center; padding:16px 18px; border-block-end:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+.notif-panel-header h3 { font-size:15px; font-weight:600; margin:0; }
+.notif-mark-all { background:none; border:none; color:#3b82f6; font-size:12px; cursor:pointer; padding:4px 8px; border-radius:6px; transition:all .15s; }
+.notif-mark-all:hover { background:rgba(59,130,246,0.1); }
+.notif-list { flex:1; overflow-y:auto; padding:4px 0; }
+.notif-item { display:flex; align-items:flex-start; gap:12px; padding:12px 18px; border-block-end:1px solid rgba(255,255,255,0.03); cursor:pointer; transition:background 0.15s; position:relative; }
+.notif-item:hover { background:rgba(255,255,255,0.02); }
+.notif-item.unread { background:rgba(59,130,246,0.04); }
+.notif-icon { font-size:18px; width:32px; height:32px; background:rgba(255,255,255,0.04); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.notif-body { flex:1; min-width:0; }
+.notif-title { font-size:13px; font-weight:600; color:#e2e8f0; margin-block-end:2px; line-height:1.3; }
+.notif-msg { font-size:12px; color:#94a3b8; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.notif-time { font-size:10px; color:#52525b; margin-block-start:4px; }
+.notif-dot { width:8px; height:8px; background:#3b82f6; border-radius:50%; flex-shrink:0; margin-block-start:4px; }
+.notif-empty { text-align:center; padding:40px 20px; color:#52525b; font-size:13px; }
+
+@media(max-width:1024px) {
+  .sidebar { width: 52px; overflow: hidden; }
+  .sidebar .logo .logo-brand { font-size: 0; }
+  .sidebar .logo .logo-sub, .sidebar .logo .status-line { display: none; }
+  .sidebar .nav-section-label { display: none; }
+  .sidebar nav { padding: 2px 4px 8px; }
+  .sidebar nav a { font-size: 0; padding: 8px 4px; justify-content: center; gap: 0; min-height: 40px; border-inline-start: none; }
+  .sidebar nav a .nav-icon { font-size: 17px; width: auto; }
+  .hamburger { display: flex; }
+  .sidebar.open { width: 220px !important; overflow: visible !important; box-shadow: 4px 0 20px rgba(0,0,0,0.5); }
+  .sidebar.open .logo .logo-brand { font-size: 14px !important; }
+  .sidebar.open .logo .logo-sub { display: block !important; }
+  .sidebar.open .logo .status-line { display: flex !important; }
+  .sidebar.open .nav-section-label { display: block !important; }
+  .sidebar.open nav a { font-size: 13px !important; padding: 8px 10px !important; justify-content: flex-start !important; gap: 9px !important; border-inline-start: 3px solid transparent; }
+}
+@media(max-width:768px) {
+  .sidebar { width: 40px; }
+  .sidebar nav a { padding: 6px 3px; min-height: 38px; }
+  .sidebar nav a .nav-icon { font-size: 15px; }
+  .notif-panel { width: 100vw; max-width: 100vw; inset-inline-end: -100vw; }
+}
+@media(max-width:480px) {
+  .sidebar { width: 36px; }
+  .sidebar nav a .nav-icon { font-size: 14px; }
+}
+</style>
+
 <button aria-label="القائمة" class="hamburger" onclick="toggleNav()"><span></span><span></span><span></span></button>
 <div class="sidebar" id="sidebarNav">
-<div class="logo">جوبهانت<span>برو</span></div>
-<nav class="nav">
-<a '="" ''="" active_page="dashboard" class="active" else="" href="/user-dashboard" if="" {{="" }}=""><span class="nav-icon">📊</span>لوحة القيادة</a>
-<a '="" ''="" active_page="upload-cv" class="active" else="" href="/upload-cv" if="" {{="" }}=""><span class="nav-icon">📄</span>رفع السيرة الذاتية</a>
-<a '="" ''="" active_page="ats-scorer" class="active" else="" href="/ats-scorer" if="" {{="" }}=""><span class="nav-icon">🎯</span>{{ _('مقياس ATS') }}</a>
-<a '="" ''="" active_page="resume-tailor" class="active" else="" href="/resume-tailor" if="" style="color:#a78bfa;" {{="" }}=""><span class="nav-icon">✨</span>تخصيص السيرة الذاتية</a>
-<a '="" ''="" active_page="funnel-analytics" class="active" else="" href="/funnel-analytics" if="" {{="" }}=""><span class="nav-icon">📊</span>تحليلات مسار التوظيف</a>
-<a '="" ''="" active_page="new-campaign" class="active" else="" href="/new-campaign" if="" {{="" }}=""><span class="nav-icon">🎯</span>حملة جديدة</a>
-<a '="" ''="" active_page="employers" class="active" else="" href="/for-employers" if="" style="color:#f59e0b;" {{="" }}=""><span class="nav-icon">💈</span>خدمات أصحاب العمل</a>
-<div style="padding-inline-start:20px;margin:4px 0 10px;">
-<a href="/for-employers" style="font-size:0.85em;display:block;padding:4px 10px;color:#fbbf24;border-inline-start:2px solid #f59e0b40;"><span class="nav-icon">🏢</span>نشر وظيفة</a>
-<a href="/employer/track" style="font-size:0.85em;display:block;padding:4px 10px;color:#60a5fa;border-inline-start:2px solid #3b82f640;"><span class="nav-icon">📊</span>تتبع وظائفي</a>
+  <div class="logo">
+    <div class="logo-brand">
+      ⚡ جوبهانت<span style="color:#8b5cf6;">برو</span>
+      <span class="logo-sub">JobHunt Pro v3</span>
+    </div>
+    <div class="status-line">
+      <div class="status-dot"></div>
+      <span style="font-size:9px;color:#00d4aa;font-family:monospace;">متصل</span>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section-label">الرئيسية</div>
+    <a href="/user-dashboard" {{ 'class=active' if active_page == 'dashboard' else '' }}><span class="nav-icon">📊</span>لوحة القيادة</a>
+    <a href="/upload-cv" {{ 'class=active' if active_page == 'upload-cv' else '' }}><span class="nav-icon">📄</span>رفع السيرة الذاتية</a>
+    <a href="/ats-scorer" {{ 'class=active' if active_page == 'ats-scorer' else '' }}><span class="nav-icon">🎯</span>{{ _('مقياس ATS') }}</a>
+    <a href="/resume-tailor" {{ 'class=active' if active_page == 'resume-tailor' else '' }} style="color:{{ '#f0c040' if active_page == 'resume-tailor' else '#a78bfa' }};"><span class="nav-icon">✨</span>تخصيص السيرة الذاتية</a>
+
+    <div class="nav-section-label">الحملات</div>
+    <a href="/funnel-analytics" {{ 'class=active' if active_page == 'funnel-analytics' else '' }}><span class="nav-icon">📊</span>تحليلات مسار التوظيف</a>
+    <a href="/new-campaign" {{ 'class=active' if active_page == 'new-campaign' else '' }}><span class="nav-icon">🎯</span>حملة جديدة</a>
+    <a href="/for-employers" {{ 'class=active' if active_page == 'employers' else '' }} style="{{ '' if active_page == 'employers' else 'color:#f59e0b;' }}"><span class="nav-icon">💈</span>خدمات أصحاب العمل</a>
+    <div style="padding-inline-start:20px;margin:4px 0 10px;">
+      <a href="/for-employers" style="font-size:0.83em;display:block;padding:4px 10px;color:#fbbf24;border-inline-start:2px solid rgba(245,158,11,0.3);"><span class="nav-icon">🏢</span>نشر وظيفة</a>
+      <a href="/employer/track" style="font-size:0.83em;display:block;padding:4px 10px;color:#60a5fa;border-inline-start:2px solid rgba(59,130,246,0.3);"><span class="nav-icon">📊</span>تتبع وظائفي</a>
+    </div>
+    <a href="/sent-emails" {{ 'class=active' if active_page == 'sent-emails' else '' }}><span class="nav-icon">📧</span>الرسائل المرسلة</a>
+
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">الأدوات</div>
+    <a href="/battle-station" {{ 'class=active' if active_page == 'battle-station' else '' }}><span class="nav-icon">⚔️</span>محطة المعركة</a>
+    <a href="/services" {{ 'class=active' if active_page == 'services' else '' }}><span class="nav-icon">⭐</span>الخدمات المميزة</a>
+    <a href="/offers" {{ 'class=active' if active_page == 'offers' else '' }} style="{{ '' if active_page == 'offers' else 'color:#f43f5e;' }}"><span class="nav-icon">🔥</span>عروض خاصة</a>
+    <a href="/my-purchases" {{ 'class=active' if active_page == 'my-purchases' else '' }} style="{{ '' if active_page == 'my-purchases' else 'color:#3b82f6;' }}"><span class="nav-icon">📦</span>اشتراكاتي</a>
+    <a href="/pricing" {{ 'class=active' if active_page == 'pricing' else '' }}><span class="nav-icon">💎</span>الأسعار</a>
+    <a href="/wallet" {{ 'class=active' if active_page == 'wallet' else '' }}><span class="nav-icon">💰</span>المحفظة</a>
+
+    <div class="nav-divider"></div>
+    <a href="/stats" {{ 'class=active' if active_page == 'stats' else '' }}><span class="nav-icon">📈</span>الإحصائيات</a>
+    <a href="/referral" {{ 'class=active' if active_page == 'referral' else '' }}><span class="nav-icon">👥</span>الإحالات</a>
+    <a href="/email-test" {{ 'class=active' if active_page == 'email-test' else '' }}><span class="nav-icon">🧪</span>اختبار البريد</a>
+    <a href="/export" {{ 'class=active' if active_page == 'export' else '' }}><span class="nav-icon">📥</span>تصدير</a>
+    <a href="/api-docs" {{ 'class=active' if active_page == 'api' else '' }}><span class="nav-icon">🔌</span>{{ _('مستندات API') }}</a>
+
+    <div class="nav-divider"></div>
+    <a href="/contact" {{ 'class=active' if active_page == 'contact' else '' }}><span class="nav-icon">💬</span>اتصل بنا</a>
+    <a href="https://wa.me/96171019053?text=مرحبا%20سام%21%20دعم%20جوبهانت%20برو" style="color:#25D366;" target="_blank"><span class="nav-icon">🟢</span>واتساب</a>
+    <a href="/admin/sys-logs" {{ 'class=active' if active_page == 'sys-logs' else '' }} style="{{ '' if active_page == 'sys-logs' else 'color:#ef4444;' }}"><span class="nav-icon">📜</span>سجلات النظام</a>
+
+    <div class="nav-gap"></div>
+    <div class="nav-divider"></div>
+    <a href="#" id="notif-bell-link" onclick="toggleNotifPanel();return false;" style="position:relative;">
+      <span class="nav-icon">🔔</span>الإشعارات
+      <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
+    </a>
+    <a class="logout" href="/logout"><span class="nav-icon">🚪</span>تسجيل خروج</a>
+  </nav>
 </div>
-<a '="" ''="" active_page="sent-emails" class="active" else="" href="/sent-emails" if="" {{="" }}=""><span class="nav-icon">📧</span>الرسائل المرسلة</a>
-<div class="nav-divider"></div>
-<a '="" ''="" active_page="battle-station" class="active" else="" href="/battle-station" if="" {{="" }}=""><span class="nav-icon">⚔️</span>محطة المعركة</a>
-<a '="" ''="" active_page="services" class="active" else="" href="/services" if="" {{="" }}=""><span class="nav-icon">⭐</span>الخدمات المميزة</a>
-<a '="" ''="" active_page="offers" class="active" else="" href="/offers" if="" style="color:#f43f5e;" {{="" }}=""><span class="nav-icon">🔥</span>عروض خاصة</a>
-<a '="" ''="" active_page="my-purchases" class="active" else="" href="/my-purchases" if="" style="color:#3b82f6;" {{="" }}=""><span class="nav-icon">📦</span>اشتراكاتي</a>
-<a '="" ''="" active_page="pricing" class="active" else="" href="/pricing" if="" {{="" }}=""><span class="nav-icon">💎</span>الأسعار</a>
-<a '="" ''="" active_page="wallet" class="active" else="" href="/wallet" if="" {{="" }}=""><span class="nav-icon">💰</span>المحفظة</a>
-<div class="nav-divider"></div>
-<a '="" ''="" active_page="stats" class="active" else="" href="/stats" if="" {{="" }}=""><span class="nav-icon">📈</span>الإحصائيات</a>
-<a '="" ''="" active_page="referral" class="active" else="" href="/referral" if="" {{="" }}=""><span class="nav-icon">👥</span>الإحالات</a>
-<a '="" ''="" active_page="email-test" class="active" else="" href="/email-test" if="" {{="" }}=""><span class="nav-icon">🧪</span>اختبار البريد</a>
-<a '="" ''="" active_page="export" class="active" else="" href="/export" if="" {{="" }}=""><span class="nav-icon">📥</span>تصدير</a>
-<a '="" ''="" active_page="api" class="active" else="" href="/api-docs" if="" {{="" }}=""><span class="nav-icon">🔌</span>{{ _('مستندات API') }}</a>
-<div class="nav-divider"></div>
-<a '="" ''="" active_page="contact" class="active" else="" href="/contact" if="" {{="" }}=""><span class="nav-icon">💬</span>اتصل بنا</a>
-<a href="https://wa.me/96171019053?text=مرحبا%20سام%21%20دعم%20جوبهانت%20برو" style="color:#25D366;" target="_blank"><span class="nav-icon">🟢</span>واتساب</a>
-<a '="" ''="" active_page="sys-logs" class="active" else="" href="/admin/sys-logs" if="" style="color:#ef4444;" {{="" }}=""><span class="nav-icon">📜</span>سجلات النظام</a>
-<div class="nav-gap"></div>
-<div class="nav-divider"></div>
-<a href="#" id="notif-bell-link" onclick="toggleNotifPanel();return false;" style="position:relative;">
-<span class="nav-icon">🔔</span>الإشعارات
-            <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
-</a>
-<a class="logout" href="/logout"><span class="nav-icon">🚪</span>تسجيل خروج</a>
-</nav>
-</div>
+
 <!-- Notification Panel -->
 <div class="notif-panel" id="notifPanel">
-<div class="notif-panel-header">
-<h3>🔔 الإشعارات</h3>
-<button class="notif-mark-all" id="notif-mark-all-btn" onclick="markAllRead()" style="display:none;">تحديد الكل كمقروء</button>
+  <div class="notif-panel-header">
+    <h3>🔔 الإشعارات</h3>
+    <button class="notif-mark-all" id="notif-mark-all-btn" onclick="markAllRead()" style="display:none;">تحديد الكل كمقروء</button>
+  </div>
+  <div class="notif-list" id="notifList">
+    <div class="notif-empty">جاري تحميل الإشعارات...</div>
+  </div>
 </div>
-<div class="notif-list" id="notifList">
-<div class="notif-empty">جاري تحميل الإشعارات...</div>
-</div>
-</div>
+
 <script>
 function toggleNav(){document.getElementById('sidebarNav').classList.toggle('open');document.querySelector('.hamburger').classList.toggle('active');}
 
-// ── Notification System ──
 let notifPollTimer = null;
 let notifOpenId = null;
 
@@ -66,10 +318,7 @@ function toggleNotifPanel() {
     } else {
         panel.classList.add('open');
         loadNotifications();
-        notifOpenId = setTimeout(() => {
-            panel.classList.remove('open');
-            notifOpenId = null;
-        }, 15000);
+        notifOpenId = setTimeout(() => { panel.classList.remove('open'); notifOpenId = null; }, 15000);
     }
 }
 
@@ -108,67 +357,47 @@ function renderNotifList(notifs) {
 
 async function markNotifRead(id, link) {
     try {
-        await fetch('/api/v1/notifications/read', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({id: id})
-        });
-        loadNotifications();
-        pollNotifBadge();
+        await fetch('/api/v1/notifications/read', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id: id}) });
+        loadNotifications(); pollNotifBadge();
         if (link) { window.location.href = link; }
     } catch(e) {}
 }
 
 async function markAllRead() {
-    try {
-        await fetch('/api/v1/notifications/read-all', {method: 'POST'});
-        loadNotifications();
-        pollNotifBadge();
-    } catch(e) {}
+    try { await fetch('/api/v1/notifications/read-all', {method: 'POST'}); loadNotifications(); pollNotifBadge(); } catch(e) {}
 }
 
 function updateNotifBadge(count) {
     const badge = document.getElementById('notif-badge');
-    if (count > 0) {
-        badge.style.display = 'flex';
-        badge.textContent = count > 99 ? '99+' : count;
-    } else {
-        badge.style.display = 'none';
-    }
+    if (count > 0) { badge.style.display = 'flex'; badge.textContent = count > 99 ? '99+' : count; }
+    else { badge.style.display = 'none'; }
 }
 
 async function pollNotifBadge() {
     try {
         const resp = await fetch('/api/v1/notifications?limit=1&unread_only=true');
-        if (resp.ok) {
-            const data = await resp.json();
-            updateNotifBadge(data.unread_count || 0);
-        }
+        if (resp.ok) { const data = await resp.json(); updateNotifBadge(data.unread_count || 0); }
     } catch(e) {}
 }
 
 function escapeNotifHtml(str) {
     if (!str) return '';
-    const d = document.createElement('div');
-    d.textContent = str;
-    return d.innerHTML;
+    const d = document.createElement('div'); d.textContent = str; return d.innerHTML;
 }
 
 function timeAgo(dateStr) {
     if (!dateStr) return '';
     const d = new Date(dateStr.replace(' ', 'T') + (dateStr.includes('Z') ? '' : 'Z'));
-    const now = new Date();
-    const diff = Math.floor((now - d) / 1000);
+    const diff = Math.floor((new Date() - d) / 1000);
     if (diff < 60) return 'الآن';
     if (diff < 3600) return Math.floor(diff / 60) + ' دقيقة مضت';
     if (diff < 86400) return Math.floor(diff / 3600) + ' ساعة مضت';
     return Math.floor(diff / 86400) + ' يوم مضى';
 }
 
-// Start polling
 pollNotifBadge();
 notifPollTimer = setInterval(pollNotifBadge, 30000);
 
-// Close panel on outside click
 document.addEventListener('click', function(e) {
     const panel = document.getElementById('notifPanel');
     const bell = document.getElementById('notif-bell-link');

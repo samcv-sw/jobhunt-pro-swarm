@@ -1,3 +1,6 @@
+<meta property="og:title" content="Dashboard | JobHunt Pro"/>
+<meta name="description" content="Track your applications, campaigns and success rates."/>
+<title>Dashboard | JobHunt Pro</title>
 <!-- Dashboard Content (Rendered inside _dashboard_shell.html) -->
 <div class="space-y-6">
 
@@ -36,7 +39,7 @@
 
   <!-- CONNECT SMTP BANNER -->
   {% if not user.get('oauth_provider') %}
-  <div class="glass-panel border-l-4 border-l-emerald-500 p-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center reveal">
+  <div class="glass-panel border-s-4 border-s-emerald-500 p-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center reveal">
     <div class="max-w-xl">
       <h3 class="mb-1 font-semibold text-white">Activate Premium AI Inbox Delivery</h3>
       <p class="text-sm text-emerald-100/70">Connect your professional email account. Our AI will automatically optimize your sending patterns and utilize dedicated IP routing to guarantee the highest employer response rates.</p>
@@ -180,7 +183,7 @@
         </div>
         
         {% if pipeline_emails %}
-          <div class="flex flex-1 flex-col gap-3 overflow-y-auto pr-1">
+          <div class="flex flex-1 flex-col gap-3 overflow-y-auto pe-1">
             {% for email in pipeline_emails[:6] %}
             <div class="group flex cursor-pointer items-center gap-3 rounded-lg border border-white/5 bg-slate-800/30 p-3 transition-all hover:border-white/10 hover:bg-slate-800/50">
               {% if email.status in ('brevo_failed','gmail_failed','failed') %}

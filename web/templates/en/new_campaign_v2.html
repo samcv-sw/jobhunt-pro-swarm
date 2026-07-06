@@ -1,3 +1,6 @@
+<meta property="og:title" content="New Campaign | JobHunt Pro"/>
+<meta name="description" content="Create a targeted campaign to direct AI towards ideal jobs."/>
+<title>New Campaign | JobHunt Pro</title>
 <div class="space-y-8 max-w-5xl mx-auto pb-12">
   
   <!-- Header -->
@@ -29,7 +32,7 @@
 
     <!-- Step 1: CV Profile -->
     <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-3xl p-8 shadow-xl relative overflow-hidden">
-      <div class="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+      <div class="absolute top-0 end-0 p-8 opacity-5 pointer-events-none">
         <i data-lucide="file-text" class="w-32 h-32 text-white"></i>
       </div>
       
@@ -41,14 +44,14 @@
       <div class="relative z-10 space-y-4">
         <div class="flex flex-col sm:flex-row gap-3">
           <div class="relative flex-1">
-            <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2"></i>
-            <select name="profile_id" id="profileSelect" required class="w-full bg-slate-950/60 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-xl pl-11 pr-10 py-3.5 text-sm text-white appearance-none cursor-pointer outline-none transition-all">
+            <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute start-4 top-1/2 -translate-y-1/2"></i>
+            <select name="profile_id" id="profileSelect" required class="w-full bg-slate-950/60 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-xl ps-11 pe-10 py-3.5 text-sm text-white appearance-none cursor-pointer outline-none transition-all">
               <option value="" class="text-slate-500">Choose a loaded profile...</option>
               {% for profile in profiles %}
               <option value="{{ profile.id }}">{{ profile.profile_name }} ({{ profile.experience_years }} years exp)</option>
               {% endfor %}
             </select>
-            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
           </div>
           <button type="button" onclick="deleteSelectedProfile()" class="px-5 py-3.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl transition-all flex items-center justify-center gap-2" title="Delete selected profile">
             <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -68,7 +71,7 @@
 
     <!-- Step 2: Base Package -->
     <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-3xl p-8 shadow-xl relative overflow-hidden">
-      <div class="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+      <div class="absolute top-0 end-0 p-8 opacity-5 pointer-events-none">
         <i data-lucide="target" class="w-32 h-32 text-white"></i>
       </div>
       
@@ -100,7 +103,7 @@
             <div class="text-xs text-emerald-500/70 font-medium">${{ "%.3f"|format(tier['price_usd'] / tier.companies) }} per app</div>
             
             {% if tier.companies == 100 %}
-            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">Most Popular</div>
+            <div class="absolute -top-3 start-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">Most Popular</div>
             {% endif %}
           </div>
         </label>
@@ -110,7 +113,7 @@
 
     <!-- Step 3: Upgrades (Bouquets) -->
     <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-3xl p-8 shadow-xl relative overflow-hidden">
-      <div class="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+      <div class="absolute top-0 end-0 p-8 opacity-5 pointer-events-none">
         <i data-lucide="zap" class="w-32 h-32 text-white"></i>
       </div>
       
@@ -181,7 +184,7 @@
     <div class="sticky bottom-4 z-50">
       <div class="bg-slate-950/90 backdrop-blur-xl border border-slate-700 shadow-2xl rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-6">
         
-        <div class="flex items-center gap-4 pl-2">
+        <div class="flex items-center gap-4 ps-2">
           <div class="w-12 h-12 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center shrink-0">
             <i data-lucide="shopping-cart" class="w-5 h-5 text-slate-400"></i>
           </div>

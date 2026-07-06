@@ -1,3 +1,6 @@
+<meta property="og:title" content="For Employers | JobHunt Pro"/>
+<meta name="description" content="Find top talent fast with JobHunt Pro — the smart platform for employers."/>
+<title>For Employers | JobHunt Pro</title>
 <style>
 :root {
   --gold: #f59e0b; --gold2: #fbbf24; --purple: #8b5cf6; --pink: #ec4899;
@@ -29,7 +32,7 @@
 .vs-col .price-big { font-size:2.5em; font-weight:800; }
 .vs-col .price-big.expensive { color:var(--red); text-decoration:line-through; text-decoration-color:rgba(239,68,68,.5); }
 .vs-col .price-big.cheap { color:var(--green); }
-.vs-col ul { list-style:none; text-align:left; max-width:250px; margin:10px auto; }
+.vs-col ul { list-style:none; text-align: start; max-width:250px; margin:10px auto; }
 .vs-col ul li { padding:4px 0; font-size:.85em; }
 .vs-col ul li.good::before { content:'✅ '; }
 .vs-col ul li.bad::before { content:'❌ '; }
@@ -47,9 +50,9 @@
 .price-card .tier-price { font-size:2.4em; font-weight:800; color:var(--gold2); margin:8px 0; }
 .price-card .tier-price small { font-size:.35em; color:#94a3b8; font-weight:400; }
 .price-card .tier-save { font-size:.75em; color:var(--green); margin-bottom:10px; display:inline-block; background:rgba(34,197,94,.1); padding:3px 10px; border-radius:10px; }
-.price-card ul { list-style:none; text-align:left; margin:12px 0; }
+.price-card ul { list-style:none; text-align: start; margin:12px 0; }
 .price-card ul li { padding:5px 0; font-size:.82em; color:#94a3b8; }
-.price-card ul li::before { content:'✓ '; color:var(--green); font-weight:700; margin-right:5px; }
+.price-card ul li::before { content:'✓ '; color:var(--green); font-weight:700; margin-inline-end:5px; }
 .price-card .btn { display:block; margin-top:auto; padding:12px; border-radius:10px; border:none; color:#fff; font-weight:700; cursor:pointer; width:100%; font-size:.9em; transition:all .15s; }
 .price-card .btn:hover { transform:translateY(-1px); }
 
@@ -123,7 +126,7 @@
 
 /* ═══════════ RESPONSIVE ═══════════ */
 @media (max-width:900px) {
-  .main { margin-left:0; padding:15px; }
+  .main { margin-inline-start:0; padding:15px; }
   .pricing-grid { grid-template-columns:repeat(2,1fr); }
   .addons-grid { grid-template-columns:1fr; }
   .form-grid { grid-template-columns:1fr; }

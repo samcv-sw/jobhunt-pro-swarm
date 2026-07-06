@@ -1,3 +1,6 @@
+<meta property="og:title" content="لوحة الإدارة | JobHunt Pro"/>
+<meta name="description" content="لوحة تحكم المسؤولين لإدارة المستخدمين والإعدادات."/>
+<title>لوحة الإدارة | JobHunt Pro</title>
 <style>
  * { margin:0; padding:0; box-sizing:border-box; }
  body { font-family: 'Cairo', 'Segoe UI',sans-serif; background:#0a0a0f; color:#e2e8f0; min-height:100vh; }
@@ -99,6 +102,7 @@
  .c-btc { color:#f7931a; } .c-eth { color:#627eea; } .c-usdt { color:#26a17b; } .c-ltc { color:#345d9d; }
  </style>
 <div class="container">
+<h1 class="sr-only">لوحة الإدارة</h1>
 
  {% if request.query_params.get('success') %}
  <div class="alert success">✅ {{ request.query_params.get('success') }}</div>

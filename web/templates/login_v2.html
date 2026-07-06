@@ -5,48 +5,80 @@
 <link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="Login to your JobHunt Pro account." name="description"/>
+<meta content="سجّل دخولك إلى JobHunt Pro — منصة الذكاء الاصطناعي للتقديم التلقائي على الوظائف." name="description"/>
+<meta property="og:title" content="دخول — جوب هانت برو"/>
+<meta property="og:description" content="سجّل دخولك وتحكّم بحملاتك وتقديماتك الوظيفية الآن."/>
 <meta content="noindex,follow" name="robots"/>
-<title>{{ _('Login — JobHunt Pro') }}</title>
-<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
-<!-- Login v2 — Enhanced with password strength meter, toggle visibility, loading states, improved animations -->
+<title>{{ _('دخول — JobHunt Pro') }}</title>
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
+<!-- Login v2 — Enhanced glassmorphism, gold accent, logical CSS properties -->
 <link href="/static/css/dashboard-v4-rtl.css?v=20260629_v2" rel="stylesheet"/>
 <link href="/static/css/auth-v2-rtl.css?v=20260629_v2" rel="stylesheet"/>
 <style>
 /* ═══════════════════════════════════════════
-   LOGIN v2 — Page-Specific Styles
+   LOGIN v2 — Premium Glassmorphism Styles
    ═══════════════════════════════════════════ */
-
+:root {
+  --gold: #f0c040;
+  --teal: #00d4aa;
+  --purple: #8b5cf6;
+  --glass: rgba(255,255,255,0.05);
+  --glass-border: rgba(255,255,255,0.1);
+}
+body.auth-page {
+  background: linear-gradient(135deg,#0a0a1a 0%,#1a0a2e 50%,#0d1a2e 100%) !important;
+  background-attachment: fixed !important;
+  min-block-size: 100vh;
+  font-family: 'Cairo','Inter',sans-serif;
+}
 .auth-card {
   animation: fadeSlideUp 0.5s ease-out;
+  background: rgba(255,255,255,0.04) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 20px !important;
+}
+.auth-card input:focus, .auth-card textarea:focus {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 3px rgba(240,192,64,0.2) !important;
+}
+.btn-submit {
+  background: linear-gradient(135deg, var(--gold), var(--teal)) !important;
+  color: #0a0a1a !important;
+  font-weight: 700 !important;
+}
+.btn-submit:hover {
+  box-shadow: 0 8px 30px rgba(240,192,64,0.35) !important;
+  transform: translateY(-2px) !important;
 }
 
 /* ── Background particles (CSS only) ── */
 .bg-particles {
-  position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%;
+  position: fixed; top: 0; inset-inline-start: 0; inline-size: 100%; block-size: 100%;
   pointer-events: none; z-index: 0;
   overflow: hidden;
 }
 .bg-particles .particle {
   position: absolute;
-  width: 4px; height: 4px;
-  background: var(--accent-primary);
+  inline-size: 4px; block-size: 4px;
+  background: var(--gold);
   border-radius: 50%;
-  opacity: 0.15;
+  opacity: 0.1;
   animation: floatParticle 20s infinite linear;
 }
 .bg-particles .particle:nth-child(1) { inset-inline-start: 10%; top: 20%; animation-delay: 0s; animation-duration: 18s; }
-.bg-particles .particle:nth-child(2) { inset-inline-start: 25%; top: 60%; animation-delay: 2s; animation-duration: 22s; width: 3px; height: 3px; }
+.bg-particles .particle:nth-child(2) { inset-inline-start: 25%; top: 60%; animation-delay: 2s; animation-duration: 22s; inline-size: 3px; block-size: 3px; }
 .bg-particles .particle:nth-child(3) { inset-inline-start: 45%; top: 10%; animation-delay: 4s; animation-duration: 25s; }
-.bg-particles .particle:nth-child(4) { inset-inline-start: 65%; top: 70%; animation-delay: 1s; animation-duration: 20s; width: 5px; height: 5px; }
+.bg-particles .particle:nth-child(4) { inset-inline-start: 65%; top: 70%; animation-delay: 1s; animation-duration: 20s; inline-size: 5px; block-size: 5px; }
 .bg-particles .particle:nth-child(5) { inset-inline-start: 80%; top: 30%; animation-delay: 3s; animation-duration: 23s; }
-.bg-particles .particle:nth-child(6) { left: 50%; top: 80%; animation-delay: 5s; animation-duration: 19s; width: 3px; height: 3px; }
+.bg-particles .particle:nth-child(6) { inset-inline-start: 50%; top: 80%; animation-delay: 5s; animation-duration: 19s; inline-size: 3px; block-size: 3px; }
 .bg-particles .particle:nth-child(7) { inset-inline-start: 15%; top: 85%; animation-delay: 6s; animation-duration: 21s; }
 .bg-particles .particle:nth-child(8) { inset-inline-start: 90%; top: 50%; animation-delay: 2.5s; animation-duration: 24s; }
 @keyframes floatParticle {
   0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-  10% { opacity: 0.15; }
-  90% { opacity: 0.15; }
+  10% { opacity: 0.1; }
+  90% { opacity: 0.1; }
   100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
 }
 
@@ -62,13 +94,13 @@
   animation: successPop 0.5s ease-out;
 }
 .success-check .check-icon {
-  width: 64px; height: 64px; border-radius: 50%;
+  inline-size: 64px; block-size: 64px; border-radius: 50%;
   background: var(--accent-success); color: #fff;
   display: flex; align-items: center; justify-content: center;
-  font-size: 32px; margin: 0 auto 16px;
+  font-size: 32px; margin-inline: auto; margin-block-end: 16px;
   box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
 }
-.success-check h2 { font-size: 22px; margin-bottom: 8px; }
+.success-check h2 { font-size: 22px; margin-block-end: 8px; }
 .success-check p { color: var(--text-muted); font-size: 14px; }
 </style>
 </head>

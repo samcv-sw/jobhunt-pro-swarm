@@ -1,0 +1,1143 @@
+{
+  "total": 136,
+  "passing": 112,
+  "missing_title": [
+    "_dashboard_shell.html",
+    "_public_footer.html",
+    "_public_nav.html",
+    "_sidebar.html",
+    "_sidebar_head.html",
+    "en\\_dashboard_shell.html",
+    "en\\_public_footer.html",
+    "en\\_public_nav.html",
+    "en\\_sidebar.html",
+    "en\\_sidebar_head.html"
+  ],
+  "missing_h1": [
+    "base.html",
+    "intel_view.html",
+    "send_email.html",
+    "wallet.html",
+    "war_room.html",
+    "_base_tailwind.html",
+    "_public_footer.html",
+    "_public_nav.html",
+    "_public_shell.html",
+    "_sidebar.html",
+    "_sidebar_head.html",
+    "en\\base.html",
+    "en\\intel_view.html",
+    "en\\send_email.html",
+    "en\\wallet.html",
+    "en\\war_room.html",
+    "en\\_base_tailwind.html",
+    "en\\_public_footer.html",
+    "en\\_public_nav.html",
+    "en\\_public_shell.html",
+    "en\\_sidebar.html",
+    "en\\_sidebar_head.html"
+  ],
+  "missing_desc": [
+    "_dashboard_shell.html",
+    "_public_footer.html",
+    "_public_nav.html",
+    "_sidebar.html",
+    "_sidebar_head.html",
+    "en\\_dashboard_shell.html",
+    "en\\_public_footer.html",
+    "en\\_public_nav.html",
+    "en\\_sidebar.html",
+    "en\\_sidebar_head.html"
+  ],
+  "css_violations": [],
+  "pages": {
+    "admin.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "admin_analytics.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "admin_user.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "antigravity.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "api_docs.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "ats_scorer.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "base.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "battle_station.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "blog.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "blog_post.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "campaign_detail.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "candidate_profile.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "checkout.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "checkout_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "checkout_v3.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "chromeext.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "compare.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "contact.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "dashboard_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "dashboard_v3.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "email_test.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "employer_track.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "export.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "faq.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "forgot_password.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "for_employers.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "funnel_analytics.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "index_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "index_v3.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "index_v4.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "intel_view.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "interview_prep.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "kanban_board.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "login.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "login_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "my_purchases.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "new_campaign_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "offers.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "pricing_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "pricing_v3.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "privacy.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "referral.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "register.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "register_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "reset_password.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "resume_tailor.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "roast.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "send_email.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "sent_emails.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "services.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "services_new.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "services_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "stats.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "terms.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "tracking_analytics.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "track_application.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "trust.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "upload_cv_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "upload_cv_v3.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "wallet.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "war_room.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "_base_tailwind.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "_dashboard_shell.html": {
+      "title": false,
+      "h1": true,
+      "desc": false,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "_public_footer.html": {
+      "title": false,
+      "h1": false,
+      "desc": false,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "_public_nav.html": {
+      "title": false,
+      "h1": false,
+      "desc": false,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "_public_shell.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "_sidebar.html": {
+      "title": false,
+      "h1": false,
+      "desc": false,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "_sidebar_head.html": {
+      "title": false,
+      "h1": false,
+      "desc": false,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "en\\admin.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\admin_analytics.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\admin_user.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\antigravity.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\api_docs.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\ats_scorer.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\base.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "en\\battle_station.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\blog.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\blog_post.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\campaign_detail.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\candidate_profile.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\checkout.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\checkout_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\checkout_v3.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\chromeext.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\compare.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\contact.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\dashboard_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\dashboard_v3.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\email_test.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\employer_track.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\export.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\faq.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\forgot_password.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\for_employers.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\funnel_analytics.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\index_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\index_v3.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\index_v4.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\intel_view.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "en\\interview_prep.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\kanban_board.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\login.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\login_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\my_purchases.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\new_campaign_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\offers.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\pricing_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\pricing_v3.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\privacy.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\referral.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\register.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\register_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\reset_password.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\resume_tailor.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\roast.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\send_email.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "en\\sent_emails.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\services.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\services_new.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\services_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\stats.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\terms.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\tracking_analytics.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\track_application.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\trust.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\upload_cv_v2.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\upload_cv_v3.html": {
+      "title": true,
+      "h1": true,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": true
+    },
+    "en\\wallet.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "en\\war_room.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "en\\_base_tailwind.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "en\\_dashboard_shell.html": {
+      "title": false,
+      "h1": true,
+      "desc": false,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "en\\_public_footer.html": {
+      "title": false,
+      "h1": false,
+      "desc": false,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "en\\_public_nav.html": {
+      "title": false,
+      "h1": false,
+      "desc": false,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "en\\_public_shell.html": {
+      "title": true,
+      "h1": false,
+      "desc": true,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "en\\_sidebar.html": {
+      "title": false,
+      "h1": false,
+      "desc": false,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    },
+    "en\\_sidebar_head.html": {
+      "title": false,
+      "h1": false,
+      "desc": false,
+      "css_violations": 0,
+      "violation_types": [],
+      "pass": false
+    }
+  }
+}

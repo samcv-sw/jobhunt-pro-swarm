@@ -1,3 +1,5 @@
+<meta property="og:title" content="Job Offers | JobHunt Pro"/>
+<title>Job Offers | JobHunt Pro</title>
 {% set wallet_balance = user.wallet_balance if user else 0 %}
 {% set toast_msg = error or success or "" %}
 {% set toast_type = "error" if error else ("success" if success else "") %}
@@ -62,7 +64,7 @@
 .offer-title { font-size: 20px; font-weight: 800; color: #f8fafc; margin-bottom: 10px; letter-spacing: -0.3px; }
 .offer-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; margin-bottom: 20px; flex: 1; }
 
-.offer-note { background: rgba(59, 130, 246, 0.03); border-left: 3px solid #3b82f6; padding: 10px 14px; border-radius: 0 10px 10px 0; margin-bottom: 24px; font-size: 12.5px; color: #94a3b8; font-style: italic; line-height: 1.5; border-top: 1px solid rgba(59, 130, 246, 0.05); border-bottom: 1px solid rgba(59, 130, 246, 0.05); }
+.offer-note { background: rgba(59, 130, 246, 0.03); border-inline-start: 3px solid #3b82f6; padding: 10px 14px; border-radius: 0 10px 10px 0; margin-bottom: 24px; font-size: 12.5px; color: #94a3b8; font-style: italic; line-height: 1.5; border-top: 1px solid rgba(59, 130, 246, 0.05); border-bottom: 1px solid rgba(59, 130, 246, 0.05); }
 
 .offer-footer { display: flex; flex-direction: column; align-items: stretch; margin-top: auto; gap: 8px; width: 100%; }
 
@@ -70,7 +72,7 @@
 .purchases-section { margin-top: 48px; }
 .purchase-table-container { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
 .purchase-table { width: 100%; border-collapse: collapse; }
-.purchase-table th { text-align: left; font-size: 11px; text-transform: uppercase; color: var(--text-muted); padding: 14px; border-bottom: 1px solid var(--border); letter-spacing: 0.8px; font-weight: 700; }
+.purchase-table th { text-align: start; font-size: 11px; text-transform: uppercase; color: var(--text-muted); padding: 14px; border-bottom: 1px solid var(--border); letter-spacing: 0.8px; font-weight: 700; }
 .purchase-table td { padding: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.02); font-size: 13.5px; color: var(--text-dim); }
 .purchase-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
 .reqs-cell { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; color: var(--blue); text-decoration: underline; font-weight: 500; }
@@ -89,7 +91,7 @@
 .modal-card h3 { font-size: 20px; font-weight: 800; color: #f8fafc; margin-bottom: 8px; letter-spacing: -0.3px; }
 .modal-card p { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; }
 .modal-card form { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
-.modal-form-body { flex: 1; overflow-y: auto; padding-right: 8px; margin-bottom: 20px; min-height: 0; }
+.modal-form-body { flex: 1; overflow-y: auto; padding-inline-end: 8px; margin-bottom: 20px; min-height: 0; }
 .modal-form-body::-webkit-scrollbar { width: 6px; }
 .modal-form-body::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 3px; }
 .modal-form-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 3px; }

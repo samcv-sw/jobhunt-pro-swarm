@@ -1,3 +1,6 @@
+<meta property="og:title" content="Wallet | JobHunt Pro"/>
+<meta name="description" content="Manage your credits and financial transactions on JobHunt Pro."/>
+<title>Wallet | JobHunt Pro</title>
 <link rel="stylesheet" href="/static/css/cyberpunk.css">
   
 {% set wallet_balance = user.wallet_balance if user else 0 %}
@@ -70,7 +73,7 @@
 .crypto-card .crypto-addr { font-size:11px; color:#64748b; word-break:break-all; background:rgba(0,0,0,.3); padding:8px; border-radius:8px; margin-top:8px; }
 
 .transaction-table { width:100%; border-collapse:collapse; }
-.transaction-table th { text-align:left; font-size:11px; text-transform:uppercase; color:#64748b; padding:12px 8px; border-bottom:1px solid rgba(255,255,255,.05); letter-spacing:.5px; }
+.transaction-table th { text-align: start; font-size:11px; text-transform:uppercase; color:#64748b; padding:12px 8px; border-bottom:1px solid rgba(255,255,255,.05); letter-spacing:.5px; }
 .transaction-table td { padding:12px 8px; border-bottom:1px solid rgba(255,255,255,.03); font-size:13px; }
 .transaction-table tr:hover td { background:rgba(255,255,255,.02); }
 .tx-type { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; }

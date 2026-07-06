@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" class="dark" dir="rtl">
+<html lang="{{ lang | default('ar') }}" class="dark" dir="{{ 'rtl' if (lang | default('ar')) in ['ar', 'he', 'fa', 'ur'] else 'ltr' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,7 +49,7 @@
     
     <style>
         :root {
-            --text-x-direction: -1; /* For RTL mirroring */
+            --text-x-direction: {{ '-1' if (lang | default('ar')) in ['ar', 'he', 'fa', 'ur'] else '1' }}; /* For dynamic mirroring */
         }
         /* Mirror lucide icons when RTL */
         [dir="rtl"] .lucide-dir-aware {

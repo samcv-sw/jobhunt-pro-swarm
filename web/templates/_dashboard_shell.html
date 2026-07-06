@@ -1,139 +1,178 @@
-{% extends "_base_tailwind.html" %}
+﻿{% extends "_base_tailwind.html" %}
 {% block main_class %}{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen bg-slate-950 text-slate-300 font-['Cairo']" dir="rtl">
-<!-- Sidebar -->
-<!-- Mobile overlay -->
-<div @click="sidebarOpen = false" class="fixed inset-0 bg-black/50 z-30 md:hidden" x-cloak="" x-show="sidebarOpen"></div>
-<aside :class="sidebarOpen ? 'inset-inline-start-0' : '-inset-inline-start-64 md:inset-inline-start-0'" class="w-64 bg-slate-900 border-e border-white/10 flex flex-col fixed inset-y-0 inset-inline-start-0 z-40 transition-all duration-300">
-<div class="p-6 border-b border-white/10 pt-28">
-<h2 class="text-sm font-bold text-slate-400 tracking-wider uppercase mb-1">غرفة القيادة</h2>
-<div class="flex items-center gap-2 mt-2">
-<div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
-<span class="text-xs text-cyan-400 font-mono">النظام متصل</span>
+<div class="flex min-h-screen font-['Cairo','Inter',sans-serif] text-slate-300" dir="rtl" style="background:linear-gradient(135deg,#0a0a1a 0%,#0d0b1e 50%,#1a0a2e 100%);">
+
+  <!-- AMBIENT GLOW ORBS -->
+  <div aria-hidden="true" style="position:fixed;inset-block-start:-200px;inset-inline-start:10%;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+  <div aria-hidden="true" style="position:fixed;inset-block-end:-200px;inset-inline-end:5%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,170,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+
+  <!-- MOBILE OVERLAY -->
+  <div @click="sidebarOpen = false" class="fixed inset-0 z-30 md:hidden" style="background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);" x-cloak x-show="sidebarOpen"></div>
+
+  <!-- PREMIUM SIDEBAR -->
+  <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
+    class="fixed inset-y-0 inset-inline-start-0 z-40 flex flex-col transition-transform duration-300 ease-in-out"
+    style="inline-size:260px;background:rgba(10,10,26,0.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-inline-end:1px solid rgba(255,255,255,0.08);box-shadow:4px 0 40px rgba(0,0,0,0.4);">
+
+    <!-- Sidebar Header -->
+    <div style="padding:24px 20px 16px;border-block-end:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:12px;margin-block-end:16px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 0 20px rgba(139,92,246,0.4);">
+          {{ user.name[0].upper() if user.name else 'U' }}
+        </div>
+        <div style="min-width:0;flex:1;">
+          <p style="font-size:14px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ user.name or 'المستخدم' }}</p>
+          <p style="font-size:11px;color:#f0c040;font-family:monospace;margin-block-start:2px;">${{ "%.2f"|format(user.wallet_balance|default(0)) }} رصيد</p>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:10px;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:0.08em;">غرفة القيادة</span>
+        <div style="display:flex;align-items:center;gap:5px;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#00d4aa;animation:sbpulse 2s ease-in-out infinite;"></div>
+          <span style="font-size:9px;color:#00d4aa;font-family:monospace;font-weight:700;">LIVE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav Items -->
+    <nav class="sidebar-nav" style="flex:1;overflow-y:auto;padding:10px 10px 8px;">
+      <div class="sb-section-label">الرئيسية</div>
+      <a href="/dashboard/v3" class="sb-link {{ 'sb-active' if active_page == 'dashboard' else '' }}"><i data-lucide="layout-dashboard" class="sb-icon"></i><span>لوحة القيادة</span></a>
+      <a href="/upload-cv" class="sb-link {{ 'sb-active' if active_page == 'upload-cv' else '' }}"><i data-lucide="file-text" class="sb-icon"></i><span>رفع السيرة الذاتية</span></a>
+      <a href="/ats-scorer" class="sb-link {{ 'sb-active' if active_page == 'ats-scorer' else '' }}"><i data-lucide="target" class="sb-icon"></i><span>{{ _('مقياس ATS') }}</span></a>
+      <a href="/resume-tailor" class="sb-link {{ 'sb-active' if active_page == 'resume-tailor' else '' }}" style="{{ '' if active_page == 'resume-tailor' else 'color:#a78bfa;' }}"><i data-lucide="wand-2" class="sb-icon"></i><span>تخصيص السيرة الذاتية</span></a>
+
+      <div class="sb-section-label">الحملات</div>
+      <a href="/new-campaign" class="sb-link {{ 'sb-active' if active_page == 'new-campaign' else '' }}"><i data-lucide="rocket" class="sb-icon"></i><span>حملة جديدة</span></a>
+      <a href="/sent-emails" class="sb-link {{ 'sb-active' if active_page == 'sent-emails' else '' }}"><i data-lucide="send" class="sb-icon"></i><span>الرسائل المرسلة</span></a>
+      <a href="/funnel-analytics" class="sb-link {{ 'sb-active' if active_page == 'funnel-analytics' else '' }}"><i data-lucide="bar-chart-2" class="sb-icon"></i><span>تحليلات التوظيف</span></a>
+
+      <div class="sb-section-label">الأدوات</div>
+      <a href="/battle-station" class="sb-link {{ 'sb-active' if active_page == 'battle-station' else '' }}"><i data-lucide="swords" class="sb-icon"></i><span>محطة المعركة</span></a>
+      <a href="/services" class="sb-link {{ 'sb-active' if active_page == 'services' else '' }}"><i data-lucide="star" class="sb-icon"></i><span>الخدمات المميزة</span></a>
+      <a href="/wallet" class="sb-link {{ 'sb-active' if active_page == 'wallet' else '' }}"><i data-lucide="wallet" class="sb-icon"></i><span>المحفظة</span></a>
+      <a href="/my-purchases" class="sb-link {{ 'sb-active' if active_page == 'my-purchases' else '' }}"><i data-lucide="package" class="sb-icon"></i><span>اشتراكاتي</span></a>
+      <a href="/stats" class="sb-link {{ 'sb-active' if active_page == 'stats' else '' }}"><i data-lucide="pie-chart" class="sb-icon"></i><span>الإحصائيات</span></a>
+
+      <div class="sb-section-label">النظام</div>
+      <a href="/admin" class="sb-link sb-danger"><i data-lucide="shield-alert" class="sb-icon"></i><span>لوحة الإدارة</span></a>
+      <a href="/contact" class="sb-link {{ 'sb-active' if active_page == 'contact' else '' }}"><i data-lucide="message-square" class="sb-icon"></i><span>الدعم الفني</span></a>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div style="padding:10px 10px 14px;border-block-start:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
+      <a href="/wallet" class="sb-wallet-bar">
+        <i data-lucide="coins" style="width:15px;height:15px;color:#f0c040;flex-shrink:0;"></i>
+        <span style="font-size:12px;font-family:monospace;color:#f0c040;font-weight:700;">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</span>
+        <span style="font-size:11px;color:#4b5563;margin-inline-start:auto;">إضافة رصيد →</span>
+      </a>
+      <a href="/logout" class="sb-logout">
+        <i data-lucide="log-out" class="lucide-dir-aware" style="width:15px;height:15px;transform:scaleX(var(--text-x-direction,-1));"></i>
+        قطع الاتصال
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="relative flex-1 overflow-x-hidden" style="margin-inline-start:260px;z-index:1;">
+
+    <!-- Top Bar -->
+    <header style="position:sticky;inset-block-start:0;z-index:20;background:rgba(10,10,26,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-block-end:1px solid rgba(255,255,255,0.07);">
+      <div style="display:flex;align-items:center;justify-content:space-between;block-size:68px;padding-inline:24px;gap:16px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <button @click="sidebarOpen = true" class="md:hidden" style="padding:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#94a3b8;cursor:pointer;">
+            <i data-lucide="menu" style="width:20px;height:20px;"></i>
+          </button>
+          <div>
+            <h1 style="font-size:20px;font-weight:800;color:#fff;line-height:1.2;margin:0;">{{ title }}</h1>
+            <p style="font-size:11px;color:#00d4aa;font-family:monospace;margin:0;">حالة النظام: <span style="font-weight:700;">ممتاز ●</span></p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:10px;">
+            <i data-lucide="coins" style="width:15px;height:15px;color:#f0c040;"></i>
+            <span style="font-size:13px;font-family:monospace;color:#fff;font-weight:700;">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</span>
+            <a href="/wallet" style="font-size:11px;color:#8b5cf6;margin-inline-start:6px;text-decoration:none;font-weight:600;">إضافة</a>
+          </div>
+          <a href="/new-campaign" style="display:flex;align-items:center;gap:6px;padding:9px 18px;background:linear-gradient(135deg,#8b5cf6,#00d4aa);color:#fff;border-radius:10px;text-decoration:none;font-size:13px;font-weight:800;box-shadow:0 4px 20px rgba(139,92,246,0.35);transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+            <i data-lucide="rocket" style="width:14px;height:14px;transform:scaleX(var(--text-x-direction,-1));"></i>
+            إطلاق حملة
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div style="padding:28px;">
+      {{ content_html | safe }}
+    </div>
+
+    <!-- Footer -->
+    <footer style="padding:20px 28px;border-block-start:1px solid rgba(255,255,255,0.06);text-align:center;color:#374151;font-size:11px;">
+      نظام جوبهانت برو هايدرا v{{ VERSION }} © {{ current_year }} | مشفر بالكامل
+    </footer>
+  </main>
 </div>
-</div>
-<nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'dashboard' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/dashboard/v3">
-<i class="w-5 h-5" data-lucide="layout-dashboard"></i>
-<span class="font-medium text-sm">لوحة القيادة</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'upload-cv' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/upload-cv">
-<i class="w-5 h-5" data-lucide="file-text"></i>
-<span class="font-medium text-sm">رفع السيرة الذاتية</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'ats-scorer' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/ats-scorer">
-<i class="w-5 h-5" data-lucide="target"></i>
-<span class="font-medium text-sm">{{ _('مقياس ATS') }}</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'resume-tailor' else 'text-purple-400 hover:text-purple-300 hover:bg-white/5' }}" href="/resume-tailor">
-<i class="w-5 h-5" data-lucide="wand-2"></i>
-<span class="font-medium text-sm">تخصيص السيرة الذاتية</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'new-campaign' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/new-campaign">
-<i class="w-5 h-5" data-lucide="rocket"></i>
-<span class="font-medium text-sm">حملة جديدة</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'sent-emails' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/sent-emails">
-<i class="w-5 h-5" data-lucide="send"></i>
-<span class="font-medium text-sm">الرسائل المرسلة</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'funnel-analytics' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/funnel-analytics">
-<i class="w-5 h-5" data-lucide="bar-chart-2"></i>
-<span class="font-medium text-sm">تحليلات التوظيف</span>
-</a>
-<div class="my-4 border-t border-white/5"></div>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'battle-station' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/battle-station">
-<i class="w-5 h-5" data-lucide="swords"></i>
-<span class="font-medium text-sm">محطة المعركة</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'services' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/services">
-<i class="w-5 h-5" data-lucide="star"></i>
-<span class="font-medium text-sm">الخدمات المميزة</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'wallet' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/wallet">
-<i class="w-5 h-5" data-lucide="wallet"></i>
-<span class="font-medium text-sm">المحفظة</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'my-purchases' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/my-purchases">
-<i class="w-5 h-5" data-lucide="package"></i>
-<span class="font-medium text-sm">اشتراكاتي</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'stats' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/stats">
-<i class="w-5 h-5" data-lucide="pie-chart"></i>
-<span class="font-medium text-sm">الإحصائيات</span>
-</a>
-<div class="my-4 border-t border-white/5"></div>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-red-500/10 text-red-400' if active_page == 'admin' else 'text-red-400/70 hover:text-red-400 hover:bg-red-500/5' }}" href="/admin">
-<i class="w-5 h-5" data-lucide="shield-alert"></i>
-<span class="font-medium text-sm">لوحة الإدارة</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'contact' else 'text-slate-400 hover:text-white hover:bg-white/5' }}" href="/contact">
-<i class="w-5 h-5" data-lucide="message-square"></i>
-<span class="font-medium text-sm">الدعم الفني</span>
-</a>
-</nav>
-<div class="p-4 border-t border-white/10 bg-slate-950/50">
-<div class="flex items-center gap-3 mb-4">
-<div class="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold">
-                    {{ user.name[0] if user.name else 'U' }}
-                </div>
-<div>
-<p class="text-sm font-medium text-white truncate max-w-[120px]">{{ user.name }}</p>
-<p class="text-xs text-slate-400 font-mono">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</p>
-</div>
-</div>
-<a class="flex items-center justify-center gap-2 w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors border border-red-500/20 text-sm font-bold" href="/logout">
-<i class="w-4 h-4 lucide-dir-aware" data-lucide="log-out"></i>
-                قطع الاتصال
-            </a>
-</div>
-</aside>
-<!-- Main Content Area -->
-<main class="flex-1 md:ms-64 p-4 md:p-8 pt-24 min-h-screen relative overflow-x-hidden">
-<!-- Dashboard Header / Welcome -->
-<header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-<div class="flex items-center gap-3">
-<button @click="sidebarOpen = true" class="md:hidden p-2 bg-slate-900 border border-white/10 rounded-lg text-slate-300 hover:text-white transition-colors">
-<i class="w-5 h-5" data-lucide="menu"></i>
-</button>
-<div>
-<h1 class="text-2xl md:text-3xl font-display font-bold text-white mb-1">{{ title }}</h1>
-<p class="text-slate-400 text-sm">حالة غرفة العمليات: <span class="text-cyan-400 font-mono">ممتاز</span></p>
-</div>
-</div>
-<!-- Quick Stats/Actions -->
-<div class="flex items-center gap-3">
-<div class="px-4 py-2 bg-slate-900 border border-white/10 rounded-lg flex items-center gap-2 hover:-translate-y-0.5 transition-transform">
-<i class="w-4 h-4 text-gold-400" data-lucide="coins"></i>
-<span class="text-sm font-mono text-white">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</span>
-<a class="ms-2 px-2 py-0.5 bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 rounded text-xs transition-colors" href="/wallet">إضافة رصيد</a>
-</div>
-<a class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white rounded-lg shadow-lg shadow-indigo-500/25 flex items-center gap-2 text-sm font-bold transition-all hover:-translate-y-0.5" href="/new-campaign">
-<i class="w-4 h-4 lucide-dir-aware" data-lucide="rocket"></i>
-                    إطلاق حملة
-                </a>
-</div>
-</header>
-<!-- Dynamic Content injected here -->
-        {{ content_html | safe }}
-        
-        <!-- Footer -->
-<footer class="mt-12 pt-6 border-t border-white/10 text-center text-slate-500 text-sm">
-            نظام جوبهانت برو هايدرا v{{ VERSION }} © {{ current_year }} | مشفر بالكامل
-        </footer>
-</main>
-</div>
+
+<style>
+:root { --text-x-direction: -1; }
+[dir="ltr"] { --text-x-direction: 1; }
+
+@keyframes sbpulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+.sb-section-label {
+  font-size:9px; font-weight:700; color:#374151;
+  text-transform:uppercase; letter-spacing:0.1em;
+  padding:14px 8px 4px;
+}
+.sb-link {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:9px; margin-block-end:2px;
+  color:#94a3b8; text-decoration:none; font-size:13.5px; font-weight:500;
+  transition:all 0.18s ease;
+  border-inline-start:3px solid transparent;
+}
+.sb-link:hover {
+  color:#e2e8f0;
+  background:rgba(255,255,255,0.06);
+  border-inline-start-color:rgba(240,192,64,0.3);
+}
+.sb-active {
+  color:#f0c040 !important;
+  background:rgba(240,192,64,0.1) !important;
+  border-inline-start-color:#f0c040 !important;
+  font-weight:700;
+}
+.sb-danger { color:rgba(248,113,113,0.75); }
+.sb-danger:hover { color:#f87171 !important; background:rgba(239,68,68,0.08) !important; }
+.sb-icon { width:17px; height:17px; flex-shrink:0; }
+.sb-wallet-bar {
+  display:flex; align-items:center; gap:8px;
+  padding:9px 12px; background:rgba(240,192,64,0.06);
+  border:1px solid rgba(240,192,64,0.15); border-radius:9px;
+  margin-block-end:8px; text-decoration:none; transition:all 0.2s;
+}
+.sb-wallet-bar:hover { background:rgba(240,192,64,0.12); }
+.sb-logout {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  inline-size:100%; padding:9px; background:rgba(239,68,68,0.08);
+  border:1px solid rgba(239,68,68,0.2); border-radius:9px;
+  color:#f87171; text-decoration:none; font-size:13px; font-weight:700;
+  transition:all 0.2s;
+}
+.sb-logout:hover { background:rgba(239,68,68,0.15); }
+.sidebar-nav::-webkit-scrollbar { width:3px; }
+.sidebar-nav::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
+@media(max-width:767px) {
+  main { margin-inline-start:0 !important; }
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const animatedElements = document.querySelectorAll('.glow-orb-1, .glow-orb-2, .glow-orb-3, .glass-card, .glass-panel, .btn, .step-card, .feature-card, .stat-card, .testimonial-card');
-    animatedElements.forEach(el => {
-        el.addEventListener('mouseenter', () => { el.style.willChange = 'transform, opacity, box-shadow'; });
-        el.addEventListener('transitionend', () => { el.style.willChange = 'auto'; });
-        el.addEventListener('mouseleave', () => { setTimeout(() => { el.style.willChange = 'auto'; }, 500); });
-        el.addEventListener('touchstart', () => { el.style.willChange = 'transform, opacity, box-shadow'; });
-    });
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 });
 </script>
 {% endblock %}

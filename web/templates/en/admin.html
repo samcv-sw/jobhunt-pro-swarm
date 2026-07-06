@@ -1,3 +1,6 @@
+<meta property="og:title" content="Admin Panel | JobHunt Pro"/>
+<meta name="description" content="Administrator control panel for managing users and settings."/>
+<title>Admin Panel | JobHunt Pro</title>
 <style>
  * { margin:0; padding:0; box-sizing:border-box; }
  body { font-family:'Segoe UI',sans-serif; background:#0a0a0f; color:#e2e8f0; min-height:100vh; }
@@ -31,7 +34,7 @@
  .btn:hover { opacity:.85; transform:translateY(-1px); }
  .table-wrap { overflow-x:auto; border-radius:12px; border:1px solid rgba(255,255,255,.08); }
  table { width:100%; border-collapse:collapse; font-size:13px; }
- th { padding:12px var(--space-2); text-align:left; color:#94a3b8; font-size:11px; text-transform:uppercase; background:rgba(255,255,255,.03); border-bottom:1px solid rgba(255,255,255,.08); }
+ th { padding:12px var(--space-2); text-align: start; color:#94a3b8; font-size:11px; text-transform:uppercase; background:rgba(255,255,255,.03); border-bottom:1px solid rgba(255,255,255,.08); }
  td { padding:12px var(--space-2); border-bottom:1px solid rgba(255,255,255,.04); }
  tr:last-child td { border-bottom:none; }
  tr:hover td { background:rgba(255,255,255,.02); }
@@ -44,12 +47,13 @@
  a.link { color:#3b82f6; text-decoration:none; }
  a.link:hover { text-decoration:underline; }
  .mono { font-family:monospace; font-size:12px; }
- .copy-btn { margin-left:6px; padding:2px var(--space-1); background:rgba(139,92,246,.2); border:none; border-radius:4px; color:#a78bfa; cursor:pointer; font-size:11px; }
+ .copy-btn { margin-inline-start:6px; padding:2px var(--space-1); background:rgba(139,92,246,.2); border:none; border-radius:4px; color:#a78bfa; cursor:pointer; font-size:11px; }
  .copy-btn:hover { background:rgba(139,92,246,.4); }
  .c-btc { color:#f7931a; } .c-eth { color:#627eea; } .c-usdt { color:#26a17b; } .c-ltc { color:#345d9d; }
  </style>
 
 <div class="container">
+<h1 class="sr-only">لوحة الإدارة</h1>
 
  {% if request.query_params.get('success') %}
  <div class="alert success">&#x2705; {{ request.query_params.get('success') }}</div>

@@ -6,6 +6,10 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>{{ post.title }} — مدونة JobHunt Pro</title>
+<meta property="og:title" content="{{ post.title }} — مدونة JobHunt Pro"/>
+<meta property="og:description" content="{{ post.meta_description }}"/>
+<meta property="og:type" content="article"/>
+<meta name="twitter:card" content="summary_large_image"/>
 <meta content="{{ post.meta_description }}" name="description"/>
 <meta content="{{ post.primary_keyword }}, {{ post.topics|join(', ') }}" name="keywords"/>
 <link href="https://jhfguf.pythonanywhere.com/blog/{{ post.slug }}" rel="canonical"/>

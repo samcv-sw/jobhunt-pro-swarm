@@ -1,3 +1,6 @@
+<meta property="og:title" content="Sent Emails | JobHunt Pro"/>
+<meta name="description" content="Track all application emails sent through JobHunt Pro."/>
+<title>Sent Emails | JobHunt Pro</title>
 <div class="space-y-6">
   <!-- Page Header -->
   <div class="mb-6">
@@ -31,8 +34,8 @@
   <!-- Filter Bar -->
   <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-4 flex flex-wrap gap-3 items-center">
     <div class="relative flex-1 min-w-[200px]">
-      <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
-      <input dir="auto" type="text" id="searchInput" placeholder="Search by company, title, or email..." oninput="filterTable()" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all">
+      <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute start-3 top-1/2 -translate-y-1/2"></i>
+      <input dir="auto" type="text" id="searchInput" placeholder="Search by company, title, or email..." oninput="filterTable()" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-lg ps-9 pe-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all">
     </div>
     <select id="statusFilter" onchange="filterTable()" class="bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-lg px-4 py-2 text-sm text-white outline-none transition-all cursor-pointer min-w-[150px]">
       <option value="all">All Status</option>
@@ -49,7 +52,7 @@
   {% if rows %}
   <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
     <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse" id="emailTable">
+      <table class="w-full text-start border-collapse" id="emailTable">
         <thead>
           <tr class="bg-slate-950/50 border-b border-slate-800">
             <th class="py-4 px-5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">To</th>
