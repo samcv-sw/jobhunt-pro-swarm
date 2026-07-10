@@ -27,4 +27,12 @@ dist/
 build/
 node_modules/
 .DS_Store
-Thumbs.db
+data/
+logs/
+.pytest_cache/
+.ruff_cache/
+.agents/
+scratch/
+archive/
+test_env/
+test_env_2/

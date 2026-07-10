@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Dict, Optional
+
 from duckduckgo_search import DDGS
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ class ShadowNetwork:
     def __init__(self):
         pass
 
-    def hunt_hr_manager(self, company_name: str, location: str = "") -> Optional[Dict]:
+    def hunt_hr_manager(self, company_name: str, location: str = "") -> dict | None:
         """Search for HR managers at the target company."""
         if not company_name:
             return None
@@ -90,7 +90,7 @@ class ShadowNetwork:
             logger.error(f"[SHADOW] Hunt failed: {e}")
             return None
 
-    def craft_shadow_message(self, hr_data: Dict, job_title: str) -> str:
+    def craft_shadow_message(self, hr_data: dict, job_title: str) -> str:
         """Craft a direct message to the hunted HR manager."""
         name = hr_data.get("hr_name", "Hiring Manager").split(" ")[0]
         return (

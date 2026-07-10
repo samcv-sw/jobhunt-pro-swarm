@@ -43,8 +43,8 @@ body {
 
 /* ── Orbs ── */
 .orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);opacity:0.15;animation:orbFloat 12s ease-in-out infinite;}
-.orb-1{width:500px;height:500px;background:radial-gradient(circle,#4facfe,transparent);top:-200px;left:-150px;}
-.orb-2{width:400px;height:400px;background:radial-gradient(circle,#00f2fe,transparent);bottom:-100px;right:-100px;animation-delay:4s;}
+.orb-1{width:500px;height:500px;background:radial-gradient(circle,#4facfe,transparent);top:-200px;inset-inline-start:-150px;}
+.orb-2{width:400px;height:400px;background:radial-gradient(circle,#00f2fe,transparent);bottom:-100px;inset-inline-end:-100px;animation-delay:4s;}
 @keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-30px) scale(1.05)}}
 
 .page-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:100px 20px 40px;position:relative;z-index:1}
@@ -73,8 +73,8 @@ body {
 .pw-row a:hover{text-decoration:underline}
 
 .btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent-magenta),var(--accent-cyan));color:#020c1b;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:'Outfit',sans-serif;letter-spacing:-0.2px;position:relative;overflow:hidden;}
-.btn-submit::before{content:'';position:absolute;top:0;left:-100%;width:200%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:left 0.5s ease;}
-.btn-submit:hover::before{left:100%;}
+.btn-submit::before{content:'';position:absolute;top:0;inset-inline-start:-100%;width:200%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:inset-inline-start 0.5s ease;}
+.btn-submit:hover::before{inset-inline-start:100%;}
 .btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(79,172,254,0.35);}
 .btn-submit:active{transform:translateY(0);}
 .btn-submit.loading{opacity:0.75;pointer-events:none;}
@@ -143,7 +143,7 @@ body {
         
         <div class="oauth-divider">OR</div>
 
-        <form method="POST" action="/login">
+        <form dir="auto" method="POST" action="/login">
           <div class="form-group">
             <label for="email">Email Address</label>
             <input dir="auto" type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>

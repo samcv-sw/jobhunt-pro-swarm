@@ -20,7 +20,7 @@ if response.status_code == 200:
         time.sleep(2) # wait for console to start
         
     console_id = bash_console['id']
-    print(f"Using console ID: {console_id}")
+    logger.debug(f"Using console ID: {console_id}")
     
     # 2. Send git pull command
     cmd = 'cd ~/jobhunt && git pull origin main\n'
@@ -29,15 +29,15 @@ if response.status_code == 200:
         headers=headers,
         json={'input': cmd}
     )
-    print("Sent git pull command.")
+    logger.debug("Sent git pull command.")
     
     time.sleep(5) # wait for pull to finish
     
     # 3. Reload Web App
     reload_res = requests.post(f'https://www.pythonanywhere.com/api/v0/user/{username}/webapps/{domain}/reload/', headers=headers)
     if reload_res.status_code == 200:
-        print("Web app reloaded successfully.")
+        logger.debug("Web app reloaded successfully.")
     else:
-        print(f"Failed to reload web app: {reload_res.text}")
+        logger.debug(f"Failed to reload web app: {reload_res.text}")
 else:
-    print(f"Failed to fetch consoles: {response.text}")
+    logger.debug(f"Failed to fetch consoles: {response.text}")

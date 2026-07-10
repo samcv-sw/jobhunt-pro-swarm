@@ -20,16 +20,17 @@ Env vars required:
     DB_PATH (optional)  - Path to SQLite DB (default: jobhunt_saas_v2.db)
 """
 
-import os
-import sys
-import gzip
-import shutil
-import core.pg_sqlite_shim as sqlite3
-import logging
 import argparse
+import gzip
+import logging
+import os
+import shutil
+import sys
 import time as _time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
+
+import core.pg_sqlite_shim as sqlite3
 
 # ── Project root ────────────────────────────────────────────
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -109,7 +110,7 @@ def backup_database() -> str | None:
     Returns:
         Path to the compressed backup file, or None on failure.
     """
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
     backup_name = f"jobhunt_saas_v2_{timestamp}.db.gz"
     backup_path = BACKUP_DIR / backup_name
     temp_db_path = BACKUP_DIR / f"_temp_backup_{timestamp}.db"
@@ -239,7 +240,7 @@ def run_backup() -> dict:
         Dict with status info for logging/telemetry.
     """
     result = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "success": False,
         "backup_path": None,
         "telegram_sent": False,
@@ -302,8 +303,8 @@ def run_backup_loop(interval_hours: int = 6):
         MAX_BACKUPS,
     )
 
-    import signal as _signal
     import asyncio as _asyncio
+    import signal as _signal
 
     shutdown_flag = False
 
@@ -366,15 +367,15 @@ if __name__ == "__main__":
             path = backup_database()
             if path:
                 _rotate_backups()
-                print(f"Local backup: {path}")
+                logger.debug(f"Local backup: {path}")
         else:
             result = run_backup()
             if result["success"]:
-                print(f"✅ Backup complete: {result['backup_path']}")
-                print(
+                logger.debug(f"✅ Backup complete: {result['backup_path']}")
+                logger.debug(
                     f"   Telegram: {'sent' if result['telegram_sent'] else 'skipped'}"
                 )
-                print(f"   Duration: {result['duration_s']}s")
+                logger.debug(f"   Duration: {result['duration_s']}s")
             else:
-                print(f"❌ Backup failed: {result.get('error', 'unknown')}")
+                logger.debug(f"❌ Backup failed: {result.get('error', 'unknown')}")
                 sys.exit(1)

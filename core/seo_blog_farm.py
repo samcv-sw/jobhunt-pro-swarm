@@ -16,7 +16,6 @@ import re
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +99,7 @@ KEYWORD_CLUSTERS = [
 ]
 
 
-def init(data_dir: Optional[str] = None):
+def init(data_dir: str | None = None):
     """Initialize blog farm."""
     global POSTS_DIR, BLOG_DATA
     if data_dir:
@@ -117,7 +116,7 @@ def init(data_dir: Optional[str] = None):
     logger.info(f"BlogFarm initialized at {POSTS_DIR}")
 
 
-def generate_post(cluster: Dict, groq_key: str = None) -> Optional[Dict]:
+def generate_post(cluster: dict, groq_key: str = None) -> dict | None:
     """Generate a single blog post using Groq AI."""
     if groq_key is None:
         groq_key = os.getenv("GROQ_API_KEY", "")
@@ -194,7 +193,7 @@ Output in this JSON format:
     return _template_post(cluster)
 
 
-def _template_post(cluster: Dict) -> Dict:
+def _template_post(cluster: dict) -> dict:
     """Generate a template-based blog post (no API needed)."""
     kw = cluster["primary"]
     title = cluster["title"]
@@ -311,7 +310,7 @@ def publish_post(slug: str) -> bool:
 
 def get_posts(
     published_only: bool = True, limit: int = None, offset: int = 0
-) -> List[Dict]:
+) -> list[dict]:
     """Get blog posts, optionally filtered."""
     posts = _load_posts()
     if published_only:
@@ -329,7 +328,7 @@ def get_posts(
     return posts
 
 
-def get_post(slug: str) -> Optional[Dict]:
+def get_post(slug: str) -> dict | None:
     """Get a single post by slug."""
     posts = _load_posts()
     for p in posts:
@@ -338,25 +337,25 @@ def get_post(slug: str) -> Optional[Dict]:
     return None
 
 
-def _load_posts() -> List[Dict]:
+def _load_posts() -> list[dict]:
     """Load all posts from JSON."""
     if BLOG_DATA and BLOG_DATA.exists():
         try:
-            with open(BLOG_DATA, "r", encoding="utf-8") as f:
+            with open(BLOG_DATA, encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
             return []
     return []
 
 
-def _save_posts(posts: List[Dict]):
+def _save_posts(posts: list[dict]):
     """Save posts to JSON."""
     if BLOG_DATA:
         with open(BLOG_DATA, "w", encoding="utf-8") as f:
             json.dump(posts, f, indent=2, ensure_ascii=False, default=str)
 
 
-def get_stats() -> Dict:
+def get_stats() -> dict:
     """Blog farm statistics."""
     posts = _load_posts()
     published = [p for p in posts if p.get("published")]

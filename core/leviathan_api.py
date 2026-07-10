@@ -8,11 +8,12 @@ THE LEVIATHAN API: PROGRAMMABLE WORKFORCE
 5. Client is locked into a $25,000/month Enterprise Retainer.
 """
 
-import core.pg_sqlite_shim as sqlite3
+import json
+import logging
 import os
 import random
-import logging
-import json
+
+import core.pg_sqlite_shim as sqlite3
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] LEVIATHAN-API: %(message)s"

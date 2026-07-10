@@ -7,14 +7,15 @@ keyword density, format, missing keywords, suggestions, and strengths.
 Usage:
     from core.ats_scorer import score_resume_sync
     result = score_resume_sync(resume_text, job_description, job_title="Network Engineer")
-    print(result["overall_score"])  # e.g. 78
+    logger.debug(result["overall_score"])  # e.g. 78
 """
 
-import json
-import os
 import asyncio
-import re
+import json
 import logging
+import os
+import re
+
 from groq import AsyncGroq
 
 logger = logging.getLogger(__name__)
@@ -119,20 +120,20 @@ def fallback_score(resume_text: str, job_description: str) -> dict:
         "this",
         "from",
     }
-    
+
     # Smarter Fallback: generate n-grams (bi-grams and tri-grams) to catch multi-word keywords
     def get_ngrams(words, n):
         return set([" ".join(words[i:i+n]) for i in range(len(words)-n+1)])
-        
+
     jd_words_list = list(WORD_RE.findall(job_description.lower()))
     resume_words_list = list(WORD_RE.findall(resume_text.lower()))
-    
+
     jd_ngrams = get_ngrams(jd_words_list, 2).union(get_ngrams(jd_words_list, 3))
     resume_ngrams = get_ngrams(resume_words_list, 2).union(get_ngrams(resume_words_list, 3))
 
     important_jd_words = {w for w in jd_words if len(w) > 3 and w not in stop_words}
     important_jd_words.update([g for g in jd_ngrams if len(g.split()) > 1])
-    
+
     resume_all_features = resume_words.union(resume_ngrams)
 
     matched = important_jd_words.intersection(resume_all_features)

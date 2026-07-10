@@ -10,8 +10,8 @@
 <meta property="og:description" content="سجّل دخولك وتحكّم بحملاتك وتقديماتك الوظيفية الآن."/>
 <meta content="noindex,follow" name="robots"/>
 <title>{{ _('دخول — JobHunt Pro') }}</title>
-<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
-<!-- Login v2 — Enhanced glassmorphism, gold accent, logical CSS properties -->
+<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=IBM+Plex+Arabic:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
+<!-- Login v2 — Enhanced glassmorphism, cyan accent, logical CSS properties -->
 <link href="/static/css/dashboard-v4-rtl.css?v=20260629_v2" rel="stylesheet"/>
 <link href="/static/css/auth-v2-rtl.css?v=20260629_v2" rel="stylesheet"/>
 <style>
@@ -19,6 +19,7 @@
    LOGIN v2 — Premium Glassmorphism Styles
    ═══════════════════════════════════════════ */
 :root {
+  --cyan: #00f0ff;
   --gold: #f0c040;
   --teal: #00d4aa;
   --purple: #8b5cf6;
@@ -26,32 +27,65 @@
   --glass-border: rgba(255,255,255,0.1);
 }
 body.auth-page {
-  background: linear-gradient(135deg,#0a0a1a 0%,#1a0a2e 50%,#0d1a2e 100%) !important;
+  background: #0a0a14 linear-gradient(135deg,#0a0a1a 0%,#1a0a2e 50%,#0d1a2e 100%) !important;
   background-attachment: fixed !important;
   min-block-size: 100vh;
-  font-family: 'Cairo','Inter',sans-serif;
+  font-family: 'Cairo','IBM Plex Arabic','Tajawal',sans-serif;
 }
 .auth-card {
   animation: fadeSlideUp 0.5s ease-out;
-  background: rgba(255,255,255,0.04) !important;
-  backdrop-filter: blur(24px) !important;
-  -webkit-backdrop-filter: blur(24px) !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
+  background: rgba(10,10,25,0.8) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(0,240,255,0.15) !important;
   border-radius: 20px !important;
 }
-.auth-card input:focus, .auth-card textarea:focus {
-  border-color: var(--gold) !important;
-  box-shadow: 0 0 0 3px rgba(240,192,64,0.2) !important;
+
+/* ── Input Focus / Validation States ── */
+.auth-card input:focus,
+.auth-card textarea:focus,
+.auth-card select:focus {
+  outline: none !important;
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 0 3px rgba(0,240,255,0.15) !important;
 }
+.auth-card input.input-error,
+.auth-card textarea.input-error {
+  border-color: #ff4444 !important;
+  box-shadow: 0 0 0 3px rgba(255,68,68,0.15) !important;
+}
+.auth-card input.input-success,
+.auth-card textarea.input-success {
+  border-color: #00ff88 !important;
+  box-shadow: 0 0 0 3px rgba(0,255,136,0.15) !important;
+}
+
+/* ── Submit Button ── */
 .btn-submit {
-  background: linear-gradient(135deg, var(--gold), var(--teal)) !important;
-  color: #0a0a1a !important;
+  background: linear-gradient(135deg, var(--cyan), var(--teal)) !important;
+  color: #0a0a14 !important;
   font-weight: 700 !important;
+  padding-inline: 24px;
+  font-family: 'Cairo','IBM Plex Arabic','Tajawal',sans-serif;
 }
 .btn-submit:hover {
-  box-shadow: 0 8px 30px rgba(240,192,64,0.35) !important;
   transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(0,240,255,0.4) !important;
 }
+
+/* ── Loading Spinner ── */
+.spinner {
+  display: inline-block;
+  inline-size: 16px;
+  block-size: 16px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-inline-end: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Background particles (CSS only) ── */
 .bg-particles {
@@ -62,7 +96,7 @@ body.auth-page {
 .bg-particles .particle {
   position: absolute;
   inline-size: 4px; block-size: 4px;
-  background: var(--gold);
+  background: var(--cyan);
   border-radius: 50%;
   opacity: 0.1;
   animation: floatParticle 20s infinite linear;
@@ -98,7 +132,7 @@ body.auth-page {
   background: var(--accent-success); color: #fff;
   display: flex; align-items: center; justify-content: center;
   font-size: 32px; margin-inline: auto; margin-block-end: 16px;
-  box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 30px rgba(0,255,136,0.3);
 }
 .success-check h2 { font-size: 22px; margin-block-end: 8px; }
 .success-check p { color: var(--text-muted); font-size: 14px; }
@@ -147,7 +181,7 @@ body.auth-page {
         </a>
 </div>
 <div class="oauth-divider">أو</div>
-<form action="/login" id="loginForm" method="POST" onsubmit="handleLogin(event)">
+<form dir="auto" action="/login" id="loginForm" method="POST" onsubmit="handleLogin(event)">
 <div class="form-group">
 <label for="email">البريد الإلكتروني</label>
 <input autocomplete="email" autofocus="" dir="auto" id="email" name="email" placeholder="you@example.com" required="" type="email"/>
@@ -166,7 +200,7 @@ body.auth-page {
 </div>
 <div class="pw-row">
 <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);cursor:pointer;">
-<input dir="auto" name="remember" style="accent-color:var(--accent-primary);" type="checkbox"/> تذكرني
+<input dir="auto" name="remember" style="accent-color:#00f0ff;" type="checkbox"/> تذكرني
           </label>
 <a href="/forgot-password">نسيت كلمة المرور؟</a>
 </div>
@@ -231,6 +265,8 @@ function handleLogin(e) {
   e.preventDefault();
   var btn = document.getElementById('loginBtn');
   btn.classList.add('loading');
+  btn.querySelector('.btn-text').innerHTML = '<span class="spinner"></span> جاري...';
+  btn.disabled = true;
   // Allow form to submit naturally after brief delay for UX
   setTimeout(function() {
     document.getElementById('loginForm').submit();

@@ -73,27 +73,27 @@ async def en_login_post(request: Request, email: str = Form(...), password: str 
     from web.app_v2 import session_serializer
     import bcrypt
     email = email.strip().lower()
-    conn = get_db()
-    user = conn.execute(
-        "SELECT user_id, password_hash FROM users WHERE email = ?", (email,)
-    ).fetchone()
-    conn.close()
-    if not user:
-        return templates.TemplateResponse(request, "en/login_v2.html", {
-            "error": "Invalid credentials",
-            "VERSION": config.VERSION,
-        })
-    pw_hash = user["password_hash"] if hasattr(user, "__getitem__") else user[1]
-    if not bcrypt.checkpw(password.encode(), pw_hash.encode() if isinstance(pw_hash, str) else pw_hash):
-        return templates.TemplateResponse(request, "en/login_v2.html", {
-            "error": "Invalid credentials",
-            "VERSION": config.VERSION,
-        })
-    u_id = user["user_id"] if hasattr(user, "__getitem__") else user[0]
-    signed_uid = session_serializer.dumps(u_id)
-    response = RedirectResponse("/dashboard", status_code=303)
-    response.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
-    return response
+    with get_db() as conn:
+        user = conn.execute(
+            "SELECT user_id, password_hash FROM users WHERE email = ?", (email,)
+        ).fetchone()
+        pass  # conn.close()
+        if not user:
+            return templates.TemplateResponse(request, "en/login_v2.html", {
+                "error": "Invalid credentials",
+                "VERSION": config.VERSION,
+            })
+        pw_hash = user["password_hash"] if hasattr(user, "__getitem__") else user[1]
+        if not bcrypt.checkpw(password.encode(), pw_hash.encode() if isinstance(pw_hash, str) else pw_hash):
+            return templates.TemplateResponse(request, "en/login_v2.html", {
+                "error": "Invalid credentials",
+                "VERSION": config.VERSION,
+            })
+        u_id = user["user_id"] if hasattr(user, "__getitem__") else user[0]
+        signed_uid = session_serializer.dumps(u_id)
+        response = RedirectResponse("/dashboard", status_code=303)
+        response.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
+        return response
 
 
 # ── Register ──────────────────────────────────────────────────────────────────

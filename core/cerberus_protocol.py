@@ -8,9 +8,9 @@ THE CERBERUS PROTOCOL: AI UPSELL & IP FIREWALL
 5. Zero human intervention. Total monopoly protection.
 """
 
-import time
-import random
 import logging
+import random
+import time
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] CERBERUS-GUARD: %(message)s"

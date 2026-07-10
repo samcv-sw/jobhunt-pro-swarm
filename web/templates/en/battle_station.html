@@ -6,7 +6,7 @@
 <style>
 /* Battle Station Premium Styles */
 .bs-topbar { margin-bottom: 30px; }
-.bs-title { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 8px; letter-spacing: -0.5px; }
+.bs-title { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 8px;  }
 .bs-subtitle { font-size: 15px; color: #94a3b8; line-height: 1.5; }
 
 .bs-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
@@ -17,10 +17,10 @@
     box-shadow: 0 4px 20px rgba(0,0,0,.2);
 }
 .bs-stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,.4); border-color: rgba(255,255,255,.15); }
-.bs-stat-num { font-size: 34px; font-weight: 800; line-height: 1.1; margin-bottom: 8px; letter-spacing: -1px; color: #fff; }
-.bs-stat-lbl { font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+.bs-stat-num { font-size: 34px; font-weight: 800; line-height: 1.1; margin-bottom: 8px;  color: #fff; }
+.bs-stat-lbl { font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase;  }
 
-.bs-section-hdr { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 16px; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+.bs-section-hdr { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 16px;  display: flex; align-items: center; gap: 8px; }
 
 .bs-actions { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
 .bs-btn {
@@ -53,7 +53,7 @@
 .bs-dot.green { color: #4ade80; background: #4ade80; }
 .bs-dot.yellow { color: #fbbf24; background: #fbbf24; }
 .bs-dot.red { color: #ef4444; background: #ef4444; }
-.bs-status { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 20px; }
+.bs-status { font-size: 11px; font-weight: 700; text-transform: uppercase;  padding: 4px 10px; border-radius: 20px; }
 .bs-status.running { background: rgba(74,222,128,.15); color: #4ade80; }
 .bs-status.paused { background: rgba(251,191,36,.15); color: #fbbf24; }
 .bs-status.completed { background: rgba(96,165,250,.15); color: #60a5fa; }
@@ -109,7 +109,7 @@
     border-radius: 50%;
     position: absolute;
     top: 6px;
-    left: 6px;
+    inset-inline-start: 6px;
 }
 .radar-ping {
     border: 3px solid #4ade80;
@@ -135,7 +135,7 @@
 .toast {
     position: fixed;
     bottom: 24px;
-    right: 24px;
+    inset-inline-end: 24px;
     padding: 14px 20px;
     background: rgba(15, 15, 20, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -202,8 +202,8 @@
       </div>
       
       <div style="text-align: center; background: rgba(0,0,0,.3); padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,.05); min-width: 200px;">
-        <div style="font-size: 9px; color: #60a5fa; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px;">Next Auto-Apply Scan</div>
-        <div id="autopilot-countdown" style="font-size: 28px; font-weight: 800; color: #60a5fa; font-family: monospace; letter-spacing: 1px; line-height: 1;">01:15</div>
+        <div style="font-size: 9px; color: #60a5fa; font-weight: 800;  text-transform: uppercase; margin-bottom: 2px;">Next Auto-Apply Scan</div>
+        <div id="autopilot-countdown" style="font-size: 28px; font-weight: 800; color: #60a5fa; font-family: monospace;  line-height: 1;">01:15</div>
         <div id="autopilot-status" style="font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 4px;">Initializing autopilot...</div>
       </div>
     </div>

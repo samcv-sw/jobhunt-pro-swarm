@@ -1,11 +1,11 @@
-import os
-import sys
 import argparse
 import logging
-import requests
-import httpx
+import os
+import sys
 from pathlib import Path
-from typing import Optional
+
+import httpx
+import requests
 
 # Add project root to path
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -22,22 +22,22 @@ logger = logging.getLogger(__name__)
 try:
     from core.multi_source_scraper import (
         BaseScraper,
-        IndeedScraper,
         BaytScraper,
-        WuzzufScraper,
-        LinkedInScraper,
-        GlassdoorScraper,
-        NaukriScraper,
         DiceScraper,
+        GlassdoorScraper,
+        IndeedScraper,
+        JoobleScraper,
+        LinkedInScraper,
+        NaukriIndiaScraper,
+        NaukriScraper,
         SeekScraper,
         StepStoneScraper,
-        WWRScraper,
-        WellfoundScraper,
-        ZipRecruiterScraper,
-        XingScraper,
-        NaukriIndiaScraper,
-        JoobleScraper,
         UpworkScraper,
+        WellfoundScraper,
+        WuzzufScraper,
+        WWRScraper,
+        XingScraper,
+        ZipRecruiterScraper,
     )
 except ImportError as e:
     logger.error(f"Failed to import core scrapers: {e}")
@@ -78,7 +78,7 @@ def monkey_patch_scraper(worker_url: str):
 
     def mock_get(
         self, url: str, extra_headers=None, max_retries=2
-    ) -> Optional[httpx.Response]:
+    ) -> httpx.Response | None:
         logger.info(f"Routing request through Cloudflare Worker Scrape: {url}")
         try:
             # We fetch via worker router's scrape endpoint
@@ -207,6 +207,7 @@ def main():
             # Run EmailFinder inside matrix_scrape_handler.py to find HR contact emails in cloud mode
             try:
                 import asyncio
+
                 from core.email_finder import EmailFinder
 
                 async def enrich():

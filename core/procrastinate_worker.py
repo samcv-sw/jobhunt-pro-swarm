@@ -1,6 +1,6 @@
+import logging
 import os
 import sys
-import logging
 
 import procrastinate
 
@@ -37,18 +37,24 @@ else:
 
 @app.task(queue="emails")
 def send_marketing_email_task(email_data: dict):
-    from core.email_marketing import send_marketing_email_sync
+    try:
+        from core.email_marketing import send_marketing_email_sync
 
-    logger.info(f"Sending email task: {email_data.get('to_email')}")
-    send_marketing_email_sync(email_data)
+        logger.info(f"Sending email task: {email_data.get('to_email')}")
+        send_marketing_email_sync(email_data)
+    except Exception as e:
+        logger.error(f"Error in send_marketing_email_task: {e}")
 
 
 @app.task(queue="scraping")
 def run_scraper_job_task(job_data: dict):
-    from core.pa_job_scraper import run_scraper_sync
+    try:
+        from core.pa_job_scraper import run_scraper_sync
 
-    logger.info("Running scraper task")
-    run_scraper_sync(job_data)
+        logger.info("Running scraper task")
+        run_scraper_sync(job_data)
+    except Exception as e:
+        logger.error(f"Error in run_scraper_job_task: {e}")
 
 
 if __name__ == "__main__":

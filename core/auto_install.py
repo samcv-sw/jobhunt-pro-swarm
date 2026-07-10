@@ -1,8 +1,8 @@
 """Auto-install missing packages on PA startup - v16.310"""
 
+import logging
 import subprocess
 import sys
-import logging
 
 logger = logging.getLogger(__name__)
 

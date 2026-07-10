@@ -4,10 +4,10 @@ Generates non-linear, human-like mouse trajectories using Bezier curves and easi
 to bypass Datadome and Cloudflare behavioral tracking.
 """
 
+import logging
 import math
 import random
-import logging
-from typing import Any, List, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class HumanMouse:
     @staticmethod
     def generate_path(
         start_x: int, start_y: int, dest_x: int, dest_y: int, num_points: int = 20
-    ) -> List[Tuple[int, int]]:
+    ) -> list[tuple[int, int]]:
         """
         Generate a human-like path from start to destination using a cubic Bezier curve.
         Adds random control points to create realistic "wobble" and overshoot.

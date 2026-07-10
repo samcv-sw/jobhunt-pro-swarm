@@ -41,4 +41,4 @@ for k, v in replacements.items():
 with open(file_path, 'w', encoding='utf-8') as f:
     f.write(content)
 
-print('index_v4.html core translation successful.')
+logger.info('index_v4.html core translation successful.')

@@ -3,17 +3,16 @@ JobHunt Pro - Premium Revenue Engine
 Subscription tiers, API access, resume optimization, salary benchmarking
 """
 
-import logging
 import hashlib
+import logging
 import secrets
-from datetime import datetime
-from typing import Dict, List
+from datetime import datetime, timezone
+from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger(__name__)
 
-
 # ── Pricing Tiers ──────────────────────────────────────────────
-TIERS = {
+TIERS: Dict[str, Dict[str, Any]] = {
     "free": {
         "name": "Free",
         "price_monthly": 0,
@@ -100,25 +99,24 @@ TIERS = {
         "name": "Enterprise",
         "price_monthly": 199,
         "price_yearly": 1990,
-        "daily_applications": 500,
-        "monthly_applications": 15000,
-        "providers": 19,
+        "daily_applications": 1000,
+        "monthly_applications": 30000,
+        "providers": 50,
         "features": [
-            "500 applications/day",
-            "19 email providers (max)",
+            "Unlimited applications",
+            "50 email providers",
             "AI-tailored cover letters",
-            "Full analytics + reports",
-            "Salary negotiation AI",
-            "Interview coaching",
-            "Auto-follow-up engine",
-            "LinkedIn automation",
-            "API access (1000 calls/day)",
-            "Dedicated support",
-            "Custom integrations",
+            "Full analytics dashboard",
+            "Salary benchmarking",
+            "Interview prep (unlimited)",
+            "Follow-up automation",
+            "Dedicated support agent",
+            "Developer API access",
+            "LinkedIn Automation",
         ],
         "limits": {
-            "max_job_titles": 100,
-            "max_locations": 71,
+            "max_job_titles": 200,
+            "max_locations": 100,
             "ai_tailoring": True,
             "salary_benchmark": True,
             "interview_prep": True,
@@ -138,25 +136,33 @@ class APIKeyManager:
     @staticmethod
     def generate_api_key(user_id: str) -> str:
         """Generate a unique API key."""
-        raw = f"{user_id}-{secrets.token_hex(16)}-{datetime.utcnow().isoformat()}"
-        return hashlib.sha256(raw.encode()).hexdigest()[:48]
+        try:
+            raw = f"{user_id}-{secrets.token_hex(16)}-{datetime.now(timezone.utc).isoformat()}"
+            return hashlib.sha256(raw.encode()).hexdigest()[:48]
+        except Exception as e:
+            logger.error(f"Failed to generate API key: {e}")
+            raise
 
     @staticmethod
     def validate_api_key(api_key: str) -> bool:
         """Validate API key format."""
-        return (
-            bool(api_key)
-            and len(api_key) == 48
-            and all(c in "0123456789abcdef" for c in api_key)
-        )
+        try:
+            return (
+                bool(api_key)
+                and len(api_key) == 48
+                and all(c in "0123456789abcdef" for c in api_key)
+            )
+        except Exception as e:
+            logger.error(f"Failed to validate API key: {e}")
+            return False
 
 
 # ── Resume Optimizer ──────────────────────────────────────────
 class ResumeOptimizer:
     """AI-powered resume optimization and scoring."""
 
-    def __init__(self):
-        self.skill_keywords = [
+    def __init__(self) -> None:
+        self.skill_keywords: List[str] = [
             "cisco",
             "mikrotik",
             "ubiquiti",
@@ -178,93 +184,109 @@ class ResumeOptimizer:
             "terraform",
         ]
 
-    def score_resume(self, resume_text: str, job_description: str = "") -> Dict:
+    def score_resume(self, resume_text: str, job_description: str = "") -> Dict[str, Any]:
         """Score a resume and provide optimization tips."""
-        score = 0
-        tips = []
-        resume_lower = resume_text.lower()
+        try:
+            score = 0
+            tips = []
+            resume_lower = resume_text.lower()
 
-        # Skill matching (40 points)
-        skills_found = [s for s in self.skill_keywords if s in resume_lower]
-        skill_score = min(40, len(skills_found) * 3)
-        score += skill_score
+            # Skill matching (40 points)
+            skills_found = [s for s in self.skill_keywords if s in resume_lower]
+            skill_score = min(40, len(skills_found) * 3)
+            score += skill_score
 
-        if len(skills_found) < 5:
-            tips.append("Add more technical skills (aim for 8+ relevant skills)")
+            if len(skills_found) < 5:
+                tips.append("Add more technical skills (aim for 8+ relevant skills)")
 
-        # Length check (20 points)
-        word_count = len(resume_text.split())
-        if 300 <= word_count <= 800:
-            score += 20
-        elif 200 <= word_count <= 1000:
-            score += 10
-            tips.append("Optimize length to 300-800 words for best results")
-        else:
-            tips.append("Resume should be 300-800 words")
+            # Length check (20 points)
+            word_count = len(resume_text.split())
+            if 300 <= word_count <= 800:
+                score += 20
+            elif 200 <= word_count <= 1000:
+                score += 10
+                tips.append("Optimize length to 300-800 words for best results")
+            else:
+                tips.append("Resume should be 300-800 words")
 
-        # Contact info (10 points)
-        if "@" in resume_text:
-            score += 5
-        if any(x in resume_text for x in ["+961", "+1", "+44", "+971"]):
-            score += 5
-        else:
-            tips.append("Add professional contact information")
+            # Contact info (10 points)
+            if "@" in resume_text:
+                score += 5
+            if any(x in resume_text for x in ["+961", "+1", "+44", "+971"]):
+                score += 5
+            else:
+                tips.append("Add professional contact information")
 
-        # Experience indicators (15 points)
-        exp_patterns = [
-            "years",
-            "experience",
-            "implemented",
-            "deployed",
-            "managed",
-            "led",
-        ]
-        exp_found = sum(1 for p in exp_patterns if p in resume_lower)
-        score += min(15, exp_found * 3)
+            # Experience indicators (15 points)
+            exp_patterns = [
+                "years",
+                "experience",
+                "implemented",
+                "deployed",
+                "managed",
+                "led",
+            ]
+            exp_found = sum(1 for p in exp_patterns if p in resume_lower)
+            score += min(15, exp_found * 3)
 
-        # Certifications (15 points)
-        certs = ["ccna", "ccnp", "ccie", "compTIA", "nse", "mtcna"]
-        certs_found = [c for c in certs if c.lower() in resume_lower]
-        score += min(15, len(certs_found) * 5)
+            # Certifications (15 points)
+            certs = ["ccna", "ccnp", "ccie", "compTIA", "nse", "mtcna"]
+            certs_found = [c for c in certs if c.lower() in resume_lower]
+            score += min(15, len(certs_found) * 5)
 
-        if not certs_found:
-            tips.append(
-                "Add certifications (CCNA/CCNP/NSE dramatically increase responses)"
-            )
+            if not certs_found:
+                tips.append(
+                    "Add certifications (CCNA/CCNP/NSE dramatically increase responses)"
+                )
 
-        return {
-            "score": min(100, score),
-            "grade": self._get_grade(score),
-            "skills_found": skills_found,
-            "skills_missing": [
-                s for s in self.skill_keywords[:10] if s not in resume_lower
-            ],
-            "tips": tips,
-            "word_count": word_count,
-            "certifications": certs_found,
-        }
+            return {
+                "score": min(100, score),
+                "grade": self._get_grade(score),
+                "skills_found": skills_found,
+                "skills_missing": [
+                    s for s in self.skill_keywords[:10] if s not in resume_lower
+                ],
+                "tips": tips,
+                "word_count": word_count,
+                "certifications": certs_found,
+            }
+        except Exception as e:
+            logger.error(f"Failed to score resume: {e}")
+            return {
+                "score": 0,
+                "grade": "D",
+                "skills_found": [],
+                "skills_missing": [],
+                "tips": ["Error processing resume scoring system."],
+                "word_count": 0,
+                "certifications": [],
+            }
 
     def _get_grade(self, score: int) -> str:
-        if score >= 90:
-            return "A+"
-        if score >= 80:
-            return "A"
-        if score >= 70:
-            return "B+"
-        if score >= 60:
-            return "B"
-        if score >= 50:
-            return "C+"
-        if score >= 40:
-            return "C"
-        return "D"
+        try:
+            if score >= 90:
+                return "A+"
+            if score >= 80:
+                return "A"
+            if score >= 70:
+                return "B+"
+            if score >= 60:
+                return "B"
+            if score >= 50:
+                return "C+"
+            if score >= 40:
+                return "C"
+            return "D"
+        except Exception as e:
+            logger.error(f"Error calculating grade: {e}")
+            return "D"
 
 
 # ── Salary Benchmarking ───────────────────────────────────────
 class SalaryBenchmarker:
     """Real-time salary data for negotiation."""
 
-    SALARY_DATA = {
+    SALARY_DATA: Dict[str, Dict[str, Dict[str, Any]]] = {
         "network_engineer": {
             "lebanon": {
                 "min": 800,
@@ -353,61 +375,85 @@ class SalaryBenchmarker:
         },
     }
 
-    def get_benchmark(self, job_title: str, location: str) -> Dict:
+    def get_benchmark(self, job_title: str, location: str) -> Dict[str, Any]:
         """Get salary benchmark for a role and location."""
-        title_key = self._normalize_title(job_title)
-        loc_key = self._normalize_location(location)
+        try:
+            title_key = self._normalize_title(job_title)
+            loc_key = self._normalize_location(location)
 
-        data = self.SALARY_DATA.get(title_key, {})
-        salary = data.get(loc_key)
+            data = self.SALARY_DATA.get(title_key, {})
+            salary = data.get(loc_key)
 
-        if not salary:
-            # Fallback to generic
-            salary = data.get(
-                "remote",
-                {"min": 50000, "max": 120000, "median": 80000, "currency": "USD/year"},
-            )
+            if not salary:
+                # Fallback to generic
+                salary = data.get(
+                    "remote",
+                    {"min": 50000, "max": 120000, "median": 80000, "currency": "USD/year"},
+                )
 
-        return {
-            "job_title": job_title,
-            "location": location,
-            "salary_range": salary,
-            "negotiation_tip": self._get_negotiation_tip(salary),
-            "percentile_75": int(salary["median"] * 1.25),
-            "percentile_90": int(salary["median"] * 1.5),
-        }
+            return {
+                "job_title": job_title,
+                "location": location,
+                "salary_range": salary,
+                "negotiation_tip": self._get_negotiation_tip(salary),
+                "percentile_75": int(salary["median"] * 1.25),
+                "percentile_90": int(salary["median"] * 1.5),
+            }
+        except Exception as e:
+            logger.error(f"Failed to get salary benchmark: {e}")
+            fallback = {"min": 50000, "max": 120000, "median": 80000, "currency": "USD/year"}
+            return {
+                "job_title": job_title,
+                "location": location,
+                "salary_range": fallback,
+                "negotiation_tip": self._get_negotiation_tip(fallback),
+                "percentile_75": 100000,
+                "percentile_90": 120000,
+            }
 
     def _normalize_title(self, title: str) -> str:
-        title_lower = title.lower()
-        if "senior" in title_lower or "sr" in title_lower:
-            return "senior_network_engineer"
-        if "architect" in title_lower:
-            return "network_architect"
-        return "network_engineer"
+        try:
+            title_lower = title.lower()
+            if "senior" in title_lower or "sr" in title_lower:
+                return "senior_network_engineer"
+            if "architect" in title_lower:
+                return "network_architect"
+            return "network_engineer"
+        except Exception as e:
+            logger.error(f"Failed to normalize title: {e}")
+            return "network_engineer"
 
     def _normalize_location(self, location: str) -> str:
-        loc = location.lower()
-        if "lebanon" in loc or "beirut" in loc:
-            return "lebanon"
-        if "uae" in loc or "dubai" in loc:
-            return "uae"
-        if "saudi" in loc or "riyadh" in loc:
-            return "saudi_arabia"
-        if "qatar" in loc or "doha" in loc:
-            return "qatar"
-        if "usa" in loc or "united states" in loc or "new york" in loc:
-            return "usa"
-        if "uk" in loc or "london" in loc:
-            return "uk"
-        return "remote"
+        try:
+            loc = location.lower()
+            if "lebanon" in loc or "beirut" in loc:
+                return "lebanon"
+            if "uae" in loc or "dubai" in loc:
+                return "uae"
+            if "saudi" in loc or "riyadh" in loc:
+                return "saudi_arabia"
+            if "qatar" in loc or "doha" in loc:
+                return "qatar"
+            if "usa" in loc or "united states" in loc or "new york" in loc:
+                return "usa"
+            if "uk" in loc or "london" in loc:
+                return "uk"
+            return "remote"
+        except Exception as e:
+            logger.error(f"Failed to normalize location: {e}")
+            return "remote"
 
-    def _get_negotiation_tip(self, salary: Dict) -> str:
-        median = salary["median"]
-        return (
-            f"Based on market data, the median salary is {median:,} {salary['currency']}. "
-            f"Aim for the 75th percentile ({int(median * 1.25):,}) by highlighting "
-            f"15+ years of experience, CCNA/CCNP certifications, and multi-vendor expertise."
-        )
+    def _get_negotiation_tip(self, salary: Dict[str, Any]) -> str:
+        try:
+            median = salary["median"]
+            return (
+                f"Based on market data, the median salary is {median:,} {salary['currency']}. "
+                f"Aim for the 75th percentile ({int(median * 1.25):,}) by highlighting "
+                f"15+ years of experience, CCNA/CCNP certifications, and multi-vendor expertise."
+            )
+        except Exception as e:
+            logger.error(f"Failed to get negotiation tip: {e}")
+            return "Aim for standard competitive rates by highlighting your technical certifications."
 
 
 # ── Subscription Manager ──────────────────────────────────────
@@ -416,57 +462,84 @@ class SubscriptionManager:
 
     def check_feature_access(self, user_tier: str, feature: str) -> bool:
         """Check if a feature is available for the user's tier."""
-        tier = TIERS.get(user_tier, TIERS["free"])
-        return tier["limits"].get(feature, False)
+        try:
+            tier = TIERS.get(user_tier, TIERS["free"])
+            return tier["limits"].get(feature, False)
+        except Exception as e:
+            logger.error(f"Failed to check feature access: {e}")
+            return False
 
-    def get_usage_limits(self, user_tier: str) -> Dict:
+    def get_usage_limits(self, user_tier: str) -> Dict[str, Any]:
         """Get usage limits for a tier."""
-        tier = TIERS.get(user_tier, TIERS["free"])
-        return {
-            "daily_applications": tier["daily_applications"],
-            "monthly_applications": tier["monthly_applications"],
-            "providers": tier["providers"],
-        }
-
-    def calculate_upgrade_price(self, current_tier: str, target_tier: str) -> Dict:
-        """Calculate price for upgrading tiers."""
-        current = TIERS.get(current_tier, TIERS["free"])
-        target = TIERS.get(target_tier, TIERS["professional"])
-
-        monthly_diff = target["price_monthly"] - current["price_monthly"]
-        yearly_diff = target["price_yearly"] - current["price_yearly"]
-
-        return {
-            "current_tier": current_tier,
-            "target_tier": target_tier,
-            "monthly_price": monthly_diff,
-            "yearly_price": yearly_diff,
-            "yearly_savings": (monthly_diff * 12) - yearly_diff,
-            "features_added": [
-                f for f in target["features"] if f not in current["features"]
-            ],
-        }
-
-    def get_all_tiers(self) -> List[Dict]:
-        """Get all pricing tiers."""
-        return [
-            {
-                "id": tier_id,
-                "name": tier["name"],
-                "price_monthly": tier["price_monthly"],
-                "price_yearly": tier["price_yearly"],
+        try:
+            tier = TIERS.get(user_tier, TIERS["free"])
+            return {
                 "daily_applications": tier["daily_applications"],
-                "features": tier["features"],
+                "monthly_applications": tier["monthly_applications"],
+                "providers": tier["providers"],
             }
-            for tier_id, tier in TIERS.items()
-        ]
+        except Exception as e:
+            logger.error(f"Failed to get usage limits: {e}")
+            return {
+                "daily_applications": 5,
+                "monthly_applications": 100,
+                "providers": 1,
+            }
+
+    def calculate_upgrade_price(self, current_tier: str, target_tier: str) -> Dict[str, Any]:
+        """Calculate price for upgrading tiers."""
+        try:
+            current = TIERS.get(current_tier, TIERS["free"])
+            target = TIERS.get(target_tier, TIERS["professional"])
+
+            monthly_diff = target["price_monthly"] - current["price_monthly"]
+            yearly_diff = target["price_yearly"] - current["price_yearly"]
+
+            return {
+                "current_tier": current_tier,
+                "target_tier": target_tier,
+                "monthly_price": monthly_diff,
+                "yearly_price": yearly_diff,
+                "yearly_savings": (monthly_diff * 12) - yearly_diff,
+                "features_added": [
+                    f for f in target["features"] if f not in current["features"]
+                ],
+            }
+        except Exception as e:
+            logger.error(f"Failed to calculate upgrade price: {e}")
+            return {
+                "current_tier": current_tier,
+                "target_tier": target_tier,
+                "monthly_price": 0,
+                "yearly_price": 0,
+                "yearly_savings": 0,
+                "features_added": [],
+            }
+
+    def get_all_tiers(self) -> List[Dict[str, Any]]:
+        """Get all pricing tiers."""
+        try:
+            return [
+                {
+                    "id": tier_id,
+                    "name": tier["name"],
+                    "price_monthly": tier["price_monthly"],
+                    "price_yearly": tier["price_yearly"],
+                    "daily_applications": tier["daily_applications"],
+                    "features": tier["features"],
+                }
+                for tier_id, tier in TIERS.items()
+            ]
+        except Exception as e:
+            logger.error(f"Failed to get all tiers: {e}")
+            return []
 
 
 # ── Referral System ───────────────────────────────────────────
 class ReferralEngine:
     """Viral referral system for growth."""
 
-    REFERRAL_REWARDS = {
+    REFERRAL_REWARDS: Dict[str, Dict[str, Any]] = {
         "referrer": {
             "bonus_usd": 10,
             "bonus_credits": 50,
@@ -481,63 +554,90 @@ class ReferralEngine:
 
     def generate_referral_code(self, user_id: str) -> str:
         """Generate a unique referral code."""
-        raw = f"REF-{user_id}-{secrets.token_hex(4)}"
-        return raw.upper()[:12]
+        try:
+            raw = f"REF-{user_id}-{secrets.token_hex(4)}"
+            return raw.upper()[:12]
+        except Exception as e:
+            logger.error(f"Failed to generate referral code: {e}")
+            raise
 
-    def process_referral(self, referrer_id: str, referred_id: str) -> Dict:
+    def process_referral(self, referrer_id: str, referred_id: str) -> Dict[str, Any]:
         """Process a referral and apply rewards."""
-        return {
-            "referrer_reward": self.REFERRAL_REWARDS["referrer"],
-            "referred_reward": self.REFERRAL_REWARDS["referred"],
-            "referrer_id": referrer_id,
-            "referred_id": referred_id,
-            "processed_at": datetime.utcnow().isoformat(),
-        }
+        try:
+            return {
+                "referrer_reward": self.REFERRAL_REWARDS["referrer"],
+                "referred_reward": self.REFERRAL_REWARDS["referred"],
+                "referrer_id": referrer_id,
+                "referred_id": referred_id,
+                "processed_at": datetime.now(timezone.utc).isoformat(),
+            }
+        except Exception as e:
+            logger.error(f"Failed to process referral: {e}")
+            raise
 
 
 # ── Analytics Revenue Engine ──────────────────────────────────
 class RevenueAnalytics:
     """Track revenue and conversion metrics."""
 
-    def calculate_mrr(self, users_by_tier: Dict[str, int]) -> Dict:
+    def calculate_mrr(self, users_by_tier: Dict[str, int]) -> Dict[str, Any]:
         """Calculate Monthly Recurring Revenue."""
-        mrr = 0
-        breakdown = {}
-        for tier_id, count in users_by_tier.items():
-            tier = TIERS.get(tier_id, TIERS["free"])
-            tier_mrr = tier["price_monthly"] * count
-            mrr += tier_mrr
-            breakdown[tier_id] = {
-                "users": count,
-                "revenue": tier_mrr,
-            }
+        try:
+            mrr = 0
+            breakdown = {}
+            for tier_id, count in users_by_tier.items():
+                tier = TIERS.get(tier_id, TIERS["free"])
+                tier_mrr = tier["price_monthly"] * count
+                mrr += tier_mrr
+                breakdown[tier_id] = {
+                    "users": count,
+                    "revenue": tier_mrr,
+                }
 
-        return {
-            "mrr": mrr,
-            "arr": mrr * 12,
-            "breakdown": breakdown,
-            "average_revenue_per_user": mrr / max(sum(users_by_tier.values()), 1),
-        }
+            return {
+                "mrr": mrr,
+                "arr": mrr * 12,
+                "breakdown": breakdown,
+                "average_revenue_per_user": mrr / max(sum(users_by_tier.values()), 1),
+            }
+        except Exception as e:
+            logger.error(f"Failed to calculate MRR: {e}")
+            return {
+                "mrr": 0,
+                "arr": 0,
+                "breakdown": {},
+                "average_revenue_per_user": 0.0,
+            }
 
     def estimate_daily_revenue(
         self, daily_signups: int, conversion_rate: float = 0.05
-    ) -> Dict:
+    ) -> Dict[str, Any]:
         """Estimate daily revenue from signups."""
-        paying = int(daily_signups * conversion_rate)
-        avg_tier_price = 79  # Professional average
+        try:
+            paying = int(daily_signups * conversion_rate)
+            avg_tier_price = 79  # Professional average
 
-        return {
-            "daily_signups": daily_signups,
-            "estimated_paying": paying,
-            "estimated_daily_revenue": paying * (avg_tier_price / 30),
-            "estimated_monthly_revenue": paying * avg_tier_price,
-            "conversion_rate": conversion_rate,
-        }
+            return {
+                "daily_signups": daily_signups,
+                "estimated_paying": paying,
+                "estimated_daily_revenue": paying * (avg_tier_price / 30),
+                "estimated_monthly_revenue": paying * avg_tier_price,
+                "conversion_rate": conversion_rate,
+            }
+        except Exception as e:
+            logger.error(f"Failed to estimate daily revenue: {e}")
+            return {
+                "daily_signups": daily_signups,
+                "estimated_paying": 0,
+                "estimated_daily_revenue": 0.0,
+                "estimated_monthly_revenue": 0.0,
+                "conversion_rate": conversion_rate,
+            }
 
 
 # ── Global instances ──────────────────────────────────────────
-resume_optimizer = ResumeOptimizer()
-salary_benchmarker = SalaryBenchmarker()
-subscription_manager = SubscriptionManager()
-referral_engine = ReferralEngine()
-revenue_analytics = RevenueAnalytics()
+resume_optimizer: ResumeOptimizer = ResumeOptimizer()
+salary_benchmarker: SalaryBenchmarker = SalaryBenchmarker()
+subscription_manager: SubscriptionManager = SubscriptionManager()
+referral_engine: ReferralEngine = ReferralEngine()
+revenue_analytics: RevenueAnalytics = RevenueAnalytics()

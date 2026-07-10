@@ -1,8 +1,22 @@
+import os
+import sys
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 APP_FILE = r"C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\web\app_v2.py"
 
-with open(APP_FILE, "r", encoding="utf-8") as f:
-    content = f.read()
+if not os.path.exists(APP_FILE):
+    logger.error(f"Target app file not found: {APP_FILE}")
+    sys.exit(1)
+
+try:
+    with open(APP_FILE, "r", encoding="utf-8") as f:
+        content = f.read()
+except Exception as e:
+    logger.error(f"Failed to read APP_FILE: {e}")
+    sys.exit(1)
 
 # Fix Admin Panel
 content = content.replace(
@@ -63,8 +77,10 @@ content = content.replace(
     'prep_content=email_data.get("interview_prep", "")\n    )\n    return HTMLResponse(_build_dashboard_shell(None, user_id, content_html, "Interview Prep", "interview-prep"))'
 )
 
-# Admin panel might still have a `})`
-# The admin panel string replacement earlier will replace `})` with `)` and return HTMLResponse.
-
-with open(APP_FILE, "w", encoding="utf-8") as f:
-    f.write(content)
+try:
+    with open(APP_FILE, "w", encoding="utf-8") as f:
+        f.write(content)
+    logger.info("Successfully updated APP_FILE syntax patches.")
+except Exception as e:
+    logger.error(f"Failed to write updated content back to APP_FILE: {e}")
+    sys.exit(1)

@@ -5,7 +5,7 @@
   <!-- Page Header -->
   <div class="mb-6">
     <h1 class="text-2xl font-black text-white flex items-center gap-3 tracking-tight">
-      <i data-lucide="send" class="w-7 h-7 text-blue-400"></i>
+      <i data-lucide="send" class="w-7 h-7 text-blue-400 lucide-dir-aware"></i>
       الرسائل المرسلة
     </h1>
     <p class="text-sm text-slate-400 mt-1">كل بريد إرسل — شاهد أين، وإلى من، وماذا حدث. شفافية تامة.</p>
@@ -37,7 +37,7 @@
       <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute start-3 top-1/2 -translate-y-1/2"></i>
       <input dir="auto" type="text" id="searchInput" placeholder="ابحث باسم الشركة، المسمى الوظيفي، أو البريد الإلكتروني..." oninput="filterTable()" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-lg ps-9 pe-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all">
     </div>
-    <select id="statusFilter" onchange="filterTable()" class="bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-lg px-4 py-2 text-sm text-white outline-none transition-all cursor-pointer min-w-[150px]">
+    <select dir="auto"  id="statusFilter" onchange="filterTable()" class="bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-lg px-4 py-2 text-sm text-white outline-none transition-all cursor-pointer min-w-[150px]">
       <option value="all">كل الحالات</option>
       <option value="sent">✅ تم التسليم</option>
       <option value="failed">❌ فشل</option>

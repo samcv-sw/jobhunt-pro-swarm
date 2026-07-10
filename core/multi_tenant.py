@@ -31,10 +31,10 @@ import time
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Any
 
 # ── Same imports used by campaign_runner for reusability ──
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
 logger = logging.getLogger(__name__)
 
@@ -86,8 +86,9 @@ def _get_conn() -> sqlite3.Connection:
     conn = sqlite3.connect(db_path, timeout=30)
     conn.row_factory = sqlite3.Row
     try:
-        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA journal_mode=DELETE")
         conn.execute("PRAGMA busy_timeout=10000")
+        conn.execute("PRAGMA synchronous=FULL")
     except Exception:
         pass
     return conn
@@ -102,6 +103,85 @@ class TenantManager:
     """Manages tenant (user) records and their associated profiles."""
 
     @staticmethod
+    def _ensure_user_record(conn: sqlite3.Connection, name: str, email: str, phone: str, password: str | None) -> tuple[str, bool]:
+        """Ensure a user record exists in the users table, creating it if needed."""
+        user_row = conn.execute(
+            "SELECT user_id FROM users WHERE email = ?", (email,)
+        ).fetchone()
+
+        if user_row:
+            return user_row["user_id"], False
+
+        tenant_id = f"user_{uuid.uuid4().hex[:12]}"
+        _pw = password or uuid.uuid4().hex
+        _hash = _pw  # (real bcrypt handled by app_v2 on signup; placeholder for auto-created tenants)
+
+        try:
+            conn.execute(
+                """
+                INSERT INTO users
+                (user_id, email, password_hash, name, phone, created_at)
+                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            """,
+                (tenant_id, email, _hash, name, phone),
+            )
+            conn.commit()
+            logger.info(f"[MultiTenant] Created user: {name} ({tenant_id})")
+            return tenant_id, True
+        except sqlite3.IntegrityError:
+            # Race condition — another worker created it. Re-read.
+            user_row = conn.execute(
+                "SELECT user_id FROM users WHERE email = ?", (email,)
+            ).fetchone()
+            if user_row:
+                return user_row["user_id"], False
+            raise
+
+    @staticmethod
+    def _ensure_cv_profile(
+        conn: sqlite3.Connection,
+        tenant_id: str,
+        name: str,
+        profession: str,
+        skills: str,
+        experience_years: int,
+        phone: str,
+        email: str,
+        linkedin: str,
+    ) -> tuple[int, bool]:
+        """Ensure a CV profile exists for the user in the cv_profiles table."""
+        profile_row = conn.execute(
+            "SELECT id FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1",
+            (tenant_id,),
+        ).fetchone()
+
+        if profile_row:
+            return profile_row["id"], False
+
+        cv_text = TenantManager._generate_cv_text(
+            name=name,
+            profession=profession,
+            skills=skills,
+            experience_years=experience_years,
+            phone=phone,
+            email=email,
+            linkedin=linkedin,
+        )
+        conn.execute(
+            """
+            INSERT INTO cv_profiles
+            (user_id, target_titles, skills, experience_years,
+             cv_text, created_at)
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        """,
+            (tenant_id, profession, skills, experience_years, cv_text),
+        )
+        conn.commit()
+        profile_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+        logger.info(f"[MultiTenant] Created CV profile #{profile_id} for {name}")
+        return profile_id, True
+
+    @staticmethod
     def ensure_tenant(
         name: str,
         email: str,
@@ -111,7 +191,7 @@ class TenantManager:
         skills: str = "",
         experience_years: int = 5,
         password: str = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Ensure a tenant exists in the users table and their CV profile
         exists in cv_profiles. Auto-creates if missing.
@@ -119,78 +199,13 @@ class TenantManager:
         Returns: {"tenant_id": str, "profile_id": int, "created": bool}
         """
         conn = _get_conn()
-        created_user = False
-        created_profile = False
-
         try:
-            # ── Check / create user ────────────────────────────────
-            user_row = conn.execute(
-                "SELECT user_id FROM users WHERE email = ?", (email,)
-            ).fetchone()
-
-            if user_row:
-                tenant_id = user_row["user_id"]
-            else:
-                tenant_id = f"user_{uuid.uuid4().hex[:12]}"
-                _pw = password or uuid.uuid4().hex
-                _hash = _pw  # (real bcrypt handled by app_v2 on signup; placeholder for auto-created tenants)
-
-                try:
-                    conn.execute(
-                        """
-                        INSERT INTO users
-                        (user_id, email, password_hash, name, phone, created_at)
-                        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                    """,
-                        (tenant_id, email, _hash, name, phone),
-                    )
-                    conn.commit()
-                    created_user = True
-                    logger.info(f"[MultiTenant] Created user: {name} ({tenant_id})")
-                except sqlite3.IntegrityError:
-                    # Race condition — another worker created it. Re-read.
-                    user_row = conn.execute(
-                        "SELECT user_id FROM users WHERE email = ?", (email,)
-                    ).fetchone()
-                    if user_row:
-                        tenant_id = user_row["user_id"]
-                    else:
-                        raise
-
-            # ── Check / create cv_profiles ─────────────────────────
-            profile_row = conn.execute(
-                "SELECT id FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1",
-                (tenant_id,),
-            ).fetchone()
-
-            if profile_row:
-                profile_id = profile_row["id"]
-            else:
-                cv_text = TenantManager._generate_cv_text(
-                    name=name,
-                    profession=profession,
-                    skills=skills,
-                    experience_years=experience_years,
-                    phone=phone,
-                    email=email,
-                    linkedin=linkedin,
-                )
-                conn.execute(
-                    """
-                    INSERT INTO cv_profiles
-                    (user_id, target_titles, skills, experience_years,
-                     cv_text, created_at)
-                    VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                """,
-                    (tenant_id, profession, skills, experience_years, cv_text),
-                )
-                conn.commit()
-                profile_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-                created_profile = True
-                logger.info(
-                    f"[MultiTenant] Created CV profile #{profile_id} for {name}"
-                )
-
+            tenant_id, created_user = TenantManager._ensure_user_record(
+                conn, name, email, phone, password
+            )
+            profile_id, created_profile = TenantManager._ensure_cv_profile(
+                conn, tenant_id, name, profession, skills, experience_years, phone, email, linkedin
+            )
             return {
                 "tenant_id": tenant_id,
                 "profile_id": profile_id,
@@ -199,7 +214,6 @@ class TenantManager:
                 "name": name,
                 "email": email,
             }
-
         finally:
             conn.close()
 
@@ -242,7 +256,7 @@ LANGUAGES
         return cv.strip()
 
     @staticmethod
-    def list_tenants() -> List[Dict[str, Any]]:
+    def list_tenants() -> list[dict[str, Any]]:
         """List all tenants with a CV profile."""
         conn = _get_conn()
         try:
@@ -261,7 +275,7 @@ LANGUAGES
             conn.close()
 
     @staticmethod
-    def get_tenant_stats(tenant_id: str) -> Dict[str, Any]:
+    def get_tenant_stats(tenant_id: str) -> dict[str, Any]:
         """Get per-tenant campaign stats optimized in a single SQL query."""
         conn = _get_conn()
         try:
@@ -307,7 +321,7 @@ LANGUAGES
             conn.close()
 
     @staticmethod
-    def get_all_tenants_stats() -> List[Dict[str, Any]]:
+    def get_all_tenants_stats() -> list[dict[str, Any]]:
         """Get stats for all tenants in a single optimized query."""
         conn = _get_conn()
         try:
@@ -367,32 +381,15 @@ class MultiTenantRunner:
         self.company_limit = company_limit
         self.max_campaigns = max_campaigns
         self.campaign_id = campaign_id
-        self.tenant_stats: Dict[str, Dict[str, Any]] = {}
+        self.tenant_stats: dict[str, dict[str, Any]] = {}
 
-    async def tick(self) -> Dict[str, Any]:
+    async def _get_active_campaigns(self) -> list[dict[str, Any]]:
         """
-        Main multi-tenant tick:
-        0. Auto-create campaigns for tenants with profiles but no active campaign
-        1. Fetch ALL active campaigns across ALL users
-        2. Group by tenant
-        3. Run in parallel with asyncio.gather
-        4. Aggregate results
+        Fetch all active campaigns, using the edge cache if enabled.
+
+        Returns:
+            A list of active campaign dictionaries.
         """
-        start_time = time.time()
-        results = {
-            "timestamp": datetime.now().isoformat(),
-            "tenant_count": 0,
-            "campaigns_processed": 0,
-            "emails_sent": 0,
-            "errors": 0,
-            "tenants": {},
-            "status": "ok",
-        }
-
-        # ── Step 0: Auto-create campaigns for tenants without one ──
-        self._auto_create_campaigns()
-
-        # ── Step 1: Fetch all active campaigns (with Upstash Redis cache backup) ──
         campaigns = None
         from core.edge_cache import edge_cache
 
@@ -425,27 +422,28 @@ class MultiTenantRunner:
             campaigns = [
                 c for c in campaigns if c.get("campaign_id") == self.campaign_id
             ]
-        if not campaigns:
-            logger.info("[MultiTenant] No active campaigns across any tenant.")
-            results["message"] = "No active campaigns found"
-            return results
 
-        logger.info(
-            f"[MultiTenant] Found {len(campaigns)} active campaign(s) across tenants."
-        )
+        return campaigns or []
 
-        # Group all active campaigns by tenant first to do fair scheduling
-        by_tenant: Dict[str, List[Dict]] = {}
+    def _schedule_fair_campaigns(self, campaigns: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """
+        Group campaigns by tenant and apply fair-share scheduling to select campaigns.
+
+        Args:
+            campaigns: A list of candidate campaigns.
+
+        Returns:
+            A list of selected campaign dictionaries.
+        """
+        by_tenant: dict[str, list[dict]] = {}
         for c in campaigns:
             tid = c.get("user_id", "unknown")
             if tid not in by_tenant:
                 by_tenant[tid] = []
             by_tenant[tid].append(c)
 
-        # Fair-share scheduling: select up to self.max_campaigns campaigns
         selected_campaigns = []
         tenant_ids = list(by_tenant.keys())
-        # Shuffle tenants to avoid priority bias
         import random
 
         random.shuffle(tenant_ids)
@@ -460,12 +458,145 @@ class MultiTenantRunner:
                     active_tenants.append(tid)
             tenant_ids = active_tenants
 
+        return selected_campaigns
+
+    async def _run_tenant_campaigns(self, tid: str, t_campaigns: list[dict[str, Any]]) -> dict[str, Any]:
+        """
+        Execute campaigns for a specific tenant sequentially.
+
+        Args:
+            tid: The tenant ID.
+            t_campaigns: A list of campaigns for this tenant.
+
+        Returns:
+            A dictionary containing execution results for the tenant.
+        """
+        tenant_result = {
+            "tenant_id": tid,
+            "campaigns": [],
+            "total_sent": 0,
+            "total_failed": 0,
+        }
+        for camp in t_campaigns:
+            cid = camp["campaign_id"]
+            engine_type = camp.get("engine_type", "piggyback")
+
+            if engine_type == "cloud":
+                try:
+                    from core.campaign_runner import run_campaign
+
+                    camp_result = await run_campaign(
+                        campaign_id=cid,
+                        get_db_fn=lambda cp=_get_db_path(): sqlite3.connect(
+                            cp, timeout=30, check_same_thread=False
+                        ),
+                        config=__import__("config"),
+                        company_limit=self.company_limit,
+                    )
+                    tenant_result["campaigns"].append(
+                        {
+                            "campaign_id": cid,
+                            "result": camp_result,
+                        }
+                    )
+                    if isinstance(camp_result, dict):
+                        tenant_result["total_sent"] += camp_result.get("sent", 0)
+                        tenant_result["total_failed"] += camp_result.get(
+                            "failed", 0
+                        )
+                except Exception as e2:
+                    safe_err = (
+                        str(e2).encode("ascii", errors="replace").decode("ascii")
+                    )
+                    logger.error(
+                        f"[MultiTenant] Full runner failed for cloud campaign {cid}: {safe_err}"
+                    )
+                    tenant_result["campaigns"].append(
+                        {
+                            "campaign_id": cid,
+                            "error": str(e2),
+                        }
+                    )
+            else:
+                try:
+                    from core.lightning_runner import run_campaign_lightning
+
+                    camp_result = await run_campaign_lightning(
+                        campaign_id=cid,
+                        company_limit=self.company_limit,
+                    )
+                    tenant_result["campaigns"].append(
+                        {
+                            "campaign_id": cid,
+                            "result": camp_result,
+                        }
+                    )
+                    if isinstance(camp_result, dict):
+                        tenant_result["total_sent"] += camp_result.get("sent", 0)
+                        tenant_result["total_failed"] += camp_result.get(
+                            "failed", 0
+                        )
+                except Exception as e:
+                    safe_err = (
+                        str(e).encode("ascii", errors="replace").decode("ascii")
+                    )
+                    logger.error(
+                        f"[MultiTenant] Lightning runner failed for {cid}: {safe_err}"
+                    )
+                    tenant_result["campaigns"].append(
+                        {
+                            "campaign_id": cid,
+                            "error": str(e),
+                        }
+                    )
+        return tenant_result
+
+    async def tick(self) -> dict[str, Any]:
+        """
+        Main multi-tenant tick:
+        0. Auto-create campaigns for tenants with profiles but no active campaign
+        1. Fetch ALL active campaigns across ALL users
+        2. Group by tenant
+        3. Run in parallel with asyncio.gather
+        4. Aggregate results
+
+        Returns:
+            A dictionary containing summary statistics of the tick execution.
+        """
+        start_time = time.time()
+        results = {
+            "timestamp": datetime.now().isoformat(),
+            "tenant_count": 0,
+            "campaigns_processed": 0,
+            "emails_sent": 0,
+            "errors": 0,
+            "tenants": {},
+            "status": "ok",
+        }
+
+        # ── Step 0: Auto-create campaigns for tenants without one ──
+        self._auto_create_campaigns()
+
+        # ── Step 1: Fetch all active campaigns ──
+        campaigns = await self._get_active_campaigns()
+
+        if not campaigns:
+            logger.info("[MultiTenant] No active campaigns across any tenant.")
+            results["message"] = "No active campaigns found"
+            return results
+
+        logger.info(
+            f"[MultiTenant] Found {len(campaigns)} active campaign(s) across tenants."
+        )
+
+        selected_campaigns = self._schedule_fair_campaigns(campaigns)
+
         logger.info(
             f"[MultiTenant] Selected {len(selected_campaigns)} campaign(s) for execution via fair scheduling."
         )
 
         # ── Step 2: Group selected campaigns by tenant_id ──
-        tenant_campaigns: Dict[str, List[Dict]] = {}
+        tenant_campaigns: dict[str, list[dict]] = {}
         for c in selected_campaigns:
             tid = c.get("user_id", "unknown")
             if tid not in tenant_campaigns:
@@ -474,95 +605,11 @@ class MultiTenantRunner:
 
         results["tenant_count"] = len(tenant_campaigns)
 
-        # ── Step 3: Run each tenant's campaigns SEQUENTIALLY (PA-safe) ──
-        async def run_tenant(tid: str, t_campaigns: List[Dict]) -> Dict[str, Any]:
-            tenant_result = {
-                "tenant_id": tid,
-                "campaigns": [],
-                "total_sent": 0,
-                "total_failed": 0,
-            }
-            for camp in t_campaigns:
-                cid = camp["campaign_id"]
-                engine_type = camp.get("engine_type", "piggyback")
-
-                if engine_type == "cloud":
-                    # For cloud engine_type, use the full campaign runner to search and enrich
-                    try:
-                        from core.campaign_runner import run_campaign
-
-                        camp_result = await run_campaign(
-                            campaign_id=cid,
-                            get_db_fn=lambda cp=_get_db_path(): sqlite3.connect(
-                                cp, timeout=30, check_same_thread=False
-                            ),
-                            config=__import__("config"),
-                            company_limit=self.company_limit,
-                        )
-                        tenant_result["campaigns"].append(
-                            {
-                                "campaign_id": cid,
-                                "result": camp_result,
-                            }
-                        )
-                        if isinstance(camp_result, dict):
-                            tenant_result["total_sent"] += camp_result.get("sent", 0)
-                            tenant_result["total_failed"] += camp_result.get(
-                                "failed", 0
-                            )
-                    except Exception as e2:
-                        safe_err = (
-                            str(e2).encode("ascii", errors="replace").decode("ascii")
-                        )
-                        logger.error(
-                            f"[MultiTenant] Full runner failed for cloud campaign {cid}: {safe_err}"
-                        )
-                        tenant_result["campaigns"].append(
-                            {
-                                "campaign_id": cid,
-                                "error": str(e2),
-                            }
-                        )
-                else:
-                    # By default (or for piggyback / cloud-tick), use lightning runner
-                    try:
-                        from core.lightning_runner import run_campaign_lightning
-
-                        camp_result = await run_campaign_lightning(
-                            campaign_id=cid,
-                            company_limit=self.company_limit,
-                        )
-                        tenant_result["campaigns"].append(
-                            {
-                                "campaign_id": cid,
-                                "result": camp_result,
-                            }
-                        )
-                        if isinstance(camp_result, dict):
-                            tenant_result["total_sent"] += camp_result.get("sent", 0)
-                            tenant_result["total_failed"] += camp_result.get(
-                                "failed", 0
-                            )
-                    except Exception as e:
-                        safe_err = (
-                            str(e).encode("ascii", errors="replace").decode("ascii")
-                        )
-                        logger.error(
-                            f"[MultiTenant] Lightning runner failed for {cid}: {safe_err}"
-                        )
-                        tenant_result["campaigns"].append(
-                            {
-                                "campaign_id": cid,
-                                "error": str(e),
-                            }
-                        )
-            return tenant_result
-
         # Execute tenants SEQUENTIALLY (PA free tier - avoid timeout)
         tenant_results = []
         for tid, t_campaigns in tenant_campaigns.items():
             try:
-                tr = await run_tenant(tid, t_campaigns)
+                tr = await self._run_tenant_campaigns(tid, t_campaigns)
                 tenant_results.append(tr)
             except Exception as e:
                 logger.error(f"[MultiTenant] Tenant {tid} crashed: {e}")
@@ -596,7 +643,7 @@ class MultiTenantRunner:
 
         return results
 
-    def _fetch_all_active_campaigns(self) -> List[Dict[str, Any]]:
+    def _fetch_all_active_campaigns(self) -> list[dict[str, Any]]:
         """Fetch all pending/running campaigns across ALL users."""
         conn = _get_conn()
         try:
@@ -657,7 +704,7 @@ class MultiTenantRunner:
     # ── Per-tenant SMTP pool (each tenant gets their own rotation) ──
 
     @staticmethod
-    def get_tenant_smtp_provider(tenant_id: str, config_module=None) -> Optional[Dict]:
+    def get_tenant_smtp_provider(tenant_id: str, config_module=None) -> dict | None:
         """
         Returns an SMTP provider for a given tenant. If the tenant has their own
         credentials configured (via demo_user_* env vars for demo_user, or env vars like
@@ -1095,7 +1142,7 @@ async def cleanup_db(request: Request):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-async def run_multi_tenant_tick(company_limit: int = 15) -> Dict[str, Any]:
+async def run_multi_tenant_tick(company_limit: int = 15) -> dict[str, Any]:
     """Convenience function — call from cloud_orchestrator or app router."""
     runner = MultiTenantRunner(company_limit=company_limit, max_campaigns=10)
     return await runner.tick()

@@ -8,7 +8,7 @@ from playwright.async_api import async_playwright
 sys.stdout.reconfigure(encoding='utf-8')
 
 async def automate_wrangler_login():
-    print("Starting Wrangler OAuth Automation...")
+    logger.debug("Starting Wrangler OAuth Automation...")
     # Start wrangler login process
     process = await asyncio.create_subprocess_shell(
         "npx wrangler login",
@@ -22,7 +22,7 @@ async def automate_wrangler_login():
         if not line:
             break
         text = line.decode('utf-8', errors='ignore').strip()
-        print(f"Wrangler: {text}")
+        logger.debug(f"Wrangler: {text}")
         if "https://dash.cloudflare.com/oauth2/auth" in text:
             # Extract URL
             match = re.search(r'(https://dash\.cloudflare\.com/oauth2/auth\S+)', text)
@@ -31,11 +31,11 @@ async def automate_wrangler_login():
                 break
 
     if not oauth_url:
-        print("Could not find OAuth URL.")
+        logger.debug("Could not find OAuth URL.")
         return
 
-    print(f"\nExtracted OAuth URL: {oauth_url}")
-    print("Launching Browser to authenticate...")
+    logger.debug(f"\nExtracted OAuth URL: {oauth_url}")
+    logger.debug("Launching Browser to authenticate...")
 
     async with async_playwright() as p:
         # Launch headed to avoid some bot detection, or headless if needed
@@ -55,35 +55,35 @@ async def automate_wrangler_login():
             
             # Click login
             await page.click('button[type="submit"]')
-            print("Submitted login form...")
+            logger.debug("Submitted login form...")
 
             # Wait for Authorize page
             try:
                 await page.wait_for_selector('button:has-text("Allow")', timeout=15000)
                 await page.click('button:has-text("Allow")')
-                print("Clicked Allow!")
-            except:
-                print("Could not find Allow button immediately. Checking for account selection...")
+                logger.debug("Clicked Allow!")
+            except Exception as e:
+                logger.debug("Could not find Allow button immediately. Checking for account selection...")
                 # Try clicking the account if it prompts
                 account_button = await page.query_selector('div[data-testid="account-card"]')
                 if account_button:
                     await account_button.click()
                     await page.wait_for_selector('button:has-text("Allow")', timeout=15000)
                     await page.click('button:has-text("Allow")')
-                    print("Clicked Allow after account selection!")
+                    logger.debug("Clicked Allow after account selection!")
 
-            print("Waiting for Wrangler to complete...")
+            logger.debug("Waiting for Wrangler to complete...")
             await asyncio.sleep(5)
         except Exception as e:
-            print(f"Browser automation failed: {e}")
+            logger.debug(f"Browser automation failed: {e}")
             await page.screenshot(path="cloudflare_error.png")
-            print("Saved screenshot to cloudflare_error.png")
+            logger.debug("Saved screenshot to cloudflare_error.png")
         finally:
             await browser.close()
     
     # Wait for wrangler to finish
     await process.wait()
-    print("Wrangler process completed.")
+    logger.debug("Wrangler process completed.")
 
 if __name__ == "__main__":
     asyncio.run(automate_wrangler_login())

@@ -1,3 +1,4 @@
+import logging
 import urllib.request
 import urllib.parse
 import json
@@ -12,6 +13,10 @@ import concurrent.futures
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
+
+
 WORKER_URL = "https://jobhunt-pro-router.samsalameh-cv.workers.dev"
 
 # Global thread-safe dictionary to track last send time per account
@@ -19,7 +24,7 @@ last_send_times = {}
 last_send_times_lock = threading.Lock()
 
 def log(msg):
-    print(f"[CLOUD-SENDER] {msg}")
+    logger.debug(f"[CLOUD-SENDER] {msg}")
 
 def get_smtp_config(email):
     email_lower = email.lower()
@@ -65,7 +70,7 @@ def send_smtp_email(to_email, subject, body, smtp_email, smtp_password):
         if server:
             try:
                 server.quit()
-            except:
+            except Exception as e:
                 pass
 
 def enforce_stealth_delay(smtp_email):

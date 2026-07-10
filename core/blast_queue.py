@@ -46,7 +46,8 @@ def enqueue(
     }
 
     job_file = QUEUE_DIR / f"{job_id}.json"
-    json.dump(job, open(job_file, "w", encoding="utf-8"), indent=2)
+    with open(job_file, "w", encoding="utf-8") as f:
+        json.dump(job, f, indent=2)
     logger.info(f"Job queued: {job_id} ({max_sends} emails)")
     return job
 
@@ -60,7 +61,8 @@ def get_status() -> dict:
     failed_total = 0
     for f in sorted(QUEUE_DIR.glob("blast_*.json")):
         try:
-            job = json.load(open(f, "r", encoding="utf-8"))
+            with open(f, "r", encoding="utf-8") as file_obj:
+                job = json.load(file_obj)
             jobs.append(
                 {
                     "id": job["id"],
@@ -95,7 +97,8 @@ def process_queue(limit: int = 50) -> dict:
 
     for job_file in sorted(QUEUE_DIR.glob("blast_*.json")):
         try:
-            job = json.load(open(job_file, "r", encoding="utf-8"))
+            with open(job_file, "r", encoding="utf-8") as f:
+                job = json.load(f)
         except Exception:
             continue
 
@@ -104,7 +107,8 @@ def process_queue(limit: int = 50) -> dict:
 
         # Mark as running
         job["status"] = "running"
-        json.dump(job, open(job_file, "w", encoding="utf-8"), indent=2)
+        with open(job_file, "w", encoding="utf-8") as f:
+            json.dump(job, f, indent=2)
 
         try:
             # Load recipients (chunked for memory)
@@ -112,13 +116,16 @@ def process_queue(limit: int = 50) -> dict:
             if not recip_file.exists():
                 job["status"] = "failed"
                 job["error"] = f"File not found: {job['recipients_file']}"
-                json.dump(job, open(job_file, "w", encoding="utf-8"), indent=2)
+                with open(job_file, "w", encoding="utf-8") as f:
+                    json.dump(job, f, indent=2)
                 continue
 
-            recipients = json.load(open(recip_file, "r", encoding="utf-8"))
+            with open(recip_file, "r", encoding="utf-8") as f:
+                recipients = json.load(f)
             max_sends = min(job.get("max_sends", 100), limit)
 
-            from core.graph_sender import init as gs_init, send_bulk
+            from core.graph_sender import init as gs_init
+            from core.graph_sender import send_bulk
 
             gs_init()
 
@@ -145,7 +152,8 @@ def process_queue(limit: int = 50) -> dict:
             job["error"] = str(e)[:500]
             logger.error(f"Blast job failed: {e}")
 
-        json.dump(job, open(job_file, "w", encoding="utf-8"), indent=2)
+        with open(job_file, "w", encoding="utf-8") as f:
+            json.dump(job, f, indent=2)
 
         if total_sent >= limit:
             break  # respect batch limit

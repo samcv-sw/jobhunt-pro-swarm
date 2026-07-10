@@ -15,12 +15,12 @@ conn.close()
 
 os.remove(db_copy)
 
-print(f"Total rows: {len(all_rows)}")
+logger.debug(f"Total rows: {len(all_rows)}")
 
 # Find roo-cline keys
 for key, val in all_rows:
     if 'roo' in key.lower() or 'cline' in key.lower():
-        print(f"\n=== {key} ===")
+        logger.debug(f"\n=== {key} ===")
         if isinstance(val, bytes):
             try:
                 parsed = json.loads(val.decode('utf-8'))
@@ -33,11 +33,11 @@ for key, val in all_rows:
                                  'allowedCommands','deniedCommands']
                     for ak in auto_keys:
                         if ak in parsed:
-                            print(f"  {ak}: {parsed[ak]}")
-                    print(f"  Total keys: {len(parsed)}")
+                            logger.debug(f"  {ak}: {parsed[ak]}")
+                    logger.debug(f"  Total keys: {len(parsed)}")
                 else:
-                    print(f"  Value: {str(val)[:300]}")
-            except:
-                print(f"  Raw bytes: {len(val)} bytes")
+                    logger.debug(f"  Value: {str(val)[:300]}")
+            except Exception as e:
+                logger.debug(f"  Raw bytes: {len(val)} bytes")
         else:
-            print(f"  Value: {str(val)[:300]}")
+            logger.debug(f"  Value: {str(val)[:300]}")

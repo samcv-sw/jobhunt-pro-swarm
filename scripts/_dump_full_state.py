@@ -18,8 +18,8 @@ if row:
         parsed = json.loads(val.decode('utf-8'))
         with open(out_file, 'w', encoding='utf-8') as f:
             json.dump(parsed, f, indent=2, ensure_ascii=False)
-        print(f"Written to {out_file}")
-        print(f"Total keys: {len(parsed)}")
+        logger.debug(f"Written to {out_file}")
+        logger.debug(f"Total keys: {len(parsed)}")
         # Print auto-approve related keys
         auto_keys = ['autoApprovalEnabled','alwaysAllowReadOnly','alwaysAllowReadOnlyOutsideWorkspace',
                      'alwaysAllowWrite','alwaysAllowWriteOutsideWorkspace','alwaysAllowWriteProtected',
@@ -28,6 +28,6 @@ if row:
                      'allowedCommands','deniedCommands','requestDelaySeconds','writeDelayMs']
         for ak in auto_keys:
             if ak in parsed:
-                print(f"  {ak}: {parsed[ak]}")
+                logger.debug(f"  {ak}: {parsed[ak]}")
 else:
-    print("Key not found!")
+    logger.debug("Key not found!")

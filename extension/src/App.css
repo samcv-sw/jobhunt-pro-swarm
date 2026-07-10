@@ -73,7 +73,7 @@
 #next-steps {
   display: flex;
   border-top: 1px solid var(--border);
-  text-align: left;
+  text-align: start;
 
   & > div {
     flex: 1 1 0;
@@ -96,10 +96,10 @@
 }
 
 #docs {
-  border-right: 1px solid var(--border);
+  border-inline-end: 1px solid var(--border);
 
   @media (max-width: 1024px) {
-    border-right: none;
+    border-inline-end: none;
     border-bottom: 1px solid var(--border);
   }
 }
@@ -128,7 +128,7 @@
       border-radius: 12px;
       width: 350px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      text-align: right;
+      text-align: end;
       direction: rtl;
     }
 
@@ -231,10 +231,10 @@
 
   &::before {
     left: 0;
-    border-left-color: var(--border);
+    border-inline-start-color: var(--border);
   }
   &::after {
     right: 0;
-    border-right-color: var(--border);
+    border-inline-end-color: var(--border);
   }
 }

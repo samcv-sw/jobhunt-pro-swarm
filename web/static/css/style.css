@@ -59,7 +59,7 @@ body {
   font-weight: 800;
   color: #fff;
   text-decoration: none;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.5px; /* letter-spacing: normal */
 }
 
 .nav-links {
@@ -464,3 +464,10 @@ body {
 [dir="rtl"] .topic-badge { font-size: 14px; }
 [dir="rtl"] .related-card p { font-size: 14px; }
 [dir="rtl"] .footer-tagline { font-size: 14px; }
+
+[dir="rtl"] *, :lang(ar) *, :lang(ar) {
+  letter-spacing: normal !important;
+}
+[dir="rtl"] .lucide-dir-aware {
+  transform: scaleX(var(--text-x-direction, -1));
+}

@@ -10,7 +10,7 @@ ABOUT_URL = "https://www.googleapis.com/drive/v3/about?fields=storageQuota"
 FILES_URL = "https://www.googleapis.com/drive/v3/files"
 
 def log(msg):
-    print(f"[QUOTA-STORAGE] {msg}")
+    logger.debug(f"[QUOTA-STORAGE] {msg}")
 
 def get_access_token(client_id, client_secret, refresh_token):
     """Retrieve new OAuth2 access token using refresh token."""

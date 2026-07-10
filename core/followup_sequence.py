@@ -4,12 +4,11 @@ AUTOMATED FOLLOW-UP SEQUENCE
 Day 3: Soft check, Day 7: Value-add, Day 14: Final push
 """
 
-import logging
 import json
+import logging
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional
 
 # Lazy imports for AI-powered nudge (optional)
 try:
@@ -89,10 +88,10 @@ class FollowUpSequence:
     def __init__(self):
         self.tracker = self._load()
 
-    def _load(self) -> Dict:
+    def _load(self) -> dict:
         try:
             if FOLLOWUP_FILE.exists():
-                with open(FOLLOWUP_FILE, "r") as f:
+                with open(FOLLOWUP_FILE) as f:
                     return json.load(f)
         except Exception as e:
             logger.warning(f"Followup load failed: {e}")
@@ -123,7 +122,7 @@ class FollowUpSequence:
             self._save()
             logger.info(f"Registered follow-up tracking for {company}")
 
-    def get_due_followups(self) -> List[Dict]:
+    def get_due_followups(self) -> list[dict]:
         """Get all applications that need a follow-up."""
         due = []
         now = datetime.now()
@@ -170,7 +169,7 @@ class FollowUpSequence:
 
             # Schedule next follow-up
             current_day = app["next_followup_day"]
-            next_stages = [d for d in FOLLOWUP_STAGES.keys() if d > current_day]
+            next_stages = [d for d in FOLLOWUP_STAGES if d > current_day]
             if next_stages:
                 app["next_followup_day"] = min(next_stages)
             else:
@@ -181,7 +180,7 @@ class FollowUpSequence:
                 f"Follow-up marked as sent for {key}, next stage: day {app.get('next_followup_day', 'done')}"
             )
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Get follow-up statistics."""
         apps = self.tracker["applications"]
         return {
@@ -197,7 +196,7 @@ class FollowUpSequence:
 
     def generate_ai_nudge(
         self, company: str, role: str, followup_number: int = 1
-    ) -> Optional[str]:
+    ) -> str | None:
         """[PORTED FROM CHRONOS] Generate a personalized follow-up body using AI.
 
         Falls back to static templates if AI is unavailable.

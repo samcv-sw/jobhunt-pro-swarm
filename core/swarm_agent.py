@@ -1,7 +1,8 @@
 import asyncio
 import logging
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -15,11 +16,11 @@ class SwarmAgent:
         self.status = "idle"
         self.tasks_completed = 0
         self.tasks_failed = 0
-        self.started_at: Optional[datetime] = None
+        self.started_at: datetime | None = None
 
     async def execute(
         self, task_func: Callable, *args: Any, **kwargs: Any
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute an async task function, returning a result dict."""
         self.status = "working"
         self.started_at = datetime.now()
@@ -34,7 +35,7 @@ class SwarmAgent:
             logger.error(f"[SwarmAgent:{self.agent_id}] Task failed: {e}")
             return {"status": "error", "error": str(e), "agent": self.agent_id}
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Return current agent statistics."""
         return {
             "agent_id": self.agent_id,
@@ -50,9 +51,9 @@ class SwarmOrchestrator:
 
     def __init__(self, max_agents: int = 200) -> None:
         self.max_agents = max_agents
-        self.agents: Dict[str, SwarmAgent] = {}
+        self.agents: dict[str, SwarmAgent] = {}
         self.task_queue: asyncio.Queue = asyncio.Queue()
-        self.results: List[Any] = []
+        self.results: list[Any] = []
         self.semaphore = asyncio.Semaphore(max_agents)
         self._active = 0
         self._completed = 0
@@ -100,9 +101,9 @@ class SwarmOrchestrator:
 
     async def run_parallel(
         self,
-        tasks: List[Tuple[Callable, tuple, dict]],
-        max_concurrent: Optional[int] = None,
-    ) -> List[Any]:
+        tasks: list[tuple[Callable, tuple, dict]],
+        max_concurrent: int | None = None,
+    ) -> list[Any]:
         """Run a list of (func, args, kwargs) tuples concurrently."""
         if not tasks:
             return []
@@ -129,27 +130,27 @@ class SwarmOrchestrator:
         return list(results)
 
     async def run_search_swarm(
-        self, search_funcs: List[Callable], max_concurrent: int = 10
-    ) -> List[Any]:
+        self, search_funcs: list[Callable], max_concurrent: int = 10
+    ) -> list[Any]:
         """Run multiple search functions concurrently."""
         tasks = [(func, (), {}) for func in search_funcs]
         return await self.run_parallel(tasks, max_concurrent)
 
     async def run_apply_swarm(
-        self, apply_funcs: List[Callable], max_concurrent: int = 20
-    ) -> List[Any]:
+        self, apply_funcs: list[Callable], max_concurrent: int = 20
+    ) -> list[Any]:
         """Run multiple apply functions concurrently."""
         tasks = [(func, (), {}) for func in apply_funcs]
         return await self.run_parallel(tasks, max_concurrent)
 
     async def run_research_swarm(
-        self, research_funcs: List[Callable], max_concurrent: int = 10
-    ) -> List[Any]:
+        self, research_funcs: list[Callable], max_concurrent: int = 10
+    ) -> list[Any]:
         """Run multiple research functions concurrently."""
         tasks = [(func, (), {}) for func in research_funcs]
         return await self.run_parallel(tasks, max_concurrent)
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Return current orchestrator statistics."""
         return {
             "total_agents": len(self.agents),
@@ -159,9 +160,9 @@ class SwarmOrchestrator:
             "by_type": self._count_by_type(),
         }
 
-    def _count_by_type(self) -> Dict[str, int]:
+    def _count_by_type(self) -> dict[str, int]:
         """Count agents by type."""
-        counts: Dict[str, int] = {}
+        counts: dict[str, int] = {}
         for agent in self.agents.values():
             t = agent.agent_type
             counts[t] = counts.get(t, 0) + 1

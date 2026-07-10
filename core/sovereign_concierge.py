@@ -7,10 +7,11 @@ THE SOVEREIGN CONCIERGE: UHNW FRACTIONAL PODS
 4. Splits the $10,000 execution fee (50% to devs, 50% to agency).
 """
 
-import core.pg_sqlite_shim as sqlite3
+import logging
 import os
 import random
-import logging
+
+import core.pg_sqlite_shim as sqlite3
 
 logging.basicConfig(
     level=logging.INFO,

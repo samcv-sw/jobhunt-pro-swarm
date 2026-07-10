@@ -85,7 +85,7 @@ def build_index() -> None:
   box-shadow:0 6px 25px rgba(0,240,255,0.4);transform:translateY(-2px);
 }
 @media(max-width:1024px){.featured-grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:768px){.featured-grid{grid-template-columns:1fr;max-width:400px;margin-left:auto;margin-right:auto;}}
+@media(max-width:768px){.featured-grid{grid-template-columns:1fr;max-width:400px;margin-inline:auto;}}
 '''
 
     style_close = content.rfind('</style>')

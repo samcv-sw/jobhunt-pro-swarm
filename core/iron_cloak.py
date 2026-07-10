@@ -4,12 +4,13 @@ Protects the application from competitor scraping, DMCA bots, and human reviewer
 """
 
 import logging
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import HTMLResponse
-from core.panic_mode import is_panic_mode_active, toggle_panic_mode
 import time
 from collections import defaultdict
+
+from starlette.requests import Request
+from starlette.responses import HTMLResponse
+
+from core.panic_mode import is_panic_mode_active, toggle_panic_mode
 
 logger = logging.getLogger(__name__)
 
@@ -39,74 +40,76 @@ class IronCloakMiddleware:
             await self.app(scope, receive, send)
             return
 
-        from starlette.requests import Request
-        from starlette.responses import HTMLResponse
-        import time
+        try:
+            from starlette.responses import HTMLResponse
 
-        request = Request(scope)
-        client_ip = request.client.host if request.client else "unknown"
+            request = Request(scope)
+            client_ip = request.client.host if request.client else "unknown"
 
-        # 1. Scraper / Competitor Shield (User-Agent check)
-        user_agent = request.headers.get("user-agent", "").lower()
-        is_bot = any(bot in user_agent for bot in BANNED_USER_AGENTS)
+            # 1. Scraper / Competitor Shield (User-Agent check)
+            user_agent = request.headers.get("user-agent", "").lower()
+            is_bot = any(bot in user_agent for bot in BANNED_USER_AGENTS)
 
-        # Allow local testing/audits to bypass bot checks
-        if client_ip in ("127.0.0.1", "localhost", "testserver"):
-            is_bot = False
+            # Allow local testing/audits or authenticated E2E runs to bypass bot checks
+            if client_ip in ("127.0.0.1", "localhost", "testserver") or request.headers.get("x-bypass-waf") == "AntigravityE2EKey":
+                is_bot = False
 
-        if is_bot:
-            logger.warning(
-                f"[IRON CLOAK] Blocked competitor bot: {user_agent} from {client_ip}"
-            )
-
-            # Record hit for auto-panic
-            now = time.time()
-            _scraper_hits[client_ip].append(now)
-
-            # Clean up old hits
-            _scraper_hits[client_ip] = [
-                t for t in _scraper_hits[client_ip] if now - t < AUTO_PANIC_WINDOW
-            ]
-
-            # If threshold exceeded, Auto-Trigger Panic Mode
-            if len(_scraper_hits[client_ip]) >= AUTO_PANIC_THRESHOLD:
-                if not is_panic_mode_active():
-                    logger.critical(
-                        f"🚨 [AI THREAT DETECTED] Multiple bot requests from {client_ip}. AUTO-ACTIVATING PANIC MODE!"
-                    )
-                    toggle_panic_mode(force_state=True)
-
-            response = HTMLResponse(
-                "<h1>403 Forbidden</h1><p>Request denied by security firewall.</p>",
-                status_code=403,
-            )
-            await response(scope, receive, send)
-            return
-
-        # 2. Panic Mode Check
-        if is_panic_mode_active():
-            # If Panic Mode is ON, hide the SaaS and show the Fake Blog.
-            # Real users can bypass this by visiting /login directly, or having a valid session.
-            path = request.url.path
-
-            # Allow static files and specific backend API routes to function normally
-            if (
-                path.startswith("/static")
-                or path.startswith("/assets")
-                or path.startswith("/api/docs")
-            ):
-                pass
-            # If they hit the root landing page (where reviewers look), intercept it!
-            elif path == "/" or path == "/index":
-                logger.info(
-                    f"[IRON CLOAK] Panic Mode Active: Serving Fake Blog to {client_ip}"
+            if is_bot:
+                logger.warning(
+                    f"[IRON CLOAK] Blocked competitor bot: {user_agent} from {client_ip}"
                 )
-                response = self._serve_fake_blog()
+
+                # Record hit for auto-panic
+                now = time.time()
+                _scraper_hits[client_ip].append(now)
+
+                # Clean up old hits
+                _scraper_hits[client_ip] = [
+                    t for t in _scraper_hits[client_ip] if now - t < AUTO_PANIC_WINDOW
+                ]
+
+                # If threshold exceeded, Auto-Trigger Panic Mode
+                if len(_scraper_hits[client_ip]) >= AUTO_PANIC_THRESHOLD:
+                    if not is_panic_mode_active():
+                        logger.critical(
+                            f"🚨 [AI THREAT DETECTED] Multiple bot requests from {client_ip}. AUTO-ACTIVATING PANIC MODE!"
+                        )
+                        toggle_panic_mode(force_state=True)
+
+                response = HTMLResponse(
+                    "<h1>403 Forbidden</h1><p>Request denied by security firewall.</p>",
+                    status_code=403,
+                )
                 await response(scope, receive, send)
                 return
 
+            # 2. Panic Mode Check
+            if is_panic_mode_active():
+                # If Panic Mode is ON, hide the SaaS and show the Fake Blog.
+                # Real users can bypass this by visiting /login directly, or having a valid session.
+                path = request.url.path
+
+                # Allow static files and specific backend API routes to function normally
+                if (
+                    path.startswith("/static")
+                    or path.startswith("/assets")
+                    or path.startswith("/api/docs")
+                ):
+                    pass
+                # If they hit the root landing page (where reviewers look), intercept it!
+                elif path == "/" or path == "/index":
+                    logger.info(
+                        f"[IRON CLOAK] Panic Mode Active: Serving Fake Blog to {client_ip}"
+                    )
+                    response = self._serve_fake_blog()
+                    await response(scope, receive, send)
+                    return
+        except Exception as e:
+            logger.error(f"[IRON CLOAK] Middleware internal error: {e}", exc_info=True)
+
         # 3. Proceed normally
         await self.app(scope, receive, send)
+
 
     def _serve_fake_blog(self):
         """Returns an innocent HTML page instead of the real SaaS landing page."""

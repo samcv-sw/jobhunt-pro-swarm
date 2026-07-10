@@ -99,6 +99,54 @@ async function redisCommand(env, command, ...args) {
   return null;
 }
 
+// ── JWT VERIFICATION ──
+async function verifyJWT(token, secret) {
+  if (!token) return null;
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+
+  const [headerB64, payloadB64, signatureB64] = parts;
+  try {
+    const headerStr = atob(headerB64.replace(/-/g, '+').replace(/_/g, '/'));
+    const header = JSON.parse(headerStr);
+    if (header.alg !== 'HS256') return null;
+
+    const encoder = new TextEncoder();
+    const secretBytes = encoder.encode(secret || 'jobhunt-pro-secret-key-32bytes-ok!!');
+    const cryptoKey = await crypto.subtle.importKey(
+      'raw',
+      secretBytes,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['verify']
+    );
+
+    const dataBytes = encoder.encode(`${headerB64}.${payloadB64}`);
+    const sigStr = signatureB64.replace(/-/g, '+').replace(/_/g, '/');
+    const sigBytes = Uint8Array.from(atob(sigStr), c => c.charCodeAt(0));
+
+    const isValid = await crypto.subtle.verify(
+      'HMAC',
+      cryptoKey,
+      sigBytes,
+      dataBytes
+    );
+
+    if (!isValid) return null;
+
+    const payloadStr = atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/'));
+    const payload = JSON.parse(payloadStr);
+
+    if (payload.exp && Date.now() / 1000 > payload.exp) {
+      return null;
+    }
+
+    return payload;
+  } catch (err) {
+    return null;
+  }
+}
+
 // ── HELPERS ──
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
@@ -221,11 +269,37 @@ Best regards,
 ${userName}`;
 }
 
+// ── URL SHA256 HASH GENERATOR ──
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 // ── SCRAPE JOBS WITH DIRECT FETCH AND GOOGLEBOT FALLBACK ──
 async function scrapeJobs(env, url) {
   if (!url) return { error: 'Missing url' };
   
-  // Check D1 cache
+  const urlHash = await sha256(url);
+  
+  // 1. Check R2 Cache first (holds large, complete HTML without truncation)
+  if (env.BUCKET) {
+    try {
+      const obj = await env.BUCKET.get(`cache/${urlHash}`);
+      if (obj) {
+        const expiresAt = obj.customMetadata?.expiresAt;
+        if (expiresAt && new Date(expiresAt) > new Date()) {
+          const content = await obj.text();
+          return { source: 'r2_cache', content };
+        }
+      }
+    } catch (e) {
+      console.error("R2 cache get failed:", e.message);
+    }
+  }
+  
+  // 2. Check D1 cache fallback
   if (env.DB) {
     const cached = await env.DB.prepare(
       "SELECT content, expires_at FROM scraper_cache WHERE url = ? AND expires_at > datetime('now')"
@@ -233,7 +307,11 @@ async function scrapeJobs(env, url) {
     if (cached) return { source: 'cache', content: cached.content };
   }
   
-  // 1. Try Direct Fetch first (Modern browser UA)
+  let fetchedText = null;
+  let fetchSource = null;
+  let fetchStatus = 200;
+  
+  // 3. Try Direct Fetch first (Modern browser UA)
   try {
     const resp = await fetch(url, {
       headers: {
@@ -245,42 +323,61 @@ async function scrapeJobs(env, url) {
     });
     
     if (resp.status === 200) {
-      const text = await resp.text();
-      if (env.DB && text.length < 100000) {
-        env.DB.prepare(
-          "INSERT OR REPLACE INTO scraper_cache (url, platform, content, content_hash, expires_at, status) VALUES (?, ?, ?, ?, datetime('now', '+1 hour'), ?)"
-        ).bind(url, 'direct_fetch', text.substring(0, 50000), String(text.length), resp.status).run().catch(() => {});
-      }
-      return { source: 'direct_fetch', status: 200, content: text.substring(0, 100000) };
+      fetchedText = await resp.text();
+      fetchSource = 'direct_fetch';
+      fetchStatus = resp.status;
     }
   } catch (directErr) {
     console.error("Direct fetch failed:", directErr.message);
   }
   
-  // 2. Fallback: Googlebot fetch (bypasses some basic crawler blocks)
-  try {
-    const resp = await fetch(url, {
-      headers: { 
-        'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-      },
-      signal: AbortSignal.timeout(10000)
-    });
-    
-    if (resp.status === 200) {
-      const text = await resp.text();
-      if (env.DB && text.length < 100000) {
-        env.DB.prepare(
-          "INSERT OR REPLACE INTO scraper_cache (url, platform, content, content_hash, expires_at, status) VALUES (?, ?, ?, ?, datetime('now', '+1 hour'), ?)"
-        ).bind(url, 'googlebot_fetch', text.substring(0, 50000), String(text.length), resp.status).run().catch(() => {});
+  // 4. Fallback: Googlebot fetch (bypasses some basic crawler blocks)
+  if (!fetchedText) {
+    try {
+      const resp = await fetch(url, {
+        headers: { 
+          'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        },
+        signal: AbortSignal.timeout(10000)
+      });
+      
+      if (resp.status === 200) {
+        fetchedText = await resp.text();
+        fetchSource = 'googlebot_fetch';
+        fetchStatus = resp.status;
+      } else {
+        return { error: `Googlebot fetch returned status: ${resp.status}`, status: resp.status };
       }
-      return { source: 'googlebot_fetch', status: 200, content: text.substring(0, 100000) };
-    } else {
-      return { error: `Googlebot fetch returned status: ${resp.status}`, status: resp.status };
+    } catch (e) {
+      return { error: `Fallback fetch failed: ${e.message}`, status: 502 };
     }
-  } catch (e) {
-    return { error: `Fallback fetch failed: ${e.message}`, status: 502 };
   }
+  
+  if (fetchedText) {
+    // Save to R2 cache (Complete content)
+    if (env.BUCKET) {
+      try {
+        const expiresAt = new Date(Date.now() + 3600000).toISOString(); // 1 hour
+        await env.BUCKET.put(`cache/${urlHash}`, fetchedText, {
+          customMetadata: { expiresAt }
+        });
+      } catch (e) {
+        console.error("R2 cache put failed:", e.message);
+      }
+    }
+    
+    // Save to D1 cache (Truncated to 50k to protect D1 performance limits)
+    if (env.DB && fetchedText.length < 100000) {
+      env.DB.prepare(
+        "INSERT OR REPLACE INTO scraper_cache (url, platform, content, content_hash, expires_at, status) VALUES (?, ?, ?, ?, datetime('now', '+1 hour'), ?)"
+      ).bind(url, fetchSource, fetchedText.substring(0, 50000), String(fetchedText.length), fetchStatus).run().catch(() => {});
+    }
+    
+    return { source: fetchSource, status: fetchStatus, content: fetchedText.substring(0, 100000) };
+  }
+  
+  return { error: "Failed to scrape job URL", status: 500 };
 }
 
 // ── CHECK WORKERS AI AVAILABILITY ──
@@ -418,6 +515,42 @@ export default {
 
     if (method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
 
+    // ── SENSITIVE ENDPOINTS AUTHENTICATION ──
+    const sensitivePaths = [
+      '/api/sync',
+      '/api/byo-smtp/save',
+      '/api/campaign/create',
+      '/api/campaign/list',
+      '/api/cv/upload',
+      '/api/user/by-email',
+      '/api/user/stats'
+    ];
+
+    if (sensitivePaths.includes(path)) {
+      const authHeader = request.headers.get('Authorization') || '';
+      if (!authHeader.startsWith('Bearer ')) {
+        return error('Unauthorized', 401);
+      }
+      const token = authHeader.substring(7);
+      
+      let authenticated = false;
+      if (env.OUTBOX_SECRET && token === env.OUTBOX_SECRET) {
+        authenticated = true;
+      }
+      
+      if (!authenticated) {
+        const jwtSecret = env.JWT_SECRET_KEY || env.JWT_SECRET || 'jobhunt-pro-secret-key-32bytes-ok!!';
+        const payload = await verifyJWT(token, jwtSecret);
+        if (payload) {
+          authenticated = true;
+        }
+      }
+      
+      if (!authenticated) {
+        return error('Unauthorized', 401);
+      }
+    }
+
     try {
       // ═══════════ API: SYNC (WASM LOCAL DB TO TURSO SHARDS) ═══════════
       if (path === '/api/sync' && method === 'POST') {
@@ -428,9 +561,27 @@ export default {
         }
 
         const synced = [];
+        const allowedTables = ['users', 'campaigns', 'jobs', 'applications', 'email_outbox', 'smtp_configs', 'user_prefs', 'wallets', 'user_smtp_configs'];
+        
         for (const m of mutations) {
           try {
             const { action_type, table_name, payload } = m;
+            
+            // Validate table_name against whitelist
+            if (!allowedTables.includes(table_name)) {
+              console.warn(`Blocked sync for unauthorized table: ${table_name}`);
+              continue;
+            }
+            
+            // Ensure all mutation payload keys are strictly alphanumeric and underscores only
+            if (payload && typeof payload === 'object') {
+              const invalidKeys = Object.keys(payload).some(k => !/^[a-zA-Z0-9_]+$/.test(k));
+              if (invalidKeys) {
+                console.warn(`Blocked sync for table ${table_name} due to invalid payload keys`);
+                continue;
+              }
+            }
+
             let sql = '';
             let params = [];
 
@@ -805,7 +956,17 @@ export default {
         const { user_id, filename, content } = body;
         if (!user_id || !content) return error('user_id and content required');
         
-        const key = 'cv/' + user_id + '/' + (filename || 'resume.pdf');
+        // Sanitize user_id to only contain alphanumeric, hyphens, and underscores
+        const sanitizedUserId = String(user_id).replace(/[^a-zA-Z0-9_-]/g, '');
+        
+        // Sanitize filename to prevent directory/path traversal
+        let sanitizedFilename = String(filename || 'resume.pdf').split('/').pop().split('\\').pop();
+        sanitizedFilename = sanitizedFilename.replace(/\.\.+/g, '.').replace(/[^a-zA-Z0-9_.-]/g, '');
+        if (!sanitizedFilename) {
+          sanitizedFilename = 'resume.pdf';
+        }
+        
+        const key = 'cv/' + sanitizedUserId + '/' + sanitizedFilename;
         const binary = Uint8Array.from(atob(content), c => c.charCodeAt(0));
         
         if (r2) {
@@ -813,12 +974,12 @@ export default {
           await r2.put(key, binary, { httpMetadata: { contentType: 'application/pdf' } });
         } else if (kv) {
           // Fallback to KV storage (25MB limit)
-          await kv.put(key, binary, { expirationTtl: 86400 * 30, metadata: { contentType: 'application/pdf', user_id } });
+          await kv.put(key, binary, { expirationTtl: 86400 * 30, metadata: { contentType: 'application/pdf', user_id: sanitizedUserId } });
         } else {
           return error('No storage available', 503);
         }
         
-        await db.prepare('UPDATE users SET cv_url = ? WHERE id = ?').bind(key, user_id).run();
+        await db.prepare('UPDATE users SET cv_url = ? WHERE id = ?').bind(key, sanitizedUserId).run();
         return json({ ok: true, url: key, message: 'CV uploaded!', storage: r2 ? 'r2' : 'kv' });
       }
 

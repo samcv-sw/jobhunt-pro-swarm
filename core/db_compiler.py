@@ -1,6 +1,6 @@
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.types import String, JSON, TypeDecorator
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.types import JSON, String, TypeDecorator
 
 
 # 1. Custom UUID Type

@@ -6,7 +6,7 @@ from playwright.async_api import async_playwright
 sys.stdout.reconfigure(encoding='utf-8')
 
 async def automate_fly_login():
-    print("Starting Fly.io OAuth Automation...")
+    logger.debug("Starting Fly.io OAuth Automation...")
     process = await asyncio.create_subprocess_shell(
         "flyctl auth login",
         stdout=asyncio.subprocess.PIPE,
@@ -19,7 +19,7 @@ async def automate_fly_login():
         if not line:
             break
         text = line.decode('utf-8', errors='ignore').strip()
-        print(f"Flyctl: {text}")
+        logger.debug(f"Flyctl: {text}")
         if "https://fly.io/app/auth/cli/" in text:
             match = re.search(r'(https://fly\.io/app/auth/cli/\S+)', text)
             if match:
@@ -27,11 +27,11 @@ async def automate_fly_login():
                 break
 
     if not oauth_url:
-        print("Could not find OAuth URL.")
+        logger.debug("Could not find OAuth URL.")
         return
 
-    print(f"\nExtracted Fly OAuth URL: {oauth_url}")
-    print("Launching Browser to authenticate...")
+    logger.debug(f"\nExtracted Fly OAuth URL: {oauth_url}")
+    logger.debug("Launching Browser to authenticate...")
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
@@ -50,34 +50,34 @@ async def automate_fly_login():
             
             # Click sign in
             await page.click('button[type="submit"]')
-            print("Submitted login form...")
+            logger.debug("Submitted login form...")
 
             # Wait for authorize button
             try:
                 await page.wait_for_selector('button:has-text("Continue")', timeout=15000)
                 await page.click('button:has-text("Continue")')
-                print("Clicked Continue (Authorize)!")
-            except:
+                logger.debug("Clicked Continue (Authorize)!")
+            except Exception as e:
                 pass
 
             try:
                 await page.wait_for_selector('button:has-text("Authorize")', timeout=5000)
                 await page.click('button:has-text("Authorize")')
-                print("Clicked Authorize!")
-            except:
+                logger.debug("Clicked Authorize!")
+            except Exception as e:
                 pass
 
-            print("Waiting for Flyctl to complete...")
+            logger.debug("Waiting for Flyctl to complete...")
             await asyncio.sleep(5)
         except Exception as e:
-            print(f"Browser automation failed: {e}")
+            logger.debug(f"Browser automation failed: {e}")
             await page.screenshot(path="fly_error.png")
-            print("Saved screenshot to fly_error.png")
+            logger.debug("Saved screenshot to fly_error.png")
         finally:
             await browser.close()
     
     await process.wait()
-    print("Flyctl process completed.")
+    logger.debug("Flyctl process completed.")
 
 if __name__ == "__main__":
     asyncio.run(automate_fly_login())

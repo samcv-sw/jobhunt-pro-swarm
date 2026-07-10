@@ -2,11 +2,13 @@
     background: linear-gradient(90deg, #3b82f6, #8b5cf6);
     color: white !important;
     border: none;
-    padding: 10px 20px;
+    padding-block: 10px;
+    padding-inline: 20px;
     border-radius: 20px;
     font-weight: bold;
+    font-family: 'Cairo', 'Tajawal', 'Inter', system-ui, sans-serif;
     cursor: pointer;
-    margin-left: 10px;
+    margin-inline-start: 10px;
     box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
     transition: all 0.3s ease;
 }

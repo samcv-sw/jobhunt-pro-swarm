@@ -16,14 +16,13 @@ CAN-SPAM compliant: unsubscribe links, physical address, honest headers.
 import json
 import logging
 import random
+import threading
 import time
 import uuid
-from datetime import datetime, date
-from email.mime.text import MIMEText
+from datetime import date, datetime
 from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from pathlib import Path
-from typing import Optional, Dict, List, Tuple
-import threading
 
 logger = logging.getLogger(__name__)
 
@@ -145,14 +144,14 @@ JobHunt Pro · Beirut, Lebanon
 
 # ── State ─────────────────────────────────────────────────────
 _state_lock = threading.Lock()
-_daily_sent: Dict[str, int] = {}
+_daily_sent: dict[str, int] = {}
 _campaign_stats = {"sent": 0, "opens": 0, "clicks": 0, "signups": 0, "revenue": 0.0}
-_active_campaigns: Dict[str, Dict] = {}
+_active_campaigns: dict[str, dict] = {}
 _initialized = False
-_data_dir: Optional[Path] = None
+_data_dir: Path | None = None
 
 
-def init(data_dir: Optional[str] = None):
+def init(data_dir: str | None = None):
     """Initialize Cold Blaster. Call once at startup."""
     global _initialized, _data_dir
 
@@ -186,7 +185,7 @@ def _load_stats():
     stats_file = _data_dir / "blast_stats.json"
     if stats_file.exists():
         try:
-            with open(stats_file, "r") as f:
+            with open(stats_file) as f:
                 saved = json.load(f)
                 _campaign_stats.update(saved)
         except Exception:
@@ -205,13 +204,145 @@ def _save_stats():
         logger.error(f"Failed to save blast stats: {e}")
 
 
+def _prepare_recipients_and_limits(
+    recipients: list[dict[str, str]],
+    max_sends: int | None,
+    test_mode: bool,
+    today: str,
+) -> tuple[list[dict[str, str]], int]:
+    """
+    Prepare recipients list and cap the max sends limit.
+
+    Args:
+        recipients: The original list of recipient dictionaries.
+        max_sends: The requested max sends limit.
+        test_mode: If True, override to test recipient only.
+        today: The ISO date string for today.
+
+    Returns:
+        A tuple containing the prepared recipients list and the final max sends limit.
+    """
+    if max_sends is None:
+        max_sends = min(BLAST_DAILY_CAP - _daily_sent.get(today, 0), len(recipients))
+
+    if test_mode:
+        try:
+            import config
+            recipients = [
+                {"email": config.CANDIDATE_EMAIL, "name": config.CANDIDATE_NAME}
+            ]
+            max_sends = 1
+        except ImportError:
+            pass
+
+    return recipients, max_sends
+
+
+def _send_single_email(
+    recipient: dict[str, str],
+    ai_personalize: bool,
+    today: str,
+) -> str:
+    """
+    Build, personalize, and send a single cold email, applying BanShield checks and delays.
+
+    Args:
+        recipient: Dictionary with keys 'name' and 'email'.
+        ai_personalize: If True, personalize subject/body via AI.
+        today: The ISO date string for today.
+
+    Returns:
+        A string status: "sent", "failed", or "rate_limited".
+    """
+    from core import hotmail_pool
+    from core.ban_shield import (
+        get_safe_send_window,
+        record_send,
+    )
+
+    # BanShield gate — check if we can send
+    window = get_safe_send_window()
+    if not window.get("can_send", True):
+        delay = 30 + random.randint(0, 30)
+        logger.info(
+            f"BanShield cooldown: {delay}s (reason: {window.get('reason', 'unknown')})"
+        )
+        time.sleep(delay)
+        return "rate_limited"
+
+    try:
+        name = recipient.get("name", "there")
+        to_email = recipient["email"].strip()
+
+        subject = random.choice(SUBJECT_VARIANTS)
+        body = random.choice(BODY_TEMPLATES).format(
+            name=name,
+            site_url=SITE_URL,
+            unsubscribe_url=f"{UNSUBSCRIBE_URL}?email={to_email}",
+            tracking_pixel=_tracking_pixel_html() if TRACKING_ENABLED else "",
+        )
+
+        if ai_personalize:
+            try:
+                subject, body = _ai_personalize(to_email, name, subject, body)
+            except Exception:
+                pass
+
+        viral_signature = f"""
+        <br><br>
+        <hr style="border: none; border-top: 1px solid #eaeaea; margin: 20px 0;">
+        <p style="font-size: 12px; color: #888;">
+            🚀 <b>Powered by JobHunt Pro</b><br>
+            This application was autonomously sent by an AI agent. <br>
+            <a href="{SITE_URL}/?ref=viral_email" style="color: #3b82f6; text-decoration: none;">Get your own AI Job Hunter here.</a>
+        </p>
+        """
+
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["To"] = to_email
+        msg["List-Unsubscribe"] = f"<{UNSUBSCRIBE_URL}?email={to_email}>"
+        msg["Precedence"] = "bulk"
+
+        final_html_body = body.replace("\n", "<br>\n") + viral_signature
+        msg.attach(MIMEText(final_html_body, "html", "utf-8"))
+
+        result = hotmail_pool.send_email(to_email=to_email, msg=msg)
+
+        if result and result.get("success"):
+            _daily_sent[today] += 1
+            record_send()
+            logger.debug(f"✓ Sent to {to_email}")
+            status = "sent"
+        else:
+            logger.warning(
+                f"✗ Failed {to_email}: {result.get('error', 'unknown') if result else 'no result'}"
+            )
+            status = "failed"
+
+    except Exception as e:
+        logger.error(f"Blast error for {recipient.get('email', '?')}: {e}")
+        status = "failed"
+
+    # Phase-Shifted Harmonic Jitter for Microsoft EOP evasion
+    import math
+    t = time.time()
+    jitter1 = math.sin(t / 600.0 * 2 * math.pi) * 1.5
+    jitter2 = math.cos(t / 120.0 * 2 * math.pi) * 0.5
+    noise = random.uniform(0.1, 0.5)
+    calculated_delay = max(0.5, MIN_DELAY_SEC + jitter1 + jitter2 + noise)
+    time.sleep(calculated_delay)
+
+    return status
+
+
 def send_blast(
-    recipients: List[Dict[str, str]],
+    recipients: list[dict[str, str]],
     campaign_name: str = "default",
-    max_sends: Optional[int] = None,
+    max_sends: int | None = None,
     test_mode: bool = False,
     ai_personalize: bool = True,
-) -> Dict:
+) -> dict:
     """
     Send cold email blast.
 
@@ -224,25 +355,14 @@ def send_blast(
 
     Returns: {"sent": N, "failed": N, "rate_limited": N, "remaining_today": N}
     """
-    try:
-        from core import hotmail_pool
-        from core.ban_shield import (
-            can_send_gmail,
-            record_send,
-            get_daily_stats,
-            get_safe_send_window,
-        )
-    except ImportError as e:
-        logger.error(f"Cannot import deps: {e}")
-        return {"error": str(e), "sent": 0, "failed": 0}
-
     today = date.today().isoformat()
 
     if today not in _daily_sent:
         _daily_sent[today] = 0
 
-    if max_sends is None:
-        max_sends = min(BLAST_DAILY_CAP - _daily_sent[today], len(recipients))
+    recipients, max_sends = _prepare_recipients_and_limits(
+        recipients, max_sends, test_mode, today
+    )
 
     if max_sends <= 0:
         return {
@@ -251,18 +371,6 @@ def send_blast(
             "rate_limited": 0,
             "detail": "daily cap reached",
         }
-
-    # Test mode override
-    if test_mode:
-        try:
-            import config
-
-            recipients = [
-                {"email": config.CANDIDATE_EMAIL, "name": config.CANDIDATE_NAME}
-            ]
-            max_sends = 1
-        except ImportError:
-            pass
 
     sent = 0
     failed = 0
@@ -279,89 +387,18 @@ def send_blast(
     }
 
     for i, recipient in enumerate(recipients[:max_sends]):
-        # Check daily cap
         if _daily_sent[today] >= BLAST_DAILY_CAP:
             rate_limited += max_sends - i
             break
 
-        # BanShield gate — check if we can send
-        window = get_safe_send_window()
-        if not window.get("can_send", True):
-            delay = 30 + random.randint(0, 30)
-            logger.info(
-                f"BanShield cooldown: {delay}s (reason: {window.get('reason', 'unknown')})"
-            )
-            time.sleep(delay)
-            rate_limited += 1
-            continue
-
-        try:
-            # Build email
-            name = recipient.get("name", "there")
-            to_email = recipient["email"].strip()
-
-            subject = random.choice(SUBJECT_VARIANTS)
-            body = random.choice(BODY_TEMPLATES).format(
-                name=name,
-                site_url=SITE_URL,
-                unsubscribe_url=f"{UNSUBSCRIBE_URL}?email={to_email}",
-                tracking_pixel=_tracking_pixel_html() if TRACKING_ENABLED else "",
-            )
-
-            # AI personalize if enabled
-            if ai_personalize:
-                try:
-                    subject, body = _ai_personalize(to_email, name, subject, body)
-                except Exception:
-                    pass  # fall through with template
-
-            # The Viral Loop Signature (Phase 8)
-            viral_signature = f"""
-            <br><br>
-            <hr style="border: none; border-top: 1px solid #eaeaea; margin: 20px 0;">
-            <p style="font-size: 12px; color: #888;">
-                🚀 <b>Powered by JobHunt Pro</b><br>
-                This application was autonomously sent by an AI agent. <br>
-                <a href="{SITE_URL}/?ref=viral_email" style="color: #3b82f6; text-decoration: none;">Get your own AI Job Hunter here.</a>
-            </p>
-            """
-            
-            # Build MIME
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = subject
-            msg["To"] = to_email
-            msg["List-Unsubscribe"] = f"<{UNSUBSCRIBE_URL}?email={to_email}>"
-            msg["Precedence"] = "bulk"
-            
-            final_html_body = body.replace("\n", "<br>\n") + viral_signature
-            msg.attach(MIMEText(final_html_body, "html", "utf-8"))
-
-            # Send via Hotmail pool
-            result = hotmail_pool.send_email(to_email=to_email, msg=msg)
-
-            if result and result.get("success"):
-                sent += 1
-                _daily_sent[today] += 1
-                record_send()
-                logger.debug(f"✓ Sent to {to_email}")
-            else:
-                failed += 1
-                logger.warning(
-                    f"✗ Failed {to_email}: {result.get('error', 'unknown') if result else 'no result'}"
-                )
-
-        except Exception as e:
-            logger.error(f"Blast error for {recipient.get('email', '?')}: {e}")
+        status = _send_single_email(recipient, ai_personalize, today)
+        if status == "sent":
+            sent += 1
+        elif status == "failed":
             failed += 1
+        elif status == "rate_limited":
+            rate_limited += 1
 
-        # Phase-Shifted Harmonic Jitter for Microsoft EOP evasion
-        import math
-        t = time.time()
-        jitter1 = math.sin(t / 600.0 * 2 * math.pi) * 1.5
-        jitter2 = math.cos(t / 120.0 * 2 * math.pi) * 0.5
-        noise = random.uniform(0.1, 0.5)
-        calculated_delay = max(0.5, MIN_DELAY_SEC + jitter1 + jitter2 + noise)
-        time.sleep(calculated_delay)
     # Update campaign
     _active_campaigns[campaign_id].update(
         {
@@ -399,7 +436,7 @@ def _tracking_pixel_html() -> str:
 
 def _ai_personalize(
     to_email: str, name: str, subject: str, body: str
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
     """Use Groq to personalize subject + body for recipient."""
     try:
         import os
@@ -448,7 +485,7 @@ Return JSON: {{"subject": "...", "body": "..."}}"""
     return subject, body
 
 
-def get_stats() -> Dict:
+def get_stats() -> dict:
     """Get blaster statistics."""
     today = date.today().isoformat()
     return {
@@ -478,14 +515,14 @@ def record_conversion(track_id: str, event_type: str = "open"):
             _campaign_stats["revenue"] += 5.0  # avg revenue per signup
 
 
-def load_recipients_from_file(path: str) -> List[Dict[str, str]]:
+def load_recipients_from_file(path: str) -> list[dict[str, str]]:
     """Load recipients from CSV (email,name) or JSON [{"email":..., "name":...}]."""
     p = Path(path)
     if not p.exists():
         raise FileNotFoundError(f"Recipient file not found: {path}")
 
     if p.suffix == ".json":
-        with open(p, "r", encoding="utf-8") as f:
+        with open(p, encoding="utf-8") as f:
             data = json.load(f)
         return [
             {"email": r["email"], "name": r.get("name", "")}
@@ -497,7 +534,7 @@ def load_recipients_from_file(path: str) -> List[Dict[str, str]]:
         import csv
 
         recipients = []
-        with open(p, "r", encoding="utf-8-sig") as f:
+        with open(p, encoding="utf-8-sig") as f:
             reader = csv.reader(f)
             for row in reader:
                 if not row or not row[0]:
@@ -510,14 +547,14 @@ def load_recipients_from_file(path: str) -> List[Dict[str, str]]:
 
     else:
         # Plain text — one email per line
-        with open(p, "r", encoding="utf-8") as f:
+        with open(p, encoding="utf-8") as f:
             lines = [l.strip() for l in f if "@" in l and "." in l]
         return [{"email": l, "name": ""} for l in lines]
 
 
 def send_from_file(
     file_path: str, campaign_name: str = None, max_sends: int = None
-) -> Dict:
+) -> dict:
     """Convenience: load recipients from file & blast."""
     if campaign_name is None:
         campaign_name = Path(file_path).stem

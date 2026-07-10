@@ -71,7 +71,7 @@ body::before{content:'';position:fixed;top:0;inset-inline-start: 0;width:100%;he
 .plan-price{font-size:18px;font-weight:800;color:var(--accent-cyan);text-shadow:0 0 10px var(--accent-glow)}
 .plan-price span{font-size:11px;color:var(--text-muted);font-weight:400}
 .plan-apps{font-size:10px;color:var(--text-muted);margin-top:3px}
-.plan-badge{position:absolute;top:-8px;right:-6px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-magenta));color:#050505;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px}
+.plan-badge{position:absolute;top:-8px;inset-inline-end:-6px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-magenta));color:#050505;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px}
 
 .savings-banner{text-align:center;margin:12px 0 20px;padding:10px;background:rgba(0,240,255,.04);border:1px solid rgba(0,240,255,.1);border-radius:10px;font-size:12px;color:var(--accent-cyan);font-weight:600}
 .savings-banner strong{font-size:15px}
@@ -171,7 +171,7 @@ body::before{content:'';position:fixed;top:0;inset-inline-start: 0;width:100%;he
       </div>
     </div>
 
-    <form method="POST" action="/register">
+    <form dir="auto" method="POST" action="/register">
     <!-- PROJECT AEGIS: Invisible Bot Honeypot -->
     <div style="display:none; visibility:hidden;">
         <label>Leave this empty if you are human</label>

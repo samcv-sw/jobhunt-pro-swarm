@@ -5,7 +5,7 @@ All payment buttons link to /register or /wallet for crypto payments.
 """
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -531,8 +531,9 @@ def get_unlocked_features(user_id: str) -> set:
 
 import functools
 
+
 @functools.lru_cache(maxsize=1)
-def get_all_pricing() -> Dict[str, Any]:
+def get_all_pricing() -> dict[str, Any]:
     """Return all pricing info combined (Cached for Zero-Latency)."""
     return {
         "tiers": PRICING_TIERS,
@@ -541,7 +542,7 @@ def get_all_pricing() -> Dict[str, Any]:
     }
 
 
-def get_tier_by_name(tier_name: str) -> Optional[Dict[str, Any]]:
+def get_tier_by_name(tier_name: str) -> dict[str, Any] | None:
     """Get tier details by name."""
     for t in PRICING_TIERS:
         if t["tier"] == tier_name:
@@ -549,7 +550,7 @@ def get_tier_by_name(tier_name: str) -> Optional[Dict[str, Any]]:
     return None
 
 
-def get_tier_by_company_count(company_count: int) -> Optional[Dict[str, Any]]:
+def get_tier_by_company_count(company_count: int) -> dict[str, Any] | None:
     """Get tier details by company count."""
     for t in PRICING_TIERS:
         if t["companies"] == company_count:
@@ -573,7 +574,7 @@ def calculate_daily_reward(tier_name: str) -> int:
     return tier_map.get(t_clean, 5)
 
 
-def get_pricing_json() -> Dict[str, Any]:
+def get_pricing_json() -> dict[str, Any]:
     """Get pricing as clean JSON for API responses."""
     return {
         "success": True,

@@ -6,7 +6,7 @@ Ported from demo_user Project - Dynamic content for better response rates
 import logging
 import os
 import re
-from typing import Dict, List, Any
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ class EmailPersonalizer:
         self.candidate_data = self._load_candidate_data()
         self.company_data = {}
 
-    def _load_candidate_data(self) -> Dict[str, Any]:
+    def _load_candidate_data(self) -> dict[str, Any]:
         """Load candidate's data from environment."""
         return {
             "name": os.getenv("CANDIDATE_NAME", "Sam Salameh"),
@@ -62,7 +62,7 @@ class EmailPersonalizer:
             return parts[0]
         return ""
 
-    def personalize_token(self, token: str, company_info: Dict = None) -> str:
+    def personalize_token(self, token: str, company_info: dict = None) -> str:
         """Replace a token with personalized content"""
         if not company_info:
             company_info = {}
@@ -87,7 +87,7 @@ class EmailPersonalizer:
 
         return token_map.get(token, token)
 
-    def personalize_email(self, template: str, company_info: Dict = None) -> str:
+    def personalize_email(self, template: str, company_info: dict = None) -> str:
         """Personalize an email template with dynamic content in a single pass."""
         if not company_info:
             company_info = {}
@@ -118,7 +118,7 @@ class EmailPersonalizer:
 
         return result
 
-    def _get_relevant_skill(self, company_info: Dict) -> str:
+    def _get_relevant_skill(self, company_info: dict) -> str:
         """Get a relevant skill based on company/position"""
         industry = company_info.get("industry", "").lower()
         title = company_info.get("title", "").lower()
@@ -146,7 +146,7 @@ class EmailPersonalizer:
         else:
             return "network infrastructure optimization and cost reduction"
 
-    def _get_relevant_achievement(self, company_info: Dict) -> str:
+    def _get_relevant_achievement(self, company_info: dict) -> str:
         """Get a relevant achievement based on company"""
         title = company_info.get("title", "").lower()
 
@@ -169,7 +169,7 @@ class EmailPersonalizer:
         else:
             return "reducing operational costs by 45% while improving network reliability to 99.99%"
 
-    def _get_pain_point(self, company_info: Dict) -> str:
+    def _get_pain_point(self, company_info: dict) -> str:
         """Identify potential pain point for the company"""
         industry = company_info.get("industry", "").lower()
         title = company_info.get("title", "").lower()
@@ -191,7 +191,7 @@ class EmailPersonalizer:
         else:
             return "network complexity, operational inefficiencies, and digital transformation challenges"
 
-    def generate_subject_variants(self, base_subject: str, company: str) -> List[str]:
+    def generate_subject_variants(self, base_subject: str, company: str) -> list[str]:
         """Generate multiple subject line variants for A/B testing"""
         name = self.candidate_data["name"]
         prof = self.candidate_data["profession"]
@@ -210,7 +210,7 @@ class EmailPersonalizer:
         ]
         return variants
 
-    def analyze_email_quality(self, subject: str, body: str) -> Dict[str, Any]:
+    def analyze_email_quality(self, subject: str, body: str) -> dict[str, Any]:
         """Analyze email quality factors"""
         scores = {}
 

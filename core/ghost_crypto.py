@@ -4,9 +4,10 @@ Provides AES-128 Fernet encryption for zero-knowledge data masking.
 Protects sensitive user data from Ops / Government / Database Leaks.
 """
 
-from cryptography.fernet import Fernet
-import os
 import logging
+import os
+
+from cryptography.fernet import Fernet
 
 logger = logging.getLogger(__name__)
 

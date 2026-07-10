@@ -1,176 +1,237 @@
 <meta property="og:title" content="محلل ATS | JobHunt Pro"/>
-<meta name="description" content="احصل على تقييم دقيق لسيرتك الذاتية ونصائح لتحسينها."/>
+<meta name="description" content="احصل على تقييم دقيق لسيرتك الذاتية ونصائح لتحسينها لتمرير أنظمة التوظيف الآلي."/>
 <title>محلل ATS | JobHunt Pro</title>
+<style>
+/* ATS Scorer — button & focus overrides */
+:root { --text-x-direction: -1; }
+
+.ats-btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding-block: 14px;
+  padding-inline: 2rem;
+  background: linear-gradient(135deg, #00f0ff, #0080ff);
+  color: #0a0a14;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 rgba(0,240,255,0);
+}
+.ats-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 24px rgba(0,240,255,0.4);
+}
+.ats-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.ats-btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding-block: 14px;
+  padding-inline: 1.5rem;
+  background: transparent;
+  color: #00f0ff;
+  border: 1px solid rgba(0,240,255,0.4);
+  border-radius: 14px;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.ats-btn-secondary:hover {
+  background: rgba(0,240,255,0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 0 16px rgba(0,240,255,0.25);
+}
+
+.ats-input:focus {
+  outline: none;
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 0 3px rgba(0,240,255,0.12) !important;
+}
+
+@keyframes ats-spin { to { transform: rotate(360deg); } }
+.ats-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(10,10,20,0.3);
+  border-top-color: #0a0a14;
+  border-radius: 50%;
+  animation: ats-spin 0.7s linear infinite;
+  display: inline-block;
+}
+</style>
 <div class="space-y-6 max-w-7xl mx-auto">
 <!-- Page Header -->
 <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
-<div>
-<h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-<i class="w-7 h-7 text-blue-400" data-lucide="target"></i>
-        {{ _('ATS Resume Scorer') }}
-      </h1>
-<p class="text-sm text-slate-400 mt-1">{{ _('Optimize your CV against Job Descriptions using AI-powered ATS algorithms.') }}</p>
+  <div>
+    <h1 class="text-2xl font-black text-white flex items-center gap-3">
+      <i class="w-7 h-7 text-cyan-400" data-lucide="target"></i>
+      محلل السيرة الذاتية ATS
+    </h1>
+    <p class="text-sm text-slate-400 mt-1" style="line-height:1.7;">حسّن سيرتك الذاتية مقابل أوصاف الوظائف باستخدام خوارزميات الذكاء الاصطناعي المتوافقة مع أنظمة التوظيف الآلي (ATS).</p>
+  </div>
 </div>
-</div>
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-<!-- Resume Panel -->
-<div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-lg">
-<h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-<i class="w-4 h-4 text-blue-400" data-lucide="file-text"></i> {{ _('Your Resume') }}
-      </h3>
-<textarea class="w-full min-h-[300px] bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-xl p-4 text-sm text-slate-200 font-mono resize-y outline-none transition-all custom-scrollbar" dir="auto" id="ats-resume" placeholder="Paste your full resume text here...
 
-Example:
-SAM SALAMEH
-Senior Network Engineer | CCNA, Fortinet NSE, MikroTik MTCNA
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+  <!-- Resume Panel -->
+  <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6 shadow-lg" style="background:rgba(10,10,25,0.8); border-color:rgba(0,240,255,0.15);">
+    <h3 class="text-sm font-bold text-slate-300 uppercase mb-4 flex items-center gap-2">
+      <i class="w-4 h-4 text-cyan-400" data-lucide="file-text"></i> سيرتك الذاتية
+    </h3>
+    <textarea class="ats-input w-full min-h-[300px] bg-slate-950/50 border border-slate-700 rounded-xl p-4 text-sm text-slate-200 font-mono resize-y outline-none transition-all custom-scrollbar" dir="auto" id="ats-resume" placeholder="الصق نص سيرتك الذاتية الكاملة هنا...
+
+مثال:
+سام سلامة
+مهندس شبكات أول | CCNA، Fortinet NSE، MikroTik MTCNA
 samsalameh.cv@gmail.com | +961 70 841 1009
 linkedin.com/in/sam-salameh
 
-PROFESSIONAL SUMMARY
-15+ years as a Network Engineer specializing in...
-..."></textarea>
-<div class="mt-3 flex items-start gap-2 text-xs text-slate-500">
-<i class="w-4 h-4 text-slate-400 shrink-0" data-lucide="info"></i>
-<p>{{ _('Paste the full text — the more detail, the better the score.') }}</p>
-</div>
-</div>
-<!-- Job Description Panel -->
-<div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-lg flex flex-col">
-<h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-<i class="w-4 h-4 text-emerald-400" data-lucide="clipboard-list"></i> {{ _('Job Description') }}
-      </h3>
-<div class="flex flex-col md:flex-row gap-3 mb-4">
-<div class="relative flex-1">
-<i class="w-4 h-4 text-slate-500 absolute start-3 top-1/2 -translate-y-1/2" data-lucide="link"></i>
-<input class="w-full bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-lg ps-9 pe-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" dir="auto" id="ats-url" placeholder="Or paste a job posting URL..." type="url"/>
-</div>
-<button class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 border border-slate-700 whitespace-nowrap" id="btn-url-import" onclick="importFromUrl()">
-<i class="w-4 h-4" data-lucide="download-cloud"></i> {{ _('Import') }}
-        </button>
-</div>
-<textarea class="w-full flex-1 min-h-[180px] bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-xl p-4 text-sm text-slate-200 font-mono resize-y outline-none transition-all custom-scrollbar mb-4" dir="auto" id="ats-job-desc" placeholder="Paste the job description here...
+ملخص مهني:
+أكثر من 15 سنة خبرة في هندسة الشبكات المتخصصة في تصميم البنية التحتية..." style="line-height:1.7;"></textarea>
+    <div class="mt-3 flex items-start gap-2 text-xs text-slate-500">
+      <i class="w-4 h-4 text-slate-400 shrink-0" data-lucide="info"></i>
+      <p style="line-height:1.7;">الصق النص الكامل — كلما زادت التفاصيل، كلما كانت الدرجة أدق.</p>
+    </div>
+  </div>
 
-Example:
-Network Engineer
-Company XYZ — Beirut, Lebanon
+  <!-- Job Description Panel -->
+  <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6 shadow-lg flex flex-col" style="background:rgba(10,10,25,0.8); border-color:rgba(0,240,255,0.15);">
+    <h3 class="text-sm font-bold text-slate-300 uppercase mb-4 flex items-center gap-2">
+      <i class="w-4 h-4 text-emerald-400" data-lucide="clipboard-list"></i> الوصف الوظيفي
+    </h3>
+    <div class="flex flex-col md:flex-row gap-3 mb-4">
+      <div class="relative flex-1">
+        <i class="w-4 h-4 text-slate-500 absolute inset-inline-start-3 top-1/2 -translate-y-1/2" data-lucide="link" style="inset-inline-start:12px; position:absolute; top:50%; transform:translateY(-50%);"></i>
+        <input class="ats-input w-full bg-slate-950/50 border border-slate-700 rounded-lg py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" style="padding-inline-start:36px; padding-inline-end:16px;" dir="auto" id="ats-url" placeholder="أو الصق رابط إعلان الوظيفة..." type="url"/>
+      </div>
+      <button class="ats-btn-secondary" id="btn-url-import" onclick="importFromUrl()" style="padding-block:10px; padding-inline:1rem; font-size:13px;">
+        <i class="w-4 h-4" data-lucide="download-cloud"></i> استيراد
+      </button>
+    </div>
+    <textarea class="ats-input w-full flex-1 min-h-[180px] bg-slate-950/50 border border-slate-700 rounded-xl p-4 text-sm text-slate-200 font-mono resize-y outline-none transition-all custom-scrollbar mb-4" dir="auto" id="ats-job-desc" placeholder="الصق الوصف الوظيفي هنا...
 
-Requirements:
-- 5+ years experience with Cisco/Juniper
-- CCNP or equivalent certification
-- Strong knowledge of BGP, OSPF, MPLS
-- Experience with Fortinet firewalls
-..."></textarea>
-<div class="relative">
-<i class="w-4 h-4 text-slate-500 absolute start-3 top-1/2 -translate-y-1/2" data-lucide="briefcase"></i>
-<input class="w-full bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-lg ps-9 pe-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" dir="auto" id="ats-job-title" placeholder="Job title (optional, e.g. Senior Network Engineer)" type="text"/>
+مثال:
+مهندس شبكات — بيروت، لبنان
+
+المتطلبات:
+- خبرة 5+ سنوات مع Cisco/Juniper
+- شهادة CCNP أو ما يعادلها
+- معرفة قوية بـ BGP وOSPF وMPLS
+- خبرة مع جدران حماية Fortinet..." style="line-height:1.7;"></textarea>
+    <div class="relative">
+      <i class="w-4 h-4 text-slate-500 absolute top-1/2 -translate-y-1/2" data-lucide="briefcase" style="inset-inline-start:12px; position:absolute; top:50%; transform:translateY(-50%);"></i>
+      <input class="ats-input w-full bg-slate-950/50 border border-slate-700 rounded-lg py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" style="padding-inline-start:36px; padding-inline-end:16px;" dir="auto" id="ats-job-title" placeholder="المسمى الوظيفي (اختياري، مثال: مهندس شبكات أول)" type="text"/>
+    </div>
+  </div>
 </div>
-</div>
-</div>
+
 <!-- Actions -->
 <div class="flex flex-wrap items-center gap-4 mb-8">
-<button class="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-base font-black tracking-wide shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all flex items-center gap-3 border border-indigo-400/30" id="btn-score" onclick="scoreResume()">
-<i class="w-5 h-5" data-lucide="scan-face"></i> {{ _('Score My Resume') }}
-    </button>
-<button class="px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border border-slate-700" id="btn-bulk-toggle" onclick="toggleBulkMode()">
-<i class="w-4 h-4" data-lucide="layers"></i> {{ _('Score Against Multiple Jobs') }}
-    </button>
-<span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 ms-auto">
-<i class="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" data-lucide="zap"></i> {{ _('Powered by AI Analysis') }}
-    </span>
+  <button class="ats-btn-primary" id="btn-score" onclick="scoreResume()">
+    <i class="w-5 h-5" data-lucide="scan-face"></i> تقييم سيرتي الذاتية
+  </button>
+  <button class="ats-btn-secondary" id="btn-bulk-toggle" onclick="toggleBulkMode()" style="padding-block:12px; padding-inline:1.25rem; font-size:13px;">
+    <i class="w-4 h-4" data-lucide="layers"></i> تقييم مقابل وظائف متعددة
+  </button>
+  <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 ms-auto">
+    <i class="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" data-lucide="zap"></i> مدعوم بتحليل الذكاء الاصطناعي
+  </span>
 </div>
+
 <!-- Bulk Mode -->
-<div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-lg mb-8 animate-in fade-in slide-in-from-top-4 duration-300" id="bulk-section" style="display:none;">
-<div class="flex justify-between items-start mb-6">
-<div>
-<h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-<i class="w-4 h-4 text-purple-400" data-lucide="copy"></i> {{ _('Bulk Scoring') }}
-        </h3>
-<p class="text-xs text-slate-500 mt-1">{{ _('Add job titles to compare your resume against multiple positions at once (max 10).') }}</p>
-</div>
-<button class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-bold tracking-wide shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all flex items-center gap-2 border border-purple-400/50" id="btn-bulk-score" onclick="scoreBulk()">
-<i class="w-4 h-4 fill-white" data-lucide="play"></i> {{ _('Run Bulk Score') }}
-      </button>
-</div>
-<div class="space-y-3" id="bulk-jobs-container">
-<!-- Added dynamically -->
-</div>
-<button class="mt-4 px-4 py-2 border border-dashed border-slate-600 text-slate-400 hover:text-white hover:border-slate-400 hover:bg-slate-800/50 rounded-lg text-sm font-medium transition-all flex items-center gap-2 w-full justify-center" onclick="addBulkRow()">
-<i class="w-4 h-4" data-lucide="plus"></i> {{ _('Add Another Job') }}
+<div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6 shadow-lg mb-8" id="bulk-section" style="display:none; background:rgba(10,10,25,0.8); border-color:rgba(0,240,255,0.15);">
+  <div class="flex justify-between items-start mb-6">
+    <div>
+      <h3 class="text-sm font-bold text-slate-300 uppercase flex items-center gap-2">
+        <i class="w-4 h-4 text-purple-400" data-lucide="copy"></i> التقييم الجماعي
+      </h3>
+      <p class="text-xs text-slate-500 mt-1" style="line-height:1.7;">أضف مسميات وظيفية لمقارنة سيرتك الذاتية بمناصب متعددة دفعة واحدة (بحد أقصى 10).</p>
+    </div>
+    <button class="ats-btn-primary" id="btn-bulk-score" onclick="scoreBulk()" style="padding-block:10px; padding-inline:1.25rem; font-size:13px;">
+      <i class="w-4 h-4 fill-current" data-lucide="play"></i> تشغيل التقييم الجماعي
     </button>
+  </div>
+  <div class="space-y-3" id="bulk-jobs-container"></div>
+  <button class="mt-4 px-4 py-2 border border-dashed border-slate-600 text-slate-400 hover:text-white hover:border-slate-400 hover:bg-slate-800/50 rounded-lg text-sm font-medium transition-all flex items-center gap-2 w-full justify-center" onclick="addBulkRow()">
+    <i class="w-4 h-4" data-lucide="plus"></i> إضافة وظيفة أخرى
+  </button>
 </div>
+
 <!-- Error Alert -->
 <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6 flex items-start gap-3" id="ats-error" style="display:none;">
-<i class="w-5 h-5 text-red-500 shrink-0 mt-0.5" data-lucide="alert-triangle"></i>
-<p class="text-sm font-medium text-red-400" id="ats-error-text"></p>
+  <i class="w-5 h-5 text-red-500 shrink-0 mt-0.5" data-lucide="alert-triangle"></i>
+  <p class="text-sm font-medium text-red-400" id="ats-error-text"></p>
 </div>
+
 <!-- Loading State -->
 <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-12 text-center my-8" id="ats-loading" style="display:none;">
-<i class="w-10 h-10 text-blue-500 animate-spin mx-auto mb-4" data-lucide="loader-2"></i>
-<h3 class="text-lg font-bold text-white mb-1 tracking-tight">{{ _('Analyzing Resume...') }}</h3>
-<p class="text-sm text-slate-400">{{ _('AI is evaluating your profile against the job description.') }}</p>
+  <i class="w-10 h-10 text-cyan-500 animate-spin mx-auto mb-4" data-lucide="loader-2"></i>
+  <h3 class="text-lg font-bold text-white mb-1">جاري تحليل السيرة الذاتية...</h3>
+  <p class="text-sm text-slate-400" style="line-height:1.7;">يقوم الذكاء الاصطناعي بتقييم ملفك الشخصي مقابل الوصف الوظيفي.</p>
 </div>
+
 <!-- Results Section -->
-<div class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500" id="ats-results" style="display:none;">
-<!-- Hero Score -->
-<div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
-<!-- CSS Gauge -->
-<div class="relative w-[160px] h-[160px] shrink-0">
-<svg class="w-full h-full -rotate-90" viewbox="0 0 140 140">
-<circle class="text-slate-800" cx="70" cy="70" fill="none" r="60" stroke="currentColor" stroke-width="8"></circle>
-<circle class="text-blue-500 transition-all duration-1000 ease-out" cx="70" cy="70" fill="none" id="gauge-fill" r="60" stroke="currentColor" stroke-linecap="round" stroke-width="8" style="stroke-dasharray: 377; stroke-dashoffset: 377;"></circle>
-</svg>
-<div class="absolute inset-0 flex flex-col items-center justify-center">
-<span class="text-4xl font-black tracking-tighter text-white" id="gauge-score">0</span>
-<span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{{ _('Score') }}</span>
+<div class="space-y-6" id="ats-results" style="display:none;">
+  <!-- Hero Score -->
+  <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 shadow-[0_8px_30px_rgba(0,0,0,0.3)]" style="background:rgba(10,10,25,0.8); border-color:rgba(0,240,255,0.15);">
+    <!-- CSS Gauge -->
+    <div class="relative w-[160px] h-[160px] shrink-0">
+      <svg class="w-full h-full -rotate-90" viewbox="0 0 140 140">
+        <circle class="text-slate-800" cx="70" cy="70" fill="none" r="60" stroke="currentColor" stroke-width="8"></circle>
+        <circle class="text-cyan-500 transition-all duration-1000 ease-out" cx="70" cy="70" fill="none" id="gauge-fill" r="60" stroke="currentColor" stroke-linecap="round" stroke-width="8" style="stroke-dasharray: 377; stroke-dashoffset: 377;"></circle>
+      </svg>
+      <div class="absolute inset-0 flex flex-col items-center justify-center">
+        <span class="text-4xl font-black text-white" id="gauge-score">0</span>
+        <span class="text-[10px] font-bold text-slate-500 uppercase mt-1">النتيجة</span>
+      </div>
+    </div>
+    <div class="flex-1 text-center md:text-start">
+      <h2 class="text-2xl md:text-3xl font-black text-white mb-2" id="score-verdict">جاري التحليل</h2>
+      <p class="text-sm text-slate-400 mb-4" style="line-height:1.7;" id="score-subtitle">جاهز لمعالجة النتائج</p>
+      <div class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase bg-slate-800 text-slate-300" id="score-tier">في الانتظار</div>
+    </div>
+  </div>
+
+  <!-- Breakdown Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="breakdown-grid"></div>
+
+  <!-- Feedback Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-slate-900/80 backdrop-blur-[12px] border border-red-500/20 rounded-2xl p-5 shadow-lg relative overflow-hidden group" style="background:rgba(10,10,25,0.8);">
+      <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <h4 class="text-xs font-bold text-red-400 uppercase mb-4 flex items-center gap-2">
+        <i class="w-4 h-4" data-lucide="x-circle"></i> الكلمات المفتاحية الناقصة
+      </h4>
+      <div class="flex flex-wrap gap-2 text-sm text-slate-300 relative z-10" id="missing-keywords">—</div>
+    </div>
+    <div class="bg-slate-900/80 backdrop-blur-[12px] border border-green-500/20 rounded-2xl p-5 shadow-lg relative overflow-hidden group" style="background:rgba(10,10,25,0.8);">
+      <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <h4 class="text-xs font-bold text-green-400 uppercase mb-4 flex items-center gap-2">
+        <i class="w-4 h-4" data-lucide="check-circle-2"></i> نقاط القوة
+      </h4>
+      <div class="flex flex-wrap gap-2 text-sm text-slate-300 relative z-10" id="ats-strengths">—</div>
+    </div>
+    <div class="bg-slate-900/80 backdrop-blur-[12px] border border-yellow-500/20 rounded-2xl p-5 shadow-lg relative overflow-hidden group" style="background:rgba(10,10,25,0.8);">
+      <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <h4 class="text-xs font-bold text-yellow-400 uppercase mb-4 flex items-center gap-2">
+        <i class="w-4 h-4" data-lucide="lightbulb"></i> اقتراحات التحسين
+      </h4>
+      <div class="space-y-3 relative z-10" id="ats-suggestions">—</div>
+    </div>
+  </div>
 </div>
-</div>
-<div class="flex-1 text-center md:text-start">
-<h2 class="text-2xl md:text-3xl font-black text-white tracking-tight mb-2" id="score-verdict">{{ _('Analyzing Match') }}</h2>
-<p class="text-sm text-slate-400 mb-4" id="score-subtitle">{{ _('Ready to process results') }}</p>
-<div class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-800 text-slate-300" id="score-tier">
-          {{ _('Pending') }}
-        </div>
-</div>
-</div>
-<!-- Breakdown Grid -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="breakdown-grid">
-<!-- Filled by JS -->
-</div>
-<!-- Feedback Cards -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-<div class="bg-slate-900/80 backdrop-blur border border-red-500/20 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
-<div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-<h4 class="text-xs font-bold text-red-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-<i class="w-4 h-4" data-lucide="x-circle"></i> {{ _('Missing Keywords') }}
-        </h4>
-<div class="flex flex-wrap gap-2 text-sm text-slate-300 relative z-10" id="missing-keywords">—</div>
-</div>
-<div class="bg-slate-900/80 backdrop-blur border border-green-500/20 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
-<div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-<h4 class="text-xs font-bold text-green-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-<i class="w-4 h-4" data-lucide="check-circle-2"></i> {{ _('Strengths') }}
-        </h4>
-<div class="flex flex-wrap gap-2 text-sm text-slate-300 relative z-10" id="ats-strengths">—</div>
-</div>
-<div class="bg-slate-900/80 backdrop-blur border border-yellow-500/20 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
-<div class="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-<h4 class="text-xs font-bold text-yellow-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-<i class="w-4 h-4" data-lucide="lightbulb"></i> {{ _('Suggestions') }}
-        </h4>
-<div class="space-y-3 relative z-10" id="ats-suggestions">—</div>
-</div>
-</div>
-</div>
+
 <!-- Bulk Results Section -->
-<div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-lg mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500" id="bulk-results-section" style="display:none;">
-<h3 class="text-lg font-bold text-white tracking-tight flex items-center gap-2 mb-4">
-<i class="w-5 h-5 text-purple-400" data-lucide="bar-chart-2"></i> {{ _('Bulk Scoring Results') }}
-    </h3>
-<div class="overflow-x-auto custom-scrollbar pb-2" id="bulk-results-table">
-<!-- Populated by JS -->
+<div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6 shadow-lg mb-8" id="bulk-results-section" style="display:none; background:rgba(10,10,25,0.8); border-color:rgba(0,240,255,0.15);">
+  <h3 class="text-lg font-bold text-white flex items-center gap-2 mb-4">
+    <i class="w-5 h-5 text-purple-400" data-lucide="bar-chart-2"></i> نتائج التقييم الجماعي
+  </h3>
+  <div class="overflow-x-auto custom-scrollbar pb-2" id="bulk-results-table"></div>
 </div>
 </div>
-</div>
+
 <script>
 /* ═══════════════════════════════════════════
    ATS SCORER LOGIC
@@ -182,45 +243,48 @@ function showError(msg) {
   const textEl = document.getElementById('ats-error-text');
   textEl.textContent = msg;
   el.style.display = 'flex';
-  if(typeof lucide !== 'undefined') lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
   setTimeout(() => { el.style.display = 'none'; }, 6000);
 }
 
 function setLoading(loading) {
-  document.getElementById('ats-loading').style.display = loading ? 'block' : 'none';
-  document.getElementById('btn-score').disabled = loading;
-  document.getElementById('btn-bulk-score').disabled = loading;
-  if(loading) {
-     document.getElementById('ats-results').style.display = 'none';
-     document.getElementById('bulk-results-section').style.display = 'none';
-     document.getElementById('ats-error').style.display = 'none';
+  const loadEl = document.getElementById('ats-loading');
+  const btnScore = document.getElementById('btn-score');
+  const btnBulk = document.getElementById('btn-bulk-score');
+  loadEl.style.display = loading ? 'block' : 'none';
+  if (btnScore) btnScore.disabled = loading;
+  if (btnBulk) btnBulk.disabled = loading;
+  if (loading) {
+    document.getElementById('ats-results').style.display = 'none';
+    document.getElementById('bulk-results-section').style.display = 'none';
+    document.getElementById('ats-error').style.display = 'none';
   }
 }
 
 function getTierClass(score) {
   if (score >= 80) return 'bg-green-500/10 text-green-400 border border-green-500/30';
-  if (score >= 65) return 'bg-blue-500/10 text-blue-400 border border-blue-500/30';
+  if (score >= 65) return 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30';
   if (score >= 45) return 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30';
   return 'bg-red-500/10 text-red-400 border border-red-500/30';
 }
 
 function getTierLabel(score) {
-  if (score >= 80) return 'Excellent Match! 🌟';
-  if (score >= 65) return 'Good Match 👍';
-  if (score >= 45) return 'Average Match 🤔';
-  return 'Needs Work 🛠️';
+  if (score >= 80) return 'تطابق ممتاز! 🌟';
+  if (score >= 65) return 'تطابق جيد 👍';
+  if (score >= 45) return 'تطابق متوسط 🤔';
+  return 'يحتاج تحسين 🛠️';
 }
 
 function getBarColorClass(score) {
   if (score >= 80) return 'text-green-500';
-  if (score >= 65) return 'text-blue-500';
+  if (score >= 65) return 'text-cyan-500';
   if (score >= 45) return 'text-yellow-500';
   return 'text-red-500';
 }
 
 function getBarBgColorClass(score) {
   if (score >= 80) return 'bg-green-500';
-  if (score >= 65) return 'bg-blue-500';
+  if (score >= 65) return 'bg-cyan-500';
   if (score >= 45) return 'bg-yellow-500';
   return 'bg-red-500';
 }
@@ -229,14 +293,11 @@ function animateGauge(score) {
   const circle = document.getElementById('gauge-fill');
   const offset = CIRCUMFERENCE - (score / 100) * CIRCUMFERENCE;
   circle.style.strokeDashoffset = offset;
-  
-  // Remove old color classes and add new
   circle.className = `transition-all duration-1000 ease-out ${getBarColorClass(score)}`;
 
   const scoreEl = document.getElementById('gauge-score');
-  scoreEl.className = `text-4xl font-black tracking-tighter ${getBarColorClass(score)}`;
-  
-  // Animate counting up
+  scoreEl.className = `text-4xl font-black ${getBarColorClass(score)}`;
+
   let current = 0;
   const step = () => {
     if (current < score) {
@@ -251,11 +312,11 @@ function animateGauge(score) {
 
 function renderBreakdown(data) {
   const items = [
-    { key: 'skills_match', label: 'Skills Match', icon: 'target', weight: '40%' },
-    { key: 'experience_match', label: 'Experience', icon: 'briefcase', weight: '30%' },
-    { key: 'keyword_density', label: 'Keywords', icon: 'search', weight: '15%' },
-    { key: 'education_match', label: 'Education', icon: 'graduation-cap', weight: '10%' },
-    { key: 'format_score', label: 'Format', icon: 'layout', weight: '5%' },
+    { key: 'skills_match', label: 'تطابق المهارات', icon: 'target', weight: '40%' },
+    { key: 'experience_match', label: 'الخبرة', icon: 'briefcase', weight: '30%' },
+    { key: 'keyword_density', label: 'الكلمات المفتاحية', icon: 'search', weight: '15%' },
+    { key: 'education_match', label: 'التعليم', icon: 'graduation-cap', weight: '10%' },
+    { key: 'format_score', label: 'التنسيق', icon: 'layout', weight: '5%' },
   ];
 
   const grid = document.getElementById('breakdown-grid');
@@ -266,17 +327,17 @@ function renderBreakdown(data) {
     return `
       <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-4">
         <div class="flex justify-between items-center mb-3">
-          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+          <span class="text-xs font-bold text-slate-400 uppercase flex items-center gap-1.5">
             <i data-lucide="${item.icon}" class="w-3.5 h-3.5"></i> ${item.label} <small class="text-slate-600 font-normal">(${item.weight})</small>
           </span>
-          <span class="text-lg font-black tracking-tight ${colorClass}">${score}%</span>
+          <span class="text-lg font-black ${colorClass}">${score}%</span>
         </div>
         <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
           <div class="h-full rounded-full transition-all duration-1000 ${bgClass}" style="width: ${score}%;"></div>
         </div>
       </div>`;
   }).join('');
-  if(typeof lucide !== 'undefined') lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 async function scoreResume() {
@@ -285,33 +346,29 @@ async function scoreResume() {
   const jobTitle = document.getElementById('ats-job-title').value.trim();
 
   if (!resume || !jobDesc) {
-    showError('Please paste both your resume and the job description.');
+    showError('يرجى لصق كل من سيرتك الذاتية والوصف الوظيفي.');
     return;
   }
-
   if (resume.length < 100 || jobDesc.length < 100) {
-    showError('Both resume and job description should be at least 100 characters for a meaningful score.');
+    showError('يجب أن يكون كل من السيرة الذاتية والوصف الوظيفي 100 حرف على الأقل للحصول على نتيجة دقيقة.');
     return;
   }
 
   setLoading(true);
-
   try {
     const resp = await fetch('/api/v1/ats-score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ resume, job_description: jobDesc, job_title: jobTitle })
     });
-
     if (!resp.ok) {
       const err = await resp.json();
       throw new Error(err.error || err.detail || `HTTP ${resp.status}`);
     }
-
     const data = await resp.json();
     displayResults(data, jobTitle);
   } catch (e) {
-    showError('Scoring failed: ' + e.message);
+    showError('فشل التقييم: ' + e.message);
   } finally {
     setLoading(false);
   }
@@ -326,46 +383,43 @@ function displayResults(data, jobTitle) {
 
   document.getElementById('score-verdict').textContent = getTierLabel(score);
   document.getElementById('score-subtitle').textContent =
-    jobTitle ? `Match for: ${jobTitle}` : 'ATS match analysis complete';
+    jobTitle ? `تطابق لوظيفة: ${jobTitle}` : 'اكتمل تحليل ATS';
 
   const tierEl = document.getElementById('score-tier');
-  tierEl.textContent = `Score: ${score}/100`;
-  tierEl.className = `inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${getTierClass(score)}`;
+  tierEl.textContent = `النتيجة: ${score}/100`;
+  tierEl.className = `inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase ${getTierClass(score)}`;
 
   renderBreakdown(data);
 
-  // Missing keywords
   const kwDiv = document.getElementById('missing-keywords');
   if (data.missing_keywords && data.missing_keywords.length > 0) {
-    kwDiv.innerHTML = data.missing_keywords.map(k => `<span class="px-2.5 py-1 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-xs font-semibold whitespace-nowrap">${escapeHtml(k)}</span>`).join('');
+    kwDiv.innerHTML = data.missing_keywords.map(k =>
+      `<span class="px-2.5 py-1 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-xs font-semibold whitespace-nowrap">${escapeHtml(k)}</span>`
+    ).join('');
   } else {
-    kwDiv.innerHTML = '<span class="text-green-400 text-sm font-medium flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> No missing keywords!</span>';
+    kwDiv.innerHTML = '<span class="text-green-400 text-sm font-medium flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> لا توجد كلمات مفتاحية ناقصة!</span>';
   }
 
-  // Strengths
   const strDiv = document.getElementById('ats-strengths');
   if (data.strengths && data.strengths.length > 0) {
-    strDiv.innerHTML = data.strengths.map(s => `<span class="px-2.5 py-1 bg-green-500/10 border border-green-500/20 text-green-400 rounded-lg text-xs font-semibold whitespace-nowrap">${escapeHtml(s)}</span>`).join('');
+    strDiv.innerHTML = data.strengths.map(s =>
+      `<span class="px-2.5 py-1 bg-green-500/10 border border-green-500/20 text-green-400 rounded-lg text-xs font-semibold whitespace-nowrap">${escapeHtml(s)}</span>`
+    ).join('');
   } else {
     strDiv.textContent = '—';
   }
 
-  // Suggestions
   const sugDiv = document.getElementById('ats-suggestions');
   if (data.suggestions && data.suggestions.length > 0) {
     sugDiv.innerHTML = data.suggestions.map((s, i) =>
-      `<div class="flex items-start gap-2.5 text-sm text-slate-300 py-1 border-b border-slate-700/50 last:border-0"><span class="text-yellow-500 font-bold text-xs mt-0.5 shrink-0">${i+1}.</span><span class="leading-relaxed">${escapeHtml(s)}</span></div>`
+      `<div class="flex items-start gap-2.5 text-sm text-slate-300 py-1 border-b border-slate-700/50 last:border-0" style="line-height:1.7;"><span class="text-yellow-500 font-bold text-xs mt-0.5 shrink-0">${i + 1}.</span><span>${escapeHtml(s)}</span></div>`
     ).join('');
   } else {
-    sugDiv.innerHTML = '<span class="text-green-400 text-sm font-medium">Your resume is well-optimized!</span>';
+    sugDiv.innerHTML = '<span class="text-green-400 text-sm font-medium">سيرتك الذاتية محسنة بشكل جيد!</span>';
   }
 
-  if(typeof lucide !== 'undefined') lucide.createIcons();
-
-  // Scroll to results
-  setTimeout(() => {
-     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  setTimeout(() => { resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
 }
 
 function toggleBulkMode() {
@@ -373,40 +427,38 @@ function toggleBulkMode() {
   const btn = document.getElementById('btn-bulk-toggle');
   if (section.style.display === 'none') {
     section.style.display = 'block';
-    btn.innerHTML = '<i data-lucide="x" class="w-4 h-4"></i> Hide Bulk Mode';
-    if (document.querySelectorAll('#bulk-jobs-container .bulk-job-row').length === 0) {
-      addBulkRow();
-    }
+    btn.innerHTML = '<i data-lucide="x" class="w-4 h-4"></i> إخفاء وضع الجماعي';
+    if (document.querySelectorAll('#bulk-jobs-container .bulk-job-row').length === 0) { addBulkRow(); }
   } else {
     section.style.display = 'none';
-    btn.innerHTML = '<i data-lucide="layers" class="w-4 h-4"></i> Score Against Multiple Jobs';
+    btn.innerHTML = '<i data-lucide="layers" class="w-4 h-4"></i> تقييم مقابل وظائف متعددة';
   }
-  if(typeof lucide !== 'undefined') lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function addBulkRow() {
   const container = document.getElementById('bulk-jobs-container');
   const row = document.createElement('div');
-  row.className = 'bulk-job-row flex flex-col sm:flex-row gap-3 items-start animate-in fade-in duration-200';
+  row.className = 'bulk-job-row flex flex-col sm:flex-row gap-3 items-start';
   row.innerHTML = `
-    <input dir="auto" type="text" class="bulk-title w-full sm:w-1/3 bg-slate-950/50 border border-slate-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all" placeholder="Job Title (e.g. Developer)" />
-    <input dir="auto" type="text" class="bulk-desc w-full sm:flex-1 bg-slate-950/50 border border-slate-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all" placeholder="Paste JD or requirements..." />
+    <input dir="auto" type="text" class="bulk-title w-full sm:w-1/3 bg-slate-950/50 border border-slate-700 focus:border-cyan-500 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all" placeholder="المسمى الوظيفي (مثال: مطور)" />
+    <input dir="auto" type="text" class="bulk-desc w-full sm:flex-1 bg-slate-950/50 border border-slate-700 focus:border-cyan-500 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all" placeholder="الصق متطلبات الوظيفة..." />
     <button onclick="this.closest('.bulk-job-row').remove()" class="p-2 bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 border border-slate-700 hover:border-red-500/30 rounded-lg transition-colors flex-shrink-0">
       <i data-lucide="trash-2" class="w-4 h-4"></i>
     </button>
   `;
   container.appendChild(row);
-  if(typeof lucide !== 'undefined') lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 async function importFromUrl() {
   const url = document.getElementById('ats-url').value.trim();
-  if (!url) { showError('Please enter a URL to import from.'); return; }
+  if (!url) { showError('يرجى إدخال رابط للاستيراد منه.'); return; }
 
   const btn = document.getElementById('btn-url-import');
   btn.disabled = true;
-  btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Importing...';
-  if(typeof lucide !== 'undefined') lucide.createIcons();
+  btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري الاستيراد...';
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 
   try {
     const resp = await fetch('/api/v1/fetch-url', {
@@ -414,66 +466,46 @@ async function importFromUrl() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })
     });
-
-    if (!resp.ok) {
-      const err = await resp.json();
-      throw new Error(err.error || `HTTP ${resp.status}`);
-    }
-
+    if (!resp.ok) { const err = await resp.json(); throw new Error(err.error || `HTTP ${resp.status}`); }
     const data = await resp.json();
     document.getElementById('ats-job-desc').value = data.text || data.content || '';
-    if (data.title) {
-      document.getElementById('ats-job-title').value = data.title;
-    }
+    if (data.title) { document.getElementById('ats-job-title').value = data.title; }
   } catch (e) {
-    showError('Import failed: ' + e.message + '. Try pasting the JD directly.');
+    showError('فشل الاستيراد: ' + e.message + '. حاول لصق الوصف الوظيفي مباشرة.');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i data-lucide="download-cloud" class="w-4 h-4"></i> Import';
-    if(typeof lucide !== 'undefined') lucide.createIcons();
+    btn.innerHTML = '<i data-lucide="download-cloud" class="w-4 h-4"></i> استيراد';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 }
 
 async function scoreBulk() {
   const resume = document.getElementById('ats-resume').value.trim();
   if (!resume || resume.length < 100) {
-    showError('Please paste a detailed resume first (at least 100 characters).');
+    showError('يرجى لصق سيرة ذاتية مفصلة أولاً (100 حرف على الأقل).');
     return;
   }
-
   const rows = document.querySelectorAll('#bulk-jobs-container .bulk-job-row');
   const jobs = [];
   rows.forEach(row => {
     const title = row.querySelector('.bulk-title').value.trim();
     const desc = row.querySelector('.bulk-desc').value.trim();
-    if (title || desc) {
-      jobs.push({ title, description: desc });
-    }
+    if (title || desc) { jobs.push({ title, description: desc }); }
   });
-
-  if (jobs.length === 0) {
-    showError('Please add at least one job to score against.');
-    return;
-  }
+  if (jobs.length === 0) { showError('يرجى إضافة وظيفة واحدة على الأقل للتقييم.'); return; }
 
   setLoading(true);
-
   try {
     const resp = await fetch('/api/v1/ats-score-bulk', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ resume, jobs })
     });
-
-    if (!resp.ok) {
-      const err = await resp.json();
-      throw new Error(err.error || err.detail || `HTTP ${resp.status}`);
-    }
-
+    if (!resp.ok) { const err = await resp.json(); throw new Error(err.error || err.detail || `HTTP ${resp.status}`); }
     const data = await resp.json();
     displayBulkResults(data.results);
   } catch (e) {
-    showError('Bulk scoring failed: ' + e.message);
+    showError('فشل التقييم الجماعي: ' + e.message);
   } finally {
     setLoading(false);
   }
@@ -482,7 +514,6 @@ async function scoreBulk() {
 function displayBulkResults(results) {
   const section = document.getElementById('bulk-results-section');
   section.style.display = 'block';
-
   const best = results.reduce((max, r) => {
     const s = r.score ? (r.score.overall_score || 0) : 0;
     return s > max.score ? { score: s, title: r.job_title } : max;
@@ -490,35 +521,32 @@ function displayBulkResults(results) {
 
   let html = '';
   if (best.title) {
-     html += `<div class="mb-4 inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-lg text-sm">
+    html += `<div class="mb-4 inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-lg text-sm">
       <i data-lucide="trophy" class="w-4 h-4 text-purple-400"></i>
-      <span class="text-slate-300">Best Match:</span> 
-      <strong class="text-purple-400 font-bold">${escapeHtml(best.title)}</strong> 
+      <span class="text-slate-300">أفضل تطابق:</span>
+      <strong class="text-purple-400 font-bold">${escapeHtml(best.title)}</strong>
       <span class="text-slate-400 ms-1">(${best.score}%)</span>
     </div>`;
   }
-
   html += `<table class="w-full text-start border-collapse whitespace-nowrap">
     <thead>
       <tr class="border-b border-slate-700/50 bg-slate-900/50">
-        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Job Title</th>
-        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Score</th>
-        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Skills</th>
-        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Experience</th>
-        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Keywords</th>
+        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase">المسمى الوظيفي</th>
+        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase">النتيجة</th>
+        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase">المهارات</th>
+        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase">الخبرة</th>
+        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase">الكلمات المفتاحية</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-800">`;
-
-  results.forEach((r, i) => {
+  results.forEach((r) => {
     if (r.error) {
-      html += `<tr class="hover:bg-slate-800/30 transition-colors"><td class="py-3 px-4 text-sm font-medium text-slate-300">${escapeHtml(r.job_title || 'Unknown')}</td><td colspan="4" class="py-3 px-4 text-xs text-red-400"><i data-lucide="alert-circle" class="w-3.5 h-3.5 inline me-1"></i> Error: ${escapeHtml(r.error)}</td></tr>`;
+      html += `<tr class="hover:bg-slate-800/30 transition-colors"><td class="py-3 px-4 text-sm font-medium text-slate-300">${escapeHtml(r.job_title || 'غير معروف')}</td><td colspan="4" class="py-3 px-4 text-xs text-red-400"><i data-lucide="alert-circle" class="w-3.5 h-3.5 inline me-1"></i> خطأ: ${escapeHtml(r.error)}</td></tr>`;
     } else {
       const s = r.score;
       const score = s.overall_score || 0;
       const colorClass = getBarColorClass(score);
       const bgClass = getTierClass(score);
-      
       html += `<tr class="hover:bg-slate-800/30 transition-colors">
         <td class="py-3 px-4 text-sm font-bold text-white">${escapeHtml(r.job_title)}</td>
         <td class="py-3 px-4"><span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-black ${bgClass}">${score}%</span></td>
@@ -528,37 +556,27 @@ function displayBulkResults(results) {
       </tr>`;
     }
   });
-
   html += '</tbody></table>';
   document.getElementById('bulk-results-table').innerHTML = html;
-  if(typeof lucide !== 'undefined') lucide.createIcons();
-  
-  setTimeout(() => {
-    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  setTimeout(() => { section.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
 }
 
 function escapeHtml(str) {
+  if (typeof str !== 'string') return '';
   const div = document.createElement('div');
   div.textContent = str;
-  return div.innerHTML;
+  return div.innerHTML.replace(/&amp;(#x?[0-9a-fA-F]+;)/g, '&$1');
 }
 
-// Keyboard shortcut: Ctrl+Enter to score
 document.addEventListener('keydown', function(e) {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
     const bulkVisible = document.getElementById('bulk-section').style.display !== 'none';
-    if (bulkVisible) {
-      scoreBulk();
-    } else {
-      scoreResume();
-    }
+    if (bulkVisible) { scoreBulk(); } else { scoreResume(); }
   }
 });
 
-document.addEventListener("DOMContentLoaded", function() {
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof lucide !== 'undefined') { lucide.createIcons(); }
 });
 </script>

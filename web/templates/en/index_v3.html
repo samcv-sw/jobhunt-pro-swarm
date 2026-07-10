@@ -113,8 +113,8 @@ body{
 .glow-orb-1,.glow-orb-2,.glow-orb-3{
  position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(120px);opacity:0.3;
 }
-.glow-orb-1{width:600px;height:600px;background:rgba(0,240,255,0.08);top:-200px;left:-100px;animation:floatOrb1 12s ease-in-out infinite}
-.glow-orb-2{width:500px;height:500px;background:rgba(255,0,85,0.06);bottom:-150px;right:-100px;animation:floatOrb2 15s ease-in-out infinite}
+.glow-orb-1{width:600px;height:600px;background:rgba(0,240,255,0.08);top:-200px;inset-inline-start:-100px;animation:floatOrb1 12s ease-in-out infinite}
+.glow-orb-2{width:500px;height:500px;background:rgba(255,0,85,0.06);bottom:-150px;inset-inline-end:-100px;animation:floatOrb2 15s ease-in-out infinite}
 .glow-orb-3{width:400px;height:400px;background:rgba(255,179,0,0.04);top:50%;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform:translate(-50%,-50%);animation:floatOrb3 10s ease-in-out infinite}
 @keyframes floatOrb1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(80px,60px) scale(1.15)}66%{transform:translate(-40px,100px) scale(0.9)}}
 @keyframes floatOrb2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-60px,-40px) scale(1.1)}66%{transform:translate(50px,-80px) scale(0.95)}}
@@ -122,14 +122,13 @@ body{
 
 /* ═══ NAVIGATION ═══ */
 .nav{
- position:fixed;top:12px;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform:translateX(-50%);z-index:1000;
+ position:fixed;top:12px;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform: none;z-index:1000;
  width:calc(100% - 48px);max-width:1300px;
  padding:14px 28px;display:flex;justify-content:space-between;align-items:center;
  background:rgba(5,5,15,0.75);backdrop-filter:blur(30px) saturate(180%);
  -webkit-backdrop-filter:blur(30px) saturate(180%);
  border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-lg);
- transition:all var(--transition);
-}
+ transition:all var(--transition); inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto; transform: none; }
 .nav.scrolled{
  background:rgba(3,3,12,0.9);border-color:rgba(0,240,255,0.15);
  box-shadow:0 8px 40px rgba(0,0,0,0.5),var(--glow-cyan);
@@ -227,7 +226,7 @@ body{
  box-shadow:0 4px 30px rgba(0,240,255,0.25);
 }
 .hero-buttons .primary::before{
- content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+ content:'';position:absolute;top:-50%;inset-inline-start:-50%;width:200%;height:200%;
  background:radial-gradient(circle,rgba(255,255,255,0.3) 0%,transparent 60%);
  opacity:0;transition:opacity 0.3s;
 }
@@ -246,7 +245,7 @@ body{
 }
 .stat-item{text-align:center;position:relative}
 .stat-item:not(:last-child)::after{
- content:'';position:absolute;right:-28px;top:15%;height:70%;width:1px;
+ content:'';position:absolute;inset-inline-end:-28px;top:15%;height:70%;width:1px;
  background:linear-gradient(180deg,transparent,rgba(255,255,255,0.08),transparent);
 }
 .stat-item .num{
@@ -299,7 +298,7 @@ body{
 }
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;position:relative}
 .steps::before{
- content:'';position:absolute;top:50px;left:12%;width:76%;height:2px;
+ content:'';position:absolute;top:50px;inset-inline-start:12%;width:76%;height:2px;
  background:linear-gradient(90deg,transparent,var(--cyan),var(--magenta),transparent);
  opacity:0.2;z-index:0;
 }
@@ -866,11 +865,11 @@ body{
  position:relative;z-index:1;overflow:hidden;
 }
 .final-cta .cta-btn::before{
- content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+ content:'';position:absolute;top:0;inset-inline-start:-100%;width:100%;height:100%;
  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
  transition:left 0.5s;
 }
-.final-cta .cta-btn:hover::before{left:100%}
+.final-cta .cta-btn:hover::before{inset-inline-start:100%}
 .final-cta .cta-btn:hover{box-shadow:0 6px 50px rgba(0,240,255,0.5);transform:translateY(-3px)}
 .final-cta .cta-sub{font-size:12px;color:var(--muted);margin-top:16px;position:relative;z-index:1}
 .final-cta .cta-sub strong{color:var(--green)}
@@ -1162,19 +1161,19 @@ body{
 @media(max-width:480px){.referral-grid{grid-template-columns:1fr}}
 </style>
 <style>
-.social-toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.social-toast-container{position:fixed;bottom:24px;inset-inline-end:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
 .social-toast{background:rgba(10,10,20,0.95);border:1px solid rgba(0,240,255,0.2);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 20px rgba(0,240,255,0.08);animation:toastSlideIn 0.5s ease-out;transition:all 0.5s ease-out;max-width:320px;pointer-events:auto}
 .toast-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--magenta));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
 .toast-body{font-size:12px;color:var(--muted);line-height:1.4}
 .toast-body strong{color:#fff}
 @keyframes toastSlideIn{from{opacity:0;transform:translateX(120%)}to{opacity:1;transform:translateX(0)}}
-@media(max-width:600px){.social-toast-container{bottom:12px;right:8px;left:8px}.social-toast{max-width:100%}}
+@media(max-width:600px){.social-toast-container{bottom:12px;inset-inline-end:8px;inset-inline-start:8px}.social-toast{max-width:100%}}
 </style>
 <style>
 .exit-overlay{position:fixed;top:0;inset-inline-start: 0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
 .exit-overlay.show{display:flex;animation:fadeIn 0.3s ease-out}
 .exit-popup{background:linear-gradient(135deg,rgba(15,15,30,0.98),rgba(10,10,25,0.98));border:1px solid rgba(0,240,255,0.2);border-radius:24px;padding:40px 32px;max-width:520px;width:100%;text-align:center;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,240,255,0.06)}
-.exit-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--muted);font-size:28px;cursor:pointer;line-height:1}
+.exit-close{position:absolute;top:12px;inset-inline-end:16px;background:none;border:none;color:var(--muted);font-size:28px;cursor:pointer;line-height:1}
 .exit-close:hover{color:#fff}
 .exit-icon{font-size:48px;margin-bottom:16px}
 .exit-popup h3{font-family:'Space Grotesk',sans-serif;font-size:22px;color:#fff;margin-bottom:10px;letter-spacing:-0.5px}
@@ -1212,13 +1211,13 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 
 
 <!-- ═══ BACKGROUND LAYERS ═══ -->
-<div class="bg-layer bg-grid" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></div>
-<div class="bg-layer bg-gradient" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></div>
+<div class="bg-layer bg-grid" style="position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></div>
+<div class="bg-layer bg-gradient" style="position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></div>
 <div class="glow-orb-1" style="position: fixed; pointer-events: none; z-index: -1;"></div>
 <div class="glow-orb-2" style="position: fixed; pointer-events: none; z-index: -1;"></div>
 <div class="glow-orb-3" style="position: fixed; pointer-events: none; z-index: -1;"></div>
-<div class="scanline" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></div>
-<canvas class="bg-particles" id="particleCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
+<div class="scanline" style="position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></div>
+<canvas class="bg-particles" id="particleCanvas" style="position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
 
 <!-- ═══ NAVIGATION ═══ -->
 {% include 'en/_public_nav.html' %}

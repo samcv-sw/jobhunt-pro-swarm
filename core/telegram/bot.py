@@ -97,6 +97,284 @@ def send_telegram_message_sync(text: str, parse_mode: str = "Markdown") -> bool:
         return False
 
 
+CMD_CATEGORY_MAP = {
+    # 🎯 Applications
+    "/start": "Applications",
+    "/campaign": "Applications",
+    "/search": "Applications",
+    "/apply": "Applications",
+    "/test_strike": "Applications",
+    "/force_strike": "Applications",
+    "/mass_strike": "Applications",
+    "/wallet": "Applications",
+    "/balance": "Applications",
+    "/pricing": "Applications",
+    "/referral": "Applications",
+    "/whatsapp": "Applications",
+    "/strategy": "Applications",
+    "/earnings": "Applications",
+    "/contact": "Applications",
+    # 📊 Analytics
+    "/status": "Analytics",
+    "/stats": "Analytics",
+    "/sales": "Analytics",
+    "/applications": "Analytics",
+    "/campaigns": "Analytics",
+    "/stats_overview": "Analytics",
+    "/pulse": "Analytics",
+    "/today": "Analytics",
+    "/weekly": "Analytics",
+    "/best_day": "Analytics",
+    "/email_stats": "Analytics",
+    "/failure_rate": "Analytics",
+    "/speed_test": "Analytics",
+    "/memory": "Analytics",
+    "/uptime": "Analytics",
+    "/audit": "Analytics",
+    "/queue": "Analytics",
+    "/top_companies": "Analytics",
+    "/countries": "Analytics",
+    "/job_titles": "Analytics",
+    "/platforms": "Analytics",
+    "/tasks": "Analytics",
+    "/inbox_check": "Analytics",
+    "/leads": "Analytics",
+    "/companies": "Analytics",
+    "/trend": "Analytics",
+    "/funnel": "Analytics",
+    # ⚙️ Settings
+    "/settings": "Settings",
+    "/pause": "Settings",
+    "/resume": "Settings",
+    "/night_mode": "Settings",
+    "/dry_run": "Settings",
+    "/omega_halt": "Settings",
+    "/kill_switch": "Settings",
+    "/boost": "Settings",
+    "/clear_queue": "Settings",
+    "/stop": "Settings",
+    "/env_check": "Settings",
+    # 🛠️ Tools
+    "/help": "Tools",
+    "/guide": "Tools",
+    "/fix": "Tools",
+    "/clean": "Tools",
+    "/backup": "Tools",
+    "/reboot": "Tools",
+    "/logs": "Tools",
+    "/deploy": "Tools",
+    "/security": "Tools",
+    "/ats_score": "Tools",
+    "/ats": "Tools",
+    "/converse": "Tools",
+    "/followups": "Tools",
+    "/shield": "Tools",
+    "/blacklist": "Tools",
+    "/oracle": "Tools",
+    "/track": "Tools",
+    "/skip_lead": "Tools",
+    "/pin_lead": "Tools",
+    "/retry_failed": "Tools",
+    "/find_emails": "Tools",
+    "/synapse": "Tools",
+    "/websites": "Tools",
+    "/restart_web": "Tools",
+    "/chat": "Tools",
+    "/prep": "Tools",
+    "/cv_preview": "Tools",
+    "/cover_letter": "Tools",
+    "/test_email": "Tools",
+    "/test_key": "Tools",
+    "/set_key": "Tools",
+    "/keys": "Tools",
+    "/ai_check": "Tools",
+    "/features": "Tools",
+    # 🔧 Admin
+    "/admin": "Admin",
+    "/admin_credit": "Admin",
+    "/generate_code": "Admin",
+    "/flash_sale": "Admin",
+}
+
+MENU_COMMANDS = [
+    {"command": "start", "description": "🏠 Main menu with buttons"},
+    {"command": "features", "description": "✨ All features & capabilities"},
+    {"command": "help", "description": "📚 All available commands"},
+    {"command": "status", "description": "🩺 System health check"},
+    {"command": "stats", "description": "📊 Real-time stats & analytics"},
+    {"command": "campaign", "description": "🚀 Start campaign"},
+    {"command": "wallet", "description": "💼 Wallet & crypto"},
+    {"command": "balance", "description": "💵 Check balance"},
+    {"command": "search", "description": "🔎 Search new jobs"},
+    {"command": "apply", "description": "🎯 Quick apply"},
+    {"command": "pricing", "description": "💰 View all pricing tiers"},
+    {"command": "referral", "description": "🤝 Referral program"},
+    {"command": "whatsapp", "description": "📱 WhatsApp contact"},
+    {"command": "applications", "description": "📋 Last 5 applications"},
+    {"command": "generate_code", "description": "🎟 Create manual gift code"},
+    {"command": "sales", "description": "📈 Real-time profit stats"},
+    {"command": "strategy", "description": "📚 Profit strategy guide"},
+    {"command": "admin_credit", "description": "🆓 Free admin credit"},
+    {"command": "admin", "description": "📊 Admin Dashboard & Logs"},
+    {"command": "flash_sale", "description": "⚡ View/manage flash sales"},
+    {"command": "campaigns", "description": "📧 Email campaign stats"},
+    {"command": "pause", "description": "⏸️ Pause auto-run"},
+    {"command": "resume", "description": "▶️ Resume auto-run"},
+    {"command": "test_strike", "description": "🧪 Test strike application"},
+    {"command": "ai_check", "description": "🧠 Check AI status"},
+    {"command": "keys", "description": "🔑 View API keys status"},
+    {"command": "fix", "description": "🔧 Run system diagnostics fix"},
+    {"command": "guide", "description": "📖 View quick guide"},
+    {"command": "pulse", "description": "💓 System pulse check"},
+    {"command": "inbox_check", "description": "📬 Check inbox responses"},
+    {"command": "leads", "description": "📋 View leads"},
+    {"command": "companies", "description": "🏢 View companies"},
+    {"command": "followups", "description": "📨 View follow-ups"},
+    {"command": "backup", "description": "💾 Create backup"},
+    {"command": "shield", "description": "🛡️ Shield status"},
+    {"command": "force_strike", "description": "⚔️ Force strike"},
+    {"command": "mass_strike", "description": "💥 Mass strike"},
+    {"command": "clean", "description": "🧹 Clean temp files"},
+    {"command": "blacklist", "description": "⛔ Blacklist manager"},
+    {"command": "oracle", "description": "🔮 Oracle prediction"},
+    {"command": "best_day", "description": "🏆 Best day stats"},
+    {"command": "email_stats", "description": "📧 Email stats breakdown"},
+    {"command": "settings", "description": "⚙️ System settings"},
+    {"command": "reboot", "description": "🔄 Reboot bot"},
+    {"command": "track", "description": "📍 Track lead"},
+    {"command": "skip_lead", "description": "⏭️ Skip lead"},
+    {"command": "logs", "description": "📜 System logs"},
+    {"command": "queue", "description": "🗂️ Job queue"},
+    {"command": "failure_rate", "description": "📉 Failure rate stats"},
+    {"command": "speed_test", "description": "⚡ System speed test"},
+    {"command": "memory", "description": "🌡️ Memory usage"},
+    {"command": "uptime", "description": "⏱️ System uptime"},
+    {"command": "env_check", "description": "🔎 Check env variables"},
+    {"command": "platforms", "description": "🌐 Platforms status"},
+    {"command": "tasks", "description": "📋 All tasks"},
+    {"command": "top_companies", "description": "🏆 Top companies"},
+    {"command": "countries", "description": "🌍 Target countries"},
+    {"command": "job_titles", "description": "💼 Job titles"},
+    {"command": "retry_failed", "description": "🔄 Retry failed apps"},
+    {"command": "find_emails", "description": "📧 Find emails"},
+    {"command": "pin_lead", "description": "📌 Pin lead"},
+    {"command": "stop", "description": "⏹️ Stop auto-run"},
+    {"command": "night_mode", "description": "🌙 Toggle night mode"},
+    {"command": "dry_run", "description": "🧪 Safe test mode"},
+    {"command": "omega_halt", "description": "🛑 Emergency halt"},
+    {"command": "kill_switch", "description": "☠️ Kill switch"},
+    {"command": "set_key", "description": "🔑 Set API key"},
+    {"command": "test_key", "description": "🧪 Test API key"},
+    {"command": "prep", "description": "📝 Interview prep"},
+    {"command": "cv_preview", "description": "📄 CV preview"},
+    {"command": "cover_letter", "description": "📝 Cover letter"},
+    {"command": "test_email", "description": "📧 Test email delivery"},
+    {"command": "clear_queue", "description": "🧹 Clear job queue"},
+    {"command": "boost", "description": "🚀 Boost speed mode"},
+    {"command": "audit", "description": "📊 System audit"},
+    {"command": "synapse", "description": "🧠 Synapse status"},
+    {"command": "trend", "description": "📈 Application trend analysis"},
+    {"command": "funnel", "description": "📊 Conversion funnel chart"},
+]
+
+COMMANDS_MAP = {
+    "/start": "cmd_start",
+    "/features": "cmd_features",
+    "/help": "cmd_help",
+    "/chat": "cmd_chat",
+    "/stats_overview": "cmd_stats_overview",
+    "/status": "cmd_status",
+    "/stats": "cmd_stats",
+    "/campaign": "cmd_campaign",
+    "/wallet": "cmd_wallet",
+    "/balance": "cmd_balance",
+    "/search": "cmd_search",
+    "/apply": "cmd_apply",
+    "/pricing": "cmd_pricing",
+    "/referral": "cmd_referral",
+    "/whatsapp": "cmd_whatsapp",
+    "/contact": "cmd_whatsapp",
+    "/applications": "cmd_applications",
+    "/generate_code": "cmd_generate_code",
+    "/sales": "cmd_sales",
+    "/earnings": "cmd_sales",
+    "/strategy": "cmd_strategy",
+    "/profit": "cmd_strategy",
+    "/admin": "cmd_admin",
+    "/admin_credit": "cmd_admin_credit",
+    "/campaigns": "cmd_campaigns",
+    "/pause": "cmd_pause",
+    "/resume": "cmd_resume",
+    "/test_strike": "cmd_test_strike",
+    "/ai_check": "cmd_ai_check",
+    "/keys": "cmd_keys",
+    "/fix": "cmd_fix",
+    "/guide": "cmd_guide",
+    "/flash_sale": "cmd_flash_sale",
+    "/pulse": "cmd_pulse",
+    "/inbox_check": "cmd_inbox_check",
+    "/leads": "cmd_leads",
+    "/companies": "cmd_companies",
+    "/followups": "cmd_followups",
+    "/backup": "cmd_backup",
+    "/shield": "cmd_shield",
+    "/force_strike": "cmd_force_strike",
+    "/mass_strike": "cmd_mass_strike",
+    "/clean": "cmd_clean",
+    "/blacklist": "cmd_blacklist",
+    "/oracle": "cmd_oracle",
+    "/best_day": "cmd_best_day",
+    "/email_stats": "cmd_email_stats",
+    "/settings": "cmd_settings",
+    "/reboot": "cmd_reboot",
+    "/track": "cmd_track",
+    "/skip_lead": "cmd_skip_lead",
+    "/logs": "cmd_logs",
+    "/queue": "cmd_queue",
+    "/websites": "cmd_websites",
+    "/restart_web": "cmd_restart_web",
+    "/deploy": "cmd_deploy",
+    "/security": "cmd_security",
+    "/today": "cmd_today",
+    "/weekly": "cmd_weekly",
+    "/stop": "cmd_stop_auto",
+    "/failure_rate": "cmd_failure_rate",
+    "/speed_test": "cmd_speed_test",
+    "/memory": "cmd_memory",
+    "/uptime": "cmd_uptime",
+    "/env": "cmd_env_check",
+    "/env_check": "cmd_env_check",
+    "/platforms": "cmd_platforms",
+    "/tasks": "cmd_tasks",
+    "/top_companies": "cmd_top_companies",
+    "/countries": "cmd_countries",
+    "/job_titles": "cmd_job_titles",
+    "/retry_failed": "cmd_retry_failed",
+    "/find_emails": "cmd_find_emails",
+    "/pin_lead": "cmd_pin_lead",
+    "/night_mode": "cmd_night_mode",
+    "/dry_run": "cmd_dry_run",
+    "/omega_halt": "cmd_omega_halt",
+    "/kill_switch": "cmd_kill_switch",
+    "/set_key": "cmd_set_key",
+    "/test_key": "cmd_test_key",
+    "/prep": "cmd_prep",
+    "/cv_preview": "cmd_cv_preview",
+    "/cover_letter": "cmd_cover_letter",
+    "/test_email": "cmd_test_email",
+    "/clear_queue": "cmd_clear_queue",
+    "/boost": "cmd_boost",
+    "/audit": "cmd_audit",
+    "/synapse": "cmd_synapse",
+    "/ats_score": "cmd_ats_score",
+    "/ats": "cmd_ats_score",
+    "/converse": "cmd_converse",
+    "/trend": "cmd_trend",
+    "/funnel": "cmd_funnel",
+    "/features": "cmd_features",
+}
+
+
 # ══════════════════════════════════════════════════════════════════════
 
 # 🎛️ CHRONOS KEYBOARDS — Full Reply + Inline Keyboards
@@ -111,7 +389,7 @@ REPLY_KEYBOARD = [
     [
         {
             "text": "🚀 Open Web Dashboard | لوحة القيادة",
-            "web_app": {"url": "https://jobhunt-pro-engine.onrender.com/"},
+            "web_app": {"url": config.RENDER_ENGINE_URL},
         }
     ],
     # Monitoring
@@ -412,11 +690,9 @@ class TelegramBot:
     BOT_VERSION = "v16.88"
 
     def __init__(self):
-
+        """Initialize the JobHunt Pro Telegram bot with credentials from config."""
         self.token = config.TELEGRAM_BOT_TOKEN
-
         self.chat_id = config.TELEGRAM_CHAT_ID
-
         self.enabled = bool(self.token and self.chat_id)
 
         self.base_url = f"https://api.telegram.org/bot{self.token}"
@@ -425,247 +701,27 @@ class TelegramBot:
         )
 
         self.bot_start_time = datetime.now()
-        # Analytics engine
         db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
         db_path = str(Path(__file__).parent.parent / db_name)
         self.analytics = TelegramAnalytics(db_path)
         self._awaiting_input = {}
-        self._processed_callbacks = {}  # Dedup: callback_id -> timestamp
-        self._recent_gen_data = {}  # Dedup: msg_id:data -> timestamp (30s window)
-        self._last_send_time = 0.0  # Rate limiter: throttle sends to 20ms apart
+        self._processed_callbacks = {}
+        self._recent_gen_data = {}
+        self._last_send_time = 0.0
         self._send_lock = asyncio.Lock()
-        self._cb_lock = asyncio.Lock()  # Serialize callback processing
-        self._state_lock = asyncio.Lock()  # Lock for shared state (_auto_running, etc.)
+        self._cb_lock = asyncio.Lock()
+        self._state_lock = asyncio.Lock()
         self._auto_running = False
         self._night_mode = False
         self._dry_run = False
         self._boost_mode = False
         self._offset = 0
-        # Per-user rate limiting: {user_id: {"count": int, "window_start": float}}
         self._user_rate_limits = {}
-        self._progress_messages = {}  # progress_id -> Message dict
-        self._cmd_category_map = {
-            # 🎯 Applications
-            "/start": "Applications",
-            "/campaign": "Applications",
-            "/search": "Applications",
-            "/apply": "Applications",
-            "/test_strike": "Applications",
-            "/force_strike": "Applications",
-            "/mass_strike": "Applications",
-            "/wallet": "Applications",
-            "/balance": "Applications",
-            "/pricing": "Applications",
-            "/referral": "Applications",
-            "/whatsapp": "Applications",
-            "/strategy": "Applications",
-            "/earnings": "Applications",
-            "/contact": "Applications",
-            # 📊 Analytics
-            "/status": "Analytics",
-            "/stats": "Analytics",
-            "/sales": "Analytics",
-            "/applications": "Analytics",
-            "/campaigns": "Analytics",
-            "/stats_overview": "Analytics",
-            "/pulse": "Analytics",
-            "/today": "Analytics",
-            "/weekly": "Analytics",
-            "/best_day": "Analytics",
-            "/email_stats": "Analytics",
-            "/failure_rate": "Analytics",
-            "/speed_test": "Analytics",
-            "/memory": "Analytics",
-            "/uptime": "Analytics",
-            "/audit": "Analytics",
-            "/queue": "Analytics",
-            "/top_companies": "Analytics",
-            "/countries": "Analytics",
-            "/job_titles": "Analytics",
-            "/platforms": "Analytics",
-            "/tasks": "Analytics",
-            "/inbox_check": "Analytics",
-            "/leads": "Analytics",
-            "/companies": "Analytics",
-            "/trend": "Analytics",
-            "/funnel": "Analytics",
-            # ⚙️ Settings
-            "/settings": "Settings",
-            "/pause": "Settings",
-            "/resume": "Settings",
-            "/night_mode": "Settings",
-            "/dry_run": "Settings",
-            "/omega_halt": "Settings",
-            "/kill_switch": "Settings",
-            "/boost": "Settings",
-            "/clear_queue": "Settings",
-            "/stop": "Settings",
-            "/env_check": "Settings",
-            # 🛠️ Tools
-            "/help": "Tools",
-            "/guide": "Tools",
-            "/fix": "Tools",
-            "/clean": "Tools",
-            "/backup": "Tools",
-            "/reboot": "Tools",
-            "/logs": "Tools",
-            "/deploy": "Tools",
-            "/security": "Tools",
-            "/ats_score": "Tools",
-            "/ats": "Tools",
-            "/converse": "Tools",
-            "/followups": "Tools",
-            "/shield": "Tools",
-            "/blacklist": "Tools",
-            "/oracle": "Tools",
-            "/track": "Tools",
-            "/skip_lead": "Tools",
-            "/pin_lead": "Tools",
-            "/retry_failed": "Tools",
-            "/find_emails": "Tools",
-            "/synapse": "Tools",
-            "/websites": "Tools",
-            "/restart_web": "Tools",
-            "/chat": "Tools",
-            "/prep": "Tools",
-            "/cv_preview": "Tools",
-            "/cover_letter": "Tools",
-            "/test_email": "Tools",
-            "/test_key": "Tools",
-            "/set_key": "Tools",
-            "/keys": "Tools",
-            "/ai_check": "Tools",
-            "/features": "Tools",
-            # 🔧 Admin
-            "/admin": "Admin",
-            "/admin_credit": "Admin",
-            "/generate_code": "Admin",
-            "/flash_sale": "Admin",
-        }
+        self._progress_messages = {}
 
-        self.menu_commands = [
-            {"command": "start", "description": "🏠 Main menu with buttons"},
-            {"command": "features", "description": "✨ All features & capabilities"},
-            {"command": "help", "description": "📚 All available commands"},
-            {"command": "status", "description": "🩺 System health check"},
-            {"command": "stats", "description": "📊 Real-time stats & analytics"},
-            {"command": "campaign", "description": "🚀 Start campaign"},
-            {"command": "wallet", "description": "💼 Wallet & crypto"},
-            {"command": "balance", "description": "💵 Check balance"},
-            {"command": "search", "description": "🔎 Search new jobs"},
-            {"command": "apply", "description": "🎯 Quick apply"},
-            {"command": "pricing", "description": "💰 View all pricing tiers"},
-            {"command": "referral", "description": "🤝 Referral program"},
-            {"command": "whatsapp", "description": "📱 WhatsApp contact"},
-            {"command": "applications", "description": "📋 Last 5 applications"},
-            {"command": "generate_code", "description": "🎟 Create manual gift code"},
-            {"command": "sales", "description": "📈 Real-time profit stats"},
-            {"command": "strategy", "description": "📚 Profit strategy guide"},
-            {"command": "admin_credit", "description": "🆓 Free admin credit"},
-            {"command": "admin", "description": "📊 Admin Dashboard & Logs"},
-            {"command": "flash_sale", "description": "⚡ View/manage flash sales"},
-            {"command": "campaigns", "description": "📧 Email campaign stats"},
-            {"command": "pause", "description": "⏸️ Pause auto-run"},
-            {"command": "resume", "description": "▶️ Resume auto-run"},
-            {"command": "test_strike", "description": "🧪 Test strike application"},
-            {"command": "ai_check", "description": "🧠 Check AI status"},
-            {"command": "keys", "description": "🔑 View API keys status"},
-            {"command": "fix", "description": "🔧 Run system diagnostics fix"},
-            {"command": "guide", "description": "📖 View quick guide"},
-            {"command": "pulse", "description": "💓 System pulse check"},
-            {"command": "inbox_check", "description": "📬 Check inbox responses"},
-            {"command": "leads", "description": "📋 View leads"},
-            {"command": "companies", "description": "🏢 View companies"},
-            {"command": "followups", "description": "📨 View follow-ups"},
-            {"command": "backup", "description": "💾 Create backup"},
-            {"command": "shield", "description": "🛡️ Shield status"},
-            {"command": "force_strike", "description": "⚔️ Force strike"},
-            {"command": "mass_strike", "description": "💥 Mass strike"},
-            {"command": "clean", "description": "🧹 Clean temp files"},
-            {"command": "blacklist", "description": "⛔ Blacklist manager"},
-            {"command": "oracle", "description": "🔮 Oracle prediction"},
-            {"command": "best_day", "description": "🏆 Best day stats"},
-            {"command": "email_stats", "description": "📧 Email stats breakdown"},
-            {"command": "settings", "description": "⚙️ System settings"},
-            {"command": "reboot", "description": "🔄 Reboot bot"},
-            {"command": "track", "description": "📍 Track lead"},
-            {"command": "skip_lead", "description": "⏭️ Skip lead"},
-            {"command": "logs", "description": "📜 System logs"},
-            {"command": "queue", "description": "🗂️ Job queue"},
-            {"command": "failure_rate", "description": "📉 Failure rate stats"},
-            {"command": "speed_test", "description": "⚡ System speed test"},
-            {"command": "memory", "description": "🌡️ Memory usage"},
-            {"command": "uptime", "description": "⏱️ System uptime"},
-            {"command": "env_check", "description": "🔎 Check env variables"},
-            {"command": "platforms", "description": "🌐 Platforms status"},
-            {"command": "tasks", "description": "📋 All tasks"},
-            {"command": "top_companies", "description": "🏆 Top companies"},
-            {"command": "countries", "description": "🌍 Target countries"},
-            {"command": "job_titles", "description": "💼 Job titles"},
-            {"command": "retry_failed", "description": "🔄 Retry failed apps"},
-            {"command": "find_emails", "description": "📧 Find emails"},
-            {"command": "pin_lead", "description": "📌 Pin lead"},
-            {"command": "stop", "description": "⏹️ Stop auto-run"},
-            {"command": "night_mode", "description": "🌙 Toggle night mode"},
-            {"command": "dry_run", "description": "🧪 Safe test mode"},
-            {"command": "omega_halt", "description": "🛑 Emergency halt"},
-            {"command": "kill_switch", "description": "☠️ Kill switch"},
-            {"command": "set_key", "description": "🔑 Set API key"},
-            {"command": "test_key", "description": "🧪 Test API key"},
-            {"command": "prep", "description": "📝 Interview prep"},
-            {"command": "cv_preview", "description": "📄 CV preview"},
-            {"command": "cover_letter", "description": "📝 Cover letter"},
-            {"command": "test_email", "description": "📧 Test email delivery"},
-            {"command": "clear_queue", "description": "🧹 Clear job queue"},
-            {"command": "boost", "description": "🚀 Boost speed mode"},
-            {"command": "audit", "description": "📊 System audit"},
-            {"command": "synapse", "description": "🧠 Synapse status"},
-            {"command": "trend", "description": "📈 Application trend analysis"},
-            {"command": "funnel", "description": "📊 Conversion funnel chart"},
-        ]
-
+        self._cmd_category_map = CMD_CATEGORY_MAP
+        self.menu_commands = MENU_COMMANDS
         self.commands = {
-            "/start": self.cmd_start,
-            "/features": self.cmd_features,
-            "/help": self.cmd_help,
-            "/chat": self.cmd_chat,
-            "/stats_overview": self.cmd_stats_overview,
-            "/status": self.cmd_status,
-            "/stats": self.cmd_stats,
-            "/campaign": self.cmd_campaign,
-            "/wallet": self.cmd_wallet,
-            "/balance": self.cmd_balance,
-            "/search": self.cmd_search,
-            "/apply": self.cmd_apply,
-            "/pricing": self.cmd_pricing,
-            "/referral": self.cmd_referral,
-            "/whatsapp": self.cmd_whatsapp,
-            "/contact": self.cmd_whatsapp,
-            # ── New maximized commands ──
-            "/applications": self.cmd_applications,
-            "/generate_code": self.cmd_generate_code,
-            "/sales": self.cmd_sales,
-            "/earnings": self.cmd_sales,
-            "/strategy": self.cmd_strategy,
-            "/profit": self.cmd_strategy,
-            "/admin": self.cmd_admin,
-            "/admin_credit": self.cmd_admin_credit,
-            "/campaigns": self.cmd_campaigns,
-            # Chronos commands
-            "/pause": self.cmd_pause,
-            "/resume": self.cmd_resume,
-            "/test_strike": self.cmd_test_strike,
-            "/ai_check": self.cmd_ai_check,
-            "/keys": self.cmd_keys,
-            "/fix": self.cmd_fix,
-            "/guide": self.cmd_guide,
-            "/flash_sale": self.cmd_flash_sale,
-            "/pulse": self.cmd_pulse,
-            "/inbox_check": self.cmd_inbox_check,
-            "/leads": self.cmd_leads,
-            "/companies": self.cmd_companies,
-            "/followups": self.cmd_followups,
-            "/backup": self.cmd_backup,
             "/shield": self.cmd_shield,
             "/force_strike": self.cmd_force_strike,
             "/mass_strike": self.cmd_mass_strike,
@@ -880,7 +936,7 @@ class TelegramBot:
                 [
                     {
                         "text": "📊 Dashboard",
-                        "web_app": {"url": "https://jhfguf.pythonanywhere.com/webapp/"},
+                        "web_app": {"url": f"{config.SITE_URL}/webapp/"},
                     }
                 ],
                 [
@@ -1811,7 +1867,7 @@ class TelegramBot:
             if groq_key[:4] == "gsk_":
                 try:
                     r = await self.http_client.post(
-                        "https://api.groq.com/openai/v1/chat/completions",
+                        config.GROQ_API_URL,
                         json={
                             "model": "mixtral-8x7b-32768",
                             "messages": [{"role": "user", "content": "ping"}],
@@ -1864,7 +1920,7 @@ class TelegramBot:
         if groq_key[:4] == "gsk_":
             try:
                 r = await self.http_client.post(
-                    "https://api.groq.com/openai/v1/chat/completions",
+                    config.GROQ_API_URL,
                     json={
                         "model": "mixtral-8x7b-32768",
                         "messages": [{"role": "user", "content": "ping"}],
@@ -1889,7 +1945,7 @@ class TelegramBot:
         if gemini_key:
             try:
                 r = await self.http_client.get(
-                    f"https://generativelanguage.googleapis.com/v1beta/models?key={gemini_key}",
+                    f"{config.GEMINI_MODELS_URL}?key={gemini_key}",
                     timeout=10,
                 )
                 if r.status_code == 200:
@@ -2681,7 +2737,7 @@ class TelegramBot:
         # Try to restart PA web app
         try:
             r = await self.http_client.post(
-                "https://www.pythonanywhere.com/api/v0/user/JHFGUF/webapps/jhfguf.pythonanywhere.com/reload/",
+                config.PA_RELOAD_URL,
                 headers={"Authorization": f"Token {config.PA_API_TOKEN}"},
                 timeout=15,
             )
@@ -3062,6 +3118,108 @@ class TelegramBot:
             f"{self.base_url}/answerInlineQuery",
             json={"inline_query_id": iq_id, "results": results[:50], "cache_time": 10},
         )
+    async def _dispatch_admin_callback(self, callback, action: str) -> bool:
+        """Dispatch admin actions."""
+        mapping = {
+            "status": self._admin_send_status,
+            "logs": self._admin_send_logs,
+            "offset": self._admin_send_offset,
+            "db": self._admin_send_db,
+            "restart": self._admin_do_restart,
+            "health": self._admin_send_status,
+            "accounts": self._admin_send_accounts,
+        }
+        handler = mapping.get(action)
+        if handler:
+            await handler()
+            await self.answer_callback_query(callback.get("id", ""), "")
+            return True
+        await self.answer_callback_query(callback.get("id", ""), "Unknown admin action", True)
+        return True
+
+    async def _dispatch_command_callback(self, callback_id: str, data: str) -> bool:
+        """Dispatch direct command action routing."""
+        cmd_map = {
+            cmd: getattr(self, method_name)
+            for cmd, method_name in COMMANDS_MAP.items()
+        }
+        handler = cmd_map.get(data)
+        if handler:
+            await handler("")
+            await self.answer_callback_query(callback_id, "")
+            return True
+        return False
+
+    async def _dispatch_rich_callback(self, callback, data: str) -> bool:
+        """Dispatch rich menu callback routing."""
+        rich_routes = {
+            "show_main": self._show_main_menu,
+            "show_stats": self._show_stats_compact,
+            "show_funnel": self._show_funnel_compact,
+            "show_ats": self._show_ats_start,
+            "show_converse": self._show_converse_start,
+            "show_alerts": self._show_alerts_status,
+            "show_menu": self._show_full_menu,
+            "show_help": self._show_help_compact,
+            "nav_main": self._show_main_menu,
+            "start_apply": self._show_apply_menu,
+            "refresh_stats": self._show_stats_compact,
+            "show_trends": self._show_trends,
+            "show_companies": self._show_companies,
+            "search_jobs": self._start_job_search,
+            "auto_apply": self._start_auto_apply,
+            "my_campaigns": self._show_my_campaigns,
+            "targeted_apply": self._start_targeted_apply,
+        }
+        rich_handler = rich_routes.get(data)
+        if rich_handler:
+            await rich_handler(callback)
+            return True
+        return False
+
+    async def _dispatch_gen_callback(self, callback_id: str, data: str, _cb_msg_id: int, now: float, _hcl) -> bool:
+        """Dispatch gen callback with locking and deduplication."""
+        gen_handlers = {
+            "/gen_auto": self._handle_gen_auto,
+            "/gen_quick_25": self._handle_gen_quick_25,
+            "/gen_quick_50": self._handle_gen_quick_50,
+            "/gen_quick_100": self._handle_gen_quick_100,
+            "/gen_q_5": self._handle_gen_q_5,
+            "/gen_q_10": self._handle_gen_q_10,
+            "/gen_q_25": self._handle_gen_q_25,
+            "/gen_q_50": self._handle_gen_q_50,
+            "/gen_q_100": self._handle_gen_q_100,
+            "/gen_q_200": self._handle_gen_q_200,
+            "/gen_q_500": self._handle_gen_q_500,
+            "/gen_value": self._handle_gen_value,
+            "/gen_value_old": self._handle_gen_value_old,
+            "/gen_custom": self._handle_gen_custom,
+            "/gen_cancel": self._handle_gen_cancel,
+        }
+        gen_handler = gen_handlers.get(data)
+        if not gen_handler:
+            return False
+
+        async with self._cb_lock:
+            _dedup_key = f"{_cb_msg_id}:{data}"
+            if (
+                _dedup_key in self._recent_gen_data
+                and now - self._recent_gen_data[_dedup_key] < 30
+            ):
+                _hcl.info(
+                    f"CB_DEDUP_DATA: {_dedup_key} - IGNORING (age={now - self._recent_gen_data[_dedup_key]:.1f}s)"
+                )
+                await self.answer_callback_query(callback_id, "")
+                return True
+            self._recent_gen_data[_dedup_key] = now
+            self._recent_gen_data = {
+                k: v for k, v in self._recent_gen_data.items() if now - v < 120
+            }
+            _hcl.info(f"CB_GEN_FIRE: handler={data} dedup_key={_dedup_key}")
+            await gen_handler()
+            _hcl.info(f"CB_GEN_DONE: handler={data}")
+        await self.answer_callback_query(callback_id, "")
+        return True
 
     # ── Inline Keyboard Handler ─────────────────────────────────
 
@@ -3110,224 +3268,38 @@ class TelegramBot:
             + str(_cb_from)
         )
         data = callback.get("data", "")
-        if data.startswith("admin_"):
-            action = data.replace("admin_", "")
-            mapping = {
-                "status": self._admin_send_status,
-                "logs": self._admin_send_logs,
-                "offset": self._admin_send_offset,
-                "db": self._admin_send_db,
-                "restart": self._admin_do_restart,
-                "health": self._admin_send_status,
-                "accounts": self._admin_send_accounts,
-            }
-            handler = mapping.get(action)
-            if handler:
-                await handler()
-                await self.answer_callback_query(callback.get("id", ""), "")
-                return
-            await self.answer_callback_query(
-                callback.get("id", ""), "Unknown admin action", True
-            )
-            return
-
-        callback_id = callback.get("id", "")
-        msg = callback.get("message", {})
-        msg.get("chat", {}).get("id")
-        msg.get("message_id")
-
-        data = callback.get("data", "")
-
         if not data:
             return
 
-        # No loading feedback — avoids stuck spinner
-        # (spinner auto-dismisses on next message send)
-
-        # Route button commands
-
-        cmd_map = {
-            "/campaign": self.cmd_campaign,
-            "/stop": self.cmd_stop_auto,
-            "/stats": self.cmd_stats,
-            "/stats_overview": self.cmd_stats_overview,
-            "/chat": self.cmd_chat,
-            "/search": self.cmd_search,
-            "/pricing": self.cmd_pricing,
-            "/applications": self.cmd_applications,
-            "/status": self.cmd_status,
-            "/help": self.cmd_help,
-            "/generate_code": self.cmd_generate_code,
-            "/sales": self.cmd_sales,
-            "/earnings": self.cmd_sales,
-            "/strategy": self.cmd_strategy,
-            "/profit": self.cmd_strategy,
-            "/admin": self.cmd_admin,
-            "/admin_credit": self.cmd_admin_credit,
-            "/campaigns": self.cmd_campaigns,
-            "/pause": self.cmd_pause,
-            "/resume": self.cmd_resume,
-            "/test_strike": self.cmd_test_strike,
-            "/ai_check": self.cmd_ai_check,
-            "/keys": self.cmd_keys,
-            "/fix": self.cmd_fix,
-            "/guide": self.cmd_guide,
-            "/flash_sale": self.cmd_flash_sale,
-            "/wallet": self.cmd_wallet,
-            "/balance": self.cmd_balance,
-            "/referral": self.cmd_referral,
-            "/apply": self.cmd_apply,
-            "/whatsapp": self.cmd_whatsapp,
-            "/pulse": self.cmd_pulse,
-            "/inbox_check": self.cmd_inbox_check,
-            "/leads": self.cmd_leads,
-            "/companies": self.cmd_companies,
-            "/followups": self.cmd_followups,
-            "/backup": self.cmd_backup,
-            "/shield": self.cmd_shield,
-            "/force_strike": self.cmd_force_strike,
-            "/mass_strike": self.cmd_mass_strike,
-            "/clean": self.cmd_clean,
-            "/blacklist": self.cmd_blacklist,
-            "/oracle": self.cmd_oracle,
-            "/best_day": self.cmd_best_day,
-            "/email_stats": self.cmd_email_stats,
-            "/settings": self.cmd_settings,
-            "/reboot": self.cmd_reboot,
-            "/track": self.cmd_track,
-            "/logs": self.cmd_logs,
-            "/queue": self.cmd_queue,
-            "/audit": self.cmd_audit,
-            "/boost": self.cmd_boost,
-            "/clear_queue": self.cmd_clear_queue,
-            "/countries": self.cmd_countries,
-            "/cover_letter": self.cmd_cover_letter,
-            "/cv_preview": self.cmd_cv_preview,
-            "/dry_run": self.cmd_dry_run,
-            "/env_check": self.cmd_env_check,
-            "/env": self.cmd_env_check,
-            "/failure_rate": self.cmd_failure_rate,
-            "/find_emails": self.cmd_find_emails,
-            "/job_titles": self.cmd_job_titles,
-            "/kill_switch": self.cmd_kill_switch,
-            "/memory": self.cmd_memory,
-            "/night_mode": self.cmd_night_mode,
-            "/omega_halt": self.cmd_omega_halt,
-            "/pin_lead": self.cmd_pin_lead,
-            "/platforms": self.cmd_platforms,
-            "/prep": self.cmd_prep,
-            "/retry_failed": self.cmd_retry_failed,
-            "/set_key": self.cmd_set_key,
-            "/synapse": self.cmd_synapse,
-            "/tasks": self.cmd_tasks,
-            "/test_email": self.cmd_test_email,
-            "/test_key": self.cmd_test_key,
-            "/top_companies": self.cmd_top_companies,
-            "/uptime": self.cmd_uptime,
-            "/start": self.cmd_start,
-            "/skip_lead": self.cmd_skip_lead,
-            "/speed_test": self.cmd_speed_test,
-            "/websites": self.cmd_websites,
-            "/restart_web": self.cmd_restart_web,
-            "/deploy": self.cmd_deploy,
-            "/security": self.cmd_security,
-            "/today": self.cmd_today,
-            "/weekly": self.cmd_weekly,
-            "/ats_score": self.cmd_ats_score,
-            "/ats": self.cmd_ats_score,
-            "/converse": self.cmd_converse,
-            "/trend": self.cmd_trend,
-            "/funnel": self.cmd_funnel,
-            "/features": self.cmd_features,
-        }
-
-        handler = cmd_map.get(data)
-        if handler:
-            await handler("")
-            await self.answer_callback_query(
-                callback_id, ""
-            )  # Dismiss spinner, prevent double-reply
+        if data.startswith("admin_"):
+            action = data.replace("admin_", "")
+            await self._dispatch_admin_callback(callback, action)
             return
 
-        # ── Rich Callback Routing (non-/ callbacks) ─────────────
-        rich_routes = {
-            "show_main": self._show_main_menu,
-            "show_stats": self._show_stats_compact,
-            "show_funnel": self._show_funnel_compact,
-            "show_ats": self._show_ats_start,
-            "show_converse": self._show_converse_start,
-            "show_alerts": self._show_alerts_status,
-            "show_menu": self._show_full_menu,
-            "show_help": self._show_help_compact,
-            "nav_main": self._show_main_menu,
-            "start_apply": self._show_apply_menu,
-            "refresh_stats": self._show_stats_compact,
-            "show_trends": self._show_trends,
-            "show_companies": self._show_companies,
-            "search_jobs": self._start_job_search,
-            "auto_apply": self._start_auto_apply,
-            "my_campaigns": self._show_my_campaigns,
-            "targeted_apply": self._start_targeted_apply,
-        }
-        rich_handler = rich_routes.get(data)
-        if rich_handler:
-            await rich_handler(callback)
+        # Direct command routing
+        command_dispatched = await self._dispatch_command_callback(_cb_id, data)
+        if command_dispatched:
             return
 
-        # ── job_/apply_ callback handling ───────────────────────
+        # Rich callback routing
+        rich_dispatched = await self._dispatch_rich_callback(callback, data)
+        if rich_dispatched:
+            return
+
+        # job_/apply_ callback handling
         if data.startswith("job_"):
-            job_id = data[4:]
-            await self._show_job_details(callback, job_id)
+            await self._show_job_details(callback, data[4:])
             return
         if data.startswith("apply_"):
-            job_id = data[6:]
-            await self._apply_to_job(callback, job_id)
+            await self._apply_to_job(callback, data[6:])
             return
 
-        gen_handlers = {
-            "/gen_auto": self._handle_gen_auto,
-            "/gen_quick_25": self._handle_gen_quick_25,
-            "/gen_quick_50": self._handle_gen_quick_50,
-            "/gen_quick_100": self._handle_gen_quick_100,
-            "/gen_q_5": self._handle_gen_q_5,
-            "/gen_q_10": self._handle_gen_q_10,
-            "/gen_q_25": self._handle_gen_q_25,
-            "/gen_q_50": self._handle_gen_q_50,
-            "/gen_q_100": self._handle_gen_q_100,
-            "/gen_q_200": self._handle_gen_q_200,
-            "/gen_q_500": self._handle_gen_q_500,
-            "/gen_value": self._handle_gen_value,
-            "/gen_value_old": self._handle_gen_value_old,
-            "/gen_custom": self._handle_gen_custom,
-            "/gen_cancel": self._handle_gen_cancel,
-        }
-        gen_handler = gen_handlers.get(data)
-        if gen_handler:
-            async with self._cb_lock:
-                # Data-based dedup: use message_id+data as compound key (30s window)
-                # This catches Telegram re-delivering with different callback_id
-                _dedup_key = f"{_cb_msg_id}:{data}"
-                if (
-                    _dedup_key in self._recent_gen_data
-                    and now - self._recent_gen_data[_dedup_key] < 30
-                ):
-                    _hcl.info(
-                        f"CB_DEDUP_DATA: {_dedup_key} - IGNORING (age={now - self._recent_gen_data[_dedup_key]:.1f}s)"
-                    )
-                    await self.answer_callback_query(callback_id, "")
-                    return
-                self._recent_gen_data[_dedup_key] = now
-                # Clean old entries
-                self._recent_gen_data = {
-                    k: v for k, v in self._recent_gen_data.items() if now - v < 120
-                }
-                _hcl.info(f"CB_GEN_FIRE: handler={data} dedup_key={_dedup_key}")
-                await gen_handler()
-                _hcl.info(f"CB_GEN_DONE: handler={data}")
-            await self.answer_callback_query(callback_id, "")  # Silent dismiss
+        # Gen callback routing
+        gen_dispatched = await self._dispatch_gen_callback(_cb_id, data, _cb_msg_id, now, _hcl)
+        if gen_dispatched:
             return
 
-        await self.answer_callback_query(callback_id, "Button not available", True)
+        await self.answer_callback_query(_cb_id, "Button not available", True)
         await self.send(
             f"<b>⚠️ Unknown button:</b> {data}\n\nUse /start to refresh the menu."
         )
@@ -3451,7 +3423,7 @@ class TelegramBot:
         try:
             platforms = [
                 ("PythonAnywhere", f"{config.SITE_URL}/health"),
-                ("Render", "https://jobhunt-pro.onrender.com/health"),
+                ("Render", f"{config.RENDER_APP_URL}health"),
             ]
             lines = ["<b>🌐 Platform Status:</b>", ""]
             for name, url in platforms:
@@ -3585,7 +3557,7 @@ class TelegramBot:
 
     # ── BUILD ENHANCEMENT: AI Conversation Engine Command ───────────────────────
 
-    async def cmd_converse(self, args=""):
+    async def cmd_converse(self, args: str = "") -> None:
         """AI Recruiter Conversation Engine.
 
         Usage:
@@ -3599,93 +3571,103 @@ class TelegramBot:
           /converse reply Thanks for reaching out! Are you available for a call?
         """
         try:
-            from core.ai_conversation import (
-                format_conversation_for_telegram,
-                AIConversationEngine,
-            )
-
             parts = args.strip().split(" ", 1) if args.strip() else ["status"]
             action = parts[0].lower() if parts else "status"
             payload = parts[1] if len(parts) > 1 else ""
 
             if action in ("greet", "greeting"):
-                formatted = format_conversation_for_telegram(
-                    recruiter_id=payload or "unknown/unknown/position",
-                    action="greeting",
-                )
-                await self.send(formatted)
-
+                await self._cmd_converse_greet(payload)
             elif action in ("reply", "suggest"):
-                if not payload:
-                    await self.send(
-                        "<b>💬 Reply Suggestion</b>\n\n"
-                        "Usage: <code>/converse reply <recruiter_message></code>\n\n"
-                        "Example: <code>/converse reply I'd like to schedule an interview</code>"
-                    )
-                    return
-                formatted = format_conversation_for_telegram(
-                    recruiter_id="",
-                    action="reply",
-                    message=payload,
-                )
-                await self.send(formatted)
-
+                await self._cmd_converse_reply(payload)
             elif action in ("status", "list", "conversations"):
-                formatted = format_conversation_for_telegram(
-                    recruiter_id="",
-                    action="status",
-                )
-                # Always show something even if empty
-                await self.send(formatted)
-
+                await self._cmd_converse_status()
             elif action == "batch":
-                # Batch generate greetings from comma-separated list
-                # Format: "Name1/Company1/Title1, Name2/Company2/Title2"
-                if not payload:
-                    await self.send(
-                        "<b>📦 Batch Greetings</b>\n\n"
-                        "Usage: <code>/converse batch Name1/Co1/Role1, Name2/Co2/Role2</code>"
-                    )
-                    return
-                entries = [e.strip() for e in payload.split(",")]
-                lines = ["<b>📦 Batch Greetings Generated</b>\n"]
-                eng = AIConversationEngine()
-                for entry in entries:
-                    parts_e = entry.split("/")
-                    name = parts_e[0] if len(parts_e) > 0 else "Hiring Manager"
-                    company = parts_e[1] if len(parts_e) > 1 else "Company"
-                    role = parts_e[2] if len(parts_e) > 2 else "Position"
-                    greeting = eng.generate_greeting(name, company, role)
-                    lines.append(f"<b>{name} @ {company}</b>\n{greeting}\n")
-                    eng.track_message(f"{name}@{company}", "candidate", greeting)
-                batch_msg = "\n".join(lines)
-                if len(batch_msg) > 4000:
-                    batch_msg = batch_msg[:3950] + "\n\n...(truncated)"
-                await self.send(batch_msg)
-
+                await self._cmd_converse_batch(payload)
             elif action in ("help", "?", ""):
-                await self.send(
-                    "<b>🤖 AI Conversation Engine</b>\n\n"
-                    "<b>Commands:</b>\n"
-                    "  <code>/converse</code> — show active conversations\n"
-                    "  <code>/converse greet <name/company/role></code> — generate greeting\n"
-                    "  <code>/converse reply <msg></code> — suggest a reply\n"
-                    "  <code>/converse batch <list></code> — batch generate\n"
-                    "  <code>/converse status</code> — all conversations\n\n"
-                    "<b>Examples:</b>\n"
-                    "  <code>/converse greet Sarah/Google/Senior Engineer</code>\n"
-                    "  <code>/converse reply Yes I'm available Thursday!</code>"
-                )
-
+                await self._cmd_converse_help()
             else:
                 await self.send(
                     f"<b>❌ Unknown action:</b> {action}\n"
                     f"Try: <code>/converse help</code> for available commands."
                 )
-
         except Exception as e:
             logger.error(f"[Converse] Command error: {e}")
             await self.send(f"<b>❌ Conversation Engine Error:</b> {e}")
+
+    async def _cmd_converse_greet(self, payload: str) -> None:
+        """Helper to handle greeting generation."""
+        from core.ai_conversation import format_conversation_for_telegram
+        formatted = format_conversation_for_telegram(
+            recruiter_id=payload or "unknown/unknown/position",
+            action="greeting",
+        )
+        await self.send(formatted)
+
+    async def _cmd_converse_reply(self, payload: str) -> None:
+        """Helper to suggest response to recruiter message."""
+        if not payload:
+            await self.send(
+                "<b>💬 Reply Suggestion</b>\n\n"
+                "Usage: <code>/converse reply <recruiter_message></code>\n\n"
+                "Example: <code>/converse reply I'd like to schedule an interview</code>"
+            )
+            return
+        from core.ai_conversation import format_conversation_for_telegram
+        formatted = format_conversation_for_telegram(
+            recruiter_id="",
+            action="reply",
+            message=payload,
+        )
+        await self.send(formatted)
+
+    async def _cmd_converse_status(self) -> None:
+        """Helper to show active conversation status list."""
+        from core.ai_conversation import format_conversation_for_telegram
+        formatted = format_conversation_for_telegram(
+            recruiter_id="",
+            action="status",
+        )
+        await self.send(formatted)
+
+    async def _cmd_converse_batch(self, payload: str) -> None:
+        """Helper to batch generate greetings from a comma-separated list."""
+        if not payload:
+            await self.send(
+                "<b>📦 Batch Greetings</b>\n\n"
+                "Usage: <code>/converse batch Name1/Co1/Role1, Name2/Co2/Role2</code>"
+            )
+            return
+        from core.ai_conversation import AIConversationEngine
+        entries = [e.strip() for e in payload.split(",")]
+        lines = ["<b>📦 Batch Greetings Generated</b>\n"]
+        eng = AIConversationEngine()
+        for entry in entries:
+            parts_e = entry.split("/")
+            name = parts_e[0] if len(parts_e) > 0 else "Hiring Manager"
+            company = parts_e[1] if len(parts_e) > 1 else "Company"
+            role = parts_e[2] if len(parts_e) > 2 else "Position"
+            greeting = eng.generate_greeting(name, company, role)
+            lines.append(f"<b>{name} @ {company}</b>\n{greeting}\n")
+            eng.track_message(f"{name}@{company}", "candidate", greeting)
+        batch_msg = "\n".join(lines)
+        if len(batch_msg) > 4000:
+            batch_msg = batch_msg[:3950] + "\n\n...(truncated)"
+        await self.send(batch_msg)
+
+    async def _cmd_converse_help(self) -> None:
+        """Helper to send converse commands help page."""
+        await self.send(
+            "<b>🤖 AI Conversation Engine</b>\n\n"
+            "<b>Commands:</b>\n"
+            "  <code>/converse</code> — show active conversations\n"
+            "  <code>/converse greet <name/company/role></code> — generate greeting\n"
+            "  <code>/converse reply <msg></code> — suggest a reply\n"
+            "  <code>/converse batch <list></code> — batch generate\n"
+            "  <code>/converse status</code> — all conversations\n\n"
+            "<b>Examples:</b>\n"
+            "  <code>/converse greet Sarah/Google/Senior Engineer</code>\n"
+            "  <code>/converse reply Yes I'm available Thursday!</code>"
+        )
 
     # ── Helper: get resume text from config/db ────────────────────────────────
 
@@ -4085,150 +4067,62 @@ class TelegramBot:
 
     # ── SALES & PROFIT STATS (ADMIN ONLY) ───────────────────────────
 
-    async def cmd_sales(self, args=""):
+    async def cmd_sales(self, args: str = "") -> None:
         """Show real-time sales and profit stats.
 
         Usage: /sales [24h|month|year|all]
 
         Defaults to showing all-time stats.
-
         """
-
         conn = None
-
         try:
             conn = _get_db()
-
-            # ── Time filters ──
-
             now = datetime.now()
-
-            now.replace(hour=0, minute=0, second=0, microsecond=0)
-
             month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-
             year_start = now.replace(
                 month=1, day=1, hour=0, minute=0, second=0, microsecond=0
             )
 
             args = args.strip().lower() if args else "all"
 
-            # Build WHERE clause based on filter
-
             if args == "24h":
                 filter_label = "📅 Last 24 Hours"
-
                 since = (now - timedelta(hours=24)).isoformat()
-
             elif args == "month":
                 filter_label = "📅 This Month"
-
                 since = month_start.isoformat()
-
             elif args == "year":
                 filter_label = "📅 This Year"
-
                 since = year_start.isoformat()
-
             else:
                 filter_label = "📅 All Time"
-
                 since = "1970-01-01"
 
-            # ── User stats ──
-
-            total_users = conn.execute("SELECT COUNT(*) as c FROM users").fetchone()[
-                "c"
-            ]
-
-            new_users_filter = conn.execute(
-                "SELECT COUNT(*) as c FROM users WHERE created_at >= ?", (since,)
-            ).fetchone()["c"]
-
-            # ── Wallet ──
-
-            total_wallet = float(
-                conn.execute(
-                    "SELECT COALESCE(SUM(wallet_balance),0) as c FROM users"
-                ).fetchone()["c"]
-            )
-
-            total_spent = float(
-                conn.execute(
-                    "SELECT COALESCE(SUM(total_spent),0) as c FROM users"
-                ).fetchone()["c"]
-            )
-
-            # ── Orders (completed payments) ──
-
-            completed_orders = conn.execute(
-                "SELECT COUNT(*) as c, COALESCE(SUM(amount_usd),0) as s FROM orders WHERE payment_status='completed' AND created_at >= ?",
-                (since,),
-            ).fetchone()
-
-            order_count = completed_orders["c"]
-
-            order_revenue = float(completed_orders["s"])
-
-            # ── Redeem codes (EXCLUDING admin_free) ──
-
-            codes_used = conn.execute(
-                "SELECT COUNT(*) as c, COALESCE(SUM(value_usd),0) as s FROM redeem_codes WHERE is_used=1 AND (code_type IS NULL OR code_type != 'admin_free') AND created_at >= ?",
-                (since,),
-            ).fetchone()
-
-            codes_revenue = float(codes_used["s"])
-
-            codes_count = codes_used["c"]
-
-            # ── Admin free credits used ──
-
-            admin_free = conn.execute(
-                "SELECT COUNT(*) as c, COALESCE(SUM(value_usd),0) as s FROM redeem_codes WHERE is_used=1 AND code_type='admin_free' AND created_at >= ?",
-                (since,),
-            ).fetchone()
-
-            admin_free_count = admin_free["c"]
-
-            admin_free_value = float(admin_free["s"])
-
-            # ── Manual emails ──
-
-            manual_emails = conn.execute(
-                "SELECT COUNT(*) as c, COALESCE(SUM(price_usd),0) as s FROM manual_emails WHERE status='sent' AND created_at >= ?",
-                (since,),
-            ).fetchone()
-
-            email_count = manual_emails["c"]
-
-            email_revenue = float(manual_emails["s"])
-
-            # conn closed in finally block
-
-            total_revenue = order_revenue + codes_revenue + email_revenue
+            stats = self._get_sales_stats(conn, since)
+            total_revenue = stats["order_revenue"] + stats["codes_revenue"] + stats["email_revenue"]
 
             msg = (
                 f"<b>📈 SALES & PROFIT REPORT</b>\n"
                 f"{filter_label}\n"
                 f"{'─' * 32}\n\n"
                 f"<b>👥 Users</b>\n"
-                f"Total: {total_users}\n"
-                f"New: {new_users_filter}\n\n"
+                f"Total: {stats['total_users']}\n"
+                f"New: {stats['new_users_filter']}\n\n"
                 f"<b>💰 Revenue Breakdown</b>\n"
-                f"📦 Orders: <b>${order_revenue:.2f}</b> ({order_count} orders)\n"
-                f"🎟 Redeem Codes: <b>${codes_revenue:.2f}</b> ({codes_count} codes)\n"
-                f"📧 Manual Emails: <b>${email_revenue:.2f}</b> ({email_count} emails)\n"
+                f"📦 Orders: <b>${stats['order_revenue']:.2f}</b> ({stats['order_count']} orders)\n"
+                f"🎟 Redeem Codes: <b>${stats['codes_revenue']:.2f}</b> ({stats['codes_count']} codes)\n"
+                f"📧 Manual Emails: <b>${stats['email_revenue']:.2f}</b> ({stats['email_count']} emails)\n"
                 f"{'─' * 28}\n"
                 f"<b>💵 TOTAL REVENUE: ${total_revenue:.2f}</b>\n\n"
                 f"<b>💳 Wallet</b>\n"
-                f"Total Balance: ${total_wallet:.2f}\n"
-                f"Total Spent: ${total_spent:.2f}\n\n"
+                f"Total Balance: ${stats['total_wallet']:.2f}\n"
+                f"Total Spent: ${stats['total_spent']:.2f}\n\n"
             )
 
-            if admin_free_count > 0:
+            if stats["admin_free_count"] > 0:
                 msg += (
                     f"<b>🆓 Admin Free Credits</b>\n"
-                    f"Used: {admin_free_count} codes (${admin_free_value:.2f})\n"
+                    f"Used: {stats['admin_free_count']} codes (${stats['admin_free_value']:.2f})\n"
                     f"<i>Not counted in revenue</i>\n\n"
                 )
 
@@ -4244,12 +4138,71 @@ class TelegramBot:
 
         except Exception as e:
             logger.error(f"Sales command failed: {e}")
-
             await self.send(f"<b>❌ Failed to fetch sales data:</b> {e}")
-
         finally:
             if conn:
                 conn.close()
+
+    def _get_sales_stats(self, conn, since: str) -> dict:
+        """Query database and aggregate user, wallet, order, and manual email stats."""
+        total_users = conn.execute("SELECT COUNT(*) as c FROM users").fetchone()["c"]
+        new_users_filter = conn.execute(
+            "SELECT COUNT(*) as c FROM users WHERE created_at >= ?", (since,)
+        ).fetchone()["c"]
+
+        total_wallet = float(
+            conn.execute(
+                "SELECT COALESCE(SUM(wallet_balance),0) as c FROM users"
+            ).fetchone()["c"]
+        )
+        total_spent = float(
+            conn.execute(
+                "SELECT COALESCE(SUM(total_spent),0) as c FROM users"
+            ).fetchone()["c"]
+        )
+
+        completed_orders = conn.execute(
+            "SELECT COUNT(*) as c, COALESCE(SUM(amount_usd),0) as s FROM orders WHERE payment_status='completed' AND created_at >= ?",
+            (since,),
+        ).fetchone()
+        order_count = completed_orders["c"]
+        order_revenue = float(completed_orders["s"])
+
+        codes_used = conn.execute(
+            "SELECT COUNT(*) as c, COALESCE(SUM(value_usd),0) as s FROM redeem_codes WHERE is_used=1 AND (code_type IS NULL OR code_type != 'admin_free') AND created_at >= ?",
+            (since,),
+        ).fetchone()
+        codes_count = codes_used["c"]
+        codes_revenue = float(codes_used["s"])
+
+        admin_free = conn.execute(
+            "SELECT COUNT(*) as c, COALESCE(SUM(value_usd),0) as s FROM redeem_codes WHERE is_used=1 AND code_type='admin_free' AND created_at >= ?",
+            (since,),
+        ).fetchone()
+        admin_free_count = admin_free["c"]
+        admin_free_value = float(admin_free["s"])
+
+        manual_emails = conn.execute(
+            "SELECT COUNT(*) as c, COALESCE(SUM(price_usd),0) as s FROM manual_emails WHERE status='sent' AND created_at >= ?",
+            (since,),
+        ).fetchone()
+        email_count = manual_emails["c"]
+        email_revenue = float(manual_emails["s"])
+
+        return {
+            "total_users": total_users,
+            "new_users_filter": new_users_filter,
+            "total_wallet": total_wallet,
+            "total_spent": total_spent,
+            "order_count": order_count,
+            "order_revenue": order_revenue,
+            "codes_count": codes_count,
+            "codes_revenue": codes_revenue,
+            "admin_free_count": admin_free_count,
+            "admin_free_value": admin_free_value,
+            "email_count": email_count,
+            "email_revenue": email_revenue,
+        }
 
     # ── EMAIL CAMPAIGN STATS ──────────────────────────────────────
 
@@ -4765,60 +4718,10 @@ class TelegramBot:
                         continue
                     conflict_count = 0
                     max_id = offset
-                    for update in updates or []:
-                        try:
-                            update_id = int(update.get("update_id", 0))
-                            if update_id > max_id:
-                                max_id = update_id
-                            cb = update.get("callback_query")
-                            if cb:
-                                sid = cb.get("from", {}).get("id")
-                                if sid and str(sid) != str(self.chat_id):
-                                    await self.answer_callback_query(
-                                        cb.get("id", ""), "Access Denied", True
-                                    )
-                                    continue
-                                import logging as _rbl
-
-                                _rbl.debug("RUN_BOT: processing callback")
-                                await self.handle_callback_query(cb)
-                                continue
-                            # ── Inline Query Handling ─────────────────
-                            iq = update.get("inline_query")
-                            if iq:
-                                await self.inline_query(iq)
-                                continue
-                            msg = update.get("message", {})
-                            txt = msg.get("text", "")
-                            sid = msg.get("chat", {}).get("id")
-                            if sid and str(sid) != str(self.chat_id):
-                                continue
-                            # Rate limit check — max 10 commands per minute per user
-                            if sid and not _check_user_rate_limit(
-                                sid, max_per_minute=10
-                            ):
-                                if txt.startswith("/"):
-                                    await self.send(
-                                        "<b>⏳ Rate limit exceeded.</b> You're sending too many commands. "
-                                        "Please wait a moment before trying again."
-                                    )
-                                continue
-                            if txt.startswith("/"):
-                                parts = txt.split(" ", 1)
-                                cmd = parts[0].lower()
-                                args = parts[1] if len(parts) > 1 else ""
-                                await self.handle_command(cmd, args, user_id=sid)
-                            else:
-                                mapped = await self.route_text_to_command(txt)
-                                if mapped:
-                                    parts = mapped.split(" ", 1)
-                                    cmd = parts[0].lower()
-                                    args = parts[1] if len(parts) > 1 else ""
-                                    await self.handle_command(cmd, args, user_id=sid)
-                                elif self._awaiting_input:
-                                    await self._process_awaiting_input(txt)
-                        except Exception as e:
-                            logger.warning(f"Error in update processor: {e}")
+                    if updates:
+                        observed_max = await self._process_updates(updates)
+                        if observed_max > max_id:
+                            max_id = observed_max
                     poll_cycle += 1
                     if updates:
                         offset = max_id + 1
@@ -4849,6 +4752,64 @@ class TelegramBot:
         finally:
             logger.info("[BOT] Polling loop ended — shutting down http_client")
             await self.shutdown()
+
+    async def _process_updates(self, updates: list[dict]) -> int:
+        """Process a list of received updates. Returns the highest update ID processed."""
+        max_id = 0
+        for update in updates:
+            try:
+                update_id = int(update.get("update_id", 0))
+                if update_id > max_id:
+                    max_id = update_id
+
+                cb = update.get("callback_query")
+                if cb:
+                    sid = cb.get("from", {}).get("id")
+                    if sid and str(sid) != str(self.chat_id):
+                        await self.answer_callback_query(
+                            cb.get("id", ""), "Access Denied", True
+                        )
+                        continue
+                    logger.debug("RUN_BOT: processing callback")
+                    await self.handle_callback_query(cb)
+                    continue
+
+                iq = update.get("inline_query")
+                if iq:
+                    await self.inline_query(iq)
+                    continue
+
+                msg = update.get("message", {})
+                txt = msg.get("text", "")
+                sid = msg.get("chat", {}).get("id")
+                if sid and str(sid) != str(self.chat_id):
+                    continue
+
+                if sid and not _check_user_rate_limit(sid, max_per_minute=10):
+                    if txt.startswith("/"):
+                        await self.send(
+                            "<b>⏳ Rate limit exceeded.</b> You're sending too many commands. "
+                            "Please wait a moment before trying again."
+                        )
+                    continue
+
+                if txt.startswith("/"):
+                    parts = txt.split(" ", 1)
+                    cmd = parts[0].lower()
+                    args = parts[1] if len(parts) > 1 else ""
+                    await self.handle_command(cmd, args, user_id=sid)
+                else:
+                    mapped = await self.route_text_to_command(txt)
+                    if mapped:
+                        parts = mapped.split(" ", 1)
+                        cmd = parts[0].lower()
+                        args = parts[1] if len(parts) > 1 else ""
+                        await self.handle_command(cmd, args, user_id=sid)
+                    elif self._awaiting_input:
+                        await self._process_awaiting_input(txt)
+            except Exception as e:
+                logger.warning(f"Error in update processor: {e}")
+        return max_id
 
     async def process_webhook_update(self, update: dict):
         """Process a single Telegram update via webhook (FREE — no polling needed)."""
@@ -4919,136 +4880,150 @@ class TelegramBot:
         }
         await self.send("Admin Dashboard\n\nChoose an option:", reply_markup=keyboard)
 
-    async def cmd_flash_sale(self, args=""):
+    async def cmd_flash_sale(self, args: str = "") -> None:
         """View or manage flash sales."""
         conn = None
         try:
             import shlex
-
             conn = _get_db()
             raw = (args or "").strip()
 
             if not raw:
-                active = conn.execute(
-                    "SELECT id, title, discount_percent, start_time, end_time FROM flash_sales WHERE active = 1 ORDER BY id DESC LIMIT 1"
-                ).fetchone()
-
-                if active:
-                    msg = (
-                        "<b>⚡ FLASH SALE</b>\n\n"
-                        f"<b>Active:</b> #{active['id']} - {active['title']}\n"
-                        f"<b>Discount:</b> {float(active['discount_percent']):.0f}%\n"
-                        f"<b>Starts:</b> {active['start_time']}\n"
-                        f"<b>Ends:</b> {active['end_time']}\n\n"
-                        "<b>Commands:</b>\n"
-                        "<code>/flash_sale list</code>\n"
-                        '<code>/flash_sale create "Weekend" 25 48</code>\n'
-                        "<code>/flash_sale end 1</code>"
-                    )
-                else:
-                    msg = (
-                        "<b>⚡ FLASH SALE</b>\n\n"
-                        "No active flash sale right now.\n\n"
-                        "<b>Examples:</b>\n"
-                        '<code>/flash_sale create "Weekend Deal" 25 48</code>\n'
-                        "<code>/flash_sale list</code>\n"
-                        "<code>/flash_sale end 1</code>"
-                    )
-                await self.send(msg)
+                await self._cmd_flash_sale_status(conn)
                 return
 
             parts = shlex.split(raw)
             action = parts[0].lower()
 
             if action == "list":
-                rows = conn.execute(
-                    "SELECT id, title, discount_percent, active, start_time, end_time FROM flash_sales ORDER BY id DESC LIMIT 10"
-                ).fetchall()
-                if not rows:
-                    await self.send("<b>⚡ FLASH SALE</b>\n\nNo flash sales found.")
-                    return
-
-                lines = ["<b>⚡ FLASH SALE LIST</b>", ""]
-                for row in rows:
-                    status = "🟢 Active" if int(row["active"] or 0) == 1 else "⚪ Ended"
-                    lines.append(
-                        f"#{row['id']} - {row['title']} | {float(row['discount_percent']):.0f}% | {status}"
-                    )
-                lines.extend(
-                    [
-                        "",
-                        "<b>Commands:</b>",
-                        '<code>/flash_sale create "Title" 25 48</code>',
-                        "<code>/flash_sale end 1</code>",
-                    ]
-                )
-                await self.send("\n".join(lines))
-                return
-
-            if action == "create":
-                if len(parts) < 4:
-                    await self.send(
-                        '<b>⚠️ Usage:</b> <code>/flash_sale create "Title" 25 48</code>'
-                    )
-                    return
-
-                title = parts[1]
-                try:
-                    discount = float(parts[2])
-                    duration_hours = float(parts[3])
-                except (ValueError, IndexError):
-                    await self.send(
-                        '<b>⚠️ Invalid numbers.</b>\n\nUsage: <code>/flash_sale create "Title" 25 48</code>'
-                    )
-                    return
-                now = datetime.now()
-                end_time = now + timedelta(hours=duration_hours)
-
-                conn.execute(
-                    "INSERT INTO flash_sales (title, discount_percent, start_time, end_time, active) VALUES (?, ?, ?, ?, 1)",
-                    (
-                        title,
-                        discount,
-                        now.strftime("%Y-%m-%d %H:%M:%S"),
-                        end_time.strftime("%Y-%m-%d %H:%M:%S"),
-                    ),
-                )
-                conn.commit()
+                await self._cmd_flash_sale_list(conn)
+            elif action == "create":
+                await self._cmd_flash_sale_create(conn, parts)
+            elif action == "end":
+                await self._cmd_flash_sale_end(conn, parts)
+            else:
                 await self.send(
-                    "<b>⚡ FLASH SALE CREATED</b>\n\n"
-                    f"<b>Title:</b> {title}\n"
-                    f"<b>Discount:</b> {discount:.0f}%\n"
-                    f"<b>Duration:</b> {duration_hours:.0f}h"
+                    "<b>⚠️ Unknown flash sale action.</b>\n\n"
+                    'Use <code>/flash_sale</code>, <code>/flash_sale list</code>, <code>/flash_sale create "Title" 25 48</code>, or <code>/flash_sale end 1</code>.'
                 )
-                return
-
-            if action == "end":
-                if len(parts) < 2:
-                    await self.send("<b>⚠️ Usage:</b> <code>/flash_sale end 1</code>")
-                    return
-
-                sale_id = int(parts[1])
-                conn.execute(
-                    "UPDATE flash_sales SET active = 0, end_time = ? WHERE id = ?",
-                    (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sale_id),
-                )
-                conn.commit()
-                await self.send(
-                    f"<b>⚡ FLASH SALE ENDED</b>\n\nSale #{sale_id} is now inactive."
-                )
-                return
-
-            await self.send(
-                "<b>⚠️ Unknown flash sale action.</b>\n\n"
-                'Use <code>/flash_sale</code>, <code>/flash_sale list</code>, <code>/flash_sale create "Title" 25 48</code>, or <code>/flash_sale end 1</code>.'
-            )
-
         except Exception as e:
             logger.error(f"Flash sale command failed: {e}")
             await self.send(f"<b>❌ Flash sale error:</b> {e}")
         finally:
             if conn:
                 conn.close()
+
+    async def _cmd_flash_sale_status(self, conn) -> None:
+        """Show current active flash sale status."""
+        active = conn.execute(
+            "SELECT id, title, discount_percent, start_time, end_time FROM flash_sales WHERE active = 1 ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+
+        if active:
+            msg = (
+                "<b>⚡ FLASH SALE</b>\n\n"
+                f"<b>Active:</b> #{active['id']} - {active['title']}\n"
+                f"<b>Discount:</b> {float(active['discount_percent']):.0f}%\n"
+                f"<b>Starts:</b> {active['start_time']}\n"
+                f"<b>Ends:</b> {active['end_time']}\n\n"
+                "<b>Commands:</b>\n"
+                "<code>/flash_sale list</code>\n"
+                '<code>/flash_sale create "Weekend" 25 48</code>\n'
+                "<code>/flash_sale end 1</code>"
+            )
+        else:
+            msg = (
+                "<b>⚡ FLASH SALE</b>\n\n"
+                "No active flash sale right now.\n\n"
+                "<b>Examples:</b>\n"
+                '<code>/flash_sale create "Weekend Deal" 25 48</code>\n'
+                "<code>/flash_sale list</code>\n"
+                "<code>/flash_sale end 1</code>"
+            )
+        await self.send(msg)
+
+    async def _cmd_flash_sale_list(self, conn) -> None:
+        """List recent flash sales."""
+        rows = conn.execute(
+            "SELECT id, title, discount_percent, active, start_time, end_time FROM flash_sales ORDER BY id DESC LIMIT 10"
+        ).fetchall()
+        if not rows:
+            await self.send("<b>⚡ FLASH SALE</b>\n\nNo flash sales found.")
+            return
+
+        lines = ["<b>⚡ FLASH SALE LIST</b>", ""]
+        for row in rows:
+            status = "🟢 Active" if int(row["active"] or 0) == 1 else "⚪ Ended"
+            lines.append(
+                f"#{row['id']} - {row['title']} | {float(row['discount_percent']):.0f}% | {status}"
+            )
+        lines.extend(
+            [
+                "",
+                "<b>Commands:</b>",
+                '<code>/flash_sale create "Title" 25 48</code>',
+                "<code>/flash_sale end 1</code>",
+            ]
+        )
+        await self.send("\n".join(lines))
+
+    async def _cmd_flash_sale_create(self, conn, parts: list[str]) -> None:
+        """Create a new flash sale."""
+        if len(parts) < 4:
+            await self.send(
+                '<b>⚠️ Usage:</b> <code>/flash_sale create "Title" 25 48</code>'
+            )
+            return
+
+        title = parts[1]
+        try:
+            discount = float(parts[2])
+            duration_hours = float(parts[3])
+        except (ValueError, IndexError):
+            await self.send(
+                '<b>⚠️ Invalid numbers.</b>\n\nUsage: <code>/flash_sale create "Title" 25 48</code>'
+            )
+            return
+        now = datetime.now()
+        end_time = now + timedelta(hours=duration_hours)
+
+        conn.execute(
+            "INSERT INTO flash_sales (title, discount_percent, start_time, end_time, active) VALUES (?, ?, ?, ?, 1)",
+            (
+                title,
+                discount,
+                now.strftime("%Y-%m-%d %H:%M:%S"),
+                end_time.strftime("%Y-%m-%d %H:%M:%S"),
+            ),
+        )
+        conn.commit()
+        await self.send(
+            "<b>⚡ FLASH SALE CREATED</b>\n\n"
+            f"<b>Title:</b> {title}\n"
+            f"<b>Discount:</b> {discount:.0f}%\n"
+            f"<b>Duration:</b> {duration_hours:.0f}h"
+        )
+
+    async def _cmd_flash_sale_end(self, conn, parts: list[str]) -> None:
+        """End an active flash sale."""
+        if len(parts) < 2:
+            await self.send("<b>⚠️ Usage:</b> <code>/flash_sale end 1</code>")
+            return
+
+        try:
+            sale_id = int(parts[1])
+        except ValueError:
+            await self.send("<b>⚠️ Invalid sale ID.</b> Usage: <code>/flash_sale end 1</code>")
+            return
+
+        conn.execute(
+            "UPDATE flash_sales SET active = 0, end_time = ? WHERE id = ?",
+            (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sale_id),
+        )
+        conn.commit()
+        await self.send(
+            f"<b>⚡ FLASH SALE ENDED</b>\n\nSale #{sale_id} is now inactive."
+        )
 
     async def _admin_send_status(self):
         """Send bot status snapshot."""
@@ -5083,7 +5058,7 @@ class TelegramBot:
         """Send last 15 log lines."""
         try:
             r = await self.http_client.get(
-                "https://www.pythonanywhere.com/api/v0/user/JHFGUF/files/path/var/log/jhfguf.pythonanywhere.com.server.log/?bytes=4000",
+                config.PA_LOG_BYTES_URL,
                 headers={"Authorization": f"Token {config.PA_API_TOKEN}"},
                 timeout=10,
             )
@@ -5173,7 +5148,7 @@ class TelegramBot:
         """Restart the PA web app."""
         try:
             r = await self.http_client.post(
-                "https://www.pythonanywhere.com/api/v0/user/JHFGUF/webapps/jhfguf.pythonanywhere.com/reload/",
+                config.PA_RELOAD_URL,
                 headers={"Authorization": f"Token {config.PA_API_TOKEN}"},
                 timeout=15,
             )

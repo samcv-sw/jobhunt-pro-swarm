@@ -51,7 +51,7 @@ jinja_env = jinja2.Environment(
 
 # Database
 _BASE_DIR = Path(__file__).parent
-db_path = str(_BASE_DIR.parent / "jobhunt_saas_v2.db")
+db_path = getattr(config, "DB_PATH", None) or str(_BASE_DIR.parent / "data" / "jobhunt_saas_v2.db")
 
 # Cache connection pool engine for PostgreSQL/Neon
 _pg_engine = None
@@ -109,8 +109,8 @@ def get_db(max_retries: int = 4):
             import core.pg_sqlite_shim as shim
             conn = shim.connect(db_path, check_same_thread=False, timeout=60)
             try:
-                conn.execute("PRAGMA journal_mode=WAL")
-                conn.execute("PRAGMA synchronous=NORMAL")
+                conn.execute("PRAGMA journal_mode=DELETE")
+                conn.execute("PRAGMA synchronous=FULL")
             except Exception:
                 pass
             return conn

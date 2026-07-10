@@ -9,13 +9,13 @@ en_dir = os.path.join(base_dir, "en")
 os.makedirs(ar_dir, exist_ok=True)
 os.makedirs(en_dir, exist_ok=True)
 
-print("Moving current files to ar/")
+logger.debug("Moving current files to ar/")
 for f in os.listdir(base_dir):
     src = os.path.join(base_dir, f)
     if os.path.isfile(src) and (f.endswith('.html') or f.endswith('.py')):
         shutil.move(src, os.path.join(ar_dir, f))
 
-print("Extracting English files from commit fff5024...")
+logger.debug("Extracting English files from commit fff5024...")
 # We use git ls-tree to list files in fff5024:web/templates
 cwd = r"C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\web"
 result = subprocess.run(["git", "ls-tree", "--name-only", "fff5024", "templates"], cwd=cwd, capture_output=True, text=True)
@@ -32,6 +32,6 @@ for f in files:
             with open(os.path.join(en_dir, filename), "wb") as out:
                 out.write(content)
         except Exception as e:
-            print(f"Failed to extract {filename}: {e}")
+            logger.debug(f"Failed to extract {filename}: {e}")
 
-print("Done setting up directories.")
+logger.debug("Done setting up directories.")

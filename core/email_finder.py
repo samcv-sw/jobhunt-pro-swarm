@@ -16,15 +16,15 @@ Usage (from campaign_runner.py):
 
 import asyncio
 import logging
+import os
 import random
 import re
 import socket
 import time
-from typing import Dict, List, Optional, Set, Tuple
 from urllib.parse import urlparse
 
-import httpx
 import dns.resolver
+import httpx
 from bs4 import BeautifulSoup
 
 try:
@@ -40,6 +40,12 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 # Constants
 # ═══════════════════════════════════════════════════════════════════════════════
+
+CLOUDFLARE_DOH_URL = os.getenv(
+    "CLOUDFLARE_DOH_URL", "https://cloudflare-dns.com/dns-query"
+)
+GOOGLE_DOH_URL = os.getenv("GOOGLE_DOH_URL", "https://dns.google/resolve")
+
 
 # Suffixes to strip from company names before domain guessing
 COMPANY_SUFFIXES = [
@@ -186,12 +192,12 @@ def _clean_company_name(company: str) -> str:
     return cleaned if cleaned else company.strip()
 
 
-def _extract_emails(text: str) -> List[str]:
+def _extract_emails(text: str) -> list[str]:
     """Extract valid email addresses from text, filtering noise."""
     if not text:
         return []
-    seen: Set[str] = set()
-    result: List[str] = []
+    seen: set[str] = set()
+    result: list[str] = []
     for match in _EMAIL_RE.finditer(text):
         email = match.group(0).lower().strip()
         # Skip noise
@@ -211,7 +217,7 @@ def _extract_emails(text: str) -> List[str]:
     return result
 
 
-def _extract_domain_from_url(url: str) -> Optional[str]:
+def _extract_domain_from_url(url: str) -> str | None:
     """Extract clean domain from a URL."""
     try:
         hostname = urlparse(url).hostname
@@ -251,7 +257,6 @@ def _is_likely_company_domain(domain: str) -> bool:
         "careerbuilder.com",
         "dice.com",
         "wikimedia.org",
-        "google.com",
         "apple.com",
         "microsoft.com",
         "amazon.com",
@@ -313,14 +318,14 @@ class EmailFinder:
         self._ddg_lock = asyncio.Lock()  # Serializes DDG requests
 
         # Caches
-        self._domain_cache: Dict[str, str] = {}  # company_lower → domain
-        self._email_cache: Dict[str, List[str]] = {}  # domain → [emails]
-        self._verified_cache: Dict[str, bool] = {}  # email → verified
-        self._mx_cache: Dict[str, Optional[str]] = {}  # domain → mx_host
-        self._catch_all_cache: Dict[str, bool] = {}  # domain → is_catch_all
+        self._domain_cache: dict[str, str] = {}  # company_lower → domain
+        self._email_cache: dict[str, list[str]] = {}  # domain → [emails]
+        self._verified_cache: dict[str, bool] = {}  # email → verified
+        self._mx_cache: dict[str, str | None] = {}  # domain → mx_host
+        self._catch_all_cache: dict[str, bool] = {}  # domain → is_catch_all
 
         # HTTP client (lazy init)
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     # ── Static helpers ─────────────────────────────────────────────────────
 
@@ -432,7 +437,7 @@ class EmailFinder:
             await asyncio.sleep(self._rate_limit_sec - elapsed)
         self._last_request = time.monotonic()
 
-    async def _call_ddg_safe(self, query: str, max_results: int = 10) -> List[Dict]:
+    async def _call_ddg_safe(self, query: str, max_results: int = 10) -> list[dict]:
         """Perform a DuckDuckGo search safely, avoiding rate limits and keeping the event loop responsive."""
         if DDGS is None:
             return []
@@ -461,11 +466,11 @@ class EmailFinder:
     # Bouncify-Style MX Verification (Lightweight, DNS-only)
     # ══════════════════════════════════════════════════════════════════════
 
-    async def _resolve_mx_dns_over_https(self, domain: str) -> Optional[str]:
+    async def _resolve_mx_dns_over_https(self, domain: str) -> str | None:
         """Query Cloudflare or Google DNS-over-HTTPS APIs for MX records."""
         # 1. Cloudflare DoH
         try:
-            url = f"https://cloudflare-dns.com/dns-query?name={domain}&type=MX"
+            url = f"{CLOUDFLARE_DOH_URL}?name={domain}&type=MX"
             headers = {"Accept": "application/dns-json"}
             await self._ensure_client()
             response = await self._client.get(url, headers=headers, timeout=5.0)
@@ -497,7 +502,7 @@ class EmailFinder:
 
         # 2. Google DoH
         try:
-            url = f"https://dns.google/resolve?name={domain}&type=MX"
+            url = f"{GOOGLE_DOH_URL}?name={domain}&type=MX"
             await self._ensure_client()
             response = await self._client.get(url, timeout=5.0)
             if response.status_code == 200:
@@ -603,8 +608,8 @@ class EmailFinder:
         return local in role_prefixes
 
     async def _bouncify_filter(
-        self, emails: List[str], domain: str, company: str
-    ) -> List[str]:
+        self, emails: list[str], domain: str, company: str
+    ) -> list[str]:
         """Filter email candidates through Bouncify-style checks:
         1. MX record must exist for the domain
         2. Domain must not be disposable
@@ -662,13 +667,156 @@ class EmailFinder:
     # MAIN API: find_emails()
     # ═══════════════════════════════════════════════════════════════════════════
 
+    async def _find_emails_fast(
+        self,
+        company: str,
+        domain: str,
+        result: dict,
+    ) -> dict:
+        """
+        Quickly discover emails using search and patterns without slow SMTP verification.
+
+        Args:
+            company: The lowercase company name.
+            domain: The resolved company domain.
+            result: The partial result dictionary.
+
+        Returns:
+            The populated result dictionary.
+        """
+        try:
+            dork_emails = await asyncio.wait_for(
+                self._google_dork_emails(company, domain), timeout=5.0
+            )
+            if dork_emails:
+                filtered = await self._bouncify_filter(dork_emails, domain, company)
+                if filtered:
+                    result["all_candidates"] = filtered
+                    result["emails"] = filtered[:5]
+                    result["source"] = "google_dork"
+                    result["method"] = "google_dork + bouncify (fast, MX-verified)"
+                    self._email_cache[domain] = result["emails"]
+                    return result
+                logger.info(
+                    f"[EmailFinder] All DDG emails filtered for {domain}, trying patterns"
+                )
+        except (TimeoutError, Exception):
+            pass
+
+        candidates = self._generate_email_candidates(domain)
+        filtered = await self._bouncify_filter(candidates, domain, company)
+        if filtered:
+            result["all_candidates"] = filtered
+            result["emails"] = filtered[:5] if len(filtered) >= 3 else filtered
+            result["source"] = "pattern_guess"
+            result["method"] = "pattern_matrix + bouncify (fast, MX-verified)"
+        else:
+            result["all_candidates"] = candidates
+            result["emails"] = candidates[:3]
+            result["source"] = "pattern_guess"
+            result["method"] = "pattern_matrix (fast, MX-failed)"
+        self._email_cache[domain] = result["emails"]
+        return result
+
+    async def _find_emails_slow(
+        self,
+        company: str,
+        domain: str,
+        result: dict,
+    ) -> dict:
+        """
+        Discover emails using Google search, scraping, pattern matching, and SMTP verification.
+
+        Args:
+            company: The lowercase company name.
+            domain: The resolved company domain.
+            result: The partial result dictionary.
+
+        Returns:
+            The populated result dictionary.
+        """
+        # Step 2: Google dorking for real emails on this domain
+        dork_emails = await self._google_dork_emails(company, domain)
+        if dork_emails:
+            dork_emails = await self._bouncify_filter(dork_emails, domain, company)
+        if dork_emails:
+            result["all_candidates"] = dork_emails
+            result["source"] = "google_dork"
+
+            verified = await self._verify_emails(dork_emails, domain)
+            if verified:
+                result["emails"] = verified
+                result["source"] = "google_dork"
+                result["verified"] = True
+                result["verified_count"] = len(verified)
+                result["method"] = "google_dork + bouncify -> smtp_verified"
+                self._email_cache[domain] = result["emails"]
+                return result
+
+            result["emails"] = dork_emails
+            result["method"] = "google_dork + bouncify (unverified)"
+            self._email_cache[domain] = result["emails"]
+            return result
+
+        # Step 3: Scrape company website
+        scraped = await self._scrape_website_emails(domain)
+        if scraped:
+            scraped = await self._bouncify_filter(scraped, domain, company)
+        if scraped:
+            result["all_candidates"] = scraped
+            result["source"] = "website_scrape"
+
+            verified = await self._verify_emails(scraped, domain)
+            if verified:
+                result["emails"] = verified
+                result["source"] = "website_scrape"
+                result["verified"] = True
+                result["verified_count"] = len(verified)
+                result["method"] = "website_scrape + bouncify -> smtp_verified"
+                self._email_cache[domain] = result["emails"]
+                return result
+
+            result["emails"] = scraped
+            result["method"] = "website_scrape + bouncify (unverified)"
+            self._email_cache[domain] = result["emails"]
+            return result
+
+        # Step 4: Generate pattern-based email candidates
+        candidates = self._generate_email_candidates(domain)
+        candidates = await self._bouncify_filter(candidates, domain, company)
+        result["all_candidates"] = candidates
+
+        # Step 5: SMTP verify the bouncify-filtered candidates
+        if candidates:
+            verified = await self._verify_emails(candidates, domain)
+            if verified:
+                result["emails"] = verified
+                result["source"] = "pattern_guess"
+                result["verified"] = True
+                result["verified_count"] = len(verified)
+                result["method"] = "pattern_matrix + bouncify -> smtp_verified"
+                self._email_cache[domain] = result["emails"]
+                return result
+
+        # Step 6: Fallback — return bouncify-filtered candidates
+        if candidates:
+            result["emails"] = candidates[:5] if len(candidates) >= 3 else candidates
+            result["method"] = "pattern_matrix + bouncify (unverified)"
+        else:
+            raw = self._generate_email_candidates(domain)
+            result["emails"] = raw[:3]
+            result["all_candidates"] = raw
+            result["method"] = "pattern_matrix (no MX, fallback)"
+        self._email_cache[domain] = result["emails"]
+        return result
+
     async def find_emails(
         self,
         company: str,
         title: str = "",
         location: str = "",
         fast: bool = False,
-    ) -> Dict:
+    ) -> dict:
         """
         Discover real HR emails for a company. ZERO COST.
 
@@ -676,21 +824,14 @@ class EmailFinder:
             company: Company name (e.g., "Murex", "Bank Audi SAL")
             title: Job title (used as context, optional)
             location: Job location (used as context, optional)
+            fast: If True, uses the fast lookup mode without SMTP verification.
 
         Returns:
-            {
-                "emails": ["hr@murex.com", "careers@murex.com"],
-                "domain": "murex.com",
-                "source": "smtp_verified",  # or "google_dork" / "website_scrape" / "pattern_guess"
-                "verified": True,
-                "all_candidates": [...],  # all email candidates considered
-                "verified_count": 2,
-                "method": "The strategy that produced the best result"
-            }
+            A dictionary containing emails, domain, source, verified status, etc.
         """
         await self._ensure_client()
         company.lower().strip()
-        result: Dict = {
+        result: dict = {
             "emails": [],
             "domain": "",
             "source": "pattern_guess",
@@ -709,137 +850,16 @@ class EmailFinder:
 
         result["domain"] = domain
 
-        # FAST MODE (PA): Quick DDG search + pattern guess (skip slow SMTP verification)
-        # v16.320: Bouncify-style MX filtering added even in fast mode
         if fast:
-            # Quick DDG email dorking (2s timeout)
-            try:
-                dork_emails = await asyncio.wait_for(
-                    self._google_dork_emails(company, domain), timeout=5.0
-                )
-                if dork_emails:
-                    # Bouncify filter: MX + disposable + placeholder check
-                    filtered = await self._bouncify_filter(dork_emails, domain, company)
-                    if filtered:
-                        result["all_candidates"] = filtered
-                        result["emails"] = filtered[:5]
-                        result["source"] = "google_dork"
-                        result["method"] = "google_dork + bouncify (fast, MX-verified)"
-                        self._email_cache[domain] = result["emails"]
-                        return result
-                    # All dorked emails filtered — fall through to pattern guess
-                    logger.info(
-                        f"[EmailFinder] All DDG emails filtered for {domain}, trying patterns"
-                    )
-            except (asyncio.TimeoutError, Exception):
-                pass  # Fall through to pattern guess
-
-            # Pattern guessing fallback (always works, instant)
-            candidates = self._generate_email_candidates(domain)
-            # Bouncify filter the pattern candidates too
-            filtered = await self._bouncify_filter(candidates, domain, company)
-            if filtered:
-                result["all_candidates"] = filtered
-                result["emails"] = filtered[:5] if len(filtered) >= 3 else filtered
-                result["source"] = "pattern_guess"
-                result["method"] = "pattern_matrix + bouncify (fast, MX-verified)"
-            else:
-                # All filtered — still return top 3 as last resort
-                result["all_candidates"] = candidates
-                result["emails"] = candidates[:3]
-                result["source"] = "pattern_guess"
-                result["method"] = "pattern_matrix (fast, MX-failed)"
-            self._email_cache[domain] = result["emails"]
-            return result
-
-        # Step 2: Google dorking for real emails on this domain
-        dork_emails = await self._google_dork_emails(company, domain)
-        if dork_emails:
-            # Bouncify pre-filter: MX + disposable + placeholder check (saves SMTP calls)
-            dork_emails = await self._bouncify_filter(dork_emails, domain, company)
-        if dork_emails:
-            result["all_candidates"] = dork_emails
-            result["source"] = "google_dork"
-
-            # Step 2b: Verify dorked emails via SMTP
-            if not fast:
-                verified = await self._verify_emails(dork_emails, domain)
-                if verified:
-                    result["emails"] = verified
-                    result["source"] = "google_dork"
-                    result["verified"] = True
-                    result["verified_count"] = len(verified)
-                    result["method"] = "google_dork + bouncify -> smtp_verified"
-                    self._email_cache[domain] = result["emails"]
-                    return result
-
-            # Dork found emails but none SMTP-verified — use bouncify-filtered ones
-            result["emails"] = dork_emails
-            result["method"] = "google_dork + bouncify (unverified)"
-            self._email_cache[domain] = result["emails"]
-            return result
-
-        # Step 3: Scrape company website
-        scraped = await self._scrape_website_emails(domain)
-        if scraped:
-            # Bouncify pre-filter
-            scraped = await self._bouncify_filter(scraped, domain, company)
-        if scraped:
-            result["all_candidates"] = scraped
-            result["source"] = "website_scrape"
-
-            if not fast:
-                verified = await self._verify_emails(scraped, domain)
-                if verified:
-                    result["emails"] = verified
-                    result["source"] = "website_scrape"
-                    result["verified"] = True
-                    result["verified_count"] = len(verified)
-                    result["method"] = "website_scrape + bouncify -> smtp_verified"
-                    self._email_cache[domain] = result["emails"]
-                    return result
-
-            result["emails"] = scraped
-            result["method"] = "website_scrape + bouncify (unverified)"
-            self._email_cache[domain] = result["emails"]
-            return result
-
-        # Step 4: Generate pattern-based email candidates
-        candidates = self._generate_email_candidates(domain)
-        # Bouncify pre-filter the pattern candidates
-        candidates = await self._bouncify_filter(candidates, domain, company)
-        result["all_candidates"] = candidates
-
-        # Step 5: SMTP verify the bouncify-filtered candidates
-        if not fast and candidates:
-            verified = await self._verify_emails(candidates, domain)
-            if verified:
-                result["emails"] = verified
-                result["source"] = "pattern_guess"
-                result["verified"] = True
-                result["verified_count"] = len(verified)
-                result["method"] = "pattern_matrix + bouncify -> smtp_verified"
-                self._email_cache[domain] = result["emails"]
-                return result
-
-        # Step 6: Fallback — return bouncify-filtered candidates
-        if candidates:
-            result["emails"] = candidates[:5] if len(candidates) >= 3 else candidates
-            result["method"] = "pattern_matrix + bouncify (unverified)"
+            return await self._find_emails_fast(company, domain, result)
         else:
-            # Last resort: raw pattern guess (domain has no MX, can't verify)
-            raw = self._generate_email_candidates(domain)
-            result["emails"] = raw[:3]
-            result["all_candidates"] = raw
-            result["method"] = "pattern_matrix (no MX, fallback)"
-        self._email_cache[domain] = result["emails"]
-        return result
+            return await self._find_emails_slow(company, domain, result)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Step 1: Smart Domain Resolution
     # ═══════════════════════════════════════════════════════════════════════════
 
-    async def _resolve_domain(self, company: str, fast: bool = False) -> Optional[str]:
+    async def _resolve_domain(self, company: str, fast: bool = False) -> str | None:
         """
         Resolve company name → real domain.
 
@@ -873,7 +893,7 @@ class EmailFinder:
 
         return None
 
-    async def _search_domain_ddg(self, company: str) -> Optional[str]:
+    async def _search_domain_ddg(self, company: str) -> str | None:
         """Use DuckDuckGo to find the company's official website."""
         query = f"{company} official website"
         results = await self._call_ddg_safe(query, max_results=5)
@@ -892,7 +912,7 @@ class EmailFinder:
 
         return None
 
-    def _guess_domain(self, company: str) -> Optional[str]:
+    def _guess_domain(self, company: str) -> str | None:
         """Guess domain from company name using common patterns."""
         cleaned = _clean_company_name(company)
         # Normalize: lowercase, remove whitespace, keep alphanumeric + hyphens
@@ -918,7 +938,7 @@ class EmailFinder:
     # Step 2: Google Dorking via DDG
     # ═══════════════════════════════════════════════════════════════════════════
 
-    async def _google_dork_emails(self, company: str, domain: str) -> List[str]:
+    async def _google_dork_emails(self, company: str, domain: str) -> list[str]:
         """
         Search for emails on the domain using DDG.
 
@@ -926,7 +946,7 @@ class EmailFinder:
           - site:{domain} email OR "@{domain}"
           - "{company}" "email" "hr" OR "recruitment" OR "careers"
         """
-        found_emails: Set[str] = set()
+        found_emails: set[str] = set()
 
         # Dork 1: site:{domain} email
         query1 = f'site:{domain} email OR "@{domain}" OR ceo OR founder OR engineering OR contact'
@@ -986,7 +1006,7 @@ class EmailFinder:
     # Step 3: Company Website Scraping
     # ═══════════════════════════════════════════════════════════════════════════
 
-    async def _scrape_website_emails(self, domain: str) -> List[str]:
+    async def _scrape_website_emails(self, domain: str) -> list[str]:
         """
         Scrape company website pages for email addresses.
 
@@ -996,7 +1016,7 @@ class EmailFinder:
           - https://{domain}/about
           - https://{domain}/ (homepage)
         """
-        all_emails: Set[str] = set()
+        all_emails: set[str] = set()
         pages = [
             f"https://{domain}",
             f"https://{domain}/contact",
@@ -1009,7 +1029,7 @@ class EmailFinder:
         ]
 
         # Deduplicate: try both www and bare, prefer https first then http
-        seen_urls: Set[str] = set()
+        seen_urls: set[str] = set()
         for page_url in pages:
             base = re.sub(r"^https?://", "", page_url)
             if base in seen_urls:
@@ -1055,7 +1075,7 @@ class EmailFinder:
             )
         return result_list
 
-    async def _fetch_page_emails(self, url: str, domain: str) -> List[str]:
+    async def _fetch_page_emails(self, url: str, domain: str) -> list[str]:
         """Fetch a single page and extract domain-matching emails."""
         try:
             resp = await self._client.get(
@@ -1102,7 +1122,7 @@ class EmailFinder:
     # Step 4: Generate Pattern-Based Email Candidates
     # ═══════════════════════════════════════════════════════════════════════════
 
-    def _generate_email_candidates(self, domain: str) -> List[str]:
+    def _generate_email_candidates(self, domain: str) -> list[str]:
         """Generate all possible HR emails for a given domain."""
         return [f"{prefix}@{domain}" for prefix in EMAIL_PREFIXES_PRIORITY]
 
@@ -1114,7 +1134,7 @@ class EmailFinder:
     # checks if recipient accepted — NEVER sends actual email.
     # ═══════════════════════════════════════════════════════════════════════════
 
-    async def _verify_emails(self, emails: List[str], domain: str) -> List[str]:
+    async def _verify_emails(self, emails: list[str], domain: str) -> list[str]:
         """
         SMTP verify a batch of email candidates. Returns only verified ones.
 
@@ -1162,7 +1182,7 @@ class EmailFinder:
         if self._catch_all_cache.get(domain, False):
             return []
 
-        verified: List[str] = []
+        verified: list[str] = []
 
         for email in emails[:12]:  # Cap at 12 per batch
             # Check cache
@@ -1187,7 +1207,7 @@ class EmailFinder:
 
         return verified
 
-    async def _get_mx_host(self, domain: str) -> Optional[str]:
+    async def _get_mx_host(self, domain: str) -> str | None:
         """Get the MX server for a domain (cached)."""
         if domain in self._mx_cache:
             return self._mx_cache[domain]
@@ -1273,7 +1293,7 @@ class EmailFinder:
                     _send_cmd(sock, "QUIT")
                     return False
 
-            except (socket.timeout, ConnectionRefusedError, OSError) as e:
+            except (TimeoutError, ConnectionRefusedError, OSError) as e:
                 logger.debug(f"[EmailFinder] SMTP connection to {mx_host} failed: {e}")
                 return False
             finally:
@@ -1291,9 +1311,9 @@ class EmailFinder:
 
     async def find_emails_batch(
         self,
-        companies: List[str],
+        companies: list[str],
         fast: bool = False,
-    ) -> Dict[str, Dict]:
+    ) -> dict[str, dict]:
         """
         Discover emails for multiple companies concurrently.
 
@@ -1306,7 +1326,7 @@ class EmailFinder:
         tasks = [self.find_emails(company, fast=fast) for company in companies]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        output: Dict[str, Dict] = {}
+        output: dict[str, dict] = {}
         for company, result in zip(companies, results):
             if isinstance(result, Exception):
                 output[company] = {
@@ -1325,7 +1345,7 @@ class EmailFinder:
     # Enrich Job Dicts (integrate with existing job pipeline)
     # ═══════════════════════════════════════════════════════════════════════════
 
-    async def enrich_jobs(self, jobs: List[Dict], fast: bool = False) -> List[Dict]:
+    async def enrich_jobs(self, jobs: list[dict], fast: bool = False) -> list[dict]:
         """
         Take a list of job dicts (with 'company' field) and enrich each with
         real discovered HR emails, replacing placeholder emails.
@@ -1380,7 +1400,7 @@ class EmailFinder:
         self._verified_cache.clear()
         self._mx_cache.clear()
 
-    def get_cache_stats(self) -> Dict:
+    def get_cache_stats(self) -> dict:
         """Return cache statistics."""
         return {
             "domains_resolved": len(self._domain_cache),
@@ -1423,7 +1443,7 @@ def _read_multiline(sock: socket.socket, bufsize: int = 4096) -> str:
     return all_data
 
 
-def _send_cmd(sock: socket.socket, cmd: str) -> Tuple[str, str]:
+def _send_cmd(sock: socket.socket, cmd: str) -> tuple[str, str]:
     """Send SMTP command and read response line. Returns (code, message)."""
     sock.sendall((cmd + "\r\n").encode("utf-8"))
     response = _recv_line(sock)
@@ -1443,44 +1463,44 @@ async def _quick_test():
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
 
-    print("=" * 60)
-    print("EmailFinder v2 — Quick Test")
-    print("=" * 60)
+    logger.debug("=" * 60)
+    logger.debug("EmailFinder v2 — Quick Test")
+    logger.debug("=" * 60)
 
     async with EmailFinder(rate_limit_sec=1.5) as finder:
         # Test 1: Find emails for a company
-        print("\n--- Test 1: find_emails('Murex', 'HR Coordinator', 'Beirut') ---")
+        logger.debug("\n--- Test 1: find_emails('Murex', 'HR Coordinator', 'Beirut') ---")
         result = await finder.find_emails("Murex", "HR Coordinator", "Beirut")
         for k, v in result.items():
             if k != "all_candidates":
-                print(f"  {k}: {v}")
+                logger.debug(f"  {k}: {v}")
 
         # Test 2: Find emails for another company
-        print("\n--- Test 2: find_emails('Bank Audi', '', '') ---")
+        logger.debug("\n--- Test 2: find_emails('Bank Audi', '', '') ---")
         result = await finder.find_emails("Bank Audi")
-        print(f"  domain: {result['domain']}")
-        print(f"  emails: {result['emails']}")
-        print(f"  verified: {result['verified']}")
-        print(f"  method: {result['method']}")
+        logger.debug(f"  domain: {result['domain']}")
+        logger.debug(f"  emails: {result['emails']}")
+        logger.debug(f"  verified: {result['verified']}")
+        logger.debug(f"  method: {result['method']}")
 
         # Test 3: Batch
-        print("\n--- Test 3: find_emails_batch ---")
+        logger.debug("\n--- Test 3: find_emails_batch ---")
         batch = await finder.find_emails_batch(
             ["Murex", "CMC Offshore", "Azadea Group"]
         )
         for company, res in batch.items():
-            print(
+            logger.debug(
                 f"  {company}: domain={res['domain']}, emails={res['emails'][:3]}, "
                 f"verified={res['verified']}"
             )
 
         # Test 4: Cache stats
-        print("\n--- Cache Stats ---")
+        logger.debug("\n--- Cache Stats ---")
         stats = finder.get_cache_stats()
         for k, v in stats.items():
-            print(f"  {k}: {v}")
+            logger.debug(f"  {k}: {v}")
 
-    print("\n✓ EmailFinder test complete")
+    logger.debug("\n✓ EmailFinder test complete")
 
 
 if __name__ == "__main__":

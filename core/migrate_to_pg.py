@@ -10,19 +10,19 @@ def migrate():
         os.path.join(os.path.dirname(__file__), "..", "pa_db.sqlite")
     )
     if not os.path.exists(sqlite_db_path):
-        print(f"SQLite DB not found at {sqlite_db_path}")
+        logger.debug(f"SQLite DB not found at {sqlite_db_path}")
         return
 
-    print("Connecting to SQLite...")
+    logger.debug("Connecting to SQLite...")
     sqlite_conn = sqlite3.connect(sqlite_db_path)
     sqlite_conn.row_factory = sqlite3.Row
     sqlite_cur = sqlite_conn.cursor()
 
-    print("Connecting to PostgreSQL...")
+    logger.debug("Connecting to PostgreSQL...")
     try:
         pg_conn = PgConnectionWrapper()
     except Exception as e:
-        print(f"Failed to connect to PG: {e}")
+        logger.debug(f"Failed to connect to PG: {e}")
         return
 
     sqlite_cur.execute(
@@ -36,25 +36,25 @@ def migrate():
         if not sql:
             continue
 
-        print(f"\nCreating table schema: {name}")
+        logger.debug(f"\nCreating table schema: {name}")
         pg_sql = convert_sql(sql)
         try:
             pg_conn.execute(f"DROP TABLE IF EXISTS {name} CASCADE")
             pg_conn.execute(pg_sql)
             pg_conn.commit()
         except Exception as e:
-            print(f"Notice (table {name} might exist): {e}")
+            logger.debug(f"Notice (table {name} might exist): {e}")
             pg_conn.rollback()
 
     for table in tables:
         name = table["name"]
-        print(f"Migrating data for table: {name}...")
+        logger.debug(f"Migrating data for table: {name}...")
 
         sqlite_cur.execute(f"SELECT * FROM {name}")
         rows = sqlite_cur.fetchall()
 
         if not rows:
-            print(f"  No data in {name}")
+            logger.debug(f"  No data in {name}")
             continue
 
         columns = list(rows[0].keys())
@@ -83,12 +83,12 @@ def migrate():
 
             cur = pg_conn.conn.cursor()
             psycopg2.extras.execute_values(cur, insert_sql, values_list)
-            print(f"  Inserted {len(values_list)} new rows into {name}")
+            logger.debug(f"  Inserted {len(values_list)} new rows into {name}")
         except Exception as e:
-            print(f"  Failed bulk insert for {name}: {e}")
+            logger.debug(f"  Failed bulk insert for {name}: {e}")
             pg_conn.rollback()
 
-    print("\nMigration Complete!")
+    logger.debug("\nMigration Complete!")
 
 
 if __name__ == "__main__":

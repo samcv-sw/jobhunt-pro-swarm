@@ -15,19 +15,19 @@ if sys.platform != "win32":
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     except ImportError:
         pass
-import logging
-import sys
-import os
 import json
-import time
+import logging
+import os
 import random
-from typing import Optional, Dict, Any, List
+import sys
+import time
 from datetime import datetime
-
-from core.health_server import run_in_background
-import config
-from core.agent_pool import AgentPool, AgentType, AGENT_DISTRIBUTION
 from enum import Enum
+from typing import Any
+
+import config
+from core.agent_pool import AGENT_DISTRIBUTION, AgentPool, AgentType
+from core.health_server import run_in_background
 
 
 class TaskPriority(Enum):
@@ -63,7 +63,7 @@ class JobDistributor:
         return task_id
 
     async def distribute(
-        self, task: Dict[str, Any], priority: TaskPriority = TaskPriority.MEDIUM
+        self, task: dict[str, Any], priority: TaskPriority = TaskPriority.MEDIUM
     ) -> bool:
         """Distribute a task to the agent pool."""
         agent_type = task.get("agent_type", AgentType.DATA_COLLECTOR)
@@ -72,8 +72,8 @@ class JobDistributor:
         return await self.agent_pool.dispatch(agent_type, task_func, args)
 
     async def distribute_batch(
-        self, tasks: List[Dict[str, Any]], priority: TaskPriority = TaskPriority.MEDIUM
-    ) -> List[bool]:
+        self, tasks: list[dict[str, Any]], priority: TaskPriority = TaskPriority.MEDIUM
+    ) -> list[bool]:
         """Distribute multiple tasks."""
         results = []
         for task in tasks:
@@ -85,7 +85,7 @@ class JobDistributor:
         """Stub: scheduler runs via agent_pool's health monitor."""
         self.logger.info("JobDistributor scheduler started (delegates to AgentPool)")
 
-    async def get_distributor_stats(self) -> Dict[str, Any]:
+    async def get_distributor_stats(self) -> dict[str, Any]:
         """Get distributor statistics."""
         return {
             "pending": self._pending_count,
@@ -97,7 +97,7 @@ class JobDistributor:
         """Stop the distributor."""
         self.logger.info("JobDistributor stopped")
 
-    def stats(self) -> Dict[str, Any]:
+    def stats(self) -> dict[str, Any]:
         """Get distributor statistics."""
         return {
             "total": 200,
@@ -107,8 +107,8 @@ class JobDistributor:
         }
 
 
-from core.llm_provider_pool import LLMProviderPool, LLMProvider
 from core.email_rotator_pool import EmailRotatorPool
+from core.llm_provider_pool import LLMProvider, LLMProviderPool
 
 logger = logging.getLogger(__name__)
 
@@ -124,13 +124,13 @@ class SwarmMaster:
     """
 
     def __init__(self):
-        self.agent_pool: Optional[AgentPool] = None
-        self.distributor: Optional[JobDistributor] = None
-        self.llm_pool: Optional[LLMProviderPool] = None
-        self.email_pool: Optional[EmailRotatorPool] = None
+        self.agent_pool: AgentPool | None = None
+        self.distributor: JobDistributor | None = None
+        self.llm_pool: LLMProviderPool | None = None
+        self.email_pool: EmailRotatorPool | None = None
         self._running = False
         self._paused = False
-        self._start_time: Optional[float] = None
+        self._start_time: float | None = None
         self._cycle_count = 0
         self._active_jobs_count = 0
         # Reference to existing modules (injected at runtime)
@@ -200,7 +200,7 @@ class SwarmMaster:
                 # 2. Read control flags (Pause/Resume from Telegram or Webhooks)
                 ctrl_path = "data/system_control.json"
                 if os.path.exists(ctrl_path):
-                    with open(ctrl_path, "r", encoding="utf-8") as f:
+                    with open(ctrl_path, encoding="utf-8") as f:
                         ctrl = json.load(f)
                         if ctrl.get("status") == "paused":
                             self._paused = True
@@ -210,7 +210,7 @@ class SwarmMaster:
                 logger.debug(f"State sync non-fatal error: {e}")
             await asyncio.sleep(5)
 
-    async def full_job_cycle(self) -> Dict[str, Any]:
+    async def full_job_cycle(self) -> dict[str, Any]:
         """
         Run one complete job cycle:
         1. Search jobs (50 scraper agents)
@@ -839,7 +839,7 @@ class SwarmMaster:
         await asyncio.sleep(1)
         return len(task_ids)
 
-    async def dispatch_job(self, job: Dict[str, Any]) -> bool:
+    async def dispatch_job(self, job: dict[str, Any]) -> bool:
         """
         Dispatch a single job to the appropriate agent type based on job kind.
         Returns True if successfully dispatched.
@@ -884,7 +884,7 @@ class SwarmMaster:
             priority=TaskPriority.MEDIUM,
         )
 
-    async def collect_results(self) -> Dict[str, Any]:
+    async def collect_results(self) -> dict[str, Any]:
         """
         Gather completed work results from all agent types.
         Returns a summary of pending/completed counts per type.
@@ -914,7 +914,7 @@ class SwarmMaster:
 
         return results
 
-    async def get_swarm_status(self) -> Dict[str, Any]:
+    async def get_swarm_status(self) -> dict[str, Any]:
         """Get comprehensive swarm status."""
         pool_stats = await self.agent_pool.get_pool_stats() if self.agent_pool else {}
         distributor_stats = (

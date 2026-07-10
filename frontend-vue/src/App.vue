@@ -6,8 +6,8 @@
 
 <style>
 body {
-  margin: 0;
-  font-family: 'Inter', 'Roboto', sans-serif;
+  margin-block: 0;
+  margin-inline: 0;
   background-color: #0d1117;
   color: #c9d1d9;
 }

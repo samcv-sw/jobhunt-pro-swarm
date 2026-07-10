@@ -1,37 +1,55 @@
---- original
-
-+++ cleaned
-
-@@ -1,13 +1,3 @@
-
--<!DOCTYPE html>
--<html lang="en">
--<head>
--  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
--  <meta charset="UTF-8">
--  <meta name="viewport" content="width=device-width, initial-scale=1.0">
--  <meta name="description" content="Simple, transparent pricing for AI job applications.">
--  <meta name="robots" content="index,follow">
--  <title>Pricing — JobHunt Pro</title>
--  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
- <!-- Pricing v3 — Enhanced with billing toggle, feature detail expansion, shared design tokens -->
- <link rel="stylesheet" href="/static/css/dashboard-v4.css">
- <style>
-@@ -380,8 +370,7 @@
-
-   .bulk-calc-v3 { padding: 24px 18px; }
- }
- </style>
--</head>
--<body style="background:var(--bg-main);min-height:100vh;font-family:var(--font-sans);color:var(--text-main);margin:0;">
-+
- {% include '_public_nav.html' %}
+--- 
++++ 
+@@ -12,7 +12,6 @@
+ import os
+ import logging
+ import threading
+-from typing import Optional, Any, Dict, List, Tuple
  
- <div class="pricing-hero-v3">
-@@ -750,5 +739,3 @@
-
-   updateBulkCalcV3(1);
- });
- </script>
--</body>
--</html>
+ _TG_BOT_LOCK = threading.Lock()
+ _TG_BOT_STARTED = False
+@@ -21,9 +20,9 @@
+     try:
+         from core import pg_sqlite_shim as sqlite3
+     except ImportError:
+-        import sqlite3
++        import core.pg_sqlite_shim as sqlite3
+ else:
+-    import sqlite3
++    import core.pg_sqlite_shim as sqlite3
+ import time
+ 
+ from collections import defaultdict
+@@ -393,7 +392,7 @@
+ # ── Database helper ─────────────────────────────────────────
+ 
+ 
+-def _get_db() -> sqlite3.Connection:
++def _get_db():
+     """Get SQLite connection to the main database."""
+ 
+     db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+@@ -735,7 +734,7 @@
+         )
+         logger.info(f"[BOT] TelegramNotifier initialized — db={self.db_path}")
+ 
+-    async def _send_notification(self, message: str) -> None:
++    async def _send_notification(self, message: str):
+         """Send a proactive notification to the registered Telegram chat."""
+         if not self.notification_chat_id:
+             return
+@@ -752,13 +751,7 @@
+         except Exception as e:
+             logger.warning(f"[Notifier] Telegram send failed: {e}")
+ 
+-    async def send(
+-        self,
+-        message: str,
+-        parse_mode: str = "HTML",
+-        reply_markup: Optional[Any] = None,
+-        retries: int = 2,
+-    ) -> None:
++    async def send(self, message, parse_mode="HTML", reply_markup=None, retries=2):
+         """Send message to Telegram with truncation, retry, and proper error handling."""
+         if not self.enabled:
+             return

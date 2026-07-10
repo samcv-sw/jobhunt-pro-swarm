@@ -1,28 +1,47 @@
 import logging
-import core.pg_sqlite_shim as sqlite3
-from typing import Any, Dict, Optional
+from typing import Any
+
 import config
+import core.pg_sqlite_shim as sqlite3
 
 logger = logging.getLogger(__name__)
 
 
 class EmailTracker:
-    def __init__(self, db_path: Optional[str] = None) -> None:
+    def __init__(self, db_path: str | None = None) -> None:
+        """Initialise the EmailTracker.
+
+        Args:
+            db_path: Optional path to the SQLite database file.
+                     Falls back to config.DB_PATH or the default DB name.
+        """
         self.db_path = (
             db_path or getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
         )
 
     def generate_tracking_pixel(self, tracking_id: str) -> str:
+        """Generate a 1x1 transparent tracking pixel img tag.
+
+        Returns an empty string if tracking_id is falsy.
+        """
         if not tracking_id:
             return ""
         return f'<img src="https://track.sam-salameh.com/pixel/{tracking_id}" width="1" height="1" style="display:none" />'
 
     def generate_tracking_link(self, tracking_id: str, original_url: str) -> str:
+        """Wrap a URL with a click-tracking redirect.
+
+        Returns the original URL unchanged if either argument is falsy.
+        """
         if not tracking_id or not original_url:
             return original_url or ""
         return f"https://track.sam-salameh.com/click/{tracking_id}?url={original_url}"
 
     def record_open(self, tracking_id: str) -> bool:
+        """Mark an email as opened in the database.
+
+        Returns True on success, False if tracking_id is empty or DB fails.
+        """
         if not tracking_id:
             return False
         try:
@@ -39,6 +58,10 @@ class EmailTracker:
             return False
 
     def record_click(self, tracking_id: str) -> bool:
+        """Mark a tracked link as clicked in the database.
+
+        Returns True on success, False if tracking_id is empty or DB fails.
+        """
         if not tracking_id:
             return False
         try:
@@ -55,6 +78,11 @@ class EmailTracker:
             return False
 
     def record_response(self, tracking_id: str, response_type: str) -> bool:
+        """Record an employer response (positive / negative / interview) for a tracked application.
+
+        Updates both the `applications` and `jobs` tables atomically.
+        Returns True on success, False if tracking_id is empty or DB fails.
+        """
         if not tracking_id:
             return False
         try:
@@ -79,9 +107,9 @@ class EmailTracker:
             logger.warning(f"Record response failed: {e}")
             return False
 
-    def get_tracking_stats(self) -> Dict[str, Any]:
+    def get_tracking_stats(self) -> dict[str, Any]:
         """Get email tracking statistics. Returns empty stats dict on DB error."""
-        empty: Dict[str, Any] = {
+        empty: dict[str, Any] = {
             "total_tracked": 0,
             "opened": 0,
             "clicked": 0,

@@ -22,7 +22,11 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from collections import defaultdict
+import logging
 from typing import List, Tuple, Dict, Optional
+
+logging.basicConfig(level=logging.DEBUG, format="%(message)s", stream=sys.stdout)
+logger = logging.getLogger("auto_improve")
 
 PROJECT_ROOT = Path(__file__).parent.parent
 BRAIN_DIRS = [
@@ -30,7 +34,7 @@ BRAIN_DIRS = [
     Path.home() / ".gemini" / "antigravity-ide" / "brain",
 ]
 STATE_FILE = PROJECT_ROOT / ".auto_improve_state.json"
-IMPROVE_ME_FILE = PROJECT_ROOT / "IMPROVE_ME.md"
+IMPROVE_ME_FILE = PROJECT_ROOT / "docs" / "IMPROVE_ME.md"
 
 # ── Impact Levels ──────────────────────────────────────────────────────────────
 
@@ -73,6 +77,8 @@ EXCLUDE_PATTERNS = [
     r"proxy_test_results/",
     r"test_env",
     r"_backups/",
+    r"archive/",
+    r"templates_backup/",
     r"\.db$",
     r"\.sqlite3?$",
     r"\.pyc$",
@@ -82,10 +88,17 @@ EXCLUDE_PATTERNS = [
     r"\.lnk$",
 ]
 
-# ── Improvement opportunity detectors ─────────────────────────────────────────
+def is_production_runtime_code(rel_path: str) -> bool:
+    """Check if the file is production runtime code (versus tests, models, schemas, or one-off scripts)."""
+    path_lower = rel_path.lower().replace("\\", "/")
+    if "test" in path_lower or "scripts/" in path_lower or "models.py" in path_lower:
+        return False
+    return True
 
 def detect_missing_error_handling(content: str, rel_path: str) -> Tuple[int, List[str]]:
     """Detect files missing try/except blocks."""
+    if not is_production_runtime_code(rel_path):
+        return 0, []
     score = 0
     reasons = []
     if content.count("try:") < 2 and len(content) > 5000:
@@ -98,6 +111,8 @@ def detect_missing_error_handling(content: str, rel_path: str) -> Tuple[int, Lis
 
 def detect_missing_logging(content: str, rel_path: str) -> Tuple[int, List[str]]:
     """Detect files missing logging setup."""
+    if not is_production_runtime_code(rel_path):
+        return 0, []
     score = 0
     reasons = []
     if "logging" not in content and len(content) > 3000:
@@ -184,8 +199,14 @@ def detect_complexity_issues(content: str, rel_path: str) -> Tuple[int, List[str
                 current_func = re.search(r'def (\w+)', line)
                 current_func = current_func.group(1) if current_func else "unknown"
                 func_lines = 0
-            elif current_func and line.strip() and not line.strip().startswith("#"):
-                func_lines += 1
+            elif current_func:
+                if line.strip() and not line.strip().startswith("#"):
+                    # Column 0 lines mean top-level scope returned, so function ended
+                    if line and not line[0].isspace() and not line.startswith('@'):
+                        current_func = None
+                        func_lines = 0
+                        continue
+                    func_lines += 1
         if current_func and func_lines > 80:
             score += 1
             reasons.append(f"Long function '{current_func}' ({func_lines} lines)")
@@ -238,28 +259,28 @@ def get_file_hash(path):
     try:
         with open(path, "rb") as f:
             return hashlib.md5(f.read()).hexdigest()
-    except:
+    except Exception as e:
         return ""
 
 def get_file_size(path):
     """Get file size in KB."""
     try:
         return os.path.getsize(path) / 1024
-    except:
+    except Exception as e:
         return 0
 
 def get_file_mtime(path):
     """Get file modification time as ISO string."""
     try:
         return datetime.fromtimestamp(os.path.getmtime(path)).isoformat()
-    except:
+    except Exception as e:
         return "unknown"
 
 def get_file_mtime_ts(path):
     """Get file modification time as timestamp."""
     try:
         return os.path.getmtime(path)
-    except:
+    except Exception as e:
         return 0
 
 def read_file_safe(path, max_lines=200):
@@ -268,7 +289,7 @@ def read_file_safe(path, max_lines=200):
         with open(path, "r", encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
         return "".join(lines[:max_lines]), len(lines)
-    except:
+    except Exception as e:
         return "", 0
 
 def read_entire_file_safe(path):
@@ -276,13 +297,14 @@ def read_entire_file_safe(path):
     try:
         with open(path, "r", encoding="utf-8", errors="ignore") as f:
             return f.read()
-    except:
+    except Exception as e:
         return ""
 
 def should_exclude(rel_path):
     """Check if a path should be excluded from analysis."""
+    normalized_path = str(rel_path).replace("\\", "/")
     for pattern in EXCLUDE_PATTERNS:
-        if re.search(pattern, str(rel_path)):
+        if re.search(pattern, normalized_path):
             return True
     return False
 
@@ -348,7 +370,7 @@ def get_transcript_summary(path):
             "hash": hashlib.md5(content.encode()).hexdigest()[:12],
             "path": str(path),
         }
-    except:
+    except Exception as e:
         return {"size_kb": 0, "total_lines": 0, "user_requests": [], "hash": "", "path": ""}
 
 def analyze_file_for_improvements(file_info):
@@ -422,7 +444,7 @@ def load_state():
         try:
             with open(STATE_FILE) as f:
                 return json.load(f)
-        except:
+        except Exception as e:
             pass
     return {
         "iteration": 0,
@@ -444,7 +466,9 @@ def save_state(state):
 def generate_improvement_request(file_score, state):
     """Generate a detailed improvement request file for a specific file."""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    req_file = PROJECT_ROOT / f"_improve_request_{timestamp}.md"
+    sanitized_name = re.sub(r'[^a-zA-Z0-9_]', '_', file_score["file"])
+    req_file = PROJECT_ROOT / ".agents" / "improve_requests" / f"_improve_request_{timestamp}_{sanitized_name}.md"
+    os.makedirs(req_file.parent, exist_ok=True)
     
     # Read current file content
     full_path = PROJECT_ROOT / file_score["file"]
@@ -682,49 +706,49 @@ def build_master_context(all_files, opportunities, state, transcripts):
 
 
 def main():
-    print("=" * 70)
-    print("  JobHunt Pro — Auto Improvement Loop v3.0 (ADVANCED)")
-    print("  Phase 7, Task 7.1 — Full Implementation")
-    print("=" * 70)
-    print()
+    logger.debug("=" * 70)
+    logger.debug("  JobHunt Pro — Auto Improvement Loop v3.0 (ADVANCED)")
+    logger.debug("  Phase 7, Task 7.1 — Full Implementation")
+    logger.debug("=" * 70)
+    logger.debug("")
     
     start_time = time.time()
     
     # ── Step 1: Load state ──
-    print("[1/7] Loading improvement state...")
+    logger.debug("[1/7] Loading improvement state...")
     state = load_state()
     state["iteration"] += 1
-    print(f"  -> Iteration #{state['iteration']}")
-    print(f"  -> Total improvements so far: {state['total_improvements']}")
+    logger.debug(f"  -> Iteration #{state['iteration']}")
+    logger.debug(f"  -> Total improvements so far: {state['total_improvements']}")
     
     # ── Step 2: Scan ALL project files ──
-    print("\n[2/7] Scanning ALL project files...")
+    logger.debug("\n[2/7] Scanning ALL project files...")
     all_files = get_all_project_files()
-    print(f"  -> Found {len(all_files)} analyzable files")
+    logger.debug(f"  -> Found {len(all_files)} analyzable files")
     
     # Count by category
     by_category = defaultdict(int)
     for f in all_files:
         by_category[f["category"]] += 1
     for cat, count in sorted(by_category.items(), key=lambda x: -x[1]):
-        print(f"     {cat.replace('_', ' ').title()}: {count}")
+        logger.debug(f"     {cat.replace('_', ' ').title()}: {count}")
     
     state["files_analyzed_count"] = len(all_files)
     
     # ── Step 3: Analyze files for improvements ──
-    print("\n[3/7] Analyzing files for improvement opportunities...")
+    logger.debug("\n[3/7] Analyzing files for improvement opportunities...")
     all_opportunities = []
     for f in all_files:
         if f["ext"] == ".py":  # Only analyze Python files deeply
             opps = analyze_file_for_improvements(f)
             all_opportunities.extend(opps)
     
-    print(f"  -> Found {len(all_opportunities)} raw improvement signals")
+    logger.debug(f"  -> Found {len(all_opportunities)} raw improvement signals")
     
     # ── Step 4: Prioritize opportunities ──
-    print("\n[4/7] Prioritizing improvement opportunities...")
+    logger.debug("\n[4/7] Prioritizing improvement opportunities...")
     prioritized = prioritize_opportunities(all_opportunities)
-    print(f"  -> {len(prioritized)} files with improvement potential")
+    logger.debug(f"  -> {len(prioritized)} files with improvement potential")
     
     # Count by impact
     by_impact = defaultdict(int)
@@ -733,24 +757,24 @@ def main():
     for impact in ["critical", "high", "medium", "low"]:
         if by_impact[impact] > 0:
             info = IMPACT_LEVELS[impact]
-            print(f"     {info['label']}: {by_impact[impact]} files")
+            logger.debug(f"     {info['label']}: {by_impact[impact]} files")
     
     state["opportunities_found"] = len(prioritized)
     
     # ── Step 5: Generate improvement requests for top priorities ──
-    print("\n[5/7] Generating improvement requests...")
+    logger.debug("\n[5/7] Generating improvement requests...")
     requests_generated = 0
     for opp in prioritized[:5]:  # Top 5 priorities
         if opp["impact"] in ["critical", "high"]:
             req_name = generate_improvement_request(opp, state)
-            print(f"  -> Created: {req_name} ({opp['impact']})")
+            logger.debug(f"  -> Created: {req_name} ({opp['impact']})")
             requests_generated += 1
     
     if requests_generated == 0:
-        print("  -> No high-priority improvement requests needed")
+        logger.debug("  -> No high-priority improvement requests needed")
     
     # ── Step 6: Find and analyze chat transcripts ──
-    print("\n[6/7] Analyzing chat transcripts...")
+    logger.debug("\n[6/7] Analyzing chat transcripts...")
     all_transcripts = []
     for brain_dir in BRAIN_DIRS:
         if brain_dir.exists():
@@ -770,33 +794,33 @@ def main():
                 **summary
             })
     
-    print(f"  -> Found {len(all_transcripts)} transcripts")
-    print(f"  -> Analyzed {len(transcript_data)} with content")
+    logger.debug(f"  -> Found {len(all_transcripts)} transcripts")
+    logger.debug(f"  -> Analyzed {len(transcript_data)} with content")
     
     # ── Step 7: Build master context ──
-    print("\n[7/7] Building master context...")
+    logger.debug("\n[7/7] Building master context...")
     context = build_master_context(all_files, prioritized, state, transcript_data)
     
     with open(IMPROVE_ME_FILE, "w", encoding="utf-8") as f:
         f.write(context)
     
     size_kb = round(os.path.getsize(IMPROVE_ME_FILE) / 1024, 1)
-    print(f"  -> Written to IMPROVE_ME.md ({size_kb}KB)")
+    logger.debug(f"  -> Written to IMPROVE_ME.md ({size_kb}KB)")
     
     # Save state
     save_state(state)
     
     elapsed = time.time() - start_time
-    print()
-    print("=" * 70)
-    print(f"  DONE! ({elapsed:.1f}s)")
-    print()
-    print("  Now open a NEW chat in Roo Code and say:")
-    print()
-    print('    "2ri IMPROVE_ME.md w3mel li maktoub"')
-    print()
-    print("  The AI will read everything and continue improving.")
-    print("=" * 70)
+    logger.debug("")
+    logger.debug("=" * 70)
+    logger.debug(f"  DONE! ({elapsed:.1f}s)")
+    logger.debug("")
+    logger.debug("  Now open a NEW chat in Roo Code and say:")
+    logger.debug("")
+    logger.debug('    "2ri IMPROVE_ME.md w3mel li maktoub"')
+    logger.debug("")
+    logger.debug("  The AI will read everything and continue improving.")
+    logger.debug("=" * 70)
 
 
 if __name__ == "__main__":

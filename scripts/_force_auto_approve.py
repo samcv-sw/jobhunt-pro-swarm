@@ -21,7 +21,7 @@ cursor = conn.execute("SELECT key, value FROM ItemTable WHERE key = ?", ("RooVet
 row = cursor.fetchone()
 
 if not row:
-    print("ERROR: RooVeterinaryInc.roo-cline key not found in DB!")
+    logger.debug("ERROR: RooVeterinaryInc.roo-cline key not found in DB!")
     conn.close()
     os.remove(DB_COPY)
     sys.exit(1)
@@ -32,7 +32,7 @@ if isinstance(val, bytes):
 else:
     state = json.loads(val)
 
-print(f"Current state has {len(state)} keys")
+logger.debug(f"Current state has {len(state)} keys")
 
 # Step 3: Set ALL auto-approve settings to True
 auto_settings = {
@@ -55,7 +55,7 @@ auto_settings = {
 for k, v in auto_settings.items():
     old_val = state.get(k, "NOT SET")
     state[k] = v
-    print(f"  {k}: {old_val} -> {v}")
+    logger.debug(f"  {k}: {old_val} -> {v}")
 
 # Also ensure allowedCommands has * (allow all)
 state["allowedCommands"] = ["*"]
@@ -71,12 +71,12 @@ conn.close()
 shutil.copy2(DB_COPY, DB_SRC)
 os.remove(DB_COPY)
 
-print("")
-print("ALL AUTO-APPROVE SETTINGS ENABLED PERMANENTLY!")
-print("These settings survive PC restarts because they're stored in VS Code's globalState DB.")
-print("")
-print("Changes applied:")
+logger.debug("")
+logger.debug("ALL AUTO-APPROVE SETTINGS ENABLED PERMANENTLY!")
+logger.debug("These settings survive PC restarts because they're stored in VS Code's globalState DB.")
+logger.debug("")
+logger.debug("Changes applied:")
 for k in auto_settings:
-    print(f"  [OK] {k} = True")
-print("  [OK] allowedCommands = ['*']")
-print("  [OK] deniedCommands = []")
+    logger.debug(f"  [OK] {k} = True")
+logger.debug("  [OK] allowedCommands = ['*']")
+logger.debug("  [OK] deniedCommands = []")

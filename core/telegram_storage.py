@@ -1,8 +1,8 @@
-import os
 import io
-import aiohttp
 import logging
-from typing import Optional, Union
+import os
+
+import aiohttp
 
 logger = logging.getLogger("TelegramStorage")
 
@@ -32,8 +32,8 @@ class TelegramStorageBridge:
             self.enabled = True
 
     async def upload_file(
-        self, filename: str, file_data: Union[bytes, io.BytesIO]
-    ) -> Optional[str]:
+        self, filename: str, file_data: bytes | io.BytesIO
+    ) -> str | None:
         """
         Uploads a file to Telegram and returns the Telegram file_id.
         This file_id can be stored in the database instead of the raw file.
@@ -72,7 +72,7 @@ class TelegramStorageBridge:
                 logger.error(f"Telegram upload exception: {e}")
                 return None
 
-    async def download_file(self, file_id: str) -> Optional[bytes]:
+    async def download_file(self, file_id: str) -> bytes | None:
         """
         Downloads a file from Telegram using its file_id.
         """

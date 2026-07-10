@@ -17,10 +17,9 @@ if not os.getenv("FORCE_SQLITE"):
         import sqlite3
 else:
     import sqlite3
-import time
-from typing import Dict, Any
-from datetime import datetime, timedelta
 import logging
+from datetime import datetime, timedelta
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -43,179 +42,217 @@ class TelegramAnalytics:
     #  /stats — Personal Dashboard
     # ═══════════════════════════════════════════════════════════════
 
-    def get_user_stats(self, args: str = "") -> Dict[str, Any]:
-        """Get comprehensive stats for the dashboard."""
+    def _get_apps_and_response_stats(
+        self,
+        conn: Any,
+        today_str: str,
+        week_ago_str: str,
+    ) -> dict[str, Any]:
+        """
+        Fetch application and response statistics from the database.
+
+        Args:
+            conn: The database connection.
+            today_str: Date string for today (YYYY-MM-DD).
+            week_ago_str: Date string for one week ago (YYYY-MM-DD).
+
+        Returns:
+            A dictionary containing application counts, responded count, response rate, and interview count.
+        """
+        apps_today = conn.execute(
+            "SELECT COUNT(*) FROM applications WHERE sent_at >= ?", (today_str,)
+        ).fetchone()[0]
+
+        apps_week = conn.execute(
+            "SELECT COUNT(*) FROM applications WHERE sent_at >= ?", (week_ago_str,)
+        ).fetchone()[0]
+
+        apps_all = conn.execute("SELECT COUNT(*) FROM applications").fetchone()[0]
+
+        responded = conn.execute(
+            "SELECT COUNT(*) FROM applications WHERE responded = 1"
+        ).fetchone()[0]
+
+        response_rate = (
+            round((responded / apps_all) * 100, 1) if apps_all > 0 else 0.0
+        )
+
+        interviews = conn.execute(
+            "SELECT COUNT(*) FROM applications WHERE response_type = 'interview'"
+        ).fetchone()[0]
+
+        return {
+            "apps_today": apps_today,
+            "apps_week": apps_week,
+            "apps_all": apps_all,
+            "responded": responded,
+            "response_rate": response_rate,
+            "interviews": interviews,
+        }
+
+    def _get_email_stats(self, conn: Any, today_str: str) -> dict[str, Any]:
+        """
+        Fetch email sent, opened, clicked, and responded counts, and calculate rates.
+
+        Args:
+            conn: The database connection.
+            today_str: Date string for today (YYYY-MM-DD).
+
+        Returns:
+            A dictionary of email statistics and open/click/response rates.
+        """
+        emails_sent = conn.execute(
+            "SELECT COUNT(*) FROM campaign_emails"
+        ).fetchone()[0]
+
+        emails_opened = conn.execute(
+            "SELECT COUNT(*) FROM campaign_emails WHERE opened_at IS NOT NULL"
+        ).fetchone()[0]
+
+        emails_clicked = conn.execute(
+            "SELECT COUNT(*) FROM applications WHERE clicked = 1"
+        ).fetchone()[0]
+
+        emails_responded = conn.execute(
+            "SELECT COUNT(*) FROM campaign_emails WHERE responded_at IS NOT NULL"
+        ).fetchone()[0]
+
+        emails_today = conn.execute(
+            "SELECT COUNT(*) FROM campaign_emails WHERE date(sent_at) = ?",
+            (today_str,),
+        ).fetchone()[0]
+
+        open_rate = (
+            round((emails_opened / emails_sent) * 100, 1)
+            if emails_sent > 0
+            else 0.0
+        )
+        click_rate = (
+            round((emails_clicked / emails_sent) * 100, 1)
+            if emails_sent > 0
+            else 0.0
+        )
+        email_response_rate = (
+            round((emails_responded / emails_sent) * 100, 1)
+            if emails_sent > 0
+            else 0.0
+        )
+
+        return {
+            "emails_sent": emails_sent,
+            "emails_opened": emails_opened,
+            "emails_clicked": emails_clicked,
+            "emails_responded": emails_responded,
+            "emails_today": emails_today,
+            "open_rate": open_rate,
+            "click_rate": click_rate,
+            "email_response_rate": email_response_rate,
+        }
+
+    def _get_campaign_and_job_stats(self, conn: Any, today_str: str) -> dict[str, Any]:
+        """
+        Fetch campaign status, ATS matcher statistics, jobs found/applied, money, and breakdowns.
+
+        Args:
+            conn: The database connection.
+            today_str: Date string for today (YYYY-MM-DD).
+
+        Returns:
+            A dictionary containing campaign, job search, revenue, and source/status breakdown data.
+        """
+        active_campaigns = conn.execute(
+            "SELECT COUNT(*) FROM campaigns WHERE status IN ('running', 'pending', 'active')"
+        ).fetchone()[0]
+
+        total_campaigns = conn.execute("SELECT COUNT(*) FROM campaigns").fetchone()[0]
+
+        avg_ats = conn.execute(
+            "SELECT AVG(match_score) FROM jobs WHERE match_score IS NOT NULL"
+        ).fetchone()[0]
+        avg_ats = round(avg_ats, 1) if avg_ats else 0.0
+
+        top_ats = conn.execute(
+            "SELECT match_score FROM jobs WHERE match_score IS NOT NULL ORDER BY match_score DESC LIMIT 1"
+        ).fetchone()
+        best_ats_score = round(top_ats[0], 1) if top_ats else 0.0
+
+        jobs_found = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
+        jobs_today = conn.execute(
+            "SELECT COUNT(*) FROM jobs WHERE date(created_at) = ?", (today_str,)
+        ).fetchone()[0]
+
+        jobs_applied = conn.execute(
+            "SELECT COUNT(*) FROM jobs WHERE applied_at IS NOT NULL"
+        ).fetchone()[0]
+
+        wallet = conn.execute(
+            "SELECT COALESCE(SUM(wallet_balance), 0) FROM users"
+        ).fetchone()[0]
+        total_spent = conn.execute(
+            "SELECT COALESCE(SUM(total_spent), 0) FROM users"
+        ).fetchone()[0]
+
+        revenue = conn.execute(
+            "SELECT COALESCE(SUM(amount_usd), 0) FROM orders WHERE payment_status = 'completed'"
+        ).fetchone()[0]
+
+        sources = [
+            dict(r)
+            for r in conn.execute(
+                "SELECT source, COUNT(*) as cnt FROM jobs WHERE source IS NOT NULL "
+                "GROUP BY source ORDER BY cnt DESC LIMIT 5"
+            ).fetchall()
+        ]
+
+        statuses = [
+            dict(r)
+            for r in conn.execute(
+                "SELECT status, COUNT(*) as cnt FROM applications "
+                "GROUP BY status ORDER BY cnt DESC"
+            ).fetchall()
+        ]
+
+        return {
+            "active_campaigns": active_campaigns,
+            "total_campaigns": total_campaigns,
+            "avg_ats": avg_ats,
+            "best_ats_score": best_ats_score,
+            "jobs_found": jobs_found,
+            "jobs_today": jobs_today,
+            "jobs_applied": jobs_applied,
+            "wallet": wallet,
+            "total_spent": total_spent,
+            "revenue": revenue,
+            "top_sources": sources,
+            "statuses": statuses,
+        }
+
+    def get_user_stats(self, args: str = "") -> dict[str, Any]:
+        """Get comprehensive stats for the dashboard.
+
+        Args:
+            args: Optional arguments for filtering.
+
+        Returns:
+            A dictionary containing comprehensive stats or error info.
+        """
         conn = None
         try:
             conn = self._get_conn()
-            now = time.time()
-            now - (now % 86400)
-            now - 86400 * 7
             today_str = datetime.now().strftime("%Y-%m-%d")
             week_ago_str = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
 
-            # ── Application counts ──────────────────────────────
-            apps_today = conn.execute(
-                "SELECT COUNT(*) FROM applications WHERE sent_at >= ?", (today_str,)
-            ).fetchone()[0]
+            apps_stats = self._get_apps_and_response_stats(conn, today_str, week_ago_str)
+            email_stats = self._get_email_stats(conn, today_str)
+            campaign_job_stats = self._get_campaign_and_job_stats(conn, today_str)
 
-            apps_week = conn.execute(
-                "SELECT COUNT(*) FROM applications WHERE sent_at >= ?", (week_ago_str,)
-            ).fetchone()[0]
-
-            apps_all = conn.execute("SELECT COUNT(*) FROM applications").fetchone()[0]
-
-            # ── Responses & interviews ──────────────────────────
-            responded = conn.execute(
-                "SELECT COUNT(*) FROM applications WHERE responded = 1"
-            ).fetchone()[0]
-
-            response_rate = (
-                round((responded / apps_all) * 100, 1) if apps_all > 0 else 0.0
-            )
-
-            interviews = conn.execute(
-                "SELECT COUNT(*) FROM applications WHERE response_type = 'interview'"
-            ).fetchone()[0]
-
-            # ── Email stats ─────────────────────────────────────
-            emails_sent = conn.execute(
-                "SELECT COUNT(*) FROM campaign_emails"
-            ).fetchone()[0]
-
-            emails_opened = conn.execute(
-                "SELECT COUNT(*) FROM campaign_emails WHERE opened_at IS NOT NULL"
-            ).fetchone()[0]
-
-            # emails_clicked not in campaign_emails schema (no clicked_at column)
-            emails_clicked = conn.execute(
-                "SELECT COUNT(*) FROM applications WHERE clicked = 1"
-            ).fetchone()[0]
-
-            emails_responded = conn.execute(
-                "SELECT COUNT(*) FROM campaign_emails WHERE responded_at IS NOT NULL"
-            ).fetchone()[0]
-
-            emails_today = conn.execute(
-                "SELECT COUNT(*) FROM campaign_emails WHERE date(sent_at) = ?",
-                (today_str,),
-            ).fetchone()[0]
-
-            # ── Open / Click / Response rates ───────────────────
-            open_rate = (
-                round((emails_opened / emails_sent) * 100, 1)
-                if emails_sent > 0
-                else 0.0
-            )
-            click_rate = (
-                round((emails_clicked / emails_sent) * 100, 1)
-                if emails_sent > 0
-                else 0.0
-            )
-            email_response_rate = (
-                round((emails_responded / emails_sent) * 100, 1)
-                if emails_sent > 0
-                else 0.0
-            )
-
-            # ── Active campaigns ────────────────────────────────
-            active_campaigns = conn.execute(
-                "SELECT COUNT(*) FROM campaigns WHERE status IN ('running', 'pending', 'active')"
-            ).fetchone()[0]
-
-            total_campaigns = conn.execute("SELECT COUNT(*) FROM campaigns").fetchone()[
-                0
-            ]
-
-            # ── ATS match average ───────────────────────────────
-            avg_ats = conn.execute(
-                "SELECT AVG(match_score) FROM jobs WHERE match_score IS NOT NULL"
-            ).fetchone()[0]
-            avg_ats = round(avg_ats, 1) if avg_ats else 0.0
-
-            top_ats = conn.execute(
-                "SELECT match_score FROM jobs WHERE match_score IS NOT NULL ORDER BY match_score DESC LIMIT 1"
-            ).fetchone()
-            best_ats_score = round(top_ats[0], 1) if top_ats else 0.0
-
-            # ── Jobs found ──────────────────────────────────────
-            jobs_found = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
-            jobs_today = conn.execute(
-                "SELECT COUNT(*) FROM jobs WHERE date(created_at) = ?", (today_str,)
-            ).fetchone()[0]
-
-            jobs_applied = conn.execute(
-                "SELECT COUNT(*) FROM jobs WHERE applied_at IS NOT NULL"
-            ).fetchone()[0]
-
-            # ── Money / wallet ──────────────────────────────────
-            wallet = conn.execute(
-                "SELECT COALESCE(SUM(wallet_balance), 0) FROM users"
-            ).fetchone()[0]
-            total_spent = conn.execute(
-                "SELECT COALESCE(SUM(total_spent), 0) FROM users"
-            ).fetchone()[0]
-
-            # ── Revenue from orders ─────────────────────────────
-            revenue = conn.execute(
-                "SELECT COALESCE(SUM(amount_usd), 0) FROM orders WHERE payment_status = 'completed'"
-            ).fetchone()[0]
-
-            # ── Source breakdown ────────────────────────────────
-            sources = [
-                dict(r)
-                for r in conn.execute(
-                    "SELECT source, COUNT(*) as cnt FROM jobs WHERE source IS NOT NULL "
-                    "GROUP BY source ORDER BY cnt DESC LIMIT 5"
-                ).fetchall()
-            ]
-
-            # ── Status breakdown ────────────────────────────────
-            statuses = [
-                dict(r)
-                for r in conn.execute(
-                    "SELECT status, COUNT(*) as cnt FROM applications "
-                    "GROUP BY status ORDER BY cnt DESC"
-                ).fetchall()
-            ]
-
-            return {
+            result = {
                 "error": None,
-                # Applications
-                "apps_today": apps_today,
-                "apps_week": apps_week,
-                "apps_all": apps_all,
-                # Responses
-                "responded": responded,
-                "response_rate": response_rate,
-                "interviews": interviews,
-                # Email
-                "emails_sent": emails_sent,
-                "emails_opened": emails_opened,
-                "emails_clicked": emails_clicked,
-                "emails_responded": emails_responded,
-                "emails_today": emails_today,
-                "open_rate": open_rate,
-                "click_rate": click_rate,
-                "email_response_rate": email_response_rate,
-                # Campaigns
-                "active_campaigns": active_campaigns,
-                "total_campaigns": total_campaigns,
-                # ATS
-                "avg_ats": avg_ats,
-                "best_ats_score": best_ats_score,
-                # Jobs
-                "jobs_found": jobs_found,
-                "jobs_today": jobs_today,
-                "jobs_applied": jobs_applied,
-                # Money
-                "wallet": wallet,
-                "total_spent": total_spent,
-                "revenue": revenue,
-                # Breakdowns
-                "top_sources": sources,
-                "statuses": statuses,
             }
+            result.update(apps_stats)
+            result.update(email_stats)
+            result.update(campaign_job_stats)
+            return result
         except Exception as e:
             logger.error(f"[TelegramAnalytics] get_user_stats error: {e}")
             return {"error": str(e)}
@@ -223,7 +260,7 @@ class TelegramAnalytics:
             if conn:
                 conn.close()
 
-    def format_stats_message(self, stats: Dict[str, Any]) -> str:
+    def format_stats_message(self, stats: dict[str, Any]) -> str:
         """Format raw stats into a beautiful Telegram HTML message."""
         if stats.get("error"):
             return f"<b>❌ Analytics Error:</b> {stats['error']}"
@@ -280,7 +317,7 @@ class TelegramAnalytics:
     #  /funnel — Application Conversion Funnel
     # ═══════════════════════════════════════════════════════════════
 
-    def get_funnel(self, args: str = "") -> Dict[str, Any]:
+    def get_funnel(self, args: str = "") -> dict[str, Any]:
         """Build the application conversion funnel."""
         conn = None
         try:
@@ -358,7 +395,7 @@ class TelegramAnalytics:
             if conn:
                 conn.close()
 
-    def generate_funnel_chart(self, data: Dict[str, Any], max_width: int = 20) -> str:
+    def generate_funnel_chart(self, data: dict[str, Any], max_width: int = 20) -> str:
         """Generate a visual ASCII funnel chart for Telegram."""
         if data.get("error"):
             return f"<b>❌ Funnel Error:</b> {data['error']}"
@@ -423,7 +460,7 @@ class TelegramAnalytics:
     #  /trend [period] — Trend Analysis with ASCII Bar Chart
     # ═══════════════════════════════════════════════════════════════
 
-    def get_trends(self, args: str = "") -> Dict[str, Any]:
+    def get_trends(self, args: str = "") -> dict[str, Any]:
         """Get application volume trends over a period."""
         conn = None
         try:
@@ -560,7 +597,7 @@ class TelegramAnalytics:
             if conn:
                 conn.close()
 
-    def generate_trend_chart(self, data: Dict[str, Any], max_bar: int = 10) -> str:
+    def generate_trend_chart(self, data: dict[str, Any], max_bar: int = 10) -> str:
         """Generate ASCII bar chart for trend data."""
         if data.get("error"):
             return f"<b>❌ Trend Error:</b> {data['error']}"
@@ -635,7 +672,7 @@ class TelegramAnalytics:
     #  /companies [name|top] — Company Intelligence
     # ═══════════════════════════════════════════════════════════════
 
-    def get_top_companies(self, limit: int = 10) -> Dict[str, Any]:
+    def get_top_companies(self, limit: int = 10) -> dict[str, Any]:
         """Get most applied-to companies."""
         conn = None
         try:
@@ -708,7 +745,7 @@ class TelegramAnalytics:
             if conn:
                 conn.close()
 
-    def get_company_detail(self, company_name: str) -> Dict[str, Any]:
+    def get_company_detail(self, company_name: str) -> dict[str, Any]:
         """Get detailed intel on a specific company."""
         conn = None
         try:
@@ -779,7 +816,7 @@ class TelegramAnalytics:
             if conn:
                 conn.close()
 
-    def format_companies_top(self, data: Dict[str, Any]) -> str:
+    def format_companies_top(self, data: dict[str, Any]) -> str:
         """Format top companies for Telegram."""
         if data.get("error"):
             return f"<b>❌ Companies Error:</b> {data['error']}"
@@ -814,7 +851,7 @@ class TelegramAnalytics:
 
         return "\n".join(lines)
 
-    def format_company_detail(self, data: Dict[str, Any]) -> str:
+    def format_company_detail(self, data: dict[str, Any]) -> str:
         """Format detailed company intel for Telegram."""
         if data.get("error"):
             return f"<b>❌ Company Detail Error:</b> {data['error']}"
@@ -874,7 +911,7 @@ class TelegramAnalytics:
     # ═══════════════════════════════════════════════════════════════
 
     def generate_ascii_chart(
-        self, data: Dict[str, int], max_width: int = 20, title: str = ""
+        self, data: dict[str, int], max_width: int = 20, title: str = ""
     ) -> str:
         """Generate a generic ASCII bar chart for Telegram display."""
         if not data:

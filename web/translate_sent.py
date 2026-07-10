@@ -22,4 +22,4 @@ for k, v in replacements.items():
 with open(file_path, 'w', encoding='utf-8') as f:
     f.write(content)
 
-print('sent_emails.html translated successfully.')
+logger.info('sent_emails.html translated successfully.')

@@ -12,18 +12,18 @@
 """
 
 import asyncio
-import logging
 import json
+import logging
 import os
 import time
 import traceback
-import core.pg_sqlite_shim as sqlite3
 from datetime import datetime
 from pathlib import Path
 
 import httpx
 
 import config
+import core.pg_sqlite_shim as sqlite3
 
 logger = logging.getLogger("BotEnhancer")
 

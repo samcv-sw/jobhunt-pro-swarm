@@ -156,7 +156,7 @@
 }
 .funnel-stage-value {
   position: absolute;
-  right: -60px;
+  inset-inline-end: -60px;
   font-size: 12px;
   font-weight: 700;
   color: #e2e8f0;
@@ -493,7 +493,7 @@ function renderFunnelVisual(data) {
         <div class="funnel-stage-label">${stage.icon} ${stage.label}</div>
         <div class="funnel-stage-bar-wrap">
           <div class="funnel-stage-bar" style="width:${pct}%;background:${stage.color};">
-            ${val > 0 ? '<span style="position:absolute;left:10px;font-size:12px;">' + val.toLocaleString() + '</span>' : ''}
+            ${val > 0 ? '<span style="position:absolute;inset-inline-start:10px;font-size:12px;">' + val.toLocaleString() + '</span>' : ''}
           </div>
         </div>
       </div>`;

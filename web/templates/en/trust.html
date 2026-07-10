@@ -53,13 +53,12 @@ body{
 
 /* Nav */
 .nav{
- position:fixed;top:12px;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform:translateX(-50%);z-index:1000;
+ position:fixed;top:12px;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform: none;z-index:1000;
  width:calc(100% - 48px);max-width:1300px;
  padding:14px 28px;display:flex;justify-content:space-between;align-items:center;
  background:rgba(5,5,15,0.75);backdrop-filter:blur(30px) saturate(180%);
  -webkit-backdrop-filter:blur(30px) saturate(180%);
- border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-lg);
-}
+ border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-lg); inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto; transform: none; }
 .nav.scrolled{
  background:rgba(3,3,12,0.9);border-color:rgba(0,240,255,0.15);
  box-shadow:0 8px 40px rgba(0,0,0,0.5),var(--glow-cyan);
@@ -450,7 +449,7 @@ body{
 <section class="trust-cta">
  <h3>Ready to <span class="gradient">Trust</span> Your Job Search to AI?</h3>
  <p>10,847+ job seekers already trust us. Join them risk-free with our 30-day money-back guarantee.</p>
- <a href="/register" class="btn-cyan">🚀 Start Your Secure Campaign Now →</a>
+ <a href="/register" class="btn-cyan">🚀 Start Your Secure Campaign Now <i data-lucide="arrow-right" class="lucide-dir-aware inline-block w-4 h-4 align-middle"></i></a>
 </section>
 
 </div>

@@ -9,9 +9,9 @@ THE ICARUS OVERRIDE: TOTAL AUTOMATION BYPASS
 3. STEALTH MODE: Employs undetectable browser fingerprinting to mask as a human macOS user.
 """
 
-import time
-import random
 import logging
+import random
+import time
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,60 +20,76 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def bypass_captcha_via_human_api():
-    logger.info("🗝️ [ICARUS] Cloudflare Turnstile / reCAPTCHA detected.")
-    logger.info("🗝️ [ICARUS] Intercepting challenge image/sitekey...")
-    logger.info(
-        "🗝️ [ICARUS] Routing challenge to Telegram Swarm (User ID: 89432) as 'Profile Verification'..."
-    )
-    time.sleep(1)  # Simulate waiting for human to solve
-    logger.info(
-        "🗝️ [ICARUS] Human solved CAPTCHA for $0. Injecting response token into browser."
-    )
-    logger.info("🗝️ [ICARUS] CAPTCHA bypassed successfully.")
-    return True
+def bypass_captcha_via_human_api() -> bool:
+    try:
+        logger.info("🗝️ [ICARUS] Cloudflare Turnstile / reCAPTCHA detected.")
+        logger.info("🗝️ [ICARUS] Intercepting challenge image/sitekey...")
+        logger.info(
+            "🗝️ [ICARUS] Routing challenge to Telegram Swarm (User ID: 89432) as 'Profile Verification'..."
+        )
+        time.sleep(1)  # Simulate waiting for human to solve
+        logger.info(
+            "🗝️ [ICARUS] Human solved CAPTCHA for $0. Injecting response token into browser."
+        )
+        logger.info("🗝️ [ICARUS] CAPTCHA bypassed successfully.")
+        return True
+    except Exception as e:
+        logger.error("🗝️ [ICARUS] Error during CAPTCHA bypass: %s", e, exc_info=True)
+        return False
 
 
-def bypass_2fa_locally():
-    logger.info("🗝️ [ICARUS] 2-Step Verification (2FA) requested by host.")
-    logger.info(
-        "🗝️ [ICARUS] Retrieving saved TOTP Seed Secret from encrypted local database..."
-    )
-    # Simulated PyOTP generation
-    generated_code = str(random.randint(100000, 999999))
-    logger.info(
-        f"🗝️ [ICARUS] Cryptographically generated live 6-digit code: [{generated_code}]"
-    )
-    logger.info("🗝️ [ICARUS] 2FA bypassed successfully. No SMS or phone required.")
-    return True
+def bypass_2fa_locally() -> bool:
+    try:
+        logger.info("🗝️ [ICARUS] 2-Step Verification (2FA) requested by host.")
+        logger.info(
+            "🗝️ [ICARUS] Retrieving saved TOTP Seed Secret from encrypted local database..."
+        )
+        # Simulated PyOTP generation
+        generated_code = str(random.randint(100000, 999999))
+        logger.info(
+            f"🗝️ [ICARUS] Cryptographically generated live 6-digit code: [{generated_code}]"
+        )
+        logger.info("🗝️ [ICARUS] 2FA bypassed successfully. No SMS or phone required.")
+        return True
+    except Exception as e:
+        logger.error("🗝️ [ICARUS] Error during 2FA generation: %s", e, exc_info=True)
+        return False
 
 
-def apply_stealth_fingerprint():
-    logger.info(
-        "🗝️ [ICARUS] Applying undetected-chromedriver and TLS fingerprint spoofing (curl_cffi)..."
-    )
-    logger.info(
-        "🗝️ [ICARUS] AI Agent now mathematically disguised as: Safari / macOS / User-Agent: Mozilla/5.0..."
-    )
+def apply_stealth_fingerprint() -> None:
+    try:
+        logger.info(
+            "🗝️ [ICARUS] Applying undetected-chromedriver and TLS fingerprint spoofing (curl_cffi)..."
+        )
+        logger.info(
+            "🗝️ [ICARUS] AI Agent now mathematically disguised as: Safari / macOS / User-Agent: Mozilla/5.0..."
+        )
+    except Exception as e:
+        logger.error("🗝️ [ICARUS] Error applying stealth fingerprint: %s", e, exc_info=True)
 
 
-def execute_override():
-    logger.info("Initializing Icarus Override (Total Automation Bypass)...")
+def execute_override() -> bool:
+    try:
+        logger.info("Initializing Icarus Override (Total Automation Bypass)...")
 
-    apply_stealth_fingerprint()
+        apply_stealth_fingerprint()
 
-    # Simulate encountering blockers during a Phoenix self-healing migration
-    logger.info("Simulating blocker encounter during infrastructure migration...")
-    bypass_captcha_via_human_api()
-    bypass_2fa_locally()
+        # Simulate encountering blockers during a Phoenix self-healing migration
+        logger.info("Simulating blocker encounter during infrastructure migration...")
+        bypass_captcha_via_human_api()
+        bypass_2fa_locally()
 
-    logger.info("==================================================")
-    logger.info("🗝️ [ICARUS] OVERRIDE COMPLETE. ALL BARRIERS BROKEN.")
-    logger.info("The Swarm has full autonomous access to the target system.")
-    logger.info("==================================================")
+        logger.info("==================================================")
+        logger.info("🗝️ [ICARUS] OVERRIDE COMPLETE. ALL BARRIERS BROKEN.")
+        logger.info("The Swarm has full autonomous access to the target system.")
+        logger.info("==================================================")
 
-    return True
+        return True
+    except Exception as e:
+        logger.error("🗝️ [ICARUS] Error executing override: %s", e, exc_info=True)
+        return False
 
 
 if __name__ == "__main__":
     execute_override()
+

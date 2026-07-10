@@ -34,14 +34,14 @@
   opacity: 0.15;
   animation: floatParticle 20s infinite linear;
 }
-.bg-particles .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; animation-duration: 18s; }
-.bg-particles .particle:nth-child(2) { left: 25%; top: 60%; animation-delay: 2s; animation-duration: 22s; width: 3px; height: 3px; }
-.bg-particles .particle:nth-child(3) { left: 45%; top: 10%; animation-delay: 4s; animation-duration: 25s; }
-.bg-particles .particle:nth-child(4) { left: 65%; top: 70%; animation-delay: 1s; animation-duration: 20s; width: 5px; height: 5px; }
-.bg-particles .particle:nth-child(5) { left: 80%; top: 30%; animation-delay: 3s; animation-duration: 23s; }
+.bg-particles .particle:nth-child(1) { inset-inline-start: 10%; top: 20%; animation-delay: 0s; animation-duration: 18s; }
+.bg-particles .particle:nth-child(2) { inset-inline-start: 25%; top: 60%; animation-delay: 2s; animation-duration: 22s; width: 3px; height: 3px; }
+.bg-particles .particle:nth-child(3) { inset-inline-start: 45%; top: 10%; animation-delay: 4s; animation-duration: 25s; }
+.bg-particles .particle:nth-child(4) { inset-inline-start: 65%; top: 70%; animation-delay: 1s; animation-duration: 20s; width: 5px; height: 5px; }
+.bg-particles .particle:nth-child(5) { inset-inline-start: 80%; top: 30%; animation-delay: 3s; animation-duration: 23s; }
 .bg-particles .particle:nth-child(6) { inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto; top: 80%; animation-delay: 5s; animation-duration: 19s; width: 3px; height: 3px; }
-.bg-particles .particle:nth-child(7) { left: 15%; top: 85%; animation-delay: 6s; animation-duration: 21s; }
-.bg-particles .particle:nth-child(8) { left: 90%; top: 50%; animation-delay: 2.5s; animation-duration: 24s; }
+.bg-particles .particle:nth-child(7) { inset-inline-start: 15%; top: 85%; animation-delay: 6s; animation-duration: 21s; }
+.bg-particles .particle:nth-child(8) { inset-inline-start: 90%; top: 50%; animation-delay: 2.5s; animation-duration: 24s; }
 @keyframes floatParticle {
   0% { transform: translateY(0) rotate(0deg); opacity: 0; }
   10% { opacity: 0.15; }
@@ -117,7 +117,7 @@
 
       <div class="oauth-divider">OR</div>
 
-      <form method="POST" action="/login" id="loginForm" onsubmit="handleLogin(event)">
+      <form dir="auto" method="POST" action="/login" id="loginForm" onsubmit="handleLogin(event)">
         <div class="form-group">
           <label for="email">Email Address</label>
           <input dir="auto" type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>

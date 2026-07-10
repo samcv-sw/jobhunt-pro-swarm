@@ -6,10 +6,9 @@ Providers: Mail.tm (instant), Temp-Mail, Guerrilla Mail, 10 Minute Mail,
            Yopmail, Outlook/Hotmail (limited), Gmail (requires phone).
 """
 
-import time
-import random
 import logging
-from typing import List, Dict, Optional
+import random
+import time
 
 import httpx
 
@@ -158,14 +157,14 @@ class FreeEmailRegistrar:
 
     def __init__(self):
         self._client = httpx.Client(timeout=30.0)
-        self._registered: List[Dict] = []
+        self._registered: list[dict] = []
         self._user_agents = [
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
         ]
 
-    def _get_headers(self) -> Dict[str, str]:
+    def _get_headers(self) -> dict[str, str]:
         return {
             "User-Agent": random.choice(self._user_agents),
             "Accept": "application/json, text/plain, */*",
@@ -174,7 +173,7 @@ class FreeEmailRegistrar:
         }
 
     # ── Mail.tm (BEST: instant, no phone, unlimited) ─────────────
-    def register_mailtm(self) -> Optional[Dict]:
+    def register_mailtm(self) -> dict | None:
         """
         Register a free Mail.tm account.
         Returns: {email, password, token} or None on failure.
@@ -242,7 +241,7 @@ class FreeEmailRegistrar:
             return None
 
     # ── Guerrilla Mail (FREE, instant, disposable) ──────────────
-    def register_guerrillamail(self) -> Optional[Dict]:
+    def register_guerrillamail(self) -> dict | None:
         """
         Register a free Guerrilla Mail account.
         Returns: {email, email_hash, alias} or None.
@@ -290,7 +289,7 @@ class FreeEmailRegistrar:
             return None
 
     # ── Register batch of accounts ──────────────────────────────
-    def register_batch(self, count: int = 5, providers: List[str] = None) -> List[Dict]:
+    def register_batch(self, count: int = 5, providers: list[str] = None) -> list[dict]:
         """
         Register multiple free email accounts.
         Args:
@@ -324,11 +323,11 @@ class FreeEmailRegistrar:
 
         return accounts
 
-    def get_registered_accounts(self) -> List[Dict]:
+    def get_registered_accounts(self) -> list[dict]:
         """Get all registered accounts."""
         return self._registered
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         return {
             "total_registered": len(self._registered),
             "by_provider": {},
@@ -342,7 +341,7 @@ class FreeEmailRegistrar:
 
 
 # ── Singleton ────────────────────────────────────────────────────
-_registrar: Optional[FreeEmailRegistrar] = None
+_registrar: FreeEmailRegistrar | None = None
 
 
 def get_registrar() -> FreeEmailRegistrar:
@@ -352,7 +351,7 @@ def get_registrar() -> FreeEmailRegistrar:
     return _registrar
 
 
-def register_free_emails(count: int = 5) -> List[Dict]:
+def register_free_emails(count: int = 5) -> list[dict]:
     """Convenience function to register free email accounts."""
     registrar = get_registrar()
     return registrar.register_batch(count=count)
@@ -362,6 +361,6 @@ def register_free_emails(count: int = 5) -> List[Dict]:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     accounts = register_free_emails(count=3)
-    print(f"Registered {len(accounts)} accounts:")
+    logger.debug(f"Registered {len(accounts)} accounts:")
     for acc in accounts:
-        print(f"  - {acc['email']} ({acc['provider']})")
+        logger.debug(f"  - {acc['email']} ({acc['provider']})")

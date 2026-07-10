@@ -43,4 +43,4 @@ for f in files:
         
     with open(p, 'w', encoding='utf-8') as file:
         file.write(c)
-    print(f"Processed {f}")
+    logger.debug(f"Processed {f}")

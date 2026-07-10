@@ -1,0 +1,60 @@
+# =============================================================================
+# JobHunt Pro — Koyeb Deployment Dockerfile (24/7 FREE TIER)
+# -----------------------------------------------------------------------------
+# Platform: Koyeb Nano (Free — 512MB RAM, 0.1 vCPU, NO sleep, always-on)
+# Endpoint: FastAPI backend (port 8000)
+#
+# Secrets to inject on Koyeb dashboard (Environment Variables):
+#   TURSO_DATABASE_URL=libsql://<your-db-slug>.turso.io
+#   TURSO_AUTH_TOKEN=<your-token>
+#   SECRET_KEY=<random-strong-secret>
+#   OPENAI_API_KEY=<optional>
+#   REDIS_URL=<optional-if-you-add-upstash-redis>
+# =============================================================================
+
+# ── Stage 1: Builder ──────────────────────────────────────────────────────────
+FROM python:3.12-slim AS builder
+
+WORKDIR /build
+
+# Install only what's needed to compile native wheels
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+# ── Stage 2: Runtime (lean ~200MB) ───────────────────────────────────────────
+FROM python:3.12-slim AS runtime
+
+WORKDIR /app
+
+# Copy compiled packages from builder
+COPY --from=builder /install /usr/local
+
+# Copy application source
+COPY backend/   ./backend/
+COPY scrapers/  ./scrapers/
+COPY core/      ./core/
+COPY config.py  ./config.py
+
+# Create writable data directory for SQLite fallback
+RUN mkdir -p ./data && chmod 777 ./data
+
+# ── Environment ───────────────────────────────────────────────────────────────
+ENV PYTHONPATH=/app \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8000
+
+# ── Health & Port ─────────────────────────────────────────────────────────────
+EXPOSE 8000
+
+# Koyeb sends SIGTERM on deploys — uvicorn respects it with --timeout-graceful-shutdown
+CMD ["uvicorn", "backend.main:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8000", \
+     "--workers", "2", \
+     "--timeout-graceful-shutdown", "10"]

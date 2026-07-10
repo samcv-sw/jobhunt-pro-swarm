@@ -21,9 +21,8 @@ Returns clean job dicts: {company, title, location, url, source: "bayt"}.
 
 import asyncio
 import logging
-import time
 import random
-from typing import Dict, List, Optional
+import time
 
 try:
     import cloudscraper
@@ -101,7 +100,7 @@ def _build_url(country: str, title: str) -> str:
     return f"{BAYT_BASE}/en/{country_slug}/jobs/{title_slug}-jobs/"
 
 
-def _parse_job_cards(html: str) -> List[Dict]:
+def _parse_job_cards(html: str) -> list[dict]:
     """Parse Bayt.com job listing HTML into job dicts.
 
     Verified structure (Jun 2026):
@@ -207,7 +206,7 @@ def _parse_job_cards(html: str) -> List[Dict]:
     return jobs
 
 
-def _scrape_country_title(country: str, title: str) -> List[Dict]:
+def _scrape_country_title(country: str, title: str) -> list[dict]:
     """Scrape a single country x title combination."""
     url = _build_url(country, title)
 
@@ -234,11 +233,11 @@ def _scrape_country_title(country: str, title: str) -> List[Dict]:
 
 
 def search_bayt_sync(
-    countries: Optional[List[str]] = None,
-    titles: Optional[List[str]] = None,
+    countries: list[str] | None = None,
+    titles: list[str] | None = None,
     rate_limit: float = RATE_LIMIT,
     shuffle: bool = True,
-) -> List[Dict]:
+) -> list[dict]:
     """Synchronously search Bayt.com across multiple countries and job titles.
 
     Args:
@@ -281,10 +280,10 @@ def search_bayt_sync(
 
 
 async def search_bayt(
-    countries: Optional[List[str]] = None,
-    titles: Optional[List[str]] = None,
+    countries: list[str] | None = None,
+    titles: list[str] | None = None,
     rate_limit: float = RATE_LIMIT,
-) -> List[Dict]:
+) -> list[dict]:
     """Async wrapper for search_bayt_sync."""
     loop = asyncio.get_running_loop()
     return await loop.run_in_executor(
@@ -299,18 +298,18 @@ async def search_bayt(
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-    print("=" * 60)
-    print("Bayt.com Scraper Test")
-    print("=" * 60)
+    logger.debug("=" * 60)
+    logger.debug("Bayt.com Scraper Test")
+    logger.debug("=" * 60)
 
     jobs = search_bayt_sync(countries=["international"], titles=["network-engineer"])
 
-    print(f"\nFound {len(jobs)} jobs")
-    print("-" * 60)
+    logger.debug(f"\nFound {len(jobs)} jobs")
+    logger.debug("-" * 60)
     for j in jobs[:10]:
-        print(f"  {j['company']}: {j['title']}")
-        print(f"    {j['location']} | {j['url']}")
-        print()
+        logger.debug(f"  {j['company']}: {j['title']}")
+        logger.debug(f"    {j['location']} | {j['url']}")
+        logger.debug()
     if len(jobs) > 10:
-        print(f"  ... and {len(jobs) - 10} more")
-    print("=" * 60)
+        logger.debug(f"  ... and {len(jobs) - 10} more")
+    logger.debug("=" * 60)

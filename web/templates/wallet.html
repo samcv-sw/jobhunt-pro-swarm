@@ -15,44 +15,44 @@
 @media (max-width:768px) { .wallet-header { grid-template-columns:1fr; } }
 .wallet-balance-card { background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(139,92,246,.10)); border:1px solid rgba(59,130,246,.18); border-radius:20px; padding:28px 24px; text-align:center; }
 .wallet-balance-card .balance-amount { font-size:44px; font-weight:800; color:#3b82f6; line-height:1.1; margin-bottom:2px; }
-.wallet-balance-card .balance-label { font-size:11px; color:#64748b; text-transform:uppercase;  }
+.wallet-balance-card .balance-label { font-size:11px; color:#64748b; text-transform:uppercase; }
 .wallet-actions { display:flex; gap:8px; margin-top:14px; justify-content:center; flex-wrap:wrap; }
 .btn-wallet { padding:9px 18px; border-radius:10px; border:1px solid rgba(59,130,246,.18); background:rgba(59,130,246,.08); color:#60a5fa; cursor:pointer; font-size:12px; font-weight:600; transition:all .2s; text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
-.btn-wallet:hover { background:rgba(59,130,246,.15); transform:translateY(-1px); }
+.btn-wallet:hover { background:rgba(59,130,246,.15); transform:translateY(-2px); box-shadow:0 0 12px rgba(0,240,255,0.25); }
 .btn-wallet.primary { background:linear-gradient(135deg,#3b82f6,#8b5cf6); border:none; color:#fff; }
-.btn-wallet.primary:hover { filter:brightness(1.15); }
+.btn-wallet.primary:hover { filter:brightness(1.15); transform:translateY(-2px); box-shadow:0 0 16px rgba(0,240,255,0.35); }
 .wallet-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
 @media (max-width:500px) { .wallet-stats { grid-template-columns:1fr 1fr; } }
 .wallet-stat-card { background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.05); border-radius:14px; padding:16px 12px; text-align:center; }
 .wallet-stat-card .stat-val { font-size:22px; font-weight:700; line-height:1.2; }
-.wallet-stat-card .stat-label { font-size:10px; color:#64748b; text-transform:uppercase;  margin-top:2px; }
-.section-title { color:#94a3b8; font-size:12px; text-transform:uppercase;  margin-bottom:14px; }
+.wallet-stat-card .stat-label { font-size:10px; color:#64748b; text-transform:uppercase; margin-top:2px; }
+.section-title { color:#94a3b8; font-size:12px; text-transform:uppercase; margin-bottom:14px; }
 
 /* Top-Up Form */
-.topup-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:24px; margin-bottom:24px; }
+.topup-card { background:rgba(10,10,25,0.8); backdrop-filter:blur(12px); border:1px solid rgba(0,240,255,0.15); border-radius:16px; padding:24px; margin-bottom:24px; }
 .topup-card h3 { font-size:16px; font-weight:700; color:#e2e8f0; margin:0 0 6px; }
 .topup-card .sub { font-size:12px; color:#64748b; margin:0 0 20px; }
 .preset-grid { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
 .preset-btn { padding:10px 18px; border-radius:10px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03); color:#94a3b8; cursor:pointer; font-size:14px; font-weight:600; transition:all .2s; }
-.preset-btn:hover { border-color:rgba(59,130,246,.4); color:#60a5fa; background:rgba(59,130,246,.08); }
-.preset-btn.selected { background:rgba(59,130,246,.15); border-color:#3b82f6; color:#60a5fa; }
+.preset-btn:hover { border-color:rgba(0,240,255,.4); color:#00f0ff; background:rgba(0,240,255,.08); transform:translateY(-2px); box-shadow:0 0 10px rgba(0,240,255,0.2); }
+.preset-btn.selected { background:rgba(0,240,255,.15); border-color:#00f0ff; color:#00f0ff; }
 .topup-row { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-bottom:16px; }
 .topup-amount { flex:1; min-width:160px; }
-.topup-amount label { display:block; font-size:11px; color:#64748b; text-transform:uppercase;  margin-bottom:6px; }
-.topup-amount input { width:100%; padding:12px 16px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#e2e8f0; font-size:18px; font-weight:700; outline:none; transition:border .2s; }
-.topup-amount input:focus { border-color:#3b82f6; }
+.topup-amount label { display:block; font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:6px; }
+.topup-amount input { width:100%; padding:12px 16px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#e2e8f0; font-size:18px; font-weight:700; outline:none; transition:border .2s; font-family:'Cairo','IBM Plex Arabic','Tajawal',sans-serif; }
+.topup-amount input:focus { border-color:#00f0ff; }
 .coin-select { display:flex; gap:4px; flex-wrap:wrap; }
 .coin-btn { padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03); color:#94a3b8; cursor:pointer; font-size:12px; font-weight:600; transition:all .2s; }
-.coin-btn:hover { border-color:rgba(245,158,11,.4); color:#f59e0b; }
+.coin-btn:hover { border-color:rgba(245,158,11,.4); color:#f59e0b; transform:translateY(-2px); box-shadow:0 0 10px rgba(245,158,11,0.2); }
 .coin-btn.selected { background:rgba(245,158,11,.2) !important; border-color:#f59e0b !important; color:#f59e0b !important; box-shadow: 0 0 10px rgba(245,158,11,0.5) !important; }
-.btn-topup { padding:12px 32px; border:none; border-radius:12px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; font-size:14px; font-weight:700; cursor:pointer; transition:all .2s; }
-.btn-topup:hover { filter:brightness(1.1); transform:translateY(-1px); }
+.btn-topup { padding:12px 32px; border:none; border-radius:12px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; font-size:14px; font-weight:700; cursor:pointer; transition:all .2s; font-family:'Cairo','IBM Plex Arabic','Tajawal',sans-serif; }
+.btn-topup:hover { filter:brightness(1.1); transform:translateY(-2px); box-shadow:0 0 16px rgba(245,158,11,0.4); }
 .btn-topup:disabled { opacity:.5; cursor:not-allowed; }
 
 /* Invoice Modal */
 .invoice-overlay { display:none; position:fixed; inset:0; width:100%; height:100%; background:rgba(0,0,0,.7); z-index:1000; backdrop-filter:blur(4px); }
 .invoice-overlay.show { display:flex; align-items:center; justify-content:center; }
-.invoice-modal { background:rgba(15,15,20,.95); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:32px; max-width:460px; width:90%; text-align:center; animation:slideUp .3s ease; }
+.invoice-modal { background:rgba(10,10,25,0.95); backdrop-filter:blur(12px); border:1px solid rgba(0,240,255,0.15); border-radius:20px; padding:32px; max-width:460px; width:90%; text-align:center; animation:slideUp .3s ease; }
 @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 .invoice-modal h2 { font-size:20px; color:#e2e8f0; margin:0 0 8px; }
 .invoice-modal .sub { font-size:12px; color:#64748b; margin:0 0 20px; }
@@ -61,21 +61,24 @@
 .invoice-modal .pay-amount { font-size:14px; color:#f59e0b; font-weight:700; margin-bottom:16px; }
 .invoice-modal .btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 .invoice-modal .btn-pay { padding:12px 28px; background:linear-gradient(135deg,#22c55e,#16a34a); border:none; border-radius:12px; color:#fff; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; transition:all .2s; }
-.invoice-modal .btn-pay:hover { filter:brightness(1.1); }
+.invoice-modal .btn-pay:hover { filter:brightness(1.1); transform:translateY(-2px); box-shadow:0 0 14px rgba(34,197,94,0.4); }
 .invoice-modal .btn-close { padding:12px 28px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#94a3b8; cursor:pointer; font-size:14px; transition:all .2s; }
-.invoice-modal .btn-close:hover { background:rgba(255,255,255,.08); }
+.invoice-modal .btn-close:hover { background:rgba(255,255,255,.08); transform:translateY(-2px); }
 
 /* Crypto Grid (static addresses) */
 .crypto-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-top:8px; }
-.crypto-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:16px; text-align:center; }
+.crypto-card { background:rgba(10,10,25,0.8); backdrop-filter:blur(12px); border:1px solid rgba(0,240,255,0.15); border-radius:14px; padding:16px; text-align:center; }
 .crypto-card .crypto-icon { font-size:28px; margin-bottom:8px; }
 .crypto-card .crypto-name { font-size:13px; color:#94a3b8; margin-bottom:4px; }
 .crypto-card .crypto-addr { font-size:11px; color:#64748b; word-break:break-all; background:rgba(0,0,0,.3); padding:8px; border-radius:8px; margin-top:8px; }
 
+/* Transaction Table */
 .transaction-table { width:100%; border-collapse:collapse; }
-.transaction-table th { text-align:start; font-size:11px; text-transform:uppercase; color:#64748b; padding:12px 8px; border-bottom:1px solid rgba(255,255,255,.05);  }
+.transaction-table thead { background: rgba(0,240,255,0.08); }
+.transaction-table th { text-align:start; font-size:11px; text-transform:uppercase; color:#00f0ff; padding:12px 8px; border-bottom:1px solid rgba(0,240,255,0.15); }
 .transaction-table td { padding:12px 8px; border-bottom:1px solid rgba(255,255,255,.03); font-size:13px; }
-.transaction-table tr:hover td { background:rgba(255,255,255,.02); }
+.transaction-table tbody tr:nth-child(even) td { background:rgba(255,255,255,.02); }
+.transaction-table tbody tr:hover td { background:rgba(0,240,255,.04); }
 .tx-type { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; }
 .tx-type.credit { background:rgba(34,197,94,.1); color:#4ade80; }
 .tx-type.debit { background:rgba(239,68,68,.1); color:#f87171; }
@@ -84,15 +87,20 @@
 .toast-msg.error { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.25); color:#f87171; }
 .toast-msg.success { background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25); color:#4ade80; }
 @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
-.redeem-card { background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(139,92,246,.08)); border:1px solid rgba(59,130,246,.2); border-radius:16px; padding:24px; margin-top:24px; }
+.redeem-card { background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(139,92,246,.08)); border:1px solid rgba(0,240,255,0.15); border-radius:16px; padding:24px; margin-top:24px; }
 .redeem-card h3 { font-size:14px; color:#e2e8f0; margin:0 0 6px; }
 .redeem-card p { font-size:12px; color:#64748b; margin:0 0 16px; }
 .redeem-form { display:flex; gap:10px; flex-wrap:wrap; }
-.redeem-input { flex:1; min-width:200px; padding:12px 16px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#e2e8f0; font-size:14px; font-family: 'Cairo', monospace;  outline:none; transition:border .2s; }
-.redeem-input:focus { border-color:rgba(59,130,246,.5); }
-.redeem-input::placeholder { color:#475569; font-family: 'Cairo', sans-serif;  }
-.btn-redeem { padding:12px 28px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); border:none; border-radius:12px; color:#fff; font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; }
-.btn-redeem:hover { filter:brightness(1.15); transform:translateY(-1px); }
+.redeem-input { flex:1; min-width:200px; padding:12px 16px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#e2e8f0; font-size:14px; font-family: 'Cairo','IBM Plex Arabic','Tajawal',monospace; outline:none; transition:border .2s; }
+.redeem-input:focus { border-color:rgba(0,240,255,.5); }
+.redeem-input::placeholder { color:#475569; font-family: 'Cairo','IBM Plex Arabic','Tajawal',sans-serif; }
+.btn-redeem { padding:12px 28px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); border:none; border-radius:12px; color:#fff; font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; font-family:'Cairo','IBM Plex Arabic','Tajawal',sans-serif; }
+.btn-redeem:hover { filter:brightness(1.15); transform:translateY(-2px); box-shadow:0 0 16px rgba(0,240,255,0.3); }
+
+/* Empty state */
+.empty-tx { text-align:center; padding:48px 20px; background:rgba(10,10,25,0.8); backdrop-filter:blur(12px); border:1px solid rgba(0,240,255,0.1); border-radius:16px; }
+.empty-tx .empty-icon { font-size:52px; margin-bottom:14px; opacity:0.7; }
+.empty-tx p { color:#64748b; font-size:14px; line-height:1.7; max-width:360px; margin:0 auto; }
 </style>
 
 {% if toast_msg %}
@@ -127,7 +135,7 @@
 </div>
 </div>
 <!-- API Key -->
-<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+<div style="background:rgba(10,10,25,0.8);backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,0.15);border-radius:14px;padding:20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
 <div style="display:flex;align-items:center;gap:10px;">
 <span style="font-size:18px;">🔑</span>
 <div>
@@ -140,7 +148,7 @@
 </div>
 <div style="display:flex;gap:8px;align-items:center;">
 <button class="btn-wallet" onclick="navigator.clipboard.writeText('{{ user.api_key }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)">📋 نسخ</button>
-<form action="/wallet/regenerate-key" method="POST" style="margin:0;">
+<form dir="auto" action="/wallet/regenerate-key" method="POST" style="margin:0;">
 <button class="btn-wallet" style="color:#f59e0b;border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.08);" type="submit">🔄 إعادة توليد</button>
 </form>
 </div>
@@ -172,7 +180,7 @@ function toggleApiKey() {
 <div class="topup-row">
 <div class="topup-amount">
 <label>المبلغ (دولار)</label>
-<input dir="auto" id="topupالمبلغ" max="1000" min="10" step="1" type="number" value="25"/>
+<input dir="auto" id="topupAmount" max="1000" min="10" step="1" type="number" value="25"/>
 </div>
 <div style="display:flex;flex-direction:column;gap:6px;">
 <label style="font-size:11px;color:#64748b;text-transform:uppercase;">ادفع بـ</label>
@@ -194,7 +202,7 @@ function toggleApiKey() {
 <h2 id="invTitle">🪙 إرسال الدفعة</h2>
 <p class="sub" id="invSub">أرسل نفس المبلغ الموضح أدناه بالضبط</p>
 <div class="qr-placeholder">🏦</div>
-<div class="pay-amount" id="invالمبلغ">{{ _('0.00 BTC') }}</div>
+<div class="pay-amount" id="invAmount">{{ _('0.00 BTC') }}</div>
 <div class="pay-addr" id="invAddr">جاري التحميل...</div>
 <p style="font-size:11px;color:#64748b;margin-bottom:16px;">الطلب: <span id="invOrder">---</span></p>
 <div class="btn-row">
@@ -216,7 +224,7 @@ function toggleApiKey() {
         </div>
 <div class="crypto-name">{{ coin.upper() }}</div>
 <div class="crypto-addr" title="{{ addr }}">{{ addr[:20] }}...{{ addr[-8:] }}</div>
-<button class="btn" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)" style="margin-top:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#94a3b8;cursor:pointer;font-size:11px;">📋 نسخ</button>
+<button class="btn" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)" style="margin-top:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(0,240,255,.15);background:rgba(0,240,255,.05);color:#00f0ff;cursor:pointer;font-size:11px;transition:all .2s;">📋 نسخ</button>
 </div>
     {% endif %}
     {% endfor %}
@@ -229,7 +237,7 @@ function toggleApiKey() {
 <div class="redeem-card">
 <h3>🎁 استرداد كود</h3>
 <p>لديك بطاقة هدية أو كود ترويجي؟ أدخله أدناه لإضافة رصيد فوري إلى محفظتك.</p>
-<form action="/redeem" class="redeem-form" method="POST">
+<form dir="auto" action="/redeem" class="redeem-form" method="POST">
 <input autocomplete="off" class="redeem-input" dir="auto" name="code" placeholder="XXXX-XXXX-XXXX" required="" type="text"/>
 <button class="btn-redeem" type="submit">✨ استرداد</button>
 </form>
@@ -257,9 +265,9 @@ function toggleApiKey() {
 </table>
 </div>
 {% else %}
-<div style="text-align:center;padding:40px;color:#64748b;">
-<div style="font-size:48px;margin-bottom:12px;">💰</div>
-<div>لا توجد عمليات بعد. ستظهر الأموال المكتسبة من الإحالات والحملات هنا.</div>
+<div class="empty-tx">
+<div class="empty-icon">💰</div>
+<p>لا توجد عمليات بعد. ستظهر الأموال المكتسبة من الإحالات والحملات هنا.</p>
 </div>
 {% endif %}
 
@@ -270,10 +278,10 @@ document.querySelectorAll('#presetGrid .preset-btn').forEach(function(btn){
     btn.addEventListener('click', function(){
         document.querySelectorAll('#presetGrid .preset-btn').forEach(function(b){b.classList.remove('selected');});
         this.classList.add('selected');
-        document.getElementById('topupالمبلغ').value = this.dataset.amount;
+        document.getElementById('topupAmount').value = this.dataset.amount;
     });
 });
-document.getElementById('topupالمبلغ').addEventListener('input', function(){
+document.getElementById('topupAmount').addEventListener('input', function(){
     document.querySelectorAll('#presetGrid .preset-btn').forEach(function(b){b.classList.remove('selected');});
 });
 
@@ -289,7 +297,7 @@ document.querySelectorAll('#coinSelect .coin-btn').forEach(function(btn){
 // Create Invoice
 window.createTopup = async function(){
     var btn = document.getElementById('btnTopup');
-    var amount = parseFloat(document.getElementById('topupالمبلغ').value);
+    var amount = parseFloat(document.getElementById('topupAmount').value);
     var selectedCoin = document.querySelector('#coinSelect .coin-btn.selected');
     if (!selectedCoin) { alert('الرجاء تحديد العملة أولاً'); return; }
     var coin = selectedCoin.dataset.coin;
@@ -298,7 +306,7 @@ window.createTopup = async function(){
     btn.disabled = true; btn.textContent = 'جاري الإنشاء...';
     try {
         var r = await fetch('/wallet/create-topup', {
-            method:'POST', headers:{'Content-النوع':'application/json'},
+            method:'POST', headers:{'Content-Type':'application/json'},
             body: JSON.stringify({amount:amount, currency:coin})
         });
         var d = await r.json();
@@ -319,7 +327,7 @@ window.createTopup = async function(){
 window.showInvoice = function(d){
     document.getElementById('invTitle').textContent = '🪙 أكمل الدفع';
     document.getElementById('invSub').textContent = 'اختر عملتك الرقمية في صفحة NOWPayments';
-    document.getElementById('invالمبلغ').textContent = '$' + d.amount_usd.toFixed(2) + ' USD';
+    document.getElementById('invAmount').textContent = '$' + d.amount_usd.toFixed(2) + ' USD';
     document.getElementById('invAddr').textContent = 'انقر أدناه لفتح صفحة الدفع الآمنة';
     document.getElementById('invOrder').textContent = d.order_id;
     document.getElementById('btnPayUrl').href = d.invoice_url;

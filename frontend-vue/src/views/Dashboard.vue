@@ -62,10 +62,12 @@ onMounted(async () => {
       if (chartRef.value) {
         chartInstance = echarts.init(chartRef.value, 'dark');
         
+        const isRtl = document.documentElement.dir === 'rtl';
         const option = {
           backgroundColor: 'transparent',
           title: {
             text: 'Application Funnel',
+            left: isRtl ? 'right' : 'left',
             textStyle: { color: '#c9d1d9' }
           },
           tooltip: {
@@ -127,19 +129,21 @@ onUnmounted(() => {
 
 <style scoped>
 .dashboard-container {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding-block: 2rem;
+  padding-inline: 2rem;
+  max-inline-size: 1200px;
+  margin-block: 0;
+  margin-inline: auto;
 }
 
 .dashboard-header {
-  margin-bottom: 2rem;
+  margin-block-end: 2rem;
   text-align: center;
 }
 
 .dashboard-header h1 {
   font-size: 2.5rem;
-  margin-bottom: 0.5rem;
+  margin-block-end: 0.5rem;
   background: linear-gradient(90deg, #58a6ff, #8a2be2);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -149,14 +153,15 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-block-end: 2rem;
 }
 
 .card {
   background: rgba(22, 27, 34, 0.8);
   border: 1px solid #30363d;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding-block: 1.5rem;
+  padding-inline: 1.5rem;
   text-align: center;
   backdrop-filter: blur(10px);
   transition: transform 0.3s ease;
@@ -168,7 +173,8 @@ onUnmounted(() => {
 }
 
 .card h3 {
-  margin: 0 0 1rem 0;
+  margin-block: 0 1rem;
+  margin-inline: 0;
   font-size: 1.1rem;
   color: #8b949e;
 }
@@ -187,12 +193,13 @@ onUnmounted(() => {
   background: rgba(22, 27, 34, 0.8);
   border: 1px solid #30363d;
   border-radius: 12px;
-  padding: 1.5rem;
-  height: 500px;
+  padding-block: 1.5rem;
+  padding-inline: 1.5rem;
+  block-size: 500px;
 }
 
 .chart {
-  width: 100%;
-  height: 100%;
+  inline-size: 100%;
+  block-size: 100%;
 }
 </style>

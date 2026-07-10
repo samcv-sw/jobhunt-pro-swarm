@@ -22,7 +22,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Any
 import uvicorn
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
@@ -68,7 +68,7 @@ class Jinja2TemplatesWrapper:
 
 templates = Jinja2TemplatesWrapper(BASE_DIR)
 
-db_path = os.getenv("DB_PATH") or str(BASE_DIR.parent / "jobhunt_saas_v2.db")
+db_path = getattr(config, "DB_PATH", None) or os.getenv("DB_PATH") or str(BASE_DIR.parent / "data" / "jobhunt_saas_v2.db")
 
 def get_db():
     conn = sqlite3.connect(db_path, check_same_thread=False)
@@ -799,6 +799,151 @@ def _isolated_campaign_worker(campaign_id):
         send_telegram_message_sync(f"❌ [WORKER-TICK] Campaign {campaign_id} crashed: {str(e)}")
 
 
+def _process_run_campaign_task(task_id: Any, payload: dict, results: dict) -> None:
+    """
+    Process the run_campaign task type.
+
+    Args:
+        task_id: The unique identifier of the task.
+        payload: The task payload containing campaign details.
+        results: The results dictionary to update with progress or errors.
+    """
+    campaign_id = payload.get("campaign_id")
+    if campaign_id:
+        # Run with FORK ISOLATION (protects against LLM OOM crashes)
+        p = multiprocessing.Process(target=_isolated_campaign_worker, args=(campaign_id,))
+        p.start()
+        p.join(timeout=250)  # PA free tier kills at ~260s, leave 10s buffer
+        
+        if p.is_alive():
+            logger.error(f"Task {task_id} exceeded 250s. Terminating fork.")
+            p.terminate()
+            p.join()
+            fail_task(task_id, "Fork timeout (250s)")
+            results["errors"].append(f"campaign_{campaign_id}_timeout")
+        else:
+            complete_task(task_id)
+            results["tasks"].append(f"campaign_{campaign_id}_done")
+    else:
+        fail_task(task_id, "Missing campaign_id")
+        results["errors"].append("missing_campaign_id")
+
+
+def _process_cron_tick_task(task_id: Any, results: dict) -> None:
+    """
+    Process the cron_tick task type.
+
+    Args:
+        task_id: The unique identifier of the task.
+        results: The results dictionary to update with progress or errors.
+    """
+    global _last_ghost_hunt_time
+    conn = get_db()
+    try:
+        # Check for pending campaigns
+        pending = conn.execute(
+            "SELECT campaign_id FROM campaigns WHERE status='pending' ORDER BY created_at ASC LIMIT 1"
+        ).fetchone()
+        if pending:
+            cid = pending["campaign_id"]
+            conn.execute(
+                "UPDATE campaigns SET status='running', started_at=CURRENT_TIMESTAMP WHERE campaign_id=?",
+                (cid,)
+            )
+            conn.commit()
+            logger.info(f"[WORKER-TICK] Cron tick picked up campaign {cid}")
+            
+            p = multiprocessing.Process(target=_isolated_campaign_worker, args=(cid,))
+            p.start()
+            p.join(timeout=250)
+            
+            if p.is_alive():
+                logger.error(f"[WORKER-TICK] Campaign {cid} timed out.")
+                p.terminate()
+                p.join()
+            results["tasks"].append(f"cron_campaign_{cid}")
+        else:
+            results["tasks"].append("cron_no_pending")
+        
+        # Run sync engine (follow-ups, drip emails)
+        try:
+            engine = EmailEngine()
+            logger.info("[WORKER-TICK] Running sync engine (follow-ups)...")
+            asyncio.run(engine.check_and_send_followups(conn))
+            results["tasks"].append("sync_engine_done")
+        except Exception as e:
+            logger.error(f"Sync engine error: {e}")
+            results["errors"].append(f"sync_engine_{str(e)[:50]}")
+        
+    except Exception as e:
+        logger.error(f"cron_tick error: {e}")
+        results["errors"].append(f"cron_tick_{str(e)[:50]}")
+    finally:
+        conn.close()
+    
+    # Ghost hunter (hourly)
+    if time.time() - _last_ghost_hunt_time > 3600:
+        logger.info("[WORKER-TICK] Running ghost hunter...")
+        try:
+            from core.ghost_hunter import GhostHunter
+            hunter = GhostHunter()
+            hunter.run_all_users()
+            _last_ghost_hunt_time = time.time()
+            results["tasks"].append("ghost_hunt_done")
+        except Exception as e:
+            logger.error(f"Ghost hunter error: {e}")
+            results["errors"].append(f"ghost_hunt_{str(e)[:50]}")
+    
+    complete_task(task_id)
+
+
+async def _process_growth_task(task_type: str, task_id: Any, payload: dict, results: dict) -> None:
+    """
+    Process the growth_* task types.
+
+    Args:
+        task_type: The sub-type of growth task.
+        task_id: The unique identifier of the task.
+        payload: The task payload containing specific parameter values.
+        results: The results dictionary to update with progress or errors.
+    """
+    if task_type == "growth_seo":
+        logger.info(f"[WORKER-TICK] SEO task: {payload.get('topic')}")
+        await asyncio.sleep(2.5)
+        complete_task(task_id)
+        results["tasks"].append("growth_seo_done")
+        
+    elif task_type == "growth_b2b":
+        logger.info(f"[WORKER-TICK] B2B outreach: {payload.get('target')}")
+        await asyncio.sleep(3.0)
+        complete_task(task_id)
+        results["tasks"].append("growth_b2b_done")
+        
+    elif task_type == "growth_social":
+        logger.info(f"[WORKER-TICK] Social sniper: {payload.get('platform')}")
+        await asyncio.sleep(2.0)
+        complete_task(task_id)
+        results["tasks"].append("growth_social_done")
+        
+    elif task_type == "growth_viral_video":
+        logger.info(f"[WORKER-TICK] Viral factory: {payload.get('count', 5)} videos")
+        try:
+            from core.viral_factory import viral_factory
+            for _ in range(payload.get('count', 5)):
+                await viral_factory.create_viral_video()
+            complete_task(task_id)
+            results["tasks"].append("growth_viral_done")
+        except Exception as e:
+            fail_task(task_id, str(e))
+            results["errors"].append(f"viral_{str(e)[:50]}")
+            
+    elif task_type == "growth_influencer":
+        logger.info(f"[WORKER-TICK] Influencer outreach: {payload.get('platform')}")
+        await asyncio.sleep(3.0)
+        complete_task(task_id)
+        results["tasks"].append("growth_influencer_done")
+
+
 @app.post("/api/v2/worker/tick")
 async def worker_tick(request: Request):
     """
@@ -809,8 +954,6 @@ async def worker_tick(request: Request):
     
     Returns JSON with results of what was processed.
     """
-    global _last_ghost_hunt_time
-    
     results = {
         "processed": 0,
         "tasks": [],
@@ -831,131 +974,16 @@ async def worker_tick(request: Request):
             
             logger.info(f"[WORKER-TICK] Processing task {task_id}: {task_type}")
             
-            # --- run_campaign: The main job application task ---
             if task_type == "run_campaign":
-                campaign_id = payload.get("campaign_id")
-                if campaign_id:
-                    # Run with FORK ISOLATION (protects against LLM OOM crashes)
-                    p = multiprocessing.Process(target=_isolated_campaign_worker, args=(campaign_id,))
-                    p.start()
-                    p.join(timeout=250)  # PA free tier kills at ~260s, leave 10s buffer
-                    
-                    if p.is_alive():
-                        logger.error(f"Task {task_id} exceeded 250s. Terminating fork.")
-                        p.terminate()
-                        p.join()
-                        fail_task(task_id, "Fork timeout (250s)")
-                        results["errors"].append(f"campaign_{campaign_id}_timeout")
-                    else:
-                        complete_task(task_id)
-                        results["tasks"].append(f"campaign_{campaign_id}_done")
-                else:
-                    fail_task(task_id, "Missing campaign_id")
-                    results["errors"].append("missing_campaign_id")
-            
-            # --- cron_tick: Check pending campaigns + run sync engine ---
+                _process_run_campaign_task(task_id, payload, results)
             elif task_type == "cron_tick":
-                conn = get_db()
-                try:
-                    # Check for pending campaigns
-                    pending = conn.execute(
-                        "SELECT campaign_id FROM campaigns WHERE status='pending' ORDER BY created_at ASC LIMIT 1"
-                    ).fetchone()
-                    if pending:
-                        cid = pending["campaign_id"]
-                        conn.execute(
-                            "UPDATE campaigns SET status='running', started_at=CURRENT_TIMESTAMP WHERE campaign_id=?",
-                            (cid,)
-                        )
-                        conn.commit()
-                        logger.info(f"[WORKER-TICK] Cron tick picked up campaign {cid}")
-                        
-                        p = multiprocessing.Process(target=_isolated_campaign_worker, args=(cid,))
-                        p.start()
-                        p.join(timeout=250)
-                        
-                        if p.is_alive():
-                            logger.error(f"[WORKER-TICK] Campaign {cid} timed out.")
-                            p.terminate()
-                            p.join()
-                        results["tasks"].append(f"cron_campaign_{cid}")
-                    else:
-                        results["tasks"].append("cron_no_pending")
-                    
-                    # Run sync engine (follow-ups, drip emails)
-                    try:
-                        engine = EmailEngine()
-                        logger.info("[WORKER-TICK] Running sync engine (follow-ups)...")
-                        asyncio.run(engine.check_and_send_followups(conn))
-                        results["tasks"].append("sync_engine_done")
-                    except Exception as e:
-                        logger.error(f"Sync engine error: {e}")
-                        results["errors"].append(f"sync_engine_{str(e)[:50]}")
-                    
-                except Exception as e:
-                    logger.error(f"cron_tick error: {e}")
-                    results["errors"].append(f"cron_tick_{str(e)[:50]}")
-                finally:
-                    conn.close()
-                
-                # Ghost hunter (hourly)
-                if time.time() - _last_ghost_hunt_time > 3600:
-                    logger.info("[WORKER-TICK] Running ghost hunter...")
-                    try:
-                        from core.ghost_hunter import GhostHunter
-                        hunter = GhostHunter()
-                        hunter.run_all_users()
-                        _last_ghost_hunt_time = time.time()
-                        results["tasks"].append("ghost_hunt_done")
-                    except Exception as e:
-                        logger.error(f"Ghost hunter error: {e}")
-                        results["errors"].append(f"ghost_hunt_{str(e)[:50]}")
-                
-                complete_task(task_id)
-            
-            # --- growth_* tasks ---
-            elif task_type == "growth_seo":
-                logger.info(f"[WORKER-TICK] SEO task: {payload.get('topic')}")
-                await asyncio.sleep(2.5)
-                complete_task(task_id)
-                results["tasks"].append("growth_seo_done")
-                
-            elif task_type == "growth_b2b":
-                logger.info(f"[WORKER-TICK] B2B outreach: {payload.get('target')}")
-                await asyncio.sleep(3.0)
-                complete_task(task_id)
-                results["tasks"].append("growth_b2b_done")
-                
-            elif task_type == "growth_social":
-                logger.info(f"[WORKER-TICK] Social sniper: {payload.get('platform')}")
-                await asyncio.sleep(2.0)
-                complete_task(task_id)
-                results["tasks"].append("growth_social_done")
-                
-            elif task_type == "growth_viral_video":
-                logger.info(f"[WORKER-TICK] Viral factory: {payload.get('count', 5)} videos")
-                try:
-                    from core.viral_factory import viral_factory
-                    for i in range(payload.get('count', 5)):
-                        await viral_factory.create_viral_video()
-                    complete_task(task_id)
-                    results["tasks"].append("growth_viral_done")
-                except Exception as e:
-                    fail_task(task_id, str(e))
-                    results["errors"].append(f"viral_{str(e)[:50]}")
-                    
-            elif task_type == "growth_influencer":
-                logger.info(f"[WORKER-TICK] Influencer outreach: {payload.get('platform')}")
-                await asyncio.sleep(3.0)
-                complete_task(task_id)
-                results["tasks"].append("growth_influencer_done")
-                
-            # --- mega_task_* (fast inline tasks) ---
+                _process_cron_tick_task(task_id, results)
+            elif task_type.startswith("growth_"):
+                await _process_growth_task(task_type, task_id, payload, results)
             elif task_type.startswith("mega_task_"):
                 await asyncio.sleep(0.05)
                 complete_task(task_id)
                 results["tasks"].append(f"{task_type}_done")
-                
             else:
                 fail_task(task_id, f"Unknown task_type: {task_type}")
                 results["errors"].append(f"unknown_type_{task_type}")

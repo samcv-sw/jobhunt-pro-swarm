@@ -16,13 +16,12 @@ Usage:
 Supports fields: target_job_title, target_company, extracted_keywords, optimized_sections
 """
 
-import json
-import os
 import asyncio
+import json
 import logging
+import os
 import re
-from typing import Dict, List, Optional
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 
 import config
 
@@ -38,7 +37,7 @@ class OptimizedSection:
     section_name: str  # e.g. "Professional Summary", "Technical Skills"
     original_text: str  # Original content before optimization
     optimized_text: str  # Keyword-enriched optimized content
-    injected_keywords: List[str] = field(
+    injected_keywords: list[str] = field(
         default_factory=list
     )  # Keywords added to this section
 
@@ -49,13 +48,13 @@ class ATSOptimizationResult:
 
     target_job_title: str = ""
     target_company: str = ""
-    extracted_keywords: List[str] = field(default_factory=list)
-    keyword_categories: Dict[str, List[str]] = field(default_factory=dict)
-    optimized_sections: List[OptimizedSection] = field(default_factory=list)
+    extracted_keywords: list[str] = field(default_factory=list)
+    keyword_categories: dict[str, list[str]] = field(default_factory=dict)
+    optimized_sections: list[OptimizedSection] = field(default_factory=list)
     optimized_full_text: str = ""
     match_score_estimate: int = 0
-    missing_skills: List[str] = field(default_factory=list)
-    suggestions: List[str] = field(default_factory=list)
+    missing_skills: list[str] = field(default_factory=list)
+    suggestions: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         """Convert to a flat dict suitable for DB storage or JSON serialization."""
@@ -152,7 +151,7 @@ class ResumeOptimizer:
     # ── Groq Key Loader ────────────────────────────────────────────────────
 
     @staticmethod
-    def _load_groq_keys() -> List[str]:
+    def _load_groq_keys() -> list[str]:
         """Load Groq API keys from env variables with rotation support."""
         primary = os.getenv("GROQ_PRIMARY_KEY") or os.getenv("GROQ_API_KEY") or ""
         rotation = os.getenv("GROQ_ROTATION_KEYS", "")
@@ -207,7 +206,7 @@ class ResumeOptimizer:
         temperature: float = 0.1,
         max_tokens: int = 2048,
         prefer_groq: bool = False,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Call LLM via provider pool (preferred) or direct Groq fallback.
 
         Uses the LLMProviderPool when available for multi-provider rotation.
@@ -266,7 +265,7 @@ class ResumeOptimizer:
 
     async def parse_job_keywords(
         self, job_description: str, job_title: str = ""
-    ) -> Dict[str, List[str]]:
+    ) -> dict[str, list[str]]:
         """Extract categorized keywords from a job description using AI.
 
         Args:
@@ -337,13 +336,13 @@ class ResumeOptimizer:
 
     def parse_job_keywords_sync(
         self, job_description: str, job_title: str = ""
-    ) -> Dict[str, List[str]]:
+    ) -> dict[str, list[str]]:
         """Synchronous wrapper for parse_job_keywords."""
         return self._run_sync(self.parse_job_keywords(job_description, job_title))
 
     # ── Fallback Keyword Extraction ───────────────────────────────────────
 
-    def _fallback_extract_keywords(self, text: str) -> Dict[str, List[str]]:
+    def _fallback_extract_keywords(self, text: str) -> dict[str, list[str]]:
         """Rule-based fallback keyword extraction when AI fails.
         Uses config.SKILLS and common patterns to extract keywords."""
         text_lower = text.lower()
@@ -408,8 +407,8 @@ class ResumeOptimizer:
     async def optimize_resume_sections(
         self,
         cv_text: str,
-        keywords: Dict[str, List[str]],
-        sections_to_optimize: Optional[List[str]] = None,
+        keywords: dict[str, list[str]],
+        sections_to_optimize: list[str] | None = None,
         job_title: str = "",
         company: str = "",
     ) -> ATSOptimizationResult:
@@ -522,8 +521,8 @@ Track which keywords were injected per section."""
     def optimize_resume_sections_sync(
         self,
         cv_text: str,
-        keywords: Dict[str, List[str]],
-        sections_to_optimize: Optional[List[str]] = None,
+        keywords: dict[str, list[str]],
+        sections_to_optimize: list[str] | None = None,
         job_title: str = "",
         company: str = "",
     ) -> ATSOptimizationResult:
@@ -539,7 +538,7 @@ Track which keywords were injected per section."""
     def _fallback_optimize(
         self,
         cv_text: str,
-        keywords: Dict[str, List[str]],
+        keywords: dict[str, list[str]],
         job_title: str = "",
         company: str = "",
     ) -> ATSOptimizationResult:
@@ -578,10 +577,10 @@ Track which keywords were injected per section."""
 
     async def generate_ats_resume(
         self,
-        cv_path: Optional[str] = None,
-        cv_text: Optional[str] = None,
+        cv_path: str | None = None,
+        cv_text: str | None = None,
         job_description: str = "",
-        output_path: Optional[str] = None,
+        output_path: str | None = None,
         job_title: str = "",
         company: str = "",
     ) -> ATSOptimizationResult:
@@ -646,10 +645,10 @@ Track which keywords were injected per section."""
 
     def generate_ats_resume_sync(
         self,
-        cv_path: Optional[str] = None,
-        cv_text: Optional[str] = None,
+        cv_path: str | None = None,
+        cv_text: str | None = None,
         job_description: str = "",
-        output_path: Optional[str] = None,
+        output_path: str | None = None,
         job_title: str = "",
         company: str = "",
     ) -> ATSOptimizationResult:
@@ -668,7 +667,7 @@ Track which keywords were injected per section."""
     # ── CV Text Loader ─────────────────────────────────────────────────────
 
     @staticmethod
-    async def _load_cv_text(cv_path: Optional[str] = None) -> str:
+    async def _load_cv_text(cv_path: str | None = None) -> str:
         """Load CV text from PDF or plain text file."""
         if not cv_path:
             cv_path = config.CV_PATH
@@ -680,7 +679,7 @@ Track which keywords were injected per section."""
         ext = os.path.splitext(cv_path)[1].lower()
 
         if ext in (".txt", ".md", ".rtf"):
-            with open(cv_path, "r", encoding="utf-8", errors="replace") as f:
+            with open(cv_path, encoding="utf-8", errors="replace") as f:
                 return f.read()
 
         elif ext == ".pdf":
@@ -753,7 +752,7 @@ Track which keywords were injected per section."""
 
 def parse_job_keywords(
     job_description: str, job_title: str = ""
-) -> Dict[str, List[str]]:
+) -> dict[str, list[str]]:
     """Quick one-shot keyword extraction — no optimizer instance needed.
 
     Example:
@@ -778,7 +777,7 @@ def optimize_resume(
 def generate_ats_resume(
     cv_path: str,
     job_description: str,
-    output_path: Optional[str] = None,
+    output_path: str | None = None,
     job_title: str = "",
     company: str = "",
 ) -> ATSOptimizationResult:

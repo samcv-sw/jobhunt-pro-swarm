@@ -4,24 +4,28 @@
 <style>
 /* Dashboard-specific premium styles */
 .glass-panel {
-  background: rgba(13,14,30,0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  background: rgba(10,10,25,0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0,240,255,0.15);
+  border-radius: 16px;
+  transition: all 0.3s ease;
 }
-.glass-panel:hover { border-color: rgba(255,255,255,0.13); }
+.glass-panel:hover {
+  border-color: rgba(0,240,255,0.3);
+  box-shadow: 0 20px 40px rgba(0,240,255,0.08);
+}
 
 .stat-card-premium {
   position: relative;
-  background: rgba(13,14,30,0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 18px;
+  background: rgba(10,10,25,0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0,240,255,0.15);
+  border-radius: 16px;
   padding: 22px;
   overflow: hidden;
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
 }
 .stat-card-premium::before {
   content: '';
@@ -29,13 +33,17 @@
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(139,92,246,0.5), rgba(0,212,170,0.3), rgba(240,192,64,0.2));
+  background: linear-gradient(135deg, rgba(139,92,246,0.5), rgba(0,212,170,0.3), rgba(0,240,255,0.2));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
 }
-.stat-card-premium:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+.stat-card-premium:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,240,255,0.1);
+  border-color: rgba(0,240,255,0.3);
+}
 .stat-counter { font-variant-numeric: tabular-nums; }
 
 @keyframes fadeInUp {
@@ -103,7 +111,7 @@
 <div class="stat-card-premium reveal" style="animation-delay:0.1s;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-block-end:12px;">
     <div style="width:38px;height:38px;border-radius:10px;background:rgba(99,102,241,0.15);display:flex;align-items:center;justify-content:center;">
-      <i data-lucide="send" style="width:18px;height:18px;color:#818cf8;"></i>
+      <i class="lucide-dir-aware" data-lucide="send" style="width:18px;height:18px;color:#818cf8;"></i>
     </div>
     <span style="font-size:10px;font-weight:700;color:#4ade80;background:rgba(74,222,128,0.1);padding:3px 8px;border-radius:20px;">+12%</span>
   </div>
@@ -173,7 +181,7 @@
 <h3 class="mb-4 text-base font-semibold uppercase text-slate-400">إجراءات سريعة</h3>
 <div class="grid grid-cols-2 gap-3">
 <a class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-indigo-500/50 hover:bg-indigo-500/10 hover:shadow-[0_0_15px_rgba(99,102,241,0.2)]" href="/new-campaign">
-<i class="h-6 w-6 text-slate-400 transition-colors group-hover:text-indigo-400" data-lucide="rocket"></i>
+<i class="h-6 w-6 text-slate-400 transition-colors group-hover:text-indigo-400 lucide-dir-aware" data-lucide="rocket"></i>
 <span class="text-base font-medium text-slate-300">حملة</span>
 </a>
 <a class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]" href="/upload-cv">
@@ -283,7 +291,7 @@
 <div class="border-b border-white/10 p-4">
 <div class="flex items-center justify-between">
 <h3 class="flex items-center gap-2 text-lg font-bold text-white"><i class="h-5 w-5" data-lucide="keyboard"></i> اختصارات لوحة المفاتيح</h3>
-<form method="dialog">
+<form dir="auto" method="dialog">
 <button class="rounded-lg p-1 text-slate-400 hover:bg-white/10 hover:text-white"><i class="h-5 w-5" data-lucide="x"></i></button>
 </form>
 </div>
@@ -358,11 +366,11 @@ function initChart() {
         y: {
           beginAtZero: true,
           grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-          ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+          ticks: { color: '#94a3b8', font: { family: "'Cairo', 'Inter', sans-serif" } }
         },
         x: {
           grid: { display: false },
-          ticks: { color: '#94a3b8', font: { family: 'Inter', size: 12 } }
+          ticks: { color: '#94a3b8', font: { family: "'Cairo', 'Inter', sans-serif", size: 12 } }
         }
       },
       animation: { duration: 1500, easing: 'easeOutQuart' }

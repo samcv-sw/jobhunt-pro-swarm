@@ -5,8 +5,9 @@ Perfect for 24/7 headless cloud deployment.
 """
 
 import logging
-import httpx
 import os
+
+import httpx
 
 logger = logging.getLogger(__name__)
 

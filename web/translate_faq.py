@@ -16,4 +16,4 @@ for k, v in replacements.items():
 with open(file_path, 'w', encoding='utf-8') as f:
     f.write(content)
 
-print('faq.html translated successfully.')
+logger.info('faq.html translated successfully.')

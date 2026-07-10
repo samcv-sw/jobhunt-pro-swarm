@@ -2,10 +2,10 @@
 Indeed RSS Scraper — uses Indeed's public RSS feed (no API key, no blocks)
 """
 
-import re
 import logging
+import os
+import re
 import xml.etree.ElementTree as ET
-from typing import List, Dict
 from urllib.parse import urlencode
 
 try:
@@ -18,10 +18,12 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
+INDEED_BASE_URL = os.getenv("INDEED_BASE_URL", "https://www.indeed.com").rstrip("/")
+
 
 class IndeedRSSScraper:
     """Scrapes Indeed via RSS/Atom feed — never gets 403 since it's XML.
-    Indeed RSS: https://www.indeed.com/rss?q={query}&l={location}&sort=date
+    Indeed RSS: {INDEED_BASE_URL}/rss?q={query}&l={location}&sort=date
     """
 
     source_name = "indeed_rss"
@@ -47,7 +49,7 @@ class IndeedRSSScraper:
             "Accept": "application/rss+xml, application/xml, text/xml",
         }
 
-    def search(self, query: str, location: str = "", limit: int = 20) -> List[Dict]:
+    def search(self, query: str, location: str = "", limit: int = 20) -> list[dict]:
         jobs = []
         location_clean = location.strip()
 
@@ -59,7 +61,7 @@ class IndeedRSSScraper:
                 if loc_try:
                     params["l"] = loc_try
 
-                url = f"https://www.indeed.com/rss?{urlencode(params)}"
+                url = f"{INDEED_BASE_URL}/rss?{urlencode(params)}"
                 logger.info(f"[IndeedRSS] Fetching: {url}")
 
                 resp = self._session.get(url, headers=self._headers)

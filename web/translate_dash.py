@@ -37,4 +37,4 @@ for k, v in replacements.items():
 with open(file_path, 'w', encoding='utf-8') as f:
     f.write(content)
 
-print('dashboard_v3.html translated successfully.')
+logger.info('dashboard_v3.html translated successfully.')

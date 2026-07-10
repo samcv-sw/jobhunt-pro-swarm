@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="auto">
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
@@ -33,7 +33,16 @@
     }
     </script>
     {% block head %}{% endblock %}
-</head>
+
+  <style>
+  /* CSS Logical Properties RTL direction variable */
+  :root {
+    --text-x-direction: 1; /* 1 for LTR, -1 for RTL */
+  }
+  [dir='rtl'] {
+    --text-x-direction: -1;
+  }
+  </style></head>
 <body class="cyberpunk-body">
     
     {% block content %}{% endblock %}

@@ -7,16 +7,30 @@ All demo_user-specific env vars prefixed with demo_user_ to avoid conflicts.
 Usage:
     from core.demo_user_profile import demo_userProfile
     profile = demo_userProfile()  # loads from demo_user_* env vars
-    print(profile.name, profile.email)
+    logger.debug(profile.name, profile.email)
 """
 
+import logging
 import os
 from dataclasses import dataclass, field
-from typing import List
 
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger("rita_profile")
+
+
+def _safe_int_env(key: str, default: int) -> int:
+    """Safely parse environment variable to integer, falling back to default on error."""
+    val = os.getenv(key)
+    if not val:
+        return default
+    try:
+        return int(val)
+    except ValueError:
+        logger.warning("Invalid integer for env var %s: %s. Using default: %d", key, val, default)
+        return default
 
 
 @dataclass
@@ -36,13 +50,15 @@ class demo_userProfile:
     linkedin: str = os.getenv(
         "demo_user_LINKEDIN", "https://www.linkedin.com/in/demo_user-user/"
     )
-    years_experience: int = int(os.getenv("demo_user_YEARS_EXPERIENCE", "6"))
+    years_experience: int = field(
+        default_factory=lambda: _safe_int_env("demo_user_YEARS_EXPERIENCE", 6)
+    )
 
     # ── CV / Resume ──────────────────────────────────────
     cv_path: str = os.getenv("demo_user_CV_PATH", "assets/demo_user_user_CV.pdf")
 
     # ── Job Search Config ─────────────────────────────────
-    job_titles: List[str] = field(
+    job_titles: list[str] = field(
         default_factory=lambda: [
             "HR Coordinator",
             "HR Specialist",
@@ -61,7 +77,7 @@ class demo_userProfile:
         ]
     )
 
-    target_companies: List[str] = field(
+    target_companies: list[str] = field(
         default_factory=lambda: [
             "Murex",
             "Bank Audi",
@@ -89,7 +105,7 @@ class demo_userProfile:
         ]
     )
 
-    locations: List[str] = field(
+    locations: list[str] = field(
         default_factory=lambda: [
             "lebanon",
             "beirut",
@@ -105,10 +121,16 @@ class demo_userProfile:
     )
 
     target_salary: str = os.getenv("demo_user_TARGET_SALARY", "1500")
-    min_salary: int = int(os.getenv("demo_user_MIN_SALARY", "1000"))
+    min_salary: int = field(
+        default_factory=lambda: _safe_int_env("demo_user_MIN_SALARY", 1000)
+    )
 
-    daily_send_limit: int = int(os.getenv("demo_user_DAILY_SEND_LIMIT", "75"))
-    min_match_score: int = int(os.getenv("demo_user_MIN_MATCH_SCORE", "50"))
+    daily_send_limit: int = field(
+        default_factory=lambda: _safe_int_env("demo_user_DAILY_SEND_LIMIT", 75)
+    )
+    min_match_score: int = field(
+        default_factory=lambda: _safe_int_env("demo_user_MIN_MATCH_SCORE", 50)
+    )
 
     # ── AI / Tech Stack ─────────────────────────────────
     groq_api_key: str = os.getenv("demo_user_GROQ_API_KEY", "")
@@ -124,7 +146,7 @@ class demo_userProfile:
     brevo_smtp_password: str = os.getenv("demo_user_BREVO_SMTP_PASSWORD", "")
 
     # ── Skills ──────────────────────────────────────────
-    skills: List[str] = field(
+    skills: list[str] = field(
         default_factory=lambda: [
             "hr operations",
             "recruitment",
@@ -155,7 +177,7 @@ class demo_userProfile:
     )
 
     # ── Banned Titles (irrelevant for HR profile) ──────
-    banned_titles: List[str] = field(
+    banned_titles: list[str] = field(
         default_factory=lambda: [
             "nurse",
             "doctor",
@@ -194,9 +216,6 @@ class demo_userProfile:
             else "defaults"
         )
 
-        import logging
-
-        logger = logging.getLogger(__name__)
         logger.info(
             f"[demo_user-PROFILE] Loaded {self.name} ({self.title}) from {loaded_from}"
         )
@@ -250,7 +269,6 @@ demo_user = demo_userProfile()
 if __name__ == "__main__":
     import json
 
-    print(demo_user.summary())
-    print("\n--- Full Profile ---")
-    print(json.dumps(demo_user.to_dict(), indent=2, default=str))
-
+    logger.debug(demo_user.summary())
+    logger.debug("\n--- Full Profile ---")
+    logger.debug(json.dumps(demo_user.to_dict(), indent=2, default=str))

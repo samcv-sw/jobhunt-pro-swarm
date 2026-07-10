@@ -30,6 +30,11 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     if (typeof document !== "undefined" && document.documentElement) {
       document.documentElement.lang = locale;
       document.documentElement.dir = locale === "ar" ? "rtl" : "ltr";
+      // Sync CSS logical direction variable for .dir-icon flip transforms
+      document.documentElement.style.setProperty(
+        "--text-x-direction",
+        locale === "ar" ? "-1" : "1"
+      );
     }
   }, [locale]);
 

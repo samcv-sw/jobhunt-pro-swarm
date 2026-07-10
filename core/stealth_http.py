@@ -1,4 +1,6 @@
 import logging
+from typing import Any
+
 try:
     from curl_cffi import requests as curl_requests
     _CURL_CFFI_AVAILABLE = True
@@ -14,11 +16,11 @@ class StealthClient:
     Bypasses Cloudflare 1020 errors and DataDome blocks.
     Falls back to httpx if curl_cffi is missing.
     """
-    def __init__(self, impersonate="chrome110", timeout=15.0):
+    def __init__(self, impersonate: str = "chrome110", timeout: float = 15.0) -> None:
         self.impersonate = impersonate
         self.timeout = timeout
-        
-    def get(self, url, **kwargs):
+
+    def get(self, url: str, **kwargs: Any) -> Any:
         kwargs.setdefault("timeout", self.timeout)
         if _CURL_CFFI_AVAILABLE:
             kwargs.setdefault("impersonate", self.impersonate)
@@ -33,7 +35,7 @@ class StealthClient:
             kwargs.pop("impersonate", None)
             return httpx.get(url, **kwargs)
 
-    def post(self, url, **kwargs):
+    def post(self, url: str, **kwargs: Any) -> Any:
         kwargs.setdefault("timeout", self.timeout)
         if _CURL_CFFI_AVAILABLE:
             kwargs.setdefault("impersonate", self.impersonate)
@@ -49,11 +51,11 @@ class StealthClient:
 
 class AsyncStealthClient:
     """Async version of StealthClient."""
-    def __init__(self, impersonate="chrome110", timeout=15.0):
+    def __init__(self, impersonate: str = "chrome110", timeout: float = 15.0) -> None:
         self.impersonate = impersonate
         self.timeout = timeout
-        
-    async def get(self, url, **kwargs):
+
+    async def get(self, url: str, **kwargs: Any) -> Any:
         kwargs.setdefault("timeout", self.timeout)
         if _CURL_CFFI_AVAILABLE:
             kwargs.setdefault("impersonate", self.impersonate)
@@ -68,7 +70,7 @@ class AsyncStealthClient:
             async with httpx.AsyncClient() as client:
                 return await client.get(url, **kwargs)
 
-    async def post(self, url, **kwargs):
+    async def post(self, url: str, **kwargs: Any) -> Any:
         kwargs.setdefault("timeout", self.timeout)
         if _CURL_CFFI_AVAILABLE:
             kwargs.setdefault("impersonate", self.impersonate)
@@ -86,3 +88,4 @@ class AsyncStealthClient:
 # Singleton instances for easy import
 stealth_http = StealthClient()
 async_stealth_http = AsyncStealthClient()
+

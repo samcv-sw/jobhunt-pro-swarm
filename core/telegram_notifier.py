@@ -11,8 +11,8 @@ Monitors DB changes and pushes intelligent alerts:
 """
 
 import asyncio
-import time
 import os
+import time
 
 if not os.getenv("FORCE_SQLITE"):
     try:
@@ -21,10 +21,10 @@ if not os.getenv("FORCE_SQLITE"):
         import sqlite3
 else:
     import sqlite3
-import threading
-from datetime import datetime, timedelta
-from typing import Callable, Set
 import logging
+import threading
+from collections.abc import Callable
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -61,9 +61,9 @@ class TelegramNotifier:
         self._running = False
         self._thread = None
         self._last_check = time.time()
-        self.notified: Set[int] = set()  # response IDs already alerted
-        self._milestones_fired: Set[str] = set()  # milestone keys already celebrated
-        self._followups_sent: Set[int] = (
+        self.notified: set[int] = set()  # response IDs already alerted
+        self._milestones_fired: set[str] = set()  # milestone keys already celebrated
+        self._followups_sent: set[int] = (
             set()
         )  # application IDs we already sent follow-up for
 

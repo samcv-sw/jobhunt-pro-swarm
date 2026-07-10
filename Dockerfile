@@ -19,6 +19,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy backend code
 COPY backend/ ./backend/
 COPY scrapers/ ./scrapers/
+COPY core/ ./core/
+COPY config.py .
 COPY tests/ ./tests/
 
 # Set Python path so `backend` can be resolved

@@ -3,9 +3,10 @@ Cover Letter PDF Generator
 Generates professional PDF cover letters using FPDF.
 """
 
-import os
 import logging
+import os
 from datetime import datetime
+
 from fpdf import FPDF
 
 logger = logging.getLogger(__name__)
@@ -92,80 +93,91 @@ def generate_cover_pdf(
     hidden_keywords: str = None,
     prompt_injection: str = None,
 ) -> str:
-    """Generate a professional PDF cover letter. Returns file path."""
-    os.makedirs(CV_DIR, exist_ok=True)
+    """Generate a professional PDF cover letter. Returns file path with robust error handling."""
+    try:
+        os.makedirs(CV_DIR, exist_ok=True)
+    except Exception as e:
+        logger.error("Failed to create PDF output directory %s: %s", CV_DIR, e)
+        raise RuntimeError(f"Could not create cover letter directory: {e}") from e
+
     filename = f"Cover_Letter_{company.replace(' ', '_')}.pdf"
     filepath = os.path.join(CV_DIR, filename)
 
-    pdf = CoverPDF("P", "mm", "A4")
-    pdf.add_page()
+    try:
+        pdf = CoverPDF("P", "mm", "A4")
+        pdf.add_page()
 
-    # Date
-    pdf.set_font("Helvetica", "", 10)
-    pdf.set_text_color(100, 116, 139)
-    pdf.cell(
-        0,
-        6,
-        datetime.now().strftime("%B %d, %Y"),
-        align="R",
-        new_x="LMARGIN",
-        new_y="NEXT",
-    )
-    pdf.ln(10)
-
-    # Salutation
-    pdf.set_font("Helvetica", "", 11)
-    pdf.set_text_color(30, 41, 59)
-    pdf.multi_cell(0, 6, _sanitize_text(f"Dear {company} Hiring Team,"))
-    pdf.ln(4)
-
-    # Body
-    if body_text:
+        # Date
         pdf.set_font("Helvetica", "", 10)
-        pdf.set_text_color(71, 85, 105)  # #475569 dark slate gray
-        paragraphs = body_text.replace("\r\n", "\n").split("\n\n")
-        for p in paragraphs:
-            p = p.strip()
-            if p:
-                pdf.multi_cell(0, 5.5, _sanitize_text(p))
-                pdf.ln(3)
-    else:
-        body_parts = [
-            f"I am writing to formally express my strong interest in the {title} position at {company}.",
-            "With 15+ years of hands-on experience in enterprise networking, security, and infrastructure automation, I am confident in my ability to deliver immediate value to your organization.",
-            "My expertise spans Cisco, MikroTik, Fortinet, Ubiquiti, and Juniper environments -- networks spanning thousands of devices across multiple countries. I bring a security-first mindset with deep experience in firewall architecture, intrusion detection, and Zero Trust implementations.",
-            "I pride myself on combining technical excellence with automation-first thinking (Python, Ansible, PowerShell) to reduce manual overhead and human error.",
-            f"I welcome the opportunity to discuss how my background aligns with {company}'s needs. Thank you for your time and consideration.",
-        ]
-        body = "\n\n".join(body_parts)
-        pdf.set_font("Helvetica", "", 10)
-        pdf.set_text_color(71, 85, 105)
-        pdf.multi_cell(0, 5.5, _sanitize_text(body))
+        pdf.set_text_color(100, 116, 139)
+        pdf.cell(
+            0,
+            6,
+            datetime.now().strftime("%B %d, %Y"),
+            align="R",
+            new_x="LMARGIN",
+            new_y="NEXT",
+        )
+        pdf.ln(10)
+
+        # Salutation
+        pdf.set_font("Helvetica", "", 11)
+        pdf.set_text_color(30, 41, 59)
+        pdf.multi_cell(0, 6, _sanitize_text(f"Dear {company} Hiring Team,"))
         pdf.ln(4)
 
-    # Closing
-    pdf.set_font("Helvetica", "", 11)
-    pdf.set_text_color(30, 41, 59)
-    pdf.cell(0, 6, "Sincerely,", new_x="LMARGIN", new_y="NEXT")
-    pdf.ln(10)
-    pdf.set_font("Helvetica", "B", 12)
-    pdf.set_text_color(30, 41, 59)
-    pdf.cell(0, 6, CANDIDATE_NAME, new_x="LMARGIN", new_y="NEXT")
-    pdf.set_font("Helvetica", "", 9)
-    pdf.set_text_color(100, 116, 139)
-    pdf.cell(0, 5, CANDIDATE_TITLE, new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 5, CANDIDATE_EMAIL, new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 5, CANDIDATE_PHONE, new_x="LMARGIN", new_y="NEXT")
+        # Body
+        if body_text:
+            pdf.set_font("Helvetica", "", 10)
+            pdf.set_text_color(71, 85, 105)  # #475569 dark slate gray
+            paragraphs = body_text.replace("\r\n", "\n").split("\n\n")
+            for p in paragraphs:
+                p = p.strip()
+                if p:
+                    pdf.multi_cell(0, 5.5, _sanitize_text(p))
+                    pdf.ln(3)
+        else:
+            body_parts = [
+                f"I am writing to formally express my strong interest in the {title} position at {company}.",
+                "With 15+ years of hands-on experience in enterprise networking, security, and infrastructure automation, I am confident in my ability to deliver immediate value to your organization.",
+                "My expertise spans Cisco, MikroTik, Fortinet, Ubiquiti, and Juniper environments -- networks spanning thousands of devices across multiple countries. I bring a security-first mindset with deep experience in firewall architecture, intrusion detection, and Zero Trust implementations.",
+                "I pride myself on combining technical excellence with automation-first thinking (Python, Ansible, PowerShell) to reduce manual overhead and human error.",
+                f"I welcome the opportunity to discuss how my background aligns with {company}'s needs. Thank you for your time and consideration.",
+            ]
+            body = "\n\n".join(body_parts)
+            pdf.set_font("Helvetica", "", 10)
+            pdf.set_text_color(71, 85, 105)
+            pdf.multi_cell(0, 5.5, _sanitize_text(body))
+            pdf.ln(4)
 
-    # --- ATS BYPASS & PROMPT INJECTION (INVISIBLE TEXT) ---
-    if hidden_keywords or prompt_injection:
-        pdf.set_font("Helvetica", "", 1)  # Microscopic font
-        pdf.set_text_color(255, 255, 255)  # White color (invisible on white background)
-        if hidden_keywords:
-            pdf.multi_cell(0, 1, _sanitize_text(hidden_keywords))
-        if prompt_injection:
-            pdf.multi_cell(0, 1, _sanitize_text(prompt_injection))
+        # Closing
+        pdf.set_font("Helvetica", "", 11)
+        pdf.set_text_color(30, 41, 59)
+        pdf.cell(0, 6, "Sincerely,", new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(10)
+        pdf.set_font("Helvetica", "B", 12)
+        pdf.set_text_color(30, 41, 59)
+        pdf.cell(0, 6, CANDIDATE_NAME, new_x="LMARGIN", new_y="NEXT")
+        pdf.set_font("Helvetica", "", 9)
+        pdf.set_text_color(100, 116, 139)
+        pdf.cell(0, 5, CANDIDATE_TITLE, new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 5, CANDIDATE_EMAIL, new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 5, CANDIDATE_PHONE, new_x="LMARGIN", new_y="NEXT")
 
-    pdf.output(filepath)
-    logger.info(f"Cover letter PDF: {filepath} ({os.path.getsize(filepath)} bytes)")
-    return filepath
+        # --- ATS BYPASS & PROMPT INJECTION (INVISIBLE TEXT) ---
+        if hidden_keywords or prompt_injection:
+            pdf.set_font("Helvetica", "", 1)  # Microscopic font
+            pdf.set_text_color(255, 255, 255)  # White color (invisible on white background)
+            if hidden_keywords:
+                pdf.multi_cell(0, 1, _sanitize_text(hidden_keywords))
+            if prompt_injection:
+                pdf.multi_cell(0, 1, _sanitize_text(prompt_injection))
+
+        pdf.output(filepath)
+        size = os.path.getsize(filepath)
+        logger.info(f"Successfully generated cover letter PDF: {filepath} ({size} bytes)")
+        return filepath
+    except Exception as e:
+        logger.error("Failed to generate cover letter PDF for company %s: %s", company, e)
+        raise RuntimeError(f"Could not generate PDF: {e}") from e
+

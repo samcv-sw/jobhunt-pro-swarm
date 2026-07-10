@@ -1,8 +1,8 @@
-import os
-import logging
-import json
 import asyncio
-from typing import Optional, Dict, Any
+import json
+import logging
+import os
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ class AsyncDatabase:
         self.backend = "sqlite"
         logger.info(f"APEX MATRIX: Connected to SQLite via aiosqlite at {db_path}.")
 
-    async def fetch_one(self, query: str, *args) -> Optional[Dict[str, Any]]:
+    async def fetch_one(self, query: str, *args) -> dict[str, Any] | None:
         if not self.pool:
             await self.connect()
 
@@ -107,13 +107,32 @@ class AsyncDatabase:
         return result
 
 
+    async def close(self):
+        """Shut down Postgres connection pools or SQLite connections cleanly."""
+        async with self._lock:
+            if self.pool:
+                try:
+                    if self.backend == "pg":
+                        await self.pool.close()
+                    else:
+                        await self.pool.close()
+                except Exception as e:
+                    logger.warning(f"[DB] Error closing pool: {e}")
+                finally:
+                    self.pool = None
+
+
 async_db = AsyncDatabase()
 
 
-async def async_dequeue_task() -> Optional[Dict[str, Any]]:
+_sqlite_async_dequeue_lock = None
+
+
+async def async_dequeue_task() -> dict[str, Any] | None:
     """
     APEX MATRIX: Atomically dequeues a task using SKIP LOCKED in asyncpg.
     """
+    global _sqlite_async_dequeue_lock
     if not async_db.pool:
         await async_db.connect()
 
@@ -142,27 +161,33 @@ async def async_dequeue_task() -> Optional[Dict[str, Any]]:
                     }
         else:
             # SQLite fallback
-            query = """
-                SELECT id, task_type, payload FROM job_queue 
-                WHERE (status = 'pending' OR status = 'failed')
-                  AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
-                ORDER BY priority ASC, next_retry_at ASC, created_at ASC 
-                LIMIT 1
-            """
-            async with async_db.pool.execute(query) as cursor:
-                row = await cursor.fetchone()
-                if row:
-                    task_id = row["id"]
-                    await async_db.pool.execute(
-                        "UPDATE job_queue SET status = 'running', locked_at = CURRENT_TIMESTAMP WHERE id = ?",
-                        (task_id,),
-                    )
-                    await async_db.pool.commit()
-                    return {
-                        "id": task_id,
-                        "task_type": row["task_type"],
-                        "payload": json.loads(row["payload"]),
-                    }
+            if _sqlite_async_dequeue_lock is None:
+                _sqlite_async_dequeue_lock = asyncio.Lock()
+            async with _sqlite_async_dequeue_lock:
+                await async_db.pool.execute("BEGIN IMMEDIATE")
+                query = """
+                    SELECT id, task_type, payload FROM job_queue 
+                    WHERE (status = 'pending' OR status = 'failed')
+                      AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
+                    ORDER BY priority ASC, next_retry_at ASC, created_at ASC 
+                    LIMIT 1
+                """
+                async with async_db.pool.execute(query) as cursor:
+                    row = await cursor.fetchone()
+                    if row:
+                        task_id = row["id"]
+                        await async_db.pool.execute(
+                            "UPDATE job_queue SET status = 'running', locked_at = CURRENT_TIMESTAMP WHERE id = ?",
+                            (task_id,),
+                        )
+                        await async_db.pool.commit()
+                        return {
+                            "id": task_id,
+                            "task_type": row["task_type"],
+                            "payload": json.loads(row["payload"]),
+                        }
+                    else:
+                        await async_db.pool.rollback()
     except Exception as e:
         logger.error(f"Async dequeue failed: {e}")
     return None

@@ -4,10 +4,9 @@ Routes salary/offer emails to an AI-powered negotiation chain.
 Compares offers against user preferences and drafts professional counter-offers.
 """
 
-import logging
 import json
+import logging
 import re
-from typing import Dict, Optional
 from datetime import datetime
 
 import httpx
@@ -49,7 +48,7 @@ CURRENCY_RATES = {
 }
 
 
-def extract_salary_from_text(text: str) -> Optional[Dict]:
+def extract_salary_from_text(text: str) -> dict | None:
     """
     Extract salary information from email text.
     Returns dict with amount, currency, period, and USD equivalent.
@@ -172,9 +171,9 @@ def build_negotiation_prompt(
     sender_name: str,
     company_name: str,
     job_title: str,
-    offered_salary: Optional[Dict],
+    offered_salary: dict | None,
     user_min_salary: float,
-    user_profile: Dict,
+    user_profile: dict,
     email_type: str,
     original_email: str,
 ) -> str:
@@ -271,9 +270,9 @@ async def negotiate_salary(
     company_name: str,
     job_title: str,
     original_email: str,
-    user_min_salary: Optional[float] = None,
-    user_profile: Optional[Dict] = None,
-) -> Dict:
+    user_min_salary: float | None = None,
+    user_profile: dict | None = None,
+) -> dict:
     """
     Main negotiation entry point.
     Analyzes email, extracts salary, generates counter-offer.
@@ -341,7 +340,7 @@ async def negotiate_salary(
     )
 
 
-async def _call_ai(prompt: str) -> Optional[str]:
+async def _call_ai(prompt: str) -> str | None:
     """Call Gemini or Groq for negotiation response."""
     # Try Gemini first
     if config.GEMINI_API_KEY:
@@ -381,11 +380,11 @@ async def _call_ai(prompt: str) -> Optional[str]:
 
 def _template_negotiation(
     email_type: str,
-    offered_salary: Optional[Dict],
+    offered_salary: dict | None,
     user_min_salary: float,
     company: str,
     title: str,
-) -> Dict:
+) -> dict:
     """Fallback template-based negotiation when AI is unavailable."""
     target_salary = user_min_salary * 1.15  # Push 15% above minimum
 

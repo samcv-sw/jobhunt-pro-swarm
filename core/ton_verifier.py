@@ -30,7 +30,6 @@ DEPENDENCIES:
 import asyncio
 import logging
 import os
-from typing import Optional, Tuple
 
 import httpx
 
@@ -94,7 +93,7 @@ def _tonapi_headers() -> dict:
 
 async def _get(
     client: httpx.AsyncClient, url: str, params: dict = None, headers: dict = None
-) -> Optional[dict]:
+) -> dict | None:
     """Safe async GET with timeout and error handling."""
     try:
         resp = await client.get(
@@ -118,7 +117,7 @@ async def _get(
 
 async def get_jetton_wallet_address(
     owner_address: str, jetton_master: str = USDT_MASTER_ADDRESS
-) -> Optional[str]:
+) -> str | None:
     """
     STAGE 1: Derive the canonical Jetton Wallet address for a given owner.
     ======================================================================
@@ -177,7 +176,7 @@ async def get_jetton_wallet_address(
     return None
 
 
-async def get_transaction_by_hash(tx_hash: str) -> Optional[dict]:
+async def get_transaction_by_hash(tx_hash: str) -> dict | None:
     """
     STAGE 2: Fetch full transaction data by its message hash.
     =========================================================
@@ -215,7 +214,7 @@ async def get_transaction_by_hash(tx_hash: str) -> Optional[dict]:
     return None
 
 
-async def is_masterchain_finalized(tx_hash: str) -> Tuple[bool, int]:
+async def is_masterchain_finalized(tx_hash: str) -> tuple[bool, int]:
     """
     STAGE 3: Confirm Masterchain Finality.
     ======================================

@@ -1,8 +1,6 @@
-import os
+import asyncio
 import json
 import logging
-import random
-import asyncio
 import smtplib
 from email.message import EmailMessage
 from pathlib import Path
@@ -21,7 +19,7 @@ class RotatingEmailSender:
             # We expect a JSON file like [{"email": "...", "password": "..."}, ...]
             path = Path(__file__).parent.parent / self.credentials_path
             if path.exists():
-                with open(path, "r") as f:
+                with open(path) as f:
                     return json.load(f)
             else:
                 logger.warning(f"Credentials file {self.credentials_path} not found. Running in DRY RUN mode.")
@@ -34,7 +32,7 @@ class RotatingEmailSender:
         """Round-robin selection of the next available email account."""
         if not self.accounts:
             return None
-        
+
         account = self.accounts[self.current_index]
         self.current_index = (self.current_index + 1) % len(self.accounts)
         return account
@@ -44,7 +42,7 @@ class RotatingEmailSender:
         Sends an email. Propagates exceptions so that the caller (e.g. a Celery task) can handle retries.
         """
         account = self._get_next_account()
-        
+
         if not account:
             logger.info(f"[DRY RUN] Would send email to {to_email} with subject: {subject}")
             return

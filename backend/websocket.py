@@ -1,10 +1,12 @@
-import asyncio
-from typing import List
+import logging
+
 from fastapi import WebSocket
+
+logger = logging.getLogger(__name__)
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
+        self.active_connections: list[WebSocket] = []
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -18,7 +20,14 @@ class ConnectionManager:
         await websocket.send_text(message)
 
     async def broadcast(self, message: str):
+        disconnected = []
         for connection in self.active_connections:
-            await connection.send_text(message)
+            try:
+                await connection.send_text(message)
+            except Exception as e:
+                logger.error(f"Error broadcasting message to connection: {e}")
+                disconnected.append(connection)
+        for connection in disconnected:
+            self.disconnect(connection)
 
 manager = ConnectionManager()

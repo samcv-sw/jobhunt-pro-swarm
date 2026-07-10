@@ -5,13 +5,12 @@ Runs every cycle: API keys → SMTP → DB → Scrapers → Disk → Processes.
 """
 
 import asyncio
+import json
 import logging
 import os
-import time
-import json
 import shutil
-from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple
+import time
+from datetime import UTC, datetime
 
 import httpx
 
@@ -25,12 +24,22 @@ HEALING_HISTORY_FILE = os.path.join(
     "healing_history.json",
 )
 
+# Configurable API/Testing endpoints
+TELEGRAM_API_BASE = os.getenv("TELEGRAM_API_BASE", "https://api.telegram.org")
+GROQ_API_URL = os.getenv("GROQ_API_URL", "https://api.groq.com/openai/v1/chat/completions")
+JSEARCH_API_URL = os.getenv("JSEARCH_API_URL", "https://jsearch.p.rapidapi.com/search")
+LINKEDIN_TEST_URL = os.getenv(
+    "LINKEDIN_TEST_URL",
+    "https://www.linkedin.com/jobs/search/?keywords=network+engineer",
+)
 
-def _load_history() -> List[Dict]:
+
+
+def _load_history() -> list[dict]:
     """Load healing history from JSON file."""
     try:
         if os.path.exists(HEALING_HISTORY_FILE):
-            with open(HEALING_HISTORY_FILE, "r", encoding="utf-8") as f:
+            with open(HEALING_HISTORY_FILE, encoding="utf-8") as f:
                 data = json.load(f)
                 return data if isinstance(data, list) else []
     except Exception:
@@ -38,7 +47,7 @@ def _load_history() -> List[Dict]:
     return []
 
 
-def _save_history(history: List[Dict]):
+def _save_history(history: list[dict]):
     """Append and save healing history."""
     try:
         os.makedirs(os.path.dirname(HEALING_HISTORY_FILE), exist_ok=True)
@@ -57,7 +66,7 @@ async def _telegram_notify(message: str):
     if not token or not chat_id:
         return
     try:
-        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        url = f"{TELEGRAM_API_BASE}/bot{token}/sendMessage"
         async with httpx.AsyncClient(timeout=15) as client:
             await client.post(
                 url,
@@ -74,7 +83,7 @@ async def _test_groq_api(key: str) -> bool:
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             resp = await client.post(
-                "https://api.groq.com/openai/v1/chat/completions",
+                GROQ_API_URL,
                 headers={
                     "Authorization": f"Bearer {key}",
                     "Content-Type": "application/json",
@@ -97,7 +106,7 @@ async def _test_jsearch_api(key: str) -> bool:
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             resp = await client.get(
-                "https://jsearch.p.rapidapi.com/search",
+                JSEARCH_API_URL,
                 headers={
                     "X-RapidAPI-Key": key,
                     "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
@@ -109,7 +118,7 @@ async def _test_jsearch_api(key: str) -> bool:
         return False
 
 
-def _get_disk_usage(path: str = ".") -> Tuple[float, float]:
+def _get_disk_usage(path: str = ".") -> tuple[float, float]:
     """Get disk usage: (used_gb, total_gb, percent_used)."""
     try:
         usage = shutil.disk_usage(path)
@@ -159,7 +168,7 @@ class HealingEngine:
     # PUBLIC ENTRY POINT
     # ──────────────────────────────────────────────
 
-    async def diagnose_and_heal(self, force: bool = False) -> Dict:
+    async def diagnose_and_heal(self, force: bool = False) -> dict:
         """
         Run all diagnostics and auto-fixes.
         Returns a summary dict.
@@ -219,7 +228,7 @@ class HealingEngine:
         # Save history
         if issues or fixes:
             entry = {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "issues": [i["check"] for i in issues],
                 "fixes": [f["action"] for f in fixes],
                 "summary": summary["summary_text"],
@@ -233,7 +242,7 @@ class HealingEngine:
     # DIAGNOSTICS
     # ──────────────────────────────────────────────
 
-    async def _check_api_keys(self) -> Tuple[Optional[Dict], Optional[Dict]]:
+    async def _check_api_keys(self) -> tuple[dict | None, dict | None]:
         """
         🔍 API Key Check — Test Groq + JSearch keys.
         Returns (issue_or_None, fix_or_None).
@@ -309,7 +318,7 @@ class HealingEngine:
         fix = fixes[0] if fixes else None
         return (issue, fix) if (issue or fix) else (None, None)
 
-    async def _check_smtp_health(self) -> Tuple[Optional[Dict], Optional[Dict]]:
+    async def _check_smtp_health(self) -> tuple[dict | None, dict | None]:
         """
         🔍 SMTP Health — Check circuit breaker & scheduler.
         """
@@ -384,7 +393,7 @@ class HealingEngine:
 
         return (None, None)
 
-    async def _check_db_integrity(self) -> Tuple[Optional[Dict], Optional[Dict]]:
+    async def _check_db_integrity(self) -> tuple[dict | None, dict | None]:
         """
         🔍 DB Integrity — Check if tables exist, recreate if missing.
         """
@@ -500,7 +509,7 @@ class HealingEngine:
 
         return (None, None)
 
-    async def _check_scraper_health(self) -> Tuple[Optional[Dict], Optional[Dict]]:
+    async def _check_scraper_health(self) -> tuple[dict | None, dict | None]:
         """
         🔍 Scraper Health — Test if job search sources are reachable.
         """
@@ -532,7 +541,7 @@ class HealingEngine:
         try:
             async with httpx.AsyncClient(timeout=10) as client:
                 resp = await client.get(
-                    "https://www.linkedin.com/jobs/search/?keywords=network+engineer",
+                    LINKEDIN_TEST_URL,
                     headers={
                         "User-Agent": (
                             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -565,7 +574,7 @@ class HealingEngine:
         fix = fixes[0] if fixes else None
         return (issue, fix) if (issue or fix) else (None, None)
 
-    async def _check_disk_space(self) -> Tuple[Optional[Dict], Optional[Dict]]:
+    async def _check_disk_space(self) -> tuple[dict | None, dict | None]:
         """
         🔍 Disk Space — Warn if low.
         """
@@ -595,7 +604,7 @@ class HealingEngine:
 
         return (None, None)
 
-    def _check_process_health(self) -> List[Dict]:
+    def _check_process_health(self) -> list[dict]:
         """
         🔍 Process Health — Check if expected processes are alive.
         Returns list of issues (no auto-fix for process checks).
@@ -640,7 +649,7 @@ class HealingEngine:
     # REPORTING
     # ──────────────────────────────────────────────
 
-    def _build_report(self, issues: List[Dict], fixes: List[Dict]) -> Dict:
+    def _build_report(self, issues: list[dict], fixes: list[dict]) -> dict:
         """Build a structured report from issues and fixes."""
         total_issues = len(issues)
         auto_fixed = sum(1 for f in fixes if f.get("auto_fixable") and f.get("applied"))
@@ -682,10 +691,10 @@ class HealingEngine:
             "issues": issues,
             "fixes": fixes,
             "summary_text": summary_text,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
-    async def _report_to_telegram(self, summary: Dict):
+    async def _report_to_telegram(self, summary: dict):
         """Send healing report to Telegram."""
         total = summary["issues_detected"]
         fixed = summary["auto_fixed"]
@@ -699,18 +708,18 @@ class HealingEngine:
 
         await _telegram_notify(msg)
 
-    def get_history(self, limit: int = 20) -> List[Dict]:
+    def get_history(self, limit: int = 20) -> list[dict]:
         """Get recent healing history."""
         return self._history[-limit:]
 
-    def get_summary_stats(self) -> Dict:
+    def get_summary_stats(self) -> dict:
         """Get aggregate healing statistics."""
         total_cycles = len(self._history)
         total_issues = sum(len(h.get("issues", [])) for h in self._history)
         total_fixes = sum(len(h.get("fixes", [])) for h in self._history)
 
         # Count by check type
-        check_counts: Dict[str, int] = {}
+        check_counts: dict[str, int] = {}
         for h in self._history:
             for issue in h.get("issues", []):
                 check = issue["check"].split(":")[0]
@@ -734,7 +743,7 @@ healing_engine = HealingEngine()
 
 
 # Convenience function for one-shot healing
-async def run_healing_check(force: bool = False) -> Dict:
+async def run_healing_check(force: bool = False) -> dict:
     """Run a healing check and return the report."""
     return await healing_engine.diagnose_and_heal(force=force)
 

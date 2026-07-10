@@ -5,41 +5,41 @@ Multi-market: MENA (Lebanon/UAE/KSA/Qatar/Kuwait) + Russia/CIS (hh.ru API).
 """
 
 from core.agent_pool import (
-    AgentPool,
-    VirtualAgent,
-    AgentType,
     AGENT_DISTRIBUTION,
+    AgentPool,
     AgentStats,
+    AgentType,
+    VirtualAgent,
 )
-from core.hhru_scraper import (
-    search_hhru,
-    search_hhru_sync,
-    resolve_area_ids,
-    resolve_area_id,
-    HHRU_AREA_MAP,
-)
-from core.swarm_master import SwarmMaster
-from core.llm_provider_pool import (
-    LLMProviderPool,
-    LLMProvider,
-    ProviderInstance,
-    PROVIDER_CONFIGS,
-)
-from core.email_rotator_pool import EmailRotatorPool, EmailSenderClient, EmailAccount
+from core.ai_conversation import AIConversationEngine, get_engine
 from core.ats_matcher import (
     ATSMatcher,
     analyze_with_groq,
-    full_ats_analysis,
     analyze_with_groq_async,
+    full_ats_analysis,
 )
-from core.ai_conversation import AIConversationEngine, get_engine
+from core.email_rotator_pool import EmailAccount, EmailRotatorPool, EmailSenderClient
+from core.hhru_scraper import (
+    HHRU_AREA_MAP,
+    resolve_area_id,
+    resolve_area_ids,
+    search_hhru,
+    search_hhru_sync,
+)
+from core.llm_provider_pool import (
+    PROVIDER_CONFIGS,
+    LLMProvider,
+    LLMProviderPool,
+    ProviderInstance,
+)
 from core.resume_optimizer import (
-    ResumeOptimizer,
-    parse_job_keywords,
-    optimize_resume,
-    generate_ats_resume,
     ATSOptimizationResult,
+    ResumeOptimizer,
+    generate_ats_resume,
+    optimize_resume,
+    parse_job_keywords,
 )
+from core.swarm_master import SwarmMaster
 
 __all__ = [
     # Agent Pool

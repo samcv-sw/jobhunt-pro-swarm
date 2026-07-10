@@ -54,7 +54,7 @@
 .bundle-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px;transition:all .25s;position:relative;display:flex;flex-direction:column;gap:12px}
 .bundle-card:hover{border-color:rgba(139,92,246,.2);transform:translateY(-2px)}
 .bundle-card.highlight{border-color:rgba(139,92,246,.2);background:linear-gradient(135deg,rgba(139,92,246,.04),rgba(59,130,246,.02))}
-.bundle-badge{position:absolute;top:-1px;right:16px;font-size:9px;font-weight:800;padding:4px 12px;border-radius:0 0 8px 8px;text-transform:uppercase;letter-spacing:.8px}
+.bundle-badge{position:absolute;top:-1px;inset-inline-end:16px;font-size:9px;font-weight:800;padding:4px 12px;border-radius:0 0 8px 8px;text-transform:uppercase;letter-spacing:.8px}
 .bundle-badge.popular{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff}
 .bundle-badge.best{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000}
 .bundle-icon{font-size:28px;line-height:1}
@@ -73,9 +73,9 @@
 .nr-text{font-size:13px;color:#64748b}
 
 /* Cart FAB */
-.cart-badge-btn{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;color:#fff;font-size:22px;cursor:pointer;z-index:999;box-shadow:0 4px 20px rgba(59,130,246,.3);transition:all .25s}
+.cart-badge-btn{position:fixed !important;bottom:24px !important;inset-inline-end:24px !important;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;color:#fff;font-size:22px;cursor:pointer;z-index:9999 !important;box-shadow:0 4px 20px rgba(59,130,246,.3);transition:all .25s;display:flex !important;align-items:center;justify-content:center}
 .cart-badge-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(59,130,246,.4)}
-.cart-count{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:10px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.cart-count{position:absolute;top:-6px;inset-inline-end:-6px;min-width:20px;height:20px;border-radius:10px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px}
 
 /* Cart Sidebar */
 .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;opacity:0;pointer-events:none;transition:opacity .3s}
@@ -116,7 +116,7 @@
 .modal-box .btn{padding:10px 24px;border-radius:10px;border:none;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
 
 /* Toast */
-.toast{position:fixed;bottom:80px;right:24px;padding:12px 20px;background:#0f0f18;border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#e2e8f0;font-size:13px;z-index:4000;opacity:0;transform:translateY(10px);pointer-events:none;transition:all .3s;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.toast{position:fixed;bottom:80px;inset-inline-end:24px;padding:12px 20px;background:#0f0f18;border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#e2e8f0;font-size:13px;z-index:4000;opacity:0;transform:translateY(10px);pointer-events:none;transition:all .3s;box-shadow:0 8px 24px rgba(0,0,0,.3)}
 .toast.show{opacity:1;transform:translateY(0);pointer-events:auto}
 .toast.error{border-color:rgba(239,68,68,.3)}
 

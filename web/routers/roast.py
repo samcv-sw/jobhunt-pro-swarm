@@ -9,8 +9,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))
-templates.env.globals["VERSION"] = config.VERSION
+from web.shared import templates
 ph = None
 
 

@@ -52,7 +52,7 @@
         body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
         a{color:var(--blue);text-decoration:none;transition:var(--transition)}
         a:hover{color:#60a5fa}
-        h1{font-size:32px;font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
+        h1{font-size:32px;font-weight:800;margin-bottom:8px}
         h2{font-size:22px;font-weight:700;margin-bottom:12px}
         h3{font-size:17px;font-weight:600;margin-bottom:8px}
         .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px;transition:var(--transition)}
@@ -90,7 +90,7 @@
         .tag-purple{background:rgba(139,92,246,.12);color:#c4b5fd}
         @media(max-width:768px){h1{font-size:26px}.card{padding:18px}.grid-2,.grid-3{grid-template-columns:1fr}}
         .headroom{min-height:60px;background:rgba(10,10,15,.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border-light);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
-        .headroom .brand{font-size:18px;font-weight:800;color:var(--blue);letter-spacing:-.5px}
+        .headroom .brand{font-size:18px;font-weight:800;color:var(--blue);}
         .headroom nav{display:flex;gap:18px}
         .headroom nav a{font-size:13px;color:var(--text-muted);font-weight:500;padding:6px 0;border-bottom:2px solid transparent}
         .headroom nav a:hover{border-color:var(--blue);color:var(--text)}
@@ -98,7 +98,7 @@
         /* Contact Page Styles */
         .main.contact-container{max-width:1000px;margin:0 auto;padding:40px 20px 80px}
         .contact-hero{text-align:center;margin-bottom:32px}
-        .contact-hero h1{font-size:32px;font-weight:800;margin-bottom:12px;letter-spacing:-.5px}
+        .contact-hero h1{font-size:32px;font-weight:800;margin-bottom:12px;}
         .contact-hero .subtitle{color:#94a3b8;font-size:15px;max-width:600px;margin:0 auto}
         .contact-alert{padding:14px 20px;border-radius:12px;margin-bottom:24px;font-size:14px;font-weight:500}
         .contact-alert.success{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);color:#4ade80}
@@ -132,7 +132,7 @@
         .day{font-size:12px;color:#94a3b8}
         .time{font-size:12px;font-weight:600;color:#64748b}
         .time.highlight{color:#22c55e}
-        .wa-float{position:fixed;bottom:28px;right:28px;background:#25d366;color:#fff;padding:12px 22px;border-radius:50px;font-weight:700;font-size:14px;text-decoration:none;box-shadow:0 4px 20px rgba(37,211,102,.35);z-index:999;display:flex;align-items:center;gap:8px;transition:all .25s}
+        .wa-float{position:fixed;bottom:28px;inset-inline-end:28px;background:#25d366;color:#fff;padding:12px 22px;border-radius:50px;font-weight:700;font-size:14px;text-decoration:none;box-shadow:0 4px 20px rgba(37,211,102,.35);z-index:999;display:flex;align-items:center;gap:8px;transition:all .25s}
         .wa-float:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(37,211,102,.5);color:#fff}
         @media(max-width:768px){.contact-grid{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
         /* Services Page Styles (when loaded in public shell) */
@@ -154,13 +154,13 @@
     </script>
     
     <!-- GROWTH HACK: Exit-Intent Popup (First Party Data Collection) -->
-    <div id="exitPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10,10,15,0.9); z-index:9999; backdrop-filter:blur(8px); align-items:center; justify-content:center;">
+    <div id="exitPopup" style="display:none; position:fixed; top:0; inset-inline-start:0; width:100%; height:100%; background:rgba(10,10,15,0.9); z-index:9999; backdrop-filter:blur(8px); align-items:center; justify-content:center;">
         <div style="background:#1e1e2e; padding:40px; border-radius:16px; border:1px solid rgba(139,92,246,0.3); max-width:450px; text-align:center; position:relative; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
-            <button onclick="document.getElementById('exitPopup').style.display='none'" style="position:absolute; top:15px; right:20px; background:transparent; border:none; color:#94a3b8; font-size:24px; cursor:pointer;">&times;</button>
+            <button onclick="document.getElementById('exitPopup').style.display='none'" style="position:absolute; top:15px; inset-inline-end:20px; background:transparent; border:none; color:#94a3b8; font-size:24px; cursor:pointer;">&times;</button>
             <h2 style="font-size:24px; margin-bottom:10px; background:-webkit-linear-gradient(45deg,#3b82f6,#8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Wait! Before you go...</h2>
             <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Get our exclusive <strong>"LinkedIn Secrets Guide 2026"</strong> that landed 10,000+ engineers their dream jobs. 100% Free.</p>
-            <form onsubmit="event.preventDefault(); this.innerHTML='<p style=\'color:#4ade80;font-weight:bold;\'>🎉 Success! Check your email in 5 minutes.</p>';">
-                <input type="email" placeholder="Enter your best email" required style="width:100%; padding:14px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white; margin-bottom:12px; font-family:'Inter',sans-serif;">
+            <form dir="auto" onsubmit="event.preventDefault(); this.innerHTML='<p style=\'color:#4ade80;font-weight:bold;\'>🎉 Success! Check your email in 5 minutes.</p>';">
+                <input dir="auto"  type="email" placeholder="Enter your best email" required style="width:100%; padding:14px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white; margin-bottom:12px; font-family:'Inter',sans-serif;">
                 <button type="submit" style="width:100%; padding:14px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Send Me The Guide 🚀</button>
             </form>
             <p style="color:#64748b; font-size:11px; margin-top:16px;">We respect your privacy. No spam ever.</p>

@@ -4,12 +4,11 @@ Scrapes job postings from public Telegram channels/groups worldwide.
 Zero investment — uses public Telegram web views and t.me RSS feeds.
 """
 
+import hashlib
+import logging
+import random
 import re
 import time
-import random
-import logging
-import hashlib
-from typing import List, Dict, Optional
 
 try:
     from curl_cffi.requests import AsyncSession as httpx_AsyncClient
@@ -196,7 +195,7 @@ class TelegramJobScraper:
             time.sleep(self.rate_delay - elapsed)
         self._last_request = time.time()
 
-    def _get_headers(self) -> Dict[str, str]:
+    def _get_headers(self) -> dict[str, str]:
         return {
             "User-Agent": random.choice(self._user_agents),
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -224,7 +223,7 @@ class TelegramJobScraper:
                 return m.group(1).strip()[:60]
         return "Unknown Company"
 
-    def _extract_title(self, text: str) -> Optional[str]:
+    def _extract_title(self, text: str) -> str | None:
         """Extract job title from message text."""
         for pat in JOB_TITLE_PATTERNS:
             m = re.search(pat, text, re.IGNORECASE)
@@ -233,7 +232,7 @@ class TelegramJobScraper:
                 return title.strip()[:80]
         return None
 
-    def _extract_salary(self, text: str) -> Optional[float]:
+    def _extract_salary(self, text: str) -> float | None:
         m = SALARY_PATTERN.search(text)
         if m:
             try:
@@ -256,7 +255,7 @@ class TelegramJobScraper:
             return locations[0]
         return "Remote"
 
-    def _extract_emails(self, text: str) -> List[str]:
+    def _extract_emails(self, text: str) -> list[str]:
         return list(set(EMAIL_PATTERN.findall(text)))
 
     def _extract_contact(self, text: str) -> str:
@@ -269,7 +268,7 @@ class TelegramJobScraper:
             return emails[0]
         return ""
 
-    def _parse_message(self, msg_text: str, channel: str) -> Optional[Dict]:
+    def _parse_message(self, msg_text: str, channel: str) -> dict | None:
         """Parse a single Telegram message into a job dict."""
         if not msg_text or len(msg_text) < 20:
             return None
@@ -301,7 +300,7 @@ class TelegramJobScraper:
             "contact": contact,
         }
 
-    def scrape_channel(self, channel: str, limit: int = 10) -> List[Dict]:
+    def scrape_channel(self, channel: str, limit: int = 10) -> list[dict]:
         """Scrape job postings from a single Telegram channel."""
         jobs = []
         try:
@@ -335,7 +334,7 @@ class TelegramJobScraper:
 
     def search(
         self, query: str = "", location: str = "", limit: int = 10
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Search across all Telegram job channels."""
         all_jobs = []
         query_lower = query.lower() if query else ""
@@ -407,7 +406,7 @@ class TelegramJobScraper:
 
 
 # ── Singleton ────────────────────────────────────────────────────
-_telegram_scraper: Optional[TelegramJobScraper] = None
+_telegram_scraper: TelegramJobScraper | None = None
 
 
 def get_telegram_scraper() -> TelegramJobScraper:
@@ -419,7 +418,7 @@ def get_telegram_scraper() -> TelegramJobScraper:
 
 def search_telegram_jobs(
     query: str = "", location: str = "", limit: int = 10
-) -> List[Dict]:
+) -> list[dict]:
     """Convenience function to search Telegram job channels."""
     scraper = get_telegram_scraper()
     try:
@@ -432,6 +431,6 @@ def search_telegram_jobs(
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     jobs = search_telegram_jobs(query="network engineer", limit=5)
-    print(f"Found {len(jobs)} jobs from Telegram:")
+    logger.debug(f"Found {len(jobs)} jobs from Telegram:")
     for j in jobs:
-        print(f"  - {j['title']} @ {j['company']} ({j['location']}) [{j['source']}]")
+        logger.debug(f"  - {j['title']} @ {j['company']} ({j['location']}) [{j['source']}]")

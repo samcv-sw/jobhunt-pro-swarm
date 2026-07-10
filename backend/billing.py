@@ -1,8 +1,10 @@
-import os
-import stripe
 import asyncio
-from fastapi import APIRouter, HTTPException, Depends
+import os
+
+import stripe
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+
 from backend.auth import verify_jwt
 from backend.limiter import rate_limiter
 
@@ -20,11 +22,11 @@ async def create_checkout_session(request: CheckoutRequest):
         "pro": "price_pro_mock_id",
         "enterprise": "price_ent_mock_id"
     }
-    
+
     price_id = tier_prices.get(request.tier.lower())
     if not price_id:
         raise HTTPException(status_code=400, detail="Invalid subscription tier")
-        
+
     try:
         session = await asyncio.to_thread(
             stripe.checkout.Session.create,
@@ -40,7 +42,9 @@ async def create_checkout_session(request: CheckoutRequest):
         )
         return {"checkout_url": session.url}
     except Exception as e:
-        # For mock testing, just return a fake URL if the key is invalid
-        if "Invalid API Key provided" in str(e) or stripe.api_key == "sk_test_mock_key":
+        # Secure fallback logic to prevent bypass in production
+        is_production = os.environ.get("ENV") == "production" or os.environ.get("INTEGRITY_MODE") == "benchmark"
+        is_mock_allowed = (stripe.api_key == "sk_test_mock_key" or os.environ.get("INTEGRITY_MODE") == "development") and not is_production
+        if is_mock_allowed and ("Invalid API Key provided" in str(e) or stripe.api_key == "sk_test_mock_key"):
             return {"checkout_url": f"https://checkout.stripe.com/pay/cs_test_{request.user_id}"}
         raise HTTPException(status_code=500, detail=str(e))

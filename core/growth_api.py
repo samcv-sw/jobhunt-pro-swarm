@@ -7,7 +7,7 @@ Import this in app_v2.py and call register_growth_routes(app).
 import json
 import logging
 
-from fastapi import APIRouter, Request, Query, HTTPException, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, Request
 from fastapi.responses import PlainTextResponse
 
 logger = logging.getLogger(__name__)
@@ -20,8 +20,8 @@ def init_all_modules():
     try:
         from core.cold_blaster import init as cb_init
         from core.email_harvester import init as eh_init
-        from core.seo_blog_farm import init as sb_init
         from core.free_tools import init as ft_init
+        from core.seo_blog_farm import init as sb_init
 
         cb_init()
         eh_init()
@@ -92,7 +92,11 @@ async def blaster_upload(request: Request):
 
         from core.email_harvester import (
             load_from_csv as lc,
+        )
+        from core.email_harvester import (
             load_from_json as lj,
+        )
+        from core.email_harvester import (
             load_from_txt as lt,
         )
 
@@ -349,8 +353,9 @@ async def recipients_build(request: Request):
 @router.get("/recipients/stats")
 async def recipients_stats():
     try:
-        from core.recipient_builder import DATA_DIR
         import os
+
+        from core.recipient_builder import DATA_DIR
 
         files = []
         if DATA_DIR:
@@ -395,7 +400,7 @@ async def viral_share_card(
 @router.get("/viral/social-proof")
 async def viral_social_proof():
     try:
-        from core.viral_engine import get_random_social_proof, get_live_stats_template
+        from core.viral_engine import get_live_stats_template, get_random_social_proof
 
         return {
             "status": "ok",
@@ -448,7 +453,8 @@ async def viral_email_signature():
 async def live_stats():
     """Live analytics for landing page counters."""
     try:
-        from core.live_analytics import init as la_init, get_live_stats
+        from core.live_analytics import get_live_stats
+        from core.live_analytics import init as la_init
 
         la_init()
         return {"status": "ok", "data": get_live_stats()}
@@ -474,7 +480,7 @@ async def graph_blaster_send(request: Request, background_tasks: BackgroundTasks
         rfile = Path(__file__).parent.parent / "data" / fname
         if not rfile.exists():
             return {"status": "error", "error": f"File not found: {fname}"}
-        with open(rfile, "r", encoding="utf-8") as f:
+        with open(rfile, encoding="utf-8") as f:
             recipients = j.load(f)
 
         if not recipients:
@@ -483,7 +489,8 @@ async def graph_blaster_send(request: Request, background_tasks: BackgroundTasks
         total = min(max_sends, len(recipients))
 
         def _do_blast():
-            from core.graph_sender import init as gs_init, send_bulk
+            from core.graph_sender import init as gs_init
+            from core.graph_sender import send_bulk
 
             gs_init()
             result = send_bulk(
@@ -514,7 +521,8 @@ async def graph_blaster_send(request: Request, background_tasks: BackgroundTasks
 async def graph_blaster_status():
     """Get Graph API blaster status."""
     try:
-        from core.graph_sender import init as gs_init, get_status
+        from core.graph_sender import get_status
+        from core.graph_sender import init as gs_init
 
         gs_init()
         return {"status": "ok", "data": get_status()}
@@ -530,7 +538,8 @@ async def graph_blaster_test(request: Request):
         to_email = data.get("to", "samsalameh.cv@gmail.com")
         idx = data.get("index", 0)
 
-        from core.graph_sender import init as gs_init, test_single
+        from core.graph_sender import init as gs_init
+        from core.graph_sender import test_single
 
         gs_init()
         result = test_single(idx, to_email)
@@ -544,7 +553,8 @@ async def blast_queue(request: Request):
     """Enqueue a blast. Returns instantly. Processed by cron."""
     try:
         data = await request.json()
-        from core.blast_queue import init as bq_init, enqueue
+        from core.blast_queue import enqueue
+        from core.blast_queue import init as bq_init
 
         bq_init()
         job = enqueue(
@@ -563,7 +573,8 @@ async def blast_queue(request: Request):
 async def blast_queue_status():
     """Get blast queue status."""
     try:
-        from core.blast_queue import init as bq_init, get_status as bq_status
+        from core.blast_queue import get_status as bq_status
+        from core.blast_queue import init as bq_init
 
         bq_init()
         return {"status": "ok", "data": bq_status()}
@@ -577,7 +588,8 @@ async def blast_queue_process(request: Request):
     try:
         data = await request.json() if request.headers.get("content-type") else {}
         limit = data.get("limit", 50)
-        from core.blast_queue import init as bq_init, process_queue
+        from core.blast_queue import init as bq_init
+        from core.blast_queue import process_queue
 
         bq_init()
         result = process_queue(limit=limit)
@@ -593,9 +605,9 @@ def register_growth_routes(app):
 
     # Init social + viral + recipient modules
     try:
+        from core.recipient_builder import init as rb_init
         from core.social_auto import init as sa_init
         from core.viral_engine import init as ve_init
-        from core.recipient_builder import init as rb_init
 
         sa_init()
         ve_init()

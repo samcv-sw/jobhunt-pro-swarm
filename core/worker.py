@@ -1,6 +1,7 @@
-import os
 import asyncio
 import logging
+import os
+
 from procrastinate import App, AsyncpgConnector
 
 logger = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ async def start_worker():
     """Start Procrastinate worker asynchronously with aggressive garbage collection."""
     async with app.open_async():
         await app.run_worker_async(
-            install_signal_handlers=False, 
+            install_signal_handlers=False,
             delete_jobs="always",
             listen_notify=False,
             concurrency=1, # OPTIMIZATION: Prevents task hoarding by forcing 1 task per worker

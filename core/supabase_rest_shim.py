@@ -4,11 +4,12 @@ Uses service_role key + Supabase REST API (PostgREST).
 Same interface as pg_sqlite_shim.py for drop-in replacement.
 """
 
-import requests
-import os
 import logging
+import os
 import re
 import urllib.parse
+
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,14 @@ _headers = {
     "Content-Type": "application/json",
     "Accept": "application/json",
 }
+
+_session = None
+
+def _get_session():
+    global _session
+    if _session is None:
+        _session = requests.Session()
+    return _session
 
 
 class OperationalError(Exception):
@@ -307,23 +316,24 @@ class SupabaseCursor:
             method = info["method"]
             url = info["url"]
             headers = dict(_headers)
+            session = _get_session()
 
             if method == "GET":
                 headers["Accept"] = "application/json"
-                r = requests.get(url, headers=headers, timeout=10)
+                r = session.get(url, headers=headers, timeout=10)
             elif method == "POST":
                 headers["Prefer"] = "return=representation"
-                r = requests.post(
+                r = session.post(
                     url, headers=headers, json=info.get("json", {}), timeout=10
                 )
             elif method == "PATCH":
                 headers["Prefer"] = "return=representation"
-                r = requests.patch(
+                r = session.patch(
                     url, headers=headers, json=info.get("json", {}), timeout=10
                 )
             elif method == "DELETE":
                 headers["Prefer"] = "return=representation"
-                r = requests.delete(url, headers=headers, timeout=10)
+                r = session.delete(url, headers=headers, timeout=10)
             else:
                 raise OperationalError(f"Unknown method: {method}")
 

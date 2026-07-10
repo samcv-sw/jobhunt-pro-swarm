@@ -17,7 +17,6 @@ import logging
 import random
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -190,7 +189,7 @@ def get_reddit_comment(keyword_context: str = "job search") -> str:
     return full
 
 
-def get_reddit_posts_to_target() -> List[Dict]:
+def get_reddit_posts_to_target() -> list[dict]:
     """Return list of subreddits + search queries to target."""
     subreddits = [
         {
@@ -285,7 +284,7 @@ def get_tweet() -> str:
 # ── Stats ────────────────────────────────────────────────────
 
 
-def get_stats() -> Dict:
+def get_stats() -> dict:
     return {
         "reddit_comments": _state.get("reddit_comments", 0),
         "linkedin_posts": _state.get("linkedin_posts", 0),

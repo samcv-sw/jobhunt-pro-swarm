@@ -1,10 +1,19 @@
+"""
+JobHunt Pro - Interview Preparation Engine
+Provides standard interview Q&A templates for candidate practice.
+"""
+
 import logging
+import random
+from typing import List, Dict
 
 logger = logging.getLogger(__name__)
 
 
 class InterviewPrep:
-    QUESTIONS = [
+    """Contains standard network engineering interview questions and answers."""
+
+    QUESTIONS: List[Dict[str, str]] = [
         {
             "q": "Tell me about yourself.",
             "a": "I am a Senior Network Engineer with 15+ years of progressive experience designing, implementing, and troubleshooting enterprise-grade networking infrastructure. My expertise spans Cisco, MikroTik, Ubiquiti, and Fortinet platforms, with deep knowledge of routing protocols (OSPF, BGP, MPLS), VPN technologies, and firewall management. I have managed high-volume network deployments across the Middle East, maintaining 99.99% uptime for critical infrastructure. I am passionate about automation and have developed scripting skills in Python and PowerShell to optimize network operations.",
@@ -68,11 +77,19 @@ class InterviewPrep:
     ]
 
     @classmethod
-    def get_all_questions(cls):
-        return cls.QUESTIONS.copy()
+    def get_all_questions(cls) -> List[Dict[str, str]]:
+        """Return a copy of the list of all available questions."""
+        try:
+            return cls.QUESTIONS.copy()
+        except Exception as e:
+            logger.error(f"Failed to copy Q&A questions: {e}")
+            return []
 
     @classmethod
-    def get_random_questions(cls, count=5):
-        import random
-
-        return random.sample(cls.QUESTIONS, min(count, len(cls.QUESTIONS)))
+    def get_random_questions(cls, count: int = 5) -> List[Dict[str, str]]:
+        """Safely return a random sample of Q&As."""
+        try:
+            return random.sample(cls.QUESTIONS, min(count, len(cls.QUESTIONS)))
+        except Exception as e:
+            logger.error(f"Failed to sample Q&A questions: {e}")
+            return cls.QUESTIONS[:count]

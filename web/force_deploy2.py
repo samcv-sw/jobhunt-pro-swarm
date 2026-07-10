@@ -1,4 +1,6 @@
 ﻿import requests
+import logging
+logger = logging.getLogger(__name__)
 import time
 
 username = "JHFGUF"
@@ -12,11 +14,11 @@ response = requests.get(f'https://www.pythonanywhere.com/api/v0/user/{username}/
 consoles = response.json()
 bash_console = next((c for c in consoles if c['executable'] == 'bash'), None)
 if not bash_console:
-    print("No bash console found!")
+    logger.info("No bash console found!")
     exit(1)
 
 console_id = bash_console['id']
-print(f"Using console ID: {console_id}")
+logger.info(f"Using console ID: {console_id}")
 
 # Send reset command FOR BOTH possible folders!
 cmd = 'cd ~/jobhunt && git fetch origin && git reset --hard origin/main && git clean -fd\n'
@@ -25,13 +27,13 @@ requests.post(
     headers=headers,
     json={'input': cmd}
 )
-print("Sent git reset command.")
+logger.info("Sent git reset command.")
 
 time.sleep(5) # wait for fetch and reset to finish
 
 # Reload Web App
 reload_res = requests.post(f'https://www.pythonanywhere.com/api/v0/user/{username}/webapps/{domain}/reload/', headers=headers)
 if reload_res.status_code == 200:
-    print("Web app reloaded successfully.")
+    logger.info("Web app reloaded successfully.")
 else:
-    print(f"Failed to reload web app: {reload_res.text}")
+    logger.info(f"Failed to reload web app: {reload_res.text}")

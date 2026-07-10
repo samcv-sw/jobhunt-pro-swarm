@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 VERSION = "17.0"
 APP_NAME = "JobHunt Pro"
+DB_PATH = os.getenv("DB_PATH", "data/jobhunt_saas_v2.db")
 
 CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Sam Salameh")
 CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Network Engineer")
@@ -107,9 +108,9 @@ JOB_TITLES = [
 
 LOCATIONS = [
     # ── GCC (all 6) ──
-    "uae", "dubai", "abu dhabi", "sharjah", "ajman", "ras al khaimah", "al ain",
-    "saudi arabia", "riyadh", "jeddah", "mecca", "medina", "dammam", "khobar", "dhahran", "tabuk", "taif", "buraidah",
-    "qatar", "doha", "al wakrah", "lusail",
+    "uae", "dubai", "abu dhabi", "sharjah", "ajman", "ras al khaimah", "al ain", "fujairah", "umm al quwain",
+    "saudi arabia", "riyadh", "jeddah", "mecca", "medina", "dammam", "khobar", "dhahran", "tabuk", "taif", "buraidah", "jubail", "yanbu",
+    "qatar", "doha", "al wakrah", "lusail", "al khor",
     "kuwait", "kuwait city", "hawalli", "salmiya",
     "oman", "muscat", "salalah", "sohar", "nizwa",
     "bahrain", "manama", "muharraq", "rifa",
@@ -142,9 +143,20 @@ LOCATIONS = [
     "visa sponsorship", "relocation", "relocation assistance",
 ]
 
-TARGET_COMPANIES = ["cisco", "juniper", "fortinet", "palo alto networks", "arista", "huawei", "h3c", "ubiquiti", "mikrotik", "ruckus", "extreme networks", "hp enterprise", "hpe", "dell", "lenovo", "ibm", "oracle", "orange", "alfa", "touch", "ooredoo", "vodafone", "etisalat", "du", "stc", "mobily", "zain", "batelco", "omantel", "bank", "government", "ministry", "aramco", "adnoc", "emirates", "etihad", "qatar airways", "accenture", "deloitte", "pwc", "kpmg", "ey", "google", "microsoft", "amazon", "meta", "apple"]
+TARGET_COMPANIES = ["cisco", "juniper", "fortinet", "palo alto networks", "arista", "huawei", "h3c", "ubiquiti", "mikrotik", "ruckus", "extreme networks", "hp enterprise", "hpe", "dell", "lenovo", "ibm", "oracle", "orange", "alfa", "touch", "ooredoo", "vodafone", "etisalat", "du", "stc", "mobily", "zain", "batelco", "omantel", "bank", "government", "ministry", "aramco", "adnoc", "emirates", "etihad", "qatar airways", "accenture", "deloitte", "pwc", "kpmg", "ey", "google", "microsoft", "amazon", "meta", "apple", "fab", "enbd", "snb", "qnb", "e&", "nakheel", "emaar", "aldar", "damac", "sabic", "maaden"]
 
-BANNED_TITLES = ["hr manager", "human resources", "recruitment", "talent acquisition", "payroll", "compensation", "benefits manager", "nurse", "doctor", "physician", "medical", "healthcare assistant", "driver", "delivery", "warehouse", "laborer", "construction", "cleaner", "janitor", "maid", "housekeeping", "chef", "cook", "waiter", "waitress", "bartender", "food", "security guard", "security officer", "bouncer", "cashier", "retail", "store", "sales associate", "accountant", "lawyer", "teacher", "instructor", "software developer", "programmer", "coder", "web developer", "data scientist", "machine learning", "ai engineer", "graphic designer", "marketing manager", "social media"]
+BANNED_TITLES = [
+    "hr manager", "human resources", "recruitment", "talent acquisition", "payroll", "compensation", "benefits manager", 
+    "nurse", "doctor", "physician", "medical", "healthcare assistant", "driver", "delivery", "warehouse", "laborer", 
+    "construction", "cleaner", "janitor", "maid", "housekeeping", "chef", "cook", "waiter", "waitress", "bartender", 
+    "food", "security guard", "security officer", "bouncer", "cashier", "retail", "store", "sales associate", 
+    "accountant", "lawyer", "teacher", "instructor", "software developer", "programmer", "coder", "web developer", 
+    "data scientist", "machine learning", "ai engineer", "graphic designer", "marketing manager", "social media",
+    "receptionist", "office boy", "helper", "courier", "rider", "store keeper", "warehouse keeper", "sales coordinator", 
+    "admin assistant", "hr assistant", "marketing executive", "social media specialist", "video editor", "photographer", 
+    "content creator", "customer service representative", "call center agent", "pharmacist", "dentist", "lab technician", 
+    "radiologist", "tutor", "nanny", "mason", "carpenter", "plumber", "electrician", "welder", "painter", "construction worker"
+]
 
 CV_PATH = os.getenv("CV_PATH", "assets/Sam_Salameh_CV.pdf")
 # Verify CV file exists, fall back to None if missing
@@ -367,4 +379,44 @@ MIN_EMAIL_QUALITY_SCORE = 0.3        # Campaign min: 30% emails must pass MX del
 ACTIVE_EMAIL_PROVIDERS = [p for p in EMAIL_PROVIDERS if ((p.get("oauth2")) or (p.get("user") and p.get("password"))) and "demo_user" not in p.get("user", "").lower() and "user" not in p.get("user", "").lower()]
 if not ACTIVE_EMAIL_PROVIDERS:
     logger.warning("No email providers configured — check GMAIL_SMTP_USER_1, GMAIL_APP_PASSWORD_1 etc. in .env")
+
+# ═══ Scraper API URLs ═══
+HH_RU_API_URL = "https://api.hh.ru/vacancies"
+INDEED_RSS_URL = "https://rss.indeed.com/rss"
+GLASSDOOR_BASE_URL = "https://www.glassdoor.com"
+REMOTIVE_API_URL = "https://remotive.com/api/remote-jobs"
+ARBEITNOW_API_URL = "https://www.arbeitnow.com/api/job-board-api"
+REMOTEOK_API_URL = "https://remoteok.com/api"
+LINKEDIN_JOBS_API_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
+THEMUSE_API_URL = "https://www.themuse.com/api/public/jobs"
+JOBICY_API_URL = "https://jobicy.com/api/v2/remote-jobs"
+JSEARCH_API_URL = "https://jsearch.p.rapidapi.com/search"
+WEWORKREMOTELY_DEV_RSS = "https://weworkremotely.com/categories/remote-devops-sysadmin-jobs.rss"
+WEWORKREMOTELY_PROG_RSS = "https://weworkremotely.com/categories/remote-programming-jobs.rss"
+WORKER_URL = "https://jobhunt-pro-router.samsalameh-cv.workers.dev"
+HH_RU_VACANCY_BASE_URL = "https://hh.ru/vacancy"
+ARBEITNOW_VIEW_BASE_URL = "https://www.arbeitnow.com/view"
+REMOTEOK_VIEW_BASE_URL = "https://remoteok.com/remote-jobs"
+BREVO_SEND_URL = "https://api.brevo.com/v3/smtp/email"
+SENDGRID_SEND_URL = "https://api.sendgrid.com/v3/mail/send"
+MAILJET_SEND_URL = "https://api.mailjet.com/v3.1/send"
+SENDPULSE_TOKEN_URL = "https://api.sendpulse.com/oauth/access_token"
+SENDPULSE_SEND_URL = "https://api.sendpulse.com/smtp/emails"
+GOOGLE_OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token"
+GMAIL_SEND_URL = "https://gmail.googleapis.com/gmail/v1/users/me/messages/send"
+MICROSOFT_OAUTH_TOKEN_URL = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+MICROSOFT_SEND_URL = "https://graph.microsoft.com/v1.0/me/sendMail"
+PORTFOLIO_BASE_URL = "https://samcv-sw.github.io/jobhunt-pro-swarm/portfolios"
+TRACKING_BASE_URL = "https://jobhuntpro.com/track/open"
+
+# Centralized service URLs
+RENDER_ENGINE_URL = "https://jobhunt-pro-engine.onrender.com/"
+RENDER_APP_URL = "https://jobhunt-pro.onrender.com/"
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+GEMINI_MODELS_URL = "https://generativelanguage.googleapis.com/v1beta/models"
+pythonanywhere_user = "JHFGUF"
+PA_LOG_BYTES_URL = f"https://www.pythonanywhere.com/api/v0/user/{pythonanywhere_user}/files/path/var/log/{SITE_URL.split('//')[-1]}.server.log/?bytes=4000"
+PA_RELOAD_URL = f"https://www.pythonanywhere.com/api/v0/user/{pythonanywhere_user}/webapps/{SITE_URL.split('//')[-1]}/reload/"
+
+
 

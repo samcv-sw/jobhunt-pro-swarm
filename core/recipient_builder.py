@@ -22,7 +22,6 @@ import random
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Set
 
 logger = logging.getLogger(__name__)
 
@@ -277,7 +276,7 @@ def build_list(
     job_title: str = None,
     count: int = 1000,
     include_pattern_emails: bool = True,
-) -> List[Dict[str, str]]:
+) -> list[dict[str, str]]:
     """
     Build a targeted email list for cold blasting.
 
@@ -290,8 +289,8 @@ def build_list(
 
     Returns: [{"email": "...", "name": "...", "source": "..."}]
     """
-    results: List[Dict] = []
-    seen: Set[str] = set()
+    results: list[dict] = []
+    seen: set[str] = set()
 
     # 1. Pattern-generated emails for target companies
     if include_pattern_emails:
@@ -359,7 +358,7 @@ def build_list(
     return results[:count]
 
 
-def save_list(recipients: List[Dict], filename: str = None) -> str:
+def save_list(recipients: list[dict], filename: str = None) -> str:
     """Save recipient list to JSON. Returns file path."""
     if filename is None:
         ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
@@ -376,7 +375,7 @@ def save_list(recipients: List[Dict], filename: str = None) -> str:
 def import_from_csv(csv_path: str, email_col: int = 0, name_col: int = 1) -> str:
     """Import recipients from CSV and save as JSON ready for blaster."""
     recipients = []
-    with open(csv_path, "r", encoding="utf-8-sig") as f:
+    with open(csv_path, encoding="utf-8-sig") as f:
         reader = csv.reader(f)
         for row in reader:
             if not row or len(row) <= email_col:
@@ -393,7 +392,7 @@ def import_from_csv(csv_path: str, email_col: int = 0, name_col: int = 1) -> str
 def import_from_text(text_path: str) -> str:
     """Import one-email-per-line text file."""
     recipients = []
-    with open(text_path, "r", encoding="utf-8") as f:
+    with open(text_path, encoding="utf-8") as f:
         for line in f:
             email = line.strip().strip('"').strip("'")
             if _is_valid_email(email):
@@ -423,7 +422,7 @@ def merge_all_lists(output_name: str = "blast_master.json") -> str:
     return str(path)
 
 
-def validate_list(file_path: str) -> Dict:
+def validate_list(file_path: str) -> dict:
     """Validate a recipient list. Returns stats."""
     data = json.load(open(file_path))
     valid = invalid = dupes = 0

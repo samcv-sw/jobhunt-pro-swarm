@@ -35,15 +35,15 @@ async def generate_ai_answer(question: str, pool: LLMProviderPool) -> str:
     # Check if any LLM providers are configured
     if any(p.config.is_configured for p in pool._providers.values() if p.config.name.value != "dummy"):
         try:
-            print(f"Generating AI response for: '{question[:40]}...' using LLM Pool...")
+            logger.debug(f"Generating AI response for: '{question[:40]}...' using LLM Pool...")
             response = await pool.complete(prompt=prompt, system_prompt="You are a professional software engineer applicant.")
             if response and response.strip():
                 return response.strip()
         except Exception as e:
-            print(f"LLM generation failed ({e}), falling back to local simulation...")
+            logger.debug(f"LLM generation failed ({e}), falling back to local simulation...")
             
     # Local simulation fallback if no API keys configured
-    print(f"No active API keys found. Simulating AI response for: '{question[:40]}...'")
+    logger.debug(f"No active API keys found. Simulating AI response for: '{question[:40]}...'")
     if "why" in question.lower() or "join" in question.lower() or "team" in question.lower():
         return (
             f"I want to join the team because of your focus on cutting-edge AI automation. "
@@ -63,39 +63,39 @@ async def run_ai_application():
     try:
         from playwright.async_api import async_playwright
     except ImportError:
-        print("ERROR: playwright is not installed!")
-        print("To run this demo, please install Playwright using:")
-        print("  pip install playwright")
-        print("  playwright install chromium")
+        logger.debug("ERROR: playwright is not installed!")
+        logger.debug("To run this demo, please install Playwright using:")
+        logger.debug("  pip install playwright")
+        logger.debug("  playwright install chromium")
         return
 
     # Initialize LLM Pool
     pool = LLMProviderPool().initialize()
 
-    print("==================================================================")
-    print("🤖 STARTING AUTONOMOUS PLAYWRIGHT + AI APPLY DEMO")
-    print("==================================================================")
+    logger.debug("==================================================================")
+    logger.debug("🤖 STARTING AUTONOMOUS PLAYWRIGHT + AI APPLY DEMO")
+    logger.debug("==================================================================")
     
     async with async_playwright() as p:
         # Launch browser in headful mode so the user can watch!
-        print("Launching Chromium browser...")
+        logger.debug("Launching Chromium browser...")
         browser = await p.chromium.launch(headless=False, args=["--no-sandbox"])
         context = await browser.new_context()
         page = await context.new_page()
         
         # Navigate to our mock job form
         url = "http://localhost:8000/mock-job-form"
-        print(f"Navigating to job form: {url}...")
+        logger.debug(f"Navigating to job form: {url}...")
         try:
             await page.goto(url)
             await page.wait_for_load_state("networkidle")
         except Exception as e:
-            print(f"Failed to connect to {url}. Is the FastAPI server running?")
-            print(e)
+            logger.debug(f"Failed to connect to {url}. Is the FastAPI server running?")
+            logger.debug(e)
             await browser.close()
             return
             
-        print("\nForm loaded! Autofilling standard fields...")
+        logger.debug("\nForm loaded! Autofilling standard fields...")
         
         # 1. Autofill standard fields
         await page.fill("#first_name", CANDIDATE_PROFILE["name"])
@@ -106,21 +106,21 @@ async def run_ai_application():
         await asyncio.sleep(0.5)
         
         # 2. Scrape custom questions and use AI to write answers
-        print("\nScanning page for custom questions...")
+        logger.debug("\nScanning page for custom questions...")
         
         # Question 1
         q1_label = await page.inner_text("label[for='custom_q1']")
-        print(f"Detected Custom Question 1: '{q1_label}'")
+        logger.debug(f"Detected Custom Question 1: '{q1_label}'")
         q1_answer = await generate_ai_answer(q1_label, pool)
-        print(f"AI Generated Answer 1:\n  \"{q1_answer}\"")
+        logger.debug(f"AI Generated Answer 1:\n  \"{q1_answer}\"")
         await page.fill("#custom_q1", q1_answer)
         await asyncio.sleep(1)
         
         # Question 2
         q2_label = await page.inner_text("label[for='custom_q2']")
-        print(f"Detected Custom Question 2: '{q2_label}'")
+        logger.debug(f"Detected Custom Question 2: '{q2_label}'")
         q2_answer = await generate_ai_answer(q2_label, pool)
-        print(f"AI Generated Answer 2:\n  \"{q2_answer}\"")
+        logger.debug(f"AI Generated Answer 2:\n  \"{q2_answer}\"")
         await page.fill("#custom_q2", q2_answer)
         await asyncio.sleep(1)
         
@@ -128,27 +128,27 @@ async def run_ai_application():
         screenshot_path = "scratch/pre_submit_form.png"
         os.makedirs("scratch", exist_ok=True)
         await page.screenshot(path=screenshot_path)
-        print(f"\nForm complete! Saved screenshot to: {screenshot_path}")
+        logger.debug(f"\nForm complete! Saved screenshot to: {screenshot_path}")
         
         # 3. Submit application
-        print("Submitting application form...")
+        logger.debug("Submitting application form...")
         await page.click(".btn-submit")
         await page.wait_for_load_state("networkidle")
         
         # Verify success page
         success_title = await page.title()
-        print(f"\nSuccess Page Loaded: '{success_title}'")
+        logger.debug(f"\nSuccess Page Loaded: '{success_title}'")
         success_text = await page.inner_text("h1")
-        print(f"Heading: '{success_text}'")
+        logger.debug(f"Heading: '{success_text}'")
         
         # Take a success screenshot
         success_screenshot = "scratch/success_submitted.png"
         await page.screenshot(path=success_screenshot)
-        print(f"Saved submission success screenshot to: {success_screenshot}")
+        logger.debug(f"Saved submission success screenshot to: {success_screenshot}")
         
-        print("\n==================================================================")
-        print("🎉 SUCCESS: Autonomous application completed successfully!")
-        print("==================================================================")
+        logger.debug("\n==================================================================")
+        logger.debug("🎉 SUCCESS: Autonomous application completed successfully!")
+        logger.debug("==================================================================")
         
         await asyncio.sleep(5) # Let the user see the browser for a few seconds before closing
         await browser.close()

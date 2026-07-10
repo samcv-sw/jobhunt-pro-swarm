@@ -5,19 +5,20 @@ Rotates across Gmail, Brevo, SendGrid, Zoho, Outlook to maximize free-tier sendi
 """
 
 import asyncio
+import json
 import logging
+import os
 import smtplib
 import ssl
 import time
-import json
-import os
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email import encoders
-from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from datetime import date
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from pathlib import Path
+from typing import Any
 
 import config
 
@@ -47,8 +48,9 @@ def _load_db_rate_limits() -> None:
         try:
             # Fallback to direct sqlite3 connector (which uses pg_sqlite_shim under CLOUD_MODE)
             import sqlite3
-            import config
             from pathlib import Path
+
+            import config
 
             db_name = (
                 getattr(config, "DB_PATH", None)
@@ -58,8 +60,8 @@ def _load_db_rate_limits() -> None:
             db_path = str(Path(__file__).parent.parent / db_name)
             conn = sqlite3.connect(db_path, timeout=10)
             conn.row_factory = sqlite3.Row
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("[RotatorPool] Failed to persist stats: " + str(e))
 
     if conn:
         try:
@@ -140,7 +142,7 @@ class SMTPConnectionPool:
         self._active_connections = 0
         self._lock = asyncio.Lock()
 
-    async def acquire(self) -> Optional[smtplib.SMTP]:
+    async def acquire(self) -> smtplib.SMTP | None:
         """Acquire a warm SMTP connection from the pool."""
         # Implementation left for production rollout
         return None
@@ -158,10 +160,10 @@ class EmailSenderClient:
         self._sent_today = 0
         self._daily_reset = date.today()
         self._consecutive_failures = 0
-        self._last_error: Optional[str] = None
+        self._last_error: str | None = None
         self._available = True
         self._lock = asyncio.Lock()
-        self._smtp_conn: Optional[smtplib.SMTP] = None
+        self._smtp_conn: smtplib.SMTP | None = None
         self._conn_lock = asyncio.Lock()
 
     def _reset_daily_if_needed(self) -> None:
@@ -238,9 +240,9 @@ class EmailSenderClient:
         to_email: str,
         subject: str,
         body_html: str,
-        body_text: Optional[str] = None,
-        reply_to: Optional[str] = None,
-        attachments: Optional[List[str]] = None,
+        body_text: str | None = None,
+        reply_to: str | None = None,
+        attachments: list[str] | None = None,
     ) -> bool:
         """Send an email through this account. Returns True on success."""
         async with self._lock:
@@ -366,14 +368,14 @@ class EmailRotatorPool:
     """
 
     def __init__(self) -> None:
-        self._accounts: List[EmailSenderClient] = []
+        self._accounts: list[EmailSenderClient] = []
         self._round_robin_idx = 0
         self._lock = asyncio.Lock()
-        self._stats_file = "cache/email_rotator_stats.json"
+        self._stats_file = str(Path(__file__).parent.parent / "cache" / "email_rotator_stats.json")
 
     def get_provider(
-        self, preferred_account: Optional[str] = None
-    ) -> Optional[EmailSenderClient]:
+        self, preferred_account: str | None = None
+    ) -> EmailSenderClient | None:
         """
         Get the next available email provider (round-robin, respecting daily quotas).
         Returns None if all accounts are exhausted.
@@ -409,7 +411,7 @@ class EmailRotatorPool:
         """
         logger.debug(f"Provider {account.account.name} released back to pool")
 
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """
         Get comprehensive pool statistics.
         Alias for get_pool_status().
@@ -448,7 +450,7 @@ class EmailRotatorPool:
         """Returns the total capacity of all accounts combined."""
         return sum(a.account.daily_limit for a in self._accounts)
 
-    def get_available_accounts(self) -> List[EmailSenderClient]:
+    def get_available_accounts(self) -> list[EmailSenderClient]:
         """Returns a list of accounts that can send more emails."""
         return [a for a in self._accounts if a.can_send()]
 
@@ -457,11 +459,11 @@ class EmailRotatorPool:
         to_email: str,
         subject: str,
         body_html: str,
-        body_text: Optional[str] = None,
-        preferred_account: Optional[str] = None,
-        attachments: Optional[List[str]] = None,
-        tenant_id: Optional[str] = None,
-    ) -> Tuple[bool, Optional[str]]:
+        body_text: str | None = None,
+        preferred_account: str | None = None,
+        attachments: list[str] | None = None,
+        tenant_id: str | None = None,
+    ) -> tuple[bool, str | None]:
         """
         Send email by finding best available account.
         Returns (success, account_name_or_error).
@@ -537,9 +539,9 @@ class EmailRotatorPool:
 
     async def send_batch(
         self,
-        emails: List[Tuple[str, str, str, Optional[str]]],
+        emails: list[tuple[str, str, str, str | None]],
         max_concurrency: int = 5,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Send multiple emails concurrently, distributing across available accounts.
         Each tuple: (to_email, subject, body_html, body_text_or_None)
@@ -577,7 +579,7 @@ class EmailRotatorPool:
                         )
 
         tasks = [send_one(*item) for item in emails]
-        await asyncio.gather(*tasks)
+        await asyncio.gather(*tasks, return_exceptions=True)
 
         # Give detailed summary
         logger.info(
@@ -586,7 +588,7 @@ class EmailRotatorPool:
         )
         return results
 
-    async def get_pool_status(self) -> Dict[str, Any]:
+    async def get_pool_status(self) -> dict[str, Any]:
         """Returns the status and usage statistics of all accounts in the pool."""
         status = {
             "total_accounts": len(self._accounts),
@@ -617,8 +619,8 @@ class EmailRotatorPool:
             }
             with open(self._stats_file, "w") as f:
                 json.dump(stats, f)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("[RotatorPool] Failed to persist stats: " + str(e))
 
     def _load_persisted_stats(self) -> None:
         """Restore previously saved stats (for crash recovery)."""
@@ -633,8 +635,8 @@ class EmailRotatorPool:
                         if name in account_map:
                             account_map[name]._sent_today = count
                     logger.info(f"Restored email rotator stats for {today}")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("[RotatorPool] Failed to persist stats: " + str(e))
 
     async def disconnect_all(self) -> None:
         """Disconnect all SMTP connections in the pool."""

@@ -20,9 +20,8 @@ Returns job dicts: {company, title, location, url, source: "dice"}
 
 import asyncio
 import logging
-import time
 import re
-from typing import Dict, List, Optional
+import time
 
 try:
     from curl_cffi.requests import AsyncSession as httpx_AsyncClient
@@ -104,7 +103,7 @@ def _extract_location(text: str) -> str:
     return location
 
 
-def _parse_job_cards(html: str) -> List[Dict]:
+def _parse_job_cards(html: str) -> list[dict]:
     """Parse Dice.com job listing HTML.
 
     Card structure:
@@ -198,7 +197,7 @@ def _parse_job_cards(html: str) -> List[Dict]:
     return jobs
 
 
-def _scrape_location_title(title: str, location_key: str) -> List[Dict]:
+def _scrape_location_title(title: str, location_key: str) -> list[dict]:
     """Scrape a single title x location combination."""
     url = _build_url(title, location_key)
 
@@ -229,11 +228,11 @@ def _scrape_location_title(title: str, location_key: str) -> List[Dict]:
 
 
 def search_dice_sync(
-    titles: Optional[List[str]] = None,
-    locations: Optional[List[str]] = None,
+    titles: list[str] | None = None,
+    locations: list[str] | None = None,
     rate_limit: float = RATE_LIMIT,
     shuffle: bool = True,
-) -> List[Dict]:
+) -> list[dict]:
     """Synchronously search Dice.com across multiple titles and locations.
 
     Args:
@@ -272,10 +271,10 @@ def search_dice_sync(
 
 
 async def search_dice(
-    titles: Optional[List[str]] = None,
-    locations: Optional[List[str]] = None,
+    titles: list[str] | None = None,
+    locations: list[str] | None = None,
     rate_limit: float = RATE_LIMIT,
-) -> List[Dict]:
+) -> list[dict]:
     """Async wrapper for search_dice_sync."""
     loop = asyncio.get_running_loop()
     return await loop.run_in_executor(
@@ -289,18 +288,18 @@ async def search_dice(
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-    print("=" * 60)
-    print("Dice.com Scraper Test")
-    print("=" * 60)
+    logger.debug("=" * 60)
+    logger.debug("Dice.com Scraper Test")
+    logger.debug("=" * 60)
 
     jobs = search_dice_sync(titles=["network+engineer"], locations=["dubai"])
 
-    print(f"\nFound {len(jobs)} jobs")
-    print("-" * 60)
+    logger.debug(f"\nFound {len(jobs)} jobs")
+    logger.debug("-" * 60)
     for j in jobs[:10]:
-        print(f"  {j['company']}: {j['title']}")
-        print(f"    {j['location']} | {j['url']}")
-        print()
+        logger.debug(f"  {j['company']}: {j['title']}")
+        logger.debug(f"    {j['location']} | {j['url']}")
+        logger.debug()
     if len(jobs) > 10:
-        print(f"  ... and {len(jobs) - 10} more")
-    print("=" * 60)
+        logger.debug(f"  ... and {len(jobs) - 10} more")
+    logger.debug("=" * 60)

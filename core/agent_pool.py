@@ -8,10 +8,11 @@ Supports 20,000 hierarchical agent swarms with Team Managers and Squad Leaders.
 import asyncio
 import logging
 import time
-from enum import Enum
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
-from typing import Callable, Any, Dict, List, Optional, Coroutine
 from datetime import datetime
+from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ class AgentType(Enum):
 
 
 # Agent type distribution: total = 200
-AGENT_DISTRIBUTION: Dict[AgentType, int] = {
+AGENT_DISTRIBUTION: dict[AgentType, int] = {
     AgentType.SCRAPER: 50,
     AgentType.AI_SCORER: 30,
     AgentType.COVER_LETTER: 20,
@@ -44,7 +45,7 @@ AGENT_DISTRIBUTION: Dict[AgentType, int] = {
 }
 
 # Rate limits per agent type (tasks per minute)
-AGENT_RATE_LIMITS: Dict[AgentType, int] = {
+AGENT_RATE_LIMITS: dict[AgentType, int] = {
     AgentType.SCRAPER: 10,
     AgentType.AI_SCORER: 30,
     AgentType.COVER_LETTER: 15,
@@ -65,9 +66,9 @@ class AgentStats:
     tasks_completed: int = 0
     tasks_failed: int = 0
     total_runtime_seconds: float = 0.0
-    current_task_start: Optional[float] = None
+    current_task_start: float | None = None
     last_heartbeat: float = field(default_factory=time.time)
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
 
 class VirtualAgent:
@@ -77,7 +78,7 @@ class VirtualAgent:
         self.agent_id = agent_id
         self.agent_type = agent_type
         self.stats = AgentStats(agent_id=agent_id, agent_type=agent_type)
-        self._task: Optional[asyncio.Task] = None
+        self._task: asyncio.Task | None = None
         self._queue: asyncio.Queue = asyncio.Queue(maxsize=100)
         self._pause_event = asyncio.Event()
         self._pause_event.set()  # not paused initially
@@ -94,7 +95,7 @@ class VirtualAgent:
 
             try:
                 task_data = await asyncio.wait_for(self._queue.get(), timeout=30.0)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 self.stats.last_heartbeat = time.time()
                 if self.stats.status != "idle":
                     self.stats.status = "idle"
@@ -135,7 +136,7 @@ class VirtualAgent:
         self,
         task_func: Callable[..., Coroutine],
         args: tuple = (),
-        kwargs: Dict[str, Any] = None,
+        kwargs: dict[str, Any] = None,
         result_callback: Callable = None,
     ) -> bool:
         """Assign a task to this agent. Returns True if queued successfully."""
@@ -160,7 +161,7 @@ class VirtualAgent:
         self.stats.status = "idle"
         logger.info(f"Agent {self.agent_id} resumed")
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         return {
             "agent_id": self.agent_id,
             "type": self.agent_type.value,
@@ -183,14 +184,14 @@ class AgentPool:
     """
 
     def __init__(self):
-        self.agents: Dict[str, VirtualAgent] = {}
-        self._by_type: Dict[AgentType, List[VirtualAgent]] = {t: [] for t in AgentType}
-        self._round_robin_index: Dict[AgentType, int] = {t: 0 for t in AgentType}
-        self._rate_limit_semaphores: Dict[AgentType, asyncio.Semaphore] = {}
-        self._rate_limit_intervals: Dict[AgentType, float] = {}
-        self._tasks: List[asyncio.Task] = []
+        self.agents: dict[str, VirtualAgent] = {}
+        self._by_type: dict[AgentType, list[VirtualAgent]] = {t: [] for t in AgentType}
+        self._round_robin_index: dict[AgentType, int] = {t: 0 for t in AgentType}
+        self._rate_limit_semaphores: dict[AgentType, asyncio.Semaphore] = {}
+        self._rate_limit_intervals: dict[AgentType, float] = {}
+        self._tasks: list[asyncio.Task] = []
         self._background_tasks = set()
-        self._health_task: Optional[asyncio.Task] = None
+        self._health_task: asyncio.Task | None = None
         self._global_semaphore = asyncio.Semaphore(200)
 
     def build(self, distributor: Any) -> "AgentPool":
@@ -219,7 +220,7 @@ class AgentPool:
         )
         return self
 
-    def get_agent(self, agent_type: AgentType) -> Optional[VirtualAgent]:
+    def get_agent(self, agent_type: AgentType) -> VirtualAgent | None:
         """Get next available agent of given type (round-robin)."""
         pool = self._by_type[agent_type]
         if not pool:
@@ -236,7 +237,7 @@ class AgentPool:
         # All busy — return least-loaded
         return min(pool, key=lambda a: a.queue_size)
 
-    def get_agents_of_type(self, agent_type: AgentType) -> List[VirtualAgent]:
+    def get_agents_of_type(self, agent_type: AgentType) -> list[VirtualAgent]:
         return self._by_type.get(agent_type, [])
 
     async def dispatch(
@@ -244,7 +245,7 @@ class AgentPool:
         agent_type: AgentType,
         task_func: Callable[..., Coroutine],
         args: tuple = (),
-        kwargs: Dict[str, Any] = None,
+        kwargs: dict[str, Any] = None,
         result_callback: Callable = None,
         timeout: float = 30.0,
     ) -> bool:
@@ -279,7 +280,7 @@ class AgentPool:
         self,
         agent_type: AgentType,
         task_func: Callable[..., Coroutine],
-        args_list: List[tuple],
+        args_list: list[tuple],
     ) -> int:
         """Dispatch same task func with different args to ALL agents of a type."""
         dispatched = 0
@@ -343,7 +344,7 @@ class AgentPool:
             self._health_task.cancel()
         logger.info("All agent tasks cancelled")
 
-    async def get_pool_stats(self) -> Dict[str, Any]:
+    async def get_pool_stats(self) -> dict[str, Any]:
         by_type = {}
         for atype in AgentType:
             agents = self._by_type[atype]

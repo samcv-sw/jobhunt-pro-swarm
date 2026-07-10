@@ -1,0 +1,38 @@
+# =============================================================================
+# Cloudflare Pages — Configuration file
+# =============================================================================
+# This file is read automatically by Cloudflare Pages during CI/CD.
+# Place it at the repo root or configure the settings manually on the
+# Cloudflare dashboard (Pages → Settings → Build & deployments).
+#
+# Build preset: Next.js (Static Export)
+# Build command   : cd frontend && npm ci && npm run build
+# Build output dir: frontend/out
+# Node version    : 20 (set via NODE_VERSION env var below)
+# =============================================================================
+
+[build]
+  command        = "cd frontend && npm ci && npm run build"
+  publish        = "frontend/out"
+
+[build.environment]
+  NODE_VERSION   = "20"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# ── Preview deployments (PRs) ─────────────────────────────────────────────────
+[context.preview]
+  command        = "cd frontend && npm ci && npm run build"
+  publish        = "frontend/out"
+
+[context.preview.environment]
+  NODE_ENV       = "production"
+
+# ── Production deployment ─────────────────────────────────────────────────────
+[context.production]
+  command        = "cd frontend && npm ci && npm run build"
+  publish        = "frontend/out"
+
+[context.production.environment]
+  NODE_ENV             = "production"
+  # Point to your Koyeb backend URL (set this as a Pages secret too)
+  NEXT_PUBLIC_API_URL  = "https://your-app.koyeb.app"

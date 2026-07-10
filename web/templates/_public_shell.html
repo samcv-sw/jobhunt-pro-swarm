@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="{{ description }}">
+    <meta name="description" content="{{ description | default('محرك تقديم للوظائف بالذكاء الاصطناعي — قدم على آلاف الوظائف تلقائياً. وكيلك الشخصي للبحث عن عمل يعمل 24/7.') }}">
     <meta property="og:title" content="{{ title }}">
     <meta property="og:description" content="{{ description }}">
     <meta property="og:type" content="website">
@@ -35,7 +35,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" href="/static/css/premium-ui.css" as="style">
 
-    <title>{{ title }}</title>
+    <title>{% block title %}{{ title | default('JobHunt Pro — تقديم تلقائي للوظائف بالذكاء الاصطناعي') }}{% endblock %}</title>
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#0a0a1a">
     <link rel="apple-touch-icon" href="/static/img/icon-192.png">
@@ -116,38 +116,40 @@
         .headroom nav a:hover{border-color:var(--gold);color:var(--text)}
 
         /* Contact Page Styles */
-        .main.contact-container{max-width:1000px;margin:0 auto;padding:40px 20px 80px}
-        .contact-hero{text-align:center;margin-bottom:32px}
-        .contact-hero h1{font-size:32px;font-weight:800;margin-bottom:12px;font-size:15px;max-width:600px;margin:0 auto}
-        .contact-alert{padding:14px 20px;border-radius:12px;margin-bottom:24px;font-size:14px;font-weight:500}
+        .main.contact-container{max-inline-size:1000px;margin-inline:auto;padding:40px 20px 80px}
+        .contact-hero{text-align:center;margin-block-end:32px}
+        .contact-hero h1{font-size:32px;font-weight:800;margin-block-end:12px;max-inline-size:600px;margin-inline:auto}
+        .contact-alert{padding:14px 20px;border-radius:12px;margin-block-end:24px;font-size:14px;font-weight:500}
         .contact-alert.success{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);color:#4ade80}
         .contact-alert.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#f87171}
-        .response-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.15);border-radius:50px;padding:8px 20px;font-size:12px;color:#94a3b8;margin-bottom:32px}
+        .response-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.15);border-radius:50px;padding:8px 20px;font-size:12px;color:#94a3b8;margin-block-end:32px}
         .pulse-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-        .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px}
+        .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-block-start:8px}
         .form-panel{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px}
-        .form-panel h2{font-size:18px;font-weight:700;margin-bottom:6px}
-        .form-subtitle{font-size:12px;color:#64748b;margin-bottom:24px}
-        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0}
-        .form-group{margin-bottom:18px}
-        .form-group label{display:block;font-size:13px;color:#94a3b8;margin-bottom:7px;font-weight:500}
-        .glass-input{width:100%;padding:12px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#e2e8f0;font-size:14px;font-family:'Cairo',sans-serif;transition:all .25s;resize:vertical}
+        .form-panel h2{font-size:18px;font-weight:700;margin-block-end:6px}
+        .form-subtitle{font-size:12px;color:#64748b;margin-block-end:24px}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+        .form-group{margin-block-end:18px}
+        .form-group label{display:block;font-size:13px;color:#94a3b8;margin-block-end:7px;font-weight:500}
+        .glass-input{inline-size:100%;padding-block:12px;padding-inline:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#e2e8f0;font-size:14px;font-family:'Cairo',sans-serif;transition:all .25s;resize:vertical}
         .glass-input:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
-        textarea.glass-input{min-height:130px}
-        .btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;font-family:'Cairo',sans-serif}
-        .btn-submit:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(59,130,246,.35)}
+        textarea.glass-input{min-block-size:130px}
+        .btn-submit{inline-size:100%;padding-block:14px;background:linear-gradient(135deg,#00f0ff,#0080ff);color:#000;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s ease;font-family:'Cairo',sans-serif}
+        .btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,240,255,0.4)}
+        .btn-primary{background:linear-gradient(135deg,#00f0ff,#0080ff);color:#000;transition:all .3s ease;padding-inline:1.5rem}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,240,255,0.4)}
         .support-cards{display:flex;flex-direction:column;gap:14px}
         .support-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:22px;text-decoration:none;color:inherit;transition:all .25s;display:block}
         .support-card:hover{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05);transform:translateY(-2px)}
         .support-card.whatsapp:hover{border-color:rgba(37,211,102,.2)}
-        .sc-icon{font-size:28px;margin-bottom:10px;display:block}
-        .support-card h3{font-size:14px;font-weight:700;margin-bottom:6px;color:#e2e8f0}
+        .sc-icon{font-size:28px;margin-block-end:10px;display:block}
+        .support-card h3{font-size:14px;font-weight:700;margin-block-end:6px;color:#e2e8f0}
         .support-card p{font-size:12px;color:#94a3b8;line-height:1.7}
         .hours-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:22px}
-        .hours-card h3{font-size:14px;font-weight:700;margin-bottom:14px;color:#e2e8f0}
-        .hours-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
-        .hours-row:last-child{border-bottom:none}
+        .hours-card h3{font-size:14px;font-weight:700;margin-block-end:14px;color:#e2e8f0}
+        .hours-row{display:flex;justify-content:space-between;align-items:center;padding-block:8px;border-block-end:1px solid rgba(255,255,255,.05)}
+        .hours-row:last-child{border-block-end:none}
         .day{font-size:12px;color:#94a3b8}
         .time{font-size:12px;font-weight:600;color:#64748b}
         .time.highlight{color:#22c55e}
@@ -155,7 +157,7 @@
         .wa-float:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(37,211,102,.5);color:#fff}
         @media(max-width:768px){.contact-grid{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
         /* Services Page Styles (when loaded in public shell) */
-        .services-container{max-width:1100px;margin:0 auto;padding:40px 20px 80px}
+        .services-container{max-inline-size:1100px;margin-inline:auto;padding:40px 20px 80px}
     </style>
 </head>
 <body>
@@ -178,7 +180,7 @@
             <button onclick="document.getElementById('exitPopup').style.display='none'" style="position:absolute; top:15px; inset-inline-end:20px; background:transparent; border:none; color:#94a3b8; font-size:24px; cursor:pointer;">×</button>
             <h2 style="font-size:24px; margin-bottom:10px; background:-webkit-linear-gradient(45deg,#3b82f6,#8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">انتظر! قبل أن ترحل...</h2>
             <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">احصل على <strong>"دليل أسرار لينكد إن 2026"</strong> الحصري الذي ساعد أكثر من 10,000 مهندس. مجاني 100%.</p>
-            <form onsubmit="event.preventDefault(); this.innerHTML='<p style=\'color:#4ade80;font-weight:bold;\'>🎉 نجاح! تفقد بريدك الإلكتروني خلال 5 دقائق.</p>';">
+            <form dir="auto" onsubmit="event.preventDefault(); this.innerHTML='<p style=\'color:#4ade80;font-weight:bold;\'>🎉 نجاح! تفقد بريدك الإلكتروني خلال 5 دقائق.</p>';">
                 <input type="email" placeholder="أدخل بريدك الإلكتروني" dir="auto" required style="width:100%; padding:14px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white; margin-bottom:12px; font-family:'Cairo',sans-serif;">
                 <button type="submit" style="width:100%; padding:14px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">أرسل لي الدليل 🚀</button>
             </form>

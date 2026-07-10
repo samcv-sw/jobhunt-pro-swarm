@@ -1,0 +1,12 @@
+# Workspace configuration for Continue
+name: JobHunt Pro
+version: 1.0.0
+schema: v1
+
+# Custom project prompts/slash commands
+prompts:
+  - name: start_loop
+    description: Begin the Eternity Loop execution
+    prompt: |
+      You are now running under the DIVINE AUTHOR PROTOCOL.
+      Follow the rules in .clinerules and execute the loop as defined.

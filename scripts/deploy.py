@@ -22,10 +22,10 @@ def main():
         
     target_path = os.path.join(script_dir, target)
     if not os.path.exists(target_path):
-        print(f"Error: {target} not found in root directory.")
+        logger.debug(f"Error: {target} not found in root directory.")
         sys.exit(1)
         
-    print(f"--- Running {target} ---")
+    logger.debug(f"--- Running {target} ---")
     subprocess.run([sys.executable, target_path], check=True)
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ Production email engine with RateLimiter, retry logic, and 20 provider rotation
 """
 
 import asyncio
+import base64
 import logging
 import os
 import random
@@ -11,15 +12,13 @@ import re
 import smtplib
 import time
 import uuid
+from collections import defaultdict
 from datetime import datetime
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import Optional, Tuple, Dict, List
-from collections import defaultdict
-
-import base64
+from typing import Any
 
 import httpx
 import requests
@@ -42,7 +41,7 @@ except ImportError:
     )
 
 
-def _extract_years_experience(text: str) -> Optional[str]:
+def _extract_years_experience(text: str) -> str | None:
     """Helper to match years of experience (e.g. '15 years of network experience')."""
     m = re.match(r"^(\d+[+]?)\s*years?", text, re.I)
     if m:
@@ -125,7 +124,7 @@ def add_to_suppression_list(email: str, reason: str = "user_request") -> bool:
         return False
 
 
-def _extract_percentage_metric(text: str) -> Optional[str]:
+def _extract_percentage_metric(text: str) -> str | None:
     """Helper to match starting percentage achievements (e.g. '99.9% uptime achieved')."""
     m = re.match(r"^([\d.]+%)", text)
     if m:
@@ -151,7 +150,174 @@ def _extract_percentage_metric(text: str) -> Optional[str]:
     return None
 
 
-def _extract_action_verb_metric(text: str) -> Optional[str]:
+VERB_TO_IMPACT = {
+    "optimi": "OPTIMIZATION",
+    "automat": "AUTOMATION",
+    "reduc": "REDUCTION",
+    "improv": "IMPROVEMENT",
+    "resolv": "RESOLUTION",
+    "manag": "MANAGEMENT",
+    "achiev": "ACHIEVEMENT",
+    "deliver": "DELIVERY",
+    "design": "DESIGN",
+    "implement": "IMPLEMENTATION",
+    "archit": "ARCHITECTURE",
+    "migrat": "MIGRATION",
+    "deploy": "DEPLOYMENT",
+    "sec": "SECURITY",
+    "led": "LEADERSHIP",
+    "establish": "LEADERSHIP",
+    "conduct": "AUDIT",
+    "mentor": "MENTORSHIP",
+}
+
+PCT_KEYWORDS = [
+    "deployment",
+    "satisfaction",
+    "improvement",
+    "reduction",
+    "optimization",
+    "efficiency",
+    "performance",
+    "delivery",
+    "quality",
+    "rate",
+    "automation",
+    "uptime",
+    "maintenance",
+    "cost",
+    "savings",
+    "budget",
+]
+
+PCT_FALLBACK_KEYWORDS = [
+    "satisfaction",
+    "improvement",
+    "reduction",
+    "efficiency",
+    "performance",
+    "delivery",
+    "cost",
+    "savings",
+]
+
+NUM_KEYWORDS = [
+    "deployment",
+    "resolution",
+    "support",
+    "handling",
+    "issues",
+    "tickets",
+    "tasks",
+    "cases",
+    "optimization",
+    "automation",
+    "performance",
+    "maintenance",
+    "operations",
+    "infrastructure",
+    "network",
+    "security",
+    "service",
+    "delivery",
+    "efficiency",
+    "reduction",
+    "improvement",
+    "installation",
+    "configuration",
+    "management",
+    "sites",
+    "locations",
+    "users",
+    "employees",
+    "engineers",
+    "servers",
+    "devices",
+    "routers",
+    "switches",
+    "firewalls",
+    "branches",
+    "offices",
+    "countries",
+    "regions",
+    "vendors",
+    "providers",
+    "certifications",
+    "audits",
+    "assessments",
+]
+
+NUM_FALLBACK_KEYWORDS = [
+    "deployment",
+    "automation",
+    "optimization",
+    "reduction",
+    "improvement",
+    "performance",
+    "maintenance",
+    "infrastructure",
+    "network",
+    "operations",
+    "security",
+    "service",
+    "migration",
+    "architecture",
+    "design",
+    "implementation",
+    "sites",
+    "users",
+    "locations",
+    "countries",
+]
+
+
+def _extract_verb_metric_pct(rest: str, verb: str, pct: Any) -> str | None:
+    """Handle percentage based metric extraction."""
+    pv = pct.group(1)
+    verb_lower = verb.lower()
+
+    for prefix, impact_suffix in VERB_TO_IMPACT.items():
+        if verb_lower.startswith(prefix):
+            return f"{pv} {impact_suffix}"
+
+    after_pct = rest[pct.end() :]
+    before_pct = rest[: pct.start()]
+
+    for kw in PCT_KEYWORDS:
+        if kw in before_pct.lower():
+            return f"{pv} {kw.upper()}"
+    for kw in PCT_KEYWORDS:
+        if kw in after_pct.lower():
+            return f"{pv} {kw.upper()}"
+    for kw in PCT_FALLBACK_KEYWORDS:
+        if kw in (verb + " " + rest).lower():
+            return f"{pv} {kw.upper()}"
+    return f"{pv} IMPACT"
+
+
+def _extract_verb_metric_num(rest: str, verb: str, num: Any) -> str | None:
+    """Handle number based metric extraction."""
+    nv = num.group(1)
+    after_num = rest[num.end() :]
+    before_num = rest[: num.start()]
+
+    for kw in NUM_KEYWORDS:
+        if kw in before_num.lower():
+            if kw == "issues":
+                return f"{nv} RESOLVED"
+            return f"{nv} {kw.upper()}"
+    for kw in NUM_KEYWORDS:
+        if kw in after_num.lower():
+            if kw == "issues":
+                return f"{nv} RESOLVED"
+            return f"{nv} {kw.upper()}"
+    for kw in NUM_FALLBACK_KEYWORDS:
+        if kw in rest.lower():
+            return f"{nv} {kw.upper()}"
+    return f"{nv} IMPACT"
+
+
+def _extract_action_verb_metric(text: str) -> str | None:
     """Helper to match action verb metrics (e.g. 'Optimized database querying by 30%')."""
     m = re.match(
         r"^(Resolved|Reduced|Improved|Managed|Achieved|Delivered|Optimized|Automated|Designed|Implemented|Architected|Migrated|Deployed|Secured|Led|Established|Conducted|Mentored)\b",
@@ -165,229 +331,11 @@ def _extract_action_verb_metric(text: str) -> Optional[str]:
     rest = text[m.end() :].strip()
     pct = re.search(r"(\d+%)", rest)
     if pct:
-        pv = pct.group(1)
-        verb_lower = verb.lower()
-        if verb_lower.startswith("optimi"):
-            return f"{pv} OPTIMIZATION"
-        elif verb_lower.startswith("automat"):
-            return f"{pv} AUTOMATION"
-        elif verb_lower.startswith("reduc"):
-            return f"{pv} REDUCTION"
-        elif verb_lower.startswith("improv"):
-            return f"{pv} IMPROVEMENT"
-        elif verb_lower.startswith("resolv"):
-            return f"{pv} RESOLUTION"
-        elif verb_lower.startswith("manag"):
-            return f"{pv} MANAGEMENT"
-        elif verb_lower.startswith("achiev"):
-            return f"{pv} ACHIEVEMENT"
-        elif verb_lower.startswith("deliver"):
-            return f"{pv} DELIVERY"
-        elif verb_lower.startswith("design"):
-            return f"{pv} DESIGN"
-        elif verb_lower.startswith("implement"):
-            return f"{pv} IMPLEMENTATION"
-        elif verb_lower.startswith("archit"):
-            return f"{pv} ARCHITECTURE"
-        elif verb_lower.startswith("migrat"):
-            return f"{pv} MIGRATION"
-        elif verb_lower.startswith("deploy"):
-            return f"{pv} DEPLOYMENT"
-        elif verb_lower.startswith("sec"):
-            return f"{pv} SECURITY"
-        elif verb_lower.startswith("led") or verb_lower.startswith("establish"):
-            return f"{pv} LEADERSHIP"
-        elif verb_lower.startswith("conduct"):
-            return f"{pv} AUDIT"
-        elif verb_lower.startswith("mentor"):
-            return f"{pv} MENTORSHIP"
-
-        after_pct = rest[pct.end() :]
-        before_pct = rest[: pct.start()]
-        for kw in [
-            "deployment",
-            "satisfaction",
-            "improvement",
-            "reduction",
-            "optimization",
-            "efficiency",
-            "performance",
-            "delivery",
-            "quality",
-            "rate",
-            "automation",
-            "uptime",
-            "maintenance",
-            "cost",
-            "savings",
-            "budget",
-        ]:
-            if kw in before_pct.lower():
-                return f"{pv} {kw.upper()}"
-        for kw in [
-            "deployment",
-            "satisfaction",
-            "improvement",
-            "reduction",
-            "optimization",
-            "efficiency",
-            "performance",
-            "delivery",
-            "quality",
-            "rate",
-            "automation",
-            "uptime",
-            "maintenance",
-            "cost",
-            "savings",
-            "budget",
-        ]:
-            if kw in after_pct.lower():
-                return f"{pv} {kw.upper()}"
-        for kw in [
-            "satisfaction",
-            "improvement",
-            "reduction",
-            "efficiency",
-            "performance",
-            "delivery",
-            "cost",
-            "savings",
-        ]:
-            if kw in text.lower():
-                return f"{pv} {kw.upper()}"
-        return f"{pv} IMPACT"
+        return _extract_verb_metric_pct(rest, verb, pct)
 
     num = re.search(r"(\d+[+]?|\d+)", rest)
     if num:
-        nv = num.group(1)
-        after_num = rest[num.end() :]
-        before_num = rest[: num.start()]
-        for kw in [
-            "deployment",
-            "resolution",
-            "support",
-            "handling",
-            "issues",
-            "tickets",
-            "tasks",
-            "cases",
-            "optimization",
-            "automation",
-            "performance",
-            "maintenance",
-            "operations",
-            "infrastructure",
-            "network",
-            "security",
-            "service",
-            "delivery",
-            "efficiency",
-            "reduction",
-            "improvement",
-            "installation",
-            "configuration",
-            "management",
-            "sites",
-            "locations",
-            "users",
-            "employees",
-            "engineers",
-            "servers",
-            "devices",
-            "routers",
-            "switches",
-            "firewalls",
-            "sites",
-            "branches",
-            "offices",
-            "countries",
-            "regions",
-            "vendors",
-            "providers",
-            "certifications",
-            "audits",
-            "assessments",
-        ]:
-            if kw in before_num.lower():
-                if kw == "issues":
-                    return f"{nv} RESOLVED"
-                return f"{nv} {kw.upper()}"
-        for kw in [
-            "deployment",
-            "resolution",
-            "support",
-            "handling",
-            "issues",
-            "tickets",
-            "tasks",
-            "cases",
-            "optimization",
-            "automation",
-            "performance",
-            "maintenance",
-            "operations",
-            "infrastructure",
-            "network",
-            "security",
-            "service",
-            "delivery",
-            "efficiency",
-            "reduction",
-            "improvement",
-            "installation",
-            "configuration",
-            "management",
-            "sites",
-            "locations",
-            "users",
-            "employees",
-            "engineers",
-            "servers",
-            "devices",
-            "routers",
-            "switches",
-            "firewalls",
-            "sites",
-            "branches",
-            "offices",
-            "countries",
-            "regions",
-            "vendors",
-            "providers",
-            "certifications",
-            "audits",
-            "assessments",
-        ]:
-            if kw in after_num.lower():
-                if kw == "issues":
-                    return f"{nv} RESOLVED"
-                return f"{nv} {kw.upper()}"
-        for kw in [
-            "deployment",
-            "automation",
-            "optimization",
-            "reduction",
-            "improvement",
-            "performance",
-            "maintenance",
-            "infrastructure",
-            "network",
-            "operations",
-            "security",
-            "service",
-            "migration",
-            "architecture",
-            "design",
-            "implementation",
-            "sites",
-            "users",
-            "locations",
-            "countries",
-        ]:
-            if kw in rest.lower():
-                return f"{nv} {kw.upper()}"
-        return f"{nv} IMPACT"
+        return _extract_verb_metric_num(rest, verb, num)
 
     for kw in [
         "network",
@@ -439,21 +387,28 @@ def _extract_highlight_title(text: str) -> str:
     return _fallback_words_title(text)
 
 
-def _wrap_in_sovereign_template(
-    company_name,
-    job_title,
-    body_text="",
-    highlights=None,
-    user_details=None,
-    email_log_id: str = "",
-    cv_path: str = None,
-):
-    """Build a complete, well-formed HTML email template for job applications.
+def _get_initials(full_name: str) -> str:
+    """Compute initials dynamically (e.g. Sam Salameh -> SS)."""
+    if not full_name:
+        return "SS"
+    parts = [p.strip() for p in full_name.split() if p.strip()]
+    if len(parts) >= 2:
+        return (parts[0][0] + parts[-1][0]).upper()
+    elif len(parts) == 1:
+        return parts[0][:2].upper()
+    return "SS"
 
-    Returns a full HTML document with proper structure including <body>, header
-    with candidate info, body paragraphs, highlights, and tracking pixel.
+
+def _resolve_candidate_details(user_details: dict | None) -> tuple[str, str, str, str, str, str]:
     """
-    # Resolve dynamic candidate details
+    Resolve candidate details dynamically from user details or config.
+
+    Args:
+        user_details: Optional dictionary containing user override details.
+
+    Returns:
+        A tuple of (name, email, phone, linkedin, profession, address).
+    """
     if user_details:
         name = user_details.get("name") or config.CANDIDATE_NAME
         candidate_email = user_details.get("email") or config.CANDIDATE_EMAIL
@@ -478,21 +433,21 @@ def _wrap_in_sovereign_template(
         linkedin = config.CANDIDATE_LINKEDIN
         profession = "Senior Network Engineer"
         candidate_address = getattr(config, "CANDIDATE_ADDRESS", "Beirut, Lebanon")
+    return name, candidate_email, phone, linkedin, profession, candidate_address
 
-    # Compute initials dynamically (e.g. Sam Salameh -> SS)
-    def get_initials(full_name: str) -> str:
-        if not full_name:
-            return "SS"
-        parts = [p.strip() for p in full_name.split() if p.strip()]
-        if len(parts) >= 2:
-            return (parts[0][0] + parts[-1][0]).upper()
-        elif len(parts) == 1:
-            return parts[0][:2].upper()
-        return "SS"
 
-    initials = get_initials(name)
+def _build_body_html(body_text: str, job_title: str, company_name: str) -> str:
+    """
+    Build HTML paragraphs for the cover letter.
 
-    # Build cover letter body paragraphs
+    Args:
+        body_text: The plain text body.
+        job_title: The target job title.
+        company_name: The company name.
+
+    Returns:
+        Paragraphs wrapped in HTML tags.
+    """
     body_html = ""
     if body_text:
         paragraphs = [
@@ -511,8 +466,19 @@ I am writing to express my strong interest in the <strong>{job_title}</strong> p
 My track record includes deploying SD-WAN across 50+ sites (45% cost reduction), implementing Zero Trust for 2,000+ remote users, and automating network operations with Python/Ansible/Terraform (40% faster deployments). I hold multiple industry certifications including CCNP, NSE, and cloud architecture credentials.</p>
 <p style="margin:20px 0;font-size:15px;color:#e2e8f0;line-height:1.8;">
 I have attached my CV for your review and would welcome the opportunity to discuss how my experience can contribute to {company_name}'s continued success.</p>\n"""
+    return body_html
 
-    # Highlights section (numbered achievements)
+
+def _build_highlights_html(highlights: list[str] | None) -> str:
+    """
+    Build HTML achievements block.
+
+    Args:
+        highlights: A list of professional highlights.
+
+    Returns:
+        HTML table string containing highlights cards.
+    """
     highlights_html = ""
     if highlights and isinstance(highlights, list) and len(highlights) > 0:
         cards = ""
@@ -529,50 +495,27 @@ I have attached my CV for your review and would welcome the opportunity to discu
 </tr>\n"""
         highlights_html = f"""<table style="width:100%;margin:24px 0;border-collapse:collapse;">
 {cards}</table>\n"""
+    return highlights_html
 
-    # Quote from user_details
-    quote_html = ""
-    if user_details:
-        quote = user_details.get("quote")
-        if quote:
-            quote_html = f'<blockquote style="border-left:3px solid #00ff88;margin:20px 0;padding:12px 20px;color:#94a3b8;font-style:italic;">{quote}</blockquote>\n'
 
-    # CV attachment message
-    attach_html = ""
-
-    # TROJAN HORSE PORTFOLIO LINK INJECTION
-    portfolio_url = ""
-    safe_id = "demo123"
-    if user_details and user_details.get("id"):
-        import re
-
-        safe_id = re.sub(r"[^a-zA-Z0-9_]", "", str(user_details.get("id")))
-    portfolio_url = (
-        f"https://samcv-sw.github.io/jobhunt-pro-swarm/portfolios/{safe_id}.html"
-    )
-
-    portfolio_html = f"""
-    <div style="margin: 25px 0; padding: 15px; background: #1a1a2e; border-left: 4px solid #00ff88; border-radius: 4px;">
-        <p style="margin:0; font-size: 15px; color: #e2e8f0;">
-            🌐 <strong>Interactive Web Portfolio:</strong><br>
-            <a href="{portfolio_url}" style="color: #00ff88; text-decoration: none; font-weight: bold;">View my full projects and interactive CV here &rarr;</a>
-        </p>
-    </div>
-    """
-
-    if cv_path:
-        attach_html = f'{portfolio_html}<p style="margin:20px 0;font-size:14px;color:#94a3b8;">📎 I have also attached my PDF CV for your ATS.</p>\n'
-    elif user_details and user_details.get("tailored_cv"):
-        attach_html = f"{portfolio_html}<pre style='font-family: Arial, sans-serif; white-space: pre-wrap; font-size:13px;color:#94a3b8;'>{user_details['tailored_cv']}</pre>\n"
-    else:
-        attach_html = portfolio_html
-
-    # CNIL Compliance 2026: Tracking pixels removed.
-    # We only use explicit redirect links (click tracking) now.
-    tracking_pixel_html = ""
-
-    # Build the complete HTML document
-    html = f"""<!DOCTYPE html>
+def _build_html_skeleton(
+    name: str,
+    profession: str,
+    initials: str,
+    candidate_email: str,
+    phone: str,
+    linkedin: str,
+    job_title: str,
+    company_name: str,
+    body_html: str,
+    quote_html: str,
+    highlights_html: str,
+    attach_html: str,
+    gdpr_optout: str,
+) -> str:
+    """Assemble the HTML template skeleton with candidate details and content."""
+    linkedin_td = f'<td style="color:#94a3b8;font-size:13px;text-align:right;">🔗 <a href="{linkedin}" style="color:#94a3b8;text-decoration:none;">LinkedIn</a></td>' if linkedin else "<td></td>"
+    return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -602,7 +545,7 @@ I have attached my CV for your review and would welcome the opportunity to discu
         <tr>
           <td style="color:#94a3b8;font-size:13px;">✉️ <a href="mailto:{candidate_email}" style="color:#94a3b8;text-decoration:none;">{candidate_email}</a></td>
           <td style="color:#94a3b8;font-size:13px;text-align:center;">📞 <a href="tel:{phone}" style="color:#94a3b8;text-decoration:none;">{phone}</a></td>
-          {'<td style="color:#94a3b8;font-size:13px;text-align:right;">🔗 <a href="' + linkedin + '" style="color:#94a3b8;text-decoration:none;">LinkedIn</a></td>' if linkedin else "<td></td>"}
+          {linkedin_td}
         </tr>
       </table>
 
@@ -625,14 +568,80 @@ I have attached my CV for your review and would welcome the opportunity to discu
       <!-- Attachment notice -->
       {attach_html}
 
-      <!-- Signature -->
       <div style="margin-top:32px;padding-top:20px;border-top:1px solid #1e293b;">
         <div style="color:#ffffff;font-size:15px;font-weight:600;">Best regards,</div>
         <div style="color:#00ff88;font-size:16px;font-weight:700;margin-top:8px;">{name}</div>
         <div style="color:#94a3b8;font-size:13px;margin-top:4px;">{profession}</div>
       </div>
 
-      <!-- GDPR/EU Opt-out Footer (Strict Compliance) -->
+      {gdpr_optout}
+    </td>
+  </tr>
+</table>
+<!-- GOD-MODE TRACKING PIXEL -->
+<img src="{config.TRACKING_BASE_URL}/campaign_demo/email_{random.randint(1000,9999)}.gif" width="1" height="1" style="display:none;" alt="" />
+</body>
+</html>"""
+
+
+def _wrap_in_sovereign_template(
+    company_name,
+    job_title,
+    body_text="",
+    highlights=None,
+    user_details=None,
+    email_log_id: str = "",
+    cv_path: str = None,
+):
+    """Build a complete, well-formed HTML email template for job applications.
+
+    Returns a full HTML document with proper structure including <body>, header
+    with candidate info, body paragraphs, highlights, and tracking pixel.
+    """
+    name, candidate_email, phone, linkedin, profession, candidate_address = _resolve_candidate_details(user_details)
+    initials = _get_initials(name)
+
+    body_html = _build_body_html(body_text, job_title, company_name)
+    highlights_html = _build_highlights_html(highlights)
+
+    # Quote from user_details
+    quote_html = ""
+    if user_details:
+        quote = user_details.get("quote")
+        if quote:
+            quote_html = f'<blockquote style="border-left:3px solid #00ff88;margin:20px 0;padding:12px 20px;color:#94a3b8;font-style:italic;">{quote}</blockquote>\n'
+
+    # CV attachment message
+    attach_html = ""
+
+    # TROJAN HORSE PORTFOLIO LINK INJECTION
+    portfolio_url = ""
+    safe_id = "demo123"
+    if user_details and user_details.get("id"):
+        import re
+        safe_id = re.sub(r"[^a-zA-Z0-9_]", "", str(user_details.get("id")))
+    portfolio_url = (
+        f"{config.PORTFOLIO_BASE_URL}/{safe_id}.html"
+    )
+
+    portfolio_html = f"""
+    <div style="margin: 25px 0; padding: 15px; background: #1a1a2e; border-left: 4px solid #00ff88; border-radius: 4px;">
+        <p style="margin:0; font-size: 15px; color: #e2e8f0;">
+            🌐 <strong>Interactive Web Portfolio:</strong><br>
+            <a href="{portfolio_url}" style="color: #00ff88; text-decoration: none; font-weight: bold;">View my full projects and interactive CV here &rarr;</a>
+        </p>
+    </div>
+    """
+
+    if cv_path:
+        attach_html = f'{portfolio_html}<p style="margin:20px 0;font-size:14px;color:#94a3b8;">📎 I have also attached my PDF CV for your ATS.</p>\n'
+    elif user_details and user_details.get("tailored_cv"):
+        attach_html = f"{portfolio_html}<pre style='font-family: Arial, sans-serif; white-space: pre-wrap; font-size:13px;color:#94a3b8;'>{user_details['tailored_cv']}</pre>\n"
+    else:
+        attach_html = portfolio_html
+
+    # GDPR compliance
+    gdpr_optout = f"""
       <div style="margin-top:32px;padding-top:14px;border-top:1px solid #1e293b;text-align:center;">
         <div style="color:#475569;font-size:11px;">
             This application was securely routed via JobHunt Pro on behalf of {name}.<br>
@@ -641,18 +650,26 @@ I have attached my CV for your review and would welcome the opportunity to discu
             <a href="{SITE_URL}/opt-out?email={candidate_email}" style="color:#00ff88;text-decoration:underline;">Click here to Opt-Out & Delete Data (GDPR)</a> &bull; Or reply with "Remove"
         </div>
       </div>
-    </td>
-  </tr>
-</table>
-{tracking_pixel_html}
-<!-- GOD-MODE TRACKING PIXEL -->
-<img src="https://jobhuntpro.com/track/open/campaign_demo/email_{random.randint(1000,9999)}.gif" width="1" height="1" style="display:none;" alt="" />
-</body>
-</html>"""
-    return html
+    """
+
+    return _build_html_skeleton(
+        name=name,
+        profession=profession,
+        initials=initials,
+        candidate_email=candidate_email,
+        phone=phone,
+        linkedin=linkedin,
+        job_title=job_title,
+        company_name=company_name,
+        body_html=body_html,
+        quote_html=quote_html,
+        highlights_html=highlights_html,
+        attach_html=attach_html,
+        gdpr_optout=gdpr_optout,
+    )
 
 
-def _get_smtp_connection(config_data: dict) -> Optional[smtplib.SMTP]:
+def _get_smtp_connection(config_data: dict) -> smtplib.SMTP | None:
     """Helper to establish a synchronous SMTP connection for validation/warmup.
     Used by run_test.py and testing scripts.
     """
@@ -682,7 +699,7 @@ class RateLimiter:
     """Per-provider rate limiter with sliding window."""
 
     def __init__(self):
-        self.sent_times: Dict[str, List[float]] = defaultdict(list)
+        self.sent_times: dict[str, list[float]] = defaultdict(list)
         self.lock = asyncio.Lock()
 
     async def can_send(self, provider: str, hourly_limit: int = 100) -> bool:
@@ -718,8 +735,8 @@ class CircuitBreaker:
     """Circuit breaker for email providers."""
 
     def __init__(self):
-        self._failures: Dict[str, int] = {}
-        self._disabled_until: Dict[str, float] = {}
+        self._failures: dict[str, int] = {}
+        self._disabled_until: dict[str, float] = {}
         self._max_failures = 5
         self._cooldown = 600  # 10 min cooldown (matches smart_scheduler)
 
@@ -738,7 +755,7 @@ class CircuitBreaker:
         # Apply jitter
         jitter = random.uniform(0.8, 1.2)
         cooldown = (retry_after_sec or base_backoff) * jitter
-        
+
         self._disabled_until[name] = time.time() + cooldown
         logger.warning(f"HTTP 429 / EOP Throttling: {name} strictly disabled for {cooldown:.1f}s")
 
@@ -759,7 +776,7 @@ class CircuitBreaker:
 class EmailValidator:
     """Email format and MX validation."""
 
-    def validate(self, email: str) -> Tuple[bool, str]:
+    def validate(self, email: str) -> tuple[bool, str]:
         if not email or not isinstance(email, str):
             return False, "empty"
         email = email.strip().lower()
@@ -793,50 +810,20 @@ class EmailBuilder:
         company: str,
         title: str,
         cover_html: str,
-        attachments: Optional[list] = None,
+        attachments: list | None = None,
         tracking_id: str = "",
-        highlights: Optional[list] = None,
-        user_details: Optional[dict] = None,
-    ) -> Tuple[MIMEMultipart, str]:
-        """Build properly structured MIME email with HTML rendering support.
-        attachments: list of file paths to attach (CV PDF, cover letter PDF, etc.)
-        Uses 'alternative' wrapping so email clients render HTML, not raw tags.
-        highlights: optional list of achievement strings rendered as numbered cards."""
-
-        # Determine candidate information
-        if user_details:
-            name = user_details.get("name") or config.CANDIDATE_NAME
-            candidate_email = user_details.get("email") or config.CANDIDATE_EMAIL
-            phone = user_details.get("phone") or config.CANDIDATE_PHONE
-            profession = (
-                user_details.get("profession")
-                or user_details.get("target_title")
-                or "Senior Network Engineer"
-            )
-        else:
-            name = (
-                user_details.get("name") or config.CANDIDATE_NAME
-                if user_details
-                else config.CANDIDATE_NAME
-            )
-            candidate_email = (
-                user_details.get("email") or config.CANDIDATE_EMAIL
-                if user_details
-                else config.CANDIDATE_EMAIL
-            )
-            phone = (
-                user_details.get("phone") or config.CANDIDATE_PHONE
-                if user_details
-                else config.CANDIDATE_PHONE
-            )
-            profession = "Senior Network Engineer"
+        highlights: list | None = None,
+        user_details: dict | None = None,
+    ) -> tuple[MIMEMultipart, str]:
+        """Build properly structured MIME email with HTML rendering support."""
+        name, candidate_email, phone, _, profession, _ = _resolve_candidate_details(user_details)
 
         if title.startswith("Fwd: RE:"):
             subject = title
         else:
             subject = f"Application: {title} - {company}"
 
-        # Delegate HTML generation to the single wrap_in_sovereign_template function to avoid duplication
+        # Delegate HTML generation
         html_body = _wrap_in_sovereign_template(
             company,
             title,
@@ -846,7 +833,7 @@ class EmailBuilder:
             email_log_id=tracking_id,
         )
 
-        # Plain text fallback (same content, no HTML)
+        # Plain text fallback
         plain_text = f"""{name} - {profession}
 Email: {candidate_email}
 Phone: {phone}
@@ -856,12 +843,6 @@ Phone: {phone}
 ---
 Tracking ID: {tracking_id}"""
 
-        # CORRECT MIME structure:
-        # multipart/mixed
-        #   +-- multipart/alternative
-        #   |     +-- text/plain  (fallback)
-        #   |     +-- text/html   (rendered by modern clients)
-        #   +-- application/pdf  (attachment)
         msg = MIMEMultipart("mixed")
         msg["From"] = f"{name} <{candidate_email}>"
         msg["To"] = to_email
@@ -873,7 +854,7 @@ Tracking ID: {tracking_id}"""
         msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
         msg["Precedence"] = "bulk"
 
-        # CRITICAL: alternative wrapping so HTML renders properly
+        # Alternative wrapping so HTML renders properly
         alt_part = MIMEMultipart("alternative")
         alt_part.attach(MIMEText(plain_text, "plain", "utf-8"))
         alt_part.attach(MIMEText(html_body, "html", "utf-8"))
@@ -928,7 +909,7 @@ class EmailEngine:
         if self._hotmail_pool is not None:
             return
         try:
-            from core.hotmail_pool import init, get_stats
+            from core.hotmail_pool import get_stats, init
 
             init()
             stats = get_stats()
@@ -947,7 +928,7 @@ class EmailEngine:
             self._hotmail_pool_available = False
             logger.warning(f"HotmailPool init failed: {e}")
 
-    def _get_provider_config(self, provider: str) -> Dict:
+    def _get_provider_config(self, provider: str) -> dict:
         # Build from config.EMAIL_PROVIDERS list (env vars loaded in config.py)
         for p in config.EMAIL_PROVIDERS:
             if p["name"] == provider:
@@ -974,6 +955,7 @@ class EmailEngine:
                 logger.warning("HotmailPool unavailable")
                 return False
             import concurrent.futures
+
             from core.hotmail_pool import send_email_sync
 
             msg_str = msg.as_string()
@@ -1047,10 +1029,11 @@ class EmailEngine:
 
     async def _send_via_google_oauth(
         self, msg: MIMEMultipart, user_details: dict
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Send email natively via Gmail API using the user's OAuth tokens."""
-        import time
         import base64
+        import time
+
         import httpx
 
         access_token = user_details.get("oauth_access_token")
@@ -1068,7 +1051,7 @@ class EmailEngine:
                 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
 
                 resp = await client.post(
-                    "https://oauth2.googleapis.com/token",
+                    config.GOOGLE_OAUTH_TOKEN_URL,
                     data={
                         "client_id": GOOGLE_CLIENT_ID,
                         "client_secret": GOOGLE_CLIENT_SECRET,
@@ -1106,7 +1089,7 @@ class EmailEngine:
             payload = {"raw": raw_msg}
 
             resp = await client.post(
-                "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+                config.GMAIL_SEND_URL,
                 headers=headers,
                 json=payload,
             )
@@ -1118,10 +1101,11 @@ class EmailEngine:
 
     async def _send_via_microsoft_oauth(
         self, msg: MIMEMultipart, user_details: dict
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Send email natively via Microsoft Graph API using the user's OAuth tokens."""
-        import time
         import base64
+        import time
+
         import httpx
 
         access_token = user_details.get("oauth_access_token")
@@ -1139,7 +1123,7 @@ class EmailEngine:
                 MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
 
                 resp = await client.post(
-                    "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                    config.MICROSOFT_OAUTH_TOKEN_URL,
                     data={
                         "client_id": MICROSOFT_CLIENT_ID,
                         "client_secret": MICROSOFT_CLIENT_SECRET,
@@ -1176,9 +1160,8 @@ class EmailEngine:
                 "Authorization": f"Bearer {access_token}",
                 "Content-Type": "text/plain",
             }
-
             resp = await client.post(
-                "https://graph.microsoft.com/v1.0/me/sendMail",
+                config.MICROSOFT_SEND_URL,
                 headers=headers,
                 content=raw_msg,
             )
@@ -1189,194 +1172,224 @@ class EmailEngine:
             else:
                 return False, f"Microsoft Graph API error: {resp.text}"
 
+    async def _send_via_smtp_loop(
+        self, provider: str, msg: MIMEMultipart, max_retries: int
+    ) -> tuple[bool, str]:
+        """
+        SMTP sending loop with exponential backoff and jitter.
+
+        Args:
+            provider: The SMTP provider name.
+            msg: The MIMEMultipart message.
+            max_retries: Maximum number of send attempts.
+
+        Returns:
+            A tuple of (success, provider/error).
+        """
+        for attempt in range(max_retries):
+            try:
+                success = await self._send_via_smtp(provider, msg)
+                if success:
+                    self.circuit_breaker.record_success(provider)
+                    self.scheduler.record_send(provider)
+                    await self.rate_limiter.record_send(provider)
+                    return True, provider
+
+                self.circuit_breaker.record_failure(provider)
+                self.scheduler.record_failure(provider)
+
+                if attempt < max_retries - 1:
+                    base_delay = min((2**attempt) * 5, 30.0)
+                    jitter = random.uniform(0, base_delay * 0.30)
+                    delay = base_delay + jitter
+                    logger.info(
+                        f"[SMTP-BACKOFF] {provider} Retry {attempt + 1}/{max_retries} "
+                        f"after {delay:.1f}s (base={base_delay:.0f}s + jitter={jitter:.1f}s)"
+                    )
+                    await asyncio.sleep(delay)
+
+            except Exception as e:
+                logger.error(f"Send attempt {attempt + 1} failed: {e}")
+                if "No module named" in str(e) or "aiosmtplib" in str(e):
+                    break
+                if attempt < max_retries - 1:
+                    base_delay = min(2**attempt * 5, 30.0)
+                    jitter = random.uniform(0, base_delay * 0.15)
+                    delay = base_delay + jitter
+                    logger.info(
+                        f"[SMTP-BACKOFF] {provider} Exception retry {attempt + 1} "
+                        f"in {delay:.1f}s"
+                    )
+                    await asyncio.sleep(delay)
+        return False, "smtp_failed"
+
+    def _extract_mime_content(self, msg: MIMEMultipart) -> tuple[str, str, list[dict]]:
+        """Extract html body, text body, and attachments from MIMEMultipart message."""
+        body_html = ""
+        body_text = ""
+        attachments = []
+
+        if msg.is_multipart():
+            for part in msg.walk():
+                content_type = part.get_content_type()
+                if content_type == "text/html":
+                    payload = part.get_payload(decode=True)
+                    if payload:
+                        body_html = payload.decode("utf-8", errors="ignore")
+                elif content_type == "text/plain":
+                    payload = part.get_payload(decode=True)
+                    if payload:
+                        body_text = payload.decode("utf-8", errors="ignore")
+        else:
+            content_type = msg.get_content_type()
+            payload = msg.get_payload(decode=True)
+            if payload:
+                if content_type == "text/html":
+                    body_html = payload.decode("utf-8", errors="ignore")
+                else:
+                    body_text = payload.decode("utf-8", errors="ignore")
+
+        try:
+            import base64
+
+            if msg.is_multipart():
+                for part in msg.walk():
+                    if part.is_multipart():
+                        continue
+                    filename = part.get_filename()
+                    if filename:
+                        payload = part.get_payload(decode=True)
+                        if payload:
+                            attachments.append(
+                                {
+                                    "filename": filename,
+                                    "content": payload,
+                                    "content_b64": base64.b64encode(payload).decode(
+                                        "utf-8"
+                                    ),
+                                    "content_type": part.get_content_type(),
+                                }
+                            )
+        except Exception as att_ex:
+            logger.warning(f"[CASCADE] Attachment extraction failed: {att_ex}")
+
+        return body_html, body_text, attachments
+
+    async def _send_via_http_fallbacks(self, msg: MIMEMultipart) -> tuple[bool, str]:
+        """
+        Send email using Brevo HTTP, SendGrid HTTP, or FreeSMTPPool.
+
+        Args:
+            msg: The MIMEMultipart email message.
+
+        Returns:
+            A tuple of (success, method_or_error).
+        """
+        to_email = msg.get("To", "")
+        subject = msg.get("Subject", "")
+        body_html, body_text, attachments = self._extract_mime_content(msg)
+
+        # Fallback 1: Brevo HTTP
+        logger.info(f"[CASCADE] Attempting Brevo HTTP Fallback for {to_email}...")
+        brevo_success = await asyncio.to_thread(
+            send_email_via_brevo_http,
+            to_email=to_email,
+            subject=subject,
+            custom_body=body_html or body_text,
+            attachments=attachments,
+        )
+        if brevo_success:
+            return True, "brevo_http_fallback"
+
+        # Fallback 2: SendGrid HTTP
+        logger.info(
+            f"[CASCADE] Attempting SendGrid HTTP Fallback for {to_email}..."
+        )
+        sendgrid_success = await asyncio.to_thread(
+            send_email_via_sendgrid_http,
+            to_email=to_email,
+            subject=subject,
+            body_html=body_html,
+            body_text=body_text,
+            attachments=attachments,
+        )
+        if sendgrid_success:
+            return True, "sendgrid_http_fallback"
+
+        # Fallback 3: FreeSMTPPool
+        try:
+            from core.free_smtp_pool import get_free_smtp_pool
+
+            pool = get_free_smtp_pool()
+            if pool.has_providers():
+                logger.info(
+                    f"[CASCADE] Attempting FreeSMTPPool Fallback for {to_email}..."
+                )
+                pool_success, pool_provider = await asyncio.to_thread(
+                    pool.send,
+                    to_email=to_email,
+                    subject=subject,
+                    html_body=body_html or body_text,
+                    text_body=body_text or body_html,
+                    from_name=config.CANDIDATE_NAME,
+                    attachments=attachments,
+                )
+                if pool_success:
+                    return True, f"free_smtp_pool_{pool_provider}"
+        except Exception as pool_ex:
+            logger.error(f"[CASCADE] FreeSMTPPool Fallback failed: {pool_ex}")
+
+        return False, "all_fallbacks_failed"
+
     async def send_with_retry(
         self, provider: str, msg: MIMEMultipart, max_retries: int = 3
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """
         APEX MATRIX: Send email with Exponential Backoff + Stochastic Jitter.
-        ======================================================================
-        - Respects SMTP provider Retry-After headers when present
-        - Scales delay exponentially (2^attempt * 5s) with 30% jitter cap
-        - Separate jitter seeds per provider to prevent thundering herd
-        - Separates 'logic failure' retries from 'exception' retries
+
+        Args:
+            provider: The provider to use for sending.
+            msg: The MIMEMultipart message containing the email contents.
+            max_retries: Maximum number of retry attempts for SMTP.
+
+        Returns:
+            A tuple of (success, provider_or_method_used).
         """
-        # DRY RUN MODE: Save to file instead of sending
         dry_run = getattr(
             config, "DRY_RUN", os.getenv("DRY_RUN", "false").lower() == "true"
         )
         if dry_run:
             return await self._dry_run_send(provider, msg)
 
-        # ── GDPR SUPPRESSION CHECK ────────────────────────────────────────────
         to_email = msg.get("To", "").strip().lower()
         if to_email and _is_suppressed(to_email):
             logger.info(f"[EmailEngine] ⛔ Suppressed address: {to_email}. Skipping.")
             return False, f"suppressed:{to_email}"
 
-        # Skip immediately if circuit breaker says provider is open (broken)
         if not self.circuit_breaker.is_available(provider):
             logger.warning(f"Circuit OPEN for {provider} - skipping immediately")
             return False, f"circuit_open:{provider}"
 
-        # PA optimization: skip SMTP entirely if aiosmtplib is missing
         if not _HAS_AIOSMTPLIB:
             logger.info(
                 f"[EmailEngine] Skipping SMTP ({provider}) - aiosmtplib not installed, going directly to HTTP fallback"
             )
         else:
-            for attempt in range(max_retries):
-                try:
-                    success = await self._send_via_smtp(provider, msg)
-                    if success:
-                        self.circuit_breaker.record_success(provider)
-                        self.scheduler.record_send(provider)
-                        await self.rate_limiter.record_send(provider)
-                        return True, provider
-
-                    self.circuit_breaker.record_failure(provider)
-                    self.scheduler.record_failure(provider)
-
-                    if attempt < max_retries - 1:
-                        # Exponential backoff: 5s, 10s, 20s ... capped at 30s
-                        # + stochastic jitter of up to 30% of the base delay
-                        # to scatter concurrent swarm retries
-                        base_delay = min((2**attempt) * 5, 30.0)
-                        jitter = random.uniform(0, base_delay * 0.30)
-                        delay = base_delay + jitter
-                        logger.info(
-                            f"[SMTP-BACKOFF] {provider} Retry {attempt + 1}/{max_retries} "
-                            f"after {delay:.1f}s (base={base_delay:.0f}s + jitter={jitter:.1f}s)"
-                        )
-                        await asyncio.sleep(delay)
-
-                except Exception as e:
-                    logger.error(f"Send attempt {attempt + 1} failed: {e}")
-                    if "No module named" in str(e) or "aiosmtplib" in str(e):
-                        break
-                    if attempt < max_retries - 1:
-                        # Exception-path backoff: tighter jitter (15%) to retry quickly
-                        base_delay = min(2**attempt * 5, 30.0)
-                        jitter = random.uniform(0, base_delay * 0.15)
-                        delay = base_delay + jitter
-                        logger.info(
-                            f"[SMTP-BACKOFF] {provider} Exception retry {attempt + 1} "
-                            f"in {delay:.1f}s"
-                        )
-                        await asyncio.sleep(delay)
+            success, result = await self._send_via_smtp_loop(provider, msg, max_retries)
+            if success:
+                return True, result
 
         logger.info("[EmailEngine] SMTP skipped/expired. Falling to Brevo HTTP...")
 
-        # Extract payload from msg for HTTP APIs
-        to_email = msg.get("To", "")
-        subject = msg.get("Subject", "")
-        body_html = ""
-        body_text = ""
-
         try:
-            if msg.is_multipart():
-                for part in msg.walk():
-                    content_type = part.get_content_type()
-                    if content_type == "text/html":
-                        payload = part.get_payload(decode=True)
-                        if payload:
-                            body_html = payload.decode("utf-8", errors="ignore")
-                    elif content_type == "text/plain":
-                        payload = part.get_payload(decode=True)
-                        if payload:
-                            body_text = payload.decode("utf-8", errors="ignore")
-            else:
-                content_type = msg.get_content_type()
-                payload = msg.get_payload(decode=True)
-                if payload:
-                    if content_type == "text/html":
-                        body_html = payload.decode("utf-8", errors="ignore")
-                    else:
-                        body_text = payload.decode("utf-8", errors="ignore")
-
-            # Parse attachments from msg
-            attachments = []
-            try:
-                import base64
-
-                if msg.is_multipart():
-                    for part in msg.walk():
-                        if part.is_multipart():
-                            continue
-                        filename = part.get_filename()
-                        if filename:
-                            payload = part.get_payload(decode=True)
-                            if payload:
-                                attachments.append(
-                                    {
-                                        "filename": filename,
-                                        "content": payload,
-                                        "content_b64": base64.b64encode(payload).decode(
-                                            "utf-8"
-                                        ),
-                                        "content_type": part.get_content_type(),
-                                    }
-                                )
-            except Exception as att_ex:
-                logger.warning(f"[CASCADE] Attachment extraction failed: {att_ex}")
-
-            # Fallback 1: Brevo HTTP
-            logger.info(f"[CASCADE] Attempting Brevo HTTP Fallback for {to_email}...")
-            brevo_success = await asyncio.to_thread(
-                send_email_via_brevo_http,
-                to_email=to_email,
-                subject=subject,
-                custom_body=body_html or body_text,
-                attachments=attachments,
-            )
-            if brevo_success:
-                return True, "brevo_http_fallback"
-
-            # Fallback 2: SendGrid HTTP
-            logger.info(
-                f"[CASCADE] Attempting SendGrid HTTP Fallback for {to_email}..."
-            )
-            sendgrid_success = await asyncio.to_thread(
-                send_email_via_sendgrid_http,
-                to_email=to_email,
-                subject=subject,
-                body_html=body_html,
-                body_text=body_text,
-                attachments=attachments,
-            )
-            if sendgrid_success:
-                return True, "sendgrid_http_fallback"
-
-            # Fallback 3: FreeSMTPPool (Resend, Mailgun, Elastic Email, ZeptoMail, turboSMTP, Mailjet, SendPulse, Postmark)
-            try:
-                from core.free_smtp_pool import get_free_smtp_pool
-
-                pool = get_free_smtp_pool()
-                if pool.has_providers():
-                    logger.info(
-                        f"[CASCADE] Attempting FreeSMTPPool Fallback for {to_email}..."
-                    )
-                    pool_success, pool_provider = await asyncio.to_thread(
-                        pool.send,
-                        to_email=to_email,
-                        subject=subject,
-                        html_body=body_html or body_text,
-                        text_body=body_text or body_html,
-                        from_name=config.CANDIDATE_NAME,
-                        attachments=attachments,
-                    )
-                    if pool_success:
-                        return True, f"free_smtp_pool_{pool_provider}"
-            except Exception as pool_ex:
-                logger.error(f"[CASCADE] FreeSMTPPool Fallback failed: {pool_ex}")
-
+            return await self._send_via_http_fallbacks(msg)
         except Exception as ex:
-            logger.error(f"[CASCADE] HTTP Fallback extraction/execution failed: {ex}")
-
-        return False, "exhausted"
+            logger.critical(f"[CASCADE] Fatal crash in cascade pipeline: {ex}")
+            return False, str(ex)
 
     async def _dry_run_send(
         self, provider: str, msg: MIMEMultipart
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Save email to file instead of sending (dry run mode)."""
         try:
             sent_dir = os.path.join(
@@ -1402,38 +1415,20 @@ class EmailEngine:
             logger.error(f"[DRY RUN] Failed to save email: {e}")
             return False, str(e)
 
-    async def send_application(
-        self,
-        to_email: str,
-        company: str,
-        title: str,
-        cover_html: str,
-        cv_path: Optional[str] = None,
-        generate_cover_pdf: bool = True,
-        user_details: Optional[dict] = None,
-    ) -> Tuple[bool, str]:
-        """Send job application email with CV + optional cover letter PDF."""
-        valid, reason = self.validator.validate(to_email)
-        if not valid:
-            return False, f"invalid: {reason}"
+    def _prepare_application_attachments(
+        self, cv_path: str | None, generate_cover_pdf: bool, cover_html: str
+    ) -> list[str]:
+        """
+        Generate cover letter PDF and prepare application attachment paths.
 
-        # God-Tier Optimization: ALWAYS send immediately, bypass time-of-day blocks
-        # should_send, block_reason = self.scheduler.should_send_now()
-        # if not should_send:
-        #     return False, f"blocked: {block_reason}"
+        Args:
+            cv_path: Optional path to candidate's CV.
+            generate_cover_pdf: Whether to generate a cover letter PDF.
+            cover_html: The tailorable cover letter HTML.
 
-        # Check provider availability BEFORE building the email (optimization)
-        provider = await self.scheduler.wait_for_send_slot()
-        if not provider:
-            return False, "no_providers"
-
-        can_send = await self.rate_limiter.can_send(provider)
-        if not can_send:
-            return False, f"rate_limited: {provider}"
-
-        tracking_id = str(uuid.uuid4())[:12]
-
-        # Generate cover letter PDF
+        Returns:
+            A list of attachment file paths.
+        """
         cover_pdf_path = None
         if generate_cover_pdf:
             try:
@@ -1443,14 +1438,133 @@ class EmailEngine:
             except Exception as e:
                 logger.warning(f"Cover PDF generation failed: {e}")
 
-        # Build message with both CV and cover PDF
         attachment_paths = []
         if cv_path or self.cv_path:
             attachment_paths.append(cv_path or self.cv_path)
         if cover_pdf_path:
             attachment_paths.append(cover_pdf_path)
+        return attachment_paths
 
-        # SMTP Swarm Optimization: Try User's SMTP First
+    def _check_oauth_daily_limit(self, user_id: str) -> bool:
+        """
+        Check if the user has reached their daily OAuth limit of 20 emails.
+
+        Args:
+            user_id: The ID of the user.
+
+        Returns:
+            True if user is below daily limit, False otherwise.
+        """
+        try:
+            import datetime
+
+            from web.app_v2 import get_db
+
+            conn = get_db()
+            today_start = datetime.datetime.now().strftime("%Y-%m-%d 00:00:00")
+
+            count_row = conn.execute(
+                "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.sent_at >= ?",
+                (user_id, today_start),
+            ).fetchone()
+
+            daily_sent = count_row[0] if count_row else 0
+            conn.close()
+
+            if daily_sent < 20:
+                return True
+            else:
+                logger.warning(
+                    f"OAuth safety limit reached for user {user_id} ({daily_sent} sent today). Falling back to system SMTP to protect account."
+                )
+                return False
+        except Exception as e:
+            logger.error(f"Failed to check OAuth daily limit: {e}")
+            return False
+
+    async def _send_via_oauth_if_enabled(
+        self, user_details: dict | None, msg: MIMEMultipart, tracking_id: str, msg_id: str
+    ) -> tuple[bool, str | None]:
+        """
+        Check OAuth settings and attempt to send the email via OAuth provider.
+
+        Args:
+            user_details: Dictionary containing user info and OAuth credentials.
+            msg: The email MIMEMultipart message.
+            tracking_id: Unique tracking ID for the email.
+            msg_id: Message-ID of the built email.
+
+        Returns:
+            A tuple of (success, result_message).
+        """
+        if not (
+            user_details
+            and user_details.get("user_id")
+            and user_details.get("oauth_provider") in ["google", "microsoft"]
+            and user_details.get("oauth_access_token")
+        ):
+            return False, None
+
+        if not self._check_oauth_daily_limit(user_details["user_id"]):
+            return False, None
+
+        provider = user_details.get("oauth_provider")
+        if provider == "google":
+            success, result = await self._send_via_google_oauth(msg, user_details)
+            if success:
+                logger.info(
+                    f"Email sent via Google OAuth (tracking: {tracking_id})"
+                )
+                return True, f"{tracking_id}|{msg_id}"
+            else:
+                logger.warning(
+                    f"Google OAuth sending failed: {result}. Falling back to default provider..."
+                )
+
+        elif provider == "microsoft":
+            success, result = await self._send_via_microsoft_oauth(msg, user_details)
+            if success:
+                logger.info(
+                    f"Email sent via Microsoft OAuth (tracking: {tracking_id})"
+                )
+                return True, f"{tracking_id}|{msg_id}"
+            else:
+                logger.warning(
+                    f"Microsoft OAuth sending failed: {result}. Falling back to default provider..."
+                )
+
+        return False, None
+
+    def _determine_highlights(self, user_details: dict | None) -> list[str]:
+        """Resolve candidate skills highlights from user_details or profile defaults."""
+        highlights = None
+        if user_details and "skills" in user_details:
+            skills = user_details["skills"]
+            if isinstance(skills, str):
+                highlights = [s.strip() for s in skills.split(",") if s.strip()]
+            elif isinstance(skills, list):
+                highlights = skills
+
+        if not highlights:
+            try:
+                from core.ai_tailor import CANDIDATE_PROFILE
+                highlights = CANDIDATE_PROFILE.get("highlights", [])
+            except ImportError as e:
+                logger.warning(f"[send_application] Failed to import CANDIDATE_PROFILE: {e}")
+                highlights = []
+        return highlights or []
+
+    async def _send_smtp_swarm_if_configured(
+        self,
+        to_email: str,
+        company: str,
+        title: str,
+        cover_html: str,
+        user_details: dict | None,
+        attachment_paths: list[str],
+        tracking_id: str,
+    ) -> tuple[bool, str | None]:
+        """Attempt sending via Gmail SMTP if custom credentials are provided in user_details."""
         if (
             user_details
             and user_details.get("smtp_user")
@@ -1475,23 +1589,56 @@ class EmailEngine:
                 logger.warning(
                     f"SMTP Swarm failed, falling back to centralized APIs: {e}"
                 )
+        return False, None
 
-        # Get candidate profile highlights for the email
-        highlights = None
-        if user_details and "skills" in user_details:
-            skills = user_details["skills"]
-            if isinstance(skills, str):
-                highlights = [s.strip() for s in skills.split(",") if s.strip()]
-            elif isinstance(skills, list):
-                highlights = skills
+    async def send_application(
+        self,
+        to_email: str,
+        company: str,
+        title: str,
+        cover_html: str,
+        cv_path: str | None = None,
+        generate_cover_pdf: bool = True,
+        user_details: dict | None = None,
+    ) -> tuple[bool, str]:
+        """Send job application email with CV + optional cover letter PDF.
 
-        if not highlights:
-            try:
-                from core.ai_tailor import CANDIDATE_PROFILE
+        Args:
+            to_email: Target recipient email.
+            company: Company name.
+            title: Job title.
+            cover_html: Tailored cover letter HTML.
+            cv_path: Path to CV.
+            generate_cover_pdf: Generate PDF if True.
+            user_details: User settings and details.
 
-                highlights = CANDIDATE_PROFILE.get("highlights", [])
-            except ImportError as e:
-                logger.warning(f"[send_application] Failed to import CANDIDATE_PROFILE from ai_tailor: {e}")
+        Returns:
+            A tuple of (success, tracking_id or error).
+        """
+        valid, reason = self.validator.validate(to_email)
+        if not valid:
+            return False, f"invalid: {reason}"
+
+        provider = await self.scheduler.wait_for_send_slot()
+        if not provider:
+            return False, "no_providers"
+
+        can_send = await self.rate_limiter.can_send(provider)
+        if not can_send:
+            return False, f"rate_limited: {provider}"
+
+        tracking_id = str(uuid.uuid4())[:12]
+        attachment_paths = self._prepare_application_attachments(
+            cv_path, generate_cover_pdf, cover_html
+        )
+
+        smtp_swarm_sent, smtp_res = await self._send_smtp_swarm_if_configured(
+            to_email, company, title, cover_html, user_details, attachment_paths, tracking_id
+        )
+        if smtp_swarm_sent:
+            return True, smtp_res
+
+        highlights = self._determine_highlights(user_details)
 
         msg, subject = EmailBuilder.build(
             to_email,
@@ -1505,63 +1652,11 @@ class EmailEngine:
         )
 
         msg_id = str(msg.get("Message-ID", ""))
-
-        can_use_oauth = False
-        if (
-            user_details
-            and user_details.get("user_id")
-            and user_details.get("oauth_provider") in ["google", "microsoft"]
-            and user_details.get("oauth_access_token")
-        ):
-            try:
-                from web.app_v2 import get_db
-                import datetime
-
-                conn = get_db()
-                today_start = datetime.datetime.now().strftime("%Y-%m-%d 00:00:00")
-
-                # Check how many emails sent by this user today (safeguard)
-                count_row = conn.execute(
-                    "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.sent_at >= ?",
-                    (user_details["user_id"], today_start),
-                ).fetchone()
-
-                daily_sent = count_row[0] if count_row else 0
-                conn.close()
-
-                if daily_sent < 20:
-                    can_use_oauth = True
-                else:
-                    logger.warning(
-                        f"OAuth safety limit reached for user {user_details['user_id']} ({daily_sent} sent today). Falling back to system SMTP to protect account."
-                    )
-            except Exception as e:
-                logger.error(f"Failed to check OAuth daily limit: {e}")
-                can_use_oauth = False
-
-        if can_use_oauth and user_details.get("oauth_provider") == "google":
-            success, result = await self._send_via_google_oauth(msg, user_details)
-            if success:
-                logger.info(
-                    f"Email sent to {company} via Google OAuth (tracking: {tracking_id})"
-                )
-                return True, f"{tracking_id}|{msg_id}"
-            else:
-                logger.warning(
-                    f"Google OAuth sending failed: {result}. Falling back to default provider..."
-                )
-
-        if can_use_oauth and user_details.get("oauth_provider") == "microsoft":
-            success, result = await self._send_via_microsoft_oauth(msg, user_details)
-            if success:
-                logger.info(
-                    f"Email sent to {company} via Microsoft OAuth (tracking: {tracking_id})"
-                )
-                return True, f"{tracking_id}|{msg_id}"
-            else:
-                logger.warning(
-                    f"Microsoft OAuth sending failed: {result}. Falling back to default provider..."
-                )
+        oauth_success, oauth_result = await self._send_via_oauth_if_enabled(
+            user_details, msg, tracking_id, msg_id
+        )
+        if oauth_success and oauth_result:
+            return True, oauth_result
 
         success, result = await self.send_with_retry(provider, msg)
 
@@ -1581,7 +1676,7 @@ class EmailEngine:
         title: str,
         original_date: str,
         followup_num: int = 1,
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Send follow-up email."""
         prefix = "Second" if followup_num > 1 else "First"
         subject = f"{prefix} Follow-up: {title} Application at {company}"
@@ -1612,8 +1707,8 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
         return success, tracking_id if success else result
 
     async def send_bulk(
-        self, recipients: List[Dict], cover_html: str, cv_path: Optional[str] = None
-    ) -> Dict[str, int]:
+        self, recipients: list[dict], cover_html: str, cv_path: str | None = None
+    ) -> dict[str, int]:
         """Send bulk emails with rate limiting."""
         results = {"sent": 0, "failed": 0, "skipped": 0}
 
@@ -1640,15 +1735,15 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
 
     async def send_bulk_parallel(
         self,
-        jobs: List[Dict],
+        jobs: list[dict],
         campaign_id: str,
         conn,
         sent_count: int,
         already_sent_emails: set,
-        cv_path: Optional[str] = None,
-        user_details: Optional[dict] = None,
+        cv_path: str | None = None,
+        user_details: dict | None = None,
         max_concurrent: int = 10000,
-    ) -> Tuple[int, int, List[Dict]]:
+    ) -> tuple[int, int, list[dict]]:
         """
         NON-BLOCKING ASYNC: Send ALL emails in parallel using asyncio.gather.
         Uses a semaphore to cap concurrent SMTP connections at max_concurrent.
@@ -1678,7 +1773,7 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
         # OPT#3: Collect tuples then batch commit — avoids per-email SQLite COMMIT overhead
         _pending_inserts = []
 
-        async def send_one(job: Dict) -> Dict:
+        async def send_one(job: dict) -> dict:
             nonlocal _pending_inserts
             async with sem:
                 email_addr = job.get("email", "")
@@ -1742,7 +1837,7 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
                 except Exception as e:
                     return {"company": company, "status": "error", "reason": str(e)}
 
-        results_list = await asyncio.gather(*(send_one(j) for j in jobs))
+        results_list = await asyncio.gather(*(send_one(j) for j in jobs), return_exceptions=True)
 
         # OPT#3: Single batch INSERT with one COMMIT
         if _pending_inserts:
@@ -1766,7 +1861,7 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
         failed = sum(1 for r in results_list if r.get("status") in ("failed", "error"))
         return sent, failed, results_list
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         return {
             "scheduler": self.scheduler.get_stats(),
             "circuit_breaker": {
@@ -1824,7 +1919,7 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
             logger.error(f"send_email failed: {e}")
             return False
 
-    def get_queue(self, limit: int = 50) -> List[Dict]:
+    def get_queue(self, limit: int = 50) -> list[dict]:
         """
         Get pending emails from the email_queue table for batch sending.
         Called by CloudOrchestrator._drain_email_queue().
@@ -1851,7 +1946,7 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
             logger.warning(f"get_queue failed: {e}")
             return []
 
-    async def send_from_queue_item(self, item: Dict) -> bool:
+    async def send_from_queue_item(self, item: dict) -> bool:
         """Send a single email from the email_queue table."""
         try:
             to_email = item.get("to_email") or item.get("email") or item.get("to", "")
@@ -2069,7 +2164,7 @@ def send_email_via_brevo_http(
     custom_body: str = "",
     sender_name: str = config.CANDIDATE_NAME,
     subject: str = None,
-    attachments: Optional[list] = None,
+    attachments: list | None = None,
 ) -> bool:
     """Send email via Brevo REST API (no SMTP needed).
     Uses BREVO_API_KEY from .env.
@@ -2132,7 +2227,7 @@ def send_email_via_brevo_http(
         except Exception as e:
             logger.warning(f"[BREVO-HTTP] Failed to attach CV: {e}")
 
-    url = "https://api.brevo.com/v3/smtp/email"
+    url = config.BREVO_SEND_URL
     headers = {
         "api-key": api_key,
         "Content-Type": "application/json",
@@ -2159,7 +2254,7 @@ def send_email_via_sendgrid_http(
     subject: str = None,
     body_html: str = "",
     body_text: str = "",
-    attachments: Optional[list] = None,
+    attachments: list | None = None,
 ) -> bool:
     """Send email via SendGrid REST API (no SMTP needed).
     Uses SENDGRID_API_KEY from .env.
@@ -2200,7 +2295,7 @@ def send_email_via_sendgrid_http(
             for att in attachments
         ]
 
-    url = "https://api.sendgrid.com/v3/mail/send"
+    url = config.SENDGRID_SEND_URL
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
@@ -2233,12 +2328,12 @@ def send_email_via_gmail_smtp(
     smtp_user: str = None,
     smtp_pass: str = None,
     attachment_paths: list = None,
-) -> Tuple[bool, str]:
+) -> tuple[bool, str]:
     """Send via Gmail SMTP with app password. 15s timeout, TLS."""
     import smtplib
     import ssl
-    from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
 
     if not smtp_user or not smtp_pass:
         return False, "Missing SMTP credentials"
@@ -2270,8 +2365,8 @@ def send_email_via_gmail_smtp(
         # Add attachments if any
         if attachment_paths:
             import os
-            from email.mime.base import MIMEBase
             from email import encoders
+            from email.mime.base import MIMEBase
 
             if isinstance(attachment_paths, str):
                 attachment_paths = [attachment_paths]
@@ -2308,6 +2403,33 @@ def send_email_via_gmail_smtp(
         return False, str(e)
 
 
+def _prepare_base_attachments(attachment_paths=None, attachments=None) -> list[dict]:
+    """Helper to extract attachments with name, content_b64, and content_type."""
+    res = []
+    if attachments:
+        for att in attachments:
+            res.append({
+                "filename": att["filename"],
+                "content_b64": att["content_b64"],
+                "content_type": att.get("content_type", "application/pdf")
+            })
+    elif attachment_paths:
+        paths = attachment_paths if isinstance(attachment_paths, list) else [attachment_paths]
+        for path in paths:
+            if path and os.path.exists(path):
+                try:
+                    with open(path, "rb") as f:
+                        b64 = base64.b64encode(f.read()).decode("utf-8")
+                        res.append({
+                            "filename": os.path.basename(path),
+                            "content_b64": b64,
+                            "content_type": "application/pdf"
+                        })
+                except Exception as e:
+                    logger.warning(f"[Attachment] Failed to read {path}: {e}")
+    return res
+
+
 def send_email_via_resend(
     to_email: str,
     company_name: str,
@@ -2318,20 +2440,15 @@ def send_email_via_resend(
     highlights=None,
     subject: str = None,
     reply_to: str = None,
-    attachments: Optional[list] = None,
+    attachments: list | None = None,
 ) -> bool:
-    """[RESEND API] Best Gmail inbox delivery. Uses HTTP port 443.
-
-    Supports 3 Resend keys (RESEND_API_KEY, RESEND_API_KEY_2, RESEND_API_KEY_3).
-    Requires a verified custom domain in RESEND_FROM_EMAIL.
-    """
+    """[RESEND API] Best Gmail inbox delivery. Uses HTTP port 443."""
     try:
         import resend as resend_lib
     except ImportError:
         logger.warning("[RESEND] resend package not installed. Run: pip install resend")
         return False
 
-    # Collect all configured Resend keys
     resend_keys = []
     for env_var in ["RESEND_API_KEY", "RESEND_API_KEY_2", "RESEND_API_KEY_3"]:
         key = os.getenv(env_var, "").strip()
@@ -2343,49 +2460,23 @@ def send_email_via_resend(
 
     resend_from_email = os.getenv("RESEND_FROM_EMAIL", "").strip()
     if not resend_from_email:
-        logger.debug(
-            "[RESEND] Skipped: RESEND_FROM_EMAIL not set (need verified domain)."
-        )
+        logger.debug("[RESEND] Skipped: RESEND_FROM_EMAIL not set (need verified domain).")
         return False
 
     if not subject:
         subject = f"Application: {job_title} - {company_name}"
 
-    html_content = (
-        custom_body
-        if custom_body
-        else f"""
+    html_content = custom_body or f"""
     <p>Dear Hiring Team,</p>
     <p>I am writing to express my interest in the <strong>{job_title}</strong> position at <strong>{company_name}</strong>.</p>
     <p>Best regards,<br><strong>{sender_name}</strong></p>
     """
-    )
 
     from_addr = f"{sender_name} <{resend_from_email}>"
     gmail_user = os.getenv("GMAIL_SMTP_USER", "").strip()
 
-    # Build attachments
-    attachments_payload = []
-    if attachments:
-        for att in attachments:
-            attachments_payload.append(
-                {"filename": att["filename"], "content": att["content_b64"]}
-            )
-    elif attachment_paths:
-        for path in (
-            attachment_paths
-            if isinstance(attachment_paths, list)
-            else [attachment_paths]
-        ):
-            if path and os.path.exists(path):
-                try:
-                    with open(path, "rb") as f:
-                        content = base64.b64encode(f.read()).decode("utf-8")
-                        attachments_payload.append(
-                            {"filename": os.path.basename(path), "content": content}
-                        )
-                except Exception as e:
-                    logger.warning(f"[RESEND] Failed to attach {path}: {e}")
+    base_atts = _prepare_base_attachments(attachment_paths, attachments)
+    attachments_payload = [{"filename": a["filename"], "content": a["content_b64"]} for a in base_atts]
 
     # Try each Resend key
     for env_var, key in resend_keys:
@@ -2424,7 +2515,7 @@ def send_email_via_mailjet(
     highlights=None,
     subject: str = None,
     reply_to: str = None,
-    attachments: Optional[list] = None,
+    attachments: list | None = None,
 ) -> bool:
     """[MAILJET API] Free 200/day. Uses HTTP port 443 — works on cloud."""
     api_key = os.getenv("MAILJET_API_KEY", "").strip()
@@ -2435,49 +2526,22 @@ def send_email_via_mailjet(
     if not subject:
         subject = f"Application: {job_title} - {company_name}"
 
-    html_content = (
-        custom_body
-        if custom_body
-        else f"""
+    html_content = custom_body or f"""
     <p>Dear Hiring Team,</p>
     <p>I am writing to express my interest in the <strong>{job_title}</strong> position at <strong>{company_name}</strong>.</p>
     <p>Best regards,<br><strong>{sender_name}</strong></p>
     """
-    )
 
     sender_email = os.getenv("GMAIL_SMTP_USER", "").strip()
     if not sender_email:
         return False
 
-    attachment_list = []
-    if attachments:
-        for att in attachments:
-            attachment_list.append(
-                {
-                    "ContentType": att["content_type"],
-                    "Filename": att["filename"],
-                    "Base64Content": att["content_b64"],
-                }
-            )
-    elif attachment_paths:
-        for path in (
-            attachment_paths
-            if isinstance(attachment_paths, list)
-            else [attachment_paths]
-        ):
-            if path and os.path.exists(path):
-                try:
-                    with open(path, "rb") as f:
-                        content = base64.b64encode(f.read()).decode("utf-8")
-                        attachment_list.append(
-                            {
-                                "ContentType": "application/pdf",
-                                "Filename": os.path.basename(path),
-                                "Base64Content": content,
-                            }
-                        )
-                except Exception as e:
-                    logger.warning(f"[MAILJET] Failed to attach {path}: {e}")
+    base_atts = _prepare_base_attachments(attachment_paths, attachments)
+    attachment_list = [{
+        "ContentType": a["content_type"],
+        "Filename": a["filename"],
+        "Base64Content": a["content_b64"]
+    } for a in base_atts]
 
     payload = {
         "Messages": [
@@ -2496,7 +2560,7 @@ def send_email_via_mailjet(
     try:
         logger.info(f"[MAILJET] Sending to {to_email}...")
         response = requests.post(
-            "https://api.mailjet.com/v3.1/send",
+            config.MAILJET_SEND_URL,
             auth=(api_key, api_secret),
             json=payload,
             timeout=20,
@@ -2529,7 +2593,7 @@ def send_email_via_sendpulse(
     highlights=None,
     subject: str = None,
     reply_to: str = None,
-    attachments: Optional[list] = None,
+    attachments: list | None = None,
 ) -> bool:
     """[PORTED FROM CHRONOS] SendPulse HTTP API — free 12,000/month (~400/day)."""
     global _SENDPULSE_TOKEN_CACHE
@@ -2543,15 +2607,11 @@ def send_email_via_sendpulse(
     if not subject:
         subject = f"Application: {job_title} - {company_name}"
 
-    html_content = (
-        custom_body
-        if custom_body
-        else f"""
+    html_content = custom_body or f"""
     <p>Dear Hiring Team,</p>
     <p>I am writing to express my interest in the <strong>{job_title}</strong> position at <strong>{company_name}</strong>.</p>
     <p>Best regards,<br><strong>{sender_name}</strong></p>
     """
-    )
 
     sender_email = (
         os.getenv("SENDPULSE_SENDER_EMAIL", "").strip() or config.CANDIDATE_EMAIL
@@ -2569,7 +2629,7 @@ def send_email_via_sendpulse(
                 token = _SENDPULSE_TOKEN_CACHE["token"]
             else:
                 token_resp = requests.post(
-                    "https://api.sendpulse.com/oauth/access_token",
+                    config.SENDPULSE_TOKEN_URL,
                     json={
                         "grant_type": "client_credentials",
                         "client_id": client_id,
@@ -2593,24 +2653,8 @@ def send_email_via_sendpulse(
             "Content-Type": "application/json",
         }
 
-        attachments_payload = {}
-        if attachments:
-            for att in attachments:
-                attachments_payload[att["filename"]] = att["content_b64"]
-        elif attachment_paths:
-            for path in (
-                attachment_paths
-                if isinstance(attachment_paths, list)
-                else [attachment_paths]
-            ):
-                if path and os.path.exists(path):
-                    try:
-                        with open(path, "rb") as f:
-                            attachments_payload[os.path.basename(path)] = (
-                                base64.b64encode(f.read()).decode("utf-8")
-                            )
-                    except Exception as e:
-                        logger.warning(f"[SENDPULSE] Failed to attach {path}: {e}")
+        base_atts = _prepare_base_attachments(attachment_paths, attachments)
+        attachments_payload = {a["filename"]: a["content_b64"] for a in base_atts}
 
         payload = {
             "email": {
@@ -2627,7 +2671,7 @@ def send_email_via_sendpulse(
 
         logger.info(f"[SENDPULSE] Sending via HTTP API to {to_email}...")
         response = requests.post(
-            "https://api.sendpulse.com/smtp/emails",
+            config.SENDPULSE_SEND_URL,
             headers=headers,
             json=payload,
             timeout=20,

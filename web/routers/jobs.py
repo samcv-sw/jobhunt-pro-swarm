@@ -22,24 +22,24 @@ def api_v1_jobs(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
-    db = get_db()
-    try:
-        cursor = db.execute(
-            "SELECT * FROM jobs WHERE user_id = ? ORDER BY created_at DESC",
-            (user_id,)
-        )
-        rows = cursor.fetchall()
-        columns = [col[0] for col in cursor.description]
-        jobs = [dict(zip(columns, row)) for row in rows]
-        db.close()
-        return JSONResponse({"jobs": jobs, "count": len(jobs)})
-    except Exception as e:
+    with get_db() as db:
         try:
-            db.close()
-        except Exception:
-            pass
-        logger.exception("api_v1_jobs failed")
-        return JSONResponse({"error": str(e)}, status_code=500)
+            cursor = db.execute(
+                "SELECT * FROM jobs WHERE user_id = ? ORDER BY created_at DESC",
+                (user_id,)
+            )
+            rows = cursor.fetchall()
+            columns = [col[0] for col in cursor.description]
+            jobs = [dict(zip(columns, row)) for row in rows]
+            pass  # db.close()
+            return JSONResponse({"jobs": jobs, "count": len(jobs)})
+        except Exception as e:
+            try:
+                pass  # db.close()
+            except Exception:
+                pass
+            logger.exception("api_v1_jobs failed")
+            return JSONResponse({"error": str(e)}, status_code=500)
 
 @router.get("/upload-cv", response_class=HTMLResponse)
 def upload_cv_page(request: Request):
@@ -47,27 +47,33 @@ def upload_cv_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    user = dict(user_row) if user_row else {}
-    content = render_template("upload_cv_v3.html", user=user, user_id=user_id)
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Upload CV", "upload-cv", request=request))
+    with get_db() as conn:
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        pass  # conn.close()
+        user = dict(user_row) if user_row else {}
+        content = render_template("upload_cv_v2.html", user=user, user_id=user_id)
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Upload CV", "upload-cv", request=request))
 
 @router.get("/new-campaign", response_class=HTMLResponse)
-def new_campaign_page(request: Request):
+def new_campaign_page(request: Request, plan: str = ""):
     get_db, get_verified_user_id, _, _, render_template, _build_dashboard_shell = _deps()
     user_id = get_verified_user_id(request)
     if not user_id:
-        return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
-    conn.close()
+        return RedirectResponse(f"/login?plan={plan}" if plan else "/login", status_code=303)
+    with get_db() as conn:
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
+        pass  # conn.close()
     
-    user = dict(user_row) if user_row else {}
-    content = render_template("new_campaign_v2.html", user=user, profiles=profiles, user_id=user_id)
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "New Campaign", "new-campaign", request=request))
+        from core.pricing_manager import get_all_pricing
+        user = dict(user_row) if user_row else {}
+        pricing_data = get_all_pricing()
+        tiers = pricing_data.get("tiers", pricing_data) if isinstance(pricing_data, dict) else pricing_data
+        pricing = {"tiers": tiers}
+        balance = user.get("wallet_balance", 0.0)
+    
+        content = render_template("new_campaign_v2.html", profiles=profiles, user=user, plan=plan, pricing=pricing, balance=balance)
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "New Campaign", "new-campaign", request=request))
 
 @router.post("/upload-cv")
 async def upload_cv(
@@ -168,22 +174,22 @@ async def upload_cv(
     email_data = email_template or email_body
     cv_data = extracted_text or cv_full_text
 
-    conn = get_db()
-    conn.execute(
-        """INSERT INTO cv_profiles
-           (user_id, profile_name, cv_text, cover_letter_template, email_template,
-            skills, experience_years, target_titles, target_locations,
-            home_country, min_local_salary, min_international_salary)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (user_id, profile_name or "My Profile", cv_data,
-         cl_data, email_data,
-         skills, experience_years, target_titles, target_locations,
-         home_country, min_local_salary, min_international_salary)
-    )
-    conn.commit()
-    conn.close()
+    with get_db() as conn:
+        conn.execute(
+            """INSERT INTO cv_profiles
+               (user_id, profile_name, cv_text, cover_letter_template, email_template,
+                skills, experience_years, target_titles, target_locations,
+                home_country, min_local_salary, min_international_salary)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (user_id, profile_name or "My Profile", cv_data,
+             cl_data, email_data,
+             skills, experience_years, target_titles, target_locations,
+             home_country, min_local_salary, min_international_salary)
+        )
+        conn.commit()
+        pass  # conn.close()
 
-    redirect_target = request.query_params.get('redirect', 'dashboard')
-    if redirect_target == 'new-campaign':
-        return RedirectResponse('/new-campaign', status_code=303)
-    return RedirectResponse("/user-dashboard?success=profile_created", status_code=303)
+        redirect_target = request.query_params.get('redirect', 'dashboard')
+        if redirect_target == 'new-campaign':
+            return RedirectResponse('/new-campaign', status_code=303)
+        return RedirectResponse("/user-dashboard?success=profile_created", status_code=303)

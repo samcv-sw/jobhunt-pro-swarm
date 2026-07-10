@@ -80,5 +80,5 @@ def force_demo_user_campaign():
 
 if __name__ == "__main__":
     result = force_demo_user_campaign()
-    print(result)
+    logger.debug(result)
 

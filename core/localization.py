@@ -1,7 +1,5 @@
 import gettext
 from pathlib import Path
-from starlette.middleware.base import BaseHTTPMiddleware
-from fastapi import Request
 
 # Base directory for locales
 LOCALES_DIR = Path(__file__).parent.parent / "locales"

@@ -21,9 +21,9 @@ History:
 """
 
 import json
+import logging
 import os
 import time
-import logging
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -92,7 +92,7 @@ def load_pool():
     if _pool_cache:
         return _pool_cache
     if POOL_FILE.exists():
-        with open(POOL_FILE, "r", encoding="utf-8") as f:
+        with open(POOL_FILE, encoding="utf-8") as f:
             data = json.load(f)
             _pool_cache = data.get("accounts", [])
     return _pool_cache or []
@@ -221,9 +221,10 @@ def send_email_sync(to_email: str, msg_str: str) -> tuple:
     v3.0: Uses Microsoft Graph API HTTP endpoint instead of SMTP XOAUTH2.
     This works because the EPP (client_id) has Graph API Mail.Send permission.
     """
-    import requests
-    import time
     import random
+    import time
+
+    import requests
 
     # Pareto Stochastic Delay (Heavy-tail distribution) instead of periodic sine waves
     # This prevents automated signature detection of harmonic patterns.
@@ -293,7 +294,7 @@ def send_email_sync(to_email: str, msg_str: str) -> tuple:
             "Content-Type": "application/json",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
         }
-        
+
         # Load rotating proxies from environment
         import os
         proxy_url = os.getenv("GRAPH_PROXY", None)
@@ -327,7 +328,7 @@ def _mark_account_dead(email: str, reason: str):
     """Mark a specific account as dead in the pool JSON."""
     try:
         if POOL_FILE.exists():
-            with open(POOL_FILE, "r", encoding="utf-8") as f:
+            with open(POOL_FILE, encoding="utf-8") as f:
                 data = json.load(f)
 
             for acct in data.get("accounts", []):
@@ -385,7 +386,7 @@ def try_revive_dead_accounts(force: bool = False) -> int:
         if not POOL_FILE.exists():
             return 0
 
-        with open(POOL_FILE, "r", encoding="utf-8") as f:
+        with open(POOL_FILE, encoding="utf-8") as f:
             data = json.load(f)
 
         dead_accounts = [

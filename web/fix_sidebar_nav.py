@@ -1,11 +1,23 @@
+"""
+web/fix_sidebar_nav.py
+JobHunt Pro - Navigation links template sync helper utility
+Automatically replaces/synchronizes dashboard shell sidebar navigation links
+across English and Arabic templates layouts.
+"""
 import os
 import re
+import sys
+import logging
+from typing import Dict, Any, List
 
-AR_SHELL = r"C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\web\templates\ar\_dashboard_shell.html"
-EN_SHELL = r"C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\web\templates\en\_dashboard_shell.html"
+# Configure logging
+logger = logging.getLogger(__name__)
+
+AR_SHELL: str = os.path.abspath(os.path.join(os.path.dirname(__file__), "templates", "ar", "_dashboard_shell.html"))
+EN_SHELL: str = os.path.abspath(os.path.join(os.path.dirname(__file__), "templates", "en", "_dashboard_shell.html"))
 
 # The new navigation links in Arabic
-AR_NAV_HTML = """        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+AR_NAV_HTML: str = """        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
             <a href="/dashboard/v3" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'dashboard' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
                 <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                 <span class="font-medium text-sm">لوحة القيادة</span>
@@ -81,7 +93,8 @@ AR_NAV_HTML = """        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1"
             </a>
         </nav>"""
 
-EN_NAV_HTML = """        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+# The new navigation links in English
+EN_NAV_HTML: str = """        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
             <a href="/dashboard/v3" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'dashboard' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
                 <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                 <span class="font-medium text-sm">Dashboard</span>
@@ -157,19 +170,29 @@ EN_NAV_HTML = """        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1"
             </a>
         </nav>"""
 
-def replace_nav(file_path, new_nav):
-    if not os.path.exists(file_path):
-        print(f"File not found: {file_path}")
-        return
-    with open(file_path, "r", encoding="utf-8") as f:
-        content = f.read()
-    
-    pattern = re.compile(r'<nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">.*?</nav>', re.DOTALL)
-    new_content = pattern.sub(new_nav, content)
-    
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(new_content)
-    print(f"Replaced nav in {file_path}")
+def replace_nav(file_path: str, new_nav: str) -> None:
+    """Read the HTML shell template file and replace navigation markup safely."""
+    try:
+        if not os.path.exists(file_path):
+            logger.warning(f"File not found: {file_path}")
+            return
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        pattern = re.compile(r'<nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">.*?</nav>', re.DOTALL)
+        new_content = pattern.sub(new_nav, content)
+        
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+        logger.info(f"Replaced nav in {file_path}")
+    except Exception as e:
+        logger.error(f"Failed to replace nav in {file_path}: {e}")
+        raise
 
-replace_nav(AR_SHELL, AR_NAV_HTML)
-replace_nav(EN_SHELL, EN_NAV_HTML)
+if __name__ == "__main__":
+    try:
+        replace_nav(AR_SHELL, AR_NAV_HTML)
+        replace_nav(EN_SHELL, EN_NAV_HTML)
+    except Exception as run_e:
+        logger.error(f"Execution failed: {run_e}")
+        sys.exit(1)

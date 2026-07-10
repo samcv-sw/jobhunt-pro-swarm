@@ -7,10 +7,11 @@ Deep-Web level Zero-Touch Arbitrage System.
 3. If secured, outsources the work to our own bot users for a 30% cut.
 """
 
-import core.pg_sqlite_shim as sqlite3
+import logging
 import os
 import random
-import logging
+
+import core.pg_sqlite_shim as sqlite3
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] PHANTOM-AGENCY: %(message)s"

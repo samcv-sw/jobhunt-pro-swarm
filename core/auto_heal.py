@@ -8,15 +8,15 @@ Uses asyncio for background tasks — never spawns OS processes.
 """
 
 import asyncio
+import gc
+import json
 import logging
 import os
-import time
-import json
 import threading
-import gc
-from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Any
+import time
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger("auto_heal")
 
@@ -60,7 +60,7 @@ _last_prune_time = 0.0
 # ═══════════════════════════════════════════════════════════════
 
 
-def _load_history() -> List[Dict]:
+def _load_history() -> list[dict]:
     try:
         if HEAL_HISTORY_FILE.exists():
             data = json.loads(HEAL_HISTORY_FILE.read_text(encoding="utf-8"))
@@ -70,13 +70,13 @@ def _load_history() -> List[Dict]:
     return []
 
 
-def _save_history(entry: Dict):
+def _save_history(entry: dict):
     try:
         HEAL_HISTORY_FILE.parent.mkdir(parents=True, exist_ok=True)
         history = _load_history()
         history.append(
             {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 **entry,
             }
         )
@@ -156,7 +156,7 @@ def _get_db():
 # ═══════════════════════════════════════════════════════════════
 
 
-def _get_cgroup_memory_usage() -> Optional[float]:
+def _get_cgroup_memory_usage() -> float | None:
     """
     Attempt to read Docker cgroup memory metrics (v1 and v2) to get
     accurate container-specific RAM usage on Render/Fly.io.
@@ -214,7 +214,7 @@ def _check_ram_usage() -> float:
         pass
     try:
         # Fallback: read /proc/meminfo on Linux
-        with open("/proc/meminfo", "r") as f:
+        with open("/proc/meminfo") as f:
             mem = {}
             for line in f:
                 parts = line.split(":")
@@ -240,7 +240,7 @@ def _check_ram_usage() -> float:
     return 50.0  # Assume moderate if unmeasurable
 
 
-def _check_groq_api() -> Dict[str, Any]:
+def _check_groq_api() -> dict[str, Any]:
     """Check if Groq API key is healthy."""
     groq_key = os.getenv("GROQ_API_KEY", "")
     if not groq_key:
@@ -275,7 +275,7 @@ def _check_groq_api() -> Dict[str, Any]:
         return {"status": "error", "healthy": False, "error": str(e)}
 
 
-async def _check_groq_api_async() -> Dict[str, Any]:
+async def _check_groq_api_async() -> dict[str, Any]:
     return await asyncio.to_thread(_check_groq_api)
 
 
@@ -297,7 +297,7 @@ def _clear_stuck_campaigns() -> int:
         return 0
     try:
         cutoff = (
-            datetime.now(timezone.utc) - timedelta(minutes=_STUCK_THRESHOLD_MINUTES)
+            datetime.now(UTC) - timedelta(minutes=_STUCK_THRESHOLD_MINUTES)
         ).isoformat()
         stuck_total = 0
 
@@ -412,7 +412,7 @@ def _clear_dead_locks() -> int:
     if not conn:
         return 0
     try:
-        cutoff = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
+        cutoff = (datetime.now(UTC) - timedelta(hours=1)).isoformat()
         removed = 0
 
         for table in ["locks", "job_locks", "distributed_locks", "mutex_locks"]:
@@ -459,7 +459,7 @@ def _prune_old_db_records() -> int:
     pruned = 0
     try:
         # 1. Prune jobs that were not applied to and are older than 14 days
-        cutoff_jobs = (datetime.now(timezone.utc) - timedelta(days=14)).isoformat()
+        cutoff_jobs = (datetime.now(UTC) - timedelta(days=14)).isoformat()
         try:
             # We use standard SQLite syntax compatible with our PG shim translation
             result = conn.execute(
@@ -471,7 +471,7 @@ def _prune_old_db_records() -> int:
             pass
 
         # 2. Prune campaign emails log history older than 90 days
-        cutoff_logs = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
+        cutoff_logs = (datetime.now(UTC) - timedelta(days=90)).isoformat()
         for table in ["campaign_emails", "sent_emails"]:
             try:
                 result = conn.execute(
@@ -482,7 +482,7 @@ def _prune_old_db_records() -> int:
                 pass
 
         # 3. Clean up resolved/stale rate-limited SMTP entries older than 7 days
-        cutoff_smtp = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+        cutoff_smtp = (datetime.now(UTC) - timedelta(days=7)).isoformat()
         try:
             result = conn.execute(
                 "DELETE FROM smtp_rotation WHERE limited_at < ?", (cutoff_smtp,)
@@ -511,7 +511,7 @@ def _prune_old_db_records() -> int:
             pass
 
 
-def _rotate_rate_limited_smtp() -> Dict[str, Any]:
+def _rotate_rate_limited_smtp() -> dict[str, Any]:
     """
     Check SMTP accounts for rate limiting and rotate if needed.
     Works with the email rotator pool (email_rotator_pool.py / byo_smtp.py).
@@ -655,42 +655,14 @@ def _auto_reload_pa_if_ram_high(ram_pct: float) -> bool:
     return True
 
 
-# ═══════════════════════════════════════════════════════════════
-# Main Heal Cycle
-# ═══════════════════════════════════════════════════════════════
-
-
-async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
+async def _heal_ram(force: bool, result: dict[str, Any]) -> None:
     """
-    Run a full self-healing cycle.
+    Perform RAM check and reload PythonAnywhere if usage is high.
 
-    Checks in order:
-    1. RAM usage → auto-reload PA if > 90%
-    2. Stuck campaigns → reset if running > 30 min
-    3. Dead locks → clear if > 1 hour old
-    4. SMTP rate limits → rotate flagged accounts
-    5. Groq API key → verify health
-
-    Returns dict with heal actions taken.
+    Args:
+        force: If True, force reload.
+        result: The result dictionary to update.
     """
-    result = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "force": force,
-        "ram_pct": 0.0,
-        "ram_heal": False,
-        "stuck_campaigns_cleared": 0,
-        "dead_locks_removed": 0,
-        "smtp_rotation": None,
-        "groq_check": None,
-        "alerts_sent": [],
-        "errors": [],
-    }
-
-    with _state_lock:
-        _heal_state["last_check"] = result["timestamp"]
-        _heal_state["total_checks"] += 1
-
-    # 1. RAM Check
     try:
         ram_pct = _check_ram_usage()
         result["ram_pct"] = ram_pct
@@ -712,7 +684,14 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
         result["errors"].append(f"RAM check: {e}")
         logger.error(f"RAM check error: {e}")
 
-    # 2. Stuck Campaigns
+
+async def _heal_campaigns_and_locks(result: dict[str, Any]) -> None:
+    """
+    Reset stuck campaigns and clear dead locks.
+
+    Args:
+        result: The result dictionary to update.
+    """
     try:
         stuck = _clear_stuck_campaigns()
         result["stuck_campaigns_cleared"] = stuck
@@ -733,7 +712,6 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
         result["errors"].append(f"Stuck campaigns: {e}")
         logger.error(f"Stuck campaign check error: {e}")
 
-    # 3. Dead Locks
     try:
         locks = _clear_dead_locks()
         result["dead_locks_removed"] = locks
@@ -748,7 +726,15 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
         result["errors"].append(f"Dead locks: {e}")
         logger.error(f"Dead lock check error: {e}")
 
-    # 4. SMTP Rotation
+
+async def _heal_smtp_and_groq(force: bool, result: dict[str, Any]) -> None:
+    """
+    Rotate rate-limited SMTP accounts and monitor Groq API key health.
+
+    Args:
+        force: If True, force check.
+        result: The result dictionary to update.
+    """
     try:
         smtp_result = _rotate_rate_limited_smtp()
         result["smtp_rotation"] = smtp_result
@@ -773,12 +759,10 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
         result["errors"].append(f"SMTP rotation: {e}")
         logger.error(f"SMTP rotation error: {e}")
 
-    # 5. Groq API Key Health
     try:
         global _last_groq_check_time, _last_groq_result, _groq_alerted_unhealthy
         now = time.time()
 
-        # Only check every 30 minutes (1800s) if healthy, or every 5 minutes (300s) if unhealthy
         check_interval = 1800
         if _last_groq_result and not _last_groq_result.get("healthy"):
             check_interval = 300
@@ -797,7 +781,6 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
         result["groq_check"] = groq_result
 
         if not groq_result.get("healthy"):
-            # Only alert if we haven't alerted yet about this failure transition
             if not _groq_alerted_unhealthy or force:
                 _groq_alerted_unhealthy = True
                 await _telegram_alert(
@@ -811,17 +794,23 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
                     {"action": "groq_alert", "status": groq_result.get("status")}
                 )
         else:
-            # Reset the alert flag if it's back to healthy
             _groq_alerted_unhealthy = False
     except Exception as e:
         result["errors"].append(f"Groq check: {e}")
         logger.error(f"Groq check error: {e}")
 
-    # 6. Database Pruning (keep Neon DB size within 500MB free cap)
+
+async def _heal_db_and_scrapers(force: bool, result: dict[str, Any]) -> None:
+    """
+    Prune old database records and monitor scraper source circuit breakers.
+
+    Args:
+        force: If True, force prune or check.
+        result: The result dictionary to update.
+    """
     try:
         global _last_prune_time
         now = time.time()
-        # Run pruning once every 24 hours (86400 seconds)
         if force or (now - _last_prune_time > 86400) or _last_prune_time == 0.0:
             pruned_count = _prune_old_db_records()
             _last_prune_time = now
@@ -833,12 +822,11 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
         result["errors"].append(f"DB pruning: {e}")
         logger.error(f"DB pruning error: {e}")
 
-    # 7. Scraper Source Circuit-Breaker Health
     try:
-        from core.pa_job_scraper import _SOURCE_FAILURES, _SOURCE_DISABLED_UNTIL
+        from core.pa_job_scraper import _SOURCE_DISABLED_UNTIL, _SOURCE_FAILURES
 
         now = time.time()
-        total_sources = 10  # total scraper sources in pa_job_scraper v4
+        total_sources = 10
         tripped = {
             src: until for src, until in _SOURCE_DISABLED_UNTIL.items() if until > now
         }
@@ -849,10 +837,9 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
                 f"[AutoHeal] Scraper circuit-breakers OPEN: {list(tripped.keys())} "
                 f"({len(tripped)}/{total_sources} sources down)"
             )
-            # Telegram alert only if majority (>=50%) of sources are tripped
             if len(tripped) >= total_sources // 2:
                 await _telegram_alert(
-                    f"\u26a0\ufe0f <b>SCRAPER HEALTH ALERT</b>\n\n"
+                    f"⚠️ <b>SCRAPER HEALTH ALERT</b>\n\n"
                     f"<b>{len(tripped)}/{total_sources}</b> job sources in circuit-breaker cooldown.\n"
                     + "\n".join(
                         f"  \u2022 <code>{src}</code>: recovers in {sec}s"
@@ -879,6 +866,42 @@ async def run_heal_cycle(force: bool = False) -> Dict[str, Any]:
     except Exception as e:
         result["errors"].append(f"Scraper circuit check: {e}")
         logger.debug(f"Scraper circuit check skipped: {e}")
+
+
+async def run_heal_cycle(force: bool = False) -> dict[str, Any]:
+    """
+    Run a full self-healing cycle.
+
+    Checks in order:
+    1. RAM usage → auto-reload PA if > 90%
+    2. Stuck campaigns → reset if running > 30 min
+    3. Dead locks → clear if > 1 hour old
+    4. SMTP rate limits → rotate flagged accounts
+    5. Groq API key → verify health
+
+    Returns dict with heal actions taken.
+    """
+    result = {
+        "timestamp": datetime.now(UTC).isoformat(),
+        "force": force,
+        "ram_pct": 0.0,
+        "ram_heal": False,
+        "stuck_campaigns_cleared": 0,
+        "dead_locks_removed": 0,
+        "smtp_rotation": None,
+        "groq_check": None,
+        "alerts_sent": [],
+        "errors": [],
+    }
+
+    with _state_lock:
+        _heal_state["last_check"] = result["timestamp"]
+        _heal_state["total_checks"] += 1
+
+    await _heal_ram(force, result)
+    await _heal_campaigns_and_locks(result)
+    await _heal_smtp_and_groq(force, result)
+    await _heal_db_and_scrapers(force, result)
 
     # Explicit garbage collection to release memory back to OS in memory-constrained cloud environments
     gc.collect()
@@ -965,13 +988,13 @@ def start_background_monitor_sync():
 # ═══════════════════════════════════════════════════════════════
 
 
-def get_heal_state() -> Dict[str, Any]:
+def get_heal_state() -> dict[str, Any]:
     """Return current heal state for API responses."""
     with _state_lock:
         return dict(_heal_state)
 
 
-def get_system_health_snapshot() -> Dict[str, Any]:
+def get_system_health_snapshot() -> dict[str, Any]:
     """
     Get a snapshot of current system health for /api/system/status.
     Lightweight — designed for <100ms response.
@@ -1060,7 +1083,7 @@ def get_system_health_snapshot() -> Dict[str, Any]:
 
     return {
         "status": "ok",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "ram": {
             "percent": ram_pct,
             "threshold": _RAM_THRESHOLD_PCT,

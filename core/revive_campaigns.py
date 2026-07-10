@@ -1,5 +1,6 @@
-import core.pg_sqlite_shim as sqlite3
 import logging
+
+import core.pg_sqlite_shim as sqlite3
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"

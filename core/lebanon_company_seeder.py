@@ -4,14 +4,15 @@ Injects 100+ pre-verified Lebanese companies with contact emails into PA databas
 Zero API calls — all data pre-researched and ready.
 """
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import core.pg_sqlite_shim as sqlite3
 import logging
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
+
+import core.pg_sqlite_shim as sqlite3
 
 logger = logging.getLogger(__name__)
 
@@ -384,7 +385,7 @@ demo_user_COMPANIES = [
 ]
 
 
-def seed_all_companies() -> Dict[str, Any]:
+def seed_all_companies() -> dict[str, Any]:
     """Seed both Sam and demo_user companies into the database.
 
     Creates the lebanon_companies table if it does not exist, and inserts pre-verified
@@ -488,7 +489,7 @@ def seed_all_companies() -> Dict[str, Any]:
 
 def get_companies_for_role_type(
     role_type: str = "tech", limit: int = 50
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Get pre-seeded companies for a given role type (e.g., 'tech' or 'hr')."""
     db_path = _get_db_path()
     conn = sqlite3.connect(db_path, timeout=30)
@@ -511,7 +512,7 @@ def get_companies_for_role_type(
         conn.close()
 
 
-def get_companies_count() -> Dict[str, int]:
+def get_companies_count() -> dict[str, int]:
     """Get company count statistics."""
     db_path = _get_db_path()
     conn = sqlite3.connect(db_path, timeout=30)
@@ -538,11 +539,11 @@ if __name__ == "__main__":
     )
     result = seed_all_companies()
     if result["status"] == "ok":
-        print(
+        logger.debug(
             f"✅ Seeded: {result['sam_companies_seeded']} tech + {result['demo_user_companies_seeded']} HR"
         )
-        print(f"   Total in DB: {result['total_in_db']}")
-        print(f"   Tech: {result['tech_companies']} | HR: {result['hr_companies']}")
+        logger.debug(f"   Total in DB: {result['total_in_db']}")
+        logger.debug(f"   Tech: {result['tech_companies']} | HR: {result['hr_companies']}")
     else:
-        print(f"❌ Seeding failed: {result.get('error')}")
+        logger.debug(f"❌ Seeding failed: {result.get('error')}")
 

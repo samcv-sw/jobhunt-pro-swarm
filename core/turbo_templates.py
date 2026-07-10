@@ -7,12 +7,12 @@ Zero AI calls = instant generation. Speed: 2000+ applications/hour.
 import logging
 
 from config import (
-    CANDIDATE_NAME,
-    CANDIDATE_TITLE,
-    CANDIDATE_EMAIL,
-    CANDIDATE_PHONE,
     CANDIDATE_ADDRESS,
+    CANDIDATE_EMAIL,
     CANDIDATE_LINKEDIN,
+    CANDIDATE_NAME,
+    CANDIDATE_PHONE,
+    CANDIDATE_TITLE,
     YEARS_EXPERIENCE,
 )
 

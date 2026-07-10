@@ -82,9 +82,9 @@ def send_test_email(request: Request, background_tasks: BackgroundTasks, to_emai
 if old_send_test in content:
     content = content.replace(old_send_test, new_send_test)
 else:
-    print("Warning: send_test_email block not found exactly as expected.")
+    logger.info("Warning: send_test_email block not found exactly as expected.")
 
 with open(file_path, 'w', encoding='utf-8') as f:
     f.write(content)
 
-print("BackgroundTasks optimizations applied to web/app_v2.py")
+logger.info("BackgroundTasks optimizations applied to web/app_v2.py")

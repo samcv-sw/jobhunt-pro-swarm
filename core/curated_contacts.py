@@ -5,13 +5,12 @@ This ensures the system ALWAYS has targets even if search fails.
 """
 
 import logging
-from typing import List, Dict
 
 logger = logging.getLogger(__name__)
 
 # Real, verified contact emails for companies hiring network engineers
 # in Lebanon and Middle East region
-CURATED_CONTACTS: List[Dict] = [
+CURATED_CONTACTS: list[dict] = [
     # Lebanon - Telecoms
     {
         "company": "Ogero Telecom",
@@ -992,30 +991,50 @@ CURATED_CONTACTS: List[Dict] = [
 ]
 
 
-def get_curated_contacts(location_filter: str = "", limit: int = 50) -> List[Dict]:
-    """Get curated contacts, optionally filtered by location"""
+def get_curated_contacts(location_filter: str = "", limit: int = 50) -> list[dict]:
+    """Get curated contacts, optionally filtered by location, with robust error handling"""
     contacts = CURATED_CONTACTS
-
-    if location_filter:
-        location_lower = location_filter.lower()
-        contacts = [c for c in contacts if location_lower in c["location"].lower()]
-
     result = []
-    for c in contacts[:limit]:
-        result.append(
-            {
-                "job_id": f"curated_{c['company'].lower().replace(' ', '_')}",
-                "title": c["title"],
-                "company": c["company"],
-                "email": c["email"],
-                "all_emails": [c["email"]],
-                "location": c["location"],
-                "snippet": f"Curated contact for {c['company']} - {c['location']}",
-                "source": "curated",
-                "url": "",
-                "salary": None,
-            }
-        )
+    
+    try:
+        if location_filter and isinstance(location_filter, str):
+            location_lower = location_filter.lower()
+            filtered_contacts = []
+            for c in contacts:
+                try:
+                    loc = c.get("location", "")
+                    if loc and location_lower in loc.lower():
+                        filtered_contacts.append(c)
+                except Exception as e:
+                    logger.warning("Error filtering curated contact %s: %s", c, e)
+            contacts = filtered_contacts
 
-    logger.info(f"Curated contacts: {len(result)} (filter: '{location_filter}')")
+        for c in contacts[:limit]:
+            try:
+                company = c.get("company", "Unknown Company")
+                email = c.get("email", "")
+                if not email:
+                    continue
+                result.append(
+                    {
+                        "job_id": f"curated_{company.lower().replace(' ', '_')}",
+                        "title": c.get("title", "Network Engineer"),
+                        "company": company,
+                        "email": email,
+                        "all_emails": [email],
+                        "location": c.get("location", "Lebanon"),
+                        "snippet": f"Curated contact for {company} - {c.get('location', 'Lebanon')}",
+                        "source": "curated",
+                        "url": "",
+                        "salary": None,
+                    }
+                )
+            except Exception as e:
+                logger.error("Error processing curated contact %s: %s", c, e)
+                
+        logger.info(f"Curated contacts: {len(result)} (filter: '{location_filter}')")
+    except Exception as e:
+        logger.error("Fatal error in get_curated_contacts: %s", e, exc_info=True)
+        
     return result
+

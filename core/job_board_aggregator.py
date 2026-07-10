@@ -4,7 +4,6 @@ Indeed, Glassdoor, LinkedIn Jobs, Monster, ZipRecruiter integration
 """
 
 import logging
-from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +103,7 @@ class JobBoardAggregator:
             for board in self.config.BOARDS
         }
 
-    def get_board_status(self) -> Dict:
+    def get_board_status(self) -> dict:
         """Get status of all job boards."""
         return {
             board: {
@@ -120,31 +119,39 @@ class JobBoardAggregator:
             for board, info in self.config.BOARDS.items()
         }
 
-    def get_board_by_priority(self, max_cost_per_hire: int = 999) -> List[str]:
+    def get_board_by_priority(self, max_cost_per_hire: int = 999) -> list[str]:
         """Return board IDs sorted by priority, filtered by cost per hire."""
-        filtered = [
-            (board, info["priority"])
-            for board, info in self.config.BOARDS.items()
-            if info.get("cost_per_hire", 0) <= max_cost_per_hire
-        ]
-        return [b for b, _ in sorted(filtered, key=lambda x: x[1])]
+        try:
+            filtered = [
+                (board, info.get("priority", 99))
+                for board, info in self.config.BOARDS.items()
+                if info.get("cost_per_hire", 0) <= max_cost_per_hire
+            ]
+            return [b for b, _ in sorted(filtered, key=lambda x: x[1])]
+        except Exception as e:
+            logger.error(f"[JobBoardAggregator] get_board_by_priority failed: {e}")
+            return list(self.config.BOARDS.keys())
 
-    def estimate_monthly_cost(self, applications_per_month: int = 500) -> Dict:
+    def estimate_monthly_cost(self, applications_per_month: int = 500) -> dict:
         """Estimate monthly job board costs."""
-        costs = {}
-        for board, info in self.config.BOARDS.items():
-            # Assume 10% conversion from application to hire
-            hires = int(applications_per_month * 0.1)
-            cost = hires * info["cost_per_hire"]
-            costs[board] = {
-                "board": info["name"],
-                "estimated_hires": hires,
-                "cost_per_hire": info["cost_per_hire"],
-                "monthly_cost": cost,
-            }
+        try:
+            costs = {}
+            for board, info in self.config.BOARDS.items():
+                # Assume 10% conversion from application to hire
+                hires = int(applications_per_month * 0.1)
+                cost = hires * info.get("cost_per_hire", 0)
+                costs[board] = {
+                    "board": info.get("name", board),
+                    "estimated_hires": hires,
+                    "cost_per_hire": info.get("cost_per_hire", 0),
+                    "monthly_cost": cost,
+                }
 
-        total = sum(c["monthly_cost"] for c in costs.values())
-        return {"boards": costs, "total_monthly": total}
+            total = sum(c["monthly_cost"] for c in costs.values())
+            return {"boards": costs, "total_monthly": total}
+        except Exception as e:
+            logger.error(f"[JobBoardAggregator] estimate_monthly_cost failed: {e}")
+            return {"boards": {}, "total_monthly": 0}
 
 
 class JobMatcher:
@@ -197,7 +204,7 @@ class JobMatcher:
             "openran": 7,
         }
 
-    def score_job_match(self, job: Dict, candidate_skills: List[str]) -> Dict:
+    def score_job_match(self, job: dict, candidate_skills: list[str]) -> dict:
         """Score how well a job matches the candidate."""
         try:
             job_text = f"{job.get('title', '')} {job.get('description', '')} {job.get('snippet', '')}".lower()
@@ -231,13 +238,13 @@ class JobMatcher:
                 "overall": "low",
             }
 
-    def _check_salary(self, job: Dict) -> bool:
+    def _check_salary(self, job: dict) -> bool:
         salary_text = job.get("salary", "")
         if not salary_text:
             return True  # No salary info = could match
         return True  # Simplified
 
-    def _check_location(self, job: Dict) -> bool:
+    def _check_location(self, job: dict) -> bool:
         location = job.get("location", "").lower()
         preferred = ["remote", "lebanon", "uae", "dubai", "saudi", "qatar", "gcc"]
         return any(p in location for p in preferred)

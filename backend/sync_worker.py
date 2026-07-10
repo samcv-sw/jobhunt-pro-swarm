@@ -4,16 +4,21 @@ Streams local SQLite mutations to remote Neon PostgreSQL asynchronously.
 Handles connection failures gracefully; never crashes the process.
 """
 import asyncio
+import json
 import logging
 import os
-import json
+import random
+import sys
 import time
+
 import asyncpg
+
 if not hasattr(asyncpg, "Error"):
     asyncpg.Error = asyncpg.PostgresError
-from .database import async_session, REMOTE_PG_URL
-from .models import SyncOutbox
 from sqlalchemy import select
+
+from .database import REMOTE_PG_URL, async_session
+from .models import SyncOutbox
 
 logger = logging.getLogger(__name__)
 
@@ -59,8 +64,10 @@ async def _push_record_to_cloud(conn: asyncpg.Connection, record: SyncOutbox) ->
                 f"Operation: {record.operation}, Payload: {record.payload}, Created At: {record.created_at}, "
                 f"Error: {e}\n"
             )
-            with open(log_path, "a", encoding="utf-8") as f:
-                f.write(record_repr)
+            def _write_log(path, data):
+                with open(path, "a", encoding="utf-8") as f:
+                    f.write(data)
+            await asyncio.to_thread(_write_log, log_path, record_repr)
         except Exception as write_err:
             logger.error(f"Failed to write record {record.id} to dead-letter queue log: {write_err}")
         return False
@@ -74,8 +81,8 @@ async def sync_outbox_to_cloud():
     """
     logger.info("[SyncWorker] Started. Monitoring outbox for unsynced records...")
 
+    cloud_conn = None
     while True:
-        cloud_conn = None
         try:
             # Strip async+asyncpg scheme for raw asyncpg connection
             raw_pg_url = REMOTE_PG_URL.replace("postgresql+asyncpg://", "postgresql://")
@@ -85,8 +92,10 @@ async def sync_outbox_to_cloud():
                 await asyncio.sleep(30)
                 continue
 
-            # Attempt to open a remote connection each cycle (tolerates cold starts)
-            cloud_conn = await asyncpg.connect(raw_pg_url)
+            # Reuse connection if active, otherwise reconnect
+            if not cloud_conn or cloud_conn.is_closed():
+                logger.info("[SyncWorker] Re-establishing remote DB connection...")
+                cloud_conn = await asyncpg.connect(raw_pg_url)
 
             async with async_session() as session:
                 result = await session.execute(
@@ -125,17 +134,16 @@ async def sync_outbox_to_cloud():
 
         except (asyncpg.Error, asyncpg.InterfaceError, OSError, asyncio.TimeoutError) as e:
             logger.warning(f"[SyncWorker] Remote DB connection lost/unreachable (will retry in 30s): {e}")
-        except Exception as e:
-            logger.error(f"[SyncWorker] Unexpected error: {e}")
-        finally:
             if cloud_conn:
                 try:
-                    if not cloud_conn.is_closed():
-                        await cloud_conn.close()
-                except Exception as close_err:
-                    logger.debug(f"[SyncWorker] Socket cleanup exception during close (ignored): {close_err}")
-
-        # Poll every 30 seconds (generous interval to avoid hammering remote DB)
+                    await cloud_conn.close()
+                except Exception:
+                    pass
+                cloud_conn = None
+        except Exception as e:
+            logger.error(f"[SyncWorker] Unexpected error: {e}")
+        
+        # Poll every 30 seconds
         await asyncio.sleep(30)
 
 

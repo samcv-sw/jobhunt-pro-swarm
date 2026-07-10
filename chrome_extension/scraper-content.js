@@ -33,7 +33,7 @@ function injectButton() {
         padding: 8px 16px;
         font-weight: bold;
         cursor: pointer;
-        margin-left: 10px;
+        margin-inline-start: 10px;
         font-family: inherit;
         font-size: 14px;
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);

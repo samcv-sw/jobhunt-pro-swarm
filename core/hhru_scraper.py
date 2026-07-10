@@ -9,10 +9,10 @@ Integration: Call search_hhru() from global_scraper.py or directly.
 """
 
 import asyncio
-import logging
 import hashlib
+import logging
+import os
 import re
-from typing import Dict, List, Optional, Tuple
 
 try:
     from curl_cffi.requests import AsyncSession as httpx_AsyncClient
@@ -28,7 +28,8 @@ logger = logging.getLogger(__name__)
 # Constants
 # ═══════════════════════════════════════════════════════════════════════════════
 
-HHRU_API_BASE = "https://api.hh.ru"
+HHRU_API_BASE = os.getenv("HHRU_API_BASE", "https://api.hh.ru")
+HHRU_VACANCY_BASE_URL = os.getenv("HHRU_VACANCY_BASE_URL", "https://hh.ru")
 HHRU_USER_AGENT = "JobHuntPro/16.0 (samsalameh.cv@gmail.com)"  # Required by hh.ru TOS
 
 # API limit: per_page max 100, max 2000 results total (pages 0-19)
@@ -42,7 +43,7 @@ HHRU_INTER_PAGE_DELAY = 0.5  # seconds — polite, no API key rate limit
 
 # hh.ru area hierarchy: country > region > city
 # Area IDs are stable and documented at https://api.hh.ru/areas
-HHRU_AREA_MAP: Dict[str, int] = {
+HHRU_AREA_MAP: dict[str, int] = {
     # ── Russia ──
     "russia": 113,
     "россия": 113,
@@ -227,7 +228,7 @@ HHRU_AREA_MAP: Dict[str, int] = {
 }
 
 
-def resolve_area_id(location: str) -> Optional[int]:
+def resolve_area_id(location: str) -> int | None:
     """Resolve a location name to an hh.ru area ID.
 
     Tries: exact match → lowercase match → partial match in keys.
@@ -258,12 +259,12 @@ def resolve_area_id(location: str) -> Optional[int]:
     return None
 
 
-def resolve_area_ids(locations: List[str]) -> List[int]:
+def resolve_area_ids(locations: list[str]) -> list[int]:
     """Resolve a list of location names to hh.ru area IDs.
 
     Deduplicates and filters out None values.
     """
-    ids: List[int] = []
+    ids: list[int] = []
     seen: set = set()
     for loc in locations:
         area_id = resolve_area_id(loc)
@@ -279,8 +280,8 @@ def resolve_area_ids(locations: List[str]) -> List[int]:
 
 
 def _parse_hhru_salary(
-    salary_raw: Optional[Dict],
-) -> Tuple[Optional[float], Optional[float], Optional[str]]:
+    salary_raw: dict | None,
+) -> tuple[float | None, float | None, str | None]:
     """Parse hh.ru salary JSON block into (min, max, currency).
 
     hh.ru format:
@@ -312,7 +313,7 @@ def _parse_hhru_salary(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def _build_job(job_data: Dict) -> Dict:
+def _build_job(job_data: dict) -> dict:
     """Convert a raw hh.ru vacancy JSON dict into JobHunt Pro's job schema.
 
     Returns dict with keys:
@@ -334,7 +335,7 @@ def _build_job(job_data: Dict) -> Dict:
     alternate_url = job_data.get("alternate_url") or ""
     job_id_str = job_data.get("id", "")
     if not alternate_url and job_id_str:
-        alternate_url = f"https://hh.ru/vacancy/{job_id_str}"
+        alternate_url = f"{HHRU_VACANCY_BASE_URL}/vacancy/{job_id_str}"
     url = alternate_url
 
     # Salary
@@ -403,12 +404,12 @@ def _make_job_id(title: str, company: str, url: str = "") -> str:
 
 
 async def search_hhru(
-    job_titles: List[str],
-    locations: List[str],
+    job_titles: list[str],
+    locations: list[str],
     limit: int = 100,
     max_pages: int = 20,  # 20 pages × 100 per page = 2000 max
     delay_between_pages: float = HHRU_INTER_PAGE_DELAY,
-) -> List[Dict]:
+) -> list[dict]:
     """Search hh.ru for jobs matching given titles and locations.
 
     Uses the free, no-key hh.ru REST API (https://api.hh.ru/vacancies).
@@ -436,7 +437,7 @@ async def search_hhru(
     else:
         logger.info("hh.ru: Resolved locations %s → area IDs %s", locations, area_ids)
 
-    all_jobs: List[Dict] = []
+    all_jobs: list[dict] = []
     seen_ids: set = set()
 
     async with httpx_AsyncClient(
@@ -487,13 +488,13 @@ async def search_hhru(
 async def _search_single(
     client: httpx.AsyncClient,
     text: str,
-    area_id: Optional[int],
+    area_id: int | None,
     max_pages: int,
     delay: float,
     limit: int,
-) -> List[Dict]:
+) -> list[dict]:
     """Search a single (text, area_id) combination across pages."""
-    jobs: List[Dict] = []
+    jobs: list[dict] = []
 
     for page in range(max_pages):
         if len(jobs) >= limit:
@@ -585,12 +586,12 @@ async def _search_single(
 
 
 def search_hhru_sync(
-    job_titles: List[str],
-    locations: List[str],
+    job_titles: list[str],
+    locations: list[str],
     limit: int = 100,
     max_pages: int = 20,
     delay_between_pages: float = HHRU_INTER_PAGE_DELAY,
-) -> List[Dict]:
+) -> list[dict]:
     """Synchronous wrapper around search_hhru().
 
     Use when calling from non-async code (e.g., GlobalJobScraper).
@@ -644,7 +645,7 @@ def search_hhru_sync(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-async def fetch_area_tree() -> Dict:
+async def fetch_area_tree() -> dict:
     """Fetch the full hh.ru area tree.
 
     https://api.hh.ru/areas returns a nested country→region→city tree.
@@ -677,12 +678,12 @@ if __name__ == "__main__":
     )
 
     async def _quick_test():
-        print("=" * 60)
-        print("hh.ru Scraper — Quick Test")
-        print("=" * 60)
+        logger.debug("=" * 60)
+        logger.debug("hh.ru Scraper — Quick Test")
+        logger.debug("=" * 60)
 
         # Test 1: Search for network engineer in Moscow
-        print("\n--- Test: 'network engineer' in Moscow (limit=5) ---")
+        logger.debug("\n--- Test: 'network engineer' in Moscow (limit=5) ---")
         jobs = await search_hhru(
             job_titles=["network engineer"],
             locations=["Moscow"],
@@ -690,16 +691,16 @@ if __name__ == "__main__":
             max_pages=2,
         )
         for i, j in enumerate(jobs, 1):
-            print(f"  {i}. {j['title']} @ {j['company']} — {j['location']}")
-            print(
+            logger.debug(f"  {i}. {j['title']} @ {j['company']} — {j['location']}")
+            logger.debug(
                 f"     Salary: {j['salary_min']}-{j['salary_max']} {j['salary_currency']}"
             )
-            print(f"     Skills: {j['skills']}")
-            print(f"     URL: {j['url']}")
-        print(f"  → Found {len(jobs)} jobs")
+            logger.debug(f"     Skills: {j['skills']}")
+            logger.debug(f"     URL: {j['url']}")
+        logger.debug(f"  → Found {len(jobs)} jobs")
 
         # Test 2: Search with Russian keywords
-        print("\n--- Test: 'системный администратор' in Russia (limit=5) ---")
+        logger.debug("\n--- Test: 'системный администратор' in Russia (limit=5) ---")
         jobs2 = await search_hhru(
             job_titles=["системный администратор"],
             locations=["Russia"],
@@ -707,14 +708,14 @@ if __name__ == "__main__":
             max_pages=2,
         )
         for i, j in enumerate(jobs2, 1):
-            print(f"  {i}. {j['title']} @ {j['company']} — {j['location']}")
-        print(f"  → Found {len(jobs2)} jobs")
+            logger.debug(f"  {i}. {j['title']} @ {j['company']} — {j['location']}")
+        logger.debug(f"  → Found {len(jobs2)} jobs")
 
         # Test 3: Location resolution
-        print("\n--- Test: Location resolution ---")
+        logger.debug("\n--- Test: Location resolution ---")
         test_locs = ["Moscow", "Almaty", "Minsk", "SPB", "Dubai", "remote", "казань"]
         for loc in test_locs:
             aid = resolve_area_id(loc)
-            print(f"  {loc:20s} → area_id={aid}")
+            logger.debug(f"  {loc:20s} → area_id={aid}")
 
     asyncio.run(_quick_test())

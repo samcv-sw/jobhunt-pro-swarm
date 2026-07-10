@@ -15,13 +15,13 @@ import asyncio
 import logging
 import os
 import smtplib
-import core.pg_sqlite_shim as sqlite3
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
 
 import config
+import core.pg_sqlite_shim as sqlite3
 from core.email_engine import send_email_via_brevo_http
 
 logger = logging.getLogger(__name__)

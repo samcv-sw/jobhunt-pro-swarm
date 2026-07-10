@@ -709,3 +709,271 @@ After all fixes: `python -m pytest tests/ -q` must report 253 passed, 0 failed.
 ### Victory
 - [ ] Independent Victory Auditor writes `.agents/VICTORY_ROUND7.md`
 
+## Follow-up — 2026-07-06T19:52:55Z
+
+Audit, optimize, and refactor the entire JobHunt Pro workspace to achieve 100% engineering quality, architectural elegance, type-safety, secure anti-ban protection, and styling compliance.
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. Architecture, Code Quality & Modularization
+Audit all python modules. Modularize functions exceeding 150 lines of code, improve type safety, and annotate all core functions with parameter and return type hints. Add clean, structured docstrings to undocumented helper files.
+
+### R2. Styling, CSS Logical Properties & Localization Compliance
+Audit all styles and HTML templates in `web/templates/` and stylesheets. Ensure absolute compliance with CSS Logical Properties (replace physical values like `margin-left/right` or `padding-left/right` with `margin-inline-start/end` or `padding-inline-start/end`). Ensure proper Arabic fallback typography (`'Cairo', 'IBM Plex Arabic', 'Tajawal'`) and directionality layouts (`dir="auto"`, `--text-x-direction` variables).
+
+### R3. Security & Anti-ban Auditing
+Verify and harden Aegis Shield, BanShield v3, rate limiters, and OAuth security. Ensure csrf protection is configured across all public web forms.
+
+### R4. Test Coverage Expansion
+Identify uncovered/untested parts of the core engine and write additional unit or integration tests to achieve optimal codebase test coverage.
+
+## Acceptance Criteria
+
+### Execution & Verification
+- [ ] No regression: All existing 253/253 unit and E2E tests must pass successfully.
+- [ ] Compilation & Linting: All modified python files must compile cleanly with zero errors.
+- [ ] Code Modularity: No single refactored function exceeds 150 lines.
+- [ ] CSS Logical Properties: Zero occurrences of physical layouts (e.g., `margin-left`, `padding-right`) in modified CSS and HTML templates.
+- [ ] Type Safety: Type annotations present on all modified and newly created function definitions.
+- [ ] Test coverage: Newly added tests run successfully along with the test suite.
+
+
+## Follow-up — 2026-07-07T07:57:18Z
+
+Full structural auditing, security scans, and code improvements (safe, non-breaking changes only) on the JobHunt Pro codebase.
+
+Working directory: `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi`
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. Deep Code Audit & Repair
+Find and fix hidden logic flaws, unhandled exceptions, race conditions, and typing inconsistencies across all modules.
+
+### R2. High-Performance Optimization
+Harden database query patterns, async/blocking code, and event-loop efficiency without impacting core logic.
+
+### R3. Comprehensive Security Audits
+Eliminate SQL injection risks, insecure environment defaults, and unauthenticated endpoints.
+
+## Acceptance Criteria
+
+### Verification & Testing
+- [ ] `pytest --tb=short -q` runs and reports **0 failures** on all 365+ tests.
+- [ ] `python verify_integrity.py` executes successfully.
+- [ ] Zero blocking `time.sleep()` calls inside `async def` methods.
+- [ ] All inputs and textareas retain logical `dir="auto"` compliance.
+
+
+## 2026-07-10T07:16:11Z
+
+Run a comprehensive audit and optimization sweep across the entire JobHunt Pro workspace to maximize performance, system reliability, security, RTL layout standards, scraper stealth, and test suite health.
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. Concurrency, Async Safety & Web Worker Hardening
+- Audit all `asyncio` code, event loops, locking mechanisms, and background thread pools (especially in `web/app_v2.py` and campaign runner/scheduler modules).
+- Prevent any post-fork deadlocks, race conditions, or unhandled exceptions in background workers.
+- Ensure the WSGI entry point lazy-loader (`LazyASGIApp`) functions perfectly without thread starvation under multi-worker WSGI environments.
+
+### R2. Database Performance & Connection Isolation
+- Inspect the SQLite/PostgreSQL shim layers (`core/pg_sqlite_shim.py`, `core/async_db.py`) to guarantee optimal connection pool management.
+- Optimize high-frequency queries in `smart_scheduler.py` and `anti_ban.py` to prevent lock contention, redundant roundtrips, and database timeouts.
+- Ensure proper resource cleanup and session closing across all async/sync routes.
+
+### R3. Scraper Stealth & Anti-Bot Reliability
+- Review `core/stealth.py`, `scrapers/stealth_ingest.py`, and Cloudflare worker proxies to verify anti-bot bypass mechanisms.
+- Guarantee robust random Googlebot IP generation and asynchronous, non-blocking proxy harvesting.
+- Ensure scrapers return clean, structured parsed data and handle CAPTCHAs/challenges gracefully without crashing.
+
+### R4. UI/UX RTL Compliance & Visual Polish
+- Audit all website templates in `web/templates/` and dashboard pages to ensure CSS Logical Properties (e.g., `margin-inline-start`, `padding-inline-end`, `inset-inline-start`) are used exclusively instead of physical directional styling.
+- Verify RTL text flow compatibility with standard Arabic typography (Cairo/IBM Plex Arabic fonts, line-height 1.6-2.0, zero letter-spacing) and correct layout rendering.
+
+### R5. E2E Test Suite Health & Warning Isolation
+- Investigate and resolve the `RuntimeWarning` concerning unawaited mock coroutines in `tests/test_stealth_parser_and_fallbacks.py`.
+- Refactor multi-assertion test cases that rely on `reset_mock()` into isolated, single-responsibility test functions to eliminate warnings and potential leaks.
+- Ensure 100% of the 366+ tests pass successfully.
+
+## Acceptance Criteria
+
+### Performance & Concurrency
+- [ ] ASGI applications and WSGI worker processes boot and reload cleanly without terminal warnings, slow startup timeouts, or deadlocks.
+- [ ] No unhandled thread exceptions or leaked event loops are reported during stress tests.
+
+### Database Stability
+- [ ] No connection leaks or locked database conditions occur under parallel query loads.
+- [ ] All database manager and session pool variables are correctly initialized and released post-request.
+
+### Scraper Integrity
+- [ ] Scraper fetches utilizing curl-cffi, nodriver, or camoufox fallbacks operate cleanly, utilizing randomized Googlebot IPs and residential proxies correctly.
+- [ ] `pytest tests/test_stealth_parser_and_fallbacks.py` runs with zero warnings and 100% success.
+
+### RTL & Design
+- [ ] Zero references to physical styling rules (`margin-left`, `margin-right`, `padding-left`, `padding-right`, `left`, `right`) exist in styling and layout templates.
+- [ ] Forms and input fields are equipped with `dir="auto"` and dynamic direction transformations.
+
+### Test Isolation
+- [ ] All 366+ E2E and unit tests pass successfully.
+- [ ] Warning-free test execution logs.
+
+## 2026-07-10T07:53:48Z
+
+JobHunt Pro is a high-performance automated job application SaaS platform. The goal is to deploy a massive autonomous swarm in "Maximum Overdrive" to audit, harden, and optimize every layer of the platform: Frontend UI/UX, Backend Concurrency, Database Sync, Scraper Stealth, and CI/CD pipelines.
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. Frontend UI/UX & RTL Polish
+Audit the Next.js frontend to ensure all layouts strictly adhere to CSS Logical Properties for seamless RTL support. Enhance the glassmorphism design system to feel premium and dynamic without breaking existing functionality.
+
+### R2. Backend Concurrency & Database Sync
+Audit the FastAPI and Celery integration to guarantee zero blocking on the main event loop. Harden the database `sync_worker.py` to ensure it gracefully handles PostgreSQL connection drops and reconnects without crashing the container.
+
+### R3. Scraper Stealth Hardening
+Upgrade the `stealth_ingest.py` scraper to reliably bypass advanced anti-bot protections and ensure it returns structured, parsed data (lists of dicts) rather than raw HTML.
+
+### R4. Security Hardening
+Ensure all API endpoints (especially `/api/v1/*`) are rigorously protected by JWT Bearer authentication, rejecting unauthorized access.
+
+### R5. E2E Test Suite Validation
+Ensure the complete End-to-End testing suite (`tests/e2e/`) accurately validates the entire stack so that the GitHub Actions continuous deployment pipeline remains unbroken.
+
+### R6. Codebase-wide Hardening & Refactoring
+Audit, optimize, and refactor code anomalies listed in `IMPROVE_ME.md`, including converting remaining long functions to modular structures, resolving typing inconsistencies, configuring logging, adding robust exception handling, and resolving hardcoded URLs.
+
+## Acceptance Criteria
+
+### Frontend Quality
+- [ ] Running a search for physical directional properties (e.g., `margin-left`, `right`) across `frontend/src/` returns zero matches.
+- [ ] The Next.js app builds successfully without terminal errors (`npm run build`).
+
+### Backend Reliability
+- [ ] A concurrency test script demonstrates that dispatching Celery tasks does not block the FastAPI event loop for more than 50ms.
+- [ ] The `sync_worker.py` contains explicit `try/except` blocks handling `asyncpg.PostgresConnectionError` with a retry mechanism.
+
+### Scraper Integrity
+- [ ] `stealth_ingest.py` returns a structured `list[dict]` containing at minimum `title` and `url` keys when called.
+
+### Security
+- [ ] A test script attempting to POST to `/api/v1/scrape` without an `Authorization: Bearer <token>` header receives a `401 Unauthorized` response.
+
+### CI/CD Pipeline & Code Health
+- [ ] Running `pytest tests/e2e/` passes all tests with zero failures, proving the system is ready for automated Render deployment.
+- [ ] All 365+ existing tests pass without regressions, and new tests are added to verify the refactoring improvements.
+- [ ] Key architectural refactorings are verified by running `verify_integrity.py` and obtaining a successful exit status.
+
+## 2026-07-10T09:50:06Z
+
+Refactor, document, and harden the core production files of the JobHunt Pro application to resolve critical code quality warnings, missing type hints, long functions, and exception handling while preserving complete compatibility with all tests and Arabic layout constraints.
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+Integrity mode: development
+
+## Requirements
+
+### R1. Production Core Files Refactoring
+Refactor the following targeted production files sequentially to address all code quality and warning signals reported in `IMPROVE_ME.md`:
+1. `core/email_engine.py` (Decompose long functions, extract hardcoded URLs to `config.py`, add full type hints and docstrings, ensure safe exception handling and loggers).
+2. `core/pa_job_scraper.py` (Decompose search methods, extract URL targets to configuration variables, add docstrings and typing).
+3. `core/telegram/bot.py` (Resolve missing type hints, decompose bot execution loops and callback query handlers).
+4. `web/app_v2.py` (Refactor long routes and table creation logic, add proper type signatures and error boundaries).
+
+### R2. Structural UI & Translation Compliance
+Ensure that all layout and translation directives for Arabic support remain intact (e.g., `'Cairo', 'Tajawal'` fonts, base line-heights, logical properties selectors, and contextual `dir="auto"` attributes).
+
+### R3. Test Suite Integrity
+Maintain complete parity with the E2E and unit test suite. No modifications should introduce regressions or break existing tests.
+
+## Verification Resources
+- Use the existing test suite: `pytest` configured with dynamic mock configurations.
+- Use `scripts/auto_improve_loop.py` to compile code quality progress after refactoring.
+
+## Acceptance Criteria
+
+### Test Execution Guardrail
+- [ ] `pytest` execution must run and return 100% clean green pass.
+
+### Quality Warning Mitigation
+- [ ] Priority scores for the refactored target files in `IMPROVE_ME.md` must be successfully cleared.
+
+## 2026-07-10T18:41:55Z
+
+# JobHunt Pro Swarm Optimization & Cloud Deployment Prompt
+
+Optimize the JobHunt Pro Swarm codebase by implementing core optimizations (RTL, localizations, database connections) and creating configurations for a $0 24/7 permanent cloud deployment.
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. RTL & Localization Optimization
+Align the front-end layout with Middle East/Gulf guidelines:
+- Apply CSS Logical Properties (`margin-inline`, `padding-inline`, `inset-inline-start/end`) dynamically.
+- Set Arabic typography rules on relevant components (Cairo/Tajawal, min font size 15px, line-height 1.7-2.0, zero letter-spacing).
+- Configure directional icon flipping and `dir="auto"` on input fields.
+
+### R2. Backend Performance & SQLite to Turso Configuration
+- Configure the existing SQLite backend to dynamically connect to a Turso database when `TURSO_DATABASE_URL` is set in the environment.
+- Add connection pooling and caching wrappers for database query sessions.
+
+### R3. Free Cloud Deployment Configurations
+Generate deployment files targeting $0 free-tier platforms:
+- Koyeb configurations/Dockerfiles to run backend APIs (24/7 permanent).
+- Hugging Face Spaces configurations/Dockerfiles to run python scrapers/workers (24/7 permanent).
+- Cloudflare Pages setup configs to build and serve the Vue frontend.
+
+## Acceptance Criteria
+
+### RTL & CSS Logic
+- [ ] Front-end components utilize CSS logical properties rather than physical properties (e.g., `margin-inline-start` instead of `margin-left`).
+- [ ] Typography stacks for Arabic languages avoid `letter-spacing` and use line heights between 1.7 and 2.0.
+
+### Database Integration
+- [ ] The app dynamically switches to Turso libSQL client if remote credentials are provided, falling back to local SQLite if not.
+- [ ] Database calls handle connection pooling correctly under async sessions.
+
+### Deployability
+- [ ] Dockerfiles for Koyeb and Hugging Face build successfully.
+- [ ] Static deployment config files are valid and readable.
+
+## 2026-07-10T19:52:26Z
+
+# Teamwork Project Prompt — Draft
+
+> Status: Launched
+> Goal: Craft prompt → get user approval → delegate to teamwork_preview
+
+Analyze and directly enhance the current project located at `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi`. Apply comprehensive improvements covering code quality, performance, SEO, modern UI/UX design (respecting Arabic/RTL constraints), and marketing. Additionally, configure the project for a 24/7 permanent cloud deployment strategy that requires absolutely zero financial investment (e.g., setting up GitHub Actions for Vercel/Cloudflare Pages or Oracle Cloud).
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+Integrity mode: development
+
+## Requirements
+
+### R1. Code, UI, and Performance Enhancements
+Directly edit the project files to improve code quality, implement modern design aesthetics, optimize performance, and add SEO best practices. Adhere strictly to the RTL and Arabic typography rules defined in the project's agent instructions.
+
+### R2. Zero-Cost 24/7 Cloud Deployment Configuration
+Configure the repository with the necessary files (e.g., `vercel.json`, GitHub Actions workflows, or deployment scripts) to achieve a permanent 24/7 cloud presence with zero financial investment on platforms like Vercel, Cloudflare, or Oracle Always Free.
+
+## Acceptance Criteria
+
+### Project Quality
+- [ ] The UI/UX is significantly improved, utilizing modern design and proper RTL layouts.
+- [ ] SEO meta tags and structural semantic improvements are implemented.
+- [ ] Code is refactored for better performance and maintainability without breaking existing functionality.
+
+### Cloud Deployment
+- [ ] Necessary configuration files for a free cloud deployment platform are successfully added to the project.
+- [ ] The deployment strategy ensures 24/7 uptime without sleep limitations.
+

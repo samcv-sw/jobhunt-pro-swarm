@@ -1,5 +1,5 @@
 import logging
-from typing import Dict
+
 from core.stealth import stealth
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ class GhostApplicant:
             self.playwright_available = False
             logger.error("Playwright not installed. Ghost Applicant disabled.")
 
-    async def apply_to_url(self, url: str, profile: Dict, cv_path: str) -> bool:
+    async def apply_to_url(self, url: str, profile: dict, cv_path: str) -> bool:
         """Navigate to URL, detect the portal type, and auto-fill."""
         if not self.playwright_available:
             logger.error("Cannot run Ghost Applicant without Playwright.")
@@ -70,7 +70,7 @@ class GhostApplicant:
             logger.error(f"[GHOST] Application failed: {e}")
             return False
 
-    async def _fill_greenhouse(self, page, profile: Dict, cv_path: str) -> bool:
+    async def _fill_greenhouse(self, page, profile: dict, cv_path: str) -> bool:
         """Fill a Greenhouse application form."""
         try:
             # First Name
@@ -124,7 +124,7 @@ class GhostApplicant:
             logger.error(f"Greenhouse fill error: {e}")
             return False
 
-    async def _fill_lever(self, page, profile: Dict, cv_path: str) -> bool:
+    async def _fill_lever(self, page, profile: dict, cv_path: str) -> bool:
         """Fill a Lever application form."""
         try:
             await page.fill("input[name='name']", profile.get("name", ""))
@@ -151,7 +151,7 @@ class GhostApplicant:
             logger.error(f"Lever fill error: {e}")
             return False
 
-    async def _fill_generic(self, page, profile: Dict, cv_path: str) -> bool:
+    async def _fill_generic(self, page, profile: dict, cv_path: str) -> bool:
         """Fallback generic form filler for unknown ATS."""
         try:
             # Try generic CSS selectors

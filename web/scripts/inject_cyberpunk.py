@@ -62,13 +62,13 @@ def process_template(filepath):
 
 def main():
     if not os.path.isdir(TEMPLATES_DIR):
-        print(f'ERROR: Templates directory not found: {TEMPLATES_DIR}')
+        logger.debug(f'ERROR: Templates directory not found: {TEMPLATES_DIR}')
         return
 
     html_files = glob.glob(os.path.join(TEMPLATES_DIR, '*.html'))
     html_files.sort()
-    print(f'Found {len(html_files)} HTML template(s) in {TEMPLATES_DIR}')
-    print('=' * 60)
+    logger.debug(f'Found {len(html_files)} HTML template(s) in {TEMPLATES_DIR}')
+    logger.debug('=' * 60)
 
     modified_count = 0
     skipped_count = 0
@@ -77,18 +77,18 @@ def main():
         basename = os.path.basename(fp)
         success, reason = process_template(fp)
         if success:
-            print(f'  [MODIFIED] {basename} - {reason}')
+            logger.debug(f'  [MODIFIED] {basename} - {reason}')
             modified_count += 1
         else:
-            print(f'  [SKIPPED]  {basename} - {reason}')
+            logger.debug(f'  [SKIPPED]  {basename} - {reason}')
             skipped_count += 1
 
-    print('=' * 60)
-    print(f'SUMMARY: {modified_count} modified, {skipped_count} skipped, {len(html_files)} total')
+    logger.debug('=' * 60)
+    logger.debug(f'SUMMARY: {modified_count} modified, {skipped_count} skipped, {len(html_files)} total')
 
     if modified_count == 0 and skipped_count == len(html_files):
-        print('\nAll files already have cyberpunk.css or are missing <head>/<body> tags.')
-        print('The CSS should already be active on all templates.')
+        logger.debug('\nAll files already have cyberpunk.css or are missing <head>/<body> tags.')
+        logger.debug('The CSS should already be active on all templates.')
 
 
 if __name__ == '__main__':

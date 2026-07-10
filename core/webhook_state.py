@@ -1,6 +1,9 @@
 import datetime
-from sqlalchemy import Column, String, DateTime
+
+from sqlalchemy import Column, DateTime, String
+
 from core.database import Base
+
 
 class ProcessedWebhook(Base):
     """

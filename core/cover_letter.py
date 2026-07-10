@@ -5,9 +5,10 @@ Falls back to enhanced HTML templates when AI is unavailable.
 Supports Arabic/English bilingual cover letters for Middle East companies.
 """
 
-import random
 import logging
+import random
 import re
+
 import config
 from core.ai_tailor import ai_tailor
 
@@ -22,10 +23,13 @@ MIDDLE_EAST_INDICATORS = [
     "ajman",
     "ras al khaimah",
     "al ain",
+    "fujairah",
+    "umm al quwain",
     "qatar",
     "doha",
     "lusail",
     "al wakrah",
+    "al khor",
     "saudi",
     "riyadh",
     "jeddah",
@@ -34,6 +38,9 @@ MIDDLE_EAST_INDICATORS = [
     "dammam",
     "khobar",
     "dhahran",
+    "al khobar",
+    "jubail",
+    "yanbu",
     "kuwait",
     "kuwait city",
     "hawalli",

@@ -30,4 +30,4 @@ def force_reset_all_campaigns():
         return {"status": "error", "error": str(e)}
 
 if __name__ == "__main__":
-    print(force_reset_all_campaigns())
+    logger.debug(force_reset_all_campaigns())

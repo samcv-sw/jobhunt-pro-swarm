@@ -1,9 +1,21 @@
-import time
+import logging
 import random
-from loguru import logger
-from duckduckgo_search import DDGS
+import time
+
 from bs4 import BeautifulSoup
-from web.app_v2 import get_db
+from duckduckgo_search import DDGS
+
+logger = logging.getLogger(__name__)
+
+
+def _get_db():
+    """Lazily import and return the DB connection factory from web.app_v2.
+
+    Raises:
+        ImportError: If web.app_v2 is unavailable in the current environment.
+    """
+    from web.app_v2 import get_db  # noqa: PLC0415 — intentional lazy import
+    return get_db()
 
 
 class GhostHunter:
@@ -18,7 +30,15 @@ class GhostHunter:
 
     def hunt_for_user(
         self, user_id: str, job_title: str, location: str, max_jobs: int = 5
-    ):
+    ) -> None:
+        """Scrape LinkedIn job postings for a user using DDGS + Camoufox.
+
+        Args:
+            user_id: The target user's identifier in the local DB.
+            job_title: The job title to search for (e.g. 'Network Engineer').
+            location: The target location string (e.g. 'Remote', 'Dubai').
+            max_jobs: Maximum number of unique job URLs to process.
+        """
         logger.info(f"[DATASET-FETCHER] Starting extraction for node {user_id}")
         query = f'site:linkedin.com/jobs/view/ "{job_title}" "{location}"'
         urls = []
@@ -51,7 +71,7 @@ class GhostHunter:
                 for url in urls:
                     try:
                         # Check if job already exists for this user
-                        conn = get_db()
+                        conn = _get_db()
                         conn.cursor() if hasattr(conn, "cursor") else conn
                         existing = conn.execute(
                             "SELECT 1 FROM jobs WHERE user_id = ? AND url = ?",
@@ -120,7 +140,7 @@ class GhostHunter:
     def run_all_users(self):
         """Finds all active users and hunts for their target roles"""
         try:
-            conn = get_db()
+            conn = _get_db()
             users = conn.execute(
                 "SELECT user_id, cv_text FROM users WHERE cv_text IS NOT NULL"
             ).fetchall()

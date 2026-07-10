@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MemoryRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 
 // Declare Puter globally
@@ -43,25 +43,6 @@ function DashboardHome() {
   };
 
   return (
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
     <div className="dashboard-container">
       <h1>JobHunt Pro - Swarm Agent</h1>
       <div className="status-box">
@@ -70,6 +51,16 @@ function DashboardHome() {
       </div>
       <button onClick={startSwarmProtocol}>Start Swarm Protocol</button>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<DashboardHome />} />
+      </Routes>
+    </Router>
   );
 }
 

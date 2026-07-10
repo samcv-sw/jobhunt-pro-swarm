@@ -7,10 +7,11 @@ CASSANDRA PROTOCOL: PROOF OF DESTRUCTION (QA SWARM)
 4. Holds the bug fix ransom for a $299 Acquisition Fee (Developer gets hired).
 """
 
-import core.pg_sqlite_shim as sqlite3
+import logging
 import os
 import random
-import logging
+
+import core.pg_sqlite_shim as sqlite3
 
 logging.basicConfig(
     level=logging.INFO,
@@ -110,10 +111,10 @@ def execute_cassandra_protocol():
 
     # 4. Dispatch Email (Simulation)
     logger.info(f"Drafted B2B Extortion Email to {target['cto_email']}:")
-    print("--------------------------------------------------")
-    print(email_subject)
-    print(email_body)
-    print("--------------------------------------------------")
+    logger.debug("--------------------------------------------------")
+    logger.debug(email_subject)
+    logger.debug(email_body)
+    logger.debug("--------------------------------------------------")
 
     logger.info(
         "Successfully dispatched Cassandra Protocol. Waiting for FOMO acquisition..."

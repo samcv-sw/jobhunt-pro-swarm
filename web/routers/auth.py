@@ -93,42 +93,42 @@ async def register(
         return templates.TemplateResponse(request, "register_v2.html",
             {"error": "Password must contain at least one digit.", "ref": ref})
 
-    conn = get_db()
-    existing = conn.execute("SELECT user_id, password_hash FROM users WHERE email = ?", (email,)).fetchone()
-    if existing:
-        conn.close()
-        return templates.TemplateResponse(request, "register_v2.html", {"error": "Email already registered"})
+    with get_db() as conn:
+        existing = conn.execute("SELECT user_id, password_hash FROM users WHERE email = ?", (email,)).fetchone()
+        if existing:
+            pass  # conn.close()
+            return templates.TemplateResponse(request, "register_v2.html", {"error": "Email already registered"})
 
-    user_id = f"user_{uuid.uuid4().hex[:16]}"
-    api_key = _gen_api_key()
-    conn.execute(
-        "INSERT INTO users (user_id, email, password_hash, name, phone, company_name, user_type, api_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        (user_id, email, _hash_pw(password), name, phone, company_name, user_type, api_key)
-    )
-    conn.commit()
+        user_id = f"user_{uuid.uuid4().hex[:16]}"
+        api_key = _gen_api_key()
+        conn.execute(
+            "INSERT INTO users (user_id, email, password_hash, name, phone, company_name, user_type, api_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (user_id, email, _hash_pw(password), name, phone, company_name, user_type, api_key)
+        )
+        conn.commit()
 
-    if ref:
+        if ref:
+            try:
+                referrer = conn.execute("SELECT user_id, wallet_balance FROM users WHERE user_id = ?", (ref,)).fetchone()
+                if referrer:
+                    conn.execute("UPDATE users SET wallet_balance = wallet_balance + 5.0 WHERE user_id = ?", (ref,))
+                    conn.execute("UPDATE users SET wallet_balance = wallet_balance + 2.0 WHERE user_id = ?", (user_id,))
+                    conn.commit()
+            except Exception as e:
+                logger.error(f"Referral credit failed: {e}")
+
+        pass  # conn.close()
+
         try:
-            referrer = conn.execute("SELECT user_id, wallet_balance FROM users WHERE user_id = ?", (ref,)).fetchone()
-            if referrer:
-                conn.execute("UPDATE users SET wallet_balance = wallet_balance + 5.0 WHERE user_id = ?", (ref,))
-                conn.execute("UPDATE users SET wallet_balance = wallet_balance + 2.0 WHERE user_id = ?", (user_id,))
-                conn.commit()
+            import asyncio
+            from core.email_marketing import send_welcome_email
+            asyncio.create_task(send_welcome_email(user_id, email, name))
         except Exception as e:
-            logger.error(f"Referral credit failed: {e}")
+            logger.error(f"Welcome email failed: {e}")
 
-    conn.close()
-
-    try:
-        import asyncio
-        from core.email_marketing import send_welcome_email
-        asyncio.create_task(send_welcome_email(user_id, email, name))
-    except Exception as e:
-        logger.error(f"Welcome email failed: {e}")
-
-    resp = RedirectResponse(f"/login?plan={selected_plan}", status_code=303)
-    resp.set_cookie("last_selected_plan", selected_plan, max_age=86400)
-    return resp
+        resp = RedirectResponse(f"/login?plan={selected_plan}", status_code=303)
+        resp.set_cookie("last_selected_plan", selected_plan, max_age=86400)
+        return resp
 
 
 @router.get("/login", response_class=HTMLResponse)
@@ -145,25 +145,25 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
     get_db, session_serializer, templates, config, _ = _deps()
     email = email.strip().lower()
     
-    conn = get_db()
-    user = conn.execute(
-        "SELECT user_id, password_hash FROM users WHERE email = ?",
-        (email,)
-    ).fetchone()
-    conn.close()
+    with get_db() as conn:
+        user = conn.execute(
+            "SELECT user_id, password_hash FROM users WHERE email = ?",
+            (email,)
+        ).fetchone()
+        pass  # conn.close()
     
-    if not user or not _verify_pw(password, user["password_hash"] if hasattr(user, "__getitem__") else user[1]):
-        return templates.TemplateResponse(request, "login_v2.html", {
-            "error": "Invalid credentials",
-            "VERSION": config.VERSION
-        })
+        if not user or not _verify_pw(password, user["password_hash"] if hasattr(user, "__getitem__") else user[1]):
+            return templates.TemplateResponse(request, "login_v2.html", {
+                "error": "Invalid credentials",
+                "VERSION": config.VERSION
+            })
         
-    u_id = user["user_id"] if hasattr(user, "__getitem__") else user[0]
-    signed_uid = session_serializer.dumps(u_id)
+        u_id = user["user_id"] if hasattr(user, "__getitem__") else user[0]
+        signed_uid = session_serializer.dumps(u_id)
     
-    response = RedirectResponse("/dashboard", status_code=303)
-    response.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
-    return response
+        response = RedirectResponse("/dashboard", status_code=303)
+        response.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
+        return response
 
 
 @router.post("/api/v1/login")
@@ -180,32 +180,32 @@ async def api_login(request: Request):
     if not email or not password:
         raise HTTPException(status_code=400, detail="email and password required")
 
-    conn = get_db()
-    user = conn.execute(
-        "SELECT user_id, password_hash, name, email, tokens, subscription_status, api_key FROM users WHERE email = ?",
-        (email,)
-    ).fetchone()
-    conn.close()
+    with get_db() as conn:
+        user = conn.execute(
+            "SELECT user_id, password_hash, name, email, tokens, subscription_status, api_key FROM users WHERE email = ?",
+            (email,)
+        ).fetchone()
+        pass  # conn.close()
 
-    if not user or not _verify_pw(password, user["password_hash"] if hasattr(user, "__getitem__") else user[1]):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        if not user or not _verify_pw(password, user["password_hash"] if hasattr(user, "__getitem__") else user[1]):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    u = dict(user) if hasattr(user, "keys") else {
-        "user_id": user[0], "password_hash": user[1], "name": user[2],
-        "email": user[3], "tokens": user[4], "subscription_status": user[5], "api_key": user[6]
-    }
-    signed_uid = session_serializer.dumps(u["user_id"])
-    resp = JSONResponse({
-        "status": "ok",
-        "user_id": u["user_id"],
-        "name": u["name"],
-        "email": u["email"],
-        "api_key": u["api_key"],
-        "tokens": u["tokens"],
-        "subscription_status": u["subscription_status"],
-    })
-    resp.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
-    return resp
+        u = dict(user) if hasattr(user, "keys") else {
+            "user_id": user[0], "password_hash": user[1], "name": user[2],
+            "email": user[3], "tokens": user[4], "subscription_status": user[5], "api_key": user[6]
+        }
+        signed_uid = session_serializer.dumps(u["user_id"])
+        resp = JSONResponse({
+            "status": "ok",
+            "user_id": u["user_id"],
+            "name": u["name"],
+            "email": u["email"],
+            "api_key": u["api_key"],
+            "tokens": u["tokens"],
+            "subscription_status": u["subscription_status"],
+        })
+        resp.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
+        return resp
 
 
 @router.get("/logout")

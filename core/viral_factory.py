@@ -3,8 +3,8 @@ JobHunt Pro - Viral Factory (Instant Hyper-Growth Engine)
 Mass generates viral TikTok/Reels videos using AI text-to-speech and dynamic waveforms.
 """
 
-import logging
 import asyncio
+import logging
 import os
 import time
 

@@ -1338,7 +1338,7 @@ body{
 
 .price-badge{
 
- position:absolute;top:-14px;inset-inline-start: 50%;transform:translateX(-50%);
+ position:absolute;top:-14px;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto; transform: none;
 
  padding:6px 20px;border-radius:50px;font-size:9px;font-weight:800;
 
@@ -2335,19 +2335,14 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 
  </div>
 <h1>
-
-  {{ _('Land Your Dream Job') }}<br/>
-<span class="cyan glow-line">{{ _('Automatically') }}</span> {{ _('While You') }}<br/>
-<span class="typewriter-wrap"><span class="magenta" id="typewriter"></span><span class="typewriter-cursor"></span></span>
+  <span class="gold">وكيلك الذكي</span> يحصد لك<br/>
+  <span class="cyan glow-line">عروض عمل حقيقية</span> بينما<br/>
+  <span class="typewriter-wrap"><span class="magenta" id="typewriter"></span><span class="typewriter-cursor"></span></span>
 </h1>
 <p class="hero-sub">
-
-  {{ _('Your personal AI job-hunting engine works') }} <strong style="color:var(--cyan)">24/7</strong> {{ _('— searching thousands of jobs, 
-
-  crafting personalized applications, and sending them through smart email rotation.') }} 
-
-  <strong style="color:var(--gold)">{{ _('Less than 7 cents per application.') }}</strong> {{ _('Get hired or your money back.') }}
-
+  محرك التقديم الآلي للوظائف يعمل <strong style="color:var(--cyan)">24/7</strong> — يبحث في آلاف الوظائف،
+  يصنع طلبات مخصصة، ويرسلها عبر تدوير ذكي للإيميلات.
+  <strong style="color:var(--gold)">أقل من 7 سنتات لكل طلب.</strong> {{ _('Get hired or your money back.') }}
  </p>
 <div class="hero-buttons">
 <a class="primary" href="/register">{{ _('🚀 Start Applying Now — It\'s Free') }}</a>
@@ -2411,7 +2406,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <section class="featured-jobs">
 <div class="section-header">
 <div class="overline">{{ _('HOT OPPORTUNITIES') }}</div>
-<h2>{{ _('الميزةd') }} <span class="gradient">{{ _('Jobs') }}</span></h2>
+<h2>الوظائف <span class="gradient">المميزة</span></h2>
 <p>{{ _('Hand-picked premium positions in top companies across MENA/GCC. Apply instantly with JobHunt Pro.') }}</p>
 </div>
 <div class="featured-grid">
@@ -2419,7 +2414,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   {% for job in featured_jobs %}
 
   <div class="fj-card">
-<span class="fj-badge">{{ _('★ الميزةd') }}</span>
+<span class="fj-badge">★ مميزة</span>
 <div class="fj-company-row">
 <div class="fj-logo">
 <img alt="{{ job.company }}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" src="https://logo.clearbit.com/{{ job.domain }}"/>
@@ -2451,7 +2446,6 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <!-- ═══ HOW IT WORKS ═══ -->
 <section class="how" id="how">
 <div class="section-header">
-<div <div="" cl="" class="section-header">
 <div class="overline">الفرق</div>
 <h2>البحث عن عمل: <span class="gradient">قبل وبعد</span></h2>
 <p>{{ _('كيف يبدو بحثك عن عمل مع وبدون أتمتة JobHunt Pro') }}</p>
@@ -2599,7 +2593,6 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <th class="highlight">{{ _('JobHunt Pro') }}</th>
 </tr>
 </thead>
-<tbody>
 <tbody>
 <tr>
 <td>{{ _('AI Cover Letters') }}</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td>
@@ -3845,6 +3838,6 @@ function toggleFaq(item){
     }
 
   </script>
-</div></div></section></body>
+</body>
 </html>
 

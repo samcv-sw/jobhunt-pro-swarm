@@ -1,35 +1,15 @@
 """
 Upstash Redis Rate Limiter — Free tier (10k commands/day)
 Uses REST API (HTTP), no Redis client library needed.
-
-Setup:
-1. Create free account at https://upstash.com
-2. Create a Redis database (free tier: 10k commands/day, 256MB)
-3. Set env vars:
-   UPSTASH_REDIS_URL=https://xxx-xxx.upstash.io
-   UPSTASH_REDIS_TOKEN=AXxxxx...
-
-Usage:
-    from core.upstash_rate_limiter import RateLimiter
-
-    limiter = RateLimiter()
-
-    # Check if allowed
-    if limiter.allow("login:192.168.1.1", max_count=5, window_seconds=300):
-        # proceed
-    else:
-        # rate limited
-
-    # Get current count
-    count = limiter.count("login:192.168.1.1")
 """
 
-import os
-import time
 import json
 import logging
-import urllib.request
+import os
+import time
+import random
 import urllib.error
+import urllib.request
 from typing import Optional
 
 logger = logging.getLogger(__name__)
@@ -54,12 +34,13 @@ class RateLimiter:
         self.token = os.getenv("UPSTASH_REDIS_TOKEN", "")
         self._fallback = {}  # in-memory fallback
         self._enabled = bool(self.url and self.token)
+        self._cleanup_counter = 0
         if self._enabled:
             logger.info("Upstash rate limiter enabled")
         else:
             logger.info("Upstash not configured, using in-memory rate limiter")
 
-    def _exec(self, command: list) -> Optional[any]:
+    def _exec(self, command: list) -> any | None:
         """Execute a Redis command via REST API."""
         if not self._enabled:
             return None
@@ -81,6 +62,35 @@ class RateLimiter:
             logger.warning(f"Upstash error: {e}")
             return None
 
+    def _exec_pipeline(self, commands: list) -> Optional[list]:
+        """Execute multiple Redis commands in a single HTTP request using pipeline."""
+        if not self._enabled:
+            return None
+        try:
+            payload = json.dumps(commands).encode()
+            req = urllib.request.Request(
+                f"{self.url}/pipeline",
+                data=payload,
+                headers={
+                    "Authorization": f"Bearer {self.token}",
+                    "Content-Type": "application/json",
+                },
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                data = json.loads(resp.read())
+                results = []
+                for res in data:
+                    if "error" in res:
+                        logger.warning(f"Pipeline command error: {res['error']}")
+                        results.append(None)
+                    else:
+                        results.append(res.get("result"))
+                return results
+        except Exception as e:
+            logger.warning(f"Upstash pipeline error: {e}")
+            return None
+
     def allow(self, key: str, max_count: int = 5, window_seconds: int = 300) -> bool:
         """
         Check if action is allowed under rate limit.
@@ -91,19 +101,25 @@ class RateLimiter:
             now = time.time()
             window_start = now - window_seconds
 
-            # Remove old entries
-            self._exec(["ZREMRANGEBYSCORE", key, "-inf", str(window_start)])
+            # Pipeline 1: Clean up expired timestamps and get active count
+            pipeline_results = self._exec_pipeline([
+                ["ZREMRANGEBYSCORE", key, "-inf", str(window_start)],
+                ["ZCARD", key]
+            ])
+            if not pipeline_results:
+                return True  # Fallback to allowed if connection fails
 
-            # Count current
-            count = self._exec(["ZCARD", key])
-            count = int(count) if count else 0
-
+            count = pipeline_results[1]
+            count = int(count) if count is not None else 0
             if count >= max_count:
                 return False
 
-            # Add current request
-            self._exec(["ZADD", key, str(now), f"{now}"])
-            self._exec(["EXPIRE", key, str(window_seconds)])
+            # Pipeline 2: Add member with unique suffix and reset expiration
+            member = f"{now}:{random.random()}"
+            self._exec_pipeline([
+                ["ZADD", key, str(now), member],
+                ["EXPIRE", key, str(window_seconds)]
+            ])
             return True
         else:
             # In-memory fallback
@@ -111,16 +127,38 @@ class RateLimiter:
             if key not in self._fallback:
                 self._fallback[key] = []
 
-            # Remove old entries
-            self._fallback[key] = [
-                t for t in self._fallback[key] if t > now - window_seconds
-            ]
+            # Remove old entries and clean up to prevent memory leaks
+            active_ts = [t for t in self._fallback[key] if t > now - window_seconds]
+            
+            self._cleanup_counter += 1
+            if self._cleanup_counter >= 1000:
+                self._cleanup_fallback()
+                self._cleanup_counter = 0
+                active_ts = [t for t in self._fallback.get(key, []) if t > now - window_seconds]
 
-            if len(self._fallback[key]) >= max_count:
+            if len(active_ts) >= max_count:
+                if not active_ts:
+                    self._fallback.pop(key, None)
+                else:
+                    self._fallback[key] = active_ts
                 return False
 
-            self._fallback[key].append(now)
+            active_ts.append(now)
+            self._fallback[key] = active_ts
             return True
+
+    def _cleanup_fallback(self):
+        """Prune expired fallback rate limit lists to prevent memory leaks."""
+        now = time.time()
+        expired_keys = []
+        for key, ts_list in list(self._fallback.items()):
+            filtered = [t for t in ts_list if t > now - 86400]  # default max window 1 day
+            if not filtered:
+                expired_keys.append(key)
+            else:
+                self._fallback[key] = filtered
+        for key in expired_keys:
+            self._fallback.pop(key, None)
 
     def count(self, key: str) -> int:
         """Get current request count for key."""

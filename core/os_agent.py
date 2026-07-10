@@ -4,10 +4,9 @@ Replaces Nodriver. Deeply hooks into browser engine to spoof TLS,
 Canvas, Audio, WebGL, and automatically matches Timezone/Language to GeoIP.
 """
 
-import logging
 import asyncio
+import logging
 import random
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +35,8 @@ class OSAgent:
     async def start_browser(
         self,
         headless: bool = True,
-        proxy: Optional[str] = None,
-        session_id: Optional[str] = None,
+        proxy: str | None = None,
+        session_id: str | None = None,
     ):
         """Start the Camoufox browser instance."""
         await self._check_dependencies()
@@ -127,7 +126,7 @@ class OSAgent:
 
             await self.page.keyboard.type(char, delay=random.randint(30, 150))
 
-    async def close(self, session_id: Optional[str] = None):
+    async def close(self, session_id: str | None = None):
         if session_id and session_id in self._sticky_sessions:
             # Keep alive for sticky sessions unless explicitly closed globally
             pass

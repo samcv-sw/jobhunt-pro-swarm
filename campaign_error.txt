@@ -1,6 +1,0 @@
-no such table: orders
-Traceback (most recent call last):
-  File "c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 127, in run_campaign
-    row = conn.execute(query, (campaign_id,)).fetchone()
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-sqlite3.OperationalError: no such table: orders

@@ -16,6 +16,7 @@ from fastapi import (
     WebSocketDisconnect,
 )
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
@@ -61,6 +62,8 @@ async def lifespan(app: FastAPI):
     logger.info("Enterprise API starting up. Initializing database schema...")
     from .database import engine
     from .models import Base
+    from .cache import setup_cache
+    setup_cache(app)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Database schema initialized successfully.")
@@ -82,6 +85,9 @@ if allowed_origins_env:
 else:
     # Safe defaults for local development
     origins = ["http://localhost:3000", "http://localhost:5173", "http://localhost:8000"]
+
+# Add GZip Middleware for massive payload compression
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Add CORS Middleware with safety constraints
 app.add_middleware(

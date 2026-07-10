@@ -1,7 +1,4 @@
 import logging
-from starlette.middleware.base import BaseHTTPMiddleware
-from fastapi import Request
-from fastapi.responses import HTMLResponse
 
 logger = logging.getLogger(__name__)
 

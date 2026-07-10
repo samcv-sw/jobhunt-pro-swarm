@@ -440,7 +440,7 @@
     const progressUI = document.createElement('div');
     progressUI.id = 'jh-pro-progress';
     progressUI.style.cssText = `
-      position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999;
+      position: fixed; top: 20px; inset-inline-start: 50%; transform: translateX(-50%); z-index: 999999;
       background: #000; color: #00f0ff; border: 1px solid #00f0ff;
       padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;
     `;
@@ -580,7 +580,7 @@
     
     const modal = document.createElement('div');
     modal.style.cssText = `
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      position: fixed; top: 0; inset-inline-start: 0; width: 100vw; height: 100vh;
       background: rgba(200,0,0,0.9); backdrop-filter: blur(5px);
       display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999999;
     `;
@@ -652,7 +652,7 @@
     const modal = document.createElement('div');
     modal.id = 'jh-pro-tease-modal';
     modal.style.cssText = `
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      position: fixed; top: 0; inset-inline-start: 0; width: 100vw; height: 100vh;
       background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
       display: flex; justify-content: center; align-items: center; z-index: 9999999;
     `;
@@ -876,7 +876,7 @@
     const progressUI = document.createElement('div');
     progressUI.id = 'jh-pro-connector';
     progressUI.style.cssText = `
-      position: fixed; bottom: 20px; right: 80px; z-index: 999999;
+      position: fixed; bottom: 20px; inset-inline-end: 80px; z-index: 999999;
       background: #000; color: #0aff; border: 1px solid #0aff;
       padding: 10px 20px; border-radius: 8px; font-weight: bold;
       cursor: pointer;
@@ -945,9 +945,9 @@
       toast = document.createElement('div');
       toast.id = 'jh-pro-toast';
       toast.style.cssText = `
-        position: fixed; top: 20px; right: 20px; z-index: 9999999;
+        position: fixed; top: 20px; inset-inline-end: 20px; z-index: 9999999;
         background: #111; color: #fff; padding: 12px 24px;
-        border-radius: 8px; border-left: 4px solid #00f0ff;
+        border-radius: 8px; border-inline-start: 4px solid #00f0ff;
         font-family: system-ui, sans-serif; font-size: 14px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         transition: opacity 0.3s; opacity: 0;
@@ -1010,7 +1010,7 @@
     btn.id = 'jh-pro-floating-btn';
     btn.innerHTML = '⚡ Pro';
     btn.style.cssText = `
-      position: fixed; bottom: 20px; right: 20px; z-index: 999999;
+      position: fixed; bottom: 20px; inset-inline-end: 20px; z-index: 999999;
       background: linear-gradient(135deg, #00f0ff, #0088ff);
       color: #000; font-weight: 700; padding: 10px 16px;
       border-radius: 25px; cursor: pointer; font-size: 13px;
@@ -1024,7 +1024,7 @@
       const menu = document.createElement('div');
       menu.id = 'jh-pro-quick-menu';
       menu.style.cssText = `
-        position: fixed; bottom: 70px; right: 20px; z-index: 999998;
+        position: fixed; bottom: 70px; inset-inline-end: 20px; z-index: 999998;
         background: #111; border: 1px solid #333; border-radius: 12px;
         padding: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);
       `;

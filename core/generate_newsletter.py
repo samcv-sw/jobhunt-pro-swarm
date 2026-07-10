@@ -5,11 +5,12 @@ Automatically curates the top 10 remote jobs of the day into a premium
 Substack-style newsletter, injecting high-value sponsorships.
 """
 
-import core.pg_sqlite_shim as sqlite3
-import os
 import datetime
 import logging
-from typing import Any, Dict, List
+import os
+from typing import Any
+
+import core.pg_sqlite_shim as sqlite3
 
 logger = logging.getLogger(__name__)
 
@@ -30,9 +31,9 @@ SPONSOR_TEXT = (
 SPONSOR_LINK = "https://cloudflare.com/affiliate"
 
 
-def get_top_jobs_today(limit: int = 10) -> List[Dict[str, Any]]:
+def get_top_jobs_today(limit: int = 10) -> list[dict[str, Any]]:
     """Retrieve the top daily jobs from the database, falling back to mock data if empty."""
-    jobs: List[Dict[str, Any]] = []
+    jobs: list[dict[str, Any]] = []
     if os.path.exists(DB_PATH):
         try:
             conn = sqlite3.connect(DB_PATH)

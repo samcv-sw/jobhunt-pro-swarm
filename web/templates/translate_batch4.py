@@ -92,4 +92,4 @@ for filepath in set(files_to_process):
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(content)
         
-print(f"Processed {len(set(files_to_process))} files.")
+logger.debug(f"Processed {len(set(files_to_process))} files.")

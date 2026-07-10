@@ -3,7 +3,10 @@ JobHunt Pro - Zero-Click Portfolio Generator (Item 3)
 Generates a highly-aesthetic, responsive HTML/JS portfolio from the user's CV.
 """
 
+import logging
 import os
+
+logger = logging.getLogger("portfolio_generator")
 
 
 def generate_portfolio(
@@ -14,7 +17,7 @@ def generate_portfolio(
     about: str,
     skills: list,
 ) -> str:
-    """Generates an ultra-modern Next.js-style static HTML portfolio."""
+    """Generates an ultra-modern Next.js-style static HTML portfolio with robust error handling."""
 
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
@@ -87,16 +90,26 @@ def generate_portfolio(
 </html>"""
 
     # Save the portfolio
-    output_dir = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), "web", "static", "portfolios"
-    )
-    os.makedirs(output_dir, exist_ok=True)
+    try:
+        output_dir = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "web", "static", "portfolios"
+        )
+        os.makedirs(output_dir, exist_ok=True)
+    except Exception as e:
+        logger.error("Failed to create portfolio output directory %s: %s", output_dir, e)
+        raise RuntimeError(f"Could not initialize portfolio directory: {e}") from e
 
     # URL-friendly filename
     safe_name = user_name.lower().replace(" ", "_")
     file_path = os.path.join(output_dir, f"{safe_name}.html")
 
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(html_content)
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(html_content)
+        logger.info("Successfully generated portfolio at %s", file_path)
+    except Exception as e:
+        logger.error("Failed to write portfolio HTML file at %s: %s", file_path, e)
+        raise RuntimeError(f"Could not write portfolio file: {e}") from e
 
     return f"/static/portfolios/{safe_name}.html"
+

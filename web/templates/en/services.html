@@ -125,7 +125,7 @@
 .store-card.unlocked::before {
  content: 'UNLOCKED';
  position: absolute;
- top: 15px; right: -30px;
+ top: 15px; inset-inline-end: -30px;
  background: var(--green);
  color: #000;
  font-size: 9px;
@@ -294,7 +294,7 @@
 /* Multi-select bulk checkout */
  .checkbox-select {
  position: absolute;
- top: 12px; left: 12px;
+ top: 12px; inset-inline-start: 12px;
  z-index: 2;
  width: 22px; height: 22px;
  cursor: pointer;
@@ -433,7 +433,7 @@
  <div class="price-val cyan-glow">${{ "%.2f"|format(s.price_usd) }}</div>
  </div>
  
- <form method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ s.name }}', '{{ s.price_usd }}')">
+ <form dir="auto" method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ s.name }}', '{{ s.price_usd }}')">
  <input dir="auto" type="hidden" name="package_id" value="{{ s.package }}">
  <input dir="auto" type="hidden" name="service_type" value="service">
  {% if s.package in active_ids %}
@@ -465,7 +465,7 @@
  <div class="price-label">Per Campaign</div>
  <div class="price-val cyan-glow">${{ "%.2f"|format(s.price_usd) }}</div>
  </div>
- <form method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ s.name }}', '{{ s.price_usd }}')">
+ <form dir="auto" method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ s.name }}', '{{ s.price_usd }}')">
  <input dir="auto" type="hidden" name="package_id" value="{{ s.package }}">
  <input dir="auto" type="hidden" name="service_type" value="service">
  {% if s.package in active_ids %}
@@ -499,7 +499,7 @@
  <div class="price-val" style="color: var(--magenta); text-shadow: 0 0 10px rgba(255, 0, 85, 0.3);">${{ "%.2f"|format(b.price_usd) }}</div>
  </div>
  
- <form method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ b.name }}', '{{ b.price_usd }}')">
+ <form dir="auto" method="POST" action="/services/purchase" onsubmit="return confirmUnlock('{{ b.name }}', '{{ b.price_usd }}')">
  <input dir="auto" type="hidden" name="package_id" value="{{ b.bouquet }}">
  <input dir="auto" type="hidden" name="service_type" value="bouquet">
  {% if b.bouquet in active_ids %}
@@ -514,7 +514,7 @@
  </div>
 
  <!-- Bulk purchase bar -->
- <form id="bulkForm" method="POST" action="/services/purchase-bulk" onsubmit="return confirmBulk()">
+ <form dir="auto" id="bulkForm" method="POST" action="/services/purchase-bulk" onsubmit="return confirmBulk()">
  <div class="bulk-bar" id="bulkBar">
  <div class="bulk-count">
  Selected: <strong id="selectedCount">0</strong> items &nbsp;|&nbsp; Total: <strong id="selectedTotal">$0.00</strong>

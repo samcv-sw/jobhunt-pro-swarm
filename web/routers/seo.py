@@ -33,21 +33,21 @@ def sitemap(request: Request):
     # For a massive pSEO scale, we generate these dynamically
     # Example: /jobs/network-engineer/dubai
     try:
-        conn = get_db()
-        # Fetch actual successful combinations from the database to reflect reality
-        jobs_stats = conn.execute(
-            "SELECT DISTINCT job_title, target_location FROM campaigns WHERE status = 'completed' LIMIT 100"
-        ).fetchall()
-        conn.close()
+        with get_db() as conn:
+            # Fetch actual successful combinations from the database to reflect reality
+            jobs_stats = conn.execute(
+                "SELECT DISTINCT job_title, target_location FROM campaigns WHERE status = 'completed' LIMIT 100"
+            ).fetchall()
+            pass  # conn.close()
         
-        for row in jobs_stats:
-            job = str(row[0]).lower().replace(" ", "-")
-            loc = str(row[1]).lower().replace(" ", "-")
-            if job and loc:
-                url_node = ET.SubElement(urlset, "url")
-                ET.SubElement(url_node, "loc").text = f"{base_url}/jobs/{job}/{loc}"
-                ET.SubElement(url_node, "changefreq").text = "daily"
-                ET.SubElement(url_node, "priority").text = "0.7"
+            for row in jobs_stats:
+                job = str(row[0]).lower().replace(" ", "-")
+                loc = str(row[1]).lower().replace(" ", "-")
+                if job and loc:
+                    url_node = ET.SubElement(urlset, "url")
+                    ET.SubElement(url_node, "loc").text = f"{base_url}/jobs/{job}/{loc}"
+                    ET.SubElement(url_node, "changefreq").text = "daily"
+                    ET.SubElement(url_node, "priority").text = "0.7"
                 
     except Exception as e:
         import logging

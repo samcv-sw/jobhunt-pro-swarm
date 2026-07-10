@@ -7,8 +7,8 @@ THE CHRONOS PROTOCOL: ZERO-SECOND ALGORITHMIC HIJACKING
 4. Hijacks the organic traffic (millions of impressions) and funnels it to the B2B portals.
 """
 
-import random
 import logging
+import random
 
 logging.basicConfig(
     level=logging.INFO,

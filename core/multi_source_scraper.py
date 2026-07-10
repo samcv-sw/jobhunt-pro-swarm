@@ -6,15 +6,15 @@ Scrapers: Bayt, NaukriGulf, Wuzzuf, Indeed, Google Jobs, LinkedIn, Glassdoor,
 Wellfound, Dice, Seek, StepStone, WWR, ZipRecruiter, Xing, NaukriIndia, Jooble, Upwork.
 """
 
-from core.job_search import JobListing
-import re
-import random
-import time
-import logging
 import hashlib
-from typing import List, Dict, Optional
+import logging
+import random
+import re
+import time
 import urllib.parse
 from urllib.parse import quote_plus
+
+from core.job_search import JobListing
 
 try:
     from curl_cffi.requests import AsyncSession as httpx_AsyncClient
@@ -23,8 +23,9 @@ except ImportError:
 
     httpx_AsyncClient = httpx.AsyncClient
 import httpx
-from core.stealth import stealth
 from bs4 import BeautifulSoup
+
+from core.stealth import stealth
 
 logger = logging.getLogger(__name__)
 
@@ -68,11 +69,29 @@ USER_AGENTS = [
 
 # ── Helpers ─────────────────────────────────────────────────────
 def _make_job_id(title: str, company: str, url: str = "") -> str:
+    """Generate a unique 12-character MD5 hash for a job posting.
+
+    Args:
+        title: Job position title.
+        company: Hiring company name.
+        url: Direct link to the job posting.
+
+    Returns:
+        A unique 12-char hexadecimal string hash identifier.
+    """
     raw = f"{title.lower().strip()}:{company.lower().strip()}:{url}"
     return hashlib.md5(raw.encode()).hexdigest()[:12]
 
 
-def _get_headers(extra: Dict = None) -> Dict[str, str]:
+def _get_headers(extra: dict = None) -> dict[str, str]:
+    """Get standard request headers with a randomized modern user agent.
+
+    Args:
+        extra: Additional custom headers to update the default dictionary.
+
+    Returns:
+        A dictionary containing HTTP request headers.
+    """
     h = {
         "User-Agent": random.choice(USER_AGENTS),
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -89,7 +108,18 @@ def _get_headers(extra: Dict = None) -> Dict[str, str]:
     return h
 
 
-def _extract_emails(text: str) -> List[str]:
+def _extract_emails(text: str) -> list[str]:
+    """Extract and validate all email addresses from a text blob.
+
+    Filters out blacklisted patterns, extremely long addresses, domain-less
+    strings, and false-positive image file extensions.
+
+    Args:
+        text: Text to scan for email addresses.
+
+    Returns:
+        A list of clean, unique lowercase validated email addresses.
+    """
     if not text:
         return []
     emails = EMAIL_PATTERN.findall(text)
@@ -104,11 +134,28 @@ def _extract_emails(text: str) -> List[str]:
 
 
 def _placeholder_email(company: str, prefix: str = "careers") -> str:
+    """Construct a fallback placeholder email address using the company name.
+
+    Args:
+        company: Name of the hiring company.
+        prefix: Email username prefix (defaults to 'careers').
+
+    Returns:
+        A formatted placeholder email address, or an empty string.
+    """
     domain = re.sub(r"[^a-z0-9]", "", company.lower())
     return f"{prefix}@{domain}.com" if domain else ""
 
 
-def _extract_salary(text: str) -> Optional[float]:
+def _extract_salary(text: str) -> float | None:
+    """Extract numerical USD, AED, SAR, or QAR salary from text snippets.
+
+    Args:
+        text: Text to search for compensation metrics.
+
+    Returns:
+        The extracted salary as a float, or None if no match is found.
+    """
     if not text:
         return None
     patterns = [
@@ -153,8 +200,8 @@ class BaseScraper:
         self._last_request = time.time()
 
     def _get(
-        self, url: str, extra_headers: Dict = None, max_retries: int = 2
-    ) -> Optional[httpx.Response]:
+        self, url: str, extra_headers: dict = None, max_retries: int = 2
+    ) -> httpx.Response | None:
         for attempt in range(max_retries + 1):
             try:
                 self._rate_limit()
@@ -203,7 +250,7 @@ class BaseScraper:
                     time.sleep(2)
         return None
 
-    def search(self, query: str, location: str = "", limit: int = 10) -> List[Dict]:
+    def search(self, query: str, location: str = "", limit: int = 10) -> list[dict]:
         """Search for jobs. Override in subclasses."""
         raise NotImplementedError
 
@@ -220,9 +267,9 @@ class BaseScraper:
         location: str,
         url: str = "",
         snippet: str = "",
-        emails: List[str] = None,
-        salary: Optional[float] = None,
-    ) -> Dict:
+        emails: list[str] = None,
+        salary: float | None = None,
+    ) -> dict:
         emails = emails or []
         placeholders = (
             [f"careers@{re.sub(r'[^a-z0-9]', '', company.lower())}.com"]
@@ -254,7 +301,7 @@ class BaytScraper(BaseScraper):
 
     source_name = "bayt"
 
-    def search(self, query: str, location: str = "", limit: int = 10) -> List[Dict]:
+    def search(self, query: str, location: str = "", limit: int = 10) -> list[dict]:
         jobs = []
         location_parts = location.split(",") if location else [""]
 
@@ -298,7 +345,7 @@ class BaytScraper(BaseScraper):
 
         return jobs
 
-    def _parse_card(self, card, fallback_location: str) -> Optional[Dict]:
+    def _parse_card(self, card, fallback_location: str) -> dict | None:
         title_elem = (
             card.find("h2", class_="jb-title")
             or card.find("h2")
@@ -347,7 +394,7 @@ class NaukriScraper(BaseScraper):
 
     source_name = "naukrigulf"
 
-    def search(self, query: str, location: str = "", limit: int = 10) -> List[Dict]:
+    def search(self, query: str, location: str = "", limit: int = 10) -> list[dict]:
         jobs = []
         location_parts = location.split(",") if location else [""]
 
@@ -400,7 +447,7 @@ class NaukriScraper(BaseScraper):
 
         return jobs
 
-    def _parse_card(self, card, fallback_location: str) -> Optional[Dict]:
+    def _parse_card(self, card, fallback_location: str) -> dict | None:
         title_elem = (
             card.find("a", class_="title")
             or card.find("h2", class_="job-title")
@@ -453,7 +500,7 @@ class WuzzufScraper(BaseScraper):
 
     source_name = "wuzzuf"
 
-    def search(self, query: str, location: str = "", limit: int = 10) -> List[Dict]:
+    def search(self, query: str, location: str = "", limit: int = 10) -> list[dict]:
         jobs = []
         try:
             q = quote_plus(query)
@@ -484,7 +531,7 @@ class WuzzufScraper(BaseScraper):
 
         return jobs
 
-    def _parse_card(self, card, fallback_location: str) -> Optional[Dict]:
+    def _parse_card(self, card, fallback_location: str) -> dict | None:
         title_elem = (
             card.find("h2", class_="css-m604qf")
             or card.find("h2")
@@ -561,7 +608,7 @@ class IndeedScraper(BaseScraper):
         self.domain = self.DOMAINS.get(country.lower(), self.DOMAINS["default"])
         self.region_code = self.REGION_CODES.get(country.lower(), "")
 
-    def search(self, query: str, location: str = "", limit: int = 10) -> List[Dict]:
+    def search(self, query: str, location: str = "", limit: int = 10) -> list[dict]:
         jobs = []
         location_parts = location.split(",") if location else [""]
 
@@ -605,7 +652,7 @@ class IndeedScraper(BaseScraper):
 
         return jobs
 
-    def _parse_card(self, card, fallback_location: str, city: str) -> Optional[Dict]:
+    def _parse_card(self, card, fallback_location: str, city: str) -> dict | None:
         # Title
         title_elem = (
             card.find("h2", class_="jobTitle")
@@ -685,7 +732,7 @@ class GoogleJobsScraper(BaseScraper):
 
     source_name = "google_jobs"
 
-    def search(self, query: str, location: str = "", limit: int = 10) -> List[Dict]:
+    def search(self, query: str, location: str = "", limit: int = 10) -> list[dict]:
         jobs = []
         try:
             # Build a search query targeting job boards
@@ -792,7 +839,7 @@ class GoogleJobsScraper(BaseScraper):
 
         return jobs
 
-    def _fetch_page(self, url: str, location: str) -> Optional[Dict]:
+    def _fetch_page(self, url: str, location: str) -> dict | None:
         try:
             resp = self._get(url)
             if not resp or resp.status_code != 200:
@@ -835,7 +882,7 @@ class LinkedInScraper(BaseScraper):
 
     source_name = "linkedin"
 
-    def search(self, query: str, location: str = "", limit: int = 10) -> List[Dict]:
+    def search(self, query: str, location: str = "", limit: int = 10) -> list[dict]:
         jobs = []
         location_parts = location.split(",") if location else [""]
 
@@ -877,7 +924,7 @@ class LinkedInScraper(BaseScraper):
 
         return jobs
 
-    def _parse_card(self, card, fallback_location: str) -> Optional[Dict]:
+    def _parse_card(self, card, fallback_location: str) -> dict | None:
         title_elem = (
             card.find("h3", class_="base-search-card__title")
             or card.find("h3")
@@ -924,7 +971,7 @@ class GlassdoorScraper(BaseScraper):
 
     source_name = "glassdoor"
 
-    def search(self, query: str, location: str = "", limit: int = 10) -> List[Dict]:
+    def search(self, query: str, location: str = "", limit: int = 10) -> list[dict]:
         jobs = []
         try:
             q = quote_plus(query)
@@ -963,7 +1010,7 @@ class GlassdoorScraper(BaseScraper):
 
         return jobs
 
-    def _parse_card(self, card, fallback_location: str) -> Optional[Dict]:
+    def _parse_card(self, card, fallback_location: str) -> dict | None:
         title_elem = (
             card.find("a", class_="job-title")
             or card.find("h2")
@@ -1004,7 +1051,7 @@ class WellfoundScraper(BaseScraper):
         q = urllib.parse.quote_plus(job_title)
         return f"https://wellfound.com/jobs?search={q}"
 
-    def _parse_job_card(self, card, fallback_location: str) -> Optional[dict]:
+    def _parse_job_card(self, card, fallback_location: str) -> dict | None:
         title_elem = card.find("h2") or card.find("a", class_="styles_title__xxxx")
         title = title_elem.get_text(strip=True) if title_elem else ""
 
@@ -1031,7 +1078,7 @@ class DiceScraper(BaseScraper):
         loc = urllib.parse.quote_plus(location)
         return f"https://www.dice.com/jobs?q={q}&location={loc}"
 
-    def _parse_job_card(self, card, fallback_location: str) -> Optional[dict]:
+    def _parse_job_card(self, card, fallback_location: str) -> dict | None:
         title_elem = card.find("a", class_="card-title-link")
         title = title_elem.get_text(strip=True) if title_elem else ""
 
@@ -1061,7 +1108,7 @@ class SeekScraper(BaseScraper):
         loc = urllib.parse.quote_plus(location)
         return f"https://www.seek.com.au/{q}-jobs/in-{loc}"
 
-    def _parse_job_card(self, card, fallback_location: str) -> Optional[dict]:
+    def _parse_job_card(self, card, fallback_location: str) -> dict | None:
         title_elem = card.find("a", {"data-automation": "jobTitle"})
         title = title_elem.get_text(strip=True) if title_elem else ""
 
@@ -1088,7 +1135,7 @@ class StepStoneScraper(BaseScraper):
         loc = urllib.parse.quote_plus(location)
         return f"https://www.stepstone.de/jobs/{q}/in-{loc}"
 
-    def _parse_job_card(self, card, fallback_location: str) -> Optional[dict]:
+    def _parse_job_card(self, card, fallback_location: str) -> dict | None:
         title_elem = card.find("h2") or card.find(
             "a", {"data-genesis-element": "job-title"}
         )
@@ -1116,7 +1163,7 @@ class WWRScraper(BaseScraper):
         q = urllib.parse.quote_plus(job_title)
         return f"https://weworkremotely.com/remote-jobs/search?term={q}"
 
-    def _parse_job_card(self, card, fallback_location: str) -> Optional[dict]:
+    def _parse_job_card(self, card, fallback_location: str) -> dict | None:
         title_elem = card.find("span", class_="title")
         title = title_elem.get_text(strip=True) if title_elem else ""
 
@@ -1132,7 +1179,7 @@ class WWRScraper(BaseScraper):
 class ZipRecruiterScraper(BaseScraper):
     def fetch_jobs(
         self, query: str, location: str, limit: int = 20
-    ) -> List[JobListing]:
+    ) -> list[JobListing]:
         jobs = []
         try:
             url = f"https://www.ziprecruiter.com/candidate/search?search={query.replace(' ', '+')}&location={location.replace(' ', '+')}"
@@ -1174,7 +1221,7 @@ class ZipRecruiterScraper(BaseScraper):
 class XingScraper(BaseScraper):
     def fetch_jobs(
         self, query: str, location: str, limit: int = 20
-    ) -> List[JobListing]:
+    ) -> list[JobListing]:
         jobs = []
         try:
             url = f"https://www.xing.com/jobs/search?keywords={query.replace(' ', '+')}&location={location.replace(' ', '+')}"
@@ -1209,7 +1256,7 @@ class XingScraper(BaseScraper):
 class NaukriIndiaScraper(BaseScraper):
     def fetch_jobs(
         self, query: str, location: str, limit: int = 20
-    ) -> List[JobListing]:
+    ) -> list[JobListing]:
         jobs = []
         try:
             url = f"https://www.naukri.com/{query.replace(' ', '-')}-jobs-in-{location.replace(' ', '-')}"
@@ -1247,7 +1294,7 @@ class NaukriIndiaScraper(BaseScraper):
 class JoobleScraper(BaseScraper):
     def fetch_jobs(
         self, query: str, location: str, limit: int = 20
-    ) -> List[JobListing]:
+    ) -> list[JobListing]:
         jobs = []
         try:
             url = f"https://jooble.org/SearchResult?ukw={query.replace(' ', '+')}&rgns={location.replace(' ', '+')}"
@@ -1288,7 +1335,7 @@ class JoobleScraper(BaseScraper):
 class UpworkScraper(BaseScraper):
     def fetch_jobs(
         self, query: str, location: str, limit: int = 20
-    ) -> List[JobListing]:
+    ) -> list[JobListing]:
         jobs = []
         try:
             url = f"https://www.upwork.com/search/jobs/?q={query.replace(' ', '%20')}"

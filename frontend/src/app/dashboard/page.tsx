@@ -67,10 +67,11 @@ const MOCK_SCRAPES: ScrapeRecord[] = [
 ];
 
 export default function Dashboard() {
-  const { locale, isArabic, toggleLocale } = useLocale();
+  const { isArabic, toggleLocale } = useLocale();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [scrapes, setScrapes] = useState<ScrapeRecord[]>([]);
   const [dbLoading, setDbLoading] = useState<boolean>(true);
+  const [randomMetric] = useState<number>(() => Math.floor(Math.random() * 4) + 1);
 
   // Live Statistics state
   const [stats, setStats] = useState({
@@ -108,11 +109,11 @@ export default function Dashboard() {
           const cols = scrapesQuery[0].columns;
           const vals = scrapesQuery[0].values;
           const formatted = vals.map(row => {
-            const obj: any = {};
+            const obj: Record<string, unknown> = {};
             cols.forEach((col, idx) => {
               obj[col] = row[idx];
             });
-            return obj as ScrapeRecord;
+            return obj as unknown as ScrapeRecord;
           });
           setScrapes(formatted);
         } else {
@@ -292,7 +293,7 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-1.5 mt-4 text-sm text-emerald-400">
-              <span className="font-mono">+{Math.floor(Math.random() * 4) + 1}</span>
+              <span className="font-mono">+{randomMetric}</span>
               <span>{isArabic ? "منذ دقيقة" : "new metrics / min"}</span>
             </div>
           </div>

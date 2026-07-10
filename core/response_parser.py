@@ -6,9 +6,9 @@ Parse email responses and auto-reply with Calendly link for interview requests.
 import logging
 import os
 import re
-from typing import Dict, Tuple
 from dataclasses import dataclass
 from enum import Enum
+
 import config
 
 logger = logging.getLogger(__name__)
@@ -178,7 +178,7 @@ class ResponseParser:
         )
         return bool(re.search(pattern, text, re.IGNORECASE))
 
-    def _count_matches(self, text: str, pattern: re.Pattern) -> Tuple[int, list]:
+    def _count_matches(self, text: str, pattern: re.Pattern) -> tuple[int, list]:
         found = pattern.findall(text)
         return len(found), found
 
@@ -275,7 +275,7 @@ class ResponseParser:
 
     def _generate_reply(
         self, response_type: ResponseType, body: str, from_email: str
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         if response_type == ResponseType.INTERVIEW:
             reply = CALENDLY_REPLY.format(
                 scheduling_link=self.calendly_link,
@@ -303,16 +303,13 @@ class ResponseParser:
             reply = FOLLOWUP_REPLY.format(candidate_name=config.CANDIDATE_NAME)
             return True, reply
 
-        elif response_type == ResponseType.AUTO_REPLY:
-            return False, ""
-
-        elif response_type == ResponseType.SPAM:
+        elif response_type == ResponseType.AUTO_REPLY or response_type == ResponseType.SPAM:
             return False, ""
 
         else:
             return False, ""
 
-    def parse_batch(self, emails: list) -> Dict[str, int]:
+    def parse_batch(self, emails: list) -> dict[str, int]:
         """Parse a batch of emails and return aggregated stats."""
         stats = {
             "total": len(emails),

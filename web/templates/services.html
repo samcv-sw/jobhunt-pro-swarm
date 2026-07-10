@@ -424,7 +424,7 @@
 <div class="price-label">السعر</div>
 <div class="price-val cyan-glow">${{ "%.2f"|format(s.price_usd) }}</div>
 </div>
-<form action="/services/purchase" method="POST" onsubmit="return confirmافتح('{{ s.name }}', '{{ s.price_usd }}')">
+<form dir="auto" action="/services/purchase" method="POST" onsubmit="return confirmافتح('{{ s.name }}', '{{ s.price_usd }}')">
 <input dir="auto" name="package_id" type="hidden" value="{{ s.package }}"/>
 <input dir="auto" name="service_type" type="hidden" value="service"/>
  {% if s.package in active_ids %}
@@ -455,7 +455,7 @@
 <div class="price-label">لكل حملة</div>
 <div class="price-val cyan-glow">${{ "%.2f"|format(s.price_usd) }}</div>
 </div>
-<form action="/services/purchase" method="POST" onsubmit="return confirmافتح('{{ s.name }}', '{{ s.price_usd }}')">
+<form dir="auto" action="/services/purchase" method="POST" onsubmit="return confirmافتح('{{ s.name }}', '{{ s.price_usd }}')">
 <input dir="auto" name="package_id" type="hidden" value="{{ s.package }}"/>
 <input dir="auto" name="service_type" type="hidden" value="service"/>
  {% if s.package in active_ids %}
@@ -486,7 +486,7 @@
 <div class="price-label">سعر الباقة</div>
 <div class="price-val" style="color: var(--magenta); text-shadow: 0 0 10px rgba(255, 0, 85, 0.3);">${{ "%.2f"|format(b.price_usd) }}</div>
 </div>
-<form action="/services/purchase" method="POST" onsubmit="return confirmافتح('{{ b.name }}', '{{ b.price_usd }}')">
+<form dir="auto" action="/services/purchase" method="POST" onsubmit="return confirmافتح('{{ b.name }}', '{{ b.price_usd }}')">
 <input dir="auto" name="package_id" type="hidden" value="{{ b.bouquet }}"/>
 <input dir="auto" name="service_type" type="hidden" value="bouquet"/>
  {% if b.bouquet in active_ids %}
@@ -500,7 +500,7 @@
  {% endfor %}
  </div>
 <!-- Bulk purchase bar -->
-<form action="/services/purchase-bulk" id="bulkForm" method="POST" onsubmit="return confirmBulk()">
+<form dir="auto" action="/services/purchase-bulk" id="bulkForm" method="POST" onsubmit="return confirmBulk()">
 <div class="bulk-bar" id="bulkBar">
 <div class="bulk-count">
  المحدد: <strong id="selectedCount">0</strong> عناصر  |  الإجمالي: <strong id="selectedTotal">$0.00</strong>

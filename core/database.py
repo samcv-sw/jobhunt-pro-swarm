@@ -1,9 +1,11 @@
-import os
 import asyncio
 import logging
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker, declarative_base
+import os
+from typing import AsyncGenerator, Any
+
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +37,7 @@ AsyncSessionLocal = sessionmaker(
 
 Base = declarative_base()
 
-async def get_db_session():
+async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     """Dependency for FastAPI endpoints with exponential backoff for cold starts."""
     retries = 5
     backoff = 1
@@ -54,5 +56,47 @@ async def get_db_session():
                 logger.error("Max database retries reached.")
                 raise e
 
+class Database:
+    """Enterprise Database Manager Wrapper for backward compatibility."""
+
+    def __init__(self) -> None:
+        pass
+
+    def _get_conn(self) -> Any:
+        """Returns a connection for raw SQL execution."""
+        from core.pg_sqlite_shim import connect
+        return connect()
+
+    def get_session(self) -> AsyncSession:
+        """Returns an async session for SQLAlchemy ORM compatibility."""
+        return AsyncSessionLocal()
+
+    async def create_tables(self) -> None:
+        """Creates tables using raw schema or SQLAlchemy metadata."""
+        from core.pg_sqlite_shim import connect
+        with connect() as conn:
+            # Create jobs table if it's missing (legacy schema compatibility)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS jobs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    company TEXT,
+                    title TEXT,
+                    location TEXT,
+                    url TEXT,
+                    score INTEGER,
+                    status TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    user_id TEXT,
+                    response_type TEXT,
+                    response_text TEXT
+                )
+            """)
+            conn.commit()
+
+    async def close(self) -> None:
+        """No-op for connection pool closing."""
+        pass
+
+
+
 # Backward compatibility alias for aiosqlite/asyncpg pool manager
-from core.async_db import async_db as db

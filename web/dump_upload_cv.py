@@ -17,4 +17,4 @@ shell_html = _build_dashboard_shell(user_mock, 1, html, "Upload CV", "upload-cv"
 with open("test_upload_cv.html", "w", encoding="utf-8") as f:
     f.write(shell_html)
 
-print("Saved test_upload_cv.html")
+logger.debug("Saved test_upload_cv.html")

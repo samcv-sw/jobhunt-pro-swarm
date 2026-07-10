@@ -17,12 +17,12 @@ PASSWORD = os.environ.get("PA_PASSWORD")
 TOTP_SECRET = os.environ.get("PA_TOTP_SECRET")
 
 if not PASSWORD or not TOTP_SECRET:
-    print("ERROR: PA_PASSWORD and PA_TOTP_SECRET environment variables must be set!")
+    logger.debug("ERROR: PA_PASSWORD and PA_TOTP_SECRET environment variables must be set!")
     sys.exit(1)
 
 def log(msg):
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-    print(f"[{ts}] {msg}")
+    logger.debug(f"[{ts}] {msg}")
 
 def main():
     s = requests.Session()

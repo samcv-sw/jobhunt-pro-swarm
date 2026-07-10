@@ -5,10 +5,10 @@ No paid services (no 2captcha, no Anti-Captcha).
 Strategy: OCR for image CAPTCHAs, Google Speech for audio CAPTCHAs.
 """
 
-import re
 import base64
 import logging
-from typing import Optional, Dict, Any
+import re
+from typing import Any
 
 import httpx
 
@@ -52,7 +52,7 @@ class CaptchaSolver:
         self._failed_count = 0
         self._last_solve_time = 0.0
 
-    def solve_image(self, image_data: bytes, hint: str = "") -> Optional[str]:
+    def solve_image(self, image_data: bytes, hint: str = "") -> str | None:
         """Solve an image-based CAPTCHA using free OCR APIs."""
         try:
             # Try OCR.space first (free, no key needed with helloworld)
@@ -75,15 +75,15 @@ class CaptchaSolver:
             self._failed_count += 1
             return None
 
-    def solve_audio(self, audio_data: bytes) -> Optional[str]:
+    def solve_audio(self, audio_data: bytes) -> str | None:
         """Solve an audio CAPTCHA using free Google Speech Recognition."""
         if not HAS_SPEECH_REC:
             logger.debug("Speech recognition not available, skipping audio CAPTCHA")
             return None
 
         try:
-            import tempfile
             import os
+            import tempfile
 
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
                 f.write(audio_data)
@@ -113,7 +113,7 @@ class CaptchaSolver:
             self._failed_count += 1
             return None
 
-    def solve_math(self, text: str) -> Optional[str]:
+    def solve_math(self, text: str) -> str | None:
         """Solve a math-based CAPTCHA (e.g., 'what is 5 + 3?')."""
         try:
             # Match patterns like "5 + 3", "12 - 7", "4 * 6", "15 / 3"
@@ -152,7 +152,7 @@ class CaptchaSolver:
             self._failed_count += 1
             return None
 
-    def solve_text(self, text: str) -> Optional[str]:
+    def solve_text(self, text: str) -> str | None:
         """Solve a text-based CAPTCHA (e.g., 'type the word: FREEDOM')."""
         try:
             # Match patterns like "type the word: XXXXX" or "enter: XXXXX"
@@ -175,7 +175,7 @@ class CaptchaSolver:
             self._failed_count += 1
             return None
 
-    def solve_recaptcha_audio_fallback(self, page_url: str) -> Optional[str]:
+    def solve_recaptcha_audio_fallback(self, page_url: str) -> str | None:
         """
         Attempt to solve reCAPTCHA v2 using audio fallback method.
         This is a best-effort approach that works sometimes.
@@ -207,7 +207,7 @@ class CaptchaSolver:
             logger.debug(f"reCAPTCHA audio fallback failed: {e}")
             return None
 
-    def _solve_ocr_space(self, image_data: bytes) -> Optional[str]:
+    def _solve_ocr_space(self, image_data: bytes) -> str | None:
         """Solve CAPTCHA using OCR.space free API."""
         try:
             # Encode image as base64
@@ -243,14 +243,14 @@ class CaptchaSolver:
             logger.debug(f"OCR.space failed: {e}")
             return None
 
-    def _solve_tesseract(self, image_data: bytes) -> Optional[str]:
+    def _solve_tesseract(self, image_data: bytes) -> str | None:
         """Solve CAPTCHA using local Tesseract OCR."""
         if not HAS_TESSERACT or not Image:
             return None
 
         try:
-            import tempfile
             import os
+            import tempfile
 
             with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
                 f.write(image_data)
@@ -281,7 +281,7 @@ class CaptchaSolver:
         text = re.sub(r"[^A-Z0-9]", "", text)
         return text
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         return {
             "solved": self._solved_count,
             "failed": self._failed_count,
@@ -301,7 +301,7 @@ class CaptchaSolver:
 
 
 # ── Singleton ────────────────────────────────────────────────────
-_solver: Optional[CaptchaSolver] = None
+_solver: CaptchaSolver | None = None
 
 
 def get_captcha_solver() -> CaptchaSolver:
@@ -313,7 +313,7 @@ def get_captcha_solver() -> CaptchaSolver:
 
 def solve_captcha(
     image_data: bytes, captcha_type: str = "image", hint: str = ""
-) -> Optional[str]:
+) -> str | None:
     """Convenience function to solve any CAPTCHA type."""
     solver = get_captcha_solver()
     try:
@@ -336,9 +336,9 @@ if __name__ == "__main__":
 
     # Test math CAPTCHA
     solver = get_captcha_solver()
-    print(f"Math '5 + 3': {solver.solve_math('what is 5 + 3?')}")
-    print(f"Math '12 - 7': {solver.solve_math('enter the result of 12 - 7')}")
-    print(
+    logger.debug(f"Math '5 + 3': {solver.solve_math('what is 5 + 3?')}")
+    logger.debug(f"Math '12 - 7': {solver.solve_math('enter the result of 12 - 7')}")
+    logger.debug(
         f"Text 'type the word: FREEDOM': {solver.solve_text('type the word: FREEDOM')}"
     )
-    print(f"Stats: {solver.get_stats()}")
+    logger.debug(f"Stats: {solver.get_stats()}")

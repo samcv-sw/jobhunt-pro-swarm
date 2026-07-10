@@ -75,7 +75,7 @@ body {
 .pw-row a:hover{text-decoration:underline}
 
 .btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent-magenta),var(--accent-cyan));color:#020c1b;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:'Cairo',sans-serif;position:relative;overflow:hidden;}
-.btn-submit::before{content:'';position:absolute;top:0;inset-inline-start: -100%;width:200%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:left 0.5s ease;}
+.btn-submit::before{content:'';position:absolute;top:0;inset-inline-start: -100%;width:200%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:inset-inline-start 0.5s ease;}
 .btn-submit:hover::before{inset-inline-start: 100%;}
 .btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(79,172,254,0.35);}
 .btn-submit:active{transform:translateY(0);}
@@ -143,7 +143,7 @@ body {
           </a>
 </div>
 <div class="oauth-divider">أو</div>
-<form action="/login" method="POST">
+<form dir="auto" action="/login" method="POST">
 <div class="form-group">
 <label for="email">البريد الإلكتروني</label>
 <input autocomplete="email" autofocus="" dir="auto" id="email" name="email" placeholder="اسمك@مثال.com" required="" type="email"/>

@@ -9,15 +9,16 @@ ALL FREE TIERS — $0 permanent cost.
 
 import asyncio
 import logging
-import time
-import random
 import os
-from core import semantic_cache
-from typing import Optional, Dict, Any, List
+import random
+import time
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 import httpx
+
+from core import semantic_cache
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,7 @@ class ProviderConfig:
     name: LLMProvider
     api_key_env: str
     base_url: str
-    models: List[str]
+    models: list[str]
     rate_limit_rpm: int  # requests per minute
     weight: int = 1  # higher = preferred
     daily_limit: int = 0  # 0 = unlimited
@@ -265,11 +266,11 @@ class ProviderInstance:
 
     def __init__(self, config: ProviderConfig):
         self.config = config
-        self._request_times: List[float] = []
+        self._request_times: list[float] = []
         self._daily_count = 0
         self._daily_reset = time.time()
         self._consecutive_failures = 0
-        self._last_error: Optional[str] = None
+        self._last_error: str | None = None
         self._available = True
         self._client = httpx.AsyncClient(timeout=60.0)
         logger.info(f"Provider {config.name.value} initialized ({config.models[0]})")
@@ -301,10 +302,10 @@ class ProviderInstance:
         self,
         system_prompt: str,
         user_prompt: str,
-        model: Optional[str] = None,
+        model: str | None = None,
         temperature: float = 0.7,
         max_tokens: int = 1024,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Send a completion request, respecting rate/daily limits."""
         if not self._available:
             return None
@@ -423,9 +424,9 @@ class LLMProviderPool:
     """
 
     def __init__(self):
-        self._providers: Dict[LLMProvider, ProviderInstance] = {}
-        self._health: Dict[LLMProvider, bool] = {}
-        self._last_used: Dict[LLMProvider, float] = {}
+        self._providers: dict[LLMProvider, ProviderInstance] = {}
+        self._health: dict[LLMProvider, bool] = {}
+        self._last_used: dict[LLMProvider, float] = {}
         self._lock = asyncio.Lock()
 
     def initialize(self) -> "LLMProviderPool":
@@ -448,8 +449,8 @@ class LLMProviderPool:
         return self
 
     async def get_provider(
-        self, preferred: Optional[LLMProvider] = None
-    ) -> Optional[ProviderInstance]:
+        self, preferred: LLMProvider | None = None
+    ) -> ProviderInstance | None:
         """
         Get the best available provider (by preference, weight, health).
         This is the main entry point for obtaining a provider instance.
@@ -457,15 +458,6 @@ class LLMProviderPool:
 
         if not self._providers:
             return None
-
-        # Check semantic cache first
-        try:
-            cached = semantic_cache.get_cached_response(user_prompt)
-            if cached:
-                return cached
-        except Exception as e:
-            logger.warning(f"Semantic cache lookup failed: {e}")
-
 
         candidates = list(self._providers.keys())
 
@@ -490,7 +482,7 @@ class LLMProviderPool:
 
     async def rotate_on_failure(
         self, failed_provider: LLMProvider
-    ) -> Optional[ProviderInstance]:
+    ) -> ProviderInstance | None:
         """
         Called when a provider fails. Marks it unhealthy and returns
         the next best available provider.
@@ -507,7 +499,7 @@ class LLMProviderPool:
         # Return the next best healthy provider
         return await self.get_provider()
 
-    async def check_quota(self, provider_name: LLMProvider) -> Dict[str, Any]:
+    async def check_quota(self, provider_name: LLMProvider) -> dict[str, Any]:
         """
         Check remaining quota for a specific provider.
         Returns {available, remaining, daily_used, daily_limit, rate_limit_rpm}.
@@ -533,10 +525,10 @@ class LLMProviderPool:
         self,
         system_prompt: str,
         user_prompt: str,
-        preferred_provider: Optional[LLMProvider] = None,
+        preferred_provider: LLMProvider | None = None,
         temperature: float = 0.7,
         max_tokens: int = 1024,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Send a completion request, rotating across providers on failure.
         Returns None if all providers fail.
@@ -547,7 +539,7 @@ class LLMProviderPool:
 
         # Check semantic cache first
         try:
-            cached = semantic_cache.get_cached_response(user_prompt)
+            cached = await asyncio.to_thread(semantic_cache.get_cached_response, user_prompt)
             if cached:
                 return cached
         except Exception as e:
@@ -583,7 +575,7 @@ class LLMProviderPool:
 
             if result is not None:
                 try:
-                    semantic_cache.save_to_cache(user_prompt, result)
+                    await asyncio.to_thread(semantic_cache.save_to_cache, user_prompt, result)
                 except Exception as e:
                     logger.warning(f"Semantic cache save failed: {e}")
                 return result
@@ -614,7 +606,7 @@ class LLMProviderPool:
                         self._health[provider_name] = True
                     logger.info(f"Provider {provider_name.value} revived")
 
-    async def get_health_status(self) -> Dict[str, Any]:
+    async def get_health_status(self) -> dict[str, Any]:
         status = {}
         for name, instance in self._providers.items():
             cfg = next((c for c in PROVIDER_CONFIGS if c.name == name), None)

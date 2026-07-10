@@ -3,13 +3,13 @@ ANTI-BAN PROTECTION SYSTEM
 Ported from demo_user Project - Makes bot look human to avoid detection
 """
 
-import random
 import asyncio
 import logging
-import core.pg_sqlite_shim as sqlite3
 import pathlib
+import random
 from datetime import datetime, timedelta
-from typing import Dict, List, Set, Optional
+
+import core.pg_sqlite_shim as sqlite3
 
 logger = logging.getLogger(__name__)
 
@@ -38,13 +38,13 @@ class AntiBanProtection:
 
     def __init__(self):
         # Track applications per company
-        self.company_applications: Dict[str, List[datetime]] = {}
+        self.company_applications: dict[str, list[datetime]] = {}
 
         # Blacklist of suspicious/honeypot companies
-        self.suspicious_companies: Set[str] = set()
+        self.suspicious_companies: set[str] = set()
 
         # Track failed applications
-        self.failed_applications: Dict[str, int] = {}
+        self.failed_applications: dict[str, int] = {}
 
         # Honeypot indicators
         self.honeypot_keywords = {
@@ -102,7 +102,7 @@ class AntiBanProtection:
         """Normalize company name for tracking"""
         return company_name.lower().strip().replace(" ", "_")
 
-    def _get_user_key(self, company_key: str, user_id: Optional[str]) -> str:
+    def _get_user_key(self, company_key: str, user_id: str | None) -> str:
         """Get unique composite key for tenant + company tracking"""
         uid = user_id or "default"
         return f"{uid}:{company_key}"
@@ -156,7 +156,7 @@ class AntiBanProtection:
         return False
 
     def can_apply_to_company(
-        self, company: str, user_id: Optional[str] = None
+        self, company: str, user_id: str | None = None
     ) -> tuple[bool, str]:
         """Check if we can apply to this company (in-memory + database persistence, tenant-isolated)"""
         company_key = self._normalize_company_name(company)
@@ -265,7 +265,7 @@ class AntiBanProtection:
 
         return True, "OK"
 
-    def record_application(self, company: str, user_id: Optional[str] = None):
+    def record_application(self, company: str, user_id: str | None = None):
         """Record an application to a company"""
         company_key = self._normalize_company_name(company)
         user_key = self._get_user_key(company_key, user_id)
@@ -283,7 +283,7 @@ class AntiBanProtection:
             f"Recorded application to {company} (tenant: {user_id or 'default'})"
         )
 
-    def record_failure(self, company: str, user_id: Optional[str] = None):
+    def record_failure(self, company: str, user_id: str | None = None):
         """Record a failed application"""
         company_key = self._normalize_company_name(company)
         user_key = self._get_user_key(company_key, user_id)
@@ -301,7 +301,7 @@ class AntiBanProtection:
             )
 
     def should_blacklist_company(
-        self, company: str, user_id: Optional[str] = None
+        self, company: str, user_id: str | None = None
     ) -> bool:
         """Check if company should be blacklisted (in-memory + database check)"""
         company_key = self._normalize_company_name(company)
@@ -402,7 +402,7 @@ class AntiBanProtection:
             logger.debug(f"Waiting {delay:.1f}s before next application")
             await asyncio.sleep(delay)
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Get anti-ban statistics"""
         return {
             "daily_applications": self.daily_applications,

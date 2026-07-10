@@ -3,16 +3,17 @@ STEALTH SCRAPING TECHNIQUES
 Ported from demo_user Project - Advanced anti-detection methods
 """
 
-import random
-import time
-import hashlib
-import re
-from typing import Dict, List, Optional
-import logging
 import asyncio
+import hashlib
 import inspect
-import requests
+import logging
+import os
+import random
+import re
+import time
+
 import httpx
+import requests
 
 try:
     from curl_cffi import requests as cffi_requests
@@ -22,6 +23,11 @@ except ImportError:
     HAS_CFFI = False
 
 logger = logging.getLogger(__name__)
+
+PROXY_SOURCE_URL = os.getenv(
+    "PROXY_SOURCE_URL",
+    "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=elite",
+)
 
 
 class StealthScraper:
@@ -52,9 +58,7 @@ class StealthScraper:
                 "[GHOST PROXY] Async fetching fresh proxies from global network..."
             )
             async with httpx.AsyncClient(timeout=10.0) as client:
-                res = await client.get(
-                    "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=elite"
-                )
+                res = await client.get(PROXY_SOURCE_URL)
                 if res.status_code == 200:
                     proxies = [p.strip() for p in res.text.split("\n") if p.strip()]
                     if proxies:
@@ -68,7 +72,7 @@ class StealthScraper:
         finally:
             self._proxy_fetch_in_progress = False
 
-    def _fetch_free_proxies(self) -> List[str]:
+    def _fetch_free_proxies(self) -> list[str]:
         """[GHOST PROXY] Fetch 10,000+ free residential/datacenter proxies dynamically"""
         if time.time() - self.last_proxy_fetch < 3600 and self.proxies:
             return self.proxies
@@ -86,9 +90,7 @@ class StealthScraper:
             logger.info(
                 "[GHOST PROXY] Fetching fresh proxies from global network (synchronous fallback)..."
             )
-            res = requests.get(
-                "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=elite"
-            )
+            res = requests.get(PROXY_SOURCE_URL)
             if res.status_code == 200:
                 self.proxies = [p.strip() for p in res.text.split("\n") if p.strip()]
                 self.last_proxy_fetch = time.time()
@@ -100,13 +102,13 @@ class StealthScraper:
             logger.warning(f"[GHOST PROXY] Failed to fetch proxies (sync): {e}")
             return []
 
-    def get_random_proxy(self) -> Optional[str]:
+    def get_random_proxy(self) -> str | None:
         proxies = self._fetch_free_proxies()
         if proxies:
             return f"http://{random.choice(proxies)}"
         return None
 
-    def _load_user_agents(self) -> List[str]:
+    def _load_user_agents(self) -> list[str]:
         """Real browser fingerprints from around the world + Googlebot"""
         return [
             # Chrome Windows
@@ -146,7 +148,7 @@ class StealthScraper:
             "Sogou web spider/4.0(+http://www.sogou.com/docs/help/webmaster.htm)",
         ]
 
-    def _generate_fingerprints(self) -> List[Dict]:
+    def _generate_fingerprints(self) -> list[dict]:
         """Complete browser profiles to avoid detection"""
         return [
             {
@@ -200,13 +202,13 @@ class StealthScraper:
             or self.user_agents
         )
 
-    def get_random_fingerprint(self) -> Dict:
+    def get_random_fingerprint(self) -> dict:
         """Get a random browser fingerprint"""
         return random.choice(self.fingerprints)
 
     def get_headers(
         self, mobile: bool = False, googlebot: bool = False
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Get realistic browser headers. Use mobile=True for 403 bypass."""
         fingerprint = self.get_random_fingerprint()
         ua = (
@@ -386,7 +388,7 @@ class StealthScraper:
     # 403 RETRY WITH MOBILE/GOOGLEBOT UA (TIER 6 STEALTH)
     # ═══════════════════════════════════════════════════════════════════════════
 
-    async def smart_fetch(self, url: str, timeout: float = 30.0) -> Optional[str]:
+    async def smart_fetch(self, url: str, timeout: float = 30.0) -> str | None:
         """
         Fetch URL with automatic 403 retry using mobile → Googlebot fallback.
         Strategy: Try desktop → mobile → Googlebot → Google Cache.
@@ -428,7 +430,7 @@ class StealthScraper:
         mobile: bool = False,
         googlebot: bool = False,
         timeout: float = 30.0,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Internal fetch with specific UA profile."""
         headers = self.get_headers(mobile=mobile, googlebot=googlebot)
 
@@ -457,7 +459,7 @@ class StealthScraper:
 
     async def fetch_google_cache(
         self, url: str, timeout: float = 30.0
-    ) -> Optional[str]:
+    ) -> str | None:
         """Fetch page from Google Cache (bypasses Cloudflare entirely)."""
         cache_url = f"https://webcache.googleusercontent.com/search?q=cache:{url}"
         headers = {
@@ -478,7 +480,7 @@ class StealthScraper:
 
     # ── PORTED FROM CHRONOS ──────────────────────────────────────────────────
 
-    def bypass_cloudflare(self) -> Dict[str, str]:
+    def bypass_cloudflare(self) -> dict[str, str]:
         """[PORTED FROM CHRONOS] Headers to pass Cloudflare protection."""
         return {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -493,7 +495,7 @@ class StealthScraper:
             "TE": "trailers",
         }
 
-    def extract_email_patterns(self, text: str) -> List[str]:
+    def extract_email_patterns(self, text: str) -> list[str]:
         """[PORTED FROM CHRONOS] Find emails even when obfuscated."""
         emails = []
 
@@ -528,7 +530,7 @@ class StealthScraper:
 
         return list(set(emails))
 
-    def get_session_cookies(self) -> Dict[str, str]:
+    def get_session_cookies(self) -> dict[str, str]:
         """[PORTED FROM CHRONOS] Generate realistic session cookies."""
         session_id = hashlib.md5(str(time.time()).encode()).hexdigest()
         return {
@@ -567,7 +569,7 @@ class AntiDetectionTricks:
     """[PORTED FROM CHRONOS] Advanced anti-detection techniques."""
 
     @staticmethod
-    def randomize_request_order(urls: List[str]) -> List[str]:
+    def randomize_request_order(urls: list[str]) -> list[str]:
         """Don't scrape in predictable order."""
         shuffled = urls.copy()
         random.shuffle(shuffled)
@@ -575,8 +577,8 @@ class AntiDetectionTricks:
 
     @staticmethod
     def add_noise_requests(
-        target_urls: List[str], noise_ratio: float = 0.2
-    ) -> List[str]:
+        target_urls: list[str], noise_ratio: float = 0.2
+    ) -> list[str]:
         """Add random 'decoy' requests to hide pattern."""
         noise_urls = [
             "https://www.google.com",
@@ -621,11 +623,13 @@ class NodriverFallback:
     """
 
     @staticmethod
-    async def get_page_content(url: str, proxy: Optional[str] = None, timeout_seconds: int = 20) -> str:
+    async def get_page_content(url: str, proxy: str | None = None, timeout_seconds: int = 20) -> str:
         try:
-            import nodriver as uc
             import asyncio
             import os
+
+            import nodriver as uc
+
             from core.human_mouse import HumanMouse
 
             if not proxy:
@@ -698,12 +702,14 @@ class ApexCamoufoxFallback:
     """
 
     @staticmethod
-    async def get_page_content(url: str, proxy: Optional[str] = None) -> str:
+    async def get_page_content(url: str, proxy: str | None = None) -> str:
         try:
-            from camoufox.async_api import AsyncCamoufox
             import asyncio
-            from core.human_mouse import HumanMouse
             import os
+
+            from camoufox.async_api import AsyncCamoufox
+
+            from core.human_mouse import HumanMouse
 
             if not proxy:
                 env_proxies = [p.strip() for p in os.getenv("RESIDENTIAL_PROXIES", "").split(",") if p.strip()]

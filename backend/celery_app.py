@@ -1,4 +1,5 @@
 import os
+
 from celery import Celery
 
 # Use RabbitMQ as the message broker for enterprise durability (Event-Driven Deliverability)
@@ -22,6 +23,13 @@ celery_app.conf.update(
     task_acks_late=True,
     worker_prefetch_multiplier=1,
     broker_connection_retry_on_startup=True,
+    # Non-blocking / fail-fast configurations
+    broker_connection_timeout=0.2,            # Fast timeout for establishing broker connection
+    broker_transport_options={
+        "max_connections": 10,                 # Max connections in pool
+        "pool_timeout": 0.05,                  # Fast timeout for checking out connection from pool (50ms)
+        "connect_timeout": 0.2,                # Transport-level connection timeout (200ms)
+    },
     # Route specific tasks to different queues if needed
     task_routes={
         "backend.tasks.scrape_jobs": {"queue": "scraping"},

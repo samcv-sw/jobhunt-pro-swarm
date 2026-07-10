@@ -4,15 +4,17 @@ Uses Groq's llama3-70b-8192 (primary) / mixtral-8x7b-32768 (fallback)
 with async calls, structured prompts, and graceful fallbacks.
 """
 
+import asyncio
+import hashlib
 import json
 import logging
 import re
+
 import httpx
-import asyncio
-import hashlib
-import config
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+
+import config
 import core.semantic_cache as semantic_cache
 
 logger = logging.getLogger(__name__)
@@ -318,7 +320,6 @@ class AITailor:
             "under",
             "again",
             "further",
-            "then",
             "once",
         }
         words = cv_text.split()
@@ -339,10 +340,10 @@ class AITailor:
             f"Infrastructure: {', '.join(CANDIDATE_PROFILE['infrastructure'])}",
             "Key Achievements:",
         ]
-        
+
         highlights = CANDIDATE_PROFILE["highlights"]
         query = f"{title} {description}".strip()
-        
+
         if query and highlights:
             try:
                 # Perform a fast TF-IDF cosine-similarity subset filter on resume highlight bullets
@@ -353,7 +354,7 @@ class AITailor:
                 query_vector = vectors[0:1]
                 highlight_vectors = vectors[1:]
                 similarities = cosine_similarity(query_vector, highlight_vectors)[0]
-                
+
                 # Sort highlights by similarity descending
                 sorted_indices = similarities.argsort()[::-1]
                 # Pick top 5 most similar highlights
@@ -371,6 +372,7 @@ class AITailor:
         # Try to append raw text from the CV PDF if available
         try:
             import os
+
             import config
             from core.resume_optimizer import ResumeOptimizer
 
@@ -397,7 +399,7 @@ class AITailor:
                     ext = os.path.splitext(cv_path)[1].lower()
                     if ext in (".txt", ".md", ".rtf"):
                         with open(
-                            cv_path, "r", encoding="utf-8", errors="replace"
+                            cv_path, encoding="utf-8", errors="replace"
                         ) as f:
                             raw_text = f.read()
                     elif ext == ".pdf":
@@ -613,7 +615,8 @@ REQUIREMENTS:
 6. Close with a clear call to action
 7. Do NOT use generic phrases like "I am writing to express my interest" — start with something compelling
 8. Embed the company name ({company}) naturally throughout the letter — in the opening, middle body, and closing — at least 3 distinct mentions
-9. Sign as: Sam Salameh, {config.CANDIDATE_EMAIL}, {config.CANDIDATE_PHONE}"""
+9. Sign as: Sam Salameh, {config.CANDIDATE_EMAIL}, {config.CANDIDATE_PHONE}
+10. Absolutely NEVER output placeholder brackets, comments, or TODOs (e.g., "[Insert Date]", "[Your Address]", "[Hiring Manager's Name]"). Every single sentence must be complete, fully populated with realistic context, and ready to send directly to the employer."""
 
         result = await self._call_ai(prompt, max_tokens=1500, temperature=0.7)
         return result or None

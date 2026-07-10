@@ -71,7 +71,7 @@ def get_db():
     db_path = str(BASE_DIR.parent / db_name)
     conn = sqlite3_module.connect(db_path)
     conn.row_factory = sqlite3_module.Row
-    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA journal_mode=DELETE")
     conn.execute("PRAGMA foreign_keys=ON")
     return conn
 

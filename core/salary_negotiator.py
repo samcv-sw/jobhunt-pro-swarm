@@ -4,7 +4,7 @@ Provides salary insights and negotiation strategies for Sam
 """
 
 import logging
-from typing import Dict
+from typing import Dict, Any, List, Tuple, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,7 @@ class SalaryNegotiator:
     """Salary negotiation assistant with regional data."""
 
     # Salary ranges by location (USD/year) for Network Engineers
-    SALARY_RANGES = {
+    SALARY_RANGES: Dict[str, Dict[str, Tuple[int, int]]] = {
         "lebanon": {
             "junior": (10000, 16000),
             "mid": (16000, 28000),
@@ -46,7 +46,7 @@ class SalaryNegotiator:
         },
     }
 
-    NEGOTIATION_TIPS = [
+    NEGOTIATION_TIPS: List[str] = [
         "Never give a number first — ask for their budget range",
         "Always negotiate the total package, not just base salary",
         "Use competing offers as leverage, even informal ones",
@@ -59,90 +59,114 @@ class SalaryNegotiator:
         "Be ready to walk away — your BATNA is your power",
     ]
 
-    RESPONSE_TEMPLATES = {
+    RESPONSE_TEMPLATES: Dict[str, str] = {
         "deflect": "I'd prefer to learn more about the role and team first before discussing compensation. Could you share the budget range for this position?",
         "counter_high": "Based on my 15+ years of experience and the market rate for senior network engineers in {location}, I was expecting something in the range of {high_range}. I'm flexible and would love to discuss the total compensation package.",
         "counter_mid": "Thank you for the offer. Given my experience level and the responsibilities of this role, I believe a range of {mid_range} would be more aligned with market rates. I'm open to discussing the full package including benefits.",
         "accept_with_conditions": "I'm very excited about this opportunity and the offer is close to my expectations. Could we discuss a few adjustments to the benefits package — specifically {conditions}?",
     }
 
-    def get_range(self, location: str, level: str = "senior") -> Dict:
+    def get_range(self, location: str, level: str = "senior") -> Dict[str, Any]:
         """Get salary range for a location and level."""
-        loc = (
-            location.lower()
-            .replace(" ", "_")
-            .replace("uae", "dubai")
-            .replace("ksa", "saudi_arabia")
-        )
-        ranges = self.SALARY_RANGES.get(loc, self.SALARY_RANGES["lebanon"])
-        level_data = ranges.get(level, ranges["senior"])
-        low, high = level_data
-        mid = (low + high) // 2
-        return {
-            "location": loc,
-            "level": level,
-            "low": low,
-            "mid": mid,
-            "high": high,
-            "formatted": f"${low:,} - ${high:,}",
-        }
+        try:
+            loc = (
+                location.lower()
+                .replace(" ", "_")
+                .replace("uae", "dubai")
+                .replace("ksa", "saudi_arabia")
+            )
+            ranges = self.SALARY_RANGES.get(loc, self.SALARY_RANGES["lebanon"])
+            level_data = ranges.get(level, ranges["senior"])
+            low, high = level_data
+            mid = (low + high) // 2
+            return {
+                "location": loc,
+                "level": level,
+                "low": low,
+                "mid": mid,
+                "high": high,
+                "formatted": f"${low:,} - ${high:,}",
+            }
+        except Exception as e:
+            logger.error(f"Failed to get salary range: {e}")
+            return {
+                "location": location,
+                "level": level,
+                "low": 30000,
+                "mid": 60000,
+                "high": 90000,
+                "formatted": "$30,000 - $90,000",
+            }
 
     def get_negotiation_advice(
-        self, location: str, offered: int = None, level: str = "senior"
-    ) -> Dict:
+        self, location: str, offered: Optional[int] = None, level: str = "senior"
+    ) -> Dict[str, Any]:
         """Get negotiation advice for a specific situation."""
-        salary_range = self.get_range(location, level)
-        advice = {
-            "market_range": salary_range,
-            "tips": self.NEGOTIATION_TIPS[:5],
-            "recommended_strategy": "deflect",
-        }
+        try:
+            salary_range = self.get_range(location, level)
+            advice: Dict[str, Any] = {
+                "market_range": salary_range,
+                "tips": self.NEGOTIATION_TIPS[:5],
+                "recommended_strategy": "deflect",
+            }
 
-        if offered:
-            if offered < salary_range["low"]:
-                advice["recommended_strategy"] = "counter_high"
-                advice["gap"] = salary_range["mid"] - offered
-                advice["message"] = (
-                    f"Offer is ${offered:,} which is below market low (${salary_range['low']:,}). Counter with ${salary_range['mid']:,}."
-                )
-            elif offered < salary_range["mid"]:
-                advice["recommended_strategy"] = "counter_mid"
-                advice["gap"] = salary_range["mid"] - offered
-                advice["message"] = (
-                    f"Offer is ${offered:,} which is below market mid (${salary_range['mid']:,}). Counter with ${salary_range['mid']:,} - ${salary_range['high']:,}."
-                )
-            elif offered <= salary_range["high"]:
-                advice["recommended_strategy"] = "accept_with_conditions"
-                advice["message"] = (
-                    f"Offer is ${offered:,} which is within market range. Negotiate benefits instead."
-                )
-            else:
-                advice["recommended_strategy"] = "accept"
-                advice["message"] = (
-                    f"Offer is ${offered:,} which is above market range. Accept with enthusiasm."
-                )
+            if offered:
+                if offered < salary_range["low"]:
+                    advice["recommended_strategy"] = "counter_high"
+                    advice["gap"] = salary_range["mid"] - offered
+                    advice["message"] = (
+                        f"Offer is ${offered:,} which is below market low (${salary_range['low']:,}). Counter with ${salary_range['mid']:,}."
+                    )
+                elif offered < salary_range["mid"]:
+                    advice["recommended_strategy"] = "counter_mid"
+                    advice["gap"] = salary_range["mid"] - offered
+                    advice["message"] = (
+                        f"Offer is ${offered:,} which is below market mid (${salary_range['mid']:,}). Counter with ${salary_range['mid']:,} - ${salary_range['high']:,}."
+                    )
+                elif offered <= salary_range["high"]:
+                    advice["recommended_strategy"] = "accept_with_conditions"
+                    advice["message"] = (
+                        f"Offer is ${offered:,} which is within market range. Negotiate benefits instead."
+                    )
+                else:
+                    advice["recommended_strategy"] = "accept"
+                    advice["message"] = (
+                        f"Offer is ${offered:,} which is above market range. Accept with enthusiasm."
+                    )
 
-        # Get response template
-        strategy = advice["recommended_strategy"]
-        template = self.RESPONSE_TEMPLATES.get(strategy, "")
-        if "{location}" in template:
-            template = template.replace("{location}", location)
-        if "{high_range}" in template:
-            template = template.replace("{high_range}", salary_range["formatted"])
-        if "{mid_range}" in template:
-            template = template.replace("{mid_range}", f"${salary_range['mid']:,}")
-        advice["response_template"] = template
+            # Get response template
+            strategy = advice["recommended_strategy"]
+            template = self.RESPONSE_TEMPLATES.get(strategy, "")
+            if "{location}" in template:
+                template = template.replace("{location}", location)
+            if "{high_range}" in template:
+                template = template.replace("{high_range}", salary_range["formatted"])
+            if "{mid_range}" in template:
+                template = template.replace("{mid_range}", f"${salary_range['mid']:,}")
+            advice["response_template"] = template
 
-        return advice
+            return advice
+        except Exception as e:
+            logger.error(f"Failed to get negotiation advice: {e}")
+            return {
+                "market_range": {},
+                "tips": self.NEGOTIATION_TIPS[:5],
+                "recommended_strategy": "deflect",
+                "response_template": self.RESPONSE_TEMPLATES["deflect"],
+            }
 
-    def compare_locations(self, level: str = "senior") -> Dict:
+    def compare_locations(self, level: str = "senior") -> Dict[str, Dict[str, int]]:
         """Compare salary ranges across all locations."""
-        comparison = {}
-        for loc, ranges in self.SALARY_RANGES.items():
-            low, high = ranges.get(level, ranges["senior"])
-            comparison[loc] = {"low": low, "high": high, "mid": (low + high) // 2}
-        return comparison
+        try:
+            comparison: Dict[str, Dict[str, int]] = {}
+            for loc, ranges in self.SALARY_RANGES.items():
+                low, high = ranges.get(level, ranges["senior"])
+                comparison[loc] = {"low": low, "high": high, "mid": (low + high) // 2}
+            return comparison
+        except Exception as e:
+            logger.error(f"Failed to compare locations: {e}")
+            return {}
 
 
 # Global instance
-salary_negotiator = SalaryNegotiator()
+salary_negotiator: SalaryNegotiator = SalaryNegotiator()

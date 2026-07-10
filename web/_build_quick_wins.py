@@ -2,20 +2,29 @@
 BUILD-QUICK-WINS Agent - Injects 5 high-impact features into JobHunt Pro
 """
 import os
+import sys
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 APP_V2 = os.path.join(BASE, 'app_v2.py')
 
-with open(APP_V2, 'r', encoding='utf-8') as f:
-    content = f.read()
+try:
+    with open(APP_V2, 'r', encoding='utf-8') as f:
+        content = f.read()
+except Exception as e:
+    logger.error(f"Failed to read {APP_V2}: {e}")
+    sys.exit(1)
 
 # ===== Change 1: Replace pipeline_emails query =====
 # Search for the unique marker line
 marker = '# Pipeline data for dashboard'
 idx = content.find(marker)
 if idx == -1:
-    print("ERROR: Could not find pipeline marker!")
-    exit(1)
+    logger.debug("ERROR: Could not find pipeline marker!")
+    sys.exit(1)
 
 # Find the start of the assignment line (might have indentation)
 start = content.rfind('\n', 0, idx) + 1
@@ -24,11 +33,11 @@ end = content.find('\n\n    pipeline_counts', idx)
 if end == -1:
     end = content.find('\n\npipeline_counts', idx)
 if end == -1:
-    print("ERROR: Could not find pipeline_counts after pipeline!")
-    exit(1)
+    logger.debug("ERROR: Could not find pipeline_counts after pipeline!")
+    sys.exit(1)
 
 old_block = content[start:end]
-print(f"Found old pipeline block ({len(old_block)} chars)")
+logger.debug(f"Found old pipeline block ({len(old_block)} chars)")
 
 new_block = """    # Pipeline data for dashboard
     pipeline_emails = [dict(r) for r in conn.execute('''SELECT ce.*
@@ -100,7 +109,7 @@ new_block = """    # Pipeline data for dashboard
 """
 
 content = content[:start] + new_block + content[end:]
-print("+ Replaced pipeline_emails block")
+logger.debug("+ Replaced pipeline_emails block")
 
 # ===== Change 2: Add featured_jobs to "/" route =====
 # Find the templates.TemplateResponse for index_v3.html in the home route
@@ -142,9 +151,9 @@ if old_home_pattern in content:
         "featured_jobs": featured_jobs
     })'''
     content = content.replace(old_home_pattern, new_home_block)
-    print("+ Added featured_jobs to '/' route")
+    logger.debug("+ Added featured_jobs to '/' route")
 else:
-    print("WARN: Could not find home route block")
+    logger.debug("WARN: Could not find home route block")
 
 # ===== Change 3: Add /track-application routes =====
 # Insert before @app.get("/export"...)
@@ -210,11 +219,11 @@ async def track_application_search(request: Request, email: str = Form(None)):
 
 '''
     content = content[:insert_point] + track_routes + content[insert_point:]
-    print("+ Added /track-application routes")
+    logger.debug("+ Added /track-application routes")
 else:
-    print("WARN: Could not find export route for insertion")
+    logger.debug("WARN: Could not find export route for insertion")
 
 with open(APP_V2, 'w', encoding='utf-8') as f:
     f.write(content)
 
-print("\n=== app_v2.py updated successfully ===")
+logger.debug("\n=== app_v2.py updated successfully ===")

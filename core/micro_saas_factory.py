@@ -8,10 +8,11 @@ Automated Software Factory Gamification.
 4. Simulates deploying the finished code to Cloudflare Workers for $29/mo recurring revenue.
 """
 
-import core.pg_sqlite_shim as sqlite3
+import logging
 import os
 import random
-import logging
+
+import core.pg_sqlite_shim as sqlite3
 
 logging.basicConfig(
     level=logging.INFO,

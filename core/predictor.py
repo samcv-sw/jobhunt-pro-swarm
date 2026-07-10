@@ -3,13 +3,13 @@ RESPONSE PREDICTION SYSTEM
 Ported from demo_user Project - Predict likelihood of response before sending
 """
 
+import json
 import logging
 import os
-import json
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -27,16 +27,16 @@ class ResponsePredictor:
     def __init__(self):
         self.history = self._load_history()
         # O(1) company lookup index: company_lower -> last known responded bool
-        self._company_index: Dict[str, bool] = {
+        self._company_index: dict[str, bool] = {
             rec.get("company", "").lower().strip(): rec.get("responded", False)
             for rec in self.history.get("emails", [])
         }
 
-    def _load_history(self) -> Dict:
+    def _load_history(self) -> dict:
         """Load historical response data"""
         try:
             if HISTORY_FILE.exists():
-                with open(HISTORY_FILE, "r") as f:
+                with open(HISTORY_FILE) as f:
                     return json.load(f)
             return {"emails": [], "patterns": {}}
         except Exception as e:
@@ -51,7 +51,7 @@ class ResponsePredictor:
         except Exception as e:
             logger.warning(f"Failed to save response history: {e}")
 
-    def analyze_email_quality(self, subject: str, body: str) -> Dict[str, Any]:
+    def analyze_email_quality(self, subject: str, body: str) -> dict[str, Any]:
         """Analyze email quality factors"""
         scores = {}
 
@@ -193,9 +193,16 @@ class ResponsePredictor:
             return 80 if self._company_index[company_lower] else 30
         return default_responsiveness
 
+    def predict_response_likelihood(
+        self, subject: str, body: str, company: str = ""
+    ) -> float:
+        """Predict response likelihood percentage (0-100)"""
+        res = self.predict_response_rate(subject, body, company)
+        return res["confidence"]
+
     def predict_response_rate(
         self, subject: str, body: str, company: str = ""
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Predict response rate for an email"""
         # Analyze email quality
         quality_scores = self.analyze_email_quality(subject, body)
@@ -228,7 +235,7 @@ class ResponsePredictor:
             else self._get_send_reason(confidence, quality_scores),
         }
 
-    def _get_send_reason(self, confidence: float, quality_scores: Dict) -> str:
+    def _get_send_reason(self, confidence: float, quality_scores: dict) -> str:
         """Get reason for send/no-send decision"""
         if confidence >= 80:
             return "High confidence - excellent email quality"
@@ -281,7 +288,7 @@ class ResponsePredictor:
 
         logger.warning(f"No email record found for {company}/{email}")
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Get prediction statistics"""
         emails = self.history.get("emails", [])
         responses = [e for e in emails if e.get("responded")]

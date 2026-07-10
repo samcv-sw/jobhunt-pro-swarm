@@ -175,7 +175,7 @@ header.headroom nav a.pill {
 }
 .pricing-card li:last-child { border-bottom: none; }
 .pricing-card li::before {
-  content: '→'; color: var(--blue); margin-inline-end: 10px; font-weight: 700;
+  content: '\2192'; color: var(--blue); margin-inline-end: 10px; font-weight: 700;
 }
 
 .pricing-card a.btn { width: 100%; text-align: center; }
@@ -311,7 +311,7 @@ header.headroom nav a.pill {
 
 /* ── Social Toast (glass-morphism version) ── */
 .social-toast {
-  position: fixed; bottom: 80px; right: 20px; z-index: 9999;
+  position: fixed; bottom: 80px; inset-inline-end: 20px; z-index: 9999;
   max-width: 340px;
   background: linear-gradient(135deg, rgba(15,15,30,.95), rgba(10,10,20,.95));
   border: 1px solid rgba(59,130,246,.2);
@@ -333,7 +333,7 @@ header.headroom nav a.pill {
 .social-toast .st-content .st-action { color: var(--blue); }
 .social-toast .st-content .st-time { color: var(--text-muted); font-size: 10px; }
 .toast-close {
-  position: absolute; top: 6px; right: 10px;
+  position: absolute; top: 6px; inset-inline-end: 10px;
   background: none; border: none; color: var(--text-muted);
   cursor: pointer; font-size: 14px;
 }

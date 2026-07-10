@@ -4,13 +4,13 @@ Single-SMTP-connection batch sender. No EmailEngine overhead.
 Reads Gmail SMTP credentials from environment, sends plain HTML emails.
 """
 
+import email.utils
+import logging
+import os
 import smtplib
 import ssl
-import os
-import logging
-from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import email.utils
+from email.mime.text import MIMEText
 
 logger = logging.getLogger(__name__)
 

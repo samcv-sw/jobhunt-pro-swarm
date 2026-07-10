@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocale } from "./locale-context";
 
 // FNV-1a Hashing helper matching Cloudflare Workers
@@ -15,7 +14,7 @@ function fnv1a(str: string): number {
 }
 
 export default function Home() {
-  const { locale, isArabic, toggleLocale } = useLocale();
+  const { isArabic, toggleLocale } = useLocale();
   
   // Sharding Simulator state
   const [tenantNameInput, setTenantNameInput] = useState<string>("Demo User");
@@ -30,8 +29,35 @@ export default function Home() {
   const [smtpMsg, setSmtpMsg] = useState<string>("");
 
   // Sync / DB statistics state
-  const [pendingSyncCount, setPendingSyncCount] = useState<number>(0);
+  const [pendingSyncCount, setPendingSyncCount] = useState<number>(() => Math.floor(Math.random() * 8));
   const [localDbStatus, setLocalDbStatus] = useState<string>("Initialized (OPFS)");
+
+  // Real backend statistics state
+  const [realStats, setRealStats] = useState<{users: number, campaigns: number, emails: number} | null>(null);
+
+  // Fetch real statistics from FastAPI backend
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch("/api/v2/stats");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            setRealStats({
+              users: data.users,
+              campaigns: data.campaigns,
+              emails: data.emails,
+            });
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to fetch backend stats, using fallback defaults:", err);
+      }
+    };
+    fetchStats();
+    const statsInterval = setInterval(fetchStats, 10000);
+    return () => clearInterval(statsInterval);
+  }, []);
 
   // WebSocket Live Connection
   const [wsConnected, setWsConnected] = useState<boolean>(false);
@@ -45,7 +71,7 @@ export default function Home() {
         ? new URL(process.env.NEXT_PUBLIC_API_URL).host 
         : window.location.host;
       
-      ws = new WebSocket(`${protocol}//${host}/ws/war-room`);
+      ws = new WebSocket(`${protocol}//${host}/api/v1/ws`);
       
       ws.onopen = () => setWsConnected(true);
       ws.onclose = () => {
@@ -60,7 +86,7 @@ export default function Home() {
   }, []);
 
   // Run hash calculations
-  const calculateShard = () => {
+  const calculateShard = useCallback(() => {
     setIsHashing(true);
     setTimeout(() => {
       const hash = fnv1a(tenantNameInput || "default");
@@ -68,13 +94,12 @@ export default function Home() {
       setShardIndex(hash % 500);
       setIsHashing(false);
     }, 600);
-  };
+  }, [tenantNameInput]);
 
   useEffect(() => {
-    calculateShard();
-    // Simulate some pending local mutations
-    setPendingSyncCount(Math.floor(Math.random() * 8));
-  }, []);
+    const timer = setTimeout(calculateShard, 0);
+    return () => clearTimeout(timer);
+  }, [calculateShard]);
 
   // Run SMTP test simulator
   const handleTestSmtp = (e: React.FormEvent) => {
@@ -301,15 +326,15 @@ export default function Home() {
           <div className="space-y-4">
               <div className="stat-card">
                 <span className="text-sm text-zinc-500 block leading-[1.8]">{t.totalShards}</span>
-                <span className="text-sm text-white font-bold">{t.totalShardsVal}</span>
+                <span className="text-sm text-white font-bold">{realStats ? `${realStats.users} Active Users` : t.totalShardsVal}</span>
               </div>
               <div className="stat-card">
                 <span className="text-sm text-zinc-500 block leading-[1.8]">{t.redisStatus}</span>
-                <span className="text-sm text-emerald-400 font-semibold">{t.redisVal}</span>
+                <span className="text-sm text-emerald-400 font-semibold">{realStats ? `${realStats.campaigns} Active Campaigns` : t.redisVal}</span>
               </div>
               <div className="stat-card">
                 <span className="text-sm text-zinc-500 block leading-[1.8]">{t.smtpFallback}</span>
-                <span className="text-sm text-zinc-300 font-semibold leading-[1.8]">{t.smtpFallbackVal}</span>
+                <span className="text-sm text-zinc-300 font-semibold leading-[1.8]">{realStats ? `${realStats.emails} Sent Applications` : t.smtpFallbackVal}</span>
               </div>
               <div className="stat-card">
                 <span className="text-sm text-zinc-500 block leading-[1.8]">{t.apiSpeed}</span>

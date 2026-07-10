@@ -1,15 +1,16 @@
+import asyncio
+import logging
 import os
 import random
-import logging
+from typing import TypedDict
+
 import httpx
-import asyncio
-from typing import Dict, TypedDict, Optional
 
 # Attempt to load LangGraph / PydanticAI. Fallback to native if not installed.
 _HAS_LANGGRAPH = False
 try:
-    from langgraph.graph import StateGraph, END
     from langgraph.checkpoint.postgres import PostgresSaver
+    from langgraph.graph import END, StateGraph
     from psycopg_pool import ConnectionPool
     from pydantic import BaseModel
 
@@ -32,6 +33,26 @@ MISTRAL_KEYS = [
     k.strip() for k in (os.getenv("MISTRAL_API_KEY") or "").split(",") if k.strip()
 ]
 
+# ── API Endpoint URLs (overridable via environment for proxy/self-hosted setups) ──
+GROQ_API_URL = os.getenv(
+    "GROQ_API_URL", "https://api.groq.com/openai/v1/chat/completions"
+)
+GEMINI_API_BASE = os.getenv(
+    "GEMINI_API_BASE", "https://generativelanguage.googleapis.com/v1beta/models"
+)
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GITHUB_MODELS_API_URL = os.getenv(
+    "GITHUB_MODELS_API_URL", "https://models.inference.ai.azure.com/chat/completions"
+)
+MISTRAL_API_URL = os.getenv(
+    "MISTRAL_API_URL", "https://api.mistral.ai/v1/chat/completions"
+)
+
+# ── Default model names ──
+GROQ_DEFAULT_MODEL = os.getenv("GROQ_DEFAULT_MODEL", "llama3-8b-8192")
+GITHUB_DEFAULT_MODEL = os.getenv("GITHUB_DEFAULT_MODEL", "gpt-4o")
+MISTRAL_DEFAULT_MODEL = os.getenv("MISTRAL_DEFAULT_MODEL", "open-mistral-nemo")
+
 # DB connection for checkpointing
 DB_URI = os.getenv(
     "DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/postgres"
@@ -46,8 +67,8 @@ class AgentState(TypedDict):
     max_retries: int
     current_attempt: int
     current_provider: str
-    response: Optional[str]
-    error: Optional[str]
+    response: str | None
+    error: str | None
 
 
 class AIRouter:
@@ -111,7 +132,7 @@ class AIRouter:
     ) -> str:
         """Execute AI logic through a resilient LangGraph pipeline with Postgres Checkpointing."""
 
-        async def node_route(state: AgentState) -> Dict:
+        async def node_route(state: AgentState) -> dict:
             providers = []
             if state["task_type"] == "sensitive":
                 providers = ["mistral", "github"]
@@ -137,7 +158,7 @@ class AIRouter:
 
             return {"current_provider": target, "error": None}
 
-        async def node_execute(state: AgentState) -> Dict:
+        async def node_execute(state: AgentState) -> dict:
             provider = state["current_provider"]
             if provider == "none":
                 return {"response": None}
@@ -274,10 +295,10 @@ class AIRouter:
     @classmethod
     async def _call_groq(cls, system_prompt: str, user_prompt: str) -> str:
         key = random.choice(GROQ_KEYS)
-        url = "https://api.groq.com/openai/v1/chat/completions"
+        url = GROQ_API_URL
         headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
         payload = {
-            "model": "llama3-8b-8192",
+            "model": GROQ_DEFAULT_MODEL,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
@@ -292,7 +313,7 @@ class AIRouter:
     @classmethod
     async def _call_gemini(cls, system_prompt: str, user_prompt: str) -> str:
         key = random.choice(GEMINI_KEYS)
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={key}"
+        url = f"{GEMINI_API_BASE}/{GEMINI_MODEL}:generateContent?key={key}"
         headers = {"Content-Type": "application/json"}
         payload = {
             "contents": [
@@ -310,10 +331,10 @@ class AIRouter:
     @classmethod
     async def _call_github(cls, system_prompt: str, user_prompt: str) -> str:
         key = random.choice(GITHUB_MODELS_KEYS)
-        url = "https://models.inference.ai.azure.com/chat/completions"
+        url = GITHUB_MODELS_API_URL
         headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
         payload = {
-            "model": "gpt-4o",
+            "model": GITHUB_DEFAULT_MODEL,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
@@ -328,10 +349,10 @@ class AIRouter:
     @classmethod
     async def _call_mistral(cls, system_prompt: str, user_prompt: str) -> str:
         key = random.choice(MISTRAL_KEYS)
-        url = "https://api.mistral.ai/v1/chat/completions"
+        url = MISTRAL_API_URL
         headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
         payload = {
-            "model": "open-mistral-nemo",
+            "model": MISTRAL_DEFAULT_MODEL,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},

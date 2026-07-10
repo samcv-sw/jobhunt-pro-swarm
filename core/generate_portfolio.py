@@ -5,10 +5,9 @@ Automatically generates a stunning, high-converting interactive web portfolio
 for candidates. Injects a massive B2B upsell banner for HR managers at the bottom.
 """
 
+import logging
 import os
 import re
-import logging
-from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -18,40 +17,25 @@ B2B_CHECKOUT_LINK = (
 )
 
 
-def generate_trojan_portfolio(
-    user_id: str, name: str, title: str, skills: List[str], summary: str
+def _get_portfolio_html_template(
+    name: str,
+    title: str,
+    skills_html: str,
+    summary: str,
 ) -> str:
-    """Automatically generates a stunning, high-converting interactive web portfolio.
+    """
+    Generate the HTML content for the trojan portfolio page.
 
     Args:
-        user_id: Candidate identifier.
         name: Candidate name.
-        title: Candidate title.
-        skills: List of skills.
+        title: Candidate job title.
+        skills_html: Pre-formatted skills tag HTML.
         summary: Candidate professional summary.
 
     Returns:
-        The generated HTML file path.
+        The complete HTML string.
     """
-    global OUTPUT_DIR
-    try:
-        if not os.path.exists(OUTPUT_DIR):
-            os.makedirs(OUTPUT_DIR, exist_ok=True)
-    except Exception as e:
-        logger.error(
-            f"[generate_portfolio] Failed to create output directory {OUTPUT_DIR}: {e}"
-        )
-        # fallback to local portfolios folder or current directory
-        OUTPUT_DIR = "portfolios"
-        try:
-            if not os.path.exists(OUTPUT_DIR):
-                os.makedirs(OUTPUT_DIR, exist_ok=True)
-        except Exception:
-            OUTPUT_DIR = "."
-
-    skills_html = "".join([f'<span class="skill-tag">{s}</span>' for s in skills])
-
-    html = f"""<!DOCTYPE html>
+    return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -186,6 +170,43 @@ def generate_trojan_portfolio(
 </body>
 </html>
 """
+
+
+def generate_trojan_portfolio(
+    user_id: str, name: str, title: str, skills: list[str], summary: str
+) -> str:
+    """Automatically generates a stunning, high-converting interactive web portfolio.
+
+    Args:
+        user_id: Candidate identifier.
+        name: Candidate name.
+        title: Candidate title.
+        skills: List of skills.
+        summary: Candidate professional summary.
+
+    Returns:
+        The generated HTML file path.
+    """
+    global OUTPUT_DIR
+    try:
+        if not os.path.exists(OUTPUT_DIR):
+            os.makedirs(OUTPUT_DIR, exist_ok=True)
+    except Exception as e:
+        logger.error(
+            f"[generate_portfolio] Failed to create output directory {OUTPUT_DIR}: {e}"
+        )
+        # fallback to local portfolios folder or current directory
+        OUTPUT_DIR = "portfolios"
+        try:
+            if not os.path.exists(OUTPUT_DIR):
+                os.makedirs(OUTPUT_DIR, exist_ok=True)
+        except Exception:
+            OUTPUT_DIR = "."
+
+    skills_html = "".join([f'<span class="skill-tag">{s}</span>' for s in skills])
+
+    html = _get_portfolio_html_template(name, title, skills_html, summary)
+
     # Sanitize user_id for filename
     safe_id = re.sub(r"[^a-zA-Z0-9_]", "", str(user_id))
     filepath = os.path.join(OUTPUT_DIR, f"{safe_id}.html")
@@ -232,4 +253,4 @@ if __name__ == "__main__":
         ],
         summary="A results-driven technology leader specializing in scalable, zero-investment autonomous agents and viral cloud infrastructure. Proven track record of architecting deep-web level growth hacking systems.",
     )
-    print("Test portfolio generated.")
+    logger.debug("Test portfolio generated.")

@@ -13,9 +13,13 @@ import sys
 import json
 import subprocess
 import argparse
+import logging
 from datetime import datetime, timezone
 import re
 from pathlib import Path
+
+logging.basicConfig(level=logging.DEBUG, format="%(message)s", stream=sys.stdout)
+logger = logging.getLogger("antigravity")
 
 # Ensure stdout uses UTF-8 to prevent encoding errors on Windows terminal
 if sys.platform.startswith("win"):
@@ -147,16 +151,16 @@ def estimate_token_usage(total_chars):
 def generate_state_report(workspace_path, conversation_dir):
     """Generates a beautiful ANTIGRAVITY_STATE_SUMMARY.md file in the workspace root."""
     if not conversation_dir:
-        print("[-] Active conversation directory not found. Cannot parse transcript.")
+        logger.debug("[-] Active conversation directory not found. Cannot parse transcript.")
         return False
 
     conv_id = os.path.basename(conversation_dir)
     transcript_path = os.path.join(conversation_dir, ".system_generated", "logs", "transcript.jsonl")
     
-    print(f"[*] Parsing transcript logs from: {transcript_path}")
+    logger.debug(f"[*] Parsing transcript logs from: {transcript_path}")
     entries = parse_transcript(transcript_path)
     if not entries:
-        print("[-] Transcript file is empty or missing.")
+        logger.debug("[-] Transcript file is empty or missing.")
         return False
 
     stats = analyze_transcript(entries)
@@ -214,24 +218,24 @@ def generate_state_report(workspace_path, conversation_dir):
                 f.write(f"- **Type**: `{err['type']}` | {err['error']}\n")
             f.write("\n")
 
-    print(f"[+] State report successfully synthesized: {report_path}")
+    logger.debug(f"[+] State report successfully synthesized: {report_path}")
     return True
 
 
 def run_workspace_tests(workspace_path):
     """Executes pytest suite on the tests/ directory and prints summary."""
-    print("[*] Launching project verification tests...")
+    logger.debug("[*] Launching project verification tests...")
     try:
         res = subprocess.run(["pytest", "tests/"], cwd=workspace_path, capture_output=True, text=True)
-        print(res.stdout)
+        logger.debug(res.stdout)
         if res.returncode == 0:
-            print("[+] All verification tests passed successfully!")
+            logger.debug("[+] All verification tests passed successfully!")
             return True
         else:
-            print("[-] Test suite encountered failures. Please review stdout.")
+            logger.debug("[-] Test suite encountered failures. Please review stdout.")
             return False
     except FileNotFoundError:
-        print("[-] Pytest executable not found in PATH.")
+        logger.debug("[-] Pytest executable not found in PATH.")
         return False
 
 
@@ -239,12 +243,12 @@ def run_workspace_cleanup(workspace_path):
     """Triggers workspace temp/cache cleaning."""
     cleanup_script = os.path.join(workspace_path, "cleanup_temp.py")
     if os.path.exists(cleanup_script):
-        print(f"[*] Running workspace cleaner: {cleanup_script}")
+        logger.debug(f"[*] Running workspace cleaner: {cleanup_script}")
         res = subprocess.run([sys.executable, cleanup_script], cwd=workspace_path, capture_output=True, text=True)
-        print(res.stdout)
+        logger.debug(res.stdout)
         return True
     else:
-        print("[-] cleanup_temp.py script not found in workspace.")
+        logger.debug("[-] cleanup_temp.py script not found in workspace.")
         return False
 
 
@@ -283,47 +287,64 @@ def log_new_improvement(workspace_path, summary_text, conv_id):
     with open(log_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
-    print(f"[+] Successfully logged improvement to `.antigravity_improvements.json`:")
-    print(f"    - Summary: '{summary_text}'")
-    print(f"    - Conv ID: {conv_id}")
+    logger.debug(f"[+] Successfully logged improvement to `.antigravity_improvements.json`:")
+    logger.debug(f"    - Summary: '{summary_text}'")
+    logger.debug(f"    - Conv ID: {conv_id}")
     return True
 
 
 def check_workspace_health(workspace_path):
     """Performs quick validation of the project's setup."""
-    print("==================================================")
-    print("   JOBHUNT PRO / ANTIGRAVITY WORKSPACE HEALTH")
-    print("==================================================")
-    
-    # Check DB shim
-    config_path = os.path.join(workspace_path, "config.py")
-    if os.path.exists(config_path):
-        with open(config_path, "r", encoding="utf-8") as f:
+    logger.debug("==================================================")
+    logger.debug("   JOBHUNT PRO / ANTIGRAVITY WORKSPACE HEALTH")
+    logger.debug("==================================================")
+
+    # Check DB shim — it lives in web/app_v2.py, not config.py
+    app_v2_path = os.path.join(workspace_path, "web", "app_v2.py")
+    if os.path.exists(app_v2_path):
+        with open(app_v2_path, "r", encoding="utf-8") as f:
             content = f.read()
             if "pg_sqlite_shim" in content:
-                print("[OK] SQLite database shim is configured in config.py")
+                logger.debug("[OK] SQLite database shim imported in web/app_v2.py")
             else:
-                print("[WARN] pg_sqlite_shim reference not found in config.py")
+                logger.debug("[WARN] pg_sqlite_shim not found in web/app_v2.py")
     else:
-        print("[ERROR] config.py is missing!")
+        logger.debug("[WARN] web/app_v2.py is missing!")
+
+    # Check .clinerules rules file
+    clinerules_path = os.path.join(workspace_path, ".clinerules")
+    if os.path.exists(clinerules_path):
+        size_kb = os.path.getsize(clinerules_path) // 1024
+        logger.debug(f"[OK] .clinerules loaded ({size_kb} KB)")
+    else:
+        logger.debug("[WARN] .clinerules not found — run 'loop' to bootstrap rules")
 
     # Check env credentials template
     env_file = os.path.join(workspace_path, ".env")
     if os.path.exists(env_file):
-        print("[OK] .env configuration file exists locally")
+        logger.debug("[OK] .env configuration file exists locally")
     else:
-        print("[WARN] .env configuration file is missing (using defaults or environment variables)")
+        logger.debug("[WARN] .env configuration file is missing (using defaults or environment variables)")
+
+    # Check tests directory
+    tests_dir = os.path.join(workspace_path, "tests")
+    if os.path.exists(tests_dir):
+        test_count = len([f for f in os.listdir(tests_dir) if f.startswith("test_") and f.endswith(".py")])
+        logger.debug(f"[OK] tests/ directory found — {test_count} test modules")
+    else:
+        logger.debug("[WARN] tests/ directory missing — no automated tests")
 
     # Run DB connection check
     check_db_script = os.path.join(workspace_path, "check_tables.py")
     if os.path.exists(check_db_script):
         res = subprocess.run([sys.executable, check_db_script], cwd=workspace_path, capture_output=True, text=True)
         if res.returncode == 0:
-            print("[OK] Database connection and schema validated successfully")
+            logger.debug("[OK] Database connection and schema validated successfully")
         else:
-            print(f"[WARN] DB Schema validation script exited with code {res.returncode}")
+            logger.debug(f"[WARN] DB Schema validation script exited with code {res.returncode}")
+
     
-    print("==================================================")
+    logger.debug("==================================================")
 
 
 def main():
@@ -340,7 +361,7 @@ def main():
     brain_dir = args.brain
 
     if not os.path.exists(workspace_path):
-        print(f"[-] Workspace path does not exist: {workspace_path}")
+        logger.debug(f"[-] Workspace path does not exist: {workspace_path}")
         sys.exit(1)
 
     # Resolve active conversation
@@ -368,11 +389,11 @@ def main():
         sys.exit(0)
 
     elif args.command == "loop":
-        print("[*] Starting Antigravity continuous feedback loop...")
+        logger.debug("[*] Starting Antigravity continuous feedback loop...")
         run_workspace_cleanup(workspace_path)
         run_workspace_tests(workspace_path)
         generate_state_report(workspace_path, conv_dir)
-        print("[+] Loop step complete. Workspace is ready for further edits.")
+        logger.debug("[+] Loop step complete. Workspace is ready for further edits.")
         sys.exit(0)
 
 

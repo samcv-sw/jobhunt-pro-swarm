@@ -73,7 +73,7 @@ def inject_gettext(content: str) -> str:
     return content
 
 def main():
-    print(f"Starting DOM Surgery on {TEMPLATES_DIR}")
+    logger.debug(f"Starting DOM Surgery on {TEMPLATES_DIR}")
     count = 0
     
     for root, dirs, files in os.walk(TEMPLATES_DIR):
@@ -103,7 +103,7 @@ def main():
                 
                 count += 1
                 
-    print(f"DOM Surgery complete. Modified {count} files.")
+    logger.debug(f"DOM Surgery complete. Modified {count} files.")
 
 if __name__ == "__main__":
     main()

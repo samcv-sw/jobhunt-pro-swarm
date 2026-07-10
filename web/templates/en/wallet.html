@@ -141,7 +141,7 @@
   </div>
   <div style="display:flex;gap:8px;align-items:center;">
     <button class="btn-wallet" onclick="navigator.clipboard.writeText('{{ user.api_key }}');this.innerHTML='✅ Copied!';setTimeout(()=>this.innerHTML='📋 Copy',2000)">📋 Copy</button>
-    <form method="POST" action="/wallet/regenerate-key" style="margin:0;">
+    <form dir="auto" method="POST" action="/wallet/regenerate-key" style="margin:0;">
       <button type="submit" class="btn-wallet" style="color:#f59e0b;border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.08);">🔄 Regenerate</button>
     </form>
   </div>
@@ -235,7 +235,7 @@ function toggleApiKey() {
 <div class="redeem-card">
   <h3>🎁 Redeem Code</h3>
   <p>Got a gift card or promo code? Enter it below to instantly add credit to your wallet.</p>
-  <form class="redeem-form" method="POST" action="/redeem">
+  <form dir="auto" class="redeem-form" method="POST" action="/redeem">
     <input dir="auto" class="redeem-input" type="text" name="code" placeholder="XXXX-XXXX-XXXX" required autocomplete="off" />
     <button class="btn-redeem" type="submit">✨ Redeem</button>
   </form>

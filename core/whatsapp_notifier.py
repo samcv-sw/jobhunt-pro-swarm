@@ -3,12 +3,14 @@ WhatsApp Notifier for JobHunt Pro
 Supports: wa.me links, Telegram notifications, campaign tracking
 """
 
-import logging
-import urllib.parse
-import requests as _requests
 import asyncio
 import html
-from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, CANDIDATE_PHONE
+import logging
+import urllib.parse
+
+import requests as _requests
+
+from config import CANDIDATE_PHONE, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 
 logger = logging.getLogger(__name__)
 
@@ -124,6 +126,6 @@ def notify_application(company: str, position: str, status: str = "sent") -> boo
 
 
 if __name__ == "__main__":
-    print(f"Contact URL: {get_whatsapp_contact_url()}")
-    print(f"Link: {generate_wa_me_link(message='Hi Sam!')}")
+    logger.debug(f"Contact URL: {get_whatsapp_contact_url()}")
+    logger.debug(f"Link: {generate_wa_me_link(message='Hi Sam!')}")
     notify_application_submitted("Test Corp", "Network Engineer")

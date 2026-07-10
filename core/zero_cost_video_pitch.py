@@ -5,8 +5,8 @@ to generate a professional MP4 video. It combines the free Edge-TTS audio
 pitch with a static professional headshot and a dynamic audio waveform equalizer.
 """
 
-import logging
 import asyncio
+import logging
 import os
 import time
 

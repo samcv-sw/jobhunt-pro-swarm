@@ -19,7 +19,7 @@ PAGES = [0, 1, 2]
 
 def run_task(platform, page):
     start = time.time()
-    print(f"[RUNNER] Starting {platform} page {page}...")
+    logger.debug(f"[RUNNER] Starting {platform} page {page}...")
     
     # Set CWD to the project root
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -42,25 +42,25 @@ def run_task(platform, page):
         )
         duration = time.time() - start
         if res.returncode == 0:
-            print(f"[RUNNER] ✓ {platform} page {page} completed in {duration:.1f}s")
+            logger.debug(f"[RUNNER] ✓ {platform} page {page} completed in {duration:.1f}s")
             return True, platform, page, ""
         else:
             err = res.stderr or res.stdout
-            print(f"[RUNNER] ✗ {platform} page {page} failed in {duration:.1f}s with code {res.returncode}. Error: {err[:500]}")
+            logger.debug(f"[RUNNER] ✗ {platform} page {page} failed in {duration:.1f}s with code {res.returncode}. Error: {err[:500]}")
             return False, platform, page, err
     except subprocess.TimeoutExpired:
         duration = time.time() - start
-        print(f"[RUNNER] ✗ {platform} page {page} timed out after {duration:.1f}s")
+        logger.debug(f"[RUNNER] ✗ {platform} page {page} timed out after {duration:.1f}s")
         return False, platform, page, "Timeout"
     except Exception as e:
         duration = time.time() - start
-        print(f"[RUNNER] ✗ {platform} page {page} failed: {e}")
+        logger.debug(f"[RUNNER] ✗ {platform} page {page} failed: {e}")
         return False, platform, page, str(e)
 
 def main():
-    print("=" * 60)
-    print("JOBHUNT PRO CONCURRENT SCRAPER RUNNER")
-    print("=" * 60)
+    logger.debug("=" * 60)
+    logger.debug("JOBHUNT PRO CONCURRENT SCRAPER RUNNER")
+    logger.debug("=" * 60)
     
     tasks = []
     for platform in PLATFORMS:
@@ -73,7 +73,7 @@ def main():
     # We run 8 tasks concurrently to avoid hitting rate limits or overwhelming the Cloudflare scraping worker,
     # but still completing the entire run extremely fast (usually < 2 minutes).
     max_workers = 8
-    print(f"Executing {len(tasks)} tasks concurrently (max_workers={max_workers})...")
+    logger.debug(f"Executing {len(tasks)} tasks concurrently (max_workers={max_workers})...")
     
     start_time = time.time()
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -87,13 +87,13 @@ def main():
                 failed_count += 1
                 
     total_duration = time.time() - start_time
-    print("=" * 60)
-    print(f"RUN COMPLETE in {total_duration:.1f}s")
-    print(f"Success: {success_count}/{len(tasks)}  |  Failed: {failed_count}/{len(tasks)}")
-    print("=" * 60)
+    logger.debug("=" * 60)
+    logger.debug(f"RUN COMPLETE in {total_duration:.1f}s")
+    logger.debug(f"Success: {success_count}/{len(tasks)}  |  Failed: {failed_count}/{len(tasks)}")
+    logger.debug("=" * 60)
     
     if failed_count > len(tasks) * 0.5:
-        print("More than 50% of tasks failed. Exiting with error status.")
+        logger.debug("More than 50% of tasks failed. Exiting with error status.")
         sys.exit(1)
         
     sys.exit(0)

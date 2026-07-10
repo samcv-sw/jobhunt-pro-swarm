@@ -13,14 +13,14 @@ Features:
   - FastAPI endpoint helpers
 """
 
-import re
-import os
+import itertools
 import json
 import logging
-import itertools
 import math
+import os
+import re
 from collections import defaultdict
-from typing import Dict, List, Tuple, Optional
+
 import config
 
 # Standardized taxonomy set of tech keywords
@@ -605,7 +605,6 @@ STOP_WORDS = {
     "every",
     "good",
     "well",
-    "very",
     "really",
     "quite",
     "much",
@@ -682,7 +681,6 @@ STOP_WORDS = {
     "preferred",
     "minimum",
     "plus",
-    "including",
     "etc",
     "e.g",
     "i.e",
@@ -705,15 +703,15 @@ class ATSMatcher:
     Usage:
         matcher = ATSMatcher()
         result = matcher.calculate_match(resume_text, jd_text)
-        print(result["match_percent"])
+        logger.debug(result["match_percent"])
     """
 
-    def __init__(self, keyword_boost: Optional[Dict[str, float]] = None):
+    def __init__(self, keyword_boost: dict[str, float] | None = None):
         self.keyword_boost = keyword_boost or KEYWORD_BOOST
 
     # ── Keyword Extraction ──────────────────────────────────────────────────
 
-    def extract_keywords(self, text: str) -> Dict[str, int]:
+    def extract_keywords(self, text: str) -> dict[str, int]:
         """Extract keywords with frequency from text. Supports unigrams + n-grams."""
         # Normalize
         text = NORMALIZE_RE.sub(" ", text.lower())
@@ -728,7 +726,7 @@ class ATSMatcher:
         )
 
         # Count frequencies
-        freq: Dict[str, int] = {}
+        freq: dict[str, int] = {}
 
         # Chain generators/lists to avoid list concatenation memory overhead
         for term in itertools.chain(unigrams, bigrams, trigrams):
@@ -748,41 +746,21 @@ class ATSMatcher:
 
     # ── Core Match Engine ───────────────────────────────────────────────────
 
-    def calculate_match(
+    def _calculate_idf_weights(
         self,
-        resume_text: str,
+        job_kw: dict[str, int],
         job_description: str,
-    ) -> Dict:
+    ) -> dict[str, float]:
         """
-        Calculate match between resume and job description.
+        Calculate dynamic IDF weights for all job description keywords.
 
-        Returns a detailed breakdown dict with:
-            - match_percent    : overall weighted score (0–100)
-            - total_jd_keywords: unique keywords in JD
-            - matched_keywords : count matched (exact + partial)
-            - missing_keywords : count missing
-            - top_missing      : list of top 20 missing keywords w/ importance
-            - top_matched      : list of top 20 matched keywords w/ score
-            - ats_tips         : actionable improvement suggestions
+        Args:
+            job_kw: Dict of job description keywords and their frequencies.
+            job_description: The job description text.
+
+        Returns:
+            A dictionary mapping keywords to their IDF weights.
         """
-        resume_kw = self.extract_keywords(resume_text)
-        job_kw = self.extract_keywords(job_description)
-
-        # Edge case: empty JD
-        if not job_kw:
-            return {
-                "match_percent": 0,
-                "missing_keywords": [],
-                "matched_keywords": [],
-                "total_jd_keywords": 0,
-                "top_missing": [],
-                "top_matched": [],
-                "ats_tips": [
-                    "⚠️ Job description appears empty. Paste the full JD for accurate scoring."
-                ],
-            }
-
-        # Calculate dynamic IDF weights for all job description keywords
         sentences = [s.strip().lower() for s in re.split(r'[.!?\n]', job_description) if s.strip()]
         N = len(sentences)
         idf_weights = {}
@@ -797,9 +775,27 @@ class ATSMatcher:
             else:
                 weight = 1.0
             idf_weights[kw] = round(weight, 3)
+        return idf_weights
 
-        matched: Dict[str, Dict] = {}
-        missing: Dict[str, Dict] = {}
+    def _match_keywords(
+        self,
+        resume_kw: dict[str, int],
+        job_kw: dict[str, int],
+        idf_weights: dict[str, float],
+    ) -> tuple[dict[str, dict], dict[str, dict]]:
+        """
+        Determine matched and missing keywords by checking exact, synonym, and fuzzy matches.
+
+        Args:
+            resume_kw: Dict of resume keywords and frequencies.
+            job_kw: Dict of job keywords and frequencies.
+            idf_weights: Dict of dynamic IDF weights for job keywords.
+
+        Returns:
+            A tuple of (matched_dict, missing_dict).
+        """
+        matched: dict[str, dict] = {}
+        missing: dict[str, dict] = {}
 
         # Optimize: initial letter hash map of resume keywords
         resume_by_letter = defaultdict(list)
@@ -833,21 +829,21 @@ class ATSMatcher:
                 best_ratio = 0.0
                 best_rk = None
                 len_kw = len(kw)
-                
+
                 # Retrieve candidates starting with the same character
                 first_char = kw[0] if kw else ""
                 candidates = resume_by_letter.get(first_char, [])
-                
+
                 # Fallback to check other keys with substring match or close length
                 additional = [
-                    rk for rk in resume_kw 
+                    rk for rk in resume_kw
                     if rk[0] != first_char and (abs(len(rk) - len_kw) <= 2 or kw in rk or rk in kw)
                 ]
                 candidates = candidates + additional
 
                 for rk in candidates:
                     len_rk = len(rk)
-                    
+
                     # Length check prune
                     if abs(len_kw - len_rk) > 4:
                         continue
@@ -879,6 +875,49 @@ class ATSMatcher:
                         "jd_frequency": freq,
                         "weight": weight,
                     }
+        return matched, missing
+
+    def calculate_match(
+        self,
+        resume_text: str,
+        job_description: str,
+    ) -> dict:
+        """
+        Calculate match between resume and job description.
+
+        Args:
+            resume_text: The plain text content of the resume.
+            job_description: The plain text content of the job description.
+
+        Returns:
+            A detailed breakdown dict with:
+                - match_percent    : overall weighted score (0–100)
+                - total_jd_keywords: unique keywords in JD
+                - matched_keywords : count matched (exact + partial)
+                - missing_keywords : count missing
+                - top_missing      : list of top 20 missing keywords w/ importance
+                - top_matched      : list of top 20 matched keywords w/ score
+                - ats_tips         : actionable improvement suggestions
+        """
+        resume_kw = self.extract_keywords(resume_text)
+        job_kw = self.extract_keywords(job_description)
+
+        # Edge case: empty JD
+        if not job_kw:
+            return {
+                "match_percent": 0,
+                "missing_keywords": [],
+                "matched_keywords": [],
+                "total_jd_keywords": 0,
+                "top_missing": [],
+                "top_matched": [],
+                "ats_tips": [
+                    "⚠️ Job description appears empty. Paste the full JD for accurate scoring."
+                ],
+            }
+
+        idf_weights = self._calculate_idf_weights(job_kw, job_description)
+        matched, missing = self._match_keywords(resume_kw, job_kw, idf_weights)
 
         # Calculate mathematically sound weighted score
         total_earned_weight = 0.0
@@ -950,10 +989,10 @@ class ATSMatcher:
     def _generate_tips(
         self,
         match_percent: float,
-        top_missing: List[Tuple[str, Dict]],
+        top_missing: list[tuple[str, dict]],
         total_jd: int,
         total_matched: int,
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate actionable ATS optimization tips."""
         tips = []
 
@@ -1035,7 +1074,7 @@ class ATSMatcher:
 
     # ── Utility ─────────────────────────────────────────────────────────────
 
-    def section_relevance(self, resume_sections: Dict[str, str]) -> Dict[str, float]:
+    def section_relevance(self, resume_sections: dict[str, str]) -> dict[str, float]:
         """Score relevance of each resume section against common ATS sections."""
         scores = {}
         for section in ATS_SECTIONS:
@@ -1067,6 +1106,15 @@ def _get_llm_pool():
     return _llm_pool
 
 
+_thread_pool = None
+
+def _get_thread_pool():
+    global _thread_pool
+    if _thread_pool is None:
+        import concurrent.futures
+        _thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=4)
+    return _thread_pool
+
 def _run_async(coro):
     """Run an async coroutine from a synchronous context safely."""
     import asyncio
@@ -1077,11 +1125,9 @@ def _run_async(coro):
         loop = None
 
     if loop and loop.is_running():
-        import concurrent.futures
-
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(asyncio.run, coro)
-            return future.result()
+        executor = _get_thread_pool()
+        future = executor.submit(asyncio.run, coro)
+        return future.result()
     else:
         return asyncio.run(coro)
 
@@ -1091,7 +1137,7 @@ def analyze_with_groq(
     jd_text: str,
     groq_key: str = DEFAULT_GROQ_KEY,
     model: str = "mixtral-8x7b-32768",
-) -> Dict:
+) -> dict:
     """
     Use LLM Provider Pool for deep ATS analysis. Enhances keyword matching with
     semantic understanding, format critique, and nuanced scoring.
@@ -1105,7 +1151,7 @@ async def analyze_with_groq_async(
     jd_text: str,
     groq_key: str = DEFAULT_GROQ_KEY,
     model: str = "mixtral-8x7b-32768",
-) -> Dict:
+) -> dict:
     """Async version of analyze_with_groq using LLMProviderPool with legacy Groq fallback."""
     prompt = f"""You are an ATS (Applicant Tracking System) expert. Analyze this resume vs job description.
 
@@ -1186,7 +1232,7 @@ def full_ats_analysis(
     job_description: str,
     use_groq: bool = True,
     groq_key: str = DEFAULT_GROQ_KEY,
-) -> Dict:
+) -> dict:
     """
     Run both algorithmic (ATSMatcher) and Groq AI analysis, then merge results.
 
@@ -1238,7 +1284,7 @@ def full_ats_analysis(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def format_ats_for_telegram(result: Dict) -> str:
+def format_ats_for_telegram(result: dict) -> str:
     """
     Format ATS match results into a Telegram-friendly message.
     """
@@ -1305,7 +1351,7 @@ def api_ats_score(
     job_description: str,
     use_groq: bool = True,
     groq_key: str = DEFAULT_GROQ_KEY,
-) -> Dict:
+) -> dict:
     """
     API-friendly wrapper for full_ats_analysis.
     Designed to be called directly from FastAPI or Flask endpoints.
@@ -1327,7 +1373,7 @@ def api_ats_score(
 
 def parse_resume_from_file(filepath: str) -> str:
     """Read resume text from a file."""
-    with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+    with open(filepath, encoding="utf-8", errors="replace") as f:
         return f.read()
 
 
@@ -1353,13 +1399,13 @@ if __name__ == "__main__":
 
     matcher = ATSMatcher()
     result = matcher.calculate_match(sample_resume, sample_jd)
-    print(f"Match Score: {result['match_percent']}%")
-    print(f"Missing: {result['missing_keywords_count']} keywords")
+    logger.debug(f"Match Score: {result['match_percent']}%")
+    logger.debug(f"Missing: {result['missing_keywords_count']} keywords")
     for kw_info in result["top_missing"][:5]:
-        print(f"  ✗ {kw_info['keyword']} (imp: {kw_info['importance']})")
+        logger.debug(f"  ✗ {kw_info['keyword']} (imp: {kw_info['importance']})")
 
-    print("\n── Telegram Preview ──")
-    print(
+    logger.debug("\n── Telegram Preview ──")
+    logger.debug(
         format_ats_for_telegram(
             {
                 "algorithmic": result,

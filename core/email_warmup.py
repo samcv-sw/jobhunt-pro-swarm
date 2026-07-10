@@ -4,11 +4,10 @@ Gradually increase sending volume to avoid spam filters
 Day 1: 10, Day 2: 20, Day 3: 30, Day 4: 50, Day 5+: 200
 """
 
-import logging
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +22,10 @@ class EmailWarmup:
     def __init__(self):
         self.data = self._load()
 
-    def _load(self) -> Dict:
+    def _load(self) -> dict:
         try:
             if WARMUP_FILE.exists():
-                with open(WARMUP_FILE, "r") as f:
+                with open(WARMUP_FILE) as f:
                     return json.load(f)
         except Exception as e:
             logger.warning(f"Warmup load failed: {e}")
@@ -88,7 +87,7 @@ class EmailWarmup:
         p["total_sent"] = p.get("total_sent", 0) + count
         self._save()
 
-    def get_status(self, provider: str) -> Dict:
+    def get_status(self, provider: str) -> dict:
         """Get warmup status for a provider."""
         day = self._get_day_number(provider)
         limit = self.get_daily_limit(provider)

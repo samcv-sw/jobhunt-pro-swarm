@@ -1,4 +1,4 @@
-﻿{% extends "_base_tailwind.html" %}
+{% extends "_base_tailwind.html" %}
 {% block main_class %}{% endblock %}
 
 {% block content %}
@@ -24,11 +24,11 @@
         </div>
         <div style="min-width:0;flex:1;">
           <p style="font-size:14px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ user.name or 'المستخدم' }}</p>
-          <p style="font-size:11px;color:#f0c040;font-family:monospace;margin-block-start:2px;">${{ "%.2f"|format(user.wallet_balance|default(0)) }} رصيد</p>
+          <p style="font-size:11px;color:#f0c040;font-family:monospace;margin-block-start:2px;">${{ "%.2f"|format(user.wallet_balance|default(0)) }} <span style="font-family: 'Cairo', 'Tajawal', sans-serif;">رصيد</span></p>
         </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:10px;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:0.08em;">غرفة القيادة</span>
+        <span style="font-size:10px;font-weight:700;color:#4b5563;text-transform:uppercase;">غرفة القيادة</span>
         <div style="display:flex;align-items:center;gap:5px;">
           <div style="width:6px;height:6px;border-radius:50%;background:#00d4aa;animation:sbpulse 2s ease-in-out infinite;"></div>
           <span style="font-size:9px;color:#00d4aa;font-family:monospace;font-weight:700;">LIVE</span>
@@ -45,8 +45,8 @@
       <a href="/resume-tailor" class="sb-link {{ 'sb-active' if active_page == 'resume-tailor' else '' }}" style="{{ '' if active_page == 'resume-tailor' else 'color:#a78bfa;' }}"><i data-lucide="wand-2" class="sb-icon"></i><span>تخصيص السيرة الذاتية</span></a>
 
       <div class="sb-section-label">الحملات</div>
-      <a href="/new-campaign" class="sb-link {{ 'sb-active' if active_page == 'new-campaign' else '' }}"><i data-lucide="rocket" class="sb-icon"></i><span>حملة جديدة</span></a>
-      <a href="/sent-emails" class="sb-link {{ 'sb-active' if active_page == 'sent-emails' else '' }}"><i data-lucide="send" class="sb-icon"></i><span>الرسائل المرسلة</span></a>
+      <a href="/new-campaign" class="sb-link {{ 'sb-active' if active_page == 'new-campaign' else '' }}"><i data-lucide="rocket" class="sb-icon lucide-dir-aware"></i><span>حملة جديدة</span></a>
+      <a href="/sent-emails" class="sb-link {{ 'sb-active' if active_page == 'sent-emails' else '' }}"><i data-lucide="send" class="sb-icon lucide-dir-aware"></i><span>الرسائل المرسلة</span></a>
       <a href="/funnel-analytics" class="sb-link {{ 'sb-active' if active_page == 'funnel-analytics' else '' }}"><i data-lucide="bar-chart-2" class="sb-icon"></i><span>تحليلات التوظيف</span></a>
 
       <div class="sb-section-label">الأدوات</div>
@@ -66,7 +66,7 @@
       <a href="/wallet" class="sb-wallet-bar">
         <i data-lucide="coins" style="width:15px;height:15px;color:#f0c040;flex-shrink:0;"></i>
         <span style="font-size:12px;font-family:monospace;color:#f0c040;font-weight:700;">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</span>
-        <span style="font-size:11px;color:#4b5563;margin-inline-start:auto;">إضافة رصيد →</span>
+        <span style="font-size:11px;color:#4b5563;margin-inline-start:auto;display:flex;align-items:center;gap:4px;">إضافة رصيد <i data-lucide="arrow-right" class="lucide-dir-aware inline-block w-4 h-4 align-middle"></i></span>
       </a>
       <a href="/logout" class="sb-logout">
         <i data-lucide="log-out" class="lucide-dir-aware" style="width:15px;height:15px;transform:scaleX(var(--text-x-direction,-1));"></i>
@@ -87,7 +87,7 @@
           </button>
           <div>
             <h1 style="font-size:20px;font-weight:800;color:#fff;line-height:1.2;margin:0;">{{ title }}</h1>
-            <p style="font-size:11px;color:#00d4aa;font-family:monospace;margin:0;">حالة النظام: <span style="font-weight:700;">ممتاز ●</span></p>
+            <p style="font-size:11px;color:#00d4aa;font-family:monospace;margin:0;"><span style="font-family: 'Cairo', 'Tajawal', sans-serif;">حالة النظام: <span style="font-weight:700;">ممتاز ●</span></span></p>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
@@ -117,14 +117,14 @@
 </div>
 
 <style>
-:root { --text-x-direction: -1; }
-[dir="ltr"] { --text-x-direction: 1; }
+:root { --text-x-direction: 1; --sidebar-hover-x: -3px; --cyan: #00f0ff; }
+[dir="rtl"] { --text-x-direction: -1; --sidebar-hover-x: 3px; }
 
 @keyframes sbpulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
 
 .sb-section-label {
   font-size:9px; font-weight:700; color:#374151;
-  text-transform:uppercase; letter-spacing:0.1em;
+  text-transform:uppercase;
   padding:14px 8px 4px;
 }
 .sb-link {
@@ -136,13 +136,14 @@
 }
 .sb-link:hover {
   color:#e2e8f0;
-  background:rgba(255,255,255,0.06);
-  border-inline-start-color:rgba(240,192,64,0.3);
+  background: rgba(0,240,255,0.05);
+  border-inline-start-color: rgba(0,240,255,0.4);
+  transform: translateX(var(--sidebar-hover-x, -3px));
 }
 .sb-active {
-  color:#f0c040 !important;
-  background:rgba(240,192,64,0.1) !important;
-  border-inline-start-color:#f0c040 !important;
+  color:#00f0ff !important;
+  background: rgba(0,240,255,0.08) !important;
+  border-inline-start: 3px solid #00f0ff !important;
   font-weight:700;
 }
 .sb-danger { color:rgba(248,113,113,0.75); }

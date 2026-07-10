@@ -9,6 +9,7 @@ import logging
 import os
 import random
 import time
+from typing import Any
 
 try:
     from curl_cffi.requests import AsyncSession as httpx_AsyncClient
@@ -16,10 +17,11 @@ except ImportError:
     import httpx
 
     httpx_AsyncClient = httpx.AsyncClient
-import httpx
-from urllib.parse import quote_plus
-from bs4 import BeautifulSoup
 from datetime import datetime
+from urllib.parse import quote_plus
+
+import httpx
+from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
@@ -156,7 +158,7 @@ class LebanonCompanyScraper:
     def _load_cache(self):
         try:
             if os.path.exists(_CACHE_FILE):
-                with open(_CACHE_FILE, "r") as f:
+                with open(_CACHE_FILE) as f:
                     data = json.load(f)
                 if time.time() - data.get("ts", 0) < _CACHE_TTL:
                     return data.get("companies", [])
@@ -327,9 +329,13 @@ class LebanonCompanyScraper:
             logger.warning(f"LinkedIn passive error: {e}")
         return companies
 
-    def get_prebuilt_lebanese_companies(self, role_type: str = "tech") -> list:
-        """Pre-built list of major Lebanese companies by sector."""
-        tech_companies = [
+    def _get_prebuilt_tech_companies(self) -> list[dict[str, Any]]:
+        """Return the pre-compiled list of major Lebanese tech companies.
+
+        Returns:
+            List of dictionaries representing tech companies and their metadata.
+        """
+        return [
             {
                 "company": "Murex",
                 "industry": "Financial Software",
@@ -446,7 +452,13 @@ class LebanonCompanyScraper:
             },
         ]
 
-        hr_companies = [
+    def _get_prebuilt_hr_companies(self) -> list[dict[str, Any]]:
+        """Return the pre-compiled list of major Lebanese non-tech/HR-focused companies.
+
+        Returns:
+            List of dictionaries representing HR/non-tech companies and their metadata.
+        """
+        return [
             {
                 "company": "Murex",
                 "industry": "Financial Software",
@@ -731,7 +743,16 @@ class LebanonCompanyScraper:
             },
         ]
 
-        return tech_companies if role_type == "tech" else hr_companies
+    def get_prebuilt_lebanese_companies(self, role_type: str = "tech") -> list[dict[str, Any]]:
+        """Pre-built list of major Lebanese companies by sector.
+
+        Args:
+            role_type: The sector category, either 'tech' or something else (for HR/other).
+
+        Returns:
+            List of dictionaries containing company details.
+        """
+        return self._get_prebuilt_tech_companies() if role_type == "tech" else self._get_prebuilt_hr_companies()
 
     def _is_excluded_location(self, location: str) -> bool:
         loc_lower = location.lower()

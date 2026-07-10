@@ -7,13 +7,12 @@ Sources: LinkedIn, Indeed, Google Jobs, Glassdoor, Bayt.com, NaukriGulf, Wuzzuf,
          hh.ru FREE REST API, Indeed RSS, StepStone, Naukri India
 """
 
+import hashlib
 import logging
 import os
-import re
 import random
-import hashlib
+import re
 import time
-from typing import List, Dict, Optional
 from urllib.parse import quote_plus, urlparse
 
 try:
@@ -31,13 +30,16 @@ try:
 except ImportError:
     HAS_CFFI = False
 import urllib.request
+
 from bs4 import BeautifulSoup
 
 # hh.ru scraper integration (free REST API, Russia/CIS market)
 try:
     from core.hhru_scraper import (
-        search_hhru_sync as _hhru_search_sync,
         resolve_area_ids as _hhru_resolve_areas,
+    )
+    from core.hhru_scraper import (
+        search_hhru_sync as _hhru_search_sync,
     )
 except ImportError:
     _hhru_search_sync = None
@@ -613,7 +615,7 @@ BLOCKED_EMAILS = [
 ]
 
 
-def extract_emails(text: str) -> List[str]:
+def extract_emails(text: str) -> list[str]:
     """Extract real emails from text, filtering out junk."""
     if not text:
         return []
@@ -634,7 +636,7 @@ def make_job_id(title: str, company: str, url: str = "") -> str:
     return hashlib.md5(raw.encode()).hexdigest()[:12]
 
 
-def get_headers(extra: Dict = None) -> Dict[str, str]:
+def get_headers(extra: dict = None) -> dict[str, str]:
     """Get random headers for requests."""
     h = {
         "User-Agent": random.choice(USER_AGENTS),
@@ -654,7 +656,7 @@ def get_headers(extra: Dict = None) -> Dict[str, str]:
     return h
 
 
-def location_passes_filter(location_text: str, exclude_patterns: List[str]) -> bool:
+def location_passes_filter(location_text: str, exclude_patterns: list[str]) -> bool:
     """Check if location passes exclusion filters."""
     if not location_text or not exclude_patterns:
         return True
@@ -665,7 +667,7 @@ def location_passes_filter(location_text: str, exclude_patterns: List[str]) -> b
     return True
 
 
-def extract_salary_from_text(text: str) -> Optional[float]:
+def extract_salary_from_text(text: str) -> float | None:
     """Extract numeric salary from job description text."""
     if not text:
         return None
@@ -698,7 +700,7 @@ def extract_salary_from_text(text: str) -> Optional[float]:
     return None
 
 
-def _rate_limit_domain(last_times: Dict[str, float], domain: str, delay: float = 3.0):
+def _rate_limit_domain(last_times: dict[str, float], domain: str, delay: float = 3.0):
     """Rate limit requests per domain."""
     now = time.time()
     last = last_times.get(domain, 0)
@@ -735,7 +737,7 @@ class GlobalJobScraper:
 
     def __init__(self, rate_limit_delay: float = 3.0):
         self.rate_limit_delay = rate_limit_delay
-        self._last_req: Dict[str, float] = {}
+        self._last_req: dict[str, float] = {}
         self._session = httpx.Client(timeout=20, follow_redirects=True)
         if HAS_CFFI:
             self._cffi_session = cffi_requests.Session(
@@ -764,7 +766,7 @@ class GlobalJobScraper:
 
     def search_all_countries(
         self, limit_per_country: int = 10, max_total: int = 100
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Search ALL configured countries for network engineer jobs.
         Returns deduplicated list of job dicts.
@@ -810,7 +812,7 @@ class GlobalJobScraper:
         query: str = "network engineer",
         limit: int = 10,
         max_search_secs: int = 60,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         ⚡ FAST search: LinkedIn-only, single city, no slow scrapers, no Google dorking.
         Designed for PythonAnywhere free-tier where every second counts.
@@ -847,7 +849,7 @@ class GlobalJobScraper:
         limit: int = 10,
         enable_fast: bool = False,
         max_search_secs: int = 60,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Search a single country using ALL available sources.
 
@@ -940,8 +942,8 @@ class GlobalJobScraper:
     # ── Source: LinkedIn ────────────────────────────────────────────────────
 
     def _scrape_linkedin(
-        self, query: str, config: Dict, country_key: str
-    ) -> List[Dict]:
+        self, query: str, config: dict, country_key: str
+    ) -> list[dict]:
         """
         Scrape LinkedIn Jobs with country-specific URL.
 
@@ -1037,8 +1039,8 @@ class GlobalJobScraper:
         return unique
 
     def _scrape_linkedin_fast(
-        self, query: str, config: Dict, country_key: str
-    ) -> List[Dict]:
+        self, query: str, config: dict, country_key: str
+    ) -> list[dict]:
         """
         FAST LinkedIn scraper: 1 city only, no random delays, no Google dork fallback.
         Designed for PA free-tier where every second counts.
@@ -1105,8 +1107,8 @@ class GlobalJobScraper:
         return unique
 
     def _google_dork_linkedin(
-        self, query: str, city: str, config: Dict, country_key: str
-    ) -> List[Dict]:
+        self, query: str, city: str, config: dict, country_key: str
+    ) -> list[dict]:
         """
         Fallback: Use Google search to find LinkedIn job postings.
         LinkedIn blocks direct scraping? Google can still index their jobs.
@@ -1205,8 +1207,8 @@ class GlobalJobScraper:
         return jobs
 
     def _parse_linkedin_card(
-        self, card, config: Dict, country_key: str
-    ) -> Optional[Dict]:
+        self, card, config: dict, country_key: str
+    ) -> dict | None:
         """Parse a LinkedIn job card."""
         title_elem = (
             card.find("h3", class_="base-search-card__title")
@@ -1271,7 +1273,7 @@ class GlobalJobScraper:
 
     # ── Source: Indeed ──────────────────────────────────────────────────────
 
-    def _scrape_indeed(self, query: str, config: Dict, country_key: str) -> List[Dict]:
+    def _scrape_indeed(self, query: str, config: dict, country_key: str) -> list[dict]:
         """Scrape Indeed with country-specific domain."""
         jobs = []
         indeed_domain = config["domains"].get("indeed", "www.indeed.com")
@@ -1311,8 +1313,8 @@ class GlobalJobScraper:
         return jobs
 
     def _parse_indeed_card(
-        self, card, config: Dict, country_key: str, domain: str
-    ) -> Optional[Dict]:
+        self, card, config: dict, country_key: str, domain: str
+    ) -> dict | None:
         """Parse an Indeed job card."""
         # Title
         title_elem = (
@@ -1384,7 +1386,7 @@ class GlobalJobScraper:
 
     # ── Source: Bayt.com ────────────────────────────────────────────────────
 
-    def _scrape_bayt(self, query: str, config: Dict, country_key: str) -> List[Dict]:
+    def _scrape_bayt(self, query: str, config: dict, country_key: str) -> list[dict]:
         """Scrape Bayt.com for MENA jobs."""
         jobs = []
         encoded_q = quote_plus(query)
@@ -1424,7 +1426,7 @@ class GlobalJobScraper:
 
         return jobs
 
-    def _parse_bayt_card(self, card, config: Dict, country_key: str) -> Optional[Dict]:
+    def _parse_bayt_card(self, card, config: dict, country_key: str) -> dict | None:
         """Parse a Bayt.com job card."""
         # Title
         title_elem = (
@@ -1496,8 +1498,8 @@ class GlobalJobScraper:
     # ── Source: NaukriGulf ──────────────────────────────────────────────────
 
     def _scrape_naukrigulf(
-        self, query: str, config: Dict, country_key: str
-    ) -> List[Dict]:
+        self, query: str, config: dict, country_key: str
+    ) -> list[dict]:
         """Scrape NaukriGulf for Gulf region jobs."""
         jobs = []
 
@@ -1542,8 +1544,8 @@ class GlobalJobScraper:
         return jobs
 
     def _parse_naukrigulf_card(
-        self, card, config: Dict, country_key: str
-    ) -> Optional[Dict]:
+        self, card, config: dict, country_key: str
+    ) -> dict | None:
         """Parse a NaukriGulf job card."""
         # Title
         title_elem = (
@@ -1607,7 +1609,7 @@ class GlobalJobScraper:
 
     # ── Source: Wuzzuf ──────────────────────────────────────────────────────
 
-    def _scrape_wuzzuf(self, query: str, config: Dict, country_key: str) -> List[Dict]:
+    def _scrape_wuzzuf(self, query: str, config: dict, country_key: str) -> list[dict]:
         """Scrape Wuzzuf for MENA region jobs."""
         jobs = []
 
@@ -1648,8 +1650,8 @@ class GlobalJobScraper:
         return jobs
 
     def _parse_wuzzuf_card(
-        self, card, config: Dict, country_key: str
-    ) -> Optional[Dict]:
+        self, card, config: dict, country_key: str
+    ) -> dict | None:
         """Parse a Wuzzuf job card."""
         # Title
         title_elem = (
@@ -1708,8 +1710,8 @@ class GlobalJobScraper:
     # ── Source: Glassdoor ───────────────────────────────────────────────────
 
     def _scrape_glassdoor(
-        self, query: str, config: Dict, country_key: str
-    ) -> List[Dict]:
+        self, query: str, config: dict, country_key: str
+    ) -> list[dict]:
         """
         Attempt Glassdoor scraping. Glassdoor aggressively blocks scrapers (403),
         so this is best-effort with fallback to cached/alternative data.
@@ -1759,8 +1761,8 @@ class GlobalJobScraper:
         return jobs
 
     def _parse_glassdoor_card(
-        self, card, config: Dict, country_key: str
-    ) -> Optional[Dict]:
+        self, card, config: dict, country_key: str
+    ) -> dict | None:
         """Parse a Glassdoor job card."""
         title_elem = (
             card.find("a", class_="job-title")
@@ -1807,8 +1809,8 @@ class GlobalJobScraper:
     # ── Source: Google Jobs (via Google Search) ─────────────────────────────
 
     def _scrape_google_jobs(
-        self, query: str, config: Dict, country_key: str
-    ) -> List[Dict]:
+        self, query: str, config: dict, country_key: str
+    ) -> list[dict]:
         """
         Google Jobs via organic search. Google Jobs results appear in a special
         widget, but we can also find traditional job board results.
@@ -1881,8 +1883,8 @@ class GlobalJobScraper:
         return jobs
 
     def _fetch_job_page(
-        self, url: str, config: Dict, country_key: str
-    ) -> Optional[Dict]:
+        self, url: str, config: dict, country_key: str
+    ) -> dict | None:
         """Fetch a job page and extract info."""
         try:
             resp = self._make_get(url)
@@ -1932,7 +1934,7 @@ class GlobalJobScraper:
 
     # ── Source: hh.ru (Russia / CIS) ────────────────────────────────────────
 
-    def _scrape_hhru(self, query: str, config: Dict, country_key: str) -> List[Dict]:
+    def _scrape_hhru(self, query: str, config: dict, country_key: str) -> list[dict]:
         """
         Scrape hh.ru using their free REST API (no key required).
         Covers Russia, Kazakhstan, Belarus, and CIS countries.
@@ -2022,11 +2024,11 @@ class GlobalJobScraper:
     def _make_get(
         self,
         url: str,
-        extra_headers: Dict = None,
+        extra_headers: dict = None,
         timeout: int = 15,
         max_retries: int = 3,
         fast: bool = False,
-    ) -> Optional[httpx.Response]:
+    ) -> httpx.Response | None:
         """
         Make a GET request with random user-agent, smart delay, and exponential backoff.
 
@@ -2135,7 +2137,7 @@ class GlobalJobScraper:
 
     # ── Summary ─────────────────────────────────────────────────────────────
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Return scraper statistics."""
         return {
             **self.stats,
@@ -2233,27 +2235,27 @@ if __name__ == "__main__":
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
 
-    print("=" * 60)
-    print("GlobalJobScraper - Quick Test")
-    print("=" * 60)
+    logger.debug("=" * 60)
+    logger.debug("GlobalJobScraper - Quick Test")
+    logger.debug("=" * 60)
 
     scraper = GlobalJobScraper()
 
     # Test: search Lebanon for network engineer
-    print("\n--- Testing: Lebanon search ---")
+    logger.debug("\n--- Testing: Lebanon search ---")
     lebanon_jobs = scraper.search_country("lebanon", "network engineer", limit=5)
-    print(f"Found {len(lebanon_jobs)} jobs in Lebanon")
+    logger.debug(f"Found {len(lebanon_jobs)} jobs in Lebanon")
 
     # Test: search UAE
-    print("\n--- Testing: UAE search ---")
+    logger.debug("\n--- Testing: UAE search ---")
     uae_jobs = scraper.search_country("uae", "network engineer", limit=5)
-    print(f"Found {len(uae_jobs)} jobs in UAE")
+    logger.debug(f"Found {len(uae_jobs)} jobs in UAE")
 
     # Test: search all countries
-    print("\n--- Testing: All Countries search ---")
+    logger.debug("\n--- Testing: All Countries search ---")
     all_jobs = scraper.search_all_countries(limit_per_country=3, max_total=20)
-    print(f"Found {len(all_jobs)} total jobs across all countries")
+    logger.debug(f"Found {len(all_jobs)} total jobs across all countries")
 
     scraper.close()
 
-    print("\n✓ GlobalJobScraper test complete")
+    logger.debug("\n✓ GlobalJobScraper test complete")

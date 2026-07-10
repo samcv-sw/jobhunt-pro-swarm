@@ -44,7 +44,7 @@
 .price-card:hover { transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,0,0,.3); }
 .price-card.selected { border-color:var(--gold)!important; box-shadow:0 0 30px rgba(245,158,11,.2); }
 .price-card.popular { border-color:rgba(139,92,246,.4); }
-.price-card.popular::before { content:'🔥 الأكثر طلباً'; position:absolute; top:-12px; inset-inline-start: 50%; transform:translateX(-50%); background:linear-gradient(135deg,var(--purple),var(--pink)); color:#fff; font-size:.65em; font-weight:700; padding:4px 14px; border-radius:20px; white-space:nowrap; }
+.price-card.popular::before { content:'🔥 الأكثر طلباً'; position:absolute; top:-12px; inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto; transform: none; background:linear-gradient(135deg,var(--purple),var(--pink)); color:#fff; font-size:.65em; font-weight:700; padding:4px 14px; border-radius:20px; white-space:nowrap; }
 .price-card .tier-icon { font-size:2.2em; margin-bottom:6px; }
 .price-card .tier-name { font-size:1.15em; font-weight:700; margin-bottom:4px; }
 .price-card .tier-price { font-size:2.4em; font-weight:800; color:var(--gold2); margin:8px 0; }
@@ -341,7 +341,7 @@
 <div class="form-card" id="postForm">
 <h2>📝 انشر وظيفتك</h2>
 <p class="subtitle">عبي التفاصيل تحت. كل ما كانت أكمل، كل ما حصلت على متقدمين أكتر.</p>
-<form action="/api/employer/post-job" id="jobForm" method="POST" onsubmit="submitJob(event)">
+<form dir="auto" action="/api/employer/post-job" id="jobForm" method="POST" onsubmit="submitJob(event)">
 <div class="form-grid">
 <div class="form-group">
 <label>🏢 اسم الشركة *</label>

@@ -17,9 +17,9 @@ import json
 import logging
 import os
 import re
-from typing import Dict, List, Optional
-from datetime import datetime
 from collections import defaultdict
+from datetime import datetime
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,10 @@ logger = logging.getLogger(__name__)
 
 # Must be set via GROQ_API_KEY environment variable (no hardcoded fallback)
 DEFAULT_GROQ_KEY = os.getenv("GROQ_API_KEY", "")
-DEFAULT_MODEL = "mixtral-8x7b-32768"
+DEFAULT_MODEL = os.getenv("GROQ_CONVERSATION_MODEL", "mixtral-8x7b-32768")
+GROQ_API_URL = os.getenv(
+    "GROQ_API_URL", "https://api.groq.com/openai/v1/chat/completions"
+)
 
 # Positive sentiment keywords
 POSITIVE_WORDS = {
@@ -131,15 +134,28 @@ class AIConversationEngine:
     def __init__(self, groq_key: str = ""):
         self.groq_key = groq_key or os.getenv("GROQ_API_KEY", "") or DEFAULT_GROQ_KEY
         self.model = DEFAULT_MODEL
+        self._client = None
 
         # Per-recruiter conversation history
         # { recruiter_id: [ { role, content, timestamp, sentiment? }, ... ] }
-        self.conversation_history: Dict[str, List[Dict]] = defaultdict(list)
+        self.conversation_history: dict[str, list[dict]] = defaultdict(list)
 
         # Track conversation stage per recruiter
-        self.conversation_stages: Dict[str, str] = {}
-        self.conversation_started: Dict[str, datetime] = {}
-        self.last_message_at: Dict[str, datetime] = {}
+        self.conversation_stages: dict[str, str] = {}
+        self.conversation_started: dict[str, datetime] = {}
+        self.last_message_at: dict[str, datetime] = {}
+
+    def _get_client(self) -> httpx.Client:
+        import httpx
+        if self._client is None or self._client.is_closed:
+            self._client = httpx.Client(timeout=15.0)
+        return self._client
+
+    def close(self):
+        """Explicitly dispose the HTTP connection client pool."""
+        if self._client:
+            self._client.close()
+            self._client = None
 
     # ── Greeting Generation ─────────────────────────────────────────────────
 
@@ -149,9 +165,9 @@ class AIConversationEngine:
         company: str,
         position: str,
         candidate_name: str = "Sam Salameh",
-        candidate_skills: Optional[List[str]] = None,
+        candidate_skills: list[str] | None = None,
         job_url: str = "",
-        years_of_experience: Optional[int] = None,
+        years_of_experience: int | None = None,
     ) -> str:
         """
         Generate a personalized greeting message for a recruiter.
@@ -200,8 +216,8 @@ class AIConversationEngine:
         company: str,
         position: str,
         candidate_name: str,
-        candidate_skills: List[str],
-    ) -> Optional[str]:
+        candidate_skills: list[str],
+    ) -> str | None:
         """Use AI to generate a highly personalized greeting message."""
         skills_str = (
             ", ".join(candidate_skills[:5]) if candidate_skills else "networking"
@@ -216,10 +232,9 @@ class AIConversationEngine:
         )
 
         try:
-            import httpx
-
-            resp = httpx.post(
-                "https://api.groq.com/openai/v1/chat/completions",
+            client = self._get_client()
+            resp = client.post(
+                GROQ_API_URL,
                 headers={
                     "Authorization": f"Bearer {self.groq_key}",
                     "Content-Type": "application/json",
@@ -249,9 +264,9 @@ class AIConversationEngine:
     def suggest_reply(
         self,
         recruiter_message: str,
-        context: Optional[Dict] = None,
+        context: dict | None = None,
         recruiter_id: str = "",
-    ) -> Dict:
+    ) -> dict:
         """
         AI suggests a reply to a recruiter's message.
 
@@ -286,10 +301,9 @@ Return ONLY the reply text, no explanations or prefixes."""
         )
 
         try:
-            import httpx
-
-            resp = httpx.post(
-                "https://api.groq.com/openai/v1/chat/completions",
+            client = self._get_client()
+            resp = client.post(
+                GROQ_API_URL,
                 headers={
                     "Authorization": f"Bearer {self.groq_key}",
                     "Content-Type": "application/json",
@@ -337,7 +351,7 @@ Return ONLY the reply text, no explanations or prefixes."""
         self,
         recruiter_id: str,
         days_since_last: int = 3,
-    ) -> Optional[Dict]:
+    ) -> dict | None:
         """
         Suggest a follow-up message if enough time has passed since last contact.
         Returns None if follow-up isn't needed yet.
@@ -362,10 +376,9 @@ The message should be professional, not pushy, and express continued interest.
 Return ONLY the message text."""
 
         try:
-            import httpx
-
-            resp = httpx.post(
-                "https://api.groq.com/openai/v1/chat/completions",
+            client = self._get_client()
+            resp = client.post(
+                GROQ_API_URL,
                 headers={
                     "Authorization": f"Bearer {self.groq_key}",
                     "Content-Type": "application/json",
@@ -392,7 +405,7 @@ Return ONLY the message text."""
 
     # ── Sentiment Analysis ─────────────────────────────────────────────────
 
-    def analyze_sentiment(self, message: str) -> Dict:
+    def analyze_sentiment(self, message: str) -> dict:
         """
         Analyze recruiter message sentiment using keyword matching.
         Returns sentiment label, score, and suggested action.
@@ -446,7 +459,7 @@ Return ONLY the message text."""
             ),
         }
 
-    def _ai_analyze_sentiment(self, message: str) -> Optional[Dict]:
+    def _ai_analyze_sentiment(self, message: str) -> dict | None:
         """Use AI for deeper sentiment analysis."""
         prompt = (
             f"Analyze the sentiment of this recruiter message. "
@@ -457,10 +470,9 @@ Return ONLY the message text."""
         )
 
         try:
-            import httpx
-
-            resp = httpx.post(
-                "https://api.groq.com/openai/v1/chat/completions",
+            client = self._get_client()
+            resp = client.post(
+                GROQ_API_URL,
                 headers={
                     "Authorization": f"Bearer {self.groq_key}",
                     "Content-Type": "application/json",
@@ -490,7 +502,7 @@ Return ONLY the message text."""
         recruiter_id: str,
         role: str,  # "candidate" or "recruiter"
         content: str,
-        sentiment: Optional[Dict] = None,
+        sentiment: dict | None = None,
     ) -> None:
         """Record a message in the conversation history."""
         entry = {
@@ -509,7 +521,7 @@ Return ONLY the message text."""
             self.conversation_stages[recruiter_id] = "initial_contact"
             self.conversation_started[recruiter_id] = datetime.now()
 
-    def get_conversation_summary(self, recruiter_id: str) -> Dict:
+    def get_conversation_summary(self, recruiter_id: str) -> dict:
         """Get a summary of the conversation with a recruiter."""
         history = self.conversation_history.get(recruiter_id, [])
         if not history:
@@ -559,12 +571,12 @@ Return ONLY the message text."""
 
     def get_conversation_history(
         self, recruiter_id: str, limit: int = 20
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Get recent conversation history with a recruiter."""
         history = self.conversation_history.get(recruiter_id, [])
         return history[-limit:]
 
-    def batch_conversation_status(self) -> Dict:
+    def batch_conversation_status(self) -> dict:
         """Get status snapshot of all active conversations."""
         status = {}
         for rid in self.conversation_history:
@@ -573,7 +585,7 @@ Return ONLY the message text."""
 
     # ── Export / Serialization ─────────────────────────────────────────────
 
-    def export_conversations(self) -> Dict:
+    def export_conversations(self) -> dict:
         """Export all conversations for persistence."""
         return {
             "history": dict(self.conversation_history),
@@ -584,7 +596,7 @@ Return ONLY the message text."""
             },
         }
 
-    def import_conversations(self, data: Dict) -> None:
+    def import_conversations(self, data: dict) -> None:
         """Import previously exported conversations."""
         self.conversation_history = defaultdict(list, data.get("history", {}))
         self.conversation_stages = data.get("stages", {})
@@ -602,7 +614,7 @@ Return ONLY the message text."""
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Global engine instance (singleton pattern for Telegram bot)
-_conversation_engine: Optional[AIConversationEngine] = None
+_conversation_engine: AIConversationEngine | None = None
 
 
 def get_engine(groq_key: str = "") -> AIConversationEngine:
@@ -617,7 +629,7 @@ def format_conversation_for_telegram(
     recruiter_id: str,
     action: str = "status",
     message: str = "",
-    engine: Optional[AIConversationEngine] = None,
+    engine: AIConversationEngine | None = None,
 ) -> str:
     """
     Format conversation output for Telegram.
@@ -722,11 +734,11 @@ def format_conversation_for_telegram(
 
 
 def generate_batch_greetings(
-    recruiters: List[Dict],
+    recruiters: list[dict],
     candidate_name: str = "Sam Salameh",
-    candidate_skills: Optional[List[str]] = None,
-    engine: Optional[AIConversationEngine] = None,
-) -> List[Dict]:
+    candidate_skills: list[str] | None = None,
+    engine: AIConversationEngine | None = None,
+) -> list[dict]:
     """
     Generate greetings for multiple recruiters in batch.
 
@@ -781,9 +793,9 @@ def api_generate_greeting(
     company: str,
     position: str,
     candidate_name: str = "Sam Salameh",
-    candidate_skills: Optional[List[str]] = None,
+    candidate_skills: list[str] | None = None,
     groq_key: str = "",
-) -> Dict:
+) -> dict:
     """API-friendly wrapper for greeting generation."""
     eng = AIConversationEngine(groq_key=groq_key)
     greeting = eng.generate_greeting(
@@ -804,9 +816,9 @@ def api_generate_greeting(
 
 def api_suggest_reply(
     recruiter_message: str,
-    context: Optional[Dict] = None,
+    context: dict | None = None,
     groq_key: str = "",
-) -> Dict:
+) -> dict:
     """API-friendly wrapper for reply suggestion."""
     eng = AIConversationEngine(groq_key=groq_key)
     suggestion = eng.suggest_reply(
@@ -823,9 +835,9 @@ def api_suggest_reply(
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
-    print("═" * 50)
-    print("AI Conversation Engine — Quick Test")
-    print("═" * 50)
+    logger.debug("═" * 50)
+    logger.debug("AI Conversation Engine — Quick Test")
+    logger.debug("═" * 50)
 
     eng = AIConversationEngine()
 
@@ -836,7 +848,7 @@ if __name__ == "__main__":
         position="Senior Network Engineer",
         candidate_skills=["Cisco", "Fortinet", "AWS", "Python"],
     )
-    print(f"\n📨 Greeting:\n{greeting}\n")
+    logger.debug(f"\n📨 Greeting:\n{greeting}\n")
 
     # Track it
     eng.track_message("Sarah@Google", "candidate", greeting)
@@ -849,12 +861,12 @@ if __name__ == "__main__":
     ]:
         sentiment = eng.analyze_sentiment(msg)
         reply = eng.suggest_reply(msg)
-        print(f"\n📩 Recruiter: {msg}")
-        print(f"📊 Sentiment: {sentiment['sentiment']} (score: {sentiment['score']})")
-        print(f"💬 Suggested: {reply['reply'][:80]}...")
-        print(f"➡️ Action: {reply['suggested_action']}")
+        logger.debug(f"\n📩 Recruiter: {msg}")
+        logger.debug(f"📊 Sentiment: {sentiment['sentiment']} (score: {sentiment['score']})")
+        logger.debug(f"💬 Suggested: {reply['reply'][:80]}...")
+        logger.debug(f"➡️ Action: {reply['suggested_action']}")
 
     # Test conversation summary
     eng.track_message("Sarah@Google", "recruiter", "Let's schedule an interview")
     summary = eng.get_conversation_summary("Sarah@Google")
-    print(f"\n📋 Conversation Summary:\n{json.dumps(summary, indent=2)}")
+    logger.debug(f"\n📋 Conversation Summary:\n{json.dumps(summary, indent=2)}")

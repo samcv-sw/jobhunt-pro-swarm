@@ -19,20 +19,20 @@ import logging
 import os
 import random
 import re
-import core.pg_sqlite_shim as sqlite3
 import time
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from urllib.parse import quote_plus, urlencode
 
 import httpx
-from core.stealth import stealth
 from bs4 import BeautifulSoup
 
 import config
+import core.pg_sqlite_shim as sqlite3
+from core.stealth import stealth
 
 logger = logging.getLogger(__name__)
 
@@ -221,16 +221,17 @@ def _get_db_path() -> str:
     return str(project_root / raw)
 
 
-def _get_conn(db_path: Optional[str] = None) -> sqlite3.Connection:
+def _get_conn(db_path: str | None = None) -> sqlite3.Connection:
     path = db_path or _get_db_path()
     conn = sqlite3.connect(path, timeout=30)
     conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA journal_mode=DELETE")
     conn.execute("PRAGMA busy_timeout=5000")
+    conn.execute("PRAGMA synchronous=FULL")
     return conn
 
 
-def init_multi_platform_db(db_path: Optional[str] = None):
+def init_multi_platform_db(db_path: str | None = None):
     """Initialize the multi_platform_apps and rate_limit_log tables."""
     conn = _get_conn(db_path)
     try:
@@ -259,7 +260,7 @@ def log_multi_platform_application(
     status: str = "pending",
     message: str = "",
     job_id: str = "",
-    db_path: Optional[str] = None,
+    db_path: str | None = None,
 ):
     """Insert a record into multi_platform_apps."""
     conn = _get_conn(db_path)
@@ -289,12 +290,12 @@ def log_multi_platform_application(
 
 
 def get_platform_stats(
-    platform: str, since_hours: int = 24, db_path: Optional[str] = None
-) -> Dict[str, Any]:
+    platform: str, since_hours: int = 24, db_path: str | None = None
+) -> dict[str, Any]:
     """Get application stats for a platform within the last N hours."""
     conn = _get_conn(db_path)
     try:
-        cutoff = (datetime.now(timezone.utc) - timedelta(hours=since_hours)).isoformat()
+        cutoff = (datetime.now(UTC) - timedelta(hours=since_hours)).isoformat()
         row = conn.execute(
             """SELECT
                    COUNT(*) as total,
@@ -331,13 +332,13 @@ class PlatformBase(ABC):
 
     @property
     @abstractmethod
-    def supported_countries(self) -> List[str]:
+    def supported_countries(self) -> list[str]:
         """List of ISO country codes or region names this platform covers."""
 
     @abstractmethod
     async def search(
         self, query: str, location: str = "", max_results: int = 25
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Search for jobs on this platform.
         Returns list of dicts with keys:
@@ -346,14 +347,14 @@ class PlatformBase(ABC):
 
     @abstractmethod
     async def apply(
-        self, job: Dict[str, Any], cv_data: Dict[str, Any]
-    ) -> Tuple[bool, str]:
+        self, job: dict[str, Any], cv_data: dict[str, Any]
+    ) -> tuple[bool, str]:
         """
         Apply to a job on this platform.
         Returns (success: bool, message: str).
         """
 
-    def make_headers(self) -> Dict[str, str]:
+    def make_headers(self) -> dict[str, str]:
         return {
             "User-Agent": random.choice(USER_AGENTS),
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -375,7 +376,7 @@ class LinkedInScraper(PlatformBase):
         return "LinkedIn"
 
     @property
-    def supported_countries(self) -> List[str]:
+    def supported_countries(self) -> list[str]:
         return ["US", "AE", "SA", "QA", "KW", "BH", "OM", "LB", "JO", "EG"]
 
     def __init__(self):
@@ -403,7 +404,7 @@ class LinkedInScraper(PlatformBase):
 
     async def search(
         self, query: str, location: str = "", max_results: int = 25
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         if not self.api_key:
             logger.warning("[LinkedIn] No JSearch API key — returning empty results")
             return []
@@ -455,8 +456,8 @@ class LinkedInScraper(PlatformBase):
         return all_jobs[:max_results]
 
     async def apply(
-        self, job: Dict[str, Any], cv_data: Dict[str, Any]
-    ) -> Tuple[bool, str]:
+        self, job: dict[str, Any], cv_data: dict[str, Any]
+    ) -> tuple[bool, str]:
         """Try LinkedIn Easy Apply simulation.
         Attempts generic Easy Apply flow. Falls back to manual if blocked."""
         url = job.get("url", "")
@@ -510,7 +511,7 @@ class LinkedInScraper(PlatformBase):
                 f"Apply manually: {url}",
             )
 
-    def _normalize(self, item: dict) -> Dict[str, Any]:
+    def _normalize(self, item: dict) -> dict[str, Any]:
         return {
             "job_id": item.get("job_id", "")
             or hashlib.md5(
@@ -542,12 +543,12 @@ class IndeedScraper(PlatformBase):
         return "Indeed"
 
     @property
-    def supported_countries(self) -> List[str]:
+    def supported_countries(self) -> list[str]:
         return ["US", "AE", "SA", "QA", "KW", "BH", "OM", "LB"]
 
     async def search(
         self, query: str, location: str = "", max_results: int = 25
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         if not _rate_limiter.can_call("indeed"):
             logger.info("[Indeed] Rate limited — skipping")
             return []
@@ -585,7 +586,7 @@ class IndeedScraper(PlatformBase):
 
     async def _search_rss(
         self, query: str, location: str, max_results: int
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Indeed RSS feed search."""
         q = quote_plus(f"{query} {location}" if location else query)
         url = f"https://www.indeed.com/rss?q={q}"
@@ -636,7 +637,7 @@ class IndeedScraper(PlatformBase):
 
     async def _search_html(
         self, query: str, location: str, max_results: int
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Indeed HTML search as fallback."""
         params = {
             "q": query,
@@ -664,7 +665,7 @@ class IndeedScraper(PlatformBase):
                     jobs.append(job)
             return jobs
 
-    def _parse_card(self, card) -> Optional[Dict]:
+    def _parse_card(self, card) -> dict | None:
         try:
             title_el = card.select_one("h2.jobTitle a, a.jobtitle, a[data-jk]")
             if not title_el:
@@ -723,8 +724,8 @@ class IndeedScraper(PlatformBase):
         return m.group(0) if m else ""
 
     async def apply(
-        self, job: Dict[str, Any], cv_data: Dict[str, Any]
-    ) -> Tuple[bool, str]:
+        self, job: dict[str, Any], cv_data: dict[str, Any]
+    ) -> tuple[bool, str]:
         """Try Indeed Quick Apply simulation.
         POSTs to Indeed apply endpoint with form data."""
         url = job.get("url", "")
@@ -801,12 +802,12 @@ class BaytScraper(PlatformBase):
         return "Bayt"
 
     @property
-    def supported_countries(self) -> List[str]:
+    def supported_countries(self) -> list[str]:
         return ["AE", "SA", "QA", "KW", "BH", "OM", "EG", "LB", "JO"]
 
     async def search(
         self, query: str, location: str = "", max_results: int = 25
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         if not _rate_limiter.can_call("bayt"):
             logger.info("[Bayt] Rate limited — skipping")
             return []
@@ -818,7 +819,7 @@ class BaytScraper(PlatformBase):
 
     async def _search_page(
         self, query: str, location: str, max_results: int
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Search Bayt.com jobs page."""
         # Map common location names to Bayt location slugs
         loc_map = {
@@ -897,7 +898,7 @@ class BaytScraper(PlatformBase):
             logger.error(f"[Bayt] Search error: {e}")
             return []
 
-    def _parse_card(self, card) -> Optional[Dict]:
+    def _parse_card(self, card) -> dict | None:
         try:
             # Title & link
             title_el = card.select_one(
@@ -961,8 +962,8 @@ class BaytScraper(PlatformBase):
             return None
 
     async def apply(
-        self, job: Dict[str, Any], cv_data: Dict[str, Any]
-    ) -> Tuple[bool, str]:
+        self, job: dict[str, Any], cv_data: dict[str, Any]
+    ) -> tuple[bool, str]:
         """Try Bayt.com auto-apply simulation.
         Attempts to POST to Bayt apply endpoint with session cookies."""
         url = job.get("url", "")
@@ -1040,12 +1041,12 @@ class NaukriGulfScraper(PlatformBase):
         return "NaukriGulf"
 
     @property
-    def supported_countries(self) -> List[str]:
+    def supported_countries(self) -> list[str]:
         return ["AE", "SA", "QA", "KW", "BH", "OM"]
 
     async def search(
         self, query: str, location: str = "", max_results: int = 25
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         if not _rate_limiter.can_call("naukrigulf"):
             logger.info("[NaukriGulf] Rate limited — skipping")
             return []
@@ -1057,7 +1058,7 @@ class NaukriGulfScraper(PlatformBase):
 
     async def _search_page(
         self, query: str, location: str, max_results: int
-    ) -> List[Dict]:
+    ) -> list[dict]:
         q = quote_plus(query)
         loc_q = quote_plus(location) if location else ""
 
@@ -1106,7 +1107,7 @@ class NaukriGulfScraper(PlatformBase):
             logger.error(f"[NaukriGulf] Search error: {e}")
             return []
 
-    def _parse_card(self, card) -> Optional[Dict]:
+    def _parse_card(self, card) -> dict | None:
         try:
             # Title
             title_el = card.select_one(
@@ -1167,8 +1168,8 @@ class NaukriGulfScraper(PlatformBase):
             return None
 
     async def apply(
-        self, job: Dict[str, Any], cv_data: Dict[str, Any]
-    ) -> Tuple[bool, str]:
+        self, job: dict[str, Any], cv_data: dict[str, Any]
+    ) -> tuple[bool, str]:
         """Try NaukriGulf auto-apply simulation.
         Attempts to POST to NaukriGulf application endpoint."""
         url = job.get("url", "")
@@ -1239,12 +1240,12 @@ class GulftalentScraper(PlatformBase):
         return "Gulftalent"
 
     @property
-    def supported_countries(self) -> List[str]:
+    def supported_countries(self) -> list[str]:
         return ["AE", "SA", "QA", "KW", "BH", "OM"]
 
     async def search(
         self, query: str, location: str = "", max_results: int = 25
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         if not _rate_limiter.can_call("gulftalent"):
             logger.info("[Gulftalent] Rate limited — skipping")
             return []
@@ -1296,7 +1297,7 @@ class GulftalentScraper(PlatformBase):
             logger.error(f"[Gulftalent] Search error: {e}")
             return []
 
-    def _parse_card(self, card) -> Optional[Dict]:
+    def _parse_card(self, card) -> dict | None:
         try:
             title_el = card.select_one("h2 a, a[class*='title'], h3 a")
             if not title_el:
@@ -1334,8 +1335,8 @@ class GulftalentScraper(PlatformBase):
             return None
 
     async def apply(
-        self, job: Dict[str, Any], cv_data: Dict[str, Any]
-    ) -> Tuple[bool, str]:
+        self, job: dict[str, Any], cv_data: dict[str, Any]
+    ) -> tuple[bool, str]:
         """Try Gulftalent auto-apply simulation."""
         url = job.get("url", "")
         title = job.get("title", "")
@@ -1393,7 +1394,7 @@ class GulftalentScraper(PlatformBase):
 # Platform Registry
 # ─────────────────────────────────────────────
 
-PLATFORMS: Dict[str, PlatformBase] = {
+PLATFORMS: dict[str, PlatformBase] = {
     "linkedin": LinkedInScraper(),
     "indeed": IndeedScraper(),
     "bayt": BaytScraper(),
@@ -1402,12 +1403,12 @@ PLATFORMS: Dict[str, PlatformBase] = {
 }
 
 
-def get_platform(name: str) -> Optional[PlatformBase]:
+def get_platform(name: str) -> PlatformBase | None:
     """Get a platform instance by name (case-insensitive)."""
     return PLATFORMS.get(name.lower().strip())
 
 
-def list_available_platforms() -> List[Dict[str, Any]]:
+def list_available_platforms() -> list[dict[str, Any]]:
     """List all registered platforms with metadata."""
     return [
         {
@@ -1434,18 +1435,18 @@ class AutoApplyOrchestrator:
         self,
         user_id: str = "default",
         campaign_id: str = "",
-        cv_data: Optional[Dict[str, Any]] = None,
-        db_path: Optional[str] = None,
+        cv_data: dict[str, Any] | None = None,
+        db_path: str | None = None,
         daily_limit: int = 200,
     ):
         self.user_id = user_id
         self.campaign_id = (
-            campaign_id or f"mpa-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
+            campaign_id or f"mpa-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
         )
         self.cv_data = cv_data or self._default_cv_data()
         self.db_path = db_path or _get_db_path()
         self.daily_limit = daily_limit
-        self.stats: Dict[str, Dict[str, int]] = defaultdict(
+        self.stats: dict[str, dict[str, int]] = defaultdict(
             lambda: {
                 "found": 0,
                 "applied": 0,
@@ -1459,7 +1460,7 @@ class AutoApplyOrchestrator:
         init_multi_platform_db(self.db_path)
 
     @staticmethod
-    def _default_cv_data() -> Dict[str, Any]:
+    def _default_cv_data() -> dict[str, Any]:
         """Build CV data from config."""
         return {
             "name": getattr(config, "CANDIDATE_NAME", "Sam Salameh"),
@@ -1478,9 +1479,9 @@ class AutoApplyOrchestrator:
         self,
         query: str,
         location: str = "",
-        platforms: Optional[List[str]] = None,
+        platforms: list[str] | None = None,
         max_per_platform: int = 15,
-    ) -> Dict[str, List[Dict]]:
+    ) -> dict[str, list[dict]]:
         """
         Search across multiple platforms.
         Returns dict mapping platform_name → list of jobs.
@@ -1488,7 +1489,7 @@ class AutoApplyOrchestrator:
         if not platforms:
             platforms = list(PLATFORMS.keys())
 
-        results: Dict[str, List[Dict]] = {}
+        results: dict[str, list[dict]] = {}
 
         for name in platforms:
             platform = get_platform(name)
@@ -1512,7 +1513,7 @@ class AutoApplyOrchestrator:
 
         return results
 
-    async def apply_to_job(self, job: Dict[str, Any], platform_name: str) -> bool:
+    async def apply_to_job(self, job: dict[str, Any], platform_name: str) -> bool:
         """Apply to a single job on a specific platform. Returns True on success."""
         platform = get_platform(platform_name)
         if not platform:
@@ -1598,10 +1599,10 @@ class AutoApplyOrchestrator:
         self,
         query: str,
         location: str = "",
-        platforms: Optional[List[str]] = None,
+        platforms: list[str] | None = None,
         max_per_platform: int = 15,
         dry_run: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Full auto-apply cycle: Search → Apply → Report.
         Returns summary dict.
@@ -1658,7 +1659,7 @@ class AutoApplyOrchestrator:
 
         return summary
 
-    def get_summary(self, total_found: int = 0) -> Dict[str, Any]:
+    def get_summary(self, total_found: int = 0) -> dict[str, Any]:
         """Get current cycle summary."""
         total_applied = sum(s["applied"] for s in self.stats.values())
         total_success = sum(s["success"] for s in self.stats.values())
@@ -1693,7 +1694,7 @@ async def main():
 
     orch = AutoApplyOrchestrator(daily_limit=10)
 
-    print("\n🔍 Searching all platforms for 'Network Engineer' in UAE...\n")
+    logger.debug("\n🔍 Searching all platforms for 'Network Engineer' in UAE...\n")
     results = await orch.search_all(
         query="Network Engineer",
         location="UAE",
@@ -1701,20 +1702,20 @@ async def main():
     )
 
     for platform, jobs in results.items():
-        print(f"\n─── {platform.upper()} ({len(jobs)} jobs) ───")
+        logger.debug(f"\n─── {platform.upper()} ({len(jobs)} jobs) ───")
         for j in jobs[:3]:
-            print(f"  • {j.get('title', 'N/A')}")
-            print(f"    {j.get('company', 'N/A')} — {j.get('location', 'N/A')}")
-            print(f"    {j.get('url', 'N/A')}")
+            logger.debug(f"  • {j.get('title', 'N/A')}")
+            logger.debug(f"    {j.get('company', 'N/A')} — {j.get('location', 'N/A')}")
+            logger.debug(f"    {j.get('url', 'N/A')}")
         if len(jobs) > 3:
-            print(f"    ... and {len(jobs) - 3} more")
+            logger.debug(f"    ... and {len(jobs) - 3} more")
 
     # Quick stats
-    print("\n📊 Platform Stats:")
+    logger.debug("\n📊 Platform Stats:")
     for platform, jobs in results.items():
-        print(f"  {platform}: {len(jobs)} jobs found")
+        logger.debug(f"  {platform}: {len(jobs)} jobs found")
 
-    print("\n✅ Done. Run with dry_run=True for production cycle.")
+    logger.debug("\n✅ Done. Run with dry_run=True for production cycle.")
 
 
 if __name__ == "__main__":

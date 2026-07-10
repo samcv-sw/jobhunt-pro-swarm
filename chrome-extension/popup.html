@@ -2,30 +2,145 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { width: 360px; font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a1a; color: #e0e0e0; }
-    .header { background: linear-gradient(135deg, #00f0ff20, #7000ff20); padding: 16px; border-bottom: 1px solid #00f0ff33; }
-    .header h1 { font-size: 18px; color: #00f0ff; display: flex; align-items: center; gap: 8px; }
-    .header p { font-size: 11px; color: #888; margin-top: 4px; }
-    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; background: #ffffff05; }
-    .stat { text-align: center; padding: 8px; background: #ffffff08; border-radius: 6px; }
-    .stat-value { font-size: 20px; font-weight: 700; color: #00f0ff; }
-    .stat-label { font-size: 10px; color: #666; margin-top: 2px; }
-    .actions { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-    .btn { padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; width: 100%; }
-    .btn-primary { background: linear-gradient(135deg, #00f0ff, #0088ff); color: #000; }
-    .btn-secondary { background: #ffffff10; color: #00f0ff; border: 1px solid #00f0ff33; }
-    .btn-danger { background: #ff004433; color: #ff4488; border: 1px solid #ff004433; }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .status { padding: 8px 12px; font-size: 11px; color: #888; text-align: center; }
-    .status.connected { color: #00ff88; }
-    .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 0 12px 12px; }
-    .q-btn { padding: 6px 8px; background: #ffffff05; border: 1px solid #ffffff10; border-radius: 4px; color: #ccc; cursor: pointer; font-size: 11px; }
-    .q-btn:hover { background: #ffffff10; }
-    .footer { padding: 12px; text-align: center; border-top: 1px solid #ffffff10; }
-    .footer a { color: #00f0ff; font-size: 11px; text-decoration: none; }
-    .badge { display: inline-block; padding: 2px 6px; background: #00f0ff22; color: #00f0ff; border-radius: 3px; font-size: 9px; margin-left: 4px; }
+    body { 
+      inline-size: 360px; 
+      font-family: 'Cairo', 'Tajawal', 'Inter', 'Segoe UI', system-ui, sans-serif; 
+      background: #0a0a1a; 
+      color: #e0e0e0; 
+    }
+    .header { 
+      background: linear-gradient(135deg, #00f0ff20, #7000ff20); 
+      padding-block: 16px; 
+      padding-inline: 16px; 
+      border-block-end: 1px solid #00f0ff33; 
+    }
+    .header h1 { 
+      font-size: 18px; 
+      color: #00f0ff; 
+      display: flex; 
+      align-items: center; 
+      gap: 8px; 
+    }
+    .header p { 
+      font-size: 11px; 
+      color: #888; 
+      margin-block-start: 4px; 
+    }
+    .stats { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 8px; 
+      padding-block: 12px; 
+      padding-inline: 12px; 
+      background: #ffffff05; 
+    }
+    .stat { 
+      text-align: center; 
+      padding-block: 8px; 
+      padding-inline: 8px; 
+      background: #ffffff08; 
+      border-radius: 6px; 
+    }
+    .stat-value { 
+      font-size: 20px; 
+      font-weight: 700; 
+      color: #00f0ff; 
+    }
+    .stat-label { 
+      font-size: 10px; 
+      color: #666; 
+      margin-block-start: 2px; 
+    }
+    .actions { 
+      padding-block: 12px; 
+      padding-inline: 12px; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 8px; 
+    }
+    .btn { 
+      padding-block: 10px; 
+      padding-inline: 16px; 
+      border: none; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-size: 13px; 
+      font-weight: 600; 
+      inline-size: 100%; 
+    }
+    .btn-primary { 
+      background: linear-gradient(135deg, #00f0ff, #0088ff); 
+      color: #000; 
+    }
+    .btn-secondary { 
+      background: #ffffff10; 
+      color: #00f0ff; 
+      border: 1px solid #00f0ff33; 
+    }
+    .btn-danger { 
+      background: #ff004433; 
+      color: #ff4488; 
+      border: 1px solid #ff004433; 
+    }
+    .btn:disabled { 
+      opacity: 0.4; 
+      cursor: not-allowed; 
+    }
+    .status { 
+      padding-block: 8px; 
+      padding-inline: 12px; 
+      font-size: 11px; 
+      color: #888; 
+      text-align: center; 
+    }
+    .status.connected { 
+      color: #00ff88; 
+    }
+    .quick-actions { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 6px; 
+      padding-block-start: 0; 
+      padding-block-end: 12px; 
+      padding-inline: 12px; 
+    }
+    .q-btn { 
+      padding-block: 6px; 
+      padding-inline: 8px; 
+      background: #ffffff05; 
+      border: 1px solid #ffffff10; 
+      border-radius: 4px; 
+      color: #ccc; 
+      cursor: pointer; 
+      font-size: 11px; 
+    }
+    .q-btn:hover { 
+      background: #ffffff10; 
+    }
+    .footer { 
+      padding-block: 12px; 
+      padding-inline: 12px; 
+      text-align: center; 
+      border-block-start: 1px solid #ffffff10; 
+    }
+    .footer a { 
+      color: #00f0ff; 
+      font-size: 11px; 
+      text-decoration: none; 
+    }
+    .badge { 
+      display: inline-block; 
+      padding-block: 2px; 
+      padding-inline: 6px; 
+      background: #00f0ff22; 
+      color: #00f0ff; 
+      border-radius: 3px; 
+      font-size: 9px; 
+      margin-inline-start: 4px; 
+    }
   </style>
 </head>
 <body>
@@ -70,29 +185,29 @@
     <button class="q-btn" id="btnCheckATS">📊 ATS Score</button>
   </div>
 
-  <div id="settingsPanel" style="display: none; padding: 12px; background: #ffffff05; border-top: 1px solid #ffffff10;">
-    <h3 style="font-size: 12px; color: #00f0ff; margin-bottom: 8px;">⚙️ Settings</h3>
+  <div id="settingsPanel" style="display: none; padding-block: 12px; padding-inline: 12px; background: #ffffff05; border-block-start: 1px solid #ffffff10;">
+    <h3 style="font-size: 12px; color: #00f0ff; margin-block-end: 8px;">⚙️ Settings</h3>
     
-    <p style="font-size: 10px; color: #888; margin-bottom: 4px;">🚫 Blacklisted Companies (comma separated)</p>
-    <textarea id="blacklistInput" style="width: 100%; height: 40px; background: #000; color: #fff; border: 1px solid #ffffff33; border-radius: 4px; padding: 6px; font-size: 11px; margin-bottom: 6px; resize: none;"></textarea>
-    <button id="btnSaveSettings" class="btn btn-secondary" style="font-size: 11px; padding: 6px; margin-bottom: 12px; width: 100%;">Save Blacklist</button>
+    <p style="font-size: 10px; color: #888; margin-block-end: 4px;">🚫 Blacklisted Companies (comma separated)</p>
+    <textarea dir="auto" id="blacklistInput" style="inline-size: 100%; block-size: 40px; background: #000; color: #fff; border: 1px solid #ffffff33; border-radius: 4px; padding-block: 6px; padding-inline: 6px; font-size: 11px; margin-block-end: 6px; resize: none;"></textarea>
+    <button id="btnSaveSettings" class="btn btn-secondary" style="font-size: 11px; padding-block: 6px; padding-inline: 6px; margin-block-end: 12px; inline-size: 100%;">Save Blacklist</button>
     
-    <h3 style="font-size: 12px; color: #0aff; margin-bottom: 8px;">🔑 BYOK (Bring Your Own Key)</h3>
-    <p style="font-size: 10px; color: #888; margin-bottom: 4px;">Your AI API key (uses your credits, not ours)</p>
-    <select id="byokProvider" style="width: 100%; background: #000; color: #fff; border: 1px solid #ffffff33; border-radius: 4px; padding: 6px; font-size: 11px; margin-bottom: 4px;">
+    <h3 style="font-size: 12px; color: #0aff; margin-block-end: 8px;">🔑 BYOK (Bring Your Own Key)</h3>
+    <p style="font-size: 10px; color: #888; margin-block-end: 4px;">Your AI API key (uses your credits, not ours)</p>
+    <select dir="auto" id="byokProvider" style="inline-size: 100%; background: #000; color: #fff; border: 1px solid #ffffff33; border-radius: 4px; padding-block: 6px; padding-inline: 6px; font-size: 11px; margin-block-end: 4px;">
       <option value="groq">Groq (Free)</option>
       <option value="deepseek">DeepSeek (Cheap)</option>
       <option value="openai">OpenAI</option>
       <option value="openrouter">OpenRouter</option>
       <option value="gemini">Google Gemini (Free)</option>
     </select>
-    <textarea id="byokInput" style="width: 100%; height: 30px; background: #000; color: #fff; border: 1px solid #ffffff33; border-radius: 4px; padding: 6px; font-size: 11px; margin-bottom: 6px;" placeholder="sk-... or gsk_..."></textarea>
-    <button id="btnSaveByok" class="btn btn-secondary" style="font-size: 11px; padding: 6px; width: 100%;">Save API Key</button>
+    <textarea dir="auto" id="byokInput" style="inline-size: 100%; block-size: 30px; background: #000; color: #fff; border: 1px solid #ffffff33; border-radius: 4px; padding-block: 6px; padding-inline: 6px; font-size: 11px; margin-block-end: 6px;" placeholder="sk-... or gsk_..."></textarea>
+    <button id="btnSaveByok" class="btn btn-secondary" style="font-size: 11px; padding-block: 6px; padding-inline: 6px; inline-size: 100%;">Save API Key</button>
   </div>
 
-  <div id="followupsPanel" style="display: none; padding: 12px; background: #ffffff05; border-top: 1px solid #ffffff10;">
-    <h3 style="font-size: 12px; color: #00f0ff; margin-bottom: 8px;">✉️ Recent Follow-ups</h3>
-    <div id="followupsList" style="font-size: 11px; color: #ccc; max-height: 100px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;">
+  <div id="followupsPanel" style="display: none; padding-block: 12px; padding-inline: 12px; background: #ffffff05; border-block-start: 1px solid #ffffff10;">
+    <h3 style="font-size: 12px; color: #00f0ff; margin-block-end: 8px;">✉️ Recent Follow-ups</h3>
+    <div id="followupsList" style="font-size: 11px; color: #ccc; max-block-size: 100px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;">
       <p style="color:#888;">No follow-ups yet.</p>
     </div>
   </div>

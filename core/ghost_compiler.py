@@ -4,11 +4,12 @@ Scrambles and encrypts core AI files so hackers and rogue developers cannot stea
 Code is decrypted in RAM (memory) at runtime.
 """
 
-import os
 import base64
-import zlib
-from cryptography.fernet import Fernet
 import logging
+import os
+import zlib
+
+from cryptography.fernet import Fernet
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ cipher = Fernet(GHOST_KEY)
 def compile_file(filepath: str):
     """Reads a .py file, encrypts it, and replaces it with an in-memory execution stub."""
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             source_code = f.read()
 
         # Do not compile already compiled files

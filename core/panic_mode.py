@@ -4,8 +4,8 @@ Toggles the entire application into an innocent "Resume Writing Blog" to defeat 
 """
 
 import json
-import os
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 

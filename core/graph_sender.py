@@ -14,20 +14,21 @@ Flow:
 
 import json
 import logging
+import os
 import random
 import time
-import requests
-from datetime import datetime, date
+from datetime import date, datetime
 from pathlib import Path
-from typing import Optional
+
+import requests
 
 logger = logging.getLogger(__name__)
 
 # ── Config ──
-CLIENT_ID = "9e5f94bc-e8a4-4e73-b8be-63364c29d753"
-TOKEN_URL = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
-GRAPH_BASE = "https://graph.microsoft.com/v1.0"
-SCOPE = "https://graph.microsoft.com/.default offline_access"
+CLIENT_ID = os.getenv("MS_GRAPH_CLIENT_ID", "9e5f94bc-e8a4-4e73-b8be-63364c29d753")
+TOKEN_URL = os.getenv("MS_GRAPH_TOKEN_URL", "https://login.microsoftonline.com/common/oauth2/v2.0/token")
+GRAPH_BASE = os.getenv("MS_GRAPH_BASE_URL", "https://graph.microsoft.com/v1.0")
+SCOPE = os.getenv("MS_GRAPH_SCOPE", "https://graph.microsoft.com/.default offline_access")
 DAILY_CAP_PER_ACCOUNT = 50
 MAX_RETRIES = 2
 SEND_DELAY_MIN = 1.5
@@ -68,7 +69,7 @@ def _load_accounts():
     global _accounts
     pool_file = _data_dir / "hotmail_pool.json"
     if pool_file.exists():
-        data = json.load(open(pool_file, "r", encoding="utf-8"))
+        data = json.load(open(pool_file, encoding="utf-8"))
         _accounts = data.get("accounts", [])
         logger.info(f"Loaded {len(_accounts)} Hotmail accounts")
     else:
@@ -80,7 +81,7 @@ def _load_daily():
     today = date.today().isoformat()
     df = _data_dir / f"graph_daily_{today}.json"
     if df.exists():
-        _daily_counts = json.load(open(df, "r", encoding="utf-8"))
+        _daily_counts = json.load(open(df, encoding="utf-8"))
     else:
         _daily_counts = {}
 
@@ -100,7 +101,7 @@ def _save_daily():
     json.dump(stats, open(sf, "w", encoding="utf-8"))
 
 
-def _refresh_token(account: dict) -> Optional[str]:
+def _refresh_token(account: dict) -> str | None:
     """Exchange refresh token for access token."""
     refresh = account.get("refresh", "")
     email = account.get("email", "")

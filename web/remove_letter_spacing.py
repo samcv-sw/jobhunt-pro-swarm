@@ -17,11 +17,11 @@ def remove_letter_spacing(directory):
                     if num_subs > 0:
                         with open(path, 'w', encoding='utf-8') as file:
                             file.write(new_content)
-                        print(f"Removed {num_subs} letter-spacing from {path}")
+                        logger.debug(f"Removed {num_subs} letter-spacing from {path}")
                         count += 1
                 except Exception as e:
-                    print(f"Error processing {path}: {e}")
-    print(f"Done. Modified {count} files.")
+                    logger.debug(f"Error processing {path}: {e}")
+    logger.debug(f"Done. Modified {count} files.")
 
 if __name__ == "__main__":
     remove_letter_spacing('C:\\Users\\samde\\Desktop\\📂 Folders & Projects\\cv sam new ma3 kimi\\web')

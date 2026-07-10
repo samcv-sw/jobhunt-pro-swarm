@@ -2,11 +2,20 @@
 BUILD-QUICK-WINS: Update dashboard_v2.html with rich job cards
 """
 import os
+import sys
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 DASHBOARD_HTML = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates', 'dashboard_v2.html')
 
-with open(DASHBOARD_HTML, 'r', encoding='utf-8') as f:
-    content = f.read()
+try:
+    with open(DASHBOARD_HTML, 'r', encoding='utf-8') as f:
+        content = f.read()
+except Exception as e:
+    logger.error(f"Failed to read {DASHBOARD_HTML}: {e}")
+    sys.exit(1)
 
 # ===== Change 1: Add rich job card CSS before the closing </style> =====
 rich_css = '''
@@ -57,7 +66,7 @@ rich_css = '''
 .jc-score-num.med{color:#fbbf24;}
 .jc-score-num.low{color:#ef4444;}
 .jc-score-label{font-size:8px;color:#52525b;text-transform:uppercase;letter-spacing:1px;}
-.jc-time{font-size:10px;color:#52525b;white-space:nowrap;text-align:right;min-width:60px;}
+.jc-time{font-size:10px;color:#52525b;white-space:nowrap;text-align:end;min-width:60px;}
 .jc-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 @media(max-width:768px){
   .job-card-rich{flex-direction:column;align-items:flex-start;gap:10px;padding:14px;}
@@ -69,7 +78,7 @@ rich_css = '''
 
 style_close = content.rfind('</style>')
 content = content[:style_close] + rich_css + content[style_close:]
-print("+ Added rich job card CSS")
+logger.debug("+ Added rich job card CSS")
 
 # ===== Change 2: Replace the pipeline table with rich job cards =====
 old_table = '''    {% if pipeline_emails %}
@@ -103,7 +112,7 @@ old_table = '''    {% if pipeline_emails %}
 
 if old_table not in content:
     # Try alternative with different whitespace
-    print("WARN: Old table pattern not found exactly, trying fuzzy match...")
+    logger.debug("WARN: Old table pattern not found exactly, trying fuzzy match...")
     # Fallback: find the if pipeline_emails block
     marker = '{% if pipeline_emails %}'
     marker_idx = content.find(marker)
@@ -122,10 +131,10 @@ if old_table not in content:
 
     if end_idx:
         old_block = content[marker_idx:end_idx]
-        print(f"Found pipeline block at {marker_idx}-{end_idx} ({len(old_block)} chars)")
+        logger.debug(f"Found pipeline block at {marker_idx}-{end_idx} ({len(old_block)} chars)")
     else:
-        print("ERROR: Could not find pipeline_emails block!")
-        exit(1)
+        logger.debug("ERROR: Could not find pipeline_emails block!")
+        sys.exit(1)
 else:
     old_block = old_table
 
@@ -191,11 +200,11 @@ new_rich_cards = '''    {% if pipeline_emails %}
 
 try:
     content = content.replace(old_block, new_rich_cards)
-    print("+ Replaced pipeline table with rich job cards")
+    logger.debug("+ Replaced pipeline table with rich job cards")
 except Exception as e:
-    print(f"ERROR replacing: {e}")
+    logger.debug(f"ERROR replacing: {e}")
 
 with open(DASHBOARD_HTML, 'w', encoding='utf-8') as f:
     f.write(content)
 
-print("=== dashboard_v2.html updated ===")
+logger.debug("=== dashboard_v2.html updated ===")

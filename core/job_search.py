@@ -11,14 +11,15 @@ import random
 import re
 import time
 from abc import ABC, abstractmethod
-from typing import List, Optional, Set, Callable, Any, Dict, Final, Tuple
+from collections.abc import Callable
+from typing import Any, Final
 
 import httpx
-from core.stealth import stealth
 from bs4 import BeautifulSoup
 from pydantic import BaseModel, Field
 
 import config
+from core.stealth import stealth
 
 logger = logging.getLogger(__name__)
 
@@ -33,16 +34,16 @@ class JobListing(BaseModel):
     title: str
     company: str
     email: str
-    all_emails: List[str] = Field(default_factory=list)
+    all_emails: list[str] = Field(default_factory=list)
     location: str
     snippet: str
     source: str
     url: str
-    salary: Optional[float] = None
+    salary: float | None = None
 
 
 # ── 3. Advanced Anti-Bot & Evasion Tactics ──────────────────────────────────
-USER_AGENTS: Final[Tuple[str, ...]] = (
+USER_AGENTS: Final[tuple[str, ...]] = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
@@ -50,7 +51,7 @@ USER_AGENTS: Final[Tuple[str, ...]] = (
 )
 
 
-def get_dynamic_headers() -> Dict[str, str]:
+def get_dynamic_headers() -> dict[str, str]:
     """Generates highly randomized, browser-like headers to evade basic bot detection."""
     ua = random.choice(USER_AGENTS)
     is_chrome = "Chrome" in ua
@@ -86,7 +87,7 @@ def get_dynamic_headers() -> Dict[str, str]:
 
 
 # ── 4. Proxy Integration Readiness ──────────────────────────────────────────
-def get_random_proxy() -> Optional[str]:
+def get_random_proxy() -> str | None:
     """Fetches a random proxy from config if available."""
     proxies = getattr(config, "ROTATING_PROXIES", [])
     return random.choice(proxies) if proxies else None
@@ -98,10 +99,10 @@ class TTLQueryCache:
 
     def __init__(self, ttl: int = DEFAULT_CACHE_TTL_SEC):
         self.ttl = ttl
-        self._cache: Dict[str, Tuple[float, List[JobListing]]] = {}
+        self._cache: dict[str, tuple[float, list[JobListing]]] = {}
         self._lock = asyncio.Lock()
 
-    async def get(self, key: str) -> Optional[List[JobListing]]:
+    async def get(self, key: str) -> list[JobListing] | None:
         async with self._lock:
             if key in self._cache:
                 timestamp, data = self._cache[key]
@@ -112,7 +113,7 @@ class TTLQueryCache:
                     del self._cache[key]
             return None
 
-    async def set(self, key: str, data: List[JobListing]) -> None:
+    async def set(self, key: str, data: list[JobListing]) -> None:
         async with self._lock:
             self._cache[key] = (time.time(), data)
 
@@ -235,7 +236,7 @@ HR_EMAIL_PATTERNS: Final[frozenset] = frozenset(
 )
 
 
-def extract_valid_emails(text: str) -> List[str]:
+def extract_valid_emails(text: str) -> list[str]:
     """Memory-efficient generator for email extraction."""
     if not text:
         return []
@@ -255,7 +256,7 @@ def extract_valid_emails(text: str) -> List[str]:
 
 
 # Priority order for HR email selection (most → least likely to reach hiring team)
-_HR_PRIORITY_ORDER: List[str] = [
+_HR_PRIORITY_ORDER: list[str] = [
     "careers@",
     "hr@",
     "recruitment@",
@@ -317,7 +318,7 @@ def _company_to_domain_fallback(company_name: str) -> str:
     return name
 
 
-def prioritize_hr_email(emails: List[str], company_name: str) -> str:
+def prioritize_hr_email(emails: list[str], company_name: str) -> str:
     """Selects best HR email by priority ordering or builds heuristic fallback."""
     if emails:
         # Try each priority level in order — return first match
@@ -346,7 +347,7 @@ class BaseJobScraper(ABC):
     @abstractmethod
     async def search(
         self, query: str, location: str = "", limit: int = 10
-    ) -> List[JobListing]:
+    ) -> list[JobListing]:
         pass
 
 
@@ -355,8 +356,8 @@ class LinkedInScraper(BaseJobScraper):
     @async_retry(max_retries=3, base_delay=2.0)
     async def search(
         self, query: str, location: str = "", limit: int = 10
-    ) -> List[JobListing]:
-        jobs: List[JobListing] = []
+    ) -> list[JobListing]:
+        jobs: list[JobListing] = []
         search_q = f"{query} {location}".strip()
         url = f"https://www.linkedin.com/jobs/search/?keywords={search_q.replace(' ', '%20')}"
 
@@ -417,11 +418,11 @@ class JSearchScraper(BaseJobScraper):
     @async_retry(max_retries=3, base_delay=1.5)
     async def search(
         self, query: str, location: str = "", limit: int = 10
-    ) -> List[JobListing]:
+    ) -> list[JobListing]:
         if not self.api_key:
             return []
 
-        jobs: List[JobListing] = []
+        jobs: list[JobListing] = []
         search_q = f"{query} in {location}" if location else query
         url = "https://jsearch.p.rapidapi.com/search"
         headers = {
@@ -466,8 +467,8 @@ class DarkWebScraper(BaseJobScraper):
     @async_retry(max_retries=3, base_delay=2.0)
     async def search(
         self, query: str, location: str = "", limit: int = 5
-    ) -> List[JobListing]:
-        jobs: List[JobListing] = []
+    ) -> list[JobListing]:
+        jobs: list[JobListing] = []
         search_q = f"{query} {location}".strip().replace(" ", "+")
 
         resp = await _shared_client.get(
@@ -504,8 +505,8 @@ class ArbeitnowScraper(BaseJobScraper):
     @async_retry(max_retries=3, base_delay=1.5)
     async def search(
         self, query: str, location: str = "", limit: int = 15
-    ) -> List[JobListing]:
-        jobs: List[JobListing] = []
+    ) -> list[JobListing]:
+        jobs: list[JobListing] = []
         # Arbeitnow doesn't have strict search params in the free tier, we pull the board and filter locally
         url = "https://www.arbeitnow.com/api/job-board-api"
         resp = await _shared_client.get(url)
@@ -560,7 +561,7 @@ class ZeroCostStealthBrowserScraper(BaseJobScraper):
     @async_retry(max_retries=3, base_delay=2.0)
     async def search(
         self, query: str, location: str = "", limit: int = 15
-    ) -> List[JobListing]:
+    ) -> list[JobListing]:
         try:
             logger.info(
                 "ZeroCostStealthBrowserScraper initiated. Scraping via undetected-chromedriver."
@@ -581,19 +582,19 @@ class EnterpriseJobSearch:
     """Massively parallel job search aggregator with cache, semaphore, and proxy controls."""
 
     def __init__(self):
-        self.scrapers: List[BaseJobScraper] = [
+        self.scrapers: list[BaseJobScraper] = [
             LinkedInScraper(),
             JSearchScraper(),
             DarkWebScraper(),
             ArbeitnowScraper(),
             ZeroCostStealthBrowserScraper(),
         ]
-        self._seen_emails: Set[str] = set()
+        self._seen_emails: set[str] = set()
         self.semaphore = asyncio.Semaphore(MAX_CONCURRENT_SCRAPES)
 
     async def _execute_scraper_safely(
         self, scraper: BaseJobScraper, query: str, location: str, limit: int
-    ) -> List[JobListing]:
+    ) -> list[JobListing]:
         async with self.semaphore:
             try:
                 return await scraper.search(query, location, limit)
@@ -606,7 +607,7 @@ class EnterpriseJobSearch:
 
     async def execute_parallel_search(
         self, query: str, location: str = "", limit: int = 10
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Executes cached, semaphored, concurrent scrape."""
         cache_key = f"{query}:{location}:{limit}".lower().strip()
 
@@ -624,13 +625,13 @@ class EnterpriseJobSearch:
         results_matrix = await asyncio.gather(*tasks, return_exceptions=True)
 
         # 3. Aggregate & Deduplicate
-        all_jobs: List[JobListing] = []
+        all_jobs: list[JobListing] = []
         for result in results_matrix:
             if isinstance(result, list):
                 all_jobs.extend(result)
 
-        unique_jobs: List[JobListing] = []
-        seen_ids: Set[str] = set()
+        unique_jobs: list[JobListing] = []
+        seen_ids: set[str] = set()
 
         for job in all_jobs:
             if job.job_id in seen_ids:
@@ -675,22 +676,22 @@ class MultiSourceSearch:
         try:
             from core.multi_source_scraper import (
                 BaytScraper,
-                NaukriScraper,
-                WuzzufScraper,
-                IndeedScraper,
-                GoogleJobsScraper,
-                LinkedInScraper,
-                GlassdoorScraper,
-                WellfoundScraper,
                 DiceScraper,
+                GlassdoorScraper,
+                GoogleJobsScraper,
+                IndeedScraper,
+                JoobleScraper,
+                LinkedInScraper,
+                NaukriIndiaScraper,
+                NaukriScraper,
                 SeekScraper,
                 StepStoneScraper,
-                WWRScraper,
-                ZipRecruiterScraper,
-                XingScraper,
-                NaukriIndiaScraper,
-                JoobleScraper,
                 UpworkScraper,
+                WellfoundScraper,
+                WuzzufScraper,
+                WWRScraper,
+                XingScraper,
+                ZipRecruiterScraper,
             )
 
             self._scrapers = [
@@ -731,7 +732,7 @@ class MultiSourceSearch:
 
     def search_all_sources(
         self, query: str = "network engineer", location: str = "", limit: int = 100
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Search all configured sources synchronously.
         Returns deduplicated list of job dicts.
@@ -809,13 +810,13 @@ class MultiSourceSearch:
 
     def search_single(
         self, query: str = "network engineer", location: str = "", limit: int = 10
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Lightweight single search — returns up to `limit` results."""
         return self.search_all_sources(query, location, limit=limit)
 
     def search_rotation_tick(
         self, tick_index: int = None, max_total: int = 200
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         GLOBAL ROTATION: Search 3 random locations + 2 random titles per tick.
         Covers all 25+ countries over ~15 ticks (1 hour at 4-min ticks).

@@ -4,11 +4,12 @@ Hooks into campaign_runner, email_engine, and tracking for real-time alerts.
 Uses simple requests HTTP calls (no python-telegram-bot dependency).
 """
 
-import os
-import logging
 import asyncio
-import requests
+import logging
+import os
 from datetime import datetime
+
+import requests
 
 logger = logging.getLogger(__name__)
 

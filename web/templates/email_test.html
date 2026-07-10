@@ -81,7 +81,7 @@
 {% if ctx.success %}<div class="alert alert-success">✅ {{ ctx.success }}</div>{% endif %}
 {% if ctx.error %}<div class="alert alert-error">⚠️ {{ ctx.error }}</div>{% endif %}
 
-<form action="/email-test" enctype="multipart/form-data" id="emailForm" method="POST">
+<form dir="auto" action="/email-test" enctype="multipart/form-data" id="emailForm" method="POST">
 <!-- CV Upload -->
 <div class="et-card">
 <div class="et-card-title">{{ _('📄 رفع السيرة الذاتية (PDF) — تعبئة جميع الحقول تلقائياً') }}</div>

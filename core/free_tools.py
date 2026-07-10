@@ -16,7 +16,6 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +39,7 @@ except Exception:
     SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
 
 
-def init(data_dir: Optional[str] = None):
+def init(data_dir: str | None = None):
     global DATA_DIR, USAGE_FILE
     if data_dir:
         DATA_DIR = Path(data_dir)
@@ -148,7 +147,7 @@ ATS_KEYWORDS = {
 }
 
 
-def check_ats_resume(resume_text: str, target_role: str = "general") -> Dict:
+def check_ats_resume(resume_text: str, target_role: str = "general") -> dict:
     """Analyze resume text and return ATS score with breakdown."""
     text_lower = resume_text.lower()
     word_count = len(resume_text.split())
@@ -284,9 +283,9 @@ Best regards,
 def generate_cover_letter(
     job_title: str,
     company: str = "your company",
-    skills: List[str] = None,
+    skills: list[str] = None,
     groq_key: str = None,
-) -> Dict:
+) -> dict:
     """Generate a cover letter using Groq AI."""
     if skills is None:
         skills = ["project management", "team leadership", "technical expertise"]
@@ -442,7 +441,7 @@ SALARY_DATA = {
 
 def calculate_salary(
     job_title: str, location: str = "us", experience_years: int = 5
-) -> Dict:
+) -> dict:
     """Calculate estimated salary range for job title + location."""
     title_lower = job_title.lower()
 
@@ -493,7 +492,7 @@ def _track_usage(tool: str):
     """Track free tool usage."""
     try:
         if USAGE_FILE and USAGE_FILE.exists():
-            with open(USAGE_FILE, "r") as f:
+            with open(USAGE_FILE) as f:
                 data = json.load(f)
         else:
             data = {}
@@ -509,11 +508,11 @@ def _track_usage(tool: str):
         pass
 
 
-def get_usage_stats() -> Dict:
+def get_usage_stats() -> dict:
     """Get free tool usage statistics."""
     if USAGE_FILE and USAGE_FILE.exists():
         try:
-            with open(USAGE_FILE, "r") as f:
+            with open(USAGE_FILE) as f:
                 return json.load(f)
         except Exception:
             pass

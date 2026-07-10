@@ -111,8 +111,9 @@ CONCURRENCY_SEMAPHORE = asyncio.Semaphore(3)
 
 _last_proxy_fetch = 0
 _cached_free_proxies = []
+_proxy_fetch_lock = asyncio.Lock()
 
-def get_stabilized_proxy(session_id: str = "default") -> dict:
+async def get_stabilized_proxy(session_id: str = "default") -> dict:
     """
     Selects a proxy based on session_id to maintain IP pinning.
     Supports backconnect gateways (injecting session ID into username) 
@@ -130,19 +131,25 @@ def get_stabilized_proxy(session_id: str = "default") -> dict:
         else:
             now = time.time()
             if not _cached_free_proxies or now - _last_proxy_fetch > 600:
-                try:
-                    import requests
-                    res = requests.get(
-                        "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=elite",
-                        timeout=5.0
-                    )
-                    if res.status_code == 200:
-                        fetched = [f"http://{p.strip()}" for p in res.text.split("\n") if p.strip()]
-                        if fetched:
-                            _cached_free_proxies = fetched
-                            _last_proxy_fetch = now
-                except Exception as e:
-                    logger.warning(f"Failed to fetch public proxies: {e}")
+                async with _proxy_fetch_lock:
+                    # Double-check inside lock
+                    now = time.time()
+                    if not _cached_free_proxies or now - _last_proxy_fetch > 600:
+                        try:
+                            import requests
+                            def _fetch():
+                                return requests.get(
+                                    "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=elite",
+                                    timeout=5.0
+                                )
+                            res = await asyncio.to_thread(_fetch)
+                            if res.status_code == 200:
+                                fetched = [f"http://{p.strip()}" for p in res.text.split("\n") if p.strip()]
+                                if fetched:
+                                    _cached_free_proxies = fetched
+                                    _last_proxy_fetch = now
+                        except Exception as e:
+                            logger.warning(f"Failed to fetch public proxies: {e}")
             active_proxies = _cached_free_proxies if _cached_free_proxies else ["http://jobhunt-stub-proxy:8080"]
 
     # If it's a single backconnect proxy (e.g., contains @ and is a gate provider)
@@ -435,7 +442,7 @@ async def process_single_job(url: str, session_id: Optional[str] = None) -> List
     if not session_id:
         session_id = f"sess_{random.randint(100000, 999999)}"
 
-    proxy_config = get_stabilized_proxy(session_id)
+    proxy_config = await get_stabilized_proxy(session_id)
     html_content = ""
 
     async with CONCURRENCY_SEMAPHORE:
@@ -580,7 +587,7 @@ async def verify_sannysoft_bypass(proxy: Optional[str] = None) -> bool:
     Checks if Cloudflare is bypassed and the page is returned successfully.
     """
     if not HAS_CFFI:
-        print("Verification failed: curl_cffi not installed")
+        logger.debug("Verification failed: curl_cffi not installed")
         return False
     
     url = "https://bot.sannysoft.com/"
@@ -589,7 +596,7 @@ async def verify_sannysoft_bypass(proxy: Optional[str] = None) -> bool:
     
     proxies = {"http": proxy, "https": proxy} if proxy else {}
     
-    print(f"Verifying sannysoft bypass using profile {profile['id']}...")
+    logger.debug(f"Verifying sannysoft bypass using profile {profile['id']}...")
     try:
         async with requests.AsyncSession(
             impersonate=profile["impersonate"],
@@ -603,18 +610,18 @@ async def verify_sannysoft_bypass(proxy: Optional[str] = None) -> bool:
             soup = BeautifulSoup(res.text, "html.parser")
             title = soup.find("title")
             title_text = title.text if title else ""
-            print(f"Fetched page title: {title_text}")
+            logger.debug(f"Fetched page title: {title_text}")
             
             # Sannysoft title is usually 'Antibot', 'Bot Detection' or contains 'sannysoft'
             if "sannysoft" in res.text.lower() or "bot detection" in title_text.lower() or "antibot" in title_text.lower():
-                print("Bypass Check Passed: Page retrieved successfully!")
+                logger.debug("Bypass Check Passed: Page retrieved successfully!")
                 return True
             else:
-                print("Bypass Check Failed: Response does not contain sannysoft indicators.")
+                logger.debug("Bypass Check Failed: Response does not contain sannysoft indicators.")
                 return False
                 
     except Exception as e:
-        print(f"Bypass Check Failed with exception: {e}")
+        logger.debug(f"Bypass Check Failed with exception: {e}")
         return False
 
 

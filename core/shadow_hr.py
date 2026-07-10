@@ -6,8 +6,8 @@ offering them access to a perfectly matching candidate from our database
 for a $99 unlock fee.
 """
 
-import os
 import logging
+import os
 
 if os.getenv("SUPABASE_MODE") == "1":
     import core.supabase_rest_shim as sqlite3

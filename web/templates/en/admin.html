@@ -15,7 +15,7 @@
  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:var(--space-2); margin-bottom:var(--space-4); }
  .stat { background:linear-gradient(135deg,rgba(30,30,50,.9),rgba(20,20,35,.9)); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:20px; text-align:center; }
  .stat .val { font-size:30px; font-weight:700; margin-bottom:4px; }
- .stat .lbl { font-size:12px; color:#94a3b8; text-transform:uppercase; letter-spacing:.5px; }
+ .stat .lbl { font-size:12px; color:#94a3b8; text-transform:uppercase;  }
  .blue{color:#3b82f6;} .green{color:#22c55e;} .purple{color:#8b5cf6;} .orange{color:#f97316;} .pink{color:#ec4899;} .cyan{color:#06b6d4;}
  .section { margin-bottom:var(--space-5); }
  .section-title { font-size:18px; font-weight:600; margin-bottom:var(--space-2); padding-bottom:var(--space-1); border-bottom:1px solid rgba(255,255,255,.08); }
@@ -97,7 +97,7 @@
  <div class="action-card">
  <h3> Add Credits to User</h3>
  <p>Manually credit any user's wallet</p>
- <form method="POST" action="/admin/add-credits">
+ <form dir="auto" method="POST" action="/admin/add-credits">
  <div class="form-row">
  <input dir="auto" type="email" name="target_email" placeholder="user@email.com" required>
  </div>
@@ -112,11 +112,11 @@
  <div class="action-card">
  <h3>&#x1F39F;&#xFE0F; Generate Redeem Codes</h3>
  <p>Codes appear in the table below — click to copy and share with users</p>
- <form method="POST" action="/admin/generate-code">
+ <form dir="auto" method="POST" action="/admin/generate-code">
  <div class="form-row">
  <input dir="auto" type="number" name="value" placeholder="Value $" step="0.01" min="0.01" required>
  <input dir="auto" type="number" name="count" placeholder="Count" min="1" max="50" value="1">
- <select name="code_type" style="padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;">
+ <select dir="auto"  name="code_type" style="padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;">
  <option value="sale"> Sale (counts as revenue)</option>
  <option value="admin_free">🆓 Admin Free (no revenue)</option>
  </select>
@@ -128,7 +128,7 @@
  <div class="action-card" style="border-color:#10b981;">
  <h3>🆓 Admin Free Credit</h3>
  <p>Add free credits to your own wallet (not counted in revenue)</p>
- <form method="POST" action="/admin/generate-code">
+ <form dir="auto" method="POST" action="/admin/generate-code">
  <div class="form-row">
  <input dir="auto" type="number" name="value" placeholder="Value $" step="0.01" min="0.01" value="100" required>
  <input dir="auto" type="hidden" name="count" value="1">
@@ -144,7 +144,7 @@
  <div class="action-card">
  <h3> Give Free Campaign</h3>
  <p>Create a campaign for a user without charging their wallet</p>
- <form method="POST" action="/admin/free-campaign">
+ <form dir="auto" method="POST" action="/admin/free-campaign">
  <div class="form-row">
  <input dir="auto" type="email" name="target_email" placeholder="user@email.com" required>
  <input dir="auto" type="number" name="company_count" value="100" min="5">
@@ -156,7 +156,7 @@
  <div class="action-card">
  <h3> Send Manual Email <span class="badge badge-green" style="font-size:11px;">$0.10/email</span></h3>
  <p>Type any email address, subject & body — send manually via Brevo</p>
- <form method="POST" action="/admin/send-manual-email">
+ <form dir="auto" method="POST" action="/admin/send-manual-email">
  <div class="form-row">
  <input dir="auto" type="email" name="to_email" placeholder="recipient@email.com" required>
  <input dir="auto" type="text" name="subject" placeholder="Email Subject" required>
@@ -173,7 +173,7 @@
  <div class="action-card" style="border-color:#ef4444;">
  <h3> Flash Sale Manager</h3>
  <p>Create limited-time discounts to boost sales (shown as countdown timers to users)</p>
- <form method="POST" action="/admin/create-flash-sale">
+ <form dir="auto" method="POST" action="/admin/create-flash-sale">
  <div class="form-row">
  <input dir="auto" type="text" name="title" placeholder="Sale title (e.g. Weekend Blast)" value="Flash Sale" required>
  <input dir="auto" type="number" name="discount_percent" placeholder="Discount %" value="25" min="1" max="99" required>
@@ -213,7 +213,7 @@
  <td class="mono" style="color:#64748b;">{{ (s.end_time or '')[:16] }}</td>
  <td>
  {% if s.active %}
- <form method="POST" action="/admin/end-flash-sale" style="display:inline;">
+ <form dir="auto" method="POST" action="/admin/end-flash-sale" style="display:inline;">
  <input dir="auto" type="hidden" name="sale_id" value="{{ s.id }}">
  <button type="submit" class="btn btn-red" style="padding:4px 10px;font-size:11px;">End</button>
  </form>
@@ -293,7 +293,7 @@
  </td>
  <td class="mono">{{ (u.created_at or '')[:10] }}</td>
  <td>
- <form method="POST" action="/admin/toggle-user" style="display:inline;">
+ <form dir="auto" method="POST" action="/admin/toggle-user" style="display:inline;">
  <input dir="auto" type="hidden" name="target_user_id" value="{{ u.user_id }}">
  <button type="submit" class="btn {% if u.is_active %}btn-red{% else %}btn-green{% endif %}" style="padding:4px 10px;font-size:11px;">
  {% if u.is_active %}Disable{% else %}Enable{% endif %}

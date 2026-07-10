@@ -1,6 +1,6 @@
+import logging
 import os
 import random
-import logging
 
 logger = logging.getLogger("AWSProxyRouter")
 

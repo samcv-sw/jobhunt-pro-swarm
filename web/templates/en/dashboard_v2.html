@@ -121,7 +121,7 @@ body {
   background: linear-gradient(to right, #fff, #a5b4fc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  letter-spacing: -1px;
+  
 }
 
 .hero-content p {
@@ -191,7 +191,7 @@ body {
   font-size: 14px;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  
 }
 
 .stat-value {
@@ -408,7 +408,7 @@ body {
       
       <!-- Premium Status -->
       <div class="glass-card" style="padding: 24px; background: linear-gradient(to bottom right, rgba(99, 102, 241, 0.1), rgba(18, 24, 38, 0.8));">
-        <h3 style="margin:0 0 16px 0; font-size:16px; color:#a5b4fc; text-transform:uppercase; letter-spacing:1px;">Active Arsenal</h3>
+        <h3 style="margin:0 0 16px 0; font-size:16px; color:#a5b4fc; text-transform:uppercase; ">Active Arsenal</h3>
         {% set total_weapons = 0 %}
         {% for c in campaigns %}
           {% set total_weapons = total_weapons + (c.premium_weapons|default(0)|int) %}

@@ -144,7 +144,7 @@
 <div class="action-card">
 <h3> إضافة رصيد للمستخدم</h3>
 <p>إضافة رصيد يدوياً لأي مستخدم</p>
-<form action="/admin/add-credits" method="POST">
+<form dir="auto" action="/admin/add-credits" method="POST">
 <div class="form-row">
 <input dir="auto" name="target_email" placeholder="user@email.com" required="" type="email"/>
 </div>
@@ -158,11 +158,11 @@
 <div class="action-card">
 <h3>🎟️ إنشاء أكواد شحن</h3>
 <p>تظهر الأكواد في الجدول أدناه — انقر للنسخ والمشاركة مع المستخدمين</p>
-<form action="/admin/generate-code" method="POST">
+<form dir="auto" action="/admin/generate-code" method="POST">
 <div class="form-row">
 <input dir="auto" min="0.01" name="value" placeholder="القيمة $" required="" step="0.01" type="number"/>
 <input dir="auto" max="50" min="1" name="count" placeholder="العدد" type="number" value="1"/>
-<select name="code_type" style="padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;">
+<select dir="auto"  name="code_type" style="padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;">
 <option value="sale"> بيع (يُحسب كإيرادات)</option>
 <option value="admin_free">🆓 مجاني للإدارة (بدون إيرادات)</option>
 </select>
@@ -173,7 +173,7 @@
 <div class="action-card" style="border-color:#10b981;">
 <h3>🆓 رصيد مجاني للإدارة</h3>
 <p>أضف رصيدًا مجانيًا إلى محفظتك الخاصة (لا يُحسب ضمن الإيرادات)</p>
-<form action="/admin/generate-code" method="POST">
+<form dir="auto" action="/admin/generate-code" method="POST">
 <div class="form-row">
 <input dir="auto" min="0.01" name="value" placeholder="القيمة $" required="" step="0.01" type="number" value="100"/>
 <input dir="auto" name="count" type="hidden" value="1"/>
@@ -188,7 +188,7 @@
 <div class="action-card">
 <h3> حملة مجانية</h3>
 <p>إنشاء حملة لمستخدم دون خصم من محفظته</p>
-<form action="/admin/free-campaign" method="POST">
+<form dir="auto" action="/admin/free-campaign" method="POST">
 <div class="form-row">
 <input dir="auto" name="target_email" placeholder="user@email.com" required="" type="email"/>
 <input dir="auto" min="5" name="company_count" type="number" value="100"/>
@@ -199,7 +199,7 @@
 <div class="action-card">
 <h3> إرسال رسالة يدوية <span class="badge badge-green" style="font-size:11px;">0.10$/رسالة</span></h3>
 <p>{{ _('اكتب أي عنوان بريد إلكتروني، موضوع، ومحتوى — للإرسال يدويًا عبر Brevo') }}</p>
-<form action="/admin/send-manual-email" method="POST">
+<form dir="auto" action="/admin/send-manual-email" method="POST">
 <div class="form-row">
 <input dir="auto" name="to_email" placeholder="recipient@email.com" required="" type="email"/>
 <input dir="auto" name="subject" placeholder="موضوع الرسالة" required="" type="text"/>
@@ -214,7 +214,7 @@
 <div class="action-card" style="border-color:#ef4444;">
 <h3> إدارة مبيعات الفلاش</h3>
 <p>إنشاء خصومات لفترة محدودة لزيادة المبيعات (تظهر كمؤقتات عد تنازلي للمستخدمين)</p>
-<form action="/admin/create-flash-sale" method="POST">
+<form dir="auto" action="/admin/create-flash-sale" method="POST">
 <div class="form-row">
 <input dir="auto" name="title" placeholder="عنوان التخفيض (مثل: عرض نهاية الأسبوع)" required="" type="text" value="تخفيض فلاش"/>
 <input dir="auto" max="99" min="1" name="discount_percent" placeholder="نسبة الخصم %" required="" type="number" value="25"/>
@@ -252,7 +252,7 @@
 <td class="mono" style="color:#64748b;">{{ (s.end_time or '')[:16] }}</td>
 <td>
  {% if s.active %}
- <form action="/admin/end-flash-sale" method="POST" style="display:inline;">
+ <form dir="auto" action="/admin/end-flash-sale" method="POST" style="display:inline;">
 <input dir="auto" name="sale_id" type="hidden" value="{{ s.id }}"/>
 <button class="btn btn-red" style="padding:4px 10px;font-size:11px;" type="submit">إنهاء</button>
 </form>
@@ -331,7 +331,7 @@
  </td>
 <td class="mono">{{ (u.created_at or '')[:10] }}</td>
 <td>
-<form action="/admin/toggle-user" method="POST" style="display:inline;">
+<form dir="auto" action="/admin/toggle-user" method="POST" style="display:inline;">
 <input dir="auto" name="target_user_id" type="hidden" value="{{ u.user_id }}"/>
 <button class="btn {% if u.is_active %}btn-red{% else %}btn-green{% endif %}" style="padding:4px 10px;font-size:11px;" type="submit">
  {% if u.is_active %}تعطيل{% else %}تفعيل{% endif %}

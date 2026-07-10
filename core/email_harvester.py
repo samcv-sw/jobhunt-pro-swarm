@@ -15,7 +15,6 @@ import logging
 import re
 import time
 from pathlib import Path
-from typing import Optional, Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +45,7 @@ JOB_SEEKER_DOMAINS = [
 ]
 
 
-def init(data_dir: Optional[str] = None):
+def init(data_dir: str | None = None):
     """Initialize harvester."""
     global HARVEST_DIR
     if data_dir:
@@ -59,13 +58,13 @@ def init(data_dir: Optional[str] = None):
 
 def load_from_csv(
     csv_path: str, email_col: int = 0, name_col: int = 1
-) -> List[Dict[str, str]]:
+) -> list[dict[str, str]]:
     """Load emails from CSV file."""
     import csv
 
     recipients = []
 
-    with open(csv_path, "r", encoding="utf-8-sig") as f:
+    with open(csv_path, encoding="utf-8-sig") as f:
         reader = csv.reader(f)
         for row in reader:
             if not row:
@@ -80,9 +79,9 @@ def load_from_csv(
     return recipients
 
 
-def load_from_json(json_path: str) -> List[Dict[str, str]]:
+def load_from_json(json_path: str) -> list[dict[str, str]]:
     """Load emails from JSON file [{"email":..., "name":...}]."""
-    with open(json_path, "r", encoding="utf-8") as f:
+    with open(json_path, encoding="utf-8") as f:
         data = json.load(f)
 
     recipients = []
@@ -95,10 +94,10 @@ def load_from_json(json_path: str) -> List[Dict[str, str]]:
     return recipients
 
 
-def load_from_txt(txt_path: str) -> List[Dict[str, str]]:
+def load_from_txt(txt_path: str) -> list[dict[str, str]]:
     """Load emails from plain text (one per line)."""
     recipients = []
-    with open(txt_path, "r", encoding="utf-8") as f:
+    with open(txt_path, encoding="utf-8") as f:
         for line in f:
             email = line.strip()
             if _is_valid_email(email):
@@ -108,7 +107,7 @@ def load_from_txt(txt_path: str) -> List[Dict[str, str]]:
     return recipients
 
 
-def harvest_github_job_seekers(min_stars: int = 0) -> List[Dict[str, str]]:
+def harvest_github_job_seekers(min_stars: int = 0) -> list[dict[str, str]]:
     """
     Harvest GitHub users who are looking for work.
     Searches public profiles with "looking for work" in bio.
@@ -168,8 +167,8 @@ def harvest_github_job_seekers(min_stars: int = 0) -> List[Dict[str, str]]:
 
 
 def generate_emails_for_company(
-    company_domain: str, first_names: List[str] = None, last_names: List[str] = None
-) -> List[Dict[str, str]]:
+    company_domain: str, first_names: list[str] = None, last_names: list[str] = None
+) -> list[dict[str, str]]:
     """
     Generate email address candidates for a company using common patterns.
 
@@ -231,7 +230,7 @@ def generate_emails_for_company(
     return candidates
 
 
-def load_all_from_directory(dir_path: str) -> List[Dict[str, str]]:
+def load_all_from_directory(dir_path: str) -> list[dict[str, str]]:
     """Load all recipient files from a directory (CSV, JSON, TXT)."""
     all_recipients = []
     d = Path(dir_path)
@@ -262,7 +261,7 @@ def load_all_from_directory(dir_path: str) -> List[Dict[str, str]]:
 
 
 def save_recipients(
-    recipients: List[Dict[str, str]], filename: str = "harvested_emails.json"
+    recipients: list[dict[str, str]], filename: str = "harvested_emails.json"
 ):
     """Save harvested emails to JSON for later blasting."""
     path = HARVEST_DIR / filename

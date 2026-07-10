@@ -18,7 +18,6 @@ Product Hunt launch assets:
 
 import logging
 from pathlib import Path
-from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -26,11 +25,12 @@ DATA_DIR = None
 
 
 def init(data_dir: str = None):
+    import config
     global DATA_DIR
     if data_dir:
         DATA_DIR = Path(data_dir)
     else:
-        DATA_DIR = Path(__file__).parent.parent / "data"
+        DATA_DIR = Path(config.DB_PATH).parent
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -61,7 +61,7 @@ REFERRAL_SHARE_TEXT = [
 ]
 
 
-def get_referral_tiers() -> List[Dict]:
+def get_referral_tiers() -> list[dict]:
     return REFERRAL_TIERS
 
 
@@ -76,37 +76,40 @@ def get_share_text() -> str:
 # ── Chinese Viral Loop: Golden Ticket (Hongbao) ──────────────
 
 
-def generate_golden_ticket(user_id: int) -> Dict[str, str]:
+def generate_golden_ticket(user_id: int) -> dict[str, str]:
     """[CHINESE VIRAL TRICK] Generate a shareable 'Red Envelope' link that grants free applications."""
     import hashlib
     import time
 
-    # Generate unique ticket hash
-    raw = f"golden_{user_id}_{time.time()}"
-    ticket_hash = hashlib.md5(raw.encode()).hexdigest()[:12]
+    try:
+        raw = f"golden_{user_id}_{time.time()}"
+        ticket_hash = hashlib.md5(raw.encode()).hexdigest()[:12]
+        link = f"https://jhfguf.pythonanywhere.com/redeem?ticket={ticket_hash}"
+        logger.info(f"[VIRAL] Golden ticket generated for user_id={user_id}: {ticket_hash}")
+        return {
+            "ticket_id": ticket_hash,
+            "link": link,
+            "message": f"🎁 I just sent you a Golden Ticket! Claim your 50 free AI job applications here: {link}",
+        }
+    except Exception as e:
+        logger.error(f"[VIRAL] Failed to generate golden ticket for user_id={user_id}: {e}")
+        return {"ticket_id": "", "link": "", "message": "Ticket generation failed. Please try again."}
 
-    # In a real DB, save this ticket hash linked to user_id
-    # We will simulate the generation here
-    link = f"https://jhfguf.pythonanywhere.com/redeem?ticket={ticket_hash}"
 
-    return {
-        "ticket_id": ticket_hash,
-        "link": link,
-        "message": f"🎁 I just sent you a Golden Ticket! Claim your 50 free AI job applications here: {link}",
-    }
-
-
-def redeem_golden_ticket(ticket_id: str, new_user_email: str) -> Dict[str, any]:
+def redeem_golden_ticket(ticket_id: str, new_user_email: str) -> dict[str, any]:
     """Redeem a Golden Ticket. Both the sender and receiver get rewards."""
-    # Simulation of DB update
-    logger.info(
-        f"[VIRAL] Ticket {ticket_id} redeemed by {new_user_email}. Awarding 50 apps to receiver, 100 to sender!"
-    )
-    return {
-        "success": True,
-        "reward_granted": 50,
-        "message": "Golden Ticket redeemed successfully!",
-    }
+    try:
+        logger.info(
+            f"[VIRAL] Ticket {ticket_id} redeemed by {new_user_email}. Awarding 50 apps to receiver, 100 to sender!"
+        )
+        return {
+            "success": True,
+            "reward_granted": 50,
+            "message": "Golden Ticket redeemed successfully!",
+        }
+    except Exception as e:
+        logger.error(f"[VIRAL] Failed to redeem ticket {ticket_id} for {new_user_email}: {e}")
+        return {"success": False, "reward_granted": 0, "message": "Ticket redemption failed."}
 
 
 # ── Email Signature Promoter ────────────────────────────────
@@ -147,26 +150,33 @@ SOCIAL_CARD_TEMPLATES = {
 }
 
 
-def get_share_card(tool: str, data: Dict = None) -> Dict[str, str]:
+def get_share_card(tool: str, data: dict = None) -> dict[str, str]:
     """Generate shareable social cards for viral tools."""
-    templates = SOCIAL_CARD_TEMPLATES.get(tool, {})
+    try:
+        templates = SOCIAL_CARD_TEMPLATES.get(tool, {})
+        if not templates:
+            logger.warning(f"[VIRAL] No social card template found for tool='{tool}'")
+            return {}
 
-    if tool == "ats_score" and data:
-        score = data.get("score", 75)
-        return {k: v.format(score=score) for k, v in templates.items()}
+        if tool == "ats_score" and data:
+            score = data.get("score", 75)
+            return {k: v.format(score=score) for k, v in templates.items()}
 
-    if tool == "salary" and data:
-        return {
-            k: v.format(
-                low=data.get("low", 50),
-                high=data.get("high", 120),
-                job=data.get("job", "your role"),
-                location=data.get("location", "your area"),
-            )
-            for k, v in templates.items()
-        }
+        if tool == "salary" and data:
+            return {
+                k: v.format(
+                    low=data.get("low", 50),
+                    high=data.get("high", 120),
+                    job=data.get("job", "your role"),
+                    location=data.get("location", "your area"),
+                )
+                for k, v in templates.items()
+            }
 
-    return templates
+        return templates
+    except Exception as e:
+        logger.error(f"[VIRAL] Failed to generate share card for tool='{tool}': {e}")
+        return {}
 
 
 # ── Product Hunt Launch Kit ─────────────────────────────────
@@ -230,11 +240,11 @@ PH_LAUNCH_CHECKLIST = [
 ]
 
 
-def get_ph_assets() -> Dict:
+def get_ph_assets() -> dict:
     return PH_ASSETS
 
 
-def get_ph_checklist() -> List[Dict]:
+def get_ph_checklist() -> list[dict]:
     return PH_LAUNCH_CHECKLIST
 
 
@@ -276,15 +286,15 @@ SOCIAL_PROOF_UPDATES = [
 ]
 
 
-def get_random_social_proof() -> Dict:
+def get_random_social_proof() -> dict:
     import random
 
     return random.choice(SOCIAL_PROOF_UPDATES)
 
 
-def get_live_stats_template() -> Dict:
+def get_live_stats_template() -> dict:
     """Stats that auto-update on the landing page."""
-    return {
+    stats = {
         "total_jobs_available": 2543000,  # approximate
         "ai_agents_active": 200,
         "countries_served": 54,
@@ -292,3 +302,5 @@ def get_live_stats_template() -> Dict:
         "average_ats_score_improvement": "2.8x",
         "interview_rate_improvement": "3.5x",
     }
+    logger.debug(f"[VIRAL] Live stats template requested: {len(stats)} metrics")
+    return stats

@@ -2,7 +2,7 @@ import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-DATABASE_URL = "postgresql://neondb_owner:npg_yXkT42fDuPUc@ep-steep-cake-ap2mtmij.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL = "os.getenv('DATABASE_URL')"
 
 try:
     conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)

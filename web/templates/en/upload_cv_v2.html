@@ -21,7 +21,7 @@
   font-size: 22px;
   font-weight: 800;
   margin-bottom: 4px;
-  letter-spacing: -0.5px;
+  
 }
 .upload-scale .subtitle {
   font-size: 14px;
@@ -144,7 +144,7 @@
   font-weight: 600;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  
   margin-bottom: 5px;
   display: block;
 }
@@ -443,7 +443,7 @@
 .upload-scale + .toast {
   position: fixed;
   bottom: 28px;
-  right: 28px;
+  inset-inline-end: 28px;
   padding: 16px 24px;
   background: #080812;
   border: 1px solid rgba(255,255,255,.1);
@@ -544,7 +544,7 @@
     </div>
     <div style="text-align:center;color:#64748b;font-size:14px;margin:24px 0;position:relative;">
       <span style="background:#0a0a0f;padding:0 14px;position:relative;z-index:1;">OR paste text below</span>
-      <span style="position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(255,255,255,0.08);"></span>
+      <span style="position:absolute;top:50%;inset-inline-start:0;inset-inline-end:0;height:1px;background:rgba(255,255,255,0.08);"></span>
     </div>
     <div class="form-group">
       <textarea dir="auto" class="large" id="cvText" placeholder="Paste your entire CV / resume text here...
@@ -559,7 +559,7 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
   </div>
 
   <!-- Profile Form -->
-  <form method="POST" action="/upload-cv" enctype="multipart/form-data" id="cvForm">
+  <form dir="auto" method="POST" action="/upload-cv" enctype="multipart/form-data" id="cvForm">
     <input dir="auto" type="hidden" name="profile_name" id="profileNameHidden">
     <input dir="auto" type="hidden" name="skills" id="skillsHidden">
     <input dir="auto" type="hidden" name="target_titles" id="targetTitlesHidden">

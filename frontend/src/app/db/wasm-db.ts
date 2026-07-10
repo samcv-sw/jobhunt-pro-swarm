@@ -7,17 +7,20 @@
 const SQLITE_CDN = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.js";
 const WASM_CDN = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.wasm";
 
-let dbInstance: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SQLiteDatabase = any;
+
+let dbInstance: SQLiteDatabase = null;
 
 export interface QueryResult {
   columns: string[];
-  values: any[][];
+  values: unknown[][];
 }
 
 /**
  * Initialize WebAssembly SQLite in browser
  */
-export async function getClientDB(): Promise<any> {
+export async function getClientDB(): Promise<SQLiteDatabase> {
   if (typeof window === "undefined") return null; // Bypasses Server-Side Rendering (SSR)
   if (dbInstance) return dbInstance;
 
@@ -27,7 +30,7 @@ export async function getClientDB(): Promise<any> {
     script.src = SQLITE_CDN;
     script.onload = async () => {
       try {
-        const initSqlJs = (window as any).initSqlJs;
+        const initSqlJs = (window as SQLiteDatabase).initSqlJs;
         if (!initSqlJs) {
           throw new Error("initSqlJs is undefined on window");
         }
@@ -88,7 +91,7 @@ export async function getClientDB(): Promise<any> {
 
         // 5. Setup auto-persist on mutation
         const originalRun = db.run.bind(db);
-        db.run = (sql: string, params?: any) => {
+        db.run = (sql: string, params?: unknown[]) => {
           const res = originalRun(sql, params);
           persistDB(db).catch(console.error);
           return res;
@@ -108,13 +111,13 @@ export async function getClientDB(): Promise<any> {
 /**
  * Persist database state back to OPFS
  */
-async function persistDB(db: any): Promise<void> {
+async function persistDB(db: SQLiteDatabase): Promise<void> {
   try {
     if (navigator.storage && navigator.storage.getDirectory) {
       const binary = db.export();
       const root = await navigator.storage.getDirectory();
       const fileHandle = await root.getFileHandle("jobhunt_local.db", { create: true });
-      const writable = await (fileHandle as any).createWritable();
+      const writable = await (fileHandle as SQLiteDatabase).createWritable();
       await writable.write(binary);
       await writable.close();
     }
@@ -126,7 +129,7 @@ async function persistDB(db: any): Promise<void> {
 /**
  * Execute a query and format results
  */
-export async function runLocalQuery(sql: string, params?: any): Promise<QueryResult[]> {
+export async function runLocalQuery(sql: string, params?: unknown[]): Promise<QueryResult[]> {
   const db = await getClientDB();
   if (!db) return [];
   try {
@@ -146,4 +149,3 @@ export async function runLocalQuery(sql: string, params?: any): Promise<QueryRes
     throw err;
   }
 }
-

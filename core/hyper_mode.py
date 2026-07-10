@@ -6,24 +6,24 @@ Port of HYPER_MODE.py from Sam_Job_Automator_Ultimate, adapted for JobHunt Pro.
 Integrates with existing config.py, database.py, and orchestrator.py infrastructure.
 """
 
+import concurrent.futures
+import json
 import logging
 import os
-import time
-import json
 import smtplib
 import ssl
 import threading
-import concurrent.futures
+import time
 from collections import defaultdict
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
-from typing import List, Dict, Optional, Tuple
 
 from dotenv import load_dotenv
 
 import config
-from core.turbo_templates import get_letter, detect_template_key
+import core.pg_sqlite_shim as sqlite3
+from core.turbo_templates import detect_template_key, get_letter
 
 load_dotenv()
 
@@ -175,7 +175,7 @@ class SMTPConnectionPool:
         except Exception:
             return False
 
-    def get_connection(self, provider: dict) -> Optional[smtplib.SMTP]:
+    def get_connection(self, provider: dict) -> smtplib.SMTP | None:
         """Get a cached SMTP connection or create a new one.
 
         Args:
@@ -278,7 +278,7 @@ class ProviderRotator:
         self.daily_counts = defaultdict(int)
         self.last_reset = time.time()
 
-    def get_next(self) -> Optional[dict]:
+    def get_next(self) -> dict | None:
         """Get next available provider (round-robin, respecting daily limits)."""
         # Reset daily counts every 24 hours
         if time.time() - self.last_reset > 86400:
@@ -331,7 +331,7 @@ class HyperEmailEngine:
         self.fail_count = 0
         self._start_time = None
 
-    def send_parallel(self, applications: List[Dict]) -> Tuple[List[str], int, int]:
+    def send_parallel(self, applications: list[dict]) -> tuple[list[str], int, int]:
         """Send multiple applications in parallel using ThreadPoolExecutor.
 
         Args:
@@ -379,7 +379,7 @@ class HyperEmailEngine:
 
         return successful, self.sent_count, self.fail_count
 
-    def _send_one(self, app: Dict) -> bool:
+    def _send_one(self, app: dict) -> bool:
         """Send a single application email.
 
         Args:
@@ -523,7 +523,7 @@ class HyperScraper:
         session.timeout = 10
         return session
 
-    def scrape(self, config_locations: list = None) -> List[Dict]:
+    def scrape(self, config_locations: list = None) -> list[dict]:
         """Scrape jobs from multiple sources in parallel.
 
         Args:
@@ -567,7 +567,7 @@ class HyperScraper:
         )
         return unique
 
-    def _scrape_source(self, source: str, location: str) -> List[Dict]:
+    def _scrape_source(self, source: str, location: str) -> list[dict]:
         """Scrape a single source for a single location."""
         import re
 
@@ -758,12 +758,10 @@ class HyperDB:
 
     def _init_db(self):
         """Initialize database schema."""
-import core.pg_sqlite_shim as sqlite3
-
         try:
             with sqlite3.connect(self.path, timeout=30) as conn:
-                conn.execute("PRAGMA journal_mode=WAL")
-                conn.execute("PRAGMA synchronous=NORMAL")
+                conn.execute("PRAGMA journal_mode=DELETE")
+                conn.execute("PRAGMA synchronous=FULL")
                 conn.executescript("""
                     CREATE TABLE IF NOT EXISTS hyper_jobs (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -796,7 +794,7 @@ import core.pg_sqlite_shim as sqlite3
         except Exception as e:
             logger.error(f"[HYPER-DB] Init failed: {e}")
 
-    def add_batch(self, jobs: List[Dict]) -> int:
+    def add_batch(self, jobs: list[dict]) -> int:
         """Insert a batch of jobs, skipping duplicates.
 
         Args:
@@ -805,8 +803,6 @@ import core.pg_sqlite_shim as sqlite3
         Returns:
             Number of new jobs inserted
         """
-import core.pg_sqlite_shim as sqlite3
-
         count = 0
         try:
             with sqlite3.connect(self.path, timeout=30) as conn:
@@ -834,7 +830,7 @@ import core.pg_sqlite_shim as sqlite3
             logger.error(f"[HYPER-DB] Batch insert failed: {e}")
         return count
 
-    def get_pending(self, limit: int = 1000) -> List[Dict]:
+    def get_pending(self, limit: int = 1000) -> list[dict]:
         """Get pending jobs that haven't been applied to.
 
         Args:
@@ -843,8 +839,6 @@ import core.pg_sqlite_shim as sqlite3
         Returns:
             List of job dicts with all fields
         """
-import core.pg_sqlite_shim as sqlite3
-
         try:
             with sqlite3.connect(self.path, timeout=10) as conn:
                 conn.row_factory = sqlite3.Row
@@ -857,14 +851,12 @@ import core.pg_sqlite_shim as sqlite3
             logger.error(f"[HYPER-DB] Get pending failed: {e}")
             return []
 
-    def mark_sent(self, job_ids: List[int]):
+    def mark_sent(self, job_ids: list[int]):
         """Mark jobs as sent.
 
         Args:
             job_ids: List of job database IDs to mark as sent
         """
-import core.pg_sqlite_shim as sqlite3
-
         try:
             with sqlite3.connect(self.path, timeout=10) as conn:
                 for jid in job_ids:
@@ -876,14 +868,12 @@ import core.pg_sqlite_shim as sqlite3
         except Exception as e:
             logger.error(f"[HYPER-DB] Mark sent failed: {e}")
 
-    def log_sends(self, sends: List[Tuple]):
+    def log_sends(self, sends: list[tuple]):
         """Log individual send records.
 
         Args:
             sends: List of tuples (job_id, company, title, recipient, provider, status)
         """
-import core.pg_sqlite_shim as sqlite3
-
         try:
             with sqlite3.connect(self.path, timeout=10) as conn:
                 for job_id, company, title, recipient, provider, status in sends:
@@ -907,8 +897,6 @@ import core.pg_sqlite_shim as sqlite3
         Returns:
             True if URL already exists in database
         """
-import core.pg_sqlite_shim as sqlite3
-
         try:
             with sqlite3.connect(self.path, timeout=5) as conn:
                 result = conn.execute(
@@ -924,8 +912,6 @@ import core.pg_sqlite_shim as sqlite3
         Returns:
             Dict with total, sent, pending, fail counts
         """
-import core.pg_sqlite_shim as sqlite3
-
         try:
             with sqlite3.connect(self.path, timeout=5) as conn:
                 total = conn.execute("SELECT COUNT(*) FROM hyper_jobs").fetchone()[0]
@@ -955,8 +941,6 @@ import core.pg_sqlite_shim as sqlite3
         Returns:
             JSON string if path is None
         """
-import core.pg_sqlite_shim as sqlite3
-
         try:
             with sqlite3.connect(self.path, timeout=5) as conn:
                 conn.row_factory = sqlite3.Row
@@ -1147,7 +1131,7 @@ class HyperMode:
         """
         return self.run(scrape=scrape, max_jobs=max_jobs)
 
-    def _guess_hr_emails(self, jobs: List[Dict]) -> List[str]:
+    def _guess_hr_emails(self, jobs: list[dict]) -> list[str]:
         """Guess HR email addresses from company names.
 
         Simple heuristic: hr@company.com
@@ -1245,7 +1229,7 @@ def main():
     try:
         if args.report:
             report = hyper.get_report()
-            print(json.dumps(report, indent=2, default=str))
+            logger.debug(json.dumps(report, indent=2, default=str))
             return
 
         if args.export:
@@ -1253,24 +1237,24 @@ def main():
             return
 
         if args.providers:
-            print(f"\n📧 Loaded {len(get_hyper_providers())} email providers:")
+            logger.debug(f"\n📧 Loaded {len(get_hyper_providers())} email providers:")
             for p in get_hyper_providers():
-                print(f"   {p['name']}: {p['email']} ({p['daily_limit']}/day)")
+                logger.debug(f"   {p['name']}: {p['email']} ({p['daily_limit']}/day)")
             return
 
         result = hyper.run(scrape=not args.no_scrape, max_jobs=args.max_jobs)
 
         # Print summary
-        print(f"\n{'=' * 50}")
-        print("📊 HYPER MODE SUMMARY")
-        print(f"{'=' * 50}")
-        print(f"  New jobs scraped:  {result.get('new_jobs', 0)}")
-        print(f"  Letters generated: {result.get('generated', 0)}")
-        print(f"  Emails sent:       {result.get('sent', 0)}")
-        print(f"  Failed:            {result.get('failed', 0)}")
-        print(f"  Time:              {result.get('elapsed_seconds', 0)}s")
-        print(f"  Speed:             {result.get('emails_per_hour', 0):.0f}/hour")
-        print(f"{'=' * 50}")
+        logger.debug(f"\n{'=' * 50}")
+        logger.debug("📊 HYPER MODE SUMMARY")
+        logger.debug(f"{'=' * 50}")
+        logger.debug(f"  New jobs scraped:  {result.get('new_jobs', 0)}")
+        logger.debug(f"  Letters generated: {result.get('generated', 0)}")
+        logger.debug(f"  Emails sent:       {result.get('sent', 0)}")
+        logger.debug(f"  Failed:            {result.get('failed', 0)}")
+        logger.debug(f"  Time:              {result.get('elapsed_seconds', 0)}s")
+        logger.debug(f"  Speed:             {result.get('emails_per_hour', 0):.0f}/hour")
+        logger.debug(f"{'=' * 50}")
 
     finally:
         hyper.close()

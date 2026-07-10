@@ -15,4 +15,4 @@ for f in files_to_check:
         if new_content != content:
             with open(filepath, "w", encoding="utf-8") as file:
                 file.write(new_content)
-            print(f"Updated {f}")
+            logger.debug(f"Updated {f}")

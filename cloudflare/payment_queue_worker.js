@@ -38,7 +38,8 @@ export default {
   async queue(batch, env) {
     for (let msg of batch.messages) {
       try {
-        const response = await fetch("https://jhfguf.pythonanywhere.com/api/v1/webhooks/payment", {
+        const backendUrl = env.PA_BASE || "https://jhfguf.pythonanywhere.com";
+        const response = await fetch(`${backendUrl}/api/v1/webhooks/payment`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

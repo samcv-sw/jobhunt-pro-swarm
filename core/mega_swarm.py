@@ -24,13 +24,14 @@ Team Managers (500) distributed proportionally across types.
 
 import asyncio
 import logging
-import time
 import random
-from typing import Optional, Dict, Any, List, Callable, Coroutine
+import time
+from collections.abc import Callable, Coroutine
 from datetime import datetime
+from typing import Any
 
 import config
-from core.agent_pool import AgentType, VirtualAgent, AgentStats, AGENT_RATE_LIMITS
+from core.agent_pool import AGENT_RATE_LIMITS, AgentStats, AgentType, VirtualAgent
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ logger = logging.getLogger(__name__)
 # MEGA AGENT DISTRIBUTION (20,000 total)
 # =============================================================================
 
-MEGA_WORKER_DISTRIBUTION: Dict[AgentType, int] = {
+MEGA_WORKER_DISTRIBUTION: dict[AgentType, int] = {
     AgentType.SCRAPER: 5000,
     AgentType.AI_SCORER: 3000,
     AgentType.COVER_LETTER: 2000,
@@ -50,7 +51,7 @@ MEGA_WORKER_DISTRIBUTION: Dict[AgentType, int] = {
 }
 
 # Squad leaders: ~8.3% of worker count per type
-MEGA_SQUAD_LEADER_DISTRIBUTION: Dict[AgentType, int] = {
+MEGA_SQUAD_LEADER_DISTRIBUTION: dict[AgentType, int] = {
     AgentType.SCRAPER: 400,
     AgentType.AI_SCORER: 250,
     AgentType.COVER_LETTER: 160,
@@ -61,7 +62,7 @@ MEGA_SQUAD_LEADER_DISTRIBUTION: Dict[AgentType, int] = {
 }
 
 # Team managers: ~33% of squad leader count per type
-MEGA_TEAM_MANAGER_DISTRIBUTION: Dict[AgentType, int] = {
+MEGA_TEAM_MANAGER_DISTRIBUTION: dict[AgentType, int] = {
     AgentType.SCRAPER: 130,
     AgentType.AI_SCORER: 80,
     AgentType.COVER_LETTER: 55,
@@ -88,7 +89,7 @@ logger.info(
 )
 
 # Rate limits for hierarchy agents
-MEGA_RATE_LIMITS: Dict[AgentType, int] = {
+MEGA_RATE_LIMITS: dict[AgentType, int] = {
     **AGENT_RATE_LIMITS,
     AgentType.SQUAD_LEADER: 50,
     AgentType.TEAM_MANAGER: 200,
@@ -107,14 +108,14 @@ class SquadLeaderAgent:
     """
 
     def __init__(
-        self, leader_id: str, agent_type: AgentType, worker_agents: List[VirtualAgent]
+        self, leader_id: str, agent_type: AgentType, worker_agents: list[VirtualAgent]
     ):
         self.leader_id = leader_id
         self.agent_type = agent_type
         self.workers = worker_agents
         self.stats = AgentStats(agent_id=leader_id, agent_type=AgentType.SQUAD_LEADER)
         self._rr_index = 0
-        self._active_tasks: Dict[str, asyncio.Task] = {}
+        self._active_tasks: dict[str, asyncio.Task] = {}
         logger.info(
             "SquadLeader %s created (%s, %d workers)",
             leader_id,
@@ -125,9 +126,9 @@ class SquadLeaderAgent:
     async def dispatch_to_workers(
         self,
         task_func: Callable[..., Coroutine],
-        args_list: List[tuple],
-        result_callback: Optional[Callable] = None,
-    ) -> List[Any]:
+        args_list: list[tuple],
+        result_callback: Callable | None = None,
+    ) -> list[Any]:
         """Dispatch parallel tasks to workers. Returns list of results."""
         results = []
         for args in args_list:
@@ -155,7 +156,7 @@ class SquadLeaderAgent:
         self.stats.last_heartbeat = time.time()
         return dispatched
 
-    def _next_worker(self) -> Optional[VirtualAgent]:
+    def _next_worker(self) -> VirtualAgent | None:
         """Round-robin select next available worker."""
         if not self.workers:
             return None
@@ -173,7 +174,7 @@ class SquadLeaderAgent:
     def get_available_workers(self) -> int:
         return sum(1 for a in self.workers if not a.is_busy and a.queue_size < 10)
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         return {
             "leader_id": self.leader_id,
             "type": self.agent_type.value,
@@ -200,14 +201,14 @@ class TeamManagerAgent:
         self,
         manager_id: str,
         agent_type: AgentType,
-        squad_leaders: List[SquadLeaderAgent],
+        squad_leaders: list[SquadLeaderAgent],
     ):
         self.manager_id = manager_id
         self.agent_type = agent_type
         self.squad_leaders = squad_leaders
         self.stats = AgentStats(agent_id=manager_id, agent_type=AgentType.TEAM_MANAGER)
         self._rr_index = 0
-        self._active_tasks: Dict[str, asyncio.Task] = {}
+        self._active_tasks: dict[str, asyncio.Task] = {}
         logger.info(
             "TeamManager %s created (%s, %d squad leaders, ~%d workers)",
             manager_id,
@@ -219,9 +220,9 @@ class TeamManagerAgent:
     async def delegate(
         self,
         task_func: Callable[..., Coroutine],
-        args_batches: List[List[tuple]],
-        result_callback: Optional[Callable] = None,
-    ) -> List[Any]:
+        args_batches: list[list[tuple]],
+        result_callback: Callable | None = None,
+    ) -> list[Any]:
         """Delegate tasks across squad leaders. Each batch goes to one squad."""
         results = []
         for i, batch in enumerate(args_batches):
@@ -252,7 +253,7 @@ class TeamManagerAgent:
         self.stats.last_heartbeat = time.time()
         return total
 
-    def _next_squad_leader(self) -> Optional[SquadLeaderAgent]:
+    def _next_squad_leader(self) -> SquadLeaderAgent | None:
         """Round-robin select next available squad leader."""
         if not self.squad_leaders:
             return None
@@ -269,7 +270,7 @@ class TeamManagerAgent:
     def get_available_workers(self) -> int:
         return sum(sl.get_available_workers() for sl in self.squad_leaders)
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         return {
             "manager_id": self.manager_id,
             "type": self.agent_type.value,
@@ -329,10 +330,10 @@ class MegaAgentPool:
     def _build_team_managers(self):
         pass
 
-    def get_team_manager(self, agent_type: AgentType) -> Optional[TeamManagerAgent]:
+    def get_team_manager(self, agent_type: AgentType) -> TeamManagerAgent | None:
         return None
 
-    def get_squad_leader(self, agent_type: AgentType) -> Optional[SquadLeaderAgent]:
+    def get_squad_leader(self, agent_type: AgentType) -> SquadLeaderAgent | None:
         """Get a squad leader for the given agent type."""
         leaders = self.squad_leaders_by_type.get(agent_type, [])
         if not leaders:
@@ -343,8 +344,8 @@ class MegaAgentPool:
         self,
         agent_type: AgentType,
         task_func: Callable[..., Coroutine],
-        args_batches: List[List[tuple]],
-        result_callback: Optional[Callable] = None,
+        args_batches: list[list[tuple]],
+        result_callback: Callable | None = None,
     ) -> int:
         """
         Distributed dispatch: Enqueue tasks to the job_queue natively.
@@ -373,7 +374,7 @@ class MegaAgentPool:
         """Broadcast a task to ALL workers of a given type via hierarchy."""
         return 0  # Deprecated in distributed mode
 
-    def get_pool_stats(self) -> Dict[str, Any]:
+    def get_pool_stats(self) -> dict[str, Any]:
         """Get comprehensive stats for the entire 20,000 agent pool."""
         by_type = {}
         for atype in AgentType:
@@ -423,15 +424,15 @@ class MegaSwarmMaster:
     """
 
     def __init__(self):
-        self.mega_pool: Optional[MegaAgentPool] = None
+        self.mega_pool: MegaAgentPool | None = None
         self._orchestrator = None
         self._running = False
         self._paused = False
-        self._start_time: Optional[float] = None
+        self._start_time: float | None = None
         self._cycle_count = 0
         self._llm_pool = None
         self._email_pool = None
-        self._health_task: Optional[asyncio.Task] = None
+        self._health_task: asyncio.Task | None = None
 
     async def initialize(self, orchestrator=None, llm_pool=None, email_pool=None):
         """Initialize the mega swarm with 20,000 agents."""
@@ -458,7 +459,7 @@ class MegaSwarmMaster:
         )
         return self
 
-    async def full_job_cycle(self) -> Dict[str, int]:
+    async def full_job_cycle(self) -> dict[str, int]:
         """
         Run a complete 7-phase job cycle across all 20,000 agents.
         Returns summary counts per phase.
@@ -562,7 +563,7 @@ class MegaSwarmMaster:
             for location in ["remote", "beirut", "middle east"]:
                 queries.append((keyword, location))
 
-        async def search_worker(keyword: str, location: str) -> Dict[str, Any]:
+        async def search_worker(keyword: str, location: str) -> dict[str, Any]:
             """Individual scraper worker task."""
             await asyncio.sleep(random.uniform(0.05, 0.2))  # simulate search
             return {
@@ -658,7 +659,7 @@ class MegaSwarmMaster:
                 )
 
 
-        async def score_worker(job: dict) -> Dict[str, Any]:
+        async def score_worker(job: dict) -> dict[str, Any]:
             """Individual scoring worker task."""
             score = random.randint(40, 95)
             return {"job_id": job.get("id"), "title": job.get("title"), "score": score}
@@ -714,7 +715,7 @@ class MegaSwarmMaster:
                 }
             )
 
-        async def cover_letter_worker(job: dict) -> Dict[str, Any]:
+        async def cover_letter_worker(job: dict) -> dict[str, Any]:
             """Individual cover letter worker task."""
             await asyncio.sleep(random.uniform(0.05, 0.15))
             return {
@@ -787,7 +788,7 @@ class MegaSwarmMaster:
                     }
                 )
 
-        async def email_worker(recipient: dict) -> Dict[str, Any]:
+        async def email_worker(recipient: dict) -> dict[str, Any]:
             """Individual email worker task."""
             await asyncio.sleep(random.uniform(0.1, 0.3))
             return {
@@ -853,7 +854,7 @@ class MegaSwarmMaster:
             except Exception as e:
                 logger.debug("Data collection error: %s", e)
 
-        async def collect_worker(batch_id: int, data_slice: dict) -> Dict[str, Any]:
+        async def collect_worker(batch_id: int, data_slice: dict) -> dict[str, Any]:
             """Individual collector worker task."""
             await asyncio.sleep(0.05)
             return {"batch": batch_id, "collected": True, **data_slice}
@@ -920,7 +921,7 @@ class MegaSwarmMaster:
             "competitor_analysis",
         ]
 
-        async def analyze_worker(analysis_type: str, stats: dict) -> Dict[str, Any]:
+        async def analyze_worker(analysis_type: str, stats: dict) -> dict[str, Any]:
             """Individual analyzer worker task."""
             await asyncio.sleep(random.uniform(0.05, 0.15))
             return {"type": analysis_type, "analyzed": True, "stats": stats}
@@ -980,7 +981,7 @@ class MegaSwarmMaster:
                     }
                 )
 
-        async def followup_worker(job_ref: dict) -> Dict[str, Any]:
+        async def followup_worker(job_ref: dict) -> dict[str, Any]:
             """Individual follow-up worker task."""
             await asyncio.sleep(random.uniform(0.1, 0.2))
             return {
@@ -1046,7 +1047,7 @@ class MegaSwarmMaster:
     # -------------------------------------------------------------------------
     # Public API
     # -------------------------------------------------------------------------
-    async def get_swarm_status(self) -> Dict[str, Any]:
+    async def get_swarm_status(self) -> dict[str, Any]:
         """Get comprehensive mega swarm status."""
         pool_stats = self.mega_pool.get_pool_stats() if self.mega_pool else {}
         uptime = time.time() - self._start_time if self._start_time else 0

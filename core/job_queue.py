@@ -1,8 +1,11 @@
 import json
 import logging
+import threading
+
 from core.pg_sqlite_shim import connect, get_backend
 
 logger = logging.getLogger(__name__)
+_sqlite_dequeue_lock = threading.Lock()
 
 
 def enqueue_task(
@@ -32,26 +35,28 @@ def dequeue_task():
         with connect() as conn:
             # If backend is sqlite, we do a simple non-concurrent fetch (for local dev)
             if get_backend() == "sqlite":
-                cur = conn.execute("""
-                    SELECT id, task_type, payload FROM job_queue 
-                    WHERE (status = 'pending' OR status = 'failed')
-                      AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
-                    ORDER BY priority ASC, next_retry_at ASC, created_at ASC 
-                    LIMIT 1
-                """)
-                row = cur.fetchone()
-                if not row:
-                    return None
-                task_id = row[0]
-                conn.execute(
-                    "UPDATE job_queue SET status = 'running', locked_at = CURRENT_TIMESTAMP WHERE id = ?",
-                    (task_id,),
-                )
-                return {
-                    "id": task_id,
-                    "task_type": row[1],
-                    "payload": json.loads(row[2]),
-                }
+                with _sqlite_dequeue_lock:
+                    conn.execute("BEGIN IMMEDIATE")
+                    cur = conn.execute("""
+                        SELECT id, task_type, payload FROM job_queue 
+                        WHERE (status = 'pending' OR status = 'failed')
+                          AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
+                        ORDER BY priority ASC, next_retry_at ASC, created_at ASC 
+                        LIMIT 1
+                    """)
+                    row = cur.fetchone()
+                    if not row:
+                        return None
+                    task_id = row[0]
+                    conn.execute(
+                        "UPDATE job_queue SET status = 'running', locked_at = CURRENT_TIMESTAMP WHERE id = ?",
+                        (task_id,),
+                    )
+                    return {
+                        "id": task_id,
+                        "task_type": row[1],
+                        "payload": json.loads(row[2]),
+                    }
             else:
                 # PostgreSQL atomic concurrent dequeue
                 cur = conn.execute("""

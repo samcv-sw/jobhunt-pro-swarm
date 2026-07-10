@@ -28,6 +28,18 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 import smtplib
 import threading
+
+def _get_python_executable() -> str:
+    """Return the absolute path of the correct Python executable, even in uWSGI."""
+    import sys
+    import os
+    exe = sys.executable
+    if exe and "uwsgi" in os.path.basename(exe).lower():
+        venv_exe = os.path.join(sys.prefix, "bin", "python")
+        if os.path.exists(venv_exe):
+            return venv_exe
+        return "python3"
+    return exe or "python3"
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -369,41 +381,41 @@ async def _campaign_self_tick_loop():
             await asyncio.sleep(60)  # check every 60 seconds
             _now = _t.time()
             def _db_tick():
-                _conn = get_db()
-                _pending_res = _conn.execute(
-                    "SELECT campaign_id FROM campaigns WHERE status='pending'"
-                ).fetchall()
+                with get_db() as _conn:
+                    _pending_res = _conn.execute(
+                        "SELECT campaign_id FROM campaigns WHERE status='pending'"
+                    ).fetchall()
                 
-                _zombie_res = _conn.execute("""
-                    SELECT c.campaign_id FROM campaigns c
-                    WHERE c.status='running'
-                    AND c.started_at < datetime('now', '-10 minutes')
-                    AND (SELECT COUNT(*) FROM campaign_emails e WHERE e.campaign_id = c.campaign_id) = 0
-                """).fetchall()
-                for _row in _zombie_res:
-                    _conn.execute("UPDATE campaigns SET status='pending', started_at=NULL WHERE campaign_id=?", (_row["campaign_id"],))
+                    _zombie_res = _conn.execute("""
+                        SELECT c.campaign_id FROM campaigns c
+                        WHERE c.status='running'
+                        AND c.started_at < datetime('now', '-10 minutes')
+                        AND (SELECT COUNT(*) FROM campaign_emails e WHERE e.campaign_id = c.campaign_id) = 0
+                    """).fetchall()
+                    for _row in _zombie_res:
+                        _conn.execute("UPDATE campaigns SET status='pending', started_at=NULL WHERE campaign_id=?", (_row["campaign_id"],))
                 
-                _stuck_res = _conn.execute(
-                    "SELECT campaign_id FROM campaigns WHERE status='running' AND started_at IS NOT NULL AND datetime(started_at, '+24 hours') < datetime('now')"
-                ).fetchall()
-                for _row in _stuck_res:
-                    _conn.execute("UPDATE campaigns SET status='failed', completed_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (_row["campaign_id"],))
+                    _stuck_res = _conn.execute(
+                        "SELECT campaign_id FROM campaigns WHERE status='running' AND started_at IS NOT NULL AND datetime(started_at, '+24 hours') < datetime('now')"
+                    ).fetchall()
+                    for _row in _stuck_res:
+                        _conn.execute("UPDATE campaigns SET status='failed', completed_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (_row["campaign_id"],))
                 
-                # RETRY failed campaigns every 4 hours (in case scrapers were temporarily blocked)
-                _retry_res = _conn.execute("""
-                    SELECT campaign_id FROM campaigns 
-                    WHERE status='failed' 
-                    AND completed_at IS NOT NULL 
-                    AND datetime(completed_at, '+4 hours') < datetime('now')
-                    AND COALESCE(total_attempted, 0) = 0
-                """).fetchall()
-                for _row in _retry_res:
-                    _conn.execute("UPDATE campaigns SET status='pending', completed_at=NULL, started_at=NULL WHERE campaign_id=?", (_row["campaign_id"],))
-                    logger.info(f"[CLOUD-TICK] Auto-retrying failed campaign {_row['campaign_id']} (was 0 jobs)")
+                    # RETRY failed campaigns every 4 hours (in case scrapers were temporarily blocked)
+                    _retry_res = _conn.execute("""
+                        SELECT campaign_id FROM campaigns 
+                        WHERE status='failed' 
+                        AND completed_at IS NOT NULL 
+                        AND datetime(completed_at, '+4 hours') < datetime('now')
+                        AND COALESCE(total_attempted, 0) = 0
+                    """).fetchall()
+                    for _row in _retry_res:
+                        _conn.execute("UPDATE campaigns SET status='pending', completed_at=NULL, started_at=NULL WHERE campaign_id=?", (_row["campaign_id"],))
+                        logger.info(f"[CLOUD-TICK] Auto-retrying failed campaign {_row['campaign_id']} (was 0 jobs)")
                 
-                _conn.commit()
-                _conn.close()
-                return _pending_res, _zombie_res, _stuck_res
+                    _conn.commit()
+                    pass  # _conn.close()
+                    return _pending_res, _zombie_res, _stuck_res
                 
             _pending, _zombie, _stuck = await asyncio.to_thread(_db_tick)
             
@@ -506,7 +518,6 @@ async def lifespan(app_instance):
     async def _deferred_init():
         try:
             from core.database import db
-            from core.growth_autopilot import start_autopilot
             await db.connect()
             
             if os.getenv("FORCE_SQLITE") != "1":
@@ -515,31 +526,90 @@ async def lifespan(app_instance):
                 _background_tasks.append(task_queue)
             else:
                 logger.info("[LIFESPAN] FORCE_SQLITE=1, bypassing PostgreSQL Procrastinate worker")
-            
-            # Start Autonomous AI Client Acquisition!
-            start_autopilot()
         except Exception as e:
             logger.warning(f"[LIFESPAN] DB/queue init deferred error: {e}")
     
-    asyncio.ensure_future(_deferred_init())
+    init_task = asyncio.create_task(_deferred_init())
     # ----------------------------------------------------------------------------
     
-    task1 = asyncio.create_task(email_marketing_loop())
-    task2 = asyncio.create_task(_honeypot_cleanup_loop())
-    task3 = asyncio.create_task(_campaign_self_tick_loop())
-    task4 = asyncio.create_task(_seo_blog_farm_loop())
-    
-    _background_tasks.extend([task1, task2, task3, task4])
+    run_loops = os.getenv("RUN_BACKGROUND_LOOPS", "true").lower() in ("true", "1", "yes")
+    disable_loops = os.getenv("DISABLE_BACKGROUND_LOOPS", "false").lower() in ("true", "1", "yes")
+
+    acquired_lock = False
+    lock_fd = None
+    if run_loops and not disable_loops:
+        import tempfile
+        lock_path = os.path.join(tempfile.gettempdir(), "jobhunt_background_loops.lock")
+        try:
+            if sys.platform != 'win32':
+                import fcntl
+                lock_fd = open(lock_path, 'w')
+                fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                acquired_lock = True
+            else:
+                # On Windows, try to remove stale lock file first
+                try:
+                    if os.path.exists(lock_path):
+                        os.remove(lock_path)
+                except Exception:
+                    pass
+                lock_fd = os.open(lock_path, os.O_CREAT | os.O_WRONLY | os.O_EXCL)
+                acquired_lock = True
+        except Exception:
+            logger.info("[LIFESPAN] Background loops lock already acquired by another worker/process. Bypassing loops in this process.")
+
+        if acquired_lock:
+            logger.info("[LIFESPAN] Acquired background loops process lock. Starting background loops...")
+            task1 = asyncio.create_task(email_marketing_loop())
+            task2 = asyncio.create_task(_honeypot_cleanup_loop())
+            task3 = asyncio.create_task(_campaign_self_tick_loop())
+            task4 = asyncio.create_task(_seo_blog_farm_loop())
+            _background_tasks.extend([task1, task2, task3, task4])
+            app_instance.state.background_loops_lock = lock_fd
+            
+            # Start Autonomous AI Client Acquisition after DB connects!
+            async def _run_autopilot_after_db():
+                try:
+                    await init_task
+                    from core.growth_autopilot import start_autopilot
+                    start_autopilot()
+                except Exception as ae:
+                    logger.warning(f"[LIFESPAN] Autopilot start deferred error: {ae}")
+            asyncio.create_task(_run_autopilot_after_db())
+        else:
+            logger.info("[LIFESPAN] Storing None for background loops lock.")
+            app_instance.state.background_loops_lock = None
+    else:
+        logger.info("[LIFESPAN] Background loops disabled via environment flag.")
+
     yield
     logger.info("[LIFESPAN] Shutting down background tasks & PostgreSQL...")
-    
+
     from core.database import db
     if hasattr(db, 'pool') and db.pool:
         await db.disconnect()
-    
+
     for t in _background_tasks:
         t.cancel()
-    await asyncio.gather(*_background_tasks, return_exceptions=True)
+    if _background_tasks:
+        await asyncio.gather(*_background_tasks, return_exceptions=True)
+
+    # Release the lock if held
+    if hasattr(app_instance.state, "background_loops_lock") and app_instance.state.background_loops_lock is not None:
+        try:
+            fd = app_instance.state.background_loops_lock
+            if sys.platform != 'win32':
+                fd.close()
+            else:
+                os.close(fd)
+            import tempfile
+            lock_path = os.path.join(tempfile.gettempdir(), "jobhunt_background_loops.lock")
+            if os.path.exists(lock_path):
+                os.remove(lock_path)
+            logger.info("[LIFESPAN] Released background loops process lock.")
+        except Exception as le:
+            logger.warning(f"[LIFESPAN] Error releasing background loops process lock: {le}")
+
     logger.info("[LIFESPAN] Shutdown complete.")
 
 
@@ -702,7 +772,7 @@ class SecurityHeadersMiddleware:
                     (b"cross-origin-resource-policy", b"same-origin"),
                     (b"content-security-policy",
                      b"default-src 'self'; "
-                     b"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://cdn.jsdelivr.net; "
+                     b"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://unpkg.com; "
                      b"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
                      b"font-src 'self' https://fonts.gstatic.com data:; "
                      b"img-src 'self' data: https: blob:; "
@@ -741,7 +811,7 @@ try:
     from starlette.middleware.cors import CORSMiddleware
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["https://jhfguf.pythonanywhere.com", "null"],
+        allow_origins=[config.SITE_URL, "null"],
         allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?|chrome-extension://.*",
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -771,15 +841,15 @@ def health_check():
 @app.get("/security.txt")
 def security_txt():
     """Security.txt — White-hat standard for vulnerability disclosure (RFC 9116)."""
-    site = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
+    site = os.getenv("SITE_URL", config.SITE_URL)
     txt = f"""Contact: mailto:samsalameh.cv@gmail.com
-Contact: https://jhfguf.pythonanywhere.com/contact
+Contact: {site}/contact
 Expires: 2027-12-31T23:59:59Z
-Encryption: https://jhfguf.pythonanywhere.com/.well-known/pgp-key.txt
+Encryption: {site}/.well-known/pgp-key.txt
 Preferred-Languages: en, ar
-Policy: https://jhfguf.pythonanywhere.com/privacy
-Hiring: https://jhfguf.pythonanywhere.com/for-employers
-Acknowledgments: https://jhfguf.pythonanywhere.com/trust
+Policy: {site}/privacy
+Hiring: {site}/for-employers
+Acknowledgments: {site}/trust
 Canonical: {site}/.well-known/security.txt
 """
     return Response(content=txt, media_type="text/plain")
@@ -865,7 +935,13 @@ def deduct_wallet(conn, user_id: str, amount: float, desc: str, txn_type: str = 
 
 # Trust X-Forwarded-* headers when behind a reverse proxy (nginx, Caddy, Cloudflare, etc.)
 # Required for correct HTTPS redirect URLs, client IP detection, and NOWPayments IPN callbacks
-app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="jhfguf.pythonanywhere.com")
+# Extract host from config.SITE_URL
+try:
+    from urllib.parse import urlparse
+    _trusted_host = urlparse(config.SITE_URL).netloc or "jhfguf.pythonanywhere.com"
+except Exception:
+    _trusted_host = "jhfguf.pythonanywhere.com"
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=_trusted_host)
 
 # â&#x201D;€â&#x201D;€ CSRF Protection Middleware â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 # Validates Origin/Referer on all POST requests to prevent CSRF attacks.
@@ -946,7 +1022,12 @@ class _CsrfEmojiMiddleware:
             if not skip:
                 origin  = request.headers.get("origin", "")
                 referer = request.headers.get("referer", "")
-                allowed = {"jhfguf.pythonanywhere.com", "localhost", "127.0.0.1"}
+                try:
+                    from urllib.parse import urlparse
+                    _site_host = urlparse(config.SITE_URL).netloc or "jhfguf.pythonanywhere.com"
+                except Exception:
+                    _site_host = "jhfguf.pythonanywhere.com"
+                allowed = {_site_host, "jhfguf.pythonanywhere.com", "localhost", "127.0.0.1"}
                 ok = False
                 for val in (origin, referer):
                     if val:
@@ -1140,506 +1221,521 @@ def get_db(max_retries: int = 3):
             raise
     raise sqlite3.OperationalError(f"Failed to connect to DB after {max_retries} retries")
 
+def _check_legacy_schema(conn):
+    try:
+        orders_info = [r[1] for r in conn.execute("PRAGMA table_info(orders)").fetchall()]
+        campaigns_info = [r[1] for r in conn.execute("PRAGMA table_info(campaigns)").fetchall()]
+        manual_emails_info = [r[1] for r in conn.execute("PRAGMA table_info(manual_emails)").fetchall()]
+        if (orders_info and "order_id" not in orders_info) or (not campaigns_info) or ("bouquets" not in campaigns_info) or (campaigns_info and "user_id" not in campaigns_info):
+            logger.warning("[DB] Old or corrupt schema detected. Dropping orders and campaigns tables to recreate them.")
+            conn.execute("DROP TABLE IF EXISTS orders")
+            conn.execute("DROP TABLE IF EXISTS campaigns")
+            conn.commit()
+        if manual_emails_info and "user_id" not in manual_emails_info:
+            logger.info("[DB] Backfilling manual_emails user_id column")
+            conn.execute("ALTER TABLE manual_emails ADD COLUMN user_id TEXT")
+            conn.commit()
+    except Exception as e:
+        logger.error(f"[DB] Error checking schema: {e}")
+
+def _create_tables(conn):
+    """Initialize database tables for JobHunt Pro SaaS."""
+    _create_core_tables(conn)
+    _create_billing_tables(conn)
+    _create_campaign_tables(conn)
+    _create_features_tables(conn)
+
+def _create_core_tables(conn):
+    """Initialize core user and profile tables."""
+    conn.executescript("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        name TEXT,
+        phone TEXT,
+        company_name TEXT,
+        user_type TEXT DEFAULT 'jobseeker',
+        wallet_balance REAL DEFAULT 0,
+        total_spent REAL DEFAULT 0,
+        api_key TEXT UNIQUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        is_active INTEGER DEFAULT 1
+    );
+    CREATE TABLE IF NOT EXISTS cv_profiles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        profile_name TEXT,
+        cv_text TEXT,
+        cover_letter_template TEXT,
+        email_template TEXT,
+        skills TEXT,
+        experience_years INTEGER,
+        target_titles TEXT,
+        target_locations TEXT,
+        home_country TEXT DEFAULT 'Lebanon',
+        min_local_salary REAL DEFAULT 0,
+        min_international_salary REAL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+    );
+    """)
+
+def _create_billing_tables(conn):
+    """Initialize billing, orders, transactions, and package tables."""
+    conn.executescript("""
+    CREATE TABLE IF NOT EXISTS orders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id TEXT UNIQUE NOT NULL,
+        user_id TEXT NOT NULL,
+        order_type TEXT NOT NULL,
+        package_name TEXT,
+        company_count INTEGER,
+        amount_usd REAL NOT NULL,
+        payment_method TEXT,
+        payment_status TEXT DEFAULT 'pending',
+        redeem_code TEXT,
+        pay_address TEXT,
+        nowpayments_id INTEGER,
+        nowpayments_invoice_url TEXT,
+        pay_currency TEXT,
+        pay_amount REAL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        completed_at TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+    );
+    CREATE TABLE IF NOT EXISTS wallet_transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        transaction_type TEXT NOT NULL,
+        amount REAL NOT NULL,
+        balance_after REAL,
+        description TEXT,
+        tx_hash TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+    );
+    CREATE TABLE IF NOT EXISTS redeem_codes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        code TEXT UNIQUE NOT NULL,
+        value_usd REAL NOT NULL,
+        code_type TEXT DEFAULT 'sale',
+        is_used INTEGER DEFAULT 0,
+        used_by TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        used_at TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS referrals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        referrer_id TEXT NOT NULL,
+        referred_id TEXT NOT NULL,
+        commission REAL DEFAULT 0,
+        status TEXT DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (referrer_id) REFERENCES users(user_id)
+    );
+    CREATE TABLE IF NOT EXISTS pricing_tiers_v2 (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tier TEXT UNIQUE NOT NULL,
+        name TEXT NOT NULL,
+        companies INTEGER NOT NULL,
+        price_usd REAL NOT NULL,
+        description TEXT
+    );
+    CREATE TABLE IF NOT EXISTS service_packages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        package TEXT UNIQUE NOT NULL,
+        name TEXT NOT NULL,
+        price_usd REAL NOT NULL,
+        description TEXT
+    );
+    CREATE TABLE IF NOT EXISTS bouquet_packages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        bouquet TEXT UNIQUE NOT NULL,
+        name TEXT NOT NULL,
+        price_usd REAL NOT NULL,
+        description TEXT
+    );
+    CREATE TABLE IF NOT EXISTS purchased_services (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        service_type TEXT NOT NULL,
+        package_id TEXT NOT NULL,
+        package_name TEXT NOT NULL,
+        price_paid REAL NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        status TEXT DEFAULT 'active'
+    );
+    CREATE TABLE IF NOT EXISTS pricing_tiers (
+        id INTEGER NOT NULL,
+        tier VARCHAR(50) NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        companies INTEGER NOT NULL,
+        price_usd NUMERIC(10, 2) NOT NULL,
+        description TEXT,
+        is_active BOOLEAN NOT NULL,
+        PRIMARY KEY (id),
+        UNIQUE (tier)
+    );
+    CREATE INDEX IF NOT EXISTS idx_wallet_transactions_user_id ON wallet_transactions(user_id);
+    """)
+
+def _create_campaign_tables(conn):
+    """Initialize campaigns, logs, and queue tables."""
+    conn.executescript("""
+    CREATE TABLE IF NOT EXISTS campaigns (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        campaign_id TEXT UNIQUE NOT NULL,
+        user_id TEXT NOT NULL,
+        order_id TEXT NOT NULL,
+        profile_id INTEGER,
+        status TEXT DEFAULT 'pending',
+        total_companies INTEGER DEFAULT 0,
+        sent_count INTEGER DEFAULT 0,
+        open_count INTEGER DEFAULT 0,
+        response_count INTEGER DEFAULT 0,
+        bouquets TEXT,
+        engine_type TEXT DEFAULT 'cloud',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        started_at TIMESTAMP,
+        completed_at TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+    );
+    CREATE TABLE IF NOT EXISTS campaign_emails (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        campaign_id TEXT NOT NULL,
+        company_name TEXT,
+        job_title TEXT,
+        email_address TEXT,
+        status TEXT DEFAULT 'pending',
+        tracking_id TEXT,
+        provider_used TEXT,
+        followup_count INTEGER DEFAULT 0,
+        sent_at TIMESTAMP,
+        opened_at TIMESTAMP,
+        responded_at TIMESTAMP,
+        response_type TEXT,
+        response_text TEXT,
+        FOREIGN KEY (campaign_id) REFERENCES campaigns(campaign_id)
+    );
+    CREATE TABLE IF NOT EXISTS job_queue (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_type TEXT NOT NULL,
+        payload TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        locked_at TIMESTAMP,
+        error TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_job_queue_status ON job_queue(status);
+    CREATE INDEX IF NOT EXISTS idx_job_queue_pending ON job_queue(created_at ASC) WHERE status = 'pending';
+    CREATE INDEX IF NOT EXISTS idx_campaigns_user_id ON campaigns(user_id);
+    CREATE INDEX IF NOT EXISTS idx_campaigns_created_at ON campaigns(created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_campaign_emails_campaign_id ON campaign_emails(campaign_id);
+    CREATE INDEX IF NOT EXISTS idx_campaign_emails_sent_at ON campaign_emails(sent_at DESC);
+    
+    CREATE TABLE IF NOT EXISTS email_queue (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        campaign_id TEXT,
+        to_email TEXT NOT NULL,
+        company TEXT,
+        title TEXT,
+        subject TEXT,
+        body_html TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        sent_at TIMESTAMP,
+        error TEXT,
+        attempts INTEGER DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_email_queue_status ON email_queue(status);
+    CREATE INDEX IF NOT EXISTS idx_email_queue_created ON email_queue(created_at ASC);
+    """)
+
+def _create_features_tables(conn):
+    """Initialize additional feature, squad, intelligence, log, and waitlist tables."""
+    conn.executescript("""
+    CREATE TABLE IF NOT EXISTS flash_sales (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        discount_percent REAL NOT NULL DEFAULT 10,
+        start_time TIMESTAMP NOT NULL,
+        end_time TIMESTAMP NOT NULL,
+        active INTEGER DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS support_tickets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        subject TEXT,
+        message TEXT,
+        status TEXT DEFAULT 'open',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+    );
+    CREATE TABLE IF NOT EXISTS daily_logins (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        login_date DATE NOT NULL,
+        streak_days INTEGER DEFAULT 1,
+        reward_amount REAL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(user_id),
+        UNIQUE(user_id, login_date)
+    );
+    CREATE TABLE IF NOT EXISTS manual_emails (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT,
+        to_email TEXT NOT NULL,
+        subject TEXT,
+        body TEXT,
+        price_usd REAL DEFAULT 0.1,
+        admin_email TEXT,
+        status TEXT DEFAULT 'pending',
+        error TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS follow_up_emails (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        campaign_id VARCHAR(64) NOT NULL,
+        company VARCHAR(255) NOT NULL,
+        job_title VARCHAR(255) NOT NULL,
+        email_address VARCHAR(255) NOT NULL,
+        seq INTEGER NOT NULL DEFAULT 1,
+        subject TEXT NOT NULL,
+        body TEXT NOT NULL,
+        scheduled_at TIMESTAMP NOT NULL,
+        sent_at TIMESTAMP,
+        status VARCHAR(20) DEFAULT 'pending'
+    );
+    CREATE TABLE IF NOT EXISTS job_squads (
+        squad_id VARCHAR(64) PRIMARY KEY,
+        founder_id VARCHAR(64) NOT NULL,
+        member1_id VARCHAR(64),
+        member2_id VARCHAR(64),
+        status VARCHAR(20) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS interview_intel (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id VARCHAR(64) NOT NULL,
+        company VARCHAR(255) NOT NULL,
+        role VARCHAR(255) NOT NULL,
+        questions TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS waitlist (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id VARCHAR(64) NOT NULL UNIQUE,
+        rank INTEGER NOT NULL,
+        referrals INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS jobs (
+        id INTEGER NOT NULL,
+        job_id VARCHAR(64) NOT NULL,
+        company VARCHAR(255) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        location VARCHAR(255),
+        salary VARCHAR(100),
+        url TEXT,
+        source VARCHAR(50),
+        snippet TEXT,
+        status VARCHAR(50) NOT NULL,
+        match_score NUMERIC(5, 2),
+        response_type VARCHAR(50),
+        applied_at VARCHAR(50),
+        responded_at VARCHAR(50),
+        created_at DATETIME,
+        updated_at DATETIME,
+        PRIMARY KEY (id),
+        UNIQUE (job_id)
+    );
+    CREATE TABLE IF NOT EXISTS applications (
+        id INTEGER NOT NULL,
+        job_id VARCHAR(64) NOT NULL,
+        company VARCHAR(255) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        cover_letter TEXT,
+        cv_path TEXT,
+        provider VARCHAR(50),
+        tracking_id VARCHAR(32),
+        status VARCHAR(50) NOT NULL,
+        followup_count INTEGER NOT NULL,
+        opened BOOLEAN NOT NULL,
+        clicked BOOLEAN NOT NULL,
+        responded BOOLEAN NOT NULL,
+        response_type VARCHAR(50),
+        sent_at DATETIME,
+        opened_at DATETIME,
+        responded_at DATETIME,
+        PRIMARY KEY (id)
+    );
+    CREATE TABLE IF NOT EXISTS email_quota (
+        id INTEGER NOT NULL,
+        provider VARCHAR(50) NOT NULL,
+        date DATETIME NOT NULL,
+        count INTEGER NOT NULL,
+        PRIMARY KEY (id)
+    );
+    CREATE TABLE IF NOT EXISTS special_offers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        offer_id TEXT UNIQUE NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        price REAL NOT NULL,
+        original_price REAL DEFAULT 0.0,
+        image_url TEXT,
+        note TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS special_offer_purchases (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        purchase_id TEXT UNIQUE NOT NULL,
+        offer_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        user_email TEXT NOT NULL,
+        user_requirements TEXT NOT NULL,
+        price_paid REAL NOT NULL,
+        payment_status TEXT DEFAULT 'completed',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (offer_id) REFERENCES special_offers(offer_id),
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+    );
+    CREATE TABLE IF NOT EXISTS subscription_keys_inventory (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key_id TEXT UNIQUE NOT NULL,
+        offer_id TEXT NOT NULL,
+        key_content TEXT NOT NULL,
+        is_used INTEGER DEFAULT 0,
+        purchase_id TEXT,
+        user_id TEXT,
+        used_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (offer_id) REFERENCES special_offers(offer_id)
+    );
+    CREATE TABLE IF NOT EXISTS system_config (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+    );
+    INSERT OR IGNORE INTO system_config (key, value) VALUES ('panic_mode', 'false');
+    """)
+
+def _run_migrations(conn):
+    def add_column(table, col, typ):
+        cols = [r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
+        if col not in cols:
+            try:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
+                conn.commit()
+            except Exception as e:
+                err_msg = str(e).lower()
+                if "already exists" in err_msg or "duplicate column" in err_msg:
+                    logger.info(f"Column {col} already exists in {table} (handled gracefully)")
+                else:
+                    logger.error(f"Error adding {col} to {table}: {e}")
+
+    for col, typ in [
+        ("nowpayments_id", "INTEGER"), ("nowpayments_invoice_url", "TEXT"),
+        ("pay_currency", "TEXT"), ("pay_amount", "REAL"), ("pay_address", "TEXT")
+    ]:
+        add_column("orders", col, typ)
+
+    add_column("campaigns", "bouquets", "TEXT")
+    add_column("users", "login_streak", "INTEGER DEFAULT 0")
+    add_column("users", "last_login", "TIMESTAMP")
+    add_column("users", "oauth_provider", "TEXT")
+    add_column("users", "oauth_access_token", "TEXT")
+    add_column("users", "oauth_refresh_token", "TEXT")
+    add_column("users", "oauth_expires_at", "REAL")
+    add_column("users", "tokens", "INTEGER DEFAULT 0")
+    add_column("users", "subscription_status", "TEXT DEFAULT 'free'")
+    
+    add_column("campaign_emails", "pipeline_stage", "TEXT DEFAULT 'discovered'")
+    try:
+        conn.execute("UPDATE campaign_emails SET pipeline_stage = 'applied' WHERE status = 'sent' AND pipeline_stage = 'discovered'")
+        conn.commit()
+    except Exception: pass
+    
+    add_column("campaign_emails", "from_email", "TEXT")
+    add_column("campaign_emails", "error_reason", "TEXT")
+    add_column("campaigns", "total_attempted", "INTEGER DEFAULT 0")
+    add_column("campaigns", "retry_count", "INTEGER DEFAULT 0")
+    add_column("campaigns", "premium_weapons", "INTEGER DEFAULT 0")
+    add_column("campaigns", "engine_type", "TEXT DEFAULT 'cloud'")
+    try:
+        conn.execute("UPDATE campaigns SET engine_type = 'cloud' WHERE engine_type IN ('piggyback', 'cloud-tick')")
+        conn.commit()
+    except Exception:
+        pass
+    add_column("campaign_emails", "interview_prep", "TEXT DEFAULT ''")
+    add_column("campaign_emails", "linkedin_message", "TEXT DEFAULT ''")
+    add_column("cv_profiles", "home_country", "TEXT DEFAULT 'Lebanon'")
+    add_column("cv_profiles", "min_local_salary", "REAL DEFAULT 0")
+    add_column("cv_profiles", "min_international_salary", "REAL DEFAULT 0")
+    add_column("redeem_codes", "code_type", "TEXT DEFAULT 'sale'")
+    add_column("special_offers", "original_price", "REAL DEFAULT 0.0")
+    add_column("special_offers", "delivery_type", "TEXT DEFAULT 'manual'")
+    add_column("special_offers", "reseller_api_url", "TEXT")
+    add_column("special_offers", "reseller_api_key", "TEXT")
+    add_column("special_offer_purchases", "fulfillment_status", "TEXT DEFAULT 'pending'")
+    add_column("special_offer_purchases", "delivered_credentials", "TEXT")
+    add_column("special_offer_purchases", "fulfillment_error", "TEXT")
+
+def _seed_pricing_tables(conn):
+    try:
+        conn.execute("DELETE FROM pricing_tiers_v2")
+        for t in PRICING_TIERS:
+            conn.execute("INSERT INTO pricing_tiers_v2 (tier, name, companies, price_usd, description) VALUES (?, ?, ?, ?, ?)",
+                       (t["tier"], t["name"], t["companies"], t["price_usd"], t["description"]))
+
+        conn.execute("DELETE FROM service_packages")
+        for s in SERVICE_PACKAGES:
+            conn.execute("INSERT INTO service_packages (package, name, price_usd, description) VALUES (?, ?, ?, ?)",
+                       (s["package"], s["name"], s["price_usd"], s["description"]))
+
+        conn.execute("DELETE FROM bouquet_packages")
+        for b in BOUQUET_PACKAGES:
+            conn.execute("INSERT INTO bouquet_packages (bouquet, name, price_usd, description) VALUES (?, ?, ?, ?)",
+                       (b["bouquet"], b["name"], b["price_usd"], b["description"]))
+    except Exception as e:
+        logger.warning(f"Error seeding pricing/service/bouquet tables: {e}")
+
+def _create_campaign_log_table(conn):
+    try:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS email_campaign_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                campaign_type TEXT NOT NULL,
+                user_id TEXT,
+                to_email TEXT NOT NULL,
+                subject TEXT,
+                sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                opened_at TIMESTAMP,
+                status TEXT DEFAULT 'sent',
+                order_id TEXT,
+                error TEXT
+            )
+        """)
+        conn.commit()
+    except Exception as e:
+        logger.warning(f"Error creating email_campaign_log table: {e}")
+
 def init_saas_v2_db():
     if os.getenv("SUPABASE_MODE"):
         logger.info("[DB] SUPABASE_MODE: tables already exist in Supabase, skipping init")
         return
     try:
         with sqlite3.connect(db_path, check_same_thread=False, timeout=60) as conn:
-            try:
-                orders_info = [r[1] for r in conn.execute("PRAGMA table_info(orders)").fetchall()]
-                campaigns_info = [r[1] for r in conn.execute("PRAGMA table_info(campaigns)").fetchall()]
-                manual_emails_info = [r[1] for r in conn.execute("PRAGMA table_info(manual_emails)").fetchall()]
-                if (orders_info and "order_id" not in orders_info) or (not campaigns_info) or ("bouquets" not in campaigns_info) or (campaigns_info and "user_id" not in campaigns_info):
-                    logger.warning("[DB] Old or corrupt schema detected. Dropping orders and campaigns tables to recreate them.")
-                    conn.execute("DROP TABLE IF EXISTS orders")
-                    conn.execute("DROP TABLE IF EXISTS campaigns")
-                    conn.commit()
-                if manual_emails_info and "user_id" not in manual_emails_info:
-                    logger.info("[DB] Backfilling manual_emails user_id column")
-                    conn.execute("ALTER TABLE manual_emails ADD COLUMN user_id TEXT")
-                    conn.commit()
-            except Exception as e:
-                logger.error(f"[DB] Error checking schema: {e}")
-                
-
-            conn.executescript("""
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT UNIQUE NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL,
-                name TEXT,
-                phone TEXT,
-                company_name TEXT,
-                user_type TEXT DEFAULT 'jobseeker',
-                wallet_balance REAL DEFAULT 0,
-                total_spent REAL DEFAULT 0,
-                api_key TEXT UNIQUE,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                is_active INTEGER DEFAULT 1
-            );
-            CREATE TABLE IF NOT EXISTS cv_profiles (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT NOT NULL,
-                profile_name TEXT,
-                cv_text TEXT,
-                cover_letter_template TEXT,
-                email_template TEXT,
-                skills TEXT,
-                experience_years INTEGER,
-                target_titles TEXT,
-                target_locations TEXT,
-                home_country TEXT DEFAULT 'Lebanon',
-                min_local_salary REAL DEFAULT 0,
-                min_international_salary REAL DEFAULT 0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(user_id)
-            );
-            CREATE TABLE IF NOT EXISTS orders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                order_id TEXT UNIQUE NOT NULL,
-                user_id TEXT NOT NULL,
-                order_type TEXT NOT NULL,
-                package_name TEXT,
-                company_count INTEGER,
-                amount_usd REAL NOT NULL,
-                payment_method TEXT,
-                payment_status TEXT DEFAULT 'pending',
-                redeem_code TEXT,
-                pay_address TEXT,
-                nowpayments_id INTEGER,
-                nowpayments_invoice_url TEXT,
-                pay_currency TEXT,
-                pay_amount REAL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                completed_at TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(user_id)
-            );
-            -- Migrate: add NowPayments columns
-            -- Note: try/except cannot live inside executescript; handled in Python below
-            CREATE TABLE IF NOT EXISTS campaigns (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                campaign_id TEXT UNIQUE NOT NULL,
-                user_id TEXT NOT NULL,
-                order_id TEXT NOT NULL,
-                profile_id INTEGER,
-                status TEXT DEFAULT 'pending',
-                total_companies INTEGER DEFAULT 0,
-                sent_count INTEGER DEFAULT 0,
-                open_count INTEGER DEFAULT 0,
-                response_count INTEGER DEFAULT 0,
-                bouquets TEXT,
-                engine_type TEXT DEFAULT 'cloud',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                started_at TIMESTAMP,
-                completed_at TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(user_id)
-            );
-            CREATE TABLE IF NOT EXISTS campaign_emails (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                campaign_id TEXT NOT NULL,
-                company_name TEXT,
-                job_title TEXT,
-                email_address TEXT,
-                status TEXT DEFAULT 'pending',
-                tracking_id TEXT,
-                provider_used TEXT,
-                followup_count INTEGER DEFAULT 0,
-                sent_at TIMESTAMP,
-                opened_at TIMESTAMP,
-                responded_at TIMESTAMP,
-                response_type TEXT,
-                response_text TEXT,
-                FOREIGN KEY (campaign_id) REFERENCES campaigns(campaign_id)
-            );
-            CREATE TABLE IF NOT EXISTS wallet_transactions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT NOT NULL,
-                transaction_type TEXT NOT NULL,
-                amount REAL NOT NULL,
-                balance_after REAL,
-                description TEXT,
-                tx_hash TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(user_id)
-            );
-            CREATE TABLE IF NOT EXISTS redeem_codes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                code TEXT UNIQUE NOT NULL,
-                value_usd REAL NOT NULL,
-                code_type TEXT DEFAULT 'sale',
-                is_used INTEGER DEFAULT 0,
-                used_by TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                used_at TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS referrals (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                referrer_id TEXT NOT NULL,
-                referred_id TEXT NOT NULL,
-                commission REAL DEFAULT 0,
-                status TEXT DEFAULT 'pending',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (referrer_id) REFERENCES users(user_id)
-            );
-            CREATE TABLE IF NOT EXISTS flash_sales (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL,
-                discount_percent REAL NOT NULL DEFAULT 10,
-                start_time TIMESTAMP NOT NULL,
-                end_time TIMESTAMP NOT NULL,
-                active INTEGER DEFAULT 1,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS support_tickets (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT NOT NULL,
-                subject TEXT,
-                message TEXT,
-                status TEXT DEFAULT 'open',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(user_id)
-            );
-            CREATE TABLE IF NOT EXISTS daily_logins (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT NOT NULL,
-                login_date DATE NOT NULL,
-                streak_days INTEGER DEFAULT 1,
-                reward_amount REAL DEFAULT 0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(user_id),
-                UNIQUE(user_id, login_date)
-            );
-            CREATE TABLE IF NOT EXISTS pricing_tiers_v2 (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                tier TEXT UNIQUE NOT NULL,
-                name TEXT NOT NULL,
-                companies INTEGER NOT NULL,
-                price_usd REAL NOT NULL,
-                description TEXT
-            );
-            CREATE TABLE IF NOT EXISTS service_packages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                package TEXT UNIQUE NOT NULL,
-                name TEXT NOT NULL,
-                price_usd REAL NOT NULL,
-                description TEXT
-            );
-            CREATE TABLE IF NOT EXISTS bouquet_packages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                bouquet TEXT UNIQUE NOT NULL,
-                name TEXT NOT NULL,
-                price_usd REAL NOT NULL,
-                description TEXT
-            );
-            CREATE TABLE IF NOT EXISTS purchased_services (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT NOT NULL,
-                service_type TEXT NOT NULL,
-                package_id TEXT NOT NULL,
-                package_name TEXT NOT NULL,
-                price_paid REAL NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                status TEXT DEFAULT 'active'
-            );
-            CREATE TABLE IF NOT EXISTS manual_emails (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT,
-                to_email TEXT NOT NULL,
-                subject TEXT,
-                body TEXT,
-                price_usd REAL DEFAULT 0.1,
-                admin_email TEXT,
-                status TEXT DEFAULT 'pending',
-                error TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS follow_up_emails (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                campaign_id VARCHAR(64) NOT NULL,
-                company VARCHAR(255) NOT NULL,
-                job_title VARCHAR(255) NOT NULL,
-                email_address VARCHAR(255) NOT NULL,
-                seq INTEGER NOT NULL DEFAULT 1,
-                subject TEXT NOT NULL,
-                body TEXT NOT NULL,
-                scheduled_at TIMESTAMP NOT NULL,
-                sent_at TIMESTAMP,
-                status VARCHAR(20) DEFAULT 'pending'
-            );
-            CREATE TABLE IF NOT EXISTS job_squads (
-                squad_id VARCHAR(64) PRIMARY KEY,
-                founder_id VARCHAR(64) NOT NULL,
-                member1_id VARCHAR(64),
-                member2_id VARCHAR(64),
-                status VARCHAR(20) DEFAULT 'pending',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS interview_intel (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id VARCHAR(64) NOT NULL,
-                company VARCHAR(255) NOT NULL,
-                role VARCHAR(255) NOT NULL,
-                questions TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS waitlist (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id VARCHAR(64) NOT NULL UNIQUE,
-                rank INTEGER NOT NULL,
-                referrals INTEGER DEFAULT 0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS jobs (
-                id INTEGER NOT NULL,
-                job_id VARCHAR(64) NOT NULL,
-                company VARCHAR(255) NOT NULL,
-                title VARCHAR(255) NOT NULL,
-                email VARCHAR(255) NOT NULL,
-                location VARCHAR(255),
-                salary VARCHAR(100),
-                url TEXT,
-                source VARCHAR(50),
-                snippet TEXT,
-                status VARCHAR(50) NOT NULL,
-                match_score NUMERIC(5, 2),
-                response_type VARCHAR(50),
-                applied_at VARCHAR(50),
-                responded_at VARCHAR(50),
-                created_at DATETIME,
-                updated_at DATETIME,
-                PRIMARY KEY (id),
-                UNIQUE (job_id)
-            );
-            CREATE TABLE IF NOT EXISTS applications (
-                id INTEGER NOT NULL,
-                job_id VARCHAR(64) NOT NULL,
-                company VARCHAR(255) NOT NULL,
-                title VARCHAR(255) NOT NULL,
-                email VARCHAR(255) NOT NULL,
-                cover_letter TEXT,
-                cv_path TEXT,
-                provider VARCHAR(50),
-                tracking_id VARCHAR(32),
-                status VARCHAR(50) NOT NULL,
-                followup_count INTEGER NOT NULL,
-                opened BOOLEAN NOT NULL,
-                clicked BOOLEAN NOT NULL,
-                responded BOOLEAN NOT NULL,
-                response_type VARCHAR(50),
-                sent_at DATETIME,
-                opened_at DATETIME,
-                responded_at DATETIME,
-                PRIMARY KEY (id)
-            );
-            CREATE TABLE IF NOT EXISTS pricing_tiers (
-                id INTEGER NOT NULL,
-                tier VARCHAR(50) NOT NULL,
-                name VARCHAR(100) NOT NULL,
-                companies INTEGER NOT NULL,
-                price_usd NUMERIC(10, 2) NOT NULL,
-                description TEXT,
-                is_active BOOLEAN NOT NULL,
-                PRIMARY KEY (id),
-                UNIQUE (tier)
-            );
-            CREATE TABLE IF NOT EXISTS email_quota (
-                id INTEGER NOT NULL,
-                provider VARCHAR(50) NOT NULL,
-                date DATETIME NOT NULL,
-                count INTEGER NOT NULL,
-                PRIMARY KEY (id)
-            );
-            CREATE TABLE IF NOT EXISTS job_queue (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                task_type TEXT NOT NULL,
-                payload TEXT,
-                status TEXT DEFAULT 'pending',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                locked_at TIMESTAMP,
-                error TEXT
-            );
-            CREATE INDEX IF NOT EXISTS idx_job_queue_status ON job_queue(status);
-            -- TRICK: Partial index is 100x faster than full index for queue polling
-            CREATE INDEX IF NOT EXISTS idx_job_queue_pending ON job_queue(created_at ASC) WHERE status = 'pending';
-            CREATE INDEX IF NOT EXISTS idx_campaigns_user_id ON campaigns(user_id);
-            CREATE INDEX IF NOT EXISTS idx_campaigns_created_at ON campaigns(created_at DESC);
-            CREATE INDEX IF NOT EXISTS idx_campaign_emails_campaign_id ON campaign_emails(campaign_id);
-            CREATE INDEX IF NOT EXISTS idx_campaign_emails_sent_at ON campaign_emails(sent_at DESC);
-            CREATE INDEX IF NOT EXISTS idx_wallet_transactions_user_id ON wallet_transactions(user_id);
-            CREATE INDEX IF NOT EXISTS idx_manual_emails_user_id ON manual_emails(user_id);
-            
-            CREATE TABLE IF NOT EXISTS email_queue (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                campaign_id TEXT,
-                to_email TEXT NOT NULL,
-                company TEXT,
-                title TEXT,
-                subject TEXT,
-                body_html TEXT,
-                status TEXT DEFAULT 'pending',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                sent_at TIMESTAMP,
-                error TEXT,
-                attempts INTEGER DEFAULT 0
-            );
-            CREATE INDEX IF NOT EXISTS idx_email_queue_status ON email_queue(status);
-            CREATE INDEX IF NOT EXISTS idx_email_queue_created ON email_queue(created_at ASC);
-
-            CREATE TABLE IF NOT EXISTS special_offers (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                offer_id TEXT UNIQUE NOT NULL,
-                title TEXT NOT NULL,
-                description TEXT NOT NULL,
-                price REAL NOT NULL,
-                original_price REAL DEFAULT 0.0,
-                image_url TEXT,
-                note TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-
-            CREATE TABLE IF NOT EXISTS special_offer_purchases (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                purchase_id TEXT UNIQUE NOT NULL,
-                offer_id TEXT NOT NULL,
-                user_id TEXT NOT NULL,
-                user_email TEXT NOT NULL,
-                user_requirements TEXT NOT NULL,
-                price_paid REAL NOT NULL,
-                payment_status TEXT DEFAULT 'completed',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (offer_id) REFERENCES special_offers(offer_id),
-                FOREIGN KEY (user_id) REFERENCES users(user_id)
-            );
-            CREATE INDEX IF NOT EXISTS idx_special_offer_purchases_user ON special_offer_purchases(user_id);
-
-            CREATE TABLE IF NOT EXISTS subscription_keys_inventory (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                key_id TEXT UNIQUE NOT NULL,
-                offer_id TEXT NOT NULL,
-                key_content TEXT NOT NULL,
-                is_used INTEGER DEFAULT 0,
-                purchase_id TEXT,
-                user_id TEXT,
-                used_at TIMESTAMP,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (offer_id) REFERENCES special_offers(offer_id)
-            );
-            CREATE INDEX IF NOT EXISTS idx_sub_keys_offer ON subscription_keys_inventory(offer_id);
-            CREATE INDEX IF NOT EXISTS idx_sub_keys_status ON subscription_keys_inventory(offer_id, is_used);
-            
-            CREATE TABLE IF NOT EXISTS system_config (
-                key TEXT PRIMARY KEY,
-                value TEXT NOT NULL
-            );
-            INSERT OR IGNORE INTO system_config (key, value) VALUES ('panic_mode', 'false');
-        """)
-
-            # Helper for migrations
-            def add_column(table, col, typ):
-                cols = [r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
-                if col not in cols:
-                    try:
-                        conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
-                        conn.commit()
-                    except Exception as e:
-                        err_msg = str(e).lower()
-                        if "already exists" in err_msg or "duplicate column" in err_msg:
-                            logger.info(f"Column {col} already exists in {table} (handled gracefully)")
-                        else:
-                            logger.error(f"Error adding {col} to {table}: {e}")
-
-            # Migration: Add NowPayments columns
-
-            for col, typ in [
-                ("nowpayments_id", "INTEGER"), ("nowpayments_invoice_url", "TEXT"),
-                ("pay_currency", "TEXT"), ("pay_amount", "REAL"), ("pay_address", "TEXT")
-            ]:
-                add_column("orders", col, typ)
-
-            add_column("campaigns", "bouquets", "TEXT")
-            add_column("users", "login_streak", "INTEGER DEFAULT 0")
-            add_column("users", "last_login", "TIMESTAMP")
-            add_column("users", "oauth_provider", "TEXT")
-            add_column("users", "oauth_access_token", "TEXT")
-            add_column("users", "oauth_refresh_token", "TEXT")
-            add_column("users", "oauth_expires_at", "REAL")
-            
-            add_column("campaign_emails", "pipeline_stage", "TEXT DEFAULT 'discovered'")
-            # For pipeline_stage default value backfill
-            try:
-                conn.execute("UPDATE campaign_emails SET pipeline_stage = 'applied' WHERE status = 'sent' AND pipeline_stage = 'discovered'")
-                conn.commit()
-            except Exception: pass
-            
-            add_column("campaign_emails", "from_email", "TEXT")
-            add_column("campaign_emails", "error_reason", "TEXT")
-            add_column("campaigns", "total_attempted", "INTEGER DEFAULT 0")
-            add_column("campaigns", "retry_count", "INTEGER DEFAULT 0")
-            add_column("campaigns", "premium_weapons", "INTEGER DEFAULT 0")
-            add_column("campaigns", "engine_type", "TEXT DEFAULT 'cloud'")
-            # Backfill existing non-functional piggyback/cloud-tick campaigns to cloud
-            try:
-                conn.execute("UPDATE campaigns SET engine_type = 'cloud' WHERE engine_type IN ('piggyback', 'cloud-tick')")
-                conn.commit()
-            except Exception:
-                pass
-            add_column("campaign_emails", "interview_prep", "TEXT DEFAULT ''")
-            add_column("campaign_emails", "linkedin_message", "TEXT DEFAULT ''")
-            add_column("cv_profiles", "home_country", "TEXT DEFAULT 'Lebanon'")
-            add_column("cv_profiles", "min_local_salary", "REAL DEFAULT 0")
-            add_column("cv_profiles", "min_international_salary", "REAL DEFAULT 0")
-            add_column("redeem_codes", "code_type", "TEXT DEFAULT 'sale'")
-            add_column("special_offers", "original_price", "REAL DEFAULT 0.0")
-            add_column("special_offers", "delivery_type", "TEXT DEFAULT 'manual'")
-            add_column("special_offers", "reseller_api_url", "TEXT")
-            add_column("special_offers", "reseller_api_key", "TEXT")
-            add_column("special_offer_purchases", "fulfillment_status", "TEXT DEFAULT 'pending'")
-            add_column("special_offer_purchases", "delivered_credentials", "TEXT")
-            add_column("special_offer_purchases", "fulfillment_error", "TEXT")
-
-            try:
-                conn.execute("DELETE FROM pricing_tiers_v2")
-                for t in PRICING_TIERS:
-                    conn.execute("INSERT INTO pricing_tiers_v2 (tier, name, companies, price_usd, description) VALUES (?, ?, ?, ?, ?)",
-                               (t["tier"], t["name"], t["companies"], t["price_usd"], t["description"]))
-
-                conn.execute("DELETE FROM service_packages")
-                for s in SERVICE_PACKAGES:
-                    conn.execute("INSERT INTO service_packages (package, name, price_usd, description) VALUES (?, ?, ?, ?)",
-                               (s["package"], s["name"], s["price_usd"], s["description"]))
-
-                conn.execute("DELETE FROM bouquet_packages")
-                for b in BOUQUET_PACKAGES:
-                    conn.execute("INSERT INTO bouquet_packages (bouquet, name, price_usd, description) VALUES (?, ?, ?, ?)",
-                               (b["bouquet"], b["name"], b["price_usd"], b["description"]))
-            except Exception as e:
-                logger.warning(f"Error seeding pricing/service/bouquet tables: {e}")
-
-            conn.commit()
-
-            # Create email_campaign_log table for automated email marketing tracking
-            try:
-                conn.execute("""
-                    CREATE TABLE IF NOT EXISTS email_campaign_log (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        campaign_type TEXT NOT NULL,
-                        user_id TEXT,
-                        to_email TEXT NOT NULL,
-                        subject TEXT,
-                        sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        opened_at TIMESTAMP,
-                        status TEXT DEFAULT 'sent',
-                        order_id TEXT,
-                        error TEXT
-                    )
-                """)
-                conn.commit()
-            except Exception as e:
-                logger.warning(f"Error creating email_campaign_log table: {e}")
-
+            _check_legacy_schema(conn)
+            _create_tables(conn)
+            _run_migrations(conn)
+            _seed_pricing_tables(conn)
+            _create_campaign_log_table(conn)
             logger.info("[DB] init_saas_v2_db complete")
     except Exception as e:
         logger.error(f"[DB] init_saas_v2_db error (non-fatal): {e}")
@@ -1679,95 +1775,95 @@ def claim_daily_login(user_id: str) -> dict:
     """Claim daily login reward. Returns reward info or already_claimed."""
     from datetime import date
 
-    conn = get_db()
-    today = date.today().isoformat()
+    with get_db() as conn:
+        today = date.today().isoformat()
 
-    # Check if already claimed today
-    existing = conn.execute(
-        "SELECT id FROM daily_logins WHERE user_id = ? AND login_date = ?",
-        (user_id, today)
-    ).fetchone()
+        # Check if already claimed today
+        existing = conn.execute(
+            "SELECT id FROM daily_logins WHERE user_id = ? AND login_date = ?",
+            (user_id, today)
+        ).fetchone()
 
-    if existing:
-        conn.close()
-        return {"claimed": False, "reason": "already_claimed_today"}
+        if existing:
+            pass  # conn.close()
+            return {"claimed": False, "reason": "already_claimed_today"}
 
-    # Calculate streak
-    yesterday = (date.today() - __import__('datetime').timedelta(days=1)).isoformat()
-    last_login = conn.execute(
-        "SELECT streak_days FROM daily_logins WHERE user_id = ? AND login_date = ?",
-        (user_id, yesterday)
-    ).fetchone()
+        # Calculate streak
+        yesterday = (date.today() - __import__('datetime').timedelta(days=1)).isoformat()
+        last_login = conn.execute(
+            "SELECT streak_days FROM daily_logins WHERE user_id = ? AND login_date = ?",
+            (user_id, yesterday)
+        ).fetchone()
 
-    streak = (last_login["streak_days"] + 1) if last_login else 1
-    # Daily reward based on streak (not tied to pricing tiers)
-    reward_map = {1: 1, 2: 2, 3: 3, 4: 5, 5: 10, 6: 15, 7: 25, 14: 50, 21: 100, 30: 200}
-    amount = reward_map.get(streak, 25 if streak <= 30 else 200)
-    # Compute milestone info
-    milestones = sorted(reward_map.keys())
-    milestone_reached = streak in milestones
-    next_milestones = [m for m in milestones if m > streak]
-    next_milestone = next_milestones[0] if next_milestones else None
-    next_bonus = reward_map.get(next_milestone) if next_milestone else None
+        streak = (last_login["streak_days"] + 1) if last_login else 1
+        # Daily reward based on streak (not tied to pricing tiers)
+        reward_map = {1: 1, 2: 2, 3: 3, 4: 5, 5: 10, 6: 15, 7: 25, 14: 50, 21: 100, 30: 200}
+        amount = reward_map.get(streak, 25 if streak <= 30 else 200)
+        # Compute milestone info
+        milestones = sorted(reward_map.keys())
+        milestone_reached = streak in milestones
+        next_milestones = [m for m in milestones if m > streak]
+        next_milestone = next_milestones[0] if next_milestones else None
+        next_bonus = reward_map.get(next_milestone) if next_milestone else None
 
-    # Record login
-    conn.execute(
-        "INSERT INTO daily_logins (user_id, login_date, streak_days, reward_amount) VALUES (?, ?, ?, ?)",
-        (user_id, today, streak, amount)
-    )
-
-    # Credit wallet
-    user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if user_row:
-        new_balance = user_row["wallet_balance"] + amount
-        conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
+        # Record login
         conn.execute(
-            "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)",
-            (user_id, "daily_reward", amount, new_balance, f"Daily login reward (streak: {streak} days)")
+            "INSERT INTO daily_logins (user_id, login_date, streak_days, reward_amount) VALUES (?, ?, ?, ?)",
+            (user_id, today, streak, amount)
         )
 
-    conn.commit()
-    conn.close()
+        # Credit wallet
+        user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        if user_row:
+            new_balance = user_row["wallet_balance"] + amount
+            conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
+            conn.execute(
+                "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)",
+                (user_id, "daily_reward", amount, new_balance, f"Daily login reward (streak: {streak} days)")
+            )
 
-    return {
-        "claimed": True,
-        "amount": amount,
-        "streak": streak,
-        "milestone": milestone_reached,
-        "next_milestone": next_milestone,
-        "next_bonus": next_bonus,
-    }
+        conn.commit()
+        pass  # conn.close()
+
+        return {
+            "claimed": True,
+            "amount": amount,
+            "streak": streak,
+            "milestone": milestone_reached,
+            "next_milestone": next_milestone,
+            "next_bonus": next_bonus,
+        }
 
 
 def get_login_streak(user_id: str) -> dict:
     """Get current login streak info."""
     from datetime import date, timedelta
 
-    conn = get_db()
-    today = date.today().isoformat()
+    with get_db() as conn:
+        today = date.today().isoformat()
 
-    # Get current streak
-    streak = 0
-    check_date = date.today()
-    while True:
-        row = conn.execute(
+        # Get current streak
+        streak = 0
+        check_date = date.today()
+        while True:
+            row = conn.execute(
+                "SELECT id FROM daily_logins WHERE user_id = ? AND login_date = ?",
+                (user_id, check_date.isoformat())
+            ).fetchone()
+            if row:
+                streak += 1
+                check_date -= timedelta(days=1)
+            else:
+                break
+
+        # Check if claimed today
+        claimed_today = conn.execute(
             "SELECT id FROM daily_logins WHERE user_id = ? AND login_date = ?",
-            (user_id, check_date.isoformat())
-        ).fetchone()
-        if row:
-            streak += 1
-            check_date -= timedelta(days=1)
-        else:
-            break
+            (user_id, today)
+        ).fetchone() is not None
 
-    # Check if claimed today
-    claimed_today = conn.execute(
-        "SELECT id FROM daily_logins WHERE user_id = ? AND login_date = ?",
-        (user_id, today)
-    ).fetchone() is not None
-
-    conn.close()
-    return {"streak": streak, "claimed_today": claimed_today}
+        pass  # conn.close()
+        return {"streak": streak, "claimed_today": claimed_today}
 
 
 # === CYBER-HONEYPOT DEFENSE ===
@@ -1990,124 +2086,139 @@ def api_followup_schedule():
     return JSONResponse(result)
 
 
-@app.get("/dashboard", response_class=HTMLResponse)
-def dashboard_redirect(request: Request):
-    """Redirect /dashboard to user dashboard if logged in, else to login."""
-    user_id = get_verified_user_id(request)
-    if user_id:
-        return RedirectResponse("/user-dashboard", status_code=302)
-    # Redirect unauthenticated users to login page
-    return RedirectResponse("/login", status_code=302)
+# ==================== MIGRATED TO ROUTER — START (lines 2005-2012) ====================
+# @app.get("/dashboard", response_class=HTMLResponse)
+# def dashboard_redirect(request: Request):
+#     """Redirect /dashboard to user dashboard if logged in, else to login."""
+#     user_id = get_verified_user_id(request)
+#     if user_id:
+#         return RedirectResponse("/user-dashboard", status_code=302)
+#     # Redirect unauthenticated users to login page
+#     return RedirectResponse("/login", status_code=302)
+# ==================== MIGRATED TO ROUTER — END   ====================
 
 
-@app.get("/api/dashboard/stats")
-def dashboard_stats():
-    """API endpoint for dashboard real-time stats."""
-    from core.smart_scheduler import SmartScheduler
-    sched = SmartScheduler()
-    stats = sched.get_stats()
-    return {
-        "agents": 200,
-        "providers": 19,
-        "total_capacity": 2100,
-        "sent_today": stats["total_sent_today"],
-        "remaining": stats["total_daily_limit"] - stats["total_sent_today"],
-        "available_providers": stats["available_providers"],
-    }
+
+# ==================== MIGRATED TO ROUTER — START (lines 2015-2028) ====================
+# @app.get("/api/dashboard/stats")
+# def dashboard_stats():
+#     """API endpoint for dashboard real-time stats."""
+#     from core.smart_scheduler import SmartScheduler
+#     sched = SmartScheduler()
+#     stats = sched.get_stats()
+#     return {
+#         "agents": 200,
+#         "providers": 19,
+#         "total_capacity": 2100,
+#         "sent_today": stats["total_sent_today"],
+#         "remaining": stats["total_daily_limit"] - stats["total_sent_today"],
+#         "available_providers": stats["available_providers"],
+#     }
+# ==================== MIGRATED TO ROUTER — END   ====================
 
 
-@app.get("/api/dashboard/activity")
-def dashboard_activity():
-    """API endpoint for recent activity."""
-    return {
-        "activity": [],
-        "message": "Activity feed &#x2014; connect to database for live data"
-    }
+
+# ==================== MIGRATED TO ROUTER — START (lines 2031-2037) ====================
+# @app.get("/api/dashboard/activity")
+# def dashboard_activity():
+#     """API endpoint for recent activity."""
+#     return {
+#         "activity": [],
+#         "message": "Activity feed &#x2014; connect to database for live data"
+#     }
+# ==================== MIGRATED TO ROUTER — END   ====================
 
 
-@app.get("/api/v2/live-stats")
-def live_stats_v2():
-    """Live stats for landing page (index_v3.html FOMO counters)"""
-    from fastapi.responses import JSONResponse
-    return JSONResponse({
-        "success": True,
-        "active_now": 134,
-        "applications_today": 4892
-    })
+
+# ==================== MIGRATED TO ROUTER — START (lines 2040-2048) ====================
+# @app.get("/api/v2/live-stats")
+# def live_stats_v2():
+#     """Live stats for landing page (index_v3.html FOMO counters)"""
+#     from fastapi.responses import JSONResponse
+#     return JSONResponse({
+#         "success": True,
+#         "active_now": 134,
+#         "applications_today": 4892
+#     })
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 # === DASHBOARD STATS JSON ENDPOINT ===
-@app.get("/dashboard/stats")
-def dashboard_stats_json(request: Request):
-    """JSON endpoint: jobs applied, by country, by status, email stats."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return JSONResponse({"error": "not_authenticated"}, status_code=401)
+# ==================== MIGRATED TO ROUTER — START (lines 2051-2122) ====================
+# @app.get("/dashboard/stats")
+# def dashboard_stats_json(request: Request):
+#     """JSON endpoint: jobs applied, by country, by status, email stats."""
+#     user_id = get_verified_user_id(request)
+#     if not user_id:
+#         return JSONResponse({"error": "not_authenticated"}, status_code=401)
+# 
+#     conn = get_db()
+#     today = datetime.now().date().isoformat()
+#     week_ago = (datetime.now() - timedelta(days=7)).date().isoformat()
+#     month_ago = (datetime.now() - timedelta(days=30)).date().isoformat()
+# 
+#     # Jobs applied (scoped to user via campaigns join)
+#     def count_applied_since(since_date=None):
+#         q = '''SELECT COUNT(*) FROM campaign_emails ce
+#                JOIN campaigns c ON ce.campaign_id = c.campaign_id
+#                WHERE c.user_id = ? AND ce.status = 'sent'''
+#         params = [user_id]
+#         if since_date:
+#             q += " AND date(ce.sent_at) >= ?"
+#             params.append(since_date)
+#         return conn.execute(q, params).fetchone()[0]
+# 
+#     applied_today = count_applied_since(today)
+#     applied_week = count_applied_since(week_ago)
+#     applied_month = count_applied_since(month_ago)
+#     total_applied = count_applied_since()
+# 
+#     # Applications by status (scoped to user)
+#     status_counts = {}
+#     for row in conn.execute('''SELECT ce.status, COUNT(*) as cnt
+#         FROM campaign_emails ce
+#         JOIN campaigns c ON ce.campaign_id = c.campaign_id
+#         WHERE c.user_id = ?
+#         GROUP BY ce.status''', (user_id,)).fetchall():
+#         status_counts[row["status"]] = row["cnt"]
+# 
+#     # Email stats (scoped to user)
+#     total_sent = conn.execute('''SELECT COUNT(*) FROM campaign_emails ce
+#         JOIN campaigns c ON ce.campaign_id = c.campaign_id
+#         WHERE c.user_id = ? AND ce.status='sent' ''', (user_id,)).fetchone()[0]
+#     total_opened = conn.execute('''SELECT COUNT(*) FROM campaign_emails ce
+#         JOIN campaigns c ON ce.campaign_id = c.campaign_id
+#         WHERE c.user_id = ? AND ce.opened_at IS NOT NULL ''', (user_id,)).fetchone()[0]
+#     total_responded = conn.execute('''SELECT COUNT(*) FROM campaign_emails ce
+#         JOIN campaigns c ON ce.campaign_id = c.campaign_id
+#         WHERE c.user_id = ? AND ce.responded_at IS NOT NULL ''', (user_id,)).fetchone()[0]
+# 
+#     conn.close()
+# 
+#     return {
+#         "jobs_applied": {
+#             "today": applied_today,
+#             "this_week": applied_week,
+#             "this_month": applied_month,
+#             "total": total_applied
+#         },
+#         "applications_by_country": {
+#             "Lebanon": 0,
+#             "UAE": 0,
+#             "Saudi Arabia": 0,
+#             "Qatar": 0,
+#             "Kuwait": 0
+#         },
+#         "applications_by_status": status_counts,
+#         "email_stats": {
+#             "sent": total_sent,
+#             "opened": total_opened,
+#             "responded": total_responded,
+#             "response_rate": round(total_responded / total_sent * 100, 1) if total_sent > 0 else 0
+#         }
+#     }
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-    conn = get_db()
-    today = datetime.now().date().isoformat()
-    week_ago = (datetime.now() - timedelta(days=7)).date().isoformat()
-    month_ago = (datetime.now() - timedelta(days=30)).date().isoformat()
-
-    # Jobs applied (scoped to user via campaigns join)
-    def count_applied_since(since_date=None):
-        q = '''SELECT COUNT(*) FROM campaign_emails ce
-               JOIN campaigns c ON ce.campaign_id = c.campaign_id
-               WHERE c.user_id = ? AND ce.status = 'sent'''
-        params = [user_id]
-        if since_date:
-            q += " AND date(ce.sent_at) >= ?"
-            params.append(since_date)
-        return conn.execute(q, params).fetchone()[0]
-
-    applied_today = count_applied_since(today)
-    applied_week = count_applied_since(week_ago)
-    applied_month = count_applied_since(month_ago)
-    total_applied = count_applied_since()
-
-    # Applications by status (scoped to user)
-    status_counts = {}
-    for row in conn.execute('''SELECT ce.status, COUNT(*) as cnt
-        FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id
-        WHERE c.user_id = ?
-        GROUP BY ce.status''', (user_id,)).fetchall():
-        status_counts[row["status"]] = row["cnt"]
-
-    # Email stats (scoped to user)
-    total_sent = conn.execute('''SELECT COUNT(*) FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id
-        WHERE c.user_id = ? AND ce.status='sent' ''', (user_id,)).fetchone()[0]
-    total_opened = conn.execute('''SELECT COUNT(*) FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id
-        WHERE c.user_id = ? AND ce.opened_at IS NOT NULL ''', (user_id,)).fetchone()[0]
-    total_responded = conn.execute('''SELECT COUNT(*) FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id
-        WHERE c.user_id = ? AND ce.responded_at IS NOT NULL ''', (user_id,)).fetchone()[0]
-
-    conn.close()
-
-    return {
-        "jobs_applied": {
-            "today": applied_today,
-            "this_week": applied_week,
-            "this_month": applied_month,
-            "total": total_applied
-        },
-        "applications_by_country": {
-            "Lebanon": 0,
-            "UAE": 0,
-            "Saudi Arabia": 0,
-            "Qatar": 0,
-            "Kuwait": 0
-        },
-        "applications_by_status": status_counts,
-        "email_stats": {
-            "sent": total_sent,
-            "opened": total_opened,
-            "responded": total_responded,
-            "response_rate": round(total_responded / total_sent * 100, 1) if total_sent > 0 else 0
-        }
-    }
 
 
 # === EXPORT CSV ENDPOINT ===
@@ -2124,69 +2235,69 @@ def export_applications_csv(
     if not user_id:
         return JSONResponse({"error": "not_authenticated"}, status_code=401)
 
-    conn = get_db()
+    with get_db() as conn:
 
-    # Build query with optional date filters
-    query = '''SELECT ce.id, ce.campaign_id as camp_id, ce.company_name, ce.job_title,
-        ce.email_address, ce.status, ce.pipeline_stage, ce.sent_at,
-        ce.opened_at, ce.responded_at, ce.response_type, ce.followup_count
-        FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id
-        WHERE c.user_id = ?'''
-    params = [user_id]
+        # Build query with optional date filters
+        query = '''SELECT ce.id, ce.campaign_id as camp_id, ce.company_name, ce.job_title,
+            ce.email_address, ce.status, ce.pipeline_stage, ce.sent_at,
+            ce.opened_at, ce.responded_at, ce.response_type, ce.followup_count
+            FROM campaign_emails ce
+            JOIN campaigns c ON ce.campaign_id = c.campaign_id
+            WHERE c.user_id = ?'''
+        params = [user_id]
 
-    if date_from:
-        query += ' AND ce.sent_at >= ?'
-        params.append(date_from)
-    if date_to:
-        query += ' AND ce.sent_at <= ?'
-        params.append(date_to + ' 23:59:59')
-    if status_filter and status_filter != 'all':
-        status_map = {
-            'sent': 'sent', 'opened': 'opened', 'responded': 'responded',
-            'applied': 'applied', 'interview': 'interview', 'offer': 'offer',
-            'bounced': 'bounced', 'failed': 'failed'
-        }
-        if status_filter in status_map:
-            query += ' AND (ce.pipeline_stage = ? OR ce.status = ?)'
-            params.extend([status_map[status_filter], status_map[status_filter]])
+        if date_from:
+            query += ' AND ce.sent_at >= ?'
+            params.append(date_from)
+        if date_to:
+            query += ' AND ce.sent_at <= ?'
+            params.append(date_to + ' 23:59:59')
+        if status_filter and status_filter != 'all':
+            status_map = {
+                'sent': 'sent', 'opened': 'opened', 'responded': 'responded',
+                'applied': 'applied', 'interview': 'interview', 'offer': 'offer',
+                'bounced': 'bounced', 'failed': 'failed'
+            }
+            if status_filter in status_map:
+                query += ' AND (ce.pipeline_stage = ? OR ce.status = ?)'
+                params.extend([status_map[status_filter], status_map[status_filter]])
 
-    query += ' ORDER BY ce.sent_at DESC'
+        query += ' ORDER BY ce.sent_at DESC'
 
-    rows = [dict(r) for r in conn.execute(query, params).fetchall()]
-    conn.close()
+        rows = [dict(r) for r in conn.execute(query, params).fetchall()]
+        pass  # conn.close()
 
-    import csv
-    import io
+        import csv
+        import io
 
-    if format == 'json':
-        return JSONResponse({"count": len(rows), "applications": rows})
+        if format == 'json':
+            return JSONResponse({"count": len(rows), "applications": rows})
 
-    # CSV export
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerow(["Campaign ID", "Company", "Job Title", "Email Address",
-                     "Status", "Pipeline Stage", "Sent At", "Opened At",
-                     "Responded At", "Response Type", "Followups"])
-    for r in rows:
-        writer.writerow([
-            r.get("camp_id", "")[:16] if r.get("camp_id") else "",
-            r.get("company_name", ""),
-            r.get("job_title", ""),
-            r.get("email_address", ""),
-            r.get("status", ""),
-            r.get("pipeline_stage", ""),
-            r.get("sent_at", ""),
-            r.get("opened_at", ""),
-            r.get("responded_at", ""),
-            r.get("response_type", ""),
-            r.get("followup_count", 0)
-        ])
+        # CSV export
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["Campaign ID", "Company", "Job Title", "Email Address",
+                         "Status", "Pipeline Stage", "Sent At", "Opened At",
+                         "Responded At", "Response Type", "Followups"])
+        for r in rows:
+            writer.writerow([
+                r.get("camp_id", "")[:16] if r.get("camp_id") else "",
+                r.get("company_name", ""),
+                r.get("job_title", ""),
+                r.get("email_address", ""),
+                r.get("status", ""),
+                r.get("pipeline_stage", ""),
+                r.get("sent_at", ""),
+                r.get("opened_at", ""),
+                r.get("responded_at", ""),
+                r.get("response_type", ""),
+                r.get("followup_count", 0)
+            ])
 
-    csv_content = output.getvalue()
-    filename = f"applications_{date_from or 'all'}_to_{date_to or 'now'}.csv" if date_from or date_to else "applications_all.csv"
-    return Response(content=csv_content, media_type="text/csv",
-                    headers={"Content-Disposition": f"attachment; filename={filename}"})
+        csv_content = output.getvalue()
+        filename = f"applications_{date_from or 'all'}_to_{date_to or 'now'}.csv" if date_from or date_to else "applications_all.csv"
+        return Response(content=csv_content, media_type="text/csv",
+                        headers={"Content-Disposition": f"attachment; filename={filename}"})
 
 
 # === PIPELINE API ROUTES ===
@@ -2199,17 +2310,17 @@ def pipeline_emails_api(request: Request):
     if not user_id:
         return JSONResponse({"error": "not_authenticated"}, status_code=401)
 
-    conn = get_db()
-    rows = [dict(r) for r in conn.execute('''SELECT ce.id, ce.company_name, ce.job_title,
-        ce.email_address, ce.status, ce.pipeline_stage, ce.sent_at,
-        ce.opened_at, ce.responded_at, ce.followup_count
-        FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id
-        WHERE c.user_id = ?
-        ORDER BY ce.sent_at DESC
-        LIMIT 100''', (user_id,)).fetchall()]
-    conn.close()
-    return rows
+    with get_db() as conn:
+        rows = [dict(r) for r in conn.execute('''SELECT ce.id, ce.company_name, ce.job_title,
+            ce.email_address, ce.status, ce.pipeline_stage, ce.sent_at,
+            ce.opened_at, ce.responded_at, ce.followup_count
+            FROM campaign_emails ce
+            JOIN campaigns c ON ce.campaign_id = c.campaign_id
+            WHERE c.user_id = ?
+            ORDER BY ce.sent_at DESC
+            LIMIT 100''', (user_id,)).fetchall()]
+        pass  # conn.close()
+        return rows
 
 
 @app.post("/api/pipeline/advance/{email_id}")
@@ -2219,27 +2330,27 @@ def pipeline_advance(request: Request, email_id: int):
     if not user_id:
         return JSONResponse({"error": "not_authenticated"}, status_code=401)
 
-    conn = get_db()
-    row = conn.execute('''SELECT ce.* FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id
-        WHERE ce.id = ? AND c.user_id = ?''', (email_id, user_id)).fetchone()
+    with get_db() as conn:
+        row = conn.execute('''SELECT ce.* FROM campaign_emails ce
+            JOIN campaigns c ON ce.campaign_id = c.campaign_id
+            WHERE ce.id = ? AND c.user_id = ?''', (email_id, user_id)).fetchone()
 
-    if not row:
-        conn.close()
-        return JSONResponse({"error": "not_found"}, status_code=404)
+        if not row:
+            pass  # conn.close()
+            return JSONResponse({"error": "not_found"}, status_code=404)
 
-    current_stage = row["pipeline_stage"] or "discovered"
-    current_idx = PIPELINE_STAGES.index(current_stage) if current_stage in PIPELINE_STAGES else 0
+        current_stage = row["pipeline_stage"] or "discovered"
+        current_idx = PIPELINE_STAGES.index(current_stage) if current_stage in PIPELINE_STAGES else 0
 
-    if current_idx >= len(PIPELINE_STAGES) - 1:
-        conn.close()
-        return {"message": "already_at_final_stage", "stage": current_stage}
+        if current_idx >= len(PIPELINE_STAGES) - 1:
+            pass  # conn.close()
+            return {"message": "already_at_final_stage", "stage": current_stage}
 
-    next_stage = PIPELINE_STAGES[current_idx + 1]
-    conn.execute("UPDATE campaign_emails SET pipeline_stage = ? WHERE id = ?", (next_stage, email_id))
-    conn.commit()
-    conn.close()
-    return {"success": True, "stage": next_stage, "stage_label": next_stage.replace("_", " ").title()}
+        next_stage = PIPELINE_STAGES[current_idx + 1]
+        conn.execute("UPDATE campaign_emails SET pipeline_stage = ? WHERE id = ?", (next_stage, email_id))
+        conn.commit()
+        pass  # conn.close()
+        return {"success": True, "stage": next_stage, "stage_label": next_stage.replace("_", " ").title()}
 
 
 @app.get("/api/pipeline/counts")
@@ -2249,16 +2360,16 @@ def pipeline_counts(request: Request):
     if not user_id:
         return JSONResponse({"error": "not_authenticated"}, status_code=401)
 
-    conn = get_db()
-    counts = {s: 0 for s in PIPELINE_STAGES}
-    for row in conn.execute('''SELECT COALESCE(ce.pipeline_stage, 'discovered') as stage, COUNT(*) as cnt
-        FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id
-        WHERE c.user_id = ?
-        GROUP BY COALESCE(ce.pipeline_stage, 'discovered')''', (user_id,)).fetchall():
-        counts[row["stage"]] = row["cnt"]
-    conn.close()
-    return counts
+    with get_db() as conn:
+        counts = {s: 0 for s in PIPELINE_STAGES}
+        for row in conn.execute('''SELECT COALESCE(ce.pipeline_stage, 'discovered') as stage, COUNT(*) as cnt
+            FROM campaign_emails ce
+            JOIN campaigns c ON ce.campaign_id = c.campaign_id
+            WHERE c.user_id = ?
+            GROUP BY COALESCE(ce.pipeline_stage, 'discovered')''', (user_id,)).fetchall():
+            counts[row["stage"]] = row["cnt"]
+        pass  # conn.close()
+        return counts
 
 
 # === STATS PAGE ===
@@ -2266,82 +2377,85 @@ def pipeline_counts(request: Request):
 def debug_db():
     try:
         with Database.get_db() as conn:
-            orders_info = [r[1] for r in conn.execute("PRAGMA table_info(orders)").fetchall()]
-            campaigns_info = [r[1] for r in conn.execute("PRAGMA table_info(campaigns)").fetchall()]
-            users_info = [r[1] for r in conn.execute("PRAGMA table_info(users)").fetchall()]
-            return {"orders": orders_info, "campaigns": campaigns_info, "users": users_info}
+                    orders_info = [r[1] for r in conn.execute("PRAGMA table_info(orders)").fetchall()]
+                    campaigns_info = [r[1] for r in conn.execute("PRAGMA table_info(campaigns)").fetchall()]
+                    users_info = [r[1] for r in conn.execute("PRAGMA table_info(users)").fetchall()]
+                    return {"orders": orders_info, "campaigns": campaigns_info, "users": users_info}
     except Exception as e:
         return {"error": str(e)}
 
-@app.get("/stats", response_class=HTMLResponse)
-def stats_page(request: Request):
-    """Stats dashboard with analytics overview."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
+# ==================== MIGRATED TO ROUTER — START (lines 2288-2356) ====================
+# @app.get("/stats", response_class=HTMLResponse)
+# def stats_page(request: Request):
+#     """Stats dashboard with analytics overview."""
+#     user_id = get_verified_user_id(request)
+#     if not user_id:
+#         return RedirectResponse("/login", status_code=303)
+# 
+#     conn = get_db()
+#     user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+#     if not user_row:
+#         conn.close()
+#         return RedirectResponse("/login", status_code=303)
+#     user = dict(user_row)
+# 
+#     today = datetime.now().date().isoformat()
+#     week_ago = (datetime.now() - timedelta(days=7)).date().isoformat()
+# 
+#     total_emails = sent_emails = opened = responded = sent_today = sent_week = 0
+#     pipe_counts = {}
+#     status_breakdown = {}
+# 
+#     try:
+#         total_emails = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
+#             JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ?""", (user_id,)).fetchone()[0]
+#         sent_emails = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
+#             JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.status='sent'""", (user_id,)).fetchone()[0]
+#         opened = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
+#             JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.opened_at IS NOT NULL""", (user_id,)).fetchone()[0]
+#         responded = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
+#             JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.responded_at IS NOT NULL""", (user_id,)).fetchone()[0]
+#         sent_today = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
+#             JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.status='sent' AND date(ce.sent_at)=?""", (user_id, today)).fetchone()[0]
+#         sent_week = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
+#             JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.status='sent' AND date(ce.sent_at)>=?""", (user_id, week_ago)).fetchone()[0]
+# 
+#         for row in conn.execute("""SELECT COALESCE(ce.pipeline_stage, 'discovered') as stage, COUNT(*) as cnt
+#             FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id
+#             WHERE c.user_id = ? GROUP BY COALESCE(ce.pipeline_stage, 'discovered')""", (user_id,)).fetchall():
+#             pipe_counts[row["stage"]] = row["cnt"]
+# 
+#         for row in conn.execute("""SELECT ce.status, COUNT(*) as cnt
+#             FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id
+#             WHERE c.user_id = ? GROUP BY ce.status""", (user_id,)).fetchall():
+#             status_breakdown[row["status"]] = row["cnt"]
+#     except Exception as e:
+#         logger.error(f"Error in /stats query for user {user_id}: {e}", exc_info=True)
+#     finally:
+#         conn.close()
+# 
+# 
+#     response_rate = round(responded / sent_emails * 100, 1) if sent_emails > 0 else 0
+#     open_rate = round(opened / sent_emails * 100, 1) if sent_emails > 0 else 0
+#     user_name = (user["name"] or "User").replace("<", "").replace(">", "")
+# 
+#     pipe_colors = {"discovered": "#94a3b8", "applied": "#3b82f6", "followed_up": "#f97316", "interview": "#a78bfa", "offer": "#4ade80", "hired": "#22c55e"}
+#     pipe_max = max(pipe_counts.values()) if pipe_counts else 1
+#     pipeline = [{"label": s.title().replace("_"," "), "count": c, "color": pipe_colors.get(s, "#3b82f6"), "pct": round(c/pipe_max*100) if pipe_max else 0} for s, c in pipe_counts.items()]
+# 
+#     status_colors = {"sent": "#3b82f6", "delivered": "#4ade80", "opened": "#a78bfa", "failed": "#fca5a5", "bounced": "#ef4444", "responded": "#fbbf24", "pending": "#94a3b8"}
+#     statuses = [{"name": s.title(), "count": c, "color": status_colors.get(s, "#3b82f6")} for s, c in sorted(status_breakdown.items(), key=lambda x: -x[1])]
+# 
+#     content = render_template("stats.html",
+#         user_name=user_name,
+#         today=datetime.now().strftime("%b %d, %Y"),
+#         sent_today=sent_today, sent_week=sent_week, sent_emails=sent_emails,
+#         total_emails=total_emails, opened=opened, responded=responded,
+#         open_rate=open_rate, response_rate=response_rate,
+#         pipeline=pipeline, statuses=statuses)
+#     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "&#x1F4CA; Stats", "stats", request=request))
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-    user = dict(user_row)
-
-    today = datetime.now().date().isoformat()
-    week_ago = (datetime.now() - timedelta(days=7)).date().isoformat()
-
-    total_emails = sent_emails = opened = responded = sent_today = sent_week = 0
-    pipe_counts = {}
-    status_breakdown = {}
-
-    try:
-        total_emails = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
-            JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ?""", (user_id,)).fetchone()[0]
-        sent_emails = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
-            JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.status='sent'""", (user_id,)).fetchone()[0]
-        opened = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
-            JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.opened_at IS NOT NULL""", (user_id,)).fetchone()[0]
-        responded = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
-            JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.responded_at IS NOT NULL""", (user_id,)).fetchone()[0]
-        sent_today = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
-            JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.status='sent' AND date(ce.sent_at)=?""", (user_id, today)).fetchone()[0]
-        sent_week = conn.execute("""SELECT COUNT(*) FROM campaign_emails ce
-            JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.status='sent' AND date(ce.sent_at)>=?""", (user_id, week_ago)).fetchone()[0]
-
-        for row in conn.execute("""SELECT COALESCE(ce.pipeline_stage, 'discovered') as stage, COUNT(*) as cnt
-            FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id
-            WHERE c.user_id = ? GROUP BY COALESCE(ce.pipeline_stage, 'discovered')""", (user_id,)).fetchall():
-            pipe_counts[row["stage"]] = row["cnt"]
-
-        for row in conn.execute("""SELECT ce.status, COUNT(*) as cnt
-            FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id
-            WHERE c.user_id = ? GROUP BY ce.status""", (user_id,)).fetchall():
-            status_breakdown[row["status"]] = row["cnt"]
-    except Exception as e:
-        logger.error(f"Error in /stats query for user {user_id}: {e}", exc_info=True)
-    finally:
-        conn.close()
-
-
-    response_rate = round(responded / sent_emails * 100, 1) if sent_emails > 0 else 0
-    open_rate = round(opened / sent_emails * 100, 1) if sent_emails > 0 else 0
-    user_name = (user["name"] or "User").replace("<", "").replace(">", "")
-
-    pipe_colors = {"discovered": "#94a3b8", "applied": "#3b82f6", "followed_up": "#f97316", "interview": "#a78bfa", "offer": "#4ade80", "hired": "#22c55e"}
-    pipe_max = max(pipe_counts.values()) if pipe_counts else 1
-    pipeline = [{"label": s.title().replace("_"," "), "count": c, "color": pipe_colors.get(s, "#3b82f6"), "pct": round(c/pipe_max*100) if pipe_max else 0} for s, c in pipe_counts.items()]
-
-    status_colors = {"sent": "#3b82f6", "delivered": "#4ade80", "opened": "#a78bfa", "failed": "#fca5a5", "bounced": "#ef4444", "responded": "#fbbf24", "pending": "#94a3b8"}
-    statuses = [{"name": s.title(), "count": c, "color": status_colors.get(s, "#3b82f6")} for s, c in sorted(status_breakdown.items(), key=lambda x: -x[1])]
-
-    content = render_template("stats.html",
-        user_name=user_name,
-        today=datetime.now().strftime("%b %d, %Y"),
-        sent_today=sent_today, sent_week=sent_week, sent_emails=sent_emails,
-        total_emails=total_emails, opened=opened, responded=responded,
-        open_rate=open_rate, response_rate=response_rate,
-        pipeline=pipeline, statuses=statuses)
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "&#x1F4CA; Stats", "stats", request=request))
 
 from fastapi.responses import FileResponse, JSONResponse
 
@@ -2357,108 +2471,111 @@ def debug_cookies(request: Request):
 def favicon():
     return FileResponse(static_dir / "favicon.png")
 
-@app.get("/", response_class=HTMLResponse)
-def home(request: Request):
-    try:
-        conn = get_db()
-        now = datetime.now()
+# ==================== MIGRATED TO ROUTER — START (lines 2372-2473) ====================
+# @app.get("/", response_class=HTMLResponse)
+# def home(request: Request):
+#     try:
+#         conn = get_db()
+#         now = datetime.now()
+# 
+#         def _earnings_for_period(since=None):
+#             if since:
+#                 since_str = since.isoformat()
+#                 orders = conn.execute(
+#                     "SELECT COALESCE(SUM(amount_usd),0) as total, COUNT(*) as cnt FROM orders WHERE payment_status='completed' AND created_at >= ?",
+#                     (since_str,)
+#                 ).fetchone()
+#                 codes = conn.execute(
+#                     "SELECT COALESCE(SUM(value_usd),0) as total, COUNT(*) as cnt FROM redeem_codes WHERE is_used=1 AND (code_type IS NULL OR code_type != 'admin_free') AND used_at >= ?",
+#                     (since_str,)
+#                 ).fetchone()
+#                 emails = conn.execute(
+#                     "SELECT COALESCE(SUM(price_usd),0) as total, COUNT(*) as cnt FROM manual_emails WHERE status='sent' AND created_at >= ?",
+#                     (since_str,)
+#                 ).fetchone()
+#             else:
+#                 orders = conn.execute("SELECT COALESCE(SUM(amount_usd),0) as total, COUNT(*) as cnt FROM orders WHERE payment_status='completed'").fetchone()
+#                 codes = conn.execute("SELECT COALESCE(SUM(value_usd),0) as total, COUNT(*) as cnt FROM redeem_codes WHERE is_used=1 AND (code_type IS NULL OR code_type != 'admin_free')").fetchone()
+#                 emails = conn.execute("SELECT COALESCE(SUM(price_usd),0) as total, COUNT(*) as cnt FROM manual_emails WHERE status='sent'").fetchone()
+#             return {
+#                 "orders": {"amount": round(float(orders["total"]), 2), "count": orders["cnt"]},
+#                 "codes": {"amount": round(float(codes["total"]), 2), "count": codes["cnt"]},
+#                 "emails": {"amount": round(float(emails["total"]), 2), "count": emails["cnt"]},
+#             }
+# 
+#         earnings_all = _earnings_for_period()
+#         earnings_24h = _earnings_for_period(now - timedelta(hours=24))
+#         earnings_month = _earnings_for_period(now - timedelta(days=30))
+#         earnings_year = _earnings_for_period(now - timedelta(days=365))
+# 
+#         total_all = round(earnings_all["orders"]["amount"] + earnings_all["codes"]["amount"] + earnings_all["emails"]["amount"], 2)
+#         total_24h = round(earnings_24h["orders"]["amount"] + earnings_24h["codes"]["amount"] + earnings_24h["emails"]["amount"], 2)
+#         total_month = round(earnings_month["orders"]["amount"] + earnings_month["codes"]["amount"] + earnings_month["emails"]["amount"], 2)
+#         total_year = round(earnings_year["orders"]["amount"] + earnings_year["codes"]["amount"] + earnings_year["emails"]["amount"], 2)
+# 
+#         conn.close()
+# 
+#         earnings = {
+#             "total_all": total_all,
+#             "total_24h": total_24h,
+#             "total_month": total_month,
+#             "total_year": total_year,
+#             "breakdown_all": earnings_all,
+#         }
+#     except Exception as e:
+#         import traceback
+#         logger.error(f"ERROR IN HOME ROUTE: {e}")
+#         traceback.print_exc()
+#         total_24h = 0
+#         earnings = {
+#             "total_all": 0, "total_24h": 0, "total_month": 0, "total_year": 0,
+#             "breakdown_all": {"orders": {"amount": 0, "count": 0}, "codes": {"amount": 0, "count": 0}, "emails": {"amount": 0, "count": 0}},
+#         }
+# 
+#     # Fetch featured jobs to show in index_v4.html
+#     featured_jobs = []
+#     try:
+#         conn = get_db()
+#         rows = conn.execute("SELECT * FROM jobs ORDER BY id DESC LIMIT 6").fetchall()
+#         for r in rows:
+#             date_str = "Just now"
+#             if r["created_at"]:
+#                 try:
+#                     dt = datetime.strptime(r["created_at"].split(".")[0], "%Y-%m-%d %H:%M:%S")
+#                     diff = datetime.now() - dt
+#                     if diff.days == 0:
+#                         date_str = "Today"
+#                     elif diff.days == 1:
+#                         date_str = "1 day ago"
+#                     else:
+#                         date_str = f"{diff.days} days ago"
+#                 except Exception:
+#                     pass
+#             featured_jobs.append({
+#                 "id": r["id"],
+#                 "title": r["title"],
+#                 "company": r["company"],
+#                 "location": r["location"] or "Remote",
+#                 "salary": r["salary"] if r["salary"] else "$80k - $120k",
+#                 "board": r["source"].upper() if r["source"] else "LINKEDIN",
+#                 "type": "Full-time",
+#                 "date_posted": date_str
+#             })
+#         conn.close()
+#     except Exception as e:
+#         logger.error(f"Error fetching featured jobs: {e}")
+# 
+#     tiers = get_all_pricing()
+#     return templates.TemplateResponse(request, "index_v4.html", {
+#         "earnings": earnings,
+#         "tiers": tiers,
+#         "VERSION": config.VERSION,
+#         "APP_NAME": config.APP_NAME,
+#         "fomo_apps_today": total_24h if total_24h > 0 else "47",
+#         "featured_jobs": featured_jobs
+#     })
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-        def _earnings_for_period(since=None):
-            if since:
-                since_str = since.isoformat()
-                orders = conn.execute(
-                    "SELECT COALESCE(SUM(amount_usd),0) as total, COUNT(*) as cnt FROM orders WHERE payment_status='completed' AND created_at >= ?",
-                    (since_str,)
-                ).fetchone()
-                codes = conn.execute(
-                    "SELECT COALESCE(SUM(value_usd),0) as total, COUNT(*) as cnt FROM redeem_codes WHERE is_used=1 AND (code_type IS NULL OR code_type != 'admin_free') AND used_at >= ?",
-                    (since_str,)
-                ).fetchone()
-                emails = conn.execute(
-                    "SELECT COALESCE(SUM(price_usd),0) as total, COUNT(*) as cnt FROM manual_emails WHERE status='sent' AND created_at >= ?",
-                    (since_str,)
-                ).fetchone()
-            else:
-                orders = conn.execute("SELECT COALESCE(SUM(amount_usd),0) as total, COUNT(*) as cnt FROM orders WHERE payment_status='completed'").fetchone()
-                codes = conn.execute("SELECT COALESCE(SUM(value_usd),0) as total, COUNT(*) as cnt FROM redeem_codes WHERE is_used=1 AND (code_type IS NULL OR code_type != 'admin_free')").fetchone()
-                emails = conn.execute("SELECT COALESCE(SUM(price_usd),0) as total, COUNT(*) as cnt FROM manual_emails WHERE status='sent'").fetchone()
-            return {
-                "orders": {"amount": round(float(orders["total"]), 2), "count": orders["cnt"]},
-                "codes": {"amount": round(float(codes["total"]), 2), "count": codes["cnt"]},
-                "emails": {"amount": round(float(emails["total"]), 2), "count": emails["cnt"]},
-            }
-
-        earnings_all = _earnings_for_period()
-        earnings_24h = _earnings_for_period(now - timedelta(hours=24))
-        earnings_month = _earnings_for_period(now - timedelta(days=30))
-        earnings_year = _earnings_for_period(now - timedelta(days=365))
-
-        total_all = round(earnings_all["orders"]["amount"] + earnings_all["codes"]["amount"] + earnings_all["emails"]["amount"], 2)
-        total_24h = round(earnings_24h["orders"]["amount"] + earnings_24h["codes"]["amount"] + earnings_24h["emails"]["amount"], 2)
-        total_month = round(earnings_month["orders"]["amount"] + earnings_month["codes"]["amount"] + earnings_month["emails"]["amount"], 2)
-        total_year = round(earnings_year["orders"]["amount"] + earnings_year["codes"]["amount"] + earnings_year["emails"]["amount"], 2)
-
-        conn.close()
-
-        earnings = {
-            "total_all": total_all,
-            "total_24h": total_24h,
-            "total_month": total_month,
-            "total_year": total_year,
-            "breakdown_all": earnings_all,
-        }
-    except Exception as e:
-        import traceback
-        logger.error(f"ERROR IN HOME ROUTE: {e}")
-        traceback.print_exc()
-        total_24h = 0
-        earnings = {
-            "total_all": 0, "total_24h": 0, "total_month": 0, "total_year": 0,
-            "breakdown_all": {"orders": {"amount": 0, "count": 0}, "codes": {"amount": 0, "count": 0}, "emails": {"amount": 0, "count": 0}},
-        }
-
-    # Fetch featured jobs to show in index_v4.html
-    featured_jobs = []
-    try:
-        conn = get_db()
-        rows = conn.execute("SELECT * FROM jobs ORDER BY id DESC LIMIT 6").fetchall()
-        for r in rows:
-            date_str = "Just now"
-            if r["created_at"]:
-                try:
-                    dt = datetime.strptime(r["created_at"].split(".")[0], "%Y-%m-%d %H:%M:%S")
-                    diff = datetime.now() - dt
-                    if diff.days == 0:
-                        date_str = "Today"
-                    elif diff.days == 1:
-                        date_str = "1 day ago"
-                    else:
-                        date_str = f"{diff.days} days ago"
-                except Exception:
-                    pass
-            featured_jobs.append({
-                "id": r["id"],
-                "title": r["title"],
-                "company": r["company"],
-                "location": r["location"] or "Remote",
-                "salary": r["salary"] if r["salary"] else "$80k - $120k",
-                "board": r["source"].upper() if r["source"] else "LINKEDIN",
-                "type": "Full-time",
-                "date_posted": date_str
-            })
-        conn.close()
-    except Exception as e:
-        logger.error(f"Error fetching featured jobs: {e}")
-
-    tiers = get_all_pricing()
-    return templates.TemplateResponse(request, "index_v4.html", {
-        "earnings": earnings,
-        "tiers": tiers,
-        "VERSION": config.VERSION,
-        "APP_NAME": config.APP_NAME,
-        "fomo_apps_today": total_24h if total_24h > 0 else "47",
-        "featured_jobs": featured_jobs
-    })
 
 @app.get("/api/ping")
 def api_ping_v1():
@@ -2569,7 +2686,7 @@ def _build_pricing_inline(pricing_data, flash_discount, flash_sale_info):
 .pricing-card .price.free{{color:#4ade80}}
 .per{{font-size:11px;color:#52525b;text-transform:uppercase;letter-spacing:.5px}}
 .pricing-card ul{{list-style:none;padding:0;margin:0;flex:1;display:flex;flex-direction:column;gap:6px}}
-.pricing-card ul li{{font-size:12px;color:#94a3b8;padding-left:20px;position:relative;line-height:1.4}}
+.pricing-card ul li{{font-size:12px;color:#94a3b8;padding-inline-start:20px;position:relative;line-height:1.4}}
 .pricing-card ul li::before{{content:'\\2713';position:absolute;left:0;color:#4ade80;font-weight:700}}
 .pricing-card .btn{{width:100%;text-align:center}}
 
@@ -2591,7 +2708,7 @@ def _build_pricing_inline(pricing_data, flash_discount, flash_sale_info):
 .srv-info{{flex:1;min-width:0}}
 .srv-name{{font-size:14px;font-weight:600;color:#e2e8f0;margin-bottom:4px}}
 .srv-desc{{font-size:12px;color:#94a3b8;line-height:1.4}}
-.srv-price{{font-size:16px;font-weight:800;color:#60a5fa;flex-shrink:0;margin-left:16px}}
+.srv-price{{font-size:16px;font-weight:800;color:#60a5fa;flex-shrink:0;margin-inline-start:16px}}
 
 @media(max-width:768px){{.pricing-grid-dash{{grid-template-columns:1fr}}.comp-row{{grid-template-columns:1fr;gap:4px;text-align:center}}.comp-label{{font-weight:700}}}}
 </style>
@@ -2634,152 +2751,188 @@ def _build_dashboard_shell(user, user_id, content_html, title, active_page, requ
                            current_year=datetime.now().year,
                            request=request)
 
-@app.get("/api/docs", response_class=HTMLResponse)
-def api_docs(request: Request):
-    return HTMLResponse("<h1>API Documentation</h1><p>Premium access required.</p>")
+# ==================== MIGRATED TO ROUTER — START (lines 2649-2651) ====================
+# @app.get("/api/docs", response_class=HTMLResponse)
+# def api_docs(request: Request):
+#     return HTMLResponse("<h1>API Documentation</h1><p>Premium access required.</p>")
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 @app.get("/email-test", response_class=HTMLResponse)
 def email_test(request: Request):
     return HTMLResponse("<h1>Email Test</h1><p>Premium access required.</p>")
 
-@app.get("/pricing", response_class=HTMLResponse)
-def pricing(request: Request):
-    """Pricing page — accessible without login. Shows all plans + flash sales."""
-    try:
-        pricing_data = get_all_pricing()
-        # Check for active flash sales
-        flash_discount = 0
-        flash_sale_info = None
-        try:
-            conn = get_db()
-            now_iso = datetime.now().isoformat()
-            fs = conn.execute(
-                "SELECT discount_percent, title, end_time FROM flash_sales WHERE active = 1 AND start_time <= ? AND end_time > ? ORDER BY end_time ASC LIMIT 1",
-                (now_iso, now_iso)
-            ).fetchone()
-            if fs:
-                flash_discount = float(fs["discount_percent"])
-                flash_sale_info = {"title": fs["title"], "discount": flash_discount, "end_time": fs["end_time"]}
-            conn.close()
-        except Exception as e:
-            logger.error(e, exc_info=True)
-            if 'conn' in locals() and conn: conn.close()
-        user_id = get_verified_user_id(request)
-        
-        services_list = [
-            {"name": "AI Auto-Apply Engine", "desc": "Automated job applications 24/7", "price": 9.99},
-            {"name": "Smart Resume Tailoring", "desc": "AI optimizes your CV per job", "price": 4.99},
-            {"name": "Email Follow-up Automation", "desc": "Auto follow-ups with tracking", "price": 6.99},
-            {"name": "Interview Scheduler", "desc": "AI schedules your interviews", "price": 14.99},
-            {"name": "LinkedIn Profile Optimizer", "desc": "AI-enhanced LinkedIn presence", "price": 3.99},
-            {"name": "Cover Letter Generator", "desc": "Custom cover letters per job", "price": 2.99},
-        ]
-        pricing_dict = {"tiers": pricing_data.get("tiers", pricing_data), "services": services_list}
-        
-        pricing_content = render_template("pricing_v3.html", request=request,
-                                          pricing=pricing_dict,
-                                          flash_discount=flash_discount,
-                                          flash_sale=flash_sale_info,
-                                          is_logged_in=bool(user_id),
-                                          VERSION=config.VERSION)
-        html = _public_shell(pricing_content, "Pricing — JobHunt Pro", "JobHunt Pro pricing plans. Choose the power level that fits your job hunt: Starter, Basic, Pro, or Enterprise.", request=request)
-        response = HTMLResponse(content=html)
-        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
-        return response
-    except Exception as e:
-        logger.error(f"Pricing page crashed: {e}", exc_info=True)
-        return HTMLResponse("<h2>Error loading pricing</h2><p>Please try again later.</p>", status_code=500)
-
-@app.get("/referral", response_class=HTMLResponse)
-def referral_page(request: Request, ref: str = ""):
-    """Invited users landing page."""
-    try:
-        user_id = get_verified_user_id(request)
-        if user_id:
-            return RedirectResponse("/dashboard", status_code=303)
-        
-        # Render public referral landing page
-        content = render_template("referral.html", request=request, ref_code=ref)
-        html = _public_shell(content, "You are invited to JobHunt Pro!", request=request)
-        response = HTMLResponse(content=html)
-        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
-        return response
-    except Exception as e:
-        logger.error(f"Error rendering referral landing: {e}", exc_info=True)
-        return RedirectResponse("/register", status_code=303)
-
-@app.get("/faq", response_class=HTMLResponse)
-def faq_page(request: Request):
-    """FAQ page"""
-    return templates.TemplateResponse(request, "faq.html", {})
-
-@app.get("/blog", response_class=HTMLResponse)
-def blog_page(request: Request):
-    """Blog listing page — powered by SEO Blog Farm."""
-    from core.seo_blog_farm import get_posts, get_stats
-    posts = get_posts(published_only=True, limit=20)
-    stats = get_stats()
-    return templates.TemplateResponse(request, "blog.html", {
-        "posts": posts,
-        "stats": stats,
-        "VERSION": config.VERSION,
-    })
-
-@app.get("/blog/{slug}", response_class=HTMLResponse)
-def blog_post_page(request: Request, slug: str):
-    """Single blog post page."""
-    from core.seo_blog_farm import get_post
-    post = get_post(slug)
-    if not post:
-        raise HTTPException(status_code=404, detail="Post not found")
-    from core.seo_blog_farm import get_posts
-    related = get_posts(published_only=True, limit=3)
-    return templates.TemplateResponse(request, "blog_post.html", {
-        "post": post,
-        "related": related,
-        "VERSION": config.VERSION,
-    })
-
-@app.get("/privacy", response_class=HTMLResponse)
-def privacy_page(request: Request):
-    """Privacy Policy page"""
-    return templates.TemplateResponse(request, "privacy.html", {})
-
-@app.get("/trust", response_class=HTMLResponse)
-def trust_page(request: Request):
-    """Trust & Transparency page — security, privacy, guarantees."""
-    return templates.TemplateResponse(request, "trust.html", {
-        "request": request,
-        "VERSION": config.VERSION,
-    })
-
-@app.get("/war-room", response_class=HTMLResponse)
-def war_room_redirect(request: Request):
-    """Redirect /war-room to the campaign list or login."""
-    user_id = get_verified_user_id(request)
-    if user_id:
-        return RedirectResponse("/user-dashboard", status_code=302)
-    return RedirectResponse("/login", status_code=302)
-
-@app.get("/compare", response_class=HTMLResponse)
-def compare_page(request: Request):
-    """Competitor comparison page — SEO gold for alternative searches."""
-    return templates.TemplateResponse(request, "compare.html", {"VERSION": config.VERSION})
-
-@app.get("/chrome-extension", response_class=HTMLResponse)
-def chrome_extension_page(request: Request):
-    """Chrome extension landing page."""
-    return templates.TemplateResponse(request, "chromeext.html", {"VERSION": config.VERSION})
+# ==================== MIGRATED TO ROUTER — START (lines 2657-2705) ====================
+# @app.get("/pricing", response_class=HTMLResponse)
+# def pricing(request: Request):
+#     """Pricing page — accessible without login. Shows all plans + flash sales."""
+#     try:
+#         pricing_data = get_all_pricing()
+#         # Check for active flash sales
+#         flash_discount = 0
+#         flash_sale_info = None
+#         try:
+#             conn = get_db()
+#             now_iso = datetime.now().isoformat()
+#             fs = conn.execute(
+#                 "SELECT discount_percent, title, end_time FROM flash_sales WHERE active = 1 AND start_time <= ? AND end_time > ? ORDER BY end_time ASC LIMIT 1",
+#                 (now_iso, now_iso)
+#             ).fetchone()
+#             if fs:
+#                 flash_discount = float(fs["discount_percent"])
+#                 flash_sale_info = {"title": fs["title"], "discount": flash_discount, "end_time": fs["end_time"]}
+#             conn.close()
+#         except Exception as e:
+#             logger.error(e, exc_info=True)
+#             if 'conn' in locals() and conn: conn.close()
+#         user_id = get_verified_user_id(request)
+#         
+#         services_list = [
+#             {"name": "AI Auto-Apply Engine", "desc": "Automated job applications 24/7", "price": 9.99},
+#             {"name": "Smart Resume Tailoring", "desc": "AI optimizes your CV per job", "price": 4.99},
+#             {"name": "Email Follow-up Automation", "desc": "Auto follow-ups with tracking", "price": 6.99},
+#             {"name": "Interview Scheduler", "desc": "AI schedules your interviews", "price": 14.99},
+#             {"name": "LinkedIn Profile Optimizer", "desc": "AI-enhanced LinkedIn presence", "price": 3.99},
+#             {"name": "Cover Letter Generator", "desc": "Custom cover letters per job", "price": 2.99},
+#         ]
+#         pricing_dict = {"tiers": pricing_data.get("tiers", pricing_data), "services": services_list}
+#         
+#         pricing_content = render_template("pricing_v3.html", request=request,
+#                                           pricing=pricing_dict,
+#                                           flash_discount=flash_discount,
+#                                           flash_sale=flash_sale_info,
+#                                           is_logged_in=bool(user_id),
+#                                           VERSION=config.VERSION)
+#         html = _public_shell(pricing_content, "Pricing — JobHunt Pro", "JobHunt Pro pricing plans. Choose the power level that fits your job hunt: Starter, Basic, Pro, or Enterprise.", request=request)
+#         response = HTMLResponse(content=html)
+#         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+#         response.headers["Pragma"] = "no-cache"
+#         response.headers["Expires"] = "0"
+#         return response
+#     except Exception as e:
+#         logger.error(f"Pricing page crashed: {e}", exc_info=True)
+#         return HTMLResponse("<h2>Error loading pricing</h2><p>Please try again later.</p>", status_code=500)
+# ==================== MIGRATED TO ROUTER — END   ====================
 
 
-@app.get("/terms", response_class=HTMLResponse)
-def terms_page(request: Request):
-    """Terms of Service page"""
-    return templates.TemplateResponse(request, "terms.html", {})
+# ==================== MIGRATED TO ROUTER — START (lines 2707-2725) ====================
+# @app.get("/referral", response_class=HTMLResponse)
+# def referral_page(request: Request, ref: str = ""):
+#     """Invited users landing page."""
+#     try:
+#         user_id = get_verified_user_id(request)
+#         if user_id:
+#             return RedirectResponse("/dashboard", status_code=303)
+#         
+#         # Render public referral landing page
+#         content = render_template("referral.html", request=request, ref_code=ref)
+#         html = _public_shell(content, "You are invited to JobHunt Pro!", request=request)
+#         response = HTMLResponse(content=html)
+#         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+#         response.headers["Pragma"] = "no-cache"
+#         response.headers["Expires"] = "0"
+#         return response
+#     except Exception as e:
+#         logger.error(f"Error rendering referral landing: {e}", exc_info=True)
+#         return RedirectResponse("/register", status_code=303)
+# ==================== MIGRATED TO ROUTER — END   ====================
+
+
+# ==================== MIGRATED TO ROUTER — START (lines 2727-2730) ====================
+# @app.get("/faq", response_class=HTMLResponse)
+# def faq_page(request: Request):
+#     """FAQ page"""
+#     return templates.TemplateResponse(request, "faq.html", {})
+# ==================== MIGRATED TO ROUTER — END   ====================
+
+
+# ==================== MIGRATED TO ROUTER — START (lines 2732-2742) ====================
+# @app.get("/blog", response_class=HTMLResponse)
+# def blog_page(request: Request):
+#     """Blog listing page — powered by SEO Blog Farm."""
+#     from core.seo_blog_farm import get_posts, get_stats
+#     posts = get_posts(published_only=True, limit=20)
+#     stats = get_stats()
+#     return templates.TemplateResponse(request, "blog.html", {
+#         "posts": posts,
+#         "stats": stats,
+#         "VERSION": config.VERSION,
+#     })
+# ==================== MIGRATED TO ROUTER — END   ====================
+
+
+# ==================== MIGRATED TO ROUTER — START (lines 2744-2757) ====================
+# @app.get("/blog/{slug}", response_class=HTMLResponse)
+# def blog_post_page(request: Request, slug: str):
+#     """Single blog post page."""
+#     from core.seo_blog_farm import get_post
+#     post = get_post(slug)
+#     if not post:
+#         raise HTTPException(status_code=404, detail="Post not found")
+#     from core.seo_blog_farm import get_posts
+#     related = get_posts(published_only=True, limit=3)
+#     return templates.TemplateResponse(request, "blog_post.html", {
+#         "post": post,
+#         "related": related,
+#         "VERSION": config.VERSION,
+#     })
+# ==================== MIGRATED TO ROUTER — END   ====================
+
+
+# ==================== MIGRATED TO ROUTER — START (lines 2759-2762) ====================
+# @app.get("/privacy", response_class=HTMLResponse)
+# def privacy_page(request: Request):
+#     """Privacy Policy page"""
+#     return templates.TemplateResponse(request, "privacy.html", {})
+# ==================== MIGRATED TO ROUTER — END   ====================
+
+
+# ==================== MIGRATED TO ROUTER — START (lines 2764-2770) ====================
+# @app.get("/trust", response_class=HTMLResponse)
+# def trust_page(request: Request):
+#     """Trust & Transparency page — security, privacy, guarantees."""
+#     return templates.TemplateResponse(request, "trust.html", {
+#         "request": request,
+#         "VERSION": config.VERSION,
+#     })
+# ==================== MIGRATED TO ROUTER — END   ====================
+
+
+# ==================== MIGRATED TO ROUTER — START (lines 2772-2778) ====================
+# @app.get("/war-room", response_class=HTMLResponse)
+# def war_room_redirect(request: Request):
+#     """Redirect /war-room to the campaign list or login."""
+#     user_id = get_verified_user_id(request)
+#     if user_id:
+#         return RedirectResponse("/user-dashboard", status_code=302)
+#     return RedirectResponse("/login", status_code=302)
+# ==================== MIGRATED TO ROUTER — END   ====================
+
+
+# ==================== MIGRATED TO ROUTER — START (lines 2780-2783) ====================
+# @app.get("/compare", response_class=HTMLResponse)
+# def compare_page(request: Request):
+#     """Competitor comparison page — SEO gold for alternative searches."""
+#     return templates.TemplateResponse(request, "compare.html", {"VERSION": config.VERSION})
+# ==================== MIGRATED TO ROUTER — END   ====================
+
+
+# ==================== MIGRATED TO ROUTER — START (lines 2785-2788) ====================
+# @app.get("/chrome-extension", response_class=HTMLResponse)
+# def chrome_extension_page(request: Request):
+#     """Chrome extension landing page."""
+#     return templates.TemplateResponse(request, "chromeext.html", {"VERSION": config.VERSION})
+# ==================== MIGRATED TO ROUTER — END   ====================
+
+
+
+# ==================== MIGRATED TO ROUTER — START (lines 2791-2794) ====================
+# @app.get("/terms", response_class=HTMLResponse)
+# def terms_page(request: Request):
+#     """Terms of Service page"""
+#     return templates.TemplateResponse(request, "terms.html", {})
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 @app.get("/refund", response_class=HTMLResponse)
 def refund_page(request: Request):
@@ -2796,7 +2949,7 @@ def refund_page(request: Request):
 
         <div class="card">
             <h2>Eligibility</h2>
-            <ul style="line-height:2;padding-left:20px;">
+            <ul style="line-height:2;padding-inline-start:20px;">
                 <li>Campaign must have been active for at least 14 days</li>
                 <li>Minimum 50 applications must have been sent</li>
                 <li>Request must be submitted within 30 days of purchase</li>
@@ -2816,7 +2969,7 @@ def refund_page(request: Request):
 
         <div style="text-align:center;margin-top:32px;">
             <a href="/contact" class="btn">Contact Support</a>
-            <a href="/" class="btn btn-outline" style="margin-left:12px;">Back to Home</a>
+            <a href="/" class="btn btn-outline" style="margin-inline-start:12px;">Back to Home</a>
         </div>
     </div>
     """, "Refund Policy \u2014 JobHunt Pro")
@@ -2839,9 +2992,9 @@ def cookies_page(request: Request):
             <h2>Cookies We Use</h2>
             <table style="width:100%;border-collapse:collapse;margin-top:12px;">
                 <tr style="border-bottom:1px solid rgba(255,255,255,.08);">
-                    <th style="text-align:left;padding:8px;color:#64748b;">Cookie</th>
-                    <th style="text-align:left;padding:8px;color:#64748b;">Purpose</th>
-                    <th style="text-align:left;padding:8px;color:#64748b;">Duration</th>
+                    <th style="text-align: start;padding:8px;color:#64748b;">Cookie</th>
+                    <th style="text-align: start;padding:8px;color:#64748b;">Purpose</th>
+                    <th style="text-align: start;padding:8px;color:#64748b;">Duration</th>
                 </tr>
                 <tr style="border-bottom:1px solid rgba(255,255,255,.06);">
                     <td style="padding:8px;">user_id</td>
@@ -2863,7 +3016,7 @@ def cookies_page(request: Request):
 
         <div style="text-align:center;margin-top:32px;">
             <a href="/privacy" class="btn">Privacy Policy</a>
-            <a href="/" class="btn btn-outline" style="margin-left:12px;">Back to Home</a>
+            <a href="/" class="btn btn-outline" style="margin-inline-start:12px;">Back to Home</a>
         </div>
     </div>
     """, "Cookie Policy \u2014 JobHunt Pro")
@@ -2878,21 +3031,21 @@ def careers_page(request: Request):
         <h1 style="color:#3b82f6;margin-bottom:16px;">We're Hiring!</h1>
         <p style="color:#94a3b8;font-size:18px;margin-bottom:40px;">Join the team building the future of AI-powered job hunting.</p>
 
-        <div class="card" style="text-align:left;margin-bottom:16px;">
+        <div class="card" style="text-align: start;margin-bottom:16px;">
             <h2>&#x1F916; AI/ML Engineer</h2>
             <p style="color:#94a3b8;">Remote &bull; Full-time &bull; $80K&ndash;$120K</p>
             <p style="margin-top:12px;">Build and improve our AI models for cover letter generation, job matching, and response prediction.</p>
             <a href="/contact" class="btn" style="margin-top:16px;display:inline-flex;">Apply Now</a>
         </div>
 
-        <div class="card" style="text-align:left;margin-bottom:16px;">
+        <div class="card" style="text-align: start;margin-bottom:16px;">
             <h2>&#x1F310; Full-Stack Developer</h2>
             <p style="color:#94a3b8;">Remote &bull; Full-time &bull; $70K&ndash;$100K</p>
             <p style="margin-top:12px;">Improve our web platform, dashboards, and API. Python/FastAPI + JavaScript.</p>
             <a href="/contact" class="btn" style="margin-top:16px;display:inline-flex;">Apply Now</a>
         </div>
 
-        <div class="card" style="text-align:left;">
+        <div class="card" style="text-align: start;">
             <h2>&#x1F4C8; Growth Marketing Manager</h2>
             <p style="color:#94a3b8;">Remote &bull; Full-time &bull; $60K&ndash;$90K</p>
             <p style="margin-top:12px;">Drive user acquisition, partnerships, and brand awareness for our global platform.</p>
@@ -2904,102 +3057,114 @@ def careers_page(request: Request):
     """, "Careers — JobHunt Pro", "Join the JobHunt Pro team. Remote-first AI startup. Open roles in Engineering, Marketing, and Customer Success.", request=request)
     return HTMLResponse(html)
 
-@app.get("/sitemap.xml")
-def sitemap():
-    site = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    xml = f'''<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>{site}/</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>{site}/pricing</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>{site}/services</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>{site}/trust</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>{site}/for-employers</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>{site}/blog</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>{site}/faq</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>{site}/contact</loc><lastmod>{today}</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
-  <url><loc>{site}/privacy</loc><lastmod>{today}</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
-  <url><loc>{site}/terms</loc><lastmod>{today}</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
-  <url><loc>{site}/register</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>{site}/referral</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>{site}/ats-scorer</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-</urlset>'''
-    from fastapi.responses import Response
-    return Response(content=xml, media_type="application/xml")
+# ==================== MIGRATED TO ROUTER — START (lines 2919-2940) ====================
+# @app.get("/sitemap.xml")
+# def sitemap():
+#     site = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
+#     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+#     xml = f'''<?xml version="1.0" encoding="UTF-8"?>
+# <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+#   <url><loc>{site}/</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+#   <url><loc>{site}/pricing</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+#   <url><loc>{site}/services</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+#   <url><loc>{site}/trust</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+#   <url><loc>{site}/for-employers</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+#   <url><loc>{site}/blog</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+#   <url><loc>{site}/faq</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+#   <url><loc>{site}/contact</loc><lastmod>{today}</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+#   <url><loc>{site}/privacy</loc><lastmod>{today}</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
+#   <url><loc>{site}/terms</loc><lastmod>{today}</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
+#   <url><loc>{site}/register</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+#   <url><loc>{site}/referral</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+#   <url><loc>{site}/ats-scorer</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+# </urlset>'''
+#     from fastapi.responses import Response
+#     return Response(content=xml, media_type="application/xml")
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-@app.get("/robots.txt")
-def robots():
-    site = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
-    txt = f"""User-agent: *
-Allow: /
-Disallow: /admin
-Disallow: /api/
-Disallow: /user-dashboard
-Disallow: /user-dashboard/*
-Disallow: /dashboard
-Disallow: /dashboard/*
-Disallow: /static/js/
-Disallow: /static/css/
-Disallow: /checkout
-Disallow: /wallet
-Allow: /static/img/og-image.png
-Allow: /static/favicon.ico
-Crawl-delay: 5
-Sitemap: {site}/sitemap.xml"""
-    from fastapi.responses import PlainTextResponse
-    return PlainTextResponse(txt)
+
+# ==================== MIGRATED TO ROUTER — START (lines 2942-2962) ====================
+# @app.get("/robots.txt")
+# def robots():
+#     site = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
+#     txt = f"""User-agent: *
+# Allow: /
+# Disallow: /admin
+# Disallow: /api/
+# Disallow: /user-dashboard
+# Disallow: /user-dashboard/*
+# Disallow: /dashboard
+# Disallow: /dashboard/*
+# Disallow: /static/js/
+# Disallow: /static/css/
+# Disallow: /checkout
+# Disallow: /wallet
+# Allow: /static/img/og-image.png
+# Allow: /static/favicon.ico
+# Crawl-delay: 5
+# Sitemap: {site}/sitemap.xml"""
+#     from fastapi.responses import PlainTextResponse
+#     return PlainTextResponse(txt)
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 @app.get("/track-application", response_class=HTMLResponse)
 def track_application_page(request: Request):
     """Track application by tracking code"""
     return templates.TemplateResponse(request, "track_application.html", {})
 
-@app.get("/contact", response_class=HTMLResponse)
-def contact_page(request: Request):
-    msg = request.query_params.get("msg", "")
-    error = request.query_params.get("error", "")
-    user_name = ""
-    user_email = ""
-    is_admin = False
-    user_id = get_verified_user_id(request)
-    if user_id:
-        try:
-            conn = get_db()
-            u = conn.execute("SELECT name, email, user_type FROM users WHERE user_id = ?", (user_id,)).fetchone()
-            conn.close()
-            if u:
-                user_name = u["name"] or ""
-                user_email = u["email"] or ""
-                if u["user_type"] == "admin":
-                    is_admin = True
-        except Exception as e:
-            logger.error(e, exc_info=True)
-    content = render_template("contact.html", request=request, msg=msg, error=error,
-                              user_name=user_name, user_email=user_email, is_admin=is_admin)
-    return HTMLResponse(_public_shell(content, "Contact &mdash; JobHunt Pro", "Contact JobHunt Pro support. Reach us via WhatsApp, email, or our contact form. We respond within 24h.", request=request))
+# ==================== MIGRATED TO ROUTER — START (lines 2969-2991) ====================
+# @app.get("/contact", response_class=HTMLResponse)
+# def contact_page(request: Request):
+#     msg = request.query_params.get("msg", "")
+#     error = request.query_params.get("error", "")
+#     user_name = ""
+#     user_email = ""
+#     is_admin = False
+#     user_id = get_verified_user_id(request)
+#     if user_id:
+#         try:
+#             conn = get_db()
+#             u = conn.execute("SELECT name, email, user_type FROM users WHERE user_id = ?", (user_id,)).fetchone()
+#             conn.close()
+#             if u:
+#                 user_name = u["name"] or ""
+#                 user_email = u["email"] or ""
+#                 if u["user_type"] == "admin":
+#                     is_admin = True
+#         except Exception as e:
+#             logger.error(e, exc_info=True)
+#     content = render_template("contact.html", request=request, msg=msg, error=error,
+#                               user_name=user_name, user_email=user_email, is_admin=is_admin)
+#     return HTMLResponse(_public_shell(content, "Contact &mdash; JobHunt Pro", "Contact JobHunt Pro support. Reach us via WhatsApp, email, or our contact form. We respond within 24h.", request=request))
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-@app.post("/contact")
-def contact_submit(request: Request, name: str = Form(...), email: str = Form(...), message: str = Form(...), subject: str = Form(""), rating: str = Form("")):
-    """Handle contact form submissions from both guests and authenticated users."""
-    client_ip = request.client.host if request.client else "unknown"
-    if not _check_rate_limit(_contact_attempts, client_ip, max_count=3):
-        return templates.TemplateResponse(request, "contact.html", {"error": "Too many submissions. Try again in 1 hour."})
-    user_id = get_verified_user_id(request)
-    # Allow guests — user_id may be None
-    conn = get_db()
-    conn.execute("""CREATE TABLE IF NOT EXISTS feedback (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT, name TEXT, email TEXT,
-        message TEXT, rating INTEGER, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )""")
-    r = int(rating) if rating and rating.isdigit() else None
-    full_message = f"[Subject: {subject}] {message}" if subject else message
-    conn.execute("INSERT INTO feedback (user_id, name, email, message, rating) VALUES (?,?,?,?,?)",
-                 (user_id, name, email, full_message, r))
-    conn.commit()
-    conn.close()
-    from urllib.parse import quote
-    return RedirectResponse(f"/contact?msg={quote('Message sent! Thank you for your feedback. We read every message.')}", status_code=303)
+
+# ==================== MIGRATED TO ROUTER — START (lines 2993-3014) ====================
+# @app.post("/contact")
+# def contact_submit(request: Request, name: str = Form(...), email: str = Form(...), message: str = Form(...), subject: str = Form(""), rating: str = Form("")):
+#     """Handle contact form submissions from both guests and authenticated users."""
+#     client_ip = request.client.host if request.client else "unknown"
+#     if not _check_rate_limit(_contact_attempts, client_ip, max_count=3):
+#         return templates.TemplateResponse(request, "contact.html", {"error": "Too many submissions. Try again in 1 hour."})
+#     user_id = get_verified_user_id(request)
+#     # Allow guests — user_id may be None
+#     conn = get_db()
+#     conn.execute("""CREATE TABLE IF NOT EXISTS feedback (
+#         id INTEGER PRIMARY KEY AUTOINCREMENT,
+#         user_id TEXT, name TEXT, email TEXT,
+#         message TEXT, rating INTEGER, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+#     )""")
+#     r = int(rating) if rating and rating.isdigit() else None
+#     full_message = f"[Subject: {subject}] {message}" if subject else message
+#     conn.execute("INSERT INTO feedback (user_id, name, email, message, rating) VALUES (?,?,?,?,?)",
+#                  (user_id, name, email, full_message, r))
+#     conn.commit()
+#     conn.close()
+#     from urllib.parse import quote
+#     return RedirectResponse(f"/contact?msg={quote('Message sent! Thank you for your feedback. We read every message.')}", status_code=303)
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 @app.get("/export", response_class=HTMLResponse)
 def export_page(request: Request):
@@ -3007,196 +3172,301 @@ def export_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    user = dict(user_row) if user_row else {}
-    content = render_template("export.html")
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Export", "export", request=request))
+    with get_db() as conn:
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        pass  # conn.close()
+        user = dict(user_row) if user_row else {}
+        content = render_template("export.html")
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Export", "export", request=request))
 
-@app.get("/login", response_class=HTMLResponse)
-def login_page(request: Request, plan: str = ""):
-    user_id = get_verified_user_id(request)
-    if user_id:
-        return RedirectResponse("/dashboard", status_code=303)
-    return templates.TemplateResponse(request, "login_v2.html", {
-        "plan": plan,
-        "VERSION": config.VERSION,
-        "error": None
-    })
+# ==================== MIGRATED TO ROUTER — START (lines 3029-3038) ====================
+# @app.get("/login", response_class=HTMLResponse)
+# def login_page(request: Request, plan: str = ""):
+#     user_id = get_verified_user_id(request)
+#     if user_id:
+#         return RedirectResponse("/dashboard", status_code=303)
+#     return templates.TemplateResponse(request, "login_v2.html", {
+#         "plan": plan,
+#         "VERSION": config.VERSION,
+#         "error": None
+#     })
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-@app.post("/login")
-async def login(request: Request, email: str = Form(...), password: str = Form(...), plan: str = Form("")):
-    conn = get_db()
-    user_row = conn.execute("SELECT user_id, password_hash FROM users WHERE email = ?", (email.strip().lower(),)).fetchone()
-    conn.close()
-    
-    if not user_row or not verify_password(password, user_row["password_hash"]):
-        return templates.TemplateResponse(request, "login_v2.html", {
-            "plan": plan,
-            "VERSION": config.VERSION,
-            "error": "البريد الإلكتروني أو كلمة المرور غير صحيحة" if request.state.locale == "ar" else "Invalid email or password"
-        })
-    
-    signed_uid = session_serializer.dumps(user_row["user_id"])
-    redirect_url = "/dashboard"
-    if plan:
-        redirect_url = f"/new-campaign?plan={plan}"
-    
-    response = RedirectResponse(redirect_url, status_code=303)
-    response.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
-    return response
 
-@app.get("/new-campaign", response_class=HTMLResponse)
-def new_campaign_page(request: Request, plan: str = ""):
+# ==================== MIGRATED TO ROUTER — START (lines 3040-3060) ====================
+# @app.post("/login")
+# async def login(request: Request, email: str = Form(...), password: str = Form(...), plan: str = Form("")):
+#     conn = get_db()
+#     user_row = conn.execute("SELECT user_id, password_hash FROM users WHERE email = ?", (email.strip().lower(),)).fetchone()
+#     conn.close()
+#     
+#     if not user_row or not verify_password(password, user_row["password_hash"]):
+#         return templates.TemplateResponse(request, "login_v2.html", {
+#             "plan": plan,
+#             "VERSION": config.VERSION,
+#             "error": "البريد الإلكتروني أو كلمة المرور غير صحيحة" if request.state.locale == "ar" else "Invalid email or password"
+#         })
+#     
+#     signed_uid = session_serializer.dumps(user_row["user_id"])
+#     redirect_url = "/dashboard"
+#     if plan:
+#         redirect_url = f"/new-campaign?plan={plan}"
+#     
+#     response = RedirectResponse(redirect_url, status_code=303)
+#     response.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
+#     return response
+# ==================== MIGRATED TO ROUTER — END   ====================
+
+
+# ==================== MIGRATED TO ROUTER — START (lines 3062-3081) ====================
+# @app.get("/new-campaign", response_class=HTMLResponse)
+# def new_campaign_page(request: Request, plan: str = ""):
+#     user_id = get_verified_user_id(request)
+#     if not user_id:
+#         return RedirectResponse(f"/login?plan={plan}" if plan else "/login", status_code=303)
+#     
+#     conn = get_db()
+#     profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
+#     user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+#     conn.close()
+#     
+#     user = dict(user_row) if user_row else {}
+#     pricing_data = get_all_pricing()
+#     tiers = pricing_data.get("tiers", pricing_data) if isinstance(pricing_data, dict) else pricing_data
+#     pricing = {"tiers": tiers}
+#     
+#     balance = user.get("wallet_balance", 0.0)
+#     
+#     content = render_template("new_campaign_v2.html", profiles=profiles, user=user, plan=plan, pricing=pricing, balance=balance)
+#     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "New Campaign", "new-campaign", request=request))
+# ==================== MIGRATED TO ROUTER — END   ====================
+
+
+@app.post("/api/campaigns")
+async def create_campaign_web(
+    request: Request,
+    profile_id: int = Form(...),
+    company_count: int = Form(...),
+    bouquets: List[str] = Form(None)
+):
     user_id = get_verified_user_id(request)
     if not user_id:
-        return RedirectResponse(f"/login?plan={plan}" if plan else "/login", status_code=303)
-    
-    conn = get_db()
-    profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    
-    user = dict(user_row) if user_row else {}
-    pricing_data = get_all_pricing()
-    tiers = pricing_data.get("tiers", pricing_data) if isinstance(pricing_data, dict) else pricing_data
-    pricing = {"tiers": tiers}
-    
-    balance = user.get("wallet_balance", 0.0)
-    
-    content = render_template("new_campaign_v2.html", profiles=profiles, user=user, plan=plan, pricing=pricing, balance=balance)
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "New Campaign", "new-campaign", request=request))
-
-@app.get("/register", response_class=HTMLResponse)
-def register_page(request: Request, ref: str = ""):
-    return templates.TemplateResponse(request, "register_v2.html", {
-        "ref": ref,
-        "VERSION": config.VERSION,
-        "turnstile_site_key": getattr(config, "TURNSTILE_SITE_KEY", "")
-    })
-
-@app.post("/register")
-async def register(request: Request, email: str = Form(...), password: str = Form(...),
-                   name: str = Form(...), phone: str = Form(""),
-                   company_name: str = Form(""), user_type: str = Form("jobseeker"),
-                   ref: str = Form(""),
-                   selected_plan: str = Form("starter"),
-                   cf_turnstile_response: str = Form(None, alias="cf-turnstile-response"),
-                   aegis_honeypot: str = Form("")):
-                   
-    # PROJECT AEGIS: The Bot-Killer (Honeypot Check)
-    if aegis_honeypot:
-        client_ip = request.client.host
-        logger.warning(f"PROJECT AEGIS: Bot detected filling honeypot from IP {client_ip}. IP permanently banned.")
-        return HTMLResponse(content="403 Forbidden: Malicious activity detected.", status_code=403)
-
-    # 1. Cloudflare Turnstile Anti-Bot Validation (Item 19)
-    turnstile_secret = getattr(config, "TURNSTILE_SECRET", "") or os.getenv("TURNSTILE_SECRET", "")
-    if turnstile_secret:
-        if not cf_turnstile_response:
-            return templates.TemplateResponse(request, "register_v2.html", {"error": "Please complete the Anti-Bot CAPTCHA.", "ref": ref})
+        return RedirectResponse("/login", status_code=303)
+        
+    with get_db() as conn:
+        try:
+            user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            if not user:
+                return RedirectResponse("/login", status_code=303)
+            user = dict(user)
+        
+            tier = None
+            for t in PRICING_TIERS:
+                if t["companies"] == company_count:
+                    tier = t
+                    break
+            if not tier and company_count > 0:
+                return RedirectResponse("/new-campaign?error=invalid_tier", status_code=303)
             
-        try:
-            async with httpx.AsyncClient() as client:
-                cf_resp = await client.post("https://challenges.cloudflare.com/turnstile/v0/siteverify", data={
-                    "secret": turnstile_secret,
-                    "response": cf_turnstile_response
-                }, timeout=5.0)
-                if not cf_resp.json().get("success"):
-                    return templates.TemplateResponse(request, "register_v2.html", {"error": "Anti-Bot Verification Failed. Please try again.", "ref": ref})
-        except Exception as e:
-            logger.error(f"Turnstile API error: {e}")
-            return templates.TemplateResponse(request, "register_v2.html", {"error": "Bot verification service is down. Try again later.", "ref": ref})
-    else:
-        logger.warning("TURNSTILE_SECRET not set! Skipping CAPTCHA verification.")
-
-    # Rate limit: max 5 registrations per IP per hour
-    client_ip = request.client.host if request.client else "unknown"
-    if not _check_rate_limit(_register_attempts, client_ip, max_count=5):
-        return templates.TemplateResponse(
-            request, "register_v2.html",
-            {"error": "Too many registration attempts. Please try again in 1 hour.", "ref": ref}
-        )
-    # Password complexity: min 8 chars, 1 uppercase, 1 digit
-    if len(password) < 8:
-        return templates.TemplateResponse(request, "register_v2.html", {"error": "Password must be at least 8 characters.", "ref": ref})
-    if not any(c.isupper() for c in password):
-        return templates.TemplateResponse(request, "register_v2.html", {"error": "Password must contain at least one uppercase letter.", "ref": ref})
-    if not any(c.isdigit() for c in password):
-        return templates.TemplateResponse(request, "register_v2.html", {"error": "Password must contain at least one digit.", "ref": ref})
-    conn = get_db()
-    existing = conn.execute("SELECT user_id, password_hash, api_key FROM users WHERE email = ?", (email,)).fetchone()
-    if existing:
-        if existing["password_hash"] == "*SEEDED*":
-            # SEEDED accounts: require invite_code validation
-            form = await request.form()
-            invite_code = form.get("invite_code", "")
-            valid_codes = os.getenv("SEEDED_INVITE_CODES", "").split(",")
-            if not invite_code or invite_code.strip() not in valid_codes:
-                conn.close()
-                return templates.TemplateResponse(request, "register_v2.html", {"error": "This account requires an invite code to claim.", "ref": ref})
-            api_key = existing["api_key"] or generate_api_key()
-            conn.execute("""UPDATE users SET password_hash = ?, name = ?, phone = ?, company_name = ?, user_type = ?, api_key = ?
-                            WHERE user_id = ?""",
-                         (hash_password(password), name, phone, company_name, user_type, api_key, existing["user_id"]))
-            logger.info(f"SEEDED account takeover: email={email}, user_id={existing['user_id']}, api_key_generated={bool(existing['api_key'])}")
+            total_price = tier["price_usd"] if tier else 0.0
+        
+            selected_bouquets = []
+            if bouquets:
+                for bname in bouquets:
+                    bname = bname.strip()
+                    if not bname:
+                        continue
+                    for b in BOUQUET_PACKAGES:
+                        if b["bouquet"] == bname:
+                            total_price += b["price_usd"]
+                            selected_bouquets.append(bname)
+                            break
+            else:
+                # Fallback to bouquet_names hidden field
+                form_data = await request.form()
+                bnames = form_data.get("bouquet_names", "")
+                if bnames:
+                    for bname in bnames.split(","):
+                        bname = bname.strip()
+                        if not bname:
+                            continue
+                        for b in BOUQUET_PACKAGES:
+                            if b["bouquet"] == bname:
+                                total_price += b["price_usd"]
+                                selected_bouquets.append(bname)
+                                break
+                            
+            if user["wallet_balance"] < total_price:
+                return RedirectResponse("/wallet?error=insufficient_balance", status_code=303)
+            
+            campaign_id = f"camp_{uuid.uuid4().hex[:16]}"
+            order_id = f"ord_{uuid.uuid4().hex[:16]}"
+        
+            conn.execute(
+                "INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status) VALUES (?,?,?,?,?,?,?,?)",
+                (order_id, user_id, "campaign", tier["tier"] if tier else "custom", company_count, total_price, "wallet", "completed")
+            )
+            conn.execute(
+                "INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, total_companies) VALUES (?,?,?,?,?)",
+                (campaign_id, user_id, order_id, profile_id, company_count)
+            )
+        
+            new_balance = user["wallet_balance"] - total_price
+            conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
+            conn.execute(
+                "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?,?,?,?,?)",
+                (user_id, "spend", -total_price, new_balance, f"Campaign {campaign_id}: {company_count} companies")
+            )
             conn.commit()
-            conn.close()
-            resp = RedirectResponse(f"/login?plan={selected_plan}", status_code=303)
-            resp.set_cookie(key="last_selected_plan", value=selected_plan, max_age=86400)
-            return resp
-        else:
-            conn.close()
-            return templates.TemplateResponse(request, "register_v2.html", {"error": "Email already registered"})
-
-    user_id = f"user_{uuid.uuid4().hex[:16]}"
-    api_key = generate_api_key()
-    conn.execute("""INSERT INTO users (user_id, email, password_hash, name, phone, company_name, user_type, api_key)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                 (user_id, email, hash_password(password), name, phone, company_name, user_type, api_key))
-    conn.commit()
-
-    # Referral credit: if ref parameter present, credit referrer + new user
-    if ref:
-        try:
-            referrer = conn.execute("SELECT user_id, wallet_balance FROM users WHERE user_id = ?", (ref,)).fetchone()
-            if referrer:
-                referral_bonus = 5.0  # $5 bonus for referrer
-                new_user_bonus = 2.0  # $2 bonus for new user
-                # Credit referrer
-                ref_new_bal = referrer["wallet_balance"] + referral_bonus
-                conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (ref_new_bal, ref))
-                conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-                                VALUES (?, ?, ?, ?, ?)""",
-                             (ref, "referral_reward", referral_bonus, ref_new_bal, f"Referral bonus &#x2014; new user: {email}"))
-                # Credit new user
-                conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-                                VALUES (?, ?, ?, ?, ?)""",
-                             (user_id, "referral_bonus", new_user_bonus, new_user_bonus, "Welcome referral bonus!"))
-                conn.execute("UPDATE users SET wallet_balance = wallet_balance + ? WHERE user_id = ?", (new_user_bonus, user_id))
-                # Record in referrals table so /referral page shows it
-                try:
-                    conn.execute("INSERT INTO referrals (referrer_id, referred_id, bonus_amount, status, created_at) VALUES (?, ?, ?, 'completed', datetime('now'))",
-                                 (ref, user_id, referral_bonus))
-                except Exception:
-                    pass  # Table might not have exact schema, non-critical
-                conn.commit()
-                logger.info(f"Referral: {ref} referred {user_id}, referrer +${referral_bonus}, new user +${new_user_bonus}")
+        
+            from core.job_queue import enqueue_task
+            try:
+                enqueue_task("run_campaign", {"campaign_id": campaign_id})
+            except Exception as e:
+                logger.error(f"[QUEUE] Error enqueuing campaign {campaign_id}: {e}")
+            
+            return RedirectResponse("/dashboard?success=campaign_started", status_code=303)
         except Exception as e:
-            logger.error(f"Referral credit failed for ref={ref}, user={user_id}: {e}")
+            logger.error(f"Error creating campaign: {e}", exc_info=True)
+            return RedirectResponse("/new-campaign?error=unknown_error", status_code=303)
+        finally:
+            pass  # conn.close()
 
-    conn.close()
+# ==================== MIGRATED TO ROUTER — START (lines 3173-3179) ====================
+# @app.get("/register", response_class=HTMLResponse)
+# def register_page(request: Request, ref: str = ""):
+#     return templates.TemplateResponse(request, "register_v2.html", {
+#         "ref": ref,
+#         "VERSION": config.VERSION,
+#         "turnstile_site_key": getattr(config, "TURNSTILE_SITE_KEY", "")
+#     })
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-    # Trigger welcome email as background task
-    try:
-        asyncio.create_task(send_welcome_email(user_id, email, name))
-    except Exception as e:
-        logger.error(e, exc_info=True)  # Welcome email is best-effort
 
-    resp = RedirectResponse(f"/login?plan={selected_plan}", status_code=303)
-    resp.set_cookie(key="last_selected_plan", value=selected_plan, max_age=86400)
-    return resp
+# ==================== MIGRATED TO ROUTER — START (lines 3181-3301) ====================
+# @app.post("/register")
+# async def register(request: Request, email: str = Form(...), password: str = Form(...),
+#                    name: str = Form(...), phone: str = Form(""),
+#                    company_name: str = Form(""), user_type: str = Form("jobseeker"),
+#                    ref: str = Form(""),
+#                    selected_plan: str = Form("starter"),
+#                    cf_turnstile_response: str = Form(None, alias="cf-turnstile-response"),
+#                    aegis_honeypot: str = Form("")):
+#                    
+#     # PROJECT AEGIS: The Bot-Killer (Honeypot Check)
+#     if aegis_honeypot:
+#         client_ip = request.client.host
+#         logger.warning(f"PROJECT AEGIS: Bot detected filling honeypot from IP {client_ip}. IP permanently banned.")
+#         return HTMLResponse(content="403 Forbidden: Malicious activity detected.", status_code=403)
+# 
+#     # 1. Cloudflare Turnstile Anti-Bot Validation (Item 19)
+#     turnstile_secret = getattr(config, "TURNSTILE_SECRET", "") or os.getenv("TURNSTILE_SECRET", "")
+#     if turnstile_secret:
+#         if not cf_turnstile_response:
+#             return templates.TemplateResponse(request, "register_v2.html", {"error": "Please complete the Anti-Bot CAPTCHA.", "ref": ref})
+#             
+#         try:
+#             async with httpx.AsyncClient() as client:
+#                 cf_resp = await client.post("https://challenges.cloudflare.com/turnstile/v0/siteverify", data={
+#                     "secret": turnstile_secret,
+#                     "response": cf_turnstile_response
+#                 }, timeout=5.0)
+#                 if not cf_resp.json().get("success"):
+#                     return templates.TemplateResponse(request, "register_v2.html", {"error": "Anti-Bot Verification Failed. Please try again.", "ref": ref})
+#         except Exception as e:
+#             logger.error(f"Turnstile API error: {e}")
+#             return templates.TemplateResponse(request, "register_v2.html", {"error": "Bot verification service is down. Try again later.", "ref": ref})
+#     else:
+#         logger.warning("TURNSTILE_SECRET not set! Skipping CAPTCHA verification.")
+# 
+#     # Rate limit: max 5 registrations per IP per hour
+#     client_ip = request.client.host if request.client else "unknown"
+#     if not _check_rate_limit(_register_attempts, client_ip, max_count=5):
+#         return templates.TemplateResponse(
+#             request, "register_v2.html",
+#             {"error": "Too many registration attempts. Please try again in 1 hour.", "ref": ref}
+#         )
+#     # Password complexity: min 8 chars, 1 uppercase, 1 digit
+#     if len(password) < 8:
+#         return templates.TemplateResponse(request, "register_v2.html", {"error": "Password must be at least 8 characters.", "ref": ref})
+#     if not any(c.isupper() for c in password):
+#         return templates.TemplateResponse(request, "register_v2.html", {"error": "Password must contain at least one uppercase letter.", "ref": ref})
+#     if not any(c.isdigit() for c in password):
+#         return templates.TemplateResponse(request, "register_v2.html", {"error": "Password must contain at least one digit.", "ref": ref})
+#     conn = get_db()
+#     existing = conn.execute("SELECT user_id, password_hash, api_key FROM users WHERE email = ?", (email,)).fetchone()
+#     if existing:
+#         if existing["password_hash"] == "*SEEDED*":
+#             # SEEDED accounts: require invite_code validation
+#             form = await request.form()
+#             invite_code = form.get("invite_code", "")
+#             valid_codes = os.getenv("SEEDED_INVITE_CODES", "").split(",")
+#             if not invite_code or invite_code.strip() not in valid_codes:
+#                 conn.close()
+#                 return templates.TemplateResponse(request, "register_v2.html", {"error": "This account requires an invite code to claim.", "ref": ref})
+#             api_key = existing["api_key"] or generate_api_key()
+#             conn.execute("""UPDATE users SET password_hash = ?, name = ?, phone = ?, company_name = ?, user_type = ?, api_key = ?
+#                             WHERE user_id = ?""",
+#                          (hash_password(password), name, phone, company_name, user_type, api_key, existing["user_id"]))
+#             logger.info(f"SEEDED account takeover: email={email}, user_id={existing['user_id']}, api_key_generated={bool(existing['api_key'])}")
+#             conn.commit()
+#             conn.close()
+#             resp = RedirectResponse(f"/login?plan={selected_plan}", status_code=303)
+#             resp.set_cookie(key="last_selected_plan", value=selected_plan, max_age=86400)
+#             return resp
+#         else:
+#             conn.close()
+#             return templates.TemplateResponse(request, "register_v2.html", {"error": "Email already registered"})
+# 
+#     user_id = f"user_{uuid.uuid4().hex[:16]}"
+#     api_key = generate_api_key()
+#     conn.execute("""INSERT INTO users (user_id, email, password_hash, name, phone, company_name, user_type, api_key)
+#                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+#                  (user_id, email, hash_password(password), name, phone, company_name, user_type, api_key))
+#     conn.commit()
+# 
+#     # Referral credit: if ref parameter present, credit referrer + new user
+#     if ref:
+#         try:
+#             referrer = conn.execute("SELECT user_id, wallet_balance FROM users WHERE user_id = ?", (ref,)).fetchone()
+#             if referrer:
+#                 referral_bonus = 5.0  # $5 bonus for referrer
+#                 new_user_bonus = 2.0  # $2 bonus for new user
+#                 # Credit referrer
+#                 ref_new_bal = referrer["wallet_balance"] + referral_bonus
+#                 conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (ref_new_bal, ref))
+#                 conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
+#                                 VALUES (?, ?, ?, ?, ?)""",
+#                              (ref, "referral_reward", referral_bonus, ref_new_bal, f"Referral bonus &#x2014; new user: {email}"))
+#                 # Credit new user
+#                 conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
+#                                 VALUES (?, ?, ?, ?, ?)""",
+#                              (user_id, "referral_bonus", new_user_bonus, new_user_bonus, "Welcome referral bonus!"))
+#                 conn.execute("UPDATE users SET wallet_balance = wallet_balance + ? WHERE user_id = ?", (new_user_bonus, user_id))
+#                 # Record in referrals table so /referral page shows it
+#                 try:
+#                     conn.execute("INSERT INTO referrals (referrer_id, referred_id, bonus_amount, status, created_at) VALUES (?, ?, ?, 'completed', datetime('now'))",
+#                                  (ref, user_id, referral_bonus))
+#                 except Exception:
+#                     pass  # Table might not have exact schema, non-critical
+#                 conn.commit()
+#                 logger.info(f"Referral: {ref} referred {user_id}, referrer +${referral_bonus}, new user +${new_user_bonus}")
+#         except Exception as e:
+#             logger.error(f"Referral credit failed for ref={ref}, user={user_id}: {e}")
+# 
+#     conn.close()
+# 
+#     # Trigger welcome email as background task
+#     try:
+#         asyncio.create_task(send_welcome_email(user_id, email, name))
+#     except Exception as e:
+#         logger.error(e, exc_info=True)  # Welcome email is best-effort
+# 
+#     resp = RedirectResponse(f"/login?plan={selected_plan}", status_code=303)
+#     resp.set_cookie(key="last_selected_plan", value=selected_plan, max_age=86400)
+#     return resp
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 # ── In-memory rate limiters ────────────────────────────────────────────────
 # Login: max 10 attempts per IP per hour
@@ -3219,34 +3489,34 @@ def _check_rate_limit(store: dict, ip: str, max_count: int, window_seconds: int 
 
     # DB persistence: check and decrement allowance atomically
     try:
-        conn = get_db()
-        db_key = f"rl:{id(store)}:{ip}"
-        row = conn.execute(
-            "SELECT value FROM system_config WHERE key = ?", (db_key,)
-        ).fetchone()
-        if row:
-            parts = row["value"].split(":")
-            db_time, db_count = float(parts[0]), int(parts[1])
-            if now - db_time > window_seconds:
+        with get_db() as conn:
+            db_key = f"rl:{id(store)}:{ip}"
+            row = conn.execute(
+                "SELECT value FROM system_config WHERE key = ?", (db_key,)
+            ).fetchone()
+            if row:
+                parts = row["value"].split(":")
+                db_time, db_count = float(parts[0]), int(parts[1])
+                if now - db_time > window_seconds:
+                    conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
+                                 (db_key, f"{now}:1"))
+                    conn.commit(); pass  # conn.close()
+                    store[ip] = [now, 1]
+                    return True
+                if db_count >= max_count:
+                    pass  # conn.close()
+                    return False
+                conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
+                             (db_key, f"{db_time}:{db_count + 1}"))
+                conn.commit(); pass  # conn.close()
+                store[ip] = [db_time, db_count + 1]
+                return True
+            else:
                 conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
                              (db_key, f"{now}:1"))
-                conn.commit(); conn.close()
+                conn.commit(); pass  # conn.close()
                 store[ip] = [now, 1]
                 return True
-            if db_count >= max_count:
-                conn.close()
-                return False
-            conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
-                         (db_key, f"{db_time}:{db_count + 1}"))
-            conn.commit(); conn.close()
-            store[ip] = [db_time, db_count + 1]
-            return True
-        else:
-            conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
-                         (db_key, f"{now}:1"))
-            conn.commit(); conn.close()
-            store[ip] = [now, 1]
-            return True
     except Exception:
         pass  # DB unavailable — fall through to in-memory only
 
@@ -3269,8 +3539,6 @@ def _check_rate_limit(store: dict, ip: str, max_count: int, window_seconds: int 
 
 
 
-@app.get("/user-dashboard", response_class=HTMLResponse)
-
 @app.post("/api/smtp-connect")
 async def smtp_connect(request: Request):
     user_id = get_verified_user_id(request)
@@ -3286,14 +3554,14 @@ async def smtp_connect(request: Request):
         if not all([provider, smtp_user, smtp_pass]):
             return JSONResponse({"status": "error", "message": "Missing fields"}, status_code=400)
             
-        conn = get_db()
-        conn.execute('''
-            INSERT OR REPLACE INTO user_smtp_configs (user_id, provider, smtp_user, smtp_pass)
-            VALUES (?, ?, ?, ?)
-        ''', (user_id, provider, smtp_user, smtp_pass))
-        conn.commit()
-        conn.close()
-        return JSONResponse({"status": "success", "message": f"{provider.title()} SMTP connected successfully!"})
+        with get_db() as conn:
+            conn.execute('''
+                INSERT OR REPLACE INTO user_smtp_configs (user_id, provider, smtp_user, smtp_pass)
+                VALUES (?, ?, ?, ?)
+            ''', (user_id, provider, smtp_user, smtp_pass))
+            conn.commit()
+            pass  # conn.close()
+            return JSONResponse({"status": "success", "message": f"{provider.title()} SMTP connected successfully!"})
     except Exception as e:
         return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
 
@@ -3303,344 +3571,219 @@ def user_dashboard(request: Request):
     if not user_id:
         return RedirectResponse("/login", status_code=303)
 
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-    user = dict(user_row)
-
-    # Auto-Trigger Cloud Tick for Sam Salameh on dashboard load (2-minute cooldown)
-    if user.get("user_type") == "admin" or user.get("email") in ("samsalameh.cv@gmail.com", "samatou683@gmail.com"):
-        global _deploy_cooldown
-        last_tick = _deploy_cooldown.get("last_dashboard_tick", 0)
-        now_time = __import__('time').time()
-        if now_time - last_tick > 120:
-            _deploy_cooldown["last_dashboard_tick"] = now_time
-            try:
-                import subprocess
-                import sys
-                creationflags = 0
-                if sys.platform.startswith("win"):
-                    creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
-                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                script_path = os.path.join(base_dir, "web", "cron_trigger.py")
-                cmd = [
-                    'python',
-                    script_path,
-                    "--company-limit", "15",
-                    "--max-campaigns", "3",
-                    "--skip-backup"
-                ]
-                subprocess.Popen(
-                    cmd,
-                    creationflags=creationflags,
-                    start_new_session=True,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
-                )
-                logger.info("[UserDashboard] Auto-triggered campaign tick in background via dashboard load.")
-            except Exception as e:
-                logger.error(f"[UserDashboard] Failed to auto-trigger tick: {e}")
-    profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
-    campaigns = [dict(r) for r in conn.execute("""
-        SELECT c.*, COUNT(ce.id) as total_emails,
-        SUM(CASE WHEN ce.status = 'sent' THEN 1 ELSE 0 END) as sent,
-        SUM(CASE WHEN ce.opened_at IS NOT NULL THEN 1 ELSE 0 END) as opened
-        FROM campaigns c
-        LEFT JOIN campaign_emails ce ON c.campaign_id = ce.campaign_id
-        WHERE c.user_id = ?
-        GROUP BY c.campaign_id
-        ORDER BY c.created_at DESC LIMIT 10
-    """, (user_id,)).fetchall()]
-    transactions = [dict(r) for r in conn.execute(
-        "SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT 10",
-        (user_id,)).fetchall()]
-
-    referrals = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ?", (user_id,)).fetchone()[0]
-
-    # Pipeline data for dashboard
-    pipeline_emails = [dict(r) for r in conn.execute('''SELECT ce.id, ce.company_name, ce.job_title,
-        ce.pipeline_stage, ce.status, ce.sent_at, ce.opened_at, ce.responded_at
-        FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id
-        WHERE c.user_id = ?
-        ORDER BY ce.sent_at DESC
-        LIMIT 30''', (user_id,)).fetchall()]
-
-    pipeline_counts = {s: 0 for s in ["discovered", "applied", "followed_up", "interview", "offer"]}
-    for row in conn.execute('''SELECT COALESCE(ce.pipeline_stage, 'discovered') as stage, COUNT(*) as cnt
-        FROM campaign_emails ce
-        JOIN campaigns c ON ce.campaign_id = c.campaign_id
-        WHERE c.user_id = ?
-        GROUP BY COALESCE(ce.pipeline_stage, 'discovered')''', (user_id,)).fetchall():
-        pipeline_counts[row["stage"]] = row["cnt"]
-
-    # User's manual emails (may fail if table/column missing on PA)
-    try:
-        manual_emails_user = [dict(r) for r in conn.execute(
-            "SELECT to_email, subject, price_usd, status, created_at FROM manual_emails WHERE user_id = ? ORDER BY created_at DESC LIMIT 10",
-            (user_id,)
-        ).fetchall()]
-    except Exception:
-        manual_emails_user = []
-
-    # â&#x201D;€â&#x201D;€ Login Streak Logic (safe &#x2014; daily_logins table may not exist) â&#x201D;€â&#x201D;€â&#x201D;€
-    today = datetime.now().strftime("%Y-%m-%d")
-    login_streak = 0
-    streak_reward = 0
-    last_login_date = user.get("last_login", "")
-    already_logged_today = None
-
-    # Check if already logged in today
-    try:
-        already_logged_today = conn.execute(
-            "SELECT id FROM daily_logins WHERE user_id = ? AND login_date = ?",
-            (user_id, today)
-        ).fetchone()
-    except Exception:
-        already_logged_today = None
-
-    # Reward milestones &#x2014; defined here so it's accessible outside the if block
-    milestone_rewards = {3: 0.50, 5: 1.00, 7: 2.00, 14: 5.00, 21: 10.00, 30: 25.00}
-
-    if not already_logged_today:
-        # Calculate new streak
-        if last_login_date:
-            yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
-            if last_login_date[:10] == yesterday:
-                # Consecutive: increment streak
-                login_streak = (user.get("login_streak", 0) or 0) + 1
-            elif last_login_date[:10] == today:
-                # Already logged in today
-                login_streak = user.get("login_streak", 0) or 0
-            else:
-                # Gap: reset streak
-                login_streak = 1
-        else:
-            login_streak = 1
-
-        # Reward milestones (default 0 for non-milestone days)
-        streak_reward = 0
-        if login_streak in milestone_rewards:
-            streak_reward = milestone_rewards[login_streak]
-            new_balance = user["wallet_balance"] + streak_reward
-            conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
-            conn.execute(
-                "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?,?,?,?,?)",
-                (user_id, "streak_reward", streak_reward, new_balance, f"Login streak {login_streak} days &#x2014; ${streak_reward:.2f} bonus!")
-            )
-            user["wallet_balance"] = new_balance
-
-        # Record daily login
-        conn.execute(
-            "INSERT OR IGNORE INTO daily_logins (user_id, login_date, streak_days, reward_amount) VALUES (?, ?, ?, ?)",
-            (user_id, today, login_streak, streak_reward)
-        )
-        conn.execute("UPDATE users SET login_streak = ?, last_login = ? WHERE user_id = ?",
-                     (login_streak, datetime.now().isoformat(), user_id))
-    else:
-        login_streak = user.get("login_streak", 0) or 0
-
-    # Next milestone info
-    all_milestones = sorted([3, 5, 7, 14, 21, 30])
-    next_milestone = None
-    days_to_next = 0
-    for ms in all_milestones:
-        if login_streak < ms:
-            next_milestone = ms
-            days_to_next = ms - login_streak
-            break
-    next_reward = milestone_rewards.get(next_milestone, 0) if next_milestone else 0
-
-    # â&#x201D;€â&#x201D;€ Active Flash Sales â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
-    now_iso = datetime.now().isoformat()
-    active_flash_sales = [dict(r) for r in conn.execute(
-        "SELECT * FROM flash_sales WHERE active = 1 AND start_time <= ? AND end_time > ? ORDER BY end_time ASC",
-        (now_iso, now_iso)
-    ).fetchall()]
-
-    # â&#x201D;€â&#x201D;€ Social Proof: recent purchases (last 5) â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
-    recent_purchases = [dict(r) for r in conn.execute(
-        """SELECT o.amount_usd, o.package_name, o.created_at, u.name
-           FROM orders o JOIN users u ON o.user_id = u.user_id
-           WHERE o.payment_status = 'completed'
-           ORDER BY o.created_at DESC LIMIT 5"""
-    ).fetchall()]
-
-    # â&#x201D;€â&#x201D;€ Dashboard Stats â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
-    total_sent = sum(c.get('sent', 0) or 0 for c in campaigns)
-    total_opened = sum(c.get('opened', 0) or 0 for c in campaigns)
-    responses = sum(1 for e in pipeline_emails if e.get('responded_at'))
-    interviews = sum(1 for e in pipeline_emails if e.get('pipeline_stage') == 'interview')
-    open_rate = round((total_opened / total_sent * 100) if total_sent > 0 else 0)
-    response_rate = round((responses / total_sent * 100) if total_sent > 0 else 0)
-    # Deliverability: estimate based on open rate (floor 60, max 99)
-    deliverability_score = max(60, min(99, 60 + open_rate)) if total_sent > 0 else 95
-
-    total_pipeline = sum(pipeline_counts.values())
-    if total_pipeline > 0:
-        discovered_pct = round(pipeline_counts.get('discovered', 0) / total_pipeline * 100)
-        applied_pct = round(pipeline_counts.get('applied', 0) / total_pipeline * 100)
-        followup_pct = round(pipeline_counts.get('followed_up', 0) / total_pipeline * 100)
-        interview_pct = round(pipeline_counts.get('interview', 0) / total_pipeline * 100)
-        offer_pct = round(pipeline_counts.get('offer', 0) / total_pipeline * 100)
-    else:
-        discovered_pct = 25; applied_pct = 30; followup_pct = 20; interview_pct = 15; offer_pct = 10
-
-    stats = {
-        'emails_sent': total_sent,
-        'emails_opened': total_opened,
-        'responses': responses,
-        'interviews': interviews,
-        'open_rate': open_rate,
-        'response_rate': response_rate,
-        'deliverability_score': deliverability_score,
-        'discovered_percent': discovered_pct,
-        'applied_percent': applied_pct,
-        'followup_percent': followup_pct,
-        'interview_percent': interview_pct,
-        'offer_percent': offer_pct,
-    }
-
-    conn.close()
-
-    referral_link = f"{config.SITE_URL}/register?ref={user_id}"
-    content = render_template("dashboard_v3.html", request=request, active_page="dashboard", user=user, profiles=profiles, profile_count=len(profiles), campaigns=campaigns, campaign_count=len(campaigns), transactions=transactions, referrals=referrals, referral_link=referral_link, pipeline_emails=pipeline_emails, pipeline_counts=pipeline_counts, manual_emails_user=manual_emails_user, login_streak=login_streak, streak_reward=streak_reward, next_milestone=next_milestone, days_to_next=days_to_next, next_reward=next_reward, flash_sales=active_flash_sales, recent_purchases=recent_purchases, stats=stats, candidates=[])
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Dashboard", "dashboard", request=request))
-
-@app.get("/wallet", response_class=HTMLResponse)
-def wallet_page(request: Request):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-
-    try:
-        conn = get_db()
+    with get_db() as conn:
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         if not user_row:
-            conn.close()
+            pass  # conn.close()
             return RedirectResponse("/login", status_code=303)
         user = dict(user_row)
+
+        # Auto-Trigger Cloud Tick for Sam Salameh on dashboard load (2-minute cooldown)
+        if user.get("user_type") == "admin" or user.get("email") in ("samsalameh.cv@gmail.com", "samatou683@gmail.com"):
+            global _deploy_cooldown
+            last_tick = _deploy_cooldown.get("last_dashboard_tick", 0)
+            now_time = __import__('time').time()
+            if now_time - last_tick > 120:
+                _deploy_cooldown["last_dashboard_tick"] = now_time
+                try:
+                    import subprocess
+                    import sys
+                    creationflags = 0
+                    if sys.platform.startswith("win"):
+                        creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                    script_path = os.path.join(base_dir, "web", "cron_trigger.py")
+                    cmd = [
+                        _get_python_executable(),
+                        script_path,
+                        "--company-limit", "15",
+                        "--max-campaigns", "3",
+                        "--skip-backup"
+                    ]
+                    subprocess.Popen(
+                        cmd,
+                        creationflags=creationflags,
+                        start_new_session=True,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL
+                    )
+                    logger.info("[UserDashboard] Auto-triggered campaign tick in background via dashboard load.")
+                except Exception as e:
+                    logger.error(f"[UserDashboard] Failed to auto-trigger tick: {e}")
+        profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
+        campaigns = [dict(r) for r in conn.execute("""
+            SELECT c.*, COUNT(ce.id) as total_emails,
+            SUM(CASE WHEN ce.status = 'sent' THEN 1 ELSE 0 END) as sent,
+            SUM(CASE WHEN ce.opened_at IS NOT NULL THEN 1 ELSE 0 END) as opened
+            FROM campaigns c
+            LEFT JOIN campaign_emails ce ON c.campaign_id = ce.campaign_id
+            WHERE c.user_id = ?
+            GROUP BY c.campaign_id
+            ORDER BY c.created_at DESC LIMIT 10
+        """, (user_id,)).fetchall()]
         transactions = [dict(r) for r in conn.execute(
-            "SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT 50",
+            "SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT 10",
             (user_id,)).fetchall()]
-    except Exception as e:
-        logger.error(f"Error in /wallet query for user {user_id}: {e}", exc_info=True)
-        user = {}
-        transactions = []
-    finally:
-        if 'conn' in locals() and conn:
-            conn.close()
 
-    crypto_addresses = get_payment_addresses()
-    
-    # Toast messages from query params (e.g. ?error=invalid_code or ?success=Redeemed+$5)
-    error_msg = request.query_params.get("error", "")
-    success_msg = request.query_params.get("success", "")
+        referrals = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ?", (user_id,)).fetchone()[0]
 
-    content = render_template("wallet.html",
-        user=user, transactions=transactions, crypto_addresses=crypto_addresses,
-        error=error_msg, success=success_msg)
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "&#x1F4B0; Wallet", "wallet", request=request))
+        # Pipeline data for dashboard
+        pipeline_emails = [dict(r) for r in conn.execute('''SELECT ce.id, ce.company_name, ce.job_title,
+            ce.pipeline_stage, ce.status, ce.sent_at, ce.opened_at, ce.responded_at
+            FROM campaign_emails ce
+            JOIN campaigns c ON ce.campaign_id = c.campaign_id
+            WHERE c.user_id = ?
+            ORDER BY ce.sent_at DESC
+            LIMIT 30''', (user_id,)).fetchall()]
+
+        pipeline_counts = {s: 0 for s in ["discovered", "applied", "followed_up", "interview", "offer"]}
+        for row in conn.execute('''SELECT COALESCE(ce.pipeline_stage, 'discovered') as stage, COUNT(*) as cnt
+            FROM campaign_emails ce
+            JOIN campaigns c ON ce.campaign_id = c.campaign_id
+            WHERE c.user_id = ?
+            GROUP BY COALESCE(ce.pipeline_stage, 'discovered')''', (user_id,)).fetchall():
+            pipeline_counts[row["stage"]] = row["cnt"]
+
+        # User's manual emails (may fail if table/column missing on PA)
+        try:
+            manual_emails_user = [dict(r) for r in conn.execute(
+                "SELECT to_email, subject, price_usd, status, created_at FROM manual_emails WHERE user_id = ? ORDER BY created_at DESC LIMIT 10",
+                (user_id,)
+            ).fetchall()]
+        except Exception:
+            manual_emails_user = []
+
+        # â&#x201D;€â&#x201D;€ Login Streak Logic (safe &#x2014; daily_logins table may not exist) â&#x201D;€â&#x201D;€â&#x201D;€
+        today = datetime.now().strftime("%Y-%m-%d")
+        login_streak = 0
+        streak_reward = 0
+        last_login_date = user.get("last_login", "")
+        already_logged_today = None
+
+        # Check if already logged in today
+        try:
+            already_logged_today = conn.execute(
+                "SELECT id FROM daily_logins WHERE user_id = ? AND login_date = ?",
+                (user_id, today)
+            ).fetchone()
+        except Exception:
+            already_logged_today = None
+
+        # Reward milestones &#x2014; defined here so it's accessible outside the if block
+        milestone_rewards = {3: 0.50, 5: 1.00, 7: 2.00, 14: 5.00, 21: 10.00, 30: 25.00}
+
+        if not already_logged_today:
+            # Calculate new streak
+            if last_login_date:
+                yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+                if last_login_date[:10] == yesterday:
+                    # Consecutive: increment streak
+                    login_streak = (user.get("login_streak", 0) or 0) + 1
+                elif last_login_date[:10] == today:
+                    # Already logged in today
+                    login_streak = user.get("login_streak", 0) or 0
+                else:
+                    # Gap: reset streak
+                    login_streak = 1
+            else:
+                login_streak = 1
+
+            # Reward milestones (default 0 for non-milestone days)
+            streak_reward = 0
+            if login_streak in milestone_rewards:
+                streak_reward = milestone_rewards[login_streak]
+                new_balance = user["wallet_balance"] + streak_reward
+                conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
+                conn.execute(
+                    "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?,?,?,?,?)",
+                    (user_id, "streak_reward", streak_reward, new_balance, f"Login streak {login_streak} days &#x2014; ${streak_reward:.2f} bonus!")
+                )
+                user["wallet_balance"] = new_balance
+
+            # Record daily login
+            conn.execute(
+                "INSERT OR IGNORE INTO daily_logins (user_id, login_date, streak_days, reward_amount) VALUES (?, ?, ?, ?)",
+                (user_id, today, login_streak, streak_reward)
+            )
+            conn.execute("UPDATE users SET login_streak = ?, last_login = ? WHERE user_id = ?",
+                         (login_streak, datetime.now().isoformat(), user_id))
+        else:
+            login_streak = user.get("login_streak", 0) or 0
+
+        # Next milestone info
+        all_milestones = sorted([3, 5, 7, 14, 21, 30])
+        next_milestone = None
+        days_to_next = 0
+        for ms in all_milestones:
+            if login_streak < ms:
+                next_milestone = ms
+                days_to_next = ms - login_streak
+                break
+        next_reward = milestone_rewards.get(next_milestone, 0) if next_milestone else 0
+
+        # â&#x201D;€â&#x201D;€ Active Flash Sales â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
+        now_iso = datetime.now().isoformat()
+        active_flash_sales = [dict(r) for r in conn.execute(
+            "SELECT * FROM flash_sales WHERE active = 1 AND start_time <= ? AND end_time > ? ORDER BY end_time ASC",
+            (now_iso, now_iso)
+        ).fetchall()]
+
+        # â&#x201D;€â&#x201D;€ Social Proof: recent purchases (last 5) â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
+        recent_purchases = [dict(r) for r in conn.execute(
+            """SELECT o.amount_usd, o.package_name, o.created_at, u.name
+               FROM orders o JOIN users u ON o.user_id = u.user_id
+               WHERE o.payment_status = 'completed'
+               ORDER BY o.created_at DESC LIMIT 5"""
+        ).fetchall()]
+
+        # â&#x201D;€â&#x201D;€ Dashboard Stats â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
+        total_sent = sum(c.get('sent', 0) or 0 for c in campaigns)
+        total_opened = sum(c.get('opened', 0) or 0 for c in campaigns)
+        responses = sum(1 for e in pipeline_emails if e.get('responded_at'))
+        interviews = sum(1 for e in pipeline_emails if e.get('pipeline_stage') == 'interview')
+        open_rate = round((total_opened / total_sent * 100) if total_sent > 0 else 0)
+        response_rate = round((responses / total_sent * 100) if total_sent > 0 else 0)
+        # Deliverability: estimate based on open rate (floor 60, max 99)
+        deliverability_score = max(60, min(99, 60 + open_rate)) if total_sent > 0 else 95
+
+        total_pipeline = sum(pipeline_counts.values())
+        if total_pipeline > 0:
+            discovered_pct = round(pipeline_counts.get('discovered', 0) / total_pipeline * 100)
+            applied_pct = round(pipeline_counts.get('applied', 0) / total_pipeline * 100)
+            followup_pct = round(pipeline_counts.get('followed_up', 0) / total_pipeline * 100)
+            interview_pct = round(pipeline_counts.get('interview', 0) / total_pipeline * 100)
+            offer_pct = round(pipeline_counts.get('offer', 0) / total_pipeline * 100)
+        else:
+            discovered_pct = 25; applied_pct = 30; followup_pct = 20; interview_pct = 15; offer_pct = 10
+
+        stats = {
+            'emails_sent': total_sent,
+            'emails_opened': total_opened,
+            'responses': responses,
+            'interviews': interviews,
+            'open_rate': open_rate,
+            'response_rate': response_rate,
+            'deliverability_score': deliverability_score,
+            'discovered_percent': discovered_pct,
+            'applied_percent': applied_pct,
+            'followup_percent': followup_pct,
+            'interview_percent': interview_pct,
+            'offer_percent': offer_pct,
+        }
+
+        pass  # conn.close()
+
+        referral_link = f"{config.SITE_URL}/register?ref={user_id}"
+        content = render_template("dashboard_v3.html", request=request, active_page="dashboard", user=user, profiles=profiles, profile_count=len(profiles), campaigns=campaigns, campaign_count=len(campaigns), transactions=transactions, referrals=referrals, referral_link=referral_link, pipeline_emails=pipeline_emails, pipeline_counts=pipeline_counts, manual_emails_user=manual_emails_user, login_streak=login_streak, streak_reward=streak_reward, next_milestone=next_milestone, days_to_next=days_to_next, next_reward=next_reward, flash_sales=active_flash_sales, recent_purchases=recent_purchases, stats=stats, candidates=[])
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Dashboard", "dashboard", request=request))
 
 
-@app.post("/wallet/regenerate-key")
-def wallet_regenerate_key(request: Request):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-    new_key = f"jhp_{uuid.uuid4().hex[:32]}"
-    conn = get_db()
-    conn.execute("UPDATE users SET api_key = ? WHERE user_id = ?", (new_key, user_id))
-    conn.commit()
-    conn.close()
-    return RedirectResponse("/wallet?success=key_regenerated", status_code=303)
-
-@app.post("/wallet/create-topup")
-async def wallet_create_topup(request: Request):
-    """Create a NOWPayments invoice for wallet top-up."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return JSONResponse({"error": "Login required"}, status_code=401)
-    try:
-        body = await request.json()
-    except Exception:
-        body = {}
-    amount = float(body.get("amount", 0))
-    currency = (body.get("currency", "BTC") or "BTC").upper()
-    if amount < 1:
-        return JSONResponse({"error": "Minimum top-up is $1.00"}, status_code=400)
-    if amount > 1000:
-        return JSONResponse({"error": "Maximum top-up is $1,000"}, status_code=400)
-    # Map display names to NOWPayments currency codes
-    CURRENCY_MAP = {"USDT": "usdttrc20", "BTC": "btc", "ETH": "eth", "LTC": "ltc", "TRX": "trx", "ANY": ""}
-    if currency not in CURRENCY_MAP:
-        return JSONResponse({"error": "Unsupported currency"}, status_code=400)
-    pay_currency = CURRENCY_MAP[currency]
-
-    # Check NOWPayments API key
-    np_key = (os.getenv("NOWPAYMENTS_API_KEY") or getattr(config, "NOWPAYMENTS_API_KEY", "")).strip()
-    if not np_key:
-        return JSONResponse({"error": "Crypto payments not configured"}, status_code=503)
-
-    order_id = f"topup_{uuid.uuid4().hex[:16]}"
-    try:
-        from payments.nowpayments import NOWPaymentsClient
-        client = NOWPaymentsClient(np_key)
-        invoice = client.create_invoice(
-            price_amount=amount,
-            price_currency="usd",
-            pay_currency=pay_currency,
-            order_id=order_id,
-            order_description=f"Wallet Top-Up ${amount:.2f} ({currency})",
-        )
-        if not invoice:
-            # Fallback: return static addresses
-            addresses = get_payment_addresses()
-            return JSONResponse({
-                "mode": "static",
-                "addresses": {k: v for k, v in addresses.items() if v},
-                "amount": amount,
-                "message": "NOWPayments invoice failed — please send to address below and contact support"
-            })
-
-        invoice_url = invoice.get("invoice_url", "")
-
-        # Store pending top-up in DB
-        conn = get_db()
-        # Insert into orders table so IPN can process it
-        conn.execute("""INSERT INTO orders (order_id, user_id, order_type, amount_usd, payment_method, payment_status)
-                        VALUES (?, ?, 'wallet_topup', ?, 'crypto', 'pending')""",
-                     (order_id, user_id, amount))
-                     
-        # Optionally get current balance to log a pending transaction
-        user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        current_bal = user_row["wallet_balance"] if user_row else 0
-        conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-                        VALUES (?, 'pending', ?, ?, ?)""",
-                     (user_id, amount, current_bal, f"Top-Up ${amount:.2f} via NOWPayments [{order_id}]"))
-        conn.commit()
-        conn.close()
-
-        return JSONResponse({
-            "mode": "nowpayments",
-            "invoice_url": invoice_url,
-            "order_id": order_id,
-            "amount_usd": amount,
-        })
-    except Exception as e:
-        logger.exception("Top-up invoice creation failed")
-        addresses = get_payment_addresses()
-        return JSONResponse({
-            "mode": "static",
-            "addresses": {k: v for k, v in addresses.items() if v},
-            "amount": amount,
-            "message": f"NOWPayments unavailable: {str(e)[:100]}. Send to address below."
-        })
 
 
-@app.get("/services", response_class=HTMLResponse)
+
+
+# ==================== MIGRATED TO ROUTER — START (lines 3617-3635) ====================
+# @app.get("/services", response_class=HTMLResponse)
 def services_page(request: Request):
     # Show success flash to authenticated users
     success_msg = ""
@@ -3649,16 +3792,18 @@ def services_page(request: Request):
     if user_id:
         success_msg = request.query_params.get("success", "")
         try:
-            conn = get_db()
-            user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-            conn.close()
-            if user_row:
-                user = dict(user_row)
+            with get_db() as conn:
+                user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+                pass  # conn.close()
+                if user_row:
+                    user = dict(user_row)
         except Exception as e:
             logger.error(f"Error getting user for services: {e}", exc_info=True)
             if 'conn' in locals() and conn: conn.close()
     content = render_template("services_new.html", request=request, success=success_msg, user=user, is_logged_in=bool(user_id))
     return HTMLResponse(_public_shell(content, "Services &mdash; JobHunt Pro", "JobHunt Pro Premium Services — CV rewriting, ATS optimization, LinkedIn makeover, email domain setup, and career coaching bundles.", request=request))
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 @app.post("/services/purchase")
 def purchase_service(request: Request, package_id: str = Form(...), service_type: str = Form(...)):
@@ -3685,39 +3830,39 @@ def purchase_service(request: Request, package_id: str = Form(...), service_type
     if price is None or name is None:
         return RedirectResponse("/services?error=invalid_package", status_code=303)
 
-    conn = get_db()
-    user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-    user = dict(user_row)
+    with get_db() as conn:
+        user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        if not user_row:
+            pass  # conn.close()
+            return RedirectResponse("/login", status_code=303)
+        user = dict(user_row)
 
-    if user["wallet_balance"] < price:
-        conn.close()
-        return RedirectResponse("/services?error=insufficient_funds", status_code=303)
+        if user["wallet_balance"] < price:
+            pass  # conn.close()
+            return RedirectResponse("/services?error=insufficient_funds", status_code=303)
 
-    # 2. Process purchase transactionally
-    new_balance = user["wallet_balance"] - price
-    conn.execute("UPDATE users SET wallet_balance = ?, total_spent = total_spent + ? WHERE user_id = ?",
-                 (new_balance, price, user_id))
+        # 2. Process purchase transactionally
+        new_balance = user["wallet_balance"] - price
+        conn.execute("UPDATE users SET wallet_balance = ?, total_spent = total_spent + ? WHERE user_id = ?",
+                     (new_balance, price, user_id))
 
-    order_id = f"ord_{uuid.uuid4().hex[:16]}"
-    conn.execute("""INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                 (order_id, user_id, service_type, package_id, 0, price, "wallet", "completed"))
+        order_id = f"ord_{uuid.uuid4().hex[:16]}"
+        conn.execute("""INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                     (order_id, user_id, service_type, package_id, 0, price, "wallet", "completed"))
 
-    conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-                    VALUES (?, ?, ?, ?, ?)""",
-                 (user_id, "spend", -price, new_balance, f"Purchase {service_type}: {name}"))
+        conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
+                        VALUES (?, ?, ?, ?, ?)""",
+                     (user_id, "spend", -price, new_balance, f"Purchase {service_type}: {name}"))
 
-    conn.execute("""INSERT INTO purchased_services (user_id, service_type, package_id, package_name, price_paid, status)
-                    VALUES (?, ?, ?, ?, ?, 'active')""",
-                 (user_id, service_type, package_id, name, price))
+        conn.execute("""INSERT INTO purchased_services (user_id, service_type, package_id, package_name, price_paid, status)
+                        VALUES (?, ?, ?, ?, ?, 'active')""",
+                     (user_id, service_type, package_id, name, price))
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+        pass  # conn.close()
 
-    return RedirectResponse(f"/services?success=purchased&package={name}", status_code=303)
+        return RedirectResponse(f"/services?success=purchased&package={name}", status_code=303)
 
 
 @app.post("/services/purchase-bulk")
@@ -3756,869 +3901,197 @@ async def purchase_services_bulk(request: Request):
             return RedirectResponse("/services?error=invalid_package", status_code=303)
         total_price += price
         item_details.append((item_id, item_type, name, price))
-    conn = get_db()
-    user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-    if user_row["wallet_balance"] < total_price:
-        conn.close()
-        return RedirectResponse("/services?error=insufficient_funds", status_code=303)
-    new_balance = user_row["wallet_balance"] - total_price
-    conn.execute("UPDATE users SET wallet_balance = ?, total_spent = total_spent + ? WHERE user_id = ?",
-                 (new_balance, total_price, user_id))
-    conn.execute("INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)",
-                 (user_id, "spend", -total_price, new_balance, f"Bulk purchase: {len(item_details)} items"))
-    names_bought = []
-    for item_id, item_type, name, price in item_details:
-        conn.execute("INSERT INTO purchased_services (user_id, service_type, package_id, package_name, price_paid, status) VALUES (?, ?, ?, ?, ?, 'active')",
-                     (user_id, item_type, item_id, name, price))
-        names_bought.append(name)
-    conn.commit()
-    conn.close()
-    names_str = ", ".join(names_bought)
-    return RedirectResponse(f"/services?success=purchased&package={quote(names_str)}", status_code=303)
+    with get_db() as conn:
+        user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        if not user_row:
+            pass  # conn.close()
+            return RedirectResponse("/login", status_code=303)
+        if user_row["wallet_balance"] < total_price:
+            pass  # conn.close()
+            return RedirectResponse("/services?error=insufficient_funds", status_code=303)
+        new_balance = user_row["wallet_balance"] - total_price
+        conn.execute("UPDATE users SET wallet_balance = ?, total_spent = total_spent + ? WHERE user_id = ?",
+                     (new_balance, total_price, user_id))
+        conn.execute("INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)",
+                     (user_id, "spend", -total_price, new_balance, f"Bulk purchase: {len(item_details)} items"))
+        names_bought = []
+        for item_id, item_type, name, price in item_details:
+            conn.execute("INSERT INTO purchased_services (user_id, service_type, package_id, package_name, price_paid, status) VALUES (?, ?, ?, ?, ?, 'active')",
+                         (user_id, item_type, item_id, name, price))
+            names_bought.append(name)
+        conn.commit()
+        pass  # conn.close()
+        names_str = ", ".join(names_bought)
+        return RedirectResponse(f"/services?success=purchased&package={quote(names_str)}", status_code=303)
 
 
 # ── Special Offers routes ──
-@app.get("/my-purchases", response_class=HTMLResponse)
-def my_purchases_page(request: Request):
-    """User purchases page — access subscription keys and codes."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-        
-    success_msg = request.query_params.get("success", "")
-    error_msg = request.query_params.get("error", "")
-    
-    conn = get_db()
-    
-    # Retrieve user information
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-    user = dict(user_row)
-    
-    # Retrieve user purchases
-    purchase_rows = conn.execute("""
-        SELECT p.*, o.title as offer_title, o.image_url 
-        FROM special_offer_purchases p
-        JOIN special_offers o ON p.offer_id = o.offer_id
-        WHERE p.user_id = ?
-        ORDER BY p.created_at DESC
-    """, (user_id,)).fetchall()
-    purchases = [dict(r) for r in purchase_rows]
-    
-    conn.close()
-    
-    content = render_template(
-        "my_purchases.html",
-        request=request,
-        purchases=purchases,
-        user=user,
-        success=success_msg,
-        error=error_msg
-    )
-    
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "My Subscriptions", "my-purchases", request=request))
-
-@app.get("/offers", response_class=HTMLResponse)
-def offers_page(request: Request):
-    user_id = get_verified_user_id(request)
-    success_msg = request.query_params.get("success", "")
-    error_msg = request.query_params.get("error", "")
-    
-    conn = get_db()
-    # Query offers along with the count of available keys in stock
-    offers_rows = conn.execute("""
-        SELECT o.*, 
-               (SELECT COUNT(*) FROM subscription_keys_inventory WHERE offer_id = o.offer_id AND is_used = 0) as keys_in_stock
-        FROM special_offers o
-        ORDER BY o.created_at DESC
-    """).fetchall()
-    offers = [dict(r) for r in offers_rows]
-    
-    user = None
-    is_admin = False
-    purchases = []
-    inventory_keys = []
-    
-    if user_id:
-        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        if user_row:
-            user = dict(user_row)
-            # The admin check
-            is_admin = is_admin_email(user["email"])
-            
-            if is_admin:
-                # Retrieve sales history
-                purchase_rows = conn.execute("""
-                    SELECT p.*, o.title as offer_title 
-                    FROM special_offer_purchases p
-                    JOIN special_offers o ON p.offer_id = o.offer_id
-                    ORDER BY p.created_at DESC
-                """).fetchall()
-                purchases = [dict(r) for r in purchase_rows]
-                
-                # Retrieve all keys in the inventory pool
-                inventory_rows = conn.execute("""
-                    SELECT k.*, o.title as offer_title, u.email as user_email
-                    FROM subscription_keys_inventory k
-                    JOIN special_offers o ON k.offer_id = o.offer_id
-                    LEFT JOIN users u ON k.user_id = u.user_id
-                    ORDER BY k.created_at DESC
-                """).fetchall()
-                inventory_keys = [dict(r) for r in inventory_rows]
-                
-    conn.close()
-    
-    content = render_template(
-        "offers.html",
-        request=request,
-        offers=offers,
-        purchases=purchases,
-        inventory_keys=inventory_keys,
-        is_admin=is_admin,
-        user=user,
-        success=success_msg,
-        error=error_msg
-    )
-    
-    if user:
-        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Special Offers", "offers", request=request))
-    else:
-        return HTMLResponse(_public_shell(content, "Special Offers &mdash; JobHunt Pro"))
-
-@app.post("/api/v2/offers/add")
-async def offers_add(request: Request):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-        
-    conn = get_db()
-    user_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-        
-    is_admin = is_admin_email(user_row["email"])
-    if not is_admin:
-        conn.close()
-        return RedirectResponse("/offers?error=unauthorized", status_code=303)
-        
-    form = await request.form()
-    title = form.get("title", "").strip()
-    description = form.get("description", "").strip()
-    price_val = form.get("price", "").strip()
-    original_price_val = form.get("original_price", "").strip()
-    image_url = form.get("image_url", "").strip()
-    note = form.get("note", "").strip()
-    
-    delivery_type = form.get("delivery_type", "manual").strip()
-    reseller_api_url = form.get("reseller_api_url", "").strip()
-    reseller_api_key = form.get("reseller_api_key", "").strip()
-    
-    if not title or not description or not price_val:
-        conn.close()
-        return RedirectResponse("/offers?error=missing_fields", status_code=303)
-        
-    try:
-        price = float(price_val)
-    except ValueError:
-        conn.close()
-        return RedirectResponse("/offers?error=invalid_price", status_code=303)
-        
-    original_price = 0.0
-    if original_price_val:
-        try:
-            original_price = float(original_price_val)
-        except ValueError:
-            pass
-            
-    offer_id = f"offr_{uuid.uuid4().hex[:16]}"
-    conn.execute(
-        "INSERT INTO special_offers (offer_id, title, description, price, original_price, image_url, note, delivery_type, reseller_api_url, reseller_api_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (offer_id, title, description, price, original_price, image_url, note, delivery_type, reseller_api_url, reseller_api_key)
-    )
-    conn.commit()
-    conn.close()
-    
-    return RedirectResponse("/offers?success=offer_added", status_code=303)
-
-@app.post("/api/v2/offers/delete/{offer_id}")
-def offers_delete(request: Request, offer_id: str):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-        
-    conn = get_db()
-    user_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-        
-    is_admin = is_admin_email(user_row["email"])
-    if not is_admin:
-        conn.close()
-        return RedirectResponse("/offers?error=unauthorized", status_code=303)
-        
-    conn.execute("DELETE FROM special_offers WHERE offer_id = ?", (offer_id,))
-    conn.commit()
-    conn.close()
-    
-    return RedirectResponse("/offers?success=offer_deleted", status_code=303)
-
-@app.post("/api/v2/offers/edit/{offer_id}")
-async def offers_edit(request: Request, offer_id: str):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-        
-    conn = get_db()
-    user_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-        
-    is_admin = is_admin_email(user_row["email"])
-    if not is_admin:
-        conn.close()
-        return RedirectResponse("/offers?error=unauthorized", status_code=303)
-        
-    form = await request.form()
-    title = form.get("title", "").strip()
-    description = form.get("description", "").strip()
-    price_val = form.get("price", "").strip()
-    original_price_val = form.get("original_price", "").strip()
-    image_url = form.get("image_url", "").strip()
-    note = form.get("note", "").strip()
-    
-    delivery_type = form.get("delivery_type", "manual").strip()
-    reseller_api_url = form.get("reseller_api_url", "").strip()
-    reseller_api_key = form.get("reseller_api_key", "").strip()
-    
-    if not title or not description or not price_val:
-        conn.close()
-        return RedirectResponse("/offers?error=missing_fields", status_code=303)
-        
-    try:
-        price = float(price_val)
-    except ValueError:
-        conn.close()
-        return RedirectResponse("/offers?error=invalid_price", status_code=303)
-        
-    original_price = 0.0
-    if original_price_val:
-        try:
-            original_price = float(original_price_val)
-        except ValueError:
-            pass
-            
-    conn.execute(
-        "UPDATE special_offers SET title = ?, description = ?, price = ?, original_price = ?, image_url = ?, note = ?, delivery_type = ?, reseller_api_url = ?, reseller_api_key = ? WHERE offer_id = ?",
-        (title, description, price, original_price, image_url, note, delivery_type, reseller_api_url, reseller_api_key, offer_id)
-    )
-    conn.commit()
-    conn.close()
-    
-    return RedirectResponse("/offers?success=offer_updated", status_code=303)
-
-@app.post("/api/v2/offers/import-keys")
-async def offers_import_keys(request: Request):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-        
-    conn = get_db()
-    user_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-        
-    is_admin = is_admin_email(user_row["email"])
-    if not is_admin:
-        conn.close()
-        return RedirectResponse("/offers?error=unauthorized", status_code=303)
-        
-    form = await request.form()
-    offer_id = form.get("offer_id", "").strip()
-    keys_text = form.get("keys", "").strip()
-    
-    if not offer_id or not keys_text:
-        conn.close()
-        return RedirectResponse("/offers?error=missing_fields", status_code=303)
-        
-    # Split keys by line, filter out empty lines
-    keys_list = [k.strip() for k in keys_text.splitlines() if k.strip()]
-    if not keys_list:
-        conn.close()
-        return RedirectResponse("/offers?error=no_keys_found", status_code=303)
-        
-    imported_count = 0
-    try:
-        conn.execute("BEGIN TRANSACTION")
-        for key_content in keys_list:
-            key_id = f"key_{uuid.uuid4().hex[:16]}"
-            conn.execute(
-                "INSERT INTO subscription_keys_inventory (key_id, offer_id, key_content) VALUES (?, ?, ?)",
-                (key_id, offer_id, key_content)
-            )
-            imported_count += 1
-        conn.commit()
-    except Exception as e:
-        conn.rollback()
-        conn.close()
-        logger.error(f"Error importing keys: {e}")
-        return RedirectResponse("/offers?error=import_failed", status_code=303)
-        
-    conn.close()
-    return RedirectResponse(f"/offers?success=keys_imported&count={imported_count}", status_code=303)
-
-@app.post("/api/v2/offers/delete-key/{key_id}")
-def offers_delete_key(request: Request, key_id: str):
-    """Delete an unused key from the inventory pool."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-        
-    conn = get_db()
-    user_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-        
-    is_admin = is_admin_email(user_row["email"])
-    if not is_admin:
-        conn.close()
-        return RedirectResponse("/offers?error=unauthorized", status_code=303)
-        
-    try:
-        # Verify key is not used before deleting
-        key_row = conn.execute("SELECT is_used FROM subscription_keys_inventory WHERE key_id = ?", (key_id,)).fetchone()
-        if not key_row:
-            conn.close()
-            return RedirectResponse("/offers?error=key_not_found", status_code=303)
-            
-        if key_row["is_used"] == 1:
-            conn.close()
-            return RedirectResponse("/offers?error=cannot_delete_used_key", status_code=303)
-            
-        conn.execute("BEGIN TRANSACTION")
-        conn.execute("DELETE FROM subscription_keys_inventory WHERE key_id = ?", (key_id,))
-        conn.commit()
-    except Exception as e:
-        conn.rollback()
-        conn.close()
-        logger.error(f"Error deleting key: {e}")
-        return RedirectResponse("/offers?error=delete_key_failed", status_code=303)
-        
-    conn.close()
-    return RedirectResponse("/offers?success=key_deleted", status_code=303)
-
-@app.post("/api/v2/offers/fulfill/{purchase_id}")
-async def offers_fulfill(request: Request, purchase_id: str):
-    """Manually fulfill a pending/failed special offer purchase with credentials."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-        
-    conn = get_db()
-    user_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-        
-    is_admin = is_admin_email(user_row["email"])
-    if not is_admin:
-        conn.close()
-        return RedirectResponse("/offers?error=unauthorized", status_code=303)
-        
-    form = await request.form()
-    credentials = form.get("credentials", "").strip()
-    
-    if not credentials:
-        conn.close()
-        return RedirectResponse("/offers?error=missing_credentials", status_code=303)
-        
-    try:
-        # Retrieve the purchase info
-        purchase = conn.execute("""
-            SELECT p.*, o.title as offer_title 
-            FROM special_offer_purchases p
-            JOIN special_offers o ON p.offer_id = o.offer_id
-            WHERE p.purchase_id = ?
-        """, (purchase_id,)).fetchone()
-        
-        if not purchase:
-            conn.close()
-            return RedirectResponse("/offers?error=purchase_not_found", status_code=303)
-            
-        purchase_data = dict(purchase)
-        
-        conn.execute("BEGIN TRANSACTION")
-        conn.execute("""
-            UPDATE special_offer_purchases 
-            SET fulfillment_status = 'fulfilled', delivered_credentials = ?, fulfillment_error = NULL 
-            WHERE purchase_id = ?
-        """, (credentials, purchase_id))
-        conn.commit()
-        
-        # Trigger Telegram Alert for manual fulfillment
-        try:
-            from core.telegram_alerts import _send_message
-            _send_message(
-                f"✅ <b>Order Manually Fulfilled!</b>\n\n"
-                f"<b>Offer:</b> {purchase_data['offer_title']}\n"
-                f"<b>Customer:</b> {purchase_data['user_email']}\n"
-                f"<b>Purchase ID:</b> {purchase_id}\n"
-                f"<b>Delivered:</b> <code>{credentials}</code>\n\n"
-                f"<i>The customer can now access these credentials instantly from their dashboard!</i>"
-            )
-        except Exception as tg_err:
-            logger.error(f"Failed to send manual fulfillment Telegram alert: {tg_err}")
-            
-    except Exception as e:
-        conn.rollback()
-        conn.close()
-        logger.error(f"Error manually fulfilling order: {e}")
-        return RedirectResponse("/offers?error=fulfillment_failed", status_code=303)
-        
-    conn.close()
-    return RedirectResponse("/offers?success=order_fulfilled", status_code=303)
-
-@app.post("/api/v2/offers/buy/{offer_id}")
-async def offers_buy(request: Request, offer_id: str):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-        
-    form = await request.form()
-    requirements = form.get("requirements", "").strip()
-    if not requirements:
-        return RedirectResponse("/offers?error=requirements_required", status_code=303)
-        
-    conn = get_db()
-    offer_row = conn.execute("SELECT * FROM special_offers WHERE offer_id = ?", (offer_id,)).fetchone()
-    if not offer_row:
-        conn.close()
-        return RedirectResponse("/offers?error=offer_not_found", status_code=303)
-        
-    offer = dict(offer_row)
-    price = offer["price"]
-    offer_title = offer["title"]
-    
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-        
-    user = dict(user_row)
-    if user["wallet_balance"] < price:
-        conn.close()
-        return RedirectResponse("/offers?error=insufficient_funds", status_code=303)
-        
-    new_balance = user["wallet_balance"] - price
-    purchase_id = f"pur_{uuid.uuid4().hex[:16]}"
-    order_id = f"ord_{uuid.uuid4().hex[:16]}"
-    
-    try:
-        conn.execute("BEGIN TRANSACTION")
-        
-        # Atomic wallet balance update
-        conn.execute("UPDATE users SET wallet_balance = wallet_balance - ?, total_spent = total_spent + ? WHERE user_id = ?",
-                     (price, price, user_id))
-                     
-        # Record special offer purchase
-        conn.execute("""
-            INSERT INTO special_offer_purchases (purchase_id, offer_id, user_id, user_email, user_requirements, price_paid)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (purchase_id, offer_id, user_id, user["email"], requirements, price))
-        
-        # Record wallet transaction
-        conn.execute("""
-            INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-            VALUES (?, 'spend', ?, ?, ?)
-        """, (user_id, -price, new_balance, f"Offer: {offer_title}"))
-        
-        # Record in global orders
-        conn.execute("""
-            INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status)
-            VALUES (?, ?, 'special_offer', ?, 0, ?, 'wallet', 'completed')
-        """, (order_id, user_id, offer_title, price))
-        
-        conn.commit()
-    except Exception as e:
-        conn.rollback()
-        conn.close()
-        logger.error(f"Error processing purchase transaction: {e}")
-        return RedirectResponse("/offers?error=transaction_failed", status_code=303)
-        
-    # ── Automated Fulfillment Engine (Outside Financial Transaction) ──
-    fulfillment_status = "pending"
-    delivered_credentials = None
-    fulfillment_error = None
-    
-    delivery_type = offer.get("delivery_type", "manual")
-    
-    if delivery_type == "instant_pool":
-        try:
-            # Check for an unused key
-            key_row = conn.execute(
-                "SELECT * FROM subscription_keys_inventory WHERE offer_id = ? AND is_used = 0 ORDER BY created_at ASC LIMIT 1",
-                (offer_id,)
-            ).fetchone()
-            
-            if key_row:
-                key_data = dict(key_row)
-                key_id = key_data["key_id"]
-                delivered_credentials = key_data["key_content"]
-                fulfillment_status = "fulfilled"
-                
-                # Mark key as used and update purchase
-                conn.execute("BEGIN TRANSACTION")
-                conn.execute(
-                    "UPDATE subscription_keys_inventory SET is_used = 1, purchase_id = ?, user_id = ?, used_at = ? WHERE key_id = ?",
-                    (purchase_id, user_id, datetime.now(), key_id)
-                )
-                conn.execute(
-                    "UPDATE special_offer_purchases SET fulfillment_status = 'fulfilled', delivered_credentials = ? WHERE purchase_id = ?",
-                    (delivered_credentials, purchase_id)
-                )
-                conn.commit()
-            else:
-                fulfillment_status = "failed"
-                fulfillment_error = "Key pool exhausted"
-                conn.execute("BEGIN TRANSACTION")
-                conn.execute(
-                    "UPDATE special_offer_purchases SET fulfillment_status = 'failed', fulfillment_error = ? WHERE purchase_id = ?",
-                    (fulfillment_error, purchase_id)
-                )
-                conn.commit()
-                
-                # Alert admin via Telegram
-                try:
-                    from core.telegram_alerts import _send_message
-                    _send_message(
-                        f"⚠️ <b>URGENT: Key Pool Exhausted!</b>\n\n"
-                        f"<b>Offer:</b> {offer_title}\n"
-                        f"<b>Customer:</b> {user['email']}\n"
-                        f"<b>Purchase ID:</b> {purchase_id}\n\n"
-                        f"<i>Please add more keys to the inventory pool or deliver manually.</i>"
-                    )
-                except Exception as tg_err:
-                    logger.error(f"Failed to send pool exhaustion Telegram alert: {tg_err}")
-        except Exception as pool_err:
-            logger.error(f"Error in pool fulfillment: {pool_err}")
-            
-    conn.close() # Close connection after database-based fulfillment
-    
-    if delivery_type == "instant_api":
-        reseller_url = offer.get("reseller_api_url", "")
-        reseller_key = offer.get("reseller_api_key", "")
-        
-        if reseller_url:
-            try:
-                import httpx
-                headers = {}
-                if reseller_key:
-                    headers["Authorization"] = f"Bearer {reseller_key}"
-                
-                payload = {
-                    "offer_id": offer_id,
-                    "offer_title": offer_title,
-                    "customer_email": user["email"],
-                    "purchase_id": purchase_id,
-                    "price_paid": price,
-                    "requirements": requirements
-                }
-                
-                with httpx.Client(timeout=15.0) as client:
-                    resp = client.post(reseller_url, json=payload, headers=headers)
-                
-                if resp.status_code in (200, 201):
-                    resp_data = resp.json()
-                    creds = resp_data.get("credentials") or resp_data.get("key") or resp_data.get("code") or resp_data.get("account")
-                    if not creds:
-                        creds = resp.text
-                    
-                    delivered_credentials = str(creds)
-                    fulfillment_status = "fulfilled"
-                else:
-                    raise Exception(f"API returned status code {resp.status_code}: {resp.text}")
-                    
-            except Exception as api_err:
-                fulfillment_status = "failed"
-                fulfillment_error = str(api_err)
-                
-                try:
-                    from core.telegram_alerts import _send_message
-                    _send_message(
-                        f"⚠️ <b>URGENT: Reseller API Failed!</b>\n\n"
-                        f"<b>Offer:</b> {offer_title}\n"
-                        f"<b>Customer:</b> {user['email']}\n"
-                        f"<b>Purchase ID:</b> {purchase_id}\n"
-                        f"<b>Error:</b> <i>{fulfillment_error}</i>\n\n"
-                        f"<i>The purchase succeeded but automated API delivery failed. Order has fallen back to manual processing. Please fulfill manually.</i>"
-                    )
-                except Exception as tg_err:
-                    logger.error(f"Failed to send API failure Telegram alert: {tg_err}")
-            
-            # Write API results to database in a new short connection
-            try:
-                conn_api = get_db()
-                if fulfillment_status == "fulfilled":
-                    conn_api.execute(
-                        "UPDATE special_offer_purchases SET fulfillment_status = 'fulfilled', delivered_credentials = ? WHERE purchase_id = ?",
-                        (delivered_credentials, purchase_id)
-                    )
-                else:
-                    conn_api.execute(
-                        "UPDATE special_offer_purchases SET fulfillment_status = 'failed', fulfillment_error = ? WHERE purchase_id = ?",
-                        (fulfillment_error, purchase_id)
-                    )
-                conn_api.commit()
-                conn_api.close()
-            except Exception as db_api_err:
-                logger.error(f"Failed to write API results to DB: {db_api_err}")
-        else:
-            fulfillment_status = "failed"
-            fulfillment_error = "Reseller API URL not configured"
-            try:
-                conn_api = get_db()
-                conn_api.execute(
-                    "UPDATE special_offer_purchases SET fulfillment_status = 'failed', fulfillment_error = ? WHERE purchase_id = ?",
-                    (fulfillment_error, purchase_id)
-                )
-                conn_api.commit()
-                conn_api.close()
-            except Exception as db_api_err:
-                logger.error(f"Failed to write API config error to DB: {db_api_err}")
-                
-    # ── Trigger Notifications ──
-    
-    # 1. Telegram notification
-    try:
-        from core.telegram_alerts import _send_message
-        tg_text = (
-            f"🛍️ <b>New Special Offer Purchased!</b>\n\n"
-            f"<b>Offer:</b> {offer_title}\n"
-            f"<b>Price Paid:</b> ${price:.2f}\n"
-            f"<b>Customer:</b> {user['email']}\n"
-            f"<b>Requirements:</b>\n<i>{requirements}</i>\n\n"
-        )
-        if fulfillment_status == "fulfilled" and delivered_credentials:
-            tg_text += f"✅ <b>Instant Delivery:</b>\n<code>{delivered_credentials}</code>\n\n"
-        elif fulfillment_status == "failed":
-            tg_text += f"⚠️ <b>Delivery Status:</b> Failed (Manual Fallback)\n<b>Error:</b> <i>{fulfillment_error}</i>\n\n"
-        else:
-            tg_text += "⏳ <b>Delivery Status:</b> Manual Processing\n\n"
-            
-        tg_text += f"<i>🕐 Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>"
-        _send_message(tg_text)
-    except Exception as e:
-        logger.error(f"Failed to send Telegram alert: {e}")
-        
-    # 2. Gmail notification to samatou683@gmail.com
-    try:
-        email_body = f"""
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #334155; border-radius: 12px; background-color: #0f172a; color: #f8fafc;">
-            <h2 style="color: #f43f5e; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-top: 0;">🛍️ New Special Offer Purchased</h2>
-            <p style="font-size: 15px; color: #cbd5e1;">A user has purchased a special offer from your catalog.</p>
-            <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px;">
-                <tr style="background-color: #1e293b;">
-                    <td style="padding: 12px; font-weight: bold; border: 1px solid #334155; color: #94a3b8; width: 35%;">Offer Title:</td>
-                    <td style="padding: 12px; border: 1px solid #334155; color: #f1f5f9;">{offer_title}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 12px; font-weight: bold; border: 1px solid #334155; color: #94a3b8;">Price Paid:</td>
-                    <td style="padding: 12px; border: 1px solid #334155; color: #22c55e; font-weight: bold;">${price:.2f}</td>
-                </tr>
-                <tr style="background-color: #1e293b;">
-                    <td style="padding: 12px; font-weight: bold; border: 1px solid #334155; color: #94a3b8;">Customer Email:</td>
-                    <td style="padding: 12px; border: 1px solid #334155; color: #3b82f6;">{user['email']}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 12px; font-weight: bold; border: 1px solid #334155; color: #94a3b8; vertical-align: top;">Requirements:</td>
-                    <td style="padding: 12px; border: 1px solid #334155; color: #cbd5e1; white-space: pre-wrap; line-height: 1.5;">{requirements}</td>
-                </tr>
-        """
-        if fulfillment_status == "fulfilled" and delivered_credentials:
-            email_body += f"""
-                <tr style="background-color: #022c22;">
-                    <td style="padding: 12px; font-weight: bold; border: 1px solid #10b981; color: #34d399; vertical-align: top;">🔑 Your Subscription Credentials:</td>
-                    <td style="padding: 12px; border: 1px solid #10b981; color: #34d399; font-family: monospace; font-size: 14px; white-space: pre-wrap; line-height: 1.5; font-weight: bold; background-color: #064e3b;">{delivered_credentials}</td>
-                </tr>
-            """
-        email_body += """
-            </table>
-            <p style="font-size: 11px; color: #64748b; margin-top: 30px; text-align: center; border-top: 1px solid #334155; padding-top: 15px;">
-                JobHunt Pro SaaS Engine &bull; Automated Delivery System
-            </p>
-        </div>
-        """
-        sent_ok = _send_via_gmail_smtp(
-            to_email="samatou683@gmail.com",
-            subject=f"New Purchase: {offer_title}",
-            html_body=email_body,
-            sender_name="JobHunt Pro Offers"
-        )
-        if not sent_ok:
-            from core.email_engine import send_email_via_brevo_http
-            send_email_via_brevo_http(
-                to_email="samatou683@gmail.com",
-                company_name="Special Offers",
-                custom_body=email_body,
-                sender_name="JobHunt Pro Offers",
-                subject=f"New Purchase: {offer_title}"
-            )
-    except Exception as e:
-        logger.error(f"Failed to send email alert: {e}")
-        
-    return RedirectResponse(f"/my-purchases?success=purchased&offer={quote(offer_title)}", status_code=303)
 
 
-@app.get("/redeem", response_class=HTMLResponse)
-def redeem_page(request: Request):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-    # /redeem is just a shortcut &#x2014; redirect to /wallet which has all the required template variables
-    return RedirectResponse("/wallet", status_code=303)
 
 
-@app.get("/about", response_class=HTMLResponse)
-def about_page(request: Request):
-    from fastapi.responses import RedirectResponse
-    return RedirectResponse("/", status_code=301)
 
 
-@app.post("/api/generate-redeem-code")
-async def api_generate_redeem_code(request: Request):
-    """API endpoint for Telegram bot to sync redeem codes to PA DB."""
-    # Security: only admins can generate redeem codes
-    session_user = request.session.get("user")
-    admin_emails = ["samsalameh.cv@gmail.com"]
-    if not session_user or session_user.get("email") not in admin_emails:
-        return JSONResponse({"ok": False, "error": "Admin access required"}, status_code=403)
-    try:
-        body = await request.json()
-        code = body.get("code", "")
-        value = float(body.get("value", 0))
-        code_type = body.get("code_type", "sale")
-        if not code or value <= 0:
-            return {"ok": False, "error": "Invalid code or value"}
-        conn = get_db()
-        existing = conn.execute("SELECT id FROM redeem_codes WHERE code = ?", (code,)).fetchone()
-        if existing:
-            conn.close()
-            return {"ok": False, "error": "Code already exists"}
-        conn.execute("INSERT INTO redeem_codes (code, value_usd, code_type, is_used) VALUES (?, ?, ?, 0)",
-                     (code, value, code_type))
-        conn.commit()
-        conn.close()
-        return {"ok": True, "code": code, "value": value}
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
 
 
-@app.post("/redeem")
-def redeem_code(request: Request, code: str = Form(...)):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
 
-    conn = get_db()
-    redeem = conn.execute("SELECT * FROM redeem_codes WHERE code = ? AND is_used = 0", (code,)).fetchone()
 
-    if not redeem:
-        conn.close()
-        import urllib.parse
-        return RedirectResponse(f"/wallet?error={urllib.parse.quote('Invalid or already used code. Please check and try again.')}", status_code=303)
+# ==================== MIGRATED TO ROUTER — START (lines 3768-3774) ====================
+# @app.get("/redeem", response_class=HTMLResponse)
+# def redeem_page(request: Request):
+#     user_id = get_verified_user_id(request)
+#     if not user_id:
+#         return RedirectResponse("/login", status_code=303)
+#     # /redeem is just a shortcut &#x2014; redirect to /wallet which has all the required template variables
+#     return RedirectResponse("/wallet", status_code=303)
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-    value = redeem["value_usd"]
-    code_type = redeem["code_type"] if "code_type" in dict(redeem).keys() else "sale"
-    conn.execute("UPDATE redeem_codes SET is_used = 1, used_by = ?, used_at = CURRENT_TIMESTAMP WHERE code = ?",
-                 (user_id, code))
 
-    user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-    user = dict(user_row)
-    new_balance = user["wallet_balance"] + value
-    conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
 
-    if code_type == "admin_free":
-        desc = f"Admin Free Credit &#x2014; code: {code}"
-        txn_type = "admin_free_credit"
-    else:
-        desc = f"Redeem code: {code}"
-        txn_type = "redeem"
+# ==================== MIGRATED TO ROUTER — START (lines 3777-3780) ====================
+# @app.get("/about", response_class=HTMLResponse)
+# def about_page(request: Request):
+#     from fastapi.responses import RedirectResponse
+#     return RedirectResponse("/", status_code=301)
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-    conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-                    VALUES (?, ?, ?, ?, ?)""",
-                 (user_id, txn_type, value, new_balance, desc))
 
-    conn.commit()
-    conn.close()
 
-    import urllib.parse
-    if code_type == "admin_free":
-        msg = f"Admin credit of ${value:.2f} added to your wallet!"
-        return RedirectResponse(f"/wallet?success={urllib.parse.quote(msg)}", status_code=303)
-    msg = f"Code redeemed! ${value:.2f} added to your wallet."
-    return RedirectResponse(f"/wallet?success={urllib.parse.quote(msg)}", status_code=303)
+# ==================== MIGRATED TO ROUTER — START (lines 3783-3809) ====================
+# @app.post("/api/generate-redeem-code")
+# async def api_generate_redeem_code(request: Request):
+#     """API endpoint for Telegram bot to sync redeem codes to PA DB."""
+#     # Security: only admins can generate redeem codes
+#     session_user = request.session.get("user")
+#     admin_emails = ["samsalameh.cv@gmail.com"]
+#     if not session_user or session_user.get("email") not in admin_emails:
+#         return JSONResponse({"ok": False, "error": "Admin access required"}, status_code=403)
+#     try:
+#         body = await request.json()
+#         code = body.get("code", "")
+#         value = float(body.get("value", 0))
+#         code_type = body.get("code_type", "sale")
+#         if not code or value <= 0:
+#             return {"ok": False, "error": "Invalid code or value"}
+#         conn = get_db()
+#         existing = conn.execute("SELECT id FROM redeem_codes WHERE code = ?", (code,)).fetchone()
+#         if existing:
+#             conn.close()
+#             return {"ok": False, "error": "Code already exists"}
+#         conn.execute("INSERT INTO redeem_codes (code, value_usd, code_type, is_used) VALUES (?, ?, ?, 0)",
+#                      (code, value, code_type))
+#         conn.commit()
+#         conn.close()
+#         return {"ok": True, "code": code, "value": value}
+#     except Exception as e:
+#         return {"ok": False, "error": str(e)}
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-@app.post("/wallet/deposit/create")
-def wallet_deposit_create(request: Request, amount: float = Form(...), currency: str = Form("USDT")):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
 
-    if amount < 5:
-        return RedirectResponse("/wallet?error=min_amount", status_code=303)
-    if currency not in ("USDT", "BTC", "ETH", "LTC"):
-        currency = "USDT"
 
-    order_id = f"dep_{uuid.uuid4().hex[:16]}"
+# ==================== MIGRATED TO ROUTER — START (lines 3812-3858) ====================
+# @app.post("/redeem")
+# def redeem_code(request: Request, code: str = Form(...)):
+#     user_id = get_verified_user_id(request)
+#     if not user_id:
+#         return RedirectResponse("/login", status_code=303)
+# 
+#     conn = get_db()
+#     redeem = conn.execute("SELECT * FROM redeem_codes WHERE code = ? AND is_used = 0", (code,)).fetchone()
+# 
+#     if not redeem:
+#         conn.close()
+#         import urllib.parse
+#         return RedirectResponse(f"/wallet?error={urllib.parse.quote('Invalid or already used code. Please check and try again.')}", status_code=303)
+# 
+#     value = redeem["value_usd"]
+#     code_type = redeem["code_type"] if "code_type" in dict(redeem).keys() else "sale"
+#     conn.execute("UPDATE redeem_codes SET is_used = 1, used_by = ?, used_at = CURRENT_TIMESTAMP WHERE code = ?",
+#                  (user_id, code))
+# 
+#     user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
+#     if not user_row:
+#         conn.close()
+#         return RedirectResponse("/login", status_code=303)
+#     user = dict(user_row)
+#     new_balance = user["wallet_balance"] + value
+#     conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
+# 
+#     if code_type == "admin_free":
+#         desc = f"Admin Free Credit &#x2014; code: {code}"
+#         txn_type = "admin_free_credit"
+#     else:
+#         desc = f"Redeem code: {code}"
+#         txn_type = "redeem"
+# 
+#     conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
+#                     VALUES (?, ?, ?, ?, ?)""",
+#                  (user_id, txn_type, value, new_balance, desc))
+# 
+#     conn.commit()
+#     conn.close()
+# 
+#     import urllib.parse
+#     if code_type == "admin_free":
+#         msg = f"Admin credit of ${value:.2f} added to your wallet!"
+#         return RedirectResponse(f"/wallet?success={urllib.parse.quote(msg)}", status_code=303)
+#     msg = f"Code redeemed! ${value:.2f} added to your wallet."
+#     return RedirectResponse(f"/wallet?success={urllib.parse.quote(msg)}", status_code=303)
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-    # Try to create NOWPayments invoice for real crypto payment
-    np_address = ""
-    np_invoice_url = ""
-    np_pay_currency = currency
-    np_pay_amount = 0
-    np_id = 0
-    try:
-        from payments.nowpayments import create_crypto_invoice
-        invoice = create_crypto_invoice(
-            amount_usd=amount,
-            order_id=order_id,
-            service_name=f"Wallet Topup (${amount:.2f})"
-        )
-        if invoice:
-            np_address = invoice.get("pay_address", "")
-            np_invoice_url = invoice.get("invoice_url", "")
-            np_pay_currency = invoice.get("pay_currency", currency)
-            np_pay_amount = invoice.get("pay_amount", 0)
-            np_id = invoice.get("nowpayments_id", 0)
-    except Exception as e:
-        logger.warning(f"NowPayments invoice failed (fallback to static): {e}")
 
-    # Fallback to static address if NowPayments failed
-    if not np_address:
-        from payments import get_payment_addresses
-        addrs = get_payment_addresses()
-        np_address = addrs.get(currency, addrs.get("USDT", ""))
+# ==================== MIGRATED TO ROUTER — START (lines 3860-3908) ====================
+# @app.post("/wallet/deposit/create")
+# def wallet_deposit_create(request: Request, amount: float = Form(...), currency: str = Form("USDT")):
+#     user_id = get_verified_user_id(request)
+#     if not user_id:
+#         return RedirectResponse("/login", status_code=303)
+# 
+#     if amount < 5:
+#         return RedirectResponse("/wallet?error=min_amount", status_code=303)
+#     if currency not in ("USDT", "BTC", "ETH", "LTC"):
+#         currency = "USDT"
+# 
+#     order_id = f"dep_{uuid.uuid4().hex[:16]}"
+# 
+#     # Try to create NOWPayments invoice for real crypto payment
+#     np_address = ""
+#     np_invoice_url = ""
+#     np_pay_currency = currency
+#     np_pay_amount = 0
+#     np_id = 0
+#     try:
+#         from payments.nowpayments import create_crypto_invoice
+#         invoice = create_crypto_invoice(
+#             amount_usd=amount,
+#             order_id=order_id,
+#             service_name=f"Wallet Topup (${amount:.2f})"
+#         )
+#         if invoice:
+#             np_address = invoice.get("pay_address", "")
+#             np_invoice_url = invoice.get("invoice_url", "")
+#             np_pay_currency = invoice.get("pay_currency", currency)
+#             np_pay_amount = invoice.get("pay_amount", 0)
+#             np_id = invoice.get("nowpayments_id", 0)
+#     except Exception as e:
+#         logger.warning(f"NowPayments invoice failed (fallback to static): {e}")
+# 
+#     # Fallback to static address if NowPayments failed
+#     if not np_address:
+#         from payments import get_payment_addresses
+#         addrs = get_payment_addresses()
+#         np_address = addrs.get(currency, addrs.get("USDT", ""))
+# 
+#     conn = get_db()
+#     conn.execute("""INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status, pay_address, nowpayments_id, nowpayments_invoice_url, pay_currency, pay_amount)
+#                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+#                  (order_id, user_id, "deposit", "wallet_topup", 0, amount, currency, "pending", np_address, np_id, np_invoice_url, np_pay_currency, np_pay_amount))
+#     conn.commit()
+#     conn.close()
+# 
+#     return RedirectResponse(f"/checkout/{order_id}", status_code=303)
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-    conn = get_db()
-    conn.execute("""INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status, pay_address, nowpayments_id, nowpayments_invoice_url, pay_currency, pay_amount)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                 (order_id, user_id, "deposit", "wallet_topup", 0, amount, currency, "pending", np_address, np_id, np_invoice_url, np_pay_currency, np_pay_amount))
-    conn.commit()
-    conn.close()
-
-    return RedirectResponse(f"/checkout/{order_id}", status_code=303)
 
 @app.get("/services-v2")
 def services_v2_redirect():
@@ -4641,13 +4114,13 @@ def api_pricing_public():
     """Public pricing with real-time flash sale discounts."""
     from datetime import datetime as dt
     try:
-        db = get_db()
-        tiers = db.execute("SELECT * FROM pricing_tiers_v2 ORDER BY price_usd").fetchall()
-        result = [dict(t) for t in tiers]
-        if not result:
-            # Fallback to old pricing_tiers
-            tiers = db.execute("SELECT * FROM pricing_tiers ORDER BY price_usd").fetchall()
+        with get_db() as db:
+            tiers = db.execute("SELECT * FROM pricing_tiers_v2 ORDER BY price_usd").fetchall()
             result = [dict(t) for t in tiers]
+            if not result:
+                # Fallback to old pricing_tiers
+                tiers = db.execute("SELECT * FROM pricing_tiers ORDER BY price_usd").fetchall()
+                result = [dict(t) for t in tiers]
     except Exception:
         result = PRICING_TIERS
 
@@ -4705,188 +4178,200 @@ def api_pricing_public():
     }
 
 
-@app.post("/checkout/{order_id}/pay-simulate")
-def checkout_pay_simulate(request: Request, order_id: str):
-    """Pay-simulate: STRICTLY admin-only, never in production.
-    Requires BOTH: (1) ALLOW_PAY_SIMULATE=true in .env AND (2) valid ADMIN_SECRET_KEY header.
-    Never enabled by HYPER_TEST_MODE alone — that's for testing, not for free credits.
-    """
-    import os as _os
-    # NEVER work in production — require explicit opt-in
-    allow_simulate = _os.getenv("ALLOW_PAY_SIMULATE", "false").lower() == "true"
-    if not allow_simulate:
-        return HTMLResponse("<h2>Simulate Payment Disabled</h2><p>This feature has been permanently disabled. Please make a real deposit or contact support.</p><a href='/wallet'>Back to Wallet</a>", status_code=403)
+# ==================== MIGRATED TO ROUTER — START (lines 3995-4034) ====================
+# @app.post("/checkout/{order_id}/pay-simulate")
+# def checkout_pay_simulate(request: Request, order_id: str):
+#     """Pay-simulate: STRICTLY admin-only, never in production.
+#     Requires BOTH: (1) ALLOW_PAY_SIMULATE=true in .env AND (2) valid ADMIN_SECRET_KEY header.
+#     Never enabled by HYPER_TEST_MODE alone — that's for testing, not for free credits.
+#     """
+#     import os as _os
+#     # NEVER work in production — require explicit opt-in
+#     allow_simulate = _os.getenv("ALLOW_PAY_SIMULATE", "false").lower() == "true"
+#     if not allow_simulate:
+#         return HTMLResponse("<h2>Simulate Payment Disabled</h2><p>This feature has been permanently disabled. Please make a real deposit or contact support.</p><a href='/wallet'>Back to Wallet</a>", status_code=403)
+# 
+#     # Also require ADMIN_SECRET_KEY — extra gate for safety
+#     admin_key = _os.getenv("ADMIN_SECRET_KEY", "")
+#     provided_key = request.headers.get("X-Admin-Key", "") or request.query_params.get("key", "")
+#     if not admin_key or not provided_key or provided_key != admin_key:
+#         return HTMLResponse("<h2>Admin Authentication Required</h2><p>Simulate payment requires admin key. Use X-Admin-Key header.</p><a href='/wallet'>Back to Wallet</a>", status_code=403)
+# 
+#     user_id = get_verified_user_id(request)
+#     if not user_id:
+#         return RedirectResponse("/login", status_code=303)
+# 
+#     conn = get_db()
+#     order = conn.execute("SELECT * FROM orders WHERE order_id = ? AND user_id = ? AND payment_status = 'pending'", (order_id, user_id)).fetchone()
+#     if not order:
+#         conn.close()
+#         return RedirectResponse("/wallet", status_code=303)
+# 
+#     amount = order["amount_usd"]
+# 
+#     # 1. Update order status
+#     conn.execute("UPDATE orders SET payment_status = 'completed' WHERE order_id = ?", (order_id,))
+# 
+#     # 2. Credit wallet atomically (race-condition-safe)
+#     update_wallet(conn, user_id, amount, f"Simulated Crypto Checkout: {order_id}", "deposit")
+#     conn.commit()
+#     conn.close()
+#     logger.warning(f"PAY-SIMULATE: {amount} USD credited to {user_id} via admin override (order {order_id})")
+# 
+#     return RedirectResponse("/wallet?success=redeemed", status_code=303)
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-    # Also require ADMIN_SECRET_KEY — extra gate for safety
-    admin_key = _os.getenv("ADMIN_SECRET_KEY", "")
-    provided_key = request.headers.get("X-Admin-Key", "") or request.query_params.get("key", "")
-    if not admin_key or not provided_key or provided_key != admin_key:
-        return HTMLResponse("<h2>Admin Authentication Required</h2><p>Simulate payment requires admin key. Use X-Admin-Key header.</p><a href='/wallet'>Back to Wallet</a>", status_code=403)
 
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
+# ==================== MIGRATED TO ROUTER — START (lines 4036-4043) ====================
+# @app.get("/api/v1/order/status/{order_id}")
+# def api_order_status(order_id: str):
+#     conn = get_db()
+#     order = conn.execute("SELECT payment_status FROM orders WHERE order_id = ?", (order_id,)).fetchone()
+#     conn.close()
+#     if not order:
+#         return {"status": "not_found"}
+#     return {"status": order["payment_status"]}
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-    conn = get_db()
-    order = conn.execute("SELECT * FROM orders WHERE order_id = ? AND user_id = ? AND payment_status = 'pending'", (order_id, user_id)).fetchone()
-    if not order:
-        conn.close()
-        return RedirectResponse("/wallet", status_code=303)
 
-    amount = order["amount_usd"]
+# ==================== MIGRATED TO ROUTER — START (lines 4045-4166) ====================
+# @app.post("/api/v1/payment/webhook")
+# async def payment_webhook(request: Request):
+#     """Universal payment webhook callback for Sellix, Cryptomus, and Stripe.
+#     Automatically credits user wallets upon receipt of valid payment signatures.
+#     STRICT HMAC verification for Sellix webhooks — NEVER accepts unverified callbacks.
+#     """
+#     # Read raw body for HMAC verification
+#     raw_body = await request.body()
+#     try:
+#         import json as _json
+#         payload = _json.loads(raw_body) if raw_body else {}
+#     except Exception:
+#         return JSONResponse({"status": "error", "message": "invalid_json"}, status_code=400)
+# 
+#     event = payload.get("event")
+#     data = payload.get("data", {})
+# 
+#     # --- Stripe Webhook Support (Idempotent) ---
+#     stripe_signature = request.headers.get("stripe-signature")
+#     if stripe_signature:
+#         import stripe
+#         from core.webhook_state import ProcessedWebhook
+#         from core.database import AsyncSessionLocal
+#         
+#         stripe_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+#         if not stripe_secret:
+#             logger.critical("Stripe webhook: STRIPE_WEBHOOK_SECRET not configured!")
+#             return JSONResponse({"status": "error", "message": "webhook_not_configured"}, status_code=500)
+#             
+#         try:
+#             stripe_event = stripe.Webhook.construct_event(
+#                 payload=raw_body, sig_header=stripe_signature, secret=stripe_secret
+#             )
+#         except ValueError:
+#             return JSONResponse({"status": "error", "message": "invalid_payload"}, status_code=400)
+#         except Exception: # SignatureVerificationError
+#             return JSONResponse({"status": "error", "message": "invalid_signature"}, status_code=403)
+#             
+#         event_id = stripe_event.get("id")
+#         
+#         # Idempotency Lock using Atomic INSERT ON CONFLICT DO UPDATE
+#         from sqlalchemy.dialects.postgresql import insert
+#         
+#         async with AsyncSessionLocal() as session:
+#             # The matrix blueprint requires DO UPDATE to maintain state identity and return the ID.
+#             stmt = insert(ProcessedWebhook).values(event_id=event_id)
+#             stmt = stmt.on_conflict_do_update(
+#                 index_elements=['event_id'],
+#                 set_={'event_id': stmt.excluded.event_id}
+#             ).returning(ProcessedWebhook.event_id)
+#             
+#             result = await session.execute(stmt)
+#             row_id = result.scalar_one_or_none()
+#             await session.commit()
+#             
+#             # Since DO UPDATE returns the row_id unconditionally, if we strictly need to 
+#             # block reprocessing here, we would check xmax. For now, the database guarantees idempotency.
+#             
+#         # Process specific Stripe events here
+#         if stripe_event["type"] == "checkout.session.completed":
+#             session_obj = stripe_event["data"]["object"]
+#             email = session_obj.get("customer_details", {}).get("email")
+#             amount = float(session_obj.get("amount_total", 0)) / 100.0
+#             
+#             if email and amount > 0:
+#                 conn = get_db()
+#                 user = conn.execute("SELECT user_id FROM users WHERE email = ?", (email,)).fetchone()
+#                 if user:
+#                     update_wallet(conn, user["user_id"], amount, f"Stripe Checkout: {event_id}", "deposit")
+#                     conn.commit()
+#                 conn.close()
+#                 
+#         return {"status": "success", "message": "stripe_processed"}
+# 
+#     # --- Sellix Webhook Support (STRICT HMAC verification) ---
+#     if event == "order:paid" and data:
+#         sellix_secret = os.getenv("SELLIX_WEBHOOK_SECRET", "")
+#         # SECURITY: If no webhook secret is configured, REJECT all callbacks.
+#         # Never accept unverified payment callbacks in production.
+#         if not sellix_secret:
+#             logger.critical("Sellix webhook: SELLIX_WEBHOOK_SECRET not configured — REJECTING callback for safety!")
+#             return JSONResponse({"status": "error", "message": "webhook_not_configured"}, status_code=500)
+# 
+#         sig = request.headers.get("x-sellix-signature", "") or request.headers.get("X-Sellix-Signature", "")
+#         if not sig:
+#             logger.warning("Sellix webhook: No signature header provided — REJECTING")
+#             return JSONResponse({"status": "error", "message": "missing_signature"}, status_code=403)
+# 
+#         import hmac as _hmac
+#         import hashlib as _hashlib
+#         expected_sig = _hmac.new(sellix_secret.encode(), raw_body, _hashlib.sha256).hexdigest()
+#         if not _hmac.compare_digest(sig, expected_sig):
+#             logger.warning(f"Sellix webhook: HMAC verification failed (expected={expected_sig[:16]}..., got={sig[:16]}...)")
+#             return JSONResponse({"status": "error", "message": "invalid_signature"}, status_code=403)
+#         logger.info("Sellix webhook: HMAC verification passed")
+#         email = data.get("customer_email") or data.get("email")
+#         amount = float(data.get("total", 0))
+#         if email and amount > 0:
+#             conn = get_db()
+#             user = conn.execute("SELECT user_id FROM users WHERE email = ?", (email,)).fetchone()
+#             if user:
+#                 update_wallet(conn, user["user_id"], amount, f"Automated Webhook Deposit: {data.get('uniqid')}", "deposit")
+#                 conn.commit()
+#             conn.close()
+#             return {"status": "success", "message": "wallet_credited"}
+# 
+#     # --- Cryptomus Webhook Support ---
+#     status = payload.get("status")
+#     merchant_order = payload.get("order_id")
+#     if status in ["paid", "paid_over"] and merchant_order:
+#         amount = float(payload.get("amount", 0))
+#         conn = get_db()
+#         order = conn.execute("SELECT user_id, payment_status FROM orders WHERE order_id = ? AND payment_status = 'pending'", (merchant_order,)).fetchone()
+#         if order:
+#             user_id = order["user_id"]
+#             conn.execute("UPDATE orders SET payment_status = 'completed' WHERE order_id = ?", (merchant_order,))
+#             update_wallet(conn, user_id, amount, f"Automated Cryptomus Webhook: {merchant_order}", "deposit")
+#             conn.commit()
+#         conn.close()
+#         return {"status": "success", "message": "cryptomus_credited"}
+# 
+#     return {"status": "ignored"}
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-    # 1. Update order status
-    conn.execute("UPDATE orders SET payment_status = 'completed' WHERE order_id = ?", (order_id,))
 
-    # 2. Credit wallet atomically (race-condition-safe)
-    update_wallet(conn, user_id, amount, f"Simulated Crypto Checkout: {order_id}", "deposit")
-    conn.commit()
-    conn.close()
-    logger.warning(f"PAY-SIMULATE: {amount} USD credited to {user_id} via admin override (order {order_id})")
+# ==================== MIGRATED TO ROUTER — START (lines 4168-4176) ====================
+# @app.get("/api/v1/pricing")
+# def api_pricing():
+#     """Return all pricing data as JSON for frontend API calls."""
+#     return {
+#         "success": True,
+#         "data": get_all_pricing(),
+#         "currency": "USD",
+#         "payment_methods": ["btc", "eth", "usdt", "ltc"],
+#     }
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-    return RedirectResponse("/wallet?success=redeemed", status_code=303)
-
-@app.get("/api/v1/order/status/{order_id}")
-def api_order_status(order_id: str):
-    conn = get_db()
-    order = conn.execute("SELECT payment_status FROM orders WHERE order_id = ?", (order_id,)).fetchone()
-    conn.close()
-    if not order:
-        return {"status": "not_found"}
-    return {"status": order["payment_status"]}
-
-@app.post("/api/v1/payment/webhook")
-async def payment_webhook(request: Request):
-    """Universal payment webhook callback for Sellix, Cryptomus, and Stripe.
-    Automatically credits user wallets upon receipt of valid payment signatures.
-    STRICT HMAC verification for Sellix webhooks — NEVER accepts unverified callbacks.
-    """
-    # Read raw body for HMAC verification
-    raw_body = await request.body()
-    try:
-        import json as _json
-        payload = _json.loads(raw_body) if raw_body else {}
-    except Exception:
-        return JSONResponse({"status": "error", "message": "invalid_json"}, status_code=400)
-
-    event = payload.get("event")
-    data = payload.get("data", {})
-
-    # --- Stripe Webhook Support (Idempotent) ---
-    stripe_signature = request.headers.get("stripe-signature")
-    if stripe_signature:
-        import stripe
-        from core.webhook_state import ProcessedWebhook
-        from core.database import AsyncSessionLocal
-        
-        stripe_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
-        if not stripe_secret:
-            logger.critical("Stripe webhook: STRIPE_WEBHOOK_SECRET not configured!")
-            return JSONResponse({"status": "error", "message": "webhook_not_configured"}, status_code=500)
-            
-        try:
-            stripe_event = stripe.Webhook.construct_event(
-                payload=raw_body, sig_header=stripe_signature, secret=stripe_secret
-            )
-        except ValueError:
-            return JSONResponse({"status": "error", "message": "invalid_payload"}, status_code=400)
-        except Exception: # SignatureVerificationError
-            return JSONResponse({"status": "error", "message": "invalid_signature"}, status_code=403)
-            
-        event_id = stripe_event.get("id")
-        
-        # Idempotency Lock using Atomic INSERT ON CONFLICT DO UPDATE
-        from sqlalchemy.dialects.postgresql import insert
-        
-        async with AsyncSessionLocal() as session:
-            # The matrix blueprint requires DO UPDATE to maintain state identity and return the ID.
-            stmt = insert(ProcessedWebhook).values(event_id=event_id)
-            stmt = stmt.on_conflict_do_update(
-                index_elements=['event_id'],
-                set_={'event_id': stmt.excluded.event_id}
-            ).returning(ProcessedWebhook.event_id)
-            
-            result = await session.execute(stmt)
-            row_id = result.scalar_one_or_none()
-            await session.commit()
-            
-            # Since DO UPDATE returns the row_id unconditionally, if we strictly need to 
-            # block reprocessing here, we would check xmax. For now, the database guarantees idempotency.
-            
-        # Process specific Stripe events here
-        if stripe_event["type"] == "checkout.session.completed":
-            session_obj = stripe_event["data"]["object"]
-            email = session_obj.get("customer_details", {}).get("email")
-            amount = float(session_obj.get("amount_total", 0)) / 100.0
-            
-            if email and amount > 0:
-                conn = get_db()
-                user = conn.execute("SELECT user_id FROM users WHERE email = ?", (email,)).fetchone()
-                if user:
-                    update_wallet(conn, user["user_id"], amount, f"Stripe Checkout: {event_id}", "deposit")
-                    conn.commit()
-                conn.close()
-                
-        return {"status": "success", "message": "stripe_processed"}
-
-    # --- Sellix Webhook Support (STRICT HMAC verification) ---
-    if event == "order:paid" and data:
-        sellix_secret = os.getenv("SELLIX_WEBHOOK_SECRET", "")
-        # SECURITY: If no webhook secret is configured, REJECT all callbacks.
-        # Never accept unverified payment callbacks in production.
-        if not sellix_secret:
-            logger.critical("Sellix webhook: SELLIX_WEBHOOK_SECRET not configured — REJECTING callback for safety!")
-            return JSONResponse({"status": "error", "message": "webhook_not_configured"}, status_code=500)
-
-        sig = request.headers.get("x-sellix-signature", "") or request.headers.get("X-Sellix-Signature", "")
-        if not sig:
-            logger.warning("Sellix webhook: No signature header provided — REJECTING")
-            return JSONResponse({"status": "error", "message": "missing_signature"}, status_code=403)
-
-        import hmac as _hmac
-        import hashlib as _hashlib
-        expected_sig = _hmac.new(sellix_secret.encode(), raw_body, _hashlib.sha256).hexdigest()
-        if not _hmac.compare_digest(sig, expected_sig):
-            logger.warning(f"Sellix webhook: HMAC verification failed (expected={expected_sig[:16]}..., got={sig[:16]}...)")
-            return JSONResponse({"status": "error", "message": "invalid_signature"}, status_code=403)
-        logger.info("Sellix webhook: HMAC verification passed")
-        email = data.get("customer_email") or data.get("email")
-        amount = float(data.get("total", 0))
-        if email and amount > 0:
-            conn = get_db()
-            user = conn.execute("SELECT user_id FROM users WHERE email = ?", (email,)).fetchone()
-            if user:
-                update_wallet(conn, user["user_id"], amount, f"Automated Webhook Deposit: {data.get('uniqid')}", "deposit")
-                conn.commit()
-            conn.close()
-            return {"status": "success", "message": "wallet_credited"}
-
-    # --- Cryptomus Webhook Support ---
-    status = payload.get("status")
-    merchant_order = payload.get("order_id")
-    if status in ["paid", "paid_over"] and merchant_order:
-        amount = float(payload.get("amount", 0))
-        conn = get_db()
-        order = conn.execute("SELECT user_id, payment_status FROM orders WHERE order_id = ? AND payment_status = 'pending'", (merchant_order,)).fetchone()
-        if order:
-            user_id = order["user_id"]
-            conn.execute("UPDATE orders SET payment_status = 'completed' WHERE order_id = ?", (merchant_order,))
-            update_wallet(conn, user_id, amount, f"Automated Cryptomus Webhook: {merchant_order}", "deposit")
-            conn.commit()
-        conn.close()
-        return {"status": "success", "message": "cryptomus_credited"}
-
-    return {"status": "ignored"}
-
-@app.get("/api/v1/pricing")
-def api_pricing():
-    """Return all pricing data as JSON for frontend API calls."""
-    return {
-        "success": True,
-        "data": get_all_pricing(),
-        "currency": "USD",
-        "payment_methods": ["btc", "eth", "usdt", "ltc"],
-    }
 
 
 # â&#x201D;€â&#x201D;€ Upload CV / Profile â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
@@ -4908,10 +4393,10 @@ async def download_cv_pdf(request: Request):
         cv_html = form_data.get("cv_html", "")
         
     if not cv_html:
-        conn = get_db()
-        profile = conn.execute("SELECT cv_text, skills FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
-        conn.close()
-        cv_html = profile["cv_text"] if profile and profile["cv_text"] else "No CV content provided."
+        with get_db() as conn:
+            profile = conn.execute("SELECT cv_text, skills FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
+            pass  # conn.close()
+            cv_html = profile["cv_text"] if profile and profile["cv_text"] else "No CV content provided."
     
     try:
         from reportlab.lib.pagesizes import A4
@@ -4970,40 +4455,12 @@ async def download_cv_pdf(request: Request):
             headers={"Content-Disposition": f'attachment; filename="{name}_CV.pdf"'}
         )
     except Exception as e:
-        print(f"PDF Error: {e}")
+        logger.debug(f"PDF Error: {e}")
         from reportlab.lib.pagesizes import A4
         from reportlab.platypus import SimpleDocTemplate, Paragraph
         from reportlab.lib.styles import getSampleStyleSheet
-        import io
-        buf = io.BytesIO()
-        doc = SimpleDocTemplate(buf, pagesize=A4)
-        styles = getSampleStyleSheet()
-        story = [Paragraph("CV for " + name, styles['Title']), Paragraph("Failed to format PDF properly.", styles['Normal'])]
-        doc.build(story)
-        pdf_bytes = buf.getvalue()
-        buf.close()
-        from starlette.responses import Response
-        return Response(
-            content=pdf_bytes,
-            media_type="application/pdf",
-            headers={"Content-Disposition": f'attachment; filename="{name}_CV.pdf"'}
-        )
-
-
-@app.get("/upload-cv", response_class=HTMLResponse)
-def upload_cv_page(request: Request):
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    user = dict(user_row) if user_row else {}
-    content = render_template("upload_cv_v3.html", user=user, user_id=user_id)
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Upload CV", "upload-cv", request=request))
-
-
-@app.post("/upload-cv")
+  # ==================== MIGRATED TO ROUTER — START (lines 4293-4422) ====================
+# @app.post("/upload-cv")
 async def upload_cv(
     request: Request,
     profile_name: str = Form(...),
@@ -5114,294 +4571,341 @@ async def upload_cv(
     # NOTE: /logout is handled above at line ~3361 (canonical handler with session.clear)
     # NOTE: /api/docs is handled elsewhere
     # NOTE: /email-test is handled elsewhere
-    conn = get_db()
-    conn.execute(
-        """INSERT INTO cv_profiles
-           (user_id, profile_name, cv_text, cover_letter_template, email_template,
-            skills, experience_years, target_titles, target_locations,
-            home_country, min_local_salary, min_international_salary)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (user_id, profile_name or "My Profile", cv_data,
-         cl_data, email_data,
-         skills, experience_years, target_titles, target_locations,
-         home_country, min_local_salary, min_international_salary)
-    )
-    conn.commit()
-    conn.close()
-        # If ?redirect=new-campaign, go straight to campaign page
-    redirect_target = request.query_params.get('redirect', 'dashboard')
-    if redirect_target == 'new-campaign':
-        return RedirectResponse('/new-campaign', status_code=303)
-    return RedirectResponse("/user-dashboard?success=profile_created", status_code=303)
+    with get_db() as conn:
+        conn.execute(
+            """INSERT INTO cv_profiles
+               (user_id, profile_name, cv_text, cover_letter_template, email_template,
+                skills, experience_years, target_titles, target_locations,
+                home_country, min_local_salary, min_international_salary)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (user_id, profile_name or "My Profile", cv_data,
+             cl_data, email_data,
+             skills, experience_years, target_titles, target_locations,
+             home_country, min_local_salary, min_international_salary)
+        )
+        conn.commit()
+        pass  # conn.close()
+            # If ?redirect=new-campaign, go straight to campaign page
+        redirect_target = request.query_params.get('redirect', 'dashboard')
+        if redirect_target == 'new-campaign':
+            return RedirectResponse('/new-campaign', status_code=303)
+        return RedirectResponse("/user-dashboard?success=profile_created", status_code=303)
+# ==================== MIGRATED TO ROUTER — END   ====================back: use new field names if old ones are empty
+#     cl_data = cover_letter_template or cover_letter_text
+#     email_data = email_template or email_body
+#     cv_data = extracted_text or cv_full_text
+# 
+#     # NOTE: /logout is handled above at line ~3361 (canonical handler with session.clear)
+#     # NOTE: /api/docs is handled elsewhere
+#     # NOTE: /email-test is handled elsewhere
+#     conn = get_db()
+#     conn.execute(
+#         """INSERT INTO cv_profiles
+#            (user_id, profile_name, cv_text, cover_letter_template, email_template,
+#             skills, experience_years, target_titles, target_locations,
+#             home_country, min_local_salary, min_international_salary)
+#            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+#         (user_id, profile_name or "My Profile", cv_data,
+#          cl_data, email_data,
+#          skills, experience_years, target_titles, target_locations,
+#          home_country, min_local_salary, min_international_salary)
+#     )
+#     conn.commit()
+#     conn.close()
+#         # If ?redirect=new-campaign, go straight to campaign page
+#     redirect_target = request.query_params.get('redirect', 'dashboard')
+#     if redirect_target == 'new-campaign':
+#         return RedirectResponse('/new-campaign', status_code=303)
+#     return RedirectResponse("/user-dashboard?success=profile_created", status_code=303)
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 
 # â&#x201D;€â&#x201D;€ Logout â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
-@app.get("/logout")
-def logout(request: Request):
-    response = RedirectResponse("/login", status_code=303)
-    response.delete_cookie("user_id")
-    return response
+# ==================== MIGRATED TO ROUTER — START (lines 4426-4430) ====================
+# @app.get("/logout")
+# def logout(request: Request):
+#     response = RedirectResponse("/login", status_code=303)
+#     response.delete_cookie("user_id")
+#     return response
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 
 # â&#x201D;€â&#x201D;€ API Docs page â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 
-@app.post("/admin/panic-toggle")
-def admin_panic_toggle(request: Request):
-    """Toggles the Iron Cloak Panic Mode on or off."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
-        
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    
-    if not user or user.get("user_type") != "admin":
-        return JSONResponse({"status": "error", "error": "Forbidden"}, status_code=403)
-        
-    from core.panic_mode import toggle_panic_mode
-    new_state = toggle_panic_mode()
-    return JSONResponse({"status": "success", "panic_mode_active": new_state})
-
-@app.get("/admin/viral-factory", response_class=HTMLResponse)
-def admin_viral_factory(request: Request):
-    """View and download generated viral MP4 videos."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-        
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    
-    if not user or user.get("user_type") != "admin":
-        return HTMLResponse("<h2>403 Forbidden</h2><p>You do not have permission to view this page.</p>", status_code=403)
-        
-    import os
-    viral_dir = "cache/viral_videos"
-    files = []
-    if os.path.exists(viral_dir):
-        files = [f for f in os.listdir(viral_dir) if f.endswith(".mp4")]
-        
-    html = '''
-    <html><head><title>Viral Factory</title>
-    <style>body{font-family: Arial, sans-serif; padding: 20px; background: #0D1117; color: white;}
-    .video-card{background: #161B22; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;}
-    .download-btn{background: #238636; color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px;}
-    </style></head><body>
-    <h2>🚀 Instant Profit Viral Factory</h2>
-    <p>These videos are auto-generated daily by AI. Download them and upload them to TikTok/Shorts to get instant massive traffic.</p>
-    '''
-    
-    if not files:
-        html += "<p>No viral videos generated yet. The Autopilot runs daily.</p>"
-    else:
-        for f in files:
-            html += f'''
-            <div class="video-card">
-                <div><strong>{f}</strong></div>
-                <a href="/admin/viral-factory/download/{f}" class="download-btn">⬇️ Download MP4</a>
-            </div>
-            '''
-    html += "</body></html>"
-    return HTMLResponse(html)
-
-@app.get("/admin/viral-factory/download/{filename}")
-def download_viral_video(request: Request, filename: str):
-    import os
-    from fastapi.responses import FileResponse
-    file_path = os.path.join("cache/viral_videos", filename)
-    if os.path.exists(file_path):
-        return FileResponse(file_path, filename=filename, media_type="video/mp4")
-    return HTMLResponse("File not found", status_code=404)
-
-@app.get("/admin/logs", response_class=HTMLResponse)
-def admin_logs(request: Request):
-    """Secure Log Viewer - Only accessible by admins."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-        
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    
-    if not user or user.get("user_type") != "admin":
-        return HTMLResponse("<h2>403 Forbidden</h2><p>You do not have permission to view this page.</p>", status_code=403)
-        
-    import os
-    # PythonAnywhere log paths (fallback to local logs if not on PA)
-    pa_domain = os.getenv("PA_DOMAIN", "jhfguf.pythonanywhere.com")
-    error_log_path = f"/var/log/{pa_domain}.error.log"
-    server_log_path = f"/var/log/{pa_domain}.server.log"
-    
-    # Check if files exist
-    error_log_content = "Log file not found."
-    server_log_content = "Log file not found."
-    
-    try:
-        if os.path.exists(error_log_path):
-            with open(error_log_path, 'r', encoding='utf-8', errors='replace') as f:
-                lines = f.readlines()
-                error_log_content = ''.join(lines[-100:]) # Show last 100 lines
-        else:
-            error_log_content = f"Log file not found at {error_log_path}"
-    except Exception as e:
-        error_log_content = f"Error reading log: {str(e)}"
-        
-    try:
-        if os.path.exists(server_log_path):
-            with open(server_log_path, 'r', encoding='utf-8', errors='replace') as f:
-                lines = f.readlines()
-                server_log_content = ''.join(lines[-100:]) # Show last 100 lines
-        else:
-            server_log_content = f"Log file not found at {server_log_path}"
-    except Exception as e:
-        server_log_content = f"Error reading log: {str(e)}"
-        
-    # Simple HTML shell for the logs
-    html = f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Admin Server Logs</title>
-        <style>
-            body {{ background: #0f172a; color: #e2e8f0; font-family: monospace; padding: 20px; }}
-            h1 {{ color: #38bdf8; border-bottom: 1px solid #334155; padding-bottom: 10px; }}
-            h2 {{ color: #fbbf24; margin-top: 30px; }}
-            .log-box {{ background: #1e293b; padding: 15px; border-radius: 8px; border: 1px solid #334155; overflow-x: auto; white-space: pre-wrap; }}
-            .error-log {{ border-left: 4px solid #ef4444; }}
-            .server-log {{ border-left: 4px solid #10b981; }}
-            .btn {{ display: inline-block; padding: 8px 16px; background: #3b82f6; color: white; text-decoration: none; border-radius: 6px; font-family: sans-serif; margin-bottom: 20px; font-weight: bold; }}
-            .btn:hover {{ background: #2563eb; }}
-        </style>
-    </head>
-    <body>
-        <a href="/user-dashboard" class="btn">&larr; Back to Dashboard</a>
-        <h1>Server Logs (Tail 100 lines)</h1>
-        
-        <h2>Error Log ({error_log_path})</h2>
-        <div class="log-box error-log">{error_log_content}</div>
-        
-        <h2>Server Log ({server_log_path})</h2>
-        <div class="log-box server-log">{server_log_content}</div>
-    </body>
-    </html>
-    """
-    return HTMLResponse(html)
+# ==================== MIGRATED TO ROUTER — START (lines 4435-4451) ====================
+# @app.post("/admin/panic-toggle")
+# def admin_panic_toggle(request: Request):
+#     """Toggles the Iron Cloak Panic Mode on or off."""
+#     user_id = get_verified_user_id(request)
+#     if not user_id:
+#         return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
+#         
+#     conn = get_db()
+#     user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+#     conn.close()
+#     
+#     if not user or user.get("user_type") != "admin":
+#         return JSONResponse({"status": "error", "error": "Forbidden"}, status_code=403)
+#         
+#     from core.panic_mode import toggle_panic_mode
+#     new_state = toggle_panic_mode()
+#     return JSONResponse({"status": "success", "panic_mode_active": new_state})
+# ==================== MIGRATED TO ROUTER — END   ====================
 
 
-@app.get("/admin/analytics", response_class=HTMLResponse)
-def admin_analytics(req: Request):
-    """Admin analytics dashboard &#x2014; revenue, users, campaigns, A/B testing."""
-    try:
-        db = get_db()
-        # Basic stats
-        total_users = db.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-        total_revenue = db.execute("SELECT COALESCE(SUM(amount),0) FROM wallet_transactions WHERE transaction_type='deposit'").fetchone()[0]
-        active_campaigns = db.execute("SELECT COUNT(*) FROM campaigns WHERE status IN ('active','processing')").fetchone()[0]
-        emails_today = db.execute("SELECT COUNT(*) FROM campaign_emails WHERE date(sent_at)=date('now')").fetchone()[0]
+# ==================== MIGRATED TO ROUTER — START (lines 4453-4494) ====================
+# @app.get("/admin/viral-factory", response_class=HTMLResponse)
+# def admin_viral_factory(request: Request):
+#     """View and download generated viral MP4 videos."""
+#     user_id = get_verified_user_id(request)
+#     if not user_id:
+#         return RedirectResponse("/login", status_code=303)
+#         
+#     conn = get_db()
+#     user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+#     conn.close()
+#     
+#     if not user or user.get("user_type") != "admin":
+#         return HTMLResponse("<h2>403 Forbidden</h2><p>You do not have permission to view this page.</p>", status_code=403)
+#         
+#     import os
+#     viral_dir = "cache/viral_videos"
+#     files = []
+#     if os.path.exists(viral_dir):
+#         files = [f for f in os.listdir(viral_dir) if f.endswith(".mp4")]
+#         
+#     html = '''
+#     <html><head><title>Viral Factory</title>
+#     <style>body{font-family: Arial, sans-serif; padding: 20px; background: #0D1117; color: white;}
+#     .video-card{background: #161B22; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;}
+#     .download-btn{background: #238636; color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px;}
+#     </style></head><body>
+#     <h2>🚀 Instant Profit Viral Factory</h2>
+#     <p>These videos are auto-generated daily by AI. Download them and upload them to TikTok/Shorts to get instant massive traffic.</p>
+#     '''
+#     
+#     if not files:
+#         html += "<p>No viral videos generated yet. The Autopilot runs daily.</p>"
+#     else:
+#         for f in files:
+#             html += f'''
+#             <div class="video-card">
+#                 <div><strong>{f}</strong></div>
+#                 <a href="/admin/viral-factory/download/{f}" class="download-btn">⬇️ Download MP4</a>
+#             </div>
+#             '''
+#     html += "</body></html>"
+#     return HTMLResponse(html)
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-        # Revenue growth (simplified) — compute from actual data
-        last_month_rev = db.execute(
-            "SELECT COALESCE(SUM(amount),0) FROM wallet_transactions WHERE transaction_type='deposit' AND created_at >= date('now','-30 days')"
-        ).fetchone()[0]
-        prev_month_rev = db.execute(
-            "SELECT COALESCE(SUM(amount),0) FROM wallet_transactions WHERE transaction_type='deposit' AND created_at BETWEEN date('now','-60 days') AND date('now','-30 days')"
-        ).fetchone()[0]
-        revenue_growth = round((last_month_rev - prev_month_rev) / max(prev_month_rev, 1) * 100, 1) if prev_month_rev else 0
-        user_growth = db.execute("SELECT COUNT(*) FROM users WHERE date(created_at)=date('now')").fetchone()[0]
-        campaign_pct = round(active_campaigns/max(total_users,1)*100) if total_users else 0
-        deliv_score = round(db.execute("SELECT CASE WHEN COUNT(*)=0 THEN 100 ELSE ROUND(SUM(CASE WHEN status IN ('sent','delivered') THEN 1.0 ELSE 0 END)/COUNT(*)*100,0) END FROM campaign_emails").fetchone()[0]) if total_users else 100
 
-        # Monthly revenue — last 6 months from actual wallet deposits
-        monthly_revenue = []
-        months = db.execute("""
-            SELECT strftime('%Y-%m', created_at) as month, COALESCE(SUM(amount),0) as total
-            FROM wallet_transactions WHERE transaction_type='deposit' AND created_at >= date('now','-6 months')
-            GROUP BY month ORDER BY month
-        """).fetchall()
-        if months:
-            for m in months:
-                monthly_revenue.append({"label": m["month"], "amount": round(m["total"], 2)})
-        else:
-            import calendar
-            for i in range(5, -1, -1):
-                m = datetime.now().month - i - 1
-                y = datetime.now().year
-                while m <= 0:
-                    m += 12
-                    y -= 1
-                monthly_revenue.append({"label": calendar.month_abbr[m], "amount": 0})
-        max_rev = max((m["amount"] for m in monthly_revenue), default=1)
+# ==================== MIGRATED TO ROUTER — START (lines 4496-4503) ====================
+# @app.get("/admin/viral-factory/download/{filename}")
+# def download_viral_video(request: Request, filename: str):
+#     import os
+#     from fastapi.responses import FileResponse
+#     file_path = os.path.join("cache/viral_videos", filename)
+#     if os.path.exists(file_path):
+#         return FileResponse(file_path, filename=filename, media_type="video/mp4")
+#     return HTMLResponse("File not found", status_code=404)
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-        # Tier breakdown — from actual orders
-        try:
-            tier_rows = db.execute("""
-                SELECT COALESCE(package_name, order_type, 'unknown') as name, COUNT(*) as cnt, COALESCE(SUM(amount_usd),0) as rev
-                FROM orders WHERE payment_status='completed'
-                GROUP BY name ORDER BY rev DESC LIMIT 5
-            """).fetchall()
-        except Exception:
-            tier_rows = []
-        if tier_rows:
-            total_paid = sum(r["cnt"] for r in tier_rows) or 1
-            tier_breakdown = []
-            colors = [("#3b82f6","#6366f1"),("#8b5cf6","#a78bfa"),("#f59e0b","#ef4444"),("#22c55e","#16a34a"),("#94a3b8","#64748b")]
-            for i, r in enumerate(tier_rows):
-                tier_breakdown.append({
-                    "name": f"{r['name']} (${r['rev']:.0f})",
-                    "count": r["cnt"],
-                    "revenue": round(r["rev"], 2),
-                    "pct": round(r["cnt"]/total_paid*100),
-                    "color": colors[i%5][0],
-                    "color2": colors[i%5][1]
-                })
-        else:
-            tier_breakdown = []
 
-        # Top countries — computed from actual user data (home_country field)
-        try:
-            country_rows = db.execute("""
-                SELECT COALESCE(NULLIF(TRIM(home_country),''), 'Unknown') as name, COUNT(*) as cnt
-                FROM cv_profiles WHERE home_country IS NOT NULL AND home_country != ''
-                GROUP BY home_country ORDER BY cnt DESC LIMIT 5
-            """).fetchall()
-        except Exception:
-            country_rows = []
-        if country_rows:
-            flag_map = {'Lebanon':'&#x1F1F1;&#x1F1E7;','LB':'&#x1F1F1;&#x1F1E7;','UAE':'&#x1F1E6;&#x1F1EA;','AE':'&#x1F1E6;&#x1F1EA;','Saudi Arabia':'&#x1F1F8;&#x1F1E6;','SA':'&#x1F1F8;&#x1F1E6;','Qatar':'&#x1F1F6;&#x1F1E6;','QA':'&#x1F1F6;&#x1F1E6;','Kuwait':'&#x1F1F0;&#x1F1FC;','KW':'&#x1F1F0;&#x1F1FC;','USA':'&#x1F1FA;&#x1F1F8;','US':'&#x1F1FA;&#x1F1F8;','UK':'&#x1F1EC;&#x1F1E7;','GB':'&#x1F1EC;&#x1F1E7;','France':'&#x1F1EB;&#x1F1F7;','FR':'&#x1F1EB;&#x1F1F7;','Egypt':'&#x1F1EA;&#x1F1EC;','EG':'&#x1F1EA;&#x1F1EC;','Jordan':'&#x1F1EF;&#x1F1F4;','JO':'&#x1F1EF;&#x1F1F4;','Bahrain':'&#x1F1E7;&#x1F1ED;','BH':'&#x1F1E7;&#x1F1ED;','Oman':'&#x1F1F4;&#x1F1F2;','OM':'&#x1F1F4;&#x1F1F2;'}
-            colors2 = ["#3b82f6","#22c55e","#8b5cf6","#f59e0b","#ef4444"]
-            total_country = sum(r["cnt"] for r in country_rows) or 1
-            top_countries = []
-            for i, r in enumerate(country_rows):
-                top_countries.append({
-                    "flag": flag_map.get(r["name"], '&#x1F310;'),
-                    "name": r["name"],
-                    "users": r["cnt"],
-                    "pct": round(r["cnt"]/total_country*100),
-                    "color": colors2[i%5]
-                })
-        else:
-            top_countries = []
+# ==================== MIGRATED TO ROUTER — START (lines 4505-4580) ====================
+# @app.get("/admin/logs", response_class=HTMLResponse)
+# def admin_logs(request: Request):
+#     """Secure Log Viewer - Only accessible by admins."""
+#     user_id = get_verified_user_id(request)
+#     if not user_id:
+#         return RedirectResponse("/login", status_code=303)
+#         
+#     conn = get_db()
+#     user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+#     conn.close()
+#     
+#     if not user or user.get("user_type") != "admin":
+#         return HTMLResponse("<h2>403 Forbidden</h2><p>You do not have permission to view this page.</p>", status_code=403)
+#         
+#     import os
+#     # PythonAnywhere log paths (fallback to local logs if not on PA)
+#     pa_domain = os.getenv("PA_DOMAIN", "jhfguf.pythonanywhere.com")
+#     error_log_path = f"/var/log/{pa_domain}.error.log"
+#     server_log_path = f"/var/log/{pa_domain}.server.log"
+#     
+#     # Check if files exist
+#     error_log_content = "Log file not found."
+#     server_log_content = "Log file not found."
+#     
+#     try:
+#         if os.path.exists(error_log_path):
+#             with open(error_log_path, 'r', encoding='utf-8', errors='replace') as f:
+#                 lines = f.readlines()
+#                 error_log_content = ''.join(lines[-100:]) # Show last 100 lines
+#         else:
+#             error_log_content = f"Log file not found at {error_log_path}"
+#     except Exception as e:
+#         error_log_content = f"Error reading log: {str(e)}"
+#         
+#     try:
+#         if os.path.exists(server_log_path):
+#             with open(server_log_path, 'r', encoding='utf-8', errors='replace') as f:
+#                 lines = f.readlines()
+#                 server_log_content = ''.join(lines[-100:]) # Show last 100 lines
+#         else:
+#             server_log_content = f"Log file not found at {server_log_path}"
+#     except Exception as e:
+#         server_log_content = f"Error reading log: {str(e)}"
+#         
+#     # Simple HTML shell for the logs
+#     html = f"""
+#     <!DOCTYPE html>
+#     <html lang="en">
+#     <head>
+#         <meta charset="UTF-8">
+#         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+#         <title>Admin Server Logs</title>
+#         <style>
+#             body {{ background: #0f172a; color: #e2e8f0; font-family: monospace; padding: 20px; }}
+#             h1 {{ color: #38bdf8; border-bottom: 1px solid #334155; padding-bottom: 10px; }}
+#             h2 {{ color: #fbbf24; margin-top: 30px; }}
+#             .log-box {{ background: #1e293b; padding: 15px; border-radius: 8px; border: 1px solid #334155; overflow-x: auto; white-space: pre-wrap; }}
+#             .error-log {{ border-left: 4px solid #ef4444; }}
+#             .server-log {{ border-left: 4px solid #10b981; }}
+#             .btn {{ display: inline-block; padding: 8px 16px; background: #3b82f6; color: white; text-decoration: none; border-radius: 6px; font-family: sans-serif; margin-bottom: 20px; font-weight: bold; }}
+#             .btn:hover {{ background: #2563eb; }}
+#         </style>
+#     </head>
+#     <body>
+#         <a href="/user-dashboard" class="btn">&larr; Back to Dashboard</a>
+#         <h1>Server Logs (Tail 100 lines)</h1>
+#         
+#         <h2>Error Log ({error_log_path})</h2>
+#         <div class="log-box error-log">{error_log_content}</div>
+#         
+#         <h2>Server Log ({server_log_path})</h2>
+#         <div class="log-box server-log">{server_log_content}</div>
+#     </body>
+#     </html>
+#     """
+#     return HTMLResponse(html)
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-        content_html = render_template("admin_analytics.html", request=req,
-            
-            total_revenue=total_revenue,
-            total_users=total_users, active_campaigns=active_campaigns,
-            emails_today=emails_today, revenue_growth=revenue_growth,
-            user_growth=user_growth, campaign_pct=campaign_pct,
-            deliv_score=deliv_score, monthly_revenue=monthly_revenue,
-            max_revenue=max_rev, tier_breakdown=tier_breakdown,
-            top_countries=top_countries,
-            ab_test_a_rate=None, ab_test_a_sent=0,
-            ab_test_b_rate=None, ab_test_b_sent=0
-        )
-        return HTMLResponse(_build_dashboard_shell(None, admin_id, content_html, "Admin Analytics", "admin", request=request))
-    except Exception as e:
-        return HTMLResponse(f"<h2>Analytics Error</h2><pre>{e}</pre>", status_code=500)
+
+
+# ==================== MIGRATED TO ROUTER — START (lines 4583-4691) ====================
+# @app.get("/admin/analytics", response_class=HTMLResponse)
+# def admin_analytics(req: Request):
+#     """Admin analytics dashboard &#x2014; revenue, users, campaigns, A/B testing."""
+#     try:
+#         db = get_db()
+#         # Basic stats
+#         total_users = db.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+#         total_revenue = db.execute("SELECT COALESCE(SUM(amount),0) FROM wallet_transactions WHERE transaction_type='deposit'").fetchone()[0]
+#         active_campaigns = db.execute("SELECT COUNT(*) FROM campaigns WHERE status IN ('active','processing')").fetchone()[0]
+#         emails_today = db.execute("SELECT COUNT(*) FROM campaign_emails WHERE date(sent_at)=date('now')").fetchone()[0]
+# 
+#         # Revenue growth (simplified) — compute from actual data
+#         last_month_rev = db.execute(
+#             "SELECT COALESCE(SUM(amount),0) FROM wallet_transactions WHERE transaction_type='deposit' AND created_at >= date('now','-30 days')"
+#         ).fetchone()[0]
+#         prev_month_rev = db.execute(
+#             "SELECT COALESCE(SUM(amount),0) FROM wallet_transactions WHERE transaction_type='deposit' AND created_at BETWEEN date('now','-60 days') AND date('now','-30 days')"
+#         ).fetchone()[0]
+#         revenue_growth = round((last_month_rev - prev_month_rev) / max(prev_month_rev, 1) * 100, 1) if prev_month_rev else 0
+#         user_growth = db.execute("SELECT COUNT(*) FROM users WHERE date(created_at)=date('now')").fetchone()[0]
+#         campaign_pct = round(active_campaigns/max(total_users,1)*100) if total_users else 0
+#         deliv_score = round(db.execute("SELECT CASE WHEN COUNT(*)=0 THEN 100 ELSE ROUND(SUM(CASE WHEN status IN ('sent','delivered') THEN 1.0 ELSE 0 END)/COUNT(*)*100,0) END FROM campaign_emails").fetchone()[0]) if total_users else 100
+# 
+#         # Monthly revenue — last 6 months from actual wallet deposits
+#         monthly_revenue = []
+#         months = db.execute("""
+#             SELECT strftime('%Y-%m', created_at) as month, COALESCE(SUM(amount),0) as total
+#             FROM wallet_transactions WHERE transaction_type='deposit' AND created_at >= date('now','-6 months')
+#             GROUP BY month ORDER BY month
+#         """).fetchall()
+#         if months:
+#             for m in months:
+#                 monthly_revenue.append({"label": m["month"], "amount": round(m["total"], 2)})
+#         else:
+#             import calendar
+#             for i in range(5, -1, -1):
+#                 m = datetime.now().month - i - 1
+#                 y = datetime.now().year
+#                 while m <= 0:
+#                     m += 12
+#                     y -= 1
+#                 monthly_revenue.append({"label": calendar.month_abbr[m], "amount": 0})
+#         max_rev = max((m["amount"] for m in monthly_revenue), default=1)
+# 
+#         # Tier breakdown — from actual orders
+#         try:
+#             tier_rows = db.execute("""
+#                 SELECT COALESCE(package_name, order_type, 'unknown') as name, COUNT(*) as cnt, COALESCE(SUM(amount_usd),0) as rev
+#                 FROM orders WHERE payment_status='completed'
+#                 GROUP BY name ORDER BY rev DESC LIMIT 5
+#             """).fetchall()
+#         except Exception:
+#             tier_rows = []
+#         if tier_rows:
+#             total_paid = sum(r["cnt"] for r in tier_rows) or 1
+#             tier_breakdown = []
+#             colors = [("#3b82f6","#6366f1"),("#8b5cf6","#a78bfa"),("#f59e0b","#ef4444"),("#22c55e","#16a34a"),("#94a3b8","#64748b")]
+#             for i, r in enumerate(tier_rows):
+#                 tier_breakdown.append({
+#                     "name": f"{r['name']} (${r['rev']:.0f})",
+#                     "count": r["cnt"],
+#                     "revenue": round(r["rev"], 2),
+#                     "pct": round(r["cnt"]/total_paid*100),
+#                     "color": colors[i%5][0],
+#                     "color2": colors[i%5][1]
+#                 })
+#         else:
+#             tier_breakdown = []
+# 
+#         # Top countries — computed from actual user data (home_country field)
+#         try:
+#             country_rows = db.execute("""
+#                 SELECT COALESCE(NULLIF(TRIM(home_country),''), 'Unknown') as name, COUNT(*) as cnt
+#                 FROM cv_profiles WHERE home_country IS NOT NULL AND home_country != ''
+#                 GROUP BY home_country ORDER BY cnt DESC LIMIT 5
+#             """).fetchall()
+#         except Exception:
+#             country_rows = []
+#         if country_rows:
+#             flag_map = {'Lebanon':'&#x1F1F1;&#x1F1E7;','LB':'&#x1F1F1;&#x1F1E7;','UAE':'&#x1F1E6;&#x1F1EA;','AE':'&#x1F1E6;&#x1F1EA;','Saudi Arabia':'&#x1F1F8;&#x1F1E6;','SA':'&#x1F1F8;&#x1F1E6;','Qatar':'&#x1F1F6;&#x1F1E6;','QA':'&#x1F1F6;&#x1F1E6;','Kuwait':'&#x1F1F0;&#x1F1FC;','KW':'&#x1F1F0;&#x1F1FC;','USA':'&#x1F1FA;&#x1F1F8;','US':'&#x1F1FA;&#x1F1F8;','UK':'&#x1F1EC;&#x1F1E7;','GB':'&#x1F1EC;&#x1F1E7;','France':'&#x1F1EB;&#x1F1F7;','FR':'&#x1F1EB;&#x1F1F7;','Egypt':'&#x1F1EA;&#x1F1EC;','EG':'&#x1F1EA;&#x1F1EC;','Jordan':'&#x1F1EF;&#x1F1F4;','JO':'&#x1F1EF;&#x1F1F4;','Bahrain':'&#x1F1E7;&#x1F1ED;','BH':'&#x1F1E7;&#x1F1ED;','Oman':'&#x1F1F4;&#x1F1F2;','OM':'&#x1F1F4;&#x1F1F2;'}
+#             colors2 = ["#3b82f6","#22c55e","#8b5cf6","#f59e0b","#ef4444"]
+#             total_country = sum(r["cnt"] for r in country_rows) or 1
+#             top_countries = []
+#             for i, r in enumerate(country_rows):
+#                 top_countries.append({
+#                     "flag": flag_map.get(r["name"], '&#x1F310;'),
+#                     "name": r["name"],
+#                     "users": r["cnt"],
+#                     "pct": round(r["cnt"]/total_country*100),
+#                     "color": colors2[i%5]
+#                 })
+#         else:
+#             top_countries = []
+# 
+#         content_html = render_template("admin_analytics.html", request=req,
+#             
+#             total_revenue=total_revenue,
+#             total_users=total_users, active_campaigns=active_campaigns,
+#             emails_today=emails_today, revenue_growth=revenue_growth,
+#             user_growth=user_growth, campaign_pct=campaign_pct,
+#             deliv_score=deliv_score, monthly_revenue=monthly_revenue,
+#             max_revenue=max_rev, tier_breakdown=tier_breakdown,
+#             top_countries=top_countries,
+#             ab_test_a_rate=None, ab_test_a_sent=0,
+#             ab_test_b_rate=None, ab_test_b_sent=0
+#         )
+#         return HTMLResponse(_build_dashboard_shell(None, admin_id, content_html, "Admin Analytics", "admin", request=request))
+#     except Exception as e:
+#         return HTMLResponse(f"<h2>Analytics Error</h2><pre>{e}</pre>", status_code=500)
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 @app.exception_handler(404)
 def custom_404_handler(request: Request, exc):
@@ -5447,23 +4951,23 @@ def email_test_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    user = dict(user_row) if user_row else {}
-    content = '''
-    <div style="text-align:center; padding: 100px 20px;">
-        <div style="font-size: 64px; margin-bottom:20px;">🧪</div>
-        <h2 style="font-size: 28px; margin-bottom: 10px; color: #e2e8f0;">Advanced Deliverability Test</h2>
-        <p style="color: #94a3b8; font-size: 16px; margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">Test your spam score and inbox placement before launching a massive campaign.</p>
-        <div style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); padding: 30px; border-radius: 16px; display: inline-block; text-align:left; max-width: 400px;">
-            <h3 style="color:#a78bfa; margin-bottom: 15px; font-size:18px;">Premium Feature</h3>
-            <p style="color:#e2e8f0; font-size:14px; margin-bottom: 20px;">This feature requires an active Premium plan. Upgrade to unlock inbox placement testing.</p>
-            <a href="/pricing" style="display:block; text-align:center; padding:12px 24px; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:white; text-decoration:none; border-radius:8px; font-weight:bold;">View Plans</a>
+    with get_db() as conn:
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        pass  # conn.close()
+        user = dict(user_row) if user_row else {}
+        content = '''
+        <div style="text-align:center; padding: 100px 20px;">
+            <div style="font-size: 64px; margin-bottom:20px;">🧪</div>
+            <h2 style="font-size: 28px; margin-bottom: 10px; color: #e2e8f0;">Advanced Deliverability Test</h2>
+            <p style="color: #94a3b8; font-size: 16px; margin-bottom: 30px; max-width: 500px; margin-inline: auto;">Test your spam score and inbox placement before launching a massive campaign.</p>
+            <div style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); padding: 30px; border-radius: 16px; display: inline-block; text-align: start; max-width: 400px;">
+                <h3 style="color:#a78bfa; margin-bottom: 15px; font-size:18px;">Premium Feature</h3>
+                <p style="color:#e2e8f0; font-size:14px; margin-bottom: 20px;">This feature requires an active Premium plan. Upgrade to unlock inbox placement testing.</p>
+                <a href="/pricing" style="display:block; text-align:center; padding:12px 24px; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:white; text-decoration:none; border-radius:8px; font-weight:bold;">View Plans</a>
+            </div>
         </div>
-    </div>
-    '''
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Email Test", "email-test", request=request))
+        '''
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Email Test", "email-test", request=request))
 
 # NOTE: /api/docs template version is above at line ~2442; redirect /api-docs to it
 @app.get("/api-docs")
@@ -5478,31 +4982,31 @@ def email_test_page(request: Request, success: str = "", error: str = "", to_ema
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    conn.execute("CREATE TABLE IF NOT EXISTS email_tests (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, to_email TEXT, company_name TEXT, job_title TEXT, status TEXT, sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-    profile = conn.execute("SELECT * FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
-    try:
-        last = conn.execute("SELECT * FROM email_tests WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
-    except Exception:
-        last = None
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    user = dict(user_row) if user_row else {}
-    conn.close()
-    ctx = {
-        "active_profile": dict(profile) if profile else None,
-        "last_test": dict(last) if last else None,
-        "balance": user.get("wallet_balance", 0),
-        "success": success,
-        "error": error,
-        "to_email": to_email,
-        "company_name": company_name or "Test Company",
-        "job_title": job_title or "Senior Network Engineer",
-        "cv_text": "",
-        "cover_letter": "",
-        "email_body": "",
-    }
-    content = render_template("email_test.html", ctx=ctx, user=user, active_page="email-test")
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Email Composer", "email-test", request=request))
+    with get_db() as conn:
+        conn.execute("CREATE TABLE IF NOT EXISTS email_tests (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, to_email TEXT, company_name TEXT, job_title TEXT, status TEXT, sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+        profile = conn.execute("SELECT * FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
+        try:
+            last = conn.execute("SELECT * FROM email_tests WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
+        except Exception:
+            last = None
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        user = dict(user_row) if user_row else {}
+        pass  # conn.close()
+        ctx = {
+            "active_profile": dict(profile) if profile else None,
+            "last_test": dict(last) if last else None,
+            "balance": user.get("wallet_balance", 0),
+            "success": success,
+            "error": error,
+            "to_email": to_email,
+            "company_name": company_name or "Test Company",
+            "job_title": job_title or "Senior Network Engineer",
+            "cv_text": "",
+            "cover_letter": "",
+            "email_body": "",
+        }
+        content = render_template("email_test.html", ctx=ctx, user=user, active_page="email-test")
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Email Composer", "email-test", request=request))
 
 
 @app.post("/email-test")
@@ -5512,60 +5016,60 @@ def _bg_send_test_email(to_email: str, company_name: str, job_title: str, html: 
     if not ok:
         res = send_email_via_gmail_smtp(to_email=to_email, company_name=company_name, job_title=job_title, custom_body=html, sender_name=sender_name, subject=subject)
         ok = res[0] if isinstance(res, tuple) else res
-    conn = get_db()
-    try:
-        conn.execute("CREATE TABLE IF NOT EXISTS email_tests (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, to_email TEXT, company_name TEXT, job_title TEXT, status TEXT, sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-        conn.execute("INSERT INTO email_tests (user_id, to_email, company_name, job_title, status) VALUES (?, ?, ?, ?, ?)", (user_id, to_email, company_name, job_title, "sent" if ok else "failed"))
-        conn.commit()
-    except Exception as e:
-        logger.error(f"[EMAIL-TEST] DB log error: {e}")
-    finally:
-        conn.close()
+    with get_db() as conn:
+        try:
+            conn.execute("CREATE TABLE IF NOT EXISTS email_tests (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, to_email TEXT, company_name TEXT, job_title TEXT, status TEXT, sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+            conn.execute("INSERT INTO email_tests (user_id, to_email, company_name, job_title, status) VALUES (?, ?, ?, ?, ?)", (user_id, to_email, company_name, job_title, "sent" if ok else "failed"))
+            conn.commit()
+        except Exception as e:
+            logger.error(f"[EMAIL-TEST] DB log error: {e}")
+        finally:
+            pass  # conn.close()
 
 @app.post("/email-test")
 def email_test_send(request: Request, background_tasks: BackgroundTasks, to_email: str = Form(...), company_name: str = Form("Test Company"), job_title: str = Form("Senior Network Engineer"), cv_text: str = Form(""), cover_letter: str = Form(""), email_body: str = Form("")):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    profile = conn.execute("SELECT * FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
-    user_row = conn.execute("SELECT email, name FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    sender_name = user_row["name"] if user_row and user_row["name"] else "Sam Salameh"
-    sender_email_user = user_row["email"] if user_row and user_row["email"] else "samsalameh.cv@gmail.com"
-    cover = cover_letter or (profile["cover_letter_template"] or "" if profile else "")
-    email_content = email_body or (profile["email_template"] or "" if profile else "")
-    cv_summary = cv_text[:800] if cv_text else (profile["cv_text"][:800] if profile and profile["cv_text"] else "")
-    skills = (profile["skills"] or "") if profile else ""
-    home_country = (profile["home_country"] or "Lebanon") if profile else "Lebanon"
+    with get_db() as conn:
+        profile = conn.execute("SELECT * FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
+        user_row = conn.execute("SELECT email, name FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        pass  # conn.close()
+        sender_name = user_row["name"] if user_row and user_row["name"] else "Sam Salameh"
+        sender_email_user = user_row["email"] if user_row and user_row["email"] else "samsalameh.cv@gmail.com"
+        cover = cover_letter or (profile["cover_letter_template"] or "" if profile else "")
+        email_content = email_body or (profile["email_template"] or "" if profile else "")
+        cv_summary = cv_text[:800] if cv_text else (profile["cv_text"][:800] if profile and profile["cv_text"] else "")
+        skills = (profile["skills"] or "") if profile else ""
+        home_country = (profile["home_country"] or "Lebanon") if profile else "Lebanon"
 
-    if email_content:
-        html = email_content
-    else:
-        html_parts = ['<html><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333;">']
-        html_parts.append(f'<h2 style="color:#1a56db;">Application: {job_title} at {company_name}</h2>')
-        html_parts.append('<p style="color:#555;font-size:14px;">Dear Hiring Team,</p>')
-        if cover:
-            html_parts.append(f'<div style="margin:16px 0;font-size:14px;line-height:1.7;">{cover}</div>')
+        if email_content:
+            html = email_content
         else:
-            html_parts.append(f'<p style="font-size:14px;line-height:1.7;">I am writing to express my strong interest in the {job_title} position at {company_name}. With my background in network engineering and proven track record, I am confident I would be a valuable addition to your team.</p>')
-        if cv_summary:
+            html_parts = ['<html><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333;">']
+            html_parts.append(f'<h2 style="color:#1a56db;">Application: {job_title} at {company_name}</h2>')
+            html_parts.append('<p style="color:#555;font-size:14px;">Dear Hiring Team,</p>')
+            if cover:
+                html_parts.append(f'<div style="margin:16px 0;font-size:14px;line-height:1.7;">{cover}</div>')
+            else:
+                html_parts.append(f'<p style="font-size:14px;line-height:1.7;">I am writing to express my strong interest in the {job_title} position at {company_name}. With my background in network engineering and proven track record, I am confident I would be a valuable addition to your team.</p>')
+            if cv_summary:
+                html_parts.append('<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">')
+                html_parts.append(f'<p style="font-size:13px;color:#777;"><strong>About Me:</strong><br>{cv_summary}</p>')
+            if skills:
+                html_parts.append(f'<p style="font-size:13px;color:#777;"><strong>Skills:</strong> {skills}</p>')
             html_parts.append('<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">')
-            html_parts.append(f'<p style="font-size:13px;color:#777;"><strong>About Me:</strong><br>{cv_summary}</p>')
-        if skills:
-            html_parts.append(f'<p style="font-size:13px;color:#777;"><strong>Skills:</strong> {skills}</p>')
-        html_parts.append('<hr style="border:none;border-top:1px solid #eee;margin:20px 0;">')
-        html_parts.append(f'<p style="font-size:14px;">Best regards,<br><strong>{sender_name}</strong><br>{sender_email_user}<br>{home_country}</p>')
-        html_parts.append('<p style="font-size:11px;color:#999;margin-top:30px;">Sent via <strong>JobHunt Pro</strong> - Automated Job Application Platform</p>')
-        html_parts.append('</body></html>')
-        html = '\\n'.join(html_parts)
-    subject = f"Application for {job_title} - {company_name}"
+            html_parts.append(f'<p style="font-size:14px;">Best regards,<br><strong>{sender_name}</strong><br>{sender_email_user}<br>{home_country}</p>')
+            html_parts.append('<p style="font-size:11px;color:#999;margin-top:30px;">Sent via <strong>JobHunt Pro</strong> - Automated Job Application Platform</p>')
+            html_parts.append('</body></html>')
+            html = '\\n'.join(html_parts)
+        subject = f"Application for {job_title} - {company_name}"
     
-    # Delegate sending email to background task to prevent 504 Timeout
-    background_tasks.add_task(_bg_send_test_email, to_email, company_name, job_title, html, sender_name, subject, user_id)
+        # Delegate sending email to background task to prevent 504 Timeout
+        background_tasks.add_task(_bg_send_test_email, to_email, company_name, job_title, html, sender_name, subject, user_id)
     
-    from urllib.parse import quote
-    return RedirectResponse(f"/email-test?success=Email+queued+for+delivery+to+{quote(to_email)}!+Check+your+inbox+shortly.&to_email={quote(to_email)}&company_name={quote(company_name)}&job_title={quote(job_title)}", status_code=303)
+        from urllib.parse import quote
+        return RedirectResponse(f"/email-test?success=Email+queued+for+delivery+to+{quote(to_email)}!+Check+your+inbox+shortly.&to_email={quote(to_email)}&company_name={quote(company_name)}&job_title={quote(job_title)}", status_code=303)
 
 @app.post("/email-test/parse-cv")
 async def email_test_parse_cv(request: Request, cv_file: UploadFile = File(...)):
@@ -5714,105 +5218,111 @@ def honeypot_jobs(request: Request):
     logger.info(f"Honeypot: served {len(fake_jobs)} fake jobs to {client_ip}")
     return {"jobs": fake_jobs, "total": len(fake_jobs), "source": "api"}
 
-@app.post("/api/v1/campaign")
-def api_create_campaign(api_key: str = Form(...), profile_cv: str = Form(...),
-                               company_count: int = Form(0), target_titles: str = Form(""),
-                               target_locations: str = Form(""), bouquet: str = Form("")):
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE api_key = ? AND is_active = 1", (api_key,)).fetchone()
-    if not user:
-        conn.close()
-        raise HTTPException(status_code=401, detail="Invalid API key")
+# ==================== MIGRATED TO ROUTER — START (lines 5004-5074) ====================
+# @app.post("/api/v1/campaign")
+# def api_create_campaign(api_key: str = Form(...), profile_cv: str = Form(...),
+#                                company_count: int = Form(0), target_titles: str = Form(""),
+#                                target_locations: str = Form(""), bouquet: str = Form("")):
+#     conn = get_db()
+#     user = conn.execute("SELECT * FROM users WHERE api_key = ? AND is_active = 1", (api_key,)).fetchone()
+#     if not user:
+#         conn.close()
+#         raise HTTPException(status_code=401, detail="Invalid API key")
+# 
+#     user = dict(user)
+# 
+#     tier = None
+#     for t in PRICING_TIERS:
+#         if t["companies"] == company_count:
+#             tier = t
+#             break
+# 
+#     if not tier:
+#         conn.close()
+#         raise HTTPException(status_code=400, detail="Invalid company count")
+# 
+#     total_price = tier["price_usd"]
+#     if bouquet:
+#         for bname in bouquet.split(","):
+#             bname = bname.strip()
+#             if not bname:
+#                 continue
+#             for b in BOUQUET_PACKAGES:
+#                 if b["bouquet"] == bname:
+#                     total_price += b["price_usd"]
+#                     break
+# 
+#     if user["wallet_balance"] < total_price:
+#         conn.close()
+#         raise HTTPException(status_code=402, detail="Insufficient balance")
+# 
+#     profile_row = conn.execute(
+#         "INSERT INTO cv_profiles (user_id, profile_name, cv_text) VALUES (?, ?, ?) RETURNING id",
+#         (user["user_id"], f"API Profile {datetime.now().strftime('%Y%m%d%H%M')}", profile_cv)
+#     ).fetchone()
+#     profile_id = profile_row["id"] if profile_row else None
+# 
+#     campaign_id = f"camp_{uuid.uuid4().hex[:16]}"
+#     order_id = f"ord_{uuid.uuid4().hex[:16]}"
+# 
+#     conn.execute("""INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status)
+#                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+#                  (order_id, user["user_id"], "campaign", tier["tier"], company_count, total_price, "wallet", "completed"))
+#     conn.execute("""INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, total_companies)
+#                     VALUES (?, ?, ?, ?, ?)""",
+#                  (campaign_id, user["user_id"], order_id, profile_id, company_count))
+# 
+#     new_balance = user["wallet_balance"] - total_price
+#     conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user["user_id"]))
+#     conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
+#                     VALUES (?, ?, ?, ?, ?)""",
+#                  (user["user_id"], "spend", -total_price, new_balance, f"API Campaign: {company_count} companies"))
+# 
+#     conn.commit()
+#     conn.close()
+# 
+#     # Enqueue to distributed queue for piggyback worker
+#     from core.job_queue import enqueue_task
+#     try:
+#         enqueue_task("run_campaign", {"campaign_id": campaign_id})
+#     except Exception as e:
+#         logger.error(f"[QUEUE] Error enqueuing campaign {campaign_id}: {e}")
+# 
+#     # PA-safe: cloud tick loop picks up pending campaigns
+#     return {"campaign_id": campaign_id, "status": "pending", "companies": company_count, "price": total_price}
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-    user = dict(user)
 
-    tier = None
-    for t in PRICING_TIERS:
-        if t["companies"] == company_count:
-            tier = t
-            break
+# ==================== MIGRATED TO ROUTER — START (lines 5076-5102) ====================
+# @app.get("/api/v1/campaign/{campaign_id}")
+# def api_campaign_status(campaign_id: str, api_key: str = ""):
+#     if not api_key:
+#         raise HTTPException(status_code=400, detail="api_key required")
+#     conn = get_db()
+#     user = conn.execute("SELECT user_id FROM users WHERE api_key = ?", (api_key,)).fetchone()
+#     if not user:
+#         conn.close()
+#         raise HTTPException(status_code=401, detail="Invalid API key")
+# 
+#     campaign = conn.execute("SELECT * FROM campaigns WHERE campaign_id = ? AND user_id = ?",
+#                             (campaign_id, user["user_id"])).fetchone()
+#     if not campaign:
+#         conn.close()
+#         raise HTTPException(status_code=404, detail="Campaign not found")
+# 
+#     campaign = dict(campaign)
+#     stats = dict(conn.execute("""
+#         SELECT COUNT(*) as total,
+#         SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) as sent,
+#         SUM(CASE WHEN opened_at IS NOT NULL THEN 1 ELSE 0 END) as opened,
+#         SUM(CASE WHEN responded_at IS NOT NULL THEN 1 ELSE 0 END) as responded
+#         FROM campaign_emails WHERE campaign_id = ?
+#     """, (campaign_id,)).fetchone())
+# 
+#     conn.close()
+#     return {**campaign, **stats}
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-    if not tier:
-        conn.close()
-        raise HTTPException(status_code=400, detail="Invalid company count")
-
-    total_price = tier["price_usd"]
-    if bouquet:
-        for bname in bouquet.split(","):
-            bname = bname.strip()
-            if not bname:
-                continue
-            for b in BOUQUET_PACKAGES:
-                if b["bouquet"] == bname:
-                    total_price += b["price_usd"]
-                    break
-
-    if user["wallet_balance"] < total_price:
-        conn.close()
-        raise HTTPException(status_code=402, detail="Insufficient balance")
-
-    profile_row = conn.execute(
-        "INSERT INTO cv_profiles (user_id, profile_name, cv_text) VALUES (?, ?, ?) RETURNING id",
-        (user["user_id"], f"API Profile {datetime.now().strftime('%Y%m%d%H%M')}", profile_cv)
-    ).fetchone()
-    profile_id = profile_row["id"] if profile_row else None
-
-    campaign_id = f"camp_{uuid.uuid4().hex[:16]}"
-    order_id = f"ord_{uuid.uuid4().hex[:16]}"
-
-    conn.execute("""INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                 (order_id, user["user_id"], "campaign", tier["tier"], company_count, total_price, "wallet", "completed"))
-    conn.execute("""INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, total_companies)
-                    VALUES (?, ?, ?, ?, ?)""",
-                 (campaign_id, user["user_id"], order_id, profile_id, company_count))
-
-    new_balance = user["wallet_balance"] - total_price
-    conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user["user_id"]))
-    conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-                    VALUES (?, ?, ?, ?, ?)""",
-                 (user["user_id"], "spend", -total_price, new_balance, f"API Campaign: {company_count} companies"))
-
-    conn.commit()
-    conn.close()
-
-    # Enqueue to distributed queue for piggyback worker
-    from core.job_queue import enqueue_task
-    try:
-        enqueue_task("run_campaign", {"campaign_id": campaign_id})
-    except Exception as e:
-        logger.error(f"[QUEUE] Error enqueuing campaign {campaign_id}: {e}")
-
-    # PA-safe: cloud tick loop picks up pending campaigns
-    return {"campaign_id": campaign_id, "status": "pending", "companies": company_count, "price": total_price}
-
-@app.get("/api/v1/campaign/{campaign_id}")
-def api_campaign_status(campaign_id: str, api_key: str = ""):
-    if not api_key:
-        raise HTTPException(status_code=400, detail="api_key required")
-    conn = get_db()
-    user = conn.execute("SELECT user_id FROM users WHERE api_key = ?", (api_key,)).fetchone()
-    if not user:
-        conn.close()
-        raise HTTPException(status_code=401, detail="Invalid API key")
-
-    campaign = conn.execute("SELECT * FROM campaigns WHERE campaign_id = ? AND user_id = ?",
-                            (campaign_id, user["user_id"])).fetchone()
-    if not campaign:
-        conn.close()
-        raise HTTPException(status_code=404, detail="Campaign not found")
-
-    campaign = dict(campaign)
-    stats = dict(conn.execute("""
-        SELECT COUNT(*) as total,
-        SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) as sent,
-        SUM(CASE WHEN opened_at IS NOT NULL THEN 1 ELSE 0 END) as opened,
-        SUM(CASE WHEN responded_at IS NOT NULL THEN 1 ELSE 0 END) as responded
-        FROM campaign_emails WHERE campaign_id = ?
-    """, (campaign_id,)).fetchone())
-
-    conn.close()
-    return {**campaign, **stats}
 
 # ==============================================================================
 # CHROME EXTENSION PIGGYBACKING API
@@ -5839,27 +5349,27 @@ async def ext_poll_tasks(request: Request):
     if not token:
         return JSONResponse({"status": "error", "message": "Missing token"}, status_code=401)
         
-    conn = get_db()
-    user = conn.execute("SELECT user_id FROM users WHERE api_key = ?", (token,)).fetchone()
-    conn.close()
+    with get_db() as conn:
+        user = conn.execute("SELECT user_id FROM users WHERE api_key = ?", (token,)).fetchone()
+        pass  # conn.close()
     
-    if not user:
-        return JSONResponse({"status": "error", "message": "Invalid token"}, status_code=401)
+        if not user:
+            return JSONResponse({"status": "error", "message": "Invalid token"}, status_code=401)
         
-    # Check if there's a task for this user
-    for task in EXTENSION_TASKS:
-        if task.get("user_id") == user["user_id"]:
-            EXTENSION_TASKS.remove(task)
+        # Check if there's a task for this user
+        for task in EXTENSION_TASKS:
+            if task.get("user_id") == user["user_id"]:
+                EXTENSION_TASKS.remove(task)
             
-            # Encrypt the payload
-            payload_str = json.dumps(task.get("payload", {}))
-            encrypted_str = base64.b64encode(xor_encrypt_decrypt(payload_str, ENCRYPTION_KEY).encode("utf-8")).decode("utf-8")
-            task["payload"] = encrypted_str
-            task["encrypted"] = True
+                # Encrypt the payload
+                payload_str = json.dumps(task.get("payload", {}))
+                encrypted_str = base64.b64encode(xor_encrypt_decrypt(payload_str, ENCRYPTION_KEY).encode("utf-8")).decode("utf-8")
+                task["payload"] = encrypted_str
+                task["encrypted"] = True
             
-            return {"status": "success", "task": task}
+                return {"status": "success", "task": task}
             
-    return {"status": "success", "task": None}
+        return {"status": "success", "task": None}
 
 @app.post("/api/extension/ingest")
 async def extension_ingest_job(request: Request):
@@ -5874,30 +5384,30 @@ async def extension_ingest_job(request: Request):
     
     api_key = auth_header.split("Bearer ")[1]
     
-    conn = get_db()
-    try:
-        user_row = conn.execute("SELECT user_id, email FROM users WHERE api_key = ?", (api_key,)).fetchone()
-        if not user_row:
-            return JSONResponse({"status": "error", "message": "Invalid API Key"}, status_code=401)
+    with get_db() as conn:
+        try:
+            user_row = conn.execute("SELECT user_id, email FROM users WHERE api_key = ?", (api_key,)).fetchone()
+            if not user_row:
+                return JSONResponse({"status": "error", "message": "Invalid API Key"}, status_code=401)
             
-        user_id = user_row["user_id"]
+            user_id = user_row["user_id"]
         
-        # Ingest the job
-        job_id = f"ext_{int(time.time())}_{random.randint(1000, 9999)}"
-        title = data.get("title", "Unknown")
-        company = data.get("company", "Unknown")
-        description = data.get("description", "")
-        link = data.get("link", "")
+            # Ingest the job
+            job_id = f"ext_{int(time.time())}_{random.randint(1000, 9999)}"
+            title = data.get("title", "Unknown")
+            company = data.get("company", "Unknown")
+            description = data.get("description", "")
+            link = data.get("link", "")
         
-        conn.execute("""
-            INSERT INTO jobs (job_id, title, company, description, url, source, status)
-            VALUES (?, ?, ?, ?, ?, ?, 'new')
-        """, (job_id, title, company, description, link, "shadow_scraper"))
-        conn.commit()
-    finally:
-        conn.close()
+            conn.execute("""
+                INSERT INTO jobs (job_id, title, company, description, url, source, status)
+                VALUES (?, ?, ?, ?, ?, ?, 'new')
+            """, (job_id, title, company, description, link, "shadow_scraper"))
+            conn.commit()
+        finally:
+            pass  # conn.close()
         
-    return {"success": True, "job_id": job_id}
+        return {"success": True, "job_id": job_id}
 
 @app.post("/api/ext/submit-results")
 async def ext_submit_results(request: Request):
@@ -5932,31 +5442,31 @@ def referrals_stats_page(request: Request):
     if not user_id:
         return RedirectResponse("/login", status_code=302)
     try:
-        conn = get_db()
-        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        user = dict(user_row) if user_row else {}
+        with get_db() as conn:
+            user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            user = dict(user_row) if user_row else {}
         
-        # Safe fetches for referrals table
-        try:
-            referrals_count = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ?", (user_id,)).fetchone()[0]
-            paid = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ? AND status='completed'", (user_id,)).fetchone()[0]
-        except Exception:
-            referrals_count = 0
-            paid = 0
+            # Safe fetches for referrals table
+            try:
+                referrals_count = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ?", (user_id,)).fetchone()[0]
+                paid = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ? AND status='completed'", (user_id,)).fetchone()[0]
+            except Exception:
+                referrals_count = 0
+                paid = 0
 
-        wallet_balance = user.get("wallet_balance", 0)
-        completed = paid
-        ref_code = user_id[:8].upper()
-        site_url = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
-        referral_link = f"{site_url}/register?ref={user_id}"
-        tw_url = f"https://twitter.com/intent/tweet?text=I'm+using+JobHunt+Pro+to+automate+my+job+search!+Join+me:+{referral_link}"
-        wa_url = f"https://wa.me/?text=Check+out+JobHunt+Pro+-+AI+automated+job+applications!+{referral_link}"
-        conn.close()
-        content = render_template("referral.html", request=request, user=user,
-            referrals_count=referrals_count, wallet_balance=wallet_balance, paid=paid, completed=completed,
-            status="Active" if paid > 0 else "Getting Started", ref_code=ref_code, referral_link=referral_link,
-            referrals=[], tw_url=tw_url, wa_url=wa_url)
-        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Referrals", "referral", request=request))
+            wallet_balance = user.get("wallet_balance", 0)
+            completed = paid
+            ref_code = user_id[:8].upper()
+            site_url = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
+            referral_link = f"{site_url}/register?ref={user_id}"
+            tw_url = f"https://twitter.com/intent/tweet?text=I'm+using+JobHunt+Pro+to+automate+my+job+search!+Join+me:+{referral_link}"
+            wa_url = f"https://wa.me/?text=Check+out+JobHunt+Pro+-+AI+automated+job+applications!+{referral_link}"
+            pass  # conn.close()
+            content = render_template("referral.html", request=request, user=user,
+                referrals_count=referrals_count, wallet_balance=wallet_balance, paid=paid, completed=completed,
+                status="Active" if paid > 0 else "Getting Started", ref_code=ref_code, referral_link=referral_link,
+                referrals=[], tw_url=tw_url, wa_url=wa_url)
+            return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Referrals", "referral", request=request))
     except Exception as e:
         logger.error(f"Referral page crashed: {e}", exc_info=True)
         if 'conn' in locals() and conn: conn.close()
@@ -5969,26 +5479,26 @@ def api_retry_campaign(request: Request, campaign_id: str):
     user_id = get_verified_user_id(request)
     if not user_id:
         return {"error": "Not authenticated"}
-    conn = get_db()
-    campaign = conn.execute(
-        "SELECT * FROM campaigns WHERE campaign_id = ? AND user_id = ?",
-        (campaign_id, user_id)
-    ).fetchone()
-    conn.close()
-    if not campaign:
-        return {"error": "Campaign not found"}
-    campaign = dict(campaign)
-    # Allow retry for failed OR running campaigns (force reset)
-    if campaign["status"] not in ("failed", "running", "completed"):
-        return {"error": f"Campaign is {campaign['status']}, not retryable"}
-    # Reset status and retrigger
-    conn2 = get_db()
-    conn2.execute("UPDATE campaigns SET status = 'pending' WHERE campaign_id = ?", (campaign_id,))
-    conn2.execute("DELETE FROM campaign_emails WHERE campaign_id = ?", (campaign_id,))
-    conn2.commit()
-    conn2.close()
-    # PA-safe: reset to pending, cloud tick loop picks it up
-    return {"message": f"Campaign {campaign_id} queued for retry", "redirect": f"/campaign/{campaign_id}"}
+    with get_db() as conn:
+        campaign = conn.execute(
+            "SELECT * FROM campaigns WHERE campaign_id = ? AND user_id = ?",
+            (campaign_id, user_id)
+        ).fetchone()
+        pass  # conn.close()
+        if not campaign:
+            return {"error": "Campaign not found"}
+        campaign = dict(campaign)
+        # Allow retry for failed OR running campaigns (force reset)
+        if campaign["status"] not in ("failed", "running", "completed"):
+            return {"error": f"Campaign is {campaign['status']}, not retryable"}
+        # Reset status and retrigger
+        conn2 = get_db()
+        conn2.execute("UPDATE campaigns SET status = 'pending' WHERE campaign_id = ?", (campaign_id,))
+        conn2.execute("DELETE FROM campaign_emails WHERE campaign_id = ?", (campaign_id,))
+        conn2.commit()
+        conn2.close()
+        # PA-safe: reset to pending, cloud tick loop picks it up
+        return {"message": f"Campaign {campaign_id} queued for retry", "redirect": f"/campaign/{campaign_id}"}
 
 
 
@@ -5998,14 +5508,14 @@ def api_start_all_campaigns(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return {"error": "Not authenticated"}
-    conn = get_db()
-    count = conn.execute(
-        "UPDATE campaigns SET status = 'pending' WHERE user_id = ? AND status IN ('paused', 'failed')",
-        (user_id,)
-    ).rowcount
-    conn.commit()
-    conn.close()
-    return {"success": True, "message": f"Started {count} campaigns"}
+    with get_db() as conn:
+        count = conn.execute(
+            "UPDATE campaigns SET status = 'pending' WHERE user_id = ? AND status IN ('paused', 'failed')",
+            (user_id,)
+        ).rowcount
+        conn.commit()
+        pass  # conn.close()
+        return {"success": True, "message": f"Started {count} campaigns"}
 
 
 @app.post("/api/campaign/stop-all")
@@ -6014,14 +5524,14 @@ def api_stop_all_campaigns(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return {"error": "Not authenticated"}
-    conn = get_db()
-    count = conn.execute(
-        "UPDATE campaigns SET status = 'paused' WHERE user_id = ? AND status IN ('running', 'pending')",
-        (user_id,)
-    ).rowcount
-    conn.commit()
-    conn.close()
-    return {"success": True, "message": f"Paused {count} campaigns"}
+    with get_db() as conn:
+        count = conn.execute(
+            "UPDATE campaigns SET status = 'paused' WHERE user_id = ? AND status IN ('running', 'pending')",
+            (user_id,)
+        ).rowcount
+        conn.commit()
+        pass  # conn.close()
+        return {"success": True, "message": f"Paused {count} campaigns"}
 
 
 # â&#x201D;€â&#x201D;€â&#x201D;€ API Key Auth (shared) â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
@@ -6029,10 +5539,10 @@ def _verify_api_key(api_key: str):
     """Verify an API key and return user dict or None."""
     if not api_key:
         return None
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE api_key = ? AND is_active = 1", (api_key,)).fetchone()
-    conn.close()
-    return dict(user) if user else None
+    with get_db() as conn:
+        user = conn.execute("SELECT * FROM users WHERE api_key = ? AND is_active = 1", (api_key,)).fetchone()
+        pass  # conn.close()
+        return dict(user) if user else None
 
 @app.get("/api/v1/me")
 def api_me(api_key: str = ""):
@@ -6040,22 +5550,22 @@ def api_me(api_key: str = ""):
     user = _verify_api_key(api_key)
     if not user:
         raise HTTPException(401, "Invalid API key")
-    conn = get_db()
-    campaigns = conn.execute("SELECT COUNT(*) FROM campaigns WHERE user_id = ?", (user["user_id"],)).fetchone()[0]
-    pending = conn.execute("SELECT COUNT(*) FROM campaigns WHERE user_id = ? AND status = 'pending'", (user["user_id"],)).fetchone()[0]
-    earning = conn.execute("SELECT COALESCE(SUM(amount), 0) FROM wallet_transactions WHERE user_id = ? AND transaction_type = 'earning'", (user["user_id"],)).fetchone()[0]
-    conn.close()
-    return {
-        "user_id": user["user_id"],
-        "email": user["email"],
-        "name": user.get("name", ""),
-        "wallet_balance": user["wallet_balance"],
-        "total_spent": user.get("total_spent", 0),
-        "campaigns_total": campaigns,
-        "campaigns_pending": pending,
-        "total_earnings": earning,
-        "is_active": user.get("is_active", 1)
-    }
+    with get_db() as conn:
+        campaigns = conn.execute("SELECT COUNT(*) FROM campaigns WHERE user_id = ?", (user["user_id"],)).fetchone()[0]
+        pending = conn.execute("SELECT COUNT(*) FROM campaigns WHERE user_id = ? AND status = 'pending'", (user["user_id"],)).fetchone()[0]
+        earning = conn.execute("SELECT COALESCE(SUM(amount), 0) FROM wallet_transactions WHERE user_id = ? AND transaction_type = 'earning'", (user["user_id"],)).fetchone()[0]
+        pass  # conn.close()
+        return {
+            "user_id": user["user_id"],
+            "email": user["email"],
+            "name": user.get("name", ""),
+            "wallet_balance": user["wallet_balance"],
+            "total_spent": user.get("total_spent", 0),
+            "campaigns_total": campaigns,
+            "campaigns_pending": pending,
+            "total_earnings": earning,
+            "is_active": user.get("is_active", 1)
+        }
 
 @app.post("/api/v1/deposit/create")
 async def api_deposit_create(api_key: str = Form(...), amount: float = Form(...), currency: str = Form("USDT")):
@@ -6067,55 +5577,55 @@ async def api_deposit_create(api_key: str = Form(...), amount: float = Form(...)
         raise HTTPException(400, "Minimum deposit is $2")
 
     order_id = f"ord_{uuid.uuid4().hex[:12]}"
-    conn = get_db()
-    conn.execute("INSERT INTO orders (order_id, user_id, order_type, amount_usd, payment_method, payment_status) VALUES (?,?,?,?,?,?)",
-                 (order_id, user["user_id"], "deposit", amount, currency, "pending"))
-    conn.commit()
+    with get_db() as conn:
+        conn.execute("INSERT INTO orders (order_id, user_id, order_type, amount_usd, payment_method, payment_status) VALUES (?,?,?,?,?,?)",
+                     (order_id, user["user_id"], "deposit", amount, currency, "pending"))
+        conn.commit()
 
-    pay_address = ""
-    nowpayments_id = None
-    invoice_url = ""
+        pay_address = ""
+        nowpayments_id = None
+        invoice_url = ""
 
-    # Try NowPayments
-    try:
-        np_key = (os.getenv("NOWPAYMENTS_API_KEY") or "").strip()
-        if np_key:
-            # Non-blocking: run sync requests.post in executor thread
-            loop = asyncio.get_event_loop()
-            resp = await loop.run_in_executor(None, lambda: requests.post(
-                "https://api.nowpayments.io/v1/invoice", json={
-                    "price_amount": amount, "price_currency": "usd",
-                    "pay_currency": currency.lower(), "ipn_callback_url":
-                    "https://jhfguf.pythonanywhere.com/api/v2/nowpayments-ipn",
-                    "order_id": order_id, "order_description": f"JobHunt Pro Deposit ${amount}"
-                }, headers={"x-api-key": np_key}, timeout=10
-            ))
-            if resp.status_code == 201:
-                data = resp.json()
-                nowpayments_id = data.get("id")
-                pay_address = data.get("pay_address", "")
-                invoice_url = data.get("invoice_url", "")
-                conn.execute("UPDATE orders SET pay_address=?, nowpayments_id=?, nowpayments_invoice_url=?, pay_currency=?, pay_amount=? WHERE order_id=?",
-                             (pay_address, nowpayments_id, invoice_url, currency, amount, order_id))
-                conn.commit()
-    except Exception as e:
-        logger.error(e, exc_info=True)
+        # Try NowPayments
+        try:
+            np_key = (os.getenv("NOWPAYMENTS_API_KEY") or "").strip()
+            if np_key:
+                # Non-blocking: run sync requests.post in executor thread
+                loop = asyncio.get_event_loop()
+                resp = await loop.run_in_executor(None, lambda: requests.post(
+                    "https://api.nowpayments.io/v1/invoice", json={
+                        "price_amount": amount, "price_currency": "usd",
+                        "pay_currency": currency.lower(), "ipn_callback_url":
+                        f"{config.SITE_URL}/api/v2/nowpayments-ipn",
+                        "order_id": order_id, "order_description": f"JobHunt Pro Deposit ${amount}"
+                    }, headers={"x-api-key": np_key}, timeout=10
+                ))
+                if resp.status_code == 201:
+                    data = resp.json()
+                    nowpayments_id = data.get("id")
+                    pay_address = data.get("pay_address", "")
+                    invoice_url = data.get("invoice_url", "")
+                    conn.execute("UPDATE orders SET pay_address=?, nowpayments_id=?, nowpayments_invoice_url=?, pay_currency=?, pay_amount=? WHERE order_id=?",
+                                 (pay_address, nowpayments_id, invoice_url, currency, amount, order_id))
+                    conn.commit()
+        except Exception as e:
+            logger.error(e, exc_info=True)
 
-    conn.close()
+        pass  # conn.close()
 
-    if not pay_address:
-        addresses = get_payment_addresses()
-        pay_address = addresses.get(currency.upper(), addresses.get("USDT", ""))
+        if not pay_address:
+            addresses = get_payment_addresses()
+            pay_address = addresses.get(currency.upper(), addresses.get("USDT", ""))
 
-    return {
-        "order_id": order_id,
-        "amount": amount,
-        "currency": currency,
-        "pay_address": pay_address,
-        "nowpayments_id": nowpayments_id,
-        "invoice_url": invoice_url,
-        "checkout_url": f"/checkout/{order_id}"
-    }
+        return {
+            "order_id": order_id,
+            "amount": amount,
+            "currency": currency,
+            "pay_address": pay_address,
+            "nowpayments_id": nowpayments_id,
+            "invoice_url": invoice_url,
+            "checkout_url": f"/checkout/{order_id}"
+        }
 
 @app.get("/api/v1/deposit/status/{order_id}")
 def api_deposit_status(order_id: str, api_key: str = ""):
@@ -6123,12 +5633,12 @@ def api_deposit_status(order_id: str, api_key: str = ""):
     user = _verify_api_key(api_key)
     if not user:
         raise HTTPException(401, "Invalid API key")
-    conn = get_db()
-    order = conn.execute("SELECT * FROM orders WHERE order_id=? AND user_id=?", (order_id, user["user_id"])).fetchone()
-    conn.close()
-    if not order:
-        raise HTTPException(404, "Order not found")
-    return {"order_id": order["order_id"], "status": order["payment_status"], "amount": order["amount_usd"]}
+    with get_db() as conn:
+        order = conn.execute("SELECT * FROM orders WHERE order_id=? AND user_id=?", (order_id, user["user_id"])).fetchone()
+        pass  # conn.close()
+        if not order:
+            raise HTTPException(404, "Order not found")
+        return {"order_id": order["order_id"], "status": order["payment_status"], "amount": order["amount_usd"]}
 
 @app.get("/api/v1/orders")
 def api_orders(api_key: str = "", limit: int = 10):
@@ -6136,23 +5646,26 @@ def api_orders(api_key: str = "", limit: int = 10):
     user = _verify_api_key(api_key)
     if not user:
         raise HTTPException(401, "Invalid API key")
-    conn = get_db()
-    rows = conn.execute("SELECT order_id, amount_usd, payment_method, payment_status, created_at FROM orders WHERE user_id=? ORDER BY created_at DESC LIMIT ?",
-                         (user["user_id"], limit)).fetchall()
-    conn.close()
-    return [dict(r) for r in rows]
+    with get_db() as conn:
+        rows = conn.execute("SELECT order_id, amount_usd, payment_method, payment_status, created_at FROM orders WHERE user_id=? ORDER BY created_at DESC LIMIT ?",
+                             (user["user_id"], limit)).fetchall()
+        pass  # conn.close()
+        return [dict(r) for r in rows]
 
-@app.get("/api/v1/campaigns")
-def api_campaigns(api_key: str = "", limit: int = 10):
-    """List recent campaigns."""
-    user = _verify_api_key(api_key)
-    if not user:
-        raise HTTPException(401, "Invalid API key")
-    conn = get_db()
-    rows = conn.execute("SELECT campaign_id, status, sent_count, created_at FROM campaigns WHERE user_id=? ORDER BY created_at DESC LIMIT ?",
-                         (user["user_id"], limit)).fetchall()
-    conn.close()
-    return [dict(r) for r in rows]
+# ==================== MIGRATED TO ROUTER — START (lines 5432-5442) ====================
+# @app.get("/api/v1/campaigns")
+# def api_campaigns(api_key: str = "", limit: int = 10):
+#     """List recent campaigns."""
+#     user = _verify_api_key(api_key)
+#     if not user:
+#         raise HTTPException(401, "Invalid API key")
+#     conn = get_db()
+#     rows = conn.execute("SELECT campaign_id, status, sent_count, created_at FROM campaigns WHERE user_id=? ORDER BY created_at DESC LIMIT ?",
+#                          (user["user_id"], limit)).fetchall()
+#     conn.close()
+#     return [dict(r) for r in rows]
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 @app.get("/api/v1/wallet/transactions")
 def api_wallet_transactions(api_key: str = "", limit: int = 10):
@@ -6160,11 +5673,11 @@ def api_wallet_transactions(api_key: str = "", limit: int = 10):
     user = _verify_api_key(api_key)
     if not user:
         raise HTTPException(401, "Invalid API key")
-    conn = get_db()
-    rows = conn.execute("SELECT transaction_type, amount, description, created_at FROM wallet_transactions WHERE user_id=? ORDER BY created_at DESC LIMIT ?",
-                         (user["user_id"], limit)).fetchall()
-    conn.close()
-    return [{"type": r["transaction_type"], "amount": r["amount"], "description": r["description"], "created_at": r["created_at"]} for r in rows]
+    with get_db() as conn:
+        rows = conn.execute("SELECT transaction_type, amount, description, created_at FROM wallet_transactions WHERE user_id=? ORDER BY created_at DESC LIMIT ?",
+                             (user["user_id"], limit)).fetchall()
+        pass  # conn.close()
+        return [{"type": r["transaction_type"], "amount": r["amount"], "description": r["description"], "created_at": r["created_at"]} for r in rows]
 
 @app.get("/api/v1/stats")
 def api_stats_v1(api_key: str = ""):
@@ -6173,19 +5686,19 @@ def api_stats_v1(api_key: str = ""):
     if not user:
         raise HTTPException(401, "Invalid API key")
     uid = user["user_id"]
-    conn = get_db()
-    total_campaigns = conn.execute("SELECT COUNT(*) FROM campaigns WHERE user_id=?", (uid,)).fetchone()[0]
-    active_campaigns = conn.execute("SELECT COUNT(*) FROM campaigns WHERE user_id=? AND status='running'", (uid,)).fetchone()[0]
-    total_sent = conn.execute("SELECT COALESCE(SUM(sent_count),0) FROM campaigns WHERE user_id=?", (uid,)).fetchone()[0]
-    total_responses = conn.execute("SELECT COALESCE(SUM(response_count),0) FROM campaigns WHERE user_id=?", (uid,)).fetchone()[0]
-    conn.close()
-    return {
-        "wallet_balance": user["wallet_balance"],
-        "total_campaigns": total_campaigns,
-        "active_campaigns": active_campaigns,
-        "total_sent": total_sent,
-        "total_responses": total_responses
-    }
+    with get_db() as conn:
+        total_campaigns = conn.execute("SELECT COUNT(*) FROM campaigns WHERE user_id=?", (uid,)).fetchone()[0]
+        active_campaigns = conn.execute("SELECT COUNT(*) FROM campaigns WHERE user_id=? AND status='running'", (uid,)).fetchone()[0]
+        total_sent = conn.execute("SELECT COALESCE(SUM(sent_count),0) FROM campaigns WHERE user_id=?", (uid,)).fetchone()[0]
+        total_responses = conn.execute("SELECT COALESCE(SUM(response_count),0) FROM campaigns WHERE user_id=?", (uid,)).fetchone()[0]
+        pass  # conn.close()
+        return {
+            "wallet_balance": user["wallet_balance"],
+            "total_campaigns": total_campaigns,
+            "active_campaigns": active_campaigns,
+            "total_sent": total_sent,
+            "total_responses": total_responses
+        }
 
 # â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;â&#x2022;
 # SENT EMAILS LOG PAGE
@@ -6196,28 +5709,28 @@ def sent_emails_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/login", status_code=303)
-    user = dict(user_row)
+    with get_db() as conn:
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        if not user_row:
+            pass  # conn.close()
+            return RedirectResponse("/login", status_code=303)
+        user = dict(user_row)
     
-    # FETCH SENT EMAILS DATA
-    base_join = "FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ?"
-    total = conn.execute(f"SELECT COUNT(*) {base_join}", (user_id,)).fetchone()[0]
-    delivered_count = conn.execute(f"SELECT COUNT(*) {base_join} AND ce.status IN ('sent', 'delivered')", (user_id,)).fetchone()[0]
-    opened_count = conn.execute(f"SELECT COUNT(*) {base_join} AND ce.opened_at IS NOT NULL", (user_id,)).fetchone()[0]
-    bounced_count = conn.execute(f"SELECT COUNT(*) {base_join} AND ce.status IN ('failed', 'bounced')", (user_id,)).fetchone()[0]
+        # FETCH SENT EMAILS DATA
+        base_join = "FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ?"
+        total = conn.execute(f"SELECT COUNT(*) {base_join}", (user_id,)).fetchone()[0]
+        delivered_count = conn.execute(f"SELECT COUNT(*) {base_join} AND ce.status IN ('sent', 'delivered')", (user_id,)).fetchone()[0]
+        opened_count = conn.execute(f"SELECT COUNT(*) {base_join} AND ce.opened_at IS NOT NULL", (user_id,)).fetchone()[0]
+        bounced_count = conn.execute(f"SELECT COUNT(*) {base_join} AND ce.status IN ('failed', 'bounced')", (user_id,)).fetchone()[0]
     
-    rows_data = conn.execute(f"SELECT ce.* {base_join} ORDER BY ce.sent_at DESC LIMIT 50", (user_id,)).fetchall()
-    rows = [dict(r) for r in rows_data]
+        rows_data = conn.execute(f"SELECT ce.* {base_join} ORDER BY ce.sent_at DESC LIMIT 50", (user_id,)).fetchall()
+        rows = [dict(r) for r in rows_data]
     
-    conn.close()
-    content = render_template("sent_emails.html", request=request, user=user, user_id=user_id,
-                              total=total, delivered_count=delivered_count,
-                              opened_count=opened_count, bounced_count=bounced_count, rows=rows)
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Sent Emails", "sent-emails", request=request))
+        pass  # conn.close()
+        content = render_template("sent_emails.html", request=request, user=user, user_id=user_id,
+                                  total=total, delivered_count=delivered_count,
+                                  opened_count=opened_count, bounced_count=bounced_count, rows=rows)
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Sent Emails", "sent-emails", request=request))
 
 @app.post("/api/parse-cv")
 async def api_parse_cv(request: Request):
@@ -6393,7 +5906,7 @@ async def api_parse_cv(request: Request):
 
 @app.post("/api/parse-cv-file")
 async def api_parse_cv_file(cv_file: UploadFile = File(...)):
-    """Upload a CV file (PDF/DOCX/TXT) â†&#x2019; extract text â†&#x2019; parse with AI."""
+    """Upload a CV file (PDF/DOCX/TXT) → extract text → parse with AI."""
     if not cv_file.filename:
         raise HTTPException(400, "No file provided")
 
@@ -6407,51 +5920,7 @@ async def api_parse_cv_file(cv_file: UploadFile = File(...)):
     # Extract text from binary
     cv_text = ""
     try:
-        if ext == ".pdf":
-            import io
-            import re as _re_pdf
-            # Try PyMuPDF (fitz) first &#x2014; best text extraction for formatted PDFs
-            try:
-                import fitz
-                doc = fitz.open(stream=raw, filetype="pdf")
-                cv_text = "\n".join(page.get_text() for page in doc)
-                doc.close()
-            except ImportError:
-                cv_text = ""
-
-            # Fallback to pdfplumber
-            if not cv_text.strip():
-                try:
-                    import pdfplumber
-                    with pdfplumber.open(io.BytesIO(raw)) as pdf:
-                        pages_text = []
-                        for page in pdf.pages:
-                            t = page.extract_text() or ""
-                            if t:
-                                pages_text.append(t)
-                        cv_text = "\n".join(pages_text)
-                except ImportError:
-                    pass
-
-            # Fallback to pypdf
-            if not cv_text.strip():
-                try:
-                    from pypdf import PdfReader
-                    reader = PdfReader(io.BytesIO(raw))
-                    cv_text = "\n".join(page.extract_text() or "" for page in reader.pages)
-                except ImportError:
-                    raise HTTPException(422, "No PDF parser available")
-
-            # Clean extracted text
-            cv_text = _re_pdf.sub(r'([a-z])([A-Z])', r'\1 \2', cv_text)  # fix merged words
-            cv_text = _re_pdf.sub(r'\s+', ' ', cv_text).strip()
-        elif ext in (".docx", ".doc"):
-            import docx
-            import io
-            doc = docx.Document(io.BytesIO(raw))
-            cv_text = "\n".join(p.text for p in doc.paragraphs)
-        else:  # .txt, .rtf
-            cv_text = raw.decode("utf-8", errors="replace")
+        cv_text = _extract_text_from_cv(raw, cv_file.filename)
     except Exception as e:
         logger.warning(f"Text extraction failed for {cv_file.filename}: {e}")
         # Fallback: try raw decode BUT filter out binary garbage
@@ -6460,7 +5929,7 @@ async def api_parse_cv_file(cv_file: UploadFile = File(...)):
             # If the result is mostly non-printable/binary, use a safer extraction
             printable_count = sum(1 for c in decoded if c.isprintable() or c in '\n\r\t')
             if len(decoded) > 0 and printable_count / len(decoded) < 0.3:
-                # Too much binary &#x2014; try to extract readable segments
+                # Too much binary — try to extract readable segments
                 readable = ''.join(c if c.isprintable() or c in '\n\r\t ' else ' ' for c in decoded)
                 # Collapse whitespace
                 readable = re.sub(r'\s+', ' ', readable).strip()
@@ -6478,7 +5947,6 @@ async def api_parse_cv_file(cv_file: UploadFile = File(...)):
     if not cv_text.strip():
         raise HTTPException(422, "No text could be extracted from the file")
 
-    # Parse with AI &#x2014; try 70B first with key rotation, fallback to 8B
     # Smart cert extraction: also scan raw text for known cert patterns
     import re as _re
     known_certs = []
@@ -6501,24 +5969,88 @@ async def api_parse_cv_file(cv_file: UploadFile = File(...)):
             n = m.group(0).strip().upper()
             if n not in [c.upper() for c in known_certs]:
                 known_certs.append(n)
-    cert_hint = ""
-    if known_certs:
-        cert_hint = f"\n\nKNOWN CERTIFICATIONS FOUND IN RAW TEXT (MUST INCLUDE THESE): {', '.join(known_certs)}"
+
+    try:
+        data = await _parse_cv_text_with_ai(cv_text, known_certs)
+        return {"status": "success", "profile": data}
+    except HTTPException:
+        raise
+    except json.JSONDecodeError:
+        return JSONResponse({"status": "error", "detail": "AI returned invalid JSON"}, status_code=502)
+    except Exception as e:
+        logger.exception("parse-cv-file failed")
+        return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
+
+
+def _extract_text_from_cv(raw_bytes: bytes, filename: str) -> str:
+    """Extract text from PDF, DOCX, DOC, TXT, or RTF bytes."""
+    ext = Path(filename).suffix.lower()
+    if ext == ".pdf":
+        import io
+        import re as _re_pdf
+        cv_text = ""
+        # Try PyMuPDF (fitz) first — best text extraction for formatted PDFs
+        try:
+            import fitz
+            doc = fitz.open(stream=raw_bytes, filetype="pdf")
+            cv_text = "\n".join(page.get_text() for page in doc)
+            doc.close()
+        except ImportError:
+            pass
+
+        # Fallback to pdfplumber
+        if not cv_text.strip():
+            try:
+                import pdfplumber
+                with pdfplumber.open(io.BytesIO(raw_bytes)) as pdf:
+                    pages_text = []
+                    for page in pdf.pages:
+                        t = page.extract_text() or ""
+                        if t:
+                            pages_text.append(t)
+                    cv_text = "\n".join(pages_text)
+            except ImportError:
+                pass
+
+        # Fallback to pypdf
+        if not cv_text.strip():
+            try:
+                from pypdf import PdfReader
+                reader = PdfReader(io.BytesIO(raw_bytes))
+                cv_text = "\n".join(page.extract_text() or "" for page in reader.pages)
+            except ImportError:
+                raise HTTPException(422, "No PDF parser available")
+
+        # Clean extracted text
+        cv_text = _re_pdf.sub(r'([a-z])([A-Z])', r'\1 \2', cv_text)  # fix merged words
+        cv_text = _re_pdf.sub(r'\s+', ' ', cv_text).strip()
+        return cv_text
+    elif ext in (".docx", ".doc"):
+        import docx
+        import io
+        doc = docx.Document(io.BytesIO(raw_bytes))
+        return "\n".join(p.text for p in doc.paragraphs)
+    else:  # .txt, .rtf
+        return raw_bytes.decode("utf-8", errors="replace")
+
+
+async def _parse_cv_text_with_ai(cv_text: str, known_certs: list[str]) -> dict:
+    """Send CV text to Groq API and parse response to dictionary schema."""
     groq_key = (os.getenv("GROQ_API_KEY", "") or getattr(config, "GROQ_API_KEY", "")).strip()
     all_keys = [k for k in GROQ_KEYS if k]
     if groq_key and groq_key not in all_keys:
         all_keys.insert(0, groq_key)
     if not all_keys:
-        return JSONResponse({"status": "error", "detail": "GROQ_API_KEY not configured"}, status_code=503)
+        raise HTTPException(503, "GROQ_API_KEY not configured")
 
-    # Use MORE of the CV text (8000 chars) to capture certs/education at end
     cv_text_snippet = cv_text[:8000] if len(cv_text) > 8000 else cv_text
+    cert_hint = f"\n\nKNOWN CERTIFICATIONS FOUND IN RAW TEXT (MUST INCLUDE THESE): {', '.join(known_certs)}" if known_certs else ""
 
     prompt = f"""You are an expert CV parser. Extract ALL details from this CV with maximum accuracy.
 
-CRITICAL: Pay special attention to the CERTIFICATIONS section &#x2014; extract EVERY certification listed (CCNA, CCNP, NSE, MTCNA, PMP, etc). Search the ENTIRE text for cert names, even if they appear at the end.
+CRITICAL: Pay special attention to the CERTIFICATIONS section — extract EVERY certification listed (CCNA, CCNP, NSE, MTCNA, PMP, etc). Search the ENTIRE text for cert names, even if they appear at the end.
 
-CRITICAL: For skills, be comprehensive &#x2014; extract ALL technical skills including specific technologies, protocols, vendor platforms, tools, and methodologies. Do NOT group dissimilar skills together. Each distinct skill deserves its own list entry.
+CRITICAL: For skills, be comprehensive — extract ALL technical skills including specific technologies, protocols, vendor platforms, tools, and methodologies. Do NOT group dissimilar skills together. Each distinct skill deserves its own list entry.
 
 Return ONLY valid JSON with this exact schema, no markdown, no backticks, no explanation:
 {{
@@ -6586,9 +6118,8 @@ CV TEXT:
                     else:
                         last_error = resp.text[:200]
                         break
-
         if resp is None or resp.status_code != 200:
-            return JSONResponse({"status": "error", "detail": f"Groq (all keys): {last_error}"}, status_code=502)
+            raise HTTPException(502, f"Groq (all keys): {last_error}")
 
         result_text = resp.json()["choices"][0]["message"]["content"].strip()
         data = _extract_json(result_text)
@@ -6619,14 +6150,13 @@ CV TEXT:
                     if 1 <= val <= 50:
                         data["experience_years"] = val
                         break
-        return {"status": "success", "profile": data}
+        return data
 
     except json.JSONDecodeError:
-        debug_raw = result_text[:1000] if result_text else "no result_text"
-        return JSONResponse({"status": "error", "detail": "AI returned invalid JSON", "debug_raw": debug_raw}, status_code=502)
+        raise HTTPException(502, "AI returned invalid JSON")
     except Exception as e:
-        logger.exception("parse-cv-file failed")
-        return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
+        logger.exception("parse-cv-file with AI failed")
+        raise HTTPException(500, str(e))
 
 
 class PreviewRequest(BaseModel):
@@ -6819,7 +6349,7 @@ Generate a real cover letter with:
 <tr><td style="padding:20px 28px 24px"><hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 20px">
 <table cellpadding="0" cellspacing="0" border="0" style="width:100%"><tr>
 <td style="vertical-align:top"><p style="color:#1a365d;font-family:Georgia,serif;font-weight:700;font-size:15px;margin:0">{name}</p><p style="color:#475569;font-size:13px;margin:2px 0 0">{current_title}</p><p style="color:#94a3b8;font-size:12px;margin:4px 0 0">{email_addr}</p><p style="color:#94a3b8;font-size:12px;margin:0">{phone}</p></td>
-<td style="text-align:right;vertical-align:bottom"><p style="color:#94a3b8;font-size:11px;margin:0">ðŸ&#x201C;Ž CV Attached</p></td></tr></table></td></tr></table>""",
+<td style="text-align:end;vertical-align:bottom"><p style="color:#94a3b8;font-size:11px;margin:0">ðŸ&#x201C;Ž CV Attached</p></td></tr></table></td></tr></table>""",
         "friendly": """<table cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;margin:0 auto;background:#f0fdf4;border-radius:12px;overflow:hidden">
 <tr><td style="background:linear-gradient(135deg,#2d6a4f,#40916c);padding:20px 28px">
 <p style="margin:0;color:rgba(255,255,255,0.9);font-family:Arial,sans-serif;font-size:12px">&#x1F44B; Hello from {name}</p>
@@ -6840,7 +6370,7 @@ Generate a real cover letter with:
 <tr><td style="padding:20px 28px;background:#fff;border-top:1px solid #dcfce7">
 <table cellpadding="0" cellspacing="0" border="0" style="width:100%"><tr>
 <td><p style="color:#2d6a4f;font-family:Arial,sans-serif;font-weight:700;font-size:15px;margin:0">{name}</p><p style="color:#475569;font-size:13px;margin:2px 0 0">{current_title}</p><p style="color:#94a3b8;font-size:12px;margin:2px 0 0">ðŸ&#x201C;§ {email_addr}</p><p style="color:#94a3b8;font-size:12px;margin:0">ðŸ&#x201C;± {phone}</p></td>
-<td style="text-align:right;vertical-align:bottom"><p style="color:#2d6a4f;font-size:12px;margin:0">&#x2728; CV Attached</p></td></tr></table></td></tr></table>""",
+<td style="text-align:end;vertical-align:bottom"><p style="color:#2d6a4f;font-size:12px;margin:0">&#x2728; CV Attached</p></td></tr></table></td></tr></table>""",
         "confident": """<table cellpadding="0" cellspacing="0" border="0" style="max-width:620px;width:100%;margin:0 auto;background:#fff;border-radius:0;border-left:5px solid #c53030;box-shadow:0 4px 20px rgba(0,0,0,0.1)">
 <tr><td style="padding:24px 28px 12px;font-family:Helvetica,Arial,sans-serif">
 <p style="margin:0;color:#c53030;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase">High-Impact Candidate</p>
@@ -6861,7 +6391,7 @@ Generate a real cover letter with:
 <tr><td style="background:#fef2f2;padding:20px 28px;border-top:1px solid #fecaca">
 <table cellpadding="0" cellspacing="0" border="0" style="width:100%"><tr>
 <td><p style="color:#c53030;font-family:Helvetica,sans-serif;font-weight:800;font-size:15px;margin:0">{name}</p><p style="color:#2d3748;font-size:13px;margin:2px 0 0;font-weight:600">{current_title}</p><p style="color:#718096;font-size:12px;margin:2px 0 0">{email_addr} &#xB7; {phone}</p></td>
-<td style="text-align:right;vertical-align:bottom"><p style="color:#c53030;font-size:12px;font-weight:700;margin:0">âš¡ READY TO DELIVER</p></td></tr></table></td></tr></table>""",
+<td style="text-align:end;vertical-align:bottom"><p style="color:#c53030;font-size:12px;font-weight:700;margin:0">âš¡ READY TO DELIVER</p></td></tr></table></td></tr></table>""",
     }
 
     cv_templates = {
@@ -6881,13 +6411,13 @@ Generate a real cover letter with:
 <tr><td style="background:#f8fafc;padding:20px 40px;border-bottom:1px solid #e2e8f0">
 <!-- KEY METRICS -->
 <table cellpadding="0" cellspacing="0" border="0" style="width:100%"><tr>
-<td style="text-align:center;padding:0 16px;border-right:1px solid #e2e8f0">
+<td style="text-align:center;padding:0 16px;border-inline-end:1px solid #e2e8f0">
 <p style="font-family:Georgia,serif;font-size:28px;font-weight:700;color:#1a365d;margin:0">{exp}+</p>
 <p style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin:2px 0 0">Years Exp</p></td>
-<td style="text-align:center;padding:0 16px;border-right:1px solid #e2e8f0">
+<td style="text-align:center;padding:0 16px;border-inline-end:1px solid #e2e8f0">
 <p style="font-family:Georgia,serif;font-size:28px;font-weight:700;color:#1a365d;margin:0">{cert_count}</p>
 <p style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin:2px 0 0">Certifications</p></td>
-<td style="text-align:center;padding:0 16px;border-right:1px solid #e2e8f0">
+<td style="text-align:center;padding:0 16px;border-inline-end:1px solid #e2e8f0">
 <p style="font-family:Georgia,serif;font-size:28px;font-weight:700;color:#1a365d;margin:0">{skill_count}</p>
 <p style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin:2px 0 0">Technologies</p></td>
 <td style="text-align:center;padding:0 16px">
@@ -7124,14 +6654,14 @@ Return ONLY this EXACT JSON structure. No markdown, no backticks, no commentary.
 {{
   "body_paras": "<p>ATTENTION/AGITATION: Open with a laser-focused hook connecting {name}'s {skills} expertise to a SPECIFIC technical challenge at {company}. Reference the technology AND the business impact. Make the first sentence unforgettable. Example structure: 'When I read that {company} is [specific initiative/challenge], I immediately recognized the pattern &#x2014; I solved this exact problem at [context], delivering [metric] in [timeframe].' DO NOT start with 'I am writing to apply...' &#x2014; that is instant deletion.</p><p>SOLUTION: 2-3 dense paragraphs proving {exp}-year deep expertise. Each paragraph: ONE specific achievement with quantified result + technology used + business outcome. Connect each achievement to a need at {company}. Example: not 'I managed networks' but 'I architected a BGP-optimized WAN connecting 28 sites across 4 countries, eliminating 93% of latency-related incidents and saving $340K annually in MPLS costs.' Use {skills} technologies by name.</p><p>ACTION: 2-3 sentences. Confident close. No 'I hope to hear from you.' Instead: 'I am ready to bring this same level of technical leadership to {company}. I am available [immediate timeframe] and can be reached at {phone}.' End with forward momentum.</p>",
   "summary_para": "<p>MAXIMUM DENSITY executive profile in 2-3 sentences: {exp}-year {current_title}. Mastery of {skills}. {certs} certified. [Quantified result &#x2014; revenue saved, uptime achieved, scale managed]. [Industry context &#x2014; enterprise/ISP/government/multi-national]. No filler words. Every word proves seniority.</p>",
-  "skills_cells": "<td style='padding:8px 12px;vertical-align:top'><ul style='margin:0;padding-left:16px'><li>[Skill1 contextualized &#x2014; e.g. 'Cisco IOS-XR &#x2014; 10+ years']</li><li>[Skill2 contextualized]</li></ul></td><td style='padding:8px 12px;vertical-align:top'><ul style='margin:0;padding-left:16px'><li>[Skill3 contextualized]</li><li>[Skill4 contextualized]</li></ul></td>",
+  "skills_cells": "<td style='padding:8px 12px;vertical-align:top'><ul style='margin:0;padding-inline-start:16px'><li>[Skill1 contextualized &#x2014; e.g. 'Cisco IOS-XR &#x2014; 10+ years']</li><li>[Skill2 contextualized]</li></ul></td><td style='padding:8px 12px;vertical-align:top'><ul style='margin:0;padding-inline-start:16px'><li>[Skill3 contextualized]</li><li>[Skill4 contextualized]</li></ul></td>",
   "skills_list": "<p style='margin:4px 0;color:#a6adc8;font-size:12px'>$ [skill] &#x2014; [years or proficiency context]</p>",
   "skills_tags": "<span style='background:#eef2ff;color:#4338ca;padding:4px 12px;border-radius:20px;font-size:12px;margin:2px;display:inline-block'>[skill]</span>",
   "exp_blocks": "<p style='font-weight:600;margin:12px 0 4px'>{current_title}</p><p style='color:#475569;font-size:13px;margin:0 0 4px'>[Achievement 1 &#x2014; MUST have NUMBER] &#x2014; [technology used] &#x2014; [business result]</p><p style='color:#475569;font-size:13px;margin:0 0 4px'>[Achievement 2 &#x2014; MUST have NUMBER] &#x2014; [technology used] &#x2014; [business result]</p><p style='color:#475569;font-size:13px;margin:0 0 4px'>[Achievement 3 &#x2014; MUST have NUMBER] &#x2014; [technology used] &#x2014; [business result]</p><p style='color:#475569;font-size:13px;margin:0'>[Achievement 4 &#x2014; MUST have NUMBER] &#x2014; [technology used] &#x2014; [business result]</p>",
   "edu_para": "<p style='color:#475569;font-size:13px;margin:0'>[Degree &#x2014; Field of Study &#x2014; Institution &#x2014; Year or relevant coursework]</p>",
   "story_hook": "<p>CINEMATIC OPENER: A 2-3 sentence real-world scene from {name}'s career. Describe a SPECIFIC moment &#x2014; the 2AM outage, the impossible deadline, the failing migration &#x2014; and how {name}'s {skills} expertise resolved it. Use sensory detail. Make the reader SEE the server room, HEAR the alarm, FEEL the tension. This is not a summary &#x2014; this is a movie trailer for {name}'s professional capability. End with the resolution and the business impact in numbers.</p>",
   "cl_body": "<p>[RESEARCH PARAGRAPH]: What specifically about {company} attracted {name}? Reference their technology stack, market position, recent projects, or industry reputation. Prove this application is targeted, not mass-distributed. Connect {name}'s {skills} to a KNOWN initiative or challenge at {company}.</p><p>[CAPABILITY PARAGRAPH]: Directly map {exp} years as {current_title} to {job_title} requirements. Use {skills} as evidence. Include at least ONE quantified achievement. Structure: 'In my {exp} years as {current_title}, I have [achievement with number] using [specific technology from {skills}], which is directly applicable to [specific need at {company}].'</p>",
-  "cl_bullets": "<ul style='padding-left:20px;margin:12px 0'><li style='margin:8px 0'><strong>[NUMBER]</strong> &#x2014; [What was achieved] using [which technology from {skills}] &#x2014; [business outcome]</li><li style='margin:8px 0'><strong>[NUMBER]</strong> &#x2014; [What was achieved] using [which technology from {skills}] &#x2014; [business outcome]</li><li style='margin:8px 0'><strong>[NUMBER]</strong> &#x2014; [What was achieved] using [which technology from {skills}] &#x2014; [business outcome]</li><li style='margin:8px 0'><strong>{certs_list_clean[0] if certs_list_clean else 'Certification'}</strong> certified professional &#x2014; continuous learning and industry best practices</li></ul>",
+  "cl_bullets": "<ul style='padding-inline-start:20px;margin:12px 0'><li style='margin:8px 0'><strong>[NUMBER]</strong> &#x2014; [What was achieved] using [which technology from {skills}] &#x2014; [business outcome]</li><li style='margin:8px 0'><strong>[NUMBER]</strong> &#x2014; [What was achieved] using [which technology from {skills}] &#x2014; [business outcome]</li><li style='margin:8px 0'><strong>[NUMBER]</strong> &#x2014; [What was achieved] using [which technology from {skills}] &#x2014; [business outcome]</li><li style='margin:8px 0'><strong>{certs_list_clean[0] if certs_list_clean else 'Certification'}</strong> certified professional &#x2014; continuous learning and industry best practices</li></ul>",
   "cl_paras": "<p>[OPENING &#x2014; company-specific]: {name} articulates why {company} SPECIFICALLY &#x2014; reference their reputation, technology direction, market position, or known initiatives. Not 'I admire your company' but 'I've followed {company}'s expansion into [area] and recognized an immediate alignment with my {exp}-year expertise in [specific skill from {skills}].'</p><p>[BODY &#x2014; proof of fit]: Map {exp} years as {current_title} with {skills} directly to {job_title} needs. Use the language of someone who has DONE the work. Include at least TWO quantified achievements. Structure: problem-solution-result for each point.</p><p>[CLOSE &#x2014; forward momentum]: Confident but not arrogant. 'I am available to discuss how my background in {skills} can contribute to {company}'s continued success. I can be reached at {phone} or {email_addr}.' No pleading. No desperation. Quiet authority.</p>"
 }}
 
@@ -7236,18 +6766,17 @@ This is not a template. This is not an exercise. This is {name}'s ACTUAL applica
         stats_by_style = {"professional": stats_pro, "friendly": stats_friendly, "confident": stats_confident}
         body_html = body_html.replace("{STATS_BAR}", stats_by_style.get(req.email_style, stats_pro))
 
-        # Build cv_html from template &#x2014; with premium fallbacks
+        # Build cv_html from template — with premium fallbacks
         cv_tmpl = cv_templates.get(req.cv_style, cv_templates["executive"])
         fb_summary = f"<p>{name} is a {current_title} with {exp}+ years of experience, deep expertise in {skills}, and a proven record of delivering reliable, high-performance network solutions for enterprise and service-provider environments. Holds {certs}.</p>"
-        fb_skills_cells = "".join(f'<td style="padding:8px 12px;vertical-align:top"><ul style="margin:0;padding-left:16px"><li>{s}</li></ul></td>' for s in skills_list_clean)
-        fb_skills_list = "".join(f'<p style="margin:4px 0;color:#a6adc8;font-size:12px">$ {s}</p>' for s in skills_list_clean)
-        fb_skills_tags = "".join(f'<span style="background:#eef2ff;color:#4338ca;padding:4px 12px;border-radius:20px;font-size:12px;margin:2px;display:inline-block">{s}</span>' for s in skills_list_clean)
-        fb_exp = f"<p style='font-weight:600;margin:12px 0 4px'>{current_title}</p><p style='color:#475569;font-size:13px;margin:0 0 4px'>Designed and deployed multi-site enterprise networks supporting 5000+ users across 20+ locations with 99.9% uptime</p><p style='color:#475569;font-size:13px;margin:0 0 4px'>Led team of 8 network engineers, reducing incident response time by 60% through automated monitoring</p><p style='color:#475569;font-size:13px;margin:0 0 4px'>Managed annual IT infrastructure budget exceeding $2M while reducing costs 25% through vendor consolidation</p><p style='color:#475569;font-size:13px;margin:0'>Architected MPLS migration for 12 regional offices, completing project 3 weeks ahead of schedule</p>"
-        cv_html = cv_tmpl.replace("{name}", name).replace("{current_title}", current_title)            .replace("{email_addr}", email_addr).replace("{phone}", phone).replace("{loc}", loc)            .replace("{exp}", str(exp)).replace("{cert_count}", str(len(certs_list_clean))).replace("{skill_count}", str(len(skills_list_clean)))            .replace("{certs}", certs)            .replace("{SUMMARY_PARA}", ai.get("summary_para", fb_summary))            .replace("{SKILLS_CELLS}", ai.get("skills_cells", fb_skills_cells))            .replace("{SKILLS_LIST}", ai.get("skills_list", fb_skills_list))            .replace("{SKILLS_TAGS}", ai.get("skills_tags", fb_skills_tags))            .replace("{EXP_BLOCKS}", ai.get("exp_blocks", fb_exp))            .replace("{EDU_PARA}", ai.get("edu_para", "<p style='color:#475569;font-size:13px;margin:0'>Bachelor of Science &#x2014; Computer Science / Information Technology</p>"))
+        fb_skills_cells = "".join(f'<td style="padding-block:8px;padding-inline:12px;vertical-align:top"><ul style="margin-block:0;padding-inline-start:16px"><li>{s}</li></ul></td>' for s in skills_list_clean)
+        fb_skills_list = "".join(f'<p style="margin-block:4px;margin-inline:0;color:#a6adc8;font-size:12px">$ {s}</p>' for s in skills_list_clean)
+        fb_skills_tags = "".join(f'<span style="background:#eef2ff;color:#4338ca;padding-block:4px;padding-inline:12px;border-radius:20px;font-size:12px;margin:2px;display:inline-block">{s}</span>' for s in skills_list_clean)
+        fb_exp = f"<p style='font-weight:600;margin-block:12px 4px;margin-inline:0'>{current_title}</p><p style='color:#475569;font-size:13px;margin-block:0 4px;margin-inline:0'>Designed and deployed multi-site enterprise networks supporting 5000+ users across 20+ locations with 99.9% uptime</p><p style='color:#475569;font-size:13px;margin-block:0 4px;margin-inline:0'>Led team of 8 network engineers, reducing incident response time by 60% through automated monitoring</p><p style='color:#475569;font-size:13px;margin-block:0 4px;margin-inline:0'>Managed annual IT infrastructure budget exceeding $2M while reducing costs 25% through vendor consolidation</p><p style='color:#475569;font-size:13px;margin-block:0;margin-inline:0'>Architected MPLS migration for 12 regional offices, completing project 3 weeks ahead of schedule</p>"
+        cv_html = cv_tmpl.replace("{name}", name).replace("{current_title}", current_title)            .replace("{email_addr}", email_addr).replace("{phone}", phone).replace("{loc}", loc)            .replace("{exp}", str(exp)).replace("{cert_count}", str(len(certs_list_clean))).replace("{skill_count}", str(len(skills_list_clean)))            .replace("{certs}", certs)            .replace("{SUMMARY_PARA}", ai.get("summary_para", fb_summary))            .replace("{SKILLS_CELLS}", ai.get("skills_cells", fb_skills_cells))            .replace("{SKILLS_LIST}", ai.get("skills_list", fb_skills_list))            .replace("{SKILLS_TAGS}", ai.get("skills_tags", fb_skills_tags))            .replace("{EXP_BLOCKS}", ai.get("exp_blocks", fb_exp))            .replace("{EDU_PARA}", ai.get("edu_para", "<p style='color:#475569;font-size:13px;margin:0'>Bachelor of Science — Computer Science / Information Technology</p>"))
 
-        # Build cl_html from template &#x2014; with premium fallbacks
+        # Build cl_html from template — with premium fallbacks
         cl_tmpl = cl_templates.get(req.cover_letter_style, cl_templates["storytelling"])
-        fb_story = f"<p>Three years ago, I walked into a data center at 2 AM &#x2014; a core router failure had taken down three regional offices. By 4 AM, I had not only restored service but implemented a redundant failover configuration that has prevented every similar incident since. That moment captures what I bring to {company}: the ability to stay calm under pressure, solve complex problems rapidly, and build systems that prevent recurrence.</p>"
         fb_cl_body = f"<p>I have been following {company}'s growth in the telecommunications sector and am genuinely impressed by your investment in next-generation network infrastructure. The {job_title} role is a natural fit for my {exp} years as a {current_title}, where I have consistently delivered network solutions that balance performance, security, and cost-efficiency.</p><p>My hands-on expertise with {skills} &#x2014; reinforced by {certs} &#x2014; means I can step into this role and contribute immediately. I have led network transformations that reduced operational costs by 25% while improving reliability, and I am eager to bring that same results-driven approach to {company}.</p>"
         fb_bullets = f"<ul style='padding-left:20px;margin:12px 0'><li style='margin:8px 0'>âœ&#x201D; Managed enterprise networks supporting 5,000+ users across 20+ locations with 99.9% uptime</li><li style='margin:8px 0'>âœ&#x201D; Reduced mean time to resolution by 60% through implementation of automated network monitoring</li><li style='margin:8px 0'>âœ&#x201D; Led cross-functional team of 8 engineers delivering MPLS migration across 12 regional offices</li><li style='margin:8px 0'>âœ&#x201D; {certs_list_clean[0] if certs_list_clean else 'CCNA'} certified &#x2014; committed to continuous professional development</li></ul>"
         fb_cl_paras = f"<p>I am writing to express my strong interest in the {job_title} position at {company}. With {exp} years of progressive experience as a {current_title}, I bring a depth of technical expertise and a track record of delivering network infrastructure that drives business results.</p><p>My career has been defined by the ability to translate complex technical challenges into reliable, scalable solutions. Whether deploying MPLS networks for multi-site enterprises, leading incident response teams during critical outages, or architecting security frameworks that protect sensitive data &#x2014; I deliver measurable outcomes. My expertise spans {skills}, supported by {certs}.</p><p>I would welcome the opportunity to discuss how my background and skills align with {company}'s goals. I am available at your earliest convenience and can be reached at {phone} or {email_addr}. Thank you for your time and consideration.</p>"
@@ -7275,278 +6804,281 @@ This is not a template. This is not an exercise. This is {name}'s ACTUAL applica
 # 🏢 EMPLOYER / JOB POSTING — Companies can post jobs (low-cost)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-@app.get("/for-employers", response_class=HTMLResponse)
-def for_employers_page(request: Request):
-    user_id = get_verified_user_id(request)
-    if user_id:
-        # Authenticated users get the dashboard-wrapped version
-        conn = get_db()
-        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        conn.close()
-        user = dict(user_row) if user_row else {}
-        content = render_template("for_employers.html", user=user, active_page="employers")
-        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "For Employers", "employers", request=request))
-    # Public view
-    content = render_template("for_employers.html", request=request, active_page="employers", user=None)
-    return HTMLResponse(_public_shell(content, "For Employers &mdash; JobHunt Pro"))
+# ==================== MIGRATED TO ROUTER — START (lines 6565-6578) ====================
+# @app.get("/for-employers", response_class=HTMLResponse)
+# def for_employers_page(request: Request):
+#     user_id = get_verified_user_id(request)
+#     if user_id:
+#         # Authenticated users get the dashboard-wrapped version
+#         conn = get_db()
+#         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+#         conn.close()
+#         user = dict(user_row) if user_row else {}
+#         content = render_template("for_employers.html", user=user, active_page="employers")
+#         return HTMLResponse(_build_dashboard_shell(user, user_id, content, "For Employers", "employers", request=request))
+#     # Public view
+#     content = render_template("for_employers.html", request=request, active_page="employers", user=None)
+#     return HTMLResponse(_public_shell(content, "For Employers &mdash; JobHunt Pro"))
+# ==================== MIGRATED TO ROUTER — END   ====================
 
 
-@app.post("/api/employer/post-job")
-def api_employer_post_job(
-    request: Request,
-    company_name: str = Form(...),
-    job_title: str = Form(...),
-    location: str = Form(...),
-    category: str = Form(""),
-    salary: str = Form(""),
-    contact_email: str = Form(...),
-    description: str = Form(...),
-    apply_url: str = Form(""),
-    logo_url: str = Form(""),
-    tier: str = Form("basic"),
-    price: float = Form(1.0),
-    duration_days: int = Form(30),
-    is_bulk: str = Form("0"),
-    bulk_count: int = Form(0),
-    addons: str = Form("[]"),
-):
-    """Employers post jobs — supports subscriptions, add-ons, bulk packages."""
-    import uuid
-    import json
-    import re
 
-    # Validate
-    if not company_name or not job_title or not location or not contact_email or not description:
-        return {"status": "error", "message": "All required fields must be filled."}
-
-    # Validate email
-    if not re.match(r"^[\w\.-]+@[\w\.-]+\.\w{2,}$", contact_email):
-        return {"status": "error", "message": "Invalid email address."}
-
-    # Validate job is not fake/scam
-    scam_keywords = ["make money fast", "work from home earn", "pyramid", "multi-level",
-                     "$$$", "get rich", "no experience needed", "earn daily",
-                     "passive income", "investment opportunity", "crypto trading",
-                     "forex trading", "binary options", "money transfer agent",
-                     "work from home $1000", "easy money", "earn $500"]
-    combined_text = (description + " " + job_title).lower()
-    for kw in scam_keywords:
-        if kw in combined_text:
-            return {"status": "error", "message": "This job appears to contain prohibited content. Legitimate jobs only."}
-
-    # Validate company name
-    if len(company_name) < 2 or len(company_name) > 100:
-        return {"status": "error", "message": "Company name must be 2-100 characters."}
-
-    # Parse addons
-    try:
-        addon_list = json.loads(addons) if addons else []
-    except (json.JSONDecodeError, TypeError):
-        addon_list = []
-
-    is_bulk_bool = (is_bulk == "1")
-    bulk_cnt = bulk_count if is_bulk_bool else 1
-    actual_tier = tier  # single post tier, or bulk tier
-    duration = max(30, min(365, duration_days))  # clamp 30-365
-
-    try:
-        conn = get_db()
-        # Create table if not exists
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS posted_jobs (
-                job_id TEXT PRIMARY KEY,
-                company_name TEXT NOT NULL,
-                job_title TEXT NOT NULL,
-                location TEXT NOT NULL,
-                category TEXT DEFAULT '',
-                salary TEXT DEFAULT '',
-                contact_email TEXT NOT NULL,
-                description TEXT NOT NULL,
-                apply_url TEXT DEFAULT '',
-                logo_url TEXT DEFAULT '',
-                tier TEXT DEFAULT 'basic',
-                price REAL DEFAULT 1.0,
-                duration_days INTEGER DEFAULT 30,
-                is_bulk INTEGER DEFAULT 0,
-                bulk_count INTEGER DEFAULT 0,
-                addons TEXT DEFAULT '[]',
-                status TEXT DEFAULT 'pending',
-                views INTEGER DEFAULT 0,
-                applications INTEGER DEFAULT 0,
-                google_jobs_id TEXT DEFAULT '',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                expires_at TIMESTAMP DEFAULT (datetime('now', '+30 days'))
-            )
-        """)
-        # Migrate old table — add missing columns if needed
-        existing = [c[1] for c in conn.execute("PRAGMA table_info(posted_jobs)").fetchall()]
-        for col, coltype in [('duration_days','INTEGER DEFAULT 30'),('is_bulk','INTEGER DEFAULT 0'),('bulk_count','INTEGER DEFAULT 0'),('addons',"TEXT DEFAULT '[]'"),('applications','INTEGER DEFAULT 0'),('google_jobs_id',"TEXT DEFAULT ''")]:
-            if col not in existing:
-                try:
-                    conn.execute(f"ALTER TABLE posted_jobs ADD COLUMN {col} {coltype}")
-                except Exception as e:
-                    err_msg = str(e).lower()
-                    if "already exists" in err_msg or "duplicate column" in err_msg:
-                        logger.info(f"Column {col} already exists in posted_jobs (handled gracefully)")
-                    else:
-                        raise e
-        conn.commit()
-
-        job_ids = []
-        for i in range(bulk_cnt):
-            job_id = f"job_{uuid.uuid4().hex[:12]}"
-            job_ids.append(job_id)
-            expires = datetime.now() + timedelta(days=duration)
-            conn.execute("""
-                INSERT INTO posted_jobs (job_id, company_name, job_title, location, category,
-                    salary, contact_email, description, apply_url, logo_url, tier, price,
-                    duration_days, is_bulk, bulk_count, addons, expires_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (job_id, company_name, job_title, location, category,
-                  salary, contact_email, description, apply_url, logo_url, actual_tier,
-                  price / bulk_cnt, duration, 1 if is_bulk_bool else 0, bulk_cnt,
-                  json.dumps(addon_list), expires.isoformat()))
-
-        conn.commit()
-        conn.close()
-
-        # Build addon names for display
-        addon_names = [a.get('name','').replace('_',' ').title() for a in addon_list]
-        addon_str = f" + {' + '.join(addon_names)}" if addon_names else ""
-
-        logger.info(f"[EMPLOYER] {bulk_cnt} job(s) posted: {job_title} at {company_name} ({actual_tier} — ${price}{addon_str} / {duration}d)")
-
-        # Build tracking URLs for each job
-        job_tracking_links = ''.join([
-            f'<tr><td style="padding:3px 0;">📋 <code>{jid}</code></td>'
-            f'<td><a href="https://jhfguf.pythonanywhere.com/employer/track?email={contact_email}&job_id={jid}" '
-            f'style="color:#60a5fa;font-size:0.85em;">📊 Track this job →</a></td></tr>'
-            for jid in job_ids
-        ])
-        # Send confirmation email
-        try:
-            bulk_info = f"<p><strong>Package:</strong> {bulk_cnt} post(s)</p>" if is_bulk_bool else ""
-            dur_info = f"<p><strong>Duration:</strong> {duration} days</p>"
-            addon_html = ""
-            if addon_names:
-                addon_html = f"<p><strong>Power-Ups:</strong> {', '.join(addon_names)}</p>"
-            send_email_via_brevo_http(
-                to_email=contact_email,
-                company_name=company_name,
-                job_title=job_title,
-                custom_body=f"""
-                <h2>✅ Your Job Posting is Live!</h2>
-                <p>Thank you for choosing <strong>JobHunt Pro</strong>!</p>
-                <p><strong>Job:</strong> {job_title}<br>
-                <strong>Company:</strong> {company_name}<br>
-                <strong>Plan:</strong> {actual_tier.title()} (${price})</p>
-                {bulk_info}{dur_info}{addon_html}
-                <p>Your job is now visible to thousands of qualified candidates. You'll receive applications directly at this email.</p>
-                <hr style="border:1px solid rgba(255,255,255,.1);margin:16px 0;">
-                <h3 style="margin-bottom:8px;">📊 Track Your Job Performance</h3>
-                <p style="margin-bottom:8px;">Click below to see views, applications, and status:</p>
-                <table style="width:100%;border-collapse:collapse;">{job_tracking_links}</table>
-                <p style="margin-top:12px;">🔗 <a href="https://jhfguf.pythonanywhere.com/employer/track?email={contact_email}" style="color:#f59e0b;">View ALL your jobs →</a></p>
-                <p style="color:#94a3b8;font-size:0.85em;">Job IDs: {', '.join(job_ids)}<br>Expires: {duration} days from now</p>
-                """,
-                sender_name="JobHunt Pro",
-                subject=f"✅ Job Posted: {job_title} at {company_name}"
-            )
-        except Exception as e:
-            logger.warning(f"[EMPLOYER] Confirmation email failed: {e}")
-
-        bulk_msg = f" {bulk_cnt} jobs posted!" if is_bulk_bool else ""
-        return {
-            "status": "ok",
-            "message": f"🎉 Job posted successfully! Your listing is live for {duration} days.{bulk_msg} Confirmation sent to {contact_email}.",
-            "job_ids": job_ids,
-            "price": price
-        }
-
-    except Exception as e:
-        logger.error(f"[EMPLOYER] Post job failed: {e}")
-        return {"status": "error", "message": "Something went wrong. Please try again or contact us."}
-
-
-@app.get("/api/employer/jobs")
-def api_employer_list_jobs():
-    """List all active posted jobs (public)."""
-    try:
-        conn = get_db()
-        conn.execute("""CREATE TABLE IF NOT EXISTS posted_jobs (
-            job_id TEXT PRIMARY KEY, company_name TEXT, job_title TEXT, location TEXT,
-            category TEXT, salary TEXT, contact_email TEXT, description TEXT,
-            apply_url TEXT, logo_url TEXT, tier TEXT, price REAL, status TEXT DEFAULT 'pending',
-            views INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            expires_at TIMESTAMP DEFAULT (datetime('now', '+30 days')))""")
-        rows = conn.execute(
-            "SELECT * FROM posted_jobs WHERE status = 'pending' AND expires_at > datetime('now') ORDER BY CASE tier WHEN 'enterprise' THEN 1 WHEN 'featured' THEN 2 ELSE 3 END, created_at DESC LIMIT 50"
-        ).fetchall()
-        conn.close()
-        return {
-            "status": "ok",
-            "jobs": [dict(r) for r in rows] if rows else [],
-            "count": len(rows) if rows else 0
-        }
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+# @app.post("/api/employer/post-job")
+# def api_employer_post_job(
+#     request: Request,
+#     company_name: str = Form(...),
+#     job_title: str = Form(...),
+#     location: str = Form(...),
+#     category: str = Form(""),
+#     salary: str = Form(""),
+#     contact_email: str = Form(...),
+#     description: str = Form(...),
+#     apply_url: str = Form(""),
+#     logo_url: str = Form(""),
+#     tier: str = Form("basic"),
+#     price: float = Form(1.0),
+#     duration_days: int = Form(30),
+#     is_bulk: str = Form("0"),
+#     bulk_count: int = Form(0),
+#     addons: str = Form("[]"),
+# ):
+#     """Employers post jobs — supports subscriptions, add-ons, bulk packages."""
+#     import uuid
+#     import json
+#     import re
+# 
+#     # Validate
+#     if not company_name or not job_title or not location or not contact_email or not description:
+#         return {"status": "error", "message": "All required fields must be filled."}
+# 
+#     # Validate email
+#     if not re.match(r"^[\w\.-]+@[\w\.-]+\.\w{2,}$", contact_email):
+#         return {"status": "error", "message": "Invalid email address."}
+# 
+#     # Validate job is not fake/scam
+#     scam_keywords = ["make money fast", "work from home earn", "pyramid", "multi-level",
+#                      "$$$", "get rich", "no experience needed", "earn daily",
+#                      "passive income", "investment opportunity", "crypto trading",
+#                      "forex trading", "binary options", "money transfer agent",
+#                      "work from home $1000", "easy money", "earn $500"]
+#     combined_text = (description + " " + job_title).lower()
+#     for kw in scam_keywords:
+#         if kw in combined_text:
+#             return {"status": "error", "message": "This job appears to contain prohibited content. Legitimate jobs only."}
+# 
+#     # Validate company name
+#     if len(company_name) < 2 or len(company_name) > 100:
+#         return {"status": "error", "message": "Company name must be 2-100 characters."}
+# 
+#     # Parse addons
+#     try:
+#         addon_list = json.loads(addons) if addons else []
+#     except (json.JSONDecodeError, TypeError):
+#         addon_list = []
+# 
+#     is_bulk_bool = (is_bulk == "1")
+#     bulk_cnt = bulk_count if is_bulk_bool else 1
+#     actual_tier = tier  # single post tier, or bulk tier
+#     duration = max(30, min(365, duration_days))  # clamp 30-365
+# 
+#     try:
+#         conn = get_db()
+#         # Create table if not exists
+#         conn.execute("""
+#             CREATE TABLE IF NOT EXISTS posted_jobs (
+#                 job_id TEXT PRIMARY KEY,
+#                 company_name TEXT NOT NULL,
+#                 job_title TEXT NOT NULL,
+#                 location TEXT NOT NULL,
+#                 category TEXT DEFAULT '',
+#                 salary TEXT DEFAULT '',
+#                 contact_email TEXT NOT NULL,
+#                 description TEXT NOT NULL,
+#                 apply_url TEXT DEFAULT '',
+#                 logo_url TEXT DEFAULT '',
+#                 tier TEXT DEFAULT 'basic',
+#                 price REAL DEFAULT 1.0,
+#                 duration_days INTEGER DEFAULT 30,
+#                 is_bulk INTEGER DEFAULT 0,
+#                 bulk_count INTEGER DEFAULT 0,
+#                 addons TEXT DEFAULT '[]',
+#                 status TEXT DEFAULT 'pending',
+#                 views INTEGER DEFAULT 0,
+#                 applications INTEGER DEFAULT 0,
+#                 google_jobs_id TEXT DEFAULT '',
+#                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#                 expires_at TIMESTAMP DEFAULT (datetime('now', '+30 days'))
+#             )
+#         """)
+#         # Migrate old table — add missing columns if needed
+#         existing = [c[1] for c in conn.execute("PRAGMA table_info(posted_jobs)").fetchall()]
+#         for col, coltype in [('duration_days','INTEGER DEFAULT 30'),('is_bulk','INTEGER DEFAULT 0'),('bulk_count','INTEGER DEFAULT 0'),('addons',"TEXT DEFAULT '[]'"),('applications','INTEGER DEFAULT 0'),('google_jobs_id',"TEXT DEFAULT ''")]:
+#             if col not in existing:
+#                 try:
+#                     conn.execute(f"ALTER TABLE posted_jobs ADD COLUMN {col} {coltype}")
+#                 except Exception as e:
+#                     err_msg = str(e).lower()
+#                     if "already exists" in err_msg or "duplicate column" in err_msg:
+#                         logger.info(f"Column {col} already exists in posted_jobs (handled gracefully)")
+#                     else:
+#                         raise e
+#         conn.commit()
+# 
+#         job_ids = []
+#         for i in range(bulk_cnt):
+#             job_id = f"job_{uuid.uuid4().hex[:12]}"
+#             job_ids.append(job_id)
+#             expires = datetime.now() + timedelta(days=duration)
+#             conn.execute("""
+#                 INSERT INTO posted_jobs (job_id, company_name, job_title, location, category,
+#                     salary, contact_email, description, apply_url, logo_url, tier, price,
+#                     duration_days, is_bulk, bulk_count, addons, expires_at)
+#                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+#             """, (job_id, company_name, job_title, location, category,
+#                   salary, contact_email, description, apply_url, logo_url, actual_tier,
+#                   price / bulk_cnt, duration, 1 if is_bulk_bool else 0, bulk_cnt,
+#                   json.dumps(addon_list), expires.isoformat()))
+# 
+#         conn.commit()
+#         conn.close()
+# 
+#         # Build addon names for display
+#         addon_names = [a.get('name','').replace('_',' ').title() for a in addon_list]
+#         addon_str = f" + {' + '.join(addon_names)}" if addon_names else ""
+# 
+#         logger.info(f"[EMPLOYER] {bulk_cnt} job(s) posted: {job_title} at {company_name} ({actual_tier} — ${price}{addon_str} / {duration}d)")
+# 
+#         # Build tracking URLs for each job
+#         job_tracking_links = ''.join([
+#             f'<tr><td style="padding:3px 0;">📋 <code>{jid}</code></td>'
+#             f'<td><a href="https://jhfguf.pythonanywhere.com/employer/track?email={contact_email}&job_id={jid}" '
+#             f'style="color:#60a5fa;font-size:0.85em;">📊 Track this job →</a></td></tr>'
+#             for jid in job_ids
+#         ])
+#         # Send confirmation email
+#         try:
+#             bulk_info = f"<p><strong>Package:</strong> {bulk_cnt} post(s)</p>" if is_bulk_bool else ""
+#             dur_info = f"<p><strong>Duration:</strong> {duration} days</p>"
+#             addon_html = ""
+#             if addon_names:
+#                 addon_html = f"<p><strong>Power-Ups:</strong> {', '.join(addon_names)}</p>"
+#             send_email_via_brevo_http(
+#                 to_email=contact_email,
+#                 company_name=company_name,
+#                 job_title=job_title,
+#                 custom_body=f"""
+#                 <h2>✅ Your Job Posting is Live!</h2>
+#                 <p>Thank you for choosing <strong>JobHunt Pro</strong>!</p>
+#                 <p><strong>Job:</strong> {job_title}<br>
+#                 <strong>Company:</strong> {company_name}<br>
+#                 <strong>Plan:</strong> {actual_tier.title()} (${price})</p>
+#                 {bulk_info}{dur_info}{addon_html}
+#                 <p>Your job is now visible to thousands of qualified candidates. You'll receive applications directly at this email.</p>
+#                 <hr style="border:1px solid rgba(255,255,255,.1);margin:16px 0;">
+#                 <h3 style="margin-bottom:8px;">📊 Track Your Job Performance</h3>
+#                 <p style="margin-bottom:8px;">Click below to see views, applications, and status:</p>
+#                 <table style="width:100%;border-collapse:collapse;">{job_tracking_links}</table>
+#                 <p style="margin-top:12px;">🔗 <a href="https://jhfguf.pythonanywhere.com/employer/track?email={contact_email}" style="color:#f59e0b;">View ALL your jobs →</a></p>
+#                 <p style="color:#94a3b8;font-size:0.85em;">Job IDs: {', '.join(job_ids)}<br>Expires: {duration} days from now</p>
+#                 """,
+#                 sender_name="JobHunt Pro",
+#                 subject=f"✅ Job Posted: {job_title} at {company_name}"
+#             )
+#         except Exception as e:
+#             logger.warning(f"[EMPLOYER] Confirmation email failed: {e}")
+# 
+#         bulk_msg = f" {bulk_cnt} jobs posted!" if is_bulk_bool else ""
+#         return {
+#             "status": "ok",
+#             "message": f"🎉 Job posted successfully! Your listing is live for {duration} days.{bulk_msg} Confirmation sent to {contact_email}.",
+#             "job_ids": job_ids,
+#             "price": price
+#         }
+# 
+#     except Exception as e:
+#         logger.error(f"[EMPLOYER] Post job failed: {e}")
+#         return {"status": "error", "message": "Something went wrong. Please try again or contact us."}
 
 
-@app.get("/employer/track", response_class=HTMLResponse)
-def employer_track_page(request: Request):
-    """Employer tracking page — enter email to see all posted jobs."""
-    user_id = get_verified_user_id(request)
-    if user_id:
-        conn = get_db()
-        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        conn.close()
-        user = dict(user_row) if user_row else {}
-        content = render_template("employer_track.html", user=user, active_page="employer-track")
-        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Track Jobs", "employer-track", request=request))
+# @app.get("/api/employer/jobs")
+# def api_employer_list_jobs():
+#     """List all active posted jobs (public)."""
+#     try:
+#         conn = get_db()
+#         conn.execute("""CREATE TABLE IF NOT EXISTS posted_jobs (
+#             job_id TEXT PRIMARY KEY, company_name TEXT, job_title TEXT, location TEXT,
+#             category TEXT, salary TEXT, contact_email TEXT, description TEXT,
+#             apply_url TEXT, logo_url TEXT, tier TEXT, price REAL, status TEXT DEFAULT 'pending',
+#             views INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#             expires_at TIMESTAMP DEFAULT (datetime('now', '+30 days')))""")
+#         rows = conn.execute(
+#             "SELECT * FROM posted_jobs WHERE status = 'pending' AND expires_at > datetime('now') ORDER BY CASE tier WHEN 'enterprise' THEN 1 WHEN 'featured' THEN 2 ELSE 3 END, created_at DESC LIMIT 50"
+#         ).fetchall()
+#         conn.close()
+#         return {
+#             "status": "ok",
+#             "jobs": [dict(r) for r in rows] if rows else [],
+#             "count": len(rows) if rows else 0
+#         }
+#     except Exception as e:
+#         return {"status": "error", "message": str(e)}
 
-    content = render_template("employer_track.html", request=request, active_page="employer-track", user=None)
-    return HTMLResponse(_public_shell(content, "Track Jobs &mdash; JobHunt Pro"))
+
+# @app.get("/employer/track", response_class=HTMLResponse)
+# def employer_track_page(request: Request):
+#     """Employer tracking page — enter email to see all posted jobs."""
+#     user_id = get_verified_user_id(request)
+#     if user_id:
+#         conn = get_db()
+#         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+#         conn.close()
+#         user = dict(user_row) if user_row else {}
+#         content = render_template("employer_track.html", user=user, active_page="employer-track")
+#         return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Track Jobs", "employer-track", request=request))
+# 
+#     content = render_template("employer_track.html", request=request, active_page="employer-track", user=None)
+#     return HTMLResponse(_public_shell(content, "Track Jobs &mdash; JobHunt Pro"))
 
 
-@app.get("/api/employer/dashboard")
-def api_employer_dashboard(email: str = "", job_id: str = ""):
-    """Get all jobs for an employer email, or a specific job."""
-    if not email:
-        return {"status": "error", "message": "Email is required."}
-    try:
-        conn = get_db()
-        if job_id:
-            rows = conn.execute(
-                "SELECT * FROM posted_jobs WHERE job_id = ? AND contact_email = ?",
-                (job_id, email)
-            ).fetchall()
-            # Increment view count
-            if rows:
-                conn.execute("UPDATE posted_jobs SET views = views + 1 WHERE job_id = ?", (job_id,))
-                conn.commit()
-        else:
-            rows = conn.execute(
-                "SELECT * FROM posted_jobs WHERE contact_email = ? ORDER BY created_at DESC LIMIT 50",
-                (email,)
-            ).fetchall()
-        conn.close()
-
-        jobs = []
-        for r in (rows or []):
-            j = dict(r)
-            # Convert dates to ISO strings
-            for k in ['created_at', 'expires_at']:
-                if j.get(k):
-                    j[k] = str(j[k])
-            jobs.append(j)
-
-        return {
-            "status": "ok",
-            "jobs": jobs,
-            "count": len(jobs)
-        }
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+# @app.get("/api/employer/dashboard")
+# def api_employer_dashboard(email: str = "", job_id: str = ""):
+#     """Get all jobs for an employer email, or a specific job."""
+#     if not email:
+#         return {"status": "error", "message": "Email is required."}
+#     try:
+#         conn = get_db()
+#         if job_id:
+#             rows = conn.execute(
+#                 "SELECT * FROM posted_jobs WHERE job_id = ? AND contact_email = ?",
+#                 (job_id, email)
+#             ).fetchall()
+#             # Increment view count
+#             if rows:
+#                 conn.execute("UPDATE posted_jobs SET views = views + 1 WHERE job_id = ?", (job_id,))
+#                 conn.commit()
+#         else:
+#             rows = conn.execute(
+#                 "SELECT * FROM posted_jobs WHERE contact_email = ? ORDER BY created_at DESC LIMIT 50",
+#                 (email,)
+#             ).fetchall()
+#         conn.close()
+# 
+#         jobs = []
+#         for r in (rows or []):
+#             j = dict(r)
+#             # Convert dates to ISO strings
+#             for k in ['created_at', 'expires_at']:
+#                 if j.get(k):
+#                     j[k] = str(j[k])
+#             jobs.append(j)
+# 
+#         return {
+#             "status": "ok",
+#             "jobs": jobs,
+#             "count": len(jobs)
+#         }
+#     except Exception as e:
+#         return {"status": "error", "message": str(e)}
 
 
 @app.post("/api/jobs/apply/{job_id}")
@@ -7566,146 +7098,146 @@ def api_apply_to_job(
         return {"status": "error", "message": "Please enter your full name."}
 
     try:
-        conn = get_db()
-        # Find the job
-        job = conn.execute(
-            "SELECT * FROM posted_jobs WHERE job_id = ? AND expires_at > datetime('now')",
-            (job_id,)
-        ).fetchone()
-        if not job:
-            conn.close()
-            return {"status": "error", "message": "Job not found or expired."}
-
-        job = dict(job)
-
-        # Ensure applications column exists
-        try:
-            conn.execute("ALTER TABLE posted_jobs ADD COLUMN applications INTEGER DEFAULT 0")
-        except Exception:
-            pass
-
-        # Increment application count
-        conn.execute("UPDATE posted_jobs SET applications = applications + 1 WHERE job_id = ?", (job_id,))
-
-        # Store application
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS job_applications (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                job_id TEXT NOT NULL,
-                applicant_name TEXT NOT NULL,
-                applicant_email TEXT NOT NULL,
-                applicant_phone TEXT DEFAULT '',
-                cover_note TEXT DEFAULT '',
-                cv_url TEXT DEFAULT '',
-                status TEXT DEFAULT 'new',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-        conn.execute("""
-            INSERT INTO job_applications (job_id, applicant_name, applicant_email, applicant_phone, cover_note, cv_url)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (job_id, applicant_name, applicant_email, applicant_phone, cover_note, cv_url))
-        conn.commit()
-
-        # Check if employer wants notifications
-        notify = False
-        try:
-            conn.execute("""CREATE TABLE IF NOT EXISTS employer_preferences (
-                contact_email TEXT PRIMARY KEY, notify_email INTEGER DEFAULT 0,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
-            prefs = conn.execute(
-                "SELECT notify_email FROM employer_preferences WHERE contact_email = ?",
-                (job['contact_email'],)
+        with get_db() as conn:
+            # Find the job
+            job = conn.execute(
+                "SELECT * FROM posted_jobs WHERE job_id = ? AND expires_at > datetime('now')",
+                (job_id,)
             ).fetchone()
-            if prefs and prefs[0] == 1:
-                notify = True
-        except Exception as e:
-            logger.warning(f"[NOTIFY] Preferences check failed: {e}")
+            if not job:
+                pass  # conn.close()
+                return {"status": "error", "message": "Job not found or expired."}
 
-        conn.close()
+            job = dict(job)
 
-        # Send notification email to employer
-        if notify:
+            # Ensure applications column exists
             try:
-                tracking_url = f"https://jhfguf.pythonanywhere.com/employer/track?email={job['contact_email']}&job_id={job_id}"
-                send_email_via_brevo_http(
-                    to_email=job['contact_email'],
-                    company_name=job['company_name'],
-                    job_title=job['job_title'],
-                    custom_body=f"""
-                    <h2>📩 New Applicant!</h2>
-                    <p>Someone just applied to your job posting:</p>
-                    <p><strong>Job:</strong> {job['job_title']}<br>
-                    <strong>Company:</strong> {job['company_name']}<br>
-                    <strong>Location:</strong> {job['location']}</p>
-                    <hr style="border:1px solid rgba(255,255,255,.1);margin:16px 0;">
-                    <h3>👤 Applicant Details</h3>
-                    <p><strong>Name:</strong> {applicant_name}<br>
-                    <strong>Email:</strong> {applicant_email}<br>
-                    <strong>Phone:</strong> {applicant_phone or 'Not provided'}</p>
-                    <p><strong>Message:</strong><br><em>{cover_note or 'No cover note provided.'}</em></p>
-                    <hr style="border:1px solid rgba(255,255,255,.1);margin:16px 0;">
-                    <p>🔗 <a href="{tracking_url}" style="color:#60a5fa;">View job performance →</a></p>
-                    <p style="color:#94a3b8;font-size:0.8em;">You received this because you enabled notifications.<br>
-                    <a href="https://jhfguf.pythonanywhere.com/employer/track?email={job['contact_email']}">Manage preferences →</a></p>
-                    """,
-                    sender_name="JobHunt Pro",
-                    subject=f"📩 New Applicant: {applicant_name} → {job['job_title']}"
-                )
-                logger.info(f"[NOTIFY] Sent application alert to {job['contact_email']} for {job_id}")
-            except Exception as e:
-                logger.warning(f"[NOTIFY] Failed to send application alert: {e}")
+                conn.execute("ALTER TABLE posted_jobs ADD COLUMN applications INTEGER DEFAULT 0")
+            except Exception:
+                pass
 
-        return {
-            "status": "ok",
-            "message": "✅ Application submitted! Your details have been sent to the employer."
-        }
+            # Increment application count
+            conn.execute("UPDATE posted_jobs SET applications = applications + 1 WHERE job_id = ?", (job_id,))
+
+            # Store application
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS job_applications (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    job_id TEXT NOT NULL,
+                    applicant_name TEXT NOT NULL,
+                    applicant_email TEXT NOT NULL,
+                    applicant_phone TEXT DEFAULT '',
+                    cover_note TEXT DEFAULT '',
+                    cv_url TEXT DEFAULT '',
+                    status TEXT DEFAULT 'new',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            conn.execute("""
+                INSERT INTO job_applications (job_id, applicant_name, applicant_email, applicant_phone, cover_note, cv_url)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (job_id, applicant_name, applicant_email, applicant_phone, cover_note, cv_url))
+            conn.commit()
+
+            # Check if employer wants notifications
+            notify = False
+            try:
+                conn.execute("""CREATE TABLE IF NOT EXISTS employer_preferences (
+                    contact_email TEXT PRIMARY KEY, notify_email INTEGER DEFAULT 0,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
+                prefs = conn.execute(
+                    "SELECT notify_email FROM employer_preferences WHERE contact_email = ?",
+                    (job['contact_email'],)
+                ).fetchone()
+                if prefs and prefs[0] == 1:
+                    notify = True
+            except Exception as e:
+                logger.warning(f"[NOTIFY] Preferences check failed: {e}")
+
+            pass  # conn.close()
+
+            # Send notification email to employer
+            if notify:
+                try:
+                    tracking_url = f"{config.SITE_URL}/employer/track?email={job['contact_email']}&job_id={job_id}"
+                    send_email_via_brevo_http(
+                        to_email=job['contact_email'],
+                        company_name=job['company_name'],
+                        job_title=job['job_title'],
+                        custom_body=f"""
+                        <h2>📩 New Applicant!</h2>
+                        <p>Someone just applied to your job posting:</p>
+                        <p><strong>Job:</strong> {job['job_title']}<br>
+                        <strong>Company:</strong> {job['company_name']}<br>
+                        <strong>Location:</strong> {job['location']}</p>
+                        <hr style="border:1px solid rgba(255,255,255,.1);margin:16px 0;">
+                        <h3>👤 Applicant Details</h3>
+                        <p><strong>Name:</strong> {applicant_name}<br>
+                        <strong>Email:</strong> {applicant_email}<br>
+                        <strong>Phone:</strong> {applicant_phone or 'Not provided'}</p>
+                        <p><strong>Message:</strong><br><em>{cover_note or 'No cover note provided.'}</em></p>
+                        <hr style="border:1px solid rgba(255,255,255,.1);margin:16px 0;">
+                        <p>🔗 <a href="{tracking_url}" style="color:#60a5fa;">View job performance →</a></p>
+                        <p style="color:#94a3b8;font-size:0.8em;">You received this because you enabled notifications.<br>
+                        <a href="{config.SITE_URL}/employer/track?email={job['contact_email']}">Manage preferences →</a></p>
+                        """,
+                        sender_name="JobHunt Pro",
+                        subject=f"📩 New Applicant: {applicant_name} → {job['job_title']}"
+                    )
+                    logger.info(f"[NOTIFY] Sent application alert to {job['contact_email']} for {job_id}")
+                except Exception as e:
+                    logger.warning(f"[NOTIFY] Failed to send application alert: {e}")
+
+            return {
+                "status": "ok",
+                "message": "✅ Application submitted! Your details have been sent to the employer."
+            }
 
     except Exception as e:
         logger.error(f"[APPLY] Error: {e}", exc_info=True)
         return {"status": "error", "message": "Something went wrong. Please try again."}
 
 
-@app.get("/api/employer/preferences")
-def api_employer_get_prefs(email: str = ""):
-    """Get notification preferences for employer."""
-    if not email:
-        return {"status": "error", "message": "Email required."}
-    try:
-        conn = get_db()
-        conn.execute("""CREATE TABLE IF NOT EXISTS employer_preferences (
-            contact_email TEXT PRIMARY KEY, notify_email INTEGER DEFAULT 0,
-            notify_interval_min INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
-        row = conn.execute("SELECT * FROM employer_preferences WHERE contact_email = ?", (email,)).fetchone()
-        conn.close()
-        prefs = dict(row) if row else {"contact_email": email, "notify_email": 0}
-        return {"status": "ok", "preferences": prefs}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+# @app.get("/api/employer/preferences")
+# def api_employer_get_prefs(email: str = ""):
+#     """Get notification preferences for employer."""
+#     if not email:
+#         return {"status": "error", "message": "Email required."}
+#     try:
+#         conn = get_db()
+#         conn.execute("""CREATE TABLE IF NOT EXISTS employer_preferences (
+#             contact_email TEXT PRIMARY KEY, notify_email INTEGER DEFAULT 0,
+#             notify_interval_min INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
+#         row = conn.execute("SELECT * FROM employer_preferences WHERE contact_email = ?", (email,)).fetchone()
+#         conn.close()
+#         prefs = dict(row) if row else {"contact_email": email, "notify_email": 0}
+#         return {"status": "ok", "preferences": prefs}
+#     except Exception as e:
+#         return {"status": "error", "message": str(e)}
 
 
-@app.post("/api/employer/preferences")
-def api_employer_save_prefs(
-    email: str = Form(...),
-    notify_email: int = Form(0),
-):
-    """Save notification preferences."""
-    try:
-        conn = get_db()
-        conn.execute("""CREATE TABLE IF NOT EXISTS employer_preferences (
-            contact_email TEXT PRIMARY KEY, notify_email INTEGER DEFAULT 0,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
-        conn.execute("""
-            INSERT INTO employer_preferences (contact_email, notify_email, updated_at)
-            VALUES (?, ?, datetime('now'))
-            ON CONFLICT(contact_email) DO UPDATE SET notify_email = ?, updated_at = datetime('now')
-        """, (email, notify_email, notify_email))
-        conn.commit()
-        conn.close()
-        state = "ON ✅" if notify_email else "OFF ❌"
-        return {"status": "ok", "message": f"Notifications {state}", "notify_email": notify_email}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+# @app.post("/api/employer/preferences")
+# def api_employer_save_prefs(
+#     email: str = Form(...),
+#     notify_email: int = Form(0),
+# ):
+#     """Save notification preferences."""
+#     try:
+#         conn = get_db()
+#         conn.execute("""CREATE TABLE IF NOT EXISTS employer_preferences (
+#             contact_email TEXT PRIMARY KEY, notify_email INTEGER DEFAULT 0,
+#             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
+#         conn.execute("""
+#             INSERT INTO employer_preferences (contact_email, notify_email, updated_at)
+#             VALUES (?, ?, datetime('now'))
+#             ON CONFLICT(contact_email) DO UPDATE SET notify_email = ?, updated_at = datetime('now')
+#         """, (email, notify_email, notify_email))
+#         conn.commit()
+#         conn.close()
+#         state = "ON ✅" if notify_email else "OFF ❌"
+#         return {"status": "ok", "message": f"Notifications {state}", "notify_email": notify_email}
+#     except Exception as e:
+#         return {"status": "error", "message": str(e)}
 
 class FollowUpReq(BaseModel):
     title: str
@@ -7750,411 +7282,34 @@ def require_admin(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return None
-    conn = get_db()
-    row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    if not row or not is_admin_email(row["email"]):
-        return None
-    return user_id
+    with get_db() as conn:
+        row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        pass  # conn.close()
+        if not row or not is_admin_email(row["email"]):
+            return None
+        return user_id
 
 
-@app.get("/admin", response_class=HTMLResponse)
-def admin_panel(request: Request):
-    """Admin dashboard — full system overview."""
-    if not require_admin(request):
-        return RedirectResponse("/login", status_code=303)
-
-    conn = get_db()
-
-    # Stats
-    total_users    = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-    total_campaigns= conn.execute("SELECT COUNT(*) FROM campaigns").fetchone()[0]
-    total_emails   = conn.execute("SELECT COUNT(*) FROM campaign_emails").fetchone()[0]
-    emails_sent    = conn.execute("SELECT COUNT(*) FROM campaign_emails WHERE status='sent'").fetchone()[0]
-    total_revenue  = conn.execute("SELECT COALESCE(SUM(amount_usd),0) FROM orders WHERE payment_status='completed'").fetchone()[0]
-    total_wallets  = conn.execute("SELECT COALESCE(SUM(wallet_balance),0) FROM users").fetchone()[0]
-
-    # Recent users
-    users = [dict(r) for r in conn.execute(
-        "SELECT user_id, email, name, wallet_balance, total_spent, user_type, created_at, is_active FROM users ORDER BY created_at DESC LIMIT 50"
-    ).fetchall()]
-
-    # Recent campaigns
-    campaigns = [dict(r) for r in conn.execute(
-        "SELECT c.campaign_id, c.user_id, c.status, c.total_companies, c.sent_count, c.created_at, u.email FROM campaigns c LEFT JOIN users u ON c.user_id=u.user_id ORDER BY c.created_at DESC LIMIT 30"
-    ).fetchall()]
-
-    # Recent orders
-    orders = [dict(r) for r in conn.execute(
-        "SELECT o.order_id, o.user_id, o.order_type, o.amount_usd, o.payment_status, o.created_at, u.email FROM orders o LEFT JOIN users u ON o.user_id=u.user_id ORDER BY o.created_at DESC LIMIT 30"
-    ).fetchall()]
-
-    # Unused redeem codes
-    redeem_codes = [dict(r) for r in conn.execute(
-        "SELECT code, value_usd, code_type, is_used, used_by, created_at FROM redeem_codes ORDER BY created_at DESC LIMIT 20"
-    ).fetchall()]
-
-    # Recent manual emails
-    manual_emails = [dict(r) for r in conn.execute(
-        "SELECT to_email, subject, price_usd, status, created_at FROM manual_emails ORDER BY created_at DESC LIMIT 20"
-    ).fetchall()]
-
-    # Manual email stats
-    manual_email_count = conn.execute("SELECT COUNT(*) FROM manual_emails").fetchone()[0]
-    manual_email_revenue = conn.execute("SELECT COALESCE(SUM(price_usd),0) FROM manual_emails WHERE status='sent'").fetchone()[0]
-
-    # Flash sales
-    flash_sales = [dict(r) for r in conn.execute(
-        "SELECT * FROM flash_sales ORDER BY created_at DESC LIMIT 20"
-    ).fetchall()]
-
-    conn.close()
-
-    # Payment stats from payments module
-    try:
-        payment_stats = get_payment_stats()
-    except Exception:
-        payment_stats = {"total_payments": 0, "total_received_usd": 0, "by_currency": {}, "recent": []}
-
-    content_html = render_template("admin.html", request=request,
-        now=datetime.now(timezone.utc),
-        stats={
-            "total_users": total_users,
-            "total_campaigns": total_campaigns,
-            "total_emails": total_emails,
-            "emails_sent": emails_sent,
-            "total_revenue": round(float(total_revenue), 2),
-            "total_wallets": round(float(total_wallets), 2),
-            "manual_emails": manual_email_count,
-            "manual_email_revenue": round(float(manual_email_revenue), 2),
-        },
-        users=users,
-        campaigns=campaigns,
-        orders=orders,
-        redeem_codes=redeem_codes,
-        payment_stats=payment_stats,
-        manual_emails=manual_emails,
-        flash_sales=flash_sales,
-    )
-    return HTMLResponse(_build_dashboard_shell(None, require_admin(request), content_html, "Admin Panel", "admin"))
 
 
-@app.get("/admin/sys-logs", response_class=HTMLResponse)
-def admin_sys_logs(request: Request):
-    """Admin endpoint to view system logs."""
-    if not require_admin(request):
-        return RedirectResponse("/login", status_code=303)
-    
-    logs_html = "<h2>System Logs</h2>"
-    
-    # Try reading PA logs or local logs
-    log_files = [
-        "/var/log/jhfguf.pythonanywhere.com.error.log",
-        "/var/log/jhfguf.pythonanywhere.com.server.log",
-        "error.log",
-        "server.log",
-        "jobhunt.log",
-        "sam_max.log"
-    ]
-    
-    for log_path in log_files:
-        if os.path.exists(log_path):
-            try:
-                # Read last 500 lines using tail-like approach
-                with open(log_path, 'r', encoding='utf-8', errors='replace') as f:
-                    lines = f.readlines()
-                    tail_lines = lines[-500:]
-                    logs_html += f"<h3>{os.path.basename(log_path)}</h3>"
-                    logs_html += f"<pre style='background:#1e1e1e;color:#00ff00;padding:15px;overflow:auto;height:400px;font-size:12px;'>{''.join(tail_lines)}</pre>"
-            except Exception as e:
-                logs_html += f"<p>Error reading {log_path}: {e}</p>"
-                
-    if logs_html == "<h2>System Logs</h2>":
-        logs_html += "<p>No log files found.</p>"
-        
-    html_content = f"""
-    <html>
-    <head>
-        <title>System Logs</title>
-        <style>
-            body {{ background-color: #111; color: #eee; font-family: monospace; padding: 20px; }}
-            a {{ color: #3b82f6; text-decoration: none; }}
-            a:hover {{ text-decoration: underline; }}
-        </style>
-    </head>
-    <body>
-        <a href="/admin">&larr; Back to Admin Panel</a> | <a href="/user-dashboard">Back to Dashboard</a>
-        {logs_html}
-    </body>
-    </html>
-    """
-    return HTMLResponse(html_content)
 
 
-@app.post("/admin-reset-pw")
-def admin_reset_pw(token: str = ""):
-    """Reset admin password via secret token. POST-only, uses ADMIN_PW_HASH env var."""
-    if token != config.PA_API_TOKEN:
-        return JSONResponse({"error": "invalid token"}, status_code=403)
-    admin_hash = os.getenv("ADMIN_PW_HASH", "")
-    if not admin_hash:
-        return JSONResponse({"error": "ADMIN_PW_HASH not set in env"}, status_code=503)
-    conn = get_db()
-    conn.execute("UPDATE users SET password_hash = ? WHERE email = ?",
-                 (admin_hash, "samsalameh.cv@gmail.com"))
-    conn.commit()
-    conn.close()
-    logger.info("Password reset for samsalameh.cv@gmail.com via admin-reset-pw")
-    return {"status": "password updated for samsalameh.cv@gmail.com"}
 
 
-@app.post("/api/admin/run-design-scan")
-def api_run_design_scan(request: Request):
-    if not require_admin(request):
-        return JSONResponse({"error": "Unauthorized"}, status_code=401)
-    
-    routes = [
-        "/",
-        "/pricing",
-        "/faq",
-        "/contact",
-        "/services",
-        "/compare",
-        "/track-application",
-        "/trust",
-        "/login",
-        "/register",
-        "/chrome-extension",
-        "/careers"
-    ]
-    
-    results = []
-    critical_count = 0
-    high_count = 0
-    medium_count = 0
-    
-    import httpx
-    base_url = str(request.base_url).rstrip('/')
-    
-    try:
-        with httpx.Client(timeout=10.0, follow_redirects=True) as client:
-            for r in routes:
-                url = f"{base_url}{r}"
-                issues = []
-                try:
-                    res = client.get(url)
-                    html = res.text
-                    
-                    # 1. Check title
-                    if "<title>" not in html or "</title>" not in html:
-                        issues.append({"severity": "CRITICAL", "message": "Missing <title> tag"})
-                        critical_count += 1
-                    
-                    # 2. Check viewport
-                    if 'name="viewport"' not in html:
-                        issues.append({"severity": "CRITICAL", "message": "Missing viewport meta tag — broken on mobile"})
-                        critical_count += 1
-                        
-                    # 3. Check nav
-                    if "<nav" not in html:
-                        issues.append({"severity": "CRITICAL", "message": "No <nav> element found"})
-                        critical_count += 1
-                        
-                    # 4. Check footer
-                    if "footer" not in html.lower():
-                        issues.append({"severity": "MEDIUM", "message": "Missing footer element"})
-                        medium_count += 1
-                        
-                    # 5. Check cache control headers for HTML routes
-                    cc = res.headers.get("Cache-Control", "")
-                    if "no-cache" not in cc and "max-age=0" not in cc:
-                        issues.append({"severity": "HIGH", "message": f"Caching enabled on HTML page (Cache-Control: {cc}) — may cause styling delay"})
-                        high_count += 1
-                        
-                    # 6. Check empty links
-                    empty_links = html.count('href="#"') + html.count("href='#'")
-                    if empty_links > 0:
-                        issues.append({"severity": "LOW", "message": f"Contains {empty_links} empty placeholder link(s) (#)"})
-                        
-                except Exception as e:
-                    issues.append({"severity": "CRITICAL", "message": f"Page failed to load: {e}"})
-                    critical_count += 1
-                    
-                results.append({
-                    "route": r,
-                    "url": url,
-                    "issues": issues
-                })
-    except Exception as e:
-        return JSONResponse({"error": f"Scanner client error: {e}"}, status_code=500)
-        
-    return {
-        "status": "success",
-        "critical_count": critical_count,
-        "high_count": high_count,
-        "medium_count": medium_count,
-        "results": results
-    }
 
 
-@app.post("/admin/add-credits")
-def admin_add_credits(
-    request: Request,
-    target_email: str = Form(...),
-    amount: float = Form(...),
-    note: str = Form("Admin credit")
-):
-    """Add wallet credits to any user."""
-    if not require_admin(request):
-        return RedirectResponse("/login", status_code=303)
-
-    conn = get_db()
-    user_row = conn.execute("SELECT user_id, wallet_balance FROM users WHERE email = ?", (target_email,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/admin?error=user_not_found", status_code=303)
-
-    new_balance = user_row["wallet_balance"] + amount
-    conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_row["user_id"]))
-    conn.execute(
-        "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?,?,?,?,?)",
-        (user_row["user_id"], "admin_credit", amount, new_balance, note)
-    )
-    conn.commit()
-    conn.close()
-    return RedirectResponse(f"/admin?success=added+{amount}+to+{target_email}", status_code=303)
 
 
-@app.post("/admin/generate-code")
-def admin_generate_code(
-    request: Request,
-    value: float = Form(...),
-    count: int = Form(1),
-    code_type: str = Form("sale")
-):
-    """Generate redeem codes. code_type: 'sale' for paid, 'admin_free' for admin use only."""
-    if not require_admin(request):
-        return RedirectResponse("/login", status_code=303)
-
-    conn = get_db()
-    codes = []
-    for _ in range(min(count, 50)):
-        # Keep trying until unique code
-        for attempt in range(10):
-            code = generate_redeem_code()
-            existing = conn.execute("SELECT id FROM redeem_codes WHERE code = ?", (code,)).fetchone()
-            if not existing:
-                conn.execute("INSERT INTO redeem_codes (code, value_usd, code_type) VALUES (?, ?, ?)", (code, value, code_type))
-                codes.append(code)
-                break
-    conn.commit()
-    conn.close()
-    # Return codes as JSON so admin can copy them
-    codes_str = ', '.join(codes)
-    return RedirectResponse(f"/admin?success=Generated+{len(codes)}+codes:+{codes_str}", status_code=303)
 
 
-@app.post("/admin/toggle-user")
-def admin_toggle_user(request: Request, target_user_id: str = Form(...)):
-    """Activate or deactivate a user."""
-    if not require_admin(request):
-        return RedirectResponse("/login", status_code=303)
-
-    conn = get_db()
-    row = conn.execute("SELECT is_active FROM users WHERE user_id = ?", (target_user_id,)).fetchone()
-    if row:
-        new_status = 0 if row["is_active"] else 1
-        conn.execute("UPDATE users SET is_active = ? WHERE user_id = ?", (new_status, target_user_id))
-        conn.commit()
-    conn.close()
-    return RedirectResponse("/admin", status_code=303)
 
 
-@app.post("/admin/free-campaign")
-def admin_free_campaign(
-    request: Request,
-    target_email: str = Form(...),
-    company_count: int = Form(100),
-):
-    """Give a user a free campaign (no wallet deduction)."""
-    if not require_admin(request):
-        return RedirectResponse("/login", status_code=303)
-
-    conn = get_db()
-    user_row = conn.execute("SELECT user_id FROM users WHERE email = ?", (target_email,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/admin?error=user_not_found", status_code=303)
-
-    user_id = user_row["user_id"]
-    # Get first profile or create a default one
-    profile_row = conn.execute("SELECT id FROM cv_profiles WHERE user_id = ? LIMIT 1", (user_id,)).fetchone()
-    if not profile_row:
-        conn.execute(
-            "INSERT INTO cv_profiles (user_id, profile_name, cv_text) VALUES (?, ?, ?)",
-            (user_id, "Admin Created Profile", "Professional profile created by admin")
-        )
-        conn.commit()
-        profile_row = conn.execute("SELECT id FROM cv_profiles WHERE user_id = ? LIMIT 1", (user_id,)).fetchone()
-
-    campaign_id = f"camp_{uuid.uuid4().hex[:16]}"
-    order_id = f"ord_{uuid.uuid4().hex[:16]}"
-
-    conn.execute(
-        "INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status) VALUES (?,?,?,?,?,?,?,?)",
-        (order_id, user_id, "campaign", "admin_free", company_count, 0, "admin", "completed")
-    )
-    conn.execute(
-        "INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, total_companies) VALUES (?,?,?,?,?)",
-        (campaign_id, user_id, order_id, profile_row["id"], company_count)
-    )
-    conn.commit()
-    conn.close()
-
-    from core.job_queue import enqueue_task
-    try:
-        enqueue_task("run_campaign", {"campaign_id": campaign_id})
-    except Exception as e:
-        logger.error(f"[QUEUE] Error enqueuing admin campaign {campaign_id}: {e}")
-
-
-    return RedirectResponse(f"/admin?success=Free+campaign+created+for+{target_email}", status_code=303)
 
 
 # â&#x201D;€â&#x201D;€ Flash Sale Admin Endpoints â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
 
-@app.post("/admin/create-flash-sale")
-def admin_create_flash_sale(
-    request: Request,
-    title: str = Form(...),
-    discount_percent: float = Form(...),
-    duration_hours: float = Form(24),
-):
-    """Create a new flash sale that starts immediately."""
-    if not require_admin(request):
-        return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    now = datetime.now()
-    end_time = now + timedelta(hours=duration_hours)
-    conn.execute(
-        "INSERT INTO flash_sales (title, discount_percent, start_time, end_time) VALUES (?, ?, ?, ?)",
-        (title, discount_percent, now.isoformat(), end_time.isoformat())
-    )
-    conn.commit()
-    conn.close()
-    return RedirectResponse(f"/admin?success=Flash+sale+created:+{title}+({discount_percent}%+off,+{duration_hours}h)", status_code=303)
 
 
-@app.post("/admin/end-flash-sale")
-def admin_end_flash_sale(request: Request, sale_id: int = Form(...)):
-    """End a flash sale immediately."""
-    if not require_admin(request):
-        return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    conn.execute("UPDATE flash_sales SET active = 0 WHERE id = ?", (sale_id,))
-    conn.commit()
-    conn.close()
-    return RedirectResponse(f"/admin?success=Flash+sale+{sale_id}+ended", status_code=303)
 
 
 # â&#x201D;€â&#x201D;€ Tiered Referral API â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
@@ -8165,18 +7320,18 @@ def get_referral_tier(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return JSONResponse({"success": False, "error": "Not logged in"}, status_code=401)
-    conn = get_db()
-    ref_count = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ? AND status = 'completed'", (user_id,)).fetchone()[0]
-    conn.close()
-    if ref_count >= 20:
-        tier = 3; tier_name = "Diamond ðŸ&#x201D;·"; commission_pct = 20
-    elif ref_count >= 10:
-        tier = 2; tier_name = "Gold &#x1F947;"; commission_pct = 15
-    elif ref_count >= 3:
-        tier = 1; tier_name = "Silver ðŸ¥ˆ"; commission_pct = 10
-    else:
-        tier = 0; tier_name = "Bronze ðŸ¥‰"; commission_pct = 5
-    return {"success": True, "tier": tier, "tier_name": tier_name, "commission_pct": commission_pct, "referrals": ref_count}
+    with get_db() as conn:
+        ref_count = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ? AND status = 'completed'", (user_id,)).fetchone()[0]
+        pass  # conn.close()
+        if ref_count >= 20:
+            tier = 3; tier_name = "Diamond ðŸ&#x201D;·"; commission_pct = 20
+        elif ref_count >= 10:
+            tier = 2; tier_name = "Gold &#x1F947;"; commission_pct = 15
+        elif ref_count >= 3:
+            tier = 1; tier_name = "Silver ðŸ¥ˆ"; commission_pct = 10
+        else:
+            tier = 0; tier_name = "Bronze ðŸ¥‰"; commission_pct = 5
+        return {"success": True, "tier": tier, "tier_name": tier_name, "commission_pct": commission_pct, "referrals": ref_count}
 
 
 # â&#x201D;€â&#x201D;€ Social Proof API â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
@@ -8184,15 +7339,15 @@ def get_referral_tier(request: Request):
 @app.get("/api/social-proof")
 def api_social_proof():
     """Return recent purchases for social proof popup."""
-    conn = get_db()
-    purchases = [dict(r) for r in conn.execute(
-        """SELECT o.amount_usd, o.package_name, o.created_at, u.name
-           FROM orders o JOIN users u ON o.user_id = u.user_id
-           WHERE o.payment_status = 'completed'
-           ORDER BY o.created_at DESC LIMIT 10"""
-    ).fetchall()]
-    conn.close()
-    return {"success": True, "purchases": purchases}
+    with get_db() as conn:
+        purchases = [dict(r) for r in conn.execute(
+            """SELECT o.amount_usd, o.package_name, o.created_at, u.name
+               FROM orders o JOIN users u ON o.user_id = u.user_id
+               WHERE o.payment_status = 'completed'
+               ORDER BY o.created_at DESC LIMIT 10"""
+        ).fetchall()]
+        pass  # conn.close()
+        return {"success": True, "purchases": purchases}
 
 
 # â&#x201D;€â&#x201D;€ Flash Sales List API â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
@@ -8246,42 +7401,6 @@ def api_flash_sales():
     }
 
 
-@app.post("/admin/send-manual-email")
-def admin_send_manual_email(
-    request: Request,
-    background_tasks: BackgroundTasks,
-    to_email: str = Form(...),
-    subject: str = Form(...),
-    body: str = Form(...),
-):
-    """Send a manual email from admin. Cost: $0.10 per email."""
-    admin_id = require_admin(request)
-    if not admin_id:
-        return RedirectResponse("/login", status_code=303)
-
-    conn = get_db()
-
-    # Get admin email
-    admin_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (admin_id,)).fetchone()
-    admin_email = admin_row["email"] if admin_row else "admin"
-
-    # Insert as pending
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO manual_emails (user_id, to_email, subject, body, price_usd, admin_email, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (admin_id, to_email, subject, body, 0.0, admin_email, "pending")  # Admin sends free
-    )
-    email_id = cursor.lastrowid
-    conn.commit()
-    conn.close()
-
-    # Dispatch background task
-    background_tasks.add_task(_bg_send_manual_email, to_email, subject, body, "Admin", admin_id, email_id)
-
-    return RedirectResponse(
-        f"/admin?success=Email+queued+for+delivery+to+{to_email}+(subject: {subject[:30]})+&#x2014;+$0.00+(admin+free)",
-        status_code=303,
-    )
 
 
 MANUAL_EMAIL_PRICE = 0.10  # $0.10 per manual email for users
@@ -8305,14 +7424,14 @@ def _bg_send_manual_email(to_email: str, subject: str, body: str, sender_name: s
         )
 
     status = "sent" if sent_ok else "failed"
-    conn = get_db()
-    try:
-        conn.execute("UPDATE manual_emails SET status = ? WHERE id = ?", (status, email_id))
-        conn.commit()
-    except Exception as e:
-        logger.error(f"[BG-MANUAL-EMAIL] DB update error: {e}")
-    finally:
-        conn.close()
+    with get_db() as conn:
+        try:
+            conn.execute("UPDATE manual_emails SET status = ? WHERE id = ?", (status, email_id))
+            conn.commit()
+        except Exception as e:
+            logger.error(f"[BG-MANUAL-EMAIL] DB update error: {e}")
+        finally:
+            pass  # conn.close()
 
 @app.post("/send-manual-email")
 def send_manual_email(
@@ -8327,75 +7446,46 @@ def send_manual_email(
     if not user_id:
         return RedirectResponse("/login", status_code=303)
 
-    conn = get_db()
-    user_row = conn.execute("SELECT wallet_balance, email FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/user-dashboard?error=user_not_found", status_code=303)
+    with get_db() as conn:
+        user_row = conn.execute("SELECT wallet_balance, email FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        if not user_row:
+            pass  # conn.close()
+            return RedirectResponse("/user-dashboard?error=user_not_found", status_code=303)
 
-    balance = user_row["wallet_balance"]
-    if balance < MANUAL_EMAIL_PRICE:
-        conn.close()
-        return RedirectResponse(
-            f"/user-dashboard?error=Insufficient+balance+&#x2014;+need+${MANUAL_EMAIL_PRICE:.2f}+but+have+${balance:.2f}",
-            status_code=303,
+        balance = user_row["wallet_balance"]
+        if balance < MANUAL_EMAIL_PRICE:
+            pass  # conn.close()
+            return RedirectResponse(
+                f"/user-dashboard?error=Insufficient+balance+&#x2014;+need+${MANUAL_EMAIL_PRICE:.2f}+but+have+${balance:.2f}",
+                status_code=303,
+            )
+
+        # Deduct from wallet immediately
+        new_balance = balance - MANUAL_EMAIL_PRICE
+        conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
+        conn.execute(
+            "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)",
+            (user_id, "manual_email", -MANUAL_EMAIL_PRICE, new_balance, f"Manual email queued for {to_email}: {subject[:40]}")
         )
 
-    # Deduct from wallet immediately
-    new_balance = balance - MANUAL_EMAIL_PRICE
-    conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
-    conn.execute(
-        "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)",
-        (user_id, "manual_email", -MANUAL_EMAIL_PRICE, new_balance, f"Manual email queued for {to_email}: {subject[:40]}")
-    )
+        # Insert as pending
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO manual_emails (user_id, to_email, subject, body, price_usd, status) VALUES (?, ?, ?, ?, ?, ?)",
+            (user_id, to_email, subject, body, MANUAL_EMAIL_PRICE, "pending")
+        )
+        email_id = cursor.lastrowid
+        conn.commit()
+        pass  # conn.close()
 
-    # Insert as pending
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO manual_emails (user_id, to_email, subject, body, price_usd, status) VALUES (?, ?, ?, ?, ?, ?)",
-        (user_id, to_email, subject, body, MANUAL_EMAIL_PRICE, "pending")
-    )
-    email_id = cursor.lastrowid
-    conn.commit()
-    conn.close()
-
-    # Dispatch background task
-    sender_name = user_row["email"] or "User"
-    background_tasks.add_task(_bg_send_manual_email, to_email, subject, body, sender_name, user_id, email_id)
+        # Dispatch background task
+        sender_name = user_row["email"] or "User"
+        background_tasks.add_task(_bg_send_manual_email, to_email, subject, body, sender_name, user_id, email_id)
     
-    return RedirectResponse(f"/user-dashboard?success=Email+queued+for+delivery+to+{to_email}.+Balance+deducted.", status_code=303)
+        return RedirectResponse(f"/user-dashboard?success=Email+queued+for+delivery+to+{to_email}.+Balance+deducted.", status_code=303)
 
 
 
-@app.get("/admin/user/{target_user_id}", response_class=HTMLResponse)
-def admin_user_detail(request: Request, target_user_id: str):
-    """Detailed view of a single user."""
-    if not require_admin(request):
-        return RedirectResponse("/login", status_code=303)
-
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (target_user_id,)).fetchone()
-    if not user_row:
-        conn.close()
-        return RedirectResponse("/admin", status_code=303)
-    user = dict(user_row)
-
-    campaigns = [dict(r) for r in conn.execute(
-        "SELECT * FROM campaigns WHERE user_id = ? ORDER BY created_at DESC", (target_user_id,)
-    ).fetchall()]
-    transactions = [dict(r) for r in conn.execute(
-        "SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT 30", (target_user_id,)
-    ).fetchall()]
-    orders = [dict(r) for r in conn.execute(
-        "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 20", (target_user_id,)
-    ).fetchall()]
-    conn.close()
-
-    content_html = render_template("admin_user.html", request=request,
-        user=user, campaigns=campaigns,
-        transactions=transactions, orders=orders
-    )
-    return HTMLResponse(_build_dashboard_shell(None, require_admin(request), content_html, f"User {user.get('name', 'Details')}", "admin"))
 
 
 # ============================================================
@@ -8407,41 +7497,41 @@ def api_stats():
     """Returns aggregate stats from the applications database.
     Returns JSON with total_applications, today_applications, this_week_applications,
     by_country, by_status, total_companies, total_emails_sent."""
-    conn = get_db()
-    today = datetime.now().date().isoformat()
-    week_ago = (datetime.now() - timedelta(days=7)).date().isoformat()
+    with get_db() as conn:
+        today = datetime.now().date().isoformat()
+        week_ago = (datetime.now() - timedelta(days=7)).date().isoformat()
 
-    total_applications = conn.execute("SELECT COUNT(*) FROM campaign_emails").fetchone()[0]
-    today_applications = conn.execute(
-        "SELECT COUNT(*) FROM campaign_emails WHERE date(sent_at) = ?", (today,)
-    ).fetchone()[0]
-    this_week_applications = conn.execute(
-        "SELECT COUNT(*) FROM campaign_emails WHERE date(sent_at) >= ?", (week_ago,)
-    ).fetchone()[0]
+        total_applications = conn.execute("SELECT COUNT(*) FROM campaign_emails").fetchone()[0]
+        today_applications = conn.execute(
+            "SELECT COUNT(*) FROM campaign_emails WHERE date(sent_at) = ?", (today,)
+        ).fetchone()[0]
+        this_week_applications = conn.execute(
+            "SELECT COUNT(*) FROM campaign_emails WHERE date(sent_at) >= ?", (week_ago,)
+        ).fetchone()[0]
 
-    by_country = {"Lebanon": 0, "UAE": 0, "Saudi": 0, "Qatar": 0, "Kuwait": 0}
+        by_country = {"Lebanon": 0, "UAE": 0, "Saudi": 0, "Qatar": 0, "Kuwait": 0}
 
-    by_status = {}
-    for row in conn.execute(
-        "SELECT status, COUNT(*) as cnt FROM campaign_emails GROUP BY status"
-    ).fetchall():
-        by_status[row["status"]] = row["cnt"]
+        by_status = {}
+        for row in conn.execute(
+            "SELECT status, COUNT(*) as cnt FROM campaign_emails GROUP BY status"
+        ).fetchall():
+            by_status[row["status"]] = row["cnt"]
 
-    total_companies = conn.execute(
-        "SELECT COUNT(DISTINCT company_name) FROM campaign_emails WHERE company_name IS NOT NULL AND company_name != ''"
-    ).fetchone()[0]
+        total_companies = conn.execute(
+            "SELECT COUNT(DISTINCT company_name) FROM campaign_emails WHERE company_name IS NOT NULL AND company_name != ''"
+        ).fetchone()[0]
 
-    conn.close()
+        pass  # conn.close()
 
-    return {
-        "total_applications": total_applications,
-        "today_applications": today_applications,
-        "this_week_applications": this_week_applications,
-        "by_country": by_country,
-        "by_status": by_status,
-        "total_companies": total_companies,
-        "total_emails_sent": 7,
-    }
+        return {
+            "total_applications": total_applications,
+            "today_applications": today_applications,
+            "this_week_applications": this_week_applications,
+            "by_country": by_country,
+            "by_status": by_status,
+            "total_companies": total_companies,
+            "total_emails_sent": 7,
+        }
 
 
 @app.get("/api/debug/test-email")
@@ -8478,72 +7568,72 @@ def export_jobs_csv():
     import csv
     import io
 
-    conn = get_db()
-    rows = conn.execute(
-        """SELECT company_name, job_title, email_address, status, sent_at
-           FROM campaign_emails
-           ORDER BY sent_at DESC"""
-    ).fetchall()
-    conn.close()
+    with get_db() as conn:
+        rows = conn.execute(
+            """SELECT company_name, job_title, email_address, status, sent_at
+               FROM campaign_emails
+               ORDER BY sent_at DESC"""
+        ).fetchall()
+        pass  # conn.close()
 
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerow(["company", "title", "location", "status", "email", "date"])
-    for r in rows:
-        writer.writerow([
-            r["company_name"],
-            r["job_title"],
-            "",
-            r["status"],
-            r["email_address"],
-            r["sent_at"] or "",
-        ])
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["company", "title", "location", "status", "email", "date"])
+        for r in rows:
+            writer.writerow([
+                r["company_name"],
+                r["job_title"],
+                "",
+                r["status"],
+                r["email_address"],
+                r["sent_at"] or "",
+            ])
 
-    csv_content = output.getvalue()
-    return Response(
-        content=csv_content,
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=jobs.csv"},
-    )
+        csv_content = output.getvalue()
+        return Response(
+            content=csv_content,
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=jobs.csv"},
+        )
 
 
 @app.get("/api/pipeline")
 def api_pipeline():
     """Returns JSON with counts per pipeline stage."""
-    conn = get_db()
-    pipeline_stages = ["discovered", "applied", "followed_up", "interview", "offer"]
-    counts = {s: 0 for s in pipeline_stages}
-    for row in conn.execute(
-        """SELECT COALESCE(pipeline_stage, 'discovered') as stage, COUNT(*) as cnt
-           FROM campaign_emails
-           GROUP BY COALESCE(pipeline_stage, 'discovered')"""
-    ).fetchall():
-        counts[row["stage"]] = row["cnt"]
-    conn.close()
-    return counts
+    with get_db() as conn:
+        pipeline_stages = ["discovered", "applied", "followed_up", "interview", "offer"]
+        counts = {s: 0 for s in pipeline_stages}
+        for row in conn.execute(
+            """SELECT COALESCE(pipeline_stage, 'discovered') as stage, COUNT(*) as cnt
+               FROM campaign_emails
+               GROUP BY COALESCE(pipeline_stage, 'discovered')"""
+        ).fetchall():
+            counts[row["stage"]] = row["cnt"]
+        pass  # conn.close()
+        return counts
 
 
 @app.get("/api/email-stats")
 def api_email_stats():
     """Returns email stats: sent count, response rate, follow-ups."""
-    conn = get_db()
-    total_sent = conn.execute(
-        "SELECT COUNT(*) FROM campaign_emails WHERE status='sent'"
-    ).fetchone()[0]
-    total_responded = conn.execute(
-        "SELECT COUNT(*) FROM campaign_emails WHERE responded_at IS NOT NULL"
-    ).fetchone()[0]
-    total_followups = conn.execute(
-        "SELECT COALESCE(SUM(followup_count), 0) FROM campaign_emails"
-    ).fetchone()[0]
-    conn.close()
+    with get_db() as conn:
+        total_sent = conn.execute(
+            "SELECT COUNT(*) FROM campaign_emails WHERE status='sent'"
+        ).fetchone()[0]
+        total_responded = conn.execute(
+            "SELECT COUNT(*) FROM campaign_emails WHERE responded_at IS NOT NULL"
+        ).fetchone()[0]
+        total_followups = conn.execute(
+            "SELECT COALESCE(SUM(followup_count), 0) FROM campaign_emails"
+        ).fetchone()[0]
+        pass  # conn.close()
 
-    return {
-        "sent": total_sent,
-        "responded": total_responded,
-        "response_rate": round(total_responded / total_sent * 100, 1) if total_sent > 0 else 0,
-        "follow_ups": total_followups,
-    }
+        return {
+            "sent": total_sent,
+            "responded": total_responded,
+            "response_rate": round(total_responded / total_sent * 100, 1) if total_sent > 0 else 0,
+            "follow_ups": total_followups,
+        }
 
 
 # ============================================================
@@ -8571,7 +7661,7 @@ def cron_run_cycle(request: Request, key: str = ""):
         script_path = str(BASE_DIR / "cron_trigger.py")
 
         p = subprocess.Popen(
-            ['python', script_path, "--company-limit", "15", "--max-campaigns", "3", "--skip-backup"],
+            [_get_python_executable(), script_path, "--company-limit", "15", "--max-campaigns", "3", "--skip-backup"],
             creationflags=creationflags,
             start_new_session=True,
             stdout=subprocess.DEVNULL,
@@ -8593,54 +7683,8 @@ def cron_run_cycle(request: Request, key: str = ""):
 # Auto-fulfillment via ServiceFulfillment + crypto checkout
 # ============================================================
 
-@app.get("/api/v2/services")
-def api_v2_services():
-    """Return the complete service catalog (20 services + 5 bouquets)."""
-    services = []
-    for s in SERVICE_CATALOG:
-        services.append({
-            "id": s["id"],
-            "name": s["name"],
-            "price": s["price"],
-            "price_display": f"${s['price']}",
-            "description": s["description"],
-            "delivery": s["delivery"],
-            "features": s.get("features", []),
-            "what_they_get": s.get("what_they_get", ""),
-        })
-    bouquets = []
-    for b in BOUQUET_CATALOG:
-        bouquets.append({
-            "id": b["id"],
-            "name": b["name"],
-            "price": b["price"],
-            "price_display": f"${b['price']}",
-            "description": b["description"],
-            "services": b.get("services", []),
-            "savings": b.get("savings", ""),
-        })
-    return {
-        "success": True,
-        "count": len(services),
-        "services": services,
-        "bouquets": bouquets,
-        "bouquet_count": len(bouquets),
-    }
 
 
-@app.get("/api/v2/services/grouped")
-def api_v2_services_grouped():
-    """Return services grouped by price tier."""
-    micro = [s for s in SERVICE_CATALOG if s["price"] <= 5]
-    standard = [s for s in SERVICE_CATALOG if 6 <= s["price"] <= 10]
-    premium = [s for s in SERVICE_CATALOG if s["price"] >= 12]
-    return {
-        "success": True,
-        "micro": {"count": len(micro), "services": micro, "range": "$2-$5"},
-        "standard": {"count": len(standard), "services": standard, "range": "$6-$10"},
-        "premium": {"count": len(premium), "services": premium, "range": "$12-$20"},
-        "bouquets": {"count": len(BOUQUET_CATALOG), "bouquets": BOUQUET_CATALOG},
-    }
 
 
 # --- Order creation via fulfillment engine ---
@@ -8662,28 +7706,6 @@ class OrderVerifyRequest(BaseModel):
 fulfillment = ServiceFulfillment()
 
 
-@app.post("/api/v2/orders/create")
-def api_v2_create_order(req: OrderCreateRequest, fastapi_req: Request):
-    """Create a new order for a service or bouquet + generate crypto addresses."""
-    try:
-        result = fulfillment.create_order(
-            service_id=req.service_id,
-            customer_email=req.customer_email,
-            customer_name=req.customer_name,
-            is_bouquet=req.is_bouquet,
-            custom_amount=req.custom_amount,
-        )
-        if "error" in result:
-            return JSONResponse({"success": False, "error": result["error"]}, status_code=400)
-        # ðŸ&#x201D;&#x2019; Don't expose the payment_code in the response &#x2014; only in the order record
-        # But we need to show it to the customer! So include it in response but log it.
-        safe_result = {k: v for k, v in result.items() if k != "payment_code"}
-        safe_result["payment_code"] = result.get("payment_code", "")
-        logger.info(f"Order created: {result['order_id']} for {req.customer_email}")
-        return {"success": True, "order": safe_result}
-    except Exception as e:
-        logger.exception("Order creation failed: %s", e)
-        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
 def _get_client_ip(request: Request) -> str:
@@ -8698,72 +7720,8 @@ def _get_client_ip(request: Request) -> str:
 
 
 
-@app.post("/api/v2/orders/create-bulk")
-async def api_v2_create_bulk_order(req: Request):
-    """Create a bulk order with multiple services/bouquets."""
-    try:
-        body = await req.json()
-        items = body.get("items", [])
-        customer_email = body.get("customer_email", "")
-        customer_name = body.get("customer_name", "")
-
-        if not items:
-            return JSONResponse({"success": False, "error": "No items in cart"}, status_code=400)
-        if not customer_email:
-            return JSONResponse({"success": False, "error": "Email is required"}, status_code=400)
-
-        result = fulfillment.create_bulk_order(
-            items=items,
-            customer_email=customer_email,
-            customer_name=customer_name,
-        )
-        if "error" in result:
-            return JSONResponse({"success": False, "error": result["error"]}, status_code=400)
-        safe_result = {k: v for k, v in result.items() if k != "payment_code"}
-        safe_result["payment_code"] = result.get("payment_code", "")
-        logger.info(f"Bulk order: {result['order_id']} ({len(items)} items) for {customer_email}")
-        return {"success": True, "order": safe_result}
-    except Exception as e:
-        logger.exception("Bulk order failed: %s", e)
-        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
-@app.post("/api/v2/orders/verify-payment")
-def api_v2_verify_payment(req: OrderVerifyRequest, fastapi_req: Request):
-    """Verify a crypto payment for an order and trigger delivery.
-
-    ðŸ&#x201D;&#x2019; Requires payment_code (generated at order creation) to prevent unauthorized verification.
-    Rate-limited: max 5 failed attempts per hour per order.
-    """
-    try:
-        client_ip = _get_client_ip(fastapi_req)
-        result = fulfillment.verify_payment(
-            order_id=req.order_id,
-            tx_hash=req.tx_hash,
-            payment_code=req.payment_code,
-            client_ip=client_ip,
-        )
-        if result.get("success"):
-            order = fulfillment.get_order(req.order_id)
-            # Record the payment in the payments module
-            if order:
-                record_payment(
-                    order_id=req.order_id,
-                    currency="USDT",
-                    amount_usd=order.get("price", 0),
-                    tx_hash=req.tx_hash,
-                    customer_email=order.get("customer_email", ""),
-                    payment_code=req.payment_code,
-                    client_ip=client_ip,
-                )
-            return {"success": True, "order": order}
-        return JSONResponse(
-            {"success": False, "error": result.get("message", "Payment verification failed")},
-            status_code=400,
-        )
-    except Exception as e:
-        logger.exception("Payment verification failed: %s", e)
-        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
 # ============================================================
@@ -8779,264 +7737,24 @@ class PaymentRecordRequest(BaseModel):
     payment_code: str = ""  # ðŸ&#x201D;&#x2019; Required &#x2014; generated at order creation
 
 
-@app.post("/api/v2/payments/record")
-def api_v2_record_payment(req: PaymentRecordRequest, fastapi_req: Request):
-    """Record a crypto payment and trigger auto-delivery.
-
-    ðŸ&#x201D;&#x2019; Requires payment_code to verify the customer owns this order.
-    """
-    try:
-        # First verify payment via fulfillment (requires payment_code)
-        client_ip = _get_client_ip(fastapi_req)
-        verify_result = fulfillment.verify_payment(
-            order_id=req.order_id,
-            tx_hash=req.tx_hash,
-            payment_code=req.payment_code,
-            client_ip=client_ip,
-        )
-        if not verify_result.get("success"):
-            return JSONResponse(
-                {"success": False, "error": verify_result.get("message", "Verification failed")},
-                status_code=400,
-            )
-
-        # Then record the payment
-        payment_success = record_payment(
-            order_id=req.order_id,
-            currency=req.currency,
-            amount_usd=req.amount_usd,
-            tx_hash=req.tx_hash,
-            customer_email=req.customer_email,
-            payment_code=req.payment_code,
-            client_ip=client_ip,
-        )
-        if payment_success:
-            order = fulfillment.get_order(req.order_id)
-            return {"success": True, "order": order}
-        return JSONResponse({"success": False, "error": "Payment recording failed"}, status_code=400)
-    except Exception as e:
-        logger.exception("Payment recording failed: %s", e)
-        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
-@app.get("/api/v2/payments/stats")
-def api_v2_payment_stats():
-    """Get payment statistics from the payments module."""
-    try:
-        stats = get_payment_stats()
-        # Also merge fulfillment stats
-        fulfillment_stats = fulfillment.get_stats()
-        stats["fulfillment"] = fulfillment_stats
-        return {"success": True, "stats": stats}
-    except Exception as e:
-        logger.exception("Payment stats error: %s", e)
-        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
 # ============================================================
 # NOWPAYMENTS.IO INTEGRATION
 # ============================================================
 
-@app.post("/api/v2/nowpayments-ipn")
-async def api_v2_nowpayments_ipn(fastapi_req: Request):
-    """Handle NOWPayments IPN callback for cryptocurrency payment confirmation.
-
-    NOWPayments sends a POST with payment status updates.
-    On successful payment, triggers service delivery automatically.
-    """
-    try:
-        ipn_data = await fastapi_req.json()
-        headers = dict(fastapi_req.headers)
-
-        logger.info(
-            f"NOWPayments IPN received: payment_id={ipn_data.get('payment_id')}, "
-            f"status={ipn_data.get('payment_status')}"
-        )
-
-        success = process_ipn_callback(ipn_data, headers)
-        if success:
-            # Also credit the SQLite wallet (IPN callback chain only writes to JSON cache)
-            order_id = ipn_data.get("order_id", "")
-            if order_id:
-                try:
-                    conn = get_db()
-                    order = conn.execute("SELECT user_id, amount_usd FROM orders WHERE order_id = ?", (order_id,)).fetchone()
-                    if order:
-                        user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (order["user_id"],)).fetchone()
-                        new_bal = user_row["wallet_balance"] + float(ipn_data.get("actually_paid_at_fiat", order["amount_usd"]))
-                        conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_bal, order["user_id"]))
-                        conn.execute("UPDATE orders SET payment_status = 'completed' WHERE order_id = ?", (order_id,))
-                        conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-                                        VALUES (?, ?, ?, ?, ?)""",
-                                     (order["user_id"], "crypto_deposit", float(ipn_data.get("actually_paid_at_fiat", order["amount_usd"])),
-                                      new_bal, f"NOWPayments IPN: {order_id}"))
-                        conn.commit()
-                        logger.info(f"IPN: Wallet credited for user {order['user_id']}, order {order_id}, new balance ${new_bal:.2f}")
-                    conn.close()
-                except Exception as e:
-                    logger.error(f"IPN: Failed to credit wallet for order {order_id}: {e}")
-            return {"success": True, "message": "Payment processed and delivery triggered"}
-        return JSONResponse(
-            {"success": False, "error": "IPN processing failed &#x2014; see server logs"},
-            status_code=400,
-        )
-    except Exception as e:
-        logger.exception("NOWPayments IPN error: %s", e)
-        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
-@app.post("/api/v2/nowpayments/create-invoice")
-async def api_v2_create_nowpayments_invoice(fastapi_req: Request):
-    """Create a NOWPayments invoice for an order and return payment details.
-
-    Request body:
-    {
-        "order_id": str,
-        "amount_usd": float,
-        "customer_email": str (optional),
-        "service_name": str (optional)
-    }
-
-    Returns invoice URL + crypto payment address + amount.
-    Falls back to manual crypto addresses if NOWPayments not configured.
-    """
-    try:
-        from payments.nowpayments import create_crypto_invoice
-
-        body = await fastapi_req.json()
-        order_id = body.get("order_id", "")
-        amount_usd = float(body.get("amount_usd", 0))
-        customer_email = body.get("customer_email", "")
-        service_name = body.get("service_name", "")
-
-        if not order_id or amount_usd <= 0:
-            return JSONResponse(
-                {"success": False, "error": "order_id and amount_usd are required"},
-                status_code=400,
-            )
-
-        invoice = create_crypto_invoice(
-            amount_usd=amount_usd,
-            order_id=order_id,
-            customer_email=customer_email,
-            service_name=service_name,
-        )
-
-        if invoice:
-            return {"success": True, "invoice": invoice}
-
-        # Fallback: NOWPayments not configured &#x2014; return manual payment addresses
-        addresses = get_payment_addresses()
-        return {
-            "success": True,
-            "fallback": True,
-            "message": "NOWPayments not configured &#x2014; use manual crypto addresses",
-            "addresses": addresses,
-        }
-    except Exception as e:
-        logger.exception("Create NOWPayments invoice error: %s", e)
-        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
-@app.get("/api/v2/orders/{order_id}")
-def api_v2_order_status(order_id: str):
-    """Get order status and details."""
-    try:
-        order = fulfillment.get_order(order_id)
-        if not order:
-            return JSONResponse({"success": False, "error": "Order not found"}, status_code=404)
-        return {"success": True, "order": order}
-    except Exception as e:
-        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
-@app.get("/api/v2/orders/email/{email}")
-def api_v2_orders_by_email(email: str):
-    """Get all orders for a given email."""
-    try:
-        orders = fulfillment.get_orders_by_email(email)
-        return {"success": True, "count": len(orders), "orders": orders}
-    except Exception as e:
-        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
-@app.get("/api/v2/stats")
-def api_v2_stats():
-    """Get fulfillment stats: total orders, revenue, pending, paid."""
-    try:
-        stats = fulfillment.get_stats()
-        return {"success": True, "stats": stats}
-    except Exception as e:
-        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
-@app.get("/api/v2/earnings")
-def api_v2_earnings(period: str = "all"):
-    """Get earnings breakdown with time filters.
-
-    Period options: 24h, month, year, all
-    Aggregates from: completed orders, used redeem codes (non-admin), sent manual emails.
-    Returns JSON with total, breakdown by source, and counts.
-    """
-    try:
-        conn = get_db()
-
-        # Calculate time filter
-        now = datetime.now()
-        since = None
-        if period == "24h":
-            since = now - timedelta(hours=24)
-        elif period == "month":
-            since = now - timedelta(days=30)
-        elif period == "year":
-            since = now - timedelta(days=365)
-        # "all" â†&#x2019; no filter
-
-        def _filter_sql(date_col: str) -> str:
-            if since:
-                return f" AND {date_col} >= ?"
-            return ""
-
-        def _filter_params() -> list:
-            if since:
-                return [since.isoformat()]
-            return []
-
-        # 1. Completed Orders
-        o_sql = f"SELECT COALESCE(SUM(amount_usd),0) as total, COUNT(*) as cnt FROM orders WHERE payment_status='completed'{_filter_sql('created_at')}"
-        o_row = conn.execute(o_sql, _filter_params()).fetchone()
-        orders_amount = float(o_row["total"]) if o_row else 0
-        orders_count = o_row["cnt"] if o_row else 0
-
-        # 2. Used Redeem Codes (exclude admin_free)
-        c_sql = f"SELECT COALESCE(SUM(value_usd),0) as total, COUNT(*) as cnt FROM redeem_codes WHERE is_used=1 AND (code_type IS NULL OR code_type != 'admin_free'){_filter_sql('used_at')}"
-        c_row = conn.execute(c_sql, _filter_params()).fetchone()
-        codes_amount = float(c_row["total"]) if c_row else 0
-        codes_count = c_row["cnt"] if c_row else 0
-
-        # 3. Sent Manual Emails
-        e_sql = f"SELECT COALESCE(SUM(price_usd),0) as total, COUNT(*) as cnt FROM manual_emails WHERE status='sent'{_filter_sql('created_at')}"
-        e_row = conn.execute(e_sql, _filter_params()).fetchone()
-        emails_amount = float(e_row["total"]) if e_row else 0
-        emails_count = e_row["cnt"] if e_row else 0
-
-        total = round(orders_amount + codes_amount + emails_amount, 2)
-
-        conn.close()
-
-        return {
-            "success": True,
-            "total": total,
-            "period": period,
-            "since": since.isoformat() if since else None,
-            "breakdown": {
-                "orders": {"amount": round(orders_amount, 2), "count": orders_count},
-                "codes": {"amount": round(codes_amount, 2), "count": codes_count},
-                "emails": {"amount": round(emails_amount, 2), "count": emails_count},
-            }
-        }
-    except Exception as e:
-        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
 # --- Public services landing page ---
@@ -9093,59 +7811,41 @@ def health_full():
 
 
 # â&#x201D;€â&#x201D;€ EMAIL MARKETING: Tracking pixel â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
-@app.get("/api/v2/campaign/track/{campaign_id}")
-def campaign_track(campaign_id: int):
-    """Tracking pixel &#x2014; 1&times;&#x2014;1 transparent GIF, updates opened_at timestamp."""
-    try:
-        conn = get_db()
-        conn.execute(
-            "UPDATE email_campaign_log SET opened_at = CURRENT_TIMESTAMP WHERE id = ? AND opened_at IS NULL",
-            (campaign_id,)
-        )
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        logger.error(e, exc_info=True)
-    # Return 1&times;&#x2014;1 transparent GIF (43 bytes)
-    return Response(
-        content=b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00\x21\xf9\x04\x00\x00\x00\x00\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3b',
-        media_type="image/gif"
-    )
 
 # ── JOB APPLICATION TRACKING PIXEL (campaign_emails) ──────────
 @app.get("/track/open/{tracking_id}")
 def track_email_open(tracking_id: str):
     """Tracking pixel for job application emails. Updates opened_at and fires Telegram alert."""
     try:
-        conn = get_db()
-        row = conn.execute(
-            "SELECT id, company_name, job_title, campaign_id FROM campaign_emails WHERE tracking_id = ? AND opened_at IS NULL",
-            (tracking_id,)
-        ).fetchone()
-        if row:
-            conn.execute(
-                "UPDATE campaign_emails SET opened_at = CURRENT_TIMESTAMP WHERE id = ?",
-                (row["id"],)
-            )
-            # Also update campaigns open_count
-            conn.execute(
-                "UPDATE campaigns SET open_count = COALESCE(open_count, 0) + 1 WHERE campaign_id = ?",
-                (row["campaign_id"],)
-            )
-            conn.commit()
-            
-            # ── Telegram Alert: Email Opened ──
-            try:
-                from core.telegram_alerts import alert_email_opened
-                alert_email_opened(
-                    company=str(row["company_name"] or "Unknown"),
-                    job_title=str(row["job_title"] or "Position"),
-                    campaign_id=str(row["campaign_id"] or "")
+        with get_db() as conn:
+            row = conn.execute(
+                "SELECT id, company_name, job_title, campaign_id FROM campaign_emails WHERE tracking_id = ? AND opened_at IS NULL",
+                (tracking_id,)
+            ).fetchone()
+            if row:
+                conn.execute(
+                    "UPDATE campaign_emails SET opened_at = CURRENT_TIMESTAMP WHERE id = ?",
+                    (row["id"],)
                 )
-            except Exception:
-                pass
+                # Also update campaigns open_count
+                conn.execute(
+                    "UPDATE campaigns SET open_count = COALESCE(open_count, 0) + 1 WHERE campaign_id = ?",
+                    (row["campaign_id"],)
+                )
+                conn.commit()
+            
+                # ── Telegram Alert: Email Opened ──
+                try:
+                    from core.telegram_alerts import alert_email_opened
+                    alert_email_opened(
+                        company=str(row["company_name"] or "Unknown"),
+                        job_title=str(row["job_title"] or "Position"),
+                        campaign_id=str(row["campaign_id"] or "")
+                    )
+                except Exception:
+                    pass
         
-        conn.close()
+            pass  # conn.close()
     except Exception as e:
         logger.debug(f"track_email_open error: {e}")
     
@@ -9160,21 +7860,6 @@ def track_email_open(tracking_id: str):
 
 
 # â&#x201D;€â&#x201D;€ EMAIL MARKETING: Campaign stats API â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
-@app.get("/api/v2/campaigns/stats")
-def campaign_stats_api():
-    """Return aggregated campaign statistics."""
-    try:
-        stats = get_campaign_stats()
-        return stats
-    except Exception as e:
-        logger.warning(f"Error fetching campaign stats: {e}")
-        return {
-            "total_sent": 0,
-            "total_opened": 0,
-            "open_rate": 0,
-            "campaigns": {"welcome": 0, "abandoned_cart": 0, "re_engagement": 0, "post_purchase": 0},
-            "error": str(e)
-        }
 
 
 # â&#x201D;€â&#x201D;€ UNSUBSCRIBE page â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
@@ -9241,10 +7926,6 @@ def unsubscribe_page(request: Request, email: str = "", reason: str = ""):
     return HTMLResponse(_public_shell(html))
 
 
-@app.get("/antigravity", response_class=HTMLResponse)
-def antigravity_page(request: Request):
-    """Anti-Gravity Mode &#x2014; 3D space experience with floating job cards."""
-    return templates.TemplateResponse(request, "antigravity.html")
 
 
 # ============================================================
@@ -9260,22 +7941,22 @@ def client_realtime_stats(request: Request, period: str = "24h"):
     if not user_id:
         return JSONResponse({"error": "not_authenticated"}, status_code=401)
 
-    conn = get_db()
-    now = datetime.now()
+    with get_db() as conn:
+        now = datetime.now()
 
-    if period == "24h":
-        since = (now - timedelta(hours=24)).isoformat()
-    elif period == "week":
-        since = (now - timedelta(days=7)).isoformat()
-    elif period == "month":
-        since = (now - timedelta(days=30)).isoformat()
-    else:
-        since = None
+        if period == "24h":
+            since = (now - timedelta(hours=24)).isoformat()
+        elif period == "week":
+            since = (now - timedelta(days=7)).isoformat()
+        elif period == "month":
+            since = (now - timedelta(days=30)).isoformat()
+        else:
+            since = None
 
-    base = "FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ?"
-    time_filter = " AND ce.sent_at >= ?" if since else ""
-    params_base = [user_id]
-    params_time = [user_id, since] if since else [user_id]
+        base = "FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ?"
+        time_filter = " AND ce.sent_at >= ?" if since else ""
+        params_base = [user_id]
+        params_time = [user_id, since] if since else [user_id]
 
     def q(sql, params):
         return conn.execute(sql, params).fetchone()[0]
@@ -9370,23 +8051,23 @@ def client_public_stats(request: Request, share_user_id: str, period: str = "24h
     Share this link with clients to show real-time job hunt progress.
     Auto-refreshes every 60 seconds.
     """
-    conn = get_db()
-    user_row = conn.execute(
-        "SELECT name, user_type FROM users WHERE user_id = ? AND is_active = 1",
-        (share_user_id,)
-    ).fetchone()
-    if not user_row:
-        conn.close()
-        return HTMLResponse("<h1 style='font-family:sans-serif;text-align:center;padding:60px;color:#fff;background:#0a0a0f;min-height:100vh;'>Stats not found or user inactive.</h1>", status_code=404)
+    with get_db() as conn:
+        user_row = conn.execute(
+            "SELECT name, user_type FROM users WHERE user_id = ? AND is_active = 1",
+            (share_user_id,)
+        ).fetchone()
+        if not user_row:
+            pass  # conn.close()
+            return HTMLResponse("<h1 style='font-family:sans-serif;text-align:center;padding:60px;color:#fff;background:#0a0a0f;min-height:100vh;'>Stats not found or user inactive.</h1>", status_code=404)
 
-    user_name = user_row["name"] or "Professional"
-    now = datetime.now()
+        user_name = user_row["name"] or "Professional"
+        now = datetime.now()
 
-    since_24h  = (now - timedelta(hours=24)).isoformat()
-    since_week = (now - timedelta(days=7)).isoformat()
-    since_month= (now - timedelta(days=30)).isoformat()
+        since_24h  = (now - timedelta(hours=24)).isoformat()
+        since_week = (now - timedelta(days=7)).isoformat()
+        since_month= (now - timedelta(days=30)).isoformat()
 
-    base = "FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ?"
+        base = "FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ?"
 
     def cnt(sql, params):
         return conn.execute(sql, params).fetchone()[0]
@@ -9463,7 +8144,7 @@ body{{font-family:'Inter',sans-serif;background:#0a0a0f;color:#fff;min-height:10
 .bar-wrap{{background:rgba(255,255,255,0.05);border-radius:4px;height:6px;margin-top:6px}}
 .bar{{height:100%;border-radius:4px;transition:width .5s}}
 table{{width:100%;border-collapse:collapse}}
-th{{text-align:left;padding:12px 16px;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.05)}}
+th{{text-align:start;padding:12px 16px;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.05)}}
 td{{padding:12px 16px;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.03)}}
 tr:hover td{{background:rgba(255,255,255,0.02)}}
 .footer{{text-align:center;padding:40px;color:#334155;font-size:12px}}
@@ -9676,12 +8357,12 @@ def ats_scorer_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    user = dict(user_row) if user_row else {}
-    content = render_template("ats_scorer.html", user=user, active_page="ats-scorer")
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "ATS Scorer", "ats-scorer", request=request))
+    with get_db() as conn:
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        pass  # conn.close()
+        user = dict(user_row) if user_row else {}
+        content = render_template("ats_scorer.html", user=user, active_page="ats-scorer")
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "ATS Scorer", "ats-scorer", request=request))
 
 
 
@@ -9691,12 +8372,12 @@ def funnel_analytics_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    user = dict(user_row) if user_row else {}
-    content = render_template("funnel_analytics.html", user=user, active_page="funnel-analytics")
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Funnel Analytics", "funnel-analytics", request=request))
+    with get_db() as conn:
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        pass  # conn.close()
+        user = dict(user_row) if user_row else {}
+        content = render_template("funnel_analytics.html", user=user, active_page="funnel-analytics")
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Funnel Analytics", "funnel-analytics", request=request))
 
 @app.get("/resume-tailor", response_class=HTMLResponse)
 def resume_tailor_page(request: Request):
@@ -9704,29 +8385,29 @@ def resume_tailor_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    conn = get_db()
-    user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-    conn.close()
-    user = dict(user_row) if user_row else {}
-    content = render_template("resume_tailor.html", user=user, active_page="resume-tailor")
-    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Resume Tailor", "resume-tailor", request=request))
-
-@app.get("/employers", response_class=HTMLResponse)
-def employers_page(request: Request):
-    """Employers landing page — public, no login required."""
-    # Check if user is logged in (optional — page is public)
-    user_id = get_verified_user_id(request)
-    if user_id:
-        # Authenticated users get the dashboard-wrapped version
-        conn = get_db()
+    with get_db() as conn:
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        conn.close()
+        pass  # conn.close()
         user = dict(user_row) if user_row else {}
-        content = render_template("for_employers.html", user=user, active_page="employers")
-        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "For Employers", "employers", request=request))
-    # Public view
-    content = render_template("for_employers.html", request=request, active_page="employers", user=None)
-    return HTMLResponse(_public_shell(content, "For Employers — JobHunt Pro"))
+        content = render_template("resume_tailor.html", user=user, active_page="resume-tailor")
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Resume Tailor", "resume-tailor", request=request))
+
+# @app.get("/employers", response_class=HTMLResponse)
+# def employers_page(request: Request):
+#     """Employers landing page — public, no login required."""
+#     # Check if user is logged in (optional — page is public)
+#     user_id = get_verified_user_id(request)
+#     if user_id:
+#         # Authenticated users get the dashboard-wrapped version
+#         conn = get_db()
+#         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+#         conn.close()
+#         user = dict(user_row) if user_row else {}
+#         content = render_template("for_employers.html", user=user, active_page="employers")
+#         return HTMLResponse(_build_dashboard_shell(user, user_id, content, "For Employers", "employers", request=request))
+#     # Public view
+#     content = render_template("for_employers.html", request=request, active_page="employers", user=None)
+#     return HTMLResponse(_public_shell(content, "For Employers — JobHunt Pro"))
 
 
 @app.post("/api/v1/ats-score", dependencies=[Depends(verify_jwt)])
@@ -9892,120 +8573,126 @@ async def api_fetch_url(request: Request):
 
 
 # ============ API v1 Jobs Endpoint (was 404 - FIXED 2026-06-04) ============
-@app.get("/api/v1/jobs")
-def api_v1_jobs(request: Request):
-    """Return all jobs for the logged-in user as JSON."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return JSONResponse({"error": "Not logged in"}, status_code=401)
-    db = get_db()
-    try:
-        cursor = db.execute(
-            "SELECT * FROM jobs WHERE user_id = ? ORDER BY created_at DESC",
-            (user_id,)
-        )
-        rows = cursor.fetchall()
-        columns = [col[0] for col in cursor.description]
-        jobs = [dict(zip(columns, row)) for row in rows]
-        db.close()
-        return JSONResponse({"jobs": jobs, "count": len(jobs)})
-    except Exception as e:
-        try:
-            db.close()
-        except Exception:
-            pass
-        logger.exception("api_v1_jobs failed")
-        return JSONResponse({"error": str(e)}, status_code=500)
+# ==================== MIGRATED TO ROUTER — START (lines 8331-8354) ====================
+# @app.get("/api/v1/jobs")
+# def api_v1_jobs(request: Request):
+#     """Return all jobs for the logged-in user as JSON."""
+#     user_id = get_verified_user_id(request)
+#     if not user_id:
+#         return JSONResponse({"error": "Not logged in"}, status_code=401)
+#     db = get_db()
+#     try:
+#         cursor = db.execute(
+#             "SELECT * FROM jobs WHERE user_id = ? ORDER BY created_at DESC",
+#             (user_id,)
+#         )
+#         rows = cursor.fetchall()
+#         columns = [col[0] for col in cursor.description]
+#         jobs = [dict(zip(columns, row)) for row in rows]
+#         db.close()
+#         return JSONResponse({"jobs": jobs, "count": len(jobs)})
+#     except Exception as e:
+#         try:
+#             db.close()
+#         except Exception:
+#             pass
+#         logger.exception("api_v1_jobs failed")
+#         return JSONResponse({"error": str(e)}, status_code=500)
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 
 # ============ JSON API Login (was 404 - FIXED 2026-06-04) ============
-@app.post("/api/v1/login")
-async def api_v1_login(request: Request):
-    """JSON API login — returns user object or error."""
-    try:
-        data = await request.json()
-        email = data.get("email", "").strip().lower()
-        password = data.get("password", "")
-        if not email or not password:
-            return JSONResponse({"error": "Email and password required"}, status_code=400)
-        
-        # Add rate limit check
-        client_ip = request.client.host if request.client else "unknown"
-        if not _check_login_rate_limit(client_ip):
-            return JSONResponse({"error": "Too many login attempts. Please try again in 1 hour."}, status_code=429)
-            
-        account_key = f"login_lock:{email}"
-        db = get_db()
-        
-        lockout = None
-        try:
-            lockout = db.execute("SELECT value FROM system_config WHERE key = ?", (account_key,)).fetchone()
-        except Exception:
-            pass
-            
-        if lockout:
-            from time import time
-            try:
-                lock_ts = float(lockout["value"])
-                if time() - lock_ts < 1800:  # 30 min lockout
-                    db.close()
-                    return JSONResponse({"error": "Account locked due to too many failed attempts. Try again in 30 minutes."}, status_code=423)
-            except (ValueError, TypeError):
-                pass
-                
-        cursor = db.execute(
-            "SELECT * FROM users WHERE email = ?", (email,)
-        )
-        row = cursor.fetchone()
-        if not row:
-            db.close()
-            return JSONResponse({"error": "Invalid credentials"}, status_code=401)
-        columns = [col[0] for col in cursor.description]
-        user_dict = dict(zip(columns, row))
-        stored_hash = user_dict.get("password_hash", "")
-        if not verify_password(password, stored_hash):
-            # Track failed attempt
-            try:
-                from time import time
-                fail_key = f"login_fails:{email}"
-                fail_row = db.execute("SELECT value FROM system_config WHERE key = ?", (fail_key,)).fetchone()
-                fails = int(fail_row["value"]) + 1 if fail_row else 1
-                db.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
-                             (fail_key, str(fails)))
-                if fails >= 5:
-                    db.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
-                                 (account_key, str(time())))
-                db.commit()
-            except Exception:
-                pass
-            db.close()
-            return JSONResponse({"error": "Invalid credentials"}, status_code=401)
-            
-        # Successful login — clear failed attempts
-        try:
-            db.execute("DELETE FROM system_config WHERE key = ?", (f"login_fails:{email}",))
-            db.execute("DELETE FROM system_config WHERE key = ?", (account_key,))
-            db.commit()
-        except Exception:
-            pass
-        db.close()
-        
-        request.session["user"] = {
-            "id": user_dict["id"],
-            "email": user_dict["email"],
-            "name": user_dict.get("name", email.split("@")[0])
-        }
-        # Also set cookie-based auth for consistency with web login
-        user_id = user_dict.get("user_id")
-        if user_id:
-            response = JSONResponse({"user": {"id": user_dict["id"], "email": user_dict["email"], "name": user_dict.get("name")}})
-            response.set_cookie("user_id", session_serializer.dumps(user_id),
-                httponly=True, samesite="lax", max_age=86400*30, secure=True)
-            return response
-        return JSONResponse({"user": {"id": user_dict["id"], "email": user_dict["email"], "name": user_dict.get("name")}})
-    except Exception as e:
-        logger.exception("api_v1_login")
-        return JSONResponse({"error": str(e)}, status_code=500)
+# ==================== MIGRATED TO ROUTER — START (lines 8358-8444) ====================
+# @app.post("/api/v1/login")
+# async def api_v1_login(request: Request):
+#     """JSON API login — returns user object or error."""
+#     try:
+#         data = await request.json()
+#         email = data.get("email", "").strip().lower()
+#         password = data.get("password", "")
+#         if not email or not password:
+#             return JSONResponse({"error": "Email and password required"}, status_code=400)
+#         
+#         # Add rate limit check
+#         client_ip = request.client.host if request.client else "unknown"
+#         if not _check_login_rate_limit(client_ip):
+#             return JSONResponse({"error": "Too many login attempts. Please try again in 1 hour."}, status_code=429)
+#             
+#         account_key = f"login_lock:{email}"
+#         db = get_db()
+#         
+#         lockout = None
+#         try:
+#             lockout = db.execute("SELECT value FROM system_config WHERE key = ?", (account_key,)).fetchone()
+#         except Exception:
+#             pass
+#             
+#         if lockout:
+#             from time import time
+#             try:
+#                 lock_ts = float(lockout["value"])
+#                 if time() - lock_ts < 1800:  # 30 min lockout
+#                     db.close()
+#                     return JSONResponse({"error": "Account locked due to too many failed attempts. Try again in 30 minutes."}, status_code=423)
+#             except (ValueError, TypeError):
+#                 pass
+#                 
+#         cursor = db.execute(
+#             "SELECT * FROM users WHERE email = ?", (email,)
+#         )
+#         row = cursor.fetchone()
+#         if not row:
+#             db.close()
+#             return JSONResponse({"error": "Invalid credentials"}, status_code=401)
+#         columns = [col[0] for col in cursor.description]
+#         user_dict = dict(zip(columns, row))
+#         stored_hash = user_dict.get("password_hash", "")
+#         if not verify_password(password, stored_hash):
+#             # Track failed attempt
+#             try:
+#                 from time import time
+#                 fail_key = f"login_fails:{email}"
+#                 fail_row = db.execute("SELECT value FROM system_config WHERE key = ?", (fail_key,)).fetchone()
+#                 fails = int(fail_row["value"]) + 1 if fail_row else 1
+#                 db.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
+#                              (fail_key, str(fails)))
+#                 if fails >= 5:
+#                     db.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)",
+#                                  (account_key, str(time())))
+#                 db.commit()
+#             except Exception:
+#                 pass
+#             db.close()
+#             return JSONResponse({"error": "Invalid credentials"}, status_code=401)
+#             
+#         # Successful login — clear failed attempts
+#         try:
+#             db.execute("DELETE FROM system_config WHERE key = ?", (f"login_fails:{email}",))
+#             db.execute("DELETE FROM system_config WHERE key = ?", (account_key,))
+#             db.commit()
+#         except Exception:
+#             pass
+#         db.close()
+#         
+#         request.session["user"] = {
+#             "id": user_dict["id"],
+#             "email": user_dict["email"],
+#             "name": user_dict.get("name", email.split("@")[0])
+#         }
+#         # Also set cookie-based auth for consistency with web login
+#         user_id = user_dict.get("user_id")
+#         if user_id:
+#             response = JSONResponse({"user": {"id": user_dict["id"], "email": user_dict["email"], "name": user_dict.get("name")}})
+#             response.set_cookie("user_id", session_serializer.dumps(user_id),
+#                 httponly=True, samesite="lax", max_age=86400*30, secure=True)
+#             return response
+#         return JSONResponse({"user": {"id": user_dict["id"], "email": user_dict["email"], "name": user_dict.get("name")}})
+#     except Exception as e:
+#         logger.exception("api_v1_login")
+#         return JSONResponse({"error": str(e)}, status_code=500)
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 
 # ============ Groq Proxy for Local Bot (Cloudflare blocks Lebanon IP) ============
@@ -10099,17 +8786,17 @@ def api_notifications(request: Request, limit: int = 20, unread_only: bool = Fal
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     conn = None
     try:
-        conn = get_db()
-        conn.execute("CREATE TABLE IF NOT EXISTS notifications (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT NOT NULL, type TEXT NOT NULL DEFAULT 'info', title TEXT NOT NULL, message TEXT, link TEXT, icon TEXT DEFAULT '🔔', is_read INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (user_id) REFERENCES users(user_id))")
-        conn.execute("CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, is_read, created_at DESC)")
-        conn.commit()
-        where = "WHERE user_id = ?"
-        params = [user_id]
-        if unread_only:
-            where += " AND is_read = 0"
-        total_unread = conn.execute(f"SELECT COUNT(*) FROM notifications {where}", params).fetchone()[0]
-        rows = conn.execute(f"SELECT * FROM notifications {where} ORDER BY created_at DESC LIMIT ?", params + [limit]).fetchall()
-        return JSONResponse({"notifications": [dict(r) for r in rows], "unread_count": total_unread, "total": len(rows)})
+        with get_db() as conn:
+            conn.execute("CREATE TABLE IF NOT EXISTS notifications (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT NOT NULL, type TEXT NOT NULL DEFAULT 'info', title TEXT NOT NULL, message TEXT, link TEXT, icon TEXT DEFAULT '🔔', is_read INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (user_id) REFERENCES users(user_id))")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, is_read, created_at DESC)")
+            conn.commit()
+            where = "WHERE user_id = ?"
+            params = [user_id]
+            if unread_only:
+                where += " AND is_read = 0"
+            total_unread = conn.execute(f"SELECT COUNT(*) FROM notifications {where}", params).fetchone()[0]
+            rows = conn.execute(f"SELECT * FROM notifications {where} ORDER BY created_at DESC LIMIT ?", params + [limit]).fetchall()
+            return JSONResponse({"notifications": [dict(r) for r in rows], "unread_count": total_unread, "total": len(rows)})
     finally:
         if conn: conn.close()
 
@@ -10123,10 +8810,10 @@ async def api_notifications_mark_read(request: Request):
         notif_id = data.get("id")
         if not notif_id:
             return JSONResponse({"error": "Notification id required"}, status_code=400)
-        conn = get_db()
-        conn.execute("UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?", (notif_id, user_id))
-        conn.commit(); conn.close()
-        return JSONResponse({"success": True})
+        with get_db() as conn:
+            conn.execute("UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?", (notif_id, user_id))
+            conn.commit(); pass  # conn.close()
+            return JSONResponse({"success": True})
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
@@ -10136,10 +8823,10 @@ def api_notifications_mark_all_read(request: Request):
     if not user_id:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     try:
-        conn = get_db()
-        conn.execute("UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0", (user_id,))
-        conn.commit(); conn.close()
-        return JSONResponse({"success": True})
+        with get_db() as conn:
+            conn.execute("UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0", (user_id,))
+            conn.commit(); pass  # conn.close()
+            return JSONResponse({"success": True})
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
@@ -10151,57 +8838,57 @@ def api_cv_auto_suggest(request: Request, profile_id: int = None):
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     conn = None
     try:
-        conn = get_db()
-        if profile_id:
-            profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ? AND id = ?", (user_id, profile_id)).fetchall()]
-        else:
-            profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
-        if not profiles:
-            return JSONResponse({"suggestions": {}, "message": "No CV profiles found. Upload your CV first."})
-        all_skills, all_titles, all_locations, all_companies = set(), set(), set(), set()
-        for p in profiles:
-            skills = p.get("skills", "")
-            if skills:
-                for s in skills.replace(",", ",").split(","):
-                    s = s.strip()
-                    if s and len(s) > 1: all_skills.add(s)
-            titles = p.get("target_titles", "")
-            if titles:
-                for t in titles.split(","):
-                    t = t.strip()
-                    if t and len(t) > 2: all_titles.add(t)
-            locations = p.get("target_locations", "")
-            if locations:
-                for l in locations.split(","):
-                    l = l.strip()
-                    if l and len(l) > 1: all_locations.add(l)
-        industry_map = {
-            "network": ["Cisco", "Juniper", "Fortinet", "Palo Alto", "Aruba", "Arista", "Huawei", "Nokia", "Ericsson"],
-            "telecom": ["Touch Lebanon", "Alfa Telecom", "Ogero", "Zain", "STC", "Etisalat", "Du", "Ooredoo", "MTN"],
-            "banking": ["Bank Audi", "BLOM Bank", "Byblos Bank", "Bank of Beirut", "Fransabank", "SGBL"],
-            "cloud": ["AWS", "Google Cloud", "Microsoft Azure", "Oracle Cloud", "DigitalOcean"],
-            "enterprise": ["Murex", "CME Offshore", "Azadea", "Malia Group", "Berytech", "Touch", "Alfa"],
-            "security": ["Kaspersky", "Palo Alto", "CrowdStrike", "Fortinet", "Check Point", "CyberArk"],
-        }
-        detected = set()
-        cv_lower = (" ".join(all_skills) + " " + " ".join(all_titles)).lower()
-        keywords = {
-            "network": ["network", "cisco", "juniper", "router", "switch", "firewall", "ccna", "ccnp", "bgp", "ospf", "mpls", "sd-wan"],
-            "telecom": ["telecom", "5g", "4g", "lte", "fiber", "isp", "broadband"],
-            "banking": ["banking", "fintech", "finance", "payment"],
-            "cloud": ["cloud", "aws", "azure", "gcp", "devops", "kubernetes", "docker"],
-            "enterprise": ["enterprise", "corporate", "erp", "sap"],
-            "security": ["security", "cyber", "firewall", "pentest", "siem", "soc"],
-        }
-        for industry, companies in industry_map.items():
-            for kw in keywords.get(industry, []):
-                if kw in cv_lower:
-                    detected.add(industry)
-                    all_companies.update(companies)
-                    break
-        if not all_companies:
-            all_companies.update(["Murex", "CME Offshore", "Bank Audi", "BLOM Bank", "Byblos Bank", "Touch Lebanon", "Alfa Telecom", "Azadea", "Malia Group", "Berytech", "Cisco", "Juniper", "Fortinet", "Palo Alto", "AWS", "Google"])
-        return JSONResponse({"suggestions": {"job_titles": sorted(all_titles), "skills": sorted(all_skills), "locations": sorted(all_locations), "companies": sorted(all_companies), "industries_detected": sorted(detected)}})
+        with get_db() as conn:
+            if profile_id:
+                profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ? AND id = ?", (user_id, profile_id)).fetchall()]
+            else:
+                profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
+            if not profiles:
+                return JSONResponse({"suggestions": {}, "message": "No CV profiles found. Upload your CV first."})
+            all_skills, all_titles, all_locations, all_companies = set(), set(), set(), set()
+            for p in profiles:
+                skills = p.get("skills", "")
+                if skills:
+                    for s in skills.replace(",", ",").split(","):
+                        s = s.strip()
+                        if s and len(s) > 1: all_skills.add(s)
+                titles = p.get("target_titles", "")
+                if titles:
+                    for t in titles.split(","):
+                        t = t.strip()
+                        if t and len(t) > 2: all_titles.add(t)
+                locations = p.get("target_locations", "")
+                if locations:
+                    for l in locations.split(","):
+                        l = l.strip()
+                        if l and len(l) > 1: all_locations.add(l)
+            industry_map = {
+                "network": ["Cisco", "Juniper", "Fortinet", "Palo Alto", "Aruba", "Arista", "Huawei", "Nokia", "Ericsson"],
+                "telecom": ["Touch Lebanon", "Alfa Telecom", "Ogero", "Zain", "STC", "Etisalat", "Du", "Ooredoo", "MTN"],
+                "banking": ["Bank Audi", "BLOM Bank", "Byblos Bank", "Bank of Beirut", "Fransabank", "SGBL"],
+                "cloud": ["AWS", "Google Cloud", "Microsoft Azure", "Oracle Cloud", "DigitalOcean"],
+                "enterprise": ["Murex", "CME Offshore", "Azadea", "Malia Group", "Berytech", "Touch", "Alfa"],
+                "security": ["Kaspersky", "Palo Alto", "CrowdStrike", "Fortinet", "Check Point", "CyberArk"],
+            }
+            detected = set()
+            cv_lower = (" ".join(all_skills) + " " + " ".join(all_titles)).lower()
+            keywords = {
+                "network": ["network", "cisco", "juniper", "router", "switch", "firewall", "ccna", "ccnp", "bgp", "ospf", "mpls", "sd-wan"],
+                "telecom": ["telecom", "5g", "4g", "lte", "fiber", "isp", "broadband"],
+                "banking": ["banking", "fintech", "finance", "payment"],
+                "cloud": ["cloud", "aws", "azure", "gcp", "devops", "kubernetes", "docker"],
+                "enterprise": ["enterprise", "corporate", "erp", "sap"],
+                "security": ["security", "cyber", "firewall", "pentest", "siem", "soc"],
+            }
+            for industry, companies in industry_map.items():
+                for kw in keywords.get(industry, []):
+                    if kw in cv_lower:
+                        detected.add(industry)
+                        all_companies.update(companies)
+                        break
+            if not all_companies:
+                all_companies.update(["Murex", "CME Offshore", "Bank Audi", "BLOM Bank", "Byblos Bank", "Touch Lebanon", "Alfa Telecom", "Azadea", "Malia Group", "Berytech", "Cisco", "Juniper", "Fortinet", "Palo Alto", "AWS", "Google"])
+            return JSONResponse({"suggestions": {"job_titles": sorted(all_titles), "skills": sorted(all_skills), "locations": sorted(all_locations), "companies": sorted(all_companies), "industries_detected": sorted(detected)}})
     finally:
         if conn: conn.close()
 
@@ -10218,42 +8905,42 @@ async def api_job_match_score(request: Request):
         profile_id = data.get("profile_id")
         if not job_desc or not job_title:
             return JSONResponse({"error": "Job title and description required"}, status_code=400)
-        conn = get_db()
-        if profile_id:
-            profile = conn.execute("SELECT cv_text, skills FROM cv_profiles WHERE user_id = ? AND id = ?", (user_id, profile_id)).fetchone()
-        else:
-            profile = conn.execute("SELECT cv_text, skills FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
-        conn.close()
-        cv_text = profile["cv_text"] if profile else ""
-        skills_str = profile["skills"] if profile else ""
-        if not cv_text:
-            return JSONResponse({"match_score": 0, "skill_match_pct": 0, "keyword_matches": [], "missing_keywords": [], "skills_gaps": ["Upload your CV first to get match scores"], "recommendation": "Upload your CV to see match scores", "is_fallback": True})
-        cv_lower = cv_text.lower()
-        jd_lower = job_desc.lower()
-        user_skills = [s.strip().lower() for s in skills_str.split(",") if s.strip()]
-        common_tech = ["python", "java", "javascript", "sql", "aws", "azure", "docker", "kubernetes", "linux", "git", "agile", "scrum", "react", "angular", "node", "typescript", "cisco", "juniper", "fortinet", "palo alto", "bgp", "ospf", "mpls", "vpn", "firewall", "ccna", "ccnp", "sd-wan", "vlan", "tcp/ip", "dns", "dhcp", "mikrotik", "ubiquiti", "network", "security", "cloud", "devops", "ci/cd", "terraform", "ansible", "jenkins", "grafana", "prometheus", "nginx", "apache", "mongodb", "postgresql", "mysql", "redis", "elasticsearch", "kafka", "power bi", "tableau", "excel", "salesforce", "sap", "oracle", "project management", "pmp", "prince2", "itil", "servicenow", "routing", "switching", "wan", "lan", "nat", "qos", "ipv6", "aruba", "meraki", "sophos", "checkpoint", "f5", "citrix"]
-        tech_keywords = set()
-        for kw in common_tech:
-            if kw in jd_lower: tech_keywords.add(kw)
-        import re as _re3
-        for match in _re3.finditer(r'\b[A-Z]{2,6}\b', job_desc):
-            word = match.group().lower()
-            if word not in ["the", "and", "for", "our", "you", "are", "all"]: tech_keywords.add(word)
-        keyword_matches = [kw.upper() for kw in tech_keywords if kw in cv_lower]
-        missing_keywords = [kw.upper() for kw in tech_keywords if kw not in cv_lower]
-        skill_count = sum(1 for us in user_skills if us and us in jd_lower)
-        skill_pct = round((skill_count / max(len(user_skills), 1)) * 100)
-        kw_score = round((len(keyword_matches) / max(len(tech_keywords), 1)) * 60)
-        match_score = min(kw_score + int(min(skill_pct * 0.4, 40)), 100)
-        gaps = []
-        if missing_keywords: gaps.append("Missing keywords: " + ", ".join(missing_keywords[:5]))
-        if skill_pct < 50: gaps.append(f"Only {skill_pct}% of your listed skills match this job")
-        if not gaps: gaps.append("Great match! Your skills align well with this position.")
-        if match_score >= 80: rec = "Strong match! Consider this a high-priority application."
-        elif match_score >= 60: rec = "Good match. Tailor your resume to highlight matching keywords."
-        elif match_score >= 40: rec = "Moderate match. Use Resume Tailor to optimize your CV for this role."
-        else: rec = "Low match. Review job requirements and consider upskilling."
-        return JSONResponse({"match_score": match_score, "skill_match_pct": skill_pct, "keyword_matches": keyword_matches[:10], "missing_keywords": missing_keywords[:8], "skills_gaps": gaps, "recommendation": rec, "is_fallback": False})
+        with get_db() as conn:
+            if profile_id:
+                profile = conn.execute("SELECT cv_text, skills FROM cv_profiles WHERE user_id = ? AND id = ?", (user_id, profile_id)).fetchone()
+            else:
+                profile = conn.execute("SELECT cv_text, skills FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
+            pass  # conn.close()
+            cv_text = profile["cv_text"] if profile else ""
+            skills_str = profile["skills"] if profile else ""
+            if not cv_text:
+                return JSONResponse({"match_score": 0, "skill_match_pct": 0, "keyword_matches": [], "missing_keywords": [], "skills_gaps": ["Upload your CV first to get match scores"], "recommendation": "Upload your CV to see match scores", "is_fallback": True})
+            cv_lower = cv_text.lower()
+            jd_lower = job_desc.lower()
+            user_skills = [s.strip().lower() for s in skills_str.split(",") if s.strip()]
+            common_tech = ["python", "java", "javascript", "sql", "aws", "azure", "docker", "kubernetes", "linux", "git", "agile", "scrum", "react", "angular", "node", "typescript", "cisco", "juniper", "fortinet", "palo alto", "bgp", "ospf", "mpls", "vpn", "firewall", "ccna", "ccnp", "sd-wan", "vlan", "tcp/ip", "dns", "dhcp", "mikrotik", "ubiquiti", "network", "security", "cloud", "devops", "ci/cd", "terraform", "ansible", "jenkins", "grafana", "prometheus", "nginx", "apache", "mongodb", "postgresql", "mysql", "redis", "elasticsearch", "kafka", "power bi", "tableau", "excel", "salesforce", "sap", "oracle", "project management", "pmp", "prince2", "itil", "servicenow", "routing", "switching", "wan", "lan", "nat", "qos", "ipv6", "aruba", "meraki", "sophos", "checkpoint", "f5", "citrix"]
+            tech_keywords = set()
+            for kw in common_tech:
+                if kw in jd_lower: tech_keywords.add(kw)
+            import re as _re3
+            for match in _re3.finditer(r'\b[A-Z]{2,6}\b', job_desc):
+                word = match.group().lower()
+                if word not in ["the", "and", "for", "our", "you", "are", "all"]: tech_keywords.add(word)
+            keyword_matches = [kw.upper() for kw in tech_keywords if kw in cv_lower]
+            missing_keywords = [kw.upper() for kw in tech_keywords if kw not in cv_lower]
+            skill_count = sum(1 for us in user_skills if us and us in jd_lower)
+            skill_pct = round((skill_count / max(len(user_skills), 1)) * 100)
+            kw_score = round((len(keyword_matches) / max(len(tech_keywords), 1)) * 60)
+            match_score = min(kw_score + int(min(skill_pct * 0.4, 40)), 100)
+            gaps = []
+            if missing_keywords: gaps.append("Missing keywords: " + ", ".join(missing_keywords[:5]))
+            if skill_pct < 50: gaps.append(f"Only {skill_pct}% of your listed skills match this job")
+            if not gaps: gaps.append("Great match! Your skills align well with this position.")
+            if match_score >= 80: rec = "Strong match! Consider this a high-priority application."
+            elif match_score >= 60: rec = "Good match. Tailor your resume to highlight matching keywords."
+            elif match_score >= 40: rec = "Moderate match. Use Resume Tailor to optimize your CV for this role."
+            else: rec = "Low match. Review job requirements and consider upskilling."
+            return JSONResponse({"match_score": match_score, "skill_match_pct": skill_pct, "keyword_matches": keyword_matches[:10], "missing_keywords": missing_keywords[:8], "skills_gaps": gaps, "recommendation": rec, "is_fallback": False})
     except Exception as e:
         logger.exception("job-match-score failed")
         return JSONResponse({"error": str(e)}, status_code=500)
@@ -10338,87 +9025,86 @@ def cron_tick(request: Request, key: str = "", maintenance: str = "",
     Delegates heavy execution to the PostgreSQL-backed job queue.
     """
     try:
-        conn = get_db()
+        with get_db() as conn:
         
-        if reset == "all":
-            count = conn.execute("UPDATE campaigns SET status='pending', started_at=NULL WHERE status IN ('running', 'failed')").rowcount
+            if reset == "all":
+                count = conn.execute("UPDATE campaigns SET status='pending', started_at=NULL WHERE status IN ('running', 'failed')").rowcount
+                conn.commit()
+                pass  # conn.close()
+                return {"status": "ok", "actions": [f"force_reset:{count}"]}
+            
+            # Stuck detection
+            stuck_count = conn.execute(
+                "UPDATE campaigns SET status='pending', started_at=NULL "
+                "WHERE status='running' AND started_at IS NOT NULL "
+                "AND (strftime('%s','now') - strftime('%s',started_at)) > 360"
+            ).rowcount
+            if stuck_count:
+                conn.commit()
+                logger.info(f"[CRON] Unstuck {stuck_count} stale running campaign(s)")
+            
+            # Reset zombie campaigns
+            zombie = conn.execute("""
+                SELECT c.campaign_id FROM campaigns c
+                WHERE c.status='running'
+                AND c.started_at < datetime('now', '-10 minutes')
+                AND (SELECT COUNT(*) FROM campaign_emails e WHERE e.campaign_id = c.campaign_id) = 0
+            """).fetchall()
+            for row in zombie:
+                cid = row["campaign_id"]
+                conn.execute("UPDATE campaigns SET status='pending', started_at=NULL WHERE campaign_id=?", (cid,))
+        
+            # Reset campaigns stuck >24h
+            stuck = conn.execute(
+                "SELECT campaign_id FROM campaigns WHERE status='running' AND started_at IS NOT NULL AND datetime(started_at, '+24 hours') < datetime('now')"
+            ).fetchall()
+            for row in stuck:
+                cid = row["campaign_id"]
+                conn.execute("UPDATE campaigns SET status='failed', completed_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (cid,))
+        
+            # --- SERVERLESS CRON EXECUTION (For PythonAnywhere Free Tier) ---
+            pending = conn.execute(
+                "SELECT campaign_id FROM campaigns WHERE status='pending' ORDER BY created_at ASC LIMIT 1"
+            ).fetchone()
+        
+            cid = pending["campaign_id"] if pending else None
+        
+            if cid:
+                conn.execute("UPDATE campaigns SET status='running', started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (cid,))
+            
             conn.commit()
-            conn.close()
-            return {"status": "ok", "actions": [f"force_reset:{count}"]}
-            
-        # Stuck detection
-        stuck_count = conn.execute(
-            "UPDATE campaigns SET status='pending', started_at=NULL "
-            "WHERE status='running' AND started_at IS NOT NULL "
-            "AND (strftime('%s','now') - strftime('%s',started_at)) > 360"
-        ).rowcount
-        if stuck_count:
-            conn.commit()
-            logger.info(f"[CRON] Unstuck {stuck_count} stale running campaign(s)")
-            
-        # Reset zombie campaigns
-        zombie = conn.execute("""
-            SELECT c.campaign_id FROM campaigns c
-            WHERE c.status='running'
-            AND c.started_at < datetime('now', '-10 minutes')
-            AND (SELECT COUNT(*) FROM campaign_emails e WHERE e.campaign_id = c.campaign_id) = 0
-        """).fetchall()
-        for row in zombie:
-            cid = row["campaign_id"]
-            conn.execute("UPDATE campaigns SET status='pending', started_at=NULL WHERE campaign_id=?", (cid,))
+            pass  # conn.close()
         
-        # Reset campaigns stuck >24h
-        stuck = conn.execute(
-            "SELECT campaign_id FROM campaigns WHERE status='running' AND started_at IS NOT NULL AND datetime(started_at, '+24 hours') < datetime('now')"
-        ).fetchall()
-        for row in stuck:
-            cid = row["campaign_id"]
-            conn.execute("UPDATE campaigns SET status='failed', completed_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (cid,))
+            res = {"status": "ok", "actions": []}
         
-        # --- SERVERLESS CRON EXECUTION (For PythonAnywhere Free Tier) ---
-        pending = conn.execute(
-            "SELECT campaign_id FROM campaigns WHERE status='pending' ORDER BY created_at ASC LIMIT 1"
-        ).fetchone()
-        
-        cid = pending["campaign_id"] if pending else None
-        
-        if cid:
-            conn.execute("UPDATE campaigns SET status='running', started_at=CURRENT_TIMESTAMP WHERE campaign_id=?", (cid,))
-            
-        conn.commit()
-        conn.close()
-        
-        res = {"status": "ok", "actions": []}
-        
-        if cid:
-            try:
-                logger.info(f"[CRON] Picked up pending campaign {cid} to run in background")
-                import subprocess
-                import sys
+            if cid:
+                try:
+                    logger.info(f"[CRON] Picked up pending campaign {cid} to run in background")
+                    import subprocess
+                    import sys
                 
-                creationflags = 0
-                if sys.platform.startswith("win"):
-                    creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                    creationflags = 0
+                    if sys.platform.startswith("win"):
+                        creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
                 
-                script_path = str(BASE_DIR.parent / "run_campaign_cli.py")
-                p = subprocess.Popen(
-                    ['python', script_path, cid],
-                    creationflags=creationflags,
-                    start_new_session=True,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
-                )
-                logger.info(f"[CRON] Spawned run_campaign_cli.py for campaign {cid} (PID: {p.pid})")
-                res["actions"].append({"campaign": cid, "status": "spawned", "pid": p.pid})
-            except Exception as ce:
-                logger.error(f"[CRON] Background execution spawn error for {cid}: {ce}")
-                res["actions"].append({"campaign": cid, "error": str(ce)})
+                    script_path = str(BASE_DIR.parent / "run_campaign_cli.py")
+                    p = subprocess.Popen(
+                        [_get_python_executable(), script_path, cid],
+                        creationflags=creationflags,
+                        start_new_session=True,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL
+                    )
+                    logger.info(f"[CRON] Spawned run_campaign_cli.py for campaign {cid} (PID: {p.pid})")
+                    res["actions"].append({"campaign": cid, "status": "spawned", "pid": p.pid})
+                except Exception as ce:
+                    logger.error(f"[CRON] Background execution spawn error for {cid}: {ce}")
+                    res["actions"].append({"campaign": cid, "error": str(ce)})
                 
-        return res
+            return res
     except Exception as e:
         import traceback
         logger.error(f"[CRON] Tick error: {e}\n{traceback.format_exc()}")
-        return JSONResponse({"error": str(e)}, status_code=500)
 # === VIRAL GROWTH HACKS ENDPOINTS ===
 
 @app.post("/api/v1/squads/create")
@@ -10563,10 +9249,13 @@ def api_claim_social_share(request: Request):
     except Exception:
         return JSONResponse({"status": "error"}, status_code=500)
 
-@app.get("/roast")
-def roast_view(request: Request):
-    user_id = get_verified_user_id(request)
-    return render_template("roast.html", request=request, is_logged_in=bool(user_id))
+# ==================== MIGRATED TO ROUTER — START (lines 9001-9004) ====================
+# @app.get("/roast")
+# def roast_view(request: Request):
+#     user_id = get_verified_user_id(request)
+#     return render_template("roast.html", request=request, is_logged_in=bool(user_id))
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 @app.post("/api/v1/roast", dependencies=[Depends(verify_jwt)])
 async def api_roast_cv(file: UploadFile = File(...)):
@@ -10596,40 +9285,40 @@ async def nodriver_feed(request: Request):
         if not jobs:
             return JSONResponse({"ok": False, "count": 0, "message": "No jobs provided"})
         
-        conn = get_db()
-        added = 0
-        import hashlib
+        with get_db() as conn:
+            added = 0
+            import hashlib
         
-        for j in jobs:
-            title = j.get("title", "")
-            company = j.get("company", "Unknown")
-            url = j.get("url", "")
-            source = j.get("source", "nodriver")
-            location = j.get("location", "")
+            for j in jobs:
+                title = j.get("title", "")
+                company = j.get("company", "Unknown")
+                url = j.get("url", "")
+                source = j.get("source", "nodriver")
+                location = j.get("location", "")
             
-            if not title:
-                continue
+                if not title:
+                    continue
             
-            # Generate unique job_id from URL or title+company
-            job_id = hashlib.md5(f"{url or title}{company}".encode()).hexdigest()
+                # Generate unique job_id from URL or title+company
+                job_id = hashlib.md5(f"{url or title}{company}".encode()).hexdigest()
             
-            # Check existing
-            existing = conn.execute(
-                "SELECT id FROM jobs WHERE job_id = ? OR (title = ? AND company = ?)",
-                (job_id, title, company)
-            ).fetchone()
+                # Check existing
+                existing = conn.execute(
+                    "SELECT id FROM jobs WHERE job_id = ? OR (title = ? AND company = ?)",
+                    (job_id, title, company)
+                ).fetchone()
             
-            if not existing:
-                conn.execute('''
-                    INSERT INTO jobs (job_id, title, company, url, source, location, email, status, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, '', 'new', datetime('now'))
-                ''', (job_id, title, company, url, source, location))
-                added += 1
+                if not existing:
+                    conn.execute('''
+                        INSERT INTO jobs (job_id, title, company, url, source, location, email, status, created_at)
+                        VALUES (?, ?, ?, ?, ?, ?, '', 'new', datetime('now'))
+                    ''', (job_id, title, company, url, source, location))
+                    added += 1
         
-        conn.commit()
-        conn.close()
+            conn.commit()
+            pass  # conn.close()
         
-        return JSONResponse({"ok": True, "count": added, "total_received": len(jobs)})
+            return JSONResponse({"ok": True, "count": added, "total_received": len(jobs)})
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 
@@ -10652,18 +9341,18 @@ def verify_system_key(request: Request):
     try:
         user_id = get_verified_user_id(request)
         if user_id:
-            conn = get_db()
-            try:
-                user_row = conn.execute("SELECT email, user_type FROM users WHERE user_id = ?", (user_id,)).fetchone()
-                if user_row:
-                    email = user_row["email"]
-                    user_type = user_row["user_type"]
-                    if user_type == "admin" or is_admin_email(email):
-                        return True
-            except Exception:
-                pass
-            finally:
-                conn.close()
+            with get_db() as conn:
+                try:
+                    user_row = conn.execute("SELECT email, user_type FROM users WHERE user_id = ?", (user_id,)).fetchone()
+                    if user_row:
+                        email = user_row["email"]
+                        user_type = user_row["user_type"]
+                        if user_type == "admin" or is_admin_email(email):
+                            return True
+                except Exception:
+                    pass
+                finally:
+                    pass  # conn.close()
     except Exception:
         pass
             
@@ -10672,14 +9361,14 @@ def verify_system_key(request: Request):
 
 @app.get('/api/jobs/unscored')
 def jobs_unscored(request: Request, limit: int = 100):
-    conn = get_db()
-    try:
-        rows = conn.execute("SELECT id, job_id as ext_id, applicant_name as title, status FROM job_applications WHERE status = 'new' ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
-        return JSONResponse({'ok': True, 'jobs': [dict(r) for r in rows], 'count': len(rows)})
-    except Exception as e:
-        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
-    finally:
-        conn.close()
+    with get_db() as conn:
+        try:
+            rows = conn.execute("SELECT id, job_id as ext_id, applicant_name as title, status FROM job_applications WHERE status = 'new' ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
+            return JSONResponse({'ok': True, 'jobs': [dict(r) for r in rows], 'count': len(rows)})
+        except Exception as e:
+            return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+        finally:
+            pass  # conn.close()
 
 @app.post('/api/jobs/score')
 async def jobs_score(request: Request):
@@ -10690,17 +9379,17 @@ async def jobs_score(request: Request):
     job_id = data.get('job_id', '')
     if not job_id:
         return JSONResponse({'ok': False, 'error': 'job_id required'})
-    conn = get_db()
-    try:
-        mock_score = round(random.uniform(50, 95), 1)
-        conn.execute("UPDATE job_applications SET status = 'scored' WHERE id = ?", (int(job_id),))
-        conn.commit()
-        return JSONResponse({'ok': True, 'job_id': job_id, 'score': mock_score})
-    except Exception as e:
-        conn.rollback()
-        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
-    finally:
-        conn.close()
+    with get_db() as conn:
+        try:
+            mock_score = round(random.uniform(50, 95), 1)
+            conn.execute("UPDATE job_applications SET status = 'scored' WHERE id = ?", (int(job_id),))
+            conn.commit()
+            return JSONResponse({'ok': True, 'job_id': job_id, 'score': mock_score})
+        except Exception as e:
+            conn.rollback()
+            return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+        finally:
+            pass  # conn.close()
 
 
 # === CLOUD TICK ENDPOINT (PA → GH Actions cron) ===
@@ -10712,170 +9401,81 @@ async def jobs_score(request: Request):
 _tick_cache: dict = {"last_tick": 0, "last_result": None, "pending": False}
 _tick_cache_lock = None
 
-@app.post("/api/v2/cloud-tick")
-async def cloud_tick_endpoint(request: Request):
-    """Multi-tenant cloud tick - runs campaigns for ALL users in parallel.
-    Deduplicates overlapping requests from cron schedules with 60s cache."""
-    global _tick_cache_lock
-    if _tick_cache_lock is None:
-        _tick_cache_lock = asyncio.Lock()
-        
-    company_limit = 10
-    force = False
-    try:
-        body = await request.json()
-        company_limit = body.get("company_limit", 10)
-        force = body.get("force", False)
-    except Exception:
-        pass
-
-    async with _tick_cache_lock:
-        now = time.time()
-        # If we have a cached result from the last 60s, return it immediately (unless forced)
-        if not force and _tick_cache.get("last_result") and (now - _tick_cache.get("last_tick", 0)) < 60:
-            logger.info("[CloudTick] 📦 Returning cached result (dedup)")
-            return _tick_cache["last_result"]
-        # If a tick is already in progress, return the pending status
-        if _tick_cache.get("pending"):
-            logger.info("[CloudTick] 🔄 Tick already in progress, returning pending")
-            return {"status": "pending", "message": "Tick already running", "cached": True}
-        _tick_cache["pending"] = True
-    
-    try:
-        from core.multi_tenant import MultiTenantRunner
-        runner = MultiTenantRunner(company_limit=company_limit)
-        result = await runner.tick()
-        
-        # ── COMPRESS RESPONSE: return minimal stats, no verbose details ──
-        compact = {
-            "status": result.get("status", "ok"),
-            "tenants": result.get("tenant_count", 0),
-            "campaigns": result.get("campaigns_processed", 0),
-            "sent": result.get("emails_sent", 0),
-            "errors": result.get("errors", 0),
-            "elapsed": result.get("elapsed_sec", 0),
-            "version": "v17.1-optimized",
-        }
-        
-        async with _tick_cache_lock:
-            _tick_cache["last_tick"] = time.time()
-            _tick_cache["last_result"] = compact
-            _tick_cache["pending"] = False
-        
-        return compact
-    except ImportError:
-        logger.warning("MultiTenantRunner not available, falling back")
-        try:
-            from cloud_orchestrator import CloudOrchestrator
-            orch = CloudOrchestrator()
-            result = await orch.tick()
-            compact = {
-                "status": result.get("status", "error"),
-                "tenants": result.get("tenant_count", 0),
-                "campaigns": result.get("campaigns_processed", 0),
-                "sent": result.get("emails_sent", 0),
-                "errors": result.get("errors", 0),
-                "elapsed": result.get("elapsed_sec", 0),
-                "version": "v17.1-optimized",
-            }
-            async with _tick_cache_lock:
-                _tick_cache["last_tick"] = time.time()
-                _tick_cache["last_result"] = compact
-                _tick_cache["pending"] = False
-            return compact
-        except Exception as e:
-            async with _tick_cache_lock:
-                _tick_cache["pending"] = False
-            return {"status": "error", "error": str(e)}
-    except Exception as e:
-        logger.error(f"cloud-tick: {e}")
-        async with _tick_cache_lock:
-            _tick_cache["pending"] = False
-        return {"status": "error", "error": str(e)}
 
 
-@app.get("/api/v2/cloud-tick/status")
-def cloud_tick_status():
-    return {
-        "status": "ok",
-        "pa_token": bool(os.getenv("PA_API_TOKEN")),
-        "groq": bool(os.getenv("GROQ_API_KEY")),
-        "time": datetime.now().isoformat(),
-        "version": "v17.1-optimized"
-    }
 
 
 # ═══════════════════════════════════════════════════════════════
 # MULTI-TENANT ENDPOINTS (v17)
 # ═══════════════════════════════════════════════════════════════
 
-@app.get("/api/multi-tenant/status")
-def multi_tenant_status(request: Request):
-    """Get all tenants and their stats."""
-    verify_system_key(request)
-    try:
-        from core.multi_tenant import TenantManager
-        return TenantManager.list_tenants()
-    except ImportError:
-        return {"status": "error", "error": "multi_tenant module not loaded"}
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
+# @app.get("/api/multi-tenant/status")
+# def multi_tenant_status(request: Request):
+#     """Get all tenants and their stats."""
+#     verify_system_key(request)
+#     try:
+#         from core.multi_tenant import TenantManager
+#         return TenantManager.list_tenants()
+#     except ImportError:
+#         return {"status": "error", "error": "multi_tenant module not loaded"}
+#     except Exception as e:
+#         return {"status": "error", "error": str(e)}
 
 
-@app.get("/api/multi-tenant/rita")
-def rita_status(request: Request):
-    """Get Rita's profile and stats."""
-    verify_system_key(request)
-    try:
-        from core.multi_tenant import TenantManager
-        return TenantManager.get_tenant_stats("ritacordahi2@gmail.com")
-    except ImportError:
-        return {"status": "error", "error": "multi_tenant module not loaded"}
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
+# @app.get("/api/multi-tenant/rita")
+# def rita_status(request: Request):
+#     """Get Rita's profile and stats."""
+#     verify_system_key(request)
+#     try:
+#         from core.multi_tenant import TenantManager
+#         return TenantManager.get_tenant_stats("ritacordahi2@gmail.com")
+#     except ImportError:
+#         return {"status": "error", "error": "multi_tenant module not loaded"}
+#     except Exception as e:
+#         return {"status": "error", "error": str(e)}
 
 
-@app.post("/api/system/seed-companies")
-def seed_companies(request: Request):
-    """Seed Lebanon company database on PA."""
-    verify_system_key(request)
-    try:
-        from core.lebanon_company_seeder import seed_all_companies
-        result = seed_all_companies()
-        return result
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
+# @app.post("/api/system/seed-companies")
+# def seed_companies(request: Request):
+#     """Seed Lebanon company database on PA."""
+#     verify_system_key(request)
+#     try:
+#         from core.lebanon_company_seeder import seed_all_companies
+#         result = seed_all_companies()
+#         return result
+#     except Exception as e:
+#         return {"status": "error", "error": str(e)}
 
 
-@app.get("/api/system/companies-count")
-def companies_count(request: Request):
-    verify_system_key(request)
-    try:
-        from core.lebanon_company_seeder import get_companies_count
-        return get_companies_count()
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
+# @app.get("/api/system/companies-count")
+# def companies_count(request: Request):
+#     verify_system_key(request)
+#     try:
+#         from core.lebanon_company_seeder import get_companies_count
+#         return get_companies_count()
+#     except Exception as e:
+#         return {"status": "error", "error": str(e)}
 
 
-@app.post("/api/system/force-rita-campaign")
-def force_rita_campaign(request: Request):
-    verify_system_key(request)
-    try:
-        from scripts.force_rita_campaign import force_rita_campaign as frc
-        return frc()
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
+# @app.post("/api/system/force-rita-campaign")
+# def force_rita_campaign(request: Request):
+#     verify_system_key(request)
+#     try:
+#         from scripts.force_rita_campaign import force_rita_campaign as frc
+#         return frc()
+#     except Exception as e:
+#         return {"status": "error", "error": str(e)}
 
 
-@app.post("/api/system/force-reset-all")
-def force_reset_all(request: Request):
-    """Reset ALL completed campaigns to pending for both tenants."""
-    verify_system_key(request)
-    try:
-        from scripts.force_reset_all import force_reset_all_campaigns
-        return force_reset_all_campaigns()
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
+# @app.post("/api/system/force-reset-all")
+# def force_reset_all(request: Request):
+#     """Reset ALL completed campaigns to pending for both tenants."""
+#     verify_system_key(request)
+#     try:
+#         from scripts.force_reset_all import force_reset_all_campaigns
+#         return force_reset_all_campaigns()
+#     except Exception as e:
+#         return {"status": "error", "error": str(e)}
 
 
 @app.post("/api/multi-tenant/add-tenant")
@@ -10905,30 +9505,30 @@ async def add_tenant(request: Request):
 # SELF-HEALING ENDPOINTS (for GH Actions self-heal workflow)
 # ═══════════════════════════════════════════════════════════════
 
-@app.get("/api/system/status")
-def system_status(request: Request):
-    """
-    Full system status — RAM, CPU, running campaigns, SMTP health, API keys.
-    Uses auto_heal.get_system_health_snapshot() for comprehensive health view.
-    Designed for monitoring dashboards and hourly Telegram summaries.
-    """
-    verify_system_key(request)
-    try:
-        snapshot = _autoheal.get_system_health_snapshot()
-    except Exception as e:
-        logger.error(f"system_status: {e}")
-        snapshot = {"status": "error", "error": str(e)}
-
-    # Add server-level info
-    snapshot["server"] = {
-        "uptime_seconds": round(time.time() - APP_START_TIME, 1),
-        "uptime_human": f"{int((time.time() - APP_START_TIME) / 3600)}h {int(((time.time() - APP_START_TIME) % 3600) / 60)}m",
-        "host": os.getenv("HOSTNAME", "PA"),
-        "python_version": sys.version.split()[0] if hasattr(sys, 'version') else "unknown",
-        "platform": sys.platform,
-    }
-
-    return snapshot
+# @app.get("/api/system/status")
+# def system_status(request: Request):
+#     """
+#     Full system status — RAM, CPU, running campaigns, SMTP health, API keys.
+#     Uses auto_heal.get_system_health_snapshot() for comprehensive health view.
+#     Designed for monitoring dashboards and hourly Telegram summaries.
+#     """
+#     verify_system_key(request)
+#     try:
+#         snapshot = _autoheal.get_system_health_snapshot()
+#     except Exception as e:
+#         logger.error(f"system_status: {e}")
+#         snapshot = {"status": "error", "error": str(e)}
+# 
+#     # Add server-level info
+#     snapshot["server"] = {
+#         "uptime_seconds": round(time.time() - APP_START_TIME, 1),
+#         "uptime_human": f"{int((time.time() - APP_START_TIME) / 3600)}h {int(((time.time() - APP_START_TIME) % 3600) / 60)}m",
+#         "host": os.getenv("HOSTNAME", "PA"),
+#         "python_version": sys.version.split()[0] if hasattr(sys, 'version') else "unknown",
+#         "platform": sys.platform,
+#     }
+# 
+#     return snapshot
 
 
 @app.post("/api/system/auto-heal")
@@ -11032,19 +9632,25 @@ def extension_config(user_id: str = ""):
 # ==========================================
 # HIDDEN AUTH ENDPOINTS FOR 24/7 SESSIONS
 # ==========================================
-@app.post("/auth/refresh-token")
-def refresh_token(request: Request):
-    """
-    Silently rotate JWT/Session for the Swarm extension so it never logs out.
-    """
-    return JSONResponse({"status": "refreshed", "token_validity": "24h"})
+# ==================== MIGRATED TO ROUTER — START (lines 9381-9386) ====================
+# @app.post("/auth/refresh-token")
+# def refresh_token(request: Request):
+#     """
+#     Silently rotate JWT/Session for the Swarm extension so it never logs out.
+#     """
+#     return JSONResponse({"status": "refreshed", "token_validity": "24h"})
+# ==================== MIGRATED TO ROUTER — END   ====================
 
-@app.post("/auth/logout")
-def logout_api(request: Request):
-    """
-    Safely terminate the session.
-    """
-    return JSONResponse({"status": "logged_out"})
+
+# ==================== MIGRATED TO ROUTER — START (lines 9388-9393) ====================
+# @app.post("/auth/logout")
+# def logout_api(request: Request):
+#     """
+#     Safely terminate the session.
+#     """
+#     return JSONResponse({"status": "logged_out"})
+# ==================== MIGRATED TO ROUTER — END   ====================
+
 
 
 # ==========================================
@@ -11192,7 +9798,6 @@ try:
     wsgi_app = ASGIMiddleware(app, send_queue_size=20)
 except TypeError:
     wsgi_app = ASGIMiddleware(app)
-
 
 
 

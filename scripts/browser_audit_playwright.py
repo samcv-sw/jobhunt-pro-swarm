@@ -18,7 +18,7 @@ if sys.platform.startswith("win"):
 try:
     from playwright.async_api import async_playwright, ConsoleMessage
 except ImportError:
-    print("Installing playwright...")
+    logger.debug("Installing playwright...")
     import subprocess
     subprocess.check_call([sys.executable, "-m", "pip", "install", "playwright"])
     subprocess.check_call([sys.executable, "-m", "playwright", "install", "chromium"])
@@ -191,8 +191,8 @@ def render_report(results):
 
 
 async def main():
-    print(f"[*] Starting browser audit of {BASE_URL}")
-    print(f"[*] Screenshots -> {SCREENSHOTS_DIR}")
+    logger.debug(f"[*] Starting browser audit of {BASE_URL}")
+    logger.debug(f"[*] Screenshots -> {SCREENSHOTS_DIR}")
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True)
@@ -204,27 +204,27 @@ async def main():
 
         results = []
         for path, name in PAGES:
-            print(f"  -> Auditing {path} ...")
+            logger.debug(f"  -> Auditing {path} ...")
             r = await audit_page(page, path, name)
             status_str = str(r["status"])
             issue_str = f" | {len(r['issues'])} issues" if r["issues"] else ""
-            print(f"     [{status_str}] {r['title'] or 'no title'}{issue_str}")
+            logger.debug(f"     [{status_str}] {r['title'] or 'no title'}{issue_str}")
             results.append(r)
 
         await browser.close()
 
     report = render_report(results)
     REPORT_PATH.write_text(report, encoding="utf-8")
-    print(f"\n[+] Audit complete! Report saved to: {REPORT_PATH}")
+    logger.debug(f"\n[+] Audit complete! Report saved to: {REPORT_PATH}")
 
     # Print summary
     errors = [r for r in results if r["issues"] or isinstance(r["status"], int) and r["status"] >= 400]
     if errors:
-        print(f"\n[!] {len(errors)} page(s) need attention:")
+        logger.debug(f"\n[!] {len(errors)} page(s) need attention:")
         for r in errors:
-            print(f"    - {r['path']}: {', '.join(r['issues'][:2])}")
+            logger.debug(f"    - {r['path']}: {', '.join(r['issues'][:2])}")
     else:
-        print("\n[OK] All pages look clean!")
+        logger.debug("\n[OK] All pages look clean!")
 
 
 if __name__ == "__main__":

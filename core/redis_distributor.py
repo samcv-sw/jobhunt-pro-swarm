@@ -11,7 +11,7 @@ import json
 import logging
 import os
 import time
-from typing import Dict, Any
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ class RedisDistributor:
         except Exception as e:
             logger.error(f"Failed to connect to Redis: {e}")
 
-    async def submit_task(self, agent_type: str, payload: Dict[str, Any]) -> str:
+    async def submit_task(self, agent_type: str, payload: dict[str, Any]) -> str:
         """
         Push a task onto the distributed queue.
         In a real setup, this would be `celery_app.send_task(...)`.
@@ -65,7 +65,7 @@ class RedisDistributor:
 
         return task_id
 
-    async def fetch_results(self, task_id: str) -> Dict[str, Any]:
+    async def fetch_results(self, task_id: str) -> dict[str, Any]:
         """
         Poll Redis for task completion.
         """
@@ -75,7 +75,7 @@ class RedisDistributor:
                 return json.loads(result)
         return {"status": "pending"}
 
-    async def cache_knowledge_graph(self, graph_data: Dict[str, Any]):
+    async def cache_knowledge_graph(self, graph_data: dict[str, Any]):
         """Caches the Job Market Knowledge Graph in Redis for ultra-fast lookup."""
         if self._connected and self.redis_client:
             await self.redis_client.set(
@@ -83,7 +83,7 @@ class RedisDistributor:
             )
             logger.debug("Knowledge Graph cached in Redis.")
 
-    async def get_cached_knowledge_graph(self) -> Dict[str, Any]:
+    async def get_cached_knowledge_graph(self) -> dict[str, Any]:
         """Retrieves the cached Knowledge Graph from Redis."""
         if self._connected and self.redis_client:
             data = await self.redis_client.get("knowledge_graph_cache")

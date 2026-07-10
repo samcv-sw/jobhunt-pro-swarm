@@ -1,11 +1,10 @@
-﻿langgraph>=0.0.30
+langgraph>=0.0.30
 langgraph-checkpoint-postgres>=1.0.0
 pydantic-ai>=0.0.1
 psycopg>=3.1.0
 psycopg-pool>=3.1.0
 camoufox[geoip]>=1.0.0
 a2wsgi==1.10.4
-a2wsgi
 procrastinate
 slowapi>=0.1.9
 stripe
@@ -22,3 +21,11 @@ bcrypt>=4.1.0
 itsdangerous>=2.1.2
 python-dotenv>=1.0.0
 curl_cffi>=0.6.0
+
+# Turso / libSQL edge database support ($0 free tier, 8GB)
+libsql-experimental>=0.0.17
+aiosqlite>=0.20.0
+
+# Caching layer
+fastapi-cache2>=0.2.1
+redis>=5.0.0

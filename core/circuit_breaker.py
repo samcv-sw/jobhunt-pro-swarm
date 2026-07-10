@@ -1,36 +1,40 @@
-import time
 import logging
+import time
 from functools import wraps
 
 logger = logging.getLogger(__name__)
 
 class CircuitBreakerOpenException(Exception):
-    pass
+    """Raised when a circuit breaker is in OPEN state and blocks requests."""
 
 class CircuitBreaker:
     """
     A lightweight Circuit Breaker implementation for async functions.
     Prevents cascading failures when external services go down.
     """
-    def __init__(self, max_failures=5, reset_timeout=60):
+    def __init__(self, max_failures: int = 5, reset_timeout: int = 60) -> None:
         self.max_failures = max_failures
         self.reset_timeout = reset_timeout
         self.failure_count = 0
         self.last_failure_time = None
         self.state = 'CLOSED'  # States: CLOSED, OPEN, HALF_OPEN
 
-    def _record_failure(self):
+    def _record_failure(self) -> None:
+        """Increment failure count and open the circuit if threshold is reached."""
         self.failure_count += 1
         self.last_failure_time = time.time()
         if self.failure_count >= self.max_failures:
             self.state = 'OPEN'
             logger.warning(f"Circuit Breaker TRIPPED! State: OPEN. (Failures: {self.failure_count})")
 
-    def _record_success(self):
+    def _record_success(self) -> None:
+        """Reset failure count and close the circuit on successful call."""
         self.failure_count = 0
         self.state = 'CLOSED'
 
-    def __call__(self, func):
+    def __call__(self, func: callable) -> callable:
+        """Wrap a sync or async function with circuit breaker logic."""
+
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
             if self.state == 'OPEN':
@@ -71,7 +75,7 @@ class CircuitBreaker:
                 if not isinstance(e, CircuitBreakerOpenException):
                     self._record_failure()
                 raise e
-                
+
         import inspect
         if inspect.iscoroutinefunction(func):
             return async_wrapper

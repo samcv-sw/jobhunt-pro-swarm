@@ -53,7 +53,7 @@
     
     /* Table */
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { text-align: left; color: #6666aa; padding: 8px 10px; border-bottom: 1px solid #2a2a3a; font-weight: 400; }
+    th { text-align: start; color: #6666aa; padding: 8px 10px; border-bottom: 1px solid #2a2a3a; font-weight: 400; }
     td { padding: 10px; border-bottom: 1px solid #1a1a2a; color: #cccce0; }
     .badge-status { padding: 2px 8px; border-radius: 10px; font-size: 11px; }
     .badge-status.running { background: #00ff8811; color: #00ff88; border: 1px solid #00ff8833; }
@@ -118,22 +118,22 @@
         <p>No credit card. No password — we'll email you a magic link.</p>
         
         <label>Full Name</label>
-        <input type="text" id="regName" placeholder="e.g. Sam Salameh" />
+        <input dir="auto" type="text" id="regName" placeholder="e.g. Sam Salameh" />
         
         <label>Email (Gmail recommended)</label>
-        <input type="email" id="regEmail" placeholder="you@gmail.com" />
+        <input dir="auto" type="email" id="regEmail" placeholder="you@gmail.com" />
         
         <label>Phone (WhatsApp for alerts)</label>
-        <input type="tel" id="regPhone" placeholder="+961 70 000 000" />
+        <input dir="auto" type="tel" id="regPhone" placeholder="+961 70 000 000" />
         
         <label>Target Job Titles (comma separated)</label>
-        <input type="text" id="regRoles" placeholder="e.g. Network Engineer, DevOps Engineer, IT Manager" />
+        <input dir="auto" type="text" id="regRoles" placeholder="e.g. Network Engineer, DevOps Engineer, IT Manager" />
         
         <label>Target Locations (comma separated)</label>
-        <input type="text" id="regLocations" placeholder="e.g. Beirut, Dubai, Remote" />
+        <input dir="auto" type="text" id="regLocations" placeholder="e.g. Beirut, Dubai, Remote" />
         
         <label>Minimum Salary ($/month)</label>
-        <input type="number" id="regSalary" value="1500" min="0" />
+        <input dir="auto" type="number" id="regSalary" value="1500" min="0" />
 
         <label>BYO AI Provider (Optional)</label>
         <select id="regAiProvider">
@@ -144,7 +144,7 @@
         </select>
 
         <label>AI API Key (Optional)</label>
-        <input type="password" id="regAiKey" placeholder="Paste your API key here" />
+        <input dir="auto" type="password" id="regAiKey" placeholder="Paste your API key here" />
         
         <label>Upload CV (PDF)</label>
         <input type="file" id="regCv" accept=".pdf" />
@@ -158,10 +158,10 @@
         <p>We use YOUR Gmail to send applications. Encrypted and 100% secure.</p>
         
         <label>Gmail Address</label>
-        <input type="email" id="smtpEmail" placeholder="you@gmail.com" />
+        <input dir="auto" type="email" id="smtpEmail" placeholder="you@gmail.com" />
         
         <label>App Password (16 characters)</label>
-        <input type="password" id="smtpPass" placeholder="xxxx xxxx xxxx xxxx" />
+        <input dir="auto" type="password" id="smtpPass" placeholder="xxxx xxxx xxxx xxxx" />
         <p style="font-size: 11px; color: #6666aa;">
           🔑 Need one? <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color:#00f0ff;">Generate App Password</a>
           (Requires 2FA enabled on your Google Account)
@@ -179,7 +179,7 @@
         <h2>🔐 Your Dashboard</h2>
         <p>Enter your email to access your campaign dashboard.</p>
         <label>Your Email</label>
-        <input type="email" id="dashEmail" placeholder="you@gmail.com" />
+        <input dir="auto" type="email" id="dashEmail" placeholder="you@gmail.com" />
         <button class="btn" id="dashLoadBtn">📊 Load Dashboard</button>
         <div id="dashError" style="display:none;"></div>
       </div>

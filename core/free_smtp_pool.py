@@ -22,11 +22,11 @@ Combined with 1000+ Hotmail SMTP: 100,000+ emails/day potential
 Created: 2026-06-24 — Ultimate Deep Scan Session
 """
 
-import os
+import base64
 import json
 import logging
-import base64
-from typing import Any, Dict, List, Optional, Tuple
+import os
+from typing import Any
 
 try:
     import requests as http_requests
@@ -37,13 +37,31 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+# Configurable endpoints for free SMTP HTTP API services
+MAILGUN_API_URL_TEMPLATE = os.getenv(
+    "MAILGUN_API_URL_TEMPLATE", "https://api.mailgun.net/v3/{domain}/messages"
+)
+ELASTICEMAIL_API_URL = os.getenv(
+    "ELASTICEMAIL_API_URL", "https://api.elasticemail.com/v4/emails/transactional"
+)
+ZEPTOMAIL_API_URL = os.getenv(
+    "ZEPTOMAIL_API_URL", "https://api.zeptomail.com/v1.1/email"
+)
+TURBOSMTP_API_URL = os.getenv(
+    "TURBOSMTP_API_URL", "https://api.turbo-smtp.com/api/v2/mail/send"
+)
+POSTMARK_API_URL = os.getenv(
+    "POSTMARK_API_URL", "https://api.postmarkapp.com/email"
+)
+
+
 
 class FreeSMTPPool:
     """Orchestrates all free HTTP-based email APIs."""
 
     def __init__(self) -> None:
-        self._providers: List[Dict[str, Any]] = []
-        self._stats: Dict[str, Dict[str, int]] = {}
+        self._providers: list[dict[str, Any]] = []
+        self._stats: dict[str, dict[str, int]] = {}
         self._init_providers()
 
     def _init_providers(self) -> None:
@@ -154,8 +172,8 @@ class FreeSMTPPool:
         html_body: str,
         text_body: str = "",
         from_name: str = "",
-        attachments: Optional[List[Dict[str, Any]]] = None,
-    ) -> Tuple[bool, str]:
+        attachments: list[dict[str, Any]] | None = None,
+    ) -> tuple[bool, str]:
         """
         Send email via the best available free HTTP API.
         Returns (success: bool, provider_used: str).
@@ -228,7 +246,7 @@ class FreeSMTPPool:
         html_body: str,
         text_body: str = "",
         from_name: str = "",
-        attachments: Optional[List[Dict[str, Any]]] = None,
+        attachments: list[dict[str, Any]] | None = None,
     ) -> bool:
         """Route to specific provider implementation."""
         name = from_name or "Sam Salameh"
@@ -299,14 +317,14 @@ class FreeSMTPPool:
         html: str,
         text: str,
         from_name: str,
-        atts: Optional[List[Dict[str, Any]]],
+        atts: list[dict[str, Any]] | None,
     ) -> bool:
         api_key = os.getenv("MAILGUN_API_KEY", "")
         domain = os.getenv("MAILGUN_DOMAIN", "")
         if not api_key or not domain:
             return False
         try:
-            url = f"https://api.mailgun.net/v3/{domain}/messages"
+            url = MAILGUN_API_URL_TEMPLATE.format(domain=domain)
             data = {
                 "from": f"{from_name} <jobhunt@{domain}>",
                 "to": to_email,
@@ -334,8 +352,8 @@ class FreeSMTPPool:
                 )
                 return resp.status_code == 200
             else:
-                import urllib.request
                 import urllib.parse
+                import urllib.request
 
                 req = urllib.request.Request(
                     url, data=urllib.parse.urlencode(data).encode("utf-8")
@@ -343,7 +361,7 @@ class FreeSMTPPool:
                 req.add_header(
                     "Authorization",
                     "Basic "
-                    + base64.b64encode(f"api:{api_key}".encode("utf-8")).decode(
+                    + base64.b64encode(f"api:{api_key}".encode()).decode(
                         "utf-8"
                     ),
                 )
@@ -363,7 +381,7 @@ class FreeSMTPPool:
         html: str,
         text: str,
         from_name: str,
-        atts: Optional[List[Dict[str, Any]]],
+        atts: list[dict[str, Any]] | None,
     ) -> bool:
         api_key = os.getenv("ELASTIC_EMAIL_API_KEY", "")
         if not api_key:
@@ -391,7 +409,7 @@ class FreeSMTPPool:
 
             if HAS_REQUESTS:
                 resp = http_requests.post(
-                    "https://api.elasticemail.com/v4/emails/transactional",
+                    ELASTICEMAIL_API_URL,
                     headers={
                         "X-ElasticEmail-ApiKey": api_key,
                         "Content-Type": "application/json",
@@ -404,7 +422,7 @@ class FreeSMTPPool:
                 import urllib.request
 
                 req = urllib.request.Request(
-                    "https://api.elasticemail.com/v4/emails/transactional",
+                    ELASTICEMAIL_API_URL,
                     data=json.dumps(payload).encode("utf-8"),
                     headers={
                         "X-ElasticEmail-ApiKey": api_key,
@@ -427,7 +445,7 @@ class FreeSMTPPool:
         html: str,
         text: str,
         from_name: str,
-        atts: Optional[List[Dict[str, Any]]],
+        atts: list[dict[str, Any]] | None,
     ) -> bool:
         token = os.getenv("ZEPTOMAIL_TOKEN", "")
         if not token:
@@ -453,7 +471,7 @@ class FreeSMTPPool:
 
             if HAS_REQUESTS:
                 resp = http_requests.post(
-                    "https://api.zeptomail.com/v1.1/email",
+                    ZEPTOMAIL_API_URL,
                     headers={
                         "Authorization": token,
                         "Content-Type": "application/json",
@@ -466,7 +484,7 @@ class FreeSMTPPool:
                 import urllib.request
 
                 req = urllib.request.Request(
-                    "https://api.zeptomail.com/v1.1/email",
+                    ZEPTOMAIL_API_URL,
                     data=json.dumps(payload).encode("utf-8"),
                     headers={
                         "Authorization": token,
@@ -489,7 +507,7 @@ class FreeSMTPPool:
         html: str,
         text: str,
         from_name: str,
-        atts: Optional[List[Dict[str, Any]]],
+        atts: list[dict[str, Any]] | None,
     ) -> bool:
         user = os.getenv("TURBOSMTP_USER", "")
         pwd = os.getenv("TURBOSMTP_PASS", "")
@@ -517,7 +535,7 @@ class FreeSMTPPool:
 
             if HAS_REQUESTS:
                 resp = http_requests.post(
-                    "https://api.turbo-smtp.com/api/v2/mail/send",
+                    TURBOSMTP_API_URL,
                     headers={
                         "Authorization": f"Bearer {pwd}",
                         "Content-Type": "application/json",
@@ -530,7 +548,7 @@ class FreeSMTPPool:
                 import urllib.request
 
                 req = urllib.request.Request(
-                    "https://api.turbo-smtp.com/api/v2/mail/send",
+                    TURBOSMTP_API_URL,
                     data=json.dumps(payload).encode("utf-8"),
                     headers={
                         "Authorization": f"Bearer {pwd}",
@@ -553,7 +571,7 @@ class FreeSMTPPool:
         html: str,
         text: str,
         from_name: str,
-        atts: Optional[List[Dict[str, Any]]],
+        atts: list[dict[str, Any]] | None,
     ) -> bool:
         server_token = os.getenv("POSTMARK_SERVER_TOKEN", "")
         if not server_token:
@@ -581,7 +599,7 @@ class FreeSMTPPool:
 
             if HAS_REQUESTS:
                 resp = http_requests.post(
-                    "https://api.postmarkapp.com/email",
+                    POSTMARK_API_URL,
                     headers={
                         "Accept": "application/json",
                         "Content-Type": "application/json",
@@ -595,7 +613,7 @@ class FreeSMTPPool:
                 import urllib.request
 
                 req = urllib.request.Request(
-                    "https://api.postmarkapp.com/email",
+                    POSTMARK_API_URL,
                     data=json.dumps(payload).encode("utf-8"),
                     headers={
                         "Accept": "application/json",
@@ -609,7 +627,7 @@ class FreeSMTPPool:
             logger.warning(f"[Postmark] Send failed: {e}")
             return False
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Return current usage stats for all providers."""
         return {
             "providers": len(self._providers),
@@ -620,7 +638,7 @@ class FreeSMTPPool:
 
 
 # Singleton
-_free_smtp_pool: Optional[FreeSMTPPool] = None
+_free_smtp_pool: FreeSMTPPool | None = None
 
 
 def get_free_smtp_pool() -> FreeSMTPPool:
