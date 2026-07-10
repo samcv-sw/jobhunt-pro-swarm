@@ -11,7 +11,22 @@ import subprocess
 import logging
 import signal
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+import json as _json
+
+class _JsonFormatter(logging.Formatter):
+    """JSON log formatter compatible with Render log drain and Datadog/Logtail."""
+    def format(self, record: logging.LogRecord) -> str:
+        return _json.dumps({
+            "time": self.formatTime(record, self.datefmt),
+            "level": record.levelname,
+            "logger": record.name,
+            "msg": record.getMessage(),
+            "pid": record.process,
+        })
+
+_handler = logging.StreamHandler()
+_handler.setFormatter(_JsonFormatter())
+logging.basicConfig(level=logging.INFO, handlers=[_handler])
 logger = logging.getLogger("cloud-start")
 
 PORT = int(os.environ.get("PORT", 8000))
@@ -20,9 +35,13 @@ WORKERS = int(os.environ.get("WEB_CONCURRENCY", 1)) # Keep at 1 for free tier me
 processes = []
 
 def cleanup(signum, frame):
+    """Handle SIGINT/SIGTERM: gracefully terminate all child processes and exit."""
     logger.info("Shutting down all services...")
     for p in processes:
-        p.terminate()
+        try:
+            p.terminate()
+        except OSError:
+            pass  # Process may already have exited
     sys.exit(0)
 
 signal.signal(signal.SIGINT, cleanup)
@@ -53,19 +72,24 @@ def launch_services():
         "--host", HOST,
         "--port", str(PORT),
         "--workers", str(WORKERS),
-        "--loop", "uvloop",
         "--access-log",
     ]
+    if os.name != "nt":
+        uvicorn_cmd.extend(["--loop", "uvloop"])
+    
     uvicorn_proc = subprocess.Popen(uvicorn_cmd)
     processes.append(uvicorn_proc)
 
     # Keep script alive and monitor processes
     try:
         while True:
-            time.sleep(1)
+            time.sleep(5)
             for p in processes:
-                if p.poll() is not None:
-                    logger.error("A critical background service crashed! Shutting down container...")
+                exit_code = p.poll()
+                if exit_code is not None:
+                    logger.error(
+                        f"A critical background service (PID {p.pid}) exited with code {exit_code}! Shutting down container..."
+                    )
                     cleanup(None, None)
     except KeyboardInterrupt:
         cleanup(None, None)

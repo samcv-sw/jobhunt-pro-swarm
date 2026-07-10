@@ -1,0 +1,307 @@
+[
+  {
+    "timestamp": "2026-07-10T11:28:30.959839",
+    "summary": "Setup: registered 'loop' command globally to PATH, sharded 375KB clinerules into modular .roo/ and .cursor/ rule configurations, fixed antigravity_loop.py logger bug, refreshed ANTIGRAVITY_STATE_SUMMARY.md",
+    "conversation_id": "ae22d0a4-711a-444d-9dcc-ff3fc5d5c48b"
+  },
+  {
+    "timestamp": "2026-07-10T11:45:36.549397",
+    "summary": "Session 4 cont: +36 new tests for core/viral_engine.py (0->36 coverage), added docstrings to EmailTracker (6 methods), ban_shield.py (set_db_path + get_safe_send_window), fixed health check in antigravity_loop.py",
+    "conversation_id": "ae22d0a4-711a-444d-9dcc-ff3fc5d5c48b"
+  },
+  {
+    "timestamp": "2026-07-10T12:02:29.979006",
+    "summary": "Expanded GCC search locations (adding Fujairah, Umm Al Quwain, Al Khobar, Jubail, Yanbu, Al Khor, Salalah, Sohar), added 15+ irrelevant roles to BANNED_TITLES list, and added GCC corporate targets in config.py",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:05:27.132766",
+    "summary": "Hardened cover letter prompt in ai_tailor.py with strict instructions prohibiting brackets and placeholders; synchronized cover_letter.py MIDDLE_EAST_INDICATORS with the new GCC search locations",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:18:03.611569",
+    "summary": "Fixed NameError bugs and added proper logging configuration and try/except handling to add_cache.py and add_sync.py utility scripts in the project root",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:25:18.427295",
+    "summary": "Documented and added type hints to all test cases in tests/test_scam_detector.py, completely resolving the code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:30:01.375632",
+    "summary": "Documented and added type hints to all test cases in tests/test_backend_secured.py, completely resolving the code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:31:34.377058",
+    "summary": "Documented and added type hints to all test cases in tests/test_email_personalization.py, completely resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:34:27.935668",
+    "summary": "Documented and added type hints to all test cases in tests/test_followup_automation.py, completely resolving the code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:36:06.070093",
+    "summary": "Documented and added type hints to all test cases in tests/test_pa_job_scraper.py, completely resolving the code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:37:45.811007",
+    "summary": "Documented and added type hints to all test cases in tests/e2e/test_r1_cover_letter.py, completely resolving the code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:39:23.208274",
+    "summary": "Documented and added type hints to all test cases in tests/e2e/test_r3_scraper.py, completely resolving the code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:40:52.612690",
+    "summary": "Documented and added type hints to all test cases in tests/e2e/test_r4_auth.py, completely resolving the code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:42:21.745003",
+    "summary": "Documented and added type hints to all test cases in tests/e2e/test_r5_cicd.py, completely resolving the code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:44:12.095176",
+    "summary": "Documented and added type hints to all test cases in tests/test_compliance.py, completely resolving the code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:45:39.361417",
+    "summary": "Documented and added type hints to all test cases in tests/e2e/test_frontend.py, completely resolving the code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:47:06.133115",
+    "summary": "Documented and added type hints to all route overrides in tests/e2e/conftest.py, completely resolving the code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:48:34.862942",
+    "summary": "Documented and added type hints to all test cases in tests/e2e/test_r2_dashboard.py, completely resolving the code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:57:35.594661",
+    "summary": "Unified duplicate Telegram bot code by turning core/telegram_bot.py into a forwarding wrapper for core/telegram/bot.py, eliminating 5200 lines of duplicate code",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T12:59:45.845896",
+    "summary": "Extracted all hardcoded scraper URLs in core/pa_job_scraper.py to config.py to avoid hardcoding",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:01:15.421233",
+    "summary": "Hardened tests/test_backend_secured.py with robust exception handling and resource cleaning blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:03:10.971210",
+    "summary": "Hardened tests/test_pa_job_scraper.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:05:01.025793",
+    "summary": "Hardened tests/test_scam_detector.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "ae22d0a4-711a-444d-9dcc-ff3fc5d5c48b"
+  },
+  {
+    "timestamp": "2026-07-10T13:06:44.772914",
+    "summary": "Hardened tests/test_security_hardening.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:18:54.449747",
+    "summary": "Hardened tests/e2e/test_database.py by isolating outbox queries with record_id filtering to prevent flakes from parallel test runs",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:20:26.242630",
+    "summary": "Hardened tests/e2e/test_r2_dashboard.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:21:59.007736",
+    "summary": "Hardened tests/e2e/test_r3_scraper.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:23:31.658878",
+    "summary": "Hardened tests/e2e/test_r4_auth.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:25:04.399849",
+    "summary": "Hardened tests/e2e/test_r5_cicd.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:28:20.803335",
+    "summary": "Decomposed search_hhru, search_indeed_rss, search_glassdoor, and search_all inside core/pa_job_scraper.py to resolve long function warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:29:47.044534",
+    "summary": "Hardened tests/test_compliance.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:31:13.709518",
+    "summary": "Hardened tests/test_email_personalization.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:32:41.644794",
+    "summary": "Hardened tests/test_followup_automation.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:39:10.741254",
+    "summary": "Hardened tests/e2e/conftest.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:40:41.947619",
+    "summary": "Hardened tests/e2e/test_frontend.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:42:18.176702",
+    "summary": "Hardened web/fix_sidebar_nav.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:44:00.894275",
+    "summary": "Hardened tests/test_stealth_parser_and_fallbacks.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:46:52.705984",
+    "summary": "Hardened tests/test_adversarial_security.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:48:23.947384",
+    "summary": "Hardened tests/test_aegis_and_banshield.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:49:55.530843",
+    "summary": "Hardened tests/test_employer_api.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:52:20.855037",
+    "summary": "Hardened tests/test_ats_scorer.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:55:57.555537",
+    "summary": "Hardened tests/test_backend.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:57:27.377157",
+    "summary": "Hardened tests/test_circuit_breaker.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T13:59:21.321285",
+    "summary": "Hardened tests/test_llm_provider_pool.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T14:00:49.610650",
+    "summary": "Hardened tests/test_pricing_manager.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T14:07:02.482537",
+    "summary": "Hardened tests/test_scam_detector_extended.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T14:08:55.026605",
+    "summary": "Hardened core/premium_engine.py with robust exception handling blocks, resolving code quality warnings",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T14:11:19.340195",
+    "summary": "Hardened translate_script.py, translate_html.py, and scratch_translate.py with robust exception handling and logs",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T14:12:52.115587",
+    "summary": "Hardened web/apply_sidebar_patches.py with robust exception handling, relative paths, and logging",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T14:14:23.907950",
+    "summary": "Hardened core/analytics.py with robust exception handling and clean logs",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T14:24:42.751887",
+    "summary": "Hardened core/interview_prep.py with robust exception handling and clean logs",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T14:26:16.283209",
+    "summary": "Hardened core/linkedin_engine.py with robust exception handling and clean logs",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T14:27:48.132622",
+    "summary": "Hardened core/salary_negotiator.py with robust exception handling and clean logs",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T14:29:24.289746",
+    "summary": "Hardened web/append_routes_v3.py with robust exception handling and clean logs",
+    "conversation_id": "ae22d0a4-711a-444d-9dcc-ff3fc5d5c48b"
+  },
+  {
+    "timestamp": "2026-07-10T14:32:57.364269",
+    "summary": "Hardened core/pa_job_scraper.py and config.py: decomposed long functions (search_indeed_rss, search_glassdoor, search_all) and removed hardcoded URLs",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T14:36:59.221417",
+    "summary": "Hardened core/email_engine.py: simplified years experience/impact extraction, extracted HTML and MIME skeleton builders, decomposed send_application, and extracted shared helper for provider attachments",
+    "conversation_id": "d00a0bd9-9be1-4927-ac0f-9ffff0afbd42"
+  },
+  {
+    "timestamp": "2026-07-10T16:13:30.000000",
+    "summary": "Hardened tests/test_max_profit_features.py: added logging, docstrings, type annotations, and verified 15/15 tests passed.",
+    "conversation_id": "c02bef26-074a-4e44-9fa3-c5435d034f90"
+  },
+  {
+    "timestamp": "2026-07-10T16:16:30.000000",
+    "summary": "Hardened tests/test_viral_engine.py: added logging, docstrings, type annotations, and verified 36/36 tests passed.",
+    "conversation_id": "c02bef26-074a-4e44-9fa3-c5435d034f90"
+  },
+  {
+    "timestamp": "2026-07-10T16:20:30.000000",
+    "summary": "Hardened core/multi_tenant.py: decomposed ensure_tenant into _ensure_user_record and _ensure_cv_profile helpers, and verified all 5 tests passed.",
+    "conversation_id": "c02bef26-074a-4e44-9fa3-c5435d034f90"
+  },
+  {
+    "timestamp": "2026-07-10T16:26:30.000000",
+    "summary": "Hardened backend/main.py: added logging, docstrings, type annotations, and verified E2E database E2E tests pass.",
+    "conversation_id": "c02bef26-074a-4e44-9fa3-c5435d034f90"
+  },
+  {
+    "timestamp": "2026-07-10T19:42:00.000000",
+    "summary": "Generated IMPROVEMENTS_MASTER.md, added /api/v1/health/detailed + /healthz endpoints, Sentry integration, render.yaml keep-alive cron, JSON structured logging, neon_warmer enhancement, type hints, DB model improvements",
+    "conversation_id": "4f91b30a-c217-4baa-80c9-9317daac7dc7"
+  }
+]

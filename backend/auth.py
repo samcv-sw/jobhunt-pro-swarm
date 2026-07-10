@@ -1,10 +1,15 @@
+"""
+Authentication module handling JWT generation and validation.
+Secures the Enterprise API endpoints.
+"""
 import os
+import sys
 import time
+import logging
+
 import jwt
 from fastapi import HTTPException, Security
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
-import sys
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
 if not JWT_SECRET_KEY:
@@ -24,7 +29,10 @@ def create_access_token(data: dict, expires_in: int = 3600) -> str:
     Generates a JWT access token for testing and user identification.
     """
     payload = data.copy()
-    payload.update({"exp": time.time() + expires_in})
+    payload.update({
+        "exp": time.time() + expires_in,
+        "iss": "jobhunt-pro"
+    })
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
 async def verify_jwt(credentials: HTTPAuthorizationCredentials = Security(security)) -> dict:
@@ -37,10 +45,16 @@ async def verify_jwt(credentials: HTTPAuthorizationCredentials = Security(securi
             status_code=401,
             detail="Authorization header missing or invalid scheme"
         )
-    
+
     token = credentials.credentials
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        
+        # Backwards compatibility: log warning if issuer is missing/invalid, but accept
+        iss = payload.get("iss")
+        if iss != "jobhunt-pro":
+            logging.getLogger(__name__).warning(f"JWT issuer mismatch or missing: {iss}")
+            
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(

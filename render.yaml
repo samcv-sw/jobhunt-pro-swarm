@@ -6,7 +6,7 @@ services:
     branch: main
     plan: free
     region: oregon
-    buildCommand: pip install -r requirements_render.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: python start_cloud.py
     healthCheckPath: /healthz
     envVars:
@@ -36,3 +36,27 @@ services:
       # Hotmail pool (1000 accounts): already in data/hotmail_pool.json
       #
       # See RENDER_DEPLOY.md for full setup instructions
+
+  - type: cron
+    name: keepalive-ping
+    env: python
+    plan: free
+    region: oregon
+    schedule: "*/14 * * * *"
+    buildCommand: pip install requests==2.32.3
+    startCommand: python -c "import requests,os,sys; url=os.environ.get('APP_URL','https://jobhunt-pro.onrender.com')+'/healthz'; r=requests.get(url,timeout=10); print(f'Ping {url}: {r.status_code}'); sys.exit(0 if r.status_code==200 else 1)"
+    envVars:
+      - key: APP_URL
+        value: https://jobhunt-pro.onrender.com
+
+  - type: cron
+    name: neon-warmer
+    env: python  
+    plan: free
+    region: oregon
+    schedule: "*/5 * * * *"
+    buildCommand: pip install psycopg2-binary==2.9.9
+    startCommand: python core/neon_warmer.py
+    envVars:
+      - key: DATABASE_URL
+        sync: false
