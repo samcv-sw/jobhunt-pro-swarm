@@ -7,6 +7,7 @@ Integrates with existing config.py, database.py, and orchestrator.py infrastruct
 """
 
 import concurrent.futures
+import contextlib
 import json
 import logging
 import os
@@ -195,10 +196,8 @@ class SMTPConnectionPool:
 
                 # Recycle if connection is old (>60s idle)
                 if age > 60 or not self._test_connection(conn):
-                    try:
+                    with contextlib.suppress(Exception):
                         conn.quit()
-                    except Exception:
-                        pass
                     del self._pool[key]
                 else:
                     self._pool[key] = (conn, now)
@@ -218,10 +217,8 @@ class SMTPConnectionPool:
                 # Evict oldest if pool is full
                 if len(self._pool) >= self._max_size:
                     oldest_key = min(self._pool.keys(), key=lambda k: self._pool[k][1])
-                    try:
+                    with contextlib.suppress(Exception):
                         self._pool[oldest_key][0].quit()
-                    except Exception:
-                        pass
                     del self._pool[oldest_key]
 
                 self._pool[key] = (conn, now)
@@ -236,11 +233,9 @@ class SMTPConnectionPool:
     def close_all(self):
         """Close all connections in the pool."""
         with self._lock:
-            for key, (conn, _) in self._pool.items():
-                try:
+            for _key, (conn, _) in self._pool.items():
+                with contextlib.suppress(Exception):
                     conn.quit()
-                except Exception:
-                    pass
             self._pool.clear()
             logger.info(
                 f"[SMTP-POOL] Closed all connections (hits={self._pool_hits}, misses={self._pool_misses})"
@@ -877,13 +872,11 @@ class HyperDB:
         try:
             with sqlite3.connect(self.path, timeout=10) as conn:
                 for job_id, company, title, recipient, provider, status in sends:
-                    try:
+                    with contextlib.suppress(Exception):
                         conn.execute(
                             "INSERT INTO hyper_sends (job_id, company, title, recipient, provider, status) VALUES (?, ?, ?, ?, ?, ?)",
                             (job_id, company, title, recipient, provider, status),
                         )
-                    except Exception:
-                        pass
                 conn.commit()
         except Exception as e:
             logger.error(f"[HYPER-DB] Log sends failed: {e}")
@@ -1044,7 +1037,7 @@ class HyperMode:
         applications = []
         job_ids = []
 
-        for job, hr_email in zip(pending, hr_emails):
+        for job, hr_email in zip(pending, hr_emails, strict=False):
             letter = get_letter(job["title"], job["company"])
             applications.append(
                 {
@@ -1071,7 +1064,7 @@ class HyperMode:
         # Log sends to DB
         sends_to_log = []
         for app, success in zip(
-            applications, [True] * sent_count + [False] * fail_count
+            applications, [True] * sent_count + [False] * fail_count, strict=False
         ):
             sends_to_log.append(
                 (

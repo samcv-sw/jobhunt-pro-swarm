@@ -3,13 +3,16 @@ shared.py - JobHunt Pro Shared State
 Single source of truth imported by all routers.
 Never instantiate FastAPI app here.
 """
-import os, sys, logging
+import logging
+import os
+import sys
 from pathlib import Path
 from time import time
+
+import jinja2
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-import jinja2
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import config
@@ -53,13 +56,9 @@ jinja_env = jinja2.Environment(
 _BASE_DIR = Path(__file__).parent
 db_path = getattr(config, "DB_PATH", None) or str(_BASE_DIR.parent / "data" / "jobhunt_saas_v2.db")
 
-# Cache connection pool engine for PostgreSQL/Neon
-_pg_engine = None
-
 def get_db(max_retries: int = 4):
     """DB factory: Turso -> Neon PG shim -> SQLite fallback."""
-    global _pg_engine
-    
+
     # Strategy 1: Turso Cloud DB
     turso_url   = getattr(config, "TURSO_DATABASE_URL", None)
     turso_token = getattr(config, "TURSO_AUTH_TOKEN", None)
@@ -79,25 +78,7 @@ def get_db(max_retries: int = 4):
                 import core.supabase_rest_shim as shim
             else:
                 import core.pg_sqlite_shim as shim
-                
-            # Configure highly-resilient Connection Pool to survive Neon Cold Starts
-            if _pg_engine is None:
-                from sqlalchemy import create_engine
-                from sqlalchemy.pool import QueuePool
-                _pg_engine = create_engine(
-                    db_url,
-                    poolclass=QueuePool,
-                    pool_size=3,            # Conserve connections for free-tier concurrency limits
-                    max_overflow=7,         # Allow temporary spikes during concurrent tasks
-                    pool_timeout=15,        # Wait up to 15s for pool connections
-                    pool_recycle=280,       # Recycle before 5min Neon auto-suspend
-                    pool_pre_ping=True,     # Test connection viability before handing out
-                    connect_args={
-                        "connect_timeout": 10,
-                        "options": "-c statement_timeout=15000"
-                    }
-                )
-            
+
             # Simple connection builder utilizing pg_sqlite_shim connection mapping
             return shim.connect(db_url)
         except Exception as e:

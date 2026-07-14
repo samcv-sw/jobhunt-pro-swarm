@@ -17,6 +17,8 @@ if os.getenv("FORCE_PG") == "1" or os.getenv("CLOUD_MODE") == "true":
 else:
     import sqlite3
 
+import contextlib
+
 from core.anti_ban import anti_ban
 
 logger = logging.getLogger(__name__)
@@ -391,7 +393,5 @@ async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> di
         logger.error(f"[Lightning] Fatal error: {e}", exc_info=True)
         return {"status": "error", "error": str(e), "campaign_id": campaign_id}
     finally:
-        try:
+        with contextlib.suppress(Exception):
             conn.close()
-        except Exception:
-            pass

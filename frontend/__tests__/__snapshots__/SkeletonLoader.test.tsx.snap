@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SkeletonLoader Snapshots renders SkeletonCard correctly 1`] = `null`;
+
+exports[`SkeletonLoader Snapshots renders SkeletonLoader correctly 1`] = `null`;
+
+exports[`SkeletonLoader Snapshots renders SkeletonProfile correctly 1`] = `null`;

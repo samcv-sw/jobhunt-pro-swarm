@@ -1,9 +1,11 @@
+import logging
+import secrets
+from datetime import datetime, timedelta
+
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
+
 from core.database import db
-import secrets
-import logging
-from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 

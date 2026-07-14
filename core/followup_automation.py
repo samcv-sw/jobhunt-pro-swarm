@@ -95,7 +95,7 @@ class FollowUpAutomation:
         cutoff = (now - timedelta(days=3)).isoformat()
         return conn.execute(
             """
-            SELECT ce.*, c.user_id 
+            SELECT ce.*, c.user_id
             FROM campaign_emails ce
             JOIN campaigns c ON ce.campaign_id = c.campaign_id
             WHERE ce.campaign_id = ?
@@ -447,7 +447,7 @@ class FollowUpAutomation:
             placeholders = ",".join("?" * len(FOLLOWUP_PACKAGE_IDS))
             rows = conn.execute(
                 f"""
-                SELECT DISTINCT c.campaign_id 
+                SELECT DISTINCT c.campaign_id
                 FROM campaigns c
                 JOIN purchased_services ps ON c.user_id = ps.user_id
                 WHERE ps.package_id IN ({placeholders})

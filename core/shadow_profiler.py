@@ -32,7 +32,7 @@ class ShadowProfilerGNN:
         You are a bespoke Mini-App compiler.
         Generate the payload for a single-use Mini-App meant to be injected into the DMs of the HR manager at {target_company}.
         Candidate Shadow Data: {shadow_identity}
-        
+
         Create a high-converting, aggressive 3-bullet pitch for the UI.
         """
 

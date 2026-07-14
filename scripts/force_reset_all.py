@@ -1,8 +1,10 @@
 """
 Force reset ALL completed campaigns to pending for both tenants.
 """
-import sqlite3, os
+import os
+import sqlite3
 from pathlib import Path
+
 
 def _get_db_path():
     db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")

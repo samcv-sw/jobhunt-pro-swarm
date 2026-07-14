@@ -13,6 +13,28 @@ import core.pg_sqlite_shim as sqlite3
 
 logger = logging.getLogger(__name__)
 
+
+class DailyLimitExceededException(Exception):
+    """Raised immediately when the scraper daily cap has been reached.
+
+    This is a hard-stop guard: no scraping attempt should be made once this
+    is raised.  The counter resets at the next UTC day boundary.
+
+    Args:
+        cap: The configured daily cap that was exceeded.
+        count: The current count that triggered the limit.
+        resets_at: Human-readable string indicating when the counter resets.
+    """
+
+    def __init__(self, cap: int, count: int, resets_at: str = "next day boundary"):
+        self.cap = cap
+        self.count = count
+        self.resets_at = resets_at
+        super().__init__(
+            f"Daily scraping cap of {cap} reached (current count: {count}). "
+            f"Resets at: {resets_at}."
+        )
+
 # Dynamic SQLite database path configuration
 _base_dir = pathlib.Path(__file__).resolve().parent.parent
 try:
@@ -208,12 +230,12 @@ class AntiBanProtection:
                 if has_user_id and user_id:
                     cur = conn.execute(
                         """
-                        SELECT 
+                        SELECT
                             SUM(CASE WHEN response_type='blacklisted' OR response_type='honeypot' THEN 1 ELSE 0 END),
                             SUM(CASE WHEN status='applied' AND datetime(created_at) >= datetime('now', '-1 day') THEN 1 ELSE 0 END),
                             SUM(CASE WHEN status='applied' AND datetime(created_at) >= datetime('now', '-7 days') THEN 1 ELSE 0 END),
                             SUM(CASE WHEN status='applied' THEN 1 ELSE 0 END)
-                        FROM jobs 
+                        FROM jobs
                         WHERE LOWER(company)=? AND (user_id=? OR user_id IS NULL)
                     """,
                         (company.lower().strip(), user_id),
@@ -221,12 +243,12 @@ class AntiBanProtection:
                 else:
                     cur = conn.execute(
                         """
-                        SELECT 
+                        SELECT
                             SUM(CASE WHEN response_type='blacklisted' OR response_type='honeypot' THEN 1 ELSE 0 END),
                             SUM(CASE WHEN status='applied' AND datetime(created_at) >= datetime('now', '-1 day') THEN 1 ELSE 0 END),
                             SUM(CASE WHEN status='applied' AND datetime(created_at) >= datetime('now', '-7 days') THEN 1 ELSE 0 END),
                             SUM(CASE WHEN status='applied' THEN 1 ELSE 0 END)
-                        FROM jobs 
+                        FROM jobs
                         WHERE LOWER(company)=?
                     """,
                         (company.lower().strip(),),
@@ -327,8 +349,8 @@ class AntiBanProtection:
                 if has_user_id and user_id:
                     cur = conn.execute(
                         """
-                        SELECT COUNT(*) FROM jobs 
-                        WHERE LOWER(company)=? AND (user_id=? OR user_id IS NULL) 
+                        SELECT COUNT(*) FROM jobs
+                        WHERE LOWER(company)=? AND (user_id=? OR user_id IS NULL)
                         AND (response_type='blacklisted' OR response_type='honeypot')
                     """,
                         (company.lower().strip(), user_id),
@@ -336,8 +358,8 @@ class AntiBanProtection:
                 else:
                     cur = conn.execute(
                         """
-                        SELECT COUNT(*) FROM jobs 
-                        WHERE LOWER(company)=? 
+                        SELECT COUNT(*) FROM jobs
+                        WHERE LOWER(company)=?
                         AND (response_type='blacklisted' OR response_type='honeypot')
                     """,
                         (company.lower().strip(),),
@@ -412,7 +434,116 @@ class AntiBanProtection:
             "total_failures": sum(self.failed_applications.values()),
         }
 
+    def get_platform_delay(self, url: str) -> float:
+        """Get the platform-specific scraper delay (with optional jitter)."""
+        return get_platform_delay(url)
+
 
 # Global instance
 anti_ban = AntiBanProtection()
 
+
+# ---------------------------------------------------------------------------
+# Platform-Specific Scraper Delays
+# ---------------------------------------------------------------------------
+
+PLATFORM_DELAY_PROFILES = {
+    "linkedin.com": {"delay": 3.0, "jitter": True},
+    "indeed.com": {"delay": 1.0, "jitter": True},
+    "bayt.com": {"delay": 2.0, "jitter": True},
+    "default": {"delay": 1.5, "jitter": True}
+}
+
+def get_platform_delay(url: str) -> float:
+    """Get the platform-specific scraper delay (with optional jitter)."""
+    url_lower = url.lower()
+    if "linkedin.com" in url_lower:
+        profile = PLATFORM_DELAY_PROFILES["linkedin.com"]
+    elif "indeed.com" in url_lower:
+        profile = PLATFORM_DELAY_PROFILES["indeed.com"]
+    elif "bayt.com" in url_lower:
+        profile = PLATFORM_DELAY_PROFILES["bayt.com"]
+    else:
+        profile = PLATFORM_DELAY_PROFILES["default"]
+
+    delay = profile["delay"]
+    if profile["jitter"]:
+        # Add random jitter between 0.5 * delay and 1.5 * delay
+        delay = delay * random.uniform(0.5, 1.5)
+    return delay
+
+
+
+# ---------------------------------------------------------------------------
+# R5: Scraper Daily Cap Enforcement
+# ---------------------------------------------------------------------------
+
+# Module-level state for the daily scraping cap (shared across all callers in
+# the same process, guarded by the AntiBanProtection instance's logic).
+_daily_scrape_count: int = 0
+_daily_scrape_date: str = ""  # ISO date string, e.g. "2024-01-15"
+
+
+def _today_str() -> str:
+    """Return today's ISO date string (UTC-aware via datetime)."""
+    from datetime import timezone as _tz
+    return datetime.now(_tz.utc).strftime("%Y-%m-%d")
+
+
+def check_daily_scraping_cap(
+    cap: int | None = None,
+    *,
+    increment: bool = True,
+) -> int:
+    """Check (and optionally increment) the daily scraping counter.
+
+    Must be called **before** initiating a scrape.  Raises
+    :class:`DailyLimitExceededException` instantly if the cap has already
+    been reached for today.  The counter is reset automatically at the
+    UTC day boundary.
+
+    Args:
+        cap: Maximum allowed scraping calls per day.  Defaults to
+             ``anti_ban.max_apps_per_day``.
+        increment: When *True* (default), increment the counter for this
+                   call.  Pass *False* to perform a read-only check.
+
+    Returns:
+        The updated (or current) daily scraping count.
+
+    Raises:
+        DailyLimitExceededException: When the daily cap is already met.
+    """
+    global _daily_scrape_count, _daily_scrape_date
+
+    if cap is None:
+        cap = anti_ban.max_apps_per_day
+
+    today = _today_str()
+
+    # Reset at day boundary
+    if _daily_scrape_date != today:
+        _daily_scrape_count = 0
+        _daily_scrape_date = today
+
+    # Guard: raise *before* incrementing so callers never exceed the cap
+    if _daily_scrape_count >= cap:
+        from datetime import timezone as _tz
+        tomorrow = (datetime.now(_tz.utc) + timedelta(days=1)).strftime("%Y-%m-%d 00:00 UTC")
+        raise DailyLimitExceededException(
+            cap=cap,
+            count=_daily_scrape_count,
+            resets_at=tomorrow,
+        )
+
+    if increment:
+        _daily_scrape_count += 1
+
+    return _daily_scrape_count
+
+
+def reset_daily_scraping_cap() -> None:
+    """Manually reset the daily scraping counter (useful for testing)."""
+    global _daily_scrape_count, _daily_scrape_date
+    _daily_scrape_count = 0
+    _daily_scrape_date = _today_str()

@@ -6,7 +6,9 @@ Checks: title, h1, meta description, og:title, no physical CSS in <style> blocks
 PARTIAL TEMPLATES (no DOCTYPE / <html>): Only h1 is required.
 FULL TEMPLATES: title + h1 + meta description + og:title all required.
 """
-import os, re, json
+import json
+import os
+import re
 from pathlib import Path
 
 TEMPLATES_DIR = Path(__file__).parent / "web" / "templates"

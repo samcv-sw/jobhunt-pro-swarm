@@ -7,6 +7,7 @@ files = [
 ]
 
 import os
+
 for file in files:
     if not os.path.exists(file):
         continue

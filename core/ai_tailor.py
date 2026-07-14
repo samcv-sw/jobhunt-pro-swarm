@@ -5,6 +5,7 @@ with async calls, structured prompts, and graceful fallbacks.
 """
 
 import asyncio
+import contextlib
 import hashlib
 import json
 import logging
@@ -648,7 +649,7 @@ Format: Return ONLY a raw comma-separated list of the 30-40 most critical keywor
         Legally optimizes CV semantic density by using Llama3 to perfectly align bullet points
         with the exact verbiage expected by the ATS, without using hidden text.
         """
-        prompt = f"""You are a master ATS optimization engine. 
+        prompt = f"""You are a master ATS optimization engine.
 Rewrite the following CV text so that it achieves >95% semantic overlap with the job description.
 Do NOT lie or invent experience. Instead, change the verbiage, terminology, and phrasing of the candidate's actual experience to perfectly match the terminology used in the job description.
 
@@ -769,7 +770,7 @@ Only include information you are confident about. Use empty string for unknown f
 I am reaching out to {recruiter_name} at {company}.
 Simulate a deep knowledge graph search. In a real scenario, this would use LinkedIn/Clearbit APIs to find a mutual connection or shared background (e.g., same university, previous company, shared interest in a specific networking technology).
 
-Write ONE highly personalized, warm introductory sentence that I can use in an email to {recruiter_name}, making it sound like a warm introduction rather than a cold pitch. 
+Write ONE highly personalized, warm introductory sentence that I can use in an email to {recruiter_name}, making it sound like a warm introduction rather than a cold pitch.
 Assume we both have a background or mutual connection in enterprise networking (Cisco/Fortinet).
 Return ONLY the introductory sentence."""
 
@@ -930,10 +931,8 @@ Include a mix of:
                 if _is_valid_ai_response(result):
                     # Valid response! Save and return.
                     self._SEMANTIC_CACHE[cache_key] = result
-                    try:
+                    with contextlib.suppress(Exception):
                         semantic_cache.save_to_cache(prompt, result)
-                    except Exception:
-                        pass
                     return result
                 else:
                     logger.warning(

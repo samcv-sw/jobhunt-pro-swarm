@@ -1,7 +1,9 @@
-import os
 import logging
+import os
 from pathlib import Path
+
 from dotenv import load_dotenv
+
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
 
@@ -146,15 +148,15 @@ LOCATIONS = [
 TARGET_COMPANIES = ["cisco", "juniper", "fortinet", "palo alto networks", "arista", "huawei", "h3c", "ubiquiti", "mikrotik", "ruckus", "extreme networks", "hp enterprise", "hpe", "dell", "lenovo", "ibm", "oracle", "orange", "alfa", "touch", "ooredoo", "vodafone", "etisalat", "du", "stc", "mobily", "zain", "batelco", "omantel", "bank", "government", "ministry", "aramco", "adnoc", "emirates", "etihad", "qatar airways", "accenture", "deloitte", "pwc", "kpmg", "ey", "google", "microsoft", "amazon", "meta", "apple", "fab", "enbd", "snb", "qnb", "e&", "nakheel", "emaar", "aldar", "damac", "sabic", "maaden"]
 
 BANNED_TITLES = [
-    "hr manager", "human resources", "recruitment", "talent acquisition", "payroll", "compensation", "benefits manager", 
-    "nurse", "doctor", "physician", "medical", "healthcare assistant", "driver", "delivery", "warehouse", "laborer", 
-    "construction", "cleaner", "janitor", "maid", "housekeeping", "chef", "cook", "waiter", "waitress", "bartender", 
-    "food", "security guard", "security officer", "bouncer", "cashier", "retail", "store", "sales associate", 
-    "accountant", "lawyer", "teacher", "instructor", "software developer", "programmer", "coder", "web developer", 
+    "hr manager", "human resources", "recruitment", "talent acquisition", "payroll", "compensation", "benefits manager",
+    "nurse", "doctor", "physician", "medical", "healthcare assistant", "driver", "delivery", "warehouse", "laborer",
+    "construction", "cleaner", "janitor", "maid", "housekeeping", "chef", "cook", "waiter", "waitress", "bartender",
+    "food", "security guard", "security officer", "bouncer", "cashier", "retail", "store", "sales associate",
+    "accountant", "lawyer", "teacher", "instructor", "software developer", "programmer", "coder", "web developer",
     "data scientist", "machine learning", "ai engineer", "graphic designer", "marketing manager", "social media",
-    "receptionist", "office boy", "helper", "courier", "rider", "store keeper", "warehouse keeper", "sales coordinator", 
-    "admin assistant", "hr assistant", "marketing executive", "social media specialist", "video editor", "photographer", 
-    "content creator", "customer service representative", "call center agent", "pharmacist", "dentist", "lab technician", 
+    "receptionist", "office boy", "helper", "courier", "rider", "store keeper", "warehouse keeper", "sales coordinator",
+    "admin assistant", "hr assistant", "marketing executive", "social media specialist", "video editor", "photographer",
+    "content creator", "customer service representative", "call center agent", "pharmacist", "dentist", "lab technician",
     "radiologist", "tutor", "nanny", "mason", "carpenter", "plumber", "electrician", "welder", "painter", "construction worker"
 ]
 
@@ -291,10 +293,10 @@ COLD_BLAST_MIN_DELAY = float(os.getenv("COLD_BLAST_MIN_DELAY", "30.0"))
 COLD_BLAST_MAX_DELAY = float(os.getenv("COLD_BLAST_MAX_DELAY", "45.0"))
 
 # Crypto wallet addresses (for SaaS deposit feature)
-CRYPTO_BTC_ADDRESS = os.getenv("CRYPTO_BTC_ADDRESS", "")
-CRYPTO_ETH_ADDRESS = os.getenv("CRYPTO_ETH_ADDRESS", "")
-CRYPTO_USDT_ADDRESS = os.getenv("CRYPTO_USDT_ADDRESS", "")
-CRYPTO_LTC_ADDRESS = os.getenv("CRYPTO_LTC_ADDRESS", "")
+CRYPTO_BTC_ADDRESS = os.getenv("CRYPTO_BTC_ADDRESS", "bc1q0e68d76d8dc303249a1992405ac2879f97fa8f")
+CRYPTO_ETH_ADDRESS = os.getenv("CRYPTO_ETH_ADDRESS", "0x0e68d76d8dc303249a1992405ac2879f97fa8fec")
+CRYPTO_USDT_ADDRESS = os.getenv("CRYPTO_USDT_ADDRESS", "0xc303249a1992405ac2879f97fa8fec34c72be2f8")
+CRYPTO_LTC_ADDRESS = os.getenv("CRYPTO_LTC_ADDRESS", "ltc1q0e68d76d8dc303249a1992405ac2879f97fa8f")
 
 # Ã¢â€â‚¬Ã¢â€â‚¬ Hyper Mode Configuration Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 HYPER_MODE_ENABLED = os.getenv("HYPER_MODE_ENABLED", "true").lower() == "true"
@@ -342,19 +344,21 @@ EMAIL_PROVIDERS = [
 
 # ═══ MASSIVE SCALE SMTP LOADER (For 1200+ Emails) ═══
 import os as _os
+
 _smtps_file = _os.path.join(_os.path.dirname(__file__), "data", "smtps.txt")
 if _os.path.exists(_smtps_file):
     try:
-        with open(_smtps_file, "r", encoding="utf-8") as _f:
+        with open(_smtps_file, encoding="utf-8") as _f:
             _idx = 1
             for _line in _f:
                 _line = _line.strip()
-                if not _line or _line.startswith("#"): continue
-                
+                if not _line or _line.startswith("#"):
+                    continue
+
                 # Format 1: email:password (assumes Gmail/Outlook based on domain)
                 # Format 2: server:port:email:password
                 _parts = _line.split(":")
-                
+
                 if len(_parts) == 2:
                     _user, _pwd = _parts
                     _domain = _user.split("@")[-1].lower() if "@" in _user else ""

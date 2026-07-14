@@ -8,6 +8,7 @@ ALL FREE TIERS — $0 permanent cost.
 """
 
 import asyncio
+import contextlib
 import logging
 import os
 import random
@@ -19,8 +20,53 @@ from typing import Any
 import httpx
 
 from core import semantic_cache
+from core.edge_cache import edge_cache
 
 logger = logging.getLogger(__name__)
+
+
+class LLMRateLimitError(Exception):
+    """Raised when an LLM provider hits a rate limit (429) or is exhausted."""
+    def __init__(self, message: str, reset_time: float, provider: str):
+        super().__init__(message)
+        self.reset_time = reset_time
+        self.provider = provider
+
+
+def parse_groq_reset_time(reset_str: str) -> float:
+    """
+    Parses Groq's x-ratelimit-reset string format (e.g., '1.2s', '15ms', '6m15s')
+    and returns the duration in float seconds.
+    """
+    if not reset_str:
+        return 0.0
+
+    reset_str = reset_str.strip().lower()
+
+    try:
+        return float(reset_str)
+    except ValueError:
+        pass
+
+    if reset_str.endswith('ms'):
+        val = reset_str[:-2]
+        try:
+            return float(val) / 1000.0
+        except ValueError:
+            return 0.0
+
+    total_seconds = 0.0
+    current_num = ""
+    for char in reset_str:
+        if char.isdigit() or char == '.':
+            current_num += char
+        elif char in ('h', 'm', 's'):
+            multiplier = {'h': 3600, 'm': 60, 's': 1}.get(char, 1)
+            if current_num:
+                with contextlib.suppress(ValueError):
+                    total_seconds += float(current_num) * multiplier
+                current_num = ""
+    return total_seconds
 
 
 class LLMProvider(Enum):
@@ -39,6 +85,7 @@ class LLMProvider(Enum):
     DEEPSEEK_API = "deepseek_api"
     GITHUB_MODELS = "github_models"
     QWEN = "qwen"
+    ANTHROPIC = "anthropic"
     DUMMY = "dummy"
 
 
@@ -245,6 +292,16 @@ PROVIDER_CONFIGS = [
         weight=2,
         daily_limit=0,
     ),
+    # ═══ ANTHROPIC (Claude 3.5 Sonnet) ═══
+    ProviderConfig(
+        name=LLMProvider.ANTHROPIC,
+        api_key_env="ANTHROPIC_API_KEY",
+        base_url="https://api.anthropic.com/v1/messages",
+        models=["claude-3-5-sonnet-20241022", "claude-3-5-sonnet-latest"],
+        rate_limit_rpm=5,
+        weight=9,  # High weight for high-quality generation
+        daily_limit=0,
+    ),
     # ═══ DUMMY (for testing) ═══
     ProviderConfig(
         name=LLMProvider.DUMMY,
@@ -294,9 +351,7 @@ class ProviderInstance:
         if now - self._daily_reset > 86400:
             self._daily_count = 0
             self._daily_reset = now
-        if self.config.daily_limit > 0 and self._daily_count >= self.config.daily_limit:
-            return False
-        return True
+        return not (self.config.daily_limit > 0 and self._daily_count >= self.config.daily_limit)
 
     async def complete(
         self,
@@ -330,10 +385,6 @@ class ProviderInstance:
         model = model or self.config.models[0]
         url = self.config.base_url.format(model=model)
         api_key = self.config.get_api_key()
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        }
 
         if self.config.name == LLMProvider.GEMINI:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
@@ -341,7 +392,7 @@ class ProviderInstance:
                 "contents": [
                     {
                         "role": "user",
-                        "parts": [{"text": f"{system_prompt}\n\n{user_prompt}"}],
+                        "parts": [{"text": user_prompt}],
                     }
                 ],
                 "generationConfig": {
@@ -349,8 +400,32 @@ class ProviderInstance:
                     "maxOutputTokens": max_tokens,
                 },
             }
+            if system_prompt:
+                payload["systemInstruction"] = {
+                    "parts": [{"text": system_prompt}]
+                }
             headers = {"Content-Type": "application/json"}
+        elif self.config.name == LLMProvider.ANTHROPIC:
+            headers = {
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            }
+            payload = {
+                "model": model,
+                "messages": [
+                    {"role": "user", "content": user_prompt}
+                ],
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+            }
+            if system_prompt:
+                payload["system"] = system_prompt
         else:
+            headers = {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            }
             payload = {
                 "model": model,
                 "messages": [
@@ -365,15 +440,57 @@ class ProviderInstance:
             response = await self._client.post(url, json=payload, headers=headers)
             self._request_times.append(time.time())
 
+            # Parse and track Groq rate limit headers on successful response
+            if self.config.name == LLMProvider.GROQ:
+                remaining = response.headers.get("x-ratelimit-remaining")
+                reset_str = response.headers.get("x-ratelimit-reset")
+                groq_remaining = None
+                if remaining is not None:
+                    with contextlib.suppress(ValueError):
+                        groq_remaining = int(remaining)
+                if reset_str:
+                    reset_time = parse_groq_reset_time(reset_str)
+                    reset_at = time.time() + reset_time
+                    # If remaining requests is 0, proactively cache the rate limit reset time
+                    if remaining == "0" or groq_remaining == 0:
+                        logger.warning(
+                            f"Groq rate limit exhausted (remaining=0). Reset in {reset_time}s."
+                        )
+                        if edge_cache.enabled:
+                            await edge_cache.set("groq_rate_limit_reset", str(reset_at), ex=int(reset_time) + 2)
+
             if response.status_code == 429:
-                retry_after = int(response.headers.get("retry-after", 5))
+                retry_after_sec = 5.0
+                retry_after_header = response.headers.get("retry-after")
+                if retry_after_header:
+                    with contextlib.suppress(ValueError):
+                        retry_after_sec = float(retry_after_header)
+
+                # If Groq, prioritize x-ratelimit-reset
+                if self.config.name == LLMProvider.GROQ:
+                    reset_str = response.headers.get("x-ratelimit-reset")
+                    if reset_str:
+                        retry_after_sec = parse_groq_reset_time(reset_str)
+
                 logger.warning(
-                    f"Provider {self.config.name.value} 429, rate limited. Switching keys on next request if available."
+                    f"Provider {self.config.name.value} 429, rate limited. Reset in {retry_after_sec}s."
                 )
+
+                # Store Groq rate limit in edge cache
+                if self.config.name == LLMProvider.GROQ:
+                    reset_at = time.time() + retry_after_sec
+                    if edge_cache.enabled:
+                        await edge_cache.set("groq_rate_limit_reset", str(reset_at), ex=int(retry_after_sec) + 2)
+
                 # Temporarily add fake requests to trigger the rate limit wait logic for next calls
                 for _ in range(self.config.rate_limit_rpm):
-                    self._request_times.append(time.time() + retry_after)
-                return None
+                    self._request_times.append(time.time() + retry_after_sec)
+
+                raise LLMRateLimitError(
+                    message=f"Provider {self.config.name.value} rate limited (429)",
+                    reset_time=retry_after_sec,
+                    provider=self.config.name.value
+                )
 
             if response.status_code != 200:
                 self._consecutive_failures += 1
@@ -399,6 +516,12 @@ class ProviderInstance:
                         .get("text", "")
                     )
                 return None
+            elif self.config.name == LLMProvider.ANTHROPIC:
+                data = response.json()
+                content = data.get("content", [])
+                if content and content[0].get("type") == "text":
+                    return content[0].get("text", "")
+                return None
 
             data = response.json()
             return data.get("choices", [{}])[0].get("message", {}).get("content", "")
@@ -407,6 +530,8 @@ class ProviderInstance:
             self._consecutive_failures += 1
             logger.warning(f"Provider {self.config.name.value} timeout")
             return None
+        except LLMRateLimitError:
+            raise
         except Exception as e:
             self._consecutive_failures += 1
             self._last_error = str(e)
@@ -557,21 +682,32 @@ class LLMProviderPool:
 
         candidates.sort(key=sort_key)
 
+        last_rate_limit_err = None
         for provider_name in candidates:
             provider = self._providers[provider_name]
             if not self._health.get(provider_name, True):
                 continue
 
-            result = await provider.complete(
-                system_prompt=system_prompt,
-                user_prompt=user_prompt,
-                temperature=temperature,
-                max_tokens=max_tokens,
-            )
+            try:
+                result = await provider.complete(
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                )
+            except LLMRateLimitError as rle:
+                logger.warning(
+                    f"Provider {provider_name.value} rate limited: {rle}. Attempting fallback..."
+                )
+                last_rate_limit_err = rle
+                provider._consecutive_failures += 1
+                if provider._consecutive_failures > 3:
+                    async with self._lock:
+                        self._health[provider_name] = False
+                continue
 
             async with self._lock:
                 self._last_used[provider_name] = time.time()
-
 
             if result is not None:
                 try:
@@ -579,7 +715,6 @@ class LLMProviderPool:
                 except Exception as e:
                     logger.warning(f"Semantic cache save failed: {e}")
                 return result
-
 
             # Mark as unhealthy if consecutive failures accumulated
             if provider._consecutive_failures > 3:
@@ -589,6 +724,11 @@ class LLMProviderPool:
 
         # Periodic health check revive
         await self._health_check()
+
+        # If all failed and the last error was rate limiting, propagate it to Celery
+        if last_rate_limit_err:
+            raise last_rate_limit_err
+
         return None
 
     async def _health_check(self):
@@ -623,3 +763,132 @@ class LLMProviderPool:
     async def close_all(self):
         for instance in self._providers.values():
             await instance.close()
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Phase 5: Unified response method with provider metadata
+    # Priority chain: Groq (llama-3.3-70b) → Gemini 1.5 Pro → Claude 3.5 Sonnet
+    # Falls back on LLMRateLimitError or httpx.TimeoutException.
+    # ─────────────────────────────────────────────────────────────────────────
+    async def complete_with_metadata(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float = 0.7,
+        max_tokens: int = 1024,
+    ) -> dict:
+        """
+        Send a completion request through the Phase-5 priority fallback chain.
+
+        Chain order:
+            1. Groq       — llama-3.3-70b-versatile   (fastest, free)
+            2. Gemini     — gemini-1.5-pro             (high quality, free tier)
+            3. Anthropic  — claude-3-5-sonnet-20241022 (premium fallback)
+
+        Returns a unified dict:
+            {
+                "text":        str,   # the generated text
+                "provider":    str,   # which provider was used
+                "tokens_used": int,   # approximate token count (prompt + output)
+            }
+
+        Raises RuntimeError if all three priority providers fail.
+        """
+        PRIORITY_CHAIN: list[tuple[LLMProvider, str]] = [
+            (LLMProvider.GROQ,      "llama-3.3-70b-versatile"),
+            (LLMProvider.GEMINI,    "gemini-1.5-pro"),
+            (LLMProvider.ANTHROPIC, "claude-3-5-sonnet-20241022"),
+        ]
+
+        errors: list[str] = []
+
+        for provider_enum, model_name in PRIORITY_CHAIN:
+            instance = self._providers.get(provider_enum)
+            if instance is None:
+                logger.info(
+                    f"[LLMPool] Skipping {provider_enum.value} (not configured)"
+                )
+                errors.append(f"{provider_enum.value}: not configured")
+                continue
+
+            if not self._health.get(provider_enum, True):
+                logger.info(
+                    f"[LLMPool] Skipping {provider_enum.value} (marked unhealthy)"
+                )
+                errors.append(f"{provider_enum.value}: unhealthy")
+                continue
+
+            logger.info(
+                f"[LLMPool] Attempting provider={provider_enum.value} "
+                f"model={model_name}"
+            )
+            try:
+                text = await instance.complete(
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    model=model_name,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                )
+            except LLMRateLimitError as exc:
+                logger.warning(
+                    f"[LLMPool] {provider_enum.value} rate-limited "
+                    f"(reset={exc.reset_time:.1f}s) — falling back"
+                )
+                async with self._lock:
+                    self._health[provider_enum] = False
+                errors.append(f"{provider_enum.value}: rate-limited")
+                continue
+            except Exception as exc:
+                logger.warning(
+                    f"[LLMPool] {provider_enum.value} exception: {exc} — falling back"
+                )
+                errors.append(f"{provider_enum.value}: {exc}")
+                continue
+
+            if text is None:
+                logger.warning(
+                    f"[LLMPool] {provider_enum.value} returned None — falling back"
+                )
+                errors.append(f"{provider_enum.value}: returned None")
+                continue
+
+            # ── success ──────────────────────────────────────────────────────
+            # Approximate token count: ~4 chars/token heuristic
+            prompt_chars = len(system_prompt) + len(user_prompt)
+            output_chars = len(text)
+            tokens_used = max(1, (prompt_chars + output_chars) // 4)
+
+            logger.info(
+                f"[LLMPool] Success: provider={provider_enum.value} "
+                f"model={model_name} tokens≈{tokens_used}"
+            )
+            async with self._lock:
+                self._last_used[provider_enum] = time.time()
+
+            return {
+                "text": text,
+                "provider": provider_enum.value,
+                "tokens_used": tokens_used,
+            }
+
+        raise RuntimeError(
+            f"All priority LLM providers failed. Errors: {'; '.join(errors)}"
+        )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Module-level singleton — initialised lazily on first access
+# ─────────────────────────────────────────────────────────────────────────────
+_llm_pool_instance: "LLMProviderPool | None" = None
+
+
+def get_llm_pool() -> "LLMProviderPool":
+    """Return the global LLMProviderPool singleton, initialising it on first call."""
+    global _llm_pool_instance
+    if _llm_pool_instance is None:
+        _llm_pool_instance = LLMProviderPool().initialize()
+    return _llm_pool_instance
+
+
+# Convenience alias
+llm_pool = None  # Set via get_llm_pool() at app startup to avoid import-time side-effects

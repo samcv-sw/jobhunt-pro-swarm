@@ -1,6 +1,6 @@
+import glob
 import os
 import re
-import glob
 
 TARGET_DIR = r"C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\web\templates"
 
@@ -78,18 +78,18 @@ replacements = {
 
 for filepath in set(files_to_process):
     if not os.path.exists(filepath): continue
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         content = f.read()
-    
+
     # Apply RTL logic
     if "<html" in content and "dir=\"rtl\"" not in content:
         content = re.sub(r"<html([^>]*)>", r'<html\1 lang="ar" dir="rtl">', content)
-    
+
     # Text replacements
     for eng, ar in replacements.items():
         content = content.replace(eng, ar)
-        
+
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(content)
-        
+
 print(f"Processed {len(set(files_to_process))} files.")

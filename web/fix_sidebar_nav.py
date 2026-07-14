@@ -4,11 +4,10 @@ JobHunt Pro - Navigation links template sync helper utility
 Automatically replaces/synchronizes dashboard shell sidebar navigation links
 across English and Arabic templates layouts.
 """
+import logging
 import os
 import re
 import sys
-import logging
-from typing import Dict, Any, List
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -176,12 +175,12 @@ def replace_nav(file_path: str, new_nav: str) -> None:
         if not os.path.exists(file_path):
             logger.warning(f"File not found: {file_path}")
             return
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
-        
+
         pattern = re.compile(r'<nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">.*?</nav>', re.DOTALL)
         new_content = pattern.sub(new_nav, content)
-        
+
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(new_content)
         logger.info(f"Replaced nav in {file_path}")

@@ -1,15 +1,15 @@
-from fastapi import APIRouter, Request, UploadFile, File
-from fastapi.templating import Jinja2Templates
-from core.ai_tailor import ai_tailor
 import io
 import logging
-import config
 
-from pathlib import Path
+from fastapi import APIRouter, File, Request, UploadFile
+
+import config
+from core.ai_tailor import ai_tailor
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 from web.shared import templates
+
 ph = None
 
 

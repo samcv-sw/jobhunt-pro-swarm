@@ -4,6 +4,7 @@ Generates non-linear, human-like mouse trajectories using Bezier curves and easi
 to bypass Datadome and Cloudflare behavioral tracking.
 """
 
+import contextlib
 import logging
 import math
 import random
@@ -91,10 +92,8 @@ class HumanMouse:
 
         for x, y in path:
             # Dispatch native mouse move event (Playwright/Nodriver compatible format)
-            try:
+            with contextlib.suppress(AttributeError):
                 await page.mouse.move(x, y)
-            except AttributeError:
-                pass  # If the page object doesn't support raw mouse move, skip
 
             # Random delay between movements (1ms to 5ms)
             await asyncio.sleep(random.uniform(0.001, 0.005))

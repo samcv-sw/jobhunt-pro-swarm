@@ -25,10 +25,11 @@ new_lines = lines[:247] + replacement + lines[251:]
 with open('tests/test_stealth_parser_and_fallbacks.py', 'wb') as f:
     f.write(b'\n'.join(new_lines))
 
+import os
+
 # Verify it parses
 import py_compile
 import tempfile
-import os
 
 tmp = tempfile.mktemp(suffix='.py')
 with open(tmp, 'wb') as f:

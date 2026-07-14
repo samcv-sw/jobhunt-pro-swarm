@@ -1,19 +1,19 @@
 """
 routers/system.py - System and Multi-Tenant Router (FastAPI APIRouter)
 """
+import logging
 import os
 import sys
 import time
-import logging
-from fastapi import APIRouter, Request, HTTPException
-from fastapi.responses import JSONResponse
+
+from fastapi import APIRouter, Request
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["system"])
 
 def _deps():
-    from web.shared import get_db, get_verified_user_id, is_admin_email, config
-    from web.app_v2 import verify_system_key, APP_START_TIME
+    from web.app_v2 import APP_START_TIME, verify_system_key
+    from web.shared import config, get_db, get_verified_user_id, is_admin_email
     return get_db, get_verified_user_id, is_admin_email, config, verify_system_key, APP_START_TIME
 
 @router.get("/api/system/status")
@@ -78,14 +78,14 @@ async def trigger_auto_heal(request: Request):
             "error": str(e),
         }
 
-@router.get("/api/multi-tenant/rita")
-def rita_status(request: Request):
-    """Get Rita's profile and stats."""
+@router.get("/api/multi-tenant/demo_user")
+def demo_user_status(request: Request):
+    """Get Demo User's profile and stats."""
     _, _, _, _, verify_system_key_fn, _ = _deps()
     verify_system_key_fn(request)
     try:
         from core.multi_tenant import TenantManager
-        return TenantManager.get_tenant_stats("ritacordahi2@gmail.com")
+        return TenantManager.get_tenant_stats("demo_useruser2@gmail.com")
     except ImportError:
         return {"status": "error", "error": "multi_tenant module not loaded"}
     except Exception as e:
@@ -113,13 +113,13 @@ def companies_count(request: Request):
     except Exception as e:
         return {"status": "error", "error": str(e)}
 
-@router.post("/api/system/force-rita-campaign")
-def force_rita_campaign(request: Request):
+@router.post("/api/system/force-demo-campaign")
+def force_demo_campaign(request: Request):
     _, _, _, _, verify_system_key_fn, _ = _deps()
     verify_system_key_fn(request)
     try:
-        from scripts.force_rita_campaign import force_rita_campaign as frc
-        return frc()
+        from scripts.force_demo_campaign import force_demo_user_campaign as fdc
+        return fdc()
     except Exception as e:
         return {"status": "error", "error": str(e)}
 

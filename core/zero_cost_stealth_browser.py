@@ -39,8 +39,23 @@ class ZeroCostStealthScraper:
             options.add_argument("--disable-gpu")
             # Add free community proxies here if needed
 
+            # Disable image loading via Chrome preferences
+            prefs = {
+                "profile.managed_default_content_settings.images": 2
+            }
+            options.add_experimental_option("prefs", prefs)
+
             driver = uc.Chrome(options=options)
             try:
+                # Enable network domain and block stylesheets/trackers via CDP
+                driver.execute_cdp_cmd("Network.enable", {})
+                driver.execute_cdp_cmd("Network.setBlockedURLs", {
+                    "urls": [
+                        "*.css",
+                        "*analytics*", "*google-analytics.com*", "*doubleclick*", "*tracker*", "*facebook.com*", "*fbcdn*"
+                    ]
+                })
+
                 driver.get(url)
                 # Wait for JS challenge to pass
                 time.sleep(5)

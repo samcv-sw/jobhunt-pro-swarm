@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocale } from "./locale-context";
+import { SkeletonLoader } from "@/components/SkeletonLoader";
 
 // FNV-1a Hashing helper matching Cloudflare Workers
 function fnv1a(str: string): number {
@@ -326,15 +327,27 @@ export default function Home() {
           <div className="space-y-4">
               <div className="stat-card">
                 <span className="text-sm text-zinc-500 block leading-[1.8]">{t.totalShards}</span>
-                <span className="text-sm text-white font-bold">{realStats ? `${realStats.users} Active Users` : t.totalShardsVal}</span>
+                {realStats ? (
+                  <span className="text-sm text-white font-bold">{realStats.users} Active Users</span>
+                ) : (
+                  <SkeletonLoader width="120px" height="20px" />
+                )}
               </div>
               <div className="stat-card">
                 <span className="text-sm text-zinc-500 block leading-[1.8]">{t.redisStatus}</span>
-                <span className="text-sm text-emerald-400 font-semibold">{realStats ? `${realStats.campaigns} Active Campaigns` : t.redisVal}</span>
+                {realStats ? (
+                  <span className="text-sm text-emerald-400 font-semibold">{realStats.campaigns} Active Campaigns</span>
+                ) : (
+                  <SkeletonLoader width="140px" height="20px" />
+                )}
               </div>
               <div className="stat-card">
                 <span className="text-sm text-zinc-500 block leading-[1.8]">{t.smtpFallback}</span>
-                <span className="text-sm text-zinc-300 font-semibold leading-[1.8]">{realStats ? `${realStats.emails} Sent Applications` : t.smtpFallbackVal}</span>
+                {realStats ? (
+                  <span className="text-sm text-zinc-300 font-semibold leading-[1.8]">{realStats.emails} Sent Applications</span>
+                ) : (
+                  <SkeletonLoader width="160px" height="20px" />
+                )}
               </div>
               <div className="stat-card">
                 <span className="text-sm text-zinc-500 block leading-[1.8]">{t.apiSpeed}</span>

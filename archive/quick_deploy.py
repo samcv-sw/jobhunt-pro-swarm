@@ -1,4 +1,7 @@
-import os, requests
+import os
+
+import requests
+
 PA_USER = os.environ.get('PA_USER', 'jhfguf').lower()
 PA_TOKEN = os.environ.get('PA_TOKEN')
 DOMAIN = os.environ.get('PA_DOMAIN', 'jhfguf.pythonanywhere.com')

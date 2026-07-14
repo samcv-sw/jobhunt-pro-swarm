@@ -4,6 +4,7 @@ Mass generates viral TikTok/Reels videos using AI text-to-speech and dynamic wav
 """
 
 import asyncio
+import contextlib
 import logging
 import os
 import time
@@ -102,10 +103,8 @@ class ViralFactory:
         video_path = await self._generate_video(audio_path, filename)
 
         # Cleanup audio
-        try:
+        with contextlib.suppress(Exception):
             os.remove(audio_path)
-        except Exception:
-            pass
 
         if not video_path or not os.path.exists(video_path):
             return {"status": "error", "error": "FFmpeg Failed"}

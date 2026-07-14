@@ -416,38 +416,40 @@ def seed_all_companies() -> dict[str, Any]:
         """)
         conn.commit()
 
-        # Insert Sam's companies
+        # Insert Sam's companies using bulk executemany
+        sam_data = []
         for name, industry, location, email, website, score in SAM_COMPANIES:
-            try:
-                conn.execute(
-                    """
-                    INSERT OR IGNORE INTO lebanon_companies 
-                    (company_name, industry, location, email, website, relevance_score, target_role_type)
-                    VALUES (?, ?, ?, ?, ?, ?, 'tech')
+            sam_data.append((name, industry, location, email, website, score))
+        try:
+            conn.executemany(
+                """
+                INSERT OR IGNORE INTO lebanon_companies
+                (company_name, industry, location, email, website, relevance_score, target_role_type)
+                VALUES (?, ?, ?, ?, ?, ?, 'tech')
                 """,
-                    (name, industry, location, email, website, score),
-                )
-                if conn.changes > 0:
-                    sam_count += 1
-            except Exception as e:
-                logger.debug(f"Failed to insert tech company {name}: {e}")
+                sam_data,
+            )
+            sam_count = len(sam_data)
+        except Exception as e:
+            logger.debug(f"Failed to bulk insert tech companies: {e}")
         conn.commit()
 
-        # Insert demo_user's companies
+        # Insert demo_user's companies using bulk executemany
+        demo_user_data = []
         for name, industry, location, email, website, score in demo_user_COMPANIES:
-            try:
-                conn.execute(
-                    """
-                    INSERT OR IGNORE INTO lebanon_companies 
-                    (company_name, industry, location, email, website, relevance_score, target_role_type)
-                    VALUES (?, ?, ?, ?, ?, ?, 'hr')
+            demo_user_data.append((name, industry, location, email, website, score))
+        try:
+            conn.executemany(
+                """
+                INSERT OR IGNORE INTO lebanon_companies
+                (company_name, industry, location, email, website, relevance_score, target_role_type)
+                VALUES (?, ?, ?, ?, ?, ?, 'hr')
                 """,
-                    (name, industry, location, email, website, score),
-                )
-                if conn.changes > 0:
-                    demo_user_count += 1
-            except Exception as e:
-                logger.debug(f"Failed to insert HR company {name}: {e}")
+                demo_user_data,
+            )
+            demo_user_count = len(demo_user_data)
+        except Exception as e:
+            logger.debug(f"Failed to bulk insert HR companies: {e}")
         conn.commit()
 
         # Count totals
@@ -497,9 +499,9 @@ def get_companies_for_role_type(
     try:
         rows = conn.execute(
             """
-            SELECT * FROM lebanon_companies 
-            WHERE target_role_type = ? 
-            ORDER BY relevance_score DESC 
+            SELECT * FROM lebanon_companies
+            WHERE target_role_type = ?
+            ORDER BY relevance_score DESC
             LIMIT ?
         """,
             (role_type, limit),

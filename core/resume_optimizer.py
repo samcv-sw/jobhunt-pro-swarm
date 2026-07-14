@@ -110,7 +110,7 @@ Rules:
 8. SEMANTIC EIGENVECTOR ALIGNMENT: Match specific frequency targets. If a keyword appears 5 times in the JD, aim to include it 3-5 times in the resume. DO NOT exceed this density to avoid keyword stuffing penalties.
 9. Return ONLY valid JSON — no markdown, no code fences
 10. IMPORTANT: The candidate has 15+ years of enterprise networking experience including SD-WAN, SASE, ZTNA, Zero Trust, cloud networking (AWS/Azure/GCP), network automation (Python/Ansible/Terraform), security (FortiGate/Palo Alto), data center, and multi-site MPLS/VPN. Use this context to naturally align with JD keywords.
-11. FRENCH/EU MARKET RULES (STRICT ATS COMPLIANCE 2026): 
+11. FRENCH/EU MARKET RULES (STRICT ATS COMPLIANCE 2026):
     - Ensure the generated content strictly adheres to French CV conventions.
     - Format output to be structurally compatible with a STRICT SINGLE COLUMN layout. No tables, no sidebars.
     - NO PHOTOS.

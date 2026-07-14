@@ -1,3 +1,4 @@
+import contextlib
 import json
 import logging
 import threading
@@ -8,12 +9,36 @@ logger = logging.getLogger(__name__)
 _sqlite_dequeue_lock = threading.Lock()
 
 
+def _ensure_job_queue_columns(conn):
+    """Ensures that the job_queue table has all necessary columns for core.job_queue functionality."""
+    try:
+        cols = []
+        try:
+            cur = conn.execute("PRAGMA table_info(job_queue)")
+            cols = [row[1] for row in cur.fetchall()]
+        except Exception:
+            pass
+
+        for col, typ in [
+            ("priority", "INTEGER DEFAULT 5"),
+            ("max_retries", "INTEGER DEFAULT 3"),
+            ("retry_count", "INTEGER DEFAULT 0"),
+            ("next_retry_at", "TIMESTAMP"),
+        ]:
+            if not cols or col not in cols:
+                with contextlib.suppress(Exception):
+                    conn.execute(f"ALTER TABLE job_queue ADD COLUMN {col} {typ}")
+    except Exception as e:
+        logger.debug(f"Ensuring job_queue columns ignored/handled: {e}")
+
+
 def enqueue_task(
     task_type: str, payload: dict, priority: int = 5, max_retries: int = 3
 ):
     """Adds a task to the queue with priority and retry configuration."""
     try:
         with connect() as conn:
+            _ensure_job_queue_columns(conn)
             conn.execute(
                 """
                 INSERT INTO job_queue (task_type, payload, status, priority, max_retries)
@@ -33,15 +58,16 @@ def dequeue_task():
     """
     try:
         with connect() as conn:
+            _ensure_job_queue_columns(conn)
             # If backend is sqlite, we do a simple non-concurrent fetch (for local dev)
             if get_backend() == "sqlite":
                 with _sqlite_dequeue_lock:
                     conn.execute("BEGIN IMMEDIATE")
                     cur = conn.execute("""
-                        SELECT id, task_type, payload FROM job_queue 
+                        SELECT id, task_type, payload FROM job_queue
                         WHERE (status = 'pending' OR status = 'failed')
                           AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
-                        ORDER BY priority ASC, next_retry_at ASC, created_at ASC 
+                        ORDER BY priority ASC, next_retry_at ASC, created_at ASC
                         LIMIT 1
                     """)
                     row = cur.fetchone()
@@ -60,14 +86,14 @@ def dequeue_task():
             else:
                 # PostgreSQL atomic concurrent dequeue
                 cur = conn.execute("""
-                    UPDATE job_queue 
+                    UPDATE job_queue
                     SET status = 'running', locked_at = CURRENT_TIMESTAMP
                     WHERE id = (
-                        SELECT id FROM job_queue 
+                        SELECT id FROM job_queue
                         WHERE (status = 'pending' OR status = 'failed')
                           AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
-                        ORDER BY priority ASC, next_retry_at ASC, created_at ASC 
-                        LIMIT 1 
+                        ORDER BY priority ASC, next_retry_at ASC, created_at ASC
+                        LIMIT 1
                         FOR UPDATE SKIP LOCKED
                     )
                     RETURNING id, task_type, payload
@@ -123,9 +149,9 @@ def fail_task(task_id: int, error_msg: str):
                 # Use standard SQL date modifier syntax supported by both SQLite and our PG shim
                 conn.execute(
                     """
-                    UPDATE job_queue 
-                    SET status = 'failed', 
-                        error = ?, 
+                    UPDATE job_queue
+                    SET status = 'failed',
+                        error = ?,
                         updated_at = CURRENT_TIMESTAMP,
                         retry_count = ?,
                         next_retry_at = datetime(CURRENT_TIMESTAMP, '+' || ? || ' minutes')
@@ -140,10 +166,10 @@ def fail_task(task_id: int, error_msg: str):
                 # Permanent failure
                 conn.execute(
                     """
-                    UPDATE job_queue 
-                    SET status = 'permanently_failed', 
-                        error = ?, 
-                        updated_at = CURRENT_TIMESTAMP 
+                    UPDATE job_queue
+                    SET status = 'permanently_failed',
+                        error = ?,
+                        updated_at = CURRENT_TIMESTAMP
                     WHERE id = ?
                     """,
                     (error_msg, task_id),
@@ -165,6 +191,7 @@ def enqueue_bulk_tasks(tasks: list, priority: int = 5, max_retries: int = 3):
         return 0
     try:
         with connect() as conn:
+            _ensure_job_queue_columns(conn)
             # We use executemany for bulk inserts
             data = [
                 (

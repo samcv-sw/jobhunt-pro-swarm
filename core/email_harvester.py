@@ -48,10 +48,7 @@ JOB_SEEKER_DOMAINS = [
 def init(data_dir: str | None = None):
     """Initialize harvester."""
     global HARVEST_DIR
-    if data_dir:
-        HARVEST_DIR = Path(data_dir)
-    else:
-        HARVEST_DIR = Path(__file__).parent.parent / "data"
+    HARVEST_DIR = Path(data_dir) if data_dir else Path(__file__).parent.parent / "data"
     HARVEST_DIR.mkdir(parents=True, exist_ok=True)
     logger.info(f"EmailHarvester initialized at {HARVEST_DIR}")
 

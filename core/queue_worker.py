@@ -5,6 +5,7 @@ import os
 import sys
 import time
 import traceback
+from typing import Any
 
 # Add root to pythonpath
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -38,7 +39,7 @@ def _isolated_campaign_runner(campaign_id):
         )
 
 
-async def _process_growth_task(task_type: str, payload: Dict[str, Any], task_id: int) -> None:
+async def _process_growth_task(task_type: str, payload: dict[str, Any], task_id: int) -> None:
     """
     Handle growth hacker tasks like SEO, B2B, social, viral videos, etc.
 
@@ -95,7 +96,7 @@ async def _process_growth_task(task_type: str, payload: Dict[str, Any], task_id:
         )
 
 
-async def _process_campaign_task(task_id: int, payload: Dict[str, Any]) -> None:
+async def _process_campaign_task(task_id: int, payload: dict[str, Any]) -> None:
     """
     Process a single campaign run task using Fork Isolation or inline execution.
 

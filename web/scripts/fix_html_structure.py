@@ -85,7 +85,7 @@ def build_head(filename):
 
 
 def fix_file(filepath, filename):
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with open(filepath, encoding='utf-8') as f:
         content = f.read()
 
     # Check if file already has <!DOCTYPE html>
@@ -94,16 +94,16 @@ def fix_file(filepath, filename):
         if '<html' in content[:500] and '<head' in content[:800]:
             print(f'  [OK]  {filename} — already has full structure')
             return False
-    
+
     head_prefix, body_open = build_head(filename)
 
     # Pattern 1: Starts with <!-- comment (no html structure)
     # We need to find where the first <style> or actual content begins
     # and inject our head before it, then add </head><body> before first content tag
-    
+
     # Find where the actual page content starts (first non-comment, non-link, non-style tag that is body-level)
     # Strategy: inject DOCTYPE + html + head at top, then find </style> and insert </head><body> after it
-    
+
     # First check: does the file have any <html> tag already?
     has_html = bool(re.search(r'<html\b', content, re.IGNORECASE))
     has_head = bool(re.search(r'<head\b', content, re.IGNORECASE))
@@ -116,11 +116,11 @@ def fix_file(filepath, filename):
 
     # Remove any existing broken DOCTYPE at top
     content_clean = re.sub(r'^<!DOCTYPE html>\s*', '', content, flags=re.IGNORECASE)
-    
+
     # Find where to inject </head><body>
     # Look for </style> followed by body content
     style_end_match = re.search(r'</style>', content_clean, re.IGNORECASE)
-    
+
     if style_end_match and not has_body:
         # Insert </head><body_open> right after </style>
         end_pos = style_end_match.end()
@@ -144,7 +144,7 @@ def fix_file(filepath, filename):
 
     with open(filepath, 'w', encoding='utf-8') as f:
         f.write(content_new)
-    
+
     print(f'  [FIXED] {filename}')
     return True
 
@@ -165,7 +165,7 @@ def main():
             print(f'  [DONE] {fname} — already fixed in this session')
             skipped_count += 1
             continue
-        
+
         fpath = os.path.join(TEMPLATES_DIR, fname)
         try:
             result = fix_file(fpath, fname)

@@ -1,6 +1,6 @@
+import glob
 import json
 import os
-import glob
 
 brain_dir = r"C:\Users\samde\.gemini\antigravity\brain"
 agent_dirs = [d for d in os.listdir(brain_dir) if os.path.isdir(os.path.join(brain_dir, d))]

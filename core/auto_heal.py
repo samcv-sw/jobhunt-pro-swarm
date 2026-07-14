@@ -8,6 +8,7 @@ Uses asyncio for background tasks — never spawns OS processes.
 """
 
 import asyncio
+import contextlib
 import gc
 import json
 import logging
@@ -394,16 +395,12 @@ def _clear_stuck_campaigns() -> int:
         return stuck_total
     except Exception as e:
         logger.error(f"Failed to clear stuck campaigns: {e}")
-        try:
+        with contextlib.suppress(Exception):
             conn.rollback()
-        except Exception:
-            pass
         return 0
     finally:
-        try:
+        with contextlib.suppress(Exception):
             conn.close()
-        except Exception:
-            pass
 
 
 def _clear_dead_locks() -> int:
@@ -435,16 +432,12 @@ def _clear_dead_locks() -> int:
         return removed
     except Exception as e:
         logger.error(f"Failed to clear dead locks: {e}")
-        try:
+        with contextlib.suppress(Exception):
             conn.rollback()
-        except Exception:
-            pass
         return 0
     finally:
-        try:
+        with contextlib.suppress(Exception):
             conn.close()
-        except Exception:
-            pass
 
 
 def _prune_old_db_records() -> int:
@@ -499,16 +492,12 @@ def _prune_old_db_records() -> int:
         return pruned
     except Exception as e:
         logger.error(f"Failed to prune database: {e}")
-        try:
+        with contextlib.suppress(Exception):
             conn.rollback()
-        except Exception:
-            pass
         return 0
     finally:
-        try:
+        with contextlib.suppress(Exception):
             conn.close()
-        except Exception:
-            pass
 
 
 def _rotate_rate_limited_smtp() -> dict[str, Any]:
@@ -597,10 +586,8 @@ def _rotate_rate_limited_smtp() -> dict[str, Any]:
         except Exception as e:
             logger.error(f"SMTP rotation check error: {e}")
         finally:
-            try:
+            with contextlib.suppress(Exception):
                 conn.close()
-            except Exception:
-                pass
 
     return result
 
@@ -1048,10 +1035,8 @@ def get_system_health_snapshot() -> dict[str, Any]:
         except Exception:
             pass
         finally:
-            try:
+            with contextlib.suppress(Exception):
                 conn.close()
-            except Exception:
-                pass
 
     # Groq API status
     groq_healthy = bool(os.getenv("GROQ_API_KEY", ""))

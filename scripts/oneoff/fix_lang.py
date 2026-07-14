@@ -1,4 +1,5 @@
 import os
+
 import requests
 
 PA_USER = 'jhfguf'
@@ -37,6 +38,7 @@ def render_template(name: str, **context):
 """
 
 import re
+
 content = re.sub(r'def render_template\(name: str, \*\*context\):.*?return f"<!-- Error rendering template \{name\}: \{e\} -->"', new_render_template.strip(), content, flags=re.DOTALL)
 
 with open(app_file, "w", encoding="utf-8") as f:

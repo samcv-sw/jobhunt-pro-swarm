@@ -6,6 +6,7 @@ Providers: Mail.tm (instant), Temp-Mail, Guerrilla Mail, 10 Minute Mail,
            Yopmail, Outlook/Hotmail (limited), Gmail (requires phone).
 """
 
+import contextlib
 import logging
 import random
 import time
@@ -334,10 +335,8 @@ class FreeEmailRegistrar:
         }
 
     def close(self):
-        try:
+        with contextlib.suppress(Exception):
             self._client.close()
-        except Exception:
-            pass
 
 
 # ── Singleton ────────────────────────────────────────────────────

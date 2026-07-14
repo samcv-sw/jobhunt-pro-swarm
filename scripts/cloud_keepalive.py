@@ -6,10 +6,10 @@ or on any local machine/server) to ensure the web application never goes to slee
 
 It will ping the /ping endpoint every 4 minutes.
 """
-import time
-import urllib.request
-import urllib.error
 import logging
+import time
+import urllib.error
+import urllib.request
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - KEEPALIVE - %(levelname)s - %(message)s")
 logger = logging.getLogger("keepalive")
@@ -31,7 +31,7 @@ def run_loop():
             logger.error(f"URL Error: {e.reason}")
         except Exception as e:
             logger.error(f"Ping failed: {e}")
-        
+
         # Sleep until the next interval
         time.sleep(PING_INTERVAL_SECONDS)
 

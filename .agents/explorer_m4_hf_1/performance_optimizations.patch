@@ -1,0 +1,79 @@
+diff --git a/core/stealth.py b/core/stealth.py
+--- a/core/stealth.py
++++ b/core/stealth.py
+@@ -649,8 +649,27 @@
+-            browser_args = []
++            browser_args = [
++                "--blink-settings=imagesEnabled=false",
++                "--disable-remote-fonts",
++            ]
+             if proxy:
+                 browser_args.append(f"--proxy-server={proxy}")
+ 
+             # On some environments headless=True may be detected, but usually Nodriver handles it well
+             browser = await uc.start(headless=True, browser_args=browser_args)
+-            page = await browser.get(url)
++            page = browser.main_tab
++
++            # Enable network resource blocking via CDP before navigating
++            import nodriver.cdp.network as net
++            try:
++                await page.send(net.enable())
++                await page.send(net.set_blocked_ur_ls(urls=[
++                    "*.png", "*.jpg", "*.jpeg", "*.gif", "*.svg", "*.webp",
++                    "*.css", "*.scss",
++                    "*.woff", "*.woff2", "*.ttf", "*.otf",
++                    "*google-analytics.com*", "*doubleclick.net*", "*hotjar.com*", "*facebook.net*",
++                ]))
++            except Exception as net_err:
++                logger.warning(f"[Nodriver] Failed to enable network blocking: {net_err}")
++
++            await page.get(url)
+ 
+             js_script = """
+             (function() {
+@@ -734,4 +753,19 @@
+             # Using Camoufox which intercepts and overrides WebGL/Canvas natively
+             async with AsyncCamoufox(headless=True, proxy=proxy) as browser:
+                 page = await browser.new_page()
++
++                # Block heavy resources (images, fonts, stylesheets, media) and trackers
++                async def block_resources(route):
++                    blocked_types = {"image", "stylesheet", "font", "media"}
++                    blocked_keywords = {"google-analytics", "doubleclick", "hotjar", "facebook.net"}
++                    req = route.request
++                    url_lower = req.url.lower()
++                    if req.resource_type in blocked_types or any(kw in url_lower for kw in blocked_keywords):
++                        await route.abort()
++                    else:
++                        await route.continue_()
++
++                await page.route("**/*", block_resources)
++
+                 await page.goto(url)
+diff --git a/core/zero_cost_stealth_browser.py b/core/zero_cost_stealth_browser.py
+--- a/core/zero_cost_stealth_browser.py
++++ b/core/zero_cost_stealth_browser.py
+@@ -37,11 +37,25 @@
+             options = uc.ChromeOptions()
+             options.add_argument("--headless")
+             options.add_argument("--disable-gpu")
++            # Block images and remote fonts at engine startup level
++            options.add_argument("--blink-settings=imagesEnabled=false")
++            options.add_argument("--disable-remote-fonts")
+             # Add free community proxies here if needed
+ 
+             driver = uc.Chrome(options=options)
+             try:
++                # Enable network and block stylesheets/trackers via CDP commands
++                driver.execute_cdp_cmd("Network.enable", {})
++                driver.execute_cdp_cmd("Network.setBlockedURLs", {
++                    "urls": [
++                        "*.css", "*.scss",
++                        "*google-analytics.com*", "*doubleclick.net*", "*hotjar.com*", "*facebook.net*",
++                    ]
++                })
+                 driver.get(url)
+                 # Wait for JS challenge to pass
+                 time.sleep(5)
+                 return driver.page_source

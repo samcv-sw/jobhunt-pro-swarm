@@ -1,13 +1,13 @@
+import logging
 import os
 import subprocess
 import sys
-import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 try:
-    import langgraph
+    import langgraph  # noqa: F401
 except ImportError:
     logger.info("LangGraph not found. Installing dependencies...")
     subprocess.check_call(
@@ -62,11 +62,11 @@ def jd_analyzer_node(state: AgentState):
         prompt = f"""You are an expert Technical Recruiter.
         Analyze the following Job Description (or inferred from Job Title/Company/Cover Letter).
         Extract the core required skills, experience level, and likely behavioral traits they are seeking.
-        
+
         Company: {state.get("company", "")}
         Job Title: {state.get("job_title", "")}
         Cover Letter Sent: {state.get("cover_letter", "")}
-        
+
         Provide a concise bulleted list of the top 5 requirements and the 'ideal candidate profile'.
         """
         resp = llm.invoke([HumanMessage(content=prompt)])
@@ -83,11 +83,11 @@ def resume_matcher_node(state: AgentState):
         cv_text = state.get("cv_text", "")
         prompt = f"""You are an elite Career Coach.
         Compare the candidate's CV to the Job Requirements analysis.
-        
+
         JD Analysis: {state.get("jd_analysis", "")}
-        
+
         Candidate CV: {cv_text[:3000]} # Limit to save context
-        
+
         Identify 3 strengths the candidate should highlight and 2 gaps they should be prepared to defend.
         """
         resp = llm.invoke([HumanMessage(content=prompt)])
@@ -103,15 +103,15 @@ def cheat_sheet_generator_node(state: AgentState):
         llm = get_llm()
         prompt = f"""You are a Master Interview Strategist.
         Based on the JD Analysis and Resume Match Analysis, create a highly tailored Interview Cheat Sheet.
-        
+
         JD Analysis: {state.get("jd_analysis", "")}
         Resume Match: {state.get("resume_analysis", "")}
-        
+
         Generate a 3-part Cheat Sheet:
         1. 3 highly likely technical/behavioral questions they will be asked (based on their specific gaps/strengths).
         2. The perfect structured answers using the STAR method tailored to their CV.
         3. 2 intelligent, company-specific questions the candidate should ask the interviewer at the end.
-        
+
         Format exactly in clean HTML without markdown backticks. Use <h2> and <h3> tags.
         """
         resp = llm.invoke([HumanMessage(content=prompt)])
@@ -147,10 +147,10 @@ def critique_node(state: AgentState):
         prompt = f"""You are a harsh Senior Hiring Manager.
         Review this Interview Cheat Sheet.
         Does it sound generic? Are the answers using the STAR method properly? Are the questions to ask at the end insightful and not basic?
-        
+
         Cheat Sheet:
         {state.get("draft_cheat_sheet", "")}
-        
+
         If it is perfect and ready, reply exactly with: "APPROVED".
         If it needs work, provide a brief critique of what must be improved.
         """
@@ -176,13 +176,13 @@ def rewrite_node(state: AgentState):
         llm = get_llm()
         prompt = f"""You are a Master Interview Strategist.
         Rewrite the Interview Cheat Sheet based on the Senior Manager's critique.
-        
+
         Original Draft:
         {state.get("draft_cheat_sheet", "")}
-        
+
         Critique:
         {state.get("critique", "")}
-        
+
         Fix the issues. Format exactly in clean HTML without markdown backticks. Use <h2> and <h3> tags.
         """
         resp = llm.invoke([HumanMessage(content=prompt)])

@@ -1,5 +1,5 @@
-import re
 import os
+import re
 
 file_path = "web/static/css/cyberpunk.css"
 
@@ -34,6 +34,7 @@ with open(file_path, "w", encoding="utf-8") as f:
     f.write(css)
 
 import glob
+
 html_files = glob.glob('web/templates/**/*.html', recursive=True)
 count = 0
 for filepath in html_files:

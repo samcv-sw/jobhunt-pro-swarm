@@ -4,6 +4,7 @@ import re
 import sqlite3 as real_sqlite3
 from collections.abc import Iterable, Iterator
 from typing import Any
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 import psycopg2
 from psycopg2 import pool
@@ -26,20 +27,96 @@ def _safe_str(val: Any) -> str:
         return s.encode("ascii", errors="replace").decode("ascii")
 
 
+def format_neon_connection_string(url: str) -> str:
+    if not url:
+        return url
+
+    scheme_mapping = {
+        "postgresql+asyncpg": "postgresql",
+        "postgres": "postgresql",
+    }
+
+    try:
+        parsed = urlparse(url)
+        scheme = parsed.scheme
+        base_scheme = scheme_mapping.get(scheme, scheme)
+        if base_scheme != "postgresql" and base_scheme != "postgres":
+            return url
+
+        hostname = parsed.hostname
+        new_host = hostname
+        if hostname and "neon.tech" in hostname and "-pooler" not in hostname:
+            parts = hostname.split(".", 1)
+            new_host = f"{parts[0]}-pooler.{parts[1]}" if len(parts) == 2 else f"{hostname}-pooler"
+
+        netloc_parts = []
+        if parsed.username:
+            user_pass = parsed.username
+            if parsed.password is not None:
+                user_pass += f":{parsed.password}"
+            netloc_parts.append(f"{user_pass}@")
+        netloc_parts.append(new_host or "")
+        netloc_parts.append(":5432")
+        new_netloc = "".join(netloc_parts)
+
+        query_params = dict(parse_qsl(parsed.query))
+        query_params["sslmode"] = "require"
+        query_params["prepareThreshold"] = "0"
+        new_query = urlencode(query_params)
+
+        return urlunparse((
+            scheme,
+            new_netloc,
+            parsed.path,
+            parsed.params,
+            new_query,
+            parsed.fragment
+        ))
+    except Exception as e:
+        logger.error(f"Error formatting Neon connection string: {e}")
+        return url
+
+
+def clean_psycopg2_uri(url: str) -> str:
+    if not url:
+        return url
+    try:
+        parsed = urlparse(url)
+        query_params = dict(parse_qsl(parsed.query))
+        query_params.pop("prepareThreshold", None)
+
+        scheme = parsed.scheme
+        if scheme == "postgresql+asyncpg":
+            scheme = "postgresql"
+
+        new_query = urlencode(query_params)
+        return urlunparse((
+            scheme,
+            parsed.netloc,
+            parsed.path,
+            parsed.params,
+            new_query,
+            parsed.fragment
+        ))
+    except Exception as e:
+        logger.error(f"Error cleaning psycopg2 URI: {e}")
+        return url
+
+
 NEON_URI = (
     os.getenv("NEON_URL")
     or os.getenv("DATABASE_URL")
     or os.getenv("DATABASE_URL_SYNC")
     or ""
 )
-if NEON_URI.startswith("postgresql+asyncpg://"):
-    NEON_URI = NEON_URI.replace("postgresql+asyncpg://", "postgresql://", 1)
+NEON_URI = format_neon_connection_string(NEON_URI)
 
 # Track which backend is active
 BACKEND = None  # "pg" or "sqlite"
 FALLBACK_DB_PATH = None
 
 # Global Connection Pool
+import contextlib
 import threading
 
 PG_POOL_LOCK = threading.Lock()
@@ -248,7 +325,7 @@ class PgRow:
         return iter(self._row)
 
     def __repr__(self) -> str:
-        return repr(dict(zip(self._columns, self._row)))
+        return repr(dict(zip(self._columns, self._row, strict=False)))
 
     def keys(self) -> list[str]:
         return self._columns
@@ -266,6 +343,12 @@ class PgCursorWrapper:
         self.connection = connection
         self.lastrowid: int | None = None
         self._description: Any | None = None
+
+    def __enter__(self) -> "PgCursorWrapper":
+        return self
+
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        self.close()
 
     def _wrap_row(self, row_tuple: tuple[Any, ...]) -> Any:
         """Apply row_factory if set, otherwise return a PgRow for compatibility."""
@@ -353,17 +436,13 @@ class PgCursorWrapper:
         try:
             res = self.cursor.fetchone()
             if res is None:
-                try:
+                with contextlib.suppress(Exception):
                     self.cursor.close()
-                except Exception:
-                    pass
                 return None
             return self._wrap_row(tuple(res))
         except Exception as e:
-            try:
+            with contextlib.suppress(Exception):
                 self.cursor.close()
-            except Exception:
-                pass
             raise e
 
     def fetchall(self) -> list[Any]:
@@ -371,35 +450,24 @@ class PgCursorWrapper:
             rows = self.cursor.fetchall()
             return [self._wrap_row(tuple(r)) for r in rows]
         finally:
-            try:
+            with contextlib.suppress(Exception):
                 self.cursor.close()
-            except Exception:
-                pass
 
     def fetchmany(self, size: int | None = None) -> list[Any]:
         try:
-            if size is None:
-                rows = self.cursor.fetchmany()
-            else:
-                rows = self.cursor.fetchmany(size)
+            rows = self.cursor.fetchmany() if size is None else self.cursor.fetchmany(size)
             if not rows or (size is not None and len(rows) < size):
-                try:
+                with contextlib.suppress(Exception):
                     self.cursor.close()
-                except Exception:
-                    pass
             return [self._wrap_row(tuple(r)) for r in rows]
         except Exception as e:
-            try:
+            with contextlib.suppress(Exception):
                 self.cursor.close()
-            except Exception:
-                pass
             raise e
 
     def close(self) -> None:
-        try:
+        with contextlib.suppress(Exception):
             self.cursor.close()
-        except Exception:
-            pass
 
     def __iter__(self) -> "PgCursorWrapper":
         return self
@@ -411,10 +479,8 @@ class PgCursorWrapper:
         return row
 
     def __del__(self) -> None:
-        try:
+        with contextlib.suppress(Exception):
             self.cursor.close()
-        except Exception:
-            pass
 
     @property
     def rowcount(self) -> int:
@@ -431,27 +497,32 @@ class PgConnectionWrapper:
         self.row_factory = None
         self._in_transaction = False
         self._last_rowcount = 0
+        self.open_cursors = []
         current_pid = os.getpid()
 
         # If PID has changed, clear the inherited pool so we create a fresh one for this worker process
         if PG_POOL is None or current_pid != POOL_PID:
             with PG_POOL_LOCK:
                 if PG_POOL is not None and current_pid != POOL_PID:
-                    try:
+                    with contextlib.suppress(Exception):
                         PG_POOL.closeall()
-                    except Exception:
-                        pass
                     PG_POOL = None
 
                 if PG_POOL is None:
                     POOL_PID = current_pid
                     try:
-                        min_conn = int(os.getenv("PG_POOL_MIN", "5"))
-                        max_conn = int(os.getenv("PG_POOL_MAX", "80"))
+                        # Restrict connection limits to prevent exceeding Neon's 10-connection limit
+                        min_conn = int(os.getenv("PG_POOL_MIN", "1"))
+                        max_conn = int(os.getenv("PG_POOL_MAX", "3"))
+                        # Ensure values are strictly bounded to (1, 3)
+                        min_conn = max(1, min(min_conn, 2))
+                        max_conn = max(min_conn, min(max_conn, 3))
+
+                        cleaned_uri = clean_psycopg2_uri(NEON_URI)
                         PG_POOL = pool.ThreadedConnectionPool(
                             min_conn,
                             max_conn,
-                            NEON_URI,
+                            cleaned_uri,
                             cursor_factory=DictCursor,
                             connect_timeout=15,
                         )
@@ -463,17 +534,40 @@ class PgConnectionWrapper:
         for attempt in range(max_retries):
             conn = None
             try:
-                conn = PG_POOL.getconn()
+                # 1. Connection Recycling: Loop to get a connection from the pool,
+                # discarding any that are older than 280 seconds.
+                while True:
+                    conn = PG_POOL.getconn()
+                    now = time.time()
+
+                    if hasattr(conn, "created_at"):
+                        if now - conn.created_at > 280:
+                            logger.info("[DB] Discarding expired connection in PgConnectionWrapper pool (idle > 280s).")
+                            PG_POOL.putconn(conn, close=True)
+                            continue  # Fetch a different connection
+                    else:
+                        conn.created_at = now
+                    break
+
+                # 2. Connection Testing (Pre-ping): Run a lightweight test query
+                try:
+                    with conn.cursor() as test_cur:
+                        test_cur.execute("SELECT 1")
+                except (psycopg2.OperationalError, psycopg2.InterfaceError, AttributeError) as test_err:
+                    logger.warning(f"[DB] Connection pre-ping failed: {test_err}. Discarding stale connection.")
+                    PG_POOL.putconn(conn, close=True)
+                    conn = None
+                    # Raise error to trigger outer retry block with backoff
+                    raise psycopg2.OperationalError("Stale connection pre-ping failed") from test_err
+
                 conn.autocommit = True
                 self.conn = conn
                 BACKEND = "pg"
                 break
             except psycopg2.OperationalError as e:
                 if conn is not None:
-                    try:
+                    with contextlib.suppress(Exception):
                         PG_POOL.putconn(conn, close=True)
-                    except Exception:
-                        pass
                 if attempt < max_retries - 1:
                     time.sleep(0.1 * (2 ** attempt))
                 else:
@@ -493,6 +587,7 @@ class PgConnectionWrapper:
 
         cur = self.conn.cursor()
         wrapper = PgCursorWrapper(cur, self)
+        self.open_cursors.append(wrapper)
         res = wrapper.execute(query, params)
         self._last_rowcount = res.rowcount if res else 0
         return res
@@ -500,6 +595,7 @@ class PgConnectionWrapper:
     def executescript(self, script: str) -> PgCursorWrapper:
         cur = self.conn.cursor()
         wrapper = PgCursorWrapper(cur, self)
+        self.open_cursors.append(wrapper)
         res = wrapper.execute(script)
         self._last_rowcount = res.rowcount if res else 0
         return res
@@ -507,6 +603,7 @@ class PgConnectionWrapper:
     def executemany(self, query: str, seq_of_params: Iterable[Any]) -> PgCursorWrapper:
         cur = self.conn.cursor()
         wrapper = PgCursorWrapper(cur, self)
+        self.open_cursors.append(wrapper)
         res = wrapper.executemany(query, seq_of_params)
         self._last_rowcount = res.rowcount if res else 0
         return res
@@ -543,10 +640,16 @@ class PgConnectionWrapper:
 
     def cursor(self) -> PgCursorWrapper:
         cur = self.conn.cursor()
-        return PgCursorWrapper(cur, self)
+        wrapper = PgCursorWrapper(cur, self)
+        self.open_cursors.append(wrapper)
+        return wrapper
 
     def close(self) -> None:
         global PG_POOL
+        for cur in list(self.open_cursors):
+            with contextlib.suppress(Exception):
+                cur.close()
+        self.open_cursors.clear()
         if PG_POOL and self.conn:
             PG_POOL.putconn(self.conn)
             self.conn = None
@@ -564,10 +667,8 @@ class PgConnectionWrapper:
             self.close()
 
     def __del__(self) -> None:
-        try:
+        with contextlib.suppress(Exception):
             self.close()
-        except Exception:
-            pass
 
 
 class SqliteConnectionWrapper:

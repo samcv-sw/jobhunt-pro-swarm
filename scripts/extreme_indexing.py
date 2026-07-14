@@ -1,5 +1,5 @@
-import sqlite3
 import os
+import sqlite3
 
 DB_PATH = "data/jobhunt_local.db"
 
@@ -9,7 +9,7 @@ def apply_extreme_indexes():
         return
 
     print("🚀 Applying Extreme B-Tree Indexes to Database...")
-    
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
@@ -21,7 +21,7 @@ def apply_extreme_indexes():
     for (table_name,) in tables:
         if table_name.startswith("sqlite_"):
             continue
-            
+
         # Get table columns
         cursor.execute(f"PRAGMA table_info({table_name});")
         columns = cursor.fetchall()
@@ -34,7 +34,7 @@ def apply_extreme_indexes():
                 try:
                     cursor.execute(f"CREATE INDEX IF NOT EXISTS {idx_name} ON {table_name}({col_name});")
                     index_count += 1
-                except Exception as e:
+                except Exception:
                     pass
 
     conn.commit()

@@ -21,6 +21,7 @@ Env vars required:
 """
 
 import argparse
+import contextlib
 import gzip
 import logging
 import os
@@ -165,10 +166,8 @@ def backup_database() -> str | None:
     finally:
         # Clean up temp file
         if temp_db_path.exists():
-            try:
+            with contextlib.suppress(OSError):
                 temp_db_path.unlink()
-            except OSError:
-                pass
 
 
 def send_to_telegram(filepath: str, caption: str = "") -> bool:
@@ -329,10 +328,8 @@ def run_backup_loop(interval_hours: int = 6):
                     break
                 await _asyncio.sleep(1)
 
-    try:
+    with contextlib.suppress(KeyboardInterrupt):
         _asyncio.run(_loop())
-    except KeyboardInterrupt:
-        pass
     logger.info("Backup daemon stopped")
 
 

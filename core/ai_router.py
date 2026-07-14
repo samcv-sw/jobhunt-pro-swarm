@@ -12,7 +12,7 @@ try:
     from langgraph.checkpoint.postgres import PostgresSaver
     from langgraph.graph import END, StateGraph
     from psycopg_pool import ConnectionPool
-    from pydantic import BaseModel
+    from pydantic import BaseModel  # noqa: F401
 
     _HAS_LANGGRAPH = True
 except ImportError:

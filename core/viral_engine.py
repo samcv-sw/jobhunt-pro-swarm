@@ -27,10 +27,7 @@ DATA_DIR = None
 def init(data_dir: str = None):
     import config
     global DATA_DIR
-    if data_dir:
-        DATA_DIR = Path(data_dir)
-    else:
-        DATA_DIR = Path(config.DB_PATH).parent
+    DATA_DIR = Path(data_dir) if data_dir else Path(config.DB_PATH).parent
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -205,7 +202,7 @@ So I built JobHunt Pro — an AI that applies to jobs FOR you.
 Job hunting is broken. 250+ applicants per position, ATS systems filtering before humans see anything, and hours wasted on repetitive forms. AI can fix this.
 
 I'd love your feedback and questions! AMA in the comments 🙏""",
-    "first_comment": """Thanks for checking out JobHunt Pro! 
+    "first_comment": """Thanks for checking out JobHunt Pro!
 
 A few things I wanted to highlight:
 • The free tier is only $2 — no card required
@@ -253,17 +250,17 @@ def get_ph_listing_html() -> str:
     return f"""<div class="ph-listing-preview">
     <h1>🚀 {PH_ASSETS["tagline"]}</h1>
     <p>{PH_ASSETS["description"]}</p>
-    
+
     <div class="ph-maker-comment">
         <h3>Maker's Comment</h3>
         <p>{PH_ASSETS["maker_comment"].replace(chr(10), "<br>")}</p>
     </div>
-    
+
     <div class="ph-first-comment">
         <h3>First Comment</h3>
         <p>{PH_ASSETS["first_comment"]}</p>
     </div>
-    
+
     <div class="ph-topics">
         {"".join(f'<span class="topic-badge">{t}</span>' for t in PH_ASSETS["topics"])}
     </div>

@@ -33,7 +33,7 @@ def convert_to_rtl(css_content):
 for filename in os.listdir(css_dir):
     if filename.endswith(".css") and not filename.endswith("-rtl.css"):
         filepath = os.path.join(css_dir, filename)
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             content = f.read()
         rtl_content = convert_to_rtl(content)
         rtl_filename = filename.replace(".css", "-rtl.css")

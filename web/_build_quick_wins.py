@@ -1,9 +1,9 @@
 """
 BUILD-QUICK-WINS Agent - Injects 5 high-impact features into JobHunt Pro
 """
+import logging
 import os
 import sys
-import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 APP_V2 = os.path.join(BASE, 'app_v2.py')
 
 try:
-    with open(APP_V2, 'r', encoding='utf-8') as f:
+    with open(APP_V2, encoding='utf-8') as f:
         content = f.read()
 except Exception as e:
     logger.error(f"Failed to read {APP_V2}: {e}")

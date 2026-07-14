@@ -2,8 +2,8 @@
 scripts/oneoff/scratch_translate.py
 JobHunt Pro - Batch Translation Utility
 """
-import os
 import logging
+import os
 from typing import Dict, List, Tuple
 
 # Configure logging

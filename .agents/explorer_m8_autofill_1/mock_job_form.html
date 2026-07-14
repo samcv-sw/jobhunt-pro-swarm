@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mock Job Application Form</title>
+</head>
+<body>
+    <div id="application-form">
+        <h1>Apply for Senior Engineer</h1>
+        <form action="/submit-application" method="POST" enctype="multipart/form-data">
+            <div>
+                <label for="first_name_input">First Name</label>
+                <input type="text" id="first_name_input" name="field_first_name" placeholder="John" required />
+            </div>
+            <div>
+                <label for="last_name_input">Last Name</label>
+                <input type="text" id="last_name_input" name="field_last_name" placeholder="Doe" required />
+            </div>
+            <div>
+                <label for="email_address">Email Address</label>
+                <input type="email" id="email_address" name="field_email" placeholder="example@domain.com" required />
+            </div>
+            <div>
+                <label for="mobile_phone">Mobile Phone</label>
+                <input type="tel" id="mobile_phone" name="field_phone" placeholder="+12345678" required />
+            </div>
+            <div>
+                <label for="resume_file">Upload CV / Resume</label>
+                <input type="file" id="resume_file" name="resume" required />
+            </div>
+            <div>
+                <label for="linkedin_url">LinkedIn URL</label>
+                <input type="text" id="linkedin_url" name="linkedin" />
+            </div>
+            <div>
+                <label for="sponsor_select">Do you require visa sponsorship?</label>
+                <select id="sponsor_select" name="sponsorship">
+                    <option value="">Select an option</option>
+                    <option value="yes">Yes, I require sponsorship</option>
+                    <option value="no">No, I do not require sponsorship</option>
+                </select>
+            </div>
+            <div>
+                <label for="auth_select">Are you legally authorized to work in the US?</label>
+                <select id="auth_select" name="work_auth">
+                    <option value="">Select an option</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+            <button type="submit" id="submit_button">Submit Application</button>
+        </form>
+    </div>
+</body>
+</html>

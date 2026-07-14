@@ -2,18 +2,19 @@
 routers/admin.py - Admin Router (FastAPI APIRouter)
 Extracted from app_v2.py - Phase 1 Refactor
 """
-import os
 import logging
+import os
 from datetime import datetime
-from fastapi import APIRouter, Request, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+
+from fastapi import APIRouter, Request
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["admin"])
 
 def _deps():
-    from web.shared import get_db, get_verified_user_id, templates, config
-    from web.app_v2 import render_template, _build_dashboard_shell
+    from web.app_v2 import _build_dashboard_shell, render_template
+    from web.shared import config, get_db, get_verified_user_id, templates
     return get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell
 
 @router.post("/admin/panic-toggle")
@@ -23,14 +24,14 @@ def admin_panic_toggle(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
-        
+
     with get_db() as conn:
         user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         pass  # conn.close()
-    
+
         if not user or user.get("user_type") != "admin":
             return JSONResponse({"status": "error", "error": "Forbidden"}, status_code=403)
-        
+
         from core.panic_mode import toggle_panic_mode
         new_state = toggle_panic_mode()
         return JSONResponse({"status": "success", "panic_mode_active": new_state})
@@ -42,19 +43,19 @@ def admin_viral_factory(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-        
+
     with get_db() as conn:
         user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         pass  # conn.close()
-    
+
         if not user or user.get("user_type") != "admin":
             return HTMLResponse("<h2>403 Forbidden</h2><p>You do not have permission to view this page.</p>", status_code=403)
-        
+
         viral_dir = "cache/viral_videos"
         files = []
         if os.path.exists(viral_dir):
             files = [f for f in os.listdir(viral_dir) if f.endswith(".mp4")]
-        
+
         html = '''
         <html><head><title>Viral Factory</title>
         <style>body{font-family: Arial, sans-serif; padding: 20px; background: #0D1117; color: white;}
@@ -64,7 +65,7 @@ def admin_viral_factory(request: Request):
         <h2>🚀 Instant Profit Viral Factory</h2>
         <p>These videos are auto-generated daily by AI. Download them and upload them to TikTok/Shorts to get instant massive traffic.</p>
         '''
-    
+
         if not files:
             html += "<p>No viral videos generated yet. The Autopilot runs daily.</p>"
         else:
@@ -93,41 +94,41 @@ def admin_logs(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-        
+
     with get_db() as conn:
         user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         pass  # conn.close()
-    
+
         if not user or user.get("user_type") != "admin":
             return HTMLResponse("<h2>403 Forbidden</h2><p>You do not have permission to view this page.</p>", status_code=403)
-        
+
         pa_domain = os.getenv("PA_DOMAIN", "jhfguf.pythonanywhere.com")
         error_log_path = f"/var/log/{pa_domain}.error.log"
         server_log_path = f"/var/log/{pa_domain}.server.log"
-    
+
         error_log_content = "Log file not found."
         server_log_content = "Log file not found."
-    
+
         try:
             if os.path.exists(error_log_path):
-                with open(error_log_path, 'r', encoding='utf-8', errors='replace') as f:
+                with open(error_log_path, encoding='utf-8', errors='replace') as f:
                     lines = f.readlines()
                     error_log_content = ''.join(lines[-100:])
             else:
                 error_log_content = f"Log file not found at {error_log_path}"
         except Exception as e:
             error_log_content = f"Error reading log: {str(e)}"
-        
+
         try:
             if os.path.exists(server_log_path):
-                with open(server_log_path, 'r', encoding='utf-8', errors='replace') as f:
+                with open(server_log_path, encoding='utf-8', errors='replace') as f:
                     lines = f.readlines()
                     server_log_content = ''.join(lines[-100:])
             else:
                 server_log_content = f"Log file not found at {server_log_path}"
         except Exception as e:
             server_log_content = f"Error reading log: {str(e)}"
-        
+
         html = f"""
         <!DOCTYPE html>
         <html lang="en">
@@ -168,7 +169,7 @@ def admin_analytics(req: Request):
         admin_id = get_verified_user_id(req)
         if not admin_id:
             return RedirectResponse("/login", status_code=303)
-            
+
         with get_db() as db:
             user_admin = db.execute("SELECT * FROM users WHERE user_id = ?", (admin_id,)).fetchone()
             if not user_admin or user_admin.get("user_type") != "admin":
@@ -278,16 +279,16 @@ def admin_analytics(req: Request):
 
 # ── MIGRATED ADMIN ROUTES ───────────────────────────────────────────────────
 
-from fastapi import Form, BackgroundTasks, UploadFile, File
-from fastapi.responses import Response
-from typing import Optional
 import uuid
+
+from fastapi import BackgroundTasks, Form
+
 
 @router.get("/admin", response_class=HTMLResponse)
 def admin_panel(request: Request):
     """Admin dashboard — full system overview."""
     get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
-    from web.app_v2 import require_admin, get_payment_stats
+    from web.app_v2 import get_payment_stats, require_admin
     if not require_admin(request):
         return RedirectResponse("/login", status_code=303)
 
@@ -363,7 +364,7 @@ def admin_sys_logs(request: Request):
     from web.app_v2 import require_admin
     if not require_admin(request):
         return RedirectResponse("/login", status_code=303)
-    
+
     logs_html = "<h2>System Logs</h2>"
     log_files = [
         "/var/log/jhfguf.pythonanywhere.com.error.log",
@@ -373,21 +374,21 @@ def admin_sys_logs(request: Request):
         "jobhunt.log",
         "sam_max.log"
     ]
-    
+
     for log_path in log_files:
         if os.path.exists(log_path):
             try:
-                with open(log_path, 'r', encoding='utf-8-sig', errors='replace') as f:
+                with open(log_path, encoding='utf-8-sig', errors='replace') as f:
                     lines = f.readlines()
                     tail_lines = lines[-500:]
                     logs_html += f"<h3>{os.path.basename(log_path)}</h3>"
                     logs_html += f"<pre style='background:#1e1e1e;color:#00ff00;padding:15px;overflow:auto;height:400px;font-size:12px;'>{''.join(tail_lines)}</pre>"
             except Exception as e:
                 logs_html += f"<p>Error reading {log_path}: {e}</p>"
-                
+
     if logs_html == "<h2>System Logs</h2>":
         logs_html += "<p>No log files found.</p>"
-        
+
     html_content = f"""
     <html>
     <head>
@@ -431,7 +432,7 @@ def api_run_design_scan(request: Request):
     from web.app_v2 import require_admin
     if not require_admin(request):
         return JSONResponse({"error": "Unauthorized"}, status_code=401)
-    
+
     routes = [
         "/",
         "/pricing",
@@ -446,15 +447,15 @@ def api_run_design_scan(request: Request):
         "/chrome-extension",
         "/careers"
     ]
-    
+
     results = []
     critical_count = 0
     high_count = 0
     medium_count = 0
-    
+
     import httpx
     base_url = str(request.base_url).rstrip('/')
-    
+
     try:
         with httpx.Client(timeout=10.0, follow_redirects=True) as client:
             for r in routes:
@@ -463,36 +464,36 @@ def api_run_design_scan(request: Request):
                 try:
                     res = client.get(url)
                     html = res.text
-                    
+
                     if "<title>" not in html or "</title>" not in html:
                         issues.append({"severity": "CRITICAL", "message": "Missing <title> tag"})
                         critical_count += 1
-                    
+
                     if 'name="viewport"' not in html:
                         issues.append({"severity": "CRITICAL", "message": "Missing viewport meta tag — broken on mobile"})
                         critical_count += 1
-                        
+
                     if "<nav" not in html:
                         issues.append({"severity": "CRITICAL", "message": "No <nav> element found"})
                         critical_count += 1
-                        
+
                     if "footer" not in html.lower():
                         issues.append({"severity": "MEDIUM", "message": "Missing footer element"})
                         medium_count += 1
-                        
+
                     cc = res.headers.get("Cache-Control", "")
                     if "no-cache" not in cc and "max-age=0" not in cc:
                         issues.append({"severity": "HIGH", "message": f"Caching enabled on HTML page (Cache-Control: {cc}) — may cause styling delay"})
                         high_count += 1
-                        
+
                     empty_links = html.count('href="#"') + html.count("href='#'")
                     if empty_links > 0:
                         issues.append({"severity": "LOW", "message": f"Contains {empty_links} empty placeholder link(s) (#)"})
-                        
+
                 except Exception as e:
                     issues.append({"severity": "CRITICAL", "message": f"Page failed to load: {e}"})
                     critical_count += 1
-                    
+
                 results.append({
                     "route": r,
                     "url": url,
@@ -500,7 +501,7 @@ def api_run_design_scan(request: Request):
                 })
     except Exception as e:
         return JSONResponse({"error": f"Scanner client error: {e}"}, status_code=500)
-        
+
     return {
         "status": "success",
         "critical_count": critical_count,
@@ -549,7 +550,7 @@ def admin_generate_code(
 ):
     """Generate redeem codes."""
     get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
-    from web.app_v2 import require_admin, generate_redeem_code
+    from web.app_v2 import generate_redeem_code, require_admin
     if not require_admin(request):
         return RedirectResponse("/login", status_code=303)
 
@@ -646,8 +647,9 @@ def admin_create_flash_sale(
     duration_hours: float = Form(24),
 ):
     get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
-    from web.app_v2 import require_admin
     from datetime import timedelta
+
+    from web.app_v2 import require_admin
     if not require_admin(request):
         return RedirectResponse("/login", status_code=303)
     with get_db() as conn:
@@ -684,7 +686,7 @@ def admin_send_manual_email(
     body: str = Form(...),
 ):
     get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
-    from web.app_v2 import require_admin, _bg_send_manual_email
+    from web.app_v2 import _bg_send_manual_email, require_admin
     admin_id = require_admin(request)
     if not admin_id:
         return RedirectResponse("/login", status_code=303)

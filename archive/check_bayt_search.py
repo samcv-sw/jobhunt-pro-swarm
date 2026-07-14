@@ -1,4 +1,7 @@
-import cloudscraper, re, json
+import json
+import re
+
+import cloudscraper
 
 scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True, 'mobile': False})
 

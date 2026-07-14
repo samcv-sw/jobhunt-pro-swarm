@@ -1,6 +1,7 @@
 import asyncio
 import re
 import sys
+
 from playwright.async_api import async_playwright
 
 sys.stdout.reconfigure(encoding='utf-8')
@@ -42,12 +43,12 @@ async def automate_fly_login():
 
         try:
             await page.goto(oauth_url)
-            
+
             # Wait for email input
             await page.wait_for_selector('input[type="email"]', timeout=15000)
             await page.fill('input[type="email"]', "samsalameh.cv@gmail.com")
             await page.fill('input[type="password"]', "GFKHGFKH*^%$84854hgf")
-            
+
             # Click sign in
             await page.click('button[type="submit"]')
             logger.debug("Submitted login form...")
@@ -57,14 +58,14 @@ async def automate_fly_login():
                 await page.wait_for_selector('button:has-text("Continue")', timeout=15000)
                 await page.click('button:has-text("Continue")')
                 logger.debug("Clicked Continue (Authorize)!")
-            except Exception as e:
+            except Exception:
                 pass
 
             try:
                 await page.wait_for_selector('button:has-text("Authorize")', timeout=5000)
                 await page.click('button:has-text("Authorize")')
                 logger.debug("Clicked Authorize!")
-            except Exception as e:
+            except Exception:
                 pass
 
             logger.debug("Waiting for Flyctl to complete...")
@@ -75,7 +76,7 @@ async def automate_fly_login():
             logger.debug("Saved screenshot to fly_error.png")
         finally:
             await browser.close()
-    
+
     await process.wait()
     logger.debug("Flyctl process completed.")
 

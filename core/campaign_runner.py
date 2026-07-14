@@ -134,12 +134,12 @@ def _load_dedup_sets(conn, campaign_id: str, user_id: str) -> tuple[set, set]:
 
     global_sent_companies = set()
     for row in conn.execute(
-        """SELECT DISTINCT ce.company_name 
+        """SELECT DISTINCT ce.company_name
            FROM campaign_emails ce
            JOIN campaigns c ON ce.campaign_id = c.campaign_id
-           WHERE ce.status='sent' 
+           WHERE ce.status='sent'
              AND c.user_id = ?
-             AND ce.company_name IS NOT NULL 
+             AND ce.company_name IS NOT NULL
              AND ce.company_name != ''""",
         (user_id,),
     ).fetchall():
@@ -553,7 +553,7 @@ def _setup_campaign_and_user_details(
     """
     conn.row_factory = sqlite3.Row
     query = """
-        SELECT c.*, 
+        SELECT c.*,
                p.id as p_id, p.target_titles, p.skills, p.experience_years, p.cv_text,
                u.name, u.email, u.phone, u.oauth_provider, u.oauth_access_token, u.oauth_refresh_token, u.oauth_expires_at, u.wallet_balance,
                o.package_name
@@ -795,7 +795,7 @@ async def _send_campaign_emails(
         sent_this_cycle += batch_sent
         failed_count += batch_failed
 
-        for j, r in zip(valid_jobs, batch_results):
+        for j, r in zip(valid_jobs, batch_results, strict=False):
             comp_name = j.get("company", "Unknown")
             if r.get("status") == "sent":
                 logger.info(

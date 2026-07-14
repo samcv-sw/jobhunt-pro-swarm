@@ -6,13 +6,13 @@ Subscription tiers, API access, resume optimization, salary benchmarking
 import hashlib
 import logging
 import secrets
-from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 # ── Pricing Tiers ──────────────────────────────────────────────
-TIERS: Dict[str, Dict[str, Any]] = {
+TIERS: dict[str, dict[str, Any]] = {
     "free": {
         "name": "Free",
         "price_monthly": 0,
@@ -137,7 +137,7 @@ class APIKeyManager:
     def generate_api_key(user_id: str) -> str:
         """Generate a unique API key."""
         try:
-            raw = f"{user_id}-{secrets.token_hex(16)}-{datetime.now(timezone.utc).isoformat()}"
+            raw = f"{user_id}-{secrets.token_hex(16)}-{datetime.now(UTC).isoformat()}"
             return hashlib.sha256(raw.encode()).hexdigest()[:48]
         except Exception as e:
             logger.error(f"Failed to generate API key: {e}")
@@ -162,7 +162,7 @@ class ResumeOptimizer:
     """AI-powered resume optimization and scoring."""
 
     def __init__(self) -> None:
-        self.skill_keywords: List[str] = [
+        self.skill_keywords: list[str] = [
             "cisco",
             "mikrotik",
             "ubiquiti",
@@ -184,7 +184,7 @@ class ResumeOptimizer:
             "terraform",
         ]
 
-    def score_resume(self, resume_text: str, job_description: str = "") -> Dict[str, Any]:
+    def score_resume(self, resume_text: str, job_description: str = "") -> dict[str, Any]:
         """Score a resume and provide optimization tips."""
         try:
             score = 0
@@ -286,7 +286,7 @@ class ResumeOptimizer:
 class SalaryBenchmarker:
     """Real-time salary data for negotiation."""
 
-    SALARY_DATA: Dict[str, Dict[str, Dict[str, Any]]] = {
+    SALARY_DATA: dict[str, dict[str, dict[str, Any]]] = {
         "network_engineer": {
             "lebanon": {
                 "min": 800,
@@ -375,7 +375,7 @@ class SalaryBenchmarker:
         },
     }
 
-    def get_benchmark(self, job_title: str, location: str) -> Dict[str, Any]:
+    def get_benchmark(self, job_title: str, location: str) -> dict[str, Any]:
         """Get salary benchmark for a role and location."""
         try:
             title_key = self._normalize_title(job_title)
@@ -443,7 +443,7 @@ class SalaryBenchmarker:
             logger.error(f"Failed to normalize location: {e}")
             return "remote"
 
-    def _get_negotiation_tip(self, salary: Dict[str, Any]) -> str:
+    def _get_negotiation_tip(self, salary: dict[str, Any]) -> str:
         try:
             median = salary["median"]
             return (
@@ -469,7 +469,7 @@ class SubscriptionManager:
             logger.error(f"Failed to check feature access: {e}")
             return False
 
-    def get_usage_limits(self, user_tier: str) -> Dict[str, Any]:
+    def get_usage_limits(self, user_tier: str) -> dict[str, Any]:
         """Get usage limits for a tier."""
         try:
             tier = TIERS.get(user_tier, TIERS["free"])
@@ -486,7 +486,7 @@ class SubscriptionManager:
                 "providers": 1,
             }
 
-    def calculate_upgrade_price(self, current_tier: str, target_tier: str) -> Dict[str, Any]:
+    def calculate_upgrade_price(self, current_tier: str, target_tier: str) -> dict[str, Any]:
         """Calculate price for upgrading tiers."""
         try:
             current = TIERS.get(current_tier, TIERS["free"])
@@ -516,7 +516,7 @@ class SubscriptionManager:
                 "features_added": [],
             }
 
-    def get_all_tiers(self) -> List[Dict[str, Any]]:
+    def get_all_tiers(self) -> list[dict[str, Any]]:
         """Get all pricing tiers."""
         try:
             return [
@@ -539,7 +539,7 @@ class SubscriptionManager:
 class ReferralEngine:
     """Viral referral system for growth."""
 
-    REFERRAL_REWARDS: Dict[str, Dict[str, Any]] = {
+    REFERRAL_REWARDS: dict[str, dict[str, Any]] = {
         "referrer": {
             "bonus_usd": 10,
             "bonus_credits": 50,
@@ -561,7 +561,7 @@ class ReferralEngine:
             logger.error(f"Failed to generate referral code: {e}")
             raise
 
-    def process_referral(self, referrer_id: str, referred_id: str) -> Dict[str, Any]:
+    def process_referral(self, referrer_id: str, referred_id: str) -> dict[str, Any]:
         """Process a referral and apply rewards."""
         try:
             return {
@@ -569,7 +569,7 @@ class ReferralEngine:
                 "referred_reward": self.REFERRAL_REWARDS["referred"],
                 "referrer_id": referrer_id,
                 "referred_id": referred_id,
-                "processed_at": datetime.now(timezone.utc).isoformat(),
+                "processed_at": datetime.now(UTC).isoformat(),
             }
         except Exception as e:
             logger.error(f"Failed to process referral: {e}")
@@ -580,7 +580,7 @@ class ReferralEngine:
 class RevenueAnalytics:
     """Track revenue and conversion metrics."""
 
-    def calculate_mrr(self, users_by_tier: Dict[str, int]) -> Dict[str, Any]:
+    def calculate_mrr(self, users_by_tier: dict[str, int]) -> dict[str, Any]:
         """Calculate Monthly Recurring Revenue."""
         try:
             mrr = 0
@@ -611,7 +611,7 @@ class RevenueAnalytics:
 
     def estimate_daily_revenue(
         self, daily_signups: int, conversion_rate: float = 0.05
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Estimate daily revenue from signups."""
         try:
             paying = int(daily_signups * conversion_rate)

@@ -17,6 +17,7 @@ requests.post(
 )
 
 import time
+
 time.sleep(2)
 output_res = requests.get(f'https://www.pythonanywhere.com/api/v0/user/{username}/consoles/{console_id}/get_latest_output/', headers=headers)
 print("Console output:")

@@ -225,7 +225,7 @@ class TeamManagerAgent:
     ) -> list[Any]:
         """Delegate tasks across squad leaders. Each batch goes to one squad."""
         results = []
-        for i, batch in enumerate(args_batches):
+        for _i, batch in enumerate(args_batches):
             sl = self._next_squad_leader()
             if sl is None:
                 logger.warning(

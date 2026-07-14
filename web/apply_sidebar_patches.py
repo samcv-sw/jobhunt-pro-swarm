@@ -2,10 +2,9 @@
 web/apply_sidebar_patches.py
 JobHunt Pro - Sidebar Template & App Routing Patch Utility
 """
+import logging
 import os
 import re
-import logging
-from typing import List
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -25,7 +24,7 @@ def patch_app_v2() -> None:
             logger.warning(f"App file not found to patch: {APP_FILE}")
             return
 
-        with open(APP_FILE, "r", encoding="utf-8") as f:
+        with open(APP_FILE, encoding="utf-8") as f:
             content = f.read()
 
         # Admin Panel replacements
@@ -87,7 +86,7 @@ def patch_app_v2() -> None:
             '                "recent_events": recent_events\n            }\n        )',
             '            recent_events=recent_events\n        )\n        return HTMLResponse(_build_dashboard_shell(user, user_id, content_html, "Tracking Analytics", "tracking-analytics"))'
         )
-        
+
         # Fix dict syntax for Tracking Analytics rendering
         content = content.replace(
             '"request": request,\n                "user": user,',
@@ -117,29 +116,29 @@ def strip_template(filepath: str) -> None:
         if not os.path.exists(filepath):
             logger.warning(f"Template path not found to strip: {filepath}")
             return
-            
-        with open(filepath, "r", encoding="utf-8") as f:
+
+        with open(filepath, encoding="utf-8") as f:
             html = f.read()
-        
+
         # Extract style block if exists
         style_match = re.search(r'(<style>.*?</style>)', html, re.DOTALL)
         style_block = style_match.group(1) if style_match else ""
-        
+
         # Remove DOCTYPE, html, head, body tags, topbar, sidebar
         html = re.sub(r'<!DOCTYPE html>.*?<body[^>]*>', '', html, flags=re.DOTALL)
-        
+
         # Remove topbar
         html = re.sub(r'<div class="topbar">.*?</div>\s*<div class="container', '<div class="container', html, flags=re.DOTALL)
-        
+
         # Remove closing body and html
         html = re.sub(r'</body>\s*</html>', '', html)
-        
+
         # Combine style and inner html
         final_html = f"{style_block}\n\n{html.strip()}"
 
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(final_html)
-            
+
         logger.info(f"Successfully stripped template file: {filepath}")
     except Exception as e:
         logger.error(f"Failed to strip template file {filepath}: {e}")
@@ -150,8 +149,8 @@ def main() -> None:
     """Execute patching process for app routing and templates."""
     try:
         patch_app_v2()
-        
-        templates_to_strip: List[str] = [
+
+        templates_to_strip: list[str] = [
             "admin.html",
             "admin_analytics.html",
             "admin_user.html",
@@ -159,7 +158,7 @@ def main() -> None:
             "interview_prep.html",
             "tracking_analytics.html"
         ]
-        
+
         for t in templates_to_strip:
             strip_template(os.path.join(AR_DIR, t))
             strip_template(os.path.join(EN_DIR, t))

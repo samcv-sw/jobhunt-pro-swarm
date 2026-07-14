@@ -4,7 +4,7 @@ Provides salary insights and negotiation strategies for Sam
 """
 
 import logging
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,7 @@ class SalaryNegotiator:
     """Salary negotiation assistant with regional data."""
 
     # Salary ranges by location (USD/year) for Network Engineers
-    SALARY_RANGES: Dict[str, Dict[str, Tuple[int, int]]] = {
+    SALARY_RANGES: dict[str, dict[str, tuple[int, int]]] = {
         "lebanon": {
             "junior": (10000, 16000),
             "mid": (16000, 28000),
@@ -46,7 +46,7 @@ class SalaryNegotiator:
         },
     }
 
-    NEGOTIATION_TIPS: List[str] = [
+    NEGOTIATION_TIPS: list[str] = [
         "Never give a number first — ask for their budget range",
         "Always negotiate the total package, not just base salary",
         "Use competing offers as leverage, even informal ones",
@@ -59,14 +59,14 @@ class SalaryNegotiator:
         "Be ready to walk away — your BATNA is your power",
     ]
 
-    RESPONSE_TEMPLATES: Dict[str, str] = {
+    RESPONSE_TEMPLATES: dict[str, str] = {
         "deflect": "I'd prefer to learn more about the role and team first before discussing compensation. Could you share the budget range for this position?",
         "counter_high": "Based on my 15+ years of experience and the market rate for senior network engineers in {location}, I was expecting something in the range of {high_range}. I'm flexible and would love to discuss the total compensation package.",
         "counter_mid": "Thank you for the offer. Given my experience level and the responsibilities of this role, I believe a range of {mid_range} would be more aligned with market rates. I'm open to discussing the full package including benefits.",
         "accept_with_conditions": "I'm very excited about this opportunity and the offer is close to my expectations. Could we discuss a few adjustments to the benefits package — specifically {conditions}?",
     }
 
-    def get_range(self, location: str, level: str = "senior") -> Dict[str, Any]:
+    def get_range(self, location: str, level: str = "senior") -> dict[str, Any]:
         """Get salary range for a location and level."""
         try:
             loc = (
@@ -99,12 +99,12 @@ class SalaryNegotiator:
             }
 
     def get_negotiation_advice(
-        self, location: str, offered: Optional[int] = None, level: str = "senior"
-    ) -> Dict[str, Any]:
+        self, location: str, offered: int | None = None, level: str = "senior"
+    ) -> dict[str, Any]:
         """Get negotiation advice for a specific situation."""
         try:
             salary_range = self.get_range(location, level)
-            advice: Dict[str, Any] = {
+            advice: dict[str, Any] = {
                 "market_range": salary_range,
                 "tips": self.NEGOTIATION_TIPS[:5],
                 "recommended_strategy": "deflect",
@@ -155,10 +155,10 @@ class SalaryNegotiator:
                 "response_template": self.RESPONSE_TEMPLATES["deflect"],
             }
 
-    def compare_locations(self, level: str = "senior") -> Dict[str, Dict[str, int]]:
+    def compare_locations(self, level: str = "senior") -> dict[str, dict[str, int]]:
         """Compare salary ranges across all locations."""
         try:
-            comparison: Dict[str, Dict[str, int]] = {}
+            comparison: dict[str, dict[str, int]] = {}
             for loc, ranges in self.SALARY_RANGES.items():
                 low, high = ranges.get(level, ranges["senior"])
                 comparison[loc] = {"low": low, "high": high, "mid": (low + high) // 2}

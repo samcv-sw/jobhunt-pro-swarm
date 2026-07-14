@@ -50,7 +50,7 @@ def generate_portfolio(
 </head>
 <body class="antialiased min-h-screen flex flex-col items-center justify-center p-6">
     <div class="max-w-4xl w-full space-y-12 animate-fade-in-up">
-        
+
         <!-- Header -->
         <header class="text-center space-y-4">
             <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight">
@@ -81,7 +81,7 @@ def generate_portfolio(
                 {"".join([f'<span class="px-4 py-2 bg-slate-800 rounded-lg text-sm font-medium text-slate-300 border border-slate-700">{skill}</span>' for skill in skills])}
             </div>
         </section>
-        
+
         <footer class="text-center text-slate-500 text-sm mt-16 pb-8">
             Generated automatically by JobHunt Pro AI Core.
         </footer>

@@ -135,7 +135,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <h1>Talent Stock Exchange</h1>
         <p>The World's First Decentralized Human IPO Platform</p>
     </header>
-    
+
     <div class="ticker-tape">
         <p>MARKET UPDATE: HR Teams from Google, Stripe, and Meta are currently acquiring top assets. Act fast to secure top 1% global talent. 50% of the Acquisition Fee is instantly wired to the candidate as a signing bonus.</p>
     </div>
@@ -219,7 +219,7 @@ def generate_stock_exchange():
             ("Rust", "WASM"),
             ("Java", "Spring"),
         ]
-        for i in range(10):
+        for _i in range(10):
             assets.append(
                 {
                     "id": random.randint(1000, 9999),

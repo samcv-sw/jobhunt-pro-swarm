@@ -1,4 +1,23 @@
+# =============================================================================
+# Keep-Alive & Free-Tier Permanence Strategy
+# =============================================================================
+# Render free tier spins down after 15 minutes of inactivity.
+# keepalive-ping cron runs every 14 minutes (1-min safety margin).
+# neon-warmer cron runs every 5 minutes to prevent Neon DB cold starts.
+# Upstash Redis: max_connections=10 respects free-tier concurrent limit.
+# Combined cost: $0/month | Uptime: 24/7 permanent on free tier.
+# =============================================================================
+# =============================================================================
+# Keep-Alive & Free-Tier Permanence Strategy
+# =============================================================================
+# Render free tier spins down after 15 minutes of inactivity.
+# keepalive-ping cron runs every 14 minutes — 1-minute safety margin.
+# neon-warmer cron runs every 5 minutes to prevent Neon DB cold starts.
+# Upstash Redis: max_connections=10 in Celery respects free-tier limit.
+# Combined monthly cost: $0 | Uptime: 24/7 permanent on free tiers.
+# =============================================================================
 services:
+
   - type: web
     name: jobhunt-pro
     env: python

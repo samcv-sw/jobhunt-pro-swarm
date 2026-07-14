@@ -8,15 +8,14 @@ Automates continuous project optimization by:
 3. Automatically logging improvements and tracking token resources.
 """
 
-import os
-import sys
-import json
-import subprocess
 import argparse
+import json
 import logging
-from datetime import datetime, timezone
+import os
 import re
-from pathlib import Path
+import subprocess
+import sys
+from datetime import UTC, datetime
 
 logging.basicConfig(level=logging.DEBUG, format="%(message)s", stream=sys.stdout)
 logger = logging.getLogger("antigravity")
@@ -74,7 +73,7 @@ def parse_transcript(transcript_path):
         return []
 
     entries = []
-    with open(transcript_path, "r", encoding="utf-8") as f:
+    with open(transcript_path, encoding="utf-8") as f:
         for line_num, line in enumerate(f, 1):
             try:
                 entry = json.loads(line.strip())
@@ -156,7 +155,7 @@ def generate_state_report(workspace_path, conversation_dir):
 
     conv_id = os.path.basename(conversation_dir)
     transcript_path = os.path.join(conversation_dir, ".system_generated", "logs", "transcript.jsonl")
-    
+
     logger.debug(f"[*] Parsing transcript logs from: {transcript_path}")
     entries = parse_transcript(transcript_path)
     if not entries:
@@ -169,7 +168,7 @@ def generate_state_report(workspace_path, conversation_dir):
     token_percentage = (estimated_tokens / token_limit) * 100
 
     report_path = os.path.join(workspace_path, "ANTIGRAVITY_STATE_SUMMARY.md")
-    
+
     # Read git status
     git_status = "Unknown"
     try:
@@ -178,34 +177,34 @@ def generate_state_report(workspace_path, conversation_dir):
         pass
 
     with open(report_path, "w", encoding="utf-8") as f:
-        f.write(f"# Antigravity Optimization Loop — State Summary\n\n")
-        f.write(f"> Generated on {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')} | Conv ID: `{conv_id}`\n\n")
-        
-        f.write(f"## 📊 Context & Token Usage\n")
+        f.write("# Antigravity Optimization Loop — State Summary\n\n")
+        f.write(f"> Generated on {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S UTC')} | Conv ID: `{conv_id}`\n\n")
+
+        f.write("## 📊 Context & Token Usage\n")
         f.write(f"- **Steps Completed**: {stats['step_count']}\n")
         f.write(f"- **Total Transcript Size**: {stats['total_chars'] / 1024:.2f} KB\n")
         f.write(f"- **Estimated Token Usage**: {estimated_tokens:,} tokens (~{token_percentage:.2f}% of 2M limit)\n")
         if token_percentage > 85:
-            f.write(f"  > [!WARNING]\n  > Token usage is extremely high. Consider committing changes and starting a fresh session.\n\n")
+            f.write("  > [!WARNING]\n  > Token usage is extremely high. Consider committing changes and starting a fresh session.\n\n")
         else:
-            f.write(f"  > [!NOTE]\n  > Token resources are healthy. Safe to continue iterative changes.\n\n")
+            f.write("  > [!NOTE]\n  > Token resources are healthy. Safe to continue iterative changes.\n\n")
 
-        f.write(f"## 🎯 Active User Objectives\n")
+        f.write("## 🎯 Active User Objectives\n")
         for req in stats["user_requests"][-5:]:
             f.write(f"- `[{req['timestamp']}]` {req['request']}\n")
         f.write("\n")
 
-        f.write(f"## 📂 Workspace Changes Tracked\n")
+        f.write("## 📂 Workspace Changes Tracked\n")
         f.write(f"### Git Dirty State:\n```text\n{git_status or 'Clean (No unstaged changes)'}\n```\n\n")
-        
-        f.write(f"### Code Modifications Analyzed:\n")
+
+        f.write("### Code Modifications Analyzed:\n")
         for f_name in sorted(list(stats["modified_files"])):
             f.write(f"- `{f_name}`\n")
         if not stats["modified_files"]:
             f.write("- None detected in transcript\n")
         f.write("\n")
 
-        f.write(f"## 🧪 Tests & Verification\n")
+        f.write("## 🧪 Tests & Verification\n")
         for t_file in sorted(list(stats["tested_files"])):
             f.write(f"- `{t_file}`\n")
         if not stats["tested_files"]:
@@ -213,7 +212,7 @@ def generate_state_report(workspace_path, conversation_dir):
         f.write("\n")
 
         if stats["errors_encountered"]:
-            f.write(f"## ⚠️ Logged Execution Issues\n")
+            f.write("## ⚠️ Logged Execution Issues\n")
             for err in stats["errors_encountered"][-5:]:
                 f.write(f"- **Type**: `{err['type']}` | {err['error']}\n")
             f.write("\n")
@@ -255,7 +254,7 @@ def run_workspace_cleanup(workspace_path):
 def log_new_improvement(workspace_path, summary_text, conv_id):
     """Appends a new logged improvement to .antigravity_improvements.json."""
     log_path = os.path.join(workspace_path, ".antigravity_improvements.json")
-    
+
     # Auto-detect modified files via git if summary_text is default
     if not summary_text or summary_text == "auto":
         try:
@@ -277,7 +276,7 @@ def log_new_improvement(workspace_path, summary_text, conv_id):
     data = []
     if os.path.exists(log_path):
         try:
-            with open(log_path, "r", encoding="utf-8") as f:
+            with open(log_path, encoding="utf-8") as f:
                 data = json.load(f)
         except Exception:
             data = []
@@ -287,7 +286,7 @@ def log_new_improvement(workspace_path, summary_text, conv_id):
     with open(log_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
-    logger.debug(f"[+] Successfully logged improvement to `.antigravity_improvements.json`:")
+    logger.debug("[+] Successfully logged improvement to `.antigravity_improvements.json`:")
     logger.debug(f"    - Summary: '{summary_text}'")
     logger.debug(f"    - Conv ID: {conv_id}")
     return True
@@ -302,7 +301,7 @@ def check_workspace_health(workspace_path):
     # Check DB shim — it lives in web/app_v2.py, not config.py
     app_v2_path = os.path.join(workspace_path, "web", "app_v2.py")
     if os.path.exists(app_v2_path):
-        with open(app_v2_path, "r", encoding="utf-8") as f:
+        with open(app_v2_path, encoding="utf-8") as f:
             content = f.read()
             if "pg_sqlite_shim" in content:
                 logger.debug("[OK] SQLite database shim imported in web/app_v2.py")
@@ -343,7 +342,7 @@ def check_workspace_health(workspace_path):
         else:
             logger.debug(f"[WARN] DB Schema validation script exited with code {res.returncode}")
 
-    
+
     logger.debug("==================================================")
 
 
@@ -354,7 +353,7 @@ def main():
     parser.add_argument("--workspace", default=DEFAULT_WORKSPACE, help="Absolute path to the workspace")
     parser.add_argument("--brain", default=None, help="Path to local brain transcripts folder")
     parser.add_argument("--summary", dest="summary_text", default="auto", help="Summary text for logging improvements")
-    
+
     args = parser.parse_args()
 
     workspace_path = args.workspace

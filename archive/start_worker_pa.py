@@ -1,4 +1,6 @@
-import requests, urllib3
+import requests
+import urllib3
+
 urllib3.disable_warnings()
 TOKEN='874997673d6b9787dc4e3a938dd45a1930f1c85c'
 BASE='https://www.pythonanywhere.com/api/v0/user/JHFGUF'

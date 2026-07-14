@@ -14,13 +14,13 @@ class CheatSheetEngine:
         prompt = f"""
         You are an elite Tech Interview Coach.
         The user has an upcoming interview for a '{job_title}' role at '{company_name}'.
-        
+
         Generate a concise, 1-page "Cheat Sheet" that includes:
         1. The likely Tech Stack {company_name} uses.
         2. Top 3 Technical Questions they will definitely ask.
         3. Top 3 Behavioral Questions (Amazon Leadership Principles style).
         4. "The Silver Bullet": One highly specific, impressive question the user should ask the interviewer at the end to blow their mind.
-        
+
         Format it in Markdown, keep it extremely brief and high-impact.
         """
 

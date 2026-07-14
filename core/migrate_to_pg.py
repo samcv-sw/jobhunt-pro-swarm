@@ -1,5 +1,9 @@
+import logging
 import os
+import sqlite3
 import sys
+
+logger = logging.getLogger(__name__)
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from core.pg_sqlite_shim import PgConnectionWrapper, convert_sql

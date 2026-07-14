@@ -93,9 +93,9 @@ def process(dry_run=True):
             print(f"{fname:<30} | Status: NO CHANGE")
 
 if __name__ == "__main__":
-    import sys
     import difflib
-    
+    import sys
+
     # Test diff on pricing_v3.html
     fpath = os.path.join(TEMPLATES_DIR, 'pricing_v3.html')
     with open(fpath, 'r', encoding='utf-8', errors='ignore') as f:

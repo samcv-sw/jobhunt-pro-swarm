@@ -1,6 +1,6 @@
+import glob
 import os
 import re
-import glob
 
 # Files to process
 files = []

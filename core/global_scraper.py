@@ -29,23 +29,95 @@ try:
     HAS_CFFI = True
 except ImportError:
     HAS_CFFI = False
+import contextlib
 import urllib.request
 
 from bs4 import BeautifulSoup
 
 # hh.ru scraper integration (free REST API, Russia/CIS market)
 try:
-    from core.hhru_scraper import (
-        resolve_area_ids as _hhru_resolve_areas,
-    )
-    from core.hhru_scraper import (
-        search_hhru_sync as _hhru_search_sync,
-    )
+    from core.hhru_scraper import search_hhru_sync as _hhru_search_sync
 except ImportError:
     _hhru_search_sync = None
-    _hhru_resolve_areas = None
 
 logger = logging.getLogger(__name__)
+
+
+class ScraperHealthTracker:
+    """Tracks per-platform scraper success/failure rates for health scoring.
+
+    Maintains a rolling window of the last N scrape attempts per platform
+    and exposes a health score (0.0 to 1.0). Scores below 0.3 trigger a
+    structured warning log.
+
+    Attributes:
+        window_size: Number of recent attempts considered for scoring.
+    """
+
+    def __init__(self, window_size: int = 20) -> None:
+        """Initialise the tracker.
+
+        Args:
+            window_size: Rolling window size for success-rate calculation.
+        """
+        import threading
+        self._lock = threading.Lock()
+        self._window_size = window_size
+        self._history: dict[str, list[bool]] = {}
+
+    def record(self, platform: str, success: bool) -> None:
+        """Record a scrape attempt outcome for a platform.
+
+        Args:
+            platform: Platform identifier, e.g. 'linkedin' or 'bayt'.
+            success: True if the scrape returned at least one result.
+        """
+        import logging
+        _log = logging.getLogger(__name__)
+        with self._lock:
+            history = self._history.setdefault(platform, [])
+            history.append(success)
+            if len(history) > self._window_size:
+                history.pop(0)
+        score = self.score(platform)
+        if score < 0.3:
+            _log.warning(
+                '{"msg": "Scraper health degraded", "platform": "%s", "score": %.2f}',
+                platform,
+                score,
+            )
+
+    def score(self, platform: str) -> float:
+        """Return the rolling success rate for a platform.
+
+        Args:
+            platform: Platform identifier.
+
+        Returns:
+            Ratio of successful attempts (0.0–1.0). Returns 1.0 if no history.
+        """
+        with self._lock:
+            history = self._history.get(platform, [])
+            if not history:
+                return 1.0
+            return sum(history) / len(history)
+
+    def all_scores(self) -> dict[str, float]:
+        """Return health scores for all tracked platforms.
+
+        Returns:
+            Mapping of platform name to current health score.
+        """
+        with self._lock:
+            return {
+                p: sum(h) / len(h) if h else 1.0
+                for p, h in self._history.items()
+            }
+
+
+scraper_health: ScraperHealthTracker = ScraperHealthTracker()
+
+
 
 # ── Smart Domain Generator ──────────────────────────────────────────────────
 
@@ -661,10 +733,7 @@ def location_passes_filter(location_text: str, exclude_patterns: list[str]) -> b
     if not location_text or not exclude_patterns:
         return True
     loc_lower = location_text.lower()
-    for pattern in exclude_patterns:
-        if re.search(pattern, loc_lower):
-            return False
-    return True
+    return all(not re.search(pattern, loc_lower) for pattern in exclude_patterns)
 
 
 def extract_salary_from_text(text: str) -> float | None:
@@ -751,10 +820,8 @@ class GlobalJobScraper:
 
     def close(self):
         """Clean up HTTP session."""
-        try:
+        with contextlib.suppress(Exception):
             self._session.close()
-        except Exception:
-            pass
 
     def __enter__(self):
         return self

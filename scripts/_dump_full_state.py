@@ -1,5 +1,8 @@
 """Dump full Roo Code extension state"""
-import sqlite3, json, os, shutil
+import json
+import os
+import shutil
+import sqlite3
 
 db_src = r"C:\Users\samde\AppData\Roaming\Code\User\globalStorage\state.vscdb"
 db_copy = r"C:\Users\samde\Desktop\state_copy.vscdb"

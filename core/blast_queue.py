@@ -61,7 +61,7 @@ def get_status() -> dict:
     failed_total = 0
     for f in sorted(QUEUE_DIR.glob("blast_*.json")):
         try:
-            with open(f, "r", encoding="utf-8") as file_obj:
+            with open(f, encoding="utf-8") as file_obj:
                 job = json.load(file_obj)
             jobs.append(
                 {
@@ -97,7 +97,7 @@ def process_queue(limit: int = 50) -> dict:
 
     for job_file in sorted(QUEUE_DIR.glob("blast_*.json")):
         try:
-            with open(job_file, "r", encoding="utf-8") as f:
+            with open(job_file, encoding="utf-8") as f:
                 job = json.load(f)
         except Exception:
             continue
@@ -120,7 +120,7 @@ def process_queue(limit: int = 50) -> dict:
                     json.dump(job, f, indent=2)
                 continue
 
-            with open(recip_file, "r", encoding="utf-8") as f:
+            with open(recip_file, encoding="utf-8") as f:
                 recipients = json.load(f)
             max_sends = min(job.get("max_sends", 100), limit)
 

@@ -756,10 +756,7 @@ class LebanonCompanyScraper:
 
     def _is_excluded_location(self, location: str) -> bool:
         loc_lower = location.lower()
-        for excl in EXCLUDED_LOCATIONS:
-            if excl.lower() in loc_lower:
-                return True
-        return False
+        return any(excl.lower() in loc_lower for excl in EXCLUDED_LOCATIONS)
 
     def _calculate_relevance(self, company: dict, target_role: str) -> int:
         """Rate company relevance based on role/industry match."""

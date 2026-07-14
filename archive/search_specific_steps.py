@@ -1,6 +1,6 @@
 # scratch/search_specific_steps.py
-import os
 import json
+import os
 import sys
 
 # Avoid Windows console Unicode encoding errors

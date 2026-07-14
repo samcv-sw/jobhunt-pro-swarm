@@ -2,19 +2,18 @@
 routers/campaigns.py - Campaigns Router (FastAPI APIRouter)
 Extracted from app_v2.py - Phase 1 Refactor
 """
-import os
-import uuid
 import logging
+import uuid
 from datetime import datetime
-from fastapi import APIRouter, Form, HTTPException, Request
-from fastapi.responses import JSONResponse
+
+from fastapi import APIRouter, Form, HTTPException
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["campaigns"])
 
 def _deps():
-    from web.shared import get_db, config
-    from web.app_v2 import PRICING_TIERS, BOUQUET_PACKAGES, _verify_api_key
+    from web.app_v2 import BOUQUET_PACKAGES, PRICING_TIERS, _verify_api_key
+    from web.shared import config, get_db
     return get_db, config, PRICING_TIERS, BOUQUET_PACKAGES, _verify_api_key
 
 @router.post("/api/v1/campaign")

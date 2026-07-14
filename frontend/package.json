@@ -4,23 +4,30 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node node_modules/next/dist/bin/next build",
+    "build": "node node_modules/next/dist/bin/next build --webpack",
     "start": "next start",
-    "lint": "node node_modules/eslint/bin/eslint.js ."
+    "lint": "node node_modules/eslint/bin/eslint.js .",
+    "test": "node node_modules/jest/bin/jest.js"
   },
   "dependencies": {
     "next": "16.2.9",
+    "next-pwa": "^5.6.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.2.10",
     "@tailwindcss/postcss": "^4",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "jest": "^30.4.2",
+    "react-test-renderer": "^19.2.7",
     "tailwindcss": "^4",
+    "ts-jest": "^29.4.11",
     "typescript": "^5"
   }
 }

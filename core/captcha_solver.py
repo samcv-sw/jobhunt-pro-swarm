@@ -6,6 +6,7 @@ Strategy: OCR for image CAPTCHAs, Google Speech for audio CAPTCHAs.
 """
 
 import base64
+import contextlib
 import logging
 import re
 from typing import Any
@@ -294,10 +295,8 @@ class CaptchaSolver:
         }
 
     def close(self):
-        try:
+        with contextlib.suppress(Exception):
             self._client.close()
-        except Exception:
-            pass
 
 
 # ── Singleton ────────────────────────────────────────────────────

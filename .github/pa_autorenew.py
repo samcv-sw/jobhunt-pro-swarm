@@ -4,12 +4,13 @@ PA Auto-Renew - Clicks "Run until..." button on PythonAnywhere
 Includes 2FA (TOTP) automatic bypass.
 """
 
-import requests
+import os
 import re
 import sys
-import os
+from datetime import UTC, datetime
+
 import pyotp
-from datetime import datetime, timezone
+import requests
 
 PA_HOST = "www.pythonanywhere.com"
 USERNAME = os.environ.get("PA_USERNAME", "jhfguf")
@@ -21,7 +22,7 @@ if not PASSWORD or not TOTP_SECRET:
     sys.exit(1)
 
 def log(msg):
-    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    ts = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
     logger.debug(f"[{ts}] {msg}")
 
 def main():
@@ -53,7 +54,7 @@ def main():
         log("Step 2.5: 2FA required. Generating TOTP code...")
         totp = pyotp.TOTP(TOTP_SECRET)
         code = totp.now()
-        
+
         csrf2 = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', r.text)
         if csrf2:
             log(f"Submitting 2FA code: {code}")
@@ -88,7 +89,7 @@ def main():
             r2 = s.post(action_url, data={
                 "csrfmiddlewaretoken": csrf3.group(1),
             }, headers={"Referer": f"https://{PA_HOST}/user/{USERNAME}/webapps/"}, timeout=15)
-            
+
             if r2.status_code in (200, 302):
                 log("SUCCESS: Account extended! ✅ (1 Month granted)")
                 return

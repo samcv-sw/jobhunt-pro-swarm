@@ -1,0 +1,268 @@
+diff --git a/core/database.py b/core/database.py
+--- a/core/database.py
++++ b/core/database.py
+@@ -12,48 +12,56 @@
+ logger = logging.getLogger(__name__)
+ 
+ # Fetch Neon URL from .env, ensure it uses asyncpg driver
+ NEON_URL = os.getenv("DATABASE_URL", "")
+ if NEON_URL.startswith("postgresql://"):
+     NEON_URL = NEON_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+ elif NEON_URL.startswith("postgres://"):
+     NEON_URL = NEON_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+ 
++# Fallback to local SQLite if no remote PostgreSQL is configured
++IS_SQLITE = not NEON_URL or "sqlite" in NEON_URL
++if not NEON_URL:
++    NEON_URL = os.getenv("LOCAL_DATABASE_URL", "sqlite+aiosqlite:///./data/jobhunt_local.db")
++
+ # Ensure statement_cache_size=0 to avoid PgBouncer transaction mode errors
+ connect_args = {
+     "statement_cache_size": 0,
+     "prepared_statement_cache_size": 0,
+ }
+ 
+-if "sslmode" in NEON_URL:
++if not IS_SQLITE and "sslmode" in NEON_URL:
+     if "?" in NEON_URL:
+         base_url, query = NEON_URL.split("?", 1)
+         params = [p for p in query.split("&") if not p.startswith("sslmode=")]
+         NEON_URL = f"{base_url}?{'&'.join(params)}" if params else base_url
+     connect_args["ssl"] = True
+ 
+ from sqlalchemy.pool import QueuePool
+ 
+-# Configure highly-resilient Connection Pool to survive Neon Cold Starts.
+-# Using QueuePool instead of NullPool to eliminate TCP handshake latency on every request.
+-# Conserve connections under serverless limits (pool_size=3, max_overflow=7).
+-engine = create_async_engine(
+-    NEON_URL,
+-    poolclass=QueuePool,
+-    pool_size=3,
+-    max_overflow=7,
+-    pool_timeout=15,
+-    pool_recycle=280,      # Recycle stale connections before 5-minute Neon suspend
+-    pool_pre_ping=True,    # Test connection viability before handing out
+-    connect_args=connect_args,
+-    echo=False
+-)
++if IS_SQLITE:
++    engine = create_async_engine(
++        NEON_URL,
++        connect_args={"timeout": 30.0},
++        echo=False
++    )
++else:
++    # Configure highly-resilient Connection Pool to survive Neon Cold Starts.
++    # Using QueuePool instead of NullPool to eliminate TCP handshake latency on every request.
++    # Conserve connections under serverless limits (pool_size=2, max_overflow=2).
++    engine = create_async_engine(
++        NEON_URL,
++        poolclass=QueuePool,
++        pool_size=2,
++        max_overflow=2,
++        pool_timeout=30,       # Wait longer during cold starts
++        pool_recycle=280,      # Recycle stale connections before 5-minute Neon suspend
++        pool_pre_ping=True,    # Test connection viability before handing out
++        connect_args=connect_args,
++        echo=False
++    )
+ 
+ AsyncSessionLocal = sessionmaker(
+     engine, class_=AsyncSession, expire_on_commit=False
+ )
+ 
+ Base = declarative_base()
+@@ -53,22 +61,29 @@
+ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
+     """Dependency for FastAPI endpoints with exponential backoff for cold starts."""
+     retries = 5
+     backoff = 1
++    session = None
+     for attempt in range(retries):
+         try:
+-            async with AsyncSessionLocal() as session:
+-                yield session
+-                break
++            session = AsyncSessionLocal()
++            # Validate connection viability prior to yielding (survives cold starts)
++            from sqlalchemy import text
++            await session.execute(text("SELECT 1"))
++            break
+         except OperationalError as e:
++            if session:
++                await session.close()
++                session = None
+             if attempt < retries - 1:
+                 logger.warning(f"Database connection failed. Retrying in {backoff} seconds...")
+                 import random
+                 await asyncio.sleep(backoff + random.uniform(0, 0.5))
+                 backoff *= 2
+             else:
+                 logger.error("Max database retries reached.")
+                 raise e
++    try:
++        yield session
++    finally:
++        if session:
++            await session.close()
+ 
+diff --git a/core/async_db.py b/core/async_db.py
+--- a/core/async_db.py
++++ b/core/async_db.py
+@@ -45,9 +45,12 @@
+                     connect_uri = NEON_URI.replace(
+                         "postgresql+asyncpg://", "postgresql://"
+                     )
+                     self.pool = await asyncpg.create_pool(
+                         dsn=connect_uri,
+-                        min_size=1,
+-                        max_size=20
++                        min_size=1,
++                        max_size=3,                 # Conserve slots (Neon 10-connection limit)
++                        statement_cache_size=0      # Disable statement caching for PgBouncer compatibility
+                     )
+                     self.backend = "pg"
+                     logger.info(
+diff --git a/web/shared.py b/web/shared.py
+--- a/web/shared.py
++++ b/web/shared.py
+@@ -83,21 +83,6 @@
+             else:
+                 import core.pg_sqlite_shim as shim
+ 
+-            # Configure highly-resilient Connection Pool to survive Neon Cold Starts
+-            if _pg_engine is None:
+-                from sqlalchemy import create_engine
+-                from sqlalchemy.pool import QueuePool
+-                _pg_engine = create_engine(
+-                    db_url,
+-                    poolclass=QueuePool,
+-                    pool_size=3,            # Conserve connections for free-tier concurrency limits
+-                    max_overflow=7,         # Allow temporary spikes during concurrent tasks
+-                    pool_timeout=15,        # Wait up to 15s for pool connections
+-                    pool_recycle=280,       # Recycle before 5min Neon auto-suspend
+-                    pool_pre_ping=True,     # Test connection viability before handing out
+-                    connect_args={
+-                        "connect_timeout": 10,
+-                        "options": "-c statement_timeout=15000"
+-                    }
+-                )
+-
+             # Simple connection builder utilizing pg_sqlite_shim connection mapping
+             return shim.connect(db_url)
+diff --git a/core/pg_sqlite_shim.py b/core/pg_sqlite_shim.py
+--- a/core/pg_sqlite_shim.py
++++ b/core/pg_sqlite_shim.py
+@@ -340,6 +340,12 @@
+ class PgCursorWrapper:
+     def __init__(self, cursor: Any, connection: Any) -> None:
+         self.cursor = cursor
+         self.connection = connection
+         self.lastrowid: int | None = None
+         self._description: Any | None = None
++
++    def __enter__(self) -> "PgCursorWrapper":
++        return self
++
++    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
++        self.close()
+ 
+     def _wrap_row(self, row_tuple: tuple[Any, ...]) -> Any:
+@@ -488,10 +494,11 @@
+ class PgConnectionWrapper:
+     def __init__(self):
+         global PG_POOL, BACKEND, POOL_PID
+         self.row_factory = None
+         self._in_transaction = False
+         self._last_rowcount = 0
++        self.open_cursors = []
+         current_pid = os.getpid()
+ 
+@@ -580,7 +587,9 @@
+ 
+         cur = self.conn.cursor()
+         wrapper = PgCursorWrapper(cur, self)
++        self.open_cursors.append(wrapper)
+         res = wrapper.execute(query, params)
+         self._last_rowcount = res.rowcount if res else 0
+         return res
+ 
+@@ -588,6 +597,7 @@
+     def executescript(self, script: str) -> PgCursorWrapper:
+         cur = self.conn.cursor()
+         wrapper = PgCursorWrapper(cur, self)
++        self.open_cursors.append(wrapper)
+         res = wrapper.execute(script)
+         self._last_rowcount = res.rowcount if res else 0
+         return res
+@@ -595,6 +605,7 @@
+     def executemany(self, query: str, seq_of_params: Iterable[Any]) -> PgCursorWrapper:
+         cur = self.conn.cursor()
+         wrapper = PgCursorWrapper(cur, self)
++        self.open_cursors.append(wrapper)
+         res = wrapper.executemany(query, seq_of_params)
+         self._last_rowcount = res.rowcount if res else 0
+         return res
+@@ -631,10 +642,16 @@
+     def cursor(self) -> PgCursorWrapper:
+         cur = self.conn.cursor()
+-        return PgCursorWrapper(cur, self)
++        wrapper = PgCursorWrapper(cur, self)
++        self.open_cursors.append(wrapper)
++        return wrapper
+ 
+     def close(self) -> None:
+         global PG_POOL
++        for cur in list(self.open_cursors):
++            with contextlib.suppress(Exception):
++                cur.close()
++        self.open_cursors.clear()
+         if PG_POOL and self.conn:
+             PG_POOL.putconn(self.conn)
+             self.conn = None
+diff --git a/backend/sync_worker.py b/backend/sync_worker.py
+--- a/backend/sync_worker.py
++++ b/backend/sync_worker.py
+@@ -84,28 +84,28 @@
+     max_attempts = 4  # 1 initial + 3 retries
+     delays = [0, 2, 4, 8]  # seconds before each attempt
+     last_exc: Exception | None = None
+ 
+     for attempt, delay in enumerate(delays, start=1):
+         if delay:
+             logger.warning(
+-                "[SyncWorker] TooManyConnections — retrying in %ds (attempt %d/%d)",
++                "[SyncWorker] Connection failed — retrying in %ds (attempt %d/%d)",
+                 delay, attempt, max_attempts,
+             )
+             await asyncio.sleep(delay)
+         try:
+             conn = await asyncpg.connect(dsn, **connect_kwargs)
+             if attempt > 1:
+                 logger.info(
+                     "[SyncWorker] Reconnected successfully on attempt %d.", attempt
+                 )
+             return conn
+         except Exception as exc:
+             last_exc = exc
+-            # Only retry on TooManyConnectionsError; fail fast for other errors.
+-            if _TOO_MANY_CONNS and isinstance(exc, _TOO_MANY_CONNS):
++            # Retry on connection-related failures or cold starts
++            if isinstance(exc, (asyncpg.PostgresConnectionError, asyncio.TimeoutError, OSError)) or (
++                _TOO_MANY_CONNS and isinstance(exc, _TOO_MANY_CONNS)
++            ):
+                 logger.warning(
+-                    "[SyncWorker] TooManyConnectionsError on attempt %d: %s", attempt, exc
++                    "[SyncWorker] Connection error on attempt %d: %s", attempt, exc
+                 )
+                 continue
+             raise
+@@ -236,6 +236,7 @@
+                     pgbouncer_url = _build_pg_url(raw_pg_url)
+                     cloud_conn = await _connect_with_retry(
+                         pgbouncer_url,
+                         ssl="require",
+                         statement_cache_size=0,
++                        timeout=10.0,
+                     )

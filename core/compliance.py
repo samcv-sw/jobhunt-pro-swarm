@@ -255,10 +255,7 @@ class ComplianceEngine:
         """Erase all user data from Redis cache."""
         deleted = {}
         try:
-            import redis
-
-            redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
-            r = redis.from_url(redis_url)
+            from core.edge_cache import edge_cache
 
             # Delete user-specific keys
             patterns = [
@@ -270,9 +267,10 @@ class ComplianceEngine:
             ]
 
             for pattern in patterns:
-                keys = r.keys(pattern)
+                keys = await edge_cache.keys(pattern)
                 if keys:
-                    r.delete(*keys)
+                    # keys returns list of strings/keys
+                    await edge_cache.delete(*keys)
                     deleted[pattern] = len(keys)
 
             logger.info(f"Redis erasure complete: {deleted}")
@@ -290,7 +288,7 @@ class ComplianceEngine:
             if os.path.exists(user_dir):
                 try:
                     # Secure delete: overwrite before removing
-                    for root, dirs, files in os.walk(user_dir):
+                    for root, _dirs, files in os.walk(user_dir):
                         for f in files:
                             filepath = os.path.join(root, f)
                             # Overwrite with random data
@@ -384,7 +382,7 @@ class ComplianceEngine:
         """Get user sent emails."""
         cur = session.execute(
             """
-            SELECT e.company_name, e.status 
+            SELECT e.company_name, e.status
             FROM campaign_emails e
             JOIN campaigns c ON c.campaign_id = e.campaign_id
             WHERE c.user_id = ?

@@ -2,10 +2,10 @@
 scripts/oneoff/translate_html.py
 JobHunt Pro - HTML Translation & RTL Logic Injection Utility
 """
+import logging
 import os
 import re
-import logging
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

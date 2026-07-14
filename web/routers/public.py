@@ -2,10 +2,17 @@
 routers/public.py - Public Routes Router (FastAPI APIRouter)
 Extracted from app_v2.py - Phase 1 Refactor
 """
-import os, logging
-from datetime import datetime, timezone
-from fastapi import APIRouter, Request, Form, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse, PlainTextResponse, Response
+import logging
+import os
+from datetime import UTC, datetime
+
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import (
+    HTMLResponse,
+    PlainTextResponse,
+    RedirectResponse,
+    Response,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["public"])
@@ -13,8 +20,14 @@ router = APIRouter(tags=["public"])
 _contact_attempts: dict = {}
 
 def _deps():
-    from web.shared import get_db, get_verified_user_id, templates, config, _check_rate_limit
-    from web.app_v2 import get_all_pricing, _public_shell, render_template
+    from web.app_v2 import _public_shell, get_all_pricing, render_template
+    from web.shared import (
+        _check_rate_limit,
+        config,
+        get_db,
+        get_verified_user_id,
+        templates,
+    )
     return get_db, get_verified_user_id, templates, config, _check_rate_limit, get_all_pricing, _public_shell, render_template
 
 @router.get("/", response_class=HTMLResponse)
@@ -147,7 +160,7 @@ def pricing(request: Request):
         except Exception as e:
             logger.error(e, exc_info=True)
         user_id = get_verified_user_id(request)
-        
+
         services_list = [
             {"name": "AI Auto-Apply Engine", "desc": "Automated job applications 24/7", "price": 9.99},
             {"name": "Smart Resume Tailoring", "desc": "AI optimizes your CV per job", "price": 4.99},
@@ -157,7 +170,7 @@ def pricing(request: Request):
             {"name": "Cover Letter Generator", "desc": "Custom cover letters per job", "price": 2.99},
         ]
         pricing_dict = {"tiers": pricing_data.get("tiers", pricing_data), "services": services_list}
-        
+
         pricing_content = render_template("pricing_v3.html", request=request,
                                           pricing=pricing_dict,
                                           flash_discount=flash_discount,
@@ -260,7 +273,7 @@ def about_page(request: Request):
 @router.get("/sitemap.xml")
 def sitemap():
     site = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
     xml = f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>{site}/</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>

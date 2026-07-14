@@ -1,7 +1,8 @@
 import asyncio
 import logging
 import os
-from typing import AsyncGenerator, Any
+from collections.abc import AsyncGenerator
+from typing import Any
 
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -13,6 +14,13 @@ logger = logging.getLogger(__name__)
 NEON_URL = os.getenv("DATABASE_URL", "")
 if NEON_URL.startswith("postgresql://"):
     NEON_URL = NEON_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+elif NEON_URL.startswith("postgres://"):
+    NEON_URL = NEON_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+
+# Fallback to local SQLite if no remote PostgreSQL is configured
+IS_SQLITE = not NEON_URL or "sqlite" in NEON_URL
+if not NEON_URL:
+    NEON_URL = os.getenv("LOCAL_DATABASE_URL", "sqlite+aiosqlite:///./data/jobhunt_local.db")
 
 # Ensure statement_cache_size=0 to avoid PgBouncer transaction mode errors
 connect_args = {
@@ -20,16 +28,36 @@ connect_args = {
     "prepared_statement_cache_size": 0,
 }
 
-from sqlalchemy.pool import NullPool
+if not IS_SQLITE and "sslmode" in NEON_URL:
+    if "?" in NEON_URL:
+        base_url, query = NEON_URL.split("?", 1)
+        params = [p for p in query.split("&") if not p.startswith("sslmode=")]
+        NEON_URL = f"{base_url}?{'&'.join(params)}" if params else base_url
+    connect_args["ssl"] = True
 
-# Pool size is handled by PgBouncer; SQLAlchemy should use NullPool to prevent dual-pooling
-engine = create_async_engine(
-    NEON_URL,
-    poolclass=NullPool,
-    connect_args=connect_args,
-    pool_pre_ping=True,  # Mandatory for Serverless / PgBouncer stability
-    echo=False
-)
+from sqlalchemy.pool import QueuePool
+
+if IS_SQLITE:
+    engine = create_async_engine(
+        NEON_URL,
+        connect_args={"timeout": 30.0},
+        echo=False
+    )
+else:
+    # Configure highly-resilient Connection Pool to survive Neon Cold Starts.
+    # Using QueuePool instead of NullPool to eliminate TCP handshake latency on every request.
+    # Conserve connections under serverless limits (pool_size=2, max_overflow=2).
+    engine = create_async_engine(
+        NEON_URL,
+        poolclass=QueuePool,
+        pool_size=2,
+        max_overflow=2,
+        pool_timeout=30,       # Wait longer during cold starts
+        pool_recycle=280,      # Recycle stale connections before 5-minute Neon suspend
+        pool_pre_ping=True,    # Test connection viability before handing out
+        connect_args=connect_args,
+        echo=False
+    )
 
 AsyncSessionLocal = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
@@ -41,12 +69,18 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     """Dependency for FastAPI endpoints with exponential backoff for cold starts."""
     retries = 5
     backoff = 1
+    session = None
     for attempt in range(retries):
         try:
-            async with AsyncSessionLocal() as session:
-                yield session
-                break
+            session = AsyncSessionLocal()
+            # Validate connection viability prior to yielding (survives cold starts)
+            from sqlalchemy import text
+            await session.execute(text("SELECT 1"))
+            break
         except OperationalError as e:
+            if session:
+                await session.close()
+                session = None
             if attempt < retries - 1:
                 logger.warning(f"Database connection failed. Retrying in {backoff} seconds...")
                 import random
@@ -55,6 +89,11 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
             else:
                 logger.error("Max database retries reached.")
                 raise e
+    try:
+        yield session
+    finally:
+        if session:
+            await session.close()
 
 class Database:
     """Enterprise Database Manager Wrapper for backward compatibility."""
@@ -100,3 +139,4 @@ class Database:
 
 
 # Backward compatibility alias for aiosqlite/asyncpg pool manager
+from core.async_db import async_db as db

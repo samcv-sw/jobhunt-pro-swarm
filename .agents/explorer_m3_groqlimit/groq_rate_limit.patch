@@ -1,0 +1,308 @@
+diff --git a/core/llm_provider_pool.py b/core/llm_provider_pool.py
+index a5b1c3d..d4e2f9b 100644
+--- a/core/llm_provider_pool.py
++++ b/core/llm_provider_pool.py
+@@ -19,10 +19,53 @@ import time
+ import httpx
+ 
+ from core import semantic_cache
++from core.edge_cache import edge_cache
+ 
+ logger = logging.getLogger(__name__)
+ 
+ 
++class LLMRateLimitError(Exception):
++    """Raised when an LLM provider hits a rate limit (429) or is exhausted."""
++    def __init__(self, message: str, reset_time: float, provider: str):
++        super().__init__(message)
++        self.reset_time = reset_time
++        self.provider = provider
++
++
++def parse_groq_reset_time(reset_str: str) -> float:
++    """
++    Parses Groq's x-ratelimit-reset string format (e.g., '1.2s', '15ms', '6m15s')
++    and returns the duration in float seconds.
++    """
++    if not reset_str:
++        return 0.0
++    
++    reset_str = reset_str.strip().lower()
++    
++    try:
++        return float(reset_str)
++    except ValueError:
++        pass
++        
++    if reset_str.endswith('ms'):
++        val = reset_str[:-2]
++        try:
++            return float(val) / 1000.0
++        except ValueError:
++            return 0.0
++            
++    total_seconds = 0.0
++    current_num = ""
++    for char in reset_str:
++        if char.isdigit() or char == '.':
++            current_num += char
++        elif char in ('h', 'm', 's'):
++            multiplier = {'h': 3600, 'm': 60, 's': 1}.get(char, 1)
++            if current_num:
++                total_seconds += float(current_num) * multiplier
++                current_num = ""
++    return total_seconds
++
++
+ class LLMProvider(Enum):
+     GROQ = "groq"
+     GEMINI = "gemini"
+@@ -364,15 +407,51 @@ class ProviderInstance:
+         try:
+             response = await self._client.post(url, json=payload, headers=headers)
+             self._request_times.append(time.time())
+ 
++            # Parse and track Groq rate limit headers on successful response
++            if self.config.name == LLMProvider.GROQ:
++                remaining = response.headers.get("x-ratelimit-remaining")
++                reset_str = response.headers.get("x-ratelimit-reset")
++                groq_remaining = None
++                if remaining is not None:
++                    try:
++                        groq_remaining = int(remaining)
++                    except ValueError:
++                        pass
++                if reset_str:
++                    reset_time = parse_groq_reset_time(reset_str)
++                    reset_at = time.time() + reset_time
++                    # If remaining requests is 0, proactively cache the rate limit reset time
++                    if remaining == "0" or groq_remaining == 0:
++                        logger.warning(
++                            f"Groq rate limit exhausted (remaining=0). Reset in {reset_time}s."
++                        )
++                        if edge_cache.enabled:
++                            await edge_cache.set("groq_rate_limit_reset", str(reset_at), ex=int(reset_time) + 2)
++
+             if response.status_code == 429:
+-                retry_after = int(response.headers.get("retry-after", 5))
+-                logger.warning(
+-                    f"Provider {self.config.name.value} 429, rate limited. Switching keys on next request if available."
+-                )
+-                # Temporarily add fake requests to trigger the rate limit wait logic for next calls
+-                for _ in range(self.config.rate_limit_rpm):
+-                    self._request_times.append(time.time() + retry_after)
+-                return None
++                retry_after_sec = 5.0
++                retry_after_header = response.headers.get("retry-after")
++                if retry_after_header:
++                    try:
++                        retry_after_sec = float(retry_after_header)
++                    except ValueError:
++                        pass
++
++                # If Groq, prioritize x-ratelimit-reset
++                if self.config.name == LLMProvider.GROQ:
++                    reset_str = response.headers.get("x-ratelimit-reset")
++                    if reset_str:
++                        retry_after_sec = parse_groq_reset_time(reset_str)
++
++                logger.warning(
++                    f"Provider {self.config.name.value} 429, rate limited. Reset in {retry_after_sec}s."
++                )
++
++                # Store Groq rate limit in edge cache
++                if self.config.name == LLMProvider.GROQ:
++                    reset_at = time.time() + retry_after_sec
++                    if edge_cache.enabled:
++                        await edge_cache.set("groq_rate_limit_reset", str(reset_at), ex=int(retry_after_sec) + 2)
++
++                # Temporarily add fake requests to trigger the rate limit wait logic for next calls
++                for _ in range(self.config.rate_limit_rpm):
++                    self._request_times.append(time.time() + retry_after_sec)
++
++                raise LLMRateLimitError(
++                    message=f"Provider {self.config.name.value} rate limited (429)",
++                    reset_time=retry_after_sec,
++                    provider=self.config.name.value
++                )
+ 
+             if response.status_code != 200:
+                 self._consecutive_failures += 1
+@@ -559,29 +638,43 @@ class LLMProviderPool:
+ 
++        last_rate_limit_err = None
+         for provider_name in candidates:
+             provider = self._providers[provider_name]
+             if not self._health.get(provider_name, True):
+                 continue
+ 
+-            result = await provider.complete(
+-                system_prompt=system_prompt,
+-                user_prompt=user_prompt,
+-                temperature=temperature,
+-                max_tokens=max_tokens,
+-            )
++            try:
++                result = await provider.complete(
++                    system_prompt=system_prompt,
++                    user_prompt=user_prompt,
++                    temperature=temperature,
++                    max_tokens=max_tokens,
++                )
++            except LLMRateLimitError as rle:
++                logger.warning(
++                    f"Provider {provider_name.value} rate limited: {rle}. Attempting fallback..."
++                )
++                last_rate_limit_err = rle
++                provider._consecutive_failures += 1
++                if provider._consecutive_failures > 3:
++                    async with self._lock:
++                        self._health[provider_name] = False
++                continue
+ 
+             async with self._lock:
+                 self._last_used[provider_name] = time.time()
+ 
+-
+             if result is not None:
+                 try:
+                     await asyncio.to_thread(semantic_cache.save_to_cache, user_prompt, result)
+                 except Exception as e:
+                     logger.warning(f"Semantic cache save failed: {e}")
+                 return result
+ 
+-
+             # Mark as unhealthy if consecutive failures accumulated
+             if provider._consecutive_failures > 3:
+                 async with self._lock:
+                     self._health[provider_name] = False
+                 logger.warning(f"Provider {provider_name.value} marked unhealthy")
+ 
+         # Periodic health check revive
+         await self._health_check()
++
++        # If all failed and the last error was rate limiting, propagate it to Celery
++        if last_rate_limit_err:
++            raise last_rate_limit_err
++
+         return None
+diff --git a/backend/ai_engine.py b/backend/ai_engine.py
+index a51cfcd..d7e3f8b 100644
+--- a/backend/ai_engine.py
++++ b/backend/ai_engine.py
+@@ -4,7 +4,7 @@ import os
+ import hashlib
+ import asyncio
+ 
+-from core.llm_provider_pool import LLMProviderPool
++from core.llm_provider_pool import LLMProviderPool, LLMProvider
+ from core.edge_cache import edge_cache
+ from core.ai_tailor import AITailor
+ 
+@@ -63,10 +63,11 @@ async def generate_smart_cover_letter(job_description: str, user_cv: str) -> dic
+ 
+     try:
+         response_content = await llm_pool.complete(
+             system_prompt=system_prompt,
+             user_prompt=user_prompt,
++            preferred_provider=LLMProvider.GROQ,
+             temperature=0.5,
+             max_tokens=1024
+         )
+ 
+         if not response_content:
+@@ -140,10 +141,11 @@ async def generate_smart_cover_letter_stream(job_description: str, user_cv: str,
+ 
+     try:
+         response_content = await llm_pool.complete(
+             system_prompt=system_prompt,
+             user_prompt=user_prompt,
++            preferred_provider=LLMProvider.GROQ,
+             temperature=0.6,
+             max_tokens=1024
+         )
+ 
+         if not response_content:
+diff --git a/backend/tasks.py b/backend/tasks.py
+index f9e1c3d..b4e2f8b 100644
+--- a/backend/tasks.py
++++ b/backend/tasks.py
+@@ -2,6 +2,8 @@ import asyncio
+ import logging
+ import os
+ import sys
++import time
++from functools import wraps
+ 
+ # Add the parent directory to sys.path so we can import internal modules
+ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+@@ -11,6 +13,8 @@ from scrapers.stealth_ingest import stealth_scrape_jobs
+ 
+ from .ai_engine import generate_smart_cover_letter
+ from .celery_app import celery_app
+ from .email_engine import RotatingEmailSender
++from core.edge_cache import edge_cache
++from core.llm_provider_pool import LLMRateLimitError, LLMProvider
+ 
+ logger = logging.getLogger(__name__)
+ 
+@@ -34,14 +38,44 @@ def run_async(coro):
+     return loop.run_until_complete(coro)
+ 
+ 
++def groq_rate_limit_retry(max_retries=3, default_countdown=10):
++    def decorator(func):
++        @wraps(func)
++        def wrapper(self, *args, **kwargs):
++            # Proactive check before starting the task
++            if edge_cache.enabled:
++                reset_at_str = run_async(edge_cache.get("groq_rate_limit_reset"))
++                if reset_at_str:
++                    try:
++                        reset_at = float(reset_at_str)
++                        now = time.time()
++                        if reset_at > now:
++                            countdown = reset_at - now
++                            logger.warning(
++                                f"Groq rate limit is active (resets in {countdown:.2f}s). "
++                                f"Proactively retrying Celery task..."
++                            )
++                            # Retry Celery task with remaining seconds + 1 as buffer
++                            raise self.retry(countdown=int(countdown) + 1)
++                    except Exception as cache_err:
++                        logger.error(f"Error checking rate limit cache: {cache_err}")
++
++            try:
++                return func(self, *args, **kwargs)
++            except LLMRateLimitError as exc:
++                # Capture rate limit exceptions from the pool
++                countdown = getattr(exc, "reset_time", default_countdown)
++                logger.warning(
++                    f"LLM Provider {exc.provider} rate limited. Retrying Celery task in {countdown}s..."
++                )
++                raise self.retry(exc=exc, countdown=int(countdown) + 1)
++            except Exception as exc:
++                # Standard fallback retry
++                logger.error(f"Task failed: {exc}. Retrying...")
++                raise self.retry(exc=exc, countdown=default_countdown)
++        return wrapper
++    return decorator
++
++
+ @celery_app.task(bind=True, max_retries=3)
++@groq_rate_limit_retry(max_retries=3, default_countdown=10)
+ def generate_cover_letter(self, job_description: str, user_cv: str):
+     """
+     Background task to generate cover letter via Groq Llama 3 (LPU).
+     """
+     logger.info("Generating cover letter using Groq LPU...")
+-    try:
+-        # Run the async AI generation within the synchronous Celery worker
+-        result = run_async(generate_smart_cover_letter(job_description, user_cv))
+-        return {"status": "success", "subject": result.get("subject"), "body": result.get("body")}
+-    except Exception as exc:
+-        logger.error(f"AI Generation failed: {exc}")
+-        raise self.retry(exc=exc, countdown=10)
++    # Run the async AI generation within the synchronous Celery worker
++    result = run_async(generate_smart_cover_letter(job_description, user_cv))
++    return {"status": "success", "subject": result.get("subject"), "body": result.get("body")}

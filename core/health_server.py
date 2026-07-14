@@ -1,6 +1,9 @@
+import logging
 import os
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
+
+logger = logging.getLogger(__name__)
 
 
 class HealthCheckHandler(BaseHTTPRequestHandler):

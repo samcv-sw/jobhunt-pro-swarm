@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 import traceback
 
 # Set UTF-8 encoding for stdout

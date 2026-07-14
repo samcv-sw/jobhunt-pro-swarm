@@ -1,11 +1,12 @@
 import asyncio
+import logging
 import os
+import random
 import sys
 import time
-import logging
-import random
 from collections import defaultdict
-from fastapi import Request, HTTPException
+
+from fastapi import HTTPException, Request
 
 logger = logging.getLogger(__name__)
 
@@ -26,13 +27,13 @@ class RateLimiter:
         self.history = defaultdict(list)
         self.cleanup_task = None
         self._is_redis_connected = False
-        
+
         if REDIS_AVAILABLE and self.redis_url:
             try:
                 # Initialize Redis client pool
                 self.redis = aioredis.from_url(
-                    self.redis_url, 
-                    encoding="utf-8", 
+                    self.redis_url,
+                    encoding="utf-8",
                     decode_responses=True,
                     socket_connect_timeout=2.0,
                     socket_keepalive=True,
@@ -43,7 +44,7 @@ class RateLimiter:
             except Exception as e:
                 logger.error(f"Failed to initialize Redis for rate limiting: {e}. Falling back to in-memory mode.")
                 self._is_redis_connected = False
-        
+
         # Cleanup task will be initialized lazily on the first request to avoid "no running event loop" error.
     async def _periodic_cleanup(self):
         """Background loop to clean up expired in-memory rate limiting keys to prevent memory leaks."""
@@ -56,7 +57,7 @@ class RateLimiter:
                     # Yield to event loop periodically if there are many keys
                     if i % 100 == 0:
                         await asyncio.sleep(0)
-                    
+
                     self.history[ip] = [t for t in self.history[ip] if now - t < self.window_seconds]
                     # GIL-safe atomic check and deletion
                     if ip in self.history and not self.history[ip]:
@@ -80,7 +81,7 @@ class RateLimiter:
                 pipe.zcard(key)
                 pipe.expire(key, self.window_seconds)
                 _, _, count, _ = await pipe.execute()
-            
+
             return count <= self.requests_limit
         except Exception as e:
             logger.warning(f"Redis rate limiter failed ({e}). Falling back to in-memory rate limiter.")
@@ -90,18 +91,8 @@ class RateLimiter:
             return False
 
     async def __call__(self, request: Request):
-        # Resolve client IP checking X-Forwarded-For or X-Real-IP
-        client_ip = None
-        xff = request.headers.get("x-forwarded-for")
-        if xff:
-            client_ip = xff.split(",")[0].strip()
-        else:
-            xri = request.headers.get("x-real-ip")
-            if xri:
-                client_ip = xri.strip()
-        
-        if not client_ip:
-            client_ip = request.client.host if request.client else "unknown"
+        from backend.auth import _get_client_ip
+        client_ip = _get_client_ip(request)
 
         # Check via Redis if connected
         if self._is_redis_connected and self.redis:
@@ -118,7 +109,7 @@ class RateLimiter:
         ip_history = [t for t in self.history[client_ip] if now - t < self.window_seconds]
         if len(ip_history) >= self.requests_limit:
             raise HTTPException(status_code=429, detail="Too many requests. Rate limit exceeded.")
-        
+
         ip_history.append(now)
         self.history[client_ip] = ip_history
 

@@ -6,20 +6,18 @@ Automatically delivers purchased services via:
 - File generation (PDF, DOCX reports)
 """
 import asyncio
-import hashlib
 import json
 import logging
 import os
-import sys
-import time
 import uuid
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Optional, Dict, Any, List
+from typing import Any
 
 import config
-from .catalog import SERVICE_CATALOG, BOUQUET_CATALOG, get_service, get_bouquet
 from payments import get_payment_addresses
+
+from .catalog import get_bouquet, get_service
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +30,7 @@ def _ensure_cache_dir():
     os.makedirs("cache", exist_ok=True)
 
 
-def _load_orders() -> Dict[str, Any]:
+def _load_orders() -> dict[str, Any]:
     """Load all orders from disk."""
     _ensure_cache_dir()
     if os.path.exists(ORDERS_FILE):
@@ -44,14 +42,14 @@ def _load_orders() -> Dict[str, Any]:
     return {"orders": [], "total_revenue": 0, "total_orders": 0}
 
 
-def _save_orders(data: Dict[str, Any]):
+def _save_orders(data: dict[str, Any]):
     """Save orders to disk."""
     _ensure_cache_dir()
     with open(ORDERS_FILE, "w") as f:
         json.dump(data, f, indent=2)
 
 
-def _log_sale(order: Dict[str, Any]):
+def _log_sale(order: dict[str, Any]):
     """Log a sale to the sales log file."""
     _ensure_cache_dir()
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -75,7 +73,7 @@ class ServiceFulfillment:
 
     def __init__(self):
         self._orders = _load_orders()
-        self._verify_attempts: Dict[str, list] = defaultdict(list)  # order_id -> [(timestamp, ip, success)]
+        self._verify_attempts: dict[str, list] = defaultdict(list)  # order_id -> [(timestamp, ip, success)]
 
     def _generate_payment_code(self) -> str:
         """Generate a unique 8-character payment verification code."""
@@ -110,11 +108,11 @@ class ServiceFulfillment:
         customer_email: str,
         customer_name: str = "",
         is_bouquet: bool = False,
-        custom_amount: Optional[float] = None,
-    ) -> Dict[str, Any]:
+        custom_amount: float | None = None,
+    ) -> dict[str, Any]:
         """
         Create a new order for a service. Returns the order with payment details.
-        
+
         Args:
             service_id: The service or bouquet ID
             customer_email: Buyer's email for delivery
@@ -178,20 +176,20 @@ class ServiceFulfillment:
         tx_hash: str = "",
         payment_code: str = "",
         client_ip: str = "unknown",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Verify and confirm payment for an order.
-        
+
         SECURITY: Requires payment_code (generated at order creation).
         Rate-limited: max 5 failed attempts per hour per order.
         All attempts are logged with IP and timestamp.
-        
+
         Args:
             order_id: The order ID to verify
             tx_hash: The crypto transaction hash (for record-keeping)
             payment_code: The unique code generated when order was created
             client_ip: The IP address of the requester (for audit log)
-            
+
         Returns:
             Dict with 'success' bool and 'message' str
         """
@@ -222,7 +220,7 @@ class ServiceFulfillment:
                 stored_code = order.get("payment_code", "")
                 # Allow ADMIN_INTERNAL bypass for CLI/admin tool usage
                 is_admin_bypass = (payment_code == "ADMIN_INTERNAL")
-                
+
                 if not is_admin_bypass and (not stored_code or payment_code != stored_code):
                     order["verify_attempts"] = order.get("verify_attempts", 0) + 1
                     _save_orders(self._orders)
@@ -249,21 +247,21 @@ class ServiceFulfillment:
 
                 # SQLite/PostgreSQL Database Sync: Credit wallet and record order/purchase
                 try:
-                    import sqlite3
                     import pathlib
+                    import sqlite3
                     db_val = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
                     if os.path.isabs(db_val):
                         db_path = db_val
                     else:
                         base_dir = pathlib.Path(__file__).resolve().parent.parent
                         db_path = str(base_dir / db_val)
-                    
+
                     customer_email = order.get("customer_email", "")
                     price = order.get("price", 0)
                     service_id = order.get("service_id", "")
                     service_name = order.get("service_name", "")
                     item_type = order.get("item_type", "service")
-                    
+
                     if customer_email:
                         conn = sqlite3.connect(db_path, timeout=30)
                         conn.row_factory = sqlite3.Row
@@ -272,20 +270,20 @@ class ServiceFulfillment:
                             if user_row:
                                 user_id = user_row["user_id"]
                                 conn.execute("BEGIN TRANSACTION")
-                                
+
                                 # Credit wallet
                                 conn.execute("UPDATE users SET wallet_balance = wallet_balance + ? WHERE user_id = ?", (price, user_id))
-                                
+
                                 # Get new balance
                                 new_bal_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
                                 new_bal = new_bal_row["wallet_balance"] if new_bal_row else price
-                                
+
                                 # Insert wallet transaction
                                 conn.execute("""
                                     INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
                                     VALUES (?, ?, ?, ?, ?)
                                 """, (user_id, "deposit", price, new_bal, f"Crypto Checkout: {order_id} ({service_name})"))
-                                
+
                                 # Record order in SQLite orders table if not exists
                                 order_exists = conn.execute("SELECT order_id FROM orders WHERE order_id = ?", (order_id,)).fetchone()
                                 if not order_exists:
@@ -293,13 +291,13 @@ class ServiceFulfillment:
                                         INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status)
                                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                                     """, (order_id, user_id, item_type, service_id, 0, price, "crypto", "completed"))
-                                    
+
                                 # Record in purchased_services
                                 conn.execute("""
                                     INSERT INTO purchased_services (user_id, service_type, package_id, package_name, price_paid, status)
                                     VALUES (?, ?, ?, ?, ?, 'active')
                                 """, (user_id, item_type, service_id, service_name, price))
-                                
+
                                 conn.commit()
                                 logger.info(f"[DB-SYNC] Successfully synced payment to database: credited user {user_id} (${price:.2f}) for order {order_id}")
                             else:
@@ -344,9 +342,9 @@ class ServiceFulfillment:
             logger.warning(f"Order {order_id} not paid yet, cannot deliver")
             return False
 
-        service_id = order["service_id"]
+        order["service_id"]
         customer_email = order["customer_email"]
-        customer_name = order.get("customer_name", "Valued Customer")
+        order.get("customer_name", "Valued Customer")
 
         logger.info(f"Delivering service: {order['service_name']} to {customer_email}")
 
@@ -377,7 +375,7 @@ class ServiceFulfillment:
             logger.error(f"Delivery error for {order_id}: {e}")
             return False
 
-    async def _deliver_single_service(self, order: Dict[str, Any]) -> bool:
+    async def _deliver_single_service(self, order: dict[str, Any]) -> bool:
         """Deliver a single service based on its type."""
         service_id = order["service_id"]
         email = order["customer_email"]
@@ -414,7 +412,7 @@ class ServiceFulfillment:
             # Generic delivery: send a confirmation with instructions
             return await self._deliver_generic(email, name, order)
 
-    async def _deliver_bouquet(self, order: Dict[str, Any]) -> bool:
+    async def _deliver_bouquet(self, order: dict[str, Any]) -> bool:
         """Deliver all services in a bouquet package."""
         bouquet = get_bouquet(order["service_id"])
         if not bouquet:
@@ -437,27 +435,27 @@ class ServiceFulfillment:
         """Deliver CV review report."""
         content = self._generate_cv_review(name)
         return await self._send_delivery_email(
-            email, f"Your CV Review Report — JobHunt Pro", content, "CV_Review_Report.pdf"
+            email, "Your CV Review Report — JobHunt Pro", content, "CV_Review_Report.pdf"
         )
 
     async def _deliver_email_template(self, email: str, name: str, order: dict) -> bool:
         """Deliver professional email templates."""
         content = self._generate_email_templates(name)
         return await self._send_delivery_email(
-            email, f"Your Email Templates — JobHunt Pro", content, "Email_Templates.txt"
+            email, "Your Email Templates — JobHunt Pro", content, "Email_Templates.txt"
         )
 
     async def _deliver_cover_letter(self, email: str, name: str, order: dict) -> bool:
         """Deliver AI-generated cover letter."""
         content = self._generate_cover_letter(name)
         return await self._send_delivery_email(
-            email, f"Your Cover Letter — JobHunt Pro", content, "Cover_Letter.pdf"
+            email, "Your Cover Letter — JobHunt Pro", content, "Cover_Letter.pdf"
         )
 
     async def _deliver_linkedin_headline(self, email: str, name: str, order: dict) -> bool:
         content = self._generate_linkedin_headline(name)
         return await self._send_delivery_email(
-            email, f"Your LinkedIn Headline & Bio — JobHunt Pro", content, "LinkedIn_Optimization.txt"
+            email, "Your LinkedIn Headline & Bio — JobHunt Pro", content, "LinkedIn_Optimization.txt"
         )
 
     async def _deliver_job_alerts(self, email: str, name: str, order: dict) -> bool:
@@ -472,13 +470,13 @@ class ServiceFulfillment:
             f"JobHunt Pro — Automated Job Alert System"
         )
         return await self._send_delivery_email(
-            email, f"✅ Job Alerts Activated — 30 Days of Monitoring", content, "Job_Alerts_Activated.txt"
+            email, "✅ Job Alerts Activated — 30 Days of Monitoring", content, "Job_Alerts_Activated.txt"
         )
 
     async def _deliver_skill_gap(self, email: str, name: str, order: dict) -> bool:
         content = self._generate_skill_gap_report(name)
         return await self._send_delivery_email(
-            email, f"Your Skills Gap Analysis Report — JobHunt Pro", content, "Skill_Gap_Report.pdf"
+            email, "Your Skills Gap Analysis Report — JobHunt Pro", content, "Skill_Gap_Report.pdf"
         )
 
     async def _deliver_tracker(self, email: str, name: str, order: dict) -> bool:
@@ -492,19 +490,19 @@ class ServiceFulfillment:
             f"JobHunt Pro — Response Tracker"
         )
         return await self._send_delivery_email(
-            email, f"📊 Application Tracker Activated", content, "Tracker_Access.txt"
+            email, "📊 Application Tracker Activated", content, "Tracker_Access.txt"
         )
 
     async def _deliver_cv_optimization(self, email: str, name: str, order: dict) -> bool:
         content = self._generate_cv_optimization(name)
         return await self._send_delivery_email(
-            email, f"Your Optimized CV — JobHunt Pro", content, "Optimized_CV.pdf"
+            email, "Your Optimized CV — JobHunt Pro", content, "Optimized_CV.pdf"
         )
 
     async def _deliver_company_research(self, email: str, name: str, order: dict) -> bool:
         content = self._generate_company_research(name)
         return await self._send_delivery_email(
-            email, f"Company Research Reports — JobHunt Pro", content, "Company_Research.pdf"
+            email, "Company Research Reports — JobHunt Pro", content, "Company_Research.pdf"
         )
 
     async def _deliver_followups(self, email: str, name: str, order: dict) -> bool:
@@ -521,37 +519,37 @@ class ServiceFulfillment:
             f"JobHunt Pro — Follow-up Automation"
         )
         return await self._send_delivery_email(
-            email, f"📧 Follow-up Sequence Activated", content, "Followup_Activation.txt"
+            email, "📧 Follow-up Sequence Activated", content, "Followup_Activation.txt"
         )
 
     async def _deliver_app_review(self, email: str, name: str, order: dict) -> bool:
         content = self._generate_app_review(name)
         return await self._send_delivery_email(
-            email, f"Your Application Review Results — JobHunt Pro", content, "Application_Review.pdf"
+            email, "Your Application Review Results — JobHunt Pro", content, "Application_Review.pdf"
         )
 
     async def _deliver_networking(self, email: str, name: str, order: dict) -> bool:
         content = self._generate_networking_plan(name)
         return await self._send_delivery_email(
-            email, f"Your Networking Strategy Plan — JobHunt Pro", content, "Networking_Plan.pdf"
+            email, "Your Networking Strategy Plan — JobHunt Pro", content, "Networking_Plan.pdf"
         )
 
     async def _deliver_linkedin_full(self, email: str, name: str, order: dict) -> bool:
         content = self._generate_linkedin_full(name)
         return await self._send_delivery_email(
-            email, f"Your Complete LinkedIn Makeover — JobHunt Pro", content, "LinkedIn_Makeover.pdf"
+            email, "Your Complete LinkedIn Makeover — JobHunt Pro", content, "LinkedIn_Makeover.pdf"
         )
 
     async def _deliver_interview_prep(self, email: str, name: str, order: dict) -> bool:
         content = self._generate_interview_prep(name)
         return await self._send_delivery_email(
-            email, f"Your Interview Preparation Pack — JobHunt Pro", content, "Interview_Prep.pdf"
+            email, "Your Interview Preparation Pack — JobHunt Pro", content, "Interview_Prep.pdf"
         )
 
     async def _deliver_career_plan(self, email: str, name: str, order: dict) -> bool:
         content = self._generate_career_plan(name)
         return await self._send_delivery_email(
-            email, f"Your Career Strategy Roadmap — JobHunt Pro", content, "Career_Strategy.pdf"
+            email, "Your Career Strategy Roadmap — JobHunt Pro", content, "Career_Strategy.pdf"
         )
 
     async def _deliver_full_pack(self, email: str, name: str, order: dict) -> bool:
@@ -569,25 +567,25 @@ class ServiceFulfillment:
             f"JobHunt Pro — Complete Application Pack"
         )
         return await self._send_delivery_email(
-            email, f"📦 Your Complete Application Pack — JobHunt Pro", content, "Application_Pack.zip"
+            email, "📦 Your Complete Application Pack — JobHunt Pro", content, "Application_Pack.zip"
         )
 
     async def _deliver_salary_playbook(self, email: str, name: str, order: dict) -> bool:
         content = self._generate_salary_playbook(name)
         return await self._send_delivery_email(
-            email, f"Your Salary Negotiation Playbook — JobHunt Pro", content, "Salary_Playbook.pdf"
+            email, "Your Salary Negotiation Playbook — JobHunt Pro", content, "Salary_Playbook.pdf"
         )
 
     async def _deliver_salary_benchmark(self, email: str, name: str, order: dict) -> bool:
         content = self._generate_salary_benchmark(name)
         return await self._send_delivery_email(
-            email, f"📊 Your Salary Benchmark Report — JobHunt Pro", content, "Salary_Benchmark.pdf"
+            email, "📊 Your Salary Benchmark Report — JobHunt Pro", content, "Salary_Benchmark.pdf"
         )
 
     async def _deliver_search_plan(self, email: str, name: str, order: dict) -> bool:
         content = self._generate_search_plan(name)
         return await self._send_delivery_email(
-            email, f"Your 90-Day Job Search Plan — JobHunt Pro", content, "90Day_Plan.pdf"
+            email, "Your 90-Day Job Search Plan — JobHunt Pro", content, "90Day_Plan.pdf"
         )
 
     async def _deliver_vip_month(self, email: str, name: str, order: dict) -> bool:
@@ -609,7 +607,7 @@ class ServiceFulfillment:
             f"🔥 JobHunt Pro — VIP Service"
         )
         return await self._send_delivery_email(
-            email, f"🔥 VIP SERVICE ACTIVATED — 30 Days of Power!" + " — JobHunt Pro",
+            email, "🔥 VIP SERVICE ACTIVATED — 30 Days of Power!" + " — JobHunt Pro",
             content, "VIP_Activation.txt"
         )
 
@@ -1064,26 +1062,26 @@ class ServiceFulfillment:
 
     # ── QUERIES ─────────────────────────────────────────────────
 
-    def get_order(self, order_id: str) -> Optional[Dict[str, Any]]:
+    def get_order(self, order_id: str) -> dict[str, Any] | None:
         """Get a specific order by ID."""
         for order in self._orders["orders"]:
             if order["order_id"] == order_id:
                 return order
         return None
 
-    def get_orders_by_email(self, email: str) -> List[Dict[str, Any]]:
+    def get_orders_by_email(self, email: str) -> list[dict[str, Any]]:
         """Get all orders for a customer email."""
         return [o for o in self._orders["orders"] if o["customer_email"] == email]
 
-    def get_pending_orders(self) -> List[Dict[str, Any]]:
+    def get_pending_orders(self) -> list[dict[str, Any]]:
         """Get all orders awaiting payment."""
         return [o for o in self._orders["orders"] if o["status"] == "pending_payment"]
 
-    def get_paid_orders(self) -> List[Dict[str, Any]]:
+    def get_paid_orders(self) -> list[dict[str, Any]]:
         """Get all paid but undelivered orders."""
         return [o for o in self._orders["orders"] if o["status"] == "paid"]
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get sales statistics."""
         orders = self._orders["orders"]
         total_revenue = sum(o["price"] for o in orders if o["status"] in ("paid", "delivered"))
@@ -1101,10 +1099,10 @@ class ServiceFulfillment:
         items: list,
         customer_email: str,
         customer_name: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Create a bulk order with multiple services/bouquets.
-        
+
         Args:
             items: List of dicts with keys: service_id, is_bouquet, quantity
             customer_email: Buyer's email for delivery
@@ -1112,28 +1110,28 @@ class ServiceFulfillment:
         """
         if not items:
             return {"error": "No items provided"}
-        
+
         order_items = []
         total_price = 0.0
-        
+
         for item in items:
             sid = item.get("service_id", "")
             is_bouquet = item.get("is_bouquet", False)
             qty = item.get("quantity", 1)
-            
+
             if is_bouquet:
                 catalog_item = get_bouquet(sid)
                 item_type = "bouquet"
             else:
                 catalog_item = get_service(sid)
                 item_type = "service"
-            
+
             if not catalog_item:
                 return {"error": f"Item '{sid}' not found"}
-            
+
             line_total = catalog_item["price"] * qty
             total_price += line_total
-            
+
             order_items.append({
                 "service_id": sid,
                 "service_name": catalog_item["name"],
@@ -1142,9 +1140,9 @@ class ServiceFulfillment:
                 "quantity": qty,
                 "line_total": line_total,
             })
-        
+
         payment_code = self._generate_payment_code()
-        
+
         order = {
             "order_id": f"ORD-{uuid.uuid4().hex[:12].upper()}",
             "service_name": " + ".join(i["service_name"][:15] for i in order_items[:3]) + ("..." if len(order_items) > 3 else ""),
@@ -1163,19 +1161,19 @@ class ServiceFulfillment:
             "verify_attempts": 0,
             "payment_currency": None,
         }
-        
+
         if total_price == 0:
             order["status"] = "paid"
             order["paid_at"] = datetime.now().isoformat()
-        
+
         self._orders["orders"].append(order)
         self._orders["total_orders"] = len(self._orders["orders"])
         _save_orders(self._orders)
         _log_sale(order)
-        
+
         logger.info(
             f"Bulk order created: {order['order_id']} — {len(order_items)} items "
             f"(total ${total_price}) for {customer_email}"
         )
-        
+
         return order

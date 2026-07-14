@@ -104,8 +104,8 @@ def dispatch_saas_bounty():
     Project: {saas["name"]}
     Description: {saas["description"]}
     Tech Stack: {", ".join(saas["skills_required"])}
-    
-    Objective: To prove your seniority to US hiring managers, collaborate with your squad to build this SaaS architecture. 
+
+    Objective: To prove your seniority to US hiring managers, collaborate with your squad to build this SaaS architecture.
     Reward: +50% Boost on the Talent Stock Exchange AND 50% lifetime profit sharing (UBI) once deployed.
     """
 

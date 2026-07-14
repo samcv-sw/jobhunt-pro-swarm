@@ -1,0 +1,13 @@
+{{ sender_name }}{% if profession %} - {{ profession }}{% endif %}
+{% if candidate_email %}Email: {{ candidate_email }}{% endif %}
+{% if phone %}Phone: {{ phone }}{% endif %}
+
+Dear {{ recipient_name or "Hiring Manager" }},
+
+{{ cover_letter_body }}
+
+Best regards,
+{{ sender_name }}
+
+---
+To unsubscribe from these emails, visit: {{ unsubscribe_url }}

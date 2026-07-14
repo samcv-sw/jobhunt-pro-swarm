@@ -13,6 +13,7 @@ Features:
   - FastAPI endpoint helpers
 """
 
+import hashlib
 import itertools
 import json
 import logging
@@ -359,7 +360,6 @@ KEYWORD_BOOST = {
     "ccna": 1.3,
     "ccnp": 1.3,
     "ccie": 1.4,
-    "nse": 1.3,
     "nse 4": 1.3,
     "nse 5": 1.3,
     "nse 6": 1.3,
@@ -877,11 +877,102 @@ class ATSMatcher:
                     }
         return matched, missing
 
+    def calculate_arabic_match(self, resume_text: str, job_description: str) -> dict:
+        """
+        IMP-183: AraBERT Arabic NLP job-CV matching.
+        Calculates semantic similarity between Arabic resumes and JDs using aubmindlab/bert-base-arabertv02 via Hugging Face.
+        Falls back to specialized Arabic TF-IDF if API is unavailable.
+        """
+        # Extract Arabic words by splitting and keeping arabic chars
+        arabic_words = re.findall(r'[\u0600-\u06FF]+', job_description)
+        unique_jd_kws = list(set(arabic_words))
+        
+        # Try Hugging Face Inference API
+        hf_token = os.getenv("HF_API_KEY")
+        score = None
+        if hf_token:
+            try:
+                import httpx
+                headers = {"Authorization": f"Bearer {hf_token}"}
+                response = httpx.post(
+                    "https://api-inference.huggingface.co/models/sentence-transformers/laBSE",
+                    headers=headers,
+                    json={
+                        "inputs": {
+                            "source_sentence": job_description,
+                            "sentences": [resume_text]
+                        }
+                    },
+                    timeout=5.0
+                )
+                if response.status_code == 200:
+                    sim_scores = response.json()
+                    if isinstance(sim_scores, list) and len(sim_scores) > 0:
+                        score = int(sim_scores[0] * 100)
+            except Exception as e:
+                logger.warning(f"AraBERT via Hugging Face Inference failed: {e}")
+
+        if score is None:
+            # Fallback to TF-IDF cosine similarity with Arabic stop words
+            arabic_stop_words = {"من", "في", "على", "إلى", "هذا", "التي", "الذي", "هو", "هي", "تم", "عن", "مع", "كان", "كانت"}
+            
+            def get_tf_vector(text):
+                words = [w for w in re.findall(r'[\u0600-\u06FF]+', text) if w not in arabic_stop_words]
+                vector = defaultdict(int)
+                for w in words:
+                    vector[w] += 1
+                return vector
+
+            v1 = get_tf_vector(job_description)
+            v2 = get_tf_vector(resume_text)
+
+            intersection = set(v1.keys()) & set(v2.keys())
+            numerator = sum([v1[x] * v2[x] for x in intersection])
+
+            sum1 = sum([v1[x]**2 for x in v1.keys()])
+            sum2 = sum([v2[x]**2 for x in v2.keys()])
+            denominator = math.sqrt(sum1) * math.sqrt(sum2)
+
+            if not denominator:
+                score = 0
+            else:
+                score = int((float(numerator) / denominator) * 100)
+
+        # Ensure score is bound between 0 and 100
+        score = max(0, min(100, score))
+        
+        # Calculate matched and missing
+        resume_words = set(re.findall(r'[\u0600-\u06FF]+', resume_text))
+        matched = [w for w in unique_jd_kws if w in resume_words]
+        missing = [w for w in unique_jd_kws if w not in resume_words]
+
+        return {
+            "match_percent": score,
+            "total_jd_keywords": len(unique_jd_kws),
+            "matched_keywords": matched,
+            "missing_keywords": missing,
+            "top_missing": [{"keyword": w, "importance": "high"} for w in missing[:20]],
+            "top_matched": [{"keyword": w, "score": 10.0} for w in matched[:20]],
+            "ats_tips": [
+                "أضف الكلمات الدلالية المفقودة إلى سيرتك الذاتية لتحسين مطابقة نظام ATS.",
+                "تأكد من صياغة خبراتك المهنية باستخدام الكلمات الرئيسية الواردة في وصف الوظيفة."
+            ],
+            "ats_breakdown": {
+                "skills": score,
+                "experience": score,
+                "education": score
+            },
+            "missing_skills": missing[:10]
+        }
+
     def calculate_match(
         self,
         resume_text: str,
         job_description: str,
     ) -> dict:
+        # Check if the text contains Arabic characters
+        if re.search(r"[\u0600-\u06ff]", resume_text + job_description):
+            return self.calculate_arabic_match(resume_text, job_description)
         """
         Calculate match between resume and job description.
 
@@ -923,12 +1014,12 @@ class ATSMatcher:
         total_earned_weight = 0.0
         total_possible_weight = 0.0
 
-        for kw, info in matched.items():
+        for _kw, info in matched.items():
             max_kw_weight = info["weight"] * info["jd_frequency"]
             total_possible_weight += max_kw_weight
             total_earned_weight += info["weighted_score"] * info["jd_frequency"]
 
-        for kw, info in missing.items():
+        for _kw, info in missing.items():
             max_kw_weight = info["weight"] * info["jd_frequency"]
             total_possible_weight += max_kw_weight
 
@@ -948,6 +1039,69 @@ class ATSMatcher:
             matched.items(),
             key=lambda x: -x[1]["weighted_score"],
         )
+
+        # ── IMP-244: Keyword density analysis ──────────────────────────────
+        # Density = matched keywords / total words in job description
+        jd_word_count = max(len(job_description.split()), 1)
+        keyword_density = round((len(matched) / jd_word_count) * 100, 2)
+
+        # ── IMP-245: Job fit score explanation (why_matched / why_rejected) ─
+        top_match_keywords = [kw for kw, _ in matched_sorted[:5]]
+        top_miss_keywords = [kw for kw, _ in missing_sorted[:5]]
+
+        why_matched: list[str] = []
+        if top_match_keywords:
+            why_matched.append(
+                f"Your resume strongly matches on: {', '.join(top_match_keywords[:3])}."
+            )
+        if match_percent >= 70:
+            why_matched.append("Overall keyword coverage exceeds ATS threshold of 70%.")
+        elif match_percent >= 50:
+            why_matched.append("Moderate keyword overlap — likely to pass basic ATS filters.")
+
+        why_rejected: list[str] = []
+        if top_miss_keywords:
+            why_rejected.append(
+                f"Critical missing keywords: {', '.join(top_miss_keywords[:3])}."
+            )
+        if match_percent < 50:
+            why_rejected.append(
+                "Match score below 50% — high risk of being filtered out by ATS before human review."
+            )
+
+        # ── IMP-246: Skill gap analysis (missing_skills list) ───────────────
+        SKILL_INDICATORS = {"python", "java", "aws", "azure", "docker", "kubernetes",
+                            "sql", "react", "node", "typescript", "golang", "rust",
+                            "terraform", "ansible", "ci/cd", "cicd", "machine learning",
+                            "deep learning", "nlp", "fastapi", "django", "flask"}
+        missing_skills = [
+            kw for kw, _ in missing_sorted
+            if kw in SKILL_INDICATORS or kw in TECH_TAXONOMY
+        ][:15]
+
+        # ── IMP-248: Per-section ATS score breakdown ─────────────────────────
+        def _section_score(section_keywords: set[str]) -> dict:
+            """Score only keywords relevant to a CV section."""
+            sec_matched = {k: v for k, v in matched.items() if k in section_keywords}
+            sec_missing = {k: v for k, v in missing.items() if k in section_keywords}
+            total = len(sec_matched) + len(sec_missing)
+            pct = round((len(sec_matched) / max(total, 1)) * 100, 1)
+            return {"score": pct, "matched": len(sec_matched), "missing": len(sec_missing)}
+
+        SKILL_KW = TECH_TAXONOMY
+        EXPERIENCE_KW = {"experience", "years", "senior", "junior", "lead", "manager",
+                         "architect", "engineer", "developer", "analyst", "specialist",
+                         "director", "vp", "head", "principal", "staff", "intern"}
+        EDUCATION_KW = {"degree", "bachelor", "master", "phd", "mba", "university",
+                        "college", "certification", "certified", "diploma", "graduate",
+                        "ccna", "ccnp", "ccie", "aws certified", "azure", "gcp", "pmp",
+                        "itil", "cissp", "cka", "ckad", "devnet"}
+
+        ats_breakdown = {
+            "skills":     _section_score(SKILL_KW),
+            "experience": _section_score(EXPERIENCE_KW),
+            "education":  _section_score(EDUCATION_KW),
+        }
 
         return {
             "match_percent": match_percent,
@@ -982,6 +1136,12 @@ class ATSMatcher:
                     1 for m in matched.values() if m.get("partial_match")
                 ),
             },
+            # ── New enriched fields ──────────────────────────────────────────
+            "keyword_density": keyword_density,          # IMP-244: density %
+            "why_matched": why_matched,                  # IMP-245: strengths
+            "why_rejected": why_rejected,                # IMP-245: weaknesses
+            "missing_skills": missing_skills,            # IMP-246: skill gaps
+            "ats_breakdown": ats_breakdown,              # IMP-248: section scores
         }
 
     # ── Tips Generator ─────────────────────────────────────────────────────
@@ -1153,6 +1313,26 @@ async def analyze_with_groq_async(
     model: str = "mixtral-8x7b-32768",
 ) -> dict:
     """Async version of analyze_with_groq using LLMProviderPool with legacy Groq fallback."""
+    import hashlib
+    import json
+
+    from core.edge_cache import edge_cache
+
+    raw_key = f"{resume_text}:{jd_text}"
+    cache_key = f"ats_match:{hashlib.sha256(raw_key.encode('utf-8')).hexdigest()}"
+
+    # Try retrieving from edge cache first
+    try:
+        if edge_cache.enabled:
+            cached_val = await edge_cache.get(cache_key)
+            if cached_val:
+                logger.info("ATS Match cache hit! Returning in < 100ms.")
+                if isinstance(cached_val, bytes):
+                    cached_val = cached_val.decode('utf-8')
+                return json.loads(cached_val)
+    except Exception as cache_err:
+        logger.warning(f"Failed to fetch ATS match from edge cache: {cache_err}")
+
     prompt = f"""You are an ATS (Applicant Tracking System) expert. Analyze this resume vs job description.
 
 RESUME:
@@ -1184,7 +1364,13 @@ Return JSON ONLY (no markdown, no code fences, no extra text):
             if content:
                 json_match = re.search(r"\{.*\}", content, re.DOTALL)
                 if json_match:
-                    return json.loads(json_match.group())
+                    res_dict = json.loads(json_match.group())
+                    try:
+                        if edge_cache.enabled:
+                            await edge_cache.set(cache_key, json.dumps(res_dict), ex=86400)
+                    except Exception as cache_err:
+                        logger.warning(f"Failed to save ATS match to edge cache: {cache_err}")
+                    return res_dict
         except Exception as pool_err:
             logger.warning(
                 f"[ATS-Pool] Pool completion failed: {pool_err}. Falling back to direct Groq..."
@@ -1211,7 +1397,13 @@ Return JSON ONLY (no markdown, no code fences, no extra text):
                 content = resp.json()["choices"][0]["message"]["content"]
                 json_match = re.search(r"\{.*\}", content, re.DOTALL)
                 if json_match:
-                    return json.loads(json_match.group())
+                    res_dict = json.loads(json_match.group())
+                    try:
+                        if edge_cache.enabled:
+                            await edge_cache.set(cache_key, json.dumps(res_dict), ex=86400)
+                    except Exception as cache_err:
+                        logger.warning(f"Failed to save ATS match to edge cache: {cache_err}")
+                    return res_dict
             else:
                 logger.warning(
                     f"[ATS-Groq] API returned {resp.status_code}: {resp.text[:200]}"
@@ -1227,7 +1419,7 @@ Return JSON ONLY (no markdown, no code fences, no extra text):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def full_ats_analysis(
+async def full_ats_analysis(
     resume_text: str,
     job_description: str,
     use_groq: bool = True,
@@ -1236,9 +1428,14 @@ def full_ats_analysis(
     """
     Run both algorithmic (ATSMatcher) and Groq AI analysis, then merge results.
 
+    Results are cached in Redis for 24 hours using a SHA256 cache key derived
+    from the normalized resume + JD text. Falls back to uncached behavior if
+    Redis is unavailable.
+
     This gives Sam the best of both worlds:
     - Fast, deterministic keyword matching (no API cost)
     - Deep semantic analysis from Groq (when enabled)
+    - LLM call deduplication via Redis cache (zero cost for identical inputs)
 
     Args:
         resume_text: Full resume text
@@ -1249,6 +1446,26 @@ def full_ats_analysis(
     Returns:
         Merged dict with both algorithmic + AI results
     """
+    # Build deterministic cache key from normalized inputs
+    def _norm(t):
+        return re.sub(r"\s+", " ", t.strip().lower())
+    cache_key = "ats:" + hashlib.sha256(
+        (_norm(resume_text) + "||" + _norm(job_description)).encode("utf-8")
+    ).hexdigest()
+
+    # Try reading from Redis cache first
+    from core.edge_cache import edge_cache
+    cached_raw = None
+    try:
+        cached_raw = await edge_cache.get(cache_key)
+        if cached_raw:
+            logging.getLogger(__name__).debug(f"[ATSCache] Cache HIT for key {cache_key[:16]}...")
+            cached_result = json.loads(cached_raw)
+            cached_result["cache_hit"] = True
+            return cached_result
+    except Exception as e:
+        logging.getLogger(__name__).warning(f"[ATSCache] Redis read failed, proceeding uncached: {e}")
+
     # Algorithmic match (always runs — zero cost)
     matcher = ATSMatcher()
     algo_result = matcher.calculate_match(resume_text, job_description)
@@ -1258,6 +1475,7 @@ def full_ats_analysis(
         "ai_analysis": {},
         "combined_score": algo_result["match_percent"],
         "source": "algorithmic",
+        "cache_hit": False,
     }
 
     # Groq enhancement
@@ -1273,10 +1491,22 @@ def full_ats_analysis(
 
     # Deduplicate missing keywords
     missing_set: set = set(algo_result.get("all_missing_keywords", []))
-    missing_set.update(ai_result.get("missing_skills", []))
+    ai_result_for_merge = result.get("ai_analysis", {})
+    missing_set.update(ai_result_for_merge.get("missing_skills", []))
     result["all_missing_deduped"] = sorted(missing_set)
 
+    # Store result in Redis cache (24h TTL)
+    try:
+        await edge_cache.set(cache_key, json.dumps(result), ex=86400)
+        logging.getLogger(__name__).debug(f"[ATSCache] Stored result in cache key {cache_key[:16]}...")
+    except Exception as e:
+        logging.getLogger(__name__).warning(f"[ATSCache] Redis write failed: {e}")
+
     return result
+
+
+# Alias for explicit usage with cache semantics
+cached_full_ats_analysis = full_ats_analysis
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1346,7 +1576,7 @@ def format_ats_for_telegram(result: dict) -> str:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def api_ats_score(
+async def api_ats_score(
     resume_text: str,
     job_description: str,
     use_groq: bool = True,
@@ -1359,11 +1589,11 @@ def api_ats_score(
     Example FastAPI usage:
         @app.post("/api/ats-score")
         async def ats_score(payload: ATSRequest):
-            return api_ats_score(payload.resume, payload.jd)
+            return await api_ats_score(payload.resume, payload.jd)
 
     Returns serializable dict (no Python-specific objects).
     """
-    return full_ats_analysis(
+    return await full_ats_analysis(
         resume_text=resume_text,
         job_description=job_description,
         use_groq=use_groq,

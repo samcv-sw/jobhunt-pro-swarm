@@ -1,12 +1,25 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  register: true,
+  skipWaiting: true,
+});
+
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Required for Cloudflare Pages static export
+  // Comment out output: "export" to deploy to Vercel and use full Next.js SSR & Image Optimization
   output: "export",
   trailingSlash: true,
   images: {
-    // Static export does not support next/image optimization — use unoptimized
+    // Enable WebP & AVIF for smaller image sizes on supported browsers
+    formats: ['image/avif', 'image/webp'],
     unoptimized: true,
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(withPWA(nextConfig));

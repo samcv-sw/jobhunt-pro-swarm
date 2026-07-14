@@ -21,24 +21,24 @@ for fname in needy:
     if not os.path.exists(path):
         print(f'[MISSING] {fname}')
         continue
-    
-    with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+
+    with open(path, encoding='utf-8', errors='ignore') as f:
         content = f.read()
     original = content
-    
+
     if 'cyberpunk' in content:
         print(f'[ALREADY] {fname}')
         continue
-    
+
     modified = False
-    
+
     # === pricing_v2.html === Has DOCTYPE + <head> but no <body>
     if fname == 'pricing_v2.html':
         if '</head>' in content:
             content = content.replace('</head>', '</head>\n<body class="cyberpunk-body">')
             content += '\n</body>'
             modified = True
-    
+
     # === Inline fragments (no DOCTYPE, no <head>) ===
     elif '<head>' not in content and '<!DOCTYPE' not in content:
         # These are inline page fragments - wrap with full structure
@@ -46,14 +46,14 @@ for fname in needy:
                    + CSS_LINK + '\n</head>\n<body class="cyberpunk-body">\n'
                    + content + '\n</body>\n</html>\n')
         modified = True
-    
+
     # === Has DOCTYPE + <head> but no <body> ===
     elif '<body' not in content and '<!DOCTYPE html>' in content:
         if '</head>' in content:
             content = content.replace('</head>', '</head>\n<body class="cyberpunk-body">')
             content += '\n</body>'
             modified = True
-    
+
     # === Has <head> but no CSS link ===
     elif '<head>' in content and 'cyberpunk' not in content:
         content = content.replace('<head>', '<head>\n  ' + CSS_LINK)
@@ -69,7 +69,7 @@ for fname in needy:
             content = content.replace('</head>', '</head>\n<body class="cyberpunk-body">')
             content += '\n</body>'
         modified = True
-    
+
     if modified:
         with open(path, 'w', encoding='utf-8') as f:
             f.write(content)

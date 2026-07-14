@@ -1,6 +1,6 @@
 APP_FILE = r"C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\web\app_v2.py"
 
-with open(APP_FILE, "r", encoding="utf-8") as f:
+with open(APP_FILE, encoding="utf-8") as f:
     lines = f.readlines()
 
 new_lines = []
@@ -33,7 +33,7 @@ for i, line in enumerate(lines):
 """)
     if skip and "except Exception as e:" in line:
         skip = False
-    
+
     if not skip:
         new_lines.append(line)
 

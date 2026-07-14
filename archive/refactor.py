@@ -1,6 +1,7 @@
 import os
 import re
 
+
 def refactor_dashboard(path):
     with open(path, 'r', encoding='utf-8') as f:
         content = f.read()

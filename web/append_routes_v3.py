@@ -6,7 +6,7 @@ Append this file to the end of app_v2.py on the server.
 """
 import logging
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Any
 
 # The following type stub references are for lint/typing completeness in standalone mode
 try:
@@ -24,8 +24,8 @@ logger = logging.getLogger(__name__)
 def landing_v4(request: Request) -> HTMLResponse:
     """Modern landing page v4 with cyberpunk glassmorphism theme."""
     try:
-        earnings: Dict[str, int] = {"total_all": 15000000, "today": 25000}
-        tiers: List[Dict[str, Any]] = get_all_pricing() if 'get_all_pricing' in globals() else []
+        earnings: dict[str, int] = {"total_all": 15000000, "today": 25000}
+        tiers: list[dict[str, Any]] = get_all_pricing() if 'get_all_pricing' in globals() else []
         return templates.TemplateResponse(request, "index_v4.html", {
             "earnings": earnings,
             "tiers": tiers,
@@ -106,7 +106,7 @@ def dashboard_v3(request: Request) -> Any:
         open_rate = round((total_opened / total_sent * 100) if total_sent > 0 else 0)
         response_rate = round((responses / total_sent * 100) if total_sent > 0 else 0)
 
-        stats: Dict[str, Any] = {
+        stats: dict[str, Any] = {
             'emails_sent': total_sent,
             'emails_opened': total_opened,
             'responses': responses,
@@ -137,8 +137,8 @@ def dashboard_v3(request: Request) -> Any:
 def pricing_v3(request: Request) -> HTMLResponse:
     """Enhanced pricing page v3 with billing toggle, flash sale countdown, bulk discount."""
     try:
-        tiers: List[Dict[str, Any]] = get_all_pricing() if 'get_all_pricing' in globals() else []
-        services_list: List[Dict[str, Any]] = [
+        tiers: list[dict[str, Any]] = get_all_pricing() if 'get_all_pricing' in globals() else []
+        services_list: list[dict[str, Any]] = [
             {"name": "AI Auto-Apply Engine", "desc": "Automated job applications 24/7", "price": 9.99},
             {"name": "Smart Resume Tailoring", "desc": "AI optimizes your CV per job", "price": 4.99},
             {"name": "Email Follow-up Automation", "desc": "Auto follow-ups with tracking", "price": 6.99},
@@ -146,7 +146,7 @@ def pricing_v3(request: Request) -> HTMLResponse:
             {"name": "LinkedIn Profile Optimizer", "desc": "AI-enhanced LinkedIn presence", "price": 3.99},
             {"name": "Cover Letter Generator", "desc": "Custom cover letters per job", "price": 2.99},
         ]
-        pricing: Dict[str, Any] = {"tiers": tiers, "services": services_list}
+        pricing: dict[str, Any] = {"tiers": tiers, "services": services_list}
         return templates.TemplateResponse(request, "pricing_v3.html", {
             "pricing": pricing,
             "VERSION": config.VERSION,
@@ -190,7 +190,7 @@ def register_v2(request: Request) -> HTMLResponse:
 def checkout_v3(request: Request) -> HTMLResponse:
     """Enhanced checkout page v3 with payment progress steps, QR codes."""
     try:
-        order: Dict[str, Any] = {
+        order: dict[str, Any] = {
             "id": "DEMO-ORDER-001",
             "status": "pending",
             "amount_usd": 29.99,

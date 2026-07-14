@@ -1110,7 +1110,7 @@
  M core/response_parser.py
  M core/resume_optimizer.py
  M core/revive_campaigns.py
- M core/rita_profile.py
+ M core/demo_profile.py
  M core/salary_arbitrage.py
  M core/salary_negotiator.py
  M core/scam_detector.py
@@ -1271,7 +1271,7 @@
  M scripts/deploy.py
  M scripts/dom_surgery.py
  M scripts/force_reset_all.py
- M scripts/force_rita_campaign.py
+ M scripts/force_demo_campaign.py
  M scripts/pa_extender.py
  M scripts/playwright_ai_apply.py
  M scripts/quota_safe_storage.py

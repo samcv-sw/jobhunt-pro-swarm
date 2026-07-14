@@ -1,7 +1,8 @@
 # scratch/smart_deploy.py
-import requests
 import sys
 import time
+
+import requests
 
 sys.stdout.reconfigure(encoding='utf-8')
 

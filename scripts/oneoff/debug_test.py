@@ -1,10 +1,10 @@
+import asyncio
 import os
-import sys
 import sqlite3
+import sys
 import tempfile
 import uuid
-import asyncio
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
@@ -107,11 +107,11 @@ async def debug():
     os.environ["TENANT_USER_TENANT_CAMP_SMTP_USER"] = "camp_smtp@domain.com"
     os.environ["TENANT_USER_TENANT_CAMP_SMTP_PASS"] = "camp_pass"
 
-    from core.campaign_runner import run_campaign
-    import config as config_mod
-
     # Setup logger mock/spy
     import logging
+
+    import config as config_mod
+    from core.campaign_runner import run_campaign
     logger = logging.getLogger("core.campaign_runner")
     
     # We won't patch the logger, we will add a handler to print or inspect logs!

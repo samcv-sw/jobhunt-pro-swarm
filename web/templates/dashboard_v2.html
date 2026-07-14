@@ -14,7 +14,7 @@
 /* ═══════════════════════════════════════════
    DASHBOARD v8 — Ultra Premium SaaS (Dark Slate & Neon)
    ═══════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap');
 
 :root {
   --bg-main: #0B0F19;
@@ -118,11 +118,12 @@ body {
 .hero-content h1 {
   font-size: 36px;
   font-weight: 800;
-  margin: 0 0 8px 0;
+  /* ✓ logical: margin-block-end replaces the old margin: 0 0 8px 0 */
+  margin: 0;
+  margin-block-end: 8px;
   background: linear-gradient(to right, #fff, #a5b4fc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  
 }
 
 .hero-content p {
@@ -173,6 +174,7 @@ body {
 
 @media (max-width: 768px) {
   .grid-4, .grid-3 { grid-template-columns: 1fr; }
+  /* align-items: flex-start → flex-start is layout-neutral (cross-axis start); no change needed */
   .hero-section { flex-direction: column; align-items: flex-start; gap: 24px; }
 }
 
@@ -333,7 +335,7 @@ body {
   {% if not user.get('oauth_provider') %}
   <div class="smtp-banner">
 <div>
-<h3 style="margin:0 0 5px 0; color:#fff;">تفعيل التوصيل المميز لصندوق الوارد بالذكاء الاصطناعي</h3>
+<h3 style="margin: 0; margin-block-end: 5px; color:#fff;">تفعيل التوصيل المميز لصندوق الوارد بالذكاء الاصطناعي</h3>
 <p style="margin:0; color:var(--text-muted); font-size:14px;">{{ _('اربط حساب بريدك الإلكتروني المهني. سيقوم الذكاء الاصطناعي لدينا تلقائياً بتحسين أنماط الإرسال الخاصة بك واستخدام توجيه IP المخصص لضمان أعلى معدلات الاستجابة من أصحاب العمل.') }}</p>
 </div>
 <div style="display:flex; gap:12px;">
@@ -508,11 +510,11 @@ document.addEventListener("DOMContentLoaded", function() {
         y: {
           beginAtZero: true,
           grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
-          ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+          ticks: { color: '#94a3b8', font: { family: "'Cairo', 'Tajawal', 'Inter', sans-serif" } }
         },
         x: {
           grid: { display: false },
-          ticks: { color: '#94a3b8', font: { family: 'Inter', size: 13, weight: '500' } }
+          ticks: { color: '#94a3b8', font: { family: "'Cairo', 'Tajawal', 'Inter', sans-serif", size: 13, weight: '500' } }
         }
       },
       animation: {

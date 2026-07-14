@@ -208,7 +208,7 @@ class ResponsePredictor:
         quality_scores = self.analyze_email_quality(subject, body)
 
         # Calculate quality average excluding the safety gate key
-        scoring_keys = [k for k in quality_scores.keys() if k != "unresolved_gate"]
+        scoring_keys = [k for k in quality_scores if k != "unresolved_gate"]
         quality_avg = sum(quality_scores[k] for k in scoring_keys) / len(scoring_keys)
 
         # Analyze company responsiveness

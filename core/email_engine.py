@@ -10,6 +10,7 @@ import os
 import random
 import re
 import smtplib
+import sqlite3
 import time
 import uuid
 from collections import defaultdict
@@ -33,7 +34,7 @@ SITE_URL = getattr(config, "SITE_URL", "https://jhfguf.pythonanywhere.com").rstr
 
 _HAS_AIOSMTPLIB = True
 try:
-    import aiosmtplib
+    import aiosmtplib  # noqa: F401
 except ImportError:
     _HAS_AIOSMTPLIB = False
     logger.info(
@@ -482,7 +483,7 @@ def _build_highlights_html(highlights: list[str] | None) -> str:
     highlights_html = ""
     if highlights and isinstance(highlights, list) and len(highlights) > 0:
         cards = ""
-        for i, h in enumerate(highlights[:5], 1):
+        for _i, h in enumerate(highlights[:5], 1):
             title = _extract_highlight_title(str(h))
             desc = (
                 str(h).replace(title.lower().capitalize(), "", 1).strip().lstrip(":.- ")
@@ -801,6 +802,92 @@ class EmailValidator:
         return True, "ok"
 
 
+def generate_unsubscribe_url(to_email: str) -> str:
+    """Generate a timed signed unsubscribe URL for the recipient — IMP-225."""
+    from itsdangerous import URLSafeTimedSerializer
+    secret = os.getenv("JWT_SECRET_KEY", "jobhunt-pro-secret-key-32bytes-ok!!")
+    s = URLSafeTimedSerializer(secret)
+    token = s.dumps(to_email)
+    return f"{SITE_URL}/api/v1/unsubscribe/{token}"
+
+
+def generate_tracking_pixel_url(email_log_id: str, to_email: str) -> str:
+    """Generate a signed tracking pixel URL with a 24-hour expiry — IMP-226."""
+    import hashlib
+    import hmac
+    import time
+    secret = os.getenv("JWT_SECRET_KEY", "jobhunt-pro-secret-key-32bytes-ok!!").encode("utf-8")
+    expiry = int(time.time()) + 24 * 3600  # 24 hours
+    message = f"{email_log_id}:{to_email}:{expiry}".encode()
+    sig = hmac.new(secret, message, hashlib.sha256).hexdigest()
+    return f"{SITE_URL}/api/v1/track/{email_log_id}?email={to_email}&expiry={expiry}&sig={sig}"
+
+
+def check_spf_alignment(domain: str) -> bool:
+    """Check if an SPF record exists for the domain using a DNS lookup — IMP-223.
+
+    Logs a warning if no SPF record is found, but does not block sending.
+    """
+    try:
+        import dns.resolver
+        answers = dns.resolver.resolve(domain, 'TXT')
+        for rdata in answers:
+            for txt_string in rdata.strings:
+                txt = txt_string.decode('utf-8', errors='ignore')
+                if txt.startswith("v=spf1"):
+                    logger.info(f"[SPF-Check] SPF record found for {domain}: {txt}")
+                    return True
+        logger.warning(f"[SPF-Check] No v=spf1 TXT record found for {domain}")
+        return False
+    except Exception as e:
+        logger.warning(f"[SPF-Check] Failed to lookup SPF for {domain}: {e}")
+        return False
+
+
+def sign_message_with_dkim(msg: MIMEMultipart) -> bytes:
+    """Sign an outbound email with DKIM if configuration environment variables are present — IMP-221."""
+    dkim_domain = os.getenv("DKIM_DOMAIN")
+    dkim_selector = os.getenv("DKIM_SELECTOR")
+    dkim_private_key_path = os.getenv("DKIM_PRIVATE_KEY_PATH")
+    dkim_private_key = os.getenv("DKIM_PRIVATE_KEY")
+
+    if not dkim_domain or not dkim_selector:
+        return msg.as_bytes()
+
+    private_key_bytes = None
+    if dkim_private_key:
+        private_key_bytes = dkim_private_key.encode("utf-8")
+    elif dkim_private_key_path and os.path.exists(dkim_private_key_path):
+        try:
+            with open(dkim_private_key_path, "rb") as f:
+                private_key_bytes = f.read()
+        except Exception as e:
+            logger.error(f"[DKIM] Failed to read private key from path {dkim_private_key_path}: {e}")
+
+    if not private_key_bytes:
+        logger.warning("[DKIM] Private key not provided or not readable, skipping DKIM signing.")
+        return msg.as_bytes()
+
+    try:
+        import dkim
+        sig_headers = [b"From", b"To", b"Subject", b"Reply-To", b"Message-ID"]
+        raw_msg = msg.as_bytes()
+        sig = dkim.sign(
+            raw_msg,
+            dkim_selector.encode("utf-8"),
+            dkim_domain.encode("utf-8"),
+            private_key_bytes,
+            include_headers=sig_headers
+        )
+        return sig + raw_msg
+    except ImportError:
+        logger.warning("[DKIM] dkimpy not installed. Run `pip install dkimpy` to enable DKIM signing.")
+        return msg.as_bytes()
+    except Exception as e:
+        logger.error(f"[DKIM] Error signing message: {e}")
+        return msg.as_bytes()
+
+
 class EmailBuilder:
     """Build professional email messages with correct MIME structure."""
 
@@ -818,30 +905,64 @@ class EmailBuilder:
         """Build properly structured MIME email with HTML rendering support."""
         name, candidate_email, phone, _, profession, _ = _resolve_candidate_details(user_details)
 
-        if title.startswith("Fwd: RE:"):
-            subject = title
-        else:
-            subject = f"Application: {title} - {company}"
+        subject = title if title.startswith("Fwd: RE:") else f"Application: {title} - {company}"
 
-        # Delegate HTML generation
-        html_body = _wrap_in_sovereign_template(
-            company,
-            title,
-            cover_html,
-            highlights,
-            user_details,
-            email_log_id=tracking_id,
-        )
+        # IMP-223: Check SPF Alignment
+        domain = candidate_email.split("@")[-1] if "@" in candidate_email else ""
+        if domain:
+            check_spf_alignment(domain)
 
-        # Plain text fallback
-        plain_text = f"""{name} - {profession}
+        # Generate unsubscribe & tracking pixel URLs
+        unsubscribe_url = generate_unsubscribe_url(to_email)
+        tracking_pixel_url = generate_tracking_pixel_url(tracking_id, to_email)
+
+        # Render HTML and plain text using Jinja2 email template engine (IMP-224)
+        try:
+            from jinja2 import Environment, FileSystemLoader
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            templates_dir = os.path.join(base_dir, "templates", "email")
+            env = Environment(loader=FileSystemLoader(templates_dir), autoescape=True)
+            template_html = env.get_template("cover_letter.html.j2")
+            template_txt = env.get_template("cover_letter.txt.j2")
+
+            # Calculate candidate name initials (e.g. Alice Smith -> AS)
+            initials = "".join([p[0].upper() for p in name.split() if p])
+
+            context = {
+                "recipient_name": "Hiring Manager",
+                "job_title": title,
+                "company": company,
+                "cover_letter_body": cover_html,
+                "sender_name": name,
+                "initials": initials,
+                "profession": profession,
+                "candidate_email": candidate_email,
+                "phone": phone,
+                "unsubscribe_url": unsubscribe_url,
+                "tracking_pixel_url": tracking_pixel_url,
+            }
+            html_body = template_html.render(**context)
+            plain_text = template_txt.render(**context)
+        except Exception as e:
+            logger.warning(f"[Jinja2] Rendering failed: {e}. Falling back to default templates.")
+            # Fallback to f-string templating
+            html_body = _wrap_in_sovereign_template(
+                company,
+                title,
+                cover_html,
+                highlights,
+                user_details,
+                email_log_id=tracking_id,
+            )
+            plain_text = f"""{name} - {profession}
 Email: {candidate_email}
 Phone: {phone}
 
 {cover_html}
 
 ---
-Tracking ID: {tracking_id}"""
+Tracking ID: {tracking_id}
+Unsubscribe: {unsubscribe_url}"""
 
         msg = MIMEMultipart("mixed")
         msg["From"] = f"{name} <{candidate_email}>"
@@ -850,7 +971,7 @@ Tracking ID: {tracking_id}"""
         msg["Reply-To"] = f"{name} <{candidate_email}>"
         msg["Message-ID"] = f"<{tracking_id}.jobhuntpro@jobhuntpro.com>"
         msg["X-Mailer"] = "JobHuntPro/3.0"
-        msg["List-Unsubscribe"] = f"<{SITE_URL}/unsubscribe>"
+        msg["List-Unsubscribe"] = f"<{unsubscribe_url}>"
         msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
         msg["Precedence"] = "bulk"
 
@@ -991,6 +1112,11 @@ class EmailEngine:
             msg["From"] = f"{display_name} <{smtp_user}>"
             logger.debug(f"[SPF] From aligned: {display_name} <{smtp_user}>")
 
+            # Apply DKIM signature if key is present (IMP-221)
+            signed_bytes = sign_message_with_dkim(msg)
+            import email as py_email
+            msg_to_send = py_email.message_from_bytes(signed_bytes)
+
             # 100% True Async execution using aiosmtplib with context manager to prevent connection/socket leaks
             use_tls = config_data["port"] == 465
             start_tls = not use_tls
@@ -1002,7 +1128,7 @@ class EmailEngine:
                 timeout=30,
             ) as smtp_client:
                 await smtp_client.login(config_data["login"], config_data["password"])
-                errors, message = await smtp_client.send_message(msg)
+                errors, message = await smtp_client.send_message(msg_to_send)
 
             if errors:
                 logger.warning(
@@ -1193,6 +1319,8 @@ class EmailEngine:
                     self.circuit_breaker.record_success(provider)
                     self.scheduler.record_send(provider)
                     await self.rate_limiter.record_send(provider)
+                    from core.email_warmup import warmup
+                    warmup.record_send(provider)
                     return True, provider
 
                 self.circuit_breaker.record_failure(provider)
@@ -1365,6 +1493,11 @@ class EmailEngine:
         if to_email and _is_suppressed(to_email):
             logger.info(f"[EmailEngine] ⛔ Suppressed address: {to_email}. Skipping.")
             return False, f"suppressed:{to_email}"
+
+        from core.email_warmup import warmup
+        if not warmup.can_send(provider):
+            logger.warning(f"[WARMUP] Daily limit reached for provider {provider}. Voluntarily blocking to preserve sender reputation.")
+            return False, f"warmup_limit_reached:{provider}"
 
         if not self.circuit_breaker.is_available(provider):
             logger.warning(f"Circuit OPEN for {provider} - skipping immediately")
@@ -2235,7 +2368,8 @@ def send_email_via_brevo_http(
     }
 
     try:
-        resp = httpx.post(url, json=payload, headers=headers, timeout=10.0)
+        with httpx.Client(http2=True) as client:
+            resp = client.post(url, json=payload, headers=headers, timeout=10.0)
         if resp.status_code in (200, 201, 202):
             logger.info(f"[BREVO-HTTP] Sent to {to_email} — {subject}")
             return True
@@ -2302,7 +2436,8 @@ def send_email_via_sendgrid_http(
     }
 
     try:
-        resp = httpx.post(url, json=payload, headers=headers, timeout=10.0)
+        with httpx.Client(http2=True) as client:
+            resp = client.post(url, json=payload, headers=headers, timeout=10.0)
         if resp.status_code in (200, 201, 202, 204):
             logger.info(f"[SENDGRID-HTTP] Sent to {to_email} — {subject}")
             return True

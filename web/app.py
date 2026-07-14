@@ -3,35 +3,36 @@ JobHunt Pro - SaaS Platform
 Automated Job Application Service
 v17.1 - Cloud-Native Architecture (Zero PC Dependency)
 """
-import os
-import sys
-import uuid
-import secrets
-import bcrypt
-import sqlite3
 import asyncio
 import logging
+import multiprocessing
+import os
+import secrets
+import sqlite3
+import sys
 import time
 import traceback
-import multiprocessing
+import uuid
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
-from fastapi import FastAPI, HTTPException, Request, Form
+import bcrypt
+import uvicorn
+from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from pydantic import BaseModel
-from typing import Optional, Any
-import uvicorn
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import config
+from core.campaign_runner import run_campaign
+
 # from core.database import Database
 from core.email_engine import EmailEngine
-from core.job_queue import enqueue_task, dequeue_task, complete_task, fail_task
-from core.campaign_runner import run_campaign
+from core.job_queue import complete_task, dequeue_task, enqueue_task, fail_task
 from core.telegram_bot import send_telegram_message_sync
 
 logging.basicConfig(level=logging.INFO)
@@ -192,7 +193,7 @@ def init_saas_db():
                 status TEXT DEFAULT 'active'
             );
         """)
-        
+
         try:
             tiers = conn.execute("SELECT COUNT(*) FROM pricing_tiers").fetchone()[0]
             if tiers == 0:
@@ -206,7 +207,7 @@ def init_saas_db():
                 conn.executemany("INSERT INTO pricing_tiers (tier_name, company_count, price_usd, description) VALUES (?, ?, ?, ?)", pricing)
         except Exception as e:
             logger.warning(f"Failed to seed pricing_tiers (likely schema mismatch): {e}")
-        
+
         conn.commit()
 
         # Migration: Add home_country, min_local_salary, min_international_salary to cv_profiles if missing
@@ -228,7 +229,7 @@ class UserRegister(BaseModel):
     email: str
     password: str
     name: str
-    phone: Optional[str] = ""
+    phone: str | None = ""
 
 class UserLogin(BaseModel):
     email: str
@@ -237,8 +238,8 @@ class UserLogin(BaseModel):
 class CampaignCreate(BaseModel):
     profile_id: int
     company_count: int
-    target_titles: Optional[str] = ""
-    target_locations: Optional[str] = ""
+    target_titles: str | None = ""
+    target_locations: str | None = ""
 
 class RedeemCode(BaseModel):
     code: str
@@ -381,14 +382,14 @@ async def register(request: Request, email: str = Form(...), password: str = For
     if existing:
         conn.close()
         return templates.TemplateResponse(request=request, name="register.html", context={"request": request, "error": "Email already registered"})
-    
+
     user_id = f"user_{uuid.uuid4().hex[:16]}"
     api_key = generate_api_key()
     conn.execute("INSERT INTO users (user_id, email, password_hash, name, phone, api_key) VALUES (?, ?, ?, ?, ?, ?)",
                  (user_id, email, hash_password(password), name, phone, api_key))
     conn.commit()
     conn.close()
-    
+
     return RedirectResponse("/login", status_code=303)
 
 @app.get("/login", response_class=HTMLResponse)
@@ -400,10 +401,10 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
     conn = get_db()
     user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
     conn.close()
-    
+
     if not user or not verify_password(password, user["password_hash"]):
         return templates.TemplateResponse(request=request, name="login.html", context={"request": request, "error": "Invalid credentials"})
-    
+
     response = RedirectResponse("/dashboard", status_code=303)
     response.set_cookie("user_id", session_serializer.dumps(user["user_id"]))
     return response
@@ -413,7 +414,7 @@ async def dashboard(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    
+
     conn = get_db()
     user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
     if not user_row:
@@ -437,7 +438,7 @@ async def dashboard(request: Request):
         "SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT 10",
         (user_id,)).fetchall()]
     conn.close()
-    
+
     return templates.TemplateResponse(request=request, name="dashboard.html", context={
         "request": request, "user": user, "profiles": profiles,
         "campaigns": campaigns, "transactions": transactions
@@ -461,7 +462,7 @@ async def upload_cv(request: Request, profile_name: str = Form(...), cv_text: st
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    
+
     conn = get_db()
     conn.execute("""INSERT INTO cv_profiles 
                     (user_id, profile_name, cv_text, cover_letter_template, email_template, 
@@ -473,7 +474,7 @@ async def upload_cv(request: Request, profile_name: str = Form(...), cv_text: st
                   home_country, min_local_salary, min_international_salary))
     conn.commit()
     conn.close()
-    
+
     return RedirectResponse("/dashboard", status_code=303)
 
 @app.get("/new-campaign", response_class=HTMLResponse)
@@ -481,13 +482,13 @@ async def new_campaign_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    
+
     conn = get_db()
     profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
     tiers = [dict(r) for r in conn.execute("SELECT * FROM pricing_tiers WHERE is_active = 1 ORDER BY price_usd").fetchall()]
     user = dict(conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone())
     conn.close()
-    
+
     return templates.TemplateResponse(request=request, name="new_campaign.html", context={
         "request": request, "profiles": profiles, "tiers": tiers, "balance": user["wallet_balance"]
     })
@@ -497,39 +498,39 @@ async def create_campaign(request: Request, profile_id: int = Form(...), company
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    
+
     conn = get_db()
     user = dict(conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone())
     tier = conn.execute("SELECT * FROM pricing_tiers WHERE company_count = ?", (company_count,)).fetchone()
-    
+
     if not tier:
         conn.close()
         return RedirectResponse("/new-campaign", status_code=303)
-    
+
     price = tier["price_usd"]
     if user["wallet_balance"] < price:
         conn.close()
         return RedirectResponse("/wallet", status_code=303)
-    
+
     campaign_id = f"camp_{uuid.uuid4().hex[:16]}"
     order_id = f"ord_{uuid.uuid4().hex[:16]}"
-    
+
     conn.execute("INSERT INTO orders (order_id, user_id, package_type, company_count, amount_usd, payment_method, payment_status) VALUES (?, ?, ?, ?, ?, ?, ?)",
                  (order_id, user_id, tier["tier_name"], company_count, price, "wallet", "completed"))
     conn.execute("INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, total_companies) VALUES (?, ?, ?, ?, ?)",
                  (campaign_id, user_id, order_id, profile_id, company_count))
-    
+
     new_balance = user["wallet_balance"] - price
     conn.execute("UPDATE users SET wallet_balance = ?, total_spent = total_spent + ? WHERE user_id = ?",
                  (new_balance, price, user_id))
     conn.execute("INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)",
                  (user_id, "spend", -price, new_balance, f"Campaign: {company_count} companies"))
-    
+
     conn.commit()
     conn.close()
-    
+
     enqueue_task("run_campaign", {"campaign_id": campaign_id})
-    
+
     return RedirectResponse(f"/campaign/{campaign_id}", status_code=303)
 
 @app.get("/campaign/{campaign_id}", response_class=HTMLResponse)
@@ -537,7 +538,7 @@ async def campaign_detail(request: Request, campaign_id: str):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    
+
     conn = get_db()
     campaign = dict(conn.execute("SELECT * FROM campaigns WHERE campaign_id = ? AND user_id = ?",
                                  (campaign_id, user_id)).fetchone())
@@ -545,7 +546,7 @@ async def campaign_detail(request: Request, campaign_id: str):
         "SELECT * FROM campaign_emails WHERE campaign_id = ? ORDER BY sent_at DESC",
         (campaign_id,)).fetchall()]
     conn.close()
-    
+
     return templates.TemplateResponse(request=request, name="campaign_detail.html", context={
         "request": request, "campaign": campaign, "emails": emails
     })
@@ -555,21 +556,21 @@ async def wallet_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    
+
     conn = get_db()
     user = dict(conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone())
     transactions = [dict(r) for r in conn.execute(
         "SELECT * FROM wallet_transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT 50",
         (user_id,)).fetchall()]
     conn.close()
-    
+
     crypto_addresses = {
         "BTC": os.getenv("CRYPTO_BTC_ADDRESS", ""),
         "ETH": os.getenv("CRYPTO_ETH_ADDRESS", ""),
         "USDT": os.getenv("CRYPTO_USDT_ADDRESS", ""),
         "LTC": os.getenv("CRYPTO_LTC_ADDRESS", ""),
     }
-    
+
     return templates.TemplateResponse(request=request, name="wallet.html", context={
         "request": request, "user": user, "transactions": transactions,
         "crypto_addresses": crypto_addresses
@@ -580,21 +581,21 @@ async def services_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    
-    from core.pricing_manager import SERVICE_PACKAGES, BOUQUET_PACKAGES
-    
+
+    from core.pricing_manager import BOUQUET_PACKAGES, SERVICE_PACKAGES
+
     conn = get_db()
     user = dict(conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone())
-    
+
     # Fetch all purchased services
     purchased = [dict(r) for r in conn.execute(
         "SELECT * FROM purchased_services WHERE user_id = ? ORDER BY created_at DESC",
         (user_id,)).fetchall()]
     conn.close()
-    
+
     # Build a lookup set of purchased package ids
     active_ids = {p["package_id"] for p in purchased if p["status"] == "active"}
-    
+
     return templates.TemplateResponse(request=request, name="services.html", context={
         "request": request,
         "user": user,
@@ -609,10 +610,11 @@ async def purchase_service(request: Request, package_id: str = Form(...), servic
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    
+
     import uuid
-    from core.pricing_manager import SERVICE_PACKAGES, BOUQUET_PACKAGES
-    
+
+    from core.pricing_manager import BOUQUET_PACKAGES, SERVICE_PACKAGES
+
     # 1. Find the service/bouquet name and price
     price = None
     name = None
@@ -628,38 +630,38 @@ async def purchase_service(request: Request, package_id: str = Form(...), servic
                 price = b["price_usd"]
                 name = b["name"]
                 break
-                
+
     if price is None or name is None:
         return RedirectResponse("/services?error=invalid_package", status_code=303)
-        
+
     conn = get_db()
     user = dict(conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone())
-    
+
     if user["wallet_balance"] < price:
         conn.close()
         return RedirectResponse("/services?error=insufficient_funds", status_code=303)
-        
+
     # 2. Process purchase transactionally
     new_balance = user["wallet_balance"] - price
     conn.execute("UPDATE users SET wallet_balance = ?, total_spent = total_spent + ? WHERE user_id = ?",
                  (new_balance, price, user_id))
-                 
+
     order_id = f"ord_{uuid.uuid4().hex[:16]}"
     conn.execute("""INSERT INTO orders (order_id, user_id, package_type, company_count, amount_usd, payment_method, payment_status)
                     VALUES (?, ?, ?, ?, ?, ?, ?)""",
                  (order_id, user_id, service_type, 0, price, "wallet", "completed"))
-                 
+
     conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) 
                     VALUES (?, ?, ?, ?, ?)""",
                  (user_id, "spend", -price, new_balance, f"Purchase {service_type}: {name}"))
-                 
+
     conn.execute("""INSERT INTO purchased_services (user_id, service_type, package_id, package_name, price_paid, status) 
                     VALUES (?, ?, ?, ?, ?, 'active')""",
                  (user_id, service_type, package_id, name, price))
-                 
+
     conn.commit()
     conn.close()
-    
+
     return RedirectResponse(f"/services?success=purchased&package={name}", status_code=303)
 
 @app.post("/redeem")
@@ -667,27 +669,27 @@ async def redeem_code(request: Request, code: str = Form(...)):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-    
+
     conn = get_db()
     redeem = conn.execute("SELECT * FROM redeem_codes WHERE code = ? AND is_used = 0", (code,)).fetchone()
-    
+
     if not redeem:
         conn.close()
         return RedirectResponse("/wallet?error=invalid_code", status_code=303)
-    
+
     value = redeem["value_usd"]
     conn.execute("UPDATE redeem_codes SET is_used = 1, used_by = ?, used_at = CURRENT_TIMESTAMP WHERE code = ?",
                  (user_id, code))
-    
+
     user = dict(conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone())
     new_balance = user["wallet_balance"] + value
     conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
     conn.execute("INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)",
                  (user_id, "redeem", value, new_balance, f"Redeem code: {code}"))
-    
+
     conn.commit()
     conn.close()
-    
+
     return RedirectResponse("/wallet?success=redeemed", status_code=303)
 
 @app.get("/api/docs", response_class=HTMLResponse)
@@ -703,40 +705,40 @@ async def api_create_campaign(api_key: str = Form(...), profile_cv: str = Form(.
     if not user:
         conn.close()
         raise HTTPException(status_code=401, detail="Invalid API key")
-    
+
     user = dict(user)
     tier = conn.execute("SELECT * FROM pricing_tiers WHERE company_count = ?", (company_count,)).fetchone()
     if not tier:
         conn.close()
         raise HTTPException(status_code=400, detail="Invalid company count")
-    
+
     if user["wallet_balance"] < tier["price_usd"]:
         conn.close()
         raise HTTPException(status_code=402, detail="Insufficient balance")
-    
+
     profile_id = conn.execute(
         "INSERT INTO cv_profiles (user_id, profile_name, cv_text) VALUES (?, ?, ?)",
         (user["user_id"], f"API Profile {datetime.now().strftime('%Y%m%d%H%M')}", profile_cv)
     ).lastrowid
-    
+
     campaign_id = f"camp_{uuid.uuid4().hex[:16]}"
     order_id = f"ord_{uuid.uuid4().hex[:16]}"
-    
+
     conn.execute("INSERT INTO orders (order_id, user_id, package_type, company_count, amount_usd, payment_method, payment_status) VALUES (?, ?, ?, ?, ?, ?, ?)",
                  (order_id, user["user_id"], tier["tier_name"], company_count, tier["price_usd"], "wallet", "completed"))
     conn.execute("INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, total_companies) VALUES (?, ?, ?, ?, ?)",
                  (campaign_id, user["user_id"], order_id, profile_id, company_count))
-    
+
     new_balance = user["wallet_balance"] - tier["price_usd"]
     conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user["user_id"]))
     conn.execute("INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)",
                  (user["user_id"], "spend", -tier["price_usd"], new_balance, f"API Campaign: {company_count} companies"))
-    
+
     conn.commit()
     conn.close()
-    
+
     enqueue_task("run_campaign", {"campaign_id": campaign_id})
-    
+
     return {"campaign_id": campaign_id, "status": "queued", "companies": company_count}
 
 @app.get("/api/v1/campaign/{campaign_id}")
@@ -748,13 +750,13 @@ async def api_campaign_status(campaign_id: str, api_key: str = ""):
     if not user:
         conn.close()
         raise HTTPException(status_code=401, detail="Invalid API key")
-    
+
     campaign = conn.execute("SELECT * FROM campaigns WHERE campaign_id = ? AND user_id = ?",
                             (campaign_id, user["user_id"])).fetchone()
     if not campaign:
         conn.close()
         raise HTTPException(status_code=404, detail="Campaign not found")
-    
+
     campaign = dict(campaign)
     stats = dict(conn.execute("""
         SELECT COUNT(*) as total,
@@ -763,7 +765,7 @@ async def api_campaign_status(campaign_id: str, api_key: str = ""):
         SUM(CASE WHEN responded_at IS NOT NULL THEN 1 ELSE 0 END) as responded
         FROM campaign_emails WHERE campaign_id = ?
     """, (campaign_id,)).fetchone())
-    
+
     conn.close()
     return {**campaign, **stats}
 
@@ -814,7 +816,7 @@ def _process_run_campaign_task(task_id: Any, payload: dict, results: dict) -> No
         p = multiprocessing.Process(target=_isolated_campaign_worker, args=(campaign_id,))
         p.start()
         p.join(timeout=250)  # PA free tier kills at ~260s, leave 10s buffer
-        
+
         if p.is_alive():
             logger.error(f"Task {task_id} exceeded 250s. Terminating fork.")
             p.terminate()
@@ -852,11 +854,11 @@ def _process_cron_tick_task(task_id: Any, results: dict) -> None:
             )
             conn.commit()
             logger.info(f"[WORKER-TICK] Cron tick picked up campaign {cid}")
-            
+
             p = multiprocessing.Process(target=_isolated_campaign_worker, args=(cid,))
             p.start()
             p.join(timeout=250)
-            
+
             if p.is_alive():
                 logger.error(f"[WORKER-TICK] Campaign {cid} timed out.")
                 p.terminate()
@@ -864,7 +866,7 @@ def _process_cron_tick_task(task_id: Any, results: dict) -> None:
             results["tasks"].append(f"cron_campaign_{cid}")
         else:
             results["tasks"].append("cron_no_pending")
-        
+
         # Run sync engine (follow-ups, drip emails)
         try:
             engine = EmailEngine()
@@ -874,13 +876,13 @@ def _process_cron_tick_task(task_id: Any, results: dict) -> None:
         except Exception as e:
             logger.error(f"Sync engine error: {e}")
             results["errors"].append(f"sync_engine_{str(e)[:50]}")
-        
+
     except Exception as e:
         logger.error(f"cron_tick error: {e}")
         results["errors"].append(f"cron_tick_{str(e)[:50]}")
     finally:
         conn.close()
-    
+
     # Ghost hunter (hourly)
     if time.time() - _last_ghost_hunt_time > 3600:
         logger.info("[WORKER-TICK] Running ghost hunter...")
@@ -893,7 +895,7 @@ def _process_cron_tick_task(task_id: Any, results: dict) -> None:
         except Exception as e:
             logger.error(f"Ghost hunter error: {e}")
             results["errors"].append(f"ghost_hunt_{str(e)[:50]}")
-    
+
     complete_task(task_id)
 
 
@@ -912,19 +914,19 @@ async def _process_growth_task(task_type: str, task_id: Any, payload: dict, resu
         await asyncio.sleep(2.5)
         complete_task(task_id)
         results["tasks"].append("growth_seo_done")
-        
+
     elif task_type == "growth_b2b":
         logger.info(f"[WORKER-TICK] B2B outreach: {payload.get('target')}")
         await asyncio.sleep(3.0)
         complete_task(task_id)
         results["tasks"].append("growth_b2b_done")
-        
+
     elif task_type == "growth_social":
         logger.info(f"[WORKER-TICK] Social sniper: {payload.get('platform')}")
         await asyncio.sleep(2.0)
         complete_task(task_id)
         results["tasks"].append("growth_social_done")
-        
+
     elif task_type == "growth_viral_video":
         logger.info(f"[WORKER-TICK] Viral factory: {payload.get('count', 5)} videos")
         try:
@@ -936,7 +938,7 @@ async def _process_growth_task(task_type: str, task_id: Any, payload: dict, resu
         except Exception as e:
             fail_task(task_id, str(e))
             results["errors"].append(f"viral_{str(e)[:50]}")
-            
+
     elif task_type == "growth_influencer":
         logger.info(f"[WORKER-TICK] Influencer outreach: {payload.get('platform')}")
         await asyncio.sleep(3.0)
@@ -960,20 +962,20 @@ async def worker_tick(request: Request):
         "errors": [],
         "next_tick_needed": False
     }
-    
+
     # Process up to 2 tasks per tick (fits within PA's ~60s timeout)
     for _ in range(2):
         try:
             task = dequeue_task()
             if not task:
                 break  # No more tasks, stop
-                
+
             task_id = task["id"]
             task_type = task["task_type"]
             payload = task["payload"]
-            
+
             logger.info(f"[WORKER-TICK] Processing task {task_id}: {task_type}")
-            
+
             if task_type == "run_campaign":
                 _process_run_campaign_task(task_id, payload, results)
             elif task_type == "cron_tick":
@@ -987,14 +989,14 @@ async def worker_tick(request: Request):
             else:
                 fail_task(task_id, f"Unknown task_type: {task_type}")
                 results["errors"].append(f"unknown_type_{task_type}")
-            
+
             results["processed"] += 1
-            
+
         except Exception as e:
             logger.error(f"Worker tick error: {e}\n{traceback.format_exc()}")
             results["errors"].append(f"tick_error_{str(e)[:50]}")
             await asyncio.sleep(1)
-    
+
     # Check if more tasks remain in queue
     try:
         remaining = dequeue_task()
@@ -1005,7 +1007,7 @@ async def worker_tick(request: Request):
             results["next_tick_needed"] = True
     except Exception:
         pass
-    
+
     return results
 
 
@@ -1045,7 +1047,7 @@ async def health_v2():
 async def set_language(locale: str, request: Request):
     if locale not in ["en", "ar"]:
         locale = "en"
-    
+
     # Redirect back to where they came from
     referer = request.headers.get("referer", "/")
     response = RedirectResponse(url=referer, status_code=303)

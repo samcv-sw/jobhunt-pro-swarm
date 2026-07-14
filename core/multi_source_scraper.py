@@ -773,12 +773,11 @@ class GoogleJobsScraper(BaseScraper):
             job_urls = []
             seen = set()
             for u in all_urls:
-                if any(d in u.lower() for d in job_board_domains):
-                    if u not in seen:
-                        seen.add(u)
-                        job_urls.append(u)
-                        if len(job_urls) >= limit * 2:
-                            break
+                if any(d in u.lower() for d in job_board_domains) and u not in seen:
+                    seen.add(u)
+                    job_urls.append(u)
+                    if len(job_urls) >= limit * 2:
+                        break
 
             logger.debug(f"GoogleJobsScraper: found {len(job_urls)} job URLs")
 

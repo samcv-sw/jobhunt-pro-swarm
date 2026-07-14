@@ -22,11 +22,9 @@ import hmac
 import json
 import logging
 import time
-from datetime import datetime
-from typing import Optional, Dict, Any, List
-from urllib.request import Request, urlopen
-from urllib.error import URLError, HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 import config
 
@@ -51,7 +49,7 @@ class NOWPaymentsClient:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         }
 
-    def _request(self, method: str, path: str, data: dict = None) -> Optional[dict]:
+    def _request(self, method: str, path: str, data: dict = None) -> dict | None:
         """Make an API request to NOWPayments."""
         url = f"{NOWPAYMENTS_API_URL}{path}"
         body = json.dumps(data).encode() if data else None
@@ -74,14 +72,14 @@ class NOWPaymentsClient:
             logger.error(f"NOWPayments error: {e}")
             return None
 
-    def get_currencies(self) -> List[str]:
+    def get_currencies(self) -> list[str]:
         """Get list of supported cryptocurrencies."""
         result = self._request("GET", "/currencies")
         if result and isinstance(result, list):
             return [c.upper() for c in result]
         return SUPPORTED_CURRENCIES
 
-    def get_minimum_amount(self, currency_from: str, currency_to: str = "usd") -> Optional[float]:
+    def get_minimum_amount(self, currency_from: str, currency_to: str = "usd") -> float | None:
         """Get minimum payment amount for a currency."""
         params = urlencode({
             "currency_from": currency_from.lower(),
@@ -104,7 +102,7 @@ class NOWPaymentsClient:
         cancel_url: str = "",
         is_fixed_rate: bool = True,
         is_fee_paid_by_user: bool = True,
-    ) -> Optional[dict]:
+    ) -> dict | None:
         """
         Create a payment invoice.
 
@@ -148,7 +146,7 @@ class NOWPaymentsClient:
         logger.error(f"NOWPayments invoice creation failed: {result}")
         return None
 
-    def get_payment_status(self, payment_id: int) -> Optional[dict]:
+    def get_payment_status(self, payment_id: int) -> dict | None:
         """Check the status of a payment."""
         result = self._request("GET", f"/payment/{payment_id}")
         if result:
@@ -199,7 +197,7 @@ def create_crypto_invoice(
     order_id: str,
     customer_email: str = "",
     service_name: str = "",
-) -> Optional[dict]:
+) -> dict | None:
     """
     Create a NOWPayments invoice for a service order.
     Returns invoice data or None on failure.
@@ -280,7 +278,7 @@ def process_ipn_callback(ipn_data: dict, headers: dict) -> bool:
     tx_hash = ipn_data.get("purchase_id", f"nowpayments-{payment_id}")
 
     if not order_id:
-        logger.error(f"IPN: Missing order_id in callback")
+        logger.error("IPN: Missing order_id in callback")
         return False
 
     logger.info(
@@ -292,7 +290,7 @@ def process_ipn_callback(ipn_data: dict, headers: dict) -> bool:
     try:
         from services.fulfillment import ServiceFulfillment
 
-        fulfillment = ServiceFulfillment()
+        ServiceFulfillment()
 
         # Record the payment
         from payments import record_payment

@@ -1,4 +1,5 @@
 import re
+
 with open('web/app_v2.py', 'r', encoding='utf-8') as f:
     lines = f.readlines()
 routes = []

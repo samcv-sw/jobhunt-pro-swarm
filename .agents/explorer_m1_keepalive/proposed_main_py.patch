@@ -1,0 +1,15 @@
+diff --git a/backend/main.py b/backend/main.py
+--- a/backend/main.py
++++ b/backend/main.py
+@@ -210,5 +210,11 @@
+ @app.get("/healthz")
+ async def healthz(request: Request = None) -> dict[str, str]:
+     """Lightweight Render health check endpoint."""
+     return {"status": "ok"}
+ 
++@app.get("/api/v1/health")
++async def health_v1(request: Request = None) -> dict[str, str]:
++    """Lightweight API v1 health check endpoint."""
++    return {"status": "ok"}
++
+ @app.post("/webhook/telegram")

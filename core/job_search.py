@@ -5,6 +5,7 @@ Covers GCC, MENA, ASIA, EUROPE, CIS, Turkey — FREE sources only
 """
 
 import asyncio
+import contextlib
 import hashlib
 import logging
 import random
@@ -800,10 +801,8 @@ class MultiSourceSearch:
 
         # Close all scraper sessions
         for scraper in self._scrapers:
-            try:
+            with contextlib.suppress(Exception):
                 scraper.close()
-            except Exception:
-                pass
 
         logger.info(f"MultiSourceSearch: total unique jobs = {len(all_jobs)}")
         return all_jobs[:limit]

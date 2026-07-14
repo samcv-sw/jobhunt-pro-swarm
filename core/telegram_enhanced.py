@@ -12,6 +12,7 @@
 """
 
 import asyncio
+import contextlib
 import json
 import logging
 import os
@@ -149,7 +150,7 @@ class AIFixer:
     """Uses Groq AI to diagnose and fix system issues."""
 
     SYSTEM_PROMPT = """You are the JobHunt Pro diagnostic AI. You analyze system errors and suggest fixes.
-    
+
 Available context:
 - system_health: Current system status
 - recent_logs: Last 20 log lines
@@ -427,9 +428,8 @@ class SecurityGuard:
         Returns (is_allowed, error_message).
         """
         cmd = command.lstrip("/").split()[0].lower()
-        if cmd in cls.ADMIN_COMMANDS:
-            if not cls.is_admin(chat_id):
-                return False, "🚫 <b>Access Denied</b>\nThis command is admin-only."
+        if cmd in cls.ADMIN_COMMANDS and not cls.is_admin(chat_id):
+            return False, "🚫 <b>Access Denied</b>\nThis command is admin-only."
         return True, ""
 
     @classmethod
@@ -474,10 +474,8 @@ async def start_telegram_bot_enhanced():
 
     # Start health self-check in background
     async def send_func(msg):
-        try:
+        with contextlib.suppress(Exception):
             await bot.send(msg)
-        except Exception:
-            pass
 
     health_task = asyncio.create_task(health_self_check(send_func, interval_minutes=60))
 
@@ -487,7 +485,5 @@ async def start_telegram_bot_enhanced():
     finally:
         watchdog.stop()
         health_task.cancel()
-        try:
+        with contextlib.suppress(asyncio.CancelledError):
             await health_task
-        except asyncio.CancelledError:
-            pass

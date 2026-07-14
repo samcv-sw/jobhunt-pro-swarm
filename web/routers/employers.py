@@ -1,21 +1,32 @@
 """
 routers/employers.py - Employers Router (FastAPI APIRouter)
 """
-import os
-import uuid
+import json
 import logging
 import re
-import json
+import uuid
 from datetime import datetime, timedelta
-from fastapi import APIRouter, Form, HTTPException, Request, UploadFile, File
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+
+from fastapi import APIRouter, Form, Request
+from fastapi.responses import HTMLResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["employers"])
 
 def _deps():
-    from web.shared import get_db, get_verified_user_id, templates, is_admin_email, config
-    from web.app_v2 import render_template, _public_shell, _build_dashboard_shell, send_email_via_brevo_http
+    from web.app_v2 import (
+        _build_dashboard_shell,
+        _public_shell,
+        render_template,
+        send_email_via_brevo_http,
+    )
+    from web.shared import (
+        config,
+        get_db,
+        get_verified_user_id,
+        is_admin_email,
+        templates,
+    )
     return get_db, get_verified_user_id, templates, is_admin_email, config, render_template, _public_shell, _build_dashboard_shell, send_email_via_brevo_http
 
 @router.get("/employers", response_class=HTMLResponse)

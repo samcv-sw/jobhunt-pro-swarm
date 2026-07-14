@@ -32,6 +32,7 @@ BLAST_HOURLY_CAP = 4800
 MIN_DELAY_SEC = 2.0  # minimum between sends
 MAX_DELAY_SEC = 5.0  # maximum randomized delay
 TRACKING_ENABLED = True
+import contextlib
 import sys
 
 _ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -158,10 +159,7 @@ def init(data_dir: str | None = None):
     if _initialized:
         return
 
-    if data_dir:
-        _data_dir = Path(data_dir)
-    else:
-        _data_dir = Path(__file__).parent.parent / "data"
+    _data_dir = Path(data_dir) if data_dir else Path(__file__).parent.parent / "data"
 
     _data_dir.mkdir(parents=True, exist_ok=True)
 
@@ -283,10 +281,8 @@ def _send_single_email(
         )
 
         if ai_personalize:
-            try:
+            with contextlib.suppress(Exception):
                 subject, body = _ai_personalize(to_email, name, subject, body)
-            except Exception:
-                pass
 
         viral_signature = f"""
         <br><br>

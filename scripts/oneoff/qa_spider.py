@@ -1,8 +1,9 @@
+import json
+import time
+from urllib.parse import urljoin, urlparse
+
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse
-import time
-import json
 
 base_url = "http://127.0.0.1:8000"
 visited = set()

@@ -5,6 +5,7 @@ Runs every cycle: API keys → SMTP → DB → Scrapers → Disk → Processes.
 """
 
 import asyncio
+import contextlib
 import json
 import logging
 import os
@@ -451,10 +452,8 @@ class HealingEngine:
                 else:
                     logger.warning(f"DB integrity: unexpected error ({err_str[:100]})")
                     # Try recreating tables as safety net
-                    try:
+                    with contextlib.suppress(Exception):
                         await self.db.create_tables()
-                    except Exception:
-                        pass
                     return (
                         {
                             "check": "db_error",

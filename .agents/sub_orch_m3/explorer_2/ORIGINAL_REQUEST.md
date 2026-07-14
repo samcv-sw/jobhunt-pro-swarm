@@ -1,0 +1,2 @@
+## 2026-07-12T20:51:00Z
+Investigate and design the implementation strategy for IMP-038 (Next.js ISR for static job pages). Look at how static job listing pages should be created in the App Router (e.g. using dynamic routes, segment configurations like export const revalidate = 300, and fetch). Explain how next.config.ts output: "export" interacts with ISR and if it needs to be commented/modified. Do NOT modify any files yourself. Write your findings to: C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_m3\explorer_2\analysis.md

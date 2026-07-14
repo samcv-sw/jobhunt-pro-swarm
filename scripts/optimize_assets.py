@@ -1,5 +1,6 @@
-import os
 import glob
+import os
+
 try:
     from PIL import Image
 except ImportError:
@@ -12,10 +13,10 @@ def optimize_images(directory="assets"):
         return
 
     print(f"Optimizing images in {directory}...")
-    
+
     # Find all png and jpg images
     images = glob.glob(f"{directory}/**/*.png", recursive=True) + glob.glob(f"{directory}/**/*.jpg", recursive=True)
-    
+
     for img_path in images:
         try:
             with Image.open(img_path) as img:

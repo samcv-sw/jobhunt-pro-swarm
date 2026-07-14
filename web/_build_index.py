@@ -1,9 +1,9 @@
 """
 BUILD-QUICK-WINS: Add featured jobs section to index_v3.html
 """
+import logging
 import os
 import sys
-import logging
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ def build_index() -> None:
             logger.error(f"Template file not found: {INDEX_HTML}")
             sys.exit(1)
 
-        with open(INDEX_HTML, 'r', encoding='utf-8') as f:
+        with open(INDEX_HTML, encoding='utf-8') as f:
             content = f.read()
     except Exception as e:
         logger.error(f"Failed to read template file: {e}")

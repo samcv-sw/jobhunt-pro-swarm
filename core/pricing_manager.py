@@ -4,6 +4,7 @@ pricing_manager.py - Clean pricing configuration for JobHunt Pro v2
 All payment buttons link to /register or /wallet for crypto payments.
 """
 
+import contextlib
 import logging
 from typing import Any
 
@@ -522,10 +523,8 @@ def get_unlocked_features(user_id: str) -> set:
         )
     finally:
         if conn:
-            try:
+            with contextlib.suppress(Exception):
                 conn.close()
-            except Exception:
-                pass
     return unlocked
 
 
@@ -567,10 +566,7 @@ def calculate_daily_reward(tier_name: str) -> int:
         "pro": 100,
         "enterprise": 200,
     }
-    if isinstance(tier_name, str):
-        t_clean = tier_name.strip().lower()
-    else:
-        t_clean = ""
+    t_clean = tier_name.strip().lower() if isinstance(tier_name, str) else ""
     return tier_map.get(t_clean, 5)
 
 

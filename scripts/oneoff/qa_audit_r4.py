@@ -1,4 +1,6 @@
-import os, re, json
+import json
+import os
+import re
 
 templates_dir = 'web/templates'
 results = {}

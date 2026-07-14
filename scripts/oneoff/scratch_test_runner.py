@@ -1,8 +1,9 @@
 import asyncio
 import logging
+
 logger = logging.getLogger(__name__)
-import sqlite3
 import os
+import sqlite3
 import sys
 
 # Add project root to sys.path
@@ -97,6 +98,7 @@ os.environ["TENANT_USER_TENANT_CAMP_SMTP_PASS"] = "camp_pass"
 
 import config as config_mod
 from core.campaign_runner import run_campaign
+
 
 def get_db_fn():
     conn = sqlite3.connect(temp_db_path)

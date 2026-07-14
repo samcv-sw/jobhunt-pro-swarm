@@ -6,11 +6,11 @@
 # It usually looks like: /var/www/jhfguf_pythonanywhere_com_wsgi.py
 # ==============================================================================
 
-import sys
 import os
+import sys
 
 # 1. ADD YOUR PROJECT DIRECTORY TO THE PATH
-# Replace '/home/jhfguf/jobhunt-pro-swarm/web' with the actual path 
+# Replace '/home/jhfguf/jobhunt-pro-swarm/web' with the actual path
 # where your app_v2.py file is located on PythonAnywhere.
 project_home = '/home/jhfguf/jobhunt-pro-swarm/web'
 if project_home not in sys.path:

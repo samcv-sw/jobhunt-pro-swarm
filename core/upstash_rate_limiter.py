@@ -6,11 +6,10 @@ Uses REST API (HTTP), no Redis client library needed.
 import json
 import logging
 import os
-import time
 import random
+import time
 import urllib.error
 import urllib.request
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +61,7 @@ class RateLimiter:
             logger.warning(f"Upstash error: {e}")
             return None
 
-    def _exec_pipeline(self, commands: list) -> Optional[list]:
+    def _exec_pipeline(self, commands: list) -> list | None:
         """Execute multiple Redis commands in a single HTTP request using pipeline."""
         if not self._enabled:
             return None
@@ -129,7 +128,7 @@ class RateLimiter:
 
             # Remove old entries and clean up to prevent memory leaks
             active_ts = [t for t in self._fallback[key] if t > now - window_seconds]
-            
+
             self._cleanup_counter += 1
             if self._cleanup_counter >= 1000:
                 self._cleanup_fallback()

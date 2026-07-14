@@ -23,10 +23,10 @@ import logging
 import math
 import os
 import re
-from typing import Any, Optional, Dict, Tuple, List, Union
 import time
 import urllib.error
 import urllib.request
+from typing import Any
 
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse, Response
@@ -83,7 +83,7 @@ class _UpstashClient:
                 "Set UPSTASH_REDIS_URL + UPSTASH_REDIS_TOKEN for distributed mode."
             )
 
-    def _exec(self, *cmd) -> Optional[Any]:
+    def _exec(self, *cmd) -> Any | None:
         """Execute a single Redis command via Upstash REST POST."""
         if not self._enabled:
             return None

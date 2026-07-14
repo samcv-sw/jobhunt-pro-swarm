@@ -13,5 +13,6 @@ CREATE INDEX IF NOT EXISTS idx_jobs_source ON jobs (source);
 
 -- 4. Applications Metrics
 CREATE INDEX IF NOT EXISTS idx_applications_metrics ON applications (opened, responded, status);
+CREATE INDEX IF NOT EXISTS idx_applications_tracking_id ON applications(tracking_id);
 -- 7. CV Profiles User Lookup
 CREATE INDEX IF NOT EXISTS idx_cv_profiles_user_id ON cv_profiles (user_id);

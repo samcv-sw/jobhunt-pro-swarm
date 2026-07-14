@@ -4,6 +4,7 @@ Uses service_role key + Supabase REST API (PostgREST).
 Same interface as pg_sqlite_shim.py for drop-in replacement.
 """
 
+import contextlib
 import logging
 import os
 import re
@@ -443,10 +444,8 @@ class SupabaseConnection:
         for statement in script.split(";"):
             stmt = statement.strip()
             if stmt:
-                try:
+                with contextlib.suppress(Exception):
                     cursor.execute(stmt)
-                except Exception:
-                    pass
         return cursor
 
     def commit(self):

@@ -46,8 +46,8 @@ class EmailNegotiator:
         prompt = f"""
         You are an autonomous AI executive assistant for a job seeker.
         The user received this email from an employer: "{inbound_text}"
-        
-        Draft a highly professional, polite reply. 
+
+        Draft a highly professional, polite reply.
         - For time availability: State that Tuesday works perfectly between 1 PM and 5 PM EST.
         - For salary expectations: Politely state that salary is negotiable based on the total compensation package and scope of the role.
         Keep it concise.

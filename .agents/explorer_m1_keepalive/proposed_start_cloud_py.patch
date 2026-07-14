@@ -1,0 +1,53 @@
+diff --git a/start_cloud.py b/start_cloud.py
+--- a/start_cloud.py
++++ b/start_cloud.py
+@@ -10,4 +10,5 @@
+ import subprocess
+ import logging
+ import signal
++import threading
+ 
+@@ -80,5 +81,38 @@
+     uvicorn_proc = subprocess.Popen(uvicorn_cmd)
+     processes.append(uvicorn_proc)
+ 
++    # Start Keep-Alive ping daemon thread
++    def keep_alive_ping():
++        import urllib.request
++        import urllib.error
++        # Wait 30 seconds for services to fully initialize
++        time.sleep(30)
++        
++        # Resolve target keep-alive ping URL
++        target_url = os.environ.get("RENDER_EXTERNAL_URL") or os.environ.get("SITE_URL")
++        if not target_url:
++            target_url = f"http://{HOST}:{PORT}"
++        target_url = target_url.rstrip("/") + "/api/v1/health"
++        
++        logger.info(f"Keep-Alive ping daemon started targeting: {target_url}")
++        
++        while True:
++            try:
++                req = urllib.request.Request(
++                    target_url, 
++                    headers={"User-Agent": "JobHuntPro-KeepAlive/1.0"}
++                )
++                with urllib.request.urlopen(req, timeout=10) as response:
++                    if response.getcode() == 200:
++                        logger.info("Keep-Alive ping check: SUCCESS (200 OK)")
++                    else:
++                        logger.warning(f"Keep-Alive ping check: WARNING (Status {response.getcode()})")
++            except urllib.error.URLError as e:
++                logger.warning(f"Keep-Alive ping check: FAILED (URLError): {e.reason}")
++            except Exception as e:
++                logger.error(f"Keep-Alive ping check: ERROR: {e}")
++            
++            # Ping every 10 minutes (600 seconds)
++            time.sleep(600)
++
++    ping_thread = threading.Thread(target=keep_alive_ping, daemon=True)
++    ping_thread.start()
++
+     # Keep script alive and monitor processes
+     try:
+         while True:

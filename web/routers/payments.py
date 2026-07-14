@@ -2,19 +2,26 @@
 routers/payments.py - Payments Router (FastAPI APIRouter)
 Extracted from app_v2.py - Phase 1 Refactor
 """
+import logging
 import os
 import uuid
-import logging
-from datetime import datetime, timedelta
+from datetime import datetime
+
 from fastapi import APIRouter, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["payments"])
 
 def _deps():
-    from web.shared import get_db, get_verified_user_id, update_wallet, deduct_wallet, config
-    from web.app_v2 import PRICING_TIERS, render_template, get_all_pricing
+    from web.app_v2 import PRICING_TIERS, get_all_pricing, render_template
+    from web.shared import (
+        config,
+        deduct_wallet,
+        get_db,
+        get_verified_user_id,
+        update_wallet,
+    )
     return get_db, get_verified_user_id, update_wallet, deduct_wallet, config, PRICING_TIERS, render_template, get_all_pricing
 
 @router.post("/api/generate-redeem-code")
@@ -199,14 +206,15 @@ async def payment_webhook(request: Request):
     stripe_signature = request.headers.get("stripe-signature")
     if stripe_signature:
         import stripe
-        from core.webhook_state import ProcessedWebhook
+
         from core.database import AsyncSessionLocal
-        
+        from core.webhook_state import ProcessedWebhook
+
         stripe_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
         if not stripe_secret:
             logger.critical("Stripe webhook: STRIPE_WEBHOOK_SECRET not configured!")
             return JSONResponse({"status": "error", "message": "webhook_not_configured"}, status_code=500)
-            
+
         try:
             stripe_event = stripe.Webhook.construct_event(
                 payload=raw_body, sig_header=stripe_signature, secret=stripe_secret
@@ -215,10 +223,10 @@ async def payment_webhook(request: Request):
             return JSONResponse({"status": "error", "message": "invalid_payload"}, status_code=400)
         except Exception:
             return JSONResponse({"status": "error", "message": "invalid_signature"}, status_code=403)
-            
+
         event_id = stripe_event.get("id")
         from sqlalchemy.dialects.postgresql import insert
-        
+
         async with AsyncSessionLocal() as session:
             stmt = insert(ProcessedWebhook).values(event_id=event_id)
             stmt = stmt.on_conflict_do_update(
@@ -227,12 +235,12 @@ async def payment_webhook(request: Request):
             ).returning(ProcessedWebhook.event_id)
             result = await session.execute(stmt)
             await session.commit()
-            
+
         if stripe_event["type"] == "checkout.session.completed":
             session_obj = stripe_event["data"]["object"]
             email = session_obj.get("customer_details", {}).get("email")
             amount = float(session_obj.get("amount_total", 0)) / 100.0
-            
+
             if email and amount > 0:
                 with get_db() as conn:
                     user = conn.execute("SELECT user_id FROM users WHERE email = ?", (email,)).fetchone()
@@ -252,8 +260,8 @@ async def payment_webhook(request: Request):
         if not sig:
             return JSONResponse({"status": "error", "message": "missing_signature"}, status_code=403)
 
-        import hmac as _hmac
         import hashlib as _hashlib
+        import hmac as _hmac
         expected_sig = _hmac.new(sellix_secret.encode(), raw_body, _hashlib.sha256).hexdigest()
         if not _hmac.compare_digest(sig, expected_sig):
             return JSONResponse({"status": "error", "message": "invalid_signature"}, status_code=403)
@@ -298,8 +306,6 @@ def api_pricing():
 
 # ── MIGRATED PAYMENTS & WALLET ROUTES ───────────────────────────────────────
 
-from fastapi import BackgroundTasks
-import urllib.parse
 
 @router.post("/api/v2/nowpayments-ipn")
 async def api_nowpayments_ipn(request: Request):
@@ -328,7 +334,7 @@ def api_nowpayments_create_invoice(request: Request, amount: float = Form(...)):
     user_id = get_verified_user_id(request)
     if not user_id:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
-    
+
     order_id = f"np_{uuid.uuid4().hex[:16]}"
     try:
         from payments.nowpayments import create_crypto_invoice
@@ -359,7 +365,7 @@ def api_orders_create(
 
     order_id = f"ord_{uuid.uuid4().hex[:16]}"
     with get_db() as conn:
-    
+
         if payment_method == "credits":
             # Deduct wallet credits
             success = deduct_wallet(conn, user_id, amount_usd, f"Purchased Campaign Package: {package_name}", "campaign_purchase")
@@ -424,25 +430,44 @@ def api_get_orders_by_email(email: str):
         if not user:
             pass  # conn.close()
             return {"orders": []}
-    
+
         rows = conn.execute("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC", (user["user_id"],)).fetchall()
         pass  # conn.close()
         return {"orders": [dict(r) for r in rows]}
 
 
 @router.post("/api/v2/orders/verify-payment")
-def api_verify_payment(request: Request, order_id: str = Form(...)):
+async def api_verify_payment(request: Request):
     get_db, get_verified_user_id, _, _, _, _, _, _ = _deps()
     user_id = get_verified_user_id(request)
     if not user_id:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
 
+    body = await request.json()
+    order_id = body.get("order_id", "")
+    tx_hash = body.get("tx_hash", "")
+    payment_code = body.get("payment_code", "")
+
     with get_db() as conn:
-        order = conn.execute("SELECT payment_status FROM orders WHERE order_id = ? AND user_id = ?", (order_id, user_id)).fetchone()
-        pass  # conn.close()
+        order = conn.execute(
+            "SELECT payment_status, payment_code, tx_hash FROM orders WHERE order_id = ? AND user_id = ?",
+            (order_id, user_id),
+        ).fetchone()
         if not order:
             return {"success": False, "status": "not_found"}
-        return {"success": True, "status": order["payment_status"]}
+
+        if order["payment_status"] == "paid":
+            return {"success": True, "status": "paid"}
+
+        if payment_code and order["payment_code"] and payment_code.upper() == order["payment_code"].upper():
+            conn.execute(
+                "UPDATE orders SET payment_status = 'paid', tx_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE order_id = ?",
+                (tx_hash, order_id),
+            )
+            conn.commit()
+            return {"success": True, "status": "paid"}
+
+        return {"success": False, "status": order["payment_status"], "message": "Payment code mismatch or missing"}
 
 
 @router.get("/api/v2/orders/{order_id}")
@@ -484,6 +509,62 @@ def api_payments_stats():
     return get_payment_stats()
 
 
+# ── Profit Report API ──
+@router.get("/api/v2/admin/profit-report")
+def api_profit_report(days: int = 30):
+    """Return aggregated profit & revenue report (admin)."""
+    from services.profit_report import generate_full_report
+    return generate_full_report(days)
+
+
+@router.get("/api/v2/admin/profit-report/export-json")
+def api_profit_report_export(days: int = 30):
+    """Export profit report as JSON string."""
+    from services.profit_report import export_report_json
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(export_report_json(days), media_type="application/json")
+
+
+@router.get("/api/v2/admin/profit-report/trends-csv")
+def api_profit_report_trends_csv(days: int = 90):
+    """Export daily order trends as CSV."""
+    from services.profit_report import export_trends_csv
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(export_trends_csv(days), media_type="text/csv")
+
+
+@router.get("/api/v2/admin/profit-report/revenue-csv")
+def api_profit_report_revenue_csv(days: int = 30):
+    """Export revenue by payment method as CSV."""
+    from services.profit_report import export_revenue_by_method_csv
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(export_revenue_by_method_csv(days), media_type="text/csv")
+
+
+# ── Sell / Transfer API ──
+@router.post("/api/v2/orders/transfer")
+def api_transfer_order(request: Request, order_id: str = Form(...), target_email: str = Form(...), price: float = Form(0.0)):
+    """Transfer an order to another user by email."""
+    from services.sell import transfer_order, get_order
+    get_db, get_verified_user_id, _, _, _, _, _, _ = _deps()
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    with get_db() as conn:
+        result = transfer_order(order_id, user_id, target_email, price, conn)
+    return result
+
+
+@router.get("/api/v2/orders/{user_id}/sellable")
+def api_list_sellable_orders(user_id: str):
+    """List all sellable (paid) orders for a user."""
+    from services.sell import list_orders_for_user
+    get_db, _, _, _, _, _, _, _ = _deps()
+    with get_db() as conn:
+        orders = list_orders_for_user(user_id, conn)
+    return {"orders": orders}
+
+
 # ── Special Offers routes ──
 @router.get("/my-purchases", response_class=HTMLResponse)
 def my_purchases_page(request: Request):
@@ -492,19 +573,19 @@ def my_purchases_page(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-        
+
     success_msg = request.query_params.get("success", "")
     error_msg = request.query_params.get("error", "")
-    
+
     with get_db() as conn:
-    
+
         # Retrieve user information
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         if not user_row:
             pass  # conn.close()
             return RedirectResponse("/login", status_code=303)
         user = dict(user_row)
-    
+
         # Retrieve user purchases
         purchase_rows = conn.execute("""
             SELECT p.*, o.title as offer_title, o.image_url 
@@ -514,9 +595,9 @@ def my_purchases_page(request: Request):
             ORDER BY p.created_at DESC
         """, (user_id,)).fetchall()
         purchases = [dict(r) for r in purchase_rows]
-    
+
         pass  # conn.close()
-    
+
         from web.app_v2 import _build_dashboard_shell
         content = render_template(
             "my_purchases.html",
@@ -526,7 +607,7 @@ def my_purchases_page(request: Request):
             success=success_msg,
             error=error_msg
         )
-    
+
         return HTMLResponse(_build_dashboard_shell(user, user_id, content, "My Subscriptions", "my-purchases", request=request))
 
 @router.get("/offers", response_class=HTMLResponse)
@@ -536,7 +617,7 @@ def offers_page(request: Request):
     user_id = get_verified_user_id(request)
     success_msg = request.query_params.get("success", "")
     error_msg = request.query_params.get("error", "")
-    
+
     with get_db() as conn:
         # Query offers along with the count of available keys in stock
         offers_rows = conn.execute("""
@@ -546,19 +627,19 @@ def offers_page(request: Request):
             ORDER BY o.created_at DESC
         """).fetchall()
         offers = [dict(r) for r in offers_rows]
-    
+
         user = None
         is_admin = False
         purchases = []
         inventory_keys = []
-    
+
         if user_id:
             user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
             if user_row:
                 user = dict(user_row)
                 # The admin check
                 is_admin = is_admin_email(user["email"])
-            
+
                 if is_admin:
                     # Retrieve sales history
                     purchase_rows = conn.execute("""
@@ -568,7 +649,7 @@ def offers_page(request: Request):
                         ORDER BY p.created_at DESC
                     """).fetchall()
                     purchases = [dict(r) for r in purchase_rows]
-                
+
                     # Retrieve all keys in the inventory pool
                     inventory_rows = conn.execute("""
                         SELECT k.*, o.title as offer_title, u.email as user_email
@@ -578,9 +659,9 @@ def offers_page(request: Request):
                         ORDER BY k.created_at DESC
                     """).fetchall()
                     inventory_keys = [dict(r) for r in inventory_rows]
-                
+
         pass  # conn.close()
-    
+
         from web.app_v2 import _build_dashboard_shell, _public_shell
         content = render_template(
             "offers.html",
@@ -593,7 +674,7 @@ def offers_page(request: Request):
             success=success_msg,
             error=error_msg
         )
-    
+
         if user:
             return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Special Offers", "offers", request=request))
         else:
@@ -606,18 +687,18 @@ async def offers_add(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-        
+
     with get_db() as conn:
         user_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
         if not user_row:
             pass  # conn.close()
             return RedirectResponse("/login", status_code=303)
-        
+
         is_admin = is_admin_email(user_row["email"])
         if not is_admin:
             pass  # conn.close()
             return RedirectResponse("/offers?error=unauthorized", status_code=303)
-        
+
         form = await request.form()
         title = form.get("title", "").strip()
         description = form.get("description", "").strip()
@@ -625,28 +706,28 @@ async def offers_add(request: Request):
         original_price_val = form.get("original_price", "").strip()
         image_url = form.get("image_url", "").strip()
         note = form.get("note", "").strip()
-    
+
         delivery_type = form.get("delivery_type", "manual").strip()
         reseller_api_url = form.get("reseller_api_url", "").strip()
         reseller_api_key = form.get("reseller_api_key", "").strip()
-    
+
         if not title or not description or not price_val:
             pass  # conn.close()
             return RedirectResponse("/offers?error=missing_fields", status_code=303)
-        
+
         try:
             price = float(price_val)
         except ValueError:
             pass  # conn.close()
             return RedirectResponse("/offers?error=invalid_price", status_code=303)
-        
+
         original_price = 0.0
         if original_price_val:
             try:
                 original_price = float(original_price_val)
             except ValueError:
                 pass
-            
+
         offer_id = f"offr_{uuid.uuid4().hex[:16]}"
         conn.execute(
             "INSERT INTO special_offers (offer_id, title, description, price, original_price, image_url, note, delivery_type, reseller_api_url, reseller_api_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -654,7 +735,7 @@ async def offers_add(request: Request):
         )
         conn.commit()
         pass  # conn.close()
-    
+
         return RedirectResponse("/offers?success=offer_added", status_code=303)
 
 @router.post("/api/v2/offers/delete/{offer_id}")
@@ -664,22 +745,22 @@ def offers_delete(request: Request, offer_id: str):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-        
+
     with get_db() as conn:
         user_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
         if not user_row:
             pass  # conn.close()
             return RedirectResponse("/login", status_code=303)
-        
+
         is_admin = is_admin_email(user_row["email"])
         if not is_admin:
             pass  # conn.close()
             return RedirectResponse("/offers?error=unauthorized", status_code=303)
-        
+
         conn.execute("DELETE FROM special_offers WHERE offer_id = ?", (offer_id,))
         conn.commit()
         pass  # conn.close()
-    
+
         return RedirectResponse("/offers?success=offer_deleted", status_code=303)
 
 @router.post("/api/v2/offers/edit/{offer_id}")
@@ -689,18 +770,18 @@ async def offers_edit(request: Request, offer_id: str):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-        
+
     with get_db() as conn:
         user_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
         if not user_row:
             pass  # conn.close()
             return RedirectResponse("/login", status_code=303)
-        
+
         is_admin = is_admin_email(user_row["email"])
         if not is_admin:
             pass  # conn.close()
             return RedirectResponse("/offers?error=unauthorized", status_code=303)
-        
+
         form = await request.form()
         title = form.get("title", "").strip()
         description = form.get("description", "").strip()
@@ -708,35 +789,35 @@ async def offers_edit(request: Request, offer_id: str):
         original_price_val = form.get("original_price", "").strip()
         image_url = form.get("image_url", "").strip()
         note = form.get("note", "").strip()
-    
+
         delivery_type = form.get("delivery_type", "manual").strip()
         reseller_api_url = form.get("reseller_api_url", "").strip()
         reseller_api_key = form.get("reseller_api_key", "").strip()
-    
+
         if not title or not description or not price_val:
             pass  # conn.close()
             return RedirectResponse("/offers?error=missing_fields", status_code=303)
-        
+
         try:
             price = float(price_val)
         except ValueError:
             pass  # conn.close()
             return RedirectResponse("/offers?error=invalid_price", status_code=303)
-        
+
         original_price = 0.0
         if original_price_val:
             try:
                 original_price = float(original_price_val)
             except ValueError:
                 pass
-            
+
         conn.execute(
             "UPDATE special_offers SET title = ?, description = ?, price = ?, original_price = ?, image_url = ?, note = ?, delivery_type = ?, reseller_api_url = ?, reseller_api_key = ? WHERE offer_id = ?",
             (title, description, price, original_price, image_url, note, delivery_type, reseller_api_url, reseller_api_key, offer_id)
         )
         conn.commit()
         pass  # conn.close()
-    
+
         return RedirectResponse("/offers?success=offer_updated", status_code=303)
 
 @router.post("/api/v2/offers/import-keys")
@@ -746,32 +827,32 @@ async def offers_import_keys(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-        
+
     with get_db() as conn:
         user_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
         if not user_row:
             pass  # conn.close()
             return RedirectResponse("/login", status_code=303)
-        
+
         is_admin = is_admin_email(user_row["email"])
         if not is_admin:
             pass  # conn.close()
             return RedirectResponse("/offers?error=unauthorized", status_code=303)
-        
+
         form = await request.form()
         offer_id = form.get("offer_id", "").strip()
         keys_text = form.get("keys", "").strip()
-    
+
         if not offer_id or not keys_text:
             pass  # conn.close()
             return RedirectResponse("/offers?error=missing_fields", status_code=303)
-        
+
         # Split keys by line, filter out empty lines
         keys_list = [k.strip() for k in keys_text.splitlines() if k.strip()]
         if not keys_list:
             pass  # conn.close()
             return RedirectResponse("/offers?error=no_keys_found", status_code=303)
-        
+
         imported_count = 0
         try:
             conn.execute("BEGIN TRANSACTION")
@@ -788,7 +869,7 @@ async def offers_import_keys(request: Request):
             pass  # conn.close()
             logger.error(f"Error importing keys: {e}")
             return RedirectResponse("/offers?error=import_failed", status_code=303)
-        
+
         pass  # conn.close()
         return RedirectResponse(f"/offers?success=keys_imported&count={imported_count}", status_code=303)
 
@@ -800,29 +881,29 @@ def offers_delete_key(request: Request, key_id: str):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-        
+
     with get_db() as conn:
         user_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
         if not user_row:
             pass  # conn.close()
             return RedirectResponse("/login", status_code=303)
-        
+
         is_admin = is_admin_email(user_row["email"])
         if not is_admin:
             pass  # conn.close()
             return RedirectResponse("/offers?error=unauthorized", status_code=303)
-        
+
         try:
             # Verify key is not used before deleting
             key_row = conn.execute("SELECT is_used FROM subscription_keys_inventory WHERE key_id = ?", (key_id,)).fetchone()
             if not key_row:
                 pass  # conn.close()
                 return RedirectResponse("/offers?error=key_not_found", status_code=303)
-            
+
             if key_row["is_used"] == 1:
                 pass  # conn.close()
                 return RedirectResponse("/offers?error=cannot_delete_used_key", status_code=303)
-            
+
             conn.execute("BEGIN TRANSACTION")
             conn.execute("DELETE FROM subscription_keys_inventory WHERE key_id = ?", (key_id,))
             conn.commit()
@@ -831,7 +912,7 @@ def offers_delete_key(request: Request, key_id: str):
             pass  # conn.close()
             logger.error(f"Error deleting key: {e}")
             return RedirectResponse("/offers?error=delete_key_failed", status_code=303)
-        
+
         pass  # conn.close()
         return RedirectResponse("/offers?success=key_deleted", status_code=303)
 
@@ -843,25 +924,25 @@ async def offers_fulfill(request: Request, purchase_id: str):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-        
+
     with get_db() as conn:
         user_row = conn.execute("SELECT email FROM users WHERE user_id = ?", (user_id,)).fetchone()
         if not user_row:
             pass  # conn.close()
             return RedirectResponse("/login", status_code=303)
-        
+
         is_admin = is_admin_email(user_row["email"])
         if not is_admin:
             pass  # conn.close()
             return RedirectResponse("/offers?error=unauthorized", status_code=303)
-        
+
         form = await request.form()
         credentials = form.get("credentials", "").strip()
-    
+
         if not credentials:
             pass  # conn.close()
             return RedirectResponse("/offers?error=missing_credentials", status_code=303)
-        
+
         try:
             # Retrieve the purchase info
             purchase = conn.execute("""
@@ -870,13 +951,13 @@ async def offers_fulfill(request: Request, purchase_id: str):
                 JOIN special_offers o ON p.offer_id = o.offer_id
                 WHERE p.purchase_id = ?
             """, (purchase_id,)).fetchone()
-        
+
             if not purchase:
                 pass  # conn.close()
                 return RedirectResponse("/offers?error=purchase_not_found", status_code=303)
-            
+
             purchase_data = dict(purchase)
-        
+
             conn.execute("BEGIN TRANSACTION")
             conn.execute("""
                 UPDATE special_offer_purchases 
@@ -884,7 +965,7 @@ async def offers_fulfill(request: Request, purchase_id: str):
                 WHERE purchase_id = ?
             """, (credentials, purchase_id))
             conn.commit()
-        
+
             # Trigger Telegram Alert for manual fulfillment
             try:
                 from core.telegram_alerts import _send_message
@@ -898,13 +979,13 @@ async def offers_fulfill(request: Request, purchase_id: str):
                 )
             except Exception as tg_err:
                 logger.error(f"Failed to send manual fulfillment Telegram alert: {tg_err}")
-            
+
         except Exception as e:
             conn.rollback()
             pass  # conn.close()
             logger.error(f"Error manually fulfilling order: {e}")
             return RedirectResponse("/offers?error=fulfillment_failed", status_code=303)
-        
+
         pass  # conn.close()
         return RedirectResponse("/offers?success=order_fulfilled", status_code=303)
 
@@ -914,77 +995,77 @@ async def offers_buy(request: Request, offer_id: str):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-        
+
     form = await request.form()
     requirements = form.get("requirements", "").strip()
     if not requirements:
         return RedirectResponse("/offers?error=requirements_required", status_code=303)
-        
+
     with get_db() as conn:
         offer_row = conn.execute("SELECT * FROM special_offers WHERE offer_id = ?", (offer_id,)).fetchone()
         if not offer_row:
             pass  # conn.close()
             return RedirectResponse("/offers?error=offer_not_found", status_code=303)
-        
+
         offer = dict(offer_row)
         price = offer["price"]
         offer_title = offer["title"]
-    
+
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         if not user_row:
             pass  # conn.close()
             return RedirectResponse("/login", status_code=303)
-        
+
         user = dict(user_row)
         if user["wallet_balance"] < price:
             pass  # conn.close()
             return RedirectResponse("/offers?error=insufficient_funds", status_code=303)
-        
+
         new_balance = user["wallet_balance"] - price
         purchase_id = f"pur_{uuid.uuid4().hex[:16]}"
         order_id = f"ord_{uuid.uuid4().hex[:16]}"
-    
+
         try:
             conn.execute("BEGIN TRANSACTION")
-        
+
             # Atomic wallet balance update
             conn.execute("UPDATE users SET wallet_balance = wallet_balance - ?, total_spent = total_spent + ? WHERE user_id = ?",
                          (price, price, user_id))
-                     
+
             # Record special offer purchase
             conn.execute("""
                 INSERT INTO special_offer_purchases (purchase_id, offer_id, user_id, user_email, user_requirements, price_paid)
                 VALUES (?, ?, ?, ?, ?, ?)
             """, (purchase_id, offer_id, user_id, user["email"], requirements, price))
-        
+
             # Record wallet transaction
             conn.execute("""
                 INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
                 VALUES (?, 'spend', ?, ?, ?)
             """, (user_id, -price, new_balance, f"Offer: {offer_title}"))
-        
+
             # Record in global orders
             conn.execute("""
                 INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status)
                 VALUES (?, ?, 'special_offer', ?, 0, ?, 'wallet', 'completed')
             """, (order_id, user_id, offer_title, price))
-        
+
             conn.commit()
         except Exception as e:
             conn.rollback()
             pass  # conn.close()
             logger.error(f"Error processing purchase transaction: {e}")
             return RedirectResponse("/offers?error=transaction_failed", status_code=303)
-        
+
         # ── Automated Fulfillment Engine (Outside Financial Transaction) ──
         fulfillment_status = "pending"
         delivered_credentials = None
         fulfillment_error = None
-    
+
         delivery_type = offer.get("delivery_type", "manual")
-    
+
         from urllib.parse import quote
-    
+
         if delivery_type == "instant_pool":
             try:
                 # Check for an unused key
@@ -992,13 +1073,13 @@ async def offers_buy(request: Request, offer_id: str):
                     "SELECT * FROM subscription_keys_inventory WHERE offer_id = ? AND is_used = 0 ORDER BY created_at ASC LIMIT 1",
                     (offer_id,)
                 ).fetchone()
-            
+
                 if key_row:
                     key_data = dict(key_row)
                     key_id = key_data["key_id"]
                     delivered_credentials = key_data["key_content"]
                     fulfillment_status = "fulfilled"
-                
+
                     # Mark key as used and update purchase
                     conn.execute("BEGIN TRANSACTION")
                     conn.execute(
@@ -1019,7 +1100,7 @@ async def offers_buy(request: Request, offer_id: str):
                         (fulfillment_error, purchase_id)
                     )
                     conn.commit()
-                
+
                     # Alert admin via Telegram
                     try:
                         from core.telegram_alerts import _send_message
@@ -1034,20 +1115,20 @@ async def offers_buy(request: Request, offer_id: str):
                         logger.error(f"Failed to send pool exhaustion Telegram alert: {tg_err}")
             except Exception as pool_err:
                 logger.error(f"Error in pool fulfillment: {pool_err}")
-            
+
         pass  # conn.close() # Close connection after database-based fulfillment
-    
+
         if delivery_type == "instant_api":
             reseller_url = offer.get("reseller_api_url", "")
             reseller_key = offer.get("reseller_api_key", "")
-        
+
             if reseller_url:
                 try:
                     import httpx
                     headers = {}
                     if reseller_key:
                         headers["Authorization"] = f"Bearer {reseller_key}"
-                
+
                     payload = {
                         "offer_id": offer_id,
                         "offer_title": offer_title,
@@ -1056,25 +1137,25 @@ async def offers_buy(request: Request, offer_id: str):
                         "price_paid": price,
                         "requirements": requirements
                     }
-                
+
                     with httpx.Client(timeout=15.0) as client:
                         resp = client.post(reseller_url, json=payload, headers=headers)
-                
+
                     if resp.status_code in (200, 201):
                         resp_data = resp.json()
                         creds = resp_data.get("credentials") or reseller_api_url.get("key") or reseller_api_url.get("code") or reseller_api_url.get("account")
                         if not creds:
                             creds = resp.text
-                    
+
                         delivered_credentials = str(creds)
                         fulfillment_status = "fulfilled"
                     else:
                         raise Exception(f"API returned status code {resp.status_code}: {resp.text}")
-                    
+
                 except Exception as api_err:
                     fulfillment_status = "failed"
                     fulfillment_error = str(api_err)
-                
+
                     try:
                         from core.telegram_alerts import _send_message
                         _send_message(
@@ -1087,7 +1168,7 @@ async def offers_buy(request: Request, offer_id: str):
                         )
                     except Exception as tg_err:
                         logger.error(f"Failed to send API failure Telegram alert: {tg_err}")
-            
+
                 # Write API results to database in a new short connection
                 try:
                     conn_api = get_db()
@@ -1118,9 +1199,9 @@ async def offers_buy(request: Request, offer_id: str):
                     conn_api.close()
                 except Exception as db_api_err:
                     logger.error(f"Failed to write API config error to DB: {db_api_err}")
-                
+
         # ── Trigger Notifications ──
-    
+
         # 1. Telegram notification
         try:
             from core.telegram_alerts import _send_message
@@ -1137,12 +1218,12 @@ async def offers_buy(request: Request, offer_id: str):
                 tg_text += f"⚠️ <b>Delivery Status:</b> Failed (Manual Fallback)\n<b>Error:</b> <i>{fulfillment_error}</i>\n\n"
             else:
                 tg_text += "⏳ <b>Delivery Status:</b> Manual Processing\n\n"
-            
+
             tg_text += f"<i>🕐 Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>"
             _send_message(tg_text)
         except Exception as e:
             logger.error(f"Failed to send Telegram alert: {e}")
-        
+
         # 2. Gmail notification to samatou683@gmail.com
         try:
             from web.app_v2 import _send_via_gmail_smtp
@@ -1199,7 +1280,7 @@ async def offers_buy(request: Request, offer_id: str):
                 )
         except Exception as e:
             logger.error(f"Failed to send email alert: {e}")
-        
+
         return RedirectResponse(f"/my-purchases?success=purchased&offer={quote(offer_title)}", status_code=303)
 
 

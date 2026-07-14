@@ -17,8 +17,8 @@ def revive_campaigns():
 
         # Find failed or stuck campaigns (running for more than 12 hours)
         stuck_campaigns = conn.execute("""
-            SELECT campaign_id, status, created_at 
-            FROM campaigns 
+            SELECT campaign_id, status, created_at
+            FROM campaigns
             WHERE status = 'failed' OR (status = 'running' AND datetime(created_at) < datetime('now', '-12 hours'))
         """).fetchall()
 

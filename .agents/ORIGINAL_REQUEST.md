@@ -977,3 +977,396 @@ Configure the repository with the necessary files (e.g., `vercel.json`, GitHub A
 - [ ] Necessary configuration files for a free cloud deployment platform are successfully added to the project.
 - [ ] The deployment strategy ensures 24/7 uptime without sleep limitations.
 
+
+## Follow-up — 2026-07-10T20:43:16Z
+
+# Teamwork Project Prompt — Draft
+
+> Status: Launched
+> Goal: Optimize JobHunt Pro for 24/7 Permanent $0 Cloud Deployment
+
+JobHunt Pro is a production SaaS job-hunting automation platform. The objective is to further optimize performance, reliability, and security for a $0 budget 24/7 permanent cloud deployment.
+
+Working directory: `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi`
+Integrity mode: development
+
+## Requirements
+
+### R1. Single-Container Web+Worker Fusion
+- Merge FastAPI web processes and Celery/background workers into a single-process Docker container (e.g., using python-based task queues or async background tasks) to stay under the 750 free-hour monthly limits on platforms like Render.
+- Optimize the memory footprint to remain strictly under 512MB.
+
+### R2. Edge-Cached Semantic Engine & Failover Pool
+- Integrate Upstash Redis (free tier) to cache identical Cover Letter generation and ATS matching calculations.
+- Implement a multi-provider LLM failover pool (Groq + Gemini API + GitHub Models free tiers) inside `core/llm_provider_pool.py`.
+
+### R3. Stealth Scraping & TLS Fingerprinting
+- Upgrade scraping utilities (`core/stealth_http.py`) using `curl_cffi` to spoof Chrome TLS JA3 fingerprints.
+- Avoid IP bans by implementing random delays and human mouse movements.
+
+### R4. SMTP Warmup & Telegram Webhook
+- Implement a smart warming cron loop in `core/free_smtp_pool.py` to preserve sender reputation.
+- Migrate the Telegram Bot from long-polling to webhooks hosted within FastAPI to save system memory.
+
+## Verification & Acceptance Criteria
+
+### Automated Verification
+- [ ] Running `pytest tests/e2e/test_r2_dashboard.py` and `pytest tests/test_security_hardening.py` passes with zero failures.
+- [ ] Integration test verifies that cached LLM responses are retrieved in < 100ms.
+- [ ] Docker image build completes and runs under a 512MB RAM cap.
+- [ ] HTTP requests using the new stealth client successfully fetch from `https://bot.sannysoft.com/` without getting flagged.
+
+### Manual Verification
+- [ ] Deploying to Render's free tier functions without needing a separate paid worker instance.
+- [ ] Telegram bot responds instantly to user webhook requests.
+
+## 2026-07-11T00:05:56Z
+
+Implement a comprehensive suite of zero-investment, 24/7 permanent cloud optimization tricks for the JobHunt Pro platform to improve uptime, prevent container crashes, handle LLM rate limits, and optimize database recovery times.
+
+Working directory: c:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi
+Integrity mode: development
+
+## Requirements
+
+### R1. Free Tier Keep-Alive Scheduler
+Implement a lightweight background daemon or external GitHub Actions cron configuration that pings the FastAPI `/api/v1/health` endpoint every 10 minutes to prevent Render's free tier web service from sleeping.
+
+### R2. Database Pool Recycling & Connection Warmer
+Configure SQLAlchemy connection pool properties (`pool_recycle=280`, `pool_pre_ping=True`) to automatically handle Neon Serverless Postgres DB spin-down and cold starts without throwing `500 Internal Server Error` exceptions.
+
+### R3. Groq LLM Rate-Limit Controller & Free Fallbacks
+Add a custom Celery rate-limiting decorator that reads Groq's API rate limit response headers (`x-ratelimit-remaining`, `x-ratelimit-reset`) and dynamically delays requests to avoid `429 Too Many Requests` errors.
+
+### R4. Memory Reclamation and OOM Prevention
+Configure Celery's `worker_max_tasks_per_child=10` to periodically recycle workers and reclaim leaked memory, and optimize Python's garbage collection parameters in `start_cloud.py` to stay strictly within Render's 512MB RAM limit.
+
+### R5. Dual-Mode SQLite/Neon Job Dispatcher
+Provide a fallback configuration allowing local high-frequency scrapes to queue locally on SQLite before syncing results asynchronously to the main cloud PostgreSQL, bypassing Upstash Redis free tier's 10k request cap.
+
+## Acceptance Criteria
+
+### High Availability and DB Resilience
+- [ ] The Render app stays warm 24/7 with health checks responding in <150ms.
+- [ ] Neon DB resumes gracefully from sleep with zero connection errors in FastAPI logs.
+
+### Task Queue & LLM Stability
+- [ ] High-concurrency matching tasks do not trigger Groq rate limits; the decorator handles retries dynamically.
+- [ ] Uvicorn + Celery + SyncWorker container stays below 450MB RSS RAM during high-load scraping.
+
+## 2026-07-11T09:09:27Z
+
+Implement the third set of enterprise-grade security, performance, reliability, and monitoring improvements for the JobHunt Pro platform. Ensure all existing 431 tests continue to pass with zero regressions.
+
+Working directory: c:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi
+Integrity mode: development
+
+## Current State
+
+The project currently has:
+- **431/431 tests passing** — do NOT regress any existing tests
+- JWT Authentication with IP lockout brute-force protection (`backend/auth.py`)
+- Redis cache for ATS results (`core/ats_matcher.py`)
+- Exponential HTTP backoff for scraping (`core/stealth_http.py`)
+- Telemetry & DLQ requeuer endpoints (`backend/main.py`)
+- Single-instance supervisor manager (`start_cloud.py`)
+
+## Requirements
+
+### R1. Multi-Key JWT Secret Rotation
+Modify `backend/auth.py` to support multiple active JWT secret keys (e.g. read from an environment variable `JWT_SECRET_KEYS` as a comma-separated list). The first key in the list is the primary key used to sign new tokens. When verifying a token, if it fails validation with the primary key, attempt to verify it using the remaining active keys. This allows zero-downtime secret rotation. If `JWT_SECRET_KEYS` is missing, fall back to `JWT_SECRET_KEY` (which itself falls back to the test key in test mode). Write at least 2 unit tests that verify: (a) tokens signed with the old secret still pass verification after a new key is added as primary, (b) tokens signed with an invalid key are rejected.
+
+### R2. Secure CORS Dynamic Origin Validation
+Refactor CORS origin handling in `backend/main.py` to securely validate incoming request origins dynamically. Instead of using generic wildcard checks or simple string inclusion, implement a helper that performs strict regex-based origin matching. For instance, if `ALLOWED_ORIGINS` contains `https://*.jobhunt-pro.com`, verify that the incoming origin matches `^https://[a-zA-Z0-9-]+\.jobhunt-pro\.com$`. Wildcards should only be allowed at the subdomain level. Write at least 2 unit tests to verify: (a) valid matching origins (including allowed subdomains) are allowed, (b) malformed origins (e.g. `https://attacker-jobhunt-pro.com`) are rejected.
+
+### R3. Celery Integration & Task Routing Verification
+Add integration tests in a new file `tests/test_celery_integration.py` that verify Celery task serialization and routing. Mock the celery broker and check that calls to `scrape_jobs.delay()` and `generate_cover_letter.delay()` properly serialize arguments to JSON and map to their designated queues. Verify that task parameters conform to their expected types.
+
+### R4. SMTP & External API Connection Health Monitor
+Extend the detailed health check endpoint `GET /api/v1/health/detailed` in `backend/main.py` to report status of outgoing mail configuration and external API services. It should check: (a) SMTP connectivity by executing a quick TCP connection test to the configured host/port (e.g. Brevo/Gmail), (b) Groq API accessibility via a lightweight check (e.g. a simple GET to their status page or a zero-token request). Ensure these checks have tight timeouts (<1s) and fail gracefully without crashing the endpoint. Write at least 2 tests verifying that SMTP and API statuses are reported in the detailed health check payload.
+
+### R5. Scraper Daily Cap and BanShield Cooldown Enforcement
+Harden `core/ban_shield.py` or `core/anti_ban.py` to enforce daily scraping limits and cooldown rules strictly. If the daily cap is exceeded, scraping requests must instantly raise a custom `DailyLimitExceededException` or return a distinct error status instead of attempting the scrape. Write at least 2 unit tests that verify: (a) scraping requests are blocked once the daily cap is reached, (b) the daily counter resets correctly when the day boundary changes.
+
+## Acceptance Criteria
+
+### Security & Authentication
+- [ ] JWT verification succeeds for tokens signed with any active secret key in `JWT_SECRET_KEYS`
+- [ ] Subdomain wildcards in `ALLOWED_ORIGINS` are matching securely via regular expression validation
+
+### Task Queue & Reliability
+- [ ] Celery tasks are verified to serialize args to JSON and route to the correct queues
+- [ ] Scraping calls raise a limit exception once the daily cap is reached and reset on day boundary
+
+### Monitoring & Diagnostics
+- [ ] `GET /api/v1/health/detailed` reports `smtp` status and `groq_api` status in its response payload
+
+### Test Suite Integrity
+- [ ] All 431 pre-existing tests continue to pass
+- [ ] At least 10 new tests are added covering the 5 requirements above
+- [ ] Run `pytest --tb=short -q` and confirm `0 failed`
+
+## 2026-07-12T11:56:04+03:00
+
+Implement a suite of 0-cost, 24/7 permanent cloud optimizations, performance upgrades, and reliability enhancements for the JobHunt Pro app, selecting high-impact items from `IMPROVEMENTS_MASTER.md` and adding tricks to keep everything running permanently on free-tier cloud infrastructure with 0 investment.
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+
+## Requirements
+
+### R1. Deploy Frontend to Cloudflare Pages (Free Tier)
+- Shift the Vue/Next.js/HTML frontend to Cloudflare Pages (free tier, unlimited bandwidth, global CDN).
+- Configure proxy headers so backend API calls (`/api/*`) are correctly routed, offloading all static assets from the Render container.
+- Expected improvement: Reduces Render RAM consumption by ~20% and bandwidth egress by ~60%.
+
+### R2. Add Platform-Specific Intelligent Scraper Rate Limit Profiles (Anti-Ban)
+- Implement adaptive delays (`core/ban_shield.py` & `core/anti_ban.py`) and platform-specific delay dictionaries.
+- Fine-tune delays: LinkedIn (3s delay, random jitter), Indeed (1s), Bayt (2s).
+- Expected improvement: Decreases provider block rate by ~80% (improving scraping success rate from ~30% to ~95%+).
+
+### R3. Database Optimization & Bulk Inserts
+- Replace loop-based DB insertions in scrapers with SQLAlchemy bulk inserts (`session.execute(insert(Model), [...])`).
+- Expected improvement: Accelerates database ingestion speed by ~10x (900% improvement) and lowers database CPU load on Neon.
+
+### R4. SSRF Prevention & Scraper URL Validation
+- Validate scraped job URLs against private IP ranges (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `127.0.0.0/8`) before performing HTTP requests.
+- Expected improvement: Eliminates server-side request forgery vulnerability (100% security improvement).
+
+### R5. persistent logging to logtail (free tier)
+- Integrate Logtail (or similar free-tier log drain) into the FastAPI / Render config to ensure logs are preserved beyond the 1-hour Render limit.
+- Expected improvement: Increases log retention from 1 hour to 30 days (720x improvement) for debugging.
+
+## Acceptance Criteria
+
+### Performance & Memory Offload
+- [ ] Frontend static assets are served from Cloudflare Pages, confirmed via asset headers.
+- [ ] Render container RAM usage stays comfortably below the 512MB free tier limit (recycled at 450MB).
+
+### Scraper Stability & Database Speed
+- [ ] Scrapers run concurrently without triggering IP bans on Indeed/Bayt due to provider-specific delay profiles.
+- [ ] Job ingestion uses batch bulk insertions, verified by database queries/logs.
+
+### Security
+- [ ] Scrapers block any attempt to query local/internal URLs, throwing validation errors.
+
+## 2026-07-12T10:19:46Z
+
+JobHunt Pro: Enterprise AI-Powered Job Application Automation Platform. Improve cloud deployment, performance, stealth scraping, and reliability on 100% free tiers.
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+Integrity mode: development
+
+## Requirements
+
+### R1. Cloudflare Pages Next.js Deployment
+- Deploy the Next.js frontend code from `frontend/` to Cloudflare Pages (Free Tier).
+- Set up proxy routes in `vercel.json` or Cloudflare redirects so `/api/v1/*` routes to the Render FastAPI backend URL.
+- Enable CORS credentials and update the allowed origins array in `backend/config.py` to match the Cloudflare Pages domain.
+
+### R2. GitHub Actions Scheduled Keep-Alive (24/7 Free Uptime)
+- Create a `.github/workflows/keepalive.yml` workflow that triggers every 12 minutes using GitHub Actions scheduled trigger.
+- The workflow should run a simple curl script to ping `/healthz` on the Render backend, keeping the free tier container active 24/7 without consuming Render build minutes.
+- Also ping the Neon database warming script/endpoint.
+
+### R3. Celery Memory Guard Configuration
+- Modify the Celery command in `start_cloud.py` to run with `--max-tasks-per-child=10` and `--max-memory-per-child=150000` (150MB).
+- This ensures worker processes recycle frequently to prevent hitting Render's 512MB RAM OOM limits.
+
+### R4. Neon PgBouncer Connection String Updates
+- Adjust database connection initialization in `backend/database.py` and `backend/sync_worker.py` to support Neon PgBouncer connection pooling.
+- Append `?sslmode=require&prepareThreshold=0` to database URLs and target port 5432 with pooled host configurations.
+
+### R5. Free Proxy Pool Scraper Rotation
+- Implement a background cron or Celery task in `core/ghost_hunter.py` that scrapes free proxy lists (e.g., proxyscrape, free-proxy-list) hourly.
+- Validate these proxies and rotate them in the Playwright/Camoufox Stealth scraper to prevent LinkedIn/Indeed IP blocking.
+
+## Acceptance Criteria
+
+### Performance & Memory
+- [ ] Frontend successfully runs on Cloudflare Pages with under 1.5s page load times.
+- [ ] Render API RAM usage remains under 350MB, with no supervisor process recycling events triggered.
+
+### Uptime
+- [ ] Render backend service does not enter sleep mode (0% cold starts during testing).
+- [ ] SQLite to Postgres synchronization is fully stable under Neon connection pooling.
+
+### Code Integrity
+- [ ] All 403 test suites pass (`python -m pytest tests/ -q`).
+- [ ] No hardcoded api keys or secrets.
+
+## 2026-07-12T13:08:58Z
+
+Migrate and optimize JobHunt Pro to ensure 100% free (0 investment) 24/7 cloud uptime without hitches, bypassing Render's free tier limit suspensions by hosting the backend on Hugging Face Spaces (Docker CPU Basic) or GitHub Actions crons, and implementing resource optimizations.
+
+Working directory: `C:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi`
+
+Integrity mode: development
+
+## Requirements
+
+### R1. Hugging Face Spaces (Docker CPU Basic) Backend Migration
+Migrate the FastAPI backend and Celery workers to a Hugging Face Space using Docker CPU Basic (2 vCPU, 16GB RAM) which is 100% free. Define a Dockerfile that loads dependencies, installs system requirements (like Chrome/Chromium for scrapers), and starts the FastAPI service.
+
+### R2. GitHub Actions Scheduled Runner Cron
+Configure a secondary lightweight cron execution flow using GitHub Actions (2,000 free minutes/month) to run the scraping and applying loop every 30 minutes, bypassing the need for a 24/7 running Celery background worker process.
+
+### R3. DB and Cache Rate-Limit Shield
+Add local caching (thread-safe cache) to prevent exceeding Upstash Redis (10k command/day limit) and SQLite fail-safety fallback in case the Neon PostgreSQL database is waking up from sleep.
+
+### R4. Browser Scraper Performance Optimization
+Configure Playwright/Camoufox scrapers to block images, media, CSS stylesheets, and trackers to reduce RAM and network bandwidth usage, preventing memory exhaust crashes on free-tier containers.
+
+## Acceptance Criteria
+
+### Deployment & Hosting
+- [ ] Backend is runnable in a Docker container suitable for Hugging Face Spaces.
+- [ ] GitHub Actions workflow is created under `.github/workflows/scheduled_runner.yml` to run the loop.
+
+### Resource Efficiency
+- [ ] Browser scrapers block heavy resources (images, fonts, stylesheets) during execution.
+- [ ] Redis commands are cached locally to stay under the 10,000 daily command limit.
+
+## Follow-up — 2026-07-12T13:22:26Z
+
+The user has requested that you keep optimizing the project continuously until there is absolutely nothing left to improve, optimize, or fix. Please ensure that you run exhaustive verification checks and polish the code to a premium level. Do not stop until all requirements are met and the codebase is completely hardened.
+
+## Follow-up — 2026-07-12T13:22:48Z
+
+Please scale up the execution swarm to the absolute maximum concurrency. Spawn parallel worker and testing subagents for Milestones 2, 3, and 4 immediately, so they can progress concurrently instead of sequentially, accelerating the overall migration and optimization process.
+
+## Follow-up — 2026-07-12T13:32:31Z
+
+The user has requested that you also target and implement all the remaining 33 outstanding TODO items listed in the inventory of IMPROVEMENTS_MASTER.md (such as performance optimization, async concurrency caps, database N+1 queries, memory profiling, and bundle analysis). Keep iterating, optimizing, and fixing the entire codebase recursively until there are no items left in TODO and absolutely nothing more can be improved.
+
+## Follow-up — 2026-07-12T13:56:25Z
+
+The user has added these additional feature requirements to the active sweep:
+- **R6. AI Model Upgrades**: Integrate fallback/rotation to Gemini 1.5 Pro and Claude 3.5 Sonnet API inside the core LLM provider pool for Cover Letter generation and Resume ATS matching.
+- **R7. Next.js Dashboard Analytics**: Build interactive charts/statistics in Next.js showing job search success metrics, email open rates, and ATS score history.
+- **R8. Scraper Expansion**: Add at least 3 new GCC/remote-focused boards (e.g. Bayt GCC, GulfTalent, specialized remote portals) to the scraper pool.
+- **R9. Auto-Fill Browser Agent**: Implement automated browser autofill scripts for custom job application forms.
+- **R10. WhatsApp Bot Remote Control**: Add commands (`/start`, `/pause`, `/status`) to the WhatsApp bot to control campaigns directly from phone.
+
+## Follow-up — 2026-07-12T17:04:36+03:00
+
+The user has consolidated the active sweep into a single, comprehensive Master Plan containing all 10,000+ improvements. You must execute all of these requirements concurrently without waiting:
+
+### Phase 1: Zero-Investment 24/7 Cloud Migration
+- Migrate FastAPI/Celery to Hugging Face Spaces (Docker CPU Basic, 16GB RAM).
+- Set up scheduled runner crons via GitHub Actions (.github/workflows/keepalive.yml & scheduled_runner.yml).
+
+### Phase 2: DB, Cache & Rate-Limit Shields
+- Implement client-side SQLite caching for high-frequency scrapes, syncing asynchronously to Neon PostgreSQL.
+- Support PgBouncer connection pooling (`prepareThreshold=0`) and SQLAlchemy connection warmers.
+
+### Phase 3: Browser Scraper & Stealth Optimizations
+- Block heavy media/CSS/trackers in Playwright/Camoufox, implement Bezier human mouse curves, and curl_cffi JA3 fingerprinting.
+
+### Phase 4: Remaining 33 Master TODOs
+- Resolve all 33 outstanding TODOs in `IMPROVEMENTS_MASTER.md` (concurrency caps, database N+1 queries, memory profiling, bundle optimizations, etc.).
+
+### Phase 5: Next-Level Features
+- Add LLM rotation pool (Groq, Gemini 1.5 Pro, Claude 3.5 Sonnet fallback).
+- Build Next.js Dashboard Analytics UI showing success rates, open-rates, and ATS history.
+- Add GCC scrapers (Bayt GCC, GulfTalent).
+- Build browser agent form autofill scripts.
+- Add WhatsApp bot remote commands (`/start`, `/pause`, `/status`).
+
+### Phase 6: Enterprise/SaaS & Multi-Tenant Core
+- Refactor backend and database to support multi-tenant user accounts with individual CV and SMTP pools.
+- Add an AI Interview Prep Simulator endpoint to generate mock interviews based on applied job descriptions.
+- Add dynamic tailored PDF resume generation and Chrome Extension endpoints.
+
+Allocate the absolute maximum number of specialized concurrent agents to implement and verify this entire master list in one run.
+
+## Follow-up — 2026-07-12T13:58:32Z
+
+The user has requested to scale up agents even further to accelerate execution. Please spawn specialized parallel worker agents for Milestones 5, 6, 7, 8, and 9 immediately so they can run in parallel alongside Milestones 1-4. Maximize concurrent agent threads to complete the entire backlog as fast as possible.
+
+## 2026-07-12T20:48:30Z
+
+Migrate, optimize, and expand the JobHunt Pro platform into a zero-cost, highly resilient, and commercially scalable multi-tenant SaaS. Bypasses Render's free tier limits, resolves all 20 remaining pending TODOs, adds advanced AI/UI enhancements, and introduces enterprise SaaS features.
+
+Working directory: `C:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi`
+
+Integrity mode: development
+
+## Requirements
+
+### R1. Complete execution of all 20 remaining pending TODOs from IMPROVEMENTS_MASTER.md
+Resolve each of the 20 pending TODOs below:
+1. **IMP-034**: N+1 query elimination audit (Add selectinload/joinedload where queries loop).
+2. **IMP-037**: Next.js bundle analysis (@next/bundle-analyzer to find large chunks).
+3. **IMP-038**: Next.js ISR for static job pages (getStaticProps + revalidate:300 for job listing pages).
+4. **IMP-039**: Celery task group/chord for bulk email (celery.group() for parallel batch email dispatch).
+5. **IMP-095**: Email dispatch E2E tests (aiosmtpd mock SMTP to test send_application_email Celery task).
+6. **IMP-097**: Telegram bot command tests (Unit test each bot command handler in isolation).
+7. **IMP-099**: Locust load tests (100 concurrent users on /api/v1/jobs/scrape).
+8. **IMP-100**: Mutation testing with mutmut (mutmut run on core/scam_detector.py to find weak assertions).
+9. **IMP-101**: Frontend snapshot tests (Jest toMatchSnapshot() for key React components).
+10. **IMP-102**: API contract tests via Schemathesis (schemathesis run against OpenAPI spec in CI).
+11. **IMP-128**: Multi-region DNS failover (Cloudflare health-check-based DNS failover).
+12. **IMP-154**: Dead code removal via vulture (vulture . --min-confidence 80).
+13. **IMP-158**: Large function decomposition (Decompose functions >100 lines in core/).
+14. **IMP-160**: Import sorting with isort (isort . --profile black).
+15. **IMP-162**: Dependency version pinning (pip freeze to exact versions in requirements.txt).
+16. **IMP-183**: Arabic NLP job matching (AraBERT embeddings for Arabic job-CV similarity).
+17. **IMP-187**: User onboarding wizard (Multi-step: upload CV → preferences → email pool → test run).
+18. **IMP-190**: LinkedIn OAuth login (LinkedIn OAuth2 via authlib; auto-import profile to CV).
+19. **IMP-243**: Streaming cover letter preview (Word-by-word streaming preview in frontend dashboard).
+20. **IMP-247**: CV PDF parsing accuracy (Switch from pdfminer to pdfplumber for multi-column CVs).
+
+### R2. Auto-Fill Browser Agent
+Create `core/form_autofill.py`:
+- Function `autofill_job_form(url: str, user_profile: dict)` using Playwright.
+- Navigates to the job application URL.
+- Detects form fields (name, email, phone, cover letter textarea).
+- Fills them with user_profile data.
+- Clicks submit button.
+- Returns `{success: bool, screenshot_path: str}`.
+
+## Acceptance Criteria
+
+### Task Completion
+- [ ] All 20 remaining TODOs in `IMPROVEMENTS_MASTER.md` are completed and marked as done.
+- [ ] Auto-fill browser agent `core/form_autofill.py` is implemented and functional.
+- [ ] No regressions: all existing test suites pass with zero failures (`pytest tests/ -q`).
+
+## 2026-07-14T08:13:52Z
+
+Optimize, harden, and synchronize the JobHunt Pro application's frontend and backend systems, ensuring 100% test suite compliance and Gulf-region accessibility.
+
+Working directory: c:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi
+Integrity mode: development
+
+## Requirements
+
+### R1. Frontend UI/UX Hardening (RTL & Gulf Region Ergonomics)
+- Strict usage of CSS Logical Properties (e.g., `margin-inline-start`, `padding-inline-end`, `inset-inline-start/end`, `inline-size`/`block-size`) across all components.
+- Secure implementation of Arabic typography using `'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif` with a minimum font size of `14px` (recommended `16px`) and line heights of `1.6` to `2.0`.
+- Explicit elimination of any `letter-spacing` styles on Arabic text elements.
+- Directional icons must mirror dynamically based on language using a scalable CSS/JS structure.
+
+### R2. Backend Optimization & API Contract Alignment
+- Maintain 100% compliance with established API contracts, including DLQ requeue, Brevo/SendGrid webhook processing, and dashboard statistics queries.
+- Ensure strict database connection pooling configurations for Neon (SQLite fallback) preventing connection leaks and cold-start timeouts.
+- Hardened security middleware including JWT validation, strict CORS origin regex validation, and rate limiting.
+
+### R3. Test Suite Integrity
+- No modifications to the application may break the existing test coverage.
+- All 611+ unit, integration, and E2E test cases in the `tests/` directory must compile and pass cleanly.
+
+## Acceptance Criteria
+
+### CSS & Layout Integrity
+- [ ] Every modified frontend component strictly uses CSS Logical Properties instead of physical margins/paddings/insets.
+- [ ] Arabic views load Cairo font with zero instances of letter-spacing applied.
+
+### Backend & API Stability
+- [ ] Swagger OpenAPI specs build correctly and align with all endpoints.
+- [ ] Database query tracing shows zero N+1 bottlenecks in dashboard stats fetching.
+
+### Verification Run
+- [ ] Command `python -m pytest` executes successfully with 100% passing rate.
+- [ ] Frontend builds successfully using `npm run build` in the `frontend` directory.
+

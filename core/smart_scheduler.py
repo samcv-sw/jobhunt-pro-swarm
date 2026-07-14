@@ -74,9 +74,7 @@ class ProviderState:
             return False
         if self.sent_today >= self.daily_limit:
             return False
-        if self.sent_this_hour >= self.hourly_limit:
-            return False
-        return True
+        return not self.sent_this_hour >= self.hourly_limit
 
     def record_send(self):
         self.sent_today += 1
@@ -205,7 +203,7 @@ class SmartScheduler:
             with closing(sqlite3.connect(DB_PATH, timeout=10)) as conn:
                 conn.execute(
                     """
-                    INSERT INTO smart_scheduler_state 
+                    INSERT INTO smart_scheduler_state
                     (provider_name, sent_today, sent_this_hour, failures, disabled_until, last_sent, last_reset_day, last_reset_hour)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(provider_name) DO UPDATE SET
@@ -282,7 +280,7 @@ class SmartScheduler:
             with closing(sqlite3.connect(DB_PATH, timeout=10)) as conn:
                 conn.executemany(
                     """
-                    INSERT INTO smart_scheduler_state 
+                    INSERT INTO smart_scheduler_state
                     (provider_name, sent_today, sent_this_hour, failures, disabled_until, last_sent, last_reset_day, last_reset_hour)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(provider_name) DO UPDATE SET

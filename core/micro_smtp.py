@@ -256,7 +256,7 @@ def send_batch(
             success2 = False
             used_account = None
             original_idx = account_idx
-            for attempt in range(len(accounts)):
+            for _attempt in range(len(accounts)):
                 account_idx += 1
                 if account_idx >= len(accounts):
                     account_idx = 0

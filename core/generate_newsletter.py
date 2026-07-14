@@ -102,11 +102,11 @@ def generate_newsletter_html() -> str:
         <div class="container">
             <h1>🚀 JobHunt Pro Daily</h1>
             <div class="date">{date_str} • Top Remote Tech Jobs</div>
-            
+
             <div class="sponsor">
                 {SPONSOR_TEXT} <a href="{SPONSOR_LINK}">Learn More &rarr;</a>
             </div>
-            
+
             <p>Good morning! Here are the top hand-picked remote opportunities for today. These are fresh and actively hiring.</p>
     """
 

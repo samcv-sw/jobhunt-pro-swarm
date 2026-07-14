@@ -1,9 +1,10 @@
 import asyncio
 import json
 import logging
-from urllib.parse import urljoin, urlparse
-from playwright.async_api import async_playwright
 from datetime import datetime
+from urllib.parse import urljoin, urlparse
+
+from playwright.async_api import async_playwright
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -21,7 +22,7 @@ audit_registry = {
 async def scan():
     visited_urls = set()
     urls_to_visit = {BASE_URL}
-    
+
     # Store all discovered internal links
     all_internal_links = set()
 
@@ -39,10 +40,10 @@ async def scan():
             current_url = urls_to_visit.pop()
             if current_url in visited_urls:
                 continue
-                
+
             visited_urls.add(current_url)
             logging.info(f"Crawling: {current_url}")
-            
+
             try:
                 response = await page.goto(current_url, wait_until='domcontentloaded', timeout=15000)
                 if not response or not response.ok:
@@ -60,17 +61,17 @@ async def scan():
                     "reason": str(e)
                 })
                 continue
-                
+
             # Extract interactive elements
             links = await page.locator("a").evaluate_all(
                 "elements => elements.map(e => { return {href: e.getAttribute('href'), text: e.innerText, html: e.outerHTML} })"
             )
-            
+
             for link in links:
                 href = link.get('href')
                 text = link.get('text', '').strip()
                 html_snippet = link.get('html', '')
-                
+
                 # Check for missing href
                 if href is None:
                     audit_registry["missing_hrefs"].append({
@@ -79,7 +80,7 @@ async def scan():
                         "snippet": html_snippet
                     })
                     continue
-                
+
                 # Check for necrotic links
                 href_stripped = href.strip()
                 if href_stripped in ['#', '', 'javascript:void(0)', 'javascript:void(0);']:
@@ -89,11 +90,11 @@ async def scan():
                         "text": text
                     })
                     continue
-                
+
                 # Normalize URL
                 absolute_url = urljoin(current_url, href_stripped)
                 parsed = urlparse(absolute_url)
-                
+
                 # Only follow internal HTTP/HTTPS links
                 if parsed.netloc == urlparse(BASE_URL).netloc and parsed.scheme in ['http', 'https']:
                     # Remove fragments for deduplication
@@ -103,13 +104,13 @@ async def scan():
 
         # Dispatch async HEAD requests to all discovered internal links
         logging.info(f"Verifying {len(all_internal_links)} discovered internal endpoints...")
-        
+
         # We can use Playwright's APIRequestContext
         api_context = await p.request.new_context(
             ignore_https_errors=True,
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
         )
-        
+
         async def check_url(url):
             try:
                 # Some servers reject HEAD, so we use GET but abort reading body if possible
@@ -133,14 +134,14 @@ async def scan():
         for i in range(0, len(link_list), batch_size):
             batch = link_list[i:i+batch_size]
             await asyncio.gather(*(check_url(url) for url in batch))
-            
+
         await browser.close()
         await api_context.dispose()
 
     # Save to JSON
     with open("necrotic_audit.json", "w", encoding="utf-8") as f:
         json.dump(audit_registry, f, indent=4, ensure_ascii=False)
-        
+
     logging.info("Audit complete. Results saved to necrotic_audit.json")
 
 if __name__ == "__main__":

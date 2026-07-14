@@ -1,11 +1,18 @@
 """Dump Roo Code extension state from VS Code state.vscdb"""
-import sqlite3, json, os
+import json
+import logging
+import os
+import sqlite3
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 db_src = r"C:\Users\samde\AppData\Roaming\Code\User\globalStorage\state.vscdb"
 db_copy = r"C:\Users\samde\Desktop\state_copy.vscdb"
 
 # Copy DB to avoid locking issues
 import shutil
+
 shutil.copy2(db_src, db_copy)
 
 conn = sqlite3.connect(db_copy)
@@ -37,7 +44,7 @@ for key, val in all_rows:
                     logger.debug(f"  Total keys: {len(parsed)}")
                 else:
                     logger.debug(f"  Value: {str(val)[:300]}")
-            except Exception as e:
+            except Exception:
                 logger.debug(f"  Raw bytes: {len(val)} bytes")
         else:
             logger.debug(f"  Value: {str(val)[:300]}")

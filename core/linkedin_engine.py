@@ -5,8 +5,8 @@ Auto-connect with recruiters, personalized messages, pipeline management
 
 import logging
 import random
-from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class LinkedInConnector:
     """Smart connection request engine with personalization."""
 
-    CONNECTION_TEMPLATES: List[str] = [
+    CONNECTION_TEMPLATES: list[str] = [
         "Hi {name}, I'm a Senior Network Engineer with 15+ years of enterprise experience across Cisco, MikroTik, and Fortinet. I'd love to connect and discuss opportunities at {company}.",
         "Hello {name}, I specialize in network infrastructure and security with expertise in OSPF/BGP/MPLS. I noticed {company} has open positions and would appreciate connecting.",
         "Hi {name}, as a CCNA/CCNP certified engineer with extensive multi-vendor experience, I'm exploring new opportunities. Would love to connect about potential roles at {company}.",
@@ -23,8 +23,8 @@ class LinkedInConnector:
     def __init__(self) -> None:
         self.connected_today: int = 0
         self.max_daily: int = 50
-        self.pending_requests: List[Dict[str, Any]] = []
-        self.connections: List[Dict[str, Any]] = []
+        self.pending_requests: list[dict[str, Any]] = []
+        self.connections: list[dict[str, Any]] = []
 
     def generate_connection_request(self, recruiter_name: str, company: str) -> str:
         """Generate personalized connection request."""
@@ -43,21 +43,21 @@ class LinkedInConnector:
             logger.error(f"Failed to check connect permission: {e}")
             return False
 
-    def record_connection(self, recruiter: Dict[str, Any]) -> None:
+    def record_connection(self, recruiter: dict[str, Any]) -> None:
         """Record a sent connection request."""
         try:
             self.connected_today += 1
             self.pending_requests.append(
                 {
                     **recruiter,
-                    "sent_at": datetime.now(timezone.utc).isoformat(),
+                    "sent_at": datetime.now(UTC).isoformat(),
                     "status": "pending",
                 }
             )
         except Exception as e:
             logger.error(f"Failed to record connection: {e}")
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get connection stats."""
         try:
             return {
@@ -85,15 +85,15 @@ class LinkedInConnector:
 class LinkedInMessenger:
     """Automated follow-up messaging for connections."""
 
-    FOLLOWUP_TEMPLATES: List[str] = [
+    FOLLOWUP_TEMPLATES: list[str] = [
         "Thanks for connecting, {name}! I'm actively looking for network engineering roles. If {company} has any openings, I'd love to discuss how my 15+ years of experience could benefit your team.",
         "Hi {name}, thanks for accepting! I wanted to follow up on my interest in {company}. My background in enterprise networking (Cisco, Fortinet, MikroTik) aligns well with infrastructure roles. Any current openings?",
     ]
 
     def __init__(self) -> None:
-        self.messages_sent: List[Dict[str, Any]] = []
+        self.messages_sent: list[dict[str, Any]] = []
 
-    def generate_followup(self, recruiter: Dict[str, Any], followup_num: int = 1) -> str:
+    def generate_followup(self, recruiter: dict[str, Any], followup_num: int = 1) -> str:
         """Generate follow-up message."""
         try:
             template = self.FOLLOWUP_TEMPLATES[
@@ -114,9 +114,7 @@ class LinkedInMessenger:
                 return False
             if followup_count == 0 and days_since >= 3:
                 return True
-            if followup_count == 1 and days_since >= 7:
-                return True
-            return False
+            return bool(followup_count == 1 and days_since >= 7)
         except Exception as e:
             logger.error(f"Failed to determine follow up condition: {e}")
             return False
@@ -125,7 +123,7 @@ class LinkedInMessenger:
 class RecruiterFinder:
     """Find and categorize recruiters by industry."""
 
-    RECRUITER_SEARCH_QUERIES: List[str] = [
+    RECRUITER_SEARCH_QUERIES: list[str] = [
         "network engineer recruiter",
         "IT staffing agency {location}",
         "technology recruiter {location}",
@@ -135,12 +133,12 @@ class RecruiterFinder:
     ]
 
     def __init__(self) -> None:
-        self.found_recruiters: List[Dict[str, Any]] = []
+        self.found_recruiters: list[dict[str, Any]] = []
 
-    def generate_search_queries(self, location: str, companies: List[str]) -> List[str]:
+    def generate_search_queries(self, location: str, companies: list[str]) -> list[str]:
         """Generate search queries for finding recruiters."""
         try:
-            queries: List[str] = []
+            queries: list[str] = []
             for template in self.RECRUITER_SEARCH_QUERIES:
                 if "{location}" in template:
                     queries.append(template.format(location=location))
@@ -154,7 +152,7 @@ class RecruiterFinder:
             logger.error(f"Failed to generate search queries: {e}")
             return [f"recruiter {location}"]
 
-    def categorize_recruiter(self, profile: Dict[str, Any]) -> str:
+    def categorize_recruiter(self, profile: dict[str, Any]) -> str:
         """Categorize a recruiter by type."""
         try:
             title = profile.get("title", "").lower()

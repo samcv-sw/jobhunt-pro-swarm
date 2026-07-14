@@ -5,10 +5,9 @@ Handles: invoice creation, IPN verification, crypto deposits
 import hashlib
 import hmac
 import json
-import os
 import logging
+import os
 from datetime import datetime
-from typing import Optional, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -28,10 +27,10 @@ class NOWPaymentsGateway:
             "ltc": os.getenv("CRYPTO_LTC_ADDRESS", "ltc1q0e68d76d8dc303249a1992405ac2879f97fa8f"),
         }
 
-    def create_invoice(self, price_amount: float = 29.0, 
+    def create_invoice(self, price_amount: float = 29.0,
                        price_currency: str = "usd",
                        order_id: str = None,
-                       user_email: str = "") -> Dict:
+                       user_email: str = "") -> dict:
         """
         Create a NOWPayments invoice.
         Returns invoice_url and payment_id.
@@ -111,7 +110,7 @@ class NOWPaymentsGateway:
             logger.error(f"IPN verify: {e}")
             return False
 
-    def process_ipn(self, body: dict) -> Dict:
+    def process_ipn(self, body: dict) -> dict:
         """
         Process a verified IPN webhook.
         Returns action to take.
@@ -146,7 +145,7 @@ class NOWPaymentsGateway:
 
         return result
 
-    def get_payment_addresses(self) -> Dict:
+    def get_payment_addresses(self) -> dict:
         """Return available deposit addresses (fallback when NOWPayments down)."""
         return {
             "btc": self.wallets["btc"],
@@ -161,11 +160,11 @@ class NOWPaymentsGateway:
 gateway = NOWPaymentsGateway()
 
 
-def create_payment(amount: float = 29.0, email: str = "") -> Dict:
+def create_payment(amount: float = 29.0, email: str = "") -> dict:
     """Public convenience function."""
     return gateway.create_invoice(price_amount=amount, user_email=email)
 
 
-def get_addresses() -> Dict:
+def get_addresses() -> dict:
     """Public convenience: get direct crypto addresses."""
     return gateway.get_payment_addresses()

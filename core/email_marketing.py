@@ -517,6 +517,7 @@ async def email_marketing_loop():
             logger.warning(f"[EMAIL-MARKETING] Loop error: {e}")
 
         import random
+
         # Stagger background loop to avoid exact 5-min intervals
         jitter = random.randint(-45, 90)
         await asyncio.sleep(max(60, CHECK_INTERVAL + jitter))

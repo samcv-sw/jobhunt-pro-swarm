@@ -1,6 +1,6 @@
-import sqlite3
 import os
 import re
+import sqlite3
 import sys
 
 # Ensure console output handles unicode or fallbacks gracefully

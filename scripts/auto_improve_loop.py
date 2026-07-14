@@ -11,19 +11,16 @@ Phase 7, Task 7.1 — Full implementation with:
 Zero investment, permanent cloud operation, 24/7 self-improvement.
 """
 
-import os
-import sys
-import json
-import glob
 import hashlib
-import re
-import ast
-import time
-from datetime import datetime, timezone
-from pathlib import Path
-from collections import defaultdict
+import json
 import logging
-from typing import List, Tuple, Dict, Optional
+import os
+import re
+import sys
+import time
+from collections import defaultdict
+from datetime import UTC, datetime
+from pathlib import Path
 
 logging.basicConfig(level=logging.DEBUG, format="%(message)s", stream=sys.stdout)
 logger = logging.getLogger("auto_improve")
@@ -95,7 +92,7 @@ def is_production_runtime_code(rel_path: str) -> bool:
         return False
     return True
 
-def detect_missing_error_handling(content: str, rel_path: str) -> Tuple[int, List[str]]:
+def detect_missing_error_handling(content: str, rel_path: str) -> tuple[int, list[str]]:
     """Detect files missing try/except blocks."""
     if not is_production_runtime_code(rel_path):
         return 0, []
@@ -109,7 +106,7 @@ def detect_missing_error_handling(content: str, rel_path: str) -> Tuple[int, Lis
         reasons.append("No exception handling at all")
     return score, reasons
 
-def detect_missing_logging(content: str, rel_path: str) -> Tuple[int, List[str]]:
+def detect_missing_logging(content: str, rel_path: str) -> tuple[int, list[str]]:
     """Detect files missing logging setup."""
     if not is_production_runtime_code(rel_path):
         return 0, []
@@ -123,7 +120,7 @@ def detect_missing_logging(content: str, rel_path: str) -> Tuple[int, List[str]]
         reasons.append("No logger usage detected")
     return score, reasons
 
-def detect_missing_type_hints(content: str, rel_path: str) -> Tuple[int, List[str]]:
+def detect_missing_type_hints(content: str, rel_path: str) -> tuple[int, list[str]]:
     """Detect Python files missing type hints."""
     score = 0
     reasons = []
@@ -139,7 +136,7 @@ def detect_missing_type_hints(content: str, rel_path: str) -> Tuple[int, List[st
                 return_hint = m.group(3)
                 if return_hint or (":" in params):
                     typed_count += 1
-            
+
             total_parsed = len(matches)
             total_funcs = max(len(funcs), total_parsed)
             if total_funcs > 5 and typed_count < total_funcs * 0.3:
@@ -147,7 +144,7 @@ def detect_missing_type_hints(content: str, rel_path: str) -> Tuple[int, List[st
                 reasons.append(f"Missing type hints ({typed_count}/{total_funcs} functions typed)")
     return score, reasons
 
-def detect_missing_docstrings(content: str, rel_path: str) -> Tuple[int, List[str]]:
+def detect_missing_docstrings(content: str, rel_path: str) -> tuple[int, list[str]]:
     """Detect Python files missing docstrings."""
     score = 0
     reasons = []
@@ -161,7 +158,7 @@ def detect_missing_docstrings(content: str, rel_path: str) -> Tuple[int, List[st
             reasons.append(f"Missing docstrings ({docstrings}/{total_defs} definitions documented)")
     return score, reasons
 
-def detect_small_underdeveloped(content: str, rel_path: str) -> Tuple[int, List[str]]:
+def detect_small_underdeveloped(content: str, rel_path: str) -> tuple[int, list[str]]:
     """Detect files that are suspiciously small for their purpose."""
     score = 0
     reasons = []
@@ -171,7 +168,7 @@ def detect_small_underdeveloped(content: str, rel_path: str) -> Tuple[int, List[
         reasons.append(f"Underdeveloped core file (only {size_kb:.1f}KB)")
     return score, reasons
 
-def detect_stale_files(content: str, rel_path: str, mtime: float) -> Tuple[int, List[str]]:
+def detect_stale_files(content: str, rel_path: str, mtime: float) -> tuple[int, list[str]]:
     """Detect files not modified recently."""
     score = 0
     reasons = []
@@ -182,7 +179,7 @@ def detect_stale_files(content: str, rel_path: str, mtime: float) -> Tuple[int, 
         reasons.append(f"Not modified in {int(days_old)} days")
     return score, reasons
 
-def detect_complexity_issues(content: str, rel_path: str) -> Tuple[int, List[str]]:
+def detect_complexity_issues(content: str, rel_path: str) -> tuple[int, list[str]]:
     """Detect overly complex functions/methods."""
     score = 0
     reasons = []
@@ -212,7 +209,7 @@ def detect_complexity_issues(content: str, rel_path: str) -> Tuple[int, List[str
             reasons.append(f"Long function '{current_func}' ({func_lines} lines)")
     return score, reasons
 
-def detect_hardcoded_config(content: str, rel_path: str) -> Tuple[int, List[str]]:
+def detect_hardcoded_config(content: str, rel_path: str) -> tuple[int, list[str]]:
     """Detect hardcoded values that should be in config."""
     score = 0
     reasons = []
@@ -224,7 +221,7 @@ def detect_hardcoded_config(content: str, rel_path: str) -> Tuple[int, List[str]
             reasons.append(f"Hardcoded URLs ({hardcoded_urls} found, should use config)")
     return score, reasons
 
-def detect_missing_tests(content: str, rel_path: str) -> Tuple[int, List[str]]:
+def detect_missing_tests(content: str, rel_path: str) -> tuple[int, list[str]]:
     """Detect core files without corresponding test files."""
     score = 0
     reasons = []
@@ -259,45 +256,45 @@ def get_file_hash(path):
     try:
         with open(path, "rb") as f:
             return hashlib.md5(f.read()).hexdigest()
-    except Exception as e:
+    except Exception:
         return ""
 
 def get_file_size(path):
     """Get file size in KB."""
     try:
         return os.path.getsize(path) / 1024
-    except Exception as e:
+    except Exception:
         return 0
 
 def get_file_mtime(path):
     """Get file modification time as ISO string."""
     try:
         return datetime.fromtimestamp(os.path.getmtime(path)).isoformat()
-    except Exception as e:
+    except Exception:
         return "unknown"
 
 def get_file_mtime_ts(path):
     """Get file modification time as timestamp."""
     try:
         return os.path.getmtime(path)
-    except Exception as e:
+    except Exception:
         return 0
 
 def read_file_safe(path, max_lines=200):
     """Read first N lines of a file safely."""
     try:
-        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(path, encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
         return "".join(lines[:max_lines]), len(lines)
-    except Exception as e:
+    except Exception:
         return "", 0
 
 def read_entire_file_safe(path):
     """Read entire file safely."""
     try:
-        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(path, encoding="utf-8", errors="ignore") as f:
             return f.read()
-    except Exception as e:
+    except Exception:
         return ""
 
 def should_exclude(rel_path):
@@ -350,7 +347,7 @@ def get_transcript_summary(path):
     """Get summary of a transcript file."""
     try:
         size_kb = os.path.getsize(path) / 1024
-        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(path, encoding="utf-8", errors="ignore") as f:
             content = f.read()
         lines = content.split("\n")
         # Extract user messages (Arabic or English)
@@ -370,7 +367,7 @@ def get_transcript_summary(path):
             "hash": hashlib.md5(content.encode()).hexdigest()[:12],
             "path": str(path),
         }
-    except Exception as e:
+    except Exception:
         return {"size_kb": 0, "total_lines": 0, "user_requests": [], "hash": "", "path": ""}
 
 def analyze_file_for_improvements(file_info):
@@ -378,10 +375,10 @@ def analyze_file_for_improvements(file_info):
     content = read_entire_file_safe(file_info["path"])
     if not content:
         return []
-    
+
     opportunities = []
     total_score = 0
-    
+
     for detector in ALL_DETECTORS:
         try:
             score, reasons = detector(content, file_info["rel_path"])
@@ -397,7 +394,7 @@ def analyze_file_for_improvements(file_info):
                     })
         except Exception:
             pass
-    
+
     return opportunities
 
 def prioritize_opportunities(opportunities):
@@ -406,7 +403,7 @@ def prioritize_opportunities(opportunities):
     by_file = defaultdict(list)
     for opp in opportunities:
         by_file[opp["file"]].append(opp)
-    
+
     # Calculate total score per file
     file_scores = []
     for file_path, opps in by_file.items():
@@ -421,10 +418,10 @@ def prioritize_opportunities(opportunities):
             "category": opps[0]["category"],
             "size_kb": opps[0]["size_kb"],
         })
-    
+
     # Sort by total score descending
     file_scores.sort(key=lambda x: (-x["total_score"], -x["issue_count"]))
-    
+
     # Assign impact levels
     for fs in file_scores:
         if fs["total_score"] >= 8:
@@ -435,7 +432,7 @@ def prioritize_opportunities(opportunities):
             fs["impact"] = "medium"
         else:
             fs["impact"] = "low"
-    
+
     return file_scores
 
 def load_state():
@@ -444,7 +441,7 @@ def load_state():
         try:
             with open(STATE_FILE) as f:
                 return json.load(f)
-        except Exception as e:
+        except Exception:
             pass
     return {
         "iteration": 0,
@@ -452,7 +449,7 @@ def load_state():
         "improvements_made": [],
         "files_modified": {},
         "total_improvements": 0,
-        "started_at": datetime.now(timezone.utc).isoformat(),
+        "started_at": datetime.now(UTC).isoformat(),
         "files_analyzed_count": 0,
         "opportunities_found": 0,
         "opportunities_completed": 0,
@@ -469,112 +466,112 @@ def generate_improvement_request(file_score, state):
     sanitized_name = re.sub(r'[^a-zA-Z0-9_]', '_', file_score["file"])
     req_file = PROJECT_ROOT / ".agents" / "improve_requests" / f"_improve_request_{timestamp}_{sanitized_name}.md"
     os.makedirs(req_file.parent, exist_ok=True)
-    
+
     # Read current file content
     full_path = PROJECT_ROOT / file_score["file"]
     content, total_lines = read_file_safe(full_path, max_lines=300)
-    
+
     impact_info = IMPACT_LEVELS.get(file_score["impact"], IMPACT_LEVELS["medium"])
-    
+
     lines = []
-    lines.append(f"# Auto Improvement Request")
-    lines.append(f"")
+    lines.append("# Auto Improvement Request")
+    lines.append("")
     lines.append(f"**Generated:** {datetime.now().isoformat()}")
     lines.append(f"**Iteration:** {state['iteration'] + 1}")
     lines.append(f"**Priority:** {impact_info['label']} (score: {file_score['total_score']})")
-    lines.append(f"")
-    lines.append(f"---")
-    lines.append(f"")
-    lines.append(f"## TARGET FILE")
-    lines.append(f"")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append("## TARGET FILE")
+    lines.append("")
     lines.append(f"- **File:** `{file_score['file']}`")
     lines.append(f"- **Category:** {file_score['category']}")
     lines.append(f"- **Size:** {file_score['size_kb']}KB")
     lines.append(f"- **Issues detected ({file_score['issue_count']}):**")
     for issue in file_score['issues']:
         lines.append(f"  - {issue}")
-    lines.append(f"")
-    lines.append(f"---")
-    lines.append(f"")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
     lines.append(f"## Current Content (first {min(total_lines, 300)} lines)")
-    lines.append(f"")
-    lines.append(f"```python")
+    lines.append("")
+    lines.append("```python")
     lines.append(content)
     if total_lines > 300:
         lines.append(f"# ... ({total_lines - 300} more lines)")
-    lines.append(f"```")
-    lines.append(f"")
-    lines.append(f"---")
-    lines.append(f"")
-    lines.append(f"## Improvement Tasks")
-    lines.append(f"")
+    lines.append("```")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append("## Improvement Tasks")
+    lines.append("")
     for i, issue in enumerate(file_score['issues'], 1):
         lines.append(f"{i}. **{issue}**")
-    lines.append(f"")
-    lines.append(f"### Suggested Improvements:")
-    lines.append(f"")
-    lines.append(f"1. Add proper error handling (try/except blocks)")
-    lines.append(f"2. Add logging configuration and usage")
-    lines.append(f"3. Add type hints to all function signatures")
-    lines.append(f"4. Add docstrings to all classes and functions")
-    lines.append(f"5. Extract hardcoded values to config.py")
-    lines.append(f"6. Break down long functions into smaller ones")
-    lines.append(f"7. Add comprehensive tests")
-    lines.append(f"8. Optimize performance (caching, async, etc.)")
-    lines.append(f"")
-    lines.append(f"---")
-    lines.append(f"")
-    lines.append(f"After completing, delete this file and update the state file.")
-    lines.append(f"")
-    
+    lines.append("")
+    lines.append("### Suggested Improvements:")
+    lines.append("")
+    lines.append("1. Add proper error handling (try/except blocks)")
+    lines.append("2. Add logging configuration and usage")
+    lines.append("3. Add type hints to all function signatures")
+    lines.append("4. Add docstrings to all classes and functions")
+    lines.append("5. Extract hardcoded values to config.py")
+    lines.append("6. Break down long functions into smaller ones")
+    lines.append("7. Add comprehensive tests")
+    lines.append("8. Optimize performance (caching, async, etc.)")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append("After completing, delete this file and update the state file.")
+    lines.append("")
+
     with open(req_file, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
-    
+
     return req_file.name
 
 def build_master_context(all_files, opportunities, state, transcripts):
     """Build the master context file — IMPROVE_ME.md (enhanced version)."""
-    
+
     lines = []
-    lines.append(f"# 🚀 JobHunt Pro — Master Improvement Context v3.0")
-    lines.append(f"")
+    lines.append("# 🚀 JobHunt Pro — Master Improvement Context v3.0")
+    lines.append("")
     lines.append(f"**Generated:** {datetime.now().isoformat()}")
     lines.append(f"**Iteration:** {state['iteration'] + 1}")
     lines.append(f"**Total improvements made:** {state['total_improvements']}")
     lines.append(f"**Files analyzed:** {len(all_files)}")
     lines.append(f"**Opportunities found:** {len(opportunities)}")
-    lines.append(f"**Goal:** Read this file, understand everything, then improve the project to maximum.")
-    lines.append(f"")
-    lines.append(f"---")
-    lines.append(f"")
-    lines.append(f"## 📋 Instructions for the AI")
-    lines.append(f"")
-    lines.append(f"1. Read this entire file carefully")
-    lines.append(f"2. Read the project files listed below")
-    lines.append(f"3. Read the chat transcripts listed below")
-    lines.append(f"4. Identify what can be improved")
-    lines.append(f"5. Make ALL improvements you can")
-    lines.append(f"6. When done, update this file's 'Last Improvement' section")
-    lines.append(f"7. Keep improving until you run out of tokens")
-    lines.append(f"")
-    lines.append(f"**Constraints:**")
-    lines.append(f"- Everything must be $0 (zero investment)")
-    lines.append(f"- Everything must run on cloud (nothing on PC)")
-    lines.append(f"- Must work 24/7 permanently")
-    lines.append(f"- Must scale to 1M+ users")
-    lines.append(f"- Must have 0% ban risk")
-    lines.append(f"- Use tricks from China, USA, Russia, worldwide")
-    lines.append(f"")
-    lines.append(f"---")
-    lines.append(f"")
-    lines.append(f"## 📊 Project State")
-    lines.append(f"")
-    
+    lines.append("**Goal:** Read this file, understand everything, then improve the project to maximum.")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append("## 📋 Instructions for the AI")
+    lines.append("")
+    lines.append("1. Read this entire file carefully")
+    lines.append("2. Read the project files listed below")
+    lines.append("3. Read the chat transcripts listed below")
+    lines.append("4. Identify what can be improved")
+    lines.append("5. Make ALL improvements you can")
+    lines.append("6. When done, update this file's 'Last Improvement' section")
+    lines.append("7. Keep improving until you run out of tokens")
+    lines.append("")
+    lines.append("**Constraints:**")
+    lines.append("- Everything must be $0 (zero investment)")
+    lines.append("- Everything must run on cloud (nothing on PC)")
+    lines.append("- Must work 24/7 permanently")
+    lines.append("- Must scale to 1M+ users")
+    lines.append("- Must have 0% ban risk")
+    lines.append("- Use tricks from China, USA, Russia, worldwide")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append("## 📊 Project State")
+    lines.append("")
+
     # ── File status by category ──
     by_category = defaultdict(list)
     for f in all_files:
         by_category[f["category"]].append(f)
-    
+
     for cat in ["core_engine", "web_api", "scrapers", "ai_ml", "email", "security",
                  "deployment", "scripts_tools", "data_db", "docs_config", "other"]:
         cat_files = by_category.get(cat, [])
@@ -582,21 +579,21 @@ def build_master_context(all_files, opportunities, state, transcripts):
             continue
         cat_label = cat.replace("_", " ").title()
         lines.append(f"### {cat_label} ({len(cat_files)} files)")
-        lines.append(f"")
-        lines.append(f"| File | Size | Modified | Hash |")
-        lines.append(f"|------|------|----------|------|")
+        lines.append("")
+        lines.append("| File | Size | Modified | Hash |")
+        lines.append("|------|------|----------|------|")
         for f in sorted(cat_files, key=lambda x: x["rel_path"]):
             lines.append(f"| [`{f['rel_path']}`]({f['rel_path']}) | {f['size_kb']}KB | {f['mtime']} | `{f['hash']}` |")
-        lines.append(f"")
-    
-    lines.append(f"---")
-    lines.append(f"")
-    lines.append(f"## 🔄 Improvement History")
-    lines.append(f"")
-    
+        lines.append("")
+
+    lines.append("---")
+    lines.append("")
+    lines.append("## 🔄 Improvement History")
+    lines.append("")
+
     improvements = state.get("improvements_made", [])
     lines.append(f"**Total improvements made so far:** {len(improvements)}")
-    lines.append(f"")
+    lines.append("")
     if improvements:
         for i, imp in enumerate(improvements[-30:], 1):
             ts = imp.get('timestamp', 'unknown')
@@ -610,98 +607,98 @@ def build_master_context(all_files, opportunities, state, transcripts):
             lines.append(f"   Files: {files_str}")
     else:
         lines.append("No improvements recorded yet. This is the first run.")
-    
-    lines.append(f"")
-    lines.append(f"---")
-    lines.append(f"")
-    lines.append(f"## 💡 Improvement Opportunities (Prioritized)")
-    lines.append(f"")
-    
+
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append("## 💡 Improvement Opportunities (Prioritized)")
+    lines.append("")
+
     if opportunities:
         # Group by impact
         by_impact = defaultdict(list)
         for opp in opportunities:
             by_impact[opp["impact"]].append(opp)
-        
+
         for impact_level in ["critical", "high", "medium", "low"]:
             impact_opps = by_impact.get(impact_level, [])
             if not impact_opps:
                 continue
             impact_info = IMPACT_LEVELS[impact_level]
             lines.append(f"### {impact_info['label']} ({len(impact_opps)} items)")
-            lines.append(f"")
-            lines.append(f"| # | File | Issues | Score | Size |")
-            lines.append(f"|---|------|--------|-------|------|")
+            lines.append("")
+            lines.append("| # | File | Issues | Score | Size |")
+            lines.append("|---|------|--------|-------|------|")
             for i, opp in enumerate(impact_opps[:15], 1):
                 issues_short = opp['issues'][0][:60] + "..." if len(opp['issues'][0]) > 60 else opp['issues'][0]
                 extra = f"+{len(opp['issues'])-1} more" if len(opp['issues']) > 1 else ""
                 lines.append(f"| {i} | [`{opp['file']}`]({opp['file']}) | {issues_short} {extra} | {opp['total_score']} | {opp['size_kb']}KB |")
             if len(impact_opps) > 15:
-                lines.append(f"| ... | ... | ... | ... | ... |")
-            lines.append(f"")
+                lines.append("| ... | ... | ... | ... | ... |")
+            lines.append("")
     else:
         lines.append("No improvement opportunities detected. The project is in great shape!")
-        lines.append(f"")
-    
-    lines.append(f"### General Improvement Ideas")
-    lines.append(f"")
-    lines.append(f"- Add more job titles to search queries")
-    lines.append(f"- Add more locations to worldwide search")
-    lines.append(f"- Enhance AI prompts for better cover letters")
-    lines.append(f"- Add more SMTP providers to rotation")
-    lines.append(f"- Improve anti-ban detection patterns")
-    lines.append(f"- Add more curated contacts per country")
-    lines.append(f"- Enhance ATS keyword matching")
-    lines.append(f"- Add more email templates")
-    lines.append(f"- Improve rate limiting algorithms")
-    lines.append(f"- Add more monitoring and alerting")
-    lines.append(f"- Optimize database queries")
-    lines.append(f"- Add more caching")
-    lines.append(f"- Improve error handling")
-    lines.append(f"- Add more unit tests")
-    lines.append(f"- Enhance documentation")
-    lines.append(f"")
-    lines.append(f"---")
-    lines.append(f"")
-    lines.append(f"## 📝 Recent Chat Transcripts")
-    lines.append(f"")
-    
+        lines.append("")
+
+    lines.append("### General Improvement Ideas")
+    lines.append("")
+    lines.append("- Add more job titles to search queries")
+    lines.append("- Add more locations to worldwide search")
+    lines.append("- Enhance AI prompts for better cover letters")
+    lines.append("- Add more SMTP providers to rotation")
+    lines.append("- Improve anti-ban detection patterns")
+    lines.append("- Add more curated contacts per country")
+    lines.append("- Enhance ATS keyword matching")
+    lines.append("- Add more email templates")
+    lines.append("- Improve rate limiting algorithms")
+    lines.append("- Add more monitoring and alerting")
+    lines.append("- Optimize database queries")
+    lines.append("- Add more caching")
+    lines.append("- Improve error handling")
+    lines.append("- Add more unit tests")
+    lines.append("- Enhance documentation")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append("## 📝 Recent Chat Transcripts")
+    lines.append("")
+
     lines.append(f"**Found {len(transcripts)} transcripts in brain directories**")
-    lines.append(f"")
-    
+    lines.append("")
+
     if transcripts:
         for t in transcripts[:20]:
             lines.append(f"### `{t['name']}`")
             lines.append(f"- Size: {t['size_kb']}KB, Lines: {t['total_lines']}, Hash: `{t['hash']}`")
             if t['user_requests']:
-                lines.append(f"- Key requests:")
+                lines.append("- Key requests:")
                 for req in t['user_requests'][:5]:
                     lines.append(f"  - \"{req}\"")
-            lines.append(f"")
-    
-    lines.append(f"---")
-    lines.append(f"")
-    lines.append(f"## ✅ Last Improvement")
-    lines.append(f"")
-    lines.append(f"**This section should be updated by the AI after making improvements.**")
-    lines.append(f"")
+            lines.append("")
+
+    lines.append("---")
+    lines.append("")
+    lines.append("## ✅ Last Improvement")
+    lines.append("")
+    lines.append("**This section should be updated by the AI after making improvements.**")
+    lines.append("")
     lines.append(f"- Timestamp: {datetime.now().isoformat()}")
-    lines.append(f"- Files modified: (list here)")
-    lines.append(f"- Changes made: (describe here)")
-    lines.append(f"- Next focus: (what to improve next)")
-    lines.append(f"")
-    lines.append(f"---")
-    lines.append(f"")
-    lines.append(f"## 🚀 Quick Start for Next Chat")
-    lines.append(f"")
-    lines.append(f"1. Read this file: `IMPROVE_ME.md`")
-    lines.append(f"2. Read the project files listed above")
-    lines.append(f"3. Read the chat transcripts listed above")
-    lines.append(f"4. Make improvements")
-    lines.append(f"5. Update the 'Last Improvement' section above")
-    lines.append(f"6. Repeat until tokens run out")
-    lines.append(f"")
-    
+    lines.append("- Files modified: (list here)")
+    lines.append("- Changes made: (describe here)")
+    lines.append("- Next focus: (what to improve next)")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append("## 🚀 Quick Start for Next Chat")
+    lines.append("")
+    lines.append("1. Read this file: `IMPROVE_ME.md`")
+    lines.append("2. Read the project files listed above")
+    lines.append("3. Read the chat transcripts listed above")
+    lines.append("4. Make improvements")
+    lines.append("5. Update the 'Last Improvement' section above")
+    lines.append("6. Repeat until tokens run out")
+    lines.append("")
+
     return "\n".join(lines)
 
 
@@ -711,30 +708,30 @@ def main():
     logger.debug("  Phase 7, Task 7.1 — Full Implementation")
     logger.debug("=" * 70)
     logger.debug("")
-    
+
     start_time = time.time()
-    
+
     # ── Step 1: Load state ──
     logger.debug("[1/7] Loading improvement state...")
     state = load_state()
     state["iteration"] += 1
     logger.debug(f"  -> Iteration #{state['iteration']}")
     logger.debug(f"  -> Total improvements so far: {state['total_improvements']}")
-    
+
     # ── Step 2: Scan ALL project files ──
     logger.debug("\n[2/7] Scanning ALL project files...")
     all_files = get_all_project_files()
     logger.debug(f"  -> Found {len(all_files)} analyzable files")
-    
+
     # Count by category
     by_category = defaultdict(int)
     for f in all_files:
         by_category[f["category"]] += 1
     for cat, count in sorted(by_category.items(), key=lambda x: -x[1]):
         logger.debug(f"     {cat.replace('_', ' ').title()}: {count}")
-    
+
     state["files_analyzed_count"] = len(all_files)
-    
+
     # ── Step 3: Analyze files for improvements ──
     logger.debug("\n[3/7] Analyzing files for improvement opportunities...")
     all_opportunities = []
@@ -742,14 +739,14 @@ def main():
         if f["ext"] == ".py":  # Only analyze Python files deeply
             opps = analyze_file_for_improvements(f)
             all_opportunities.extend(opps)
-    
+
     logger.debug(f"  -> Found {len(all_opportunities)} raw improvement signals")
-    
+
     # ── Step 4: Prioritize opportunities ──
     logger.debug("\n[4/7] Prioritizing improvement opportunities...")
     prioritized = prioritize_opportunities(all_opportunities)
     logger.debug(f"  -> {len(prioritized)} files with improvement potential")
-    
+
     # Count by impact
     by_impact = defaultdict(int)
     for p in prioritized:
@@ -758,9 +755,9 @@ def main():
         if by_impact[impact] > 0:
             info = IMPACT_LEVELS[impact]
             logger.debug(f"     {info['label']}: {by_impact[impact]} files")
-    
+
     state["opportunities_found"] = len(prioritized)
-    
+
     # ── Step 5: Generate improvement requests for top priorities ──
     logger.debug("\n[5/7] Generating improvement requests...")
     requests_generated = 0
@@ -769,10 +766,10 @@ def main():
             req_name = generate_improvement_request(opp, state)
             logger.debug(f"  -> Created: {req_name} ({opp['impact']})")
             requests_generated += 1
-    
+
     if requests_generated == 0:
         logger.debug("  -> No high-priority improvement requests needed")
-    
+
     # ── Step 6: Find and analyze chat transcripts ──
     logger.debug("\n[6/7] Analyzing chat transcripts...")
     all_transcripts = []
@@ -781,10 +778,10 @@ def main():
             for f in brain_dir.iterdir():
                 if f.is_file() and f.suffix == "":
                     all_transcripts.append(f)
-    
+
     # Sort by modification time (newest first)
     all_transcripts.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-    
+
     transcript_data = []
     for t in all_transcripts[:30]:
         summary = get_transcript_summary(t)
@@ -793,23 +790,23 @@ def main():
                 "name": t.name,
                 **summary
             })
-    
+
     logger.debug(f"  -> Found {len(all_transcripts)} transcripts")
     logger.debug(f"  -> Analyzed {len(transcript_data)} with content")
-    
+
     # ── Step 7: Build master context ──
     logger.debug("\n[7/7] Building master context...")
     context = build_master_context(all_files, prioritized, state, transcript_data)
-    
+
     with open(IMPROVE_ME_FILE, "w", encoding="utf-8") as f:
         f.write(context)
-    
+
     size_kb = round(os.path.getsize(IMPROVE_ME_FILE) / 1024, 1)
     logger.debug(f"  -> Written to IMPROVE_ME.md ({size_kb}KB)")
-    
+
     # Save state
     save_state(state)
-    
+
     elapsed = time.time() - start_time
     logger.debug("")
     logger.debug("=" * 70)

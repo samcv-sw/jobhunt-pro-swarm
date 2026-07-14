@@ -15,7 +15,7 @@ SKIP = {
 
 
 def fix_file(fpath, fname):
-    with open(fpath, 'r', encoding='utf-8', errors='replace') as f:
+    with open(fpath, encoding='utf-8', errors='replace') as f:
         content = f.read()
 
     original = content

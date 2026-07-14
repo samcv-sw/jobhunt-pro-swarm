@@ -2,7 +2,8 @@
 Round 6 — Live Site Fix Script
 Fixes issues found by auditing https://jhfguf.pythonanywhere.com/
 """
-import os, re
+import os
+import re
 
 TEMPLATES_DIR = 'web/templates'
 STATIC_CSS_DIR = 'web/static/css'

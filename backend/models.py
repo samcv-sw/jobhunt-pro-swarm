@@ -1,7 +1,17 @@
 import enum
 from datetime import UTC, datetime
 
-from sqlalchemy import JSON, Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, Index
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+)
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -136,9 +146,29 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     name = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
+    email_bounced = Column(Boolean, default=False)
+    unsubscribed = Column(Boolean, default=False)
+    referred_by = Column(String, nullable=True, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
     updated_at = Column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     def __repr__(self):
         return f"<User(id={self.id}, user_id={self.user_id}, email={self.email}, active={self.is_active})>"
+
+
+class CoverLetterToneResult(Base):
+    """
+    Tracks A/B testing results for cover letter tones — IMP-182.
+    """
+    __tablename__ = "cover_letter_tone_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    tone = Column(String, index=True, nullable=False)
+    job_id = Column(String, index=True, nullable=True)
+    application_id = Column(String, index=True, nullable=True)
+    reply_received = Column(Boolean, default=False, index=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+
+    def __repr__(self):
+        return f"<CoverLetterToneResult(id={self.id}, tone={self.tone}, reply={self.reply_received})>"
 

@@ -646,3 +646,69 @@ def get_free_smtp_pool() -> FreeSMTPPool:
     if _free_smtp_pool is None:
         _free_smtp_pool = FreeSMTPPool()
     return _free_smtp_pool
+
+# Celery/background warmup task/loop
+try:
+    from datetime import datetime
+
+    from backend.celery_app import celery_app
+
+    @celery_app.task(name="core.free_smtp_pool.send_warmup_emails_task")
+    def send_warmup_emails_task():
+        """
+        Background Celery task that automatically triggers decoy warm-up emails
+        for active providers to build and preserve sender reputation.
+        """
+        logger.info("[WARMUP-TASK] Starting background SMTP warmup loop...")
+        pool = get_free_smtp_pool()
+        if not pool.has_providers():
+            logger.info("[WARMUP-TASK] No HTTP SMTP providers configured. Skipping.")
+            return {"status": "skipped", "reason": "no_providers"}
+
+        import config
+        from core.email_warmup import warmup
+
+        recipients = [
+            os.getenv("WARMUP_RECIPIENT") or getattr(config, "CANDIDATE_EMAIL", "samatou683@gmail.com"),
+            "samatou683@gmail.com"
+        ]
+        recipient = recipients[0]
+
+        sent_count = 0
+        for provider_info in pool._providers:
+            name = provider_info["name"]
+            # Check if provider can send (hasn't hit its warmup daily limit today)
+            if warmup.can_send(name):
+                # Send a decoy/warmup email
+                subject = f"System Verification Ping - {name.upper()}"
+                html = f"""
+                <html>
+                  <body>
+                    <h2>SMTP Warmup Active</h2>
+                    <p>This is an automated system verification email to maintain sender IP/domain reputation.</p>
+                    <p>Provider: <strong>{name}</strong></p>
+                    <p>Timestamp: {datetime.now().isoformat()}</p>
+                  </body>
+                </html>
+                """
+                text = f"SMTP Warmup Active for {name} at {datetime.now().isoformat()}"
+
+                success, _ = pool.send(
+                    to_email=recipient,
+                    subject=subject,
+                    html_body=html,
+                    text_body=text,
+                    from_name="JobHunt System Verification"
+                )
+                if success:
+                    logger.info(f"[WARMUP-TASK] Decoy email sent successfully via {name} to {recipient}.")
+                    warmup.record_send(name)
+                    sent_count += 1
+                else:
+                    logger.warning(f"[WARMUP-TASK] Decoy email failed to send via {name}.")
+
+        return {"status": "completed", "emails_sent": sent_count}
+
+except Exception as import_err:
+    logger.debug(f"Celery app not loaded yet or import error: {import_err}")
+

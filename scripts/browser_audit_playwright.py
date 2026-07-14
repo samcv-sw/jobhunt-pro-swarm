@@ -6,7 +6,6 @@ and writes BROWSER_VISUAL_AUDIT.md.
 """
 
 import asyncio
-import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -16,13 +15,13 @@ if sys.platform.startswith("win"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 try:
-    from playwright.async_api import async_playwright, ConsoleMessage
+    from playwright.async_api import ConsoleMessage, async_playwright
 except ImportError:
     logger.debug("Installing playwright...")
     import subprocess
     subprocess.check_call([sys.executable, "-m", "pip", "install", "playwright"])
     subprocess.check_call([sys.executable, "-m", "playwright", "install", "chromium"])
-    from playwright.async_api import async_playwright, ConsoleMessage
+    from playwright.async_api import ConsoleMessage, async_playwright
 
 BASE_URL = "http://127.0.0.1:8000"
 SCREENSHOTS_DIR = Path(__file__).parent.parent / "screenshots"
@@ -148,8 +147,8 @@ def render_report(results):
     warn_count = sum(1 for r in results if r["issues"] or r["console_errors"])
     error_count = sum(1 for r in results if isinstance(r["status"], int) and r["status"] >= 400)
 
-    lines.append(f"| Metric | Count |")
-    lines.append(f"|--------|-------|")
+    lines.append("| Metric | Count |")
+    lines.append("|--------|-------|")
     lines.append(f"| ✅ Pages OK | {ok_count} |")
     lines.append(f"| ⚠️ Pages with warnings/issues | {warn_count} |")
     lines.append(f"| 🔴 Pages with HTTP errors | {error_count} |")

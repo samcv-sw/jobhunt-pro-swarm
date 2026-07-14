@@ -9,8 +9,8 @@ Inline keyboard, emoji everywhere, real-time stats
 """
 
 import asyncio
-import os
 import logging
+import os
 import threading
 
 _TG_BOT_LOCK = threading.Lock()
@@ -24,10 +24,8 @@ if not os.getenv("FORCE_SQLITE"):
 else:
     import core.pg_sqlite_shim as sqlite3
 import time
-
 from collections import defaultdict
 from datetime import datetime, timedelta
-
 
 # ── Per-User Rate Limiter ────────────────────────────────────────
 _user_command_times = defaultdict(list)
@@ -51,19 +49,17 @@ import httpx
 from httpx import Limits
 
 import config
-
-from core.whatsapp_notifier import get_whatsapp_contact_url
-
-from core.telegram_notifier import TelegramNotifier
-
 from core.telegram_analytics import TelegramAnalytics
-
+from core.telegram_notifier import TelegramNotifier
+from core.whatsapp_notifier import get_whatsapp_contact_url
 
 logger = logging.getLogger(__name__)
 
 
 # ── Sync Telegram Sender (standalone, no async, no bot instance) ─────
 # Used by queue_worker, viral_factory, cloud_orchestrator, web/app.py
+import contextlib
+
 import requests as _tg_requests
 
 
@@ -371,7 +367,6 @@ COMMANDS_MAP = {
     "/converse": "cmd_converse",
     "/trend": "cmd_trend",
     "/funnel": "cmd_funnel",
-    "/features": "cmd_features",
 }
 
 
@@ -566,11 +561,9 @@ TEXT_COMMAND_MAP = {
     "🔑 Env": "/env",
     "المتغيرات": "/env",
     "📡 Ping": "/status",
-    "اختبار الخادم": "/status",
     "⚡ Speed": "/speed_test",
     "سرعة الإرسال": "/speed_test",
     "📉 Failure": "/failure_rate",
-    "نسبة الفشل": "/failure_rate",
     # Tools
     "🎓 Prep": "/prep",
     "التحضير": "/prep",
@@ -585,7 +578,6 @@ TEXT_COMMAND_MAP = {
     "🔔 Notify": "/inbox_check",
     "الإشعارات": "/inbox_check",
     "📬 Inbox": "/inbox_check",
-    "فحص الردود": "/inbox_check",
     "🔁 Retry": "/retry_failed",
     "إعادة": "/retry_failed",
     # System
@@ -613,51 +605,21 @@ TEXT_COMMAND_MAP = {
     "وضع تسريع": "/boost",
     "🔥 Boost": "/boost",
     "تسريع": "/boost",
-    # Variants
-    "🛰️ Track": "/track",
     "التتبع": "/track",
-    "📊 Campaign": "/campaign",
-    "الحملة": "/campaign",
     "🌙 Night": "/night_mode",
     "الليل": "/night_mode",
-    "🧪 Dry Run": "/dry_run",
     "آمنة": "/dry_run",
-    "⏸️ Pause": "/pause",
     "وقف": "/pause",
-    "▶️ Resume": "/resume",
     "كمّل": "/resume",
-    "🔄 Reboot": "/reboot",
-    "إعادة": "/reboot",
-    "🌍 Countries": "/countries",
     "الدول المستهدفة": "/countries",
-    "💼 Job Titles": "/job_titles",
     "المسميات الوظيفية": "/job_titles",
-    "🔎 Find Emails": "/find_emails",
     "بحث إيميلات": "/find_emails",
     "🚫 Skip Lead": "/skip_lead",
     "تخطي": "/skip_lead",
-    "📌 Pin Lead": "/pin_lead",
     "تثبيت": "/pin_lead",
-    "⛔ Blacklist": "/blacklist",
     "السوداء": "/blacklist",
-    "🎪 Mass Strike": "/mass_strike",
     "جماعية": "/mass_strike",
-    "🎯 Force Strike": "/force_strike",
     "فورية": "/force_strike",
-    "🌐 Platforms": "/platforms",
-    "المواقع": "/platforms",
-    "📊 Top Companies": "/top_companies",
-    "أفضل شركات": "/top_companies",
-    "🔁 Retry": "/retry_failed",
-    "إعادة الفاشلين": "/retry_failed",
-    "💾 Backup": "/backup",
-    "نسخة احتياطية": "/backup",
-    "🛡️ Shield": "/shield",
-    "الدرع": "/shield",
-    "📬 Inbox": "/inbox_check",
-    "فحص الردود": "/inbox_check",
-    "🔔 Notify": "/inbox_check",
-    "الإشعارات": "/inbox_check",
     "📈 Trend": "/trend",
     "الاتجاهات": "/trend",
     "📊 Funnel": "/funnel",
@@ -1114,10 +1076,8 @@ class TelegramBot:
                 logger.warning(f"Telegram photo fallback failed: {e}")
         except Exception as e:
             logger.warning(f"Telegram photo failed: {e}")
-            try:
+            with contextlib.suppress(Exception):
                 await self.send(f"\U0001f4f8 Photo send failed: {e}")
-            except Exception:
-                pass
 
     async def _send_progress(self, progress_id, message, percent=None):
         """Send or update a progress message for long-running operations.
@@ -2751,10 +2711,8 @@ class TelegramBot:
         await self.send(
             "<b>🔄 Rebooting process...</b> Restart will trigger via watchdog."
         )
-        try:
+        with contextlib.suppress(Exception):
             os._exit(42)
-        except Exception:
-            pass
         raise SystemExit(42)
 
     # ── CHRONOS: Track ─────────────────────────────────────────────
@@ -2805,7 +2763,7 @@ class TelegramBot:
                 else []
             )
             if log_files:
-                with open(log_files[0], "r", encoding="utf-8", errors="replace") as f:
+                with open(log_files[0], encoding="utf-8", errors="replace") as f:
                     lines = f.readlines()
                     last_30 = "".join(lines[-30:])
                     if len(last_30) > 3500:
@@ -3069,8 +3027,8 @@ class TelegramBot:
             conn = _get_db()
             conn.row_factory = sqlite3.Row
             c = conn.execute(
-                """SELECT id, title, company, location, salary, remote, jid 
-                   FROM jobs WHERE title LIKE ? OR company LIKE ? 
+                """SELECT id, title, company, location, salary, remote, jid
+                   FROM jobs WHERE title LIKE ? OR company LIKE ?
                    LIMIT 20""",
                 (f"%{query}%", f"%{query}%"),
             )
@@ -3691,7 +3649,7 @@ class TelegramBot:
         try:
             cv_path = getattr(config, "CV_TEXT_PATH", "")
             if cv_path and os.path.exists(cv_path):
-                with open(cv_path, "r", encoding="utf-8") as f:
+                with open(cv_path, encoding="utf-8") as f:
                     return f.read()
         except Exception:
             pass

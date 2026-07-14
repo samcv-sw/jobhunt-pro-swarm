@@ -1,9 +1,9 @@
 """
 BUILD-QUICK-WINS: Update dashboard_v2.html with rich job cards
 """
+import logging
 import os
 import sys
-import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 DASHBOARD_HTML = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates', 'dashboard_v2.html')
 
 try:
-    with open(DASHBOARD_HTML, 'r', encoding='utf-8') as f:
+    with open(DASHBOARD_HTML, encoding='utf-8') as f:
         content = f.read()
 except Exception as e:
     logger.error(f"Failed to read {DASHBOARD_HTML}: {e}")

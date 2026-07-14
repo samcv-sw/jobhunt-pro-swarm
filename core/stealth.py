@@ -269,6 +269,14 @@ class StealthScraper:
         "edge99",  # Edge 99 (Windows)
     ]
 
+    _PROFILE_MAP = {
+        "chrome131": "chrome120",
+        "chrome130": "chrome120",
+        "chrome129": "chrome120",
+        "safari18_0": "safari17_2_1",
+        "edge99": "chrome120",
+    }
+
     def _get_impersonation_profile(self) -> str:
         """
         Rotate browser fingerprints per request.
@@ -301,9 +309,10 @@ class StealthScraper:
             # APEX MATRIX: Rotate browser impersonation profile
             # Each profile replicates a different browser's TLS + HTTP/2 + header fingerprint
             profile = self._get_impersonation_profile()
-            logger.debug(f"[STEALTH] Using browser profile: {profile}")
+            cffi_profile = self._PROFILE_MAP.get(profile, profile)
+            logger.debug(f"[STEALTH] Using browser profile: {profile} mapped to {cffi_profile}")
             return cffi_requests.AsyncSession(
-                impersonate=profile,
+                impersonate=cffi_profile,
                 timeout=timeout,
                 proxies=proxies,
             )
@@ -328,8 +337,9 @@ class StealthScraper:
         if HAS_CFFI:
             # APEX MATRIX: Rotate browser profile for sync client too
             profile = self._get_impersonation_profile()
+            cffi_profile = self._PROFILE_MAP.get(profile, profile)
             return cffi_requests.Session(
-                impersonate=profile,
+                impersonate=cffi_profile,
                 timeout=timeout,
                 proxies=proxies,
             )
@@ -634,20 +644,37 @@ class NodriverFallback:
 
             if not proxy:
                 env_proxies = [p.strip() for p in os.getenv("RESIDENTIAL_PROXIES", "").split(",") if p.strip()]
-                if env_proxies:
-                    proxy = env_proxies[0]
-                else:
-                    proxy = "http://jobhunt-stub-proxy:8080"
+                proxy = env_proxies[0] if env_proxies else "http://jobhunt-stub-proxy:8080"
 
             browser_args = []
             if proxy:
                 browser_args.append(f"--proxy-server={proxy}")
+            browser_args.append("--blink-settings=imagesEnabled=false")
+            browser_args.append("--disable-remote-fonts")
 
             # On some environments headless=True may be detected, but usually Nodriver handles it well
             browser = await uc.start(headless=True, browser_args=browser_args)
-            page = await browser.get(url)
+            
+            import inspect
+            page = browser.main_tab
+            if inspect.isawaitable(page):
+                page = await page
 
-            # Inject WebGL, Canvas, and browser attribute stealth spoofing scripts
+            # Enable network domain and block stylesheets and trackers before navigation
+            try:
+                await page.send(uc.cdp.network.enable())
+                await page.send(uc.cdp.network.set_blocked_ur_ls(
+                    urls=[
+                        "*.css",
+                        "*analytics*", "*google-analytics.com*", "*doubleclick*", "*tracker*", "*facebook.com*", "*fbcdn*"
+                    ]
+                ))
+                logger.info("[Nodriver] Resource blocking configured (stylesheets, trackers).")
+            except Exception as block_err:
+                logger.warning(f"[Nodriver] Failed to configure resource blocking: {block_err}")
+
+            await page.get(url)
+
             js_script = """
             (function() {
                 // WebGL Spoofing
@@ -659,15 +686,24 @@ class NodriverFallback:
                         return getParameter.apply(this, arguments);
                     };
                 }
-                // Canvas Spoofing
-                if (window.CanvasRenderingContext2D) {
-                    const getImageData = CanvasRenderingContext2D.prototype.getImageData;
-                    CanvasRenderingContext2D.prototype.getImageData = function(x, y, w, h) {
-                        const imageData = getImageData.apply(this, arguments);
-                        if (imageData.data.length > 0) {
-                            imageData.data[0] = (imageData.data[0] + 1) % 256;
+                // Robust Canvas Spoofing (pixel-by-pixel noise)
+                if (window.HTMLCanvasElement && window.CanvasRenderingContext2D) {
+                    const originalGetContext = HTMLCanvasElement.prototype.getContext;
+                    HTMLCanvasElement.prototype.getContext = function(type) {
+                        const context = originalGetContext.apply(this, arguments);
+                        if (type === '2d') {
+                            const originalGetImageData = context.getImageData;
+                            context.getImageData = function() {
+                                const imageData = originalGetImageData.apply(this, arguments);
+                                // Add subtle non-deterministic subpixel noise to bypass statistical XOR fingerprinting
+                                for (let i = 0; i < imageData.data.length; i += 4) {
+                                    const shift = Math.random() > 0.5 ? 1 : -1;
+                                    imageData.data[i] = Math.min(255, Math.max(0, imageData.data[i] + shift));
+                                }
+                                return imageData;
+                            };
                         }
-                        return imageData;
+                        return context;
                     };
                 }
                 // Browser Attribute Spoofing
@@ -713,14 +749,37 @@ class ApexCamoufoxFallback:
 
             if not proxy:
                 env_proxies = [p.strip() for p in os.getenv("RESIDENTIAL_PROXIES", "").split(",") if p.strip()]
-                if env_proxies:
-                    proxy = env_proxies[0]
-                else:
-                    proxy = "http://jobhunt-stub-proxy:8080"
+                proxy = env_proxies[0] if env_proxies else "http://jobhunt-stub-proxy:8080"
 
             # Using Camoufox which intercepts and overrides WebGL/Canvas natively
             async with AsyncCamoufox(headless=True, proxy=proxy) as browser:
                 page = await browser.new_page()
+
+                # Block heavy resources and trackers using Playwright routing before navigation
+                import re
+                BLOCKED_RESOURCE_TYPES = {"image", "stylesheet", "font", "media"}
+                BLOCKED_DOMAINS_PATTERNS = [
+                    re.compile(p) for p in [
+                        r"analytics",
+                        r"google-analytics\.com",
+                        r"doubleclick",
+                        r"tracker",
+                        r"facebook\.com",
+                        r"fbcdn"
+                    ]
+                ]
+
+                async def route_intercept(route, request):
+                    if request.resource_type in BLOCKED_RESOURCE_TYPES:
+                        await route.abort()
+                    elif any(pat.search(request.url) for pat in BLOCKED_DOMAINS_PATTERNS):
+                        await route.abort()
+                    else:
+                        await route.continue_()
+
+                await page.route("**/*", route_intercept)
+                logger.info("[Camoufox] Resource blocking configured (images, stylesheets, fonts, trackers).")
+
                 await page.goto(url)
 
                 # Simulate human interaction before extraction

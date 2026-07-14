@@ -46,7 +46,10 @@ class AsyncDatabase:
                         "postgresql+asyncpg://", "postgresql://"
                     )
                     self.pool = await asyncpg.create_pool(
-                        dsn=connect_uri, min_size=1, max_size=20
+                        dsn=connect_uri,
+                        min_size=1,
+                        max_size=3,
+                        statement_cache_size=0
                     )
                     self.backend = "pg"
                     logger.info(
@@ -139,14 +142,14 @@ async def async_dequeue_task() -> dict[str, Any] | None:
     try:
         if async_db.backend == "pg":
             query = """
-                UPDATE job_queue 
+                UPDATE job_queue
                 SET status = 'running', locked_at = CURRENT_TIMESTAMP
                 WHERE id = (
-                    SELECT id FROM job_queue 
+                    SELECT id FROM job_queue
                     WHERE (status = 'pending' OR status = 'failed')
                       AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
-                    ORDER BY priority ASC, next_retry_at ASC, created_at ASC 
-                    LIMIT 1 
+                    ORDER BY priority ASC, next_retry_at ASC, created_at ASC
+                    LIMIT 1
                     FOR UPDATE SKIP LOCKED
                 )
                 RETURNING id, task_type, payload
@@ -166,10 +169,10 @@ async def async_dequeue_task() -> dict[str, Any] | None:
             async with _sqlite_async_dequeue_lock:
                 await async_db.pool.execute("BEGIN IMMEDIATE")
                 query = """
-                    SELECT id, task_type, payload FROM job_queue 
+                    SELECT id, task_type, payload FROM job_queue
                     WHERE (status = 'pending' OR status = 'failed')
                       AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
-                    ORDER BY priority ASC, next_retry_at ASC, created_at ASC 
+                    ORDER BY priority ASC, next_retry_at ASC, created_at ASC
                     LIMIT 1
                 """
                 async with async_db.pool.execute(query) as cursor:

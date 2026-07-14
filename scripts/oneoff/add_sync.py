@@ -1,5 +1,5 @@
-import re
 import logging
+import re
 import sys
 
 logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)

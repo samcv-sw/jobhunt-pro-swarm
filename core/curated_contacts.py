@@ -995,7 +995,7 @@ def get_curated_contacts(location_filter: str = "", limit: int = 50) -> list[dic
     """Get curated contacts, optionally filtered by location, with robust error handling"""
     contacts = CURATED_CONTACTS
     result = []
-    
+
     try:
         if location_filter and isinstance(location_filter, str):
             location_lower = location_filter.lower()
@@ -1031,10 +1031,10 @@ def get_curated_contacts(location_filter: str = "", limit: int = 50) -> list[dic
                 )
             except Exception as e:
                 logger.error("Error processing curated contact %s: %s", c, e)
-                
+
         logger.info(f"Curated contacts: {len(result)} (filter: '{location_filter}')")
     except Exception as e:
         logger.error("Fatal error in get_curated_contacts: %s", e, exc_info=True)
-        
+
     return result
 

@@ -1,0 +1,136 @@
+diff --git a/core/stealth.py b/core/stealth.py
+index a123456..b654321 1006e
+--- a/core/stealth.py
++++ b/core/stealth.py
+@@ -651,8 +651,21 @@ class NodriverFallback:
+             browser_args = []
+             if proxy:
+                 browser_args.append(f"--proxy-server={proxy}")
+ 
+             # On some environments headless=True may be detected, but usually Nodriver handles it well
+             browser = await uc.start(headless=True, browser_args=browser_args)
+-            page = await browser.get(url)
++            page = await browser.main_tab
++
++            # Enable network domain and block heavy/tracking resources before navigation
++            try:
++                await page.send(uc.cdp.network.enable())
++                await page.send(uc.cdp.network.set_blocked_ur_ls(
++                    urls=[
++                        "*.png", "*.jpg", "*.jpeg", "*.gif", "*.svg", "*.webp", "*.ico",
++                        "*.css",
++                        "*.woff", "*.woff2", "*.ttf", "*.otf",
++                        "*analytics*", "*google-analytics.com*", "*doubleclick*", "*tracker*", "*facebook.com*", "*fbcdn*"
++                    ]
++                ))
++                logger.info("[Nodriver] Resource blocking configured (images, stylesheets, fonts, trackers).")
++            except Exception as block_err:
++                logger.warning(f"[Nodriver] Failed to configure resource blocking: {block_err}")
++
++            await page.get(url)
+ 
+             js_script = """
+             (function() {
+@@ -732,8 +745,26 @@ class ApexCamoufoxFallback:
+ 
+             # Using Camoufox which intercepts and overrides WebGL/Canvas natively
+             async with AsyncCamoufox(headless=True, proxy=proxy) as browser:
+                 page = await browser.new_page()
+-                await page.goto(url)
++
++                # Block heavy resources and trackers using Playwright routing before navigation
++                import re
++                BLOCKED_RESOURCE_TYPES = {"image", "stylesheet", "font", "media"}
++                BLOCKED_DOMAINS_PATTERNS = [
++                    re.compile(p) for p in [
++                        r"analytics",
++                        r"google-analytics\.com",
++                        r"doubleclick",
++                        r"tracker",
++                        r"facebook\.com",
++                        r"fbcdn"
++                    ]
++                ]
++
++                async def route_intercept(route, request):
++                    if request.resource_type in BLOCKED_RESOURCE_TYPES:
++                        await route.abort()
++                    elif any(pat.search(request.url) for pat in BLOCKED_DOMAINS_PATTERNS):
++                        await route.abort()
++                    else:
++                        await route.continue_()
++
++                await page.route("**/*", route_intercept)
++                logger.info("[Camoufox] Resource blocking configured (images, stylesheets, fonts, trackers).")
++
++                await page.goto(url)
+ 
+                 # Simulate human interaction before extraction
+                 # Move from an arbitrary start point to an arbitrary center point
+diff --git a/core/zero_cost_stealth_browser.py b/core/zero_cost_stealth_browser.py
+index c123456..d654321 1006e
+--- a/core/zero_cost_stealth_browser.py
++++ b/core/zero_cost_stealth_browser.py
+@@ -37,8 +37,23 @@ class ZeroCostStealthScraper:
+             options = uc.ChromeOptions()
+             options.add_argument("--headless")
+             options.add_argument("--disable-gpu")
+             # Add free community proxies here if needed
+ 
++            # Disable image loading via Chrome preferences
++            prefs = {
++                "profile.managed_default_content_settings.images": 2
++            }
++            options.add_experimental_option("prefs", prefs)
++
+             driver = uc.Chrome(options=options)
+             try:
++                # Enable network domain and block heavy/tracking resources before navigation via CDP
++                driver.execute_cdp_cmd("Network.enable", {})
++                driver.execute_cdp_cmd("Network.setBlockedURLs", {
++                    "urls": [
++                        "*.png", "*.jpg", "*.jpeg", "*.gif", "*.svg", "*.webp", "*.ico",
++                        "*.css",
++                        "*.woff", "*.woff2", "*.ttf", "*.otf",
++                        "*analytics*", "*google-analytics.com*", "*doubleclick*", "*tracker*", "*facebook.com*", "*fbcdn*"
++                    ]
++                })
++
+                 driver.get(url)
+                 # Wait for JS challenge to pass
+diff --git a/core/ghost_applicant.py b/core/ghost_applicant.py
+index e123456..f654321 1006e
+--- a/core/ghost_applicant.py
++++ b/core/ghost_applicant.py
+@@ -45,8 +45,26 @@ class GhostApplicant:
+ 
+                 page = await context.new_page()
+ 
++                # Setup image and tracker blocking using Playwright routing to save bandwidth (keep CSS/fonts for form layout)
++                import re
++                BLOCKED_RESOURCE_TYPES = {"image", "media"}
++                BLOCKED_DOMAINS_PATTERNS = [
++                    re.compile(p) for p in [
++                        r"analytics",
++                        r"google-analytics\.com",
++                        r"doubleclick",
++                        r"tracker",
++                        r"facebook\.com",
++                        r"fbcdn"
++                    ]
++                ]
++
++                async def route_intercept(route, request):
++                    if request.resource_type in BLOCKED_RESOURCE_TYPES:
++                        await route.abort()
++                    elif any(pat.search(request.url) for pat in BLOCKED_DOMAINS_PATTERNS):
++                        await route.abort()
++                    else:
++                        await route.continue_()
++
++                await page.route("**/*", route_intercept)
++                logger.info("[GhostApplicant] Resource blocking configured (images, trackers).")
++
+                 # Setup timeout and navigate
+                 page.set_default_timeout(30000)
+                 await page.goto(url, wait_until="networkidle")

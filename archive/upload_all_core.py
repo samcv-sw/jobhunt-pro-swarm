@@ -1,5 +1,6 @@
 import os
 import sys
+
 import requests
 
 sys.stdout.reconfigure(encoding='utf-8')

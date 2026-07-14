@@ -3,8 +3,8 @@ scripts/oneoff/translate_script.py
 JobHunt Pro - Translation Script Utility
 Processes search-and-replace dictionary translations for index_v3.html template file.
 """
-import os
 import logging
+import os
 from typing import Dict
 
 # Configure logging

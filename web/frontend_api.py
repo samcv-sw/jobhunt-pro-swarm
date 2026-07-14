@@ -6,17 +6,23 @@ Uses ONLY columns that exist on PA's DB schema.
 import hashlib
 import logging
 import os
+
 if os.getenv("SUPABASE_MODE"):
     import core.supabase_rest_shim as sqlite3_module
 else:
     import core.pg_sqlite_shim as sqlite3_module
-from datetime import datetime, timezone
+
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 try:
-    from core.byo_smtp import encrypt_credentials, decrypt_credentials, test_smtp_connection
+    from core.byo_smtp import (
+        decrypt_credentials,
+        encrypt_credentials,
+        test_smtp_connection,
+    )
 except ImportError:
     def encrypt_credentials(e, p): return None
     def decrypt_credentials(t): return None
@@ -565,7 +571,7 @@ async def cloud_health():
         conn.execute("SELECT 1")
         return JSONResponse({
             "status": "ok", "db": "connected", "api": "v1-frontend",
-            "time": datetime.now(timezone.utc).isoformat(),
+            "time": datetime.now(UTC).isoformat(),
         })
     except Exception as e:
         return JSONResponse({"status": "error", "db": str(e)}, status_code=500)

@@ -14,6 +14,8 @@ except ImportError:
     import httpx
 
     httpx_AsyncClient = httpx.AsyncClient
+import contextlib
+
 import httpx
 
 logger = logging.getLogger(__name__)
@@ -154,7 +156,5 @@ class IndeedRSSScraper:
         return jobs[:limit]
 
     def close(self):
-        try:
+        with contextlib.suppress(Exception):
             self._session.close()
-        except Exception:
-            pass

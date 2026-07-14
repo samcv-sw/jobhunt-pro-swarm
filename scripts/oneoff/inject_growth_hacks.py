@@ -1,5 +1,5 @@
-import os
 import io
+import os
 
 app_file = "web/app_v2.py"
 with io.open(app_file, "r", encoding="utf-8") as f:

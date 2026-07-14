@@ -436,7 +436,8 @@ class PAJobScraper:
             if not headers or "User-Agent" not in headers:
                 import random
                 UAS = ["Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/121.0.0.0 Safari/537.36"]
-                if not headers: headers = {}
+                if not headers:
+                    headers = {}
                 headers["User-Agent"] = random.choice(UAS)
             req = urllib.request.Request(url, headers=headers)
             with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -658,7 +659,7 @@ class PAJobScraper:
         targets = []
         if location:
             loc_lower = location.lower()
-            for tid, name, text in hhru_targets:
+            for tid, name, _text in hhru_targets:
                 if name.lower() in loc_lower or loc_lower in name.lower():
                     # Preserve target with user's query
                     targets.append((tid, name, search_text_input))

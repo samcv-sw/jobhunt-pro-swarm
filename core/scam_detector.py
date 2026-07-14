@@ -512,15 +512,17 @@ class ScamDetector:
 
         # 6. AI-Powered Deep Scam Audit (Groq Zero-shot Classifier)
         try:
-            import sys
             import os
+            import sys
+
             # Avoid calling external APIs or blocking threads during testing
             is_testing = "pytest" in sys.modules or os.getenv("PYTEST_CURRENT_TEST") is not None or "unittest" in sys.modules
             if is_testing:
                 return False, ""
 
-            from core.ats_scorer import GROQ_KEYS, _get_groq_client, _extract_json
             import asyncio
+
+            from core.ats_scorer import GROQ_KEYS, _extract_json, _get_groq_client
 
             valid_key = next((k for k in GROQ_KEYS if k), None)
             if valid_key:
@@ -621,3 +623,33 @@ def get_email_footer() -> str:
         "&bull; Not interested in this application? We apologize for the contact.</p>"
         "</div>"
     )
+
+
+def is_duplicate_job(job_title: str, company: str, seen_jobs: set) -> bool:
+    """Detect cross-platform duplicate job postings using normalized key matching.
+
+    Normalizes job title and company name to a canonical key and checks
+    against a caller-maintained set of already-seen job keys. Adds the
+    key to the set if not a duplicate.
+
+    Args:
+        job_title: Raw job title string.
+        company: Raw company name string.
+        seen_jobs: Mutable set of normalized job keys already processed.
+
+    Returns:
+        True if this job is already in ``seen_jobs``.
+    """
+    import re as _re
+
+    def _norm(s: str) -> str:
+        s = s.lower().strip()
+        s = _re.sub(r"[^a-z0-9\s]", "", s)
+        s = _re.sub(r"\s+", " ", s)
+        return s.strip()
+
+    key = _norm(job_title) + "::" + _norm(company)
+    if key in seen_jobs:
+        return True
+    seen_jobs.add(key)
+    return False

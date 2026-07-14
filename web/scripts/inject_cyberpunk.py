@@ -4,8 +4,8 @@ Cyberpunk CSS Injector for JobHunt Pro
 Injects cyberpunk.css link and cyberpunk-body class into all HTML templates.
 """
 
-import os
 import glob
+import os
 import re
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -17,7 +17,7 @@ CSS_LINK = f'<link rel="stylesheet" href="{CSS_PATH}">'
 
 def process_template(filepath):
     """Inject cyberpunk CSS link and body class into a single HTML template."""
-    with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+    with open(filepath, encoding='utf-8', errors='ignore') as f:
         content = f.read()
 
     modified = False

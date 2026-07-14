@@ -1,5 +1,7 @@
-﻿import requests
-import logging
+﻿import logging
+
+import requests
+
 logger = logging.getLogger(__name__)
 
 username = "JHFGUF"
@@ -21,6 +23,7 @@ requests.post(
 )
 
 import time
+
 time.sleep(10)
 
 # Reload Web App

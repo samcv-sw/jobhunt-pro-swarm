@@ -1,5 +1,6 @@
-import sys
 import os
+import sys
+
 sys.path.append(os.path.abspath('.'))
 
 from app_v2 import _build_dashboard_shell, render_template

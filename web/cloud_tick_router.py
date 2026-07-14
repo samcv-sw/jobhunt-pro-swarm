@@ -6,12 +6,14 @@ Mounted in app_v2.py as:
 """
 import logging
 import os
+
 if os.getenv("SUPABASE_MODE") == "1":
     import core.supabase_rest_shim as sqlite3
 else:
     import core.pg_sqlite_shim as sqlite3
 from datetime import datetime
-from fastapi import APIRouter, Request, HTTPException
+
+from fastapi import APIRouter, HTTPException, Request
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +55,7 @@ async def cloud_tick_handler(request: Request):
 
         import subprocess
         import sys
-        
+
         creationflags = 0
         if sys.platform.startswith("win"):
             creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
@@ -112,24 +114,24 @@ async def debug_db():
         db_path = _get_db_path()
         conn = sqlite3.connect(db_path, timeout=30)
         conn.row_factory = sqlite3.Row
-        
+
         # Check if table lebanon_companies exists
         cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='lebanon_companies'")
         has_table = cursor.fetchone() is not None
-        
+
         tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
-        
+
         lebanon_count = 0
         if has_table:
             lebanon_count = conn.execute("SELECT COUNT(*) FROM lebanon_companies").fetchone()[0]
-            
+
         campaign_sent_count = 0
         has_sent_table = 'campaign_sent' in tables
         if has_sent_table:
             campaign_sent_count = conn.execute("SELECT COUNT(*) FROM campaign_sent").fetchone()[0]
-            
+
         conn.close()
-        
+
         # Check GMAIL env variables
         gmail_env = {}
         for i in range(1, 20):
@@ -141,7 +143,7 @@ async def debug_db():
                     "has_pass": bool(p),
                     "pass_len": len(p) if p else 0
                 }
-                
+
         return {
             "status": "ok",
             "db_path": db_path,
@@ -211,7 +213,7 @@ async def debug_logs(file: str = "auto_run.log", lines: int = 200):
             log_dir = "/home/JHFGUF/jobhunt/logs"
             if not os.path.exists(log_dir):
                 log_dir = "logs"
-            
+
             filepath = os.path.join(log_dir, file)
             if not os.path.exists(filepath):
                 filepath = os.path.join("/home/JHFGUF/jobhunt", file)
@@ -219,10 +221,10 @@ async def debug_logs(file: str = "auto_run.log", lines: int = 200):
                     filepath = os.path.join("/home/JHFGUF", file)
                     if not os.path.exists(filepath):
                         return {"status": "error", "message": f"File {file} not found"}
-        
-        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+
+        with open(filepath, encoding="utf-8", errors="ignore") as f:
             content = f.readlines()
-            
+
         last_lines = content[-lines:] if len(content) > lines else content
         return {
             "status": "ok",
@@ -239,17 +241,17 @@ async def list_dir_api(path: str = "."):
         base_dir = "/home/JHFGUF/jobhunt"
         if not os.path.exists(base_dir):
             base_dir = "."
-        
+
         target = os.path.abspath(os.path.join(base_dir, path))
         if not target.startswith(os.path.abspath(base_dir)) and not target.startswith("/home/JHFGUF"):
             return {"status": "error", "message": "Access denied"}
-            
+
         if not os.path.exists(target):
             return {"status": "error", "message": "Path not found"}
-            
+
         if os.path.isfile(target):
             return {"status": "ok", "type": "file", "size": os.path.getsize(target)}
-            
+
         items = []
         for name in os.listdir(target):
             item_path = os.path.join(target, name)
@@ -437,23 +439,23 @@ async def execute_sql(request: Request):
         body = await request.json()
         query = body.get("query")
         params = body.get("params", [])
-        
+
         if not query:
             return {"status": "error", "message": "query required"}
-            
+
         db_path = _get_db_path()
         conn = sqlite3.connect(db_path, timeout=30)
         conn.row_factory = sqlite3.Row
-        
+
         cursor = conn.execute(query, params)
         conn.commit()
-        
+
         # Check if it was a SELECT query
         if query.strip().upper().startswith("SELECT"):
             rows = cursor.fetchall()
             conn.close()
             return {"status": "ok", "row_count": len(rows), "rows": [dict(r) for r in rows]}
-            
+
         conn.close()
         return {"status": "ok", "message": "Query executed successfully"}
     except Exception as e:

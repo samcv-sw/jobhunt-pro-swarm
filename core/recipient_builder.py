@@ -260,10 +260,7 @@ EMAIL_FORMATS = [
 
 def init(data_dir: str = None):
     global DATA_DIR
-    if data_dir:
-        DATA_DIR = Path(data_dir)
-    else:
-        DATA_DIR = Path(__file__).parent.parent / "data"
+    DATA_DIR = Path(data_dir) if data_dir else Path(__file__).parent.parent / "data"
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 

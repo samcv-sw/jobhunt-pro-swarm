@@ -2,11 +2,14 @@
 web/__init__.py - Application Factory
 Extracted from app_v2.py (Phase 1 Refactor)
 """
-import os, logging
+import logging
+import os
+
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.staticfiles import StaticFiles
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+
 import config
 
 logger = logging.getLogger(__name__)
@@ -53,7 +56,7 @@ def create_app() -> FastAPI:
         ("web.routers.campaigns", "router"),
         ("web.routers.system", "router"),
     ]
-    
+
     import importlib
     for module_path, router_attr in routers:
         try:

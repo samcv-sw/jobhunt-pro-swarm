@@ -1,4 +1,5 @@
 import sqlite3
+
 for db in ['jobhunt_saas_v2.db', 'jobhunt_saas.db']:
     try:
         c = sqlite3.connect(db)

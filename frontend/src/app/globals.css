@@ -355,3 +355,10 @@ body {
 [dir="rtl"] .text-sm, [dir="rtl"] .text-xs, [dir="rtl"] .text-\[10px\] {
   font-size: 16px !important;
 }
+
+[dir="rtl"] .btn-gold,
+[dir="rtl"] .input-field,
+[dir="rtl"] .text-\[14px\] {
+  font-size: 16px !important;
+}
+

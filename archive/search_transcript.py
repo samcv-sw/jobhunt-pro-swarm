@@ -1,6 +1,6 @@
 import json
-import re
 import os
+import re
 import sys
 
 transcript_path = r"C:\Users\samde\.gemini\antigravity\brain\e5e5343f-d494-4f16-86cb-23ac1f1ad9da\.system_generated\logs\transcript.jsonl"

@@ -1,6 +1,6 @@
 import os
-import sys
 import secrets
+import sys
 import threading
 
 # ─── FORCE SQLITE MODE ON PYTHONANYWHERE ──────────────────────────────────────
@@ -28,6 +28,7 @@ if not os.environ.get('SECRET_KEY'):
     os.environ['SECRET_KEY'] = secrets.token_urlsafe(64)
 
 import logging
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s [wsgi_pa] %(message)s')
 logger = logging.getLogger('wsgi_pa')
 
@@ -48,8 +49,9 @@ class LazyASGIApp:
             with self._lock:
                 if self.wsgi_app is None:
                     logger.info(f"[WSGI] First request received in PID {os.getpid()}. Lazily loading app_v2 and ASGIMiddleware...")
-                    from web.app_v2 import app
                     from a2wsgi import ASGIMiddleware
+
+                    from web.app_v2 import app
                     try:
                         self.wsgi_app = ASGIMiddleware(app, send_queue_size=20)
                     except TypeError:

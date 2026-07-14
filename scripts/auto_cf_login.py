@@ -1,7 +1,7 @@
 import asyncio
-import os
 import re
 import sys
+
 from playwright.async_api import async_playwright
 
 # Fix stdout encoding for windows
@@ -47,12 +47,12 @@ async def automate_wrangler_login():
 
         try:
             await page.goto(oauth_url)
-            
+
             # Wait for email input
             await page.wait_for_selector('input[name="email"]', timeout=15000)
             await page.fill('input[name="email"]', "samsalameh.cv@gmail.com")
             await page.fill('input[name="password"]', "JHGHjhfg^%^%*6853^%*%^tdhgHJF^%#")
-            
+
             # Click login
             await page.click('button[type="submit"]')
             logger.debug("Submitted login form...")
@@ -62,7 +62,7 @@ async def automate_wrangler_login():
                 await page.wait_for_selector('button:has-text("Allow")', timeout=15000)
                 await page.click('button:has-text("Allow")')
                 logger.debug("Clicked Allow!")
-            except Exception as e:
+            except Exception:
                 logger.debug("Could not find Allow button immediately. Checking for account selection...")
                 # Try clicking the account if it prompts
                 account_button = await page.query_selector('div[data-testid="account-card"]')
@@ -80,7 +80,7 @@ async def automate_wrangler_login():
             logger.debug("Saved screenshot to cloudflare_error.png")
         finally:
             await browser.close()
-    
+
     # Wait for wrangler to finish
     await process.wait()
     logger.debug("Wrangler process completed.")

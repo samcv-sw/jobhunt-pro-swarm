@@ -16,6 +16,8 @@ except ImportError:
     import httpx
 
     httpx_AsyncClient = httpx.AsyncClient
+import contextlib
+
 import httpx
 from bs4 import BeautifulSoup
 
@@ -399,10 +401,8 @@ class TelegramJobScraper:
         return all_jobs[:limit]
 
     def close(self):
-        try:
+        with contextlib.suppress(Exception):
             self._client.close()
-        except Exception:
-            pass
 
 
 # ── Singleton ────────────────────────────────────────────────────

@@ -3,7 +3,9 @@ Round 4 — MASTER FIXER
 Fixes ALL missing titles, h1s, meta descriptions across all 136 templates.
 Partial templates (nav, sidebar, footer, base) are excluded from title/h1 requirements.
 """
-import os, re, json
+import json
+import os
+import re
 
 TEMPLATES_DIR = 'web/templates'
 

@@ -1,5 +1,5 @@
-import subprocess
 import os
+import subprocess
 
 os.environ['DISABLE_SQLALCHEMY_CEXT_RUNTIME'] = '1'
 

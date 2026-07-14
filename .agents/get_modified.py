@@ -5,7 +5,7 @@ import sys
 sys.stdout.reconfigure(encoding='utf-8')
 
 root = r"c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi"
-exclude_dirs = {".git", ".agents", ".venv2", ".pytest_cache", "node_modules", "__pycache__", "test_env", "test_env_2"}
+exclude_dirs = {".git", ".agents", ".venv2", ".pytest_cache", "node_modules", "__pycache__", "test_env", "test_env_2", ".next", ".wrangler"}
 
 files_list = []
 for dirpath, dirnames, filenames in os.walk(root):
@@ -26,8 +26,8 @@ for fp, mtime in files_list[:5]:
     print(f"FILE: {fp}")
     print("--- CONTENT (FIRST 30 LINES) ---")
     try:
-        with open(fp, 'r', encoding='utf-8', errors='ignore') as f:
-            for i in range(30):
+        with open(fp, encoding='utf-8', errors='ignore') as f:
+            for _i in range(30):
                 line = f.readline()
                 if not line:
                     break

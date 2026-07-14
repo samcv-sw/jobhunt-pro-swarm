@@ -9,13 +9,13 @@ Called every 30 minutes by PA cron:
 Runs the full job cycle: Search → Apply → Follow-up
 PLUS daily database backup (once per day at first run after midnight UTC).
 """
-import sys
 import asyncio
 import logging
-import urllib.request
+import sys
 import urllib.error
+import urllib.request
+from datetime import UTC, datetime
 from pathlib import Path
-from datetime import datetime, timezone
 
 # Ensure project root is on sys.path
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -37,7 +37,7 @@ _BACKUP_STATE_FILE = _PROJECT_ROOT / "logs" / "last_backup_date.txt"
 
 def _should_run_backup() -> bool:
     """Check if a backup should run now (once per day, UTC-based)."""
-    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today_str = datetime.now(UTC).strftime("%Y-%m-%d")
     try:
         if _BACKUP_STATE_FILE.exists():
             last_date = _BACKUP_STATE_FILE.read_text().strip()
@@ -50,7 +50,7 @@ def _should_run_backup() -> bool:
 
 def _mark_backup_done():
     """Record that we ran backup today."""
-    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today_str = datetime.now(UTC).strftime("%Y-%m-%d")
     _BACKUP_STATE_FILE.write_text(today_str)
 
 
@@ -161,7 +161,7 @@ def main():
         # Write status marker
         marker_path = _PROJECT_ROOT / "logs" / "cron_last_run.txt"
         marker_path.write_text(
-            f"Last run: {datetime.now(timezone.utc).isoformat()} | "
+            f"Last run: {datetime.now(UTC).isoformat()} | "
             f"Found: {result['found']}, Applied: {result['applied']}, "
             f"Followups: {result['followups']}\n"
         )

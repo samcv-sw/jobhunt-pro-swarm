@@ -5,10 +5,11 @@ It runs headlessly on GitHub Actions or a secondary cloud provider (like Zeabur 
 """
 
 import asyncio
-import os
 import logging
-from playwright.async_api import async_playwright
+import os
+
 import pyotp
+from playwright.async_api import async_playwright
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("PA_Watchdog")
@@ -25,12 +26,12 @@ async def renew_pythonanywhere():
         return
 
     logger.info(f"Starting auto-renewal for {PA_USER}...")
-    
+
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context()
         page = await context.new_page()
-        
+
         try:
             # 1. Login Page
             await page.goto("https://www.pythonanywhere.com/login/")
@@ -38,13 +39,13 @@ async def renew_pythonanywhere():
             await page.fill("input[name='auth-password']", PA_PASS)
             await page.click("button[id='id_next']")
             await page.wait_for_load_state("networkidle")
-            
+
             # 2. 2FA (TOTP) Page
             # Generate the current 6-digit code using the TOTP secret
             totp = pyotp.TOTP(PA_TOTP_SECRET)
             current_code = totp.now()
             logger.info(f"Generated 2FA Code: {current_code}")
-            
+
             # Fill the 2FA code (adjust selector based on actual PA 2FA page)
             # Typically it's an input for the token.
             token_input = await page.query_selector("input[name='token']")
@@ -52,11 +53,11 @@ async def renew_pythonanywhere():
                 await token_input.fill(current_code)
                 await page.click("button[type='submit']")
                 await page.wait_for_load_state("networkidle")
-            
+
             # 3. Navigate to Web Tab
             await page.goto(f"https://www.pythonanywhere.com/user/{PA_USER}/webapps/")
             await page.wait_for_load_state("networkidle")
-            
+
             # 4. Click the Extend button
             # The button usually has class 'btn-primary' and text 'Run until 1 month from today'
             extend_button = await page.query_selector("input[value='Run until 1 month from today']")
@@ -65,7 +66,7 @@ async def renew_pythonanywhere():
                 logger.info("Successfully clicked the 'Run until 1 month from today' button!")
             else:
                 logger.warning("Extend button not found. It might not be time to renew yet, or the UI changed.")
-                
+
         except Exception as e:
             logger.error(f"Auto-renewal failed: {e}")
         finally:

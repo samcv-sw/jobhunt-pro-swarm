@@ -15,6 +15,7 @@ Usage (from campaign_runner.py):
 """
 
 import asyncio
+import contextlib
 import logging
 import os
 import random
@@ -288,9 +289,7 @@ def _is_likely_company_domain(domain: str) -> bool:
             return False
     if len(parts) < 2:
         return False
-    if any(p in domain_lower for p in ["blogspot", "wordpress", "wixsite", "weebly"]):
-        return False
-    return True
+    return not any(p in domain_lower for p in ["blogspot", "wordpress", "wixsite", "weebly"])
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -316,6 +315,8 @@ class EmailFinder:
         self._rate_limit_sec = rate_limit_sec
         self._last_request: float = 0.0
         self._ddg_lock = asyncio.Lock()  # Serializes DDG requests
+        # IMP-035: Cap concurrent coroutines to prevent OOM on Render 512MB free tier
+        self._semaphore = asyncio.Semaphore(10)
 
         # Caches
         self._domain_cache: dict[str, str] = {}  # company_lower → domain
@@ -394,10 +395,7 @@ class EmailFinder:
 
         # Check 3: Is the naive domain abnormally long? (>15 chars suggests
         # multiple words were smashed together, which is a red flag)
-        if len(naive_domain) > 15 and " " in company.strip():
-            return True
-
-        return False
+        return bool(len(naive_domain) > 15 and " " in company.strip())
 
     # ── Async context manager support ───────────────────────────────────────
 
@@ -1298,10 +1296,8 @@ class EmailFinder:
                 return False
             finally:
                 if sock:
-                    try:
+                    with contextlib.suppress(Exception):
                         sock.close()
-                    except Exception:
-                        pass
 
         return await loop.run_in_executor(None, _do_smtp_check)
 
@@ -1327,7 +1323,7 @@ class EmailFinder:
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         output: dict[str, dict] = {}
-        for company, result in zip(companies, results):
+        for company, result in zip(companies, results, strict=False):
             if isinstance(result, Exception):
                 output[company] = {
                     "emails": [],

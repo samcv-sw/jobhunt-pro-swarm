@@ -25,8 +25,8 @@ class OSAgent:
 
     async def _check_dependencies(self):
         try:
-            import camoufox
-            from camoufox.async_api import AsyncCamoufox
+            import camoufox  # noqa: F401
+            from camoufox.async_api import AsyncCamoufox  # noqa: F401
 
             self.is_ready = True
         except ImportError as e:

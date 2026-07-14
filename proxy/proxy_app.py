@@ -1,8 +1,9 @@
 import os
+
 import httpx
+import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
-import uvicorn
 
 app = FastAPI()
 
@@ -16,27 +17,27 @@ async def proxy(request: Request, path: str):
     url = f"{BACKEND_URL}/{path}"
     if request.url.query:
         url += f"?{request.url.query}"
-    
+
     headers = dict(request.headers)
     headers.pop("host", None)
     if HF_TOKEN:
         headers["Authorization"] = f"Bearer {HF_TOKEN}"
-        
+
     body = await request.body()
-    
+
     req = client.build_request(
         method=request.method,
         url=url,
         headers=headers,
         content=body
     )
-    
+
     res = await client.send(req, stream=True)
-    
+
     response_headers = dict(res.headers)
     for h in ["content-encoding", "content-length", "transfer-encoding"]:
         response_headers.pop(h, None)
-        
+
     return StreamingResponse(
         res.aiter_raw(),
         status_code=res.status_code,

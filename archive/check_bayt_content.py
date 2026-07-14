@@ -1,4 +1,7 @@
-import cloudscraper, re, json
+import json
+import re
+
+import cloudscraper
 
 scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True, 'mobile': False})
 resp = scraper.get('https://www.bayt.com/en/international/jobs/', timeout=30)

@@ -4,20 +4,19 @@ JobHunt Pro - E2E Test Mock Setup & Route Overrides Configuration
 Sets up temporary mock routers for mock JWT token exchanges, Cover Letter streams,
 Dashboard metrics queries, active Scrapers start/status runs, and CI/CD deploy simulations.
 """
-import os
-import sys
-import logging
 import asyncio
-from typing import Generator, Dict, Any, List, Optional, AsyncGenerator
+import logging
+import os
+from collections.abc import AsyncGenerator, Generator
+from typing import Any
+
 import pytest
-import jwt
-from fastapi import APIRouter, Depends, HTTPException, Security, Request, status
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
+from backend.auth import create_access_token, verify_jwt
 from backend.main import app
-from backend.auth import verify_jwt, JWT_SECRET_KEY, JWT_ALGORITHM, create_access_token
 
 # Configure logging for mock conftest exceptions
 logger = logging.getLogger(__name__)
@@ -39,7 +38,7 @@ class CoverLetterStreamRequest(BaseModel):
 class ScraperStartRequest(BaseModel):
     """Data model representing a scraping process initialization request."""
     user_id: str
-    target_urls: List[str]
+    target_urls: list[str]
     proxy_rotation: bool = True
     tls_spoofing: bool = True
 
@@ -50,7 +49,7 @@ class CICDDeployRequest(BaseModel):
 
 # R4: Auth Endpoint - Login to return token
 @mock_router.post("/auth/token")
-async def login(req: TokenRequest) -> Dict[str, str]:
+async def login(req: TokenRequest) -> dict[str, str]:
     """Mock login endpoint exchanging credentials for a signed JWT token."""
     try:
         if req.username == "admin" and req.password == "secret123":
@@ -70,7 +69,7 @@ async def login(req: TokenRequest) -> Dict[str, str]:
 
 # R4: Auth Endpoint - Verify JWT
 @mock_router.get("/auth/verify")
-async def verify(payload: Dict[str, Any] = Depends(verify_jwt)) -> Dict[str, Any]:
+async def verify(payload: dict[str, Any] = Depends(verify_jwt)) -> dict[str, Any]:
     """Mock token verification verification endpoint."""
     try:
         return {"status": "valid", "user_id": payload.get("sub"), "payload": payload}
@@ -80,9 +79,10 @@ async def verify(payload: Dict[str, Any] = Depends(verify_jwt)) -> Dict[str, Any
 
 import backend.ai_engine
 
+
 # R1: Cover Letter - Streaming endpoint
 @mock_router.post("/ai/generate-cover-letter/stream")
-async def generate_cover_letter_stream(req: CoverLetterStreamRequest, payload: Dict[str, Any] = Depends(verify_jwt)) -> StreamingResponse:
+async def generate_cover_letter_stream(req: CoverLetterStreamRequest, payload: dict[str, Any] = Depends(verify_jwt)) -> StreamingResponse:
     """Mock SSE stream generator mimicking LLM responses."""
     try:
         if not req.user_cv.strip() or not req.job_description.strip():
@@ -93,24 +93,24 @@ async def generate_cover_letter_stream(req: CoverLetterStreamRequest, payload: D
                 backend.ai_engine.generate_smart_cover_letter_stream(req.job_description, req.user_cv, req.tone),
                 media_type="text/event-stream"
             )
-            
+
         async def sse_generator() -> AsyncGenerator[str, None]:
             try:
                 yield "data: {\"status\": \"started\", \"message\": \"Initiating connection to Groq API...\"}\n\n"
                 await asyncio.sleep(0.005)
                 yield "data: {\"status\": \"processing\", \"message\": \"Analyzing CV and Matching with Tone...\"}\n\n"
                 await asyncio.sleep(0.005)
-                
-                words: List[str] = ["Dear", "Hiring", "Manager,", "I", "am", "excited", "to", "apply", "for", "the", "position."]
+
+                words: list[str] = ["Dear", "Hiring", "Manager,", "I", "am", "excited", "to", "apply", "for", "the", "position."]
                 if req.tone == "professional":
                     words = ["Dear", "Recipient,", "I", "write", "formally", "to", "express", "my", "strong", "interest", "in", "the", "role."]
                 elif req.tone == "casual":
                     words = ["Hey", "there,", "Super", "excited", "to", "apply", "for", "this", "awesome", "role!"]
-                    
+
                 for i, word in enumerate(words):
                     yield f"data: {{\"status\": \"streaming\", \"index\": {i}, \"chunk\": \"{word} \"}}\n\n"
                     await asyncio.sleep(0.002)
-                    
+
                 yield "data: {\"status\": \"completed\", \"message\": \"Stream finished\"}\n\n"
             except Exception as inner_e:
                 logger.error(f"E2E SSE generator stream iteration failed: {inner_e}")
@@ -124,7 +124,7 @@ async def generate_cover_letter_stream(req: CoverLetterStreamRequest, payload: D
 
 # R2: Dashboard - Layout variables for glassmorphism and Arabic dynamic design
 @mock_router.get("/dashboard/layout-config")
-async def dashboard_layout_config(payload: Dict[str, Any] = Depends(verify_jwt)) -> Dict[str, Any]:
+async def dashboard_layout_config(payload: dict[str, Any] = Depends(verify_jwt)) -> dict[str, Any]:
     """Mock layout configuration dashboard parameters."""
     try:
         return {
@@ -143,7 +143,7 @@ async def dashboard_layout_config(payload: Dict[str, Any] = Depends(verify_jwt))
 
 # R2: Dashboard - Main metrics for UI representation
 @mock_router.get("/dashboard/metrics")
-async def dashboard_metrics(payload: Dict[str, Any] = Depends(verify_jwt)) -> Dict[str, Any]:
+async def dashboard_metrics(payload: dict[str, Any] = Depends(verify_jwt)) -> dict[str, Any]:
     """Mock dashboard usage statistics metrics database records."""
     try:
         return {
@@ -163,7 +163,7 @@ async def dashboard_metrics(payload: Dict[str, Any] = Depends(verify_jwt)) -> Di
 
 # R3: Scraper - Trigger a stealth scraping job
 @mock_router.post("/scraper/start")
-async def scraper_start(req: ScraperStartRequest, payload: Dict[str, Any] = Depends(verify_jwt)) -> Dict[str, Any]:
+async def scraper_start(req: ScraperStartRequest, payload: dict[str, Any] = Depends(verify_jwt)) -> dict[str, Any]:
     """Mock stealth scraper process launch endpoint."""
     try:
         if not req.target_urls:
@@ -182,7 +182,7 @@ async def scraper_start(req: ScraperStartRequest, payload: Dict[str, Any] = Depe
 
 # R3: Scraper - Fetch stealth scraper run state
 @mock_router.get("/scraper/status/{task_id}")
-async def scraper_status(task_id: str, payload: Dict[str, Any] = Depends(verify_jwt)) -> Dict[str, Any]:
+async def scraper_status(task_id: str, payload: dict[str, Any] = Depends(verify_jwt)) -> dict[str, Any]:
     """Mock active scraper session progress tracking endpoint."""
     try:
         if task_id != "test-scraper-12345":
@@ -205,7 +205,7 @@ async def scraper_status(task_id: str, payload: Dict[str, Any] = Depends(verify_
 
 # R5: CI/CD - Retrieve workflow testing status
 @mock_router.get("/cicd/status")
-async def cicd_status(payload: Dict[str, Any] = Depends(verify_jwt)) -> Dict[str, Any]:
+async def cicd_status(payload: dict[str, Any] = Depends(verify_jwt)) -> dict[str, Any]:
     """Mock pipeline test run coverage execution status details."""
     try:
         return {
@@ -231,7 +231,7 @@ async def cicd_status(payload: Dict[str, Any] = Depends(verify_jwt)) -> Dict[str
 
 # R5: CI/CD - Trigger deployment simulation
 @mock_router.post("/cicd/deploy")
-async def cicd_deploy(req: CICDDeployRequest, payload: Dict[str, Any] = Depends(verify_jwt)) -> Dict[str, Any]:
+async def cicd_deploy(req: CICDDeployRequest, payload: dict[str, Any] = Depends(verify_jwt)) -> dict[str, Any]:
     """Mock server render build trigger endpoint."""
     try:
         if not req.commit_sha:

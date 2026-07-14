@@ -90,15 +90,9 @@ async def blaster_upload(request: Request):
         with open(dest, "wb") as f:
             f.write(content)
 
-        from core.email_harvester import (
-            load_from_csv as lc,
-        )
-        from core.email_harvester import (
-            load_from_json as lj,
-        )
-        from core.email_harvester import (
-            load_from_txt as lt,
-        )
+        from core.email_harvester import load_from_csv as lc
+        from core.email_harvester import load_from_json as lj
+        from core.email_harvester import load_from_txt as lt
 
         if ext == ".csv":
             recipients = lc(str(dest))

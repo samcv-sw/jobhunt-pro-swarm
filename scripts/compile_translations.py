@@ -1,6 +1,5 @@
 import os
 import subprocess
-import sys
 from pathlib import Path
 
 # Paths
@@ -45,7 +44,7 @@ def main():
     # 5. Compile translations to .mo
     logger.debug("Compiling translations...")
     run_cmd(f'pybabel compile -d "{LOCALES_DIR}"')
-    
+
     logger.debug("Done! Translations are ready.")
 
 if __name__ == "__main__":

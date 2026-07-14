@@ -5,7 +5,7 @@ Provides dashboard metrics, conversion funnels, and HTML reporting.
 
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional
+from typing import Any
 
 import config
 import core.pg_sqlite_shim as sqlite3
@@ -16,12 +16,12 @@ logger = logging.getLogger(__name__)
 class Analytics:
     """Manages system metrics, conversion funnel calculations, and dashboard data."""
 
-    def __init__(self, db_path: Optional[str] = None) -> None:
+    def __init__(self, db_path: str | None = None) -> None:
         self.db_path = (
             db_path or getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
         )
 
-    def get_dashboard_data(self, days: int = 30) -> Dict[str, Any]:
+    def get_dashboard_data(self, days: int = 30) -> dict[str, Any]:
         """Fetch and aggregate metrics for the dashboard view over a given time range."""
         try:
             since = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
@@ -58,7 +58,7 @@ class Analytics:
 
                 # Consolidate sequential count queries into a single roundtrip
                 stats_query = """
-                    SELECT 
+                    SELECT
                         (SELECT COUNT(*) FROM applications) as total,
                         (SELECT COUNT(*) FROM applications WHERE opened = 1) as opened,
                         (SELECT COUNT(*) FROM applications WHERE responded = 1) as responded
@@ -107,7 +107,7 @@ class Analytics:
                 "agent_stats": [],
             }
 
-    def get_conversion_funnel(self) -> Dict[str, Any]:
+    def get_conversion_funnel(self) -> dict[str, Any]:
         """Calculate conversion metrics through all stages of the application pipeline."""
         try:
             with sqlite3.connect(self.db_path) as conn:
@@ -115,7 +115,7 @@ class Analytics:
 
                 # Consolidate independent COUNT queries into a single sub-select scalar query
                 funnel_query = """
-                    SELECT 
+                    SELECT
                         (SELECT COUNT(*) FROM jobs) as found,
                         (SELECT COUNT(*) FROM jobs WHERE status = 'applied') as applied,
                         (SELECT COUNT(*) FROM applications WHERE opened = 1) as opened,
@@ -160,7 +160,7 @@ class Analytics:
                 "offer_rate": 0.0,
             }
 
-    def generate_html_dashboard(self, data: Optional[Dict[str, Any]] = None) -> str:
+    def generate_html_dashboard(self, data: dict[str, Any] | None = None) -> str:
         """Generate static standalone HTML report for visual pipeline analysis."""
         try:
             if not data:
@@ -202,4 +202,3 @@ h1 {{ color: #0ea5e9; text-align: center; }}
         except Exception as e:
             logger.error(f"Failed to generate HTML dashboard: {e}")
             return "<html><body><h3>Error generating dashboard report.</h3></body></html>"
-Cwd:

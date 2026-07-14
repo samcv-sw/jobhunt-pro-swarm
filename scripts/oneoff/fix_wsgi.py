@@ -16,6 +16,7 @@ content = resp.text
 
 # Remove the git fetch part
 import re
+
 new_content = re.sub(r'try:\s*os\.system\("cd[^"]+git fetch[^"]+"\)\s*except Exception:\s*pass', '', content)
 
 if new_content != content:

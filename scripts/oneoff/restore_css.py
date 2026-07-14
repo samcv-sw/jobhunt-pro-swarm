@@ -1,6 +1,7 @@
 import os
 import re
 
+
 def restore_cyberpunk(filepath, is_en, is_dashboard):
     with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()

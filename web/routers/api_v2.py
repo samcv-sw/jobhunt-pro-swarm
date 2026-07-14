@@ -2,20 +2,21 @@
 routers/api_v2.py - API V2 Router (FastAPI APIRouter)
 Extracted from app_v2.py
 """
+import logging
 import os
 import sys
 import time
-import logging
 from datetime import datetime
-from fastapi import APIRouter, Request, Response, HTTPException
+
+from fastapi import APIRouter, Request, Response
 from fastapi.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["api-v2"])
 
 def _deps():
-    from web.shared import get_db, get_verified_user_id, config
     from web.app_v2 import get_campaign_stats, get_payment_addresses
+    from web.shared import config, get_db, get_verified_user_id
     return get_db, get_verified_user_id, config, get_campaign_stats, get_payment_addresses
 
 
@@ -61,6 +62,7 @@ def campaign_stats_api():
 # Request dedup cache for cloud-tick
 _tick_cache: dict = {"last_tick": 0, "last_result": None, "pending": False}
 import asyncio
+
 _tick_cache_lock = None
 
 @router.post("/api/v2/cloud-tick")
@@ -68,11 +70,11 @@ async def cloud_tick_endpoint(request: Request):
     """Multi-tenant cloud tick - runs campaigns for ALL users in parallel."""
     from web.app_v2 import verify_system_key
     verify_system_key(request)
-    
+
     global _tick_cache_lock, _tick_cache
     if _tick_cache_lock is None:
         _tick_cache_lock = asyncio.Lock()
-        
+
     get_db, _, _, _, _ = _deps()
     company_limit = 10
     force = False
@@ -92,12 +94,12 @@ async def cloud_tick_endpoint(request: Request):
             logger.info("[CloudTick] 🔄 Tick already in progress, returning pending")
             return {"status": "pending", "message": "Tick already running", "cached": True}
         _tick_cache["pending"] = True
-    
+
     try:
         from core.multi_tenant import MultiTenantRunner
         runner = MultiTenantRunner(company_limit=company_limit)
         result = await runner.tick()
-        
+
         compact = {
             "status": result.get("status", "ok"),
             "tenants": result.get("tenant_count", 0),
@@ -107,12 +109,12 @@ async def cloud_tick_endpoint(request: Request):
             "elapsed": result.get("elapsed_sec", 0),
             "version": "v17.1-optimized",
         }
-        
+
         async with _tick_cache_lock:
             _tick_cache["last_tick"] = time.time()
             _tick_cache["last_result"] = compact
             _tick_cache["pending"] = False
-        
+
         return compact
     except ImportError:
         logger.warning("MultiTenantRunner not available, falling back")

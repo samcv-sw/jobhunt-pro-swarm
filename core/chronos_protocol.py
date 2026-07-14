@@ -51,8 +51,8 @@ def hijack_algorithm() -> bool:
         logger.info("Analyzing intent and generating payload... (0.1ms)")
 
         ai_reply = f"""
-    Exactly, @{target["name"].replace(" ", "")}. That's why we completely destroyed the traditional hiring cycle. 
-    We built an AI Swarm that hooks you up with pre-vetted elite engineers operating in Zero-Trust Cloud Enclaves. 
+    Exactly, @{target["name"].replace(" ", "")}. That's why we completely destroyed the traditional hiring cycle.
+    We built an AI Swarm that hooks you up with pre-vetted elite engineers operating in Zero-Trust Cloud Enclaves.
     You don't hire them; you 'Acquire' them instantly like stock.
     See the Sovereign Board here: https://t.me/JobHuntProBot
     """

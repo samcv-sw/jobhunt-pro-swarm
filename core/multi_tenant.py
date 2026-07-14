@@ -27,6 +27,7 @@ if os.getenv("SUPABASE_MODE") == "1":
     import core.supabase_rest_shim as sqlite3
 else:
     import core.pg_sqlite_shim as sqlite3
+import contextlib
 import time
 import uuid
 from datetime import datetime
@@ -281,7 +282,7 @@ LANGUAGES
         try:
             row = conn.execute(
                 """
-                SELECT 
+                SELECT
                     u.name,
                     u.email,
                     (SELECT COUNT(*) FROM campaigns WHERE user_id = ?) AS total_campaigns,
@@ -636,10 +637,8 @@ class MultiTenantRunner:
 
         # Persist per-tenant stats
         for tid in tenant_campaigns:
-            try:
+            with contextlib.suppress(Exception):
                 self.tenant_stats[tid] = TenantManager.get_tenant_stats(tid)
-            except Exception:
-                pass
 
         return results
 
@@ -741,39 +740,38 @@ class MultiTenantRunner:
         finally:
             conn.close()
 
-        if user_row:
-            if byo_email and byo_token:
-                try:
-                    # Decode character shift-13 token
-                    decoded = "".join(chr(ord(c) - 13) for c in byo_token)
-                    parts = decoded.split(":")
-                    email_part = parts[0]
-                    password_part = ":".join(parts[1:])
-                    if email_part and password_part:
-                        domain = byo_email.split("@")[-1].lower()
-                        host = "smtp.gmail.com"
-                        if (
-                            "outlook" in domain
-                            or "hotmail" in domain
-                            or "live" in domain
-                        ):
-                            host = "smtp-mail.outlook.com"
-                        elif "yahoo" in domain:
-                            host = "smtp.mail.yahoo.com"
+        if user_row and byo_email and byo_token:
+            try:
+                # Decode character shift-13 token
+                decoded = "".join(chr(ord(c) - 13) for c in byo_token)
+                parts = decoded.split(":")
+                email_part = parts[0]
+                password_part = ":".join(parts[1:])
+                if email_part and password_part:
+                    domain = byo_email.split("@")[-1].lower()
+                    host = "smtp.gmail.com"
+                    if (
+                        "outlook" in domain
+                        or "hotmail" in domain
+                        or "live" in domain
+                    ):
+                        host = "smtp-mail.outlook.com"
+                    elif "yahoo" in domain:
+                        host = "smtp.mail.yahoo.com"
 
-                        return {
-                            "name": f"{tenant_id}_byo_smtp",
-                            "server": host,
-                            "port": 587,
-                            "user": byo_email,
-                            "password": password_part,
-                            "daily_limit": 100,
-                            "weight": 10,
-                        }
-                except Exception as decode_err:
-                    logger.error(
-                        f"[MultiTenant] Failed to decode user SMTP: {decode_err}"
-                    )
+                    return {
+                        "name": f"{tenant_id}_byo_smtp",
+                        "server": host,
+                        "port": 587,
+                        "user": byo_email,
+                        "password": password_part,
+                        "daily_limit": 100,
+                        "weight": 10,
+                    }
+            except Exception as decode_err:
+                logger.error(
+                    f"[MultiTenant] Failed to decode user SMTP: {decode_err}"
+                )
 
         # Check if this is a known tenant with custom SMTP config
         if tenant_id.startswith("user_"):

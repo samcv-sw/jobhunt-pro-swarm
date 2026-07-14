@@ -1,5 +1,7 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import logging
+
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+
 from core.ai_tailor import ai_tailor
 
 logger = logging.getLogger(__name__)

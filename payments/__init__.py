@@ -7,7 +7,7 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Any
 
 import config
 
@@ -21,7 +21,7 @@ def _ensure_cache():
     os.makedirs("cache", exist_ok=True)
 
 
-def _load_payments() -> Dict[str, Any]:
+def _load_payments() -> dict[str, Any]:
     _ensure_cache()
     if os.path.exists(PAYMENTS_FILE):
         try:
@@ -32,7 +32,7 @@ def _load_payments() -> Dict[str, Any]:
     return {"payments": [], "total_received": 0}
 
 
-def _save_payments(data: Dict[str, Any]):
+def _save_payments(data: dict[str, Any]):
     _ensure_cache()
     with open(PAYMENTS_FILE, "w") as f:
         json.dump(data, f, indent=2)
@@ -47,8 +47,9 @@ def _try_load_dotenv():
     if _dotenv_loaded:
         return
     try:
-        from dotenv import load_dotenv
         import os.path as _p
+
+        from dotenv import load_dotenv
         for p in [_p.join(_p.dirname(__file__), '..', '.env'),
                    '/home/JHFGUF/jobhunt/.env',
                    '.env']:
@@ -60,7 +61,7 @@ def _try_load_dotenv():
     _dotenv_loaded = True
 
 
-def get_payment_addresses() -> Dict[str, str]:
+def get_payment_addresses() -> dict[str, str]:
     """Get all configured crypto wallet addresses.
     Tries direct env first (covers PA web env injection), falls back to config.
     """
@@ -124,7 +125,7 @@ def record_payment(
     return True
 
 
-def get_payment_stats() -> Dict[str, Any]:
+def get_payment_stats() -> dict[str, Any]:
     """Get payment statistics."""
     data = _load_payments()
     payments = data["payments"]

@@ -1,5 +1,6 @@
-﻿import sqlite3
-import logging
+﻿import logging
+import sqlite3
+
 logger = logging.getLogger(__name__)
 import os
 import shutil
@@ -23,20 +24,20 @@ if os.path.exists(db_path):
         # Prune redundant registry pathways
         conn.execute("VACUUM;")
         logger.info("-> VACUUM complete. Systemic entropy reduced.")
-        
+
         # Optimize indexes for zero-friction execution
         conn.execute("REINDEX;")
         logger.info("-> REINDEX complete. Latency bottlenecks aggressively pruned.")
-        
+
         # Analyze tables for the query planner
         conn.execute("ANALYZE;")
         logger.info("-> ANALYZE complete. Computational bandwidth routed with highest efficiency.")
-        
+
     except Exception as e:
         logger.info(f"Error during APEX optimization: {e}")
     finally:
         conn.close()
 else:
     logger.info("Database not found at: " + db_path)
-        
+
 logger.info("\nOUTPUT PARAMETERS: Ultimate, unified, high-performance engine rendered. Execution flawless.")

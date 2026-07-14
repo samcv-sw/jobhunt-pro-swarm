@@ -1,16 +1,18 @@
 import asyncio
-import random
 import logging
-import urllib.parse
-from typing import List, Dict, Optional, Any
 import os
+import random
 import time
+import urllib.parse
+from typing import Any
 
 try:
     from curl_cffi import requests
     HAS_CFFI = True
 except ImportError:
     HAS_CFFI = False
+
+import contextlib
 
 from bs4 import BeautifulSoup
 
@@ -116,11 +118,11 @@ _proxy_fetch_lock = asyncio.Lock()
 async def get_stabilized_proxy(session_id: str = "default") -> dict:
     """
     Selects a proxy based on session_id to maintain IP pinning.
-    Supports backconnect gateways (injecting session ID into username) 
+    Supports backconnect gateways (injecting session ID into username)
     or selecting a pinned IP from a list.
     """
     global _last_proxy_fetch, _cached_free_proxies
-    
+
     if PROXY_LIST:
         active_proxies = PROXY_LIST
     else:
@@ -155,7 +157,7 @@ async def get_stabilized_proxy(session_id: str = "default") -> dict:
     # If it's a single backconnect proxy (e.g., contains @ and is a gate provider)
     # we can inject session ID into username if supported, e.g., user-session-XYZ123:pass@gate.proxy.com:port
     proxy_str = active_proxies[0]
-    
+
     if len(active_proxies) == 1 and "@" in proxy_str and ("session-" not in proxy_str):
         # E.g. http://username:password@proxy.gate.com:8000 -> http://username-session-XYZ:password@proxy.gate.com:8000
         parsed = urllib.parse.urlsplit(proxy_str)
@@ -217,16 +219,13 @@ def _parse_job_page(html: str, source_url: str) -> dict | None:
         return None
 
 
-def _extract_jobs_from_dict(data: Any, source_url: str) -> List[Dict[str, Any]]:
+def _extract_jobs_from_dict(data: Any, source_url: str) -> list[dict[str, Any]]:
     results = []
     if isinstance(data, dict):
         types = data.get("@type", "")
         is_job = False
-        if isinstance(types, list):
-            is_job = "JobPosting" in types
-        else:
-            is_job = types == "JobPosting"
-            
+        is_job = "JobPosting" in types if isinstance(types, list) else types == "JobPosting"
+
         if is_job or (isinstance(data.get("title"), str) and (data.get("url") or data.get("hiringOrganization"))):
             title = data.get("title") or data.get("name")
             if title:
@@ -239,29 +238,27 @@ def _extract_jobs_from_dict(data: Any, source_url: str) -> List[Dict[str, Any]]:
                     company = hiring_org
                 desc = data.get("description") or ""
                 if desc:
-                    try:
+                    with contextlib.suppress(Exception):
                         desc = BeautifulSoup(desc, "html.parser").get_text(separator=" ", strip=True)
-                    except Exception:
-                        pass
                 results.append({
                     "title": title,
                     "url": url,
                     "company": company,
                     "description_snippet": desc[:500]
                 })
-        
+
         # Recursively search all keys
-        for k, v in data.items():
+        for _k, v in data.items():
             results.extend(_extract_jobs_from_dict(v, source_url))
-            
+
     elif isinstance(data, list):
         for item in data:
             results.extend(_extract_jobs_from_dict(item, source_url))
-            
+
     return results
 
 
-def _parse_json_ld(html: str, source_url: str) -> List[Dict[str, Any]]:
+def _parse_json_ld(html: str, source_url: str) -> list[dict[str, Any]]:
     import json
     results = []
     if not html:
@@ -281,7 +278,7 @@ def _parse_json_ld(html: str, source_url: str) -> List[Dict[str, Any]]:
     return results
 
 
-def _parse_page_content(html: str, source_url: str) -> List[Dict[str, Any]]:
+def _parse_page_content(html: str, source_url: str) -> list[dict[str, Any]]:
     """
     Parses a page's content.
     If JSON-LD is found with jobs, returns them.
@@ -291,12 +288,12 @@ def _parse_page_content(html: str, source_url: str) -> List[Dict[str, Any]]:
     """
     if not html:
         return []
-        
+
     # 1. Try parsing JSON-LD structured data first
     json_ld_jobs = _parse_json_ld(html, source_url)
     if json_ld_jobs:
         return json_ld_jobs
-        
+
     # 2. Traditional card parsing
     try:
         soup = BeautifulSoup(html, "html.parser")
@@ -311,7 +308,7 @@ def _parse_page_content(html: str, source_url: str) -> List[Dict[str, Any]]:
             found = soup.select(selector)
             if found:
                 cards.extend(found)
-        
+
         if cards:
             results = []
             for card in cards:
@@ -370,7 +367,7 @@ def _parse_page_content(html: str, source_url: str) -> List[Dict[str, Any]]:
         return []
 
 
-async def _parse_html_with_llm(html: str, source_url: str) -> List[Dict[str, Any]]:
+async def _parse_html_with_llm(html: str, source_url: str) -> list[dict[str, Any]]:
     """
     Generative LLM fallback parser that cleans raw HTML and formats it into structured JSON lists.
     """
@@ -379,14 +376,14 @@ async def _parse_html_with_llm(html: str, source_url: str) -> List[Dict[str, Any
     try:
         from core.ai_tailor import AITailor
         ai_tailor = AITailor()
-        
+
         soup = BeautifulSoup(html, "html.parser")
         for tag in soup(["script", "style", "nav", "footer", "header", "noscript"]):
             tag.decompose()
-            
+
         clean_text = soup.get_text(separator=" ", strip=True)
         clean_text = clean_text[:4000]
-        
+
         prompt = f"""You are a data extraction AI. Extract all job listings from the following webpage text.
 For each job, extract the job title, company name, URL (use {source_url} if not found), and a brief description/snippet.
 
@@ -431,7 +428,7 @@ Example response format:
     return []
 
 
-async def process_single_job(url: str, session_id: Optional[str] = None) -> List[Dict[str, Any]]:
+async def process_single_job(url: str, session_id: str | None = None) -> list[dict[str, Any]]:
     """
     Fetches a single job URL with stealth session isolation and parses it.
     Returns a list of structured job dicts or [] on failure.
@@ -473,7 +470,7 @@ async def process_single_job(url: str, session_id: Optional[str] = None) -> List
                     warmup_url = root_domain if "sannysoft" in root_domain else f"{root_domain}robots.txt"
                     logger.info(f"Warmup: hitting {warmup_url} with profile {profile['id']}")
                     await session.get(warmup_url, timeout=15)
-                    
+
                     await asyncio.sleep(random.uniform(2.5, 6.0))
 
                     session.headers.update({"Referer": root_domain})
@@ -518,14 +515,14 @@ async def process_single_job(url: str, session_id: Optional[str] = None) -> List
                 if job.get("title") and job.get("title") != "Unknown Position":
                     has_valid_job = True
                     break
-                    
+
         # 3. Add generative LLM fallback parser if parsing returned no results
         if not has_valid_job and html_content:
             logger.info(f"Normal parsing yielded no results. Triggering generative LLM fallback parser for {url}.")
             llm_jobs = await _parse_html_with_llm(html_content, url)
             if llm_jobs:
                 jobs = llm_jobs
-            
+
         # Ensure that every job returned is a clean dict with at least 'title' and 'url' keys
         cleaned_jobs = []
         for job in jobs:
@@ -537,20 +534,30 @@ async def process_single_job(url: str, session_id: Optional[str] = None) -> List
                     "description_snippet": job.get("description_snippet", "")
                 }
                 cleaned_jobs.append(cleaned_job)
-                
+
         return cleaned_jobs
 
 
-async def stealth_scrape_jobs(urls: List[str]) -> List[dict]:
+async def stealth_scrape_jobs(urls: list[str]) -> list[dict]:
     """
     Main stealth scraping engine.
     Applies concurrency control and session pinning.
     """
+    sem = asyncio.Semaphore(10)
+
+    async def sem_task(url, session_id):
+        async with sem:
+            # Respect band-shield jitter delay before executing single job
+            from core.ban_shield import get_platform_delay
+            delay = get_platform_delay(url)
+            await asyncio.sleep(delay)
+            return await process_single_job(url, session_id)
+
     tasks = []
     for url in urls:
         # Create a unique session ID per URL to isolate proxies/cookies
         session_id = f"job_sess_{random.randint(100000, 999999)}"
-        tasks.append(process_single_job(url, session_id))
+        tasks.append(sem_task(url, session_id))
 
     results_raw = await asyncio.gather(*tasks)
 
@@ -581,7 +588,7 @@ async def stealth_scrape_jobs(urls: List[str]) -> List[dict]:
     return results
 
 
-async def verify_sannysoft_bypass(proxy: Optional[str] = None) -> bool:
+async def verify_sannysoft_bypass(proxy: str | None = None) -> bool:
     """
     Verification method to test sannysoft bypass.
     Checks if Cloudflare is bypassed and the page is returned successfully.
@@ -589,13 +596,13 @@ async def verify_sannysoft_bypass(proxy: Optional[str] = None) -> bool:
     if not HAS_CFFI:
         logger.debug("Verification failed: curl_cffi not installed")
         return False
-    
+
     url = "https://bot.sannysoft.com/"
     profile = random.choice(STEALTH_PROFILES)
     headers = dict(profile["headers"])
-    
+
     proxies = {"http": proxy, "https": proxy} if proxy else {}
-    
+
     logger.debug(f"Verifying sannysoft bypass using profile {profile['id']}...")
     try:
         async with requests.AsyncSession(
@@ -606,12 +613,12 @@ async def verify_sannysoft_bypass(proxy: Optional[str] = None) -> bool:
             # Direct hit
             res = await session.get(url, timeout=20)
             res.raise_for_status()
-            
+
             soup = BeautifulSoup(res.text, "html.parser")
             title = soup.find("title")
             title_text = title.text if title else ""
             logger.debug(f"Fetched page title: {title_text}")
-            
+
             # Sannysoft title is usually 'Antibot', 'Bot Detection' or contains 'sannysoft'
             if "sannysoft" in res.text.lower() or "bot detection" in title_text.lower() or "antibot" in title_text.lower():
                 logger.debug("Bypass Check Passed: Page retrieved successfully!")
@@ -619,7 +626,7 @@ async def verify_sannysoft_bypass(proxy: Optional[str] = None) -> bool:
             else:
                 logger.debug("Bypass Check Failed: Response does not contain sannysoft indicators.")
                 return False
-                
+
     except Exception as e:
         logger.debug(f"Bypass Check Failed with exception: {e}")
         return False

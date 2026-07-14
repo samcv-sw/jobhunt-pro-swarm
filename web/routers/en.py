@@ -4,8 +4,8 @@ These routes mirror the Arabic public routes but serve English templates
 from web/templates/en/ directory.
 """
 import logging
-from datetime import datetime
-from fastapi import APIRouter, Request, Form, HTTPException
+
+from fastapi import APIRouter, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 logger = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/en", tags=["en"])
 
 
 def _deps():
-    from web.shared import get_db, get_verified_user_id, templates, config
+    from web.shared import config, get_db, get_verified_user_id, templates
     return get_db, get_verified_user_id, templates, config
 
 
@@ -69,9 +69,10 @@ def en_login(request: Request, plan: str = ""):
 
 @router.post("/login")
 async def en_login_post(request: Request, email: str = Form(...), password: str = Form(...)):
-    from web.shared import get_db, templates, config
-    from web.app_v2 import session_serializer
     import bcrypt
+
+    from web.app_v2 import session_serializer
+    from web.shared import config, get_db, templates
     email = email.strip().lower()
     with get_db() as conn:
         user = conn.execute(
@@ -202,7 +203,7 @@ def en_terms(request: Request):
 def en_services(request: Request):
     _, get_verified_user_id, templates, config = _deps()
     try:
-        from services.catalog import SERVICE_CATALOG, BOUQUET_CATALOG
+        from services.catalog import BOUQUET_CATALOG, SERVICE_CATALOG
         user_id = get_verified_user_id(request)
         return templates.TemplateResponse(request, "en/services_v2.html", {
             "services": SERVICE_CATALOG,

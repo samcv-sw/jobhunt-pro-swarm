@@ -4,7 +4,7 @@ Micro-services priced $2–$20 for instant automated delivery
 Each service has: id, name, price, description, delivery_time, features, fulfillment_func
 """
 import logging
-from typing import Optional, Dict, Any, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -247,7 +247,7 @@ BOUQUET_CATALOG = [
 ]
 
 
-def get_service(service_id: str) -> Optional[Dict[str, Any]]:
+def get_service(service_id: str) -> dict[str, Any] | None:
     """Get a service by its ID. Returns None if not found."""
     if not service_id or not isinstance(service_id, str):
         logger.warning(f"[catalog] get_service called with invalid ID: {service_id!r}")
@@ -260,7 +260,7 @@ def get_service(service_id: str) -> Optional[Dict[str, Any]]:
     return None
 
 
-def get_bouquet(bouquet_id: str) -> Optional[Dict[str, Any]]:
+def get_bouquet(bouquet_id: str) -> dict[str, Any] | None:
     """Get a bouquet package by its ID. Returns None if not found."""
     if not bouquet_id or not isinstance(bouquet_id, str):
         logger.warning(f"[catalog] get_bouquet called with invalid ID: {bouquet_id!r}")
@@ -273,7 +273,7 @@ def get_bouquet(bouquet_id: str) -> Optional[Dict[str, Any]]:
     return None
 
 
-def get_services_by_price_range(min_price: int, max_price: int) -> List[Dict[str, Any]]:
+def get_services_by_price_range(min_price: int, max_price: int) -> list[dict[str, Any]]:
     """Get all services within a price range (inclusive)."""
     if min_price < 0 or max_price < min_price:
         logger.warning(f"[catalog] Invalid price range: {min_price}–{max_price}")
@@ -281,7 +281,7 @@ def get_services_by_price_range(min_price: int, max_price: int) -> List[Dict[str
     return [s for s in SERVICE_CATALOG if min_price <= s.get("price", 0) <= max_price]
 
 
-def get_all_service_ids() -> List[str]:
+def get_all_service_ids() -> list[str]:
     """Return all valid service IDs for validation purposes."""
     return [s["id"] for s in SERVICE_CATALOG]
 
@@ -296,7 +296,7 @@ def format_catalog_markdown() -> str:
     try:
         lines = ["# JobHunt Pro -- Service Catalog\n"]
         lines.append(f"**Total Services:** {len(SERVICE_CATALOG)} | **Bouquets:** {len(BOUQUET_CATALOG)}\n")
-        lines.append(f"**Price Range:** $2 -- $20\n")
+        lines.append("**Price Range:** $2 -- $20\n")
         lines.append("---\n")
 
         # Group by price range

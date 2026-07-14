@@ -118,10 +118,10 @@ def process_drop_service_arbitrage():
     f"""
     [PHANTOM AGENCY OPPORTUNITY]
     Hello {freelancer["name"]},
-    
+
     We have secured a freelance contract that matches your profile: "{gig["title"]}".
     The payout for this task is ${payout_to_freelancer}.
-    
+
     Reply "ACCEPT" to start immediately.
     """
 

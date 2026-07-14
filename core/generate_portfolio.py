@@ -51,7 +51,7 @@ def _get_portfolio_html_template(
         .section {{ background: #1a1a2e; padding: 30px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #2a2a3e; }}
         h2 {{ color: #fff; border-bottom: 2px solid #00ff88; display: inline-block; padding-bottom: 5px; margin-top: 0; }}
         .skill-tag {{ display: inline-block; background: #2a2a3e; color: #00ff88; padding: 8px 16px; border-radius: 20px; margin: 5px 5px 0 0; font-size: 0.9em; border: 1px solid #3a3a4e; }}
-        
+
         /* THE TROJAN HORSE BANNER (B2B UPSELL) */
         .trojan-banner {{
             margin-top: 60px;
@@ -144,12 +144,12 @@ def _get_portfolio_html_template(
             const input = document.getElementById('chat-input');
             const msg = input.value.trim();
             if(!msg) return;
-            
+
             const history = document.getElementById('chat-history');
             // Add user message
             history.innerHTML += `<div style="background: #00ff88; color: #000; padding: 10px; border-radius: 8px; align-self: flex-end; max-width: 80%;">${{msg}}</div>`;
             input.value = '';
-            
+
             chatCount++;
             setTimeout(() => {{
                 let reply = "";

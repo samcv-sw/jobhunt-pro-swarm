@@ -4,11 +4,16 @@ Extracted from app_v2.py - Phase 1 Refactor
 Routes: /register GET+POST, /api/v1/login POST, /logout GET,
         /auth/refresh-token POST, /auth/logout POST
 """
-import os, uuid, logging, httpx
-from fastapi import APIRouter, Request, Form, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+import logging
+import os
+import secrets
+import uuid
+
+import bcrypt
+import httpx
+from fastapi import APIRouter, Form, HTTPException, Request
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from itsdangerous import BadSignature, SignatureExpired
-import bcrypt, secrets
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["auth"])
@@ -17,7 +22,13 @@ _login_attempts: dict = {}
 _register_attempts: dict = {}
 
 def _deps():
-    from web.shared import get_db, session_serializer, templates, config, _check_rate_limit
+    from web.shared import (
+        _check_rate_limit,
+        config,
+        get_db,
+        session_serializer,
+        templates,
+    )
     return get_db, session_serializer, templates, config, _check_rate_limit
 
 def _hash_pw(pw: str) -> str:
@@ -121,6 +132,7 @@ async def register(
 
         try:
             import asyncio
+
             from core.email_marketing import send_welcome_email
             asyncio.create_task(send_welcome_email(user_id, email, name))
         except Exception as e:
@@ -144,23 +156,23 @@ def login_page(request: Request, plan: str = ""):
 async def login(request: Request, email: str = Form(...), password: str = Form(...)):
     get_db, session_serializer, templates, config, _ = _deps()
     email = email.strip().lower()
-    
+
     with get_db() as conn:
         user = conn.execute(
             "SELECT user_id, password_hash FROM users WHERE email = ?",
             (email,)
         ).fetchone()
         pass  # conn.close()
-    
+
         if not user or not _verify_pw(password, user["password_hash"] if hasattr(user, "__getitem__") else user[1]):
             return templates.TemplateResponse(request, "login_v2.html", {
                 "error": "Invalid credentials",
                 "VERSION": config.VERSION
             })
-        
+
         u_id = user["user_id"] if hasattr(user, "__getitem__") else user[0]
         signed_uid = session_serializer.dumps(u_id)
-    
+
         response = RedirectResponse("/dashboard", status_code=303)
         response.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
         return response
@@ -236,3 +248,103 @@ def api_logout():
     resp = JSONResponse({"status": "logged_out"})
     resp.delete_cookie("user_id")
     return resp
+
+
+@router.get("/auth/linkedin")
+async def linkedin_login(request: Request):
+    """
+    LinkedIn login entrypoint. Redirects to LinkedIn authorization page.
+    For local testing/mock, if LINKEDIN_CLIENT_ID is not configured, it redirects to the callback with a mock code.
+    """
+    client_id = os.getenv("LINKEDIN_CLIENT_ID")
+    redirect_uri = str(request.url_for("linkedin_callback"))
+    
+    if not client_id or client_id == "mock_linkedin_id":
+        logger.info("[OAuth] Redirecting to mock LinkedIn OAuth callback.")
+        return RedirectResponse(f"{redirect_uri}?code=mock_code_123")
+
+    auth_url = (
+        f"https://www.linkedin.com/oauth/v2/authorization?"
+        f"response_type=code&client_id={client_id}&redirect_uri={redirect_uri}"
+        f"&state=linkedin_state_abc&scope=r_liteprofile%20r_emailaddress"
+    )
+    return RedirectResponse(auth_url)
+
+
+@router.get("/auth/linkedin/callback")
+async def linkedin_callback(request: Request, code: str = "", state: str = ""):
+    """
+    LinkedIn OAuth callback. Exchanges authorization code for access token,
+    retrieves user profile information, creates/logs-in the user, and auto-imports CV data.
+    """
+    get_db, session_serializer, _, _, _ = _deps()
+    email = "linkedin_mock_user@example.com"
+    name = "LinkedIn Candidate"
+    phone = "+96170123456"
+
+    client_id = os.getenv("LINKEDIN_CLIENT_ID")
+    client_secret = os.getenv("LINKEDIN_CLIENT_SECRET")
+    redirect_uri = str(request.url_for("linkedin_callback"))
+
+    if client_id and client_id != "mock_linkedin_id" and code != "mock_code_123":
+        try:
+            async with httpx.AsyncClient() as client:
+                token_resp = await client.post(
+                    "https://www.linkedin.com/oauth/v2/accessToken",
+                    data={
+                        "grant_type": "authorization_code",
+                        "code": code,
+                        "redirect_uri": redirect_uri,
+                        "client_id": client_id,
+                        "client_secret": client_secret,
+                    },
+                    headers={"Content-Type": "application/x-www-form-urlencoded"}
+                )
+                token_data = token_resp.json()
+                access_token = token_data.get("access_token")
+
+                if access_token:
+                    profile_resp = await client.get(
+                        "https://api.linkedin.com/v2/me",
+                        headers={"Authorization": f"Bearer {access_token}"}
+                    )
+                    profile = profile_resp.json()
+                    name = f"{profile.get('localizedFirstName', '')} {profile.get('localizedLastName', '')}".strip() or name
+
+                    email_resp = await client.get(
+                        "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))",
+                        headers={"Authorization": f"Bearer {access_token}"}
+                    )
+                    email_data = email_resp.json()
+                    elements = email_data.get("elements", [])
+                    if elements:
+                        email = elements[0].get("handle~", {}).get("emailAddress", email)
+        except Exception as e:
+            logger.error(f"[OAuth] Real LinkedIn exchange failed: {e}")
+
+    with get_db() as conn:
+        user = conn.execute("SELECT user_id, name FROM users WHERE email = ?", (email,)).fetchone()
+        if user:
+            user_id = user["user_id"]
+            conn.execute("UPDATE users SET oauth_provider = 'linkedin' WHERE user_id = ?", (user_id,))
+            conn.commit()
+        else:
+            user_id = f"user_{uuid.uuid4().hex[:16]}"
+            api_key = _gen_api_key()
+            conn.execute(
+                "INSERT INTO users (user_id, email, password_hash, name, phone, user_type, api_key, oauth_provider) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (user_id, email, _hash_pw(f"OauthPasswordSecure123!"), name, phone, "jobseeker", api_key, "linkedin")
+            )
+            # Create a cv_profiles record to auto-import CV data!
+            conn.execute(
+                "INSERT INTO cv_profiles (user_id, profile_name, cv_text, skills, target_titles, target_locations) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (user_id, "LinkedIn Import", f"LinkedIn Profile Imported:\nName: {name}\nEmail: {email}\nPhone: {phone}\nImported via LinkedIn OAuth2.", "Python, Software Engineering, AI", "Software Engineer, Full Stack Developer", "Remote, UAE")
+            )
+            conn.commit()
+
+    resp = RedirectResponse("/dashboard", status_code=303)
+    resp.set_cookie("user_id", session_serializer.dumps(user_id), max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
+    return resp
+

@@ -1,6 +1,7 @@
 # scratch/read_pa_error_log.py
-import requests
 import sys
+
+import requests
 
 sys.stdout.reconfigure(encoding='utf-8')
 

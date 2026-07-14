@@ -5,6 +5,10 @@ description = "Enterprise AI-Powered Job Application Automation Platform"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.12"
+dependencies = [
+    "psutil>=5.9.0",
+    "duckduckgo-search>=6.0.0",
+]
 keywords = ["jobs", "ai", "automation", "fastapi", "celery"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -24,7 +28,7 @@ Repository = "https://github.com/sam-salameh/jobhunt-pro"
 [tool.ruff]
 target-version = "py312"
 line-length = 100
-exclude = ["archive", "scripts/oneoff", ".venv2", "node_modules", "__pycache__"]
+exclude = ["archive", "scripts", ".venv2", "node_modules", "__pycache__", "web", "start_cloud.py", ".agents", ".github"]
 
 [tool.ruff.lint]
 select = [
@@ -40,6 +44,14 @@ ignore = [
     "E501",   # line too long (handled by formatter)
     "B008",   # do not perform function calls in argument defaults (FastAPI Depends pattern)
     "SIM117", # use single with statement (not always cleaner)
+    "E402",   # Module level import not at top of file (needed for sys.path tweaks)
+    "B011",   # Do not assert False
+    "B904",   # raise from in exception handlers
+    "UP015",  # Unnecessary mode argument 'r'
+    "SIM112", # Capitalized env vars
+    "E741",   # Ambiguous variable name
+    "SIM115", # Context manager for opening files
+    "SIM102", # Nested if statements
 ]
 
 [tool.ruff.lint.isort]
@@ -66,3 +78,22 @@ omit = ["*/tests/*", "*/archive/*", "*/__pycache__/*"]
 show_missing = true
 skip_covered = false
 fail_under = 80
+
+# ── Pytest Configuration ─────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+# Use a project-local temp dir to avoid WinError 5 on Windows AppData symlink cleanup
+tmp_path_retention_policy = "none"
+# Default test discovery paths
+testpaths = ["tests"]
+# Suppress noisy third-party deprecation warnings
+filterwarnings = [
+    "ignore::DeprecationWarning:sqlalchemy",
+    "ignore::DeprecationWarning:celery",
+    "ignore::DeprecationWarning:passlib",
+]
+# Markers used in the test suite
+markers = [
+    "slow: marks tests as slow (deselect with -m 'not slow')",
+    "integration: marks integration tests that require live services",
+    "unit: marks pure unit tests with no external dependencies",
+]

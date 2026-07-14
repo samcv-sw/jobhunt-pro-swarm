@@ -90,21 +90,21 @@ def execute_cassandra_protocol():
     email_subject = f"URGENT: Live Production Bug on {target['url']} (Fix Attached)"
     email_body = f"""
     To the Engineering Team at {target["name"]},
-    
+
     Our distributed QA Swarm recently audited your live production site ({target["url"]}) and identified the following issue which is currently impacting your metrics:
-    
+
     **[ISSUE]:** {bug}
-    
-    One of our Elite Senior Developers, {dev["name"]}, has already written the code to patch this issue. 
+
+    One of our Elite Senior Developers, {dev["name"]}, has already written the code to patch this issue.
     [Attached: blurred_patch_preview.png]
-    
-    Because this developer is highly sought after, they will only be available on the open market for the next 24 hours. 
-    
+
+    Because this developer is highly sought after, they will only be available on the open market for the next 24 hours.
+
     To unlock the unblurred code patch immediately and acquire this developer's contract for your team, please pay the $299 Acquisition Fee below.
     If not claimed within 24 hours, the developer will be released to other tech companies.
-    
+
     Unlock Code & Acquire Developer ($299): {B2B_CHECKOUT_LINK}
-    
+
     Regards,
     JobHunt Pro Agency | The Global QA Swarm
     """

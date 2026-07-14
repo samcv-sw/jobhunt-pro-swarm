@@ -1,6 +1,6 @@
+import logging
 import os
 import sys
-import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ if not os.path.exists(APP_FILE):
     sys.exit(1)
 
 try:
-    with open(APP_FILE, "r", encoding="utf-8") as f:
+    with open(APP_FILE, encoding="utf-8") as f:
         content = f.read()
 except Exception as e:
     logger.error(f"Failed to read APP_FILE: {e}")

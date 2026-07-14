@@ -1,6 +1,7 @@
-import os
 import asyncio
 import logging
+import os
+
 from psycopg import AsyncConnection
 
 # The Hydra 2026: Garbage Collection for LangGraph Checkpoints
@@ -28,7 +29,7 @@ async def run_gc():
                 except Exception:
                     await conn.rollback()
                     logger.warning("checkpoint_writes table not found or missing timestamp column.")
-                
+
                 # Delete from checkpoints
                 try:
                     await cur.execute(f"DELETE FROM checkpoints WHERE timestamp < NOW() - INTERVAL '{DAYS_TO_KEEP} days';")
@@ -36,7 +37,7 @@ async def run_gc():
                 except Exception:
                     await conn.rollback()
                     logger.warning("checkpoints table not found or missing timestamp column.")
-                
+
                 await conn.commit()
                 logger.info("Garbage Collection Complete.")
     except Exception as e:

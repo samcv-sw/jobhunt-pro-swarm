@@ -80,10 +80,7 @@ def _load_daily():
     global _daily_counts
     today = date.today().isoformat()
     df = _data_dir / f"graph_daily_{today}.json"
-    if df.exists():
-        _daily_counts = json.load(open(df, encoding="utf-8"))
-    else:
-        _daily_counts = {}
+    _daily_counts = json.load(open(df, encoding="utf-8")) if df.exists() else {}
 
 
 def _save_daily():
@@ -370,12 +367,12 @@ def _get_ai_template(recipient: dict, campaign: str) -> str:
 <div style="background:#111;border:1px solid #00f0ff33;border-radius:12px;padding:30px;margin:20px">
   <h1 style="color:#00f0ff;font-size:24px;margin:0 0 8px">⚡ Your Job Search, Automated</h1>
   <p style="color:#888;font-size:14px;margin:0 0 20px">200+ AI agents working 24/7 to get you hired</p>
-  
+
   <div style="background:#fff5;border-radius:8px;padding:15px;margin:15px 0">
     <p style="color:#e0e0e0;font-size:15px;margin:0">Hey {name_display},</p>
     <p style="color:#aaa;font-size:14px;margin:10px 0 0">Tired of filling out the same job applications over and over? JobHunt Pro's AI applies to <strong>1,000+ jobs</strong> for you — automatically. Cover letters, form filling, everything.</p>
   </div>
-  
+
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0">
     <div style="background:#00f0ff11;padding:12px;border-radius:6px;text-align:center">
       <div style="font-size:22px;color:#00f0ff;font-weight:700">200+</div>
@@ -394,11 +391,11 @@ def _get_ai_template(recipient: dict, campaign: str) -> str:
       <div style="font-size:11px;color:#888">Starting</div>
     </div>
   </div>
-  
+
   <div style="text-align:center;margin:20px 0">
     <a href="{SITE_URL}/register?ref={campaign}" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#00f0ff,#0088ff);color:#000;border-radius:25px;font-weight:700;font-size:16px;text-decoration:none;box-shadow:0 0 20px #00f0ff33">🚀 Start Auto-Applying — $2</a>
   </div>
-  
+
   <p style="color:#555;font-size:11px;text-align:center;margin-top:20px">
     No credit card. No commitment. Just faster job applications.<br>
     <a href="{SITE_URL}/unsubscribe" style="color:#555">Unsubscribe</a> | Beirut, Lebanon

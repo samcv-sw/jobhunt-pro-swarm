@@ -88,22 +88,22 @@ def build_sales_email(job_title, company):
     <html>
     <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
         <p>Hi Hiring Team at <strong>{company}</strong>,</p>
-        
+
         <p>I am reaching out from JobHunt Pro Agency. We noticed your open position for <strong>{job_title}</strong>.</p>
-        
+
         <p>Our AI matching system has identified a <strong>Top 1% candidate</strong> in our private talent network who perfectly matches your requirements. They are actively looking for remote opportunities and are ready to interview this week.</p>
-        
+
         <p>Instead of paying a traditional recruiting agency 20% of the first year's salary ($15,000+), you can instantly unlock this candidate's full CV, portfolio, and direct contact details for a flat fee of <strong>$99</strong>.</p>
-        
+
         <p>
-            <a href="{PAYMENT_LINK}?job={job_title.replace(" ", "%20")}&company={company.replace(" ", "%20")}" 
+            <a href="{PAYMENT_LINK}?job={job_title.replace(" ", "%20")}&company={company.replace(" ", "%20")}"
                style="background-color: #00ff88; color: #000; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 4px; display: inline-block;">
                Unlock Candidate CV ($99)
             </a>
         </p>
-        
+
         <p>If you hire them, there are no additional fees. We only charge for the introduction.</p>
-        
+
         <p>Best regards,<br>
         <strong>JobHunt Pro AI Agent</strong><br>
         B2B Talent Acquisition</p>

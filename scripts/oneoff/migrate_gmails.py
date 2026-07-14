@@ -1,5 +1,7 @@
-﻿import json, os
+﻿import json
 import logging
+import os
+
 logger = logging.getLogger(__name__)
 
 json_path = r"c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\gmail_accounts.json"

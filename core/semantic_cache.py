@@ -1,9 +1,9 @@
+import functools
 import hashlib
 import json
 import logging
 import os
 import re
-import functools
 from typing import Any
 
 import httpx
@@ -173,10 +173,10 @@ def _search_pg_vector(conn: Any, embedding: list[float], similarity_threshold: f
     """
     emb_str = f"[{','.join(map(str, embedding))}]"
     query = """
-    SELECT response_text, 1 - (embedding <=> ?::halfvec) AS similarity, prompt_hash 
-    FROM semantic_cache 
+    SELECT response_text, 1 - (embedding <=> ?::halfvec) AS similarity, prompt_hash
+    FROM semantic_cache
     WHERE embedding IS NOT NULL
-    ORDER BY embedding <=> ?::halfvec ASC 
+    ORDER BY embedding <=> ?::halfvec ASC
     LIMIT 1;
     """
     res = conn.execute(query, (emb_str, emb_str)).fetchone()
@@ -255,7 +255,7 @@ def _search_sqlite_vector(conn: Any, embedding: list[float], similarity_threshol
                     best_response = best_similarity = best_hash = None
                     for response_text, emb, p_hash in _sqlite_cache_data:
                         try:
-                            dot_product = sum(a * b for a, b in zip(embedding, emb))
+                            dot_product = sum(a * b for a, b in zip(embedding, emb, strict=False))
                             norm_b = sum(b * b for b in emb) ** 0.5
                             if norm_b > 0:
                                 similarity = dot_product / (norm_a * norm_b)
@@ -268,7 +268,7 @@ def _search_sqlite_vector(conn: Any, embedding: list[float], similarity_threshol
             else:
                 for response_text, emb, p_hash in _sqlite_cache_data:
                     try:
-                        dot_product = sum(a * b for a, b in zip(embedding, emb))
+                        dot_product = sum(a * b for a, b in zip(embedding, emb, strict=False))
                         norm_b = sum(b * b for b in emb) ** 0.5
                         if norm_b > 0:
                             similarity = dot_product / (norm_a * norm_b)

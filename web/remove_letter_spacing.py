@@ -1,6 +1,7 @@
 import os
 import re
 
+
 def remove_letter_spacing(directory):
     count = 0
     pattern = re.compile(r'letter-spacing\s*:\s*[^;]+;?')
@@ -9,11 +10,11 @@ def remove_letter_spacing(directory):
             if f.endswith('.css') or f.endswith('.html'):
                 path = os.path.join(root, f)
                 try:
-                    with open(path, 'r', encoding='utf-8') as file:
+                    with open(path, encoding='utf-8') as file:
                         content = file.read()
-                    
+
                     new_content, num_subs = pattern.subn('', content)
-                    
+
                     if num_subs > 0:
                         with open(path, 'w', encoding='utf-8') as file:
                             file.write(new_content)

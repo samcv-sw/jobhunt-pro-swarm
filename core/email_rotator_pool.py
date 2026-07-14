@@ -5,6 +5,7 @@ Rotates across Gmail, Brevo, SendGrid, Zoho, Outlook to maximize free-tier sendi
 """
 
 import asyncio
+import contextlib
 import json
 import logging
 import os
@@ -72,7 +73,7 @@ def _load_db_rate_limits() -> None:
             for r in rows:
                 if isinstance(r, dict):
                     host = r.get("smtp_host")
-                elif hasattr(r, "keys") and "smtp_host" in r.keys():
+                elif hasattr(r, "keys") and "smtp_host" in r:
                     host = r["smtp_host"]
                 else:
                     host = r[0]
@@ -81,10 +82,8 @@ def _load_db_rate_limits() -> None:
         except Exception as e:
             logger.debug(f"[RotatorPool] Failed to query smtp_rotation: {e}")
         finally:
-            try:
+            with contextlib.suppress(Exception):
                 conn.close()
-            except Exception:
-                pass
 
     _db_rate_limited_hosts = new_limits
 
@@ -263,10 +262,8 @@ class EmailSenderClient:
                     logger.debug(
                         f"SMTP connection stale for {self.account.name}, reconnecting"
                     )
-                    try:
+                    with contextlib.suppress(Exception):
                         self._smtp_conn.quit()
-                    except Exception:
-                        pass
                     self._smtp_conn = None
                     connected = await self._connect()
                     if not connected:

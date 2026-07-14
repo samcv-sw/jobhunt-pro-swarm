@@ -33,6 +33,7 @@ for i in range(244, 250):
 
 # Verify syntax
 import ast
+
 with open('tests/test_stealth_parser_and_fallbacks.py', 'r', encoding='utf-8') as f:
     src = f.read()
 try:

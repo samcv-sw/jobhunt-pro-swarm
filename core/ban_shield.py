@@ -8,9 +8,8 @@ from threading import Lock
 
 from filelock import FileLock
 
-import core.pg_sqlite_shim as sqlite3
-
 import config
+import core.pg_sqlite_shim as sqlite3
 
 logger = logging.getLogger(__name__)
 
@@ -54,20 +53,57 @@ except Exception as e:
     logger.warning(f"BanShield inline DB init failed: {e}")
 
 # ── Limits ────────────────────────────────────────────────────────────────
-GMAIL_DAILY_CAP = 100
-GMAIL_HOURLY_CAP = 15
-BREVO_DAILY_CAP = 250
-HOTMAIL_DAILY_CAP = 20000  # 1000 accounts x 50/day x 0.4 safety factor
-HOTMAIL_HOURLY_CAP = 2000  # Spread across 1000 accounts = 2/hr each
-GROQ_RPM_CAP = 20
-GROQ_COOLDOWN_MS = 8000
-GLOBAL_HOURLY_CAP = 2150  # Hotmail 2000 + Gmail 150
-GLOBAL_DAILY_CAP = 21500  # Hotmail 20000 + Gmail 1500
-WEEKEND_MULTIPLIER = 0.3
-BUSINESS_HOURS_START = 7
-BUSINESS_HOURS_END = 23  # Extended to 11PM for wider send window
-MAX_FAILURES_BEFORE_COOLDOWN = 5
-FAILURE_COOLDOWN_MINUTES = 30
+# IMP-159: Named constants instead of magic numbers
+SECONDS_PER_DAY: int = 86400
+SECONDS_PER_HOUR: int = 3600
+SECONDS_PER_MINUTE: int = 60
+MILLISECONDS_PER_SECOND: int = 1000
+
+GMAIL_DAILY_CAP: int = 100
+GMAIL_HOURLY_CAP: int = 15
+BREVO_DAILY_CAP: int = 250
+HOTMAIL_DAILY_CAP: int = 20000   # 1000 accounts x 50/day x 0.4 safety factor
+HOTMAIL_HOURLY_CAP: int = 2000   # Spread across 1000 accounts = 2/hr each
+GROQ_RPM_CAP: int = 20
+GROQ_COOLDOWN_MS: int = 8000
+GLOBAL_HOURLY_CAP: int = 2150    # Hotmail 2000 + Gmail 150
+GLOBAL_DAILY_CAP: int = 21500    # Hotmail 20000 + Gmail 1500
+WEEKEND_MULTIPLIER: float = 0.3
+BUSINESS_HOURS_START: int = 7
+BUSINESS_HOURS_END: int = 23     # Extended to 11PM for wider send window
+MAX_FAILURES_BEFORE_COOLDOWN: int = 5
+FAILURE_COOLDOWN_MINUTES: int = 30
+
+# IMP-206: Platform-specific scraper delay profiles (seconds)
+PLATFORM_DELAYS: dict = {
+    "linkedin":  {"min": 3.0, "max": 6.0},
+    "indeed":    {"min": 1.0, "max": 2.5},
+    "bayt":      {"min": 2.0, "max": 4.0},
+    "glassdoor": {"min": 4.0, "max": 8.0},
+    "naukri":    {"min": 1.5, "max": 3.0},
+    "wuzzuf":    {"min": 1.0, "max": 2.0},
+    "dice":      {"min": 1.5, "max": 3.5},
+    "hhru":      {"min": 2.0, "max": 4.0},
+    "default":   {"min": 2.0, "max": 5.0},
+}
+
+
+def get_platform_delay(platform_or_url: str) -> float:
+    """Return a random delay in seconds for the given platform or URL — IMP-206.
+
+    Args:
+        platform_or_url: Platform name key (e.g. 'linkedin', 'indeed') or a URL.
+
+    Returns:
+        A random float between the platform's min and max delay.
+    """
+    key = platform_or_url.lower()
+    for plat in PLATFORM_DELAYS:
+        if plat in key:
+            profile = PLATFORM_DELAYS[plat]
+            return random.uniform(profile["min"], profile["max"])
+    profile = PLATFORM_DELAYS["default"]
+    return random.uniform(profile["min"], profile["max"])
 
 
 def set_db_path(path: str):
@@ -600,3 +636,4 @@ def get_safe_send_window() -> dict:
         and state["global_counts"]["daily"] < GLOBAL_DAILY_CAP * 0.5
         else "moderate",
     }
+

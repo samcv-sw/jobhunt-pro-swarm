@@ -331,10 +331,7 @@ My CV is attached. I'd welcome 15 minutes to discuss how this experience maps to
         if language is None:
             language = cls._detect_language(company, description)
 
-        if ai_letter:
-            text = ai_letter
-        else:
-            text = cls.write(company, title, company_info, description, language)
+        text = ai_letter or cls.write(company, title, company_info, description, language)
 
         return cls._text_to_html(text, company, language)
 
@@ -495,10 +492,7 @@ Best regards,
         )
 
         # Split into sections (by horizontal rule for bilingual)
-        if "─" * 30 in text:
-            sections = text.split("─" * 30)
-        else:
-            sections = [text]
+        sections = text.split("─" * 30) if "─" * 30 in text else [text]
 
         html_parts = []
         for idx, section in enumerate(sections):

@@ -29,7 +29,7 @@ class SalaryArbitrage:
         Base offer: ${base_offer}.
         Location: {city_location}.
         Macro data: {macro_economics}.
-        
+
         Calculate the absolute maximum counter-offer the candidate can request without losing the offer.
         Draft a 3-sentence negotiation email to the recruiter justifying the increase using the macro data.
         """
