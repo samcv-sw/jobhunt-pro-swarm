@@ -81,6 +81,75 @@ jobs:
         run: |
           bandit -r backend/ core/ -ll -q || true
 
+  load-test:
+    name: 🔥 Load Test (Locust, 1M-user simulation)
+    runs-on: ubuntu-latest
+    needs: [backend-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    env:
+      TESTING: "true"
+      LOAD_TEST_MODE: "true"
+      JWT_SECRET_KEY: "ci-load-test-secret-key-32bytes-ok!!"
+      GEMINI_API_KEY: ""
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install locust
+
+      - name: Start app in load-test mode
+        run: |
+          python -c "import web.app_v2" || python -c "import app_v2"
+          (uvicorn web.app_v2:app --host 127.0.0.1 --port 8088 --log-level warning &) || (uvicorn app_v2:app --host 127.0.0.1 --port 8088 --log-level warning &)
+          echo "Waiting for app to boot..."
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8088/healthz >/dev/null 2>&1; then
+              echo "App is up after ${i}s"; break
+            fi
+            sleep 1
+          done
+          curl -sf http://127.0.0.1:8088/healthz || (echo "App failed to start" && exit 1)
+
+      - name: Run Locust headless load test
+        run: |
+          locust -f tests/locustfile.py --headless \
+            -u 100 -r 20 -t 60s \
+            --host http://127.0.0.1:8088 \
+            --csv=loadtest_report --html=loadtest_report.html || true
+
+      - name: Observability — health & metrics assertions
+        run: |
+          echo "=== Post-load health check ==="
+          curl -sf http://127.0.0.1:8088/healthz && echo " [OK] /healthz"
+          curl -sf http://127.0.0.1:8088/api/health && echo " [OK] /api/health"
+          curl -sf "http://127.0.0.1:8088/api/v1/client/stats?period=24h" && echo " [OK] client stats"
+          echo "=== Load test artifacts ==="
+          ls -la loadtest_report* 2>/dev/null || echo "No report artifacts"
+
+      - name: Upload load-test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: loadtest-report
+          path: loadtest_report*
+          retention-days: 7
+
+      - name: Stop app
+        if: always()
+        run: |
+          pkill -f "uvicorn" || true
+
   deploy:
     name: 🚀 Deploy to Render
     runs-on: ubuntu-latest

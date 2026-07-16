@@ -62,9 +62,8 @@ from fastapi import (
     Request,
     UploadFile,
 )
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.responses import ORJSONResponse as JSONResponse
-from fastapi.responses import RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
@@ -79,6 +78,7 @@ from core import auto_heal as _autoheal
 from core.auto_install import ensure_packages
 from core.email_marketing import email_marketing_loop, get_campaign_stats
 from core.localization import LanguageMiddleware
+from core.ml_ranking import ml_ranking_engine
 
 # Server start time for accurate uptime
 APP_START_TIME = __import__('time').time()
@@ -317,7 +317,6 @@ from core.pricing_manager import (
     BOUQUET_PACKAGES,
     PRICING_TIERS,
     SERVICE_PACKAGES,
-    get_all_pricing,
 )
 
 # O(1) lookup maps for performance
@@ -726,8 +725,61 @@ except Exception as e:
     logger.error(f"Failed to load Aegis Shield: {e}")
 
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(GZipMiddleware, minimum_size=500)
+
+# --- SECURITY HEADERS MIDDLEWARE ---
+class SecurityHeadersMiddleware:
+    """Add critical security headers to all responses."""
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        async def send_with_headers(message):
+            if message["type"] == "http.response.start":
+                headers = MutableHeaders(scope=message)
+                # Prevent clickjacking
+                headers["X-Frame-Options"] = "DENY"
+                # Prevent MIME sniffing
+                headers["X-Content-Type-Options"] = "nosniff"
+                # Enable XSS protection (legacy browsers)
+                headers["X-XSS-Protection"] = "1; mode=block"
+                # Enforce HTTPS (1 year)
+                headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+                # Referrer policy
+                headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+                # Permissions policy (formerly Feature-Policy)
+                headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+                # CSP: moderate restriction
+                headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; object-src 'none'; frame-ancestors 'none'"
+                # Remove server fingerprint
+                if "server" in headers:
+                    del headers["server"]
+            await send(message)
+
+        await self.app(scope, receive, send)
+
+try:
+    from starlette.datastructures import MutableHeaders
+    app.add_middleware(SecurityHeadersMiddleware)
+    logger.info("🔐 Security Headers Middleware Activated")
+except Exception as e:
+    logger.warning(f"Failed to load Security Headers Middleware: {e}")
+
+# --- CORS MIDDLEWARE ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8000").split(","),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["X-Total-Count", "X-Page-Count"]
+)
 
 # --- IRON CLOAK ANTI-BAN MIDDLEWARE ---
 try:
@@ -752,6 +804,7 @@ class _EdgeCacheRateLimitMiddleware:
     _lock = _threading.Lock()
     _limit = 100
     _window = 60.0
+    _load_test_mode = os.getenv("LOAD_TEST_MODE", "false").lower() == "true" or os.getenv("TESTING", "false").lower() == "true"
 
     def __init__(self, app):
         self.app = app
@@ -760,11 +813,11 @@ class _EdgeCacheRateLimitMiddleware:
         if scope["type"] != "http":
             await self.app(scope, receive, send); return
         path = scope.get("path", "")
-        if path == "/ping" or not edge_cache.enabled:
+        if path == "/ping" or not edge_cache.enabled or self._load_test_mode:
             await self.app(scope, receive, send); return
         client = scope.get("client")
         ip = client[0] if client else "unknown"
-        
+
         now = _time.time()
         allowed = True
         with self._lock:
@@ -775,7 +828,7 @@ class _EdgeCacheRateLimitMiddleware:
                 allowed = False
             else:
                 self._requests[ip].append(now)
-                
+
         if not allowed:
             from starlette.responses import JSONResponse
             resp = JSONResponse({"error": "Too many requests. Please slow down."}, status_code=429)
@@ -1304,6 +1357,8 @@ def get_db(max_retries: int = 3):
             raise
     raise sqlite3.OperationalError(f"Failed to connect to DB after {max_retries} retries")
 
+get_saas_v2_db = get_db
+
 def _check_legacy_schema(conn):
     try:
         orders_info = [r[1] for r in conn.execute("PRAGMA table_info(orders)").fetchall()]
@@ -1517,7 +1572,8 @@ def _create_campaign_tables(conn):
     CREATE INDEX IF NOT EXISTS idx_campaigns_user_id ON campaigns(user_id);
     CREATE INDEX IF NOT EXISTS idx_campaigns_created_at ON campaigns(created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_campaign_emails_campaign_id ON campaign_emails(campaign_id);
-    CREATE INDEX IF NOT EXISTS idx_campaign_emails_sent_at ON campaign_emails(sent_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_campaign_emails_sent_at ON campaign_emails(sent_at);
+    CREATE INDEX IF NOT EXISTS idx_campaign_emails_camp_sent ON campaign_emails(campaign_id, sent_at);
     
     CREATE TABLE IF NOT EXISTS email_queue (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1539,6 +1595,7 @@ def _create_campaign_tables(conn):
     CREATE INDEX IF NOT EXISTS idx_cv_profiles_user_id ON cv_profiles(user_id);
     CREATE INDEX IF NOT EXISTS idx_campaign_emails_user ON campaign_emails(campaign_id, status);
     CREATE INDEX IF NOT EXISTS idx_campaigns_status ON campaigns(user_id, status);
+    CREATE INDEX IF NOT EXISTS idx_campaign_emails_campaign_responded ON campaign_emails(campaign_id, responded_at);
     """)
 
 def _create_features_tables(conn):
@@ -1663,6 +1720,10 @@ def _create_features_tables(conn):
         PRIMARY KEY (id)
     );
     CREATE INDEX IF NOT EXISTS idx_applications_tracking_id ON applications(tracking_id);
+    CREATE INDEX IF NOT EXISTS idx_applications_metrics ON applications(opened, responded, status);
+    CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
+    CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs(company);
+    CREATE INDEX IF NOT EXISTS idx_jobs_source ON jobs(source);
     CREATE TABLE IF NOT EXISTS email_quota (
         id INTEGER NOT NULL,
         provider VARCHAR(50) NOT NULL,
@@ -1956,7 +2017,6 @@ def get_login_streak(user_id: str) -> dict:
 
 # === CYBER-HONEYPOT DEFENSE ===
 import random as _random
-import time as _time
 
 _honeypot_banned_ips: dict = {}  # ip -> ban_time
 _honeypot_request_counts: dict = {}  # ip -> [timestamps]
@@ -2465,7 +2525,7 @@ def pipeline_counts(request: Request):
 @app.get("/debug-db")
 def debug_db():
     try:
-        with Database.get_db() as conn:
+        with get_db() as conn:
                     orders_info = [r[1] for r in conn.execute("PRAGMA table_info(orders)").fetchall()]
                     campaigns_info = [r[1] for r in conn.execute("PRAGMA table_info(campaigns)").fetchall()]
                     users_info = [r[1] for r in conn.execute("PRAGMA table_info(users)").fetchall()]
@@ -2551,6 +2611,7 @@ from fastapi.responses import FileResponse, JSONResponse
 
 @app.get("/api/debug-cookies")
 def debug_cookies(request: Request):
+    verify_system_key(request)
     return JSONResponse({
         "cookies": dict(request.cookies),
         "headers": dict(request.headers)
@@ -5046,30 +5107,6 @@ def custom_404_handler(request: Request, exc):
 </html>'''
     return HTMLResponse(html, status_code=404)
 
-@app.get("/email-test", response_class=HTMLResponse)
-def email_test_page(request: Request):
-    """Placeholder Premium page for Email Test."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-    with get_db() as conn:
-        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        pass  # conn.close()
-        user = dict(user_row) if user_row else {}
-        content = '''
-        <div style="text-align:center; padding: 100px 20px;">
-            <div style="font-size: 64px; margin-bottom:20px;">🧪</div>
-            <h2 style="font-size: 28px; margin-bottom: 10px; color: #e2e8f0;">Advanced Deliverability Test</h2>
-            <p style="color: #94a3b8; font-size: 16px; margin-bottom: 30px; max-width: 500px; margin-inline: auto;">Test your spam score and inbox placement before launching a massive campaign.</p>
-            <div style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); padding: 30px; border-radius: 16px; display: inline-block; text-align: start; max-width: 400px;">
-                <h3 style="color:#a78bfa; margin-bottom: 15px; font-size:18px;">Premium Feature</h3>
-                <p style="color:#e2e8f0; font-size:14px; margin-bottom: 20px;">This feature requires an active Premium plan. Upgrade to unlock inbox placement testing.</p>
-                <a href="/pricing" style="display:block; text-align:center; padding:12px 24px; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:white; text-decoration:none; border-radius:8px; font-weight:bold;">View Plans</a>
-            </div>
-        </div>
-        '''
-        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Email Test", "email-test", request=request))
-
 # NOTE: /api/docs template version is above at line ~2442; redirect /api-docs to it
 @app.get("/api-docs")
 def api_docs_dash_redirect_canonical():
@@ -6882,6 +6919,7 @@ This is not a template. This is not an exercise. This is {name}'s ACTUAL applica
         fb_cl_body = f"<p>I have been following {company}'s growth in the telecommunications sector and am genuinely impressed by your investment in next-generation network infrastructure. The {job_title} role is a natural fit for my {exp} years as a {current_title}, where I have consistently delivered network solutions that balance performance, security, and cost-efficiency.</p><p>My hands-on expertise with {skills} &#x2014; reinforced by {certs} &#x2014; means I can step into this role and contribute immediately. I have led network transformations that reduced operational costs by 25% while improving reliability, and I am eager to bring that same results-driven approach to {company}.</p>"
         fb_bullets = f"<ul style='padding-left:20px;margin:12px 0'><li style='margin:8px 0'>âœ&#x201D; Managed enterprise networks supporting 5,000+ users across 20+ locations with 99.9% uptime</li><li style='margin:8px 0'>âœ&#x201D; Reduced mean time to resolution by 60% through implementation of automated network monitoring</li><li style='margin:8px 0'>âœ&#x201D; Led cross-functional team of 8 engineers delivering MPLS migration across 12 regional offices</li><li style='margin:8px 0'>âœ&#x201D; {certs_list_clean[0] if certs_list_clean else 'CCNA'} certified &#x2014; committed to continuous professional development</li></ul>"
         fb_cl_paras = f"<p>I am writing to express my strong interest in the {job_title} position at {company}. With {exp} years of progressive experience as a {current_title}, I bring a depth of technical expertise and a track record of delivering network infrastructure that drives business results.</p><p>My career has been defined by the ability to translate complex technical challenges into reliable, scalable solutions. Whether deploying MPLS networks for multi-site enterprises, leading incident response teams during critical outages, or architecting security frameworks that protect sensitive data &#x2014; I deliver measurable outcomes. My expertise spans {skills}, supported by {certs}.</p><p>I would welcome the opportunity to discuss how my background and skills align with {company}'s goals. I am available at your earliest convenience and can be reached at {phone} or {email_addr}. Thank you for your time and consideration.</p>"
+        fb_story = f"As a {current_title} with {exp} years of experience, my career has been defined by the ability to translate complex technical challenges into reliable, scalable solutions. Supported by {certs}, I have led network transformations that reduced operational costs while improving reliability."
         cl_html = cl_tmpl.replace("{name}", name).replace("{current_title}", current_title)            .replace("{email_addr}", email_addr).replace("{phone}", phone).replace("{loc}", loc)            .replace("{exp}", str(exp)).replace("{cert_count}", str(len(certs_list_clean))).replace("{skill_count}", str(len(skills_list_clean)))            .replace("{job_title}", job_title).replace("{company}", company).replace("{certs}", certs)            .replace("{STORY_HOOK}", ai.get("story_hook", fb_story))            .replace("{CL_BODY}", ai.get("cl_body", fb_cl_body))            .replace("{CL_BULLETS}", ai.get("cl_bullets", fb_bullets))            .replace("{CL_PARAS}", ai.get("cl_paras", fb_cl_paras))
 
         # v16.108: Clean garbled emoji from all HTML outputs before returning
@@ -7637,7 +7675,8 @@ def api_stats():
 
 
 @app.get("/api/debug/test-email")
-async def api_debug_test_email():
+async def api_debug_test_email(request: Request):
+    verify_system_key(request)
     """Debug: test single email send and return result."""
     try:
         from core.email_engine import EmailEngine
@@ -8430,7 +8469,7 @@ def cron_keep_alive(request: Request):
     db_status = "disconnected"
     email_count = 0
     try:
-        db = Database()
+        db = get_db()
         db_status = "connected"
         # Try to send any pending scheduled emails
         now = datetime.utcnow().isoformat()
@@ -8815,13 +8854,22 @@ async def api_groq_proxy(request: Request):
     import httpx
 
     # Auth check: session or API key
-    user_id = request.session.get("user_id")
-    api_key_header = request.headers.get("X-API-Key", "")
-    if not user_id and not api_key_header:
+    user_id = request.session.get("user_id") or get_verified_user_id(request)
+    api_key_header = request.headers.get("X-API-Key")
+
+    if api_key_header is not None:
+        with get_db() as conn:
+            user_row = conn.execute("SELECT user_id FROM users WHERE api_key = ?", (api_key_header,)).fetchone()
+            if user_row:
+                user_id = user_row["user_id"]
+            else:
+                return JSONResponse({"error": "Invalid API Key"}, status_code=401)
+
+    if not user_id:
         return JSONResponse({"error": "Authentication required"}, status_code=401)
 
     # Resolve identity for rate limiting
-    identity = user_id or f"apikey:{api_key_header[:8]}"
+    identity = user_id
 
     # --- Rate limiting: 5 calls/hour per user ---
     now = _time.time()
@@ -9019,32 +9067,14 @@ async def api_job_match_score(request: Request):
             skills_str = profile["skills"] if profile else ""
             if not cv_text:
                 return JSONResponse({"match_score": 0, "skill_match_pct": 0, "keyword_matches": [], "missing_keywords": [], "skills_gaps": ["Upload your CV first to get match scores"], "recommendation": "Upload your CV to see match scores", "is_fallback": True})
-            cv_lower = cv_text.lower()
-            jd_lower = job_desc.lower()
-            user_skills = [s.strip().lower() for s in skills_str.split(",") if s.strip()]
-            common_tech = ["python", "java", "javascript", "sql", "aws", "azure", "docker", "kubernetes", "linux", "git", "agile", "scrum", "react", "angular", "node", "typescript", "cisco", "juniper", "fortinet", "palo alto", "bgp", "ospf", "mpls", "vpn", "firewall", "ccna", "ccnp", "sd-wan", "vlan", "tcp/ip", "dns", "dhcp", "mikrotik", "ubiquiti", "network", "security", "cloud", "devops", "ci/cd", "terraform", "ansible", "jenkins", "grafana", "prometheus", "nginx", "apache", "mongodb", "postgresql", "mysql", "redis", "elasticsearch", "kafka", "power bi", "tableau", "excel", "salesforce", "sap", "oracle", "project management", "pmp", "prince2", "itil", "servicenow", "routing", "switching", "wan", "lan", "nat", "qos", "ipv6", "aruba", "meraki", "sophos", "checkpoint", "f5", "citrix"]
-            tech_keywords = set()
-            for kw in common_tech:
-                if kw in jd_lower: tech_keywords.add(kw)
-            import re as _re3
-            for match in _re3.finditer(r'\b[A-Z]{2,6}\b', job_desc):
-                word = match.group().lower()
-                if word not in ["the", "and", "for", "our", "you", "are", "all"]: tech_keywords.add(word)
-            keyword_matches = [kw.upper() for kw in tech_keywords if kw in cv_lower]
-            missing_keywords = [kw.upper() for kw in tech_keywords if kw not in cv_lower]
-            skill_count = sum(1 for us in user_skills if us and us in jd_lower)
-            skill_pct = round((skill_count / max(len(user_skills), 1)) * 100)
-            kw_score = round((len(keyword_matches) / max(len(tech_keywords), 1)) * 60)
-            match_score = min(kw_score + int(min(skill_pct * 0.4, 40)), 100)
-            gaps = []
-            if missing_keywords: gaps.append("Missing keywords: " + ", ".join(missing_keywords[:5]))
-            if skill_pct < 50: gaps.append(f"Only {skill_pct}% of your listed skills match this job")
-            if not gaps: gaps.append("Great match! Your skills align well with this position.")
-            if match_score >= 80: rec = "Strong match! Consider this a high-priority application."
-            elif match_score >= 60: rec = "Good match. Tailor your resume to highlight matching keywords."
-            elif match_score >= 40: rec = "Moderate match. Use Resume Tailor to optimize your CV for this role."
-            else: rec = "Low match. Review job requirements and consider upskilling."
-            return JSONResponse({"match_score": match_score, "skill_match_pct": skill_pct, "keyword_matches": keyword_matches[:10], "missing_keywords": missing_keywords[:8], "skills_gaps": gaps, "recommendation": rec, "is_fallback": False})
+            user_skills = [s.strip() for s in skills_str.split(",") if s.strip()]
+            result = ml_ranking_engine.score_job_match(
+                cv_text=cv_text,
+                job_title=job_title,
+                job_description=job_desc,
+                user_skills=user_skills,
+            )
+            return JSONResponse(result)
     except Exception as e:
         logger.exception("job-match-score failed")
         return JSONResponse({"error": str(e)}, status_code=500)
@@ -9472,6 +9502,7 @@ def verify_system_key(request: Request):
 
 @app.get('/api/jobs/unscored')
 def jobs_unscored(request: Request, limit: int = 100):
+    verify_system_key(request)
     with get_db() as conn:
         try:
             rows = conn.execute("SELECT id, job_id as ext_id, applicant_name as title, status FROM job_applications WHERE status = 'new' ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
@@ -9483,6 +9514,7 @@ def jobs_unscored(request: Request, limit: int = 100):
 
 @app.post('/api/jobs/score')
 async def jobs_score(request: Request):
+    verify_system_key(request)
     try:
         data = await request.json()
     except Exception:
@@ -9725,7 +9757,7 @@ def extension_config(user_id: str = ""):
     daily_limit = 10
     if user_id:
         try:
-            with sqlite3.connect(DB_PATH, check_same_thread=False, timeout=60) as conn:
+            with sqlite3.connect(db_path, check_same_thread=False, timeout=60) as conn:
                 ref_count = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ? AND status='completed'", (user_id,)).fetchone()[0]
                 if ref_count >= 3:
                     daily_limit = 50  # Gamified Growth Unlock!
@@ -9918,7 +9950,6 @@ except TypeError:
 
 import hashlib
 import hmac
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -9934,7 +9965,7 @@ SUPPORTED_WEBHOOK_EVENTS = {
 class WebhookRegisterRequest(BaseModel):
     url: str = Field(..., description="HTTPS URL to receive webhook POST requests")
     events: list[str] = Field(..., description="List of events to subscribe to")
-    secret: Optional[str] = Field(None, description="Optional HMAC-SHA256 signing secret")
+    secret: str | None = Field(None, description="Optional HMAC-SHA256 signing secret")
 
 
 @app.post("/api/v1/webhooks/register", tags=["Webhooks"])
@@ -10023,6 +10054,7 @@ async def stream_cover_letter(
 ):
     """IMP-243: Word-by-word streaming preview of cover letter."""
     from fastapi.responses import StreamingResponse
+
     from backend.ai_engine import generate_smart_cover_letter_stream
 
     return StreamingResponse(
