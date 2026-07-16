@@ -176,7 +176,7 @@ class RateLimitManager:
         now = datetime.utcnow()
         
         if key not in self._user_limits:
-            self._user_limits[key] = {"count": 0, "first_request": now}
+            self._user_limits[key] = {"count": 0, "first_request": now, "window": window_seconds}
         
         user_data = self._user_limits[key]
         elapsed = (now - user_data["first_request"]).total_seconds()
@@ -200,7 +200,7 @@ class RateLimitManager:
         key = f"{user_id}:{endpoint}"
         if key in self._user_limits:
             user_data = self._user_limits[key]
-            window = 3600  # TODO: make configurable
+            window = user_data.get("window", 3600)
             elapsed = (datetime.utcnow() - user_data["first_request"]).total_seconds()
             reset_in = max(0, int(window - elapsed))
             return reset_in
