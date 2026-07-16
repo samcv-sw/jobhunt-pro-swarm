@@ -6,8 +6,8 @@ import re
 import time
 import tracemalloc
 import urllib.request
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable
 
 from bs4 import BeautifulSoup
 

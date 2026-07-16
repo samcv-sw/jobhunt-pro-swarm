@@ -64,7 +64,7 @@ body {
 }
 
 .dashboard-container {
-  max-width: 1400px;
+  max-inline-size: 1400px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -95,7 +95,7 @@ body {
 .glass-card::before {
   content: "";
   position: absolute;
-  top: 0; inset-inline-start: 0; inset-inline-end: 0; height: 1px;
+  inset-block-start: 0; inset-inline-start: 0; inset-inline-end: 0; block-size: 1px;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -130,7 +130,7 @@ body {
   color: var(--text-muted);
   font-size: 16px;
   margin: 0;
-  max-width: 500px;
+  max-inline-size: 500px;
 }
 
 /* ── Badge & Premium Tag ── */
@@ -297,9 +297,9 @@ body {
 
 /* ── Chart Container ── */
 .chart-container {
-  height: 300px;
-  width: 100%;
-  margin-top: 20px;
+  block-size: 300px;
+  inline-size: 100%;
+  margin-block-start: 20px;
 }
 </style>
 <meta property="og:title" content="لوحة التحكم | JobHunt Pro"/>
@@ -353,7 +353,7 @@ body {
 <svg fill="none" height="24" stroke="var(--accent-primary)" viewbox="0 0 24 24" width="24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </div>
 <div class="stat-value">{{ stats.emails_sent }}</div>
-<div style="color:var(--text-muted); font-size:13px; margin-top:8px;">تم الإرسال عبر المنصات</div>
+<div style="color:var(--text-muted); font-size:14px; margin-block-start:8px;">تم الإرسال عبر المنصات</div>
 </div>
 <div class="glass-card stat-box">
 <div class="stat-header">
@@ -361,7 +361,7 @@ body {
 <svg fill="none" height="24" stroke="var(--accent-success)" viewbox="0 0 24 24" width="24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </div>
 <div class="stat-value">92%</div>
-<div style="color:var(--text-muted); font-size:13px; margin-top:8px;">أدوار عالية التوافق</div>
+<div style="color:var(--text-muted); font-size:14px; margin-block-start:8px;">أدوار عالية التوافق</div>
 </div>
 <div class="glass-card stat-box">
 <div class="stat-header">
@@ -369,7 +369,7 @@ body {
 <svg fill="none" height="24" stroke="var(--accent-secondary)" viewbox="0 0 24 24" width="24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </div>
 <div class="stat-value">{{ _('12.5k') }}</div>
-<div style="color:var(--text-muted); font-size:13px; margin-top:8px;">عبر أداة تقليص السيرة الذاتية المحلية</div>
+<div style="color:var(--text-muted); font-size:14px; margin-block-start:8px;">عبر أداة تقليص السيرة الذاتية المحلية</div>
 </div>
 <div class="glass-card stat-box">
 <div class="stat-header">
@@ -384,7 +384,7 @@ body {
           {{ total_mins }}m
         {% endif %}
       </div>
-<div style="color:var(--text-muted); font-size:13px; margin-top:8px;">ما يعادل الأتمتة</div>
+<div style="color:var(--text-muted); font-size:14px; margin-block-start:8px;">ما يعادل الأتمتة</div>
 </div>
 </div>
 <!-- MAIN TWO-COLUMN SECTION -->
@@ -407,44 +407,44 @@ body {
         {% endfor %}
         
         {% if total_weapons > 0 %}
-          <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:16px; margin-block-end:16px;">
 <div style="font-size:36px;">🔫</div>
 <div>
 <div style="font-size:24px; font-weight:700; color:#fff;">{{ total_weapons }} أسلحة نشطة</div>
-<div style="color:var(--accent-success); font-size:13px;">تجاوز حدود الإرسال وإعطاء الأولوية للتسليم</div>
+<div style="color:var(--accent-success); font-size:14px;">تجاوز حدود الإرسال وإعطاء الأولوية للتسليم</div>
 </div>
 </div>
         {% else %}
-          <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:16px; margin-block-end:16px;">
 <div style="font-size:36px; opacity:0.5;">🔒</div>
 <div>
 <div style="font-size:20px; font-weight:600; color:#fff;">لا توجد أسلحة مجهزة</div>
-<div style="color:var(--text-muted); font-size:13px;">طابور الإرسال العادي</div>
+<div style="color:var(--text-muted); font-size:14px;">طابور الإرسال العادي</div>
 </div>
 </div>
-<a class="btn btn-primary" href="/services" style="width:100%; padding:10px;">زيارة الترسانة</a>
+<a class="btn btn-primary" href="/services" style="inline-size:100%; padding:10px;">زيارة الترسانة</a>
         {% endif %}
       </div>
 <!-- Recent Live Applications -->
 <div class="glass-card" style="flex: 1; display:flex; flex-direction:column;">
 <h3 style="margin:0 0 16px 0; font-size:18px;">أحدث الإرساليات</h3>
         {% if pipeline_emails %}
-          <ul class="glass-list" style="flex:1; overflow-y:auto; max-height:200px;">
+          <ul class="glass-list" style="flex:1; overflow-y:auto; max-block-size:200px;">
             {% for email in pipeline_emails[:4] %}
             <li class="glass-list-item" style="padding: 12px;">
 <div>
 <div style="color:#fff; font-weight:600; font-size:14px;">{{ email.company_name }}</div>
-<div style="color:var(--text-muted); font-size:12px;">{{ email.job_title }}</div>
+<div style="color:var(--text-muted); font-size:14px;">{{ email.job_title }}</div>
 </div>
 <div>
                 {% if email.status in ('brevo_failed', 'gmail_failed', 'failed') %}
-                  <span style="background:rgba(239, 68, 68, 0.2); color:var(--accent-danger); padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;">{{ _('FAILED') }}</span>
+                  <span style="background:rgba(239, 68, 68, 0.2); color:var(--accent-danger); padding:4px 8px; border-radius:12px; font-size:14px; font-weight:600;">{{ _('FAILED') }}</span>
                 {% elif email.pipeline_stage == 'interview' %}
-                  <span style="background:rgba(16, 185, 129, 0.2); color:var(--accent-success); padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;">{{ _('INTERVIEW') }}</span>
+                  <span style="background:rgba(16, 185, 129, 0.2); color:var(--accent-success); padding:4px 8px; border-radius:12px; font-size:14px; font-weight:600;">{{ _('INTERVIEW') }}</span>
                 {% elif email.opened_at %}
-                  <span style="background:rgba(245, 158, 11, 0.2); color:var(--accent-warning); padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;">{{ _('OPENED') }}</span>
+                  <span style="background:rgba(245, 158, 11, 0.2); color:var(--accent-warning); padding:4px 8px; border-radius:12px; font-size:14px; font-weight:600;">{{ _('OPENED') }}</span>
                 {% else %}
-                  <span style="background:rgba(99, 102, 241, 0.2); color:var(--accent-primary); padding:4px 8px; border-radius:12px; font-size:11px; font-weight:600;">{{ _('DELIVERED') }}</span>
+                  <span style="background:rgba(99, 102, 241, 0.2); color:var(--accent-primary); padding:4px 8px; border-radius:12px; font-size:14px; font-weight:600;">{{ _('DELIVERED') }}</span>
                 {% endif %}
               </div>
 </li>

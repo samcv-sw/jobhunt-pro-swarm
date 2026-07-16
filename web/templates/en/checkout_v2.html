@@ -14,8 +14,8 @@
  * { margin: 0; padding: 0; box-sizing: border-box; }
 
  .checkout-container {
- width: 100%;
- max-width: 520px;
+ inline-size: 100%;
+ max-inline-size: 520px;
  background: linear-gradient(135deg, rgba(20,20,40,0.9), rgba(12,12,24,0.9));
  border: 1px solid rgba(0,229,255,0.15);
  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 60px rgba(0,229,255,0.03);
@@ -27,7 +27,7 @@
  font-family: 'JetBrains Mono', monospace;
  font-size: 20px;
  font-weight: 700;
- margin-bottom: 24px;
+ margin-block-end: 24px;
  background: linear-gradient(135deg, #00e5ff, #ff0055);
  -webkit-background-clip: text;
  -webkit-text-fill-color: transparent;
@@ -37,19 +37,19 @@
  border: 1px solid rgba(255,255,255,0.06);
  border-radius: 16px;
  padding: 24px;
- margin-bottom: 28px;
+ margin-block-end: 28px;
  }
  .order-label {
  font-size: 12px;
  color: #6b7280;
  text-transform: uppercase;
  letter-spacing: 1px;
- margin-bottom: 4px;
+ margin-block-end: 4px;
  }
  .order-service {
  font-size: 20px;
  font-weight: 700;
- margin-bottom: 4px;
+ margin-block-end: 4px;
  }
  .order-amount {
  font-size: 42px;
@@ -68,7 +68,7 @@
  display: inline-block;
  }
  .order-status {
- margin-top: 8px;
+ margin-block-start: 8px;
  font-size: 12px;
  padding: 4px 12px;
  border-radius: 50px;
@@ -92,13 +92,13 @@
 
  /* Crypto Addresses */
  .crypto-section {
- margin-bottom: 24px;
+ margin-block-end: 24px;
  }
  .crypto-tabs {
  display: flex;
  gap: 8px;
  justify-content: center;
- margin-bottom: 16px;
+ margin-block-end: 16px;
  }
  .crypto-tab {
  padding: 8px 16px;
@@ -141,26 +141,26 @@
  .copy-hint {
  font-size: 11px;
  color: #6b7280;
- margin-top: 6px;
+ margin-block-start: 6px;
  }
 
  .instruction-text {
  font-size: 13px;
  color: #94a3b8;
- margin-bottom: 20px;
+ margin-block-end: 20px;
  line-height: 1.6;
  }
 
  /* Verify Section */
  .verify-section {
- border-top: 1px solid rgba(255,255,255,0.06);
- padding-top: 24px;
- margin-top: 8px;
+ border-inset-block-start: 1px solid rgba(255,255,255,0.06);
+ padding-block-start: 24px;
+ margin-block-start: 8px;
  }
  .verify-section h3 {
  font-size: 14px;
  font-weight: 600;
- margin-bottom: 12px;
+ margin-block-end: 12px;
  color: #94a3b8;
  }
  .verify-input-group {
@@ -202,7 +202,7 @@
  }
 
  .verify-result {
- margin-top: 12px;
+ margin-block-start: 12px;
  font-size: 13px;
  padding: 10px 14px;
  border-radius: 8px;
@@ -223,7 +223,7 @@
 
  .btn-done {
  display: inline-block;
- margin-top: 20px;
+ margin-block-start: 20px;
  padding: 12px 32px;
  border-radius: 10px;
  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
@@ -240,7 +240,7 @@
 
  .btn-nowpayments {
  display: block;
- width: 100%;
+ inline-size: 100%;
  padding: 16px 24px;
  border-radius: 12px;
  border: none;
@@ -251,7 +251,7 @@
  font-family: 'Inter', sans-serif;
  cursor: pointer;
  transition: all 0.3s;
- margin-bottom: 24px;
+ margin-block-end: 24px;
  }
  .btn-nowpayments:hover {
  box-shadow: 0 0 30px rgba(0,229,255,0.3);
@@ -273,7 +273,7 @@
 </head>
 
 <body class="cyberpunk-body">
-<div class="main" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;">
+<div class="main" style="display:flex;align-items:center;justify-content:center;min-block-size:100vh;padding:20px;">
 <h1 class="sr-only" style="position:absolute;inline-size:1px;block-size:1px;padding:0;margin-block-start:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">Complete Your Purchase</h1>
 
 <div class="checkout-container">
@@ -285,7 +285,7 @@
  {% if order.item_type == 'bulk' and order.items %}
  <div class="order-service" style="font-size:13px;">
  {% for item in order.items %}
- <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+ <div style="display:flex;justify-content:space-between;padding:4px 0;border-inset-block-end:1px solid rgba(255,255,255,0.04);">
  <span>{{ item.service_name }}{% if item.quantity > 1 %} x{{ item.quantity }}{% endif %}</span>
  <span style="font-family:'JetBrains Mono',monospace;color:#00e5ff;">${{ "%.2f"|format(item.line_total) }}</span>
  </div>
@@ -302,15 +302,15 @@
  {% if order.status in ('pending', 'pending_payment') %}status-pending{% elif order.status == 'paid' %}status-paid{% elif order.status == 'delivered' %}status-delivered{% endif %}">
  {{ order.status|upper }}
  </div>
- <div style="margin-top:12px; font-size:12px; color:#6b7280;">
+ <div style="margin-block-start:12px; font-size:12px; color:#6b7280;">
  Customer: {{ order.customer_name }} <{{ order.customer_email }}>
  </div>
  </div>
 
  {% if order.payment_code %}
  <!-- Payment Code Section -->
- <div style="margin-bottom:24px; padding:20px; background:rgba(0,229,255,0.05); border:1px solid rgba(0,229,255,0.2); border-radius:16px; text-align:center;">
- <div style="font-size:11px; color:#6b7280; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">
+ <div style="margin-block-end:24px; padding:20px; background:rgba(0,229,255,0.05); border:1px solid rgba(0,229,255,0.2); border-radius:16px; text-align:center;">
+ <div style="font-size:11px; color:#6b7280; text-transform:uppercase; letter-spacing:1px; margin-block-end:8px;">
  YOUR PAYMENT CODE
  </div>
  <div style="font-size:28px; font-weight:900; font-family:'JetBrains Mono',monospace; color:#00e5ff; letter-spacing:4px; user-select:all; cursor:pointer;"
@@ -318,7 +318,7 @@
  title="Click to copy">
  {{ order.payment_code }}
  </div>
- <div style="font-size:11px; color:#6b7280; margin-top:8px;">
+ <div style="font-size:11px; color:#6b7280; margin-block-start:8px;">
  Click to copy &bull; You will need this code to verify your payment
  </div>
  </div>
@@ -328,8 +328,8 @@
  <!-- Payment Section -->
  
  <!-- NOWPayments One-Click Payment -->
- <div class="nowpayments-section" style="margin-bottom:24px; padding:20px; background:rgba(139,92,246,0.05); border:1px solid rgba(139,92,246,0.15); border-radius:16px;">
- <div style="font-size:13px; color:#94a3b8; margin-bottom:12px;">
+ <div class="nowpayments-section" style="margin-block-end:24px; padding:20px; background:rgba(139,92,246,0.05); border:1px solid rgba(139,92,246,0.15); border-radius:16px;">
+ <div style="font-size:13px; color:#94a3b8; margin-block-end:12px;">
  Pay instantly with credit/debit card or crypto
  </div>
  <button class="btn-nowpayments"
@@ -340,7 +340,7 @@
  onclick="payWithNOWPayments(this)">
  Pay with NOWPayments 
  </button>
- <div id="nowpaymentsStatus" style="font-size:12px; color:#6b7280; margin-top:8px; display:none;"></div>
+ <div id="nowpaymentsStatus" style="font-size:12px; color:#6b7280; margin-block-start:8px; display:none;"></div>
  </div>
 
  <!-- Manual Crypto Payment (fallback) -->
@@ -373,10 +373,10 @@
  <!-- Verify Payment -->
  <div class="verify-section">
  <h3>Already sent payment? Verify here:</h3>
- <div style="font-size:12px; color:#6b7280; margin-bottom:12px; line-height:1.5;">
+ <div style="font-size:12px; color:#6b7280; margin-block-end:12px; line-height:1.5;">
  Enter your <strong style="color:#00e5ff;">Payment Code</strong> (shown above) and the transaction hash from your crypto wallet.
  </div>
- <div class="verify-input-group" style="margin-bottom:8px;">
+ <div class="verify-input-group" style="margin-block-end:8px;">
  <input dir="auto" type="text" id="paymentCode" placeholder="Payment Code (e.g. A1B2C3D4)" autocomplete="off" style="flex:1; padding:12px 16px; border-radius:10px; border:1px solid rgba(0,229,255,0.2); background:rgba(0,229,255,0.03); color:#fff; font-size:13px; font-family:'JetBrains Mono',monospace; outline:none; text-transform:uppercase; letter-spacing:2px;">
  <input dir="auto" type="text" id="txHash" placeholder="Transaction hash / TX ID" autocomplete="off">
  <button class="btn-verify" id="verifyBtn" onclick="verifyPayment('{{ order.order_id }}')">Verify</button>

@@ -886,7 +886,7 @@ class ATSMatcher:
         # Extract Arabic words by splitting and keeping arabic chars
         arabic_words = re.findall(r'[\u0600-\u06FF]+', job_description)
         unique_jd_kws = list(set(arabic_words))
-        
+
         # Try Hugging Face Inference API
         hf_token = os.getenv("HF_API_KEY")
         score = None
@@ -915,7 +915,7 @@ class ATSMatcher:
         if score is None:
             # Fallback to TF-IDF cosine similarity with Arabic stop words
             arabic_stop_words = {"من", "في", "على", "إلى", "هذا", "التي", "الذي", "هو", "هي", "تم", "عن", "مع", "كان", "كانت"}
-            
+
             def get_tf_vector(text):
                 words = [w for w in re.findall(r'[\u0600-\u06FF]+', text) if w not in arabic_stop_words]
                 vector = defaultdict(int)
@@ -929,18 +929,15 @@ class ATSMatcher:
             intersection = set(v1.keys()) & set(v2.keys())
             numerator = sum([v1[x] * v2[x] for x in intersection])
 
-            sum1 = sum([v1[x]**2 for x in v1.keys()])
-            sum2 = sum([v2[x]**2 for x in v2.keys()])
+            sum1 = sum([v1[x]**2 for x in v1])
+            sum2 = sum([v2[x]**2 for x in v2])
             denominator = math.sqrt(sum1) * math.sqrt(sum2)
 
-            if not denominator:
-                score = 0
-            else:
-                score = int((float(numerator) / denominator) * 100)
+            score = 0 if not denominator else int(float(numerator) / denominator * 100)
 
         # Ensure score is bound between 0 and 100
         score = max(0, min(100, score))
-        
+
         # Calculate matched and missing
         resume_words = set(re.findall(r'[\u0600-\u06FF]+', resume_text))
         matched = [w for w in unique_jd_kws if w in resume_words]

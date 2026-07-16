@@ -1,0 +1,551 @@
+<meta property="og:title" content="Growth Station & Swarm Leads | JobHunt Pro"/>
+<meta name="description" content="Use agents to harvest thousands of job seekers and B2B corporate leads automatically and run campaigns."/>
+<title>Growth Station & Swarm Leads | JobHunt Pro</title>
+
+<style>
+/* Growth Station styles matching Dashboard V3 */
+.glass-panel {
+  background: rgba(10,10,25,0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0,240,255,0.15);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+.glass-panel:hover {
+  border-color: rgba(0,240,255,0.3);
+  box-shadow: 0 20px 40px rgba(0,240,255,0.08);
+}
+
+.stat-card-premium {
+  position: relative;
+  background: rgba(10,10,25,0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0,240,255,0.15);
+  border-radius: 16px;
+  padding: 22px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.stat-card-premium::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(139,92,246,0.5), rgba(0,212,170,0.3), rgba(0,240,255,0.2));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.stat-card-premium:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,240,255,0.1);
+  border-color: rgba(0,240,255,0.3);
+}
+
+.agent-card {
+  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.02);
+  border-radius: 14px;
+  padding: 18px;
+  transition: all 0.25s ease;
+}
+.agent-card:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(139,92,246,0.3);
+  transform: translateY(-2px);
+}
+
+.btn-premium {
+  background: linear-gradient(135deg, #8b5cf6, #00d4aa);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(139,92,246,0.35);
+  transition: all 0.2s;
+}
+.btn-premium:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(139,92,246,0.5);
+}
+
+.btn-secondary-premium {
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-secondary-premium:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* Custom Table Design */
+.premium-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.premium-table th {
+  text-align: left;
+  padding: 14px 16px;
+  border-bottom: 2px solid rgba(255,255,255,0.08);
+  color: #64748b;
+  font-size: 13px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.premium-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: #e2e8f0;
+  font-size: 14px;
+}
+.premium-table tr:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.text-gradient-purple {
+  background: linear-gradient(135deg, #fff 0%, #c4b5fd 50%, #00d4aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Modal styles */
+.modal-box {
+  background: #0d0d1e;
+  border: 1px solid rgba(0,240,255,0.2);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+  color: #fff;
+}
+</style>
+
+<div class="space-y-6 reveal">
+  <!-- Hero Area -->
+  <div class="glass-panel relative overflow-hidden p-8">
+    <div class="absolute inset-0" style="background:radial-gradient(ellipse 70% 80% at 80% 50%,rgba(139,92,246,0.12) 0%,transparent 70%);"></div>
+    <div class="relative z-10 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
+      <div class="max-w-2xl">
+        <h1 class="text-gradient-purple" style="font-size:clamp(24px, 4vw, 38px); font-weight:900; line-height:1.2; margin:0;">
+          🚀 Smart Growth Station & Swarm Leads
+        </h1>
+        <p class="mt-2 text-base text-slate-400">
+          Discover, harvest and target job seekers or B2B employer leads automatically using a swarm of intelligent scrapers. Filters leads and launch instant outreach campaigns.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI stats -->
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div class="stat-card-premium">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+          <i data-lucide="users" class="text-indigo-400 w-5 h-5"></i>
+        </div>
+        <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded-full">Total Leads</span>
+      </div>
+      <div class="text-3xl font-black text-white stat-counter" id="leads-count">{{ leads_count }}</div>
+      <p class="text-xs text-slate-500 mt-1">Leads harvested across all sources</p>
+    </div>
+
+    <div class="stat-card-premium">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+          <i data-lucide="clock" class="text-amber-400 w-5 h-5"></i>
+        </div>
+        <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-1 rounded-full">Pending</span>
+      </div>
+      <div class="text-3xl font-black text-white stat-counter" id="pending-count">{{ pending_count }}</div>
+      <p class="text-xs text-slate-500 mt-1">Ready for outreach target campaigns</p>
+    </div>
+
+    <div class="stat-card-premium">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+          <i data-lucide="send" class="text-emerald-400 w-5 h-5"></i>
+        </div>
+        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-full">Contacted</span>
+      </div>
+      <div class="text-3xl font-black text-white stat-counter" id="sent-count">{{ sent_count }}</div>
+      <p class="text-xs text-slate-500 mt-1">Received cold pitches or automated comments</p>
+    </div>
+  </div>
+
+  <!-- Agent Selection & Setup -->
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <!-- Left: Scraper Form -->
+    <div class="glass-panel p-6 lg:col-span-1 space-y-4">
+      <h3 class="text-lg font-bold text-white mb-2">🤖 Configure Search Agent</h3>
+      
+      <div class="space-y-1">
+        <label class="text-sm font-semibold text-slate-400">Select Scraper Agent:</label>
+        <select id="agent-type" dir="auto" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+          <option value="linkedin_dork">LinkedIn Google-Dork (Stealth)</option>
+          <option value="github">GitHub Job-Seekers</option>
+          <option value="reddit">Reddit Sniper (ATS & Letter help)</option>
+          <option value="b2b_maps">B2B Directory maps (Corporate leads)</option>
+        </select>
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-sm font-semibold text-slate-400">Search Keyword / Role:</label>
+        <input type="text" id="keyword" dir="auto" placeholder="e.g. React Developer or ATS" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+      </div>
+
+      <div class="space-y-1" id="location-wrapper">
+        <label class="text-sm font-semibold text-slate-400">Target Location:</label>
+        <input type="text" id="location" dir="auto" placeholder="e.g. Lebanon or Dubai" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-sm font-semibold text-slate-400">Max Results Limit:</label>
+        <select id="max-leads" dir="auto" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+          <option value="10">10 Leads</option>
+          <option value="25" selected>25 Leads</option>
+          <option value="50">50 Leads</option>
+          <option value="100">100 Leads</option>
+        </select>
+      </div>
+
+      <button onclick="startScrape()" class="btn-premium w-full flex items-center justify-center gap-2 mt-4">
+        <i data-lucide="play" class="w-4 h-4"></i> Start Agent Crawl
+      </button>
+
+      <div id="scrape-status" class="hidden text-sm bg-indigo-950/40 border border-indigo-500/20 text-indigo-300 rounded-lg p-3 mt-3 animate-pulse-slow">
+        Running scraper in the background... Please refresh the table in a minute.
+      </div>
+    </div>
+
+    <!-- Right: Active Agents Status -->
+    <div class="glass-panel p-6 lg:col-span-2 flex flex-col justify-between">
+      <div>
+        <h3 class="text-lg font-bold text-white mb-4">🛡️ Active Scraper Agents Network</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <div class="agent-card">
+            <div class="flex items-start gap-3">
+              <div class="text-2xl">🔗</div>
+              <div>
+                <h4 class="font-bold text-white text-sm">LinkedIn Google-Dork</h4>
+                <p class="text-xs text-slate-400 mt-1">Leverages search dorks to scrape public emails on LinkedIn profiles. 100% safe.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-card">
+            <div class="flex items-start gap-3">
+              <div class="text-2xl">🐙</div>
+              <div>
+                <h4 class="font-bold text-white text-sm">GitHub Job-Seekers</h4>
+                <p class="text-xs text-slate-400 mt-1">Crawls public profiles of developers with job seeking headers in their bios.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-card">
+            <div class="flex items-start gap-3">
+              <div class="text-2xl">👽</div>
+              <div>
+                <h4 class="font-bold text-white text-sm">Reddit Sniper</h4>
+                <p class="text-xs text-slate-400 mt-1">Monitors subreddits for hiring/application issues and drafts smart AI comments.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-card">
+            <div class="flex items-start gap-3">
+              <div class="text-2xl">🏢</div>
+              <div>
+                <h4 class="font-bold text-white text-sm">B2B Directory Maps</h4>
+                <p class="text-xs text-slate-400 mt-1">Crawls local business websites to gather direct corporate and HR contacts.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="bg-indigo-950/20 border border-indigo-500/10 rounded-lg p-4 mt-6">
+        <h5 class="text-sm font-bold text-white mb-1">💡 How does this get users to your website?</h5>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          The agents gather leads who need resume help or are actively hiring. By launching a cold outreach campaign, you promote your free tools (ATS Scorer, cover letter helper). They click, try the free version, and upgrade to premium!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter & Lead list -->
+  <div class="glass-panel p-6">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+      <div>
+        <h3 class="text-lg font-bold text-white">📋 Harvested Leads Registry</h3>
+        <p class="text-sm text-slate-400">Select leads to trigger a cold campaign or view auto-drafted comments.</p>
+      </div>
+      <div class="flex flex-wrap gap-2 w-full md:w-auto">
+        <select id="filter-source" dir="auto" onchange="loadLeads()" class="bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
+          <option value="">All Sources</option>
+          <option value="linkedin_dork">LinkedIn Dork</option>
+          <option value="github">GitHub</option>
+          <option value="reddit">Reddit</option>
+          <option value="b2b_maps">B2B Directory</option>
+        </select>
+        
+        <input type="text" id="search-input" dir="auto" onkeyup="loadLeads()" placeholder="Search name/email..." class="bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
+        
+        <button onclick="openOutreachModal()" class="btn-premium flex items-center gap-1.5 text-sm">
+          <i data-lucide="megaphone" class="w-4 h-4"></i> Launch Outreach Campaign
+        </button>
+      </div>
+    </div>
+
+    <!-- Table container -->
+    <div class="overflow-x-auto">
+      <table class="premium-table" id="leads-table">
+        <thead>
+          <tr>
+            <th class="w-10"><input type="checkbox" id="select-all" dir="auto" onclick="toggleSelectAll(this)"></th>
+            <th>Name</th>
+            <th>Email / Contact</th>
+            <th>Source</th>
+            <th>Target Domain/Job</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="leads-body">
+          <tr>
+            <td colspan="8" class="text-center py-8 text-slate-500">Loading registry...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between mt-4">
+      <span class="text-sm text-slate-400" id="pagination-text"></span>
+      <div class="flex gap-2">
+        <button id="prev-btn" onclick="changePage(-1)" class="btn-secondary-premium px-3 py-1.5 text-xs">Prev</button>
+        <button id="next-btn" onclick="changePage(1)" class="btn-secondary-premium px-3 py-1.5 text-xs">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Outreach Campaign Modal -->
+<dialog id="outreachModal" class="modal bg-transparent">
+  <div class="modal-box max-w-md w-full p-6">
+    <h3 class="font-bold text-lg text-white mb-4">🚀 Start Cold Outreach Blast</h3>
+    <p class="text-sm text-slate-400 mb-4">Messages will be scheduled for selected leads using JobHunt Pro's Cold Blaster.</p>
+    
+    <div class="space-y-4">
+      <div>
+        <label class="text-sm font-semibold text-slate-400 block mb-1">Campaign Name:</label>
+        <input type="text" id="campaign-name" dir="auto" placeholder="e.g. React Developers Beirut" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+      </div>
+    </div>
+    
+    <div class="modal-action flex justify-end gap-2 mt-6">
+      <button onclick="document.getElementById('outreachModal').close()" class="btn-secondary-premium">Cancel</button>
+      <button onclick="launchBlast()" class="btn-premium">Launch Campaign</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Note View Modal (For Reddit Snipe pitches) -->
+<dialog id="noteModal" class="modal bg-transparent">
+  <div class="modal-box max-w-lg w-full p-6">
+    <h3 class="font-bold text-lg text-white mb-2" id="note-modal-title">Lead Details</h3>
+    <div class="bg-slate-900 border border-white/10 rounded-lg p-4 text-sm text-slate-300 overflow-y-auto max-h-60" style="white-space: pre-wrap;" id="note-modal-content"></div>
+    <div class="modal-action mt-6">
+      <button onclick="document.getElementById('noteModal').close()" class="btn-premium">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+let currentPage = 1;
+let totalLeads = 0;
+const limit = 20;
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadLeads();
+  
+  // Hide location wrapper if Reddit sniper is selected (since Reddit is globally online)
+  document.getElementById("agent-type").addEventListener("change", (e) => {
+    const locWrapper = document.getElementById("location-wrapper");
+    if (e.target.value === "reddit") {
+      locWrapper.classList.add("hidden");
+    } else {
+      locWrapper.classList.remove("hidden");
+    }
+  });
+});
+
+async function loadLeads() {
+  const source = document.getElementById("filter-source").value;
+  const search = document.getElementById("search-input").value;
+  
+  let url = `/api/growth/leads?page=${currentPage}&limit=${limit}`;
+  if (source) url += `&source=${source}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  
+  try {
+    const resp = await fetch(url);
+    const data = await resp.json();
+    
+    totalLeads = data.total;
+    renderLeads(data.leads);
+    updatePagination();
+  } catch (e) {
+    console.error("Failed to load leads:", e);
+  }
+}
+
+function renderLeads(leads) {
+  const tbody = document.getElementById("leads-body");
+  tbody.innerHTML = "";
+  
+  if (!leads || leads.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-500">No matching leads found.</td></tr>`;
+    return;
+  }
+  
+  leads.forEach(l => {
+    let sourceBadge = "";
+    if (l.source === "linkedin_dork") sourceBadge = '<span class="px-2 py-0.5 text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded">LinkedIn Dork</span>';
+    else if (l.source === "github") sourceBadge = '<span class="px-2 py-0.5 text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded">GitHub</span>';
+    else if (l.source === "reddit") sourceBadge = '<span class="px-2 py-0.5 text-xs bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded">Reddit</span>';
+    else if (l.source === "b2b_maps") sourceBadge = '<span class="px-2 py-0.5 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded">B2B Directory</span>';
+    
+    let statusBadge = "";
+    if (l.status === "pending") statusBadge = '<span class="text-amber-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Pending</span>';
+    else if (l.status === "sent") statusBadge = '<span class="text-emerald-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Contacted</span>';
+    
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="checkbox" dir="auto" class="lead-checkbox" value="${l.id}"></td>
+      <td><div class="font-bold text-white">${l.name}</div></td>
+      <td><span class="font-mono text-slate-300 text-xs">${l.email}</span></td>
+      <td>${sourceBadge}</td>
+      <td>${l.job_title}</td>
+      <td>${l.location}</td>
+      <td>${statusBadge}</td>
+      <td>
+        <button onclick="viewLeadNotes(${l.id}, '${l.name}', \`${encodeURIComponent(l.notes || '')}\`)" class="text-xs text-indigo-400 hover:text-indigo-300 underline font-semibold bg-transparent border-0 cursor-pointer">
+          ${l.source === 'reddit' ? 'View AI Snipe' : 'View Details'}
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function updatePagination() {
+  const text = document.getElementById("pagination-text");
+  const totalPages = Math.ceil(totalLeads / limit) || 1;
+  text.textContent = `Page ${currentPage} of ${totalPages} (Total ${totalLeads})`;
+  
+  document.getElementById("prev-btn").disabled = currentPage === 1;
+  document.getElementById("next-btn").disabled = currentPage >= totalPages;
+}
+
+function changePage(direction) {
+  currentPage += direction;
+  loadLeads();
+}
+
+function toggleSelectAll(master) {
+  const checkboxes = document.querySelectorAll(".lead-checkbox");
+  checkboxes.forEach(c => c.checked = master.checked);
+}
+
+function getSelectedLeadIds() {
+  const checkboxes = document.querySelectorAll(".lead-checkbox:checked");
+  return Array.from(checkboxes).map(c => parseInt(c.value));
+}
+
+async function startScrape() {
+  const agent = document.getElementById("agent-type").value;
+  const keyword = document.getElementById("keyword").value;
+  const location = document.getElementById("location").value;
+  const maxLeads = parseInt(document.getElementById("max-leads").value);
+  
+  if (!keyword) {
+    alert("Please enter a search keyword.");
+    return;
+  }
+  
+  const statusEl = document.getElementById("scrape-status");
+  statusEl.classList.remove("hidden");
+  
+  try {
+    const resp = await fetch("/api/growth/scrape", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ agent, keyword, location, max_leads: maxLeads })
+    });
+    
+    const result = await resp.json();
+    if (result.status === "success") {
+      setTimeout(() => {
+        statusEl.classList.add("hidden");
+        currentPage = 1;
+        loadLeads();
+      }, 5000);
+    }
+  } catch (e) {
+    console.error(e);
+    statusEl.classList.add("hidden");
+  }
+}
+
+function viewLeadNotes(id, name, notesEncoded) {
+  const notes = decodeURIComponent(notesEncoded);
+  document.getElementById("note-modal-title").textContent = `Lead Details: ${name}`;
+  document.getElementById("note-modal-content").textContent = notes || "No extra details available for this lead.";
+  document.getElementById("noteModal").showModal();
+}
+
+async function launchBlast() {
+  const ids = getSelectedLeadIds();
+  const campaignName = document.getElementById("campaign-name").value;
+  
+  if (!campaignName) {
+    alert("Please specify a campaign name.");
+    return;
+  }
+  
+  try {
+    const resp = await fetch("/api/growth/blast", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lead_ids: ids, campaign_name: campaignName })
+    });
+    
+    const result = await resp.json();
+    if (result.status === "success") {
+      alert(`Campaign launched! Emails sent successfully to ${result.result.sent} leads.`);
+      document.getElementById("outreachModal").close();
+      loadLeads();
+      
+      // Update counters
+      document.getElementById("pending-count").textContent = parseInt(document.getElementById("pending-count").textContent) - result.result.sent;
+      document.getElementById("sent-count").textContent = parseInt(document.getElementById("sent-count").textContent) + result.result.sent;
+    }
+  } catch (e) {
+    alert("An error occurred during campaign initialization.");
+  }
+}
+</script>

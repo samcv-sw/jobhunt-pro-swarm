@@ -58,7 +58,7 @@ body.auth-page {
 
 /* ── Background particles ── */
 .bg-particles {
-  position: fixed; top: 0; inset-inline-start: 0; inline-size: 100%; block-size: 100%;
+  position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 100%; block-size: 100%;
   pointer-events: none; z-index: 0; overflow: hidden;
 }
 .bg-particles .particle {
@@ -69,14 +69,14 @@ body.auth-page {
   opacity: 0.1;
   animation: floatParticle 20s infinite linear;
 }
-.bg-particles .particle:nth-child(1) { inset-inline-start: 5%; top: 15%; animation-delay: 0s; animation-duration: 18s; }
-.bg-particles .particle:nth-child(2) { inset-inline-start: 20%; top: 55%; animation-delay: 2s; animation-duration: 22s; inline-size: 3px; block-size: 3px; }
-.bg-particles .particle:nth-child(3) { inset-inline-start: 40%; top: 5%; animation-delay: 4s; animation-duration: 25s; }
-.bg-particles .particle:nth-child(4) { inset-inline-start: 60%; top: 65%; animation-delay: 1s; animation-duration: 20s; inline-size: 5px; block-size: 5px; }
-.bg-particles .particle:nth-child(5) { inset-inline-start: 75%; top: 25%; animation-delay: 3s; animation-duration: 23s; }
-.bg-particles .particle:nth-child(6) { inset-inline-start: 45%; top: 75%; animation-delay: 5s; animation-duration: 19s; inline-size: 3px; block-size: 3px; }
-.bg-particles .particle:nth-child(7) { inset-inline-start: 85%; top: 45%; animation-delay: 6s; animation-duration: 21s; }
-.bg-particles .particle:nth-child(8) { inset-inline-start: 12%; top: 90%; animation-delay: 2.5s; animation-duration: 24s; }
+.bg-particles .particle:nth-child(1) { inset-inline-start: 5%; inset-block-start: 15%; animation-delay: 0s; animation-duration: 18s; }
+.bg-particles .particle:nth-child(2) { inset-inline-start: 20%; inset-block-start: 55%; animation-delay: 2s; animation-duration: 22s; inline-size: 3px; block-size: 3px; }
+.bg-particles .particle:nth-child(3) { inset-inline-start: 40%; inset-block-start: 5%; animation-delay: 4s; animation-duration: 25s; }
+.bg-particles .particle:nth-child(4) { inset-inline-start: 60%; inset-block-start: 65%; animation-delay: 1s; animation-duration: 20s; inline-size: 5px; block-size: 5px; }
+.bg-particles .particle:nth-child(5) { inset-inline-start: 75%; inset-block-start: 25%; animation-delay: 3s; animation-duration: 23s; }
+.bg-particles .particle:nth-child(6) { inset-inline-start: 45%; inset-block-start: 75%; animation-delay: 5s; animation-duration: 19s; inline-size: 3px; block-size: 3px; }
+.bg-particles .particle:nth-child(7) { inset-inline-start: 85%; inset-block-start: 45%; animation-delay: 6s; animation-duration: 21s; }
+.bg-particles .particle:nth-child(8) { inset-inline-start: 12%; inset-block-start: 90%; animation-delay: 2.5s; animation-duration: 24s; }
 @keyframes floatParticle {
   0% { transform: translateY(0) rotate(0deg); opacity: 0; }
   10% { opacity: 0.1; }
@@ -130,7 +130,7 @@ body.auth-page {
 /* ── Animated checkmark for selected plan ── */
 .plan-option .checkmark {
   display: none;
-  position: absolute; bottom: 4px; inset-inline-end: 4px;
+  position: absolute; inset-block-end: 4px; inset-inline-end: 4px;
   inline-size: 18px; block-size: 18px; border-radius: 50%;
   background: var(--accent-success); color: #fff;
   font-size: 10px; font-weight: 700;
@@ -161,10 +161,10 @@ body.auth-page {
 
 {% include '_public_nav.html' %}
 
-<div class="auth-page-wrap" style="padding-top:140px;">
+<div class="auth-page-wrap" style="padding-block-start:140px;">
 <div class="register-grid">
-<!-- LEFT: Registration Form -->
-<div class="auth-card" style="max-width:100%;">
+<!-- inset-inline-start: Registration Form -->
+<div class="auth-card" style="max-inline-size:100%;">
 <div class="auth-header">
 <h1>إنشاء حساب جديد</h1>
 <p class="sub">ابدأ التقديم لآلاف الوظائف باستخدام الذكاء الاصطناعي</p>
@@ -274,7 +274,7 @@ body.auth-page {
 <span>🔒 لا حاجة لبطاقة ائتمان • ضمان استرداد الأموال لمدة 30 يوماً • إلغاء في أي وقت</span>
 </div>
 </div>
-<!-- RIGHT: Benefits -->
+<!-- inset-inline-end: Benefits -->
 <div class="benefits-card">
 <h2>✨ شو بتحصل</h2>
 <div class="benefit-item">

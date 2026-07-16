@@ -69,6 +69,14 @@ class AsyncDatabase:
         db_path = os.getenv("SQLITE_PATH", "saas_v2.db")
         self.pool = await aiosqlite.connect(db_path)
         self.pool.row_factory = aiosqlite.Row
+        
+        # Configure WAL-mode and correct SQLite pragmas
+        await self.pool.execute("PRAGMA foreign_keys=ON")
+        await self.pool.execute("PRAGMA journal_mode=WAL")
+        await self.pool.execute("PRAGMA synchronous=NORMAL")
+        await self.pool.execute("PRAGMA cache_size=-2000")
+        await self.pool.execute("PRAGMA temp_store=MEMORY")
+        
         self.backend = "sqlite"
         logger.info(f"APEX MATRIX: Connected to SQLite via aiosqlite at {db_path}.")
 

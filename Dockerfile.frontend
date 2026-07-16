@@ -1,22 +1,24 @@
 # ============================================
-# JobHunt Pro - Frontend (Next.js)
+# JobHunt Pro - Frontend (Next.js) — Multi-Stage
 # ============================================
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files (Docker cache optimization)
-COPY frontend/package*.json ./
-RUN npm ci
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copy frontend source
+# Install deps first for cache efficiency
+COPY frontend/package*.json ./
+RUN npm ci --frozen-lockfile
+
+# Copy source and build
 COPY frontend/ ./
 
-# Build Next.js app
-ENV NEXT_TELEMETRY_DISABLED=1
+# Enable standalone output in next.config.js for a minimal runtime image
 RUN npm run build
 
-# Stage 2: Runtime
+
+# ---- Stage 2: Runtime ----
 FROM node:20-alpine AS runner
 
 WORKDIR /app
@@ -24,12 +26,17 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copy files
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules ./node_modules
+# Non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser  --system --uid 1001 nextjs
+
+# Standalone output only — no node_modules in runtime
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static    ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public          ./public
+
+USER nextjs
 
 EXPOSE 3000
 
-CMD ["node", "node_modules/next/dist/bin/next", "start"]
+CMD ["node", "server.js"]

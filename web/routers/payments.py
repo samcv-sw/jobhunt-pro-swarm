@@ -14,7 +14,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["payments"])
 
 def _deps():
-    from web.app_v2 import PRICING_TIERS, get_all_pricing, render_template
+    from core.pricing_manager import get_all_pricing
+    from web.app_v2 import PRICING_TIERS, render_template
     from web.shared import (
         config,
         deduct_wallet,
@@ -520,24 +521,27 @@ def api_profit_report(days: int = 30):
 @router.get("/api/v2/admin/profit-report/export-json")
 def api_profit_report_export(days: int = 30):
     """Export profit report as JSON string."""
-    from services.profit_report import export_report_json
     from fastapi.responses import PlainTextResponse
+
+    from services.profit_report import export_report_json
     return PlainTextResponse(export_report_json(days), media_type="application/json")
 
 
 @router.get("/api/v2/admin/profit-report/trends-csv")
 def api_profit_report_trends_csv(days: int = 90):
     """Export daily order trends as CSV."""
-    from services.profit_report import export_trends_csv
     from fastapi.responses import PlainTextResponse
+
+    from services.profit_report import export_trends_csv
     return PlainTextResponse(export_trends_csv(days), media_type="text/csv")
 
 
 @router.get("/api/v2/admin/profit-report/revenue-csv")
 def api_profit_report_revenue_csv(days: int = 30):
     """Export revenue by payment method as CSV."""
-    from services.profit_report import export_revenue_by_method_csv
     from fastapi.responses import PlainTextResponse
+
+    from services.profit_report import export_revenue_by_method_csv
     return PlainTextResponse(export_revenue_by_method_csv(days), media_type="text/csv")
 
 
@@ -545,7 +549,7 @@ def api_profit_report_revenue_csv(days: int = 30):
 @router.post("/api/v2/orders/transfer")
 def api_transfer_order(request: Request, order_id: str = Form(...), target_email: str = Form(...), price: float = Form(0.0)):
     """Transfer an order to another user by email."""
-    from services.sell import transfer_order, get_order
+    from services.sell import transfer_order
     get_db, get_verified_user_id, _, _, _, _, _, _ = _deps()
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -1143,7 +1147,7 @@ async def offers_buy(request: Request, offer_id: str):
 
                     if resp.status_code in (200, 201):
                         resp_data = resp.json()
-                        creds = resp_data.get("credentials") or reseller_api_url.get("key") or reseller_api_url.get("code") or reseller_api_url.get("account")
+                        creds = resp_data.get("credentials") or resp_data.get("key") or resp_data.get("code") or resp_data.get("account")
                         if not creds:
                             creds = resp.text
 
@@ -1171,32 +1175,30 @@ async def offers_buy(request: Request, offer_id: str):
 
                 # Write API results to database in a new short connection
                 try:
-                    conn_api = get_db()
-                    if fulfillment_status == "fulfilled":
-                        conn_api.execute(
-                            "UPDATE special_offer_purchases SET fulfillment_status = 'fulfilled', delivered_credentials = ? WHERE purchase_id = ?",
-                            (delivered_credentials, purchase_id)
-                        )
-                    else:
-                        conn_api.execute(
-                            "UPDATE special_offer_purchases SET fulfillment_status = 'failed', fulfillment_error = ? WHERE purchase_id = ?",
-                            (fulfillment_error, purchase_id)
-                        )
-                    conn_api.commit()
-                    conn_api.close()
+                    with get_db() as conn_api:
+                        if fulfillment_status == "fulfilled":
+                            conn_api.execute(
+                                "UPDATE special_offer_purchases SET fulfillment_status = 'fulfilled', delivered_credentials = ? WHERE purchase_id = ?",
+                                (delivered_credentials, purchase_id)
+                            )
+                        else:
+                            conn_api.execute(
+                                "UPDATE special_offer_purchases SET fulfillment_status = 'failed', fulfillment_error = ? WHERE purchase_id = ?",
+                                (fulfillment_error, purchase_id)
+                            )
+                        conn_api.commit()
                 except Exception as db_api_err:
                     logger.error(f"Failed to write API results to DB: {db_api_err}")
             else:
                 fulfillment_status = "failed"
                 fulfillment_error = "Reseller API URL not configured"
                 try:
-                    conn_api = get_db()
-                    conn_api.execute(
-                        "UPDATE special_offer_purchases SET fulfillment_status = 'failed', fulfillment_error = ? WHERE purchase_id = ?",
-                        (fulfillment_error, purchase_id)
-                    )
-                    conn_api.commit()
-                    conn_api.close()
+                    with get_db() as conn_api:
+                        conn_api.execute(
+                            "UPDATE special_offer_purchases SET fulfillment_status = 'failed', fulfillment_error = ? WHERE purchase_id = ?",
+                            (fulfillment_error, purchase_id)
+                        )
+                        conn_api.commit()
                 except Exception as db_api_err:
                     logger.error(f"Failed to write API config error to DB: {db_api_err}")
 

@@ -6,11 +6,9 @@ fields (name, email, phone, CV/resume file inputs, cover letter, etc.), fills
 them with user profile data, clicks the submit button, and saves a screenshot.
 """
 
-import asyncio
 import logging
 import os
 import uuid
-from typing import Any
 
 from playwright.async_api import async_playwright
 

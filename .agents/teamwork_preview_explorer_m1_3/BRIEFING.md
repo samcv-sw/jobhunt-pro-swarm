@@ -1,46 +1,39 @@
-# BRIEFING — 2026-07-12T13:21:13+03:00
+# BRIEFING — 2026-07-15T10:02:00+03:00
 
 ## Mission
-Analyze the codebase for Cloudflare Pages Next.js, GitHub Actions Keep-Alive, Celery Memory Guard, Neon PgBouncer, and Free Proxy Pool Scraper rotation.
+Perform a read-only audit of FastAPI web routers and frontend serving endpoints, identify TODOs, placeholders, template rendering issues, performance issues, and inconsistencies with the backend REST API, and propose an optimization/cleanup strategy.
 
 ## 🔒 My Identity
-- Archetype: Teamwork explorer (Read-only investigation)
-- Roles: Investigator, Synthesizer
+- Archetype: Teamwork explorer
+- Roles: Web Routers Auditor
 - Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_3
-- Original parent: d42acd51-edc2-4ee9-91ee-6661881fc368
-- Milestone: Milestones 1 to 5 Analysis
+- Original parent: 662e7cb1-3688-4af0-9166-11889f406b2b
+- Milestone: m1_3
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement
-- CODE_ONLY network mode
-- Write analysis report to c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_3\analysis.md
-- Produce handoff.md in working directory
+- Read-only investigation — do NOT implement.
+- Inspect web/app_v2.py and web/routers/*.py.
+- Propose complete optimization and cleanup strategy.
 
 ## Current Parent
-- Conversation ID: d42acd51-edc2-4ee9-91ee-6661881fc368
-- Updated: 2026-07-12T13:21:13+03:00
+- Conversation ID: 662e7cb1-3688-4af0-9166-11889f406b2b
+- Updated: 2026-07-15T10:02:00+03:00
 
 ## Investigation State
-- **Explored paths**:
-  - `frontend/package.json`, `frontend/next.config.ts`, `vercel.json`, `cloudflare/wrangler.toml`
-  - `backend/main.py`, `config.py`
-  - `.github/workflows/keep-alive.yml`, `.github/workflows/keep_alive.yml`, `core/neon_warmer.py`
-  - `start_cloud.py`, `backend/celery_app.py`, `backend/tasks.py`
-  - `backend/database.py`, `backend/sync_worker.py`
-  - `core/ghost_hunter.py`
+- **Explored paths**: web/app_v2.py, web/routers/*.py, backend/database.py, core/database.py, core/async_db.py, tests/conftest.py, tests/test_routers_v2.py
 - **Key findings**:
-  - Frontend is Next.js with SSG (`output: "export"`), built using `npm run build` outputting to `frontend/out/`. Redirects and headers on Cloudflare Pages should be placed in `frontend/public/_redirects` and `frontend/public/_headers` (since they copy directly to `out/`).
-  - Backend CORS allowed origins are loaded from the environment variable `ALLOWED_ORIGINS` in `backend/main.py`. Wildcards are resolved by `SecureCORSMiddleware`.
-  - Keep-alive can run `core/neon_warmer.py` directly (using GitHub Actions secrets) or ping `/api/v1/health/detailed` to keep the Neon DB connection warm.
-  - Celery is run as a subprocess in `start_cloud.py` using `sys.executable -m celery`. Adding `--max-tasks-per-child=10` and `--max-memory-per-child=150000` requires appending these to `celery_cmd`. These properties are also set in `backend/celery_app.py`.
-  - Neon PgBouncer connection strings can be configured by parsing `REMOTE_PG_URL` in `database.py`, adding `-pooler` to the host, forcing port 5432, and appending `?sslmode=require&prepareThreshold=0` (or `&prepareThreshold=0` if `?` exists).
-  - Proxy scraping in `ghost_hunter.py` can be done via a custom utility function targeting public proxy sites, utilizing an hourly file-based cache (`data/proxy_cache.json`) and recreation of the Camoufox browser on proxy failure.
-- **Unexplored areas**: None.
+  - Missing `db` instance definition in `core/database.py` breaks `candidate`, `squads`, and `webhook_bot` web routers.
+  - Typo `from typing import list` in `growth_station.py` raises `ImportError`.
+  - `web/routers/en.py` is dead code because prefix is stripped in middleware.
+  - Multi-instantiated `Jinja2Templates` leads to duplicate config/behavior.
+  - Split SQLite databases paths between backend (`jobhunt_local.db`) and web (`jobhunt_saas_v2.db`) leads to desynchronized state in local dev.
+  - Zero test coverage for web-tier router loading, which masked import/startup crashes.
+- **Unexplored areas**: None, audit complete.
 
 ## Key Decisions Made
-- Maintain strict segregation of roles.
-- Follow read-only investigation constraint without making codebase changes.
+- Perform search-first audit to limit token usage.
+- Bridge core.database and core.async_db to restore compatibility.
 
 ## Artifact Index
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_3\analysis.md — Main Analysis Report
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_3\handoff.md — Handoff Report
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_3\analysis.md — Main audit report and optimization strategy
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_3\handoff.md — Summary handoff report

@@ -36,16 +36,16 @@
  }
  .bg-glow {
  position: fixed;
- top: -200px; inset-inline-start: -200px;
- width: 600px; height: 600px;
+ inset-block-start: -200px; inset-inline-start: -200px;
+ inline-size: 600px; block-size: 600px;
  background: radial-gradient(circle, rgba(0,229,255,0.03) 0%, transparent 70%);
  pointer-events: none;
  z-index: 0;
  }
  .bg-glow-2 {
  position: fixed;
- bottom: -200px; inset-inline-end: -200px;
- width: 600px; height: 600px;
+ inset-block-end: -200px; inset-inline-end: -200px;
+ inline-size: 600px; block-size: 600px;
  background: radial-gradient(circle, rgba(255,0,85,0.03) 0%, transparent 70%);
  pointer-events: none;
  z-index: 0;
@@ -54,11 +54,11 @@
  /* Navbar */
  nav {
  position: fixed;
- top: 0; inset-inline-start: 0; inset-inline-end: 0;
- height: 64px;
+ inset-block-start: 0; inset-inline-start: 0; inset-inline-end: 0;
+ block-size: 64px;
  background: rgba(7,7,13,0.85);
  backdrop-filter: blur(12px);
- border-bottom: 1px solid var(--border);
+ border-inset-block-end: 1px solid var(--border);
  display: flex;
  align-items: center;
  justify-content: space-between;
@@ -98,7 +98,7 @@
  text-align: center;
  position: relative;
  z-index: 1;
- max-width: 900px;
+ max-inline-size: 900px;
  margin: 0 auto;
  }
  .hero-badge {
@@ -112,13 +112,13 @@
  font-weight: 600;
  
  text-transform: uppercase;
- margin-bottom: 20px;
+ margin-block-end: 20px;
  }
  .hero h1 {
  font-size: 52px;
  font-weight: 900;
  line-height: 1.15;
- margin-bottom: 16px;
+ margin-block-end: 16px;
  
  }
  .hero h1 .cyan { color: var(--cyan); }
@@ -127,14 +127,14 @@
  color: var(--muted);
  font-size: 18px;
  line-height: 1.6;
- max-width: 650px;
+ max-inline-size: 650px;
  margin: 0 auto 32px;
  }
  .hero-stats {
  display: flex;
  justify-content: center;
  gap: 40px;
- margin-top: 32px;
+ margin-block-start: 32px;
  }
  .hero-stat {
  text-align: center;
@@ -150,20 +150,20 @@
  color: var(--muted);
  text-transform: uppercase;
  
- margin-top: 4px;
+ margin-block-start: 4px;
  }
 
  /* Section */
  .section {
  padding: 80px 40px;
- max-width: 1200px;
+ max-inline-size: 1200px;
  margin: 0 auto;
  position: relative;
  z-index: 1;
  }
  .section-header {
  text-align: center;
- margin-bottom: 48px;
+ margin-block-end: 48px;
  }
  .section-tag {
  display: inline-block;
@@ -174,7 +174,7 @@
  
  text-transform: uppercase;
  font-family: 'Cairo', var(--mono);
- margin-bottom: 12px;
+ margin-block-end: 12px;
  }
  .tag-micro { background: rgba(0,229,255,0.1); color: var(--cyan); border: 1px solid rgba(0,229,255,0.2); }
  .tag-standard { background: rgba(245,158,11,0.1); color: var(--gold); border: 1px solid rgba(245,158,11,0.2); }
@@ -182,12 +182,12 @@
  .section h2 {
  font-size: 32px;
  font-weight: 800;
- margin-bottom: 8px;
+ margin-block-end: 8px;
  }
  .section-desc {
  color: var(--muted);
  font-size: 15px;
- max-width: 500px;
+ max-inline-size: 500px;
  margin: 0 auto;
  }
 
@@ -209,8 +209,8 @@
  .service-card::before {
  content: '';
  position: absolute;
- top: 0; inset-inline-start: 0;
- inset-inline-end: 0; height: 2px;
+ inset-block-start: 0; inset-inline-start: 0;
+ inset-inline-end: 0; block-size: 2px;
  opacity: 0;
  transition: opacity 0.3s;
  }
@@ -227,24 +227,24 @@
  text-transform: uppercase;
  
  font-family: 'Cairo', var(--mono);
- margin-bottom: 8px;
+ margin-block-end: 8px;
  display: block;
  }
  .service-card h3 {
  font-size: 17px;
  font-weight: 700;
- margin-bottom: 10px;
+ margin-block-end: 10px;
  }
  .service-card p {
  color: var(--muted);
  font-size: 13px;
  line-height: 1.6;
- margin-bottom: 16px;
+ margin-block-end: 16px;
  flex-grow: 1;
  }
  .features-list {
  list-style: none;
- margin-bottom: 20px;
+ margin-block-end: 20px;
  }
  .features-list li {
  font-size: 12px;
@@ -264,9 +264,9 @@
  display: flex;
  justify-content: space-between;
  align-items: center;
- padding-top: 16px;
- border-top: 1px solid var(--border);
- margin-top: auto;
+ padding-block-start: 16px;
+ border-inset-block-start: 1px solid var(--border);
+ margin-block-start: auto;
  }
  .price-box {
  text-align: start;
@@ -335,7 +335,7 @@
  .bouquet-card::before {
  content: 'باقة';
  position: absolute;
- top: 15px; inset-inline-end: -30px;
+ inset-block-start: 15px; inset-inline-end: -30px;
  background: linear-gradient(135deg, var(--magenta), #cc0044);
  color: #fff;
  font-size: 9px;
@@ -347,19 +347,19 @@
  .bouquet-card h3 {
  font-size: 20px;
  font-weight: 700;
- margin-bottom: 8px;
+ margin-block-end: 8px;
  }
  .bouquet-card p {
  color: var(--muted);
  font-size: 13px;
  line-height: 1.6;
- margin-bottom: 16px;
+ margin-block-end: 16px;
  }
  .bouquet-services {
  display: flex;
  flex-wrap: wrap;
  gap: 6px;
- margin-bottom: 20px;
+ margin-block-end: 20px;
  }
  .bouquet-service-tag {
  padding: 4px 10px;
@@ -373,8 +373,8 @@
  display: flex;
  justify-content: space-between;
  align-items: center;
- padding-top: 16px;
- border-top: 1px solid var(--border);
+ padding-block-start: 16px;
+ border-inset-block-start: 1px solid var(--border);
  }
  .bouquet-price {
  font-size: 28px;
@@ -416,12 +416,12 @@
  .cta-section h2 {
  font-size: 36px;
  font-weight: 800;
- margin-bottom: 12px;
+ margin-block-end: 12px;
  }
  .cta-section p {
  color: var(--muted);
  font-size: 16px;
- margin-bottom: 28px;
+ margin-block-end: 28px;
  }
 
  /* How it Works */
@@ -429,7 +429,7 @@
  display: grid;
  grid-template-columns: repeat(3, 1fr);
  gap: 24px;
- max-width: 900px;
+ max-inline-size: 900px;
  margin: 0 auto;
  }
  .step-card {
@@ -440,7 +440,7 @@
  text-align: center;
  }
  .step-number {
- width: 48px; height: 48px;
+ inline-size: 48px; block-size: 48px;
  border-radius: 50%;
  background: linear-gradient(135deg, var(--cyan), #0088aa);
  color: #000;
@@ -455,7 +455,7 @@
  .step-card h3 {
  font-size: 16px;
  font-weight: 700;
- margin-bottom: 8px;
+ margin-block-end: 8px;
  }
  .step-card p {
  color: var(--muted);
@@ -468,7 +468,7 @@
  display: flex;
  justify-content: center;
  gap: 16px;
- margin-top: 20px;
+ margin-block-start: 20px;
  flex-wrap: wrap;
  }
  .payment-badge {
@@ -486,7 +486,7 @@
  footer {
  text-align: center;
  padding: 40px;
- border-top: 1px solid var(--border);
+ border-inset-block-start: 1px solid var(--border);
  color: var(--muted);
  font-size: 13px;
  position: relative;
@@ -498,7 +498,7 @@
  .modal-overlay {
  display: none;
  position: fixed;
- top: 0; inset-inline-start: 0; inset-inline-end: 0; bottom: 0;
+ inset-block-start: 0; inset-inline-start: 0; inset-inline-end: 0; inset-block-end: 0;
  background: rgba(0,0,0,0.75);
  backdrop-filter: blur(8px);
  z-index: 9999;
@@ -511,13 +511,13 @@
  border: 1px solid var(--border);
  border-radius: 20px;
  padding: 40px;
- max-width: 480px;
- width: 90%;
+ max-inline-size: 480px;
+ inline-size: 90%;
  position: relative;
  }
  .modal-close {
  position: absolute;
- top: 16px; inset-inline-end: 16px;
+ inset-block-start: 16px; inset-inline-end: 16px;
  background: none;
  border: none;
  color: var(--muted);
@@ -527,7 +527,7 @@
  .modal-box h2 {
  font-size: 24px;
  font-weight: 800;
- margin-bottom: 8px;
+ margin-block-end: 8px;
  }
  .modal-box .modal-price {
  font-size: 42px;
@@ -541,11 +541,11 @@
  font-size: 13px;
  font-weight: 600;
  color: #94a3b8;
- margin-bottom: 6px;
- margin-top: 16px;
+ margin-block-end: 6px;
+ margin-block-start: 16px;
  }
  .modal-box input {
- width: 100%;
+ inline-size: 100%;
  padding: 12px 16px;
  border-radius: 10px;
  border: 1px solid var(--border);
@@ -560,7 +560,7 @@
  border-color: var(--cyan);
  }
  .modal-box .btn-submit {
- width: 100%;
+ inline-size: 100%;
  padding: 14px;
  border-radius: 10px;
  border: none;
@@ -569,7 +569,7 @@
  font-size: 16px;
  font-weight: 700;
  cursor: pointer;
- margin-top: 24px;
+ margin-block-start: 24px;
  transition: all 0.3s;
  }
  .modal-box .btn-submit:hover {
@@ -578,7 +578,7 @@
  .modal-error {
  color: #f87171;
  font-size: 13px;
- margin-top: 8px;
+ margin-block-start: 8px;
  display: none;
  }
 
@@ -597,8 +597,8 @@
  /* Cart Sidebar */
  .cart-toggle {
  position: fixed;
- bottom: 24px; inset-inline-end: 24px;
- width: 56px; height: 56px;
+ inset-block-end: 24px; inset-inline-end: 24px;
+ inline-size: 56px; block-size: 56px;
  border-radius: 50%;
  background: linear-gradient(135deg, var(--magenta), #cc0044);
  border: none;
@@ -615,8 +615,8 @@
  .cart-toggle:hover { transform: scale(1.1); }
  .cart-badge {
  position: absolute;
- top: -6px; inset-inline-end: -6px;
- width: 24px; height: 24px;
+ inset-block-start: -6px; inset-inline-end: -6px;
+ inline-size: 24px; block-size: 24px;
  border-radius: 50%;
  background: #ff0055;
  color: #fff;
@@ -629,8 +629,8 @@
  }
  .cart-sidebar {
  position: fixed;
- top: 0; inset-inline-end: -400px;
- width: 380px; height: 100vh;
+ inset-block-start: 0; inset-inline-end: -400px;
+ inline-size: 380px; block-size: 100vh;
  background: var(--card);
  border-inline-start: 1px solid var(--border);
  z-index: 9997;
@@ -644,7 +644,7 @@
  .cart-sidebar h2 {
  font-size: 20px;
  font-weight: 700;
- margin-bottom: 20px;
+ margin-block-end: 20px;
  display: flex;
  justify-content: space-between;
  align-items: center;
@@ -662,7 +662,7 @@
  justify-content: space-between;
  align-items: center;
  padding: 12px 0;
- border-bottom: 1px solid var(--border);
+ border-inset-block-end: 1px solid var(--border);
  }
  .cart-item-info { flex: 1; }
  .cart-item-name { font-size: 14px; font-weight: 600; }
@@ -678,7 +678,7 @@
  }
  .cart-total {
  padding: 20px 0;
- border-top: 1px solid var(--border);
+ border-inset-block-start: 1px solid var(--border);
  display: flex;
  justify-content: space-between;
  font-size: 18px;
@@ -687,7 +687,7 @@
  }
  .cart-total-value { color: var(--cyan); }
  .cart-checkout {
- width: 100%;
+ inline-size: 100%;
  padding: 14px;
  border-radius: 10px;
  border: none;
@@ -729,7 +729,7 @@
  }
  .cart-overlay {
  position: fixed;
- top: 0; inset-inline-start: 0; inset-inline-end: 0; bottom: 0;
+ inset-block-start: 0; inset-inline-start: 0; inset-inline-end: 0; inset-block-end: 0;
  background: rgba(0,0,0,0.5);
  z-index: 9996;
  display: none;
@@ -789,7 +789,7 @@
 </div>
 <div class="service-grid">
  {% for s in micro %}
- <div class="service-card" style="border-top-color:var(--cyan);">
+ <div class="service-card" style="border-block-start-color:var(--cyan);">
 <span class="card-tag tag-micro">تسليم فوري</span>
 <h3>{{ s.name }}</h3>
 <p>{{ s.description }}</p>
@@ -818,7 +818,7 @@
 </div>
 <div class="service-grid">
  {% for s in standard %}
- <div class="service-card" style="border-top-color:var(--gold);">
+ <div class="service-card" style="border-block-start-color:var(--gold);">
 <span class="card-tag tag-standard">قياسية</span>
 <h3>{{ s.name }}</h3>
 <p>{{ s.description }}</p>
@@ -847,7 +847,7 @@
 </div>
 <div class="service-grid">
  {% for s in premium %}
- <div class="service-card" style="border-top-color:var(--magenta);">
+ <div class="service-card" style="border-block-start-color:var(--magenta);">
 <span class="card-tag tag-premium">مميزة</span>
 <h3>{{ s.name }}</h3>
 <p>{{ s.description }}</p>
@@ -920,8 +920,8 @@
 <p>منولد طلبك تلقائياً ومنبعتلك ياه بالإيميل خلال ثواني من الدفع.</p>
 </div>
 </div>
-<div style="text-align:center; margin-top: 40px;">
-<div style="color:var(--muted); font-size:15px; margin-bottom: 12px;">العملات الرقمية المقبولة</div>
+<div style="text-align:center; margin-block-start: 40px;">
+<div style="color:var(--muted); font-size:15px; margin-block-end: 12px;">العملات الرقمية المقبولة</div>
 <div class="payment-methods">
 <span class="payment-badge">{{ _('BTC') }}</span>
 <span class="payment-badge">{{ _('ETH') }}</span>
@@ -970,7 +970,7 @@
 <button class="modal-close" onclick="closeModal()">×</button>
 <h2 id="modalTitle">اطلب الخدمة</h2>
 <div class="modal-price" id="modalPrice">$0</div>
-<p style="color:var(--muted); font-size:15px; margin-bottom:8px;">أدخل بياناتك لتستلم طلبك عبر الإيميل.</p>
+<p style="color:var(--muted); font-size:15px; margin-block-end:8px;">أدخل بياناتك لتستلم طلبك عبر الإيميل.</p>
 <form id="orderForm" onsubmit="submitOrder(event)" dir="auto">
 <input dir="auto" id="serviceId" name="service_id" type="hidden"/>
 <input dir="auto" id="isBouquet" name="is_bouquet" type="hidden" value="false"/>
@@ -1181,7 +1181,7 @@ async function submitOrder(event) {
 function showToast(msg) {
  var t = document.createElement('div');
  t.textContent = msg;
- t.style.cssText = 'position:fixed;bottom:90px;inset-inline-end: 24px;background:var(--card);border:1px solid var(--green);color:#fff;padding:12px 20px;border-radius:10px;font-size:15px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);animation:fadeInOut 2s ease forwards;';
+ t.style.cssText = 'position:fixed;inset-block-end:90px;inset-inline-end: 24px;background:var(--card);border:1px solid var(--green);color:#fff;padding:12px 20px;border-radius:10px;font-size:15px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);animation:fadeInOut 2s ease forwards;';
  var s = document.createElement('style');
  s.textContent = '@keyframes fadeInOut{0%{opacity:0;transform:translateY(10px)}15%{opacity:1;transform:translateY(0)}85%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}';
  document.head.appendChild(s);

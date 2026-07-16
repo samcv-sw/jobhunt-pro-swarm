@@ -2,7 +2,7 @@ import asyncio
 import logging
 import random
 import re
-from typing import Any, Optional
+from typing import Any
 
 from core.human_mouse import HumanMouse
 from core.stealth import stealth
@@ -85,9 +85,7 @@ class GhostApplicant:
                     ]
 
                     async def route_intercept(route, request):
-                        if request.resource_type in BLOCKED_RESOURCE_TYPES:
-                            await route.abort()
-                        elif any(pat.search(request.url) for pat in BLOCKED_DOMAINS_PATTERNS):
+                        if request.resource_type in BLOCKED_RESOURCE_TYPES or any(pat.search(request.url) for pat in BLOCKED_DOMAINS_PATTERNS):
                             await route.abort()
                         else:
                             await route.continue_()
@@ -270,10 +268,7 @@ class GhostApplicant:
                         for opt in options:
                             val = await opt.get_attribute("value") or ""
                             txt = (await opt.inner_text() or "").lower()
-                            if "sponsor" in combined_sel and ("no" in txt or "no" in val.lower()):
-                                await sel.select_option(value=val)
-                                break
-                            elif "authorized" in combined_sel and ("yes" in txt or "yes" in val.lower()):
+                            if "sponsor" in combined_sel and ("no" in txt or "no" in val.lower()) or "authorized" in combined_sel and ("yes" in txt or "yes" in val.lower()):
                                 await sel.select_option(value=val)
                                 break
 
@@ -310,7 +305,7 @@ class GhostApplicant:
         except Exception as e:
             logger.debug(f"Error filling custom Greenhouse questions: {e}")
 
-    def _get_profile_value(self, profile: dict, field: str) -> Optional[Any]:
+    def _get_profile_value(self, profile: dict, field: str) -> Any | None:
         """Resolves field name to profile value."""
         if field == "first_name":
             return profile.get("name", "").split(" ")[0]

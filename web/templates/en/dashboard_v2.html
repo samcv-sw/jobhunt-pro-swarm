@@ -63,7 +63,7 @@ body {
 }
 
 .dashboard-container {
-  max-width: 1400px;
+  max-inline-size: 1400px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -94,7 +94,7 @@ body {
 .glass-card::before {
   content: "";
   position: absolute;
-  top: 0; inset-inline-start: 0; inset-inline-end: 0; height: 1px;
+  inset-block-start: 0; inset-inline-start: 0; inset-inline-end: 0; block-size: 1px;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -128,7 +128,7 @@ body {
   color: var(--text-muted);
   font-size: 16px;
   margin: 0;
-  max-width: 500px;
+  max-inline-size: 500px;
 }
 
 /* ── Badge & Premium Tag ── */
@@ -294,9 +294,9 @@ body {
 
 /* ── Chart Container ── */
 .chart-container {
-  height: 300px;
-  width: 100%;
-  margin-top: 20px;
+  block-size: 300px;
+  inline-size: 100%;
+  margin-block-start: 20px;
 }
 </style>
 <meta property="og:title" content="لوحة التحكم | JobHunt Pro"/>
@@ -355,7 +355,7 @@ body {
         <svg width="24" height="24" fill="none" stroke="var(--accent-primary)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
       </div>
       <div class="stat-value">{{ stats.emails_sent }}</div>
-      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Sent across platforms</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-block-start:8px;">Sent across platforms</div>
     </div>
     
     <div class="glass-card stat-box">
@@ -364,7 +364,7 @@ body {
         <svg width="24" height="24" fill="none" stroke="var(--accent-success)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
       </div>
       <div class="stat-value">92%</div>
-      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">High compatibility roles</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-block-start:8px;">High compatibility roles</div>
     </div>
     
     <div class="glass-card stat-box">
@@ -373,7 +373,7 @@ body {
         <svg width="24" height="24" fill="none" stroke="var(--accent-secondary)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
       </div>
       <div class="stat-value">12.5k</div>
-      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Via Local Resume Trimmer</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-block-start:8px;">Via Local Resume Trimmer</div>
     </div>
 
     <div class="glass-card stat-box">
@@ -389,7 +389,7 @@ body {
           {{ total_mins }}m
         {% endif %}
       </div>
-      <div style="color:var(--text-muted); font-size:13px; margin-top:8px;">Automation equivalent</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-block-start:8px;">Automation equivalent</div>
     </div>
   </div>
 
@@ -415,7 +415,7 @@ body {
         {% endfor %}
         
         {% if total_weapons > 0 %}
-          <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:16px; margin-block-end:16px;">
             <div style="font-size:36px;">🔫</div>
             <div>
               <div style="font-size:24px; font-weight:700; color:#fff;">{{ total_weapons }} Weapons Active</div>
@@ -423,14 +423,14 @@ body {
             </div>
           </div>
         {% else %}
-          <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:16px; margin-block-end:16px;">
             <div style="font-size:36px; opacity:0.5;">🔒</div>
             <div>
               <div style="font-size:20px; font-weight:600; color:#fff;">No Weapons Equipped</div>
               <div style="color:var(--text-muted); font-size:13px;">Standard delivery queue</div>
             </div>
           </div>
-          <a href="/services" class="btn btn-primary" style="width:100%; padding:10px;">Visit Arsenal</a>
+          <a href="/services" class="btn btn-primary" style="inline-size:100%; padding:10px;">Visit Arsenal</a>
         {% endif %}
       </div>
 
@@ -438,7 +438,7 @@ body {
       <div class="glass-card" style="flex: 1; display:flex; flex-direction:column;">
         <h3 style="margin:0 0 16px 0; font-size:18px;">Recent Dispatches</h3>
         {% if pipeline_emails %}
-          <ul class="glass-list" style="flex:1; overflow-y:auto; max-height:200px;">
+          <ul class="glass-list" style="flex:1; overflow-y:auto; max-block-size:200px;">
             {% for email in pipeline_emails[:4] %}
             <li class="glass-list-item" style="padding: 12px;">
               <div>

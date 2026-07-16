@@ -1,83 +1,75 @@
-# BRIEFING — 2026-07-12T23:55:00+03:00
+# BRIEFING — 2026-07-15T10:12:59+03:00
 
 ## Mission
-Orchestrate the implementation and verification of Milestone 1 of the JobHunt Pro SaaS Expansion.
+E2E Testing Track Setup (Milestone 1) - scan existing tests, map pytest cases to Tiers 1-4, verify test execution, and generate test infrastructure documentation.
 
 ## 🔒 My Identity
-- Archetype: sub_orch_m1
+- Archetype: teamwork_preview_orchestrator
 - Roles: orchestrator, user_liaison, human_reporter, successor
-- Working directory: C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_m1
-- Original parent: parent
-- Original parent conversation ID: ecf3f52e-0c8a-4765-84a1-4ec7100e1f07
+- Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_m1
+- Original parent: Project Orchestrator
+- Original parent conversation ID: 8496b1ce-d611-40c6-83f9-ee77f69d9039
 
 ## 🔒 My Workflow
-- **Pattern**: Project Pattern (Orchestrator -> Explorer -> Worker -> Reviewer -> Challenger -> Forensic Auditor -> Gate)
-- **Scope document**: C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_m1\SCOPE.md
-1. **Decompose**: The scope is divided into 6 specific work items to be implemented sequentially:
-   - IMP-154: Dead code removal via vulture.
-   - IMP-158: Large function decomposition in core/.
-   - IMP-160: Import sorting with isort.
-   - IMP-162: Dependency version pinning in requirements.txt.
-   - IMP-190: LinkedIn OAuth login.
-   - R2: Auto-fill browser agent `core/form_autofill.py` using Playwright.
+- **Pattern**: Project Pattern (Sub-orchestrator)
+- **Scope document**: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_m1\SCOPE.md
+1. **Decompose**: We decompose Milestone 1 into test codebase exploration, execution verification, documentation generation, and handoff.
 2. **Dispatch & Execute**:
-   - **Direct (iteration loop)**: For each work item, we will run:
-     - Spawn 3 Explorers to recommend fix strategies.
-     - Spawn 1 Worker to implement, run builds/tests, and report.
-     - Spawn 2 Reviewers independently to review correctness, completeness, and interface compliance.
-     - Spawn 2 Challengers to empirically verify correctness.
-     - Spawn 1 Forensic Auditor (`teamwork_preview_auditor`) to verify integrity (CLEAN verdict required).
-     - Gate evaluation: verify build/tests pass, no reviewer vetoes, challenger confirms correctness, auditor is CLEAN.
-3. **On failure** (in this order):
+   - Spawn Explorer for test codebase mapping.
+   - Spawn Worker to run pytest suite and fix failures.
+   - Ensure Worker generates TEST_INFRA.md and TEST_READY.md.
+3. **On failure**:
    - Retry: nudge stuck agent or re-send task
    - Replace: spawn fresh agent with partial progress
    - Skip: proceed without (only if non-critical)
    - Redistribute: split stuck agent's remaining work
    - Redesign: re-partition decomposition
-   - Escalate: report to parent (sub-orchestrators only, last resort)
-4. **Succession**: Self-succeed at 16 spawns. Write handoff.md, spawn successor, cancel timers, exit.
+   - Escalate: report to parent (last resort)
+4. **Succession**: Self-succeed at 16 spawns.
 - **Work items**:
-  1. IMP-154 [pending]
-  2. IMP-158 [pending]
-  3. IMP-160 [pending]
-  4. IMP-162 [pending]
-  5. IMP-190 [pending]
-  6. R2 [pending]
+  1. Initialize metadata files [done]
+  2. Scan tests via Explorer [done]
+  3. Verify execution via Worker [done]
+  4. Generate TEST_INFRA.md / TEST_READY.md [done]
+  5. Generate handoff [done]
 - **Current phase**: 1
-- **Current focus**: IMP-154
+- **Current focus**: Milestone completed
 
 ## 🔒 Key Constraints
-- Run the Explorer -> Worker -> Reviewer -> Challenger -> Forensic Auditor -> Gate cycle for each work item.
-- Do not write, modify, or create source code files directly.
-- Do not run build/test commands directly.
-- Never reuse a subagent after it has delivered its handoff.
-- The Forensic Auditor verdict must be CLEAN (hard veto).
+- Never write, modify, or create source code files directly.
+- Never run build/test commands yourself — require workers to do so.
+- Write only to your working directory (.agents/sub_orch_m1) except for delegating file writes to workers.
+- Include the MANDATORY INTEGRITY WARNING in Worker/Explorer dispatches.
+- Never reuse a subagent after it has delivered its handoff — always spawn fresh.
 
 ## Current Parent
-- Conversation ID: ecf3f52e-0c8a-4765-84a1-4ec7100e1f07
+- Conversation ID: 8496b1ce-d611-40c6-83f9-ee77f69d9039
 - Updated: not yet
 
 ## Key Decisions Made
-- Implement work items sequentially to avoid git conflicts and ensure clean iterative reviews.
+- Spawned Explorer to analyze and map test suite.
+- Spawned Worker to execute tests, fix failures, and write documentation.
 
 ## Team Roster
 | Agent | Type | Work Item | Status | Conv ID |
 |-------|------|-----------|--------|---------|
-| Explorer 1 | teamwork_preview_explorer | IMP-154 Dead Code Removal | in-progress | 3ffa679d-3958-4ff1-84e1-3a2ad6e910de |
-| Explorer 2 | teamwork_preview_explorer | IMP-154 Dead Code Removal | in-progress | f3f71170-a486-4fd3-9392-28e8e3a3810e |
-| Explorer 3 | teamwork_preview_explorer | IMP-154 Dead Code Removal | in-progress | f1e10a5e-9746-41af-a8cc-a1a812330035 |
+| Explorer | teamwork_preview_explorer | Scan and map tests | completed | 4486fc1a-db71-4e48-a174-695981897eda |
+| Worker | teamwork_preview_worker | Run, fix tests & write docs | completed | a4b4b091-8155-4789-9c8b-4ae9b573e68e |
 
 ## Succession Status
 - Succession required: no
-- Spawn count: 3 / 16
-- Pending subagents: 3ffa679d-3958-4ff1-84e1-3a2ad6e910de, f3f71170-a486-4fd3-9392-28e8e3a3810e, f1e10a5e-9746-41af-a8cc-a1a812330035
+- Spawn count: 2 / 16
+- Pending subagents: none
 - Predecessor: none
 - Successor: not yet spawned
 
 ## Active Timers
-- Heartbeat cron: task-15
+- Heartbeat cron: stopped
 - Safety timer: none
 
 ## Artifact Index
-- C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_m1\ORIGINAL_REQUEST.md — Verbatim user request
-- C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_m1\SCOPE.md — Milestone 1 Scope
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_m1\plan.md — execution plan
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_m1\progress.md — progress tracking and heartbeat
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_m1\context.md — task context and environment info
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_m1\SCOPE.md — sub-orchestrator scope and milestones
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\sub_orch_m1\handoff.md — handoff report

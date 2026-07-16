@@ -258,7 +258,7 @@ async def linkedin_login(request: Request):
     """
     client_id = os.getenv("LINKEDIN_CLIENT_ID")
     redirect_uri = str(request.url_for("linkedin_callback"))
-    
+
     if not client_id or client_id == "mock_linkedin_id":
         logger.info("[OAuth] Redirecting to mock LinkedIn OAuth callback.")
         return RedirectResponse(f"{redirect_uri}?code=mock_code_123")
@@ -334,7 +334,7 @@ async def linkedin_callback(request: Request, code: str = "", state: str = ""):
             conn.execute(
                 "INSERT INTO users (user_id, email, password_hash, name, phone, user_type, api_key, oauth_provider) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (user_id, email, _hash_pw(f"OauthPasswordSecure123!"), name, phone, "jobseeker", api_key, "linkedin")
+                (user_id, email, _hash_pw("OauthPasswordSecure123!"), name, phone, "jobseeker", api_key, "linkedin")
             )
             # Create a cv_profiles record to auto-import CV data!
             conn.execute(

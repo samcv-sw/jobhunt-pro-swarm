@@ -37,11 +37,27 @@ for f in files:
     c = re.sub(r'<textarea([^>]*?)(?<!dir="auto")([^>]*?)>', lambda m: f'<textarea{m.group(1)}{m.group(2)} dir="auto">' if 'dir=' not in m.group(0) else m.group(0), c)
 
     # Flip directional icons
-    c = re.sub(r'(<i[^>]*class="[^"]*(?:right|left|forward|backward|chevron)[^"]*"[^>]*>)(?!.*?style="transform)', r'\1<style>transform: scaleX(var(--text-x-direction, -1));</style>', c)
+    def replace_icon(match):
+        tag = match.group(1)
+        style_match = re.search(r'style\s*=\s*"([^"]*)"', tag)
+        if style_match:
+            style_val = style_match.group(1)
+            if 'transform' not in style_val:
+                new_style_val = style_val.rstrip('; ') + '; transform: scaleX(var(--text-x-direction, 1));'
+                return tag.replace(style_match.group(0), f'style="{new_style_val}"')
+            return tag
+        else:
+            if tag.endswith('/>'):
+                return tag[:-2] + ' style="transform: scaleX(var(--text-x-direction, 1));"/>'
+            elif tag.endswith('>'):
+                return tag[:-1] + ' style="transform: scaleX(var(--text-x-direction, 1));">'
+            return tag
+
+    c = re.sub(r'(<i[^>]*class="[^"]*(?:right|left|forward|backward|chevron)[^"]*"[^>]*>)', replace_icon, c)
 
     for k, v in trans.items():
         c = re.sub(k, v, c, flags=re.IGNORECASE)
 
     with open(p, 'w', encoding='utf-8') as file:
         file.write(c)
-    logger.debug(f"Processed {f}")
+    print(f"Processed {f}")

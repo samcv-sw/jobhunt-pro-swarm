@@ -31,8 +31,8 @@ _CACHE_FILE = os.path.join(
 )
 _CACHE_TTL = 86400  # 24 hours
 
-# JSearch API config
-JSEARCH_KEY = "7085d5ad11msh996c8add34ca2a5p106c72jsn7beaa25f86e2"
+# JSearch API config — secret MUST come from environment, never hardcoded.
+JSEARCH_KEY = os.getenv("JSEARCH_API_KEY")
 JSEARCH_HOST = "jsearch.p.rapidapi.com"
 
 # Lebanon locations (Sam's preference)
@@ -180,6 +180,9 @@ class LebanonCompanyScraper:
 
     async def search_jsearch(self, role: str, location: str) -> list:
         """Search using JSearch API (RapidAPI)."""
+        if not JSEARCH_KEY:
+            logger.warning("JSearch API key not configured; skipping JSearch search")
+            return []
         companies = []
         try:
             client = await self._get_session()

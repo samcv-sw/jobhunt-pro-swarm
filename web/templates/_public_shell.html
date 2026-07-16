@@ -69,7 +69,8 @@
           --glass-blur:backdrop-filter:blur(20px);
         }
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Cairo','Inter',-apple-system,sans-serif;background:linear-gradient(135deg,#0a0a1a 0%,#1a0a2e 50%,#0d1a2e 100%);background-attachment:fixed;color:var(--text);min-block-size:100vh;line-height:1.7}
+        body{font-family:'Cairo','IBM Plex Arabic','Tajawal',sans-serif;background:linear-gradient(135deg,#0a0a1a 0%,#1a0a2e 50%,#0d1a2e 100%);background-attachment:fixed;color:var(--text);min-block-size:100vh;line-height:1.8}
+        [dir="rtl"], [dir="rtl"] *, [lang="ar"], [lang="ar"] * { letter-spacing: normal !important; }
         a{color:var(--teal);text-decoration:none;transition:var(--transition)}
         a:hover{color:var(--gold)}
         h1{font-size:32px;font-weight:800;margin-block-end:8px}
@@ -82,7 +83,7 @@
         .glass:hover{border-color:rgba(240,192,64,.2);box-shadow:var(--shadow)}
         .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;background:linear-gradient(135deg,var(--gold),var(--teal));color:#0a0a1a;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:var(--transition);font-family:'Cairo','Inter',sans-serif;text-decoration:none}
         .btn:hover{transform:scale(1.05);box-shadow:0 10px 25px rgba(240,192,64,.4)}
-        .btn-sm{padding:7px 14px;font-size:12px}
+        .btn-sm{padding:7px 14px;font-size:14px}
         .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-dim)}
         .btn-outline:hover{background:rgba(255,255,255,.04);border-color:var(--gold)}
         .text-dim{color:var(--text-dim)}
@@ -103,16 +104,16 @@
         .gap-12{gap:12px}
         .max-w-800{max-inline-size:800px;margin-inline:auto}
         .max-w-1200{max-inline-size:1200px;margin-inline:auto}
-        .tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+        .tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:14px;font-weight:600}
         .tag-blue{background:var(--blue-dim);color:#60a5fa}
         .tag-green{background:rgba(34,197,94,.12);color:#4ade80}
         .tag-gold{background:var(--gold-dim);color:var(--gold)}
         .tag-purple{background:var(--purple-dim);color:#c4b5fd}
         .tag-teal{background:var(--teal-dim);color:var(--teal)}
         @media(max-width:768px){h1{font-size:26px}.card{padding:18px}.grid-2,.grid-3{grid-template-columns:1fr}}
-        .headroom{min-block-size:60px;background:rgba(10,10,26,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-block-end:1px solid var(--border-light);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding-inline:24px}
+        .headroom{min-block-size:60px;background:rgba(10,10,26,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-block-end:1px solid var(--border-light);position:sticky;inset-block-start:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding-inline:24px}
         .headroom .brand{font-size:18px;font-weight:800;color:var(--gold);gap:18px}
-        .headroom nav a{font-size:13px;color:var(--text-muted);font-weight:500;padding:6px 0;border-block-end:2px solid transparent}
+        .headroom nav a{font-size:14px;color:var(--text-muted);font-weight:500;padding:6px 0;border-block-end:2px solid transparent}
         .headroom nav a:hover{border-color:var(--gold);color:var(--text)}
 
         /* Contact Page Styles */
@@ -122,16 +123,16 @@
         .contact-alert{padding:14px 20px;border-radius:12px;margin-block-end:24px;font-size:14px;font-weight:500}
         .contact-alert.success{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);color:#4ade80}
         .contact-alert.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#f87171}
-        .response-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.15);border-radius:50px;padding:8px 20px;font-size:12px;color:#94a3b8;margin-block-end:32px}
-        .pulse-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite}
+        .response-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.15);border-radius:50px;padding:8px 20px;font-size:14px;color:#94a3b8;margin-block-end:32px}
+        .pulse-dot{inline-size:8px;block-size:8px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
         .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-block-start:8px}
         .form-panel{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px}
         .form-panel h2{font-size:18px;font-weight:700;margin-block-end:6px}
-        .form-subtitle{font-size:12px;color:#64748b;margin-block-end:24px}
+        .form-subtitle{font-size:14px;color:#64748b;margin-block-end:24px}
         .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
         .form-group{margin-block-end:18px}
-        .form-group label{display:block;font-size:13px;color:#94a3b8;margin-block-end:7px;font-weight:500}
+        .form-group label{display:block;font-size:14px;color:#94a3b8;margin-block-end:7px;font-weight:500}
         .glass-input{inline-size:100%;padding-block:12px;padding-inline:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#e2e8f0;font-size:14px;font-family:'Cairo',sans-serif;transition:all .25s;resize:vertical}
         .glass-input:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
         textarea.glass-input{min-block-size:130px}
@@ -145,15 +146,15 @@
         .support-card.whatsapp:hover{border-color:rgba(37,211,102,.2)}
         .sc-icon{font-size:28px;margin-block-end:10px;display:block}
         .support-card h3{font-size:14px;font-weight:700;margin-block-end:6px;color:#e2e8f0}
-        .support-card p{font-size:12px;color:#94a3b8;line-height:1.7}
+        .support-card p{font-size:14px;color:#94a3b8;line-height:1.7}
         .hours-card{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:22px}
         .hours-card h3{font-size:14px;font-weight:700;margin-block-end:14px;color:#e2e8f0}
         .hours-row{display:flex;justify-content:space-between;align-items:center;padding-block:8px;border-block-end:1px solid rgba(255,255,255,.05)}
         .hours-row:last-child{border-block-end:none}
-        .day{font-size:12px;color:#94a3b8}
-        .time{font-size:12px;font-weight:600;color:#64748b}
+        .day{font-size:14px;color:#94a3b8}
+        .time{font-size:14px;font-weight:600;color:#64748b}
         .time.highlight{color:#22c55e}
-        .wa-float{position:fixed;bottom:28px;inset-inline-start:28px;background:#25d366;color:#fff;padding:12px 22px;border-radius:50px;font-weight:700;font-size:14px;text-decoration:none;box-shadow:0 4px 20px rgba(37,211,102,.35);z-index:999;display:flex;align-items:center;gap:8px;transition:all .25s}
+        .wa-float{position:fixed;inset-block-end:28px;inset-inline-start:28px;background:#25d366;color:#fff;padding:12px 22px;border-radius:50px;font-weight:700;font-size:14px;text-decoration:none;box-shadow:0 4px 20px rgba(37,211,102,.35);z-index:999;display:flex;align-items:center;gap:8px;transition:all .25s}
         .wa-float:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(37,211,102,.5);color:#fff}
         @media(max-width:768px){.contact-grid{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
         /* Services Page Styles (when loaded in public shell) */
@@ -175,16 +176,16 @@
     </script>
     
     <!-- GROWTH HACK: Exit-Intent Popup (First Party Data Collection) -->
-    <div id="exitPopup" style="display:none; position:fixed; top:0; inset-inline-start:0; inline-size:100%; block-size:100%; background:rgba(5,5,26,0.95); z-index:9999; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); align-items:center; justify-content:center;">
-        <div style="background:#1e1e2e; padding:40px; border-radius:16px; border:1px solid rgba(139,92,246,0.3); max-width:450px; text-align:center; position:relative; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
-            <button onclick="document.getElementById('exitPopup').style.display='none'" style="position:absolute; top:15px; inset-inline-end:20px; background:transparent; border:none; color:#94a3b8; font-size:24px; cursor:pointer;">×</button>
-            <h2 style="font-size:24px; margin-bottom:10px; background:-webkit-linear-gradient(45deg,#3b82f6,#8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">انتظر! قبل أن ترحل...</h2>
-            <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">احصل على <strong>"دليل أسرار لينكد إن 2026"</strong> الحصري الذي ساعد أكثر من 10,000 مهندس. مجاني 100%.</p>
+    <div id="exitPopup" style="display:none; position:fixed; inset-block-start:0; inset-inline-start:0; inline-size:100%; block-size:100%; background:rgba(5,5,26,0.95); z-index:9999; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); align-items:center; justify-content:center;">
+        <div style="background:#1e1e2e; padding:40px; border-radius:16px; border:1px solid rgba(139,92,246,0.3); max-inline-size:450px; text-align:center; position:relative; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+            <button onclick="document.getElementById('exitPopup').style.display='none'" style="position:absolute; inset-block-start:15px; inset-inline-end:20px; background:transparent; border:none; color:#94a3b8; font-size:24px; cursor:pointer;">×</button>
+            <h2 style="font-size:24px; margin-block-end:10px; background:-webkit-linear-gradient(45deg,#3b82f6,#8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">انتظر! قبل أن ترحل...</h2>
+            <p style="color:#94a3b8; margin-block-end:24px; font-size:15px;">احصل على <strong>"دليل أسرار لينكد إن 2026"</strong> الحصري الذي ساعد أكثر من 10,000 مهندس. مجاني 100%.</p>
             <form dir="auto" onsubmit="event.preventDefault(); this.innerHTML='<p style=\'color:#4ade80;font-weight:bold;\'>🎉 نجاح! تفقد بريدك الإلكتروني خلال 5 دقائق.</p>';">
-                <input type="email" placeholder="أدخل بريدك الإلكتروني" dir="auto" required style="width:100%; padding:14px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white; margin-bottom:12px; font-family:'Cairo',sans-serif;">
-                <button type="submit" style="width:100%; padding:14px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">أرسل لي الدليل 🚀</button>
+                <input type="email" placeholder="أدخل بريدك الإلكتروني" dir="auto" required style="inline-size:100%; padding:14px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white; margin-block-end:12px; font-family:'Cairo',sans-serif;">
+                <button type="submit" style="inline-size:100%; padding:14px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">أرسل لي الدليل 🚀</button>
             </form>
-            <p style="color:#64748b; font-size:11px; margin-top:16px;">نحن نحترم خصوصيتك. لن نرسل لك رسائل مزعجة أبدًا.</p>
+            <p style="color:#64748b; font-size:14px; margin-block-start:16px;">نحن نحترم خصوصيتك. لن نرسل لك رسائل مزعجة أبدًا.</p>
         </div>
     </div>
     <script>
@@ -228,12 +229,12 @@
     </script>
     
     <!-- Phase 8: Social Proof / FOMO Ticker -->
-    <div id="fomo-toast" style="position:fixed; bottom:-100px; inset-inline-start:20px; background:rgba(10,5,26,0.97); border:1px solid rgba(240,192,64,0.3); border-radius:14px; padding:16px; color:#fff; display:flex; align-items:center; gap:12px; box-shadow:0 10px 40px rgba(0,0,0,0.5),0 0 20px rgba(240,192,64,0.1); z-index:9999; transition:bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); direction:rtl; font-family:'Cairo','Inter', sans-serif;">
-        <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, #3b82f6, #8b5cf6); display:flex; justify-content:center; align-items:center; font-size:20px;">⚡</div>
+    <div id="fomo-toast" style="position:fixed; inset-block-end:-100px; inset-inline-start:20px; background:rgba(10,5,26,0.97); border:1px solid rgba(240,192,64,0.3); border-radius:14px; padding:16px; color:#fff; display:flex; align-items:center; gap:12px; box-shadow:0 10px 40px rgba(0,0,0,0.5),0 0 20px rgba(240,192,64,0.1); z-index:9999; transition:bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); direction:rtl; font-family:'Cairo','Inter', sans-serif;">
+        <div style="inline-size:40px; block-size:40px; border-radius:50%; background:linear-gradient(135deg, #3b82f6, #8b5cf6); display:flex; justify-content:center; align-items:center; font-size:20px;">⚡</div>
         <div>
-            <div id="fomo-title" style="font-size:14px; font-weight:700; margin-bottom:4px;">مستخدم من دبي</div>
-            <div id="fomo-desc" style="font-size:12px; color:#94a3b8;">اشترك للتو في الباقة الذهبية 🚀</div>
-            <div style="font-size:10px; color:#64748b; margin-top:4px;">منذ 2 دقيقة</div>
+            <div id="fomo-title" style="font-size:14px; font-weight:700; margin-block-end:4px;">مستخدم من دبي</div>
+            <div id="fomo-desc" style="font-size:14px; color:#94a3b8;">اشترك للتو في الباقة الذهبية 🚀</div>
+            <div style="font-size:14px; color:#64748b; margin-block-start:4px;">منذ 2 دقيقة</div>
         </div>
     </div>
     <script>

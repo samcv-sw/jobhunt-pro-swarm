@@ -40,7 +40,7 @@ export default function Home() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("/api/v2/stats");
+        const res = await fetch("/api/v1/stats");
         if (res.ok) {
           const data = await res.json();
           if (data.success) {
@@ -72,7 +72,7 @@ export default function Home() {
         ? new URL(process.env.NEXT_PUBLIC_API_URL).host 
         : window.location.host;
       
-      ws = new WebSocket(`${protocol}//${host}/api/v1/ws`);
+      ws = new WebSocket(`${protocol}//${host}/ws/war-room`);
       
       ws.onopen = () => setWsConnected(true);
       ws.onclose = () => {
@@ -190,7 +190,12 @@ export default function Home() {
     <div
       className="flex flex-col justify-between p-6 md:p-12"
       dir={isArabic ? "rtl" : "ltr"}
-      style={{ minBlockSize: "100vh" }}
+      style={{
+        minBlockSize: "100vh",
+        fontFamily: isArabic ? "'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif" : undefined,
+        lineHeight: isArabic ? 1.8 : undefined,
+        letterSpacing: isArabic ? "normal" : undefined
+      }}
     >
       {/* Dynamic Header */}
       <header className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-zinc-800/60 pb-6 mb-8 animate-fade-up">
@@ -210,7 +215,7 @@ export default function Home() {
               </span>
             </h1>
             <p className="text-sm text-zinc-400 mt-1 leading-[1.8]">{t.subtitle}</p>
-            {lastMessage && <p className="text-[10px] text-zinc-500 mt-1 font-mono">{lastMessage}</p>}
+            {lastMessage && <p className="text-sm text-zinc-500 mt-1 font-mono">{lastMessage}</p>}
           </div>
         </div>
 
@@ -268,9 +273,9 @@ export default function Home() {
 
               {shardIndex !== null && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 p-4 bg-zinc-950/50 rounded-xl border border-zinc-800/40">
-                  <div className="space-y-1">
+                   <div className="space-y-1">
                     <span className="text-sm text-zinc-500 block leading-[1.8]">{t.hashValLabel}</span>
-                    <span className="font-mono text-xs text-zinc-300 font-bold">{hashValue}</span>
+                    <span className="font-mono text-sm text-zinc-300 font-bold">{hashValue}</span>
                   </div>
                   <div className="space-y-1">
                     <span className="text-sm text-zinc-500 block leading-[1.8]">{t.targetShard}</span>
@@ -280,8 +285,8 @@ export default function Home() {
                   </div>
                   <div className="space-y-1 md:col-span-2 border-t border-zinc-800/40 pt-2 mt-1">
                     <span className="text-sm text-zinc-500 block leading-[1.8]">{t.shardUrl}</span>
-                    <span className="font-mono text-xs text-[#3B82F6] block break-all">
-                      https://jh-shard-{shardIndex}-samsalameh.turso.io/v2/pipeline
+                    <span className="font-mono text-sm text-[#3B82F6] block break-all">
+                      {`https://jh-shard-${shardIndex}-${(tenantNameInput || "your-tenant").toLowerCase().replace(/[^a-z0-9]/g, "-")}.turso.io/v2/pipeline`}
                     </span>
                   </div>
                 </div>
@@ -291,7 +296,7 @@ export default function Home() {
           
           {/* Visual Shard Grid Representation */}
           <div className="mt-6 border-t border-zinc-800/40 pt-4">
-            <span className="text-[10px] text-zinc-500 uppercase tracking-widest block mb-2">
+            <span className="text-sm text-zinc-500 uppercase tracking-widest block mb-2">
               Visual Representation of 500 Shards
             </span>
             <div className="flex flex-wrap gap-1 overflow-hidden" style={{ maxBlockSize: "48px" }}>
@@ -353,7 +358,7 @@ export default function Home() {
                 <span className="text-sm text-zinc-500 block leading-[1.8]">{t.apiSpeed}</span>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="status-live" />
-                  <span className="text-xs text-emerald-400 font-bold">14ms (avg)</span>
+                  <span className="text-sm text-emerald-400 font-bold">14ms (avg)</span>
                 </div>
               </div>
             </div>
@@ -489,7 +494,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-800/60 pt-6 mt-8 flex flex-col md:flex-row justify-between items-center text-xs text-zinc-500 gap-4">
+      <footer className="border-t border-zinc-800/60 pt-6 mt-8 flex flex-col md:flex-row justify-between items-center text-sm text-zinc-500 gap-4">
         <p>© 2026 JobHunt Pro. Built with love in Lebanon. Decoupled 1M-user sovereign engine active.</p>
         <div className="flex gap-4">
           <span className="hover:text-zinc-400 transition cursor-help">Status: Operational</span>

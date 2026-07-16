@@ -5,6 +5,7 @@
 CREATE INDEX IF NOT EXISTS idx_campaign_emails_campaign_status ON campaign_emails (campaign_id, status);
 CREATE INDEX IF NOT EXISTS idx_campaign_emails_campaign_responded ON campaign_emails (campaign_id, responded_at);
 CREATE INDEX IF NOT EXISTS idx_campaign_emails_sent_at ON campaign_emails (sent_at);
+CREATE INDEX IF NOT EXISTS idx_campaign_emails_camp_sent ON campaign_emails (campaign_id, sent_at);
 -- 2. Jobs
 CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs (status);
 CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs (company);

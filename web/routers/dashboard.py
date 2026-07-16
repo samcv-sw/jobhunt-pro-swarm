@@ -21,6 +21,8 @@ def dashboard_page(request: Request):
     return RedirectResponse("/user-dashboard", status_code=302)
 
 @router.get("/api/dashboard/stats")
+@router.get("/api/v1/dashboard/stats")
+@router.get("/api/v1/dashboard/stats/")
 def dashboard_stats(request: Request):
     get_db, get_verified_user_id, _, _ = _deps()
     user_id = get_verified_user_id(request)
@@ -28,20 +30,35 @@ def dashboard_stats(request: Request):
         raise HTTPException(status_code=401, detail="Not authenticated")
     try:
         with get_db() as conn:
-            row_camp = conn.execute(
+            row = conn.execute(
                 "SELECT "
-                "COALESCE(SUM(sent_count), 0), "
-                "COALESCE(SUM(CASE WHEN status = 'running' THEN 1 ELSE 0 END), 0), "
-                "COALESCE(SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END), 0) "
-                "FROM campaigns WHERE user_id = ?",
+                "COALESCE(SUM(c.sent_count), 0) AS total_sent, "
+                "COALESCE(SUM(CASE WHEN c.status = 'running' THEN 1 ELSE 0 END), 0) AS active_campaigns, "
+                "COALESCE(SUM(CASE WHEN c.status = 'completed' THEN 1 ELSE 0 END), 0) AS completed_campaigns, "
+                "COALESCE(u.wallet_balance, 0.0) AS wallet_balance "
+                "FROM users u "
+                "LEFT JOIN campaigns c ON c.user_id = u.user_id "
+                "WHERE u.user_id = ? "
+                "GROUP BY u.user_id, u.wallet_balance",
                 (user_id,)
             ).fetchone()
-            row4 = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
 
-            ts = row_camp[0] if row_camp else 0
-            act = row_camp[1] if row_camp else 0
-            cmp = row_camp[2] if row_camp else 0
-            bal = (row4[0] if not hasattr(row4, "__getitem__") else row4["wallet_balance"]) if row4 else 0.0
+            if row:
+                try:
+                    ts = row["total_sent"]
+                    act = row["active_campaigns"]
+                    cmp = row["completed_campaigns"]
+                    bal = row["wallet_balance"]
+                except (TypeError, KeyError, IndexError):
+                    try:
+                        ts = getattr(row, "total_sent", row[0])
+                        act = getattr(row, "active_campaigns", row[1])
+                        cmp = getattr(row, "completed_campaigns", row[2])
+                        bal = getattr(row, "wallet_balance", row[3])
+                    except Exception:
+                        ts, act, cmp, bal = row[0], row[1], row[2], row[3]
+            else:
+                ts, act, cmp, bal = 0, 0, 0, 0.0
     except Exception as e:
         logger.error(f"Database error in dashboard_stats: {e}")
         raise HTTPException(status_code=500, detail="Database operation failed")

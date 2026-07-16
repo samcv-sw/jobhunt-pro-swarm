@@ -5,9 +5,9 @@
 {% set toast_type = "error" if error else ("success" if success else "") %}
 
 <style>
-.offers-page { width: 100%; }
-.offers-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
-.offers-title-wrapper h1 { font-size: 32px; font-weight: 800; background: linear-gradient(90deg, #f1f5f9, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px;  }
+.offers-page { inline-size: 100%; }
+.offers-header { display: flex; justify-content: space-between; align-items: center; margin-block-end: 28px; flex-wrap: wrap; gap: 16px; }
+.offers-title-wrapper h1 { font-size: 32px; font-weight: 800; background: linear-gradient(90deg, #f1f5f9, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-block-end: 4px;  }
 .offers-title-wrapper p { font-size: 14px; color: var(--text-dim); }
 
 .wallet-badge { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.1)); border: 1px solid rgba(59, 130, 246, 0.25); padding: 10px 18px; border-radius: 14px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1); }
@@ -15,10 +15,10 @@
 .wallet-badge strong { color: #22c55e; font-size: 18px; font-weight: 800;  text-shadow: 0 0 10px rgba(34, 197, 148, 0.2); }
 
 /* Admin Dashboard Panel with Gradient Border Glow */
-.admin-card { background: linear-gradient(135deg, rgba(15, 10, 28, 0.95), rgba(10, 8, 20, 0.95)); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: 18px; padding: 28px; margin-bottom: 36px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255,255,255,0.05); position: relative; }
-.admin-card::before { content: ''; position: absolute; top: -1px; inset-inline-start: -1px; inset-inline-end: -1px; bottom: -1px; border-radius: 18px; background: linear-gradient(135deg, #f43f5e, #8b5cf6); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: 0.35; }
-.admin-card h2 { font-size: 20px; font-weight: 800; color: #f1f5f9; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
-.admin-card .sub { font-size: 13px; color: var(--text-dim); margin-bottom: 24px; }
+.admin-card { background: linear-gradient(135deg, rgba(15, 10, 28, 0.95), rgba(10, 8, 20, 0.95)); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: 18px; padding: 28px; margin-block-end: 36px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255,255,255,0.05); position: relative; }
+.admin-card::before { content: ''; position: absolute; inset-block-start: -1px; inset-inline-start: -1px; inset-inline-end: -1px; inset-block-end: -1px; border-radius: 18px; background: linear-gradient(135deg, #f43f5e, #8b5cf6); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: 0.35; }
+.admin-card h2 { font-size: 20px; font-weight: 800; color: #f1f5f9; margin-block-end: 6px; display: flex; align-items: center; gap: 8px; }
+.admin-card .sub { font-size: 13px; color: var(--text-dim); margin-block-end: 24px; }
 
 .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
 @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
@@ -26,12 +26,12 @@
 .form-group { display: flex; flex-direction: column; gap: 8px; }
 .form-group.full-width { grid-column: 1 / -1; }
 .form-group label { font-size: 11px; color: var(--text-dim); text-transform: uppercase;  font-weight: 700; }
-.form-control { width: 100%; padding: 12px 16px; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: var(--text); font-size: 14px; outline: none; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+.form-control { inline-size: 100%; padding: 12px 16px; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: var(--text); font-size: 14px; outline: none; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
 .form-control:focus { border-color: #3b82f6; background: rgba(0, 0, 0, 0.7); box-shadow: 0 0 12px rgba(59, 130, 246, 0.25), inset 0 2px 4px rgba(0,0,0,0.3); }
 
-.img-preview-box { display: flex; align-items: center; gap: 14px; margin-top: 8px; }
-.img-preview { width: 72px !important; height: 72px !important; flex-shrink: 0; max-width: 72px; max-height: 72px; border-radius: 12px; border: 1.5px solid rgba(59, 130, 246, 0.4); background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--text-muted); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: all 0.2s ease; }
-.img-preview img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block; border-radius: 10px; }
+.img-preview-box { display: flex; align-items: center; gap: 14px; margin-block-start: 8px; }
+.img-preview { inline-size: 72px !important; block-size: 72px !important; flex-shrink: 0; max-inline-size: 72px; max-block-size: 72px; border-radius: 12px; border: 1.5px solid rgba(59, 130, 246, 0.4); background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--text-muted); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: all 0.2s ease; }
+.img-preview img { inline-size: 100% !important; block-size: 100% !important; object-fit: cover !important; display: block; border-radius: 10px; }
 
 .btn-cyber { padding: 12px 28px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); display: inline-flex; align-items: center; gap: 8px; text-decoration: none; justify-content: center; text-transform: uppercase;  }
 .btn-cyber.primary { background: linear-gradient(135deg, #f43f5e, #ec4899); color: #fff; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.35); position: relative; overflow: hidden; }
@@ -41,16 +41,16 @@
 .btn-cyber.secondary:hover { background: rgba(255, 255, 255, 0.09); border-color: rgba(255, 255, 255, 0.15); transform: translateY(-1px); }
 
 /* Offers Grid */
-.offers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 28px; margin-bottom: 48px; }
+.offers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 28px; margin-block-end: 48px; }
 .offer-card { background: linear-gradient(180deg, rgba(17, 17, 30, 0.7) 0%, rgba(13, 13, 23, 0.9) 100%); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); }
 .offer-card:hover { border-color: rgba(244, 63, 94, 0.35); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(244, 63, 94, 0.15), 0 2px 4px rgba(0, 0, 0, 0.2); }
 
-.offer-img-container { height: 180px; width: 100%; background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(139, 92, 246, 0.1)); position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-.offer-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.offer-img-container { block-size: 180px; inline-size: 100%; background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(139, 92, 246, 0.1)); position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border-inset-block-end: 1px solid rgba(255, 255, 255, 0.05); }
+.offer-img { inline-size: 100%; block-size: 100%; object-fit: cover; transition: transform 0.5s ease; }
 .offer-card:hover .offer-img { transform: scale(1.05); }
 .offer-img-fallback { font-size: 72px; filter: drop-shadow(0 0 12px rgba(255,255,255,0.08)); }
 
-.price-tag { position: absolute; bottom: 16px; inset-inline-end: 16px; background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(244, 63, 94, 0.3); color: #f43f5e; padding: 6px 14px; border-radius: 12px; font-weight: 800; font-size: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 10; display: flex; align-items: center; gap: 4px; }
+.price-tag { position: absolute; inset-block-end: 16px; inset-inline-end: 16px; background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(244, 63, 94, 0.3); color: #f43f5e; padding: 6px 14px; border-radius: 12px; font-weight: 800; font-size: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 10; display: flex; align-items: center; gap: 4px; }
 
 /* Pulsing Savings Badge */
 @keyframes pulseGlow {
@@ -58,47 +58,47 @@
     50% { transform: scale(1.03); box-shadow: 0 0 16px rgba(34, 197, 94, 0.6); }
     100% { transform: scale(1); box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
 }
-.savings-badge { position: absolute; top: 16px; inset-inline-start: 16px; background: #22c55e; color: #052e16; padding: 5px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; text-transform: uppercase;  z-index: 10; animation: pulseGlow 2.5s infinite ease-in-out; }
+.savings-badge { position: absolute; inset-block-start: 16px; inset-inline-start: 16px; background: #22c55e; color: #052e16; padding: 5px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; text-transform: uppercase;  z-index: 10; animation: pulseGlow 2.5s infinite ease-in-out; }
 
 .offer-body { padding: 24px; display: flex; flex-direction: column; flex: 1; }
-.offer-title { font-size: 20px; font-weight: 800; color: #f8fafc; margin-bottom: 10px;  }
-.offer-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; margin-bottom: 20px; flex: 1; }
+.offer-title { font-size: 20px; font-weight: 800; color: #f8fafc; margin-block-end: 10px;  }
+.offer-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; margin-block-end: 20px; flex: 1; }
 
-.offer-note { background: rgba(59, 130, 246, 0.03); border-inline-start: 3px solid #3b82f6; padding: 10px 14px; border-radius: 0 10px 10px 0; margin-bottom: 24px; font-size: 12.5px; color: #94a3b8; font-style: italic; line-height: 1.5; border-top: 1px solid rgba(59, 130, 246, 0.05); border-bottom: 1px solid rgba(59, 130, 246, 0.05); }
+.offer-note { background: rgba(59, 130, 246, 0.03); border-inline-start: 3px solid #3b82f6; padding: 10px 14px; border-radius: 0 10px 10px 0; margin-block-end: 24px; font-size: 12.5px; color: #94a3b8; font-style: italic; line-height: 1.5; border-inset-block-start: 1px solid rgba(59, 130, 246, 0.05); border-inset-block-end: 1px solid rgba(59, 130, 246, 0.05); }
 
-.offer-footer { display: flex; flex-direction: column; align-items: stretch; margin-top: auto; gap: 8px; width: 100%; }
+.offer-footer { display: flex; flex-direction: column; align-items: stretch; margin-block-start: auto; gap: 8px; inline-size: 100%; }
 
 /* Purchases Table */
-.purchases-section { margin-top: 48px; }
+.purchases-section { margin-block-start: 48px; }
 .purchase-table-container { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-.purchase-table { width: 100%; border-collapse: collapse; }
-.purchase-table th { text-align: start; font-size: 11px; text-transform: uppercase; color: var(--text-muted); padding: 14px; border-bottom: 1px solid var(--border);  font-weight: 700; }
-.purchase-table td { padding: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.02); font-size: 13.5px; color: var(--text-dim); }
+.purchase-table { inline-size: 100%; border-collapse: collapse; }
+.purchase-table th { text-align: start; font-size: 11px; text-transform: uppercase; color: var(--text-muted); padding: 14px; border-inset-block-end: 1px solid var(--border);  font-weight: 700; }
+.purchase-table td { padding: 14px; border-inset-block-end: 1px solid rgba(255, 255, 255, 0.02); font-size: 13.5px; color: var(--text-dim); }
 .purchase-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
-.reqs-cell { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; color: var(--blue); text-decoration: underline; font-weight: 500; }
+.reqs-cell { max-inline-size: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; color: var(--blue); text-decoration: underline; font-weight: 500; }
 
 /* Toast Notifications */
-.toast-msg { padding: 14px 20px; border-radius: 14px; font-size: 13.5px; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+.toast-msg { padding: 14px 20px; border-radius: 14px; font-size: 13.5px; margin-block-end: 28px; display: flex; align-items: center; gap: 10px; animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
 .toast-msg.error { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; }
 .toast-msg.success { background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.2); color: #4ade80; }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Purchase Modal */
-.modal-overlay { display: none; position: fixed; top: 0; inset-inline-start: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); z-index: 100000; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); align-items: center; justify-content: center; }
+.modal-overlay { display: none; position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 100%; block-size: 100%; background: rgba(0, 0, 0, 0.75); z-index: 100000; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); align-items: center; justify-content: center; }
 .modal-overlay.show { display: flex; }
-.modal-card { background: rgba(13, 13, 23, 0.98); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 32px; max-width: 540px; width: 92%; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 20px 50px rgba(0,0,0,0.6); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; min-height: 0; }
+.modal-card { background: rgba(13, 13, 23, 0.98); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 32px; max-inline-size: 540px; inline-size: 92%; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 20px 50px rgba(0,0,0,0.6); display: flex; flex-direction: column; max-block-size: 90vh; overflow: hidden; min-block-size: 0; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-.modal-card h3 { font-size: 20px; font-weight: 800; color: #f8fafc; margin-bottom: 8px;  }
-.modal-card p { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; }
-.modal-card form { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
-.modal-form-body { flex: 1; overflow-y: auto; padding-inline-end: 8px; margin-bottom: 20px; min-height: 0; }
-.modal-form-body::-webkit-scrollbar { width: 6px; }
+.modal-card h3 { font-size: 20px; font-weight: 800; color: #f8fafc; margin-block-end: 8px;  }
+.modal-card p { font-size: 13px; color: var(--text-dim); margin-block-end: 20px; }
+.modal-card form { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-block-size: 0; }
+.modal-form-body { flex: 1; overflow-y: auto; padding-inline-end: 8px; margin-block-end: 20px; min-block-size: 0; }
+.modal-form-body::-webkit-scrollbar { inline-size: 6px; }
 .modal-form-body::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 3px; }
 .modal-form-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 3px; }
 .modal-form-body::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.22); }
 @media (max-height: 700px), (max-width: 576px) {
     .modal-card { padding: 20px; border-radius: 16px; }
-    .modal-form-body { margin-bottom: 15px; }
+    .modal-form-body { margin-block-end: 15px; }
 }
 </style>
 
@@ -176,13 +176,13 @@
 <label for="offerNote">ملاحظة هامة (إرشادات/قيود)</label>
 <textarea class="form-control" dir="auto" id="offerNote" name="note" placeholder="e.g. Note: Delivery takes 48 hours and requires your current CV." rows="2"></textarea>
 </div>
-<div class="form-group full-width" style="margin-top: 8px;">
+<div class="form-group full-width" style="margin-block-start: 8px;">
 <button class="btn-cyber primary" type="submit">➕ نشر العرض الخاص</button>
 </div>
 </div>
 </form>
 </div>
-<div class="admin-card" style="border-color: rgba(59, 130, 246, 0.2); margin-bottom: 36px;">
+<div class="admin-card" style="border-color: rgba(59, 130, 246, 0.2); margin-block-end: 36px;">
 <h2>🔑 مخزون المفاتيح المحملة مسبقاً</h2>
 <p class="sub">استيراد رموز تسلسلية أو روابط أو حسابات لعروض التسليم الفوري.</p>
 <form dir="auto" action="/api/v2/offers/import-keys" method="POST">
@@ -203,7 +203,7 @@ One item per line.
 e.g. USER:PASS-IPTV-123
 e.g. https://vpn.com/claim?code=abc" required="" rows="4"></textarea>
 </div>
-<div class="form-group full-width" style="margin-top: 8px;">
+<div class="form-group full-width" style="margin-block-start: 8px;">
 <button class="btn-cyber primary" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);" type="submit">📥 استيراد المفاتيح إلى المخزون</button>
 </div>
 </div>
@@ -245,27 +245,27 @@ e.g. https://vpn.com/claim?code=abc" required="" rows="4"></textarea>
                 
                 {% if offer.delivery_type == 'instant_pool' %}
                     {% if offer.keys_in_stock and offer.keys_in_stock|int > 0 %}
-                        <div class="stock-badge in-stock" style="color: #60a5fa; font-size: 11px; font-weight: 800; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(59, 130, 246, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(59, 130, 246, 0.2); text-transform: uppercase; ">
+                        <div class="stock-badge in-stock" style="color: #60a5fa; font-size: 11px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(59, 130, 246, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(59, 130, 246, 0.2); text-transform: uppercase; ">
                             ⚡ تسليم فوري (متبقي {{ offer.keys_in_stock }})
                         </div>
                     {% else %}
-                        <div class="stock-badge out-of-stock" style="color: #fbbf24; font-size: 11px; font-weight: 800; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(245, 158, 11, 0.2); text-transform: uppercase; ">
+                        <div class="stock-badge out-of-stock" style="color: #fbbf24; font-size: 11px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(245, 158, 11, 0.2); text-transform: uppercase; ">
                             ⏳ تسليم يدوي (جاري إعادة التعبئة)
                         </div>
                     {% endif %}
                 {% elif offer.delivery_type == 'instant_api' %}
-                    <div class="stock-badge in-stock" style="color: #a78bfa; font-size: 11px; font-weight: 800; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(139, 92, 246, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(139, 92, 246, 0.2); text-transform: uppercase; ">
+                    <div class="stock-badge in-stock" style="color: #a78bfa; font-size: 11px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(139, 92, 246, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(139, 92, 246, 0.2); text-transform: uppercase; ">
                         {{ _('⚡ تفعيل فوري عبر API') }}
                     </div>
                 {% else %}
-                    <div class="stock-badge manual" style="color: #94a3b8; font-size: 11px; font-weight: 800; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.03); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.08); text-transform: uppercase; ">
+                    <div class="stock-badge manual" style="color: #94a3b8; font-size: 11px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.03); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.08); text-transform: uppercase; ">
                         ⏳ معالجة يدوية (24-48 ساعة)
                     </div>
                 {% endif %}
                 
                 {% if offer.original_price|float > offer.price|float %}
                 {% set savings_usd = offer.original_price|float - offer.price|float %}
-                <div class="savings-amount" style="color: #4ade80; font-size: 13px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; background: rgba(34, 197, 94, 0.06); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.15); width: fit-content;">
+                <div class="savings-amount" style="color: #4ade80; font-size: 13px; font-weight: 700; margin-block-end: 16px; display: flex; align-items: center; gap: 6px; background: rgba(34, 197, 94, 0.06); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.15); inline-size: fit-content;">
                     🏷️ وفر ${{ "%.2f"|format(savings_usd) }} فوراً!
                 </div>
                 {% endif %}
@@ -278,16 +278,16 @@ e.g. https://vpn.com/claim?code=abc" required="" rows="4"></textarea>
                 
                 <div class="offer-footer">
                     {% if user %}
-                    <button class="btn-cyber primary" onclick="openPurchaseModal('{{ offer.offer_id }}', '{{ offer.title }}', '{{ offer.price }}')" style="width: 100%; justify-content: center;">⚡ اشترِ الآن</button>
+                    <button class="btn-cyber primary" onclick="openPurchaseModal('{{ offer.offer_id }}', '{{ offer.title }}', '{{ offer.price }}')" style="inline-size: 100%; justify-content: center;">⚡ اشترِ الآن</button>
                     {% else %}
-                    <a class="btn-cyber primary" href="/login" style="width: 100%; justify-content: center;">🔑 سجل الدخول للشراء</a>
+                    <a class="btn-cyber primary" href="/login" style="inline-size: 100%; justify-content: center;">🔑 سجل الدخول للشراء</a>
                     {% endif %}
                     
                     {% if is_admin %}
-                    <div class="admin-actions-row" style="display: flex; gap: 8px; width: 100%;">
+                    <div class="admin-actions-row" style="display: flex; gap: 8px; inline-size: 100%;">
 <button class="btn-cyber secondary" data-delivery-type="{{ offer.delivery_type }}" data-desc="{{ offer.description|escape }}" data-id="{{ offer.offer_id }}" data-image="{{ offer.image_url|escape }}" data-note="{{ offer.note|escape }}" data-original-price="{{ offer.original_price }}" data-price="{{ offer.price }}" data-reseller-api-key="{{ offer.reseller_api_key|escape if offer.reseller_api_key else '' }}" data-reseller-api-url="{{ offer.reseller_api_url|escape if offer.reseller_api_url else '' }}" data-title="{{ offer.title|escape }}" onclick="openEditModal(this)" style="flex: 1; color: #f59e0b; border-color: rgba(245,158,11,0.2); background: rgba(245,158,11,0.05); padding: 10px 14px; font-size: 12px; justify-content: center;" title="Edit Offer" type="button">✏️ تعديل</button>
 <form dir="auto" action="/api/v2/offers/delete/{{ offer.offer_id }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this offer?');" style="flex: 1; margin: 0; display: flex;">
-<button class="btn-cyber secondary" style="width: 100%; color: #ef4444; border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05); padding: 10px 14px; font-size: 12px; justify-content: center;" title="Delete Offer" type="submit">🗑️ حذف</button>
+<button class="btn-cyber secondary" style="inline-size: 100%; color: #ef4444; border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05); padding: 10px 14px; font-size: 12px; justify-content: center;" title="Delete Offer" type="submit">🗑️ حذف</button>
 </form>
 </div>
                     {% endif %}
@@ -297,10 +297,10 @@ e.g. https://vpn.com/claim?code=abc" required="" rows="4"></textarea>
         {% endfor %}
     </div>
     {% else %}
-    <div style="text-align: center; padding: 60px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 40px;">
+    <div style="text-align: center; padding: 60px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin-block-end: 40px;">
 <span style="font-size: 48px;">📦</span>
-<h3 style="font-size: 18px; margin-top: 12px; color: var(--text-dim);">لا توجد عروض خاصة مدرجة حالياً</h3>
-<p style="font-size: 13px; color: var(--text-muted); max-width: 400px; margin: 6px auto 0;">يرجى التحقق لاحقاً أو التواصل مع الدعم لطلب باقة مخصصة.</p>
+<h3 style="font-size: 18px; margin-block-start: 12px; color: var(--text-dim);">لا توجد عروض خاصة مدرجة حالياً</h3>
+<p style="font-size: 13px; color: var(--text-muted); max-inline-size: 400px; margin: 6px auto 0;">يرجى التحقق لاحقاً أو التواصل مع الدعم لطلب باقة مخصصة.</p>
 </div>
     {% endif %}
 
@@ -341,7 +341,7 @@ e.g. https://vpn.com/claim?code=abc" required="" rows="4"></textarea>
                                     {% else %}
                                         <span style="color: #fbbf24; font-weight: 700; font-size: 11px;">⏳ قيد الانتظار</span>
                                     {% endif %}
-                                    <button class="btn-cyber secondary" onclick="openFulfillModal('{{ p.purchase_id }}', '{{ p.offer_title|escape }}', '{{ p.user_email|escape }}')" style="padding: 4px 8px; font-size: 11px; color: #60a5fa; border-color: rgba(59,130,246,0.2); background: rgba(59,130,246,0.05); cursor: pointer; justify-content: center; width: fit-content;" type="button">🔑 تسليم يدوي</button>
+                                    <button class="btn-cyber secondary" onclick="openFulfillModal('{{ p.purchase_id }}', '{{ p.offer_title|escape }}', '{{ p.user_email|escape }}')" style="padding: 4px 8px; font-size: 11px; color: #60a5fa; border-color: rgba(59,130,246,0.2); background: rgba(59,130,246,0.05); cursor: pointer; justify-content: center; inline-size: fit-content;" type="button">🔑 تسليم يدوي</button>
 </div>
                             {% endif %}
                         </td>
@@ -357,7 +357,7 @@ e.g. https://vpn.com/claim?code=abc" required="" rows="4"></textarea>
         {% endif %}
     </div>
 <!-- Admin Panel: Key Inventory Pool Management -->
-<div class="purchases-section" style="margin-top: 36px;">
+<div class="purchases-section" style="margin-block-start: 36px;">
 <h3 class="section-title">🔑 مخزون المفاتيح النشط</h3>
         {% if inventory_keys %}
         <div class="purchase-table-container">
@@ -410,7 +410,7 @@ e.g. https://vpn.com/claim?code=abc" required="" rows="4"></textarea>
 <div class="modal-overlay" id="purchaseModalOverlay" onclick="closePurchaseModal()">
 <div class="modal-card" onclick="event.stopPropagation()">
 <h3 id="modalOfferTitle">🛒 تأكيد الشراء</h3>
-<p id="modalOfferPrice" style="color: var(--green); font-size: 15px; font-weight: 800; margin-bottom: 12px;">السعر: $0.00</p>
+<p id="modalOfferPrice" style="color: var(--green); font-size: 15px; font-weight: 800; margin-block-end: 12px;">السعر: $0.00</p>
 <form dir="auto" action="" id="purchaseForm" method="POST">
 <div class="modal-form-body">
 <div class="form-group">
@@ -428,9 +428,9 @@ e.g. https://vpn.com/claim?code=abc" required="" rows="4"></textarea>
 <!-- Edit Modal Overlay (only for admin) -->
 {% if is_admin %}
 <div class="modal-overlay" id="editModalOverlay" onclick="closeEditModal()">
-<div class="modal-card" onclick="event.stopPropagation()" style="max-width: 600px;">
+<div class="modal-card" onclick="event.stopPropagation()" style="max-inline-size: 600px;">
 <h3>✏️ تعديل العرض الخاص</h3>
-<p style="font-size:12px; color: var(--text-dim); margin-bottom: 20px;">تعديل تفاصيل قائمة هذا العرض الخاص.</p>
+<p style="font-size:12px; color: var(--text-dim); margin-block-end: 20px;">تعديل تفاصيل قائمة هذا العرض الخاص.</p>
 <form dir="auto" action="" id="editOfferForm" method="POST">
 <div class="modal-form-body">
 <div class="form-grid">
@@ -655,7 +655,7 @@ function convertImageToBase64(fileInput) {
     resizeAndCompressImage(file, function(base64Data) {
         document.getElementById('offerImage').value = base64Data;
         const preview = document.getElementById('imagePreview');
-        preview.innerHTML = `<img src="${base64Data}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`;
+        preview.innerHTML = `<img src="${base64Data}" style="inline-size:100%;block-size:100%;object-fit:cover;border-radius:8px;" loading="lazy">`;
     });
 }
 
@@ -667,7 +667,7 @@ function convertEditImageToBase64(fileInput) {
     resizeAndCompressImage(file, function(base64Data) {
         document.getElementById('editOfferImage').value = base64Data;
         const preview = document.getElementById('editImagePreview');
-        preview.innerHTML = `<img src="${base64Data}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`;
+        preview.innerHTML = `<img src="${base64Data}" style="inline-size:100%;block-size:100%;object-fit:cover;border-radius:8px;" loading="lazy">`;
     });
 }
 
@@ -727,7 +727,7 @@ function openEditModal(btn) {
     
     const preview = document.getElementById('editImagePreview');
     if (image) {
-        preview.innerHTML = `<img src="${image}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`;
+        preview.innerHTML = `<img src="${image}" style="inline-size:100%;block-size:100%;object-fit:cover;border-radius:8px;" loading="lazy">`;
     } else {
         preview.innerHTML = '🖼️';
     }
@@ -769,14 +769,14 @@ function closeFulfillModal() {
 <div class="modal-overlay" id="fulfillModalOverlay" onclick="closeFulfillModal()">
 <div class="modal-card" onclick="event.stopPropagation()">
 <h3>🔑 تسليم الطلب يدوياً</h3>
-<p style="font-size:12px; color: var(--text-dim); margin-bottom: 20px;">أرسل بيانات الدخول أو مفاتيح الاشتراك مباشرةً إلى العميل.</p>
+<p style="font-size:12px; color: var(--text-dim); margin-block-end: 20px;">أرسل بيانات الدخول أو مفاتيح الاشتراك مباشرةً إلى العميل.</p>
 <form dir="auto" action="" id="fulfillForm" method="POST">
 <div class="modal-form-body">
-<div class="form-group" style="margin-bottom: 12px;">
+<div class="form-group" style="margin-block-end: 12px;">
 <label>العميل</label>
 <input class="form-control" dir="auto" id="fulfillCustomerEmail" readonly="" style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);" type="text"/>
 </div>
-<div class="form-group" style="margin-bottom: 12px;">
+<div class="form-group" style="margin-block-end: 12px;">
 <label>باقة العرض</label>
 <input class="form-control" dir="auto" id="fulfillOfferTitle" readonly="" style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);" type="text"/>
 </div>
@@ -785,7 +785,7 @@ function closeFulfillModal() {
 <textarea class="form-control" dir="auto" id="fulfillCredentials" name="credentials" placeholder="الصق بيانات دخول IPTV، مفتاح الترخيص، تفاصيل الحساب، أو التعليمات هنا..." required="" rows="4"></textarea>
 </div>
 </div>
-<div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+<div style="display: flex; gap: 10px; justify-content: flex-end; margin-block-start: 20px;">
 <button class="btn-cyber secondary" onclick="closeFulfillModal()" type="button">إلغاء</button>
 <button class="btn-cyber primary" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);" type="submit">✅ تسليم الطلب</button>
 </div>

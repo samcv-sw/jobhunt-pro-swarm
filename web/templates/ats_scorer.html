@@ -54,9 +54,9 @@
 
 @keyframes ats-spin { to { transform: rotate(360deg); } }
 .ats-spinner {
-  width: 18px; height: 18px;
+  inline-size: 18px; block-size: 18px;
   border: 2px solid rgba(10,10,20,0.3);
-  border-top-color: #0a0a14;
+  border-block-start-color: #0a0a14;
   border-radius: 50%;
   animation: ats-spin 0.7s linear infinite;
   display: inline-block;
@@ -103,7 +103,7 @@ linkedin.com/in/sam-salameh
     </h3>
     <div class="flex flex-col md:flex-row gap-3 mb-4">
       <div class="relative flex-1">
-        <i class="w-4 h-4 text-slate-500 absolute inset-inline-start-3 top-1/2 -translate-y-1/2" data-lucide="link" style="inset-inline-start:12px; position:absolute; top:50%; transform:translateY(-50%);"></i>
+        <i class="w-4 h-4 text-slate-500 absolute inset-inline-start-3 top-1/2 -translate-y-1/2" data-lucide="link" style="inset-inline-start:12px; position:absolute; inset-block-start:50%; transform:translateY(-50%);"></i>
         <input class="ats-input w-full bg-slate-950/50 border border-slate-700 rounded-lg py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" style="padding-inline-start:36px; padding-inline-end:16px;" dir="auto" id="ats-url" placeholder="أو الصق رابط إعلان الوظيفة..." type="url"/>
       </div>
       <button class="ats-btn-secondary" id="btn-url-import" onclick="importFromUrl()" style="padding-block:10px; padding-inline:1rem; font-size:13px;">
@@ -121,7 +121,7 @@ linkedin.com/in/sam-salameh
 - معرفة قوية بـ BGP وOSPF وMPLS
 - خبرة مع جدران حماية Fortinet..." style="line-height:1.7;"></textarea>
     <div class="relative">
-      <i class="w-4 h-4 text-slate-500 absolute top-1/2 -translate-y-1/2" data-lucide="briefcase" style="inset-inline-start:12px; position:absolute; top:50%; transform:translateY(-50%);"></i>
+      <i class="w-4 h-4 text-slate-500 absolute top-1/2 -translate-y-1/2" data-lucide="briefcase" style="inset-inline-start:12px; position:absolute; inset-block-start:50%; transform:translateY(-50%);"></i>
       <input class="ats-input w-full bg-slate-950/50 border border-slate-700 rounded-lg py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" style="padding-inline-start:36px; padding-inline-end:16px;" dir="auto" id="ats-job-title" placeholder="المسمى الوظيفي (اختياري، مثال: مهندس شبكات أول)" type="text"/>
     </div>
   </div>
@@ -333,7 +333,7 @@ function renderBreakdown(data) {
           <span class="text-lg font-black ${colorClass}">${score}%</span>
         </div>
         <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-          <div class="h-full rounded-full transition-all duration-1000 ${bgClass}" style="width: ${score}%;"></div>
+          <div class="h-full rounded-full transition-all duration-1000 ${bgClass}" style="inline-size: ${score}%;"></div>
         </div>
       </div>`;
   }).join('');

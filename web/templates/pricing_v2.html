@@ -20,13 +20,13 @@ body { background: var(--bg); }
 
 /* ── Headroom Navigation (unified across site) ── */
 header.headroom {
-  min-height: 60px;
+  min-block-size: 60px;
   background: rgba(10,10,15,.8);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-light, rgba(255,255,255,.06));
+  border-inset-block-end: 1px solid var(--border-light, rgba(255,255,255,.06));
   position: sticky;
-  top: 0;
+  inset-block-start: 0;
   z-index: 100;
   display: flex;
   align-items: center;
@@ -49,7 +49,7 @@ header.headroom nav a {
   color: var(--text-muted, #64748b);
   font-weight: 500;
   padding: 6px 0;
-  border-bottom: 2px solid transparent;
+  border-inset-block-end: 2px solid transparent;
   text-decoration: none;
   transition: all .2s ease;
 }
@@ -75,29 +75,29 @@ header.headroom nav a.pill {
   position: relative; z-index: 10;
 }
 .pricing-hero h1 {
-  font-size: 44px; font-weight: 800; margin-bottom: 12px; line-height: 1.2;
+  font-size: 44px; font-weight: 800; margin-block-end: 12px; line-height: 1.2;
 }
 .pricing-hero h1 .blue { color: var(--blue); }
 .pricing-hero .subtitle {
   font-size: 15px; color: var(--text-muted);
-  max-width: 600px; margin: 0 auto; line-height: 1.7;
+  max-inline-size: 600px; margin: 0 auto; line-height: 1.7;
 }
 
 /* ── Section containers ── */
 .pricing-section {
-  padding: 60px 20px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 10;
+  padding: 60px 20px; max-inline-size: 1200px; margin: 0 auto; position: relative; z-index: 10;
 }
 .pricing-section h2 {
-  font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 8px; 
+  font-size: 26px; font-weight: 700; text-align: center; margin-block-end: 8px; 
 }
 .pricing-section .sub {
-  text-align: center; color: var(--text-muted); margin-bottom: 48px; font-size: 14px;
+  text-align: center; color: var(--text-muted); margin-block-end: 48px; font-size: 14px;
 }
 
 /* ── Pricing Grid ── */
 .pricing-grid {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
-  max-width: 1200px; margin: 0 auto;
+  max-inline-size: 1200px; margin: 0 auto;
 }
 
 .pricing-card {
@@ -110,8 +110,8 @@ header.headroom nav a.pill {
   overflow: hidden;
 }
 .pricing-card::before {
-  content: ''; position: absolute; top: 0; inset-inline-start: 0; inset-inline-end: 0;
-  height: 180px;
+  content: ''; position: absolute; inset-block-start: 0; inset-inline-start: 0; inset-inline-end: 0;
+  block-size: 180px;
   background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,.06), transparent 70%);
   pointer-events: none;
 }
@@ -129,15 +129,15 @@ header.headroom nav a.pill {
   box-shadow: 0 8px 40px rgba(59,130,246,.25);
 }
 .pricing-card.highlight::after {
-  content: ''; position: absolute; top: 0; inset-inline-start: 0; inset-inline-end: 0;
-  height: 3px;
+  content: ''; position: absolute; inset-block-start: 0; inset-inline-start: 0; inset-inline-end: 0;
+  block-size: 3px;
   background: linear-gradient(90deg, var(--blue), var(--purple), var(--blue));
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
 
 /* ── Badges ── */
 .badge {
-  position: absolute; top: -14px; inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto; transform: translateX(-50%);
+  position: absolute; inset-block-start: -14px; inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto; transform: translateX(-50%);
   background: linear-gradient(135deg, var(--magenta), #ec4899);
   color: #fff; padding: 6px 18px;
   border-radius: 50px; font-size: 10px; font-weight: 700;
@@ -149,9 +149,9 @@ header.headroom nav a.pill {
 /* ── Card content ── */
 .tier-name {
   font-size: 10px; color: var(--text-muted);
-  text-transform: uppercase;  margin-bottom: 8px;
+  text-transform: uppercase;  margin-block-end: 8px;
 }
-.pricing-card h3 { font-size: 22px; font-weight: 700; margin-bottom: 14px; }
+.pricing-card h3 { font-size: 22px; font-weight: 700; margin-block-end: 14px; }
 .companies {
   font-size: 44px; font-weight: 800; color: var(--blue); line-height: 1;
 }
@@ -162,24 +162,24 @@ header.headroom nav a.pill {
 .price.free { color: var(--green); }
 .price span { font-size: 13px; color: var(--text-muted); font-weight: 400; }
 .original-price { font-size: 13px; color: var(--text-muted); text-decoration: line-through; }
-.per { font-size: 11px; color: var(--text-muted); margin-bottom: 20px;  }
+.per { font-size: 11px; color: var(--text-muted); margin-block-end: 20px;  }
 .savings {
   display: inline-block; padding: 5px 14px;
   background: var(--blue-dim); border: 1px solid rgba(59,130,246,.3);
-  border-radius: 50px; color: var(--blue); font-size: 11px; font-weight: 600; margin-bottom: 18px;
+  border-radius: 50px; color: var(--blue); font-size: 11px; font-weight: 600; margin-block-end: 18px;
 }
 
-.pricing-card ul { list-style: none; text-align: start; margin-bottom: 28px; }
+.pricing-card ul { list-style: none; text-align: start; margin-block-end: 28px; }
 .pricing-card li {
   padding: 9px 0; color: var(--text-muted); font-size: 12px;
-  border-bottom: 1px solid var(--border); line-height: 1.5;
+  border-inset-block-end: 1px solid var(--border); line-height: 1.5;
 }
-.pricing-card li:last-child { border-bottom: none; }
+.pricing-card li:last-child { border-inset-block-end: none; }
 .pricing-card li::before {
   content: '\2192'; color: var(--blue); margin-inline-end: 10px; font-weight: 700;
 }
 
-.pricing-card a.btn { width: 100%; text-align: center; }
+.pricing-card a.btn { inline-size: 100%; text-align: center; }
 
 /* ── Flash Sale Banner ── */
 .flash-banner {
@@ -209,23 +209,23 @@ header.headroom nav a.pill {
 
 /* ── Bulk Discount Calculator ── */
 .bulk-calc {
-  max-width: 600px; margin: 0 auto;
+  max-inline-size: 600px; margin: 0 auto;
   background: linear-gradient(135deg, rgba(15,15,30,.85), rgba(10,10,20,.85));
   border: 1px solid var(--border); border-radius: var(--radius-xl);
   padding: 36px 32px; text-align: center;
 }
 .bulk-calc label {
   color: var(--text-muted); font-size: 12px; 
-  text-transform: uppercase; display: block; margin-bottom: 10px;
+  text-transform: uppercase; display: block; margin-block-end: 10px;
 }
 .bulk-calc input[type="range"] {
-  width: 100%; height: 8px;
+  inline-size: 100%; block-size: 8px;
   -webkit-appearance: none;
   background: linear-gradient(90deg, var(--blue), var(--purple));
   border-radius: 4px; outline: none;
 }
 .bulk-calc input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 24px; height: 24px;
+  -webkit-appearance: none; inline-size: 24px; block-size: 24px;
   background: var(--text); border-radius: 50%; cursor: pointer;
   border: 3px solid var(--blue); box-shadow: 0 0 12px rgba(59,130,246,.3);
 }
@@ -234,7 +234,7 @@ header.headroom nav a.pill {
 .bulk-calc .bulk-stat { text-align: center; }
 .bulk-calc .bulk-stat .stat-label {
   font-size: 11px; color: var(--text-muted);
-  text-transform: uppercase;  margin-bottom: 4px;
+  text-transform: uppercase;  margin-block-end: 4px;
 }
 .bulk-calc .bulk-stat .stat-value { font-size: 22px; font-weight: 700; }
 .bulk-calc .bulk-stat .stat-value.strikethrough { color: var(--text-muted); text-decoration: line-through; }
@@ -243,7 +243,7 @@ header.headroom nav a.pill {
 
 /* ── Urgency Counter ── */
 .urgency-box {
-  max-width: 600px; margin: 0 auto;
+  max-inline-size: 600px; margin: 0 auto;
   background: linear-gradient(135deg, rgba(59,130,246,.04), rgba(139,92,246,.04));
   border: 1px solid rgba(59,130,246,.12);
   border-radius: var(--radius-lg); padding: 24px; text-align: center;
@@ -261,19 +261,19 @@ header.headroom nav a.pill {
 }
 
 /* ── Comparison Table ── */
-.comparison-table { max-width: 700px; margin: 0 auto; }
+.comparison-table { max-inline-size: 700px; margin: 0 auto; }
 .comparison-row {
   display: flex; justify-content: space-between;
-  padding: 14px 0; border-bottom: 1px solid var(--border);
+  padding: 14px 0; border-inset-block-end: 1px solid var(--border);
 }
-.comparison-row .label { color: var(--text-muted); font-size: 13px; min-width: 160px; }
+.comparison-row .label { color: var(--text-muted); font-size: 13px; min-inline-size: 160px; }
 .comparison-row .them { color: rgba(107,114,128,.4); font-size: 13px; text-align: center; flex: 1; }
 .comparison-row .you { color: var(--blue); font-weight: 600; font-size: 13px; text-align: end; flex: 1; }
 
 /* ── A La Carte Services ── */
 .service-grid {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
-  max-width: 700px; margin: 0 auto;
+  max-inline-size: 700px; margin: 0 auto;
 }
 .service-card {
   background: linear-gradient(135deg, rgba(15,15,30,.85), rgba(10,10,20,.85));
@@ -283,7 +283,7 @@ header.headroom nav a.pill {
   transition: var(--transition);
 }
 .service-card:hover { border-color: var(--border-hover); }
-.service-info h3 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.service-info h3 { font-size: 14px; font-weight: 600; margin-block-end: 2px; }
 .service-info p { color: var(--text-muted); font-size: 11px; }
 .service-price { font-size: 20px; font-weight: 700; color: var(--blue); }
 
@@ -291,29 +291,29 @@ header.headroom nav a.pill {
 .crypto-section {
   text-align: center; padding: 40px 20px; position: relative; z-index: 10;
 }
-.crypto-section h2 { font-size: 20px; margin-bottom: 12px; }
+.crypto-section h2 { font-size: 20px; margin-block-end: 12px; }
 .crypto-section p { color: var(--text-muted); font-size: 13px; line-height: 1.8; }
 
 /* ── Social Proof ── */
 .social-proof {
   padding: 50px 20px; text-align: center; position: relative; z-index: 10;
 }
-.social-proof .stars { color: var(--gold); font-size: 22px; margin-bottom: 8px; }
-.social-proof h2 { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
+.social-proof .stars { color: var(--gold); font-size: 22px; margin-block-end: 8px; }
+.social-proof h2 { font-size: 18px; font-weight: 600; margin-block-end: 10px; }
 .social-proof p { color: var(--text-muted); font-size: 13px; }
 
 /* ── Footer ── */
 .pricing-footer {
   padding: 32px; text-align: center;
-  border-top: 1px solid var(--border);
+  border-inset-block-start: 1px solid var(--border);
   color: var(--text-muted); font-size: 12px; 
   position: relative; z-index: 10;
 }
 
 /* ── Social Toast (glass-morphism version) ── */
 .social-toast {
-  position: fixed; bottom: 80px; inset-inline-end: 20px; z-index: 9999;
-  max-width: 340px;
+  position: fixed; inset-block-end: 80px; inset-inline-end: 20px; z-index: 9999;
+  max-inline-size: 340px;
   background: linear-gradient(135deg, rgba(15,15,30,.95), rgba(10,10,20,.95));
   border: 1px solid rgba(59,130,246,.2);
   border-radius: var(--radius-lg);
@@ -325,7 +325,7 @@ header.headroom nav a.pill {
 }
 .social-toast.show { transform: translateX(0); }
 .social-toast .st-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
+  inline-size: 36px; block-size: 36px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 15px; font-weight: 600; flex-shrink: 0; color: #fff;
 }
@@ -334,14 +334,14 @@ header.headroom nav a.pill {
 .social-toast .st-content .st-action { color: var(--blue); }
 .social-toast .st-content .st-time { color: var(--text-muted); font-size: 10px; }
 .toast-close {
-  position: absolute; top: 6px; inset-inline-end: 10px;
+  position: absolute; inset-block-start: 6px; inset-inline-end: 10px;
   background: none; border: none; color: var(--text-muted);
   cursor: pointer; font-size: 14px;
 }
 
 /* ── Hero scroll link ── */
 .scroll-link {
-  text-align: center; margin-top: -20px; position: relative; z-index: 10;
+  text-align: center; margin-block-start: -20px; position: relative; z-index: 10;
 }
 .scroll-link a {
   color: var(--blue); text-decoration: none;
@@ -355,7 +355,7 @@ header.headroom nav a.pill {
   .pricing-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media(max-width: 768px) {
-  .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+  .pricing-grid { grid-template-columns: 1fr; max-inline-size: 420px; margin: 0 auto; }
   .pricing-card.highlight { transform: scale(1); }
   .pricing-hero h1 { font-size: 28px; }
   header.headroom { padding: 14px 20px; flex-direction: column; gap: 10px; }
@@ -368,7 +368,7 @@ header.headroom nav a.pill {
   .service-grid { grid-template-columns: 1fr; }
   .urgency-box .urgency-stats { gap: 20px; }
   .comparison-row { flex-wrap: wrap; gap: 4px; }
-  .comparison-row .label { min-width: 120px; }
+  .comparison-row .label { min-inline-size: 120px; }
 }
 @media(max-width: 480px) {
   .pricing-hero h1 { font-size: 22px; }
@@ -396,7 +396,7 @@ header.headroom nav a.pill {
 <p class="subtitle">دفعة لمرة واحدة. بدون اشتراكات. لا رسوم خفية. يبدأ من 5 دولار. ادفع بالعملات الرقمية.</p>
 </div>
 <!-- Flash Sale Banner (top) -->
-<div id="flashSaleBanner" style="display:none;max-width:1200px;margin:-20px auto 20px;padding:16px 24px;background:linear-gradient(135deg,rgba(220,38,38,.12),rgba(239,68,68,.06));border:2px solid rgba(239,68,68,.25);border-radius:var(--radius);text-align:center;animation:pulseGlow 2s infinite;position:relative;z-index:10;">
+<div id="flashSaleBanner" style="display:none;max-inline-size:1200px;margin:-20px auto 20px;padding:16px 24px;background:linear-gradient(135deg,rgba(220,38,38,.12),rgba(239,68,68,.06));border:2px solid rgba(239,68,68,.25);border-radius:var(--radius);text-align:center;animation:pulseGlow 2s infinite;position:relative;z-index:10;">
 <div style="font-size:12px;color:var(--red);text-transform:uppercase;">⚡ عرض خاطف نشط</div>
 <div style="font-size:17px;font-weight:700;color:var(--text);margin:4px 0;">
 <span id="fsTitle"></span> — خصم <span id="fsDiscount" style="color:var(--red);font-size:20px;"></span>
@@ -427,7 +427,7 @@ header.headroom nav a.pill {
       <div class="badge {% if tier.badge == 'PREMIUM' %}premium{% elif tier.badge == 'BEST VALUE' %}best-value{% endif %}">{{ tier.badge }}</div>
       {% endif %}
       {% if discount > 0 %}
-      <div class="badge" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-size:10px;padding:6px 14px;top:-14px;">خصم {{ "%.0f"|format(discount) }}%</div>
+      <div class="badge" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-size:10px;padding:6px 14px;inset-block-start:-14px;">خصم {{ "%.0f"|format(discount) }}%</div>
       {% endif %}
       <div class="tier-name">{{ tier.name|upper }}</div>
 <h3>{{ tier.name }}</h3>
@@ -457,19 +457,19 @@ header.headroom nav a.pill {
   </div>
 </section>
 <!-- Bulk Discount Calculator -->
-<section class="pricing-section" style="padding-top:0;">
+<section class="pricing-section" style="padding-block-start:0;">
 <h2>// حاسبة خصم الكميات</h2>
 <p class="sub">اشترِ حملات متعددة ووفر الكثير.</p>
 <div class="bulk-calc">
-<div style="margin-bottom:20px;">
+<div style="margin-block-end:20px;">
 <label>عدد الحملات</label>
-<input dir="auto" id="bulkQty" max="20" min="1" oninput="updateBulkCalc(this.value)" step="1" style="width:100%;height:8px;-webkit-appearance:none;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:4px;outline:none;" type="range" value="1"/>
-<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-top:4px;">
+<input dir="auto" id="bulkQty" max="20" min="1" oninput="updateBulkCalc(this.value)" step="1" style="inline-size:100%;block-size:8px;-webkit-appearance:none;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:4px;outline:none;" type="range" value="1"/>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-block-start:4px;">
 <span>1</span><span>5</span><span>10</span><span>15</span><span>20</span>
 </div>
 </div>
 <div class="bulk-qty-display" id="bulkQtyDisplay">1</div>
-<div style="color:var(--text-muted);font-size:12px;text-transform:uppercase;margin-bottom:16px;">حملات</div>
+<div style="color:var(--text-muted);font-size:12px;text-transform:uppercase;margin-block-end:16px;">حملات</div>
 <div class="bulk-stats">
 <div class="bulk-stat">
 <div class="stat-label">السعر العادي</div>
@@ -506,7 +506,7 @@ header.headroom nav a.pill {
 </div>
 </section>
 <!-- Comparison Table -->
-<section class="pricing-section" style="padding-top:20px;">
+<section class="pricing-section" style="padding-block-start:20px;">
 <h2>{{ _('// اليدوي مقابل JobHunt Pro') }}</h2>
 <p class="sub">شاهد الفرق الذي تحدثه الأتمتة.</p>
 <div class="comparison-table">
@@ -543,7 +543,7 @@ header.headroom nav a.pill {
 </div>
 </section>
 <!-- A La Carte Services -->
-<section class="pricing-section" style="padding-top:20px;">
+<section class="pricing-section" style="padding-block-start:20px;">
 <h2>// خدمات إضافية حسب الطلب</h2>
 <p class="sub">تحتاج شيئاً محدداً؟ اختر خدمات فردية.</p>
 <div class="service-grid">

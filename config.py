@@ -31,7 +31,7 @@ _secret_key = os.getenv("SECRET_KEY", "")
 if not _secret_key:
     import secrets as _secrets
     _secret_key = _secrets.token_urlsafe(64)
-    logger.critical(f"SECRET_KEY NOT SET in .env! Generated random key: {_secret_key[:8]}... (sessions invalidated on restart)")
+    logger.critical("SECRET_KEY NOT SET in .env! Using a random ephemeral key — sessions will be invalidated on every restart. Set SECRET_KEY in .env immediately.")
 SECRET_KEY = _secret_key
 CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+961 71 019 053")
 CANDIDATE_ADDRESS = os.getenv("CANDIDATE_ADDRESS", "Beirut, Lebanon")
@@ -183,7 +183,7 @@ NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "")
 NOWPAYMENTS_IPN_SECRET = os.getenv("NOWPAYMENTS_IPN_SECRET", "")
 TURNSTILE_SECRET = os.getenv("TURNSTILE_SECRET", "")
 TURNSTILE_SITE_KEY = os.getenv("TURNSTILE_SITE_KEY", "")
-B2B_API_KEYS = [k.strip() for k in os.getenv("B2B_API_KEYS", "b2b_gold_tier_773").split(",") if k.strip()]
+B2B_API_KEYS = [k.strip() for k in os.getenv("B2B_API_KEYS", "").split(",") if k.strip()]
 DRY_RUN = os.getenv("DRY_RUN", "false").lower() == "true"
 MAX_WORKERS = int(os.getenv("MAX_WORKERS", "10"))
 MIN_MATCH_SCORE = int(os.getenv("MIN_MATCH_SCORE", "60"))

@@ -12,7 +12,6 @@ sys.path.insert(0, str(_PROJECT_ROOT))
 if not os.getenv("SECRET_KEY"):
     os.environ["SECRET_KEY"] = "jobhunt-pro-cli-ephemeral-secret-key"
 
-import config
 from core.job_queue import dequeue_task, enqueue_task
 from core.queue_worker import _process_cron_tick_task
 

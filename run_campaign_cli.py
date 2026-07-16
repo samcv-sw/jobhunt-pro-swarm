@@ -22,7 +22,7 @@ async def main():
         sys.exit(1)
     campaign_id = sys.argv[1]
     company_limit = int(sys.argv[2]) if len(sys.argv) > 2 else 0
-    
+
     print(f"Starting campaign {campaign_id} with limit {company_limit}...")
     result = await run_campaign(campaign_id, get_db, config, company_limit=company_limit)
     print(f"Campaign finished: {result}")

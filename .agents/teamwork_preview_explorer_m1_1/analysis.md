@@ -1,486 +1,242 @@
-# Codebase Analysis & Design Report: Cloud Infrastructure Optimizations (Milestones 1-5)
+# Backend Core Audit Report
 
-This report details the codebase investigation and provides copy-paste-ready design strategies and code modifications for deploying and hardening the JobHunt Pro application on a $0 cloud infrastructure.
+## 1. Executive Summary
+This report presents the findings of a comprehensive read-only audit of the JobHunt Pro SaaS backend core files, routers, and configurations. The audit focused on:
+- `backend/main.py`
+- `backend/routers/*.py`
+- `backend/billing.py`
+- `backend/database.py`
+- `backend/auth.py`
+- `backend/limiter.py`
+- `core/` (specifically `cover_letter.py`, `job_queue.py`, and `pg_sqlite_shim.py`)
+- `config.py`
 
----
-
-## Executive Summary
-The JobHunt Pro codebase has been audited across five key architectural areas. By implementing Next.js static exports, a GitHub Actions scheduled heartbeat, Celery child-worker memory caps, Neon PgBouncer compatibility tweaks, and an automated free proxy pool manager, the platform is prepared for 24/7 autonomous operation within the constraints of Render, Neon, and Cloudflare free tiers.
-
----
-
-## 1. Cloudflare Pages Next.js Deployment (Milestone 1)
-
-### 1.1 Frontend Location & Build Output
-* **Frontend Location**: The Next.js frontend code is located in the `frontend/` directory of the workspace root.
-* **Build Command**: The build process is defined in `frontend/package.json` under `"build": "node node_modules/next/dist/bin/next build --webpack"`.
-* **Export Strategy**: In `frontend/next.config.ts`, static HTML export is enabled via the parameter `output: "export"`. When `npm run build` is executed, Next.js compiles the entire application into static HTML, CSS, and JS assets located in `frontend/out/`.
-
-### 1.2 Routing & Proxy/Redirect Configurations
-Since Next.js is configured for static export (`output: "export"`), dynamic routing features (like rewrite rules or API proxies) cannot rely on Next.js server-side middlewares or standard Node.js server configurations.
-* **Programmatic Routing (`_worker.js`)**: The application uses a custom Cloudflare Pages Worker router located at `cloudflare/pages/_worker.js`. This worker intercepts all pages requests:
-  - It proxies routes defined in `PROXY_PATHS = ['/api/', '/_/pa/', '/scrape', '/health']` directly to the edge worker API (`WORKER_URL = 'https://jobhunt-pro-router.samsalameh-cv.workers.dev'`).
-  - It serves static frontend assets directly from Cloudflare's edge cache via `env.ASSETS.fetch(request)`.
-* **Static Redirect File (`_redirects`)**: To add custom redirects, a `_redirects` file can be placed at the root of the compiled output (`frontend/out/_redirects`). The best practice is to place this file inside `frontend/public/_redirects`. Next.js automatically copies everything in `public/` to the build output `out/` folder during compilation, ensuring custom redirects persist across deployments.
-
-### 1.3 Backend CORS Configurations & Cloudflare Pages Integration
-CORS is dynamically managed in the backend to ensure secure API requests:
-* **CORS Settings Location**: Configured in `backend/main.py` (lines 294-320).
-* **Allowed Origins**: Loaded from the environment variable `ALLOWED_ORIGINS` via:
-  ```python
-  allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
-  if allowed_origins_env:
-      origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
-  ```
-  If `ALLOWED_ORIGINS` is not defined in the environment, it defaults to localhost urls (`http://localhost:3000`, `http://localhost:5173`, `http://localhost:8000`).
-* **Subdomain Validation**: `backend/main.py` uses `SecureCORSMiddleware` (lines 247-290) and `_build_origin_regex` to support wildcard subdomains (e.g., `https://*.pages.dev`).
-* **Update for Cloudflare Pages**: To authorize the production Pages site and its preview deployments, set the backend environment variable:
-  ```env
-  ALLOWED_ORIGINS=https://jobhunt-pro-frontend.pages.dev,https://*.pages.dev
-  ```
+Several security vulnerabilities (including IDOR, missing webhook auth, and XSS), performance bottlenecks (GC settings and duplicate dependency runs), database portability issues, and multi-tenant SaaS design flaws were identified. A detailed remediation strategy is proposed for each.
 
 ---
 
-## 2. GitHub Actions Scheduled Keep-Alive (Milestone 2)
+## 2. Security Vulnerabilities
 
-### 2.1 Workflow Audit
-The `.github/workflows/` folder contains two active keepalive actions: `keep-alive.yml` and `keep_alive.yml`. Both are configured on a `*/10 * * * *` schedule, but only ping the standard `/health` or `/api/v1/health` HTTP endpoints.
-
-### 2.2 Uptime & Database Warmup Workflow Design
-Render's free web service instances spin down after 15 minutes of inactivity. Neon serverless databases auto-suspend after 5 minutes of idle time. To keep both active with zero cold-starts, the keepalive must run at least every 12 minutes and ping both the backend and query the database.
-* **Database Warming Strategy**: Pinging `/healthz` only verifies FastAPI's status and does not query the database. Pinging the detailed health endpoint `/api/v1/health/detailed` triggers an active SQLAlchemy database query (`SELECT 1`), keeping Neon warm. Alternatively, the local script `core/neon_warmer.py` can be executed directly by the workflow.
-
-### 2.3 Proposed Workflow: `.github/workflows/keep_alive_optimized.yml`
-```yaml
-name: ⚡ Render Backend & Neon DB Keep-Alive
-
-on:
-  schedule:
-    - cron: "*/12 * * * *" # Runs every 12 minutes to prevent Render (15m) & Neon (5m) sleeps
-  workflow_dispatch:      # Allows manual trigger in GitHub UI
-
-jobs:
-  keep-alive:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
-
-      - name: Install DB Dependencies
-        run: |
-          pip install psycopg2-binary
-
-      - name: Ping Render Backend /healthz
-        env:
-          RENDER_APP_URL: ${{ secrets.RENDER_APP_URL }}
-        run: |
-          TARGET_URL="${RENDER_APP_URL:-https://jobhunt-pro.onrender.com}"
-          echo "Pinging Render healthz: $TARGET_URL/healthz"
-          curl -sS --fail --retry 3 --max-time 15 "$TARGET_URL/healthz"
-
-      - name: Run Neon DB Warming Script
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          if [ -z "$DATABASE_URL" ]; then
-            echo "DATABASE_URL secret is missing. Skipping local DB warming script."
-          else
-            echo "Running local Neon DB warming script..."
-            python core/neon_warmer.py
-          fi
-
-      - name: Ping Detailed Health Endpoint (Alternative/Fallback DB Warmer)
-        env:
-          RENDER_APP_URL: ${{ secrets.RENDER_APP_URL }}
-        run: |
-          TARGET_URL="${RENDER_APP_URL:-https://jobhunt-pro.onrender.com}"
-          echo "Pinging detailed health endpoint to warm DB: $TARGET_URL/api/v1/health/detailed"
-          curl -sS --fail --retry 3 --max-time 15 "$TARGET_URL/api/v1/health/detailed"
-```
-
----
-
-## 3. Celery Memory Guard (Milestone 3)
-
-### 3.1 Worker Spawning Analysis
-In `start_cloud.py` (lines 113-132), the Celery worker is spawned inside a subprocess:
+### Vulnerability 1: Insecure Direct Object Reference (IDOR) on Stripe Checkout Route
+* **File**: `backend/billing.py` (lines 19-50)
+* **Description**: The `/api/v1/checkout` endpoint accepts a `CheckoutRequest` containing a `user_id` string in the request body. However, the route does not verify that the supplied `user_id` matches the authenticated user's ID encoded in the JWT claims payload returned by `verify_jwt`. This allows any authenticated user to generate checkout sessions and purchase subscription tiers on behalf of any other user.
+* **Proposed Fix**: Extract the authenticated user's ID directly from the JWT claims payload (returned by `verify_jwt`) and use it to configure the checkout session, discarding the `user_id` supplied in the request body.
+* **Before**:
 ```python
-        celery_cmd = [sys.executable, "-m", "celery", "-A", "backend.tasks", "worker", "--loglevel=info"]
-        if os.name == "nt":
-            celery_cmd.extend(["-P", "solo"])
-        else:
-            celery_cmd.extend(["-c", "1"])
-```
-* **Windows vs Linux Pool**: On Windows (`os.name == "nt"`), Celery must run with the `solo` pool (`-P solo`) to avoid multi-processing compatibility issues. On Linux (Render), it runs with the default `prefork` pool and concurrency 1 (`-c 1`).
-* **Command Option Compatibility**: Celery's process recycling flags (`--max-tasks-per-child` and `--max-memory-per-child`) only apply to pools that manage child worker processes (like `prefork`). If passed to a `solo` pool, they are ignored since tasks execute within the master process itself. Thus, we must append these parameters to the command list, ensuring they are functional in production (Linux).
-
-### 3.2 Proposed Modifications for `start_cloud.py`
-We modify the `celery_cmd` initialization in `start_cloud.py` to inject the limits before checking for platform-specific arguments:
-```python
-        # Base Celery Command with memory limits (150000 KB = 150 MB)
-        celery_cmd = [
-            sys.executable, "-m", "celery", 
-            "-A", "backend.tasks", 
-            "worker", 
-            "--loglevel=info",
-            "--max-tasks-per-child=10",
-            "--max-memory-per-child=150000"
-        ]
-        if os.name == "nt":
-            # On Windows, use solo pool (recycling limits have no effect but CLI arguments parse fine)
-            celery_cmd.extend(["-P", "solo"])
-        else:
-            # On Linux (Render), omit -P solo and use concurrency=1 to allow worker process recycling
-            celery_cmd.extend(["-c", "1"])
-```
-
----
-
-## 4. Neon PgBouncer Connection String Updates (Milestone 4)
-
-### 4.1 Neon PgBouncer & transaction pooling limits
-Neon database connections can use a PgBouncer connection pooler (indicated by `-pooler` in the hostname) to handle high concurrency. 
-* **Prepared Statement Conflict**: PgBouncer transaction-mode poolers route consecutive queries to different database sessions. Since SQLAlchemy's `asyncpg` driver uses prepared statements by default (stored in session memory), PgBouncer transaction pooling will cause errors (e.g., `prepared statement "..." does not exist`).
-* **Mitigation**: Disabling prepared statements is mandatory. For `asyncpg` and SQLAlchemy, this is done by setting `statement_cache_size=0` and `prepared_statement_cache_size=0` in connection parameters, rather than passing raw JDBC parameters like `prepareThreshold` directly to the `asyncpg` driver, which raises a `ValueError`.
-
-### 4.2 Proposed Strategy for `backend/database.py`
-We will rewrite `REMOTE_PG_URL` during initialization to target the Neon pooler (subdomain suffix `-pooler`), target port `5432`, and append `?sslmode=require&prepareThreshold=0` (ensuring JDBC/external compliance). Then, we strip these parameters before passing the URL to `create_async_engine()`, handling them cleanly via `connect_args`.
-
-#### Before (`backend/database.py` lines 27-46):
-```python
-REMOTE_PG_URL    = os.getenv("DATABASE_URL")             # kept for legacy / Postgres path
-
-def _build_active_url() -> str:
-    """Return the resolved async database URL at startup, logging the active backend."""
-    if TURSO_URL:
-        # libsql+aiosqlite over HTTPS — aiosqlite supports the libsql URL scheme
-        # when the libsql-experimental package is installed.
-        url = TURSO_URL.replace("libsql://", "sqlite+aiosqlite://")
-        _db_logger.info('{"msg": "Connecting to Turso edge database", "url": "%s"}', TURSO_URL)
-        return url
-    if REMOTE_PG_URL:
-        _db_logger.info('{"msg": "Connecting to remote PostgreSQL"}')
-        url = REMOTE_PG_URL
-        if url.startswith("postgresql://"):
-            url = url.replace("postgresql://", "postgresql+asyncpg://")
-        elif url.startswith("postgres://"):
-            url = url.replace("postgres://", "postgresql+asyncpg://")
-        return url
-    _db_logger.info('{"msg": "Using local SQLite fallback", "url": "%s"}', LOCAL_DB_URL)
-    return LOCAL_DB_URL
-```
-
-#### Proposed Change (`backend/database.py`):
-```python
-from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
-
-def configure_pg_bouncer_url(url: str) -> str:
-    """Rewrite PG URL to target Neon PgBouncer pooler on port 5432 with standard parameters."""
-    if not url or "postgres" not in url:
-        return url
+@router.post("/api/v1/checkout", dependencies=[Depends(verify_jwt), Depends(rate_limiter)])
+async def create_checkout_session(request: CheckoutRequest):
+    ...
     try:
-        parsed = urlparse(url)
-        netloc = parsed.netloc
-        auth = ""
-        host_port = netloc
-        if "@" in netloc:
-            auth, host_port = netloc.split("@", 1)
-            auth += "@"
-            
-        host = host_port
-        if ":" in host_port:
-            host, _ = host_port.split(":", 1)
-            
-        # Target Neon Pooler (e.g. ep-some-name-pooler.us-east-2.aws.neon.tech)
-        if "neon.tech" in host:
-            parts = host.split(".")
-            if parts and not parts[0].endswith("-pooler"):
-                parts[0] = f"{parts[0]}-pooler"
-                host = ".".join(parts)
-                
-        # Force PgBouncer port 5432
-        new_netloc = f"{auth}{host}:5432"
-        
-        # Append query params for JDBC/custom parser compatibility
-        query_params = dict(parse_qsl(parsed.query))
-        query_params["sslmode"] = "require"
-        query_params["prepareThreshold"] = "0"
-        new_query = urlencode(query_params)
-        
-        return urlunparse(parsed._replace(netloc=new_netloc, query=new_query))
-    except Exception as e:
-        _db_logger.error(f"Error compiling PgBouncer connection string: {e}")
-        return url
-
-# Load and rewrite raw database URL
-RAW_DATABASE_URL = os.getenv("DATABASE_URL")
-REMOTE_PG_URL = configure_pg_bouncer_url(RAW_DATABASE_URL) if RAW_DATABASE_URL else None
-
-def _build_active_url() -> str:
-    """Return the resolved async database URL at startup, logging the active backend."""
-    if TURSO_URL:
-        url = TURSO_URL.replace("libsql://", "sqlite+aiosqlite://")
-        _db_logger.info('{"msg": "Connecting to Turso edge database", "url": "%s"}', TURSO_URL)
-        return url
-    if REMOTE_PG_URL:
-        _db_logger.info('{"msg": "Connecting to remote PostgreSQL", "url": "%s"}', REMOTE_PG_URL)
-        url = REMOTE_PG_URL
-        if url.startswith("postgresql://"):
-            url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
-        elif url.startswith("postgres://"):
-            url = url.replace("postgres://", "postgresql+asyncpg://", 1)
-        return url
-    _db_logger.info('{"msg": "Using local SQLite fallback", "url": "%s"}', LOCAL_DB_URL)
-    return LOCAL_DB_URL
+        session = await asyncio.to_thread(
+            stripe.checkout.Session.create,
+            ...
+            client_reference_id=request.user_id
+        )
+        return {"checkout_url": session.url}
 ```
-
-And update the post-processing of `ACTIVE_DB_URL` in `backend/database.py` (lines 77-86) to strip custom parameters and inject them via `connect_args`:
+* **After**:
 ```python
-    # Configure connect args safely
-    connect_args = {
-        "statement_cache_size": 0,
-        "prepared_statement_cache_size": 0,
-    }
-    
-    if "sslmode" in ACTIVE_DB_URL or "ssl" in ACTIVE_DB_URL:
-        connect_args["ssl"] = True
-        
-    # Strip any query parameters from ACTIVE_DB_URL before passing it to create_async_engine
-    if "?" in ACTIVE_DB_URL:
-        base_url, _ = ACTIVE_DB_URL.split("?", 1)
-        ACTIVE_DB_URL = base_url
-        
-    engine_kwargs["connect_args"] = connect_args
-```
-
-### 4.3 Proposed Strategy for `backend/sync_worker.py`
-In `backend/sync_worker.py`, the worker establishes a connection to Neon via raw `asyncpg.connect()`:
-```python
-            # Strip async+asyncpg scheme for raw asyncpg connection
-            raw_pg_url = REMOTE_PG_URL.replace("postgresql+asyncpg://", "postgresql://") if REMOTE_PG_URL else None
-```
-Because raw `asyncpg` does not recognize `prepareThreshold`, passing it in `raw_pg_url` causes a `ValueError`.
-We must strip the query parameters from `raw_pg_url` and pass `ssl="require"` and `statement_cache_size=0` explicitly to `asyncpg.connect()`.
-
-#### Proposed Change (`backend/sync_worker.py` lines 143-146):
-```python
-                # Reuse connection if active, otherwise reconnect
-                if not cloud_conn or cloud_conn.is_closed():
-                    logger.info("[SyncWorker] Re-establishing remote DB connection...")
-                    # Strip URL parameters to avoid asyncpg parser ValueError
-                    clean_pg_url = raw_pg_url.split("?")[0]
-                    cloud_conn = await asyncpg.connect(
-                        clean_pg_url, 
-                        ssl="require", 
-                        statement_cache_size=0
-                    )
+@router.post("/api/v1/checkout", dependencies=[Depends(rate_limiter)])
+async def create_checkout_session(request: CheckoutRequest, payload: dict = Depends(verify_jwt)):
+    # Override client_reference_id with verified JWT subject
+    verified_user_id = payload.get("sub")
+    if not verified_user_id:
+        raise HTTPException(status_code=401, detail="Invalid token subject")
+    ...
+    try:
+        session = await asyncio.to_thread(
+            stripe.checkout.Session.create,
+            ...
+            client_reference_id=verified_user_id
+        )
+        return {"checkout_url": session.url}
 ```
 
 ---
 
-## 5. Free Proxy Pool Scraper Rotation (Milestone 5)
-
-### 5.1 Scraper Architecture & Performance Audit
-In `core/ghost_hunter.py`, `GhostHunter.hunt_for_user()` performs public job scraping on LinkedIn via a single `Camoufox` browser context:
+### Vulnerability 2: Missing Webhook Authentication on Bounce Webhooks (Brevo & SendGrid)
+* **File**: `backend/routers/webhooks.py` (lines 18-84)
+* **Description**: The Brevo and SendGrid bounce webhooks process POST requests and update database user records (`UPDATE users SET email_bounced = 1 WHERE email IN ...`). However, there is no validation to verify that these webhook requests originated from Brevo or SendGrid. An attacker could craft a POST request containing a list of email addresses, and the system would mark those emails as bounced, effectively causing a Denial of Service (DoS) for those users' outreach campaigns.
+* **Proposed Fix**: Implement signature or token verification. For SendGrid, verify the `X-Twilio-Email-Event-Webhook-Signature` and `X-Twilio-Email-Event-Webhook-Timestamp` headers using SendGrid's public key. For Brevo, enforce a secure token configured via a URL query parameter or header.
+* **Remediation Draft (SendGrid Verification Example)**:
 ```python
-            from camoufox.sync_api import Camoufox
+from sendgrid.helpers.eventwebhook import EventWebhook
 
-            with Camoufox(headless=True) as browser:
-                page = browser.new_page()
-                for url in urls:
-```
-* **Performance Leak**: The DB duplicate check happens inside the loop, *after* the browser is spawned. If all scraped URLs are duplicates, launching the browser wasted substantial memory and boot time.
-* **Stealth and IP Rotation**: Using a single IP address (direct connection) to fetch multiple job descriptions on LinkedIn is highly susceptible to rate-limiting and IP bans.
-
-### 5.2 Implementation of `ProxyManager`
-We design a `ProxyManager` to scrape free proxies hourly and cache them in `cache/proxy_pool.json`. To prevent fingerprint tracking and enable complete IP rotation, `Camoufox` must be instantiated per URL, utilizing a different proxy.
-
-#### Proposed Proxy Integration code in `core/ghost_hunter.py`:
-```python
-import os
-import json
-import re
-import requests
-from bs4 import BeautifulSoup
-
-class ProxyManager:
-    """Manages hourly scraping, caching, and rotation of free proxies."""
-    CACHE_FILE = "cache/proxy_pool.json"
-
-    def __init__(self):
-        os.makedirs(os.path.dirname(self.CACHE_FILE), exist_ok=True)
-        self.proxies = []
-        self.load_proxies()
-
-    def load_proxies(self):
-        """Loads cached proxies or scrapes new ones if the cache is stale (>1 hour)."""
-        now = time.time()
-        stale = True
-        
-        if os.path.exists(self.CACHE_FILE):
-            try:
-                with open(self.CACHE_FILE, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    if now - data.get("timestamp", 0) < 3600:
-                        self.proxies = data.get("proxies", [])
-                        if self.proxies:
-                            stale = False
-                            logger.info(f"[PROXY-POOL] Loaded {len(self.proxies)} proxies from cache.")
-            except Exception as e:
-                logger.error(f"[PROXY-POOL] Error reading proxy cache: {e}")
-                
-        if stale:
-            logger.info("[PROXY-POOL] Cache is stale or empty. Scraping new proxies...")
-            self.scrape_and_save()
-
-    def scrape_and_save(self):
-        """Scrape free proxies from free-proxy-list.net and sslproxies.org."""
-        self.proxies = []
-        sources = [
-            "https://free-proxy-list.net/",
-            "https://www.sslproxies.org/"
-        ]
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
-        
-        for url in sources:
-            try:
-                resp = requests.get(url, headers=headers, timeout=10)
-                if resp.status_code == 200:
-                    soup = BeautifulSoup(resp.text, "html.parser")
-                    table = soup.find("table", class_="table-striped")
-                    if table:
-                        tbody = table.find("tbody")
-                        if tbody:
-                            for row in tbody.find_all("tr"):
-                                cols = row.find_all("td")
-                                if len(cols) >= 2:
-                                    ip = cols[0].text.strip()
-                                    port = cols[1].text.strip()
-                                    if re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", ip):
-                                        self.proxies.append(f"{ip}:{port}")
-            except Exception as e:
-                logger.error(f"[PROXY-POOL] Error scraping {url}: {e}")
-                
-        self.proxies = list(set(self.proxies))
-        
-        if self.proxies:
-            logger.info(f"[PROXY-POOL] Successfully scraped {len(self.proxies)} unique proxies.")
-            try:
-                with open(self.CACHE_FILE, "w", encoding="utf-8") as f:
-                    json.dump({"timestamp": time.time(), "proxies": self.proxies}, f)
-            except Exception as e:
-                logger.error(f"[PROXY-POOL] Error saving proxy cache: {e}")
-        else:
-            logger.warning("[PROXY-POOL] Scraped 0 proxies. Keeping old proxies as fallback.")
-
-    def get_proxy(self) -> str | None:
-        """Retrieve a random proxy from the active pool."""
-        if not self.proxies:
-            self.load_proxies()
-        if self.proxies:
-            return random.choice(self.proxies)
-        return None
-
-    def mark_failed(self, proxy: str):
-        """Remove a failed proxy from the pool and update cache."""
-        if proxy in self.proxies:
-            self.proxies.remove(proxy)
-            logger.info(f"[PROXY-POOL] Removed failed proxy: {proxy}. Remaining: {len(self.proxies)}")
-            try:
-                if os.path.exists(self.CACHE_FILE):
-                    with open(self.CACHE_FILE, "r", encoding="utf-8") as f:
-                        data = json.load(f)
-                    data["proxies"] = self.proxies
-                    with open(self.CACHE_FILE, "w", encoding="utf-8") as f:
-                        json.dump(data, f)
-            except Exception as e:
-                logger.error(f"[PROXY-POOL] Error updating proxy cache: {e}")
+@router.post("/api/v1/webhooks/sendgrid")
+async def sendgrid_bounce_webhook(request: Request) -> dict:
+    # Verify SendGrid Webhook Signature
+    signature = request.headers.get("X-Twilio-Email-Event-Webhook-Signature")
+    timestamp = request.headers.get("X-Twilio-Email-Event-Webhook-Timestamp")
+    body = await request.body()
+    
+    public_key = os.getenv("SENDGRID_WEBHOOK_PUBLIC_KEY")
+    if public_key:
+        ew = EventWebhook()
+        if not ew.verify_signature(body.decode("utf-8"), signature, timestamp, public_key):
+            raise HTTPException(status_code=403, detail="Invalid webhook signature")
+    ...
 ```
 
-#### Proposed Changes in `GhostHunter.hunt_for_user()`:
-We rewrite the Camoufox loop in `core/ghost_hunter.py` (lines 65-139) to incorporate:
-1. **Lazy DB Validation**: Validate duplicates before spawning the heavy browser process.
-2. **IP Rotation per Request**: Recreate the browser with a proxy selected from `ProxyManager`.
-3. **Automatic Bad Proxy Eviction**: Catch connection errors and mark the bad proxy.
+---
 
+### Vulnerability 3: Public Unprotected Telegram Webhook
+* **File**: `backend/routers/telegram.py` (lines 15-29)
+* **Description**: The `/webhook/telegram` POST endpoint handles updates sent to the Telegram bot. This route does not perform any authorization check or verify that incoming requests are from Telegram. Attackers who know the path can inject arbitrary mock updates and control the bot's state.
+* **Proposed Fix**: Standardize the webhook URL to include a secret token in the path (e.g., `/webhook/telegram/{secret_token}`), or verify the `X-Telegram-Bot-Api-Secret-Token` header sent by Telegram against the bot token.
+* **After**:
 ```python
-        # For Camoufox, we run it synchronously since it's blocking
-        try:
-            from camoufox.sync_api import Camoufox
-            proxy_mgr = ProxyManager()
-
-            for url in urls:
-                # 1. OPTIMIZATION: Check if job already exists before launching browser
-                conn = _get_db()
-                existing = conn.execute(
-                    "SELECT 1 FROM jobs WHERE user_id = ? AND url = ?",
-                    (user_id, url),
-                ).fetchone()
-                conn.close()
-                if existing:
-                    logger.info(f"[DATASET-FETCHER] Duplicate job found — skipping: {url}")
-                    continue
-
-                # 2. Retrieve proxy and construct configuration
-                proxy = proxy_mgr.get_proxy()
-                proxy_config = {"server": f"http://{proxy}"} if proxy else None
-                logger.info(f"[DATASET-FETCHER] Launching Camoufox with proxy: {proxy or 'Direct Connection'}")
-
-                try:
-                    # 3. Launch fresh browser context for IP rotation
-                    with Camoufox(headless=True, proxy=proxy_config) as browser:
-                        page = browser.new_page()
-                        logger.info(f"[DATASET-FETCHER] Fetching page: {url}")
-                        page.goto(url, timeout=30000)
-                        time.sleep(random.uniform(2, 4))  # Human delay
-                        html = page.content()
-
-                        soup = BeautifulSoup(html, "html.parser")
-                        title_elem = soup.find("h1")
-                        title = title_elem.text.strip() if title_elem else "Unknown Title"
-
-                        company_elem = soup.find("a", {"class": "topcard__org-name-link"})
-                        company = company_elem.text.strip() if company_elem else "Unknown Company"
-
-                        desc_elem = soup.find("div", {"class": "description__text"})
-                        desc = desc_elem.text.strip() if desc_elem else ""
-
-                        if len(desc) > 50:
-                            job_id = f"gh_{int(time.time())}_{random.randint(1000, 9999)}"
-                            conn = _get_db()
-                            conn.execute(
-                                """
-                                INSERT INTO jobs (job_id, user_id, title, company, description, url, source, status)
-                                VALUES (?, ?, ?, ?, ?, ?, 'ghost_hunter', 'new')
-                                """,
-                                (job_id, user_id, title, company, desc, url),
-                            )
-                            if hasattr(conn, "commit"):
-                                conn.commit()
-                            conn.close()
-                            logger.info(f"[DATASET-FETCHER] Ingested sample: {title} at {company}")
-
-                        # ANTI-BAN JITTER: Randomized delay from 15 to 35 seconds
-                        jitter = random.uniform(15, 35)
-                        logger.info(f"[DATASET-FETCHER] Applying network backoff ({jitter:.1f}s)")
-                        time.sleep(jitter)
-
-                except Exception as e:
-                    logger.error(f"[DATASET-FETCHER] Error processing {url} with proxy {proxy}: {e}")
-                    if proxy:
-                        proxy_mgr.mark_failed(proxy)
-                    # Optional: We could re-queue or retry here with a different proxy
-
-        except ImportError:
-            logger.error("[DATASET-FETCHER] Headless dependency not installed.")
-        except Exception as e:
-            logger.error(f"[DATASET-FETCHER] Runtime Error: {e}")
+@router.post("/webhook/telegram/{secret_token}")
+async def telegram_webhook(secret_token: str, request: Request) -> dict[str, str]:
+    import config
+    expected_token = os.getenv("TELEGRAM_BOT_TOKEN")
+    if secret_token != expected_token:
+        raise HTTPException(status_code=403, detail="Unauthorized webhook source")
+    ...
 ```
+
+---
+
+### Vulnerability 4: HTML Injection / XSS in Email Preview Endpoint
+* **File**: `backend/routers/emails.py` (lines 18-48)
+* **Description**: The `/api/v1/emails/preview` endpoint directly interpolates raw AI-generated and user-supplied cover letter text (`body`) into a raw HTML template (`html = f"... <p>{body.replace(chr(10), '<br>')}</p> ..."`) without escaping. If a user or the AI injects malicious script blocks or HTML tags, they will render in the admin/dashboard application, leading to HTML Injection or Cross-Site Scripting (XSS).
+* **Proposed Fix**: Escape the cover letter body using `html.escape` before building the template.
+* **After**:
+```python
+import html as python_html
+
+# Inside email_preview:
+escaped_body = python_html.escape(body).replace("\n", "<br>")
+html = f"""<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><style>
+body{{font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:20px}}
+</style></head>
+<body>
+<p>{escaped_body}</p>
+...
+"""
+```
+
+---
+
+### Vulnerability 5: Default/Hardcoded Secrets and Addresses in Configuration
+* **Files**: `config.py` (lines 17-37, 296-299), `backend/routers/unsubscribe.py` (line 27), `backend/auth.py` (line 24)
+* **Description**:
+  1. Default fallbacks exist for `JWT_SECRET_KEY` (`"jobhunt-pro-secret-key-32bytes-ok!!"`) if the environment variable is missing. This exposes production deployments to session forging if configured incorrectly.
+  2. Hardcoded fallback addresses for BTC, ETH, USDT, and LTC wallets are defined in `config.py`.
+  3. Default database URL pointing to local postgres credentials: `"postgresql+asyncpg://jobhunt:jobhunt_password@localhost:5432/jobhunt_db"`.
+* **Proposed Fix**: Raise a strict `ValueError` on startup if critical secrets (`JWT_SECRET_KEY`, `DATABASE_URL`) are not defined and `ENV` is set to `"production"`. Do not expose hardcoded fallback crypto wallets.
+
+---
+
+## 3. Performance Bottlenecks
+
+### Bottleneck 1: Overly Aggressive Garbage Collection
+* **File**: `backend/main.py` (line 6)
+* **Description**: The garbage collection thresholds are set via `gc.set_threshold(50, 5, 5)`. The Python standard default is `(700, 10, 10)`. Setting thresholds this low forces the garbage collector to run continuously on every minor heap allocation, severely degrading API throughput and causing unnecessary CPU spikes.
+* **Proposed Fix**: Remove the `gc.set_threshold` override and let Python manage heap collection using standard defaults, or increase to a profile-tuned scale.
+
+---
+
+### Bottleneck 2: Duplicate JWT Validation Dependency Execution
+* **File**: `backend/routers/referral.py` (line 21)
+* **Description**: The `track_referral` route is defined as:
+```python
+@router.post("/api/v1/referral/track", dependencies=[Depends(verify_jwt)])
+async def track_referral(req: ReferralRequest, payload: dict = Depends(verify_jwt)) -> dict:
+```
+This causes `verify_jwt` to run twice per request: once as a router dependency, and once to populate the `payload` parameter. This duplicates the JWT decoding, database checks, and rate limit lookups.
+* **Proposed Fix**: Remove the decorator-level dependency.
+* **After**:
+```python
+@router.post("/api/v1/referral/track")
+async def track_referral(req: ReferralRequest, payload: dict = Depends(verify_jwt)) -> dict:
+```
+
+---
+
+### Bottleneck 3: Dual Database Connection Pools Exceeding Cloud Limits
+* **Files**: `backend/database.py` and `core/pg_sqlite_shim.py`
+* **Description**: The application establishes two independent database connection pools to the same PostgreSQL (Neon) instance:
+  1. An asynchronous SQLAlchemy connection pool (`backend/database.py`, `pool_size=3`, `max_overflow=2`, total max = 5 connections).
+  2. A synchronous `ThreadedConnectionPool` inside the custom DB shim (`core/pg_sqlite_shim.py`, `max_conn=3` connections).
+  Because the free tier of Neon allows a maximum of 10 concurrent connections, a single uvicorn worker process can use up to 8 connections. Under multiple worker processes or Celery concurrency, the server will quickly exhaust database connections, throwing `OperationalError: connection limit exceeded`.
+* **Proposed Fix**: Consolidate database connections. Refactor background tasks and scraper metrics to run queries using the primary SQLAlchemy `async_session` rather than relying on a separate synchronous connection pool in the shim.
+
+---
+
+### Bottleneck 4: In-Memory Lockout Contention and Non-Distribution
+* **File**: `backend/auth.py`
+* **Description**: Lockout tracking uses an in-memory dictionary `_rate_state` guarded by a global threading lock (`_rate_lock`). Under high concurrent login/request volume, the lock will cause thread contention. Furthermore, because it is stored in-memory, the lockout state is not shared across multi-worker server setups, allowing attackers to bypass lockouts by hitting different server processes.
+* **Proposed Fix**: Store lockout status in Redis (using simple keys with TTLs like `lockout:ip_address`), leveraging the pre-configured Redis connection.
+
+---
+
+## 4. Design Flaws & Compatibility Issues
+
+### Design Flaw 1: SQL Engine Incompatibility on Raw SQL Queries
+* **Files**: `backend/routers/analytics.py` (line 120), `backend/routers/scraping.py` (line 127)
+* **Description**: The codebase strictly enforces PostgreSQL in production, yet several endpoints execute database-specific raw SQL queries:
+  1. In `get_referral_analytics` (analytics.py):
+     `SUM(CASE WHEN converted = 1 THEN 1 ELSE 0 END)`
+     In PostgreSQL, comparing a boolean column `converted` to integer `1` raises a database exception: `operator does not exist: boolean = integer`.
+  2. In `scrapers_health` (scraping.py):
+     `WHERE created_at >= datetime('now', '-7 days')`
+     This SQL function is SQLite-specific. Under PostgreSQL, it raises a syntax error.
+  Because the FastAPI routers execute these raw queries using the SQLAlchemy async session directly (which bypasses the regex SQL translation in `pg_sqlite_shim.py`), these routes will crash in production when connected to PostgreSQL.
+* **Proposed Fix**: Replace raw SQL queries with SQLAlchemy ORM expressions or rewrite the queries to use standard SQL:
+  - Use boolean expressions: `SUM(CASE WHEN converted THEN 1 ELSE 0 END)` or `SUM(CASE WHEN converted = true THEN 1 ELSE 0 END)`.
+  - Bind dates dynamically: Pass the calculated date limit as a query parameter from Python (e.g. using `datetime.now(UTC) - timedelta(days=7)`) instead of using database-specific date functions.
+
+---
+
+### Design Flaw 2: Hardcoded Candidate Experience in Fallback Templates
+* **File**: `core/cover_letter.py`
+* **Description**: While the application is designed as a multi-tenant SaaS where users can purchase subscriptions, the fallback templates in `CoverLetterWriter` contain highly specific numbers and experiences belonging to a single candidate (Sam Salameh):
+  - "securing 2,000+ remote users across 30+ branch offices"
+  - "Reduced WAN costs by 45% through SD-WAN deployment across 50+ sites"
+  - "Managed $5M+ network infrastructure budget"
+  - "Led SOC/NOC team of 12 engineers"
+  If the AI service fails or times out, a tenant's generated cover letter will fall back to these templates and falsely claim they have Sam's specific achievements.
+* **Proposed Fix**: Generalize templates for SaaS users (e.g. using dynamic stats from the tenant's profile if available, or providing neutral phrasing that does not fabricate specific stats).
+
+---
+
+### Design Flaw 3: Dead Lockout Check Path
+* **File**: `backend/auth.py`
+* **Description**: A previous remediation removed all calls to `_record_failure(ip)` from `verify_jwt` and WebSocket endpoints to prevent Denial of Service (DoS) attacks on NAT users. However, `_check_lockout(ip)` and its complex lazy pruning loop are still executed on every single JWT verification request. Since no failures are ever recorded, `_check_lockout` will always check an empty state, rendering the lockout check path dead code.
+* **Proposed Fix**: If IP-based lockout is discarded, remove the dead tracking code to streamline the auth pipeline. If lockout is required, implement a combination of IP + username tracking or account-based lockouts.
+
+---
+
+### Design Flaw 4: Ultra-Aggressive Celery Queuing Timeout
+* **Files**: `backend/routers/cover_letters.py` (line 52) and `backend/routers/scraping.py` (line 86)
+* **Description**: Both routers attempt to enqueue tasks to Celery with a timeout of `0.05` seconds (50ms). If Redis or RabbitMQ latency exceeds 50ms (common in cloud deployments), the task submission raises a `TimeoutError` and falls back to return `"accepted"`. While the task is still sent to Celery in the background, this aggressive timeout causes false alarms and inconsistent status reports.
+* **Proposed Fix**: Increase the queueing timeout to `0.2` or `0.5` seconds.
+
+---
+
+## 5. TODOs & Placeholders Catalog
+1. **Placeholder 1** (`core/captcha_solver.py`, line 204):
+   - **Text**: `This is a placeholder for the audio fallback approach. In practice, many sites use simple CAPTCHAs that our OCR can solve.`
+   - **Status**: Non-functional. It returns `None` immediately, omitting audio captcha solving capability.
+2. **Placeholder 2** (`core/compliance.py`, line 447):
+   - **Text**: `return True  # Placeholder for production verification`
+   - **Status**: Non-functional. Hardcoded return of `True` for GDPR erasure verification.
+
+---
+
+## 6. Recommendations & Remediation Roadmap
+1. **Critical Actions (Security & Crashing Fixes)**:
+   - Update `verify_jwt` in the billing route to extract the `user_id` from the token and block IDOR.
+   - Refactor the database queries in `backend/routers/analytics.py` and `backend/routers/scraping.py` to use standard SQL boolean comparisons (`converted = true`) and Python-injected datetime bounds to prevent PostgreSQL crashes.
+   - Implement event webhook verification for Brevo and SendGrid routes.
+   - Escape output text in the email preview handler.
+2. **Optimizations (Performance & Limits)**:
+   - Restore default garbage collection thresholds by removing the custom `gc.set_threshold(50, 5, 5)` call.
+   - Consolidate database pools or reduce `max_overflow` and shim limits to avoid exceeding Neon's 10-connection limit.
+   - Remove the duplicate `Depends(verify_jwt)` dependency from `backend/routers/referral.py`.
+3. **Design Cleanups**:
+   - Evict the dead lockout checking logic or rebuild it using account-level tracking in Redis.
+   - Generalize the fallback cover letter templates to support multi-tenant SaaS users instead of a hardcoded personal CV.
+   - Increase the Celery task dispatch timeout to 200-500ms to reduce latency-induced timeout errors.

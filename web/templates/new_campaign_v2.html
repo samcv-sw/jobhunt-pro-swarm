@@ -44,14 +44,14 @@
       <div class="relative z-10 space-y-4">
         <div class="flex flex-col sm:flex-row gap-3">
           <div class="relative flex-1">
-            <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute start-4 top-1/2 -translate-y-1/2"><style>transform: scaleX(var(--text-x-direction, -1));</style></i>
+            <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute start-4 top-1/2 -translate-y-1/2"></i>
             <select dir="auto"  name="profile_id" id="profileSelect" required class="w-full bg-slate-950/60 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-xl ps-11 pe-10 py-3.5 text-sm text-white appearance-none cursor-pointer outline-none transition-all">
               <option value="" class="text-slate-500">اختر سيرة ذاتية محملة...</option>
               {% for profile in profiles %}
               <option value="{{ profile.id }}">{{ profile.profile_name }} ({{ profile.experience_years }} سنوات خبرة)</option>
               {% endfor %}
             </select>
-            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none"><style>transform: scaleX(var(--text-x-direction, -1));</style></i>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
           </div>
           <button type="button" onclick="deleteSelectedProfile()" class="px-5 py-3.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl transition-all flex items-center justify-center gap-2" title="حذف السيرة الذاتية المحددة">
             <i data-lucide="trash-2" class="w-4 h-4"></i>

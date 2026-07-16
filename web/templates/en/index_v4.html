@@ -63,10 +63,10 @@
 
 
 <style>
-.cookie-banner{position:fixed;bottom:0;inset-inline-start: 0;inset-inline-end: 0;background:rgba(10,10,25,0.97);border-top:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px var(--space-3);backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
-.cookie-content{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+.cookie-banner{position:fixed;inset-block-end:0;inset-inline-start: 0;inset-inline-end: 0;background:rgba(10,10,25,0.97);border-inset-block-start:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px var(--space-3);backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
+.cookie-content{max-inline-size:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
 .cookie-content span{font-size:20px}
-.cookie-content p{font-size:12px;color:var(--muted);flex:1;min-width:200px}
+.cookie-content p{font-size:12px;color:var(--muted);flex:1;min-inline-size:200px}
 .cookie-content a{color:var(--cyan)}
 .cookie-content button{background:var(--cyan);color:#000;border:none;padding:var(--space-1) 20px;border-radius:20px;font-weight:700;cursor:pointer;font-size:13px;white-space:nowrap}
 .cookie-content button:hover{opacity:0.9}
@@ -75,7 +75,7 @@
 </style>
 <style>
 .guarantee-badge-section{padding:0 24px 40px;display:flex;justify-content:center;position:relative;z-index:2}
-.guarantee-badge{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(0,240,255,0.08),rgba(0,240,255,0.02));border:1px solid rgba(0,240,255,0.2);border-radius:20px;padding:20px 32px;max-width:700px;width:100%;backdrop-filter:blur(10px);animation:guaranteePulse 2s ease-in-out infinite}
+.guarantee-badge{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(0,240,255,0.08),rgba(0,240,255,0.02));border:1px solid rgba(0,240,255,0.2);border-radius:20px;padding:20px 32px;max-inline-size:700px;inline-size:100%;backdrop-filter:blur(10px);animation:guaranteePulse 2s ease-in-out infinite}
 .guarantee-icon{font-size:32px;flex-shrink:0}
 .guarantee-text{display:flex;flex-direction:column;gap:4px;flex:1}
 .guarantee-text strong{font-size:16px;color:var(--cyan);letter-spacing:-0.3px}
@@ -109,13 +109,13 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <div class="glow-orb-2"></div>
 <div class="glow-orb-3"></div>
 <div class="scanline"></div>
-<canvas class="bg-particles" id="particleCanvas" style="position:fixed;top:0;inset-inline-start:0;width:100%;height:100%;z-index:-1;pointer-events:none;"></canvas>
+<canvas class="bg-particles" id="particleCanvas" style="position:fixed;inset-block-start:0;inset-inline-start:0;inline-size:100%;block-size:100%;z-index:-1;pointer-events:none;"></canvas>
 
 <!-- ═══ NAVIGATION ═══ -->
 {% include 'en/_public_nav.html' %}
 
 <!-- ═══ HERO ═══ -->
-<section class="hero" style="padding-top:140px;">
+<section class="hero" style="padding-block-start:140px;">
  <div class="hero-badge">
   <span class="pulse-dot"></span> AI SYSTEM ONLINE — v{{ VERSION }}
  </div>
@@ -421,13 +421,13 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
         <div class="activity-item">&#x1f916; Agent #29 applied to <strong>Frontend Lead</strong> at Meta via LinkedIn</div>
       </div>
       <div class="demo-chart">
-        <div class="chart-bar" style="height:40%"><span>Mon</span></div>
-        <div class="chart-bar" style="height:65%"><span>Tue</span></div>
-        <div class="chart-bar" style="height:55%"><span>Wed</span></div>
-        <div class="chart-bar" style="height:80%"><span>Thu</span></div>
-        <div class="chart-bar" style="height:95%"><span>Fri</span></div>
-        <div class="chart-bar" style="height:70%"><span>Sat</span></div>
-        <div class="chart-bar" style="height:45%"><span>Sun</span></div>
+        <div class="chart-bar" style="block-size:40%"><span>Mon</span></div>
+        <div class="chart-bar" style="block-size:65%"><span>Tue</span></div>
+        <div class="chart-bar" style="block-size:55%"><span>Wed</span></div>
+        <div class="chart-bar" style="block-size:80%"><span>Thu</span></div>
+        <div class="chart-bar" style="block-size:95%"><span>Fri</span></div>
+        <div class="chart-bar" style="block-size:70%"><span>Sat</span></div>
+        <div class="chart-bar" style="block-size:45%"><span>Sun</span></div>
       </div>
     </div>
   </div>
@@ -1155,7 +1155,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
       const toast = document.createElement('div');
       toast.className = 'social-toast';
       toast.innerHTML = `&#x1f525; <strong>${name}</strong> ${action}`;
-      toast.style.cssText = 'position:fixed;bottom:80px;inset-inline-end:20px;background:rgba(10,10,25,0.95);border:1px solid rgba(0,240,255,0.2);border-radius:12px;padding:14px 20px;font-size:13px;color:#fff;z-index:9999;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:340px;animation:slideInRight 0.4s ease-out;transition:opacity 0.4s';
+      toast.style.cssText = 'position:fixed;inset-block-end:80px;inset-inline-end:20px;background:rgba(10,10,25,0.95);border:1px solid rgba(0,240,255,0.2);border-radius:12px;padding:14px 20px;font-size:13px;color:#fff;z-index:9999;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:340px;animation:slideInRight 0.4s ease-out;transition:opacity 0.4s';
       document.body.appendChild(toast);
       setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 4000);
     }
@@ -1173,13 +1173,13 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);animation:fadeIn 0.3s';
       overlay.innerHTML = `
-        <div style="background:rgba(10,10,25,0.98);border:1px solid rgba(0,240,255,0.2);border-radius:24px;padding:48px;max-width:480px;width:90%;text-align:center;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6)">
-          <button onclick="this.closest('div[style]').remove()" style="position:absolute;top:16px;inset-inline-end:20px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:24px;cursor:pointer" aria-label="Close">&times;</button>
-          <div style="font-size:48px;margin-bottom:16px">&#x1f680;</div>
-          <h3 style="font-size:24px;font-weight:800;margin-bottom:12px;color:#fff">Wait! Don't Miss Out</h3>
-          <p style="color:rgba(255,255,255,0.6);margin-bottom:24px;line-height:1.7">Thousands of jobs are being filled right now. Start your free trial and let our AI apply for you while you're away.</p>
+        <div style="background:rgba(10,10,25,0.98);border:1px solid rgba(0,240,255,0.2);border-radius:24px;padding:48px;max-inline-size:480px;inline-size:90%;text-align:center;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6)">
+          <button onclick="this.closest('div[style]').remove()" style="position:absolute;inset-block-start:16px;inset-inline-end:20px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:24px;cursor:pointer" aria-label="Close">&times;</button>
+          <div style="font-size:48px;margin-block-end:16px">&#x1f680;</div>
+          <h3 style="font-size:24px;font-weight:800;margin-block-end:12px;color:#fff">Wait! Don't Miss Out</h3>
+          <p style="color:rgba(255,255,255,0.6);margin-block-end:24px;line-height:1.7">Thousands of jobs are being filled right now. Start your free trial and let our AI apply for you while you're away.</p>
           <a href="/register" style="display:inline-block;background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;padding:16px 36px;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;box-shadow:0 4px 30px rgba(0,240,255,0.25)">&#x1f680; Start Free Trial</a>
-          <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:16px">No credit card required</p>
+          <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-block-start:16px">No credit card required</p>
         </div>`;
       document.body.appendChild(overlay);
     });

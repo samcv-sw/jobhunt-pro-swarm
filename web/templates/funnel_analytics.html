@@ -12,7 +12,7 @@
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-block-end: 24px;
 }
 .funnel-filters {
   display: flex;
@@ -47,7 +47,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 14px;
-  margin-bottom: 28px;
+  margin-block-end: 28px;
 }
 .funnel-stat {
   background: rgba(255,255,255,0.03);
@@ -67,7 +67,7 @@
   font-weight: 800;
   
   line-height: 1;
-  margin-bottom: 6px;
+  margin-block-end: 6px;
 }
 .funnel-stat-label {
   font-size: 11px;
@@ -75,7 +75,7 @@
   color: #64748b;
   text-transform: uppercase;
   
-  margin-bottom: 4px;
+  margin-block-end: 4px;
 }
 .funnel-stat-conv {
   font-size: 10px;
@@ -88,13 +88,13 @@
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 16px;
   padding: 24px;
-  margin-bottom: 24px;
+  margin-block-end: 24px;
 }
 .funnel-chart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 .funnel-chart-header h3 {
   font-size: 15px;
@@ -103,13 +103,13 @@
 }
 .funnel-chart-wrapper {
   position: relative;
-  width: 100%;
-  height: 400px;
+  inline-size: 100%;
+  block-size: 400px;
 }
 
 /* Funnel visualization (CSS-only fallback / overview) */
 .funnel-visual {
-  margin-bottom: 24px;
+  margin-block-end: 24px;
 }
 .funnel-visual h3 {
   font-size: 14px;
@@ -117,16 +117,16 @@
   color: #94a3b8;
   text-transform: uppercase;
   
-  margin-bottom: 14px;
+  margin-block-end: 14px;
 }
 .funnel-stage {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  margin-block-end: 8px;
   gap: 14px;
 }
 .funnel-stage-label {
-  width: 100px;
+  inline-size: 100px;
   font-size: 12px;
   font-weight: 600;
   color: #d4d4d8;
@@ -136,12 +136,12 @@
 .funnel-stage-bar-wrap {
   flex: 1;
   position: relative;
-  height: 40px;
+  block-size: 40px;
   display: flex;
   align-items: center;
 }
 .funnel-stage-bar {
-  height: 100%;
+  block-size: 100%;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -151,7 +151,7 @@
   font-weight: 700;
   color: #fff;
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  min-width: 40px;
+  min-inline-size: 40px;
   position: relative;
 }
 .funnel-stage-value {
@@ -165,7 +165,7 @@
 .funnel-stage-conv {
   position: absolute;
   inset-inline-start: 0;
-  top: -20px;
+  inset-block-start: -20px;
   font-size: 10px;
   color: #64748b;
   font-weight: 600;
@@ -186,10 +186,10 @@
   border: 1px solid rgba(255,255,255,0.05);
   border-radius: 14px;
   overflow: hidden;
-  margin-top: 20px;
+  margin-block-start: 20px;
 }
 .funnel-table table {
-  width: 100%;
+  inline-size: 100%;
   border-collapse: collapse;
   font-size: 13px;
 }
@@ -205,7 +205,7 @@
 }
 .funnel-table td {
   padding: 12px 16px;
-  border-top: 1px solid rgba(255,255,255,0.03);
+  border-inset-block-start: 1px solid rgba(255,255,255,0.03);
   color: #d4d4d8;
 }
 .funnel-table .conv-badge {
@@ -225,10 +225,10 @@
   padding: 60px 20px;
 }
 .funnel-spinner {
-  width: 40px;
-  height: 40px;
+  inline-size: 40px;
+  block-size: 40px;
   border: 3px solid rgba(255,255,255,0.08);
-  border-top-color: #3b82f6;
+  border-block-start-color: #3b82f6;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 16px;
@@ -241,7 +241,7 @@
   border: 1px solid rgba(59,130,246,0.15);
   border-radius: 14px;
   padding: 16px 20px;
-  margin-bottom: 24px;
+  margin-block-end: 24px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -270,7 +270,7 @@
 
 /* Responsive */
 @media(max-width:768px) {
-  .funnel-chart-wrapper { height: 280px; }
+  .funnel-chart-wrapper { block-size: 280px; }
   .funnel-stats-row { grid-template-columns: repeat(2, 1fr); }
   .funnel-header-row { flex-direction: column; }
 }
@@ -350,8 +350,8 @@
 
 <!-- Empty state -->
 <div id="funnel-empty" style="display:none;text-align:center;padding:60px 20px;">
-  <div style="font-size:48px;margin-bottom:12px;">📭</div>
-  <h3 style="color:#94a3b8;margin-bottom:8px;">ما في بيانات بعد</h3>
+  <div style="font-size:48px;margin-block-end:12px;">📭</div>
+  <h3 style="color:#94a3b8;margin-block-end:8px;">ما في بيانات بعد</h3>
   <p style="color:#52525b;font-size:13px;">بلّش ابعت طلبات لتشوف تحليلاتك هون.</p>
 </div>
 
@@ -492,7 +492,7 @@ function renderFunnelVisual(data) {
       <div class="funnel-stage">
         <div class="funnel-stage-label">${stage.icon} ${stage.label}</div>
         <div class="funnel-stage-bar-wrap">
-          <div class="funnel-stage-bar" style="width:${pct}%;background:${stage.color};">
+          <div class="funnel-stage-bar" style="inline-size:${pct}%;background:${stage.color};">
             ${val > 0 ? '<span style="position:absolute;inset-inline-start: 10px;font-size:12px;">' + val.toLocaleString() + '</span>' : ''}
           </div>
         </div>

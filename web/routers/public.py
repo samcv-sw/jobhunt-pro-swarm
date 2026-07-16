@@ -20,7 +20,8 @@ router = APIRouter(tags=["public"])
 _contact_attempts: dict = {}
 
 def _deps():
-    from web.app_v2 import _public_shell, get_all_pricing, render_template
+    from core.pricing_manager import get_all_pricing
+    from web.app_v2 import _public_shell, render_template
     from web.shared import (
         _check_rate_limit,
         config,
@@ -35,45 +36,43 @@ def index_page(request: Request):
     from datetime import timedelta
     get_db, _, templates, config, _, get_all_pricing, _, _ = _deps()
     try:
-        conn = get_db()
-        now = datetime.now()
+        with get_db() as conn:
+            now = datetime.now()
 
-        def _earnings_for_period(since=None):
-            if since:
-                since_str = since.isoformat()
-                orders = conn.execute(
-                    "SELECT COALESCE(SUM(amount_usd),0) as total, COUNT(*) as cnt FROM orders WHERE payment_status='completed' AND created_at >= ?",
-                    (since_str,)
-                ).fetchone()
-                codes = conn.execute(
-                    "SELECT COALESCE(SUM(value_usd),0) as total, COUNT(*) as cnt FROM redeem_codes WHERE is_used=1 AND (code_type IS NULL OR code_type != 'admin_free') AND used_at >= ?",
-                    (since_str,)
-                ).fetchone()
-                emails = conn.execute(
-                    "SELECT COALESCE(SUM(price_usd),0) as total, COUNT(*) as cnt FROM manual_emails WHERE status='sent' AND created_at >= ?",
-                    (since_str,)
-                ).fetchone()
-            else:
-                orders = conn.execute("SELECT COALESCE(SUM(amount_usd),0) as total, COUNT(*) as cnt FROM orders WHERE payment_status='completed'").fetchone()
-                codes = conn.execute("SELECT COALESCE(SUM(value_usd),0) as total, COUNT(*) as cnt FROM redeem_codes WHERE is_used=1 AND (code_type IS NULL OR code_type != 'admin_free')").fetchone()
-                emails = conn.execute("SELECT COALESCE(SUM(price_usd),0) as total, COUNT(*) as cnt FROM manual_emails WHERE status='sent'").fetchone()
-            return {
-                "orders": {"amount": round(float(orders["total"]), 2), "count": orders["cnt"]},
-                "codes": {"amount": round(float(codes["total"]), 2), "count": codes["cnt"]},
-                "emails": {"amount": round(float(emails["total"]), 2), "count": emails["cnt"]},
-            }
+            def _earnings_for_period(since=None):
+                if since:
+                    since_str = since.isoformat()
+                    orders = conn.execute(
+                        "SELECT COALESCE(SUM(amount_usd),0) as total, COUNT(*) as cnt FROM orders WHERE payment_status='completed' AND created_at >= ?",
+                        (since_str,)
+                    ).fetchone()
+                    codes = conn.execute(
+                        "SELECT COALESCE(SUM(value_usd),0) as total, COUNT(*) as cnt FROM redeem_codes WHERE is_used=1 AND (code_type IS NULL OR code_type != 'admin_free') AND used_at >= ?",
+                        (since_str,)
+                    ).fetchone()
+                    emails = conn.execute(
+                        "SELECT COALESCE(SUM(price_usd),0) as total, COUNT(*) as cnt FROM manual_emails WHERE status='sent' AND created_at >= ?",
+                        (since_str,)
+                    ).fetchone()
+                else:
+                    orders = conn.execute("SELECT COALESCE(SUM(amount_usd),0) as total, COUNT(*) as cnt FROM orders WHERE payment_status='completed'").fetchone()
+                    codes = conn.execute("SELECT COALESCE(SUM(value_usd),0) as total, COUNT(*) as cnt FROM redeem_codes WHERE is_used=1 AND (code_type IS NULL OR code_type != 'admin_free')").fetchone()
+                    emails = conn.execute("SELECT COALESCE(SUM(price_usd),0) as total, COUNT(*) as cnt FROM manual_emails WHERE status='sent'").fetchone()
+                return {
+                    "orders": {"amount": round(float(orders["total"]), 2), "count": orders["cnt"]},
+                    "codes": {"amount": round(float(codes["total"]), 2), "count": codes["cnt"]},
+                    "emails": {"amount": round(float(emails["total"]), 2), "count": emails["cnt"]},
+                }
 
-        earnings_all = _earnings_for_period()
-        earnings_24h = _earnings_for_period(now - timedelta(hours=24))
-        earnings_month = _earnings_for_period(now - timedelta(days=30))
-        earnings_year = _earnings_for_period(now - timedelta(days=365))
+            earnings_all = _earnings_for_period()
+            earnings_24h = _earnings_for_period(now - timedelta(hours=24))
+            earnings_month = _earnings_for_period(now - timedelta(days=30))
+            earnings_year = _earnings_for_period(now - timedelta(days=365))
 
-        total_all = round(earnings_all["orders"]["amount"] + earnings_all["codes"]["amount"] + earnings_all["emails"]["amount"], 2)
-        total_24h = round(earnings_24h["orders"]["amount"] + earnings_24h["codes"]["amount"] + earnings_24h["emails"]["amount"], 2)
-        total_month = round(earnings_month["orders"]["amount"] + earnings_month["codes"]["amount"] + earnings_month["emails"]["amount"], 2)
-        total_year = round(earnings_year["orders"]["amount"] + earnings_year["codes"]["amount"] + earnings_year["emails"]["amount"], 2)
-
-        conn.close()
+            total_all = round(earnings_all["orders"]["amount"] + earnings_all["codes"]["amount"] + earnings_all["emails"]["amount"], 2)
+            total_24h = round(earnings_24h["orders"]["amount"] + earnings_24h["codes"]["amount"] + earnings_24h["emails"]["amount"], 2)
+            total_month = round(earnings_month["orders"]["amount"] + earnings_month["codes"]["amount"] + earnings_month["emails"]["amount"], 2)
+            total_year = round(earnings_year["orders"]["amount"] + earnings_year["codes"]["amount"] + earnings_year["emails"]["amount"], 2)
 
         earnings = {
             "total_all": total_all,
@@ -95,33 +94,32 @@ def index_page(request: Request):
     # Fetch featured jobs to show in index_v4.html
     featured_jobs = []
     try:
-        conn = get_db()
-        rows = conn.execute("SELECT * FROM jobs ORDER BY id DESC LIMIT 6").fetchall()
-        for r in rows:
-            date_str = "Just now"
-            if r["created_at"]:
-                try:
-                    dt = datetime.strptime(r["created_at"].split(".")[0], "%Y-%m-%d %H:%M:%S")
-                    diff = datetime.now() - dt
-                    if diff.days == 0:
-                        date_str = "Today"
-                    elif diff.days == 1:
-                        date_str = "1 day ago"
-                    else:
-                        date_str = f"{diff.days} days ago"
-                except Exception:
-                    pass
-            featured_jobs.append({
-                "id": r["id"],
-                "title": r["title"],
-                "company": r["company"],
-                "location": r["location"] or "Remote",
-                "salary": r["salary"] if r["salary"] else "$80k - $120k",
-                "board": r["source"].upper() if r["source"] else "LINKEDIN",
-                "type": "Full-time",
-                "date_posted": date_str
-            })
-        conn.close()
+        with get_db() as conn:
+            rows = conn.execute("SELECT * FROM jobs ORDER BY id DESC LIMIT 6").fetchall()
+            for r in rows:
+                date_str = "Just now"
+                if r["created_at"]:
+                    try:
+                        dt = datetime.strptime(r["created_at"].split(".")[0], "%Y-%m-%d %H:%M:%S")
+                        diff = datetime.now() - dt
+                        if diff.days == 0:
+                            date_str = "Today"
+                        elif diff.days == 1:
+                            date_str = "1 day ago"
+                        else:
+                            date_str = f"{diff.days} days ago"
+                    except Exception:
+                        pass
+                featured_jobs.append({
+                    "id": r["id"],
+                    "title": r["title"],
+                    "company": r["company"],
+                    "location": r["location"] or "Remote",
+                    "salary": r["salary"] if r["salary"] else "$80k - $120k",
+                    "board": r["source"].upper() if r["source"] else "LINKEDIN",
+                    "type": "Full-time",
+                    "date_posted": date_str
+                })
     except Exception as e:
         logger.error(f"Error fetching featured jobs: {e}")
 

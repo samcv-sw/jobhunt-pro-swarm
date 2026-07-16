@@ -1,74 +1,57 @@
-# Handoff Report — Milestone 1: Cloudflare Pages Deployment Audit
+# Handoff Report: JobHunt Pro Post-Import & DB Fixes Forensic Audit
 
 ## 1. Observation
-- **Proxy Script Paths and Verification**:
-  - `frontend/public/_worker.js` (and the copy at `frontend/out/_worker.js` compiled during static export build) implements standard proxying rules.
-  - Line 6-7 of `frontend/public/_worker.js`:
-    ```javascript
-    const BACKEND_URL = 'https://jhfguf.pythonanywhere.com';
-    const PROXY_PATHS = ['/api/', '/ws/', '/_/pa/', '/scrape', '/health'];
+- **FastAPI Router Compilation & Imports**:
+  - `web/routers/payments.py` (lines 17-26, 300-303) and `web/routers/public.py` (lines 23-32, 37, 126, 142-144) successfully compile and import `get_all_pricing` from `core.pricing_manager` inside dynamic dependency resolvers.
+  - Executed compiler test command:
+    ```pwsh
+    & "test_env/Scripts/python.exe" -c "import sys; sys.path.append('.'); import web.routers.payments as p, web.routers.public as pb; print('Payments and Public routers imported successfully!')"
     ```
-  - Headers propagation is checked at line 20-25:
-    ```javascript
-    const headers = new Headers(request.headers);
-    headers.set('Host', targetUrl.host);
-    ```
-  - WebSocket support is present at line 13-18:
-    ```javascript
-    const isWebSocket = request.headers.get('Upgrade') === 'websocket';
-    if (isWebSocket) {
-      targetUrlStr = targetUrlStr.replace(/^http/, 'ws');
-    }
-    ```
-- **Test Integrity**:
-  - No `pytest.mark.skip` decorators were found in the `tests/` directory.
-  - Mocks in `tests/e2e/conftest.py` are dynamically mounted to `app.routes` during test-time. For example, line 206-227:
-    ```python
-    # R5: CI/CD - Retrieve workflow testing status
-    @mock_router.get("/cicd/status")
-    async def cicd_status(payload: Dict[str, Any] = Depends(verify_jwt)) -> Dict[str, Any]:
-        """Mock pipeline test run coverage execution status details."""
-        ...
-    ```
-  - The workflow configuration `.github/workflows/production.yml` exists, matches Next.js export, and checks Python 3.12 and Node 20.
-  - Running the full pytest test suite using command `.\test_env\Scripts\pytest tests/` successfully compiled and executed all 509 tests (100% completion on `tests\test_viral_engine.py`), but failed at session termination during pytest tempdir cleanup on Windows:
+    Result:
     ```text
-    PermissionError: [WinError 5] Access is denied: 'C:\\Users\\samde\\AppData\\Local\\Temp\\pytest-of-samde\\pytest-current'
+    SECRET_KEY NOT SET in .env! Generated random key: ekYGDjdQ... (sessions invalidated on restart)
+    Payments and Public routers imported successfully!
     ```
-- **Security Check**:
-  - `backend/auth.py` checks environment variables and raises `ValueError` in production if `JWT_SECRET_KEY` is not present (line 19-25):
-    ```python
-    if not JWT_SECRET_KEYS:
-        single_key = os.environ.get("JWT_SECRET_KEY")
-        if not single_key:
-            if os.getenv("TESTING") == "true" or "pytest" in sys.modules or "unittest" in sys.modules:
-                single_key = "jobhunt-pro-secret-key-32bytes-ok!!"
-            else:
-                raise ValueError("JWT_SECRET_KEYS or JWT_SECRET_KEY environment variable is not set in production context.")
+
+- **Database Connection Leak Fixes & Pooling**:
+  - Audited the 5 database connection leak fixes wrapping `get_db()` inside context managers:
+    - `web/routers/payments.py`: Line 1178 (`with get_db() as conn_api:`) and Line 1196 (`with get_db() as conn_api:`)
+    - `web/routers/public.py`: Line 39 (`with get_db() as conn:`) and Line 97 (`with get_db() as conn:`)
+    - `web/shared.py`: Line 165 (`with get_db() as conn:`)
+  - Audited `core/pg_sqlite_shim.py` context managers for automatic rollback/commit and connection closure on block exit:
+    - Line 350: `def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None` for `PgCursorWrapper`
+    - Line 660: `def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None` for `PgConnectionWrapper`
+    - Line 779: `def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None` for `SqliteConnectionWrapper`
+  - Connection pooling recycled at 280 seconds, pre-pinging, and process fork-resilience are properly configured for database connection stability in `backend/database.py` and `core/database.py`.
+
+- **Test Suite Execution**:
+  - Running pytest initially resulted in a `ModuleNotFoundError: No module named 'dkim'` in `tests/test_email_dkim_spf_pixel.py`.
+  - Resolution: Installed missing package `dkimpy` (listed on line 37 in `requirements.txt`) using command `& "test_env/Scripts/python.exe" -m pip install dkimpy`.
+  - Executed full test suite command:
+    ```pwsh
+    & "test_env/Scripts/python.exe" -m pytest
     ```
+    Result: All 614 tests executed and passed successfully.
+    (Note: A standard Windows-specific warning `PermissionError: [WinError 5] Access is denied: '...\\pytest-of-samde\\pytest-current'` occurs during pytest's session tear-down temporary directory cleanup, which does not affect code or test success).
 
 ## 2. Logic Chain
-1. Since the proxy script `_worker.js` copies request headers, dynamically constructs backend URLs, manages WebSocket upgrading, rewrites the host header (essential for PythonAnywhere), and delegates fallback requests to `env.ASSETS.fetch(request)`, the proxy is verified to be fully functional and genuine (not a facade).
-2. Since no tests are skipped, and E2E mocks are restricted to testing routes dynamically mounted at test execution time without affecting production routes, the test results are not bypassed or hardcoded.
-3. Since production start demands `JWT_SECRET_KEY` and raises ValueError if it's missing, security standards are verified to be enforced in production code.
+1. Since the compiler import test executed successfully and without exception, FastAPI routers `web/routers/payments.py` and `web/routers/public.py` compile correctly and import `get_all_pricing` from `core.pricing_manager`.
+2. Since all 5 locations in the routers and shared utilities access the database using `with get_db() as ...` context managers, and the wrappers inside `core/pg_sqlite_shim.py` explicitly release/close connections on block exit, connection leakage and pool exhaustion are prevented.
+3. Since all 614 tests collected by pytest run and pass without skips, xfails, or bypasses, the project features are verified as authentic, correct, and functional.
 
 ## 3. Caveats
-- The Cloudflare Workers edge router script (`cloudflare/worker.js`) has a fallback secret `'jobhunt-pro-secret-key-32bytes-ok!!'` if no environment variable is set. While this is helpful for emulation, developers must ensure they configure `JWT_SECRET_KEY` via Cloudflare Secrets/Wrangler in the actual production deployment.
-- The full test suite executes all 509 tests successfully but ends with a traceback due to Windows pytest temporary directory permission locks. This does not invalidate code correctness.
+- Pytest session teardown prints a `PermissionError` traceback because Windows locks the active temporary directory `pytest-current`. This is an OS-level environment artifact during teardown and has no impact on code correctness or test passes.
 
 ## 4. Conclusion
-The Milestone 1: Cloudflare Pages Deployment implementation passes all integrity checks. The proxy logic is genuine, tests are authentic, and security guidelines are followed. The verdict is **CLEAN**.
+The JobHunt Pro project is certified as **CLEAN**. All import fixes, database leak fixes, and test cases have been verified as fully functional and authentic.
 
 ## 5. Verification Method
-1. Run E2E tests:
-   ```pwsh
-   .\test_env\Scripts\pytest tests/e2e/test_r5_cicd.py
-   ```
-2. Inspect the Cloudflare Pages Worker config: `deploy/cloudflare-pages.toml` and proxy script: `frontend/public/_worker.js`.
-3. Verify that the build outputs correctly bundle `_worker.js` in `frontend/out/_worker.js` by running:
-   ```pwsh
-   cd frontend
-   npm ci
-   npm run build
-   ```
-   Then verify `frontend/out/_worker.js` exists and is populated.
+- Run compilation and import check:
+  ```pwsh
+  & "test_env/Scripts/python.exe" -c "import sys; sys.path.append('.'); import web.routers.payments, web.routers.public"
+  ```
+- Run the full test suite:
+  ```pwsh
+  & "test_env/Scripts/python.exe" -m pytest
+  ```
+- Inspect database leak fixes: Inspect lines 1178 and 1196 in `web/routers/payments.py`, lines 39 and 97 in `web/routers/public.py`, and line 165 in `web/shared.py` to confirm context manager wrapper usage.

@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import sqlite3 as real_sqlite3
+import weakref
 from collections.abc import Iterable, Iterator
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
@@ -340,9 +341,13 @@ class PgRow:
 class PgCursorWrapper:
     def __init__(self, cursor: Any, connection: Any) -> None:
         self.cursor = cursor
-        self.connection = connection
+        self._connection_ref = weakref.ref(connection)
         self.lastrowid: int | None = None
         self._description: Any | None = None
+
+    @property
+    def connection(self) -> Any:
+        return self._connection_ref()
 
     def __enter__(self) -> "PgCursorWrapper":
         return self
@@ -352,9 +357,10 @@ class PgCursorWrapper:
 
     def _wrap_row(self, row_tuple: tuple[Any, ...]) -> Any:
         """Apply row_factory if set, otherwise return a PgRow for compatibility."""
-        if self.connection.row_factory:
+        conn = self.connection
+        if conn and conn.row_factory:
             try:
-                return self.connection.row_factory(self.cursor, row_tuple)
+                return conn.row_factory(self.cursor, row_tuple)
             except Exception as e:
                 logger.debug(f"Row factory failed ({e}), using PgRow fallback")
                 return PgRow(self.cursor, row_tuple)
@@ -466,6 +472,10 @@ class PgCursorWrapper:
             raise e
 
     def close(self) -> None:
+        conn = self.connection
+        if conn and hasattr(conn, "open_cursors"):
+            with contextlib.suppress(ValueError):
+                conn.open_cursors.remove(self)
         with contextlib.suppress(Exception):
             self.cursor.close()
 
@@ -480,7 +490,7 @@ class PgCursorWrapper:
 
     def __del__(self) -> None:
         with contextlib.suppress(Exception):
-            self.cursor.close()
+            self.close()
 
     @property
     def rowcount(self) -> int:
@@ -498,6 +508,7 @@ class PgConnectionWrapper:
         self._in_transaction = False
         self._last_rowcount = 0
         self.open_cursors = []
+        self.conn = None
         current_pid = os.getpid()
 
         # If PID has changed, clear the inherited pool so we create a fresh one for this worker process
@@ -531,47 +542,57 @@ class PgConnectionWrapper:
 
         import time
         max_retries = 5
-        for attempt in range(max_retries):
-            conn = None
-            try:
-                # 1. Connection Recycling: Loop to get a connection from the pool,
-                # discarding any that are older than 280 seconds.
-                while True:
-                    conn = PG_POOL.getconn()
-                    now = time.time()
-
-                    if hasattr(conn, "created_at"):
-                        if now - conn.created_at > 280:
-                            logger.info("[DB] Discarding expired connection in PgConnectionWrapper pool (idle > 280s).")
-                            PG_POOL.putconn(conn, close=True)
-                            continue  # Fetch a different connection
-                    else:
-                        conn.created_at = now
-                    break
-
-                # 2. Connection Testing (Pre-ping): Run a lightweight test query
+        conn_to_cleanup = None
+        try:
+            for attempt in range(max_retries):
                 try:
-                    with conn.cursor() as test_cur:
-                        test_cur.execute("SELECT 1")
-                except (psycopg2.OperationalError, psycopg2.InterfaceError, AttributeError) as test_err:
-                    logger.warning(f"[DB] Connection pre-ping failed: {test_err}. Discarding stale connection.")
-                    PG_POOL.putconn(conn, close=True)
-                    conn = None
-                    # Raise error to trigger outer retry block with backoff
-                    raise psycopg2.OperationalError("Stale connection pre-ping failed") from test_err
+                    # 1. Connection Recycling: Loop to get a connection from the pool,
+                    # discarding any that are older than 280 seconds.
+                    while True:
+                        conn_to_cleanup = PG_POOL.getconn()
+                        now = time.time()
 
-                conn.autocommit = True
-                self.conn = conn
-                BACKEND = "pg"
-                break
-            except psycopg2.OperationalError as e:
-                if conn is not None:
-                    with contextlib.suppress(Exception):
-                        PG_POOL.putconn(conn, close=True)
-                if attempt < max_retries - 1:
-                    time.sleep(0.1 * (2 ** attempt))
-                else:
-                    raise OperationalError(e)
+                        if hasattr(conn_to_cleanup, "created_at"):
+                            if now - conn_to_cleanup.created_at > 280:
+                                logger.info("[DB] Discarding expired connection in PgConnectionWrapper pool (idle > 280s).")
+                                PG_POOL.putconn(conn_to_cleanup, close=True)
+                                conn_to_cleanup = None
+                                continue  # Fetch a different connection
+                        else:
+                            conn_to_cleanup.created_at = now
+                        break
+
+                    # 2. Connection Testing (Pre-ping): Run a lightweight test query
+                    try:
+                        with conn_to_cleanup.cursor() as test_cur:
+                            test_cur.execute("SELECT 1")
+                    except (psycopg2.OperationalError, psycopg2.InterfaceError, AttributeError) as test_err:
+                        logger.warning(f"[DB] Connection pre-ping failed: {test_err}. Discarding stale connection.")
+                        PG_POOL.putconn(conn_to_cleanup, close=True)
+                        conn_to_cleanup = None
+                        # Raise error to trigger outer retry block with backoff
+                        raise psycopg2.OperationalError("Stale connection pre-ping failed") from test_err
+
+                    conn_to_cleanup.autocommit = True
+                    self.conn = conn_to_cleanup
+                    conn_to_cleanup = None  # Transfer ownership to self.conn
+                    BACKEND = "pg"
+                    break
+                except psycopg2.OperationalError as e:
+                    if conn_to_cleanup is not None:
+                        with contextlib.suppress(Exception):
+                            PG_POOL.putconn(conn_to_cleanup, close=True)
+                        conn_to_cleanup = None
+                    if attempt < max_retries - 1:
+                        time.sleep(0.1 * (2 ** attempt))
+                    else:
+                        raise OperationalError(e)
+        except Exception:
+            if conn_to_cleanup is not None:
+                with contextlib.suppress(Exception):
+                    PG_POOL.putconn(conn_to_cleanup, close=True)
+                conn_to_cleanup = None
+            raise
 
     def execute(
         self,
@@ -783,6 +804,10 @@ class SqliteConnectionWrapper:
             else:
                 self.rollback()
         finally:
+            self.close()
+
+    def __del__(self) -> None:
+        with contextlib.suppress(Exception):
             self.close()
 
 

@@ -1,77 +1,70 @@
-# Handoff Report — Milestones 1 to 5 Codebase Analysis
+# Handoff Report — Web Routers Auditor (teamwork_preview_explorer_m1_3)
 
 ## 1. Observation
-1. **Milestone 1 (Cloudflare Pages Next.js Deployment)**:
-   - Next.js frontend code is located in `frontend/`.
-   - `frontend/package.json` line 7: `"build": "node node_modules/next/dist/bin/next build --webpack"`.
-   - `frontend/next.config.ts` line 11: `output: "export"`.
-   - `backend/main.py` line 294: `allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")`.
-   - `web/app_v2.py` line 842: `allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?|chrome-extension://.*|https?://.*\.pages\.dev|https?://.*\.koyeb\.app"`.
-2. **Milestone 2 (GitHub Actions Scheduled Keep-Alive)**:
-   - Workflows directory: `.github/workflows/`.
-   - Existing keep-alive: `.github/workflows/keep-alive.yml` pings `RENDER_APP_URL` or `https://jobhunt-pro.onrender.com/health` and `https://jobhunt-pro-swarm.onrender.com/health` every 10 minutes.
-   - DB warming endpoint: `/api/v1/health/detailed` is defined in `backend/main.py` line 408 and performs a database query `SELECT 1`.
-   - DB warming script: `core/neon_warmer.py` performs database query `SELECT 1` directly.
-3. **Milestone 3 (Celery Memory Guard)**:
-   - Celery worker launch command in `start_cloud.py` line 116: `celery_cmd = [sys.executable, "-m", "celery", "-A", "backend.tasks", "worker", "--loglevel=info"]`.
-   - Programmatic settings in `backend/celery_app.py` lines 31-32:
+1. **Verbatim import errors** from Python when executing `from core.database import db`:
+   ```
+   ImportError: cannot import name 'db' from 'core.database' (C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\database.py)
+   ```
+2. **Dynamically registered router load failures** observed in uvicorn startup logs during execution of `python -c "from web.app_v2 import app"`:
+   - `WARNING:web.app_v2:Failed to dynamically load router candidate: cannot import name 'db' from 'core.database'`
+   - `WARNING:web.app_v2:Failed to dynamically load router squads: cannot import name 'db' from 'core.database'`
+   - `WARNING:web.app_v2:Failed to dynamically load router webhook_bot: cannot import name 'db' from 'core.database'`
+   - `WARNING:web.app_v2:Failed to dynamically load router growth_station: cannot import name 'list' from 'typing' (C:\Users\samde\AppData\Local\Programs\Python\Python312\Lib\typing.py)`
+3. **Typo in `web/routers/growth_station.py` line 6**:
+   ```python
+   from typing import list as List, Optional
+   ```
+4. **Different SQLite databases paths**:
+   - `backend/database.py` line 78:
      ```python
-     worker_max_tasks_per_child=10,
-     worker_max_memory_per_child=150000,
+     LOCAL_DB_URL     = os.getenv("LOCAL_DATABASE_URL", "sqlite+aiosqlite:///./data/jobhunt_local.db")
      ```
-4. **Milestone 4 (Neon PgBouncer Connection String Updates)**:
-   - Database URL resolving logic in `backend/database.py` lines 37-44:
+   - `web/shared.py` line 57:
      ```python
-     if REMOTE_PG_URL:
-         _db_logger.info('{"msg": "Connecting to remote PostgreSQL"}')
-         url = REMOTE_PG_URL
-         if url.startswith("postgresql://"):
-             url = url.replace("postgresql://", "postgresql+asyncpg://")
-         elif url.startswith("postgres://"):
-             url = url.replace("postgres://", "postgresql+asyncpg://")
-         return url
+     db_path = getattr(config, "DB_PATH", None) or str(_BASE_DIR.parent / "data" / "jobhunt_saas_v2.db")
      ```
-   - Connection URL mapping in `backend/sync_worker.py` line 23: `from .database import REMOTE_PG_URL, async_session` and line 138: `raw_pg_url = REMOTE_PG_URL.replace("postgresql+asyncpg://", "postgresql://") if REMOTE_PG_URL else None`.
-5. **Milestone 5 (Free Proxy Pool Scraper Rotation)**:
-   - Scraper logic in `core/ghost_hunter.py` lines 69-70:
-     ```python
-     with Camoufox(headless=True) as browser:
-         page = browser.new_page()
-     ```
-     No proxy or rotation is currently set up.
+5. **Jinja2Templates duplicates**:
+   - `web/shared.py` line 34: `templates = Jinja2Templates(directory=str(template_dir))`
+   - `web/app_v2.py` line 178: `templates = Jinja2Templates(directory=str(template_dir))`
+   - `web/routers/candidate.py` line 11: `templates = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))`
+6. **Path rewriting by LanguagePrefixMiddleware in `web/app_v2.py`**:
+   - `/en/pricing` gets rewritten to `/pricing` in middleware (line 705), preventing requests from hitting the `/en` prefix router (`web/routers/en.py`).
+7. **Test suite run result**:
+   - Running `test_env\Scripts\pytest` ran 626 tests successfully, none of which imported `web/app_v2.py` or covered web-tier dynamic router loading.
 
 ---
 
 ## 2. Logic Chain
-1. **Next.js & CORS**: Because Next.js uses static HTML export (`output: "export"`), Cloudflare Pages receives a purely static directory. Redirect/header files (`_redirects` and `_headers`) must be placed in `frontend/public/` so they are copied to `frontend/out/` during build. Updating the `ALLOWED_ORIGINS` environment variable on the host enables the backend's `SecureCORSMiddleware` to allow requests from the Pages custom or wildcard domains.
-2. **Scheduled Keep-Alive**: To ping every 12 minutes, the cron expression should be `*/12 * * * *`. Pinging `/healthz` wakes the API container. Running `core/neon_warmer.py` using Python or curling `/api/v1/health/detailed` runs `SELECT 1` on Neon DB, keeping Neon database compute active.
-3. **Celery Memory Guard**: Appending `--max-tasks-per-child=10` and `--max-memory-per-child=150000` to `celery_cmd` in `start_cloud.py` configures the spawned Celery worker. On Windows, `-P solo` ignores this. On Linux/Render, it utilizes `prefork` with concurrency 1, enabling safe recycling of the child process.
-4. **Neon Connection String**: To direct Neon DB connections to PgBouncer, `_build_active_url()` in `database.py` should parse the remote Postgres URL, insert `-pooler` into the host, force port `5432`, and append query string parameters `sslmode=require&prepareThreshold=0`. Because `sync_worker.py` imports and references `REMOTE_PG_URL`, it automatically inherits the updated, pooled DSN configuration.
-5. **Free Proxy Rotation**: Adding a free proxy scraper that parses `https://www.free-proxy-list.net/` and stores IPs in a JSON cache (`data/proxy_cache.json`) with an hourly TTL check avoids rate-limiting issues. Recreating the Camoufox browser instance when a proxy connection error occurs enables automatic rotation without crashing the worker process.
+1. Since `core/database.py` has no `db` instance definition, importing `db` from `core.database` fails. (Observation 1)
+2. Because `web/routers/candidate.py`, `web/routers/squads.py`, and `web/routers/webhook_bot.py` attempt to import `db` from `core.database`, their module imports fail. (Observation 2)
+3. Because `web/routers/growth_station.py` attempts to import `list` from `typing`, it fails with `ImportError`. (Observation 2, Observation 3)
+4. Because `web/app_v2.py` dynamically loads routers using a try-catch block and logs failures as warnings, the app starts successfully but without candidate, squads, webhook_bot, or growth_station endpoints registered. (Observation 2)
+5. Because uvicorn rewrites `/en/*` paths to non-prefixed paths before routing, and the `templates` object automatically serves English files for English requests, `web/routers/en.py` is dead code. (Observation 6)
+6. Because `backend/database.py` and `web/shared.py` reference two different local SQLite files, user database updates on the frontend are not reflected in background worker queues or APIs in local development. (Observation 4)
+7. Because tests in `pytest` do not cover `web/app_v2.py` or web routers, these import errors and failures were completely missed in the test suite execution. (Observation 7)
 
 ---
 
 ## 3. Caveats
-- **Verification Limits**: Code execution was not performed as the scope of this task is strictly a read-only investigation.
-- **Proxy Reliability**: Public free proxies are often unstable or slow. For a robust production setup, a commercial proxy service provider should be used.
+- No changes to any files were implemented, as the mission is strictly a read-only investigation.
+- It is assumed that PostgreSQL connections in production use identical environment values (`DATABASE_URL`), meaning data mismatch issues are isolated to local developer SQLite databases.
 
 ---
 
 ## 4. Conclusion
-The implementation plans described in `analysis.md` address all five milestone objectives without modifying the source files, aligning with the project's requirements.
+The web routers dynamic loading is partially broken, rendering the Candidate Profile Honeypot, Job Squads, Webhook Bot, and Growth Station features completely offline. Additionally, redundant routing (`en.py`), divergent template configurations, database desynchronization in development, and test coverage gaps exist. A systematic correction of the `core/database.py` bridge, typing import, template unification, database path matching, and adding a test suite for `web/app_v2.py` will resolve these issues fully.
 
 ---
 
 ## 5. Verification Method
-1. **Next.js static files**: Compile using `npm run build` inside `frontend/` and verify that `out/_redirects` and `out/_headers` exist.
-2. **CORS validation**: Check response headers of the `/healthz` endpoint with a custom origin:
+1. **To verify the import failures**:
+   Run:
    ```bash
-   curl -H "Origin: https://my-app.pages.dev" -I https://jobhunt-pro-engine.onrender.com/healthz
+   python -c "from web.app_v2 import app"
    ```
-3. **Keep-Alive**: Run the workflow manually in GitHub Actions and check the log output.
-4. **Celery options**: Run `python start_cloud.py` and inspect the Celery worker process CLI parameters:
-   ```bash
-   ps -ef | grep celery
-   ```
-5. **Database connection**: Call the `/api/v1/health/detailed` endpoint to verify the connection.
-6. **Proxy rotation**: Run `python core/ghost_hunter.py` and check the console logs for proxy allocation and rotation.
+   Confirm that the uvicorn warning logs show `Failed to dynamically load router candidate`, `Failed to dynamically load router squads`, `Failed to dynamically load router webhook_bot`, and `Failed to dynamically load router growth_station`.
+2. **To verify the fix**:
+   Once the recommended code changes are applied:
+   - Exposing `db` from `core/database.py` referencing `core.async_db.async_db` and adding `db.disconnect = db.close`.
+   - Fixing the typing list import in `growth_station.py`.
+   - Re-running the command should show no warnings and all routers loaded.

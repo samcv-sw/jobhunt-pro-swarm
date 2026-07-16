@@ -351,3 +351,9 @@ We have implemented several high-value performance optimizations, connection poo
   - Removed the duplicate `_AddSecurityHeadersMiddleware` class.
   - Modified the primary `SecurityHeadersMiddleware` to maintain a unified `skip` header set (including `x-frame-options`, `x-content-type-options`, `referrer-policy`, `permissions-policy`, `cross-origin-opener-policy`, `content-security-policy`, and `strict-transport-security`) and filter out any pre-existing duplicates before injecting the final secure headers.
   - Resolved the test failure cleanly: all 253 tests are now fully passing.
+
+## FastAPI Router Security Hardening and RTL Template Input Validation (July 14-15, 2026)
+- **RTL/Arabic Template Input Compliance**: Added the `dir="auto"` attribute to all select and input fields (including checkboxes) in `web/templates/growth_station.html` and `web/templates/en/growth_station.html` to guarantee dynamic directionality and proper RTL alignment on the growth station interface.
+- **System API Router Protection**: Enforced `verify_system_key(request)` verification on sensitive debug and backend API routes `/api/jobs/unscored`, `/api/jobs/score`, `/api/debug-cookies`, and `/api/debug/test-email` (which has been modified to accept `request: Request`) to prevent credentials/cookies leaking or unauthorized system emails triggering.
+- **Groq API Proxy Authentication Hardening**: Refactored the authentication of the `/api/v1/groq-proxy` route to query any incoming `X-API-Key` headers against the `users` table `api_key` column in the database, rejecting invalid keys with a `401 Unauthorized` status and resolving identity correctly.
+- **Verification and Testing**: Created `tests/test_router_security_hardening.py` to cover all of these security boundaries, verify that the 626 tests in the test suite pass with zero errors, and verify the Next.js app builds cleanly.

@@ -14,8 +14,8 @@
  * { margin: 0; padding: 0; box-sizing: border-box; }
 
  .checkout-container {
- width: 100%;
- max-width: 520px;
+ inline-size: 100%;
+ max-inline-size: 520px;
  background: linear-gradient(135deg, rgba(20,20,40,0.9), rgba(12,12,24,0.9));
  border: 1px solid rgba(0,229,255,0.15);
  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 60px rgba(0,229,255,0.03);
@@ -27,7 +27,7 @@
  font-family: 'Cairo', 'JetBrains Mono', monospace;
  font-size: 20px;
  font-weight: 700;
- margin-bottom: 24px;
+ margin-block-end: 24px;
  background: linear-gradient(135deg, #00e5ff, #ff0055);
  -webkit-background-clip: text;
  -webkit-text-fill-color: transparent;
@@ -37,19 +37,19 @@
  border: 1px solid rgba(255,255,255,0.06);
  border-radius: 16px;
  padding: 24px;
- margin-bottom: 28px;
+ margin-block-end: 28px;
  }
  .order-label {
- font-size: 12px;
+ font-size:14px;
  color: #6b7280;
  text-transform: uppercase;
  
- margin-bottom: 4px;
+ margin-block-end: 4px;
  }
  .order-service {
  font-size: 20px;
  font-weight: 700;
- margin-bottom: 4px;
+ margin-block-end: 4px;
  }
  .order-amount {
  font-size: 42px;
@@ -59,7 +59,7 @@
  margin: 12px 0;
  }
  .order-id {
- font-size: 11px;
+ font-size:14px;
  color: #6b7280;
  font-family: 'Cairo', monospace;
  background: rgba(0,0,0,0.3);
@@ -68,8 +68,8 @@
  display: inline-block;
  }
  .order-status {
- margin-top: 8px;
- font-size: 12px;
+ margin-block-start: 8px;
+ font-size:14px;
  padding: 4px 12px;
  border-radius: 50px;
  display: inline-block;
@@ -92,13 +92,13 @@
 
  /* Crypto Addresses */
  .crypto-section {
- margin-bottom: 24px;
+ margin-block-end: 24px;
  }
  .crypto-tabs {
  display: flex;
  gap: 8px;
  justify-content: center;
- margin-bottom: 16px;
+ margin-block-end: 16px;
  }
  .crypto-tab {
  padding: 8px 16px;
@@ -106,7 +106,7 @@
  border: 1px solid rgba(255,255,255,0.08);
  background: transparent;
  color: #6b7280;
- font-size: 13px;
+ font-size:14px;
  font-weight: 600;
  font-family: 'Cairo', 'JetBrains Mono', monospace;
  cursor: pointer;
@@ -125,7 +125,7 @@
  border-radius: 12px;
  padding: 14px 16px;
  font-family: 'Cairo', 'JetBrains Mono', monospace;
- font-size: 11px;
+ font-size:14px;
  color: #94a3b8;
  word-break: break-all;
  cursor: pointer;
@@ -139,28 +139,28 @@
  color: #fff;
  }
  .copy-hint {
- font-size: 11px;
+ font-size:14px;
  color: #6b7280;
- margin-top: 6px;
+ margin-block-start: 6px;
  }
 
  .instruction-text {
- font-size: 13px;
+ font-size:14px;
  color: #94a3b8;
- margin-bottom: 20px;
+ margin-block-end: 20px;
  line-height: 1.6;
  }
 
  /* Verify Section */
  .verify-section {
- border-top: 1px solid rgba(255,255,255,0.06);
- padding-top: 24px;
- margin-top: 8px;
+ border-inset-block-start: 1px solid rgba(255,255,255,0.06);
+ padding-block-start: 24px;
+ margin-block-start: 8px;
  }
  .verify-section h3 {
  font-size: 14px;
  font-weight: 600;
- margin-bottom: 12px;
+ margin-block-end: 12px;
  color: #94a3b8;
  }
  .verify-input-group {
@@ -174,7 +174,7 @@
  border: 1px solid rgba(255,255,255,0.08);
  background: rgba(255,255,255,0.03);
  color: #fff;
- font-size: 13px;
+ font-size:14px;
  font-family: 'Cairo', 'JetBrains Mono', monospace;
  outline: none;
  }
@@ -188,7 +188,7 @@
  background: linear-gradient(135deg, #00e5ff, #0088aa);
  color: #000;
  font-weight: 700;
- font-size: 13px;
+ font-size:14px;
  cursor: pointer;
  white-space: nowrap;
  transition: all 0.3s;
@@ -202,8 +202,8 @@
  }
 
  .verify-result {
- margin-top: 12px;
- font-size: 13px;
+ margin-block-start: 12px;
+ font-size:14px;
  padding: 10px 14px;
  border-radius: 8px;
  display: none;
@@ -223,7 +223,7 @@
 
  .btn-done {
  display: inline-block;
- margin-top: 20px;
+ margin-block-start: 20px;
  padding: 12px 32px;
  border-radius: 10px;
  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
@@ -240,7 +240,7 @@
 
  .btn-nowpayments {
  display: block;
- width: 100%;
+ inline-size: 100%;
  padding: 16px 24px;
  border-radius: 12px;
  border: none;
@@ -251,7 +251,7 @@
  font-family: 'Cairo', 'Inter', sans-serif;
  cursor: pointer;
  transition: all 0.3s;
- margin-bottom: 24px;
+ margin-block-end: 24px;
  }
  .btn-nowpayments:hover {
  box-shadow: 0 0 30px rgba(0,229,255,0.3);
@@ -272,7 +272,7 @@
 <meta property="og:title" content="الدفع | JobHunt Pro"/>
 </head>
 <body class="cyberpunk-body">
-<div class="main" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;">
+<div class="main" style="display:flex;align-items:center;justify-content:center;min-block-size:100vh;padding:20px;">
 <h1 class="sr-only" style="position:absolute;inline-size:1px;block-size:1px;padding:0;margin-block-start:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">إتمام عملية الشراء</h1>
 <div class="checkout-container">
 <div class="logo">{{ _('JOBHUNT PRO') }}</div>
@@ -280,16 +280,16 @@
 <div class="order-summary">
 <div class="order-label">الخدمة</div>
  {% if order.item_type == 'bulk' and order.items %}
- <div class="order-service" style="font-size:13px;">
+ <div class="order-service" style="font-size:14px;">
  {% for item in order.items %}
- <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+ <div style="display:flex;justify-content:space-between;padding:4px 0;border-inset-block-end:1px solid rgba(255,255,255,0.04);">
 <span>{{ item.service_name }}{% if item.quantity > 1 %} x{{ item.quantity }}{% endif %}</span>
 <span style="font-family:'Cairo', 'JetBrains Mono',monospace;color:#00e5ff;">${{ "%.2f"|format(item.line_total) }}</span>
 </div>
  {% endfor %}
  </div>
 <div class="order-amount">${{ "%.2f"|format(order.total_price or order.price) }}</div>
-<div style="font-size:11px;color:#6b7280;">{{ order.items|length }} عنصر (عناصر) في هذا الطلب</div>
+<div style="font-size:14px;color:#6b7280;">{{ order.items|length }} عنصر (عناصر) في هذا الطلب</div>
  {% else %}
  <div class="order-service">{{ order.service_name }}</div>
 <div class="order-amount">${{ "%.2f"|format(order.price) }}</div>
@@ -298,21 +298,21 @@
 <div class="order-status {% if order.status in ('pending', 'pending_payment') %}status-pending{% elif order.status == 'paid' %}status-paid{% elif order.status == 'delivered' %}status-delivered{% endif %}">
  {{ order.status|upper }}
  </div>
-<div style="margin-top:12px; font-size:12px; color:#6b7280;">
+<div style="margin-block-start:12px; font-size:14px; color:#6b7280;">
  العميل: {{ order.customer_name }} <{{ order.customer_email }}>
  </div>
 </div>
 
  {% if order.payment_code %}
  <!-- Payment Code Section -->
-<div style="margin-bottom:24px; padding:20px; background:rgba(0,229,255,0.05); border:1px solid rgba(0,229,255,0.2); border-radius:16px; text-align:center;">
-<div style="font-size:11px; color:#6b7280; text-transform:uppercase;  margin-bottom:8px;">
+<div style="margin-block-end:24px; padding:20px; background:rgba(0,229,255,0.05); border:1px solid rgba(0,229,255,0.2); border-radius:16px; text-align:center;">
+<div style="font-size:14px; color:#6b7280; text-transform:uppercase;  margin-block-end:8px;">
  رمز الدفع الخاص بك
  </div>
 <div onclick="copyPaymentCode(this)" style="font-size:28px; font-weight:900; font-family:'Cairo', 'JetBrains Mono',monospace; color:#00e5ff;  user-select:all; cursor:pointer;" title="انقر للنسخ">
  {{ order.payment_code }}
  </div>
-<div style="font-size:11px; color:#6b7280; margin-top:8px;">
+<div style="font-size:14px; color:#6b7280; margin-block-start:8px;">
  انقر للنسخ • ستحتاج إلى هذا الرمز للتحقق من الدفع
  </div>
 </div>
@@ -321,14 +321,14 @@
  {% if order.status in ('pending', 'pending_payment') %}
  <!-- Payment Section -->
 <!-- NOWPayments One-Click Payment -->
-<div class="nowpayments-section" style="margin-bottom:24px; padding:20px; background:rgba(139,92,246,0.05); border:1px solid rgba(139,92,246,0.15); border-radius:16px;">
-<div style="font-size:13px; color:#94a3b8; margin-bottom:12px;">
+<div class="nowpayments-section" style="margin-block-end:24px; padding:20px; background:rgba(139,92,246,0.05); border:1px solid rgba(139,92,246,0.15); border-radius:16px;">
+<div style="font-size:14px; color:#94a3b8; margin-block-end:12px;">
  ادفع فوراً باستخدام البطاقة الائتمانية أو العملات الرقمية
  </div>
 <button class="btn-nowpayments" data-amount="{{ order.price }}" data-customer-email="{{ order.customer_email }}" data-order-id="{{ order.order_id }}" data-service-name="{{ order.service_name }}" onclick="payWithNOWPayments(this)">
  {{ _('ادفع عبر NOWPayments') }} 
  </button>
-<div id="nowpaymentsStatus" style="font-size:12px; color:#6b7280; margin-top:8px; display:none;"></div>
+<div id="nowpaymentsStatus" style="font-size:14px; color:#6b7280; margin-block-start:8px; display:none;"></div>
 </div>
 <!-- Manual Crypto Payment (fallback) -->
 <p class="instruction-text">
@@ -356,11 +356,11 @@
 <!-- Verify Payment -->
 <div class="verify-section">
 <h3>هل أرسلت الدفعة بالفعل؟ تحقق هنا:</h3>
-<div style="font-size:12px; color:#6b7280; margin-bottom:12px; line-height:1.5;">
+<div style="font-size:14px; color:#6b7280; margin-block-end:12px; line-height:1.5;">
  أدخل <strong style="color:#00e5ff;">رمز الدفع</strong> الخاص بك (الموضح أعلاه) ومعرف المعاملة من محفظتك الرقمية.
  </div>
-<div class="verify-input-group" style="margin-bottom:8px;">
-<input autocomplete="off" dir="auto" id="paymentCode" placeholder="رمز الدفع (مثل A1B2C3D4)" style="flex:1; padding:12px 16px; border-radius:10px; border:1px solid rgba(0,229,255,0.2); background:rgba(0,229,255,0.03); color:#fff; font-size:13px; font-family:'Cairo', 'JetBrains Mono',monospace; outline:none; text-transform:uppercase; " type="text"/>
+<div class="verify-input-group" style="margin-block-end:8px;">
+<input autocomplete="off" dir="auto" id="paymentCode" placeholder="رمز الدفع (مثل A1B2C3D4)" style="flex:1; padding:12px 16px; border-radius:10px; border:1px solid rgba(0,229,255,0.2); background:rgba(0,229,255,0.03); color:#fff; font-size:14px; font-family:'Cairo', 'JetBrains Mono',monospace; outline:none; text-transform:uppercase; " type="text"/>
 <input autocomplete="off" dir="auto" id="txHash" placeholder="معرف المعاملة / TX ID" type="text"/>
 <button class="btn-verify" id="verifyBtn" onclick="verifyPayment('{{ order.order_id }}')">تحقق</button>
 </div>

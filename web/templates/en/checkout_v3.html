@@ -19,7 +19,7 @@ body {
   background: var(--bg-main);
   font-family: var(--font-sans);
   color: var(--text-main);
-  min-height: 100vh;
+  min-block-size: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -29,8 +29,8 @@ body {
 
 /* ── Checkout Container ── */
 .checkout-v3 {
-  width: 100%;
-  max-width: 520px;
+  inline-size: 100%;
+  max-inline-size: 520px;
   background: var(--bg-card);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -47,8 +47,8 @@ body {
 .checkout-v3::before {
   content: '';
   position: absolute;
-  top: 0; inset-inline-start: 0; inset-inline-end: 0;
-  height: 2px;
+  inset-block-start: 0; inset-inline-start: 0; inset-inline-end: 0;
+  block-size: 2px;
   background: linear-gradient(90deg, transparent, var(--accent-primary), var(--accent-secondary), transparent);
   opacity: 0.6;
 }
@@ -58,7 +58,7 @@ body {
   font-family: var(--font-mono);
   font-size: 20px;
   font-weight: 700;
-  margin-bottom: 24px;
+  margin-block-end: 24px;
   background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -70,7 +70,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 28px;
+  margin-block-end: 28px;
 }
 
 .progress-step {
@@ -83,8 +83,8 @@ body {
 }
 
 .progress-step .step-circle {
-  width: 28px;
-  height: 28px;
+  inline-size: 28px;
+  block-size: 28px;
   border-radius: 50%;
   border: 2px solid var(--border-glass);
   display: flex;
@@ -113,8 +113,8 @@ body {
 .progress-step.completed .step-label { display: inline; color: var(--text-muted); }
 
 .progress-connector {
-  width: 24px;
-  height: 2px;
+  inline-size: 24px;
+  block-size: 2px;
   background: var(--border-glass);
   align-self: center;
 }
@@ -129,7 +129,7 @@ body {
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg);
   padding: 24px;
-  margin-bottom: 28px;
+  margin-block-end: 28px;
 }
 
 .order-label-v3 {
@@ -137,13 +137,13 @@ body {
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 4px;
+  margin-block-end: 4px;
 }
 
 .order-service-v3 {
   font-size: 20px;
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-block-end: 4px;
 }
 
 .order-amount-v3 {
@@ -165,7 +165,7 @@ body {
 }
 
 .order-status-v3 {
-  margin-top: 8px;
+  margin-block-start: 8px;
   font-size: 12px;
   padding: 4px 12px;
   border-radius: var(--radius-full);
@@ -191,14 +191,14 @@ body {
 }
 
 .order-customer-v3 {
-  margin-top: 12px;
+  margin-block-start: 12px;
   font-size: 12px;
   color: var(--text-dim);
 }
 
 /* ── Payment Code ── */
 .payment-code-box {
-  margin-bottom: 24px;
+  margin-block-end: 24px;
   padding: 20px;
   background: var(--accent-primary-dim);
   border: 1px solid rgba(99, 102, 241, 0.2);
@@ -211,7 +211,7 @@ body {
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 }
 
 .payment-code-box .pc-code {
@@ -230,13 +230,13 @@ body {
 .payment-code-box .pc-hint {
   font-size: 11px;
   color: var(--text-dim);
-  margin-top: 8px;
+  margin-block-start: 8px;
 }
 
 /* ── NOWPayments Button ── */
 .btn-nowpayments-v3 {
   display: block;
-  width: 100%;
+  inline-size: 100%;
   padding: 16px 24px;
   border-radius: var(--radius-md);
   border: none;
@@ -247,7 +247,7 @@ body {
   font-family: var(--font-sans);
   cursor: pointer;
   transition: all var(--transition-base);
-  margin-bottom: 24px;
+  margin-block-end: 24px;
 }
 
 .btn-nowpayments-v3:hover {
@@ -263,14 +263,14 @@ body {
 
 /* ── Crypto Section ── */
 .crypto-section-v3 {
-  margin-bottom: 24px;
+  margin-block-end: 24px;
 }
 
 .crypto-tabs-v3 {
   display: flex;
   gap: 8px;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-block-end: 16px;
   flex-wrap: wrap;
 }
 
@@ -319,7 +319,7 @@ body {
 .copy-hint-v3 {
   font-size: 11px;
   color: var(--text-dim);
-  margin-top: 6px;
+  margin-block-start: 6px;
 }
 
 /* ── QR Code ── */
@@ -337,7 +337,7 @@ body {
 .qr-label {
   font-size: 10px;
   color: var(--text-dim);
-  margin-top: 6px;
+  margin-block-start: 6px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -346,28 +346,28 @@ body {
 .instruction-text-v3 {
   font-size: 13px;
   color: var(--text-muted);
-  margin-bottom: 20px;
+  margin-block-end: 20px;
   line-height: 1.6;
 }
 
 /* ── Verify Section ── */
 .verify-section-v3 {
-  border-top: 1px solid var(--border-glass);
-  padding-top: 24px;
-  margin-top: 8px;
+  border-inset-block-start: 1px solid var(--border-glass);
+  padding-block-start: 24px;
+  margin-block-start: 8px;
 }
 
 .verify-section-v3 h3 {
   font-size: 14px;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-block-end: 12px;
   color: var(--text-muted);
 }
 
 .verify-input-group-v3 {
   display: flex;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 }
 
 .verify-input-group-v3 input {
@@ -410,7 +410,7 @@ body {
 }
 
 .verify-result-v3 {
-  margin-top: 12px;
+  margin-block-start: 12px;
   font-size: 13px;
   padding: 10px 14px;
   border-radius: var(--radius-sm);
@@ -434,7 +434,7 @@ body {
 /* ── Done Button ── */
 .btn-done-v3 {
   display: inline-block;
-  margin-top: 20px;
+  margin-block-start: 20px;
   padding: 12px 32px;
   border-radius: var(--radius-md);
   background: var(--gradient-primary);
@@ -453,10 +453,10 @@ body {
 /* ── Loading Spinner ── */
 .spinner-v3 {
   display: inline-block;
-  width: 16px;
-  height: 16px;
+  inline-size: 16px;
+  block-size: 16px;
   border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: #fff;
+  border-block-start-color: #fff;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
   vertical-align: middle;
@@ -502,7 +502,7 @@ body {
     {% if order.item_type == 'bulk' and order.items %}
     <div class="order-service-v3" style="font-size:13px;">
       {% for item in order.items %}
-      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-glass);">
+      <div style="display:flex;justify-content:space-between;padding:4px 0;border-inset-block-end:1px solid var(--border-glass);">
         <span>{{ item.service_name }}{% if item.quantity > 1 %} x{{ item.quantity }}{% endif %}</span>
         <span style="font-family:var(--font-mono);color:var(--accent-primary);">${{ "%.2f"|format(item.line_total) }}</span>
       </div>
@@ -537,8 +537,8 @@ body {
   <!-- Payment Section -->
 
   <!-- NOWPayments -->
-  <div style="margin-bottom:24px; padding:20px; background:var(--accent-primary-dim); border:1px solid rgba(99,102,241,0.15); border-radius:var(--radius-lg);">
-    <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+  <div style="margin-block-end:24px; padding:20px; background:var(--accent-primary-dim); border:1px solid rgba(99,102,241,0.15); border-radius:var(--radius-lg);">
+    <div style="font-size:13px; color:var(--text-muted); margin-block-end:12px;">
       Pay instantly with credit/debit card or crypto
     </div>
     <button class="btn-nowpayments-v3"
@@ -549,7 +549,7 @@ body {
       onclick="payWithNOWPaymentsV3(this)">
       Pay with NOWPayments
     </button>
-    <div id="nowpaymentsStatusV3" style="font-size:12px; color:var(--text-dim); margin-top:8px; display:none;"></div>
+    <div id="nowpaymentsStatusV3" style="font-size:12px; color:var(--text-dim); margin-block-start:8px; display:none;"></div>
   </div>
 
   <!-- Manual Crypto Payment -->
@@ -587,7 +587,7 @@ body {
   <!-- Verify Payment -->
   <div class="verify-section-v3">
     <h3>Already sent payment? Verify here:</h3>
-    <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px; line-height:1.5;">
+    <div style="font-size:12px; color:var(--text-dim); margin-block-end:12px; line-height:1.5;">
       Enter your <strong style="color:var(--accent-primary);">Payment Code</strong> (shown above) and the transaction hash from your crypto wallet.
     </div>
     <div class="verify-input-group-v3">

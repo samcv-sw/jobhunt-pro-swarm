@@ -654,7 +654,7 @@ class NodriverFallback:
 
             # On some environments headless=True may be detected, but usually Nodriver handles it well
             browser = await uc.start(headless=True, browser_args=browser_args)
-            
+
             import inspect
             page = browser.main_tab
             if inspect.isawaitable(page):
@@ -770,9 +770,7 @@ class ApexCamoufoxFallback:
                 ]
 
                 async def route_intercept(route, request):
-                    if request.resource_type in BLOCKED_RESOURCE_TYPES:
-                        await route.abort()
-                    elif any(pat.search(request.url) for pat in BLOCKED_DOMAINS_PATTERNS):
+                    if request.resource_type in BLOCKED_RESOURCE_TYPES or any(pat.search(request.url) for pat in BLOCKED_DOMAINS_PATTERNS):
                         await route.abort()
                     else:
                         await route.continue_()

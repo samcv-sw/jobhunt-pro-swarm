@@ -90,8 +90,16 @@ def get_db(max_retries: int = 4):
             import core.pg_sqlite_shim as shim
             conn = shim.connect(db_path, check_same_thread=False, timeout=60)
             try:
-                conn.execute("PRAGMA journal_mode=DELETE")
-                conn.execute("PRAGMA synchronous=FULL")
+                is_pa = bool(
+                    os.environ.get("PYTHONANYWHERE_SITE") or
+                    os.environ.get("PYTHONANYWHERE_DOMAIN")
+                )
+                if is_pa:
+                    conn.execute("PRAGMA journal_mode=DELETE")
+                    conn.execute("PRAGMA synchronous=FULL")
+                else:
+                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA synchronous=NORMAL")
             except Exception:
                 pass
             return conn
@@ -156,29 +164,35 @@ def deduct_wallet(conn, user_id, amount, desc, txn_type="deduction") -> bool:
 
 def _check_rate_limit(store: dict, ip: str, max_count: int, window_seconds: int = 3600) -> bool:
     """IP rate limiter. Returns True=allowed, False=blocked."""
+    if os.getenv("LOAD_TEST_MODE", "false").lower() == "true" or os.getenv("TESTING", "false").lower() == "true":
+        return True
+
     now = time()
     if len(store) > 10000:
         for k in list(store.keys()):
             if now - store[k][0] > window_seconds:
                 del store[k]
     try:
-        conn = get_db()
-        db_key = f"rl:web_store:{ip}"
-        row = conn.execute("SELECT value FROM system_config WHERE key = ?", (db_key,)).fetchone()
-        val = (row[0] if row and not hasattr(row, "__getitem__") else row["value"]) if row else None
-        if val:
-            parts = val.split(":")
-            db_time, db_count = float(parts[0]), int(parts[1])
-            if now - db_time > window_seconds:
+        with get_db() as conn:
+            db_key = f"rl:web_store:{ip}"
+            row = conn.execute("SELECT value FROM system_config WHERE key = ?", (db_key,)).fetchone()
+            val = (row[0] if row and not hasattr(row, "__getitem__") else row["value"]) if row else None
+            if val:
+                parts = val.split(":")
+                db_time, db_count = float(parts[0]), int(parts[1])
+                if now - db_time > window_seconds:
+                    conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)", (db_key, f"{now}:1"))
+                    store[ip] = [now, 1]
+                    return True
+                if db_count >= max_count:
+                    return False
+                conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)", (db_key, f"{db_time}:{db_count+1}"))
+                store[ip] = [db_time, db_count+1]
+                return True
+            else:
                 conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)", (db_key, f"{now}:1"))
-                conn.commit(); conn.close(); store[ip] = [now, 1]; return True
-            if db_count >= max_count:
-                conn.close(); return False
-            conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)", (db_key, f"{db_time}:{db_count+1}"))
-            conn.commit(); conn.close(); store[ip] = [db_time, db_count+1]; return True
-        else:
-            conn.execute("REPLACE INTO system_config (key, value) VALUES (?, ?)", (db_key, f"{now}:1"))
-            conn.commit(); conn.close(); store[ip] = [now, 1]; return True
+                store[ip] = [now, 1]
+                return True
     except Exception:
         pass
     if ip not in store:

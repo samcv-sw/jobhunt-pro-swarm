@@ -31,7 +31,6 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Optional
 
 import httpx
 from fastapi import APIRouter, Form, Request, Response
@@ -78,8 +77,8 @@ def _twiml_response(message: str) -> Response:
 async def _call_internal(
     method: str,
     path: str,
-    params: Optional[dict] = None,
-    json: Optional[dict] = None,
+    params: dict | None = None,
+    json: dict | None = None,
     timeout: float = 15.0,
 ) -> tuple[int, dict]:
     """Call an internal JobHunt Pro API endpoint and return (status_code, body)."""

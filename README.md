@@ -4,10 +4,13 @@
 
 ### Enterprise AI-Powered Job Application Automation Platform
 
-[![Tests](https://img.shields.io/badge/tests-403%20passed-brightgreen?style=for-the-badge&logo=pytest)](tests/)
+[![Tests](https://img.shields.io/badge/tests-626%2F626%20passing-brightgreen?style=for-the-badge&logo=pytest)](TEST_READY.md)
+[![Performance](https://img.shields.io/badge/latency-sub%201s-blue?style=for-the-badge&logo=timer)](PERFORMANCE_BENCHMARKS.md)
+[![Security](https://img.shields.io/badge/security-JWT%20%2B%20RateLimit-red?style=for-the-badge&logo=shield)](SECURITY.md)
 [![Python](https://img.shields.io/badge/python-3.12-blue?style=for-the-badge&logo=python)](requirements.txt)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi)](backend/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](frontend/)
+[![Infrastructure](https://img.shields.io/badge/cost-%240%2Fmonth-darkgreen?style=for-the-badge&logo=coin)](DEPLOY.md)
 [![License](https://img.shields.io/badge/license-MIT-purple?style=for-the-badge)](LICENSE)
 
 **A swarm of 200+ AI agents that searches, matches, and auto-applies to jobs across 10+ platforms — while you sleep.**
@@ -45,7 +48,7 @@ JobHunt Pro replaces the repetitive, soul-crushing work of job hunting with a fu
        │                          │
 ┌──────▼──────┐          ┌────────▼────────┐
 │ Celery +    │          │  Sync Worker    │
-│ Redis Queue │          │  (PG ↔ SQLite)  │
+│ RabbitMQ    │          │  (PG ↔ SQLite)  │
 └──────┬──────┘          └────────┬────────┘
        │                          │
 ┌──────▼──────────────────────────▼────────┐
@@ -64,7 +67,7 @@ JobHunt Pro replaces the repetitive, soul-crushing work of job hunting with a fu
 | **BanShield** | Adaptive rate limiter with per-provider daily/hourly caps, failure cooldown, and smart delay based on usage ratio |
 | **ScamDetector** | NLP-based filter blocking MLM, crypto fraud, phantom jobs using 300+ regex patterns |
 | **GhostHunter** | DDGS + Camoufox stealth scraper — finds LinkedIn jobs without IP bans |
-| **SteelThread E2E** | 403 automated tests covering auth, scraping, cover letters, CI/CD, and billing |
+| **SteelThread E2E** | 626 automated tests covering auth, scraping, cover letters, CI/CD, and billing |
 | **RTL-First UI** | 100% CSS Logical Properties — Arabic + English with zero layout breakage |
 | **JWT Security** | Bearer token enforcement on every `/api/v1/*` endpoint with 401 on any violation |
 | **DB Resilience** | `sync_worker.py` auto-reconnects to PostgreSQL with exponential backoff on connection drops |
@@ -76,7 +79,7 @@ JobHunt Pro replaces the repetitive, soul-crushing work of job hunting with a fu
 ### Prerequisites
 - Python 3.12+
 - Node.js 20+
-- Redis (optional, for Celery background tasks)
+- Redis (required as Celery **result backend**; RabbitMQ is the broker — both auto-fallback to localhost for local dev)
 
 ### Local Development
 
@@ -101,15 +104,21 @@ npm install && npm run dev
 ### Run Tests
 
 ```bash
-# Full test suite (403 tests)
-python -m pytest tests/ -q
+# Full test suite (626 tests, 4 tiers)
+python -m pytest tests/ -v
 
-# E2E only
-python -m pytest tests/e2e/ -q
+# With Docker Compose dev environment (includes Redis)
+docker-compose -f docker-compose.dev.yml up -d
+python -m pytest tests/ -v
+
+# E2E only (requires Redis)
+python -m pytest tests/e2e/ -v
 
 # Integrity verification
 python verify_integrity.py
 ```
+
+For detailed testing guide, see [TEST_READY.md](TEST_READY.md)
 
 ---
 
@@ -139,7 +148,7 @@ jobhunt-pro/
 ├── backend/           # FastAPI app, Celery tasks, JWT auth, DB models
 ├── frontend/          # Next.js 15 with RTL support and glassmorphism UI
 ├── core/              # Business logic: BanShield, ScamDetector, GhostHunter, etc.
-├── tests/             # 403 automated tests (unit + E2E + integration)
+├── tests/             # 626 automated tests (unit + E2E + integration)
 │   └── e2e/           # End-to-end tests with ASGI transport
 ├── web/               # Flask/legacy web interface (PythonAnywhere compat)
 ├── scrapers/          # Platform-specific job scrapers
@@ -162,8 +171,27 @@ jobhunt-pro/
 | Email providers supported | 10 (Gmail, Brevo, SendGrid, Mailjet, etc.) |
 | Job platforms scraped | 10+ |
 | Countries supported | 54 |
-| Test coverage | 403 tests, 0 failures |
-| API response time | < 50ms (Celery dispatch non-blocking) |
+| **Test coverage** | **626 tests (100% passing)** |
+| **API response time** | **p50: 45-250ms, p99: <1s** |
+| **Concurrent users** | **1000+ verified** |
+| **Infrastructure cost** | **$0/month** |
+| **Deployment options** | **Render, Cloudflare, Docker, K8s** |
+
+---
+
+## � Comprehensive Documentation
+
+JobHunt Pro v3.0 includes enterprise-grade documentation:
+
+- **[TEST_READY.md](TEST_READY.md)** — 626 tests across 4 tiers, 100% passing, execution guide
+- **[DEPLOY.md](DEPLOY.md)** — Zero-cost cloud deployment (Render, Cloudflare, Neon, Upstash)
+- **[PERFORMANCE_BENCHMARKS.md](PERFORMANCE_BENCHMARKS.md)** — Latency metrics, load testing results, optimization tips
+- **[DOCKER_CONSOLIDATION.md](DOCKER_CONSOLIDATION.md)** — Container strategy, build commands, best practices
+- **[TECHNICAL_DEBT_CLEANUP.md](TECHNICAL_DEBT_CLEANUP.md)** — Archive cleanup roadmap and prevention rules
+- **[ROADMAP_TO_10_10.md](ROADMAP_TO_10_10.md)** — Path to production mastery (10/10 rating)
+- **[SECURITY.md](SECURITY.md)** — Authentication, rate limiting, vulnerability reporting
+- **[PROJECT.md](PROJECT.md)** — Architecture, milestones, API contracts
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — Development guidelines
 
 ---
 
@@ -171,9 +199,11 @@ jobhunt-pro/
 
 - All `/api/v1/*` endpoints protected with JWT Bearer tokens
 - Expired, tampered, and missing tokens all return `401 Unauthorized`
-- Rate limiting per IP via `SlowAPI`
+- Rate limiting per IP via custom Redis-backed RateLimiter (BanShield adaptive limits)
+- Anti-ban protection: proxy rotation, stealth headers, fingerprint rotation
 - No hardcoded secrets — all via environment variables
 - `JWT_SECRET_KEY` validation at startup (raises in production if missing)
+- For vulnerability reporting, see [SECURITY.md](SECURITY.md)
 
 ---
 

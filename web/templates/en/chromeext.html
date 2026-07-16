@@ -11,22 +11,22 @@
     <style>
         .ext-hero { text-align: center; padding: 80px 20px 60px; background: linear-gradient(180deg, #0a0a2e 0%, #001a33 100%); }
         .ext-hero h1 { font-size: 2.8em; background: linear-gradient(135deg, #00f0ff, #0088ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .ext-hero p { color: #aaa; font-size: 1.2em; max-width: 650px; margin: 20px auto; }
-        .ext-hero .install-btn { display: inline-block; margin-top: 24px; padding: 16px 48px; background: linear-gradient(135deg, #00f0ff, #0088ff); color: #000; border-radius: 30px; font-weight: 700; font-size: 18px; text-decoration: none; box-shadow: 0 0 30px #00f0ff44; }
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1000px; margin: 60px auto; padding: 0 20px; }
+        .ext-hero p { color: #aaa; font-size: 1.2em; max-inline-size: 650px; margin: 20px auto; }
+        .ext-hero .install-btn { display: inline-block; margin-block-start: 24px; padding: 16px 48px; background: linear-gradient(135deg, #00f0ff, #0088ff); color: #000; border-radius: 30px; font-weight: 700; font-size: 18px; text-decoration: none; box-shadow: 0 0 30px #00f0ff44; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-inline-size: 1000px; margin: 60px auto; padding: 0 20px; }
         .feature-card { background: #ffffff05; border: 1px solid #ffffff10; border-radius: 12px; padding: 24px; }
-        .feature-card h3 { color: #00f0ff; font-size: 1.2em; margin-bottom: 8px; }
+        .feature-card h3 { color: #00f0ff; font-size: 1.2em; margin-block-end: 8px; }
         .feature-card p { color: #888; line-height: 1.5; font-size: 14px; }
-        .feature-emoji { font-size: 2em; margin-bottom: 12px; }
-        .how-it-works { max-width: 800px; margin: 60px auto; padding: 0 20px; }
-        .how-it-works h2 { color: #00f0ff; text-align: center; margin-bottom: 30px; }
+        .feature-emoji { font-size: 2em; margin-block-end: 12px; }
+        .how-it-works { max-inline-size: 800px; margin: 60px auto; padding: 0 20px; }
+        .how-it-works h2 { color: #00f0ff; text-align: center; margin-block-end: 30px; }
         .steps { display: flex; flex-direction: column; gap: 20px; }
         .step { display: flex; align-items: center; gap: 16px; }
-        .step-num { width: 40px; height: 40px; background: #00f0ff22; color: #00f0ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
-        .step-text h4 { color: #ddd; margin-bottom: 4px; }
+        .step-num { inline-size: 40px; block-size: 40px; background: #00f0ff22; color: #00f0ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+        .step-text h4 { color: #ddd; margin-block-end: 4px; }
         .step-text p { color: #888; font-size: 13px; }
-        .supported-sites { max-width: 800px; margin: 60px auto; padding: 0 20px; text-align: center; }
-        .supported-sites h2 { color: #00f0ff; margin-bottom: 20px; }
+        .supported-sites { max-inline-size: 800px; margin: 60px auto; padding: 0 20px; text-align: center; }
+        .supported-sites h2 { color: #00f0ff; margin-block-end: 20px; }
         .site-badges { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
         .site-badge { padding: 8px 16px; background: #ffffff08; border: 1px solid #ffffff15; border-radius: 20px; color: #ccc; font-size: 13px; }
     </style>
@@ -35,11 +35,11 @@
 <body class="cyberpunk-body">
 {% include 'en/_public_nav.html' %}
 
-    <section class="ext-hero" style="padding-top:120px">
+    <section class="ext-hero" style="padding-block-start:120px">
         <h1>⚡ Auto-Apply With 1 Click</h1>
         <p>The JobHunt Pro Chrome Extension auto-fills job applications, generates cover letters, and submits forms — all from your browser.</p>
         <a href="/register" class="install-btn">Get the Extension (Free)</a>
-        <p style="color:#666;font-size:12px;margin-top:12px;">Installs in 10 seconds. Works on LinkedIn, Indeed, Glassdoor & more.</p>
+        <p style="color:#666;font-size:12px;margin-block-start:12px;">Installs in 10 seconds. Works on LinkedIn, Indeed, Glassdoor & more.</p>
     </section>
 
     <div class="features-grid">

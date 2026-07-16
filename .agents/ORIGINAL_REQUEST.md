@@ -1370,3 +1370,198 @@ Integrity mode: development
 - [ ] Command `python -m pytest` executes successfully with 100% passing rate.
 - [ ] Frontend builds successfully using `npm run build` in the `frontend` directory.
 
+## 2026-07-14T11:39:54Z
+
+Complete frontend and backend optimization of JobHunt Pro. This includes perfecting UI/UX for all 70+ template pages and the Next.js app, optimizing FastAPI router logic/SQLite database performance, and ensuring the entire 608 test suite passes.
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+Integrity mode: development
+
+## Requirements
+
+### R1. Frontend UI/UX Overhaul & RTL Focus
+- Complete and polish all 70+ HTML templates in `web/templates` and the Next.js frontend code in `frontend/`.
+- Ensure strict adherence to Arabic and RTL layout guidelines:
+  - Use CSS Logical Properties (e.g., `margin-inline-start`, `padding-inline-end`, `inset-inline-start`, `inline-size`).
+  - Set Arabic typography with fonts 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, minimum size 14px (recommended 16px), line-height 1.6 to 2.0, and no letter-spacing.
+  - Implement cultural ergonomics color coding: Green for success, Black/Gold for luxury, Blue for trust, Red for strict errors.
+  - Add dir="auto" on all form inputs.
+  - Apply directional mirroring to icons using --text-x-direction.
+- Resolve all visual bugs, formatting issues, responsive design flaws, and missing translations.
+
+### R2. Backend Router & DB Optimization
+- Optimize the FastAPI backend (web/app_v2.py and routers under web/routers/).
+- Streamline DLQ requeue logic, webhook routers (Brevo, SendGrid), and dashboard stats query performance.
+- Address any database query bottlenecks and optimize indices for SQLite database interactions (jobhunt_saas_v2.db).
+
+### R3. Test Suite Integrity
+- Maintain correctness of all existing features.
+- Ensure that the entire suite of 608 pytest tests passes successfully after optimizations.
+
+## Acceptance Criteria
+
+### Frontend Quality & Layout
+- [ ] Every modified HTML template file uses CSS Logical Properties instead of physical properties (e.g., no margin-left or padding-right in CSS).
+- [ ] Arabic typography is applied everywhere with a font family list starting with 'Cairo', and font size is never below 14px.
+- [ ] All input fields in forms have the dir="auto" attribute.
+- [ ] Next.js app builds cleanly without compilation or ESLint errors.
+
+### Backend & Database Performance
+- [ ] The DLQ requeue endpoint (/api/v1/admin/dlq/requeue) behaves correctly according to the interface contract.
+- [ ] Webhook endpoints for Brevo and SendGrid process events efficiently and correctly.
+- [ ] Query times on dashboard stats api endpoints are minimized and SQLite database locks/bottlenecks are resolved.
+
+### Test Verification
+- [ ] Running pytest runs and passes all 608 test cases.
+
+
+## Follow-up — 2026-07-14T15:54:14+03:00
+
+Verify and audit the complete frontend templates (logical properties, RTL alignment, typography) and backend routes (database connections, API contract, test pass status) for JobHunt Pro.
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+Integrity mode: development
+
+## Requirements
+
+### R1. Frontend Validation & Accessibility Audit
+- Audit all 114 HTML templates under `web/templates` and the Next.js app in `frontend/` to confirm that:
+  - Every modified CSS class/attribute uses logical properties (`margin-inline-start`, etc.) instead of physical ones.
+  - Arabic typography is clean, uses the `'Cairo'` font, has a minimum size of `14px`, and does not apply `letter-spacing`.
+  - All form inputs, textareas, and select elements have the `dir="auto"` attribute.
+- Ensure that the Next.js build runs cleanly without errors.
+
+### R2. Backend & API Stability Verification
+- Validate that all backend FastAPI routers are free of runtime bugs, undefined variable warnings, or unresolved syntax.
+- Verify that Neon/SQLite database connection pooling works properly, connection leaks are prevented, and endpoints align with their respective interface contracts.
+
+### R3. Test Suite Verification
+- Run the full pytest suite and guarantee that all 614 tests pass successfully.
+
+## Acceptance Criteria
+
+### Verification & Compliance
+- [ ] 100% of the 614 unit/E2E tests pass without failures.
+- [ ] No undefined variable errors (F821) exist in python codebase.
+- [ ] All template files are checked for logical properties compliance and verified.
+
+## Follow-up — 2026-07-14T13:52:48Z
+
+Enhance, audit, and fix the JobHunt Pro application across both frontend and backend to achieve clean API execution, zero database connection leaks, flawless bilingual RTL/Arabic and LTR/English layouts, and 100% test coverage compliance (614 tests passing).
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. Frontend Compliance, RTL & Typography Auditing
+- **CSS Logical Properties**: Modify/confirm styling across the 114 HTML templates (under `web/templates`) and the Next.js application (`frontend/`) to strictly use CSS Logical Properties:
+  - `margin-left` -> `margin-inline-start`
+  - `padding-right` -> `padding-inline-end`
+  - `left`/`right` -> `inset-inline-start`/`inset-inline-end`
+  - `width`/`height` -> `inline-size`/`block-size`
+- **Arabic Typography**: Check and enforce that Arabic text uses 'Cairo', 'IBM Plex Arabic', or 'Tajawal' fonts with a minimum size of 14px, line-height between 1.6 and 2.0, and strictly no letter-spacing.
+- **Forms directionality**: Ensure all <input>, <textarea>, and <select> elements use dir="auto".
+- **Directional Icons**: Use transform: scaleX(var(--text-x-direction)) with a --text-x-direction variable (1 for LTR, -1 for RTL).
+- **Next.js Production Build**: Verify that the Next.js app in frontend/ builds cleanly.
+
+### R2. Backend & API Stability & DB Connection Pooling
+- **FastAPI Routers**: Review all router modules in web/routers/ and the main entry point web/app_v2.py. Fix any undefined variables (flake8 F821), runtime bugs, or unhandled exceptions.
+- **Database Connection Pooling**: Ensure that database connections/pooling for both Neon Postgres and SQLite are handled efficiently, preventing any connection leaks.
+- **Interface Contracts**: Align DLQ, Webhook, and Dashboard Stats endpoints with their defined API contracts.
+
+### R3. Test Suite Verification
+- Verify that the entire pytest suite of 614 tests passes without any errors or regressions.
+
+## Acceptance Criteria
+
+### Technical & Verification Checklist
+- [ ] 100% Test Success: Running pytest runs and passes all 614 tests with 0 failures.
+- [ ] Zero Linter Errors: No undefined variable warnings (F821) in the python files.
+- [ ] Next.js Build: Running Next.js build script npm run build inside frontend/ completes successfully.
+- [ ] Logical Properties Audit: All HTML templates under web/templates are compliant with CSS Logical Properties and Arabic typography standards.
+- [ ] Connection Pooling: Database pool connections are correctly released, verified via integration/concurrency tests.
+
+## Follow-up — 2026-07-14T19:23:44Z
+
+Complete A-to-Z audit, optimization, and alignment of the JobHunt Pro enterprise application. Polish and secure the FastAPI backend, optimize database queries/connections, and resolve all RTL/Arabic and LTR/English page layouts across all 70+ templates and Next.js frontend, ensuring 100% of the 614+ test suite passes.
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. Backend & Database Integrity
+Ensure FastAPI routers (`web/routers/*`, `web/app_v2.py`) compile and execute cleanly with no database connection leaks. Use strict context management or decorators for sessions. Ensure database pooling survives cold starts (supporting Neon PostgreSQL and SQLite fallbacks).
+
+### R2. Flawless Bilingual UI/UX and CSS Logical Properties
+Audit and polish all 70+ HTML templates in `web/templates/` and `web/templates/en/` and the Next.js app (`frontend/`). All pages must use CSS Logical Properties (`margin-inline-start`, `padding-inline-end`, `inset-inline-start`, etc.) to prevent layout breakage on theme/locale shifts. Arabic text must use Cairo/IBM Plex Arabic fonts, line-height 1.6-2.0, with no letter-spacing. All form inputs must have `dir="auto"`.
+
+### R3. API Security and Contract Compliance
+Enforce strict JWT Bearer token authentication on all `/api/v1/*` endpoints, returning `401 Unauthorized` for missing/invalid tokens. Ensure proper CORS and IP rate limiting (brute-force protection).
+
+### R4. Full Test Suite Success
+Execute all pytest test cases in `tests/` and verify that 100% of them pass without a single bypass, skip, or failure.
+
+## Acceptance Criteria
+
+### Backend & DB Quality
+- [ ] No database connection leaks are left in any API routers or background scripts under stress testing.
+- [ ] API responses use versioned paths and enforce strict type schemas.
+
+### RTL & Logical Properties Compliance
+- [ ] No hardcoded directional CSS properties (like `margin-left` or `padding-right` or `left`/`right`) in any page templates or frontend components.
+- [ ] Arabic typography follows rules: `'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif` is used, min font-size is 14px, line-height is 1.6-2.0, and letter-spacing is removed.
+- [ ] Directional icons use `transform: scaleX(var(--text-x-direction))` with a `--text-x-direction` variable (`1` for LTR, `-1` for RTL).
+
+### Frontend Production Build
+- [ ] Next.js build (`npm run build` inside `frontend/`) completes with zero TypeScript or compilation errors.
+
+### Pytest Suite Validation
+- [ ] Running `python -m pytest tests/` returns `0` exit code, indicating all 614+ test cases passed successfully.
+
+## 2026-07-15T06:31:31Z
+
+# Teamwork Project Prompt
+
+Complete A-to-Z audit, optimization, and alignment of the JobHunt Pro enterprise application (frontend and backend).
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+
+## Requirements
+
+### R1. Complete Frontend and Backend Audit & Improvement
+Perform a thorough, comprehensive sweep across the entire application (including frontend components, page templates, routing, and backend systems) to fix styling, optimize performance, and align features.
+
+### R2. Arabic RTL and Gulf Accessibility Alignment
+Ensure all UI pages strictly follow CSS logical properties, Arabic typography rules (Cairo/Tajawal fonts, minimum font size 14px/16px, line height 1.6-2.0, no letter-spacing), and cultural ergonomics (directional icons, RTL scaling, centered/natural primary CTAs).
+
+## Acceptance Criteria
+
+### Audit & Optimization Verification
+- [ ] No placeholder or TODO comments remain in the audited files.
+- [ ] All pages (approx. 70 Jinja2 templates and React/Next.js pages) compile, load, and render correctly without errors.
+- [ ] Backend routes and database interactions work reliably without failing tests.
+
+## Follow-up — 2026-07-15T06:51:48Z
+
+# Teamwork Project Prompt
+
+Complete A-to-Z audit, optimization, and alignment of the JobHunt Pro enterprise application (frontend and backend).
+
+Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
+
+## Requirements
+
+### R1. Complete Frontend and Backend Audit & Improvement
+Perform a thorough, comprehensive sweep across the entire application (including frontend components, page templates, routing, and backend systems) to fix styling, optimize performance, and align features.
+
+### R2. Arabic RTL and Gulf Accessibility Alignment
+Ensure all UI pages strictly follow CSS logical properties, Arabic typography rules (Cairo/Tajawal fonts, minimum font size 14px/16px, line-height 1.6-2.0, no letter-spacing), and cultural ergonomics (directional icons, RTL scaling, centered/natural primary CTAs).
+
+## Acceptance Criteria
+
+### Audit & Optimization Verification
+- [ ] No placeholder or TODO comments remain in the audited files.
+- [ ] All pages (approx. 70 Jinja2 templates and React/Next.js pages) compile, load, and render correctly without errors.
+- [ ] Backend routes and database interactions work reliably without failing tests.

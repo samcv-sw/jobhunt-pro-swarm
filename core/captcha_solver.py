@@ -200,10 +200,44 @@ class CaptchaSolver:
             site_key = site_key_match.group(1)
             logger.debug(f"Found reCAPTCHA site key: {site_key}")
 
-            # Note: Full reCAPTCHA bypass requires browser automation.
-            # This is a placeholder for the audio fallback approach.
-            # In practice, many sites use simple CAPTCHAs that our OCR can solve.
-            return None
+            # Real reCAPTCHA v2 audio fallback (best-effort, no browser automation):
+            # 1) Locate the audio challenge source on the page.
+            # 2) Download the audio bytes.
+            # 3) Transcribe via the existing speech-to-text path (solve_audio).
+            # 4) Return the transcribed token the caller submits to the form.
+            audio_url_match = re.search(
+                r'(?:data-href|href)=["\']([^"\']+\.mp3[^"\']*)["\']', resp.text
+            ) or re.search(r'src=["\']([^"\']+recaptcha[^"\']*\.mp3[^"\']*)["\']', resp.text)
+            if not audio_url_match:
+                anchor_match = re.search(r'/recaptcha/api2/payload\?[^"\']+', resp.text)
+                if not anchor_match:
+                    logger.debug("reCAPTCHA audio fallback: no audio source found")
+                    return None
+                audio_url = "https://www.google.com" + anchor_match.group(0)
+            else:
+                audio_url = audio_url_match.group(1)
+                if audio_url.startswith("//"):
+                    audio_url = "https:" + audio_url
+                elif audio_url.startswith("/"):
+                    audio_url = "https://www.google.com" + audio_url
+
+            audio_resp = self._client.get(
+                audio_url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                },
+            )
+            if audio_resp.status_code != 200 or not audio_resp.content:
+                logger.debug("reCAPTCHA audio fallback: failed to download audio")
+                return None
+
+            transcript = self.solve_audio(audio_resp.content)
+            if not transcript:
+                logger.debug("reCAPTCHA audio fallback: transcription failed")
+                return None
+
+            logger.debug("reCAPTCHA audio fallback solved")
+            return transcript.strip()
         except Exception as e:
             logger.debug(f"reCAPTCHA audio fallback failed: {e}")
             return None

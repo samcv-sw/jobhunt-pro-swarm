@@ -172,3 +172,19 @@ setup_free_providers.py
 permanent_watchdog.py
 groq_keys.json
 gmail_accounts.json
+
+# ── Agent workspaces ─────────────────────────
+.agents/
+\ .agents/
+
+# ── Generated assets and outputs ─────────────
+assets/generated/
+*.csv
+pytest_*.txt
+pytest_result.md
+pytest_result.txt
+pytest_x.txt
+result.out
+ruff_*.txt
+.qdrant-initialized
+.rooignore

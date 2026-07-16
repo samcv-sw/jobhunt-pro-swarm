@@ -59,9 +59,25 @@ else:
         echo=False
     )
 
+from sqlite3 import Connection as SQLite3Connection
+from sqlalchemy import event
+
+# Enable Foreign Keys and WAL mode for SQLite
+@event.listens_for(engine.sync_engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    if "sqlite" in type(dbapi_connection).__name__.lower() or isinstance(dbapi_connection, SQLite3Connection):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA synchronous=NORMAL")
+        cursor.execute("PRAGMA cache_size=-2000")
+        cursor.execute("PRAGMA temp_store=MEMORY")
+        cursor.close()
+
 AsyncSessionLocal = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
 )
+
 
 Base = declarative_base()
 
@@ -130,13 +146,60 @@ class Database:
                     response_text TEXT
                 )
             """)
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs (status)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs (company)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_source ON jobs (status)")
             conn.commit()
 
     async def close(self) -> None:
         """No-op for connection pool closing."""
         pass
 
+    async def get_unscored_jobs(self, limit: int = 200) -> list[dict]:
+        """Return jobs not yet scored (score NULL or status 'new') — IMP-230."""
+        def _query() -> list[dict]:
+            with self._get_conn() as conn:
+                cur = conn.execute(
+                    "SELECT * FROM jobs WHERE score IS NULL OR status = 'new' "
+                    "ORDER BY id DESC LIMIT ?",
+                    (limit,),
+                )
+                return [dict(row) for row in cur.fetchall()]
+        return await asyncio.to_thread(_query)
+
+    async def get_scored_jobs(self, min_score: int = 0, limit: int = 200) -> list[dict]:
+        """Return jobs whose score meets or exceeds min_score — IMP-230."""
+        def _query() -> list[dict]:
+            with self._get_conn() as conn:
+                cur = conn.execute(
+                    "SELECT * FROM jobs WHERE score >= ? ORDER BY score DESC LIMIT ?",
+                    (min_score, limit),
+                )
+                return [dict(row) for row in cur.fetchall()]
+        return await asyncio.to_thread(_query)
+
+    async def get_failed_jobs(self, limit: int = 2000) -> list[dict]:
+        """Return jobs marked with a failed status — IMP-230."""
+        def _query() -> list[dict]:
+            with self._get_conn() as conn:
+                cur = conn.execute(
+                    "SELECT * FROM jobs WHERE status = 'failed' ORDER BY id DESC LIMIT ?",
+                    (limit,),
+                )
+                return [dict(row) for row in cur.fetchall()]
+        return await asyncio.to_thread(_query)
+
+    async def get_jobs_by_status(self, status: str, limit: int = 2000) -> list[dict]:
+        """Return jobs filtered by status — IMP-230."""
+        def _query() -> list[dict]:
+            with self._get_conn() as conn:
+                cur = conn.execute(
+                    "SELECT * FROM jobs WHERE status = ? ORDER BY id DESC LIMIT ?",
+                    (status, limit),
+                )
+                return [dict(row) for row in cur.fetchall()]
+        return await asyncio.to_thread(_query)
+
 
 
 # Backward compatibility alias for aiosqlite/asyncpg pool manager
-from core.async_db import async_db as db

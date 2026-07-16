@@ -10,7 +10,8 @@ from backend.limiter import rate_limiter
 
 router = APIRouter()
 
-stripe.api_key = os.environ.get("STRIPE_API_KEY", "sk_test_mock_key")
+stripe.api_key = os.environ.get("STRIPE_API_KEY")
+APP_BASE_URL = os.environ.get("APP_BASE_URL", "https://jobhuntpro.com").rstrip("/")
 
 class CheckoutRequest(BaseModel):
     tier: str  # e.g., 'pro', 'enterprise'
@@ -27,6 +28,13 @@ async def create_checkout_session(request: CheckoutRequest):
     if not price_id:
         raise HTTPException(status_code=400, detail="Invalid subscription tier")
 
+    if not stripe.api_key:
+        is_production = os.environ.get("ENV") == "production"
+        if is_production:
+            raise HTTPException(status_code=500, detail="Payment processing is not configured.")
+        # Dev-only mock fallback (no real key, not production)
+        return {"checkout_url": f"{APP_BASE_URL}/dashboard?mock_session={request.user_id}"}
+
     try:
         session = await asyncio.to_thread(
             stripe.checkout.Session.create,
@@ -36,15 +44,15 @@ async def create_checkout_session(request: CheckoutRequest):
                 'quantity': 1,
             }],
             mode='subscription',
-            success_url='https://jobhuntpro.com/dashboard?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url='https://jobhuntpro.com/dashboard',
+            success_url=f'{APP_BASE_URL}/dashboard?session_id={{CHECKOUT_SESSION_ID}}',
+            cancel_url=f'{APP_BASE_URL}/dashboard',
             client_reference_id=request.user_id
         )
         return {"checkout_url": session.url}
     except Exception as e:
         # Secure fallback logic to prevent bypass in production
         is_production = os.environ.get("ENV") == "production" or os.environ.get("INTEGRITY_MODE") == "benchmark"
-        is_mock_allowed = (stripe.api_key == "sk_test_mock_key" or os.environ.get("INTEGRITY_MODE") == "development") and not is_production
-        if is_mock_allowed and ("Invalid API Key provided" in str(e) or stripe.api_key == "sk_test_mock_key"):
-            return {"checkout_url": f"https://checkout.stripe.com/pay/cs_test_{request.user_id}"}
+        is_mock_allowed = os.environ.get("INTEGRITY_MODE") == "development" and not is_production
+        if is_mock_allowed and "Invalid API Key provided" in str(e):
+            return {"checkout_url": f"{APP_BASE_URL}/dashboard?mock_session={request.user_id}"}
         raise HTTPException(status_code=500, detail=str(e))

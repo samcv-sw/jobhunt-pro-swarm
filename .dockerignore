@@ -1,38 +1,78 @@
-__pycache__
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
 *.pyc
 *.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# ── Environment & Secrets ───────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Databases / local state ──────────────────────────────────────────────────
 *.db
 *.sqlite
 *.sqlite3
-.env
-.git
-.gitignore
-*.md
-!README.md
+data/
+logs/
+sent_mails/
+.qdrant-initialized
+
+# ── Tests ────────────────────────────────────────────────────────────────────
 tests/
 test_*.py
+*_test.py
 smoke_test.py
 verify_fixes.py
 deep_import_check.py
 test_all_imports.py
-*.log
+pytest_*.txt
+pytest_*.md
+load-test-results*.csv
+
+# ── Docs / markdown noise ─────────────────────────────────────────────────────
+*.md
+!README.md
+*.rst
+*.txt
+!requirements.txt
+
+# ── CI / Dev tooling ─────────────────────────────────────────────────────────
+.git/
+.gitignore
+.github/
+.pre-commit-config.yaml
+.continue/
+.agents/
+.rooignore
+.wrangler/
+
+# ── Frontend (built separately via Dockerfile.frontend) ──────────────────────
+frontend/
+frontend-vue/
+
+# ── Node ─────────────────────────────────────────────────────────────────────
+node_modules/
+
+# ── OS / Editor ──────────────────────────────────────────────────────────────
+.DS_Store
+.vscode/
+.idea/
 *.bat
 *.sh
 deploy_*.sh
-sent_mails/
-.vscode/
-.idea/
-*.egg-info/
-dist/
-build/
-node_modules/
-.DS_Store
-data/
-logs/
-.pytest_cache/
-.ruff_cache/
-.agents/
-scratch/
+
+# ── Archives / scratch ───────────────────────────────────────────────────────
 archive/
+scratch/
+snapshots/
+screenshots/
 test_env/
 test_env_2/
+00_ORGANIZED_STRUCTURE/

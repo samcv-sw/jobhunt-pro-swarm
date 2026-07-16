@@ -30,6 +30,7 @@ else:
 import contextlib
 import time
 import uuid
+import bcrypt
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -115,7 +116,7 @@ class TenantManager:
 
         tenant_id = f"user_{uuid.uuid4().hex[:12]}"
         _pw = password or uuid.uuid4().hex
-        _hash = _pw  # (real bcrypt handled by app_v2 on signup; placeholder for auto-created tenants)
+        _hash = bcrypt.hashpw(_pw.encode(), bcrypt.gensalt()).decode()
 
         try:
             conn.execute(

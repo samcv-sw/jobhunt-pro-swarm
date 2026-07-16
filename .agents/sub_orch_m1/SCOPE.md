@@ -1,20 +1,16 @@
-# Scope: Milestone 1: Backend Code Quality, Refactoring & Security
+# Scope: E2E Testing Track Setup (Milestone 1)
 
 ## Architecture
-- Refactoring and security hardening of backend core python files.
-- Implementation of the Auto-Fill Browser Agent.
+- Existing test structure: tests/ directory contains 608 pytest cases.
+- We need to categorize them, verify execution, ensure they pass, and document the architecture/runner.
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
-|---|---|---|---|---|
-| M1.1 | IMP-154: Dead Code Removal | Dead code removal via vulture (vulture . --min-confidence 80) | None | PLANNED |
-| M1.2 | IMP-158: Large Function Decomposition | Decompose functions >100 lines in core/ | M1.1 | PLANNED |
-| M1.3 | IMP-160: Import Sorting | Import sorting with isort (isort . --profile black) | M1.2 | PLANNED |
-| M1.4 | IMP-162: Dependency Pinning | pip freeze to exact versions in requirements.txt | M1.3 | PLANNED |
-| M1.5 | IMP-190: LinkedIn OAuth | LinkedIn OAuth2 via authlib; auto-import profile to CV | M1.4 | PLANNED |
-| M1.6 | R2: Auto-fill Browser Agent | Auto-fill browser agent `core/form_autofill.py` using Playwright | M1.5 | PLANNED |
+|---|------|-------|-------------|--------|
+| 1 | Scan and Map Tests | Run Explorer to scan tests, map 608 pytest cases to Tiers 1-4, document runner and commands | None | DONE |
+| 2 | Execute and Fix Suite | Run Worker to run the test suite, resolve any failing/flaky tests, verify all 608 cases pass | M1 | DONE |
+| 3 | Document Test Infra | Generate TEST_INFRA.md and TEST_READY.md at project root | M1, M2 | DONE |
+| 4 | Final Handoff | Generate handoff.md and send final notification to parent | M1, M2, M3 | DONE |
 
 ## Interface Contracts
-- `autofill_job_form` signature must be exactly as specified in `core/form_autofill.py`:
-  `autofill_job_form(url: str, user_profile: dict) -> dict` returning `{success: bool, screenshot_path: str}` or error structure.
-- LinkedIn OAuth endpoint must be `/api/v1/auth/linkedin` utilizing `authlib` to retrieve user profile and import to CV.
+- None.

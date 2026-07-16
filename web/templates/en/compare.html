@@ -27,14 +27,14 @@
     <style>
         .comparison-hero { text-align: center; padding: 60px 20px 40px; background: linear-gradient(180deg, #0a0a2e 0%, #0a0a1a 100%); }
         .comparison-hero h1 { font-size: 2.5em; background: linear-gradient(135deg, #00f0ff, #7000ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .comparison-hero p { color: #888; font-size: 1.1em; max-width: 700px; margin: 16px auto 0; }
+        .comparison-hero p { color: #888; font-size: 1.1em; max-inline-size: 700px; margin: 16px auto 0; }
         
         .winner-badge { display: inline-block; background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-inline-start: 6px; }
         
-        .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 40px; overflow-x: auto; display: block; }
-        .comparison-table th, .comparison-table td { padding: 14px 16px; text-align: center; border-bottom: 1px solid #ffffff10; min-width: 130px; }
-        .comparison-table th { background: #ffffff08; color: #00f0ff; font-size: 14px; font-weight: 600; position: sticky; top: 0; }
-        .comparison-table th:first-child { text-align: start; min-width: 180px; }
+        .comparison-table { inline-size: 100%; border-collapse: separate; border-spacing: 0; margin-block-start: 40px; overflow-x: auto; display: block; }
+        .comparison-table th, .comparison-table td { padding: 14px 16px; text-align: center; border-inset-block-end: 1px solid #ffffff10; min-inline-size: 130px; }
+        .comparison-table th { background: #ffffff08; color: #00f0ff; font-size: 14px; font-weight: 600; position: sticky; inset-block-start: 0; }
+        .comparison-table th:first-child { text-align: start; min-inline-size: 180px; }
         .comparison-table td:first-child { text-align: start; color: #ccc; font-size: 13px; }
         .comparison-table tr:hover td { background: #ffffff05; }
         .comparison-table .highlight td { background: #00f0ff08 !important; border-inline-start: 2px solid #00f0ff; }
@@ -43,26 +43,26 @@
         .cross { color: #ff4466; font-size: 18px; }
         .partial { color: #ffaa00; font-size: 18px; }
         
-        .verdict-section { padding: 60px 20px; max-width: 900px; margin: 0 auto; }
-        .verdict-card { background: #ffffff05; border: 1px solid #ffffff10; border-radius: 12px; padding: 30px; margin-bottom: 20px; }
-        .verdict-card h3 { color: #00f0ff; margin-bottom: 12px; }
+        .verdict-section { padding: 60px 20px; max-inline-size: 900px; margin: 0 auto; }
+        .verdict-card { background: #ffffff05; border: 1px solid #ffffff10; border-radius: 12px; padding: 30px; margin-block-end: 20px; }
+        .verdict-card h3 { color: #00f0ff; margin-block-end: 12px; }
         .verdict-card p { color: #aaa; line-height: 1.6; }
         .verdict-card.winner { border-color: #ffd70044; background: #ffd70008; }
         
         .cta-section { text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #00f0ff10, #7000ff10); }
         .cta-section h2 { color: #fff; font-size: 1.8em; }
-        .cta-section .cta-button { margin-top: 20px; display: inline-block; padding: 14px 40px; background: linear-gradient(135deg, #00f0ff, #0088ff); color: #fff; border-radius: 30px; font-weight: 700; text-decoration: none; font-size: 16px; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+        .cta-section .cta-button { margin-block-start: 20px; display: inline-block; padding: 14px 40px; background: linear-gradient(135deg, #00f0ff, #0088ff); color: #fff; border-radius: 30px; font-weight: 700; text-decoration: none; font-size: 16px; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
         
-        .faq-section { max-width: 900px; margin: 0 auto; padding: 40px 20px 60px; }
-        .faq-section h2 { color: #00f0ff; text-align: center; margin-bottom: 30px; }
-        .faq-item { border-bottom: 1px solid #ffffff10; padding: 16px 0; }
+        .faq-section { max-inline-size: 900px; margin: 0 auto; padding: 40px 20px 60px; }
+        .faq-section h2 { color: #00f0ff; text-align: center; margin-block-end: 30px; }
+        .faq-item { border-inset-block-end: 1px solid #ffffff10; padding: 16px 0; }
         .faq-item h4 { color: #ddd; cursor: pointer; }
-        .faq-item p { color: #888; margin-top: 8px; display: none; }
+        .faq-item p { color: #888; margin-block-start: 8px; display: none; }
         .faq-item.open p { display: block; }
         
         @media (max-width: 768px) {
             .comparison-table { font-size: 12px; }
-            .comparison-table th, .comparison-table td { padding: 10px 8px; min-width: 90px; }
+            .comparison-table th, .comparison-table td { padding: 10px 8px; min-inline-size: 90px; }
         }
     </style>
 <meta property="og:title" content="Compare Plans | JobHunt Pro"/>
@@ -70,12 +70,12 @@
 <body class="cyberpunk-body">
 {% include 'en/_public_nav.html' %}
 
-    <section class="comparison-hero" style="padding-top:120px">
+    <section class="comparison-hero" style="padding-block-start:120px">
         <h1>JobHunt Pro vs Competitors</h1>
         <p>The definitive comparison of AI job application tools. We tested every service so you don't have to.</p>
     </section>
 
-    <div style="overflow-x:auto; max-width:1100px; margin:0 auto; padding:0 10px;">
+    <div style="overflow-x:auto; max-inline-size:1100px; margin:0 auto; padding:0 10px;">
     <table class="comparison-table">
         <thead>
             <tr>
@@ -259,12 +259,12 @@
 
     <section class="cta-section">
         <h2>Ready to Win Your Job Search?</h2>
-        <p style="color:#aaa;margin-top:8px;">200 AI agents. $2. No commitment.</p>
+        <p style="color:#aaa;margin-block-start:8px;">200 AI agents. $2. No commitment.</p>
         <a href="/register" class="cta-button">⚡ Start Auto-Applying Now</a>
     </section>
 
-    <footer style="text-align:center;padding:40px 24px;border-top:1px solid rgba(255,255,255,0.06);color:#52525b;font-size:13px;">
-        <div style="margin-bottom:16px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;">
+    <footer style="text-align:center;padding:40px 24px;border-inset-block-start:1px solid rgba(255,255,255,0.06);color:#52525b;font-size:13px;">
+        <div style="margin-block-end:16px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;">
             <a href="/" style="color:#64748b;text-decoration:none;">Home</a>
             <a href="/pricing" style="color:#64748b;text-decoration:none;">Pricing</a>
             <a href="/faq" style="color:#64748b;text-decoration:none;">FAQ</a>

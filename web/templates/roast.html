@@ -8,12 +8,12 @@
 {% block content %}
 {% include '_public_nav.html' %}
 
-<div class="glass-panel" style="padding-top:140px;max-width: 600px; margin: 120px auto 50px; text-align: center;">
+<div class="glass-panel" style="padding-block-start:140px;max-inline-size: 600px; margin: 120px auto 50px; text-align: center;">
 <h1 style="color: var(--danger);">🔥 تقييم سيرتي الذاتية القاسي</h1>
 <p>{{ _('ارفع ملف الـ PDF الخاص بك ودع الذكاء الاصطناعي الصريح جداً لدينا يحطم غرورك.') }}</p>
 <div style="margin: 30px 0;">
-<input accept="application/pdf" class="glass-input" dir="auto" id="resumeFile" style="margin-bottom: 20px;" type="file"/>
-<button class="btn-primary" id="roastBtn" style="width: 100%; background: var(--danger);">قيّم سيرتي الآن</button>
+<input accept="application/pdf" class="glass-input" dir="auto" id="resumeFile" style="margin-block-end: 20px;" type="file"/>
+<button class="btn-primary" id="roastBtn" style="inline-size: 100%; background: var(--danger);">قيّم سيرتي الآن</button>
 </div>
 <!-- Skeleton Loader -->
 <div id="loader" style="display: none; margin: 20px 0;">
@@ -22,7 +22,7 @@
 <div class="skeleton skeleton-text short"></div>
 </div>
 <!-- Results -->
-<div id="resultBox" style="display: none; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; margin-top: 20px;">
+<div id="resultBox" style="display: none; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; margin-block-start: 20px;">
 <h2 id="scoreText" style="font-size: 3rem; margin: 0; color: #f59e0b;">0/100</h2>
 <p id="roastText" style="font-size: 1.2rem; font-style: italic; margin: 20px 0;">...</p>
 <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
@@ -32,9 +32,9 @@
 </div>
 <hr style="border-color: var(--glass-border); margin: 30px 0;"/>
 <div style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); padding: 20px; border-radius: 12px;">
-<h4 style="margin-top:0;">هل تريد إصلاح هذه السيرة الذاتية السيئة والحصول على وظيفة؟</h4>
+<h4 style="margin-block-start:0;">هل تريد إصلاح هذه السيرة الذاتية السيئة والحصول على وظيفة؟</h4>
 <p style="font-size: 14px; color: #94a3b8;">انضم إلى أكثر من 10,000 مهندس يستخدمون الذكاء الاصطناعي الخاص بنا لأتمتة التقديم على الوظائف وتخصيص السير الذاتية فوراً.</p>
-<a class="btn-primary" href="/register?ref=roast_tool" style="text-decoration: none; display: block; margin-top:15px; background: linear-gradient(135deg, #3b82f6, #8b5cf6);">🚀 احصل على وكيل الذكاء الاصطناعي المجاني الآن</a>
+<a class="btn-primary" href="/register?ref=roast_tool" style="text-decoration: none; display: block; margin-block-start:15px; background: linear-gradient(135deg, #3b82f6, #8b5cf6);">🚀 احصل على وكيل الذكاء الاصطناعي المجاني الآن</a>
 </div>
 </div>
 </div>

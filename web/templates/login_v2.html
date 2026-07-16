@@ -79,7 +79,7 @@ body.auth-page {
   inline-size: 16px;
   block-size: 16px;
   border: 2px solid rgba(255,255,255,0.35);
-  border-top-color: transparent;
+  border-block-start-color: transparent;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   vertical-align: middle;
@@ -89,7 +89,7 @@ body.auth-page {
 
 /* ── Background particles (CSS only) ── */
 .bg-particles {
-  position: fixed; top: 0; inset-inline-start: 0; inline-size: 100%; block-size: 100%;
+  position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 100%; block-size: 100%;
   pointer-events: none; z-index: 0;
   overflow: hidden;
 }
@@ -101,14 +101,14 @@ body.auth-page {
   opacity: 0.1;
   animation: floatParticle 20s infinite linear;
 }
-.bg-particles .particle:nth-child(1) { inset-inline-start: 10%; top: 20%; animation-delay: 0s; animation-duration: 18s; }
-.bg-particles .particle:nth-child(2) { inset-inline-start: 25%; top: 60%; animation-delay: 2s; animation-duration: 22s; inline-size: 3px; block-size: 3px; }
-.bg-particles .particle:nth-child(3) { inset-inline-start: 45%; top: 10%; animation-delay: 4s; animation-duration: 25s; }
-.bg-particles .particle:nth-child(4) { inset-inline-start: 65%; top: 70%; animation-delay: 1s; animation-duration: 20s; inline-size: 5px; block-size: 5px; }
-.bg-particles .particle:nth-child(5) { inset-inline-start: 80%; top: 30%; animation-delay: 3s; animation-duration: 23s; }
-.bg-particles .particle:nth-child(6) { inset-inline-start: 50%; top: 80%; animation-delay: 5s; animation-duration: 19s; inline-size: 3px; block-size: 3px; }
-.bg-particles .particle:nth-child(7) { inset-inline-start: 15%; top: 85%; animation-delay: 6s; animation-duration: 21s; }
-.bg-particles .particle:nth-child(8) { inset-inline-start: 90%; top: 50%; animation-delay: 2.5s; animation-duration: 24s; }
+.bg-particles .particle:nth-child(1) { inset-inline-start: 10%; inset-block-start: 20%; animation-delay: 0s; animation-duration: 18s; }
+.bg-particles .particle:nth-child(2) { inset-inline-start: 25%; inset-block-start: 60%; animation-delay: 2s; animation-duration: 22s; inline-size: 3px; block-size: 3px; }
+.bg-particles .particle:nth-child(3) { inset-inline-start: 45%; inset-block-start: 10%; animation-delay: 4s; animation-duration: 25s; }
+.bg-particles .particle:nth-child(4) { inset-inline-start: 65%; inset-block-start: 70%; animation-delay: 1s; animation-duration: 20s; inline-size: 5px; block-size: 5px; }
+.bg-particles .particle:nth-child(5) { inset-inline-start: 80%; inset-block-start: 30%; animation-delay: 3s; animation-duration: 23s; }
+.bg-particles .particle:nth-child(6) { inset-inline-start: 50%; inset-block-start: 80%; animation-delay: 5s; animation-duration: 19s; inline-size: 3px; block-size: 3px; }
+.bg-particles .particle:nth-child(7) { inset-inline-start: 15%; inset-block-start: 85%; animation-delay: 6s; animation-duration: 21s; }
+.bg-particles .particle:nth-child(8) { inset-inline-start: 90%; inset-block-start: 50%; animation-delay: 2.5s; animation-duration: 24s; }
 @keyframes floatParticle {
   0% { transform: translateY(0) rotate(0deg); opacity: 0; }
   10% { opacity: 0.1; }
@@ -147,7 +147,7 @@ body.auth-page {
 
 {% include '_public_nav.html' %}
 
-<div class="auth-page-wrap" style="padding-top:140px;">
+<div class="auth-page-wrap" style="padding-block-start:140px;">
 <div class="auth-container">
 <div class="auth-card">
 <div class="auth-header">
@@ -210,7 +210,7 @@ body.auth-page {
 </button>
 </form>
 <div class="auth-footer">
-        جديد عنا؟ <a href="/register">أنشئ حساب مجاني →</a>
+        جديد عنا؟ <a href="/register">أنشئ حساب مجاني ←</a>
 </div>
 </div>
 <div class="trust-strip">

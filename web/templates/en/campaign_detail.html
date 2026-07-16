@@ -1,28 +1,28 @@
 <meta property="og:title" content="Campaign Details | JobHunt Pro"/>
 <meta name="description" content="Review performance details and stats for your job campaign."/>
 <title>Campaign Details | JobHunt Pro</title>
-<style>.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;}
+<style>.header { display: flex; justify-content: space-between; align-items: center; margin-block-end: 40px;}
 h1 { font-size: 28px;}
 .status { padding: 8px 16px; border-radius: 50px; font-size: 14px; font-weight: 600;}
 .status.running { background: rgba(34, 197, 94, 0.2); color: #22c55e;}
 .status.completed { background: rgba(59, 130, 246, 0.2); color: #3b82f6;}
 .status.pending { background: rgba(249, 115, 22, 0.2); color: #f97316;}
 .status.failed { background: rgba(239, 68, 68, 0.2); color: #f87171;}
-.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px;}
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-block-end: 40px;}
 .stat-card { background: linear-gradient(135deg, rgba(30,30,50,0.8), rgba(20,20,35,0.8)); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px; text-align: center;}
-.stat-card h3 { font-size: 14px; color: #94a3b8; margin-bottom: 8px;}
+.stat-card h3 { font-size: 14px; color: #94a3b8; margin-block-end: 8px;}
 .stat-card .value { font-size: 36px; font-weight: 700;}
 .stat-card .value.blue { color: #3b82f6;}
 .stat-card .value.green { color: #22c55e;}
 .stat-card .value.purple { color: #8b5cf6;}
 .stat-card .value.orange { color: #f97316;}
-.progress { background: rgba(255,255,255,0.1); border-radius: 10px; height: 8px; margin-bottom: 40px; overflow: hidden;}
-.progress-bar { height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); border-radius: 10px; transition: width 0.5s;}
-.section { margin-bottom: 40px;}
-.section h2 { font-size: 20px; margin-bottom: 20px;}
-.table { width: 100%; border-collapse: collapse;}
-.table th { text-align: start; padding: 14px 16px; color: #94a3b8; font-size: 12px; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.1);}
-.table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px;}
+.progress { background: rgba(255,255,255,0.1); border-radius: 10px; block-size: 8px; margin-block-end: 40px; overflow: hidden;}
+.progress-bar { block-size: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); border-radius: 10px; transition: width 0.5s;}
+.section { margin-block-end: 40px;}
+.section h2 { font-size: 20px; margin-block-end: 20px;}
+.table { inline-size: 100%; border-collapse: collapse;}
+.table th { text-align: start; padding: 14px 16px; color: #94a3b8; font-size: 12px; text-transform: uppercase; border-inset-block-end: 1px solid rgba(255,255,255,0.1);}
+.table td { padding: 14px 16px; border-inset-block-end: 1px solid rgba(255,255,255,0.05); font-size: 14px;}
 .email-status { padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 600;}
 .email-status.sent { background: rgba(34, 197, 94, 0.2); color: #22c55e;}
 .email-status.pending { background: rgba(249, 115, 22, 0.2); color: #f97316;}
@@ -31,12 +31,12 @@ h1 { font-size: 28px;}
 .btn { padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-block; border: none;}
 .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2);}
 .main h1{font-size:22px;}
-.main h1{font-size:18px;margin-bottom:4px;}
-.main .subtitle{font-size:12px;margin-bottom:16px;}
+.main h1{font-size:18px;margin-block-end:4px;}
+.main .subtitle{font-size:12px;margin-block-end:16px;}
 .main h1{font-size:17px;}
 .main h1{font-size:22px;}
-.main h1{font-size:18px;margin-bottom:4px;}
-.main .subtitle{font-size:12px;margin-bottom:16px;}
+.main h1{font-size:18px;margin-block-end:4px;}
+.main .subtitle{font-size:12px;margin-block-end:16px;}
 .main h1{font-size:17px;}</style>
 
 <div class="header">
@@ -64,7 +64,7 @@ h1 { font-size: 28px;}
  </div>
  
  <div class="progress">
- <div class="progress-bar" style="width: {{ (campaign.sent_count / campaign.total_companies * 100) if campaign.total_companies > 0 else 0 }}%"></div>
+ <div class="progress-bar" style="inline-size: {{ (campaign.sent_count / campaign.total_companies * 100) if campaign.total_companies > 0 else 0 }}%"></div>
  </div>
  
  <div class="section">

@@ -4,7 +4,7 @@
 [dir="rtl"] { --text-x-direction: -1; --sidebar-hover-x: 3px; }
 
 .sidebar {
-  width: 200px;
+  inline-size: 200px;
   background: rgba(10,10,26,0.97);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -48,8 +48,8 @@
   margin-block-start: 8px;
 }
 .sidebar .logo .status-dot {
-  width: 6px;
-  height: 6px;
+  inline-size: 6px;
+  block-size: 6px;
   border-radius: 50%;
   background: #00d4aa;
   animation: sbpulse 2s ease-in-out infinite;
@@ -63,7 +63,7 @@
   padding: 6px 8px 8px;
   overflow-y: auto;
 }
-.sidebar nav::-webkit-scrollbar { width: 3px; }
+.sidebar nav::-webkit-scrollbar { inline-size: 3px; }
 .sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
 
 .sidebar .nav-section-label {
@@ -93,7 +93,7 @@
 }
 .sidebar nav a .nav-icon {
   font-size: 16px;
-  width: 20px;
+  inline-size: 20px;
   text-align: center;
   flex-shrink: 0;
   line-height: 1;
@@ -112,10 +112,10 @@
 }
 .sidebar nav a.logout { color: rgba(248,113,113,0.75); }
 .sidebar nav a.logout:hover { background: rgba(239,68,68,0.1); color: #f87171; border-inline-start-color: rgba(239,68,68,0.4); }
-.sidebar nav .nav-gap { flex-shrink: 0; height: 4px; }
+.sidebar nav .nav-gap { flex-shrink: 0; block-size: 4px; }
 .sidebar nav .nav-divider {
   flex-shrink: 0;
-  height: 1px;
+  block-size: 1px;
   background: rgba(255,255,255,0.05);
   margin: 4px 6px;
 }
@@ -129,8 +129,8 @@
   color: #fff;
   font-size: 10px;
   font-weight: 700;
-  min-width: 18px;
-  height: 18px;
+  min-inline-size: 18px;
+  block-size: 18px;
   border-radius: 9px;
   display: flex;
   align-items: center;
@@ -146,8 +146,8 @@
   inset-block-start: 10px;
   inset-inline-start: 10px;
   z-index: 200;
-  width: 40px;
-  height: 40px;
+  inline-size: 40px;
+  block-size: 40px;
   background: rgba(139,92,246,0.15);
   border: 1px solid rgba(139,92,246,0.3);
   border-radius: 8px;
@@ -160,8 +160,8 @@
 }
 .hamburger span {
   display: block;
-  width: 18px;
-  height: 2px;
+  inline-size: 18px;
+  block-size: 2px;
   background: #8b5cf6;
   border-radius: 1px;
   transition: all 0.2s;
@@ -175,9 +175,9 @@
   position: fixed;
   inset-block-start: 0;
   inset-inline-end: -380px;
-  width: 360px;
-  max-width: 90vw;
-  height: 100vh;
+  inline-size: 360px;
+  max-inline-size: 90vw;
+  block-size: 100vh;
   background: #080812;
   border-inline-start: 1px solid rgba(255,255,255,0.08);
   z-index: 250;
@@ -196,24 +196,24 @@
 .notif-item { display:flex; align-items:flex-start; gap:12px; padding:12px 18px; border-block-end:1px solid rgba(255,255,255,0.03); cursor:pointer; transition:background 0.15s; position:relative; }
 .notif-item:hover { background:rgba(255,255,255,0.02); }
 .notif-item.unread { background:rgba(59,130,246,0.04); }
-.notif-icon { font-size:18px; width:32px; height:32px; background:rgba(255,255,255,0.04); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.notif-body { flex:1; min-width:0; }
+.notif-icon { font-size:18px; inline-size:32px; block-size:32px; background:rgba(255,255,255,0.04); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.notif-body { flex:1; min-inline-size:0; }
 .notif-title { font-size:13px; font-weight:600; color:#e2e8f0; margin-block-end:2px; line-height:1.3; }
 .notif-msg { font-size:12px; color:#94a3b8; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 .notif-time { font-size:10px; color:#52525b; margin-block-start:4px; }
-.notif-dot { width:8px; height:8px; background:#3b82f6; border-radius:50%; flex-shrink:0; margin-block-start:4px; }
+.notif-dot { inline-size:8px; block-size:8px; background:#3b82f6; border-radius:50%; flex-shrink:0; margin-block-start:4px; }
 .notif-empty { text-align:center; padding:40px 20px; color:#52525b; font-size:13px; }
 
 @media(max-width:1024px) {
-  .sidebar { width: 52px; overflow: hidden; }
+  .sidebar { inline-size: 52px; overflow: hidden; }
   .sidebar .logo .logo-brand { font-size: 0; }
   .sidebar .logo .logo-sub, .sidebar .logo .status-line { display: none; }
   .sidebar .nav-section-label { display: none; }
   .sidebar nav { padding: 2px 4px 8px; }
-  .sidebar nav a { font-size: 0; padding: 8px 4px; justify-content: center; gap: 0; min-height: 40px; border-inline-start: none; }
-  .sidebar nav a .nav-icon { font-size: 17px; width: auto; }
+  .sidebar nav a { font-size: 0; padding: 8px 4px; justify-content: center; gap: 0; min-block-size: 40px; border-inline-start: none; }
+  .sidebar nav a .nav-icon { font-size: 17px; inline-size: auto; }
   .hamburger { display: flex; }
-  .sidebar.open { width: 220px !important; overflow: visible !important; box-shadow: 4px 0 20px rgba(0,0,0,0.5); }
+  .sidebar.open { inline-size: 220px !important; overflow: visible !important; box-shadow: 4px 0 20px rgba(0,0,0,0.5); }
   .sidebar.open .logo .logo-brand { font-size: 14px !important; }
   .sidebar.open .logo .logo-sub { display: block !important; }
   .sidebar.open .logo .status-line { display: flex !important; }
@@ -221,13 +221,13 @@
   .sidebar.open nav a { font-size: 13px !important; padding: 8px 10px !important; justify-content: flex-start !important; gap: 9px !important; border-inline-start: 3px solid transparent; }
 }
 @media(max-width:768px) {
-  .sidebar { width: 40px; }
-  .sidebar nav a { padding: 6px 3px; min-height: 38px; }
+  .sidebar { inline-size: 40px; }
+  .sidebar nav a { padding: 6px 3px; min-block-size: 38px; }
   .sidebar nav a .nav-icon { font-size: 15px; }
-  .notif-panel { width: 100vw; max-width: 100vw; inset-inline-end: -100vw; }
+  .notif-panel { inline-size: 100vw; max-inline-size: 100vw; inset-inline-end: -100vw; }
 }
 @media(max-width:480px) {
-  .sidebar { width: 36px; }
+  .sidebar { inline-size: 36px; }
   .sidebar nav a .nav-icon { font-size: 14px; }
 }
 </style>
@@ -272,6 +272,7 @@
 
     <div class="nav-divider"></div>
     <a href="/stats" {{ 'class=active' if active_page == 'stats' else '' }}><span class="nav-icon">📈</span>الإحصائيات</a>
+    <a href="/growth-station" {{ 'class=active' if active_page == 'growth_station' else '' }}><span class="nav-icon">📢</span>محطة النمو & Leads</a>
     <a href="/referrals" {{ 'class=active' if active_page == 'referral' else '' }}><span class="nav-icon">👥</span>الإحالات</a>
     <a href="/email-test" {{ 'class=active' if active_page == 'email-test' else '' }}><span class="nav-icon">🧪</span>اختبار البريد</a>
     <a href="/export" {{ 'class=active' if active_page == 'export' else '' }}><span class="nav-icon">📥</span>تصدير</a>

@@ -28,3 +28,46 @@ For all complex code generation, especially regarding architecture and UI/UX:
    - **Colors**: Green for success. Black/Gold for luxury. Blue for trust. Red for strict errors only.
 4. **Forms**: All inputs must use `dir="auto"`.
 5. **Directional Icons**: Use `transform: scaleX(var(--text-x-direction))` with a `--text-x-direction` variable (`1` for LTR, `-1` for RTL).
+
+---
+
+## ⚡ Token Economy Rules (CRITICAL — Read Every Session)
+
+### Project: JobHunt Pro SaaS
+**Stack**: FastAPI (Python) + SQLite/PostgreSQL + Next.js + Jinja2 templates
+
+### 🗺️ Quick Reference — Key Files
+| What | Where |
+|------|-------|
+| Main web app | `web/app_v2.py` |
+| Backend REST API | `backend/main.py` |
+| Web routers | `web/routers/*.py` |
+| Backend routers | `backend/routers/*.py` |
+| DB shim | `core/pg_sqlite_shim.py` |
+| Config/env | `config.py` |
+| Templates | `web/templates/` (70+ Jinja2 files) |
+| Frontend | `frontend/` (Next.js 16, TypeScript) |
+| Tests | `tests/` (608 pytest cases) |
+
+### ❌ NEVER Read These (Token Wasters)
+- `ANTIGRAVITY_STATE_SUMMARY.md` — outdated, 62KB, too large
+- `.agents/ORIGINAL_REQUEST.md` — 90KB, historical only
+- `.agents/modified_files.txt` — 139KB, git history only
+- `.venv/`, `.venv2/`, `node_modules/`, `archive/`, `cache/`
+- `*.log`, `*.txt` output files
+- `.agents/` subdirectories (145 old agent workspaces)
+
+### ✅ Token-Saving Protocol (Follow Every Time)
+1. **Start with `grep_search`** before reading any file
+2. **Read only the function/class needed**, not the whole file (use StartLine/EndLine)
+3. **Check `.agents/BRIEFING.md`** for task context before starting work
+4. **Trust this AGENTS.md** — don't re-read project structure files
+5. **Use `list_dir` once per directory**, cache results mentally
+
+### 🔑 Known Patterns (Don't Re-Discover)
+- DB queries use `$1/$2` (postgres) auto-translated to `?` via `core/pg_sqlite_shim.py`
+- Auth: session cookies + `config.PA_API_TOKEN` for admin routes
+- User credits: `users.tokens` column, deduct 1 per AI call in `webhook_bot.py`
+- RTL: CSS logical properties only, Cairo/Tajawal fonts
+- Tests: run with `.venv\Scripts\activate` then `pytest`
+

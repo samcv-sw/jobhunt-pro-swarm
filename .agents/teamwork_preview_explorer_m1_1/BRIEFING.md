@@ -1,48 +1,51 @@
-# BRIEFING — 2026-07-12T13:21:13+03:00
+# BRIEFING — 2026-07-15T09:53:13+03:00
 
 ## Mission
-Analyze the codebase for Cloudflare Pages Next.js deployment, GitHub Actions Keep-Alive, Celery Memory Guard, Neon PgBouncer connection strings, and free proxy pool scraper rotation.
+Audit FastAPI backend core files, routers, and configuration to identify TODOs, placeholders, design flaws, performance bottlenecks, and security vulnerabilities.
 
 ## 🔒 My Identity
-- Archetype: Teamwork Explorer (Explorer 1)
-- Roles: Read-only investigator, analyzer
+- Archetype: Backend Core Auditor
+- Roles: Backend Core Auditor, explorer
 - Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1
-- Original parent: 6ecf45d6-6d9d-4904-a199-48bb6826dede
-- Milestone: Milestone 1: Multi-Key JWT Secret Rotation
+- Original parent: 662e7cb1-3688-4af0-9166-11889f406b2b
+- Milestone: Backend Core Audit
 
 ## 🔒 Key Constraints
 - Read-only investigation — do NOT implement
-- Code only mode (no external network requests, only codebase analysis)
-- Never use placeholder code in report recommendations
+- Analyze FastAPI backend core, routers, and configuration
+- Propose complete fix/optimization strategy in analysis.md and handoff.md
 
 ## Current Parent
-- Conversation ID: d42acd51-edc2-4ee9-91ee-6661881fc368
-- Updated: 2026-07-12T13:21:13+03:00
+- Conversation ID: 662e7cb1-3688-4af0-9166-11889f406b2b
+- Updated: 2026-07-15T09:53:13+03:00
 
 ## Investigation State
 - **Explored paths**:
-  - `frontend/` (Next.js frontend setup and config)
-  - `cloudflare/pages/` (Cloudflare Pages workers / _worker.js routing)
-  - `backend/main.py` (CORS loading and health endpoints)
-  - `.github/workflows/` (keepalive yml files)
-  - `start_cloud.py` (Celery command construction)
-  - `backend/database.py` (SQLAlchemy / asyncpg database connection and pooling parameters)
-  - `backend/sync_worker.py` (asyncpg raw connection to Neon)
-  - `core/ghost_hunter.py` (Camoufox public scraper loop)
+  - `backend/main.py`
+  - `backend/routers/` (accounts.py, admin.py, analytics.py, cover_letters.py, emails.py, health.py, referral.py, scraping.py, telegram.py, unsubscribe.py, webhooks.py, websocket.py)
+  - `backend/billing.py`
+  - `backend/database.py`
+  - `backend/auth.py`
+  - `backend/limiter.py`
+  - `core/` (cover_letter.py, job_queue.py, pg_sqlite_shim.py, compliance.py, captcha_solver.py)
+  - `config.py`
 - **Key findings**:
-  - Static Next.js export routes via `cloudflare/pages/_worker.js` and allows proxying `/api` paths.
-  - Render spins down in 15 minutes, Neon database in 5 minutes; keeping them warm requires hitting database-querying detailed health endpoints (`/api/v1/health/detailed`) or running local `neon_warmer.py` script.
-  - Celery process-recycling arguments `--max-tasks-per-child` and `--max-memory-per-child` only work with child-process prefork pool on Linux.
-  - PgBouncer transaction pooling conflicts with prepared statements in asyncpg; statement caches must be disabled by setting `statement_cache_size=0`. Raw asyncpg rejects JDBC parameters like `prepareThreshold`, so custom parameters must be configured via connection arguments rather than URL queries.
-  - Camoufox can run in rotated mode by scraping free proxies hourly (using free-proxy-list.net) and creating a separate browser context per request.
-- **Unexplored areas**: None. All requested areas have been fully explored and designed.
+  - Identified Stripe IDOR vulnerability in `/api/v1/checkout`.
+  - Identified unauthenticated bounce webhooks (Brevo & SendGrid) and bot webhook (Telegram).
+  - Found XSS/HTML Injection vulnerability in `/api/v1/emails/preview`.
+  - Identified database-specific raw SQL queries causing crashes in PostgreSQL mode.
+  - Performance bottlenecks including: custom aggressive garbage collector `(50, 5, 5)`, dual database pools exceeding Neon limit, and duplicate auth dependencies.
+  - Multi-tenant design flaw in fallback cover letter templates (hardcoded candidate profile stats).
+  - Cataloged TODOs and stubs in captcha solving and GDPR compliance verification.
+- **Unexplored areas**: None.
 
 ## Key Decisions Made
-- Chose to resolve PgBouncer prepared statement conflict by stripping parameters from URL and applying driver-level `statement_cache_size=0` configurations.
-- Recommended lazy DB check in `ghost_hunter.py` to conserve memory and CPU before launching the Playwright browser.
-- Suggested dual-ping keepalive workflow for robust Render & Neon DB warming.
+- Wrote detailed technical breakdown and proposed fixes to `analysis.md`.
+- Formulated structured executive handoff summary in `handoff.md`.
 
 ## Artifact Index
-- `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1\ORIGINAL_REQUEST.md` — Record of original and new requests.
-- `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1\analysis.md` — Current milestone analysis report.
-- `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1\progress.md` — Liveness and step tracking.
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1\ORIGINAL_REQUEST.md — Original request description
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1\BRIEFING.md — Current status and identity briefing
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1\progress.md — Task completion log
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1\analysis.md — Comprehensive backend core audit report
+- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1\handoff.md — 5-component handoff summary report

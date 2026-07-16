@@ -92,7 +92,7 @@
   position: relative; z-index: 10;
 }
 .pricing-hero-v3 h1 {
-  font-size: var(--space-6); font-weight: 800; margin-bottom: var(--space-2); line-height: 1.15;
+  font-size: var(--space-6); font-weight: 800; margin-block-end: var(--space-2); line-height: 1.15;
   background: linear-gradient(270deg, #6366f1, #a855f7, #ec4899, #6366f1);
   background-size: 300% 300%;
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -102,7 +102,7 @@
 }
 .pricing-hero-v3 .subtitle {
   font-size: var(--space-2); color: var(--text-muted);
-  max-width: 600px; margin: 0 auto; line-height: 1.7;
+  max-inline-size: 600px; margin: 0 auto; line-height: 1.7;
 }
 
 /* â”€â”€ Billing Toggle Removed â”€â”€ */
@@ -110,7 +110,7 @@
 /* â”€â”€ Flash Sale Banner â”€â”€ */
 .flash-banner-v3 {
   display: none;
-  max-width: 1200px; margin: -var(--space-1) auto var(--space-3); padding: var(--space-2) var(--space-3);
+  max-inline-size: 1200px; margin: -var(--space-1) auto var(--space-3); padding: var(--space-2) var(--space-3);
   background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04));
   border: 1px solid rgba(239,68,68,0.25);
   border-radius: var(--radius-lg);
@@ -133,19 +133,19 @@
 
 /* â”€â”€ Section containers â”€â”€ */
 .pricing-section-v3 {
-  padding: var(--space-8) var(--space-3); max-width: 1200px; margin: 0 auto; position: relative; z-index: 10;
+  padding: var(--space-8) var(--space-3); max-inline-size: 1200px; margin: 0 auto; position: relative; z-index: 10;
 }
 .pricing-section-v3 h2 {
-  font-size: var(--space-4); font-weight: 700; text-align: center; margin-bottom: var(--space-1); 
+  font-size: var(--space-4); font-weight: 700; text-align: center; margin-block-end: var(--space-1); 
 }
 .pricing-section-v3 .sub {
-  text-align: center; color: var(--text-muted); margin-bottom: var(--space-6); font-size: 14px;
+  text-align: center; color: var(--text-muted); margin-block-end: var(--space-6); font-size: 14px;
 }
 
 /* â”€â”€ Pricing Grid â”€â”€ */
 .pricing-grid-v3 {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-3);
-  max-width: 1200px; margin: 0 auto;
+  max-inline-size: 1200px; margin: 0 auto;
 }
 .pricing-card-v3 {
   background: linear-gradient(180deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.9));
@@ -159,7 +159,7 @@
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
 }
 .pricing-card-v3::before {
-  content: ''; position: absolute; top: 0; inset-inline-start: -100%; width: 50%; height: 100%;
+  content: ''; position: absolute; inset-block-start: 0; inset-inline-start: -100%; inline-size: 50%; block-size: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
   transform: skewX(-20deg); transition: 0.7s; z-index: 1; pointer-events: none;
 }
@@ -182,15 +182,15 @@
   transform: scale(1.04) translateY(-var(--space-1));
 }
 .pricing-card-v3.highlight::after {
-  content: ''; position: absolute; top: 0; inset-inline-start: 0; inset-inline-end: 0;
-  height: 4px;
+  content: ''; position: absolute; inset-block-start: 0; inset-inline-start: 0; inset-inline-end: 0;
+  block-size: 4px;
   background: linear-gradient(90deg, #00f0ff, #ff0055, #00f0ff);
   background-size: 200% 200%;
   animation: gradientSweep 3s linear infinite;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
 .pricing-card-v3 .card-glow {
-  position: absolute; top: -50%; inset-inline-start: -50%; width: 200%; height: 200%;
+  position: absolute; inset-block-start: -50%; inset-inline-start: -50%; inline-size: 200%; block-size: 200%;
   background: radial-gradient(circle at 50% 0%, rgba(99,102,241,0.06), transparent 60%);
   pointer-events: none;
   z-index: 0;
@@ -202,7 +202,7 @@
 
 /* â”€â”€ Badges â”€â”€ */
 .badge-v3 {
-  position: absolute; top: -14px; inset-inline-start: 50%; transform: translateX(calc(-50% * var(--text-x-direction, 1)));
+  position: absolute; inset-block-start: -14px; inset-inline-start: 50%; transform: translateX(calc(-50% * var(--text-x-direction, 1)));
   background: linear-gradient(135deg, var(--accent-secondary), #F472B6);
   color: #fff; padding: 6px 18px;
   border-radius: 50px; font-size: 10px; font-weight: 700;
@@ -215,9 +215,9 @@
 /* â”€â”€ Card content â”€â”€ */
 .tier-name-v3 {
   font-size: 10px; color: var(--text-muted);
-  text-transform: uppercase;  margin-bottom: var(--space-1);
+  text-transform: uppercase;  margin-block-end: var(--space-1);
 }
-.pricing-card-v3 h3 { font-size: var(--space-3); font-weight: 700; margin-bottom: var(--space-2); color: var(--text-main); }
+.pricing-card-v3 h3 { font-size: var(--space-3); font-weight: 700; margin-block-end: var(--space-2); color: var(--text-main); }
 .companies-v3 {
   font-size: var(--space-6); font-weight: 800; line-height: 1; 
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
@@ -237,37 +237,37 @@
 }
 .price-v3 .flash-price { color: var(--accent-danger); }
 .original-price-v3 { font-size: 14px; color: var(--text-muted); text-decoration: line-through; }
-.per-v3 { font-size: 12px; color: var(--text-muted); margin-bottom: var(--space-3);  }
+.per-v3 { font-size: 12px; color: var(--text-muted); margin-block-end: var(--space-3);  }
 .savings-v3 {
   display: inline-block; padding: 4px var(--space-2);
   background: var(--accent-primary-dim); border: 1px solid rgba(99, 102, 241, 0.3);
-  border-radius: 50px; color: var(--accent-primary); font-size: 12px; font-weight: 600; margin-bottom: var(--space-2);
+  border-radius: 50px; color: var(--accent-primary); font-size: 12px; font-weight: 600; margin-block-end: var(--space-2);
 }
 
-.pricing-card-v3 ul { list-style: none; text-align: start; margin-bottom: var(--space-4); }
+.pricing-card-v3 ul { list-style: none; text-align: start; margin-block-end: var(--space-4); }
 .pricing-card-v3 li {
   padding: var(--space-1) 0; color: var(--text-muted); font-size: 14px;
-  border-bottom: 1px solid var(--border-glass); line-height: 1.5;
+  border-inset-block-end: 1px solid var(--border-glass); line-height: 1.5;
   cursor: pointer; transition: color var(--transition-fast);
   position: relative;
 }
-.pricing-card-v3 li:last-child { border-bottom: none; }
+.pricing-card-v3 li:last-child { border-inset-block-end: none; }
 .pricing-card-v3 li:hover { color: var(--text-secondary); }
 .pricing-card-v3 li::before {
   content: 'â†’'; display: inline-block; transform: scaleX(var(--text-x-direction, 1)); color: var(--accent-primary); margin-inline-end: var(--space-1); font-weight: 700;
 }
 .pricing-card-v3 li .feature-detail {
   display: none; font-size: 12px; color: var(--text-dim);
-  margin-top: var(--space-1); padding-inline-start: var(--space-3); line-height: 1.6;
+  margin-block-start: var(--space-1); padding-inline-start: var(--space-3); line-height: 1.6;
 }
 .pricing-card-v3 li .feature-detail.open { display: block; }
 .pricing-card-v3 li .expand-icon {
   float: inline-end;
   display: inline-block;
-  width: 5px;
-  height: 5px;
+  inline-size: 5px;
+  block-size: 5px;
   border-inline-end: 1.5px solid var(--text-dim);
-  border-bottom: 1.5px solid var(--text-dim);
+  border-inset-block-end: 1.5px solid var(--text-dim);
   transform: translateY(4px) rotate(45deg);
   transition: transform var(--transition-fast), border-color var(--transition-fast);
   margin-inline-end: 4px;
@@ -277,7 +277,7 @@
 }
 
 .pricing-card-v3 a.btn { 
-  width: 100%; text-align: center; 
+  inline-size: 100%; text-align: center; 
   position: relative; overflow: hidden;
   background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
   backdrop-filter: blur(10px);
@@ -304,7 +304,7 @@
 
 /* â”€â”€ Bulk Discount Calculator â”€â”€ */
 .bulk-calc-v3 {
-  max-width: 600px; margin: 0 auto;
+  max-inline-size: 600px; margin: 0 auto;
   background: var(--bg-card);
   backdrop-filter: blur(var(--space-3)); -webkit-backdrop-filter: blur(var(--space-3));
   border: 1px solid var(--border-glass);
@@ -313,16 +313,16 @@
 }
 .bulk-calc-v3 label {
   color: var(--text-muted); font-size: 12px; 
-  text-transform: uppercase; display: block; margin-bottom: 10px;
+  text-transform: uppercase; display: block; margin-block-end: 10px;
 }
 .bulk-calc-v3 input[type="range"] {
-  width: 100%; height: var(--space-1);
+  inline-size: 100%; block-size: var(--space-1);
   -webkit-appearance: none;
   background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
   border-radius: 4px; outline: none;
 }
 .bulk-calc-v3 input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: var(--space-3); height: var(--space-3);
+  -webkit-appearance: none; inline-size: var(--space-3); block-size: var(--space-3);
   background: var(--text-main); border-radius: 50%; cursor: pointer;
   border: 3px solid var(--accent-primary); box-shadow: var(--shadow-glow-primary);
 }
@@ -331,7 +331,7 @@
 .bulk-calc-v3 .bulk-stat { text-align: center; }
 .bulk-calc-v3 .bulk-stat .stat-label {
   font-size: 11px; color: var(--text-muted);
-  text-transform: uppercase;  margin-bottom: 4px;
+  text-transform: uppercase;  margin-block-end: 4px;
 }
 .bulk-calc-v3 .bulk-stat .stat-value { font-size: 22px; font-weight: 700; color: var(--text-main); }
 .bulk-calc-v3 .bulk-stat .stat-value.strikethrough { color: var(--text-muted); text-decoration: line-through; }
@@ -340,7 +340,7 @@
 
 /* â”€â”€ Urgency Counter â”€â”€ */
 .urgency-box-v3 {
-  max-width: 600px; margin: 0 auto;
+  max-inline-size: 600px; margin: 0 auto;
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(236, 72, 153, 0.04));
   border: 1px solid rgba(99, 102, 241, 0.12);
   border-radius: var(--radius-lg); padding: var(--space-3); text-align: center;
@@ -358,19 +358,19 @@
 }
 
 /* â”€â”€ Comparison Table â”€â”€ */
-.comparison-table-v3 { max-width: 700px; margin: 0 auto; }
+.comparison-table-v3 { max-inline-size: 700px; margin: 0 auto; }
 .comparison-row-v3 {
   display: flex; justify-content: space-between;
-  padding: 14px 0; border-bottom: 1px solid var(--border-glass);
+  padding: 14px 0; border-inset-block-end: 1px solid var(--border-glass);
 }
-.comparison-row-v3 .label { color: var(--text-muted); font-size: 13px; min-width: 160px; }
+.comparison-row-v3 .label { color: var(--text-muted); font-size: 13px; min-inline-size: 160px; }
 .comparison-row-v3 .them { color: rgba(107,114,128,0.4); font-size: 13px; text-align: center; flex: 1; }
 .comparison-row-v3 .you { color: var(--accent-primary); font-weight: 600; font-size: 13px; text-align: end; flex: 1; }
 
 /* â”€â”€ A La Carte Services â”€â”€ */
 .service-grid-v3 {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
-  max-width: 700px; margin: 0 auto;
+  max-inline-size: 700px; margin: 0 auto;
 }
 .service-card-v3 {
   background: var(--bg-card);
@@ -382,7 +382,7 @@
   transition: all var(--transition-base);
 }
 .service-card-v3:hover { border-color: var(--border-glass-hover); transform: translateY(-2px); }
-.service-info-v3 h3 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.service-info-v3 h3 { font-size: 14px; font-weight: 600; margin-block-end: 2px; }
 .service-info-v3 p { color: var(--text-muted); font-size: 11px; }
 .service-price-v3 { font-size: 20px; font-weight: 700; color: var(--accent-primary); }
 
@@ -390,10 +390,10 @@
 .crypto-section-v3 {
   text-align: center; padding: var(--space-5) 20px; position: relative; z-index: 10;
 }
-.crypto-section-v3 h2 { font-size: 20px; margin-bottom: 12px; }
+.crypto-section-v3 h2 { font-size: 20px; margin-block-end: 12px; }
 .crypto-section-v3 p { color: var(--text-muted); font-size: 13px; line-height: 1.8; }
 .crypto-icons-v3 {
-  display: flex; justify-content: center; gap: var(--space-2); margin-top: var(--space-2); flex-wrap: wrap;
+  display: flex; justify-content: center; gap: var(--space-2); margin-block-start: var(--space-2); flex-wrap: wrap;
 }
 .crypto-icons-v3 span {
   padding: var(--space-1) var(--space-2); background: var(--bg-card);
@@ -406,22 +406,22 @@
 .social-proof-v3 {
   padding: 50px 20px; text-align: center; position: relative; z-index: 10;
 }
-.social-proof-v3 .stars { color: #F59E0B; font-size: var(--space-3); margin-bottom: var(--space-1); }
-.social-proof-v3 h2 { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
+.social-proof-v3 .stars { color: #F59E0B; font-size: var(--space-3); margin-block-end: var(--space-1); }
+.social-proof-v3 h2 { font-size: 18px; font-weight: 600; margin-block-end: 10px; }
 .social-proof-v3 p { color: var(--text-muted); font-size: 13px; }
 
 /* â”€â”€ Footer â”€â”€ */
 .pricing-footer-v3 {
   padding: var(--space-4); text-align: center;
-  border-top: 1px solid var(--border-glass);
+  border-inset-block-start: 1px solid var(--border-glass);
   color: var(--text-muted); font-size: 12px; 
   position: relative; z-index: 10;
 }
 
 /* â”€â”€ Social Toast â”€â”€ */
 .social-toast-v3 {
-  position: fixed; bottom: var(--space-10); inset-inline-end: 20px; z-index: 9999;
-  max-width: 340px;
+  position: fixed; inset-block-end: var(--space-10); inset-inline-end: 20px; z-index: 9999;
+  max-inline-size: 340px;
   background: var(--bg-card);
   backdrop-filter: blur(var(--space-3)); -webkit-backdrop-filter: blur(var(--space-3));
   border: 1px solid rgba(99, 102, 241, 0.2);
@@ -434,7 +434,7 @@
 }
 .social-toast-v3.show { transform: translateX(0); }
 .social-toast-v3 .st-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
+  inline-size: 36px; block-size: 36px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 15px; font-weight: 600; flex-shrink: 0; color: #fff;
 }
@@ -443,7 +443,7 @@
 .social-toast-v3 .st-content .st-action { color: var(--accent-primary); }
 .social-toast-v3 .st-content .st-time { color: var(--text-muted); font-size: 10px; }
 .toast-close-v3 {
-  position: absolute; top: 6px; inset-inline-end: 10px;
+  position: absolute; inset-block-start: 6px; inset-inline-end: 10px;
   background: none; border: none; color: var(--text-muted);
   cursor: pointer; font-size: 14px;
 }
@@ -453,7 +453,7 @@
   .pricing-grid-v3 { grid-template-columns: repeat(2, 1fr); }
 }
 @media(max-width: 768px) {
-  .pricing-grid-v3 { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+  .pricing-grid-v3 { grid-template-columns: 1fr; max-inline-size: 420px; margin: 0 auto; }
   .pricing-card-v3.highlight { transform: scale(1); }
   .pricing-hero-v3 h1 { font-size: 28px; }
   .pricing-hero-v3 { padding: var(--space-5) var(--space-2) var(--space-3); }
@@ -464,7 +464,7 @@
   .service-grid-v3 { grid-template-columns: 1fr; }
   .urgency-box-v3 .urgency-stats { gap: 20px; }
   .comparison-row-v3 { flex-direction: column; gap: var(--space-1); text-align: start; padding: var(--space-2) 0; }
-  .comparison-row-v3 .label { min-width: auto; font-weight: 600; color: var(--text-main); }
+  .comparison-row-v3 .label { min-inline-size: auto; font-weight: 600; color: var(--text-main); }
   .comparison-row-v3 .them { text-align: start; }
   .comparison-row-v3 .you { text-align: start; }
   .billing-toggle { flex-wrap: wrap; gap: 10px; }
@@ -512,7 +512,7 @@
       <div class="badge-v3 {% if tier.badge == 'PREMIUM' %}premium{% elif tier.badge == 'BEST VALUE' %}best-value{% endif %}">{{ tier.badge }}</div>
       {% endif %}
       {% if discount > 0 %}
-      <div class="badge-v3 flash" style="top:-14px;">{{ "%.0f"|format(discount) }}% OFF</div>
+      <div class="badge-v3 flash" style="inset-block-start:-14px;">{{ "%.0f"|format(discount) }}% OFF</div>
       {% endif %}
       <div class="tier-name-v3">{{ tier.name|upper }}</div>
       <h3>{{ tier.name }}</h3>
@@ -547,19 +547,19 @@
 </section>
 
 <!-- Bulk Discount Calculator -->
-<section class="pricing-section-v3" style="padding-top:0;">
+<section class="pricing-section-v3" style="padding-block-start:0;">
   <h2>// Bulk Discount Calculator</h2>
   <p class="sub">Buy multiple campaigns and save big.</p>
   <div class="bulk-calc-v3">
-    <div style="margin-bottom:20px;">
+    <div style="margin-block-end:20px;">
       <label>Number of Campaigns</label>
       <input dir="auto" type="range" id="bulkQtyV3" min="1" max="20" value="1" step="1" oninput="updateBulkCalcV3(this.value)">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-top:4px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-block-start:4px;">
         <span>1</span><span>5</span><span>10</span><span>15</span><span>20</span>
       </div>
     </div>
     <div class="bulk-qty-display" id="bulkQtyDisplayV3">1</div>
-    <div style="color:var(--text-muted);font-size:12px;text-transform:uppercase;margin-bottom:16px;">CAMPAIGNS</div>
+    <div style="color:var(--text-muted);font-size:12px;text-transform:uppercase;margin-block-end:16px;">CAMPAIGNS</div>
     <div class="bulk-stats">
       <div class="bulk-stat">
         <div class="stat-label">Normal Price</div>
@@ -598,7 +598,7 @@
 </section>
 
 <!-- Comparison Table -->
-<section class="pricing-section-v3" style="padding-top:20px;">
+<section class="pricing-section-v3" style="padding-block-start:20px;">
   <h2>// Manual vs JobHunt Pro</h2>
   <p class="sub">See the difference automation makes.</p>
   <div class="comparison-table-v3">
@@ -636,7 +636,7 @@
 </section>
 
 <!-- A La Carte Services -->
-<section class="pricing-section-v3" style="padding-top:20px;">
+<section class="pricing-section-v3" style="padding-block-start:20px;">
   <h2>// A La Carte Services</h2>
   <p class="sub">Need something specific? Pick individual services.</p>
   <div class="service-grid-v3">

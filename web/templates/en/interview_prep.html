@@ -3,7 +3,7 @@
 <title>Interview Prep | JobHunt Pro</title>
 <style>
 .prep-container {
-    max-width: 800px;
+    max-inline-size: 800px;
     margin: 40px auto;
     background: #0f1115;
     border: 1px solid #1e2229;
@@ -15,9 +15,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #1e2229;
-    padding-bottom: 20px;
-    margin-bottom: 30px;
+    border-inset-block-end: 1px solid #1e2229;
+    padding-block-end: 20px;
+    margin-block-end: 30px;
 }
 .prep-header h1 {
     font-size: 1.5rem;
@@ -40,14 +40,14 @@
 }
 .prep-content h2, .prep-content h3 {
     color: #fff;
-    margin-top: 25px;
-    margin-bottom: 15px;
+    margin-block-start: 25px;
+    margin-block-end: 15px;
 }
 .prep-content ul, .prep-content ol {
     padding-inline-start: 20px;
 }
 .prep-content li {
-    margin-bottom: 10px;
+    margin-block-end: 10px;
 }
 .prep-content strong {
     color: #818cf8;
@@ -58,7 +58,7 @@
     gap: 8px;
     color: #94a3b8;
     text-decoration: none;
-    margin-bottom: 20px;
+    margin-block-end: 20px;
     font-weight: 500;
     transition: color 0.2s;
 }
@@ -72,7 +72,7 @@
 {% block content %}
 <style>
 .prep-container {
-    max-width: 800px;
+    max-inline-size: 800px;
     margin: 40px auto;
     background: #0f1115;
     border: 1px solid #1e2229;
@@ -84,9 +84,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #1e2229;
-    padding-bottom: 20px;
-    margin-bottom: 30px;
+    border-inset-block-end: 1px solid #1e2229;
+    padding-block-end: 20px;
+    margin-block-end: 30px;
 }
 .prep-header h1 {
     font-size: 1.5rem;
@@ -109,14 +109,14 @@
 }
 .prep-content h2, .prep-content h3 {
     color: #fff;
-    margin-top: 25px;
-    margin-bottom: 15px;
+    margin-block-start: 25px;
+    margin-block-end: 15px;
 }
 .prep-content ul, .prep-content ol {
     padding-inline-start: 20px;
 }
 .prep-content li {
-    margin-bottom: 10px;
+    margin-block-end: 10px;
 }
 .prep-content strong {
     color: #818cf8;
@@ -127,7 +127,7 @@
     gap: 8px;
     color: #94a3b8;
     text-decoration: none;
-    margin-bottom: 20px;
+    margin-block-end: 20px;
     font-weight: 500;
     transition: color 0.2s;
 }
@@ -145,7 +145,7 @@
     <div class="prep-header">
         <div>
             <h1>Interview Cheat Sheet</h1>
-            <div style="color: #94a3b8; margin-top: 5px;">{{ job_title }} @ {{ company }}</div>
+            <div style="color: #94a3b8; margin-block-start: 5px;">{{ job_title }} @ {{ company }}</div>
         </div>
         <div class="badge">✨ AI Generated</div>
     </div>

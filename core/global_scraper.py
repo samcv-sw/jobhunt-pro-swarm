@@ -1433,7 +1433,7 @@ class GlobalJobScraper:
             return None
 
         company_domain = _smart_domain(company)
-        placeholder_email = f"jobs@{company_domain}.com" if company else ""
+        placeholder_email = f"careers@{company_domain}.com" if company else ""
 
         full_location = f"{location}, {config['name']}" if location else config["name"]
 
@@ -1658,7 +1658,7 @@ class GlobalJobScraper:
             return None
 
         company_domain = _smart_domain(company)
-        placeholder_email = f"hr@{company_domain}.com" if company else ""
+        placeholder_email = f"careers@{company_domain}.com" if company else ""
 
         return {
             "job_id": make_job_id(title, company, job_url),

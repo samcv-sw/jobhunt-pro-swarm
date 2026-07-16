@@ -7,7 +7,7 @@ import asyncio
 import logging
 import pathlib
 import random
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import core.pg_sqlite_shim as sqlite3
 
@@ -486,8 +486,7 @@ _daily_scrape_date: str = ""  # ISO date string, e.g. "2024-01-15"
 
 def _today_str() -> str:
     """Return today's ISO date string (UTC-aware via datetime)."""
-    from datetime import timezone as _tz
-    return datetime.now(_tz.utc).strftime("%Y-%m-%d")
+    return datetime.now(UTC).strftime("%Y-%m-%d")
 
 
 def check_daily_scraping_cap(
@@ -528,8 +527,7 @@ def check_daily_scraping_cap(
 
     # Guard: raise *before* incrementing so callers never exceed the cap
     if _daily_scrape_count >= cap:
-        from datetime import timezone as _tz
-        tomorrow = (datetime.now(_tz.utc) + timedelta(days=1)).strftime("%Y-%m-%d 00:00 UTC")
+        tomorrow = (datetime.now(UTC) + timedelta(days=1)).strftime("%Y-%m-%d 00:00 UTC")
         raise DailyLimitExceededException(
             cap=cap,
             count=_daily_scrape_count,

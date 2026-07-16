@@ -14,8 +14,6 @@ import time
 import urllib.parse
 from urllib.parse import quote_plus
 
-from core.job_search import JobListing
-
 try:
     from curl_cffi.requests import AsyncSession as httpx_AsyncClient
 except ImportError:
@@ -1176,17 +1174,14 @@ class WWRScraper(BaseScraper):
 
 
 class ZipRecruiterScraper(BaseScraper):
-    def fetch_jobs(
-        self, query: str, location: str, limit: int = 20
-    ) -> list[JobListing]:
+    source_name = "ziprecruiter"
+
+    def search(self, query: str, location: str = "", limit: int = 10) -> list[dict]:
         jobs = []
         try:
-            url = f"https://www.ziprecruiter.com/candidate/search?search={query.replace(' ', '+')}&location={location.replace(' ', '+')}"
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            }
-            response = httpx.get(url, headers=headers, timeout=10)
-            if response.status_code == 200:
+            url = f"https://www.ziprecruiter.com/candidate/search?search={quote_plus(query)}&location={quote_plus(location)}"
+            response = self._get(url)
+            if response and response.status_code == 200:
                 soup = BeautifulSoup(response.text, "html.parser")
                 cards = soup.select("div.job_content, article.job_result")
                 for card in cards[:limit]:
@@ -1197,18 +1192,16 @@ class ZipRecruiterScraper(BaseScraper):
 
                     if title_elem and link_elem:
                         jobs.append(
-                            JobListing(
-                                id=f"zr_{random.randint(1000, 99999)}",
+                            self._build_job_dict(
                                 title=title_elem.get_text(strip=True),
                                 company=company_elem.get_text(strip=True)
                                 if company_elem
                                 else "Unknown",
                                 location=location,
-                                description=desc_elem.get_text(strip=True)
+                                url=link_elem.get("href", ""),
+                                snippet=desc_elem.get_text(strip=True)
                                 if desc_elem
                                 else "See ZipRecruiter for details.",
-                                url=link_elem.get("href", ""),
-                                source="ZipRecruiter",
                             )
                         )
             return jobs
@@ -1218,15 +1211,14 @@ class ZipRecruiterScraper(BaseScraper):
 
 
 class XingScraper(BaseScraper):
-    def fetch_jobs(
-        self, query: str, location: str, limit: int = 20
-    ) -> list[JobListing]:
+    source_name = "xing"
+
+    def search(self, query: str, location: str = "", limit: int = 10) -> list[dict]:
         jobs = []
         try:
-            url = f"https://www.xing.com/jobs/search?keywords={query.replace(' ', '+')}&location={location.replace(' ', '+')}"
-            headers = {"User-Agent": "Mozilla/5.0"}
-            response = httpx.get(url, headers=headers, timeout=10)
-            if response.status_code == 200:
+            url = f"https://www.xing.com/jobs/search?keywords={quote_plus(query)}&location={quote_plus(location)}"
+            response = self._get(url)
+            if response and response.status_code == 200:
                 soup = BeautifulSoup(response.text, "html.parser")
                 cards = soup.select('a[data-x-track="job-listing"]')
                 for card in cards[:limit]:
@@ -1234,16 +1226,14 @@ class XingScraper(BaseScraper):
                     company = card.select_one('p[class*="company"]')
                     if title:
                         jobs.append(
-                            JobListing(
-                                id=f"xg_{random.randint(1000, 99999)}",
+                            self._build_job_dict(
                                 title=title.get_text(strip=True),
                                 company=company.get_text(strip=True)
                                 if company
                                 else "Unknown",
                                 location=location,
-                                description="Apply via Xing for full details.",
                                 url="https://www.xing.com" + card.get("href", ""),
-                                source="Xing",
+                                snippet="Apply via Xing for full details.",
                             )
                         )
             return jobs
@@ -1253,15 +1243,14 @@ class XingScraper(BaseScraper):
 
 
 class NaukriIndiaScraper(BaseScraper):
-    def fetch_jobs(
-        self, query: str, location: str, limit: int = 20
-    ) -> list[JobListing]:
+    source_name = "naukriindia"
+
+    def search(self, query: str, location: str = "", limit: int = 10) -> list[dict]:
         jobs = []
         try:
-            url = f"https://www.naukri.com/{query.replace(' ', '-')}-jobs-in-{location.replace(' ', '-')}"
-            headers = {"User-Agent": "Mozilla/5.0"}
-            response = httpx.get(url, headers=headers, timeout=10)
-            if response.status_code == 200:
+            url = f"https://www.naukri.com/{quote_plus(query).replace('+', '-')}-jobs-in-{quote_plus(location).replace('+', '-')}"
+            response = self._get(url)
+            if response and response.status_code == 200:
                 soup = BeautifulSoup(response.text, "html.parser")
                 cards = soup.select("article.jobTuple, div.jobTuple")
                 for card in cards[:limit]:
@@ -1270,18 +1259,16 @@ class NaukriIndiaScraper(BaseScraper):
                     desc = card.select_one("div.job-description")
                     if title:
                         jobs.append(
-                            JobListing(
-                                id=f"ni_{random.randint(1000, 99999)}",
+                            self._build_job_dict(
                                 title=title.get_text(strip=True),
                                 company=company.get_text(strip=True)
                                 if company
                                 else "Unknown",
                                 location=location,
-                                description=desc.get_text(strip=True)
+                                url=title.get("href", ""),
+                                snippet=desc.get_text(strip=True)
                                 if desc
                                 else "View Naukri India for details.",
-                                url=title.get("href", ""),
-                                source="Naukri India",
                             )
                         )
             return jobs
@@ -1291,15 +1278,14 @@ class NaukriIndiaScraper(BaseScraper):
 
 
 class JoobleScraper(BaseScraper):
-    def fetch_jobs(
-        self, query: str, location: str, limit: int = 20
-    ) -> list[JobListing]:
+    source_name = "jooble"
+
+    def search(self, query: str, location: str = "", limit: int = 10) -> list[dict]:
         jobs = []
         try:
-            url = f"https://jooble.org/SearchResult?ukw={query.replace(' ', '+')}&rgns={location.replace(' ', '+')}"
-            headers = {"User-Agent": "Mozilla/5.0"}
-            response = httpx.get(url, headers=headers, timeout=10)
-            if response.status_code == 200:
+            url = f"https://jooble.org/SearchResult?ukw={quote_plus(query)}&rgns={quote_plus(location)}"
+            response = self._get(url)
+            if response and response.status_code == 200:
                 soup = BeautifulSoup(response.text, "html.parser")
                 cards = soup.select('article, div[data-test-name="jobCard"]')
                 for card in cards[:limit]:
@@ -1311,18 +1297,16 @@ class JoobleScraper(BaseScraper):
                     link = card.select_one("header a, h2 a")
                     if title and link:
                         jobs.append(
-                            JobListing(
-                                id=f"jo_{random.randint(1000, 99999)}",
+                            self._build_job_dict(
                                 title=title.get_text(strip=True),
                                 company=company.get_text(strip=True)
                                 if company
                                 else "Unknown",
                                 location=location,
-                                description=desc.get_text(strip=True)
+                                url=link.get("href", ""),
+                                snippet=desc.get_text(strip=True)
                                 if desc
                                 else "Jooble Listing.",
-                                url=link.get("href", ""),
-                                source="Jooble",
                             )
                         )
             return jobs
@@ -1332,15 +1316,14 @@ class JoobleScraper(BaseScraper):
 
 
 class UpworkScraper(BaseScraper):
-    def fetch_jobs(
-        self, query: str, location: str, limit: int = 20
-    ) -> list[JobListing]:
+    source_name = "upwork"
+
+    def search(self, query: str, location: str = "", limit: int = 10) -> list[dict]:
         jobs = []
         try:
-            url = f"https://www.upwork.com/search/jobs/?q={query.replace(' ', '%20')}"
-            headers = {"User-Agent": "Mozilla/5.0"}
-            response = httpx.get(url, headers=headers, timeout=10)
-            if response.status_code == 200:
+            url = f"https://www.upwork.com/search/jobs/?q={quote_plus(query)}"
+            response = self._get(url)
+            if response and response.status_code == 200:
                 soup = BeautifulSoup(response.text, "html.parser")
                 cards = soup.select("section.up-card-section")
                 for card in cards[:limit]:
@@ -1357,18 +1340,16 @@ class UpworkScraper(BaseScraper):
                             )
                         )
                         jobs.append(
-                            JobListing(
-                                id=f"up_{random.randint(1000, 99999)}",
+                            self._build_job_dict(
                                 title=title.get_text(strip=True),
                                 company="Client on Upwork",
                                 location="Remote",
-                                description=desc.get_text(strip=True)
-                                if desc
-                                else "Upwork job.",
                                 url=f"https://www.upwork.com{link}"
                                 if link.startswith("/")
                                 else link,
-                                source="Upwork",
+                                snippet=desc.get_text(strip=True)
+                                if desc
+                                else "Upwork job.",
                             )
                         )
             return jobs

@@ -18,7 +18,7 @@ import os
 import sqlite3
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -159,7 +159,7 @@ def transfer_order(
 
         # 4. Execute transfer atomically
         transfer_id = f"TRF-{uuid.uuid4().hex[:12].upper()}"
-        now_iso = datetime.now(timezone.utc).isoformat()
+        now_iso = datetime.now(UTC).isoformat()
 
         try:
             conn.execute("BEGIN IMMEDIATE")

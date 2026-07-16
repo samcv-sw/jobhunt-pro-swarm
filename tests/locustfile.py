@@ -1,4 +1,27 @@
-from locust import HttpUser, task, between
+import os
+import time
+
+import jwt
+from locust import HttpUser, between, task
+
+
+def _build_load_test_token() -> str | None:
+    token = os.getenv("LOCUST_BEARER_TOKEN")
+    if token:
+        return token
+
+    secret = os.getenv("LOCUST_JWT_SECRET_KEY") or os.getenv("JWT_SECRET_KEY")
+    if not secret:
+        return None
+
+    now = int(time.time())
+    payload = {
+        "sub": os.getenv("LOCUST_USER_ID", "locust_user"),
+        "role": os.getenv("LOCUST_USER_ROLE", "jobseeker"),
+        "iat": now,
+        "exp": now + int(os.getenv("LOCUST_JWT_TTL_SECONDS", "3600")),
+    }
+    return jwt.encode(payload, secret, algorithm="HS256")
 
 
 class JobHuntProUser(HttpUser):
@@ -6,8 +29,14 @@ class JobHuntProUser(HttpUser):
     IMP-099: Locust load testing configuration.
     Simulates concurrent users loading dashboard metrics, submitting CVs, and calling system endpoints.
     """
-    # Wait between 1 and 3 seconds between tasks
-    wait_time = between(1, 3)
+    # Wait between 2 and 4 seconds between tasks to avoid unrealistic rate spikes.
+    wait_time = between(2, 4)
+
+    def on_start(self):
+        self.auth_headers = None
+        token = _build_load_test_token()
+        if token:
+            self.auth_headers = {"Authorization": f"Bearer {token}"}
 
     @task(3)
     def view_system_status(self):
@@ -17,8 +46,9 @@ class JobHuntProUser(HttpUser):
     @task(1)
     def mock_onboarding_test_run(self):
         """Simulate users triggering onboarding checks."""
-        headers = {"Authorization": "Bearer mock_token_payload"}
-        self.client.post("/api/v1/onboarding/test-run", headers=headers)
+        if not self.auth_headers:
+            return
+        self.client.post("/api/v1/onboarding/test-run", headers=self.auth_headers)
 
     @task(2)
     def view_landing_page(self):

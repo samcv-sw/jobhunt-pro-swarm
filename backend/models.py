@@ -172,3 +172,59 @@ class CoverLetterToneResult(Base):
     def __repr__(self):
         return f"<CoverLetterToneResult(id={self.id}, tone={self.tone}, reply={self.reply_received})>"
 
+
+class FailedJob(Base):
+    __tablename__ = "failed_jobs"
+    id = Column(Integer, primary_key=True, index=True)
+    task_name = Column(String, nullable=True, index=True)
+    error = Column(String, nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC), index=True)
+    def __repr__(self):
+        return f"<FailedJob(id={self.id}, task_name={self.task_name})>"
+
+
+class AppLog(Base):
+    __tablename__ = "app_logs"
+    id = Column(Integer, primary_key=True, index=True)
+    level = Column(String, nullable=True, index=True)
+    message = Column(String, nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC), index=True)
+    def __repr__(self):
+        return f"<AppLog(id={self.id}, level={self.level})>"
+
+
+class DailyAnalytics(Base):
+    __tablename__ = "daily_analytics"
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(String, nullable=True, index=True)
+    platform = Column(String, nullable=True, index=True)
+    total_applications = Column(Integer, default=0)
+    interviews = Column(Integer, default=0)
+    offers = Column(Integer, default=0)
+    def __repr__(self):
+        return f"<DailyAnalytics(id={self.id}, date={self.date}, platform={self.platform})>"
+
+
+class ReferralTracking(Base):
+    __tablename__ = "referral_tracking"
+    id = Column(Integer, primary_key=True, index=True)
+    referrer_id = Column(String, nullable=True, index=True)
+    referred_id = Column(String, nullable=True, index=True)
+    converted = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC), index=True)
+
+    def __repr__(self):
+        return f"<ReferralTracking(id={self.id}, referrer_id={self.referrer_id}, converted={self.converted})>"
+
+
+class ScrapeLog(Base):
+    __tablename__ = "scrape_log"
+    id = Column(Integer, primary_key=True, index=True)
+    platform = Column(String, nullable=True, index=True)
+    status = Column(String, nullable=True)
+    count = Column(Integer, default=0)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC), index=True)
+
+    def __repr__(self):
+        return f"<ScrapeLog(id={self.id}, platform={self.platform}, status={self.status})>"
+

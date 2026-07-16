@@ -6,13 +6,14 @@ import contextlib
 import ipaddress
 import logging
 import os
+import random
 import sys
 import threading
 import time
 from collections import defaultdict
 
 import jwt
-from fastapi import HTTPException, Request, Security
+from fastapi import Depends, HTTPException, Request, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 raw_keys = os.environ.get("JWT_SECRET_KEYS")
@@ -57,6 +58,30 @@ _rate_state: dict = defaultdict(lambda: {"failures": [], "locked_until": None})
 _last_prune_time: float = 0.0
 
 _logger = logging.getLogger(__name__)
+
+# Optional distributed backend (Redis). When REDIS_URL is configured the limiter
+# coordinates lockouts across all worker processes; otherwise it degrades to the
+# in-memory store above (single-worker only). IMP-SEC-BF
+_redis_client = None
+_redis_available = False
+try:
+    import redis  # sync client
+    _REDIS_URL = os.getenv("REDIS_URL")
+    if _REDIS_URL:
+        try:
+            _redis_client = redis.Redis.from_url(
+                _REDIS_URL, socket_connect_timeout=1.0, socket_timeout=1.0,
+                decode_responses=True, retry_on_timeout=False,
+            )
+            _redis_client.ping()
+            _redis_available = True
+            _logger.info("Brute-force limiter connected to Redis (distributed mode).")
+        except Exception as _e:  # noqa: BLE001
+            _logger.warning(f"Brute-force limiter Redis init failed ({_e}); using in-memory store.")
+            _redis_available = False
+            _redis_client = None
+except ImportError:
+    _logger.info("redis package not installed; brute-force limiter uses in-memory store (single-worker).")
 
 
 # ---------------------------------------------------------------------------
@@ -113,13 +138,13 @@ def _lazy_prune_ip_locked(ip: str, now: float) -> None:
         return
     state = _rate_state[ip]
     state["failures"] = [t for t in state["failures"] if now - t < _FAIL_WINDOW_SECONDS]
-    
+
     locked_until = state.get("locked_until")
     if locked_until is not None:
         if locked_until - now <= 0:
             state["locked_until"] = None
             state["failures"] = []
-            
+
     if not state["failures"] and state.get("locked_until") is None:
         _rate_state.pop(ip, None)
 
@@ -136,11 +161,28 @@ def _run_global_cleanup_if_needed(now: float) -> None:
 
 
 def _record_failure(ip: str) -> None:
-    """Record a JWT verification failure for an IP address."""
+    """Record a JWT verification failure for an IP address (distributed-aware)."""
+    if _redis_available and _redis_client is not None:
+        try:
+            key = f"bf_fail:{ip}"
+            now = time.time()
+            pipe = _redis_client.pipeline()
+            pipe.zadd(key, {f"{now}:{random.random()}": now})
+            pipe.zremrangebyscore(key, "-inf", now - _FAIL_WINDOW_SECONDS)
+            pipe.expire(key, _LOCKOUT_SECONDS + _FAIL_WINDOW_SECONDS)
+            pipe.zcard(key)
+            _, _, _, count = pipe.execute()
+            if count >= _MAX_FAILURES:
+                _redis_client.set(f"bf_lock:{ip}", "1", ex=_LOCKOUT_SECONDS)
+                _logger.warning(f"[BruteForce] IP {ip} locked out for {_LOCKOUT_SECONDS}s after {count} failures.")
+            return
+        except Exception as _e:  # noqa: BLE001
+            _logger.warning(f"Redis failure recording failed ({_e}); falling back to in-memory.")
+    # In-memory fallback (single-worker)
     now = time.monotonic()
     with _rate_lock:
         _lazy_prune_ip_locked(ip, now)
-        
+
         state = _rate_state[ip]
         state["failures"].append(now)
         if len(state["failures"]) >= _MAX_FAILURES:
@@ -153,9 +195,17 @@ def _record_failure(ip: str) -> None:
 
 def _check_lockout(ip: str) -> float:
     """
-    Check if an IP is currently locked out.
+    Check if an IP is currently locked out (distributed-aware).
     Returns the remaining lockout seconds (>0) if locked, else 0.
     """
+    if _redis_available and _redis_client is not None:
+        try:
+            ttl = _redis_client.ttl(f"bf_lock:{ip}")
+            if ttl is not None and ttl > 0:
+                return float(ttl)
+            return 0.0
+        except Exception as _e:  # noqa: BLE001
+            _logger.warning(f"Redis lockout check failed ({_e}); falling back to in-memory.")
     now = time.monotonic()
     with _rate_lock:
         _lazy_prune_ip_locked(ip, now)
@@ -170,7 +220,13 @@ def _check_lockout(ip: str) -> float:
 
 
 def _record_success(ip: str) -> None:
-    """Clear failure history for an IP on successful authentication."""
+    """Clear failure history for an IP on successful authentication (distributed-aware)."""
+    if _redis_available and _redis_client is not None:
+        try:
+            _redis_client.delete(f"bf_fail:{ip}", f"bf_lock:{ip}")
+            return
+        except Exception as _e:  # noqa: BLE001
+            _logger.warning(f"Redis success recording failed ({_e}); falling back to in-memory.")
     now = time.monotonic()
     with _rate_lock:
         if ip in _rate_state:
@@ -266,12 +322,56 @@ async def verify_jwt(
             _record_success(ip)
         return payload
     except jwt.ExpiredSignatureError:
+        if not _IS_TESTING:
+            _record_failure(ip)
         raise HTTPException(
             status_code=401,
             detail="Token has expired"
         )
     except jwt.InvalidTokenError:
+        if not _IS_TESTING:
+            _record_failure(ip)
         raise HTTPException(
             status_code=401,
             detail="Invalid token"
         )
+
+
+# ---------------------------------------------------------------------------
+# Admin authorization
+# ---------------------------------------------------------------------------
+
+def _load_admin_allowlist() -> set[str]:
+    """Load the set of authorized admin identifiers from environment.
+
+    Supports either ADMIN_EMAILS or ADMIN_USER_IDS (comma-separated).
+    Matching is case-insensitive.
+    """
+    raw = os.environ.get("ADMIN_EMAILS", "") or os.environ.get("ADMIN_USER_IDS", "")
+    return {x.strip().lower() for x in raw.split(",") if x.strip()}
+
+
+async def require_admin(payload: dict = Depends(verify_jwt)) -> dict:
+    """FastAPI dependency enforcing admin privileges — IMP-SEC-ADMIN.
+
+    The User model has no ``role`` column, so admin status is determined by an
+    explicit allowlist (ADMIN_EMAILS / ADMIN_USER_IDS) checked against the JWT
+    claims. Fails closed: if no allowlist is configured (and we are not in an
+    explicit test run) all admin access is denied.
+    """
+    allowlist = _load_admin_allowlist()
+    if not allowlist:
+        if not _IS_TESTING:
+            raise HTTPException(
+                status_code=403,
+                detail="Admin access is not configured on this server.",
+            )
+    else:
+        email = (payload.get("email") or "").strip().lower()
+        user_id = (payload.get("user_id") or payload.get("sub") or "").strip().lower()
+        if email not in allowlist and user_id not in allowlist:
+            raise HTTPException(
+                status_code=403,
+                detail="Admin privileges required.",
+            )
+    return payload

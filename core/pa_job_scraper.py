@@ -32,14 +32,8 @@ import config
 logger = logging.getLogger(__name__)
 
 # JSearch API config
-JSEARCH_KEY = os.getenv(
-    "JSEARCH_API_KEY", "4661cb4462msh784e5b26afc61cfp158ffbjsn19689ea28233"
-)
-JSEARCH_BACKUP = (
-    os.getenv("JSEARCH_BACKUP_KEY")
-    or os.getenv("JSEARCH_API_KEY_BACKUP")
-    or "7085d5ad11msh996c8add34ca2a5p106c72jsn7beaa25f86e2"
-)
+JSEARCH_KEY = os.getenv("JSEARCH_API_KEY")
+JSEARCH_BACKUP = os.getenv("JSEARCH_BACKUP_KEY") or os.getenv("JSEARCH_API_KEY_BACKUP")
 
 # ── Country Mapping ──────────────────────────────────────────────────────
 COUNTRIES = {
@@ -334,7 +328,8 @@ def _clean_email(company: str, url: str = None) -> str:
 
 class PAJobScraper:
     def __init__(self):
-        self.jsearch_keys = [JSEARCH_KEY, JSEARCH_BACKUP]
+        # Filter out unset keys so rotation never sends None
+        self.jsearch_keys = [k for k in (JSEARCH_KEY, JSEARCH_BACKUP) if k]
         self._key_idx = 0
         self._hhru_user_agent = "JobHuntPro/17.0 (samsalameh.cv@gmail.com)"
 
@@ -451,6 +446,9 @@ class PAJobScraper:
         self, query: str, country_code: str = "", page: int = 1
     ) -> list[dict]:
         """Make JSearch API request with key rotation."""
+        if not self.jsearch_keys:
+            logger.warning("JSearch API keys not configured; skipping JSearch request")
+            return []
         for attempt in range(len(self.jsearch_keys)):
             key = self.jsearch_keys[self._key_idx % len(self.jsearch_keys)]
             self._key_idx += 1

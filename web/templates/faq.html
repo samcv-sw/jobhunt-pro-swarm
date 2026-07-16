@@ -11,24 +11,24 @@
 <link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Cairo', 'Inter', -apple-system, sans-serif;background:#0a0a0f;color:#e2e8f0;min-height:100vh}
-        .headroom{min-height:60px;background:rgba(10,10,15,.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+        body{font-family:'Cairo', 'Inter', -apple-system, sans-serif;background:#0a0a0f;color:#e2e8f0;min-block-size:100vh}
+        .headroom{min-block-size:60px;background:rgba(10,10,15,.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-inset-block-end:1px solid rgba(255,255,255,.06);position:sticky;inset-block-start:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
         .headroom .brand{font-size:18px;font-weight:800;color:#3b82f6;gap:18px}
-        .headroom nav a{font-size:13px;color:#64748b;text-decoration:none;font-weight:500;padding:6px 0;border-bottom:2px solid transparent;transition:all .2s}
+        .headroom nav a{font-size:13px;color:#64748b;text-decoration:none;font-weight:500;padding:6px 0;border-inset-block-end:2px solid transparent;transition:all .2s}
         .headroom nav a:hover{border-color:#3b82f6;color:#e2e8f0}
-        .btn-nav{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff!important;padding:6px 16px!important;border-radius:8px!important;border-bottom:none!important;font-weight:600!important}
+        .btn-nav{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff!important;padding:6px 16px!important;border-radius:8px!important;border-inset-block-end:none!important;font-weight:600!important}
         .btn-nav:hover{background:linear-gradient(135deg,#2563eb,#7c3aed)!important;box-shadow:0 4px 16px rgba(59,130,246,.3)!important}
-        .container{max-width:800px;margin:0 auto;padding:60px 20px 80px}
-        h1{font-size:32px;font-weight:800;margin-bottom:24px}
-        .faq-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;margin-bottom:12px;overflow:hidden;transition:all .2s}
+        .container{max-inline-size:800px;margin:0 auto;padding:60px 20px 80px}
+        h1{font-size:32px;font-weight:800;margin-block-end:24px}
+        .faq-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;margin-block-end:12px;overflow:hidden;transition:all .2s}
         .faq-item:hover{border-color:rgba(255,255,255,.12);box-shadow:0 4px 16px rgba(0,0,0,.25)}
         .faq-question{padding:18px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:15px;user-select:none;transition:all .2s;color:#e2e8f0}
         .faq-question:hover{background:rgba(255,255,255,.02)}
         .faq-question .arrow{font-size:12px;transition:transform .3s;color:#94a3b8}
         .faq-item.open .faq-question .arrow{transform:rotate(180deg);color:#3b82f6}
-        .faq-answer{padding:0 24px;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;color:#94a3b8;font-size:14px;line-height:1.7}
-        .faq-item.open .faq-answer{padding:0 24px 18px;max-height:300px}
-        .footer{text-align:center;padding:32px;border-top:1px solid rgba(255,255,255,.06);color:#52525b;font-size:12px}
+        .faq-answer{padding:0 24px;max-block-size:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;color:#94a3b8;font-size:14px;line-height:1.7}
+        .faq-item.open .faq-answer{padding:0 24px 18px;max-block-size:300px}
+        .footer{text-align:center;padding:32px;border-inset-block-start:1px solid rgba(255,255,255,.06);color:#52525b;font-size:12px}
         .footer a{color:#64748b;text-decoration:none;margin:0 8px;transition:color .2s}
         .footer a:hover{color:#60a5fa}
         @media(max-width:768px){.headroom{padding:0 12px}.headroom nav{gap:10px}.headroom nav a{font-size:11px}.container{padding:40px 16px 60px}h1{font-size:26px}.faq-question{font-size:14px;padding:14px 16px}.faq-answer{font-size:13px}}
@@ -69,7 +69,7 @@
 </head>
 <body class="cyberpunk-body">
 {% include '_public_nav.html' %}
-<div class="container" style="padding-top:130px">
+<div class="container" style="padding-block-start:130px">
 <h1>الأسئلة الشائعة</h1>
 <p class="subtitle">{{ _('كل شي بتحتاج تعرفه عن JobHunt Pro — منصتك الذكية لتقديم طلبات التوظيف.') }}</p>
 <div class="faq-item open">

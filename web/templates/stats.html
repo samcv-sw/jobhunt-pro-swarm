@@ -107,7 +107,7 @@
   gap: 12px;
 }
 .pipeline-bar .stage-label {
-  width: 100px;
+  inline-size: 100px;
   font-size: 12px;
   font-weight: 600;
   color: #cbd5e1;
@@ -116,14 +116,14 @@
 }
 .pipeline-bar .stage-bar-wrap {
   flex: 1;
-  height: 32px;
+  block-size: 32px;
   background: rgba(0,0,0,0.2);
   border-radius: 8px;
   overflow: hidden;
   position: relative;
 }
 .pipeline-bar .stage-bar {
-  height: 100%;
+  block-size: 100%;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -136,7 +136,7 @@
   font-size: 13px;
   font-weight: 700;
   color: #e2e8f0;
-  width: 40px;
+  inline-size: 40px;
   text-align: center;
   flex-shrink: 0;
 }
@@ -170,27 +170,27 @@
   gap: 8px;
 }
 .perf-bar-label {
-  width: 80px;
+  inline-size: 80px;
   font-size: 12px;
   color: #94a3b8;
   text-align: end; /* ✓ logical */
 }
 .perf-bar-track {
   flex: 1;
-  height: 8px;
+  block-size: 8px;
   background: rgba(0,0,0,0.3);
   border-radius: 4px;
   overflow: hidden;
 }
 .perf-bar-fill {
-  height: 100%;
+  block-size: 100%;
   border-radius: 4px;
   transition: width .6s ease;
 }
 .perf-bar-value {
   font-size: 12px;
   font-weight: 600;
-  width: 55px;
+  inline-size: 55px;
   text-align: end; /* ✓ logical */
 }
 
@@ -203,7 +203,7 @@
 
 @media (max-width: 600px) {
   .stat-grid { grid-template-columns: 1fr 1fr; }
-  .pipeline-bar .stage-label { width: 70px; font-size: 11px; }
+  .pipeline-bar .stage-label { inline-size: 70px; font-size: 11px; }
 }
 </style>
 
@@ -249,7 +249,7 @@
     <div class="pipeline-bar">
       <div class="stage-label">{{ stage.label }}</div>
       <div class="stage-bar-wrap">
-        <div class="stage-bar" style="width:{{ stage.pct }}%;background:{{ stage.color }}"></div>
+        <div class="stage-bar" style="inline-size:{{ stage.pct }}%;background:{{ stage.color }}"></div>
       </div>
       <div class="stage-count">{{ stage.count }}</div>
     </div>
@@ -264,17 +264,17 @@
     {% if sent_emails > 0 %}
     <div class="perf-bar">
       <div class="perf-bar-label">مُرسل</div>
-      <div class="perf-bar-track"><div class="perf-bar-fill" style="width:100%;background:#3b82f6"></div></div>
+      <div class="perf-bar-track"><div class="perf-bar-fill" style="inline-size:100%;background:#3b82f6"></div></div>
       <div class="perf-bar-value">{{ sent_emails }}</div>
     </div>
     <div class="perf-bar">
       <div class="perf-bar-label">فُتحت</div>
-      <div class="perf-bar-track"><div class="perf-bar-fill" style="width:{{ open_rate }}%;background:#a78bfa"></div></div>
+      <div class="perf-bar-track"><div class="perf-bar-fill" style="inline-size:{{ open_rate }}%;background:#a78bfa"></div></div>
       <div class="perf-bar-value">{{ opened }} ({{ open_rate }}%)</div>
     </div>
     <div class="perf-bar">
       <div class="perf-bar-label">تجاوب</div>
-      <div class="perf-bar-track"><div class="perf-bar-fill" style="width:{{ response_rate }}%;background:#4ade80"></div></div>
+      <div class="perf-bar-track"><div class="perf-bar-fill" style="inline-size:{{ response_rate }}%;background:#4ade80"></div></div>
       <div class="perf-bar-value">{{ responded }} ({{ response_rate }}%)</div>
     </div>
     {% else %}

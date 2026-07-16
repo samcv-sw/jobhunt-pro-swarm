@@ -354,3 +354,27 @@ CREATE INDEX IF NOT EXISTS idx_job_queue_retry ON job_queue(next_retry_at ASC)
     WHERE status = 'pending' OR status = 'failed';
 CREATE INDEX IF NOT EXISTS idx_job_queue_priority ON job_queue(priority ASC, created_at ASC)
     WHERE status = 'pending';
+
+-- Indices for performance optimizations
+CREATE INDEX IF NOT EXISTS idx_campaign_emails_sent_at ON campaign_emails(sent_at);
+CREATE INDEX IF NOT EXISTS idx_campaign_emails_camp_sent ON campaign_emails(campaign_id, sent_at);
+
+-- ps_crud_outbox table and indices
+CREATE TABLE IF NOT EXISTS ps_crud_outbox (
+    id SERIAL PRIMARY KEY,
+    table_name VARCHAR(100) NOT NULL,
+    record_id VARCHAR(100) NOT NULL,
+    operation VARCHAR(50) NOT NULL,
+    payload JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    synced BOOLEAN DEFAULT FALSE
+);
+
+CREATE INDEX IF NOT EXISTS idx_ps_crud_outbox_table_name ON ps_crud_outbox(table_name);
+CREATE INDEX IF NOT EXISTS idx_ps_crud_outbox_synced ON ps_crud_outbox(synced);
+CREATE INDEX IF NOT EXISTS idx_ps_crud_outbox_synced_created ON ps_crud_outbox(synced, created_at);
+
+-- Additional performance indexes
+CREATE INDEX IF NOT EXISTS idx_campaign_emails_campaign_status ON campaign_emails(campaign_id, status);
+CREATE INDEX IF NOT EXISTS idx_campaign_emails_campaign_responded ON campaign_emails(campaign_id, responded_at);
+

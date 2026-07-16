@@ -7,17 +7,17 @@
  .topbar { background:linear-gradient(90deg,#7c3aed,#2563eb); padding:16px 32px; display:flex; justify-content:space-between; align-items:center; }
  .topbar h1 { font-size:20px; font-weight:700; }
  .topbar a { color:#fff; text-decoration:none; background:rgba(255,255,255,.15); padding:6px 14px; border-radius:8px; font-size:13px; }
- .container { max-width:1200px; margin:0 auto; padding:32px 24px; }
- .card { background:rgba(30,30,50,.8); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:24px; margin-bottom:24px; }
- .card h2 { font-size:16px; margin-bottom:16px; color:#94a3b8; }
+ .container { max-inline-size:1200px; margin:0 auto; padding:32px 24px; }
+ .card { background:rgba(30,30,50,.8); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:24px; margin-block-end:24px; }
+ .card h2 { font-size:16px; margin-block-end:16px; color:#94a3b8; }
  .info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; }
- .info-item label { font-size:11px; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px; }
+ .info-item label { font-size:11px; color:#64748b; text-transform:uppercase; display:block; margin-block-end:4px; }
  .info-item span { font-size:15px; font-weight:500; }
  .green { color:#22c55e; } .blue { color:#3b82f6; } .purple { color:#8b5cf6; }
  .table-wrap { overflow-x:auto; }
- table { width:100%; border-collapse:collapse; font-size:13px; }
- th { padding:10px 14px; text-align: start; color:#94a3b8; font-size:11px; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,.08); }
- td { padding:10px 14px; border-bottom:1px solid rgba(255,255,255,.04); }
+ table { inline-size:100%; border-collapse:collapse; font-size:13px; }
+ th { padding:10px 14px; text-align: start; color:#94a3b8; font-size:11px; text-transform:uppercase; border-inset-block-end:1px solid rgba(255,255,255,.08); }
+ td { padding:10px 14px; border-inset-block-end:1px solid rgba(255,255,255,.04); }
  .badge { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
  .badge-green { background:rgba(34,197,94,.15); color:#22c55e; }
  .badge-red { background:rgba(239,68,68,.15); color:#f87171; }
@@ -47,11 +47,11 @@
  </div>
 
  <!-- Quick add credits -->
- <div style="margin-top:20px; display:flex; gap:10px; align-items:center;">
+ <div style="margin-block-start:20px; display:flex; gap:10px; align-items:center;">
  <form dir="auto" method="POST" action="/admin/add-credits" style="display:flex; gap:8px; align-items:center;">
  <input dir="auto" type="hidden" name="target_email" value="{{ user.email }}">
- <input dir="auto" type="number" name="amount" placeholder="$" step="0.01" min="0.01" style="width:100px;">
- <input dir="auto" type="text" name="note" value="Admin credit" style="width:150px;">
+ <input dir="auto" type="number" name="amount" placeholder="$" step="0.01" min="0.01" style="inline-size:100px;">
+ <input dir="auto" type="text" name="note" value="Admin credit" style="inline-size:150px;">
  <button type="submit" class="btn btn-green">+ Add Credits</button>
  </form>
  </div>
