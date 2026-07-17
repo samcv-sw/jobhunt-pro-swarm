@@ -23,7 +23,7 @@ for line in lines:
         has_jwt = True
     elif line.startswith("DATABASE_URL="):
         # Point DATABASE_URL directly to unified SQLite path to sync backend and web components
-        line = "DATABASE_URL=sqlite+aiosqlite:////home/JHFGUF/jobhunt/jobhunt_saas_v2.db"
+        line = "DATABASE_URL=sqlite+aiosqlite:////home/JHFGUF/jobhunt/data/jobhunt_saas_v2.db"
         has_db = True
     new_lines.append(line)
 
@@ -32,13 +32,14 @@ if not has_sec:
 if not has_jwt:
     new_lines.append("JWT_SECRET_KEY=8f90d069b15a4f9b8f90d069b15a4f9b8f90d069b15a4f9b8f90d069b15a4f9b")
 if not has_db:
-    new_lines.append("DATABASE_URL=sqlite+aiosqlite:////home/JHFGUF/jobhunt/jobhunt_saas_v2.db")
+    new_lines.append("DATABASE_URL=sqlite+aiosqlite:////home/JHFGUF/jobhunt/data/jobhunt_saas_v2.db")
 
-# Force override LOCAL_DATABASE_URL to match as well
-new_lines = [l for l in new_lines if not l.startswith("LOCAL_DATABASE_URL=")]
-new_lines.append("LOCAL_DATABASE_URL=sqlite+aiosqlite:////home/JHFGUF/jobhunt/jobhunt_saas_v2.db")
+# Force override LOCAL_DATABASE_URL and DB_PATH to match as well
+new_lines = [l for l in new_lines if not l.startswith("LOCAL_DATABASE_URL=") and not l.startswith("DB_PATH=")]
+new_lines.append("LOCAL_DATABASE_URL=sqlite+aiosqlite:////home/JHFGUF/jobhunt/data/jobhunt_saas_v2.db")
+new_lines.append("DB_PATH=/home/JHFGUF/jobhunt/data/jobhunt_saas_v2.db")
 
 with open(env_path, "w", encoding="utf-8") as f:
     f.write("\n".join(new_lines) + "\n")
 
-print(".env updated successfully with unified SQLite database URL!")
+print(".env updated successfully with unified SQLite database URL and DB_PATH!")

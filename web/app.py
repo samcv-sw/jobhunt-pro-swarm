@@ -93,7 +93,11 @@ class Jinja2TemplatesWrapper:
 
 templates = Jinja2TemplatesWrapper(BASE_DIR)
 
-db_path = getattr(config, "DB_PATH", None) or os.getenv("DB_PATH") or str(BASE_DIR.parent / "data" / "jobhunt_saas_v2.db")
+_db_val = getattr(config, "DB_PATH", None) or os.getenv("DB_PATH") or "data/jobhunt_saas_v2.db"
+if os.path.isabs(_db_val):
+    db_path = _db_val
+else:
+    db_path = str(BASE_DIR.parent / _db_val)
 
 def get_db():
     conn = sqlite3.connect(db_path, check_same_thread=False)

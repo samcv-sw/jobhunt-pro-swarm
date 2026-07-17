@@ -1317,7 +1317,10 @@ except Exception as e:
     logger.warning(f"Warning: static dir mount failed ({e})")
 
 _db_val = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
-db_path = str(BASE_DIR.parent / _db_val)
+if os.path.isabs(_db_val):
+    db_path = _db_val
+else:
+    db_path = str(BASE_DIR.parent / _db_val)
 DB_PATH = db_path
 
 def get_db(max_retries: int = 3):

@@ -220,7 +220,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
 
         response = RedirectResponse("/dashboard", status_code=303)
         response.set_cookie(
-            "user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True
+            "user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True, path="/"
         )
         return response
 
@@ -277,7 +277,7 @@ async def api_login(request: Request):
             }
         )
         resp.set_cookie(
-            "user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True
+            "user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True, path="/"
         )
         return resp
 
@@ -285,8 +285,8 @@ async def api_login(request: Request):
 @router.get("/logout")
 def logout():
     resp = RedirectResponse("/", status_code=303)
-    resp.delete_cookie("user_id")
-    resp.delete_cookie("session")
+    resp.delete_cookie("user_id", path="/")
+    resp.delete_cookie("session", path="/")
     return resp
 
 
@@ -308,6 +308,7 @@ async def refresh_token(request: Request):
         httponly=True,
         samesite="lax",
         secure=True,
+        path="/",
     )
     return resp
 
@@ -315,7 +316,7 @@ async def refresh_token(request: Request):
 @router.post("/auth/logout")
 def api_logout():
     resp = JSONResponse({"status": "logged_out"})
-    resp.delete_cookie("user_id")
+    resp.delete_cookie("user_id", path="/")
     return resp
 
 
@@ -442,6 +443,7 @@ async def linkedin_callback(request: Request, code: str = "", state: str = ""):
         httponly=True,
         samesite="lax",
         secure=True,
+        path="/",
     )
     return resp
 
@@ -574,6 +576,7 @@ async def google_callback(request: Request, code: str = "", state: str = ""):
         httponly=True,
         samesite="lax",
         secure=True,
+        path="/",
     )
     return resp
 
@@ -706,5 +709,6 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
         httponly=True,
         samesite="lax",
         secure=True,
+        path="/",
     )
     return resp

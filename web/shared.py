@@ -54,7 +54,11 @@ jinja_env = jinja2.Environment(
 
 # Database
 _BASE_DIR = Path(__file__).parent
-db_path = getattr(config, "DB_PATH", None) or str(_BASE_DIR.parent / "data" / "jobhunt_saas_v2.db")
+_db_val = getattr(config, "DB_PATH", None) or "data/jobhunt_saas_v2.db"
+if os.path.isabs(_db_val):
+    db_path = _db_val
+else:
+    db_path = str(_BASE_DIR.parent / _db_val)
 
 def get_db(max_retries: int = 4):
     """DB factory: Turso -> Neon PG shim -> SQLite fallback."""
