@@ -28,7 +28,11 @@ import smtplib
 import threading
 import time
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
+try:
+    from datetime import UTC
+except ImportError:
+    UTC = timezone.utc
 from pathlib import Path
 from urllib.parse import quote, urlparse
 
