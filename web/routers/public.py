@@ -325,3 +325,23 @@ def contact_page(request: Request):
     )
 
 
+@router.get("/services", response_class=HTMLResponse)
+def services_page(request: Request):
+    """Services & Catalog page."""
+    get_db, get_verified_user_id, _, _, _, _, _public_shell, render_template = _deps()
+    success_msg = request.query_params.get("success", "")
+    user_id = get_verified_user_id(request)
+    user = None
+    if user_id:
+        try:
+            with get_db() as conn:
+                user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+                if user_row:
+                    user = dict(user_row)
+        except Exception as exc:
+            logger.error(f"Error getting user for services: {exc}")
+    content = render_template("services_new.html", request=request, success=success_msg, user=user, is_logged_in=bool(user_id))
+    return HTMLResponse(_public_shell(content, "Services — JobHunt Pro", "JobHunt Pro Premium Services — CV rewriting, ATS optimization, LinkedIn makeover, email domain setup, and career coaching bundles.", request=request))
+
+
+

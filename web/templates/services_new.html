@@ -287,7 +287,7 @@ async function loadServices() {
   // Hide skeletons, show content
   document.getElementById('svcSkeleton').style.display = 'none';
   document.getElementById('bdlSkeleton').style.display = 'none';
-  renderالكل();
+  renderAll();
 }
 
 // ═══════════════════════════════════════════════
@@ -301,7 +301,7 @@ function getSvcCategory(svc) {
   return CATEGORIES[svc.id] || 'career';
 }
 
-function renderالكل() {
+function renderAll() {
   renderServices();
   renderBundles();
 }
@@ -395,7 +395,7 @@ document.getElementById('catTabs').addEventListener('click', function(e) {
   document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
   e.target.classList.add('active');
   activeCat = e.target.dataset.cat;
-  renderالكل();
+  renderAll();
 });
 
 // ═══════════════════════════════════════════════
@@ -410,7 +410,7 @@ function toggleCartItem(id, type, name, price) {
     showToast('انضاف للسلة');
   }
   updateCartUI();
-  renderالكل();
+  renderAll();
 }
 
 function updateCartUI() {
@@ -458,7 +458,7 @@ function updateCartUI() {
 function removeCartItem(id) {
   delete cart[id];
   updateCartUI();
-  renderالكل();
+  renderAll();
   showToast('انشال من السلة');
 }
 
@@ -526,7 +526,7 @@ async function checkout() {
     // Clear cart
     cart = {};
     updateCartUI();
-    renderالكل();
+    renderAll();
     document.getElementById('cartOverlay').classList.remove('open');
 
     document.getElementById('modalTitle').textContent = '✅ تم الشراء!';

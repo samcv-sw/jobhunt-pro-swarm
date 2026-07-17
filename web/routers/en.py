@@ -199,7 +199,7 @@ def en_terms(request: Request):
 
 
 # ── Services ──────────────────────────────────────────────────────────────────
-@router.get("/services", response_class=HTMLResponse)
+@router.get("/en/services", response_class=HTMLResponse)
 def en_services(request: Request):
     _, get_verified_user_id, templates, config = _deps()
     try:
