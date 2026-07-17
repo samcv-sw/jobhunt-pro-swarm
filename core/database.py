@@ -49,7 +49,6 @@ else:
     # Conserve connections under serverless limits (pool_size=2, max_overflow=2).
     engine = create_async_engine(
         NEON_URL,
-        poolclass=QueuePool,
         pool_size=3,
         max_overflow=2,
         pool_timeout=30,       # Wait longer during cold starts
