@@ -79,6 +79,7 @@ async def register(
     aegis_honeypot: str = Form(""),
 ):
     get_db, _, templates, config, _check_rate_limit = _deps()
+    email = email.strip().lower()
 
     if aegis_honeypot:
         logger.warning(f"[AEGIS] Honeypot triggered from {request.client.host}")
@@ -395,6 +396,8 @@ async def linkedin_callback(request: Request, code: str = "", state: str = ""):
         except Exception as e:
             logger.error(f"[OAuth] Real LinkedIn exchange failed: {e}")
 
+    email = email.strip().lower()
+
     with get_db() as conn:
         user = conn.execute("SELECT user_id, name FROM users WHERE email = ?", (email,)).fetchone()
         if user:
@@ -523,6 +526,7 @@ async def google_callback(request: Request, code: str = "", state: str = ""):
         except Exception as e:
             logger.error(f"[OAuth] Real Google exchange failed: {e}")
 
+    email = email.strip().lower()
     expires_at = int(time.time()) + int(expires_in)
 
     with get_db() as conn:
@@ -656,6 +660,7 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
         except Exception as e:
             logger.error(f"[OAuth] Real Microsoft exchange failed: {e}")
 
+    email = email.strip().lower()
     expires_at = int(time.time()) + int(expires_in)
 
     with get_db() as conn:
