@@ -3940,6 +3940,69 @@ def user_dashboard(request: Request):
         content = render_template("dashboard_v3.html", request=request, active_page="dashboard", user=user, profiles=profiles, profile_count=len(profiles), campaigns=campaigns, campaign_count=len(campaigns), transactions=transactions, referrals=referrals, referral_link=referral_link, pipeline_emails=pipeline_emails, pipeline_counts=pipeline_counts, manual_emails_user=manual_emails_user, login_streak=login_streak, streak_reward=streak_reward, next_milestone=next_milestone, days_to_next=days_to_next, next_reward=next_reward, flash_sales=active_flash_sales, recent_purchases=recent_purchases, stats=stats, candidates=[])
         return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Dashboard", "dashboard", request=request))
 
+@app.get('/setting')
+def settings_redirect():
+    """Redirect /setting to /settings (common typo)."""
+    return RedirectResponse("/settings", status_code=301)
+
+@app.get('/settings', response_class=HTMLResponse)
+def settings_page(request: Request, success: str = None, error: str = None):
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+    
+    with get_db() as conn:
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        if not user_row:
+            return RedirectResponse("/login", status_code=303)
+        user = dict(user_row)
+        
+    content = render_template("settings.html", request=request, user=user, success=success, error=error)
+    return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Settings", "settings", request=request))
+
+@app.post('/settings')
+async def update_settings(
+    request: Request,
+    name: str = Form(...),
+    phone: str = Form(""),
+    password: str = Form(None),
+    confirm_password: str = Form(None)
+):
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+        
+    name = name.strip()
+    phone = phone.strip()
+    
+    if not name:
+        return RedirectResponse("/settings?error=Name cannot be empty", status_code=303)
+        
+    password_updated = False
+    new_password_hash = None
+    if password:
+        if len(password) < 8:
+            return RedirectResponse("/settings?error=Password must be at least 8 characters long", status_code=303)
+        if password != confirm_password:
+            return RedirectResponse("/settings?error=Passwords do not match", status_code=303)
+        new_password_hash = hash_password(password)
+        password_updated = True
+        
+    with get_db() as conn:
+        if password_updated:
+            conn.execute(
+                "UPDATE users SET name = ?, phone = ?, password_hash = ? WHERE user_id = ?",
+                (name, phone, new_password_hash, user_id)
+            )
+        else:
+            conn.execute(
+                "UPDATE users SET name = ?, phone = ? WHERE user_id = ?",
+                (name, phone, user_id)
+            )
+        conn.commit()
+        
+    return RedirectResponse("/settings?success=Settings updated successfully!", status_code=303)
+
 
 
 
