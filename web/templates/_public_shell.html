@@ -39,13 +39,14 @@
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#0a0a1a">
     <link rel="apple-touch-icon" href="/static/img/icon-192.png">
-    <style>
-        @layer premium;
-        @import url("/static/css/premium-ui.css") layer(premium);
-    </style>
-    <!-- Defer legacy CSS -->
+    <!-- Critical CSS inline to guarantee dark background on all browsers -->
+    <link rel="stylesheet" href="/static/css/premium-ui.css">
     <link rel="preload" href="/static/css/cyberpunk-rtl.css?v=20260629_v2" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/static/css/cyberpunk-rtl.css?v=20260629_v2"></noscript>
+    <style>
+      /* Guaranteed dark base — never flash white */
+      html, body { background-color: #05050a !important; color: #fff; }
+    </style>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
     <style>
@@ -161,7 +162,7 @@
         .services-container{max-inline-size:1100px;margin-inline:auto;padding:40px 20px 80px}
     </style>
 </head>
-<body>
+<body style="background-color:#05050a;color:#ffffff;">
     {% include "_public_nav.html" %}
     <div style="padding:140px 20px 20px">
         {{ content | safe }}
