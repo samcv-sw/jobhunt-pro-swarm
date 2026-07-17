@@ -150,7 +150,7 @@ try:
 
     print("Hard resetting local changes on server to avoid conflicts...")
     ws.send(json.dumps(["cd ~/jobhunt && git reset --hard && git clean -fd\n"]))
-    print(read_sockjs_output(ws, timeout=5))
+    print(read_sockjs_output(ws, timeout=5).encode('ascii', errors='ignore').decode('ascii'))
 
     print("Sending command: 'git pull'")
     ws.send(json.dumps(["git pull\n"]))
@@ -163,23 +163,23 @@ try:
 
     print("Running server env update script...")
     ws.send(json.dumps(["python3.12 scratch/update_server_env.py\n"]))
-    print(read_sockjs_output(ws, timeout=10))
+    print(read_sockjs_output(ws, timeout=10).encode('ascii', errors='ignore').decode('ascii'))
 
     print("Ensuring data/ directory exists on server...")
     ws.send(json.dumps(["mkdir -p ~/jobhunt/data\n"]))
-    print(read_sockjs_output(ws, timeout=3))
+    print(read_sockjs_output(ws, timeout=3).encode('ascii', errors='ignore').decode('ascii'))
 
     print("Restoring populated database to unified data/ directory...")
     ws.send(json.dumps(["if [ ! -f ~/jobhunt/data/jobhunt_saas_v2.db ] && [ -f ~/jobhunt/jobhunt_saas_v2.db ]; then cp ~/jobhunt/jobhunt_saas_v2.db ~/jobhunt/data/jobhunt_saas_v2.db; fi\n"]))
-    print(read_sockjs_output(ws, timeout=3))
+    print(read_sockjs_output(ws, timeout=3).encode('ascii', errors='ignore').decode('ascii'))
 
     print("Running database tables initialization/seeder...")
     ws.send(json.dumps(["python3.12 scratch/init_pa_dbs.py\n"]))
-    print(read_sockjs_output(ws, timeout=15))
+    print(read_sockjs_output(ws, timeout=15).encode('ascii', errors='ignore').decode('ascii'))
 
     print("Reloading PythonAnywhere webapp via touching WSGI configuration...")
     ws.send(json.dumps(["touch /var/www/jhfguf_pythonanywhere_com_wsgi.py\n"]))
-    print(read_sockjs_output(ws, timeout=5))
+    print(read_sockjs_output(ws, timeout=5).encode('ascii', errors='ignore').decode('ascii'))
 
     print("Running DB inspection script on server...")
     ws.send(json.dumps(["python3.12 scratch/inspect_server_dbs.py\n"]))
