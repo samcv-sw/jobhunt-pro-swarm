@@ -104,13 +104,16 @@ def clean_psycopg2_uri(url: str) -> str:
         return url
 
 
-NEON_URI = (
+_raw_uri = (
     os.getenv("NEON_URL")
     or os.getenv("DATABASE_URL")
     or os.getenv("DATABASE_URL_SYNC")
     or ""
 )
-NEON_URI = format_neon_connection_string(NEON_URI)
+if _raw_uri.startswith("sqlite"):
+    NEON_URI = ""
+else:
+    NEON_URI = format_neon_connection_string(_raw_uri)
 
 # Track which backend is active
 BACKEND = None  # "pg" or "sqlite"
