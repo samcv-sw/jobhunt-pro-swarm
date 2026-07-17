@@ -16,6 +16,7 @@ def _deps():
     return get_db, get_verified_user_id, templates, config
 
 @router.get("/dashboard", response_class=HTMLResponse)
+@router.get("/dashboard/v3", response_class=HTMLResponse)
 def dashboard_page(request: Request):
     from fastapi.responses import RedirectResponse
     return RedirectResponse("/user-dashboard", status_code=302)
@@ -134,12 +135,42 @@ def stats_page(request: Request):
         return HTMLResponse(status_code=302, headers={"Location": "/login"})
     try:
         with get_db() as conn:
-            user = conn.execute("SELECT name, email, tokens FROM users WHERE user_id = ?", (user_id,)).fetchone()
-            u = dict(user) if hasattr(user, "keys") else {"name": user[0], "email": user[1], "tokens": user[2]} if user else {}
+            user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            u = dict(user_row) if user_row else {}
     except Exception as e:
         logger.error(f"Database error in stats_page: {e}")
         raise HTTPException(status_code=500, detail="Database operation failed")
 
-    return templates.TemplateResponse(request, "stats.html", {
-        "user": u, "user_id": user_id, "VERSION": config.VERSION
-    })
+    try:
+        from web.app_v2 import _build_dashboard_shell, render_template
+        content = render_template("stats.html", request=request, user=u, user_id=user_id, VERSION=config.VERSION)
+        return HTMLResponse(_build_dashboard_shell(u, user_id, content, "الإحصائيات", "stats", request=request))
+    except Exception:
+        # Fallback to naked template if shell fails
+        return templates.TemplateResponse(request, "stats.html", {
+            "user": u, "user_id": user_id, "VERSION": config.VERSION
+        })
+
+
+@router.get("/battle-station", response_class=HTMLResponse)
+def battle_station_page(request: Request):
+    """Battle Station — live campaign monitoring and control center."""
+    get_db, get_verified_user_id, _, config = _deps()
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse("/login", status_code=303)
+    try:
+        with get_db() as conn:
+            user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            u = dict(user_row) if user_row else {}
+    except Exception as e:
+        logger.error(f"battle_station DB error: {e}")
+        u = {}
+    try:
+        from web.app_v2 import _build_dashboard_shell, render_template
+        content = render_template("battle_station.html", request=request, user=u, user_id=user_id, VERSION=config.VERSION)
+        return HTMLResponse(_build_dashboard_shell(u, user_id, content, "Battle Station", "battle-station", request=request))
+    except Exception as exc:
+        logger.error(f"battle_station render error: {exc}")
+        return HTMLResponse(f"<h2>Error loading Battle Station: {exc}</h2>", status_code=500)
