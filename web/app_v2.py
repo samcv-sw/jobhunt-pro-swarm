@@ -8174,46 +8174,44 @@ def client_realtime_stats(request: Request, period: str = "24h"):
         params_base = [user_id]
         params_time = [user_id, since] if since else [user_id]
 
-    def q(sql, params):
-        return conn.execute(sql, params).fetchone()[0]
+        def q(sql, params):
+            res = conn.execute(sql, params).fetchone()
+            return res[0] if res else 0
 
-    total_sent      = q(f"SELECT COUNT(*) {base} AND ce.status='sent'{time_filter}", params_time)
-    total_opened    = q(f"SELECT COUNT(*) {base} AND ce.opened_at IS NOT NULL{time_filter}", params_time)
-    total_responded = q(f"SELECT COUNT(*) {base} AND ce.responded_at IS NOT NULL{time_filter}", params_time)
-    total_interviews= q(f"SELECT COUNT(*) {base} AND ce.response_type='interview'{time_filter}", params_time)
-    total_offers    = q(f"SELECT COUNT(*) {base} AND ce.response_type='offer'{time_filter}", params_time)
+        total_sent      = q(f"SELECT COUNT(*) {base} AND ce.status='sent'{time_filter}", params_time)
+        total_opened    = q(f"SELECT COUNT(*) {base} AND ce.opened_at IS NOT NULL{time_filter}", params_time)
+        total_responded = q(f"SELECT COUNT(*) {base} AND ce.responded_at IS NOT NULL{time_filter}", params_time)
+        total_interviews= q(f"SELECT COUNT(*) {base} AND ce.response_type='interview'{time_filter}", params_time)
+        total_offers    = q(f"SELECT COUNT(*) {base} AND ce.response_type='offer'{time_filter}", params_time)
 
-    pipeline_counts = {s: 0 for s in ["discovered", "applied", "followed_up", "interview", "offer"]}
-    for row in conn.execute(
-        f"SELECT COALESCE(ce.pipeline_stage,'discovered') as stage, COUNT(*) as cnt {base} GROUP BY COALESCE(ce.pipeline_stage,'discovered')",
-        params_base
-    ).fetchall():
-        pipeline_counts[row["stage"]] = row["cnt"]
+        pipeline_counts = {s: 0 for s in ["discovered", "applied", "followed_up", "interview", "offer"]}
+        for row in conn.execute(
+            f"SELECT COALESCE(ce.pipeline_stage,'discovered') as stage, COUNT(*) as cnt {base} GROUP BY COALESCE(ce.pipeline_stage,'discovered')",
+            params_base
+        ).fetchall():
+            stage = row["stage"] if hasattr(row, "__getitem__") else row[0]
+            cnt = row["cnt"] if hasattr(row, "__getitem__") else row[1]
+            pipeline_counts[stage] = cnt
 
-    recent = [dict(r) for r in conn.execute(
-        f"SELECT ce.company_name, ce.job_title, ce.status, ce.pipeline_stage, ce.sent_at, ce.opened_at, ce.responded_at, ce.response_type {base} ORDER BY ce.sent_at DESC LIMIT 10",
-        params_base
-    ).fetchall()]
+        recent = [dict(r) for r in conn.execute(
+            f"SELECT ce.company_name, ce.job_title, ce.status, ce.pipeline_stage, ce.sent_at, ce.opened_at, ce.responded_at, ce.response_type {base} ORDER BY ce.sent_at DESC LIMIT 10",
+            params_base
+        ).fetchall()]
 
-    conn.close()
-
-    return {
+    return JSONResponse({
         "success": True,
+        "user_id": user_id,
         "period": period,
         "since": since,
-        "stats": {
-            "sent": total_sent,
-            "opened": total_opened,
-            "responded": total_responded,
-            "interviews": total_interviews,
-            "offers": total_offers,
-            "open_rate": round(total_opened / total_sent * 100, 1) if total_sent > 0 else 0,
-            "response_rate": round(total_responded / total_sent * 100, 1) if total_sent > 0 else 0,
-        },
+        "total_sent": total_sent,
+        "total_opened": total_opened,
+        "total_responded": total_responded,
+        "total_interviews": total_interviews,
+        "total_offers": total_offers,
         "pipeline": pipeline_counts,
-        "recent_activity": recent,
-        "generated_at": now.isoformat(),
-    }
+        "recent": recent,
+    })
+
 
 
 @app.get("/api/v1/share-link")
