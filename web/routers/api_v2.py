@@ -55,7 +55,6 @@ def campaign_stats_api():
             "total_opened": 0,
             "open_rate": 0,
             "campaigns": {"welcome": 0, "abandoned_cart": 0, "re_engagement": 0, "post_purchase": 0},
-            "error": str(e)
         }
 
 

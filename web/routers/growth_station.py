@@ -3,7 +3,7 @@ import asyncio
 from fastapi import APIRouter, Request, BackgroundTasks, HTTPException, Query
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
-from typing import list as List, Optional
+from typing import List, Optional
 
 from web.shared import get_db, get_verified_user_id, templates, config
 from web.app_v2 import _build_dashboard_shell, render_template

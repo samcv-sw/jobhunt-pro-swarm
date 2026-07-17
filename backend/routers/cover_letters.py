@@ -3,13 +3,13 @@
 Extracted from backend/main.py as part of M2 Backend Router Optimization.
 """
 
+import asyncio
+import logging
 import os
 import sys
-import logging
-import asyncio
 from uuid import uuid4 as celery_uuid
 
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 from backend.auth import verify_jwt
@@ -26,17 +26,18 @@ router = APIRouter(tags=["Cover Letters"])
     "/api/v1/generate-cover-letter",
     dependencies=[Depends(verify_jwt), Depends(rate_limiter)],
 )
-async def trigger_cover_letter(
-    req: CoverLetterRequest, request: Request = None
-) -> dict[str, str]:
+async def trigger_cover_letter(req: CoverLetterRequest, request: Request = None) -> dict[str, str]:
     """Queue a cover letter generation task in the Celery background worker queue."""
     logger.info("Trigger cover letter background task requested.")
     is_testing = "pytest" in sys.modules or os.getenv("PYTEST_CURRENT_TEST") is not None
     if is_testing:
-        task = await asyncio.to_thread(generate_cover_letter.delay, req.job_description, req.user_cv)
+        task = await asyncio.to_thread(
+            generate_cover_letter.delay, req.job_description, req.user_cv
+        )
         return {"status": "queued", "task_id": task.id}
     else:
         from backend.main import celery_dispatch_executor
+
         task_id = str(celery_uuid())
         loop = asyncio.get_running_loop()
         try:
@@ -44,12 +45,10 @@ async def trigger_cover_letter(
                 loop.run_in_executor(
                     celery_dispatch_executor,
                     lambda: generate_cover_letter.apply_async(
-                        args=(req.job_description, req.user_cv),
-                        task_id=task_id,
-                        retry=False
-                    )
+                        args=(req.job_description, req.user_cv), task_id=task_id, retry=False
+                    ),
                 ),
-                timeout=0.05
+                timeout=0.05,
             )
             status = "queued"
         except TimeoutError:
@@ -58,7 +57,7 @@ async def trigger_cover_letter(
             logger.error(f"Cover letter task queuing failed: {exc}")
             raise HTTPException(
                 status_code=503,
-                detail=f"Task queue broker is currently unreachable. Error: {str(exc)}"
+                detail=f"Task queue broker is currently unreachable. Error: {str(exc)}",
             )
         return {"status": status, "task_id": task_id}
 
@@ -79,5 +78,5 @@ async def stream_cover_letter(
         raise HTTPException(status_code=422, detail="CV and Job Description cannot be empty")
     return StreamingResponse(
         generate_smart_cover_letter_stream(req.job_description, req.user_cv, req.tone),
-        media_type="text/event-stream"
+        media_type="text/event-stream",
     )

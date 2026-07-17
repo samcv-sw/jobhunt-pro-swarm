@@ -51,7 +51,7 @@ async def api_generate_redeem_code(request: Request):
             pass  # conn.close()
             return {"ok": True, "code": code, "value": value}
     except Exception as e:
-        return {"ok": False, "error": str(e)}
+        return {"ok": False, "error": "failed_to_create_code"}
 
 @router.post("/redeem")
 def redeem_code(request: Request, code: str = Form(...)):

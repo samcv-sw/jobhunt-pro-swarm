@@ -172,6 +172,24 @@ def _check_rate_limit(store: dict, ip: str, max_count: int, window_seconds: int 
         for k in list(store.keys()):
             if now - store[k][0] > window_seconds:
                 del store[k]
+
+    is_pa = bool(
+        os.environ.get("PYTHONANYWHERE_SITE") or
+        os.environ.get("PYTHONANYWHERE_DOMAIN")
+    )
+    if is_pa:
+        if ip not in store:
+            store[ip] = [now, 1]
+            return True
+        last_time, count = store[ip]
+        if now - last_time > window_seconds:
+            store[ip] = [now, 1]
+            return True
+        if count >= max_count:
+            return False
+        store[ip] = [last_time, count+1]
+        return True
+
     try:
         with get_db() as conn:
             db_key = f"rl:web_store:{ip}"

@@ -3,6 +3,7 @@ Sync Worker — Outbox Pattern
 Streams local SQLite mutations to remote Neon PostgreSQL asynchronously.
 Handles connection failures gracefully; never crashes the process.
 """
+
 import asyncio
 import gc
 import json
@@ -89,25 +90,23 @@ async def _connect_with_retry(dsn: str, **connect_kwargs) -> asyncpg.Connection:
         if delay:
             logger.warning(
                 "[SyncWorker] Connection failed — retrying in %ds (attempt %d/%d)",
-                delay, attempt, max_attempts,
+                delay,
+                attempt,
+                max_attempts,
             )
             await asyncio.sleep(delay)
         try:
             conn = await asyncpg.connect(dsn, **connect_kwargs)
             if attempt > 1:
-                logger.info(
-                    "[SyncWorker] Reconnected successfully on attempt %d.", attempt
-                )
+                logger.info("[SyncWorker] Reconnected successfully on attempt %d.", attempt)
             return conn
         except Exception as exc:
             last_exc = exc
             # Retry on connection-related failures or cold starts
-            if isinstance(exc, (asyncpg.PostgresConnectionError, asyncio.TimeoutError, OSError)) or (
-                _TOO_MANY_CONNS and isinstance(exc, _TOO_MANY_CONNS)
-            ):
-                logger.warning(
-                    "[SyncWorker] Connection error on attempt %d: %s", attempt, exc
-                )
+            if isinstance(
+                exc, (asyncpg.PostgresConnectionError, asyncio.TimeoutError, OSError)
+            ) or (_TOO_MANY_CONNS and isinstance(exc, _TOO_MANY_CONNS)):
+                logger.warning("[SyncWorker] Connection error on attempt %d: %s", attempt, exc)
                 continue
             raise
 
@@ -141,20 +140,29 @@ async def _push_record_to_cloud(conn: asyncpg.Connection, record: SyncOutbox) ->
         logger.error(f"Connection exception during push of record {record.id}: {e}")
         raise
     except Exception as e:
-        logger.error(f"Failed to push record {record.id} to cloud (soft error/data failure): {e}", exc_info=True)
+        logger.error(
+            f"Failed to push record {record.id} to cloud (soft error/data failure): {e}",
+            exc_info=True,
+        )
         try:
-            log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dead_letter_queue.log")
+            log_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "dead_letter_queue.log"
+            )
             record_repr = (
                 f"ID: {record.id}, Table: {record.table_name}, Record ID: {record.record_id}, "
                 f"Operation: {record.operation}, Payload: {record.payload}, Created At: {record.created_at}, "
                 f"Error: {e}\n"
             )
+
             def _write_log(path, data):
                 with open(path, "a", encoding="utf-8") as f:
                     f.write(data)
+
             await asyncio.to_thread(_write_log, log_path, record_repr)
         except Exception as write_err:
-            logger.error(f"Failed to write record {record.id} to dead-letter queue log: {write_err}")
+            logger.error(
+                f"Failed to write record {record.id} to dead-letter queue log: {write_err}"
+            )
         return False
 
 
@@ -175,22 +183,28 @@ async def sync_outbox_to_cloud():
         # 1. Process local SQLite job queue tasks
         try:
             from core.job_queue import complete_task, dequeue_task, fail_task
+
             task = await asyncio.to_thread(dequeue_task)
             if task:
                 did_work = True
-                logger.info(f"[SyncWorker] Dequeued local task #{task['id']} (type: {task['task_type']})")
-                if task['task_type'] == 'scrape':
-                    payload = task['payload']
-                    target_urls = payload.get('target_urls', [])
-                    user_id = payload.get('user_id', '')
+                logger.info(
+                    f"[SyncWorker] Dequeued local task #{task['id']} (type: {task['task_type']})"
+                )
+                if task["task_type"] == "scrape":
+                    payload = task["payload"]
+                    target_urls = payload.get("target_urls", [])
+                    user_id = payload.get("user_id", "")
 
                     try:
                         from scrapers.stealth_ingest import stealth_scrape_jobs
+
                         structured_jobs = await stealth_scrape_jobs(target_urls)
-                        logger.info(f"[SyncWorker] Local scrape completed for user {user_id}: {len(structured_jobs)} jobs.")
+                        logger.info(
+                            f"[SyncWorker] Local scrape completed for user {user_id}: {len(structured_jobs)} jobs."
+                        )
 
                         # Mark task as completed
-                        await asyncio.to_thread(complete_task, task['id'])
+                        await asyncio.to_thread(complete_task, task["id"])
 
                         # Add a record to the outbox to sync results to remote PostgreSQL
                         async with async_session() as session:
@@ -202,15 +216,15 @@ async def sync_outbox_to_cloud():
                                     "user_id": user_id,
                                     "jobs_found": len(structured_jobs),
                                     "jobs": structured_jobs,
-                                    "timestamp": time.time()
+                                    "timestamp": time.time(),
                                 },
-                                synced=False
+                                synced=False,
                             )
                             session.add(outbox)
                             await session.commit()
                     except Exception as scrape_exc:
                         logger.error(f"[SyncWorker] Local scrape task failed: {scrape_exc}")
-                        await asyncio.to_thread(fail_task, task['id'], str(scrape_exc))
+                        await asyncio.to_thread(fail_task, task["id"], str(scrape_exc))
         except Exception as task_exc:
             logger.error(f"[SyncWorker] Error processing local job queue: {task_exc}")
 
@@ -245,9 +259,7 @@ async def sync_outbox_to_cloud():
 
                 async with async_session() as session:
                     result = await session.execute(
-                        select(SyncOutbox)
-                        .where(SyncOutbox.synced.is_(False))
-                        .limit(100)
+                        select(SyncOutbox).where(SyncOutbox.synced.is_(False)).limit(100)
                     )
                     unsynced_records = result.scalars().all()
 
@@ -263,9 +275,13 @@ async def sync_outbox_to_cloud():
                                     synced_count += 1
                                 else:
                                     record.synced = True
-                                    logger.warning(f"[SyncWorker] Record {record.id} routed to dead-letter queue (DLQ) due to soft error.")
+                                    logger.warning(
+                                        f"[SyncWorker] Record {record.id} routed to dead-letter queue (DLQ) due to soft error."
+                                    )
                             except CONNECTION_EXCEPTIONS as e:
-                                logger.error(f"[SyncWorker] Connection lost during record push. Aborting batch: {e}")
+                                logger.error(
+                                    f"[SyncWorker] Connection lost during record push. Aborting batch: {e}"
+                                )
                                 connection_error = e
                                 break
 
@@ -278,7 +294,9 @@ async def sync_outbox_to_cloud():
                         )
 
         except (TimeoutError, asyncpg.Error, asyncpg.InterfaceError, OSError) as e:
-            logger.warning(f"[SyncWorker] Remote DB connection lost/unreachable (will retry in 30s): {e}")
+            logger.warning(
+                f"[SyncWorker] Remote DB connection lost/unreachable (will retry in 30s): {e}"
+            )
             connection_failed = True
             if cloud_conn:
                 with contextlib.suppress(Exception):

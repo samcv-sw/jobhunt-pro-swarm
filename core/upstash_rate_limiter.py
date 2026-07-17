@@ -32,16 +32,32 @@ class RateLimiter:
         self.url = os.getenv("UPSTASH_REDIS_URL", "")
         self.token = os.getenv("UPSTASH_REDIS_TOKEN", "")
         self._fallback = {}  # in-memory fallback
-        self._enabled = bool(self.url and self.token)
+        self._circuit_broken_until = 0.0
+        
+        is_free_account = (
+            os.getenv("FREE_ACCOUNT", "false").lower() in ("true", "1", "yes")
+            or os.getenv("IS_FREE_ACCOUNT", "false").lower() in ("true", "1", "yes")
+            or bool(os.environ.get("PYTHONANYWHERE_SITE") or os.environ.get("PYTHONANYWHERE_DOMAIN"))
+        )
+        self._enabled = bool(self.url and self.token) and not is_free_account
         self._cleanup_counter = 0
         if self._enabled:
             logger.info("Upstash rate limiter enabled")
         else:
-            logger.info("Upstash not configured, using in-memory rate limiter")
+            logger.info("Upstash not configured or disabled (free account), using in-memory rate limiter")
+
+    def _is_circuit_broken(self) -> bool:
+        if time.time() < getattr(self, "_circuit_broken_until", 0.0):
+            return True
+        return False
+
+    def _trigger_circuit_breaker(self):
+        logger.warning("[RATE LIMITER] Upstash Redis REST call failed or timed out. Triggering circuit breaker for 5 minutes.")
+        self._circuit_broken_until = time.time() + 300
 
     def _exec(self, command: list) -> any | None:
         """Execute a Redis command via REST API."""
-        if not self._enabled:
+        if not self._enabled or self._is_circuit_broken():
             return None
         try:
             payload = json.dumps(command).encode()
@@ -59,11 +75,12 @@ class RateLimiter:
                 return data.get("result")
         except Exception as e:
             logger.warning(f"Upstash error: {e}")
+            self._trigger_circuit_breaker()
             return None
 
     def _exec_pipeline(self, commands: list) -> list | None:
         """Execute multiple Redis commands in a single HTTP request using pipeline."""
-        if not self._enabled:
+        if not self._enabled or self._is_circuit_broken():
             return None
         try:
             payload = json.dumps(commands).encode()
@@ -88,6 +105,7 @@ class RateLimiter:
                 return results
         except Exception as e:
             logger.warning(f"Upstash pipeline error: {e}")
+            self._trigger_circuit_breaker()
             return None
 
     def allow(self, key: str, max_count: int = 5, window_seconds: int = 300) -> bool:
@@ -95,7 +113,7 @@ class RateLimiter:
         Check if action is allowed under rate limit.
         Returns True if allowed, False if rate limited.
         """
-        if self._enabled:
+        if self._enabled and not self._is_circuit_broken():
             # Use Redis sorted set for sliding window
             now = time.time()
             window_start = now - window_seconds
@@ -105,46 +123,44 @@ class RateLimiter:
                 ["ZREMRANGEBYSCORE", key, "-inf", str(window_start)],
                 ["ZCARD", key]
             ])
-            if not pipeline_results:
-                return True  # Fallback to allowed if connection fails
+            if pipeline_results is not None:
+                count = pipeline_results[1]
+                count = int(count) if count is not None else 0
+                if count >= max_count:
+                    return False
 
-            count = pipeline_results[1]
-            count = int(count) if count is not None else 0
-            if count >= max_count:
-                return False
+                # Pipeline 2: Add member with unique suffix and reset expiration
+                member = f"{now}:{random.random()}"
+                self._exec_pipeline([
+                    ["ZADD", key, str(now), member],
+                    ["EXPIRE", key, str(window_seconds)]
+                ])
+                return True
 
-            # Pipeline 2: Add member with unique suffix and reset expiration
-            member = f"{now}:{random.random()}"
-            self._exec_pipeline([
-                ["ZADD", key, str(now), member],
-                ["EXPIRE", key, str(window_seconds)]
-            ])
-            return True
-        else:
-            # In-memory fallback
-            now = time.time()
-            if key not in self._fallback:
-                self._fallback[key] = []
+        # In-memory fallback
+        now = time.time()
+        if key not in self._fallback:
+            self._fallback[key] = []
 
-            # Remove old entries and clean up to prevent memory leaks
-            active_ts = [t for t in self._fallback[key] if t > now - window_seconds]
+        # Remove old entries and clean up to prevent memory leaks
+        active_ts = [t for t in self._fallback[key] if t > now - window_seconds]
 
-            self._cleanup_counter += 1
-            if self._cleanup_counter >= 1000:
-                self._cleanup_fallback()
-                self._cleanup_counter = 0
-                active_ts = [t for t in self._fallback.get(key, []) if t > now - window_seconds]
+        self._cleanup_counter += 1
+        if self._cleanup_counter >= 1000:
+            self._cleanup_fallback()
+            self._cleanup_counter = 0
+            active_ts = [t for t in self._fallback.get(key, []) if t > now - window_seconds]
 
-            if len(active_ts) >= max_count:
-                if not active_ts:
-                    self._fallback.pop(key, None)
-                else:
-                    self._fallback[key] = active_ts
-                return False
+        if len(active_ts) >= max_count:
+            if not active_ts:
+                self._fallback.pop(key, None)
+            else:
+                self._fallback[key] = active_ts
+            return False
 
-            active_ts.append(now)
-            self._fallback[key] = active_ts
-            return True
+        active_ts.append(now)
+        self._fallback[key] = active_ts
+        return True
 
     def _cleanup_fallback(self):
         """Prune expired fallback rate limit lists to prevent memory leaks."""
@@ -161,24 +177,25 @@ class RateLimiter:
 
     def count(self, key: str) -> int:
         """Get current request count for key."""
-        if self._enabled:
+        if self._enabled and not self._is_circuit_broken():
             now = time.time()
             self._exec(["ZREMRANGEBYSCORE", key, "-inf", str(now - 3600)])
             count = self._exec(["ZCARD", key])
-            return int(count) if count else 0
-        else:
-            now = time.time()
-            if key not in self._fallback:
-                return 0
-            self._fallback[key] = [t for t in self._fallback[key] if t > now - 3600]
-            return len(self._fallback[key])
+            if count is not None:
+                return int(count)
+        
+        now = time.time()
+        if key not in self._fallback:
+            return 0
+        self._fallback[key] = [t for t in self._fallback[key] if t > now - 3600]
+        return len(self._fallback[key])
 
     def reset(self, key: str):
         """Reset counter for a key."""
-        if self._enabled:
+        if self._enabled and not self._is_circuit_broken():
             self._exec(["DEL", key])
-        else:
-            self._fallback.pop(key, None)
+        
+        self._fallback.pop(key, None)
 
 
 # Global instance

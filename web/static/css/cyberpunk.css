@@ -18,3 +18,8 @@
 .dir-icon { transform: scaleX(var(--text-x-direction, 1)); }
 [dir='rtl'] { --text-x-direction: -1; }
 [dir='ltr'] { --text-x-direction: 1; }
+.blog-empty{text-align:center;padding:60px 20px;max-inline-size:640px;margin-inline:auto}
+.blog-empty h2{font-size:24px;font-weight:700;margin-block-end:16px;color:var(--text,#fff)}
+.blog-empty p{font-size:16px;line-height:1.8;color:var(--text-muted,#9ca3af);margin-block-end:24px}
+.blog-empty-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-block-start:24px}
+.cta-secondary{background:transparent;border:1px solid var(--border,rgba(255,255,255,.15));color:var(--text,#fff)}

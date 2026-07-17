@@ -6,7 +6,7 @@ Extracted from backend/main.py as part of M2 Backend Router Optimization.
 import logging
 import os
 
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from starlette.responses import Response
 
 from backend.auth import _IS_TESTING
@@ -26,6 +26,7 @@ def _get_signing_secret() -> str:
         return "jobhunt-pro-secret-key-32bytes-ok!!"
     return secret
 
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Unsubscribe & Tracking"])
@@ -35,11 +36,13 @@ router = APIRouter(tags=["Unsubscribe & Tracking"])
 # IMP-225: Unsubscribe Token Endpoint
 # ---------------------------------------------------------------------------
 
+
 @router.get("/api/v1/unsubscribe/{token}")
 async def unsubscribe(token: str, request: Request = None) -> dict:
     """Validate signed unsubscribe token and mark user as unsubscribed — IMP-225."""
     try:
         from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
+
         _secret = _get_signing_secret()
         s = URLSafeTimedSerializer(_secret)
         try:
@@ -52,10 +55,11 @@ async def unsubscribe(token: str, request: Request = None) -> dict:
         # Mark unsubscribed in DB
         try:
             from sqlalchemy import text as _text
+
             async with async_session() as session:
                 await session.execute(
                     _text("UPDATE users SET unsubscribed = 1 WHERE email = :email"),
-                    {"email": email}
+                    {"email": email},
                 )
                 await session.commit()
         except Exception as e:
@@ -73,13 +77,10 @@ async def unsubscribe(token: str, request: Request = None) -> dict:
 # IMP-226: Hardened Signed Tracking Pixel Endpoint
 # ---------------------------------------------------------------------------
 
+
 @router.get("/api/v1/track/{email_log_id}")
 async def track_email(
-    email_log_id: str,
-    email: str,
-    expiry: int,
-    sig: str,
-    request: Request = None
+    email_log_id: str, email: str, expiry: int, sig: str, request: Request = None
 ) -> Response:
     """Validate signed tracking pixel and record open event — IMP-226."""
     import hashlib
@@ -100,10 +101,13 @@ async def track_email(
     # Record open event in DB
     try:
         from sqlalchemy import text as _text
+
         async with async_session() as session:
             await session.execute(
-                _text("UPDATE applications SET opened = 1, opened_at = CURRENT_TIMESTAMP WHERE tracking_id = :tid"),
-                {"tid": email_log_id}
+                _text(
+                    "UPDATE applications SET opened = 1, opened_at = CURRENT_TIMESTAMP WHERE tracking_id = :tid"
+                ),
+                {"tid": email_log_id},
             )
             await session.commit()
     except Exception as e:

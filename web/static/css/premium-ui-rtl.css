@@ -171,7 +171,7 @@ a:hover {
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   text-transform: uppercase;
-  letter-spacing: 1px; /* letter-spacing: normal */
+  letter-spacing: normal;
   position: relative;
   overflow: hidden;
   z-index: 1;
@@ -324,7 +324,7 @@ a:hover {
   font-size: 0.85rem;
   text-transform: uppercase;
   color: var(--text-secondary);
-  letter-spacing: 1px; /* letter-spacing: normal */
+  letter-spacing: normal;
 }
 
 /* ==========================================================================

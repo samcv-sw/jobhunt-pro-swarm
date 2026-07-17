@@ -7,7 +7,8 @@
     "build": "node node_modules/next/dist/bin/next build --webpack",
     "start": "next start",
     "lint": "node node_modules/eslint/bin/eslint.js .",
-    "test": "node node_modules/jest/bin/jest.js"
+    "test": "node node_modules/jest/bin/jest.js",
+    "audit:lighthouse": "node scripts/audit-lighthouse.js"
   },
   "dependencies": {
     "next": "16.2.9",

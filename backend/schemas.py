@@ -5,7 +5,6 @@ All Pydantic models for API input validation live here to avoid circular imports
 """
 
 import re
-from typing import Any
 
 from pydantic import BaseModel, field_validator
 
@@ -115,5 +114,3 @@ class ReferralRequest(BaseModel):
         if len(v) > 100:
             raise ValueError("ref_code too long")
         return v
-
-

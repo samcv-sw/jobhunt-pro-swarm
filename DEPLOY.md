@@ -1,208 +1,200 @@
-# DEPLOY.md — JobHunt Pro Deployment Guide (Zero-Cost, 24/7)
-# IMP-125, IMP-129, IMP-130, IMP-132
-#
-# This guide documents how to deploy the entire platform for $0/month
-# using free tiers: Render (backend) + Cloudflare Pages (frontend) +
-# Neon PostgreSQL + Upstash Redis
+# JobHunt Pro — PythonAnywhere Deployment Guide
+
+Production URL: **https://jhfguf.pythonanywhere.com**
+Project root on PythonAnywhere: **`/home/jhfguf/jobhunt/`**
+WSGI file: **`/var/www/jhfguf_pythonanywhere_com_wsgi.py`**
+Active app: **`web/app_v2.py`** (FastAPI, bridged to WSGI via `a2wsgi`)
 
 ---
 
-# 🚀 JobHunt Pro — Zero-Cost 24/7 Deployment Guide
+## 1. Architecture Overview
 
-## Stack Overview
+PythonAnywhere only supports **WSGI**, but JobHunt Pro is a **FastAPI (ASGI)** app.
+We bridge ASGI → WSGI using [`a2wsgi`](https://pypi.org/project/a2wsgi/).
 
-| Service | Purpose | Cost |
-|---|---|---|
-| **Render** | Backend (FastAPI + Celery + SyncWorker) | $0 Free Tier |
-| **Cloudflare Pages** | Frontend (Next.js static export) | $0 Free Tier |
-| **Neon PostgreSQL** | Primary database | $0 Free Tier (0.5GB) |
-| **Upstash Redis** | Cache + Celery broker | $0 Free Tier (10K cmds/day) |
-| **Cloudflare CDN** | Static asset delivery | $0 Free Tier |
-| **BetterStack Logtail** | Log drain (replaces Render's 1h logs) | $0 Free Tier (1GB/mo) |
-
----
-
-## 1. Backend — Render Free Tier
-
-### Prerequisites
-- GitHub account with this repo pushed
-- Render account at https://render.com
-
-### Steps
-1. Go to https://dashboard.render.com → **New → Web Service**
-2. Connect your GitHub repository
-3. Render auto-detects `render.yaml` — click **Apply**
-4. Set environment variables (see table below)
-5. Deploy — the service starts automatically
-
-### Required Environment Variables
 ```
-JWT_SECRET_KEY=<generate with: python -c "import secrets; print(secrets.token_hex(32))">
-GROQ_API_KEY=<from https://console.groq.com>
-REDIS_URL=<from Upstash, see section 4>
-DATABASE_URL=<from Neon, see section 3>
-ENV=production
-ALLOWED_ORIGINS=https://your-project.pages.dev,https://your-domain.com
-SENTRY_DSN=<optional, from https://sentry.io>
-LOGTAIL_SOURCE_TOKEN=<optional, from https://betterstack.com>
-TRUSTED_PROXIES=10.0.0.0/8,127.0.0.1
+Browser
+  │  HTTP
+  ▼
+PythonAnywhere WSGI Loader
+  │  imports `application`
+  ▼
+/var/www/jhfguf_pythonanywhere_com_wsgi.py
+  │  sys.path.insert(0, "/home/jhfguf/jobhunt")
+  │  from web.app_v2 import wsgi_app as application
+  ▼
+web/app_v2.py  →  wsgi_app = ASGIMiddleware(app, send_queue_size=20)
+  │  (FastAPI ASGI app wrapped for WSGI)
+  ▼
+Routers (web/routers/*)  →  Templates (web/templates/*)  →  Static (web/static/*)
 ```
 
-### Keep-Alive (Prevents Cold Starts)
-Already configured in `render.yaml` — a cron job pings `/healthz` every 14 minutes.
-This keeps the free-tier service from sleeping, enabling 24/7 uptime.
+The `wsgi_app` object is created at the bottom of `web/app_v2.py`:
+
+```python
+# web/app_v2.py  (end of file)
+from a2wsgi import ASGIMiddleware
+try:
+    wsgi_app = ASGIMiddleware(app, send_queue_size=20)
+except TypeError:
+    wsgi_app = ASGIMiddleware(app)
+```
 
 ---
 
-## 2. Frontend — Cloudflare Pages (IMP-125)
+## 2. One-Time Setup
 
-### Prerequisites
-- Cloudflare account at https://cloudflare.com
-- Frontend code in `frontend/` directory
-
-### Steps
-1. Go to https://dash.cloudflare.com → **Pages → Create application**
-2. Connect your GitHub repository
-3. Set build configuration:
-   - **Build command**: `npm run build`
-   - **Build output directory**: `out` (for Next.js static export) or `.next`
-   - **Root directory**: `frontend`
-4. Add environment variables:
-   ```
-   NEXT_PUBLIC_API_URL=https://your-render-service.onrender.com
-   ```
-5. Click **Save and Deploy**
-
-Your site will be live at `https://your-project.pages.dev`
-
-### Custom Domain (Optional)
-1. In Cloudflare Pages → **Custom domains → Add domain**
-2. Add your domain and Cloudflare handles SSL automatically
-
----
-
-## 3. Database — Neon PostgreSQL (Free)
-
-1. Create account at https://neon.tech
-2. Create a new project → copy the **Connection string**
-3. Format: `postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require`
-4. Set as `DATABASE_URL` in Render
-
-The Neon warmer cron in `render.yaml` pings the DB every 5 minutes to prevent cold starts.
-
----
-
-## 4. Cache/Queue — Upstash Redis (Free)
-
-1. Create account at https://upstash.com
-2. Create a new Redis database
-3. Copy the **REST URL** formatted as Redis URL:
-   - Format: `rediss://default:password@endpoint.upstash.io:6379`
-4. Set as `REDIS_URL` in Render
-
-**Important**: The app respects the Upstash free-tier 10-connection limit.
-`max_connections=10` is already set in `backend/celery_app.py` and `backend/cache.py`.
-
----
-
-## 5. CDN for Static Assets — Cloudflare (IMP-129)
-
-Cloudflare Pages automatically serves all static assets through Cloudflare's global CDN.
-For the backend's `/static/` directory:
-
-1. In Cloudflare Dashboard → **Websites → Add site** (use your Render domain)
-2. Set DNS to proxy through Cloudflare (orange cloud icon)
-3. Create a **Cache Rule**:
-   - URL pattern: `your-app.onrender.com/static/*`
-   - Cache level: **Cache Everything**
-   - Edge cache TTL: **1 week**
-
----
-
-## 6. Log Drain — BetterStack Logtail (IMP-130)
-
-Render free tier only keeps logs for 1 hour. To persist logs permanently for free:
-
-1. Create account at https://betterstack.com
-2. Go to **Logs → Sources → Create Source**
-3. Copy your **Source Token**
-4. Set `LOGTAIL_SOURCE_TOKEN=<your-token>` in Render environment variables
-5. The app automatically routes Python logging to Logtail when this env var is set
-
----
-
-## 7. Load Testing (IMP-099)
+### 2.1 Install a2wsgi (in the PA Bash console)
 
 ```bash
-# Install Locust
-pip install locust
-
-# Run load test (100 concurrent users)
-cd tests
-locust -f locustfile.py --headless -u 100 -r 10 --run-time 60s \
-  --host https://your-app.onrender.com
+pip install --user a2wsgi
 ```
 
----
-
-## 8. Mutation Testing (IMP-100)
+Or run the bundled installer (uses the PythonAnywhere API to install + reload):
 
 ```bash
-# Install mutmut
-pip install mutmut
-
-# Run mutation tests on ScamDetector
-mutmut run \
-  --paths-to-mutate core/scam_detector.py \
-  --runner "python -m pytest tests/test_scam_detector.py -x -q"
-
-# View results
-mutmut results
+python /home/jhfguf/jobhunt/web/install_a2wsgi.py
 ```
 
+`web/install_a2wsgi.py` does:
+- `pip install --user a2wsgi` in a PA console
+- POSTs to `https://www.pythonanywhere.com/api/v0/user/JHFGUF/webapps/jhfguf.pythonanywhere.com/reload/`
+  (authenticated with the account API token)
+
+### 2.2 Create / edit the WSGI file
+
+In the PythonAnywhere **Web** tab, open the WSGI file
+(`/var/www/jhfguf_pythonanywhere_com_wsgi.py`) and replace its contents with:
+
+```python
+# /var/www/jhfguf_pythonanywhere_com_wsgi.py
+import sys
+from pathlib import Path
+
+# Make the project root importable so `import web.app_v2` resolves.
+PROJECT_ROOT = "/home/jhfguf/jobhunt"
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+# a2wsgi bridges the FastAPI (ASGI) app to WSGI for PythonAnywhere.
+from web.app_v2 import wsgi_app as application
+```
+
+> **Why `sys.path.insert(0, PROJECT_ROOT)`?**
+> `web/app_v2.py` itself does `sys.path.insert(0, str(Path(__file__).parent.parent))`
+> (i.e. adds `/home/jhfguf/jobhunt`). The WSGI loader runs *outside* that file's
+> module scope, so we replicate the same insertion here. Without it,
+> `import web.app_v2` fails with `ModuleNotFoundError: No module named 'web'`.
+
 ---
 
-## 9. CI/CD Pipeline
+## 3. Webapp Configuration (PythonAnywhere **Web** tab)
 
-All CI is configured in `.github/workflows/ci.yml`:
-- ✅ **Push/PR trigger** — runs tests on every push to main
-- ✅ **pip-audit** — scans for CVEs in dependencies
-- ✅ **Circular import check** — py_compile all files
-- ✅ **Ruff lint** — code quality enforcement
-- ✅ **Weekly schedule** — Monday 2am UTC
+| Field | Value |
+|-------|-------|
+| **Source code** | `/home/jhfguf/jobhunt` |
+| **WSGI configuration file** | `/var/www/jhfguf_pythonanywhere_com_wsgi.py` |
+| **Python version** | `3.12` |
+| **Static files** | URL: `/static/` → Directory: `/home/jhfguf/jobhunt/web/static` |
+| **Working directory** | `/home/jhfguf/jobhunt` |
+
+> The app also serves static files via FastAPI (`/static/...` → `web/static/`),
+> but configuring the PA static mapping offloads them to Nginx (free, faster,
+> no Python worker used).
 
 ---
 
-## 10. Health Check Endpoints
+## 4. Reload the App
+
+After any code change, reload so PythonAnywhere picks up the new bytecode:
+
+**Option A — Touch the WSGI file** (recommended, no token needed):
+```bash
+touch /var/www/jhfguf_pythonanywhere_com_wsgi.py
+```
+
+**Option B — Dashboard button:** Web tab → **Reload jhfguf.pythonanywhere.com**
+
+**Option C — API** (used by `web/install_a2wsgi.py` and `app_v2.py` self-reload):
+```bash
+curl -X POST \
+  -H "Authorization: Token 7f8bf3e6ad742bcb9e3c25e446cf664d6710b31d" \
+  https://www.pythonanywhere.com/api/v0/user/JHFGUF/webapps/jhfguf.pythonanywhere.com/reload/
+```
+
+> `app_v2.py` also self-reloads on certain admin actions by calling
+> `os.utime("/var/www/jhfguf_pythonanywhere_com_wsgi.py", None)` (equivalent to touch).
+
+---
+
+## 5. Local Development
+
+Run the ASGI app directly with Uvicorn (no a2wsgi needed locally):
+
+```bash
+cd /home/jhfguf/jobhunt      # or your local project root
+pip install -r requirements.txt
+uvicorn web.app_v2:app --host 0.0.0.0 --port 8000 --reload
+```
+
+`web/app_v2.py` already contains the `uvicorn.run("web.app_v2:app", ...)`
+entrypoint for `python -m web.app_v2` / `python web/app_v2.py` execution.
+
+---
+
+## 6. Scheduled Tasks (Cron)
+
+The app uses a 30-minute heartbeat / worker tick. Configure in the PA **Tasks** tab
+or add to the user crontab:
+
+```cron
+*/30 * * * * python /home/jhfguf/jobhunt/web/cron_trigger.py
+```
+
+`web/cron_trigger.py` lives at the project root and triggers the background
+worker tick (campaign processing, ghost-hunter, viral factory, etc.).
+
+---
+
+## 7. Health Checks
 
 | Endpoint | Purpose |
-|---|---|
-| `GET /healthz` | Lightweight Render health check |
-| `GET /api/v1/health` | API version health |
-| `GET /api/v1/health/detailed` | Full component health (DB, Redis, SMTP, Groq) |
+|----------|---------|
+| `GET /api/v1/health` | Queue + DB health (JSON) |
+| `GET /` | Arabic/RTL landing (`web/templates/index_v4.html`) |
+| `GET /en/` | English landing (`web/templates/en/index_v4.html`) |
 
 ---
 
-## Maintenance Commands
+## 8. Troubleshooting
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| `ModuleNotFoundError: No module named 'web'` | `sys.path` missing project root in WSGI | Add `sys.path.insert(0, "/home/jhfguf/jobhunt")` to WSGI file |
+| `ImportError: No module named 'a2wsgi'` | a2wsgi not installed | `pip install --user a2wsgi` |
+| `AttributeError: module 'web.app_v2' has no attribute 'wsgi_app'` | a2wsgi bridge block missing | Ensure end of `web/app_v2.py` defines `wsgi_app = ASGIMiddleware(app, ...)` |
+| 500 after deploy, old code still running | WSGI not reloaded | `touch /var/www/jhfguf_pythonanywhere_com_wsgi.py` |
+| Static assets 404 | Static mapping wrong | Web tab → Static files → `/static/` → `/home/jhfguf/jobhunt/web/static` |
+| High CPU / timeouts | Uncached heavy queries | Check `web/routers/*` DB calls; verify connection reuse |
+
+---
+
+## 9. Deploy Checklist (copy-paste)
 
 ```bash
-# Run full test suite
-python -m pytest tests/ -q
+# 1. SSH / PA console
+cd /home/jhfguf/jobhunt
 
-# Run integrity verifier
-python verify_integrity.py
+# 2. Pull / sync latest code
+git pull   # or upload via PA editor / Files tab
 
-# Check for dead code
-python -m vulture . --min-confidence 80 \
-  --exclude .venv2,node_modules,archive,__pycache__
+# 3. Ensure deps
+pip install --user -r requirements.txt
+pip install --user a2wsgi
 
-# Sort imports
-isort . --profile black --skip .venv2 --skip node_modules
+# 4. Reload
+touch /var/www/jhfguf_pythonanywhere_com_wsgi.py
 
-# Lint check
-ruff check . --select E,F,W --exclude .venv2,node_modules,archive
+# 5. Verify
+curl -sS https://jhfguf.pythonanywhere.com/api/v1/health
 ```
-
----
-
-*Last updated: 2026-07-12 by Antigravity — IMP-125, IMP-129, IMP-130, IMP-132*

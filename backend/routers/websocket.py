@@ -3,12 +3,19 @@
 Extracted from backend/main.py as part of M2 Backend Router Optimization.
 """
 
-import logging
-import os
 import json
+import logging
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from backend.auth import decode_jwt_token, _get_client_ip, _check_lockout, _record_failure, _record_success, _IS_TESTING
+from backend.auth import (
+    _IS_TESTING,
+    _check_lockout,
+    _get_client_ip,
+    _record_failure,
+    _record_success,
+    decode_jwt_token,
+)
 from backend.database import async_session
 from backend.websocket import manager
 
@@ -21,12 +28,14 @@ router = APIRouter(tags=["WebSocket"])
 async def websocket_war_room(websocket: WebSocket) -> None:
     """War Room real-time WebSocket connection handler."""
     logger.info("War Room WebSocket connection handshake initiated.")
-    
+
     client_ip = _get_client_ip(websocket)
     if not _IS_TESTING:
         lockout_remaining = _check_lockout(client_ip)
         if lockout_remaining > 0:
-            logger.warning(f"WebSocket connection rejected: IP {client_ip} is locked out for {lockout_remaining:.1f}s.")
+            logger.warning(
+                f"WebSocket connection rejected: IP {client_ip} is locked out for {lockout_remaining:.1f}s."
+            )
             await websocket.close(code=4003)
             return
 
@@ -34,7 +43,9 @@ async def websocket_war_room(websocket: WebSocket) -> None:
     token = websocket.query_params.get("token")
     if not token:
         # Check Authorization header
-        auth_header = websocket.headers.get("authorization") or websocket.headers.get("Authorization")
+        auth_header = websocket.headers.get("authorization") or websocket.headers.get(
+            "Authorization"
+        )
         if auth_header and auth_header.lower().startswith("bearer "):
             token = auth_header.split(" ", 1)[1]
 
@@ -71,8 +82,7 @@ async def websocket_war_room(websocket: WebSocket) -> None:
 
         async with async_session() as session:
             result = await session.execute(
-                text("SELECT is_active FROM users WHERE user_id = :user_id"),
-                {"user_id": sub}
+                text("SELECT is_active FROM users WHERE user_id = :user_id"), {"user_id": sub}
             )
             row = result.fetchone()
             if not row or not row[0]:
@@ -97,7 +107,7 @@ async def websocket_war_room(websocket: WebSocket) -> None:
             if raw == "ping":
                 await websocket.send_text("pong")
                 continue
-            
+
             # Try to process as JSON for admin dashboard actions
             try:
                 data = json.loads(raw)
@@ -123,11 +133,10 @@ async def websocket_war_room(websocket: WebSocket) -> None:
                         }
                         for r in rows
                     ]
-                    await websocket.send_text(
-                        json.dumps({"type": "dlq_list", "items": dlq_items})
-                    )
+                    await websocket.send_text(json.dumps({"type": "dlq_list", "items": dlq_items}))
                 elif msg_type == "fetch_logs":
                     import datetime as _dt
+
                     cutoff = data.get("minutes", 60) or 60
                     since = _dt.datetime.utcnow() - _dt.timedelta(minutes=cutoff)
                     async with async_session() as session:
@@ -152,9 +161,7 @@ async def websocket_war_room(websocket: WebSocket) -> None:
                         }
                         for r in rows
                     ]
-                    await websocket.send_text(
-                        json.dumps({"type": "log_list", "items": log_items})
-                    )
+                    await websocket.send_text(json.dumps({"type": "log_list", "items": log_items}))
                 else:
                     await manager.send_personal_message(f"Message text was: {raw}", websocket)
             except Exception:

@@ -15,7 +15,7 @@
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
 
   /* Dynamic font setup */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
   --text-x-direction: 1;
   --gradient-dir: to right;
 }

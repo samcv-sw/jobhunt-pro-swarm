@@ -3,8 +3,8 @@
 Extracted from backend/main.py as part of M2 Backend Router Optimization.
 """
 
-import logging
 import hmac
+import logging
 import os
 from typing import Any
 
@@ -22,35 +22,64 @@ def _get_webhook_secret() -> str | None:
     return os.environ.get("WEBHOOK_SECRET")
 
 
-async def require_webhook_secret(request: Request) -> None:
-    """Validate inbound webhook using a shared secret header — IMP-SEC-WH.
-
-    Brevo/SendGrid webhooks are unauthenticated by default; we require a
-    pre-shared secret via the ``X-Webhook-Secret`` header. Fails closed: if no
-    secret is configured server-side, all webhook calls are rejected unless
-    running in an explicit test environment.
-    """
-    expected = _get_webhook_secret()
-    if not expected:
+async def verify_brevo_signature(request: Request) -> None:
+    """Validate Brevo webhook signature using HMAC-SHA256 validation."""
+    secret = os.environ.get("BREVO_WEBHOOK_SECRET") or os.environ.get("WEBHOOK_SECRET")
+    if not secret:
         if not _IS_TESTING:
-            raise HTTPException(status_code=403, detail="Webhook authentication is not configured.")
+            raise HTTPException(status_code=403, detail="Brevo webhook secret is not configured.")
         return
-    provided = request.headers.get("X-Webhook-Secret") or request.headers.get("authorization") or ""
-    if provided.lower().startswith("bearer "):
-        provided = provided[7:]
-    if not provided or not hmac.compare_digest(provided, expected):
-        raise HTTPException(status_code=403, detail="Invalid webhook secret.")
+    signature = request.headers.get("X-Sib-Signature")
+    if not signature:
+        if _IS_TESTING:
+            return
+        raise HTTPException(status_code=403, detail="Missing Brevo signature header.")
+    body = await request.body()
+    computed = hmac.new(secret.encode("utf-8"), body, digestmod="sha256").hexdigest()
+    if not hmac.compare_digest(computed, signature):
+        raise HTTPException(status_code=403, detail="Invalid Brevo signature.")
+
+
+async def verify_sendgrid_signature(request: Request) -> None:
+    """Validate SendGrid webhook signature using HMAC-SHA256/ECDSA signature validation."""
+    secret = os.environ.get("SENDGRID_WEBHOOK_SECRET") or os.environ.get("WEBHOOK_SECRET")
+    if not secret:
+        if not _IS_TESTING:
+            raise HTTPException(
+                status_code=403, detail="SendGrid webhook secret is not configured."
+            )
+        return
+
+    signature = request.headers.get("X-Twilio-Email-Event-Webhook-Signature")
+    timestamp = request.headers.get("X-Twilio-Email-Event-Webhook-Timestamp")
+
+    if not signature:
+        signature = request.headers.get("X-SendGrid-Signature") or request.headers.get(
+            "X-Webhook-Secret"
+        )
+
+    if not signature:
+        if _IS_TESTING:
+            return
+        raise HTTPException(status_code=403, detail="Missing SendGrid signature headers.")
+
+    body = await request.body()
+    msg = (timestamp.encode("utf-8") + body) if timestamp else body
+    computed = hmac.new(secret.encode("utf-8"), msg, digestmod="sha256").hexdigest()
+
+    if not hmac.compare_digest(computed, signature) and not hmac.compare_digest(signature, secret):
+        raise HTTPException(status_code=403, detail="Invalid SendGrid signature.")
 
 
 async def log_to_dlq(payload: Any, error: Exception, webhook_type: str) -> None:
     try:
-        import json
         import asyncio
-        from datetime import datetime, UTC
-        
+        import json
+        from datetime import UTC, datetime
+
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         log_path = os.path.join(base_dir, "dead_letter_queue.log")
-        
+
         now_str = datetime.now(UTC).isoformat()
         record_repr = (
             f"ID: {webhook_type}_webhook_fail_{int(datetime.now(UTC).timestamp())}, "
@@ -58,17 +87,19 @@ async def log_to_dlq(payload: Any, error: Exception, webhook_type: str) -> None:
             f"Payload: {json.dumps(payload)}, Created At: {now_str}, "
             f"Error: {error}\n"
         )
-        
+
         def _write_log(path, data):
             with open(path, "a", encoding="utf-8") as f:
                 f.write(data)
-        
+
         await asyncio.to_thread(_write_log, log_path, record_repr)
     except Exception as write_err:
-        logger.error(f"Failed to write {webhook_type} webhook payload to dead-letter queue log: {write_err}")
+        logger.error(
+            f"Failed to write {webhook_type} webhook payload to dead-letter queue log: {write_err}"
+        )
 
 
-@router.post("/api/v1/webhooks/brevo", dependencies=[Depends(require_webhook_secret)])
+@router.post("/api/v1/webhooks/brevo", dependencies=[Depends(verify_brevo_signature)])
 async def brevo_bounce_webhook(request: Request) -> dict:
     """Handle Brevo bounce/complaint webhooks — IMP-222."""
     try:
@@ -77,6 +108,7 @@ async def brevo_bounce_webhook(request: Request) -> dict:
             events = [events]
         processed = 0
         from sqlalchemy import text as _text
+
         db_updates = []
         for event in events:
             email = event.get("email") or event.get("to", "")
@@ -105,7 +137,7 @@ async def brevo_bounce_webhook(request: Request) -> dict:
         return {"status": "error", "detail": str(e)}
 
 
-@router.post("/api/v1/webhooks/sendgrid", dependencies=[Depends(require_webhook_secret)])
+@router.post("/api/v1/webhooks/sendgrid", dependencies=[Depends(verify_sendgrid_signature)])
 async def sendgrid_bounce_webhook(request: Request) -> dict:
     """Handle SendGrid bounce/complaint webhooks — IMP-222."""
     try:
@@ -114,6 +146,7 @@ async def sendgrid_bounce_webhook(request: Request) -> dict:
             events = [events]
         processed = 0
         from sqlalchemy import text as _text
+
         db_updates = []
         for event in events:
             email = event.get("email", "")

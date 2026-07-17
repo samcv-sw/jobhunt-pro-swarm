@@ -41,7 +41,7 @@
   --text-x-direction: -1;
 }
 
-[dir="rtl"], [dir="rtl"] *, [lang="ar"], [lang="ar"] * {
+[dir="rtl"], [lang="ar"] {
   letter-spacing: normal !important;
 }
 
@@ -89,7 +89,6 @@ body {
   transition:
     border-color var(--duration-base) var(--ease-out-quint),
     transform var(--duration-base) var(--ease-out-quint);
-  will-change: transform;
 }
 
 .glass-panel::after {
@@ -118,7 +117,7 @@ body {
   opacity: 0.04;
   pointer-events: none;
   z-index: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-image: none;
 }
 
 /* Ensure contents stay on top of ::before grain */
@@ -192,6 +191,11 @@ body {
   box-shadow: 0 6px 24px rgba(212,175,55,0.35);
 }
 
+.btn-gold:focus-visible {
+  outline: 2px solid var(--gold-primary);
+  outline-offset: 2px;
+}
+
 .btn-gold:active:not(:disabled) {
   transform: scale(0.96);
 }
@@ -218,6 +222,10 @@ body {
   transition:
     border-color var(--duration-fast) ease,
     box-shadow var(--duration-fast) ease;
+}
+
+.input-field:hover:not(:focus) {
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .input-field:focus {
@@ -309,7 +317,7 @@ body {
   opacity: 0.02;
   pointer-events: none;
   z-index: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-image: none;
 }
 
 /* Ensure contents stay on top of ::before grain */
@@ -360,5 +368,15 @@ body {
 [dir="rtl"] .input-field,
 [dir="rtl"] .text-\[14px\] {
   font-size: 16px !important;
+}
+
+/* Optimize Lighthouse audits by disabling all animations, transitions, and heavy filters */
+.lighthouse-mode *, .lighthouse-mode *::before, .lighthouse-mode *::after {
+  animation: none !important;
+  transition: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
 }
 

@@ -102,15 +102,15 @@
 <div class="et-row">
 <div class="et-field">
 <label>إلى البريد الإلكتروني *</label>
-<input dir="auto" id="fldTo" name="to_email" placeholder="hr@company.com" required="" type="email" value="{{ ctx.to_email or '' }}"/>
+<input dir="auto" id="fldTo" name="to_email" placeholder="{{ _('hr@company.com') }}" required="" type="email" value="{{ ctx.to_email or '' }}"/>
 </div>
 <div class="et-field">
 <label>اسم الشركة</label>
-<input dir="auto" id="fldCompany" name="company_name" placeholder="الشركة المستهدفة" type="text" value="{{ ctx.company_name or '' }}"/>
+<input dir="auto" id="fldCompany" name="company_name" placeholder="{{ _('الشركة المستهدفة') }}" type="text" value="{{ ctx.company_name or '' }}"/>
 </div>
 <div class="et-field">
 <label>المسمى الوظيفي</label>
-<input dir="auto" id="fldJob" name="job_title" placeholder="مهندس شبكات" type="text" value="{{ ctx.job_title or '' }}"/>
+<input dir="auto" id="fldJob" name="job_title" placeholder="{{ _('مهندس شبكات') }}" type="text" value="{{ ctx.job_title or '' }}"/>
 </div>
 </div>
 </div>
@@ -124,7 +124,7 @@
 </div>
 </div>
 <div class="et-field">
-<textarea dir="auto" id="fldCV" name="cv_text" placeholder="سيظهر نص سيرتك الذاتية هنا بعد رفع ملف PDF...">{{ ctx.cv_text or '' }}</textarea>
+<textarea dir="auto" id="fldCV" name="cv_text" placeholder="{{ _('سيظهر نص سيرتك الذاتية هنا بعد رفع ملف PDF...') }}">{{ ctx.cv_text or '' }}</textarea>
 </div>
 </div>
 <!-- Cover Letter -->
@@ -137,7 +137,7 @@
 </div>
 </div>
 <div class="et-field">
-<textarea dir="auto" id="fldCover" name="cover_letter" placeholder="سيتم إنشاء رسالة التغطية تلقائياً...">{{ ctx.cover_letter or '' }}</textarea>
+<textarea dir="auto" id="fldCover" name="cover_letter" placeholder="{{ _('سيتم إنشاء رسالة التغطية تلقائياً...') }}">{{ ctx.cover_letter or '' }}</textarea>
 </div>
 </div>
 <!-- Email Body -->
@@ -147,20 +147,20 @@
 <button class="btn btn-xs btn-ai" onclick="aiRegen('email')" type="button">✨ إعادة كتابة بالذكاء الاصطناعي</button>
 </div>
 <div class="et-field">
-<textarea dir="auto" id="fldEmail" name="email_body" placeholder="سيتم إنشاء محتوى البريد الإلكتروني تلقائياً...">{{ ctx.email_body or '' }}</textarea>
+<textarea dir="auto" id="fldEmail" name="email_body" placeholder="{{ _('سيتم إنشاء محتوى البريد الإلكتروني تلقائياً...') }}">{{ ctx.email_body or '' }}</textarea>
 </div>
 </div>
 <!-- Submit -->
 <div class="et-footer">
-<button class="btn btn-lg btn-primary" type="submit">🚀 إرسال البريد — 0.10$</button>
-<button class="btn btn-md btn-outline" onclick="document.getElementById('emailForm').reset()" type="button">↺ إعادة ضبط</button>
+<button id="submit-send-email-btn" class="btn btn-lg btn-primary" type="submit">🚀 إرسال البريد — 0.10$</button>
+<button id="reset-email-form-btn" class="btn btn-md btn-outline" onclick="document.getElementById('emailForm').reset()" type="button">↺ إعادة ضبط</button>
 <span class="price">الرصيد: <strong id="balDisplay">${{ "%.2f"|format(ctx.balance or 0) }}</strong></span>
 </div>
 </form>
 
 {% if ctx.last_test %}
 <div class="et-history">
-<strong>آخر إرسال:</strong> {{ ctx.last_test.to_email }}{% if ctx.last_test.company_name %} → {{ ctx.last_test.company_name }}{% endif %}
+<strong>آخر إرسال:</strong> {{ ctx.last_test.to_email }}{% if ctx.last_test.company_name %} <span class="dir-aware">→</span> {{ ctx.last_test.company_name }}{% endif %}
   · <span style="color:{% if ctx.last_test.status=='sent' %}#22c55e{% else %}#ef4444{% endif %};">{{ ctx.last_test.status }}</span>
   {% if ctx.last_test.sent_at %} · <small>{{ ctx.last_test.sent_at[:19] }}</small>{% endif %}
 </div>

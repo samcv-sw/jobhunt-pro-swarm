@@ -20,7 +20,7 @@ elif NEON_URL.startswith("postgres://"):
 # Fallback to local SQLite if no remote PostgreSQL is configured
 IS_SQLITE = not NEON_URL or "sqlite" in NEON_URL
 if not NEON_URL:
-    NEON_URL = os.getenv("LOCAL_DATABASE_URL", "sqlite+aiosqlite:///./data/jobhunt_local.db")
+    NEON_URL = os.getenv("LOCAL_DATABASE_URL", "sqlite+aiosqlite:///./data/jobhunt_saas_v2.db")
 
 # Ensure statement_cache_size=0 to avoid PgBouncer transaction mode errors
 connect_args = {
@@ -50,7 +50,7 @@ else:
     engine = create_async_engine(
         NEON_URL,
         poolclass=QueuePool,
-        pool_size=2,
+        pool_size=3,
         max_overflow=2,
         pool_timeout=30,       # Wait longer during cold starts
         pool_recycle=280,      # Recycle stale connections before 5-minute Neon suspend
@@ -203,3 +203,5 @@ class Database:
 
 
 # Backward compatibility alias for aiosqlite/asyncpg pool manager
+from core.async_db import async_db as db
+db.disconnect = db.close

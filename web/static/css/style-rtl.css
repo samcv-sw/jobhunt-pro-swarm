@@ -18,7 +18,7 @@
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
 
   /* Dynamic LTR/RTL Font setup */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
   --text-x-direction: 1;
 }
 
@@ -59,7 +59,7 @@ body {
   font-weight: 800;
   color: #fff;
   text-decoration: none;
-  letter-spacing: -0.5px; /* letter-spacing: normal */
+  letter-spacing: normal;
 }
 
 .nav-links {

@@ -581,8 +581,8 @@ body {
       أدخل <strong style="color:var(--accent-primary);">رمز الدفع</strong> {{ _('(الموضح أعلاه) وتجزئة المعاملة (TxHash) من محفظتك الرقمية.') }}
     </div>
 <div class="verify-input-group-v3">
-<input autocomplete="off" dir="auto" id="paymentCodeV3" placeholder="رمز الدفع (مثل A1B2C3D4)" style="text-transform:uppercase; " type="text"/>
-<input autocomplete="off" dir="auto" id="txHashV3" placeholder="تجزئة المعاملة / TX ID" type="text"/>
+<input autocomplete="off" dir="auto" id="paymentCodeV3" placeholder="{{ _('رمز الدفع (مثل A1B2C3D4)') }}" style="text-transform:uppercase; " type="text"/>
+<input autocomplete="off" dir="auto" id="txHashV3" placeholder="{{ _('تجزئة المعاملة / TX ID') }}" type="text"/>
 <button class="btn-verify-v3" id="verifyBtnV3" onclick="verifyPaymentV3('{{ order.order_id }}')">تحقق</button>
 </div>
 <div class="verify-result-v3" id="verifyResultV3"></div>

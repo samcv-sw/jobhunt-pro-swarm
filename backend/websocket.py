@@ -4,6 +4,7 @@ from fastapi import WebSocket
 
 logger = logging.getLogger(__name__)
 
+
 class ConnectionManager:
     def __init__(self):
         self.active_connections: list[WebSocket] = []
@@ -29,5 +30,6 @@ class ConnectionManager:
                 disconnected.append(connection)
         for connection in disconnected:
             self.disconnect(connection)
+
 
 manager = ConnectionManager()

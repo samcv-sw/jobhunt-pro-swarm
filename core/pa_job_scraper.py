@@ -426,17 +426,43 @@ class PAJobScraper:
 
             resp = session.get(url, headers=headers, timeout=timeout)
             return resp.text
-        except ImportError:
-            logger.warning("[PAJobScraper] curl_cffi not installed, falling back to urllib (HIGH BAN RISK)")
-            if not headers or "User-Agent" not in headers:
-                import random
-                UAS = ["Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/121.0.0.0 Safari/537.36"]
-                if not headers:
-                    headers = {}
-                headers["User-Agent"] = random.choice(UAS)
+        except Exception as curl_err:
+            logger.warning(f"[PAJobScraper] curl_cffi failed or not installed ({curl_err}), falling back to urllib (HIGH BAN RISK)")
+            import random
+            UAS = [
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0"
+            ]
+            if not headers:
+                headers = {}
+            headers["User-Agent"] = random.choice(UAS)
+            # Add other organic headers
+            headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+            headers["Accept-Language"] = "en-US,en;q=0.5"
+            headers["Upgrade-Insecure-Requests"] = "1"
+            headers["Sec-Fetch-Dest"] = "document"
+            headers["Sec-Fetch-Mode"] = "navigate"
+            headers["Sec-Fetch-Site"] = "none"
+            headers["Sec-Fetch-User"] = "?1"
+            
+            is_pa = bool(
+                os.environ.get("PYTHONANYWHERE_SITE") or
+                os.environ.get("PYTHONANYWHERE_DOMAIN")
+            )
             req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                return resp.read().decode("utf-8", errors="ignore")
+            if is_pa:
+                proxy_handler = urllib.request.ProxyHandler({
+                    'http': 'http://proxy.server:3128',
+                    'https': 'http://proxy.server:3128'
+                })
+                opener = urllib.request.build_opener(proxy_handler)
+                with opener.open(req, timeout=timeout) as resp:
+                    return resp.read().decode("utf-8", errors="ignore")
+            else:
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
+                    return resp.read().decode("utf-8", errors="ignore")
 
     # ══════════════════════════════════════════════════════════════════════
     # JSearch API (kept for backward compatibility)

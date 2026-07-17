@@ -7,6 +7,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+
 class RotatingEmailSender:
     def __init__(self, credentials_path: str = "gmail_accounts.json"):
         self.credentials_path = credentials_path
@@ -22,7 +23,9 @@ class RotatingEmailSender:
                 with open(path) as f:
                     return json.load(f)
             else:
-                logger.warning(f"Credentials file {self.credentials_path} not found. Running in DRY RUN mode.")
+                logger.warning(
+                    f"Credentials file {self.credentials_path} not found. Running in DRY RUN mode."
+                )
                 return []
         except Exception as e:
             logger.error(f"Failed to load email accounts: {e}")
@@ -48,9 +51,9 @@ class RotatingEmailSender:
             return
 
         msg = EmailMessage()
-        msg['Subject'] = subject
-        msg['From'] = account['email']
-        msg['To'] = to_email
+        msg["Subject"] = subject
+        msg["From"] = account["email"]
+        msg["To"] = to_email
         msg.set_content(body)
 
         logger.info(f"Attempting to send email via {account['email']}")
@@ -60,6 +63,6 @@ class RotatingEmailSender:
 
     def _sync_send_smtp(self, account: dict, msg: EmailMessage):
         """Synchronous SMTP logic to be run in a thread pool."""
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-            smtp.login(account['email'], account['password'])
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(account["email"], account["password"])
             smtp.send_message(msg)

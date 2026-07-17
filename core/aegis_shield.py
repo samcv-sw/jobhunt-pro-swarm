@@ -72,20 +72,36 @@ class _UpstashClient:
     def __init__(self):
         self.url = os.getenv("UPSTASH_REDIS_URL", "").rstrip("/")
         self.token = os.getenv("UPSTASH_REDIS_TOKEN", "")
-        self._enabled = bool(self.url and self.token)
+        self._circuit_broken_until = 0.0
+        
+        is_free_account = (
+            os.getenv("FREE_ACCOUNT", "false").lower() in ("true", "1", "yes")
+            or os.getenv("IS_FREE_ACCOUNT", "false").lower() in ("true", "1", "yes")
+            or bool(os.environ.get("PYTHONANYWHERE_SITE") or os.environ.get("PYTHONANYWHERE_DOMAIN"))
+        )
+        self._enabled = bool(self.url and self.token) and not is_free_account
         self._mem: dict = {}  # in-memory fallback store
 
         if self._enabled:
             logger.info("[AEGIS] Upstash Redis rate-limit backend ENABLED.")
         else:
             logger.warning(
-                "[AEGIS] Upstash not configured — using in-memory rate-limit fallback. "
+                "[AEGIS] Upstash not configured or disabled (free account) — using in-memory rate-limit fallback. "
                 "Set UPSTASH_REDIS_URL + UPSTASH_REDIS_TOKEN for distributed mode."
             )
 
+    def _is_circuit_broken(self) -> bool:
+        if time.time() < getattr(self, "_circuit_broken_until", 0.0):
+            return True
+        return False
+
+    def _trigger_circuit_breaker(self):
+        logger.warning("[AEGIS] Upstash Redis REST call failed or timed out. Triggering circuit breaker for 5 minutes.")
+        self._circuit_broken_until = time.time() + 300
+
     def _exec(self, *cmd) -> Any | None:
         """Execute a single Redis command via Upstash REST POST."""
-        if not self._enabled:
+        if not self._enabled or self._is_circuit_broken():
             return None
         try:
             payload = json.dumps(list(cmd)).encode()
@@ -102,6 +118,7 @@ class _UpstashClient:
                 return json.loads(resp.read()).get("result")
         except Exception as exc:
             logger.warning(f"[AEGIS] Upstash error: {exc}")
+            self._trigger_circuit_breaker()
             return None
 
     # ── Token Bucket via Lua (atomic, zero race conditions) ──────────────────

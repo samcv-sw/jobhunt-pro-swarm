@@ -1,63 +1,114 @@
-# Handoff Report — Initial Investigation of JobHunt Pro
+# Handoff Report — Scraper & Test Suite Baseline Investigation
+
+This handoff report summarizes the baseline findings and outlines implementation strategies for the R1 and R2 job scraper tasks in JobHunt Pro.
+
+---
 
 ## 1. Observation
-- **Pytest Suite Run**: Executed command `uv run pytest` inside `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi`.
-  - Output: `621 passed in 113.60s`
-- **Next.js Production Build**: Executed command `npm run build` inside `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\frontend`.
-  - Output: `✓ Generating static pages using 6 workers (5/5) in 2.6s` and route listing for `/`, `/dashboard`, and `/_not-found`.
-- **Undefined Variables check**: Executed command `ruff check web/routers/ web/app_v2.py --select F821` inside the root directory.
-  - Output: `All checks passed!`
-- **Styling Properties**: Grep searches for physical spacing utilities (`ml-`, `mr-`, `pl-`, `pr-`, `left-`, `right-`) and properties (`margin-left`, `margin-right`, `padding-left`, `padding-right`) in `frontend/src/` and `web/templates/` returned no hits for active styling declarations.
-- **RTL Input Directions**: Scanned HTML and TSX files for form inputs, textareas, and selects lacking `dir="auto"`.
-  - Output: Only two files (`web/templates/growth_station.html` and `web/templates/en/growth_station.html`) contain violations:
-    - Line 193: `<select id="agent-type" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">`
-    - Line 203: `<input type="text" id="keyword" placeholder="..." class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">`
-    - Line 208: `<input type="text" id="location" placeholder="..." class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">`
-    - Line 213: `<select id="max-leads" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">`
-    - Line 296: `<select id="filter-source" onchange="loadLeads()" class="bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">`
-    - Line 297: `<input type="text" id="search-input" onkeyup="loadLeads()" placeholder="..." class="bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">`
-    - Line 301: `<input type="checkbox" id="select-all" onclick="toggleSelectAll(this)">`
-    - Line 494: `<input type="text" id="campaign-name" placeholder="..." class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">`
-    - Line 521: `<input type="checkbox" class="lead-checkbox" value="${l.id}">`
-- **FastAPI Authentication Coverage Gaps**:
-  - `/api/jobs/unscored` (GET, line 9473 of `web/app_v2.py`) and `/api/jobs/score` (POST, line 9484 of `web/app_v2.py`) do not use `Depends(verify_jwt)` or verify session users, making them publicly exposed.
-  - `/api/debug-cookies` (GET, line 2551 of `web/app_v2.py`) outputs all cookies and headers of the request without any authorization gate.
-  - `/api/debug/test-email` (GET, line 7639 of `web/app_v2.py`) triggers a test email without any authorization verification.
-  - `/api/v1/groq-proxy` (POST, line 8806 of `web/app_v2.py`):
+We observed the following regarding the test suite and scrapers:
+- **Pytest Suite Run**: Running `uv run pytest` inside `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi` completed successfully.
+  - Verbatim Output: `======================= 653 passed in 158.58s (0:02:38) =======================`
+- **Bayt Scraper implementation**:
+  - Found `core/bayt_scraper.py` which uses `cloudscraper.create_scraper(...)` on line 82:
     ```python
-    user_id = request.session.get("user_id")
-    api_key_header = request.headers.get("X-API-Key", "")
-    if not user_id and not api_key_header:
-        return JSONResponse({"error": "Authentication required"}, status_code=401)
+    scraper = cloudscraper.create_scraper(
+        browser={
+            "browser": "chrome",
+            "platform": "windows",
+            "mobile": False,
+        },
+        delay=3,
+    )
     ```
-    This code allows any non-empty `X-API-Key` to bypass the authentication check since it is not checked against the database.
-- **PgBouncer Configuration**:
-  - Engine setup in `core/database.py` and `backend/database.py` includes `connect_args={"statement_cache_size": 0, "prepared_statement_cache_size": 0}` (or equivalent).
-  - Shim connection pool settings in `core/pg_sqlite_shim.py` uses threaded connection pools, bounds them strictly (1-3 conns), recycles idle connections at 280 seconds, and performs database pre-pings (`SELECT 1`).
+    And parses job cards using BeautifulSoup selectors on lines 119-128:
+    ```python
+    cards = soup.select("li.has-pointer-d")
+    if not cards:
+        cards = soup.select("[class*='job-card'], li[class*='job']")
+    ```
+  - Found class `BaytScraper(BaseScraper)` in `core/multi_source_scraper.py` on line 297, which uses standard `BaseScraper` requests and extracts descriptions on lines 377-380:
+    ```python
+    desc_elem = card.find("p", class_="jb-desc") or card.find(
+        "div", class_="job-description"
+    )
+    snippet = desc_elem.get_text(strip=True)[:300] if desc_elem else ""
+    ```
+- **Wuzzuf Scraper implementation**:
+  - Found `core/wuzzuf_scraper.py` which uses `cloudscraper` on lines 214-217:
+    ```python
+    scraper = cloudscraper.create_scraper(
+        browser={"browser": "chrome", "platform": "windows", "desktop": True}
+    )
+    resp = scraper.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
+    ```
+    And parses cards on lines 109-115:
+    ```python
+    cards = soup.select(
+        "div.css-ghe2tq.e1v1l3u10, "
+        "div.css-ghe2tq, "
+        "[class*='e1v1l3u10'], "
+        "div[class*='job-card'], "
+        "div[class*='JobCard']"
+    )
+    ```
+  - Found class `WuzzufScraper(BaseScraper)` in `core/multi_source_scraper.py` on line 496, which performs parsing but does not extract descriptions (line 565 has no snippet passed to `_build_job_dict`).
+- **GulfTalent Scraper implementation**:
+  - Found class `GulftalentScraper(PlatformBase)` in `core/multi_platform_apply.py` on lines 1235-1336, which performs requests via line 1263:
+    ```python
+    async with stealth.get_async_client(
+        timeout=25.0, follow_redirects=True
+    ) as client:
+    ```
+    And parses card elements but leaves `snippet` (description) empty on line 1328:
+    ```python
+    "snippet": "",
+    ```
+- **Deduplication tests and module**:
+  - Verified `tests/test_job_deduplication.py` exists and tests duplicate detection (lines 28-33 for case normalization, lines 42-47 for punctuation stripping, and lines 49-54 for whitespace collapsing).
+  - Verified `is_duplicate_job()` in `core/scam_detector.py` on lines 628-655:
+    ```python
+    def is_duplicate_job(job_title: str, company: str, seen_jobs: set) -> bool:
+        ...
+        def _norm(s: str) -> str:
+            s = s.lower().strip()
+            s = _re.sub(r"[^a-z0-9\s]", "", s)
+            s = _re.sub(r"\s+", " ", s)
+            return s.strip()
+        key = _norm(job_title) + "::" + _norm(company)
+        ...
+    ```
+
+---
 
 ## 2. Logic Chain
-1. **Pytest Run**: The clean pass of all 621 tests confirms that the core application functions correctly on a functional level and the local environment is sound.
-2. **Styling Properties**: Grep scans confirm that no physical layout configurations are present in stylesheets, templates, or frontend React files. The system utilizes logical CSS properties for all inline styling and tailwind declarations, satisfying Arabic/RTL design principles.
-3. **HTML Inputs & RTL Direction**: Script scans of templates located exact `<input>` and `<select>` elements in `growth_station.html` and `en/growth_station.html` that do not have `dir="auto"`. Because other forms in the codebase have this attribute, this is an isolated template omission.
-4. **Next.js Build**: The successful compilation of the frontend directory via `npm run build` proves that TypeScript checks pass and all dependencies/routings compile correctly into a static optimized production build.
-5. **FastAPI Audits**:
-   - Ruff's check verifies that there are no syntax-level F821 undefined variable issues.
-   - Code inspections of `core/database.py`, `backend/database.py`, and `web/routers/` confirm that database transactions and sessions are wrapped in context managers, mitigating connection leak risks.
-   - PgBouncer statement caching parameters are correctly set to `0` and pooled connections are set to recycle at 280 seconds, matching transactional connection pool guidelines.
-   - Searching routing decorators and function arguments revealed four unprotected routes (`/api/jobs/unscored`, `/api/jobs/score`, `/api/debug-cookies`, `/api/debug/test-email`) and one logical authentication bypass in `/api/v1/groq-proxy`.
+1. **Pytest Baseline**: The pass rate of 100% (653 of 653) establishes that the local development setup, including Python dependencies, the database shim, and auth libraries, is fully functional.
+2. **Existing Scrapers**:
+   - `core/bayt_scraper.py` and `core/wuzzuf_scraper.py` use `cloudscraper` which is deprecated for stealth scraping because it relies on JS challenges. `core/multi_source_scraper.py` utilizes the custom `stealth.get_sync_client()` tool, and `core/multi_platform_apply.py` uses `stealth.get_async_client()`.
+   - Description extraction is missing or incomplete for Wuzzuf and GulfTalent. Description elements can be scraped by standardizing all three scrapers to parse their respective listing-level snippet fields or detail pages.
+3. **Stealth Client Standardization**:
+   - Aligning all scrapers to use `StealthClient` (`core/stealth_http.py`) rather than `cloudscraper` guarantees native TLS/HTTP2 fingerprinting and robust residential proxy routing.
+4. **Mock Failover Data**:
+   - In CODE_ONLY mode, live HTTP requests are expected to fail. Having a try-catch failover mechanism that intercepts request exceptions and injects structured mock datasets guarantees functional reliability.
+5. **Deduplication and Persistence**:
+   - Using the MD5 hashing method from `BaseScraper._build_job_dict` guarantees unique primary keys for db records.
+   - Text normalization is already implemented in `is_duplicate_job()` in `core/scam_detector.py`. Using it to screen records prior to SQL INSERT queries satisfies cross-platform deduplication requirements.
+
+---
 
 ## 3. Caveats
-- Integration tests simulating actual PgBouncer transaction-mode pool routing on a PostgreSQL server were not executed locally. Compliance was audited statically via configuration files.
-- The `dir="auto"` scanner flagged checkbox inputs (which are form inputs but do not require textual direction). They are included in the observations for completeness.
+- Since this is a read-only investigation, live scraping calls were not tested on live websites.
+- The `is_duplicate_job()` check depends on caller-maintained sets. Scaling this database-wide requires either a DB check on normalized fields or storing a hashed representation.
+
+---
 
 ## 4. Conclusion
-JobHunt Pro is structurally robust, with a 100% passing test suite and logical spacing compliance. However, two templates (`growth_station.html` in both Arabic and English folders) fail the `dir="auto"` RTL input requirement. In the backend, although connection pools and PgBouncer variables are correctly configured, there are critical security gaps: four public endpoints are left unprotected (including a sensitive debug reflection page and email sender), and the `/api/v1/groq-proxy` endpoint contains a logic bypass that accepts arbitrary `X-API-Key` strings.
+The codebase contains all necessary tools (such as `StealthClient`, `is_duplicate_job()`, and DB connectors) to implement R1 and R2. The optimal strategy is to standardize on the `StealthClient` (with `curl_cffi` and proxies), consolidate GulfTalent into the central scraping engine, implement mock data failovers, and write database insertion scripts screened by the `is_duplicate_job()` normalization rule.
+
+---
 
 ## 5. Verification Method
-- **Run Python Unit Tests**: `uv run pytest` inside the root workspace folder.
-- **Inspect Next.js Build**: `npm run build` inside `frontend/`.
-- **Search for Styling Violations**: Use Ripgrep or search utilities to check for styling classes `ml-`, `mr-`, `pl-`, `pr-`, `left-`, `right-` in `frontend/src/` and `web/templates/`.
-- **Inspect files containing violations**:
-  - `web/templates/growth_station.html` around line 193 to verify missing `dir="auto"` on select/input elements.
-  - `web/app_v2.py` at line 8818 to verify the dummy `X-API-Key` auth bypass logic.
-  - `web/app_v2.py` at line 2551 (`/api/debug-cookies`) and line 7639 (`/api/debug/test-email`) to verify missing authentication decorators or logic checks.
+- **Execute Pytest Suite**: Run `uv run pytest` from the root workspace folder to verify all 653 tests pass.
+- **Inspect Scraper Definitions**:
+  - Open `core/multi_source_scraper.py` to inspect the `BaseScraper`, `BaytScraper`, and `WuzzufScraper` structure.
+  - Open `core/multi_platform_apply.py` lines 1235-1336 to inspect the `GulftalentScraper` class structure.
+  - Open `core/scam_detector.py` lines 628-655 to inspect the `is_duplicate_job()` normalization logic.

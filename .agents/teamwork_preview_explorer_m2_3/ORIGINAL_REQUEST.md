@@ -1,11 +1,18 @@
-## 2026-07-12T20:50:39Z
+## 2026-07-16T18:50:33Z
+<USER_REQUEST>
+You are a Read-only Explorer agent.
+Your Working Directory is: C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m2_3
+Your caller/parent ID is: d07ce593-961e-4881-bb59-9ce1dd0bdaeb
 
-You are Explorer 3 for Milestone 2.
-Your working directory is: C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m2_3
-Your mission is to perform a read-only exploration of the codebase to locate files and plan implementations for:
-1. IMP-034: N+1 query elimination audit (identify where joinedload/selectinload are needed in loops).
-2. IMP-039: Celery task group/chord for bulk email (locate bulk email task dispatching and design group/chord).
-3. IMP-183: Arabic NLP job matching (locate ats_matcher or related modules and plan AraBERT embeddings integration).
-4. IMP-247: CV PDF parsing accuracy (locate PDF text extraction code and plan pdfplumber integration).
+Objective: Explore options to optimize the Next.js Landing Page (`frontend/src/app/page.tsx`) to achieve strictly 100/100 in Lighthouse (baseline is Perf: 51, Acc: 100, BP: 96, SEO: 100).
+Task Description:
+1. Read the scope file at: C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\orchestrator_lighthouse_opt\SCOPE.md
+2. Inspect the Landing Page implementation at `frontend/src/app/page.tsx`.
+3. Check the packages and settings in `frontend/package.json` and `frontend/next.config.ts`.
+4. Run the Lighthouse audit script (`npm run audit:lighthouse` in the `frontend/` folder) if you can (or read the audit script logic to see what it measures). Note: You are read-only so do not modify any files.
+5. Identify code patterns on the landing page that impact Performance and Best Practices (e.g. dynamic scripts, heavy layout, large elements, unoptimized third-party resources, layout shift, non-deferred modules, CSS files, React components rerendering).
+6. Recommend a concrete fix strategy to achieve 100/100 Lighthouse score on the landing page.
+7. Write your detailed analysis to: C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m2_3\report.md
 
-Analyze the codebase structure, find all relevant files, write your findings and implementation proposals to C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m2_3\analysis.md, update progress.md, write handoff.md, and send a message back to parent (conversation ID: 3e49a746-5cea-4b7e-9423-69f0eab49048) when done.
+When finished, use the `send_message` tool to report your findings to your parent (ID: d07ce593-961e-4881-bb59-9ce1dd0bdaeb) and include the path to your report.md.
+</USER_REQUEST>

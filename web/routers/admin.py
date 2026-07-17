@@ -275,7 +275,7 @@ def admin_analytics(req: Request):
             return HTMLResponse(_build_dashboard_shell(None, admin_id, content_html, "Admin Analytics", "admin", request=req))
     except Exception as e:
         logger.error(f"Admin analytics crashed: {e}", exc_info=True)
-        return HTMLResponse(f"<h2>Analytics Error</h2><pre>{e}</pre>", status_code=500)
+        return HTMLResponse("<h2>Analytics Error</h2><p>The analytics dashboard is temporarily unavailable. Please try again later.</p>", status_code=500)
 
 # ── MIGRATED ADMIN ROUTES ───────────────────────────────────────────────────
 

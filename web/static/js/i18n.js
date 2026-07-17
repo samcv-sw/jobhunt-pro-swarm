@@ -122,7 +122,6 @@ const DICT = {
 'New Campaign': 'حملة جديدة',
 'View All': 'عرض الكل',
 'Recent Activity': 'آخر النشاطات',
-'CV Profiles': 'ملفات السيرة الذاتية',
 'Upload Your CV': 'ارفع سيرتك الذاتية',
 'Upload CV / Create Profile': 'رفع السيرة الذاتية / إنشاء ملف',
 'Choose File': 'اختر ملفاً',
@@ -274,68 +273,65 @@ url.searchParams.set('lang', lang);
 window.history.replaceState({}, '', url);
 applyLang(lang);
 }
+const origTextNodes = new WeakMap();
 function applyLang(lang) {
-document.documentElement.lang = lang;
-document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-btn.innerHTML = lang === 'ar' ? '🇬🇧 English' : '🇱🇧 العربية';
-btn.title = lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية';
-if (lang === 'ar') {
-document.body.style.direction = 'rtl';
-document.body.style.textAlign = 'right';
-document.documentElement.classList.add('lang-ar');
-document.documentElement.classList.remove('lang-en');
-} else {
-document.body.style.direction = 'ltr';
-document.body.style.textAlign = 'left';
-document.documentElement.classList.add('lang-en');
-document.documentElement.classList.remove('lang-ar');
-}
-document.querySelectorAll('[data-i18n]').forEach(el => {
-const key = el.getAttribute('data-i18n');
-if (lang === 'ar' && DICT[key]) {
-if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'search')) {
-el.placeholder = DICT[key];
-} else {
-el.textContent = DICT[key];
-}
-}
-});
-document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-const key = el.getAttribute('data-i18n-placeholder');
-if (lang === 'ar' && DICT[key]) {
-el.placeholder = DICT[key];
-}
-});
-if (lang === 'ar') {
-const walker = document.createTreeWalker(
-document.body,
-NodeFilter.SHOW_TEXT,
-{ acceptNode: n => n.textContent.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP }
-);
-const nodes = [];
-while (walker.nextNode()) nodes.push(walker.currentNode);
-for (const node of nodes) {
-const text = node.textContent.trim();
-for (const [en, ar] of Object.entries(DICT)) {
-if (text === en || text.startsWith(en + ' ') || text.endsWith(' ' + en)) {
-const replacement = text === en ? ar : text.replace(en, ar);
-const parent = node.parentElement;
-if (parent && !['SCRIPT','STYLE','CODE','PRE'].includes(parent.tagName)) {
-node.textContent = replacement;
-}
-break;
-}
-}
-}
-}
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  btn.innerHTML = lang === 'ar' ? '🇬🇧 English' : '🇱🇧 العربية';
+  btn.title = lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية';
+  if (lang === 'ar') {
+    document.body.style.direction = 'rtl';
+    document.body.style.textAlign = 'right';
+    document.documentElement.classList.add('lang-ar');
+    document.documentElement.classList.remove('lang-en');
+  } else {
+    document.body.style.direction = 'ltr';
+    document.body.style.textAlign = 'left';
+    document.documentElement.classList.add('lang-en');
+    document.documentElement.classList.remove('lang-ar');
+  }
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (el.children.length > 0) return;
+    if (!el.hasAttribute('data-i18n-orig')) {
+      el.setAttribute('data-i18n-orig', el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'search') ? (el.placeholder || '') : el.textContent);
+    }
+    const orig = el.getAttribute('data-i18n-orig');
+    if (lang === 'ar' && DICT[key]) {
+      if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'search')) el.placeholder = DICT[key];
+      else el.textContent = DICT[key];
+    } else {
+      if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'search')) el.placeholder = orig;
+      else el.textContent = orig;
+    }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (!el.hasAttribute('data-i18n-ph-orig')) el.setAttribute('data-i18n-ph-orig', el.placeholder || '');
+    const orig = el.getAttribute('data-i18n-ph-orig');
+    el.placeholder = (lang === 'ar' && DICT[key]) ? DICT[key] : orig;
+  });
+  const walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT,
+    { acceptNode: n => n.textContent.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP }
+  );
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  const keys = Object.keys(DICT).filter(k => k.trim().length > 1).sort((a, b) => b.length - a.length);
+  const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('\\b(' + keys.map(esc).join('|') + ')\\b', 'g');
+  for (const node of nodes) {
+    const parent = node.parentElement;
+    if (!parent || ['SCRIPT','STYLE','CODE','PRE'].includes(parent.tagName)) continue;
+    if (!origTextNodes.has(node)) origTextNodes.set(node, node.textContent);
+    const orig = origTextNodes.get(node);
+    node.textContent = lang === 'ar' ? orig.replace(re, m => DICT[m] || m) : orig;
+  }
 }
 btn.onclick = () => {
-const current = getLang();
-setLang(current === 'ar' ? 'en' : 'ar');
-if (current === 'ar') return; 
-const url = new URL(window.location);
-url.searchParams.set('lang', 'ar');
-window.location.href = url.toString();
+  const current = getLang();
+  setLang(current === 'ar' ? 'en' : 'ar');
 };
 document.addEventListener('DOMContentLoaded', () => {
 document.body.appendChild(langToggle);

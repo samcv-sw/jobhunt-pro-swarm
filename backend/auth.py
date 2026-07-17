@@ -2,6 +2,7 @@
 Authentication module handling JWT generation and validation.
 Secures the Enterprise API endpoints.
 """
+
 import contextlib
 import ipaddress
 import logging
@@ -24,7 +25,9 @@ if not JWT_SECRET_KEYS:
         if os.getenv("TESTING") == "true" or "pytest" in sys.modules or "unittest" in sys.modules:
             single_key = "jobhunt-pro-secret-key-32bytes-ok!!"
         else:
-            raise ValueError("JWT_SECRET_KEYS or JWT_SECRET_KEY environment variable is not set in production context.")
+            raise ValueError(
+                "JWT_SECRET_KEYS or JWT_SECRET_KEY environment variable is not set in production context."
+            )
     JWT_SECRET_KEYS = [single_key]
 
 JWT_SECRET_KEY = JWT_SECRET_KEYS[0]
@@ -46,9 +49,9 @@ _IS_TESTING: bool = (
 # ---------------------------------------------------------------------------
 # Brute-Force Rate Limiter — in-memory IP-based sliding window
 # ---------------------------------------------------------------------------
-_FAIL_WINDOW_SECONDS: int = 60       # Sliding window length (seconds)
-_MAX_FAILURES: int = 5               # Max failures before lockout
-_LOCKOUT_SECONDS: int = 300          # Lockout duration (seconds)
+_FAIL_WINDOW_SECONDS: int = 60  # Sliding window length (seconds)
+_MAX_FAILURES: int = 5  # Max failures before lockout
+_LOCKOUT_SECONDS: int = 300  # Lockout duration (seconds)
 
 _rate_lock = threading.Lock()
 
@@ -66,12 +69,16 @@ _redis_client = None
 _redis_available = False
 try:
     import redis  # sync client
+
     _REDIS_URL = os.getenv("REDIS_URL")
     if _REDIS_URL:
         try:
             _redis_client = redis.Redis.from_url(
-                _REDIS_URL, socket_connect_timeout=1.0, socket_timeout=1.0,
-                decode_responses=True, retry_on_timeout=False,
+                _REDIS_URL,
+                socket_connect_timeout=1.0,
+                socket_timeout=1.0,
+                decode_responses=True,
+                retry_on_timeout=False,
             )
             _redis_client.ping()
             _redis_available = True
@@ -81,12 +88,15 @@ try:
             _redis_available = False
             _redis_client = None
 except ImportError:
-    _logger.info("redis package not installed; brute-force limiter uses in-memory store (single-worker).")
+    _logger.info(
+        "redis package not installed; brute-force limiter uses in-memory store (single-worker)."
+    )
 
 
 # ---------------------------------------------------------------------------
 # Trusted proxy allowlist — IMP-008: XFF spoofing protection
 # ---------------------------------------------------------------------------
+
 
 def _load_trusted_proxies() -> list:
     """Load trusted proxy CIDR ranges from TRUSTED_PROXIES env var."""
@@ -174,7 +184,9 @@ def _record_failure(ip: str) -> None:
             _, _, _, count = pipe.execute()
             if count >= _MAX_FAILURES:
                 _redis_client.set(f"bf_lock:{ip}", "1", ex=_LOCKOUT_SECONDS)
-                _logger.warning(f"[BruteForce] IP {ip} locked out for {_LOCKOUT_SECONDS}s after {count} failures.")
+                _logger.warning(
+                    f"[BruteForce] IP {ip} locked out for {_LOCKOUT_SECONDS}s after {count} failures."
+                )
             return
         except Exception as _e:  # noqa: BLE001
             _logger.warning(f"Redis failure recording failed ({_e}); falling back to in-memory.")
@@ -187,8 +199,10 @@ def _record_failure(ip: str) -> None:
         state["failures"].append(now)
         if len(state["failures"]) >= _MAX_FAILURES:
             state["locked_until"] = now + _LOCKOUT_SECONDS
-            _logger.warning(f"[BruteForce] IP {ip} locked out for {_LOCKOUT_SECONDS}s after "
-                            f"{len(state['failures'])} failures.")
+            _logger.warning(
+                f"[BruteForce] IP {ip} locked out for {_LOCKOUT_SECONDS}s after "
+                f"{len(state['failures'])} failures."
+            )
 
         _run_global_cleanup_if_needed(now)
 
@@ -240,15 +254,13 @@ def _record_success(ip: str) -> None:
 # Token generation
 # ---------------------------------------------------------------------------
 
+
 def create_access_token(data: dict, expires_in: int = 3600) -> str:
     """
     Generates a JWT access token for testing and user identification.
     """
     payload = data.copy()
-    payload.update({
-        "exp": time.time() + expires_in,
-        "iss": "jobhunt-pro"
-    })
+    payload.update({"exp": time.time() + expires_in, "iss": "jobhunt-pro"})
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
 
@@ -278,6 +290,7 @@ def decode_jwt_token(token: str) -> dict:
 # Token verification with brute-force protection
 # ---------------------------------------------------------------------------
 
+
 async def verify_jwt(
     credentials: HTTPAuthorizationCredentials = Security(security),
     request: Request = None,
@@ -304,8 +317,7 @@ async def verify_jwt(
 
     if not credentials:
         raise HTTPException(
-            status_code=401,
-            detail="Authorization header missing or invalid scheme"
+            status_code=401, detail="Authorization header missing or invalid scheme"
         )
 
     token = credentials.credentials
@@ -324,22 +336,17 @@ async def verify_jwt(
     except jwt.ExpiredSignatureError:
         if not _IS_TESTING:
             _record_failure(ip)
-        raise HTTPException(
-            status_code=401,
-            detail="Token has expired"
-        )
+        raise HTTPException(status_code=401, detail="Token has expired")
     except jwt.InvalidTokenError:
         if not _IS_TESTING:
             _record_failure(ip)
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid token"
-        )
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 
 # ---------------------------------------------------------------------------
 # Admin authorization
 # ---------------------------------------------------------------------------
+
 
 def _load_admin_allowlist() -> set[str]:
     """Load the set of authorized admin identifiers from environment.

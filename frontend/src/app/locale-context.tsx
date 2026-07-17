@@ -1,45 +1,80 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import arTranslations from "../locales/ar.json";
+import enTranslations from "../locales/en.json";
 
-type Locale = "ar" | "en";
+export type Locale = "ar" | "en";
 
 interface LocaleContextType {
   locale: Locale;
   isArabic: boolean;
   setLocale: (locale: Locale) => void;
   toggleLocale: () => void;
+  t: (key: string, variables?: Record<string, string | number>) => string;
 }
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
-export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("ar");
+const translations: Record<Locale, any> = {
+  ar: arTranslations,
+  en: enTranslations,
+};
+
+interface LocaleProviderProps {
+  children: React.ReactNode;
+  initialLocale?: Locale;
+}
+
+export function LocaleProvider({ children, initialLocale = "ar" }: LocaleProviderProps) {
+  const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
+    if (typeof document !== "undefined") {
+      document.cookie = `locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    }
   };
 
   const toggleLocale = () => {
-    setLocaleState((prev) => (prev === "ar" ? "en" : "ar"));
+    const nextLocale = locale === "ar" ? "en" : "ar";
+    setLocale(nextLocale);
   };
 
   const isArabic = locale === "ar";
+
+  const t = (key: string, variables?: Record<string, string | number>): string => {
+    const keys = key.split(".");
+    let val: any = translations[locale];
+    for (const k of keys) {
+      if (val && typeof val === "object" && k in val) {
+        val = val[k];
+      } else {
+        return key;
+      }
+    }
+    if (typeof val !== "string") {
+      return key;
+    }
+    if (variables) {
+      let result = val;
+      for (const [vKey, vVal] of Object.entries(variables)) {
+        result = result.replace(new RegExp(`{${vKey}}`, "g"), String(vVal));
+      }
+      return result;
+    }
+    return val;
+  };
 
   useEffect(() => {
     if (typeof document !== "undefined" && document.documentElement) {
       document.documentElement.lang = locale;
       document.documentElement.dir = locale === "ar" ? "rtl" : "ltr";
-      // Sync CSS logical direction variable for .dir-icon flip transforms
-      document.documentElement.style.setProperty(
-        "--text-x-direction",
-        locale === "ar" ? "-1" : "1"
-      );
     }
   }, [locale]);
 
   return (
-    <LocaleContext.Provider value={{ locale, isArabic, setLocale, toggleLocale }}>
+    <LocaleContext.Provider value={{ locale, isArabic, setLocale, toggleLocale, t }}>
       {children}
     </LocaleContext.Provider>
   );
@@ -52,3 +87,4 @@ export function useLocale() {
   }
   return context;
 }
+

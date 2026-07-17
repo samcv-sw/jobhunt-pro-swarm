@@ -1,39 +1,42 @@
-# BRIEFING — 2026-07-15T10:02:00+03:00
+# BRIEFING — 2026-07-16T20:32:00+03:00
 
 ## Mission
-Perform a read-only audit of FastAPI web routers and frontend serving endpoints, identify TODOs, placeholders, template rendering issues, performance issues, and inconsistencies with the backend REST API, and propose an optimization/cleanup strategy.
+Analyze PythonAnywhere compatibility, core endpoint performance/timeout risks, auth rate limits, scraper anti-ban headers, and run baseline pytest.
 
 ## 🔒 My Identity
-- Archetype: Teamwork explorer
-- Roles: Web Routers Auditor
+- Archetype: explorer
+- Roles: read-only investigator
 - Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_3
-- Original parent: 662e7cb1-3688-4af0-9166-11889f406b2b
+- Original parent: 78a73b8e-5c44-4f6a-821d-6c013b3e5512
 - Milestone: m1_3
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement.
-- Inspect web/app_v2.py and web/routers/*.py.
-- Propose complete optimization and cleanup strategy.
+- Read-only investigation — do NOT implement
+- Analyze backend routers and main entry point for PythonAnywhere restricted environment compatibility
+- Investigate speed of core endpoints for timeout risks
+- Inspect auth rate limits and scraper anti-ban headers
+- Execute test suite using `uv run pytest` for baseline
 
 ## Current Parent
-- Conversation ID: 662e7cb1-3688-4af0-9166-11889f406b2b
-- Updated: 2026-07-15T10:02:00+03:00
+- Conversation ID: 78a73b8e-5c44-4f6a-821d-6c013b3e5512
+- Updated: 2026-07-16T20:32:00+03:00
 
 ## Investigation State
-- **Explored paths**: web/app_v2.py, web/routers/*.py, backend/database.py, core/database.py, core/async_db.py, tests/conftest.py, tests/test_routers_v2.py
+- **Explored paths**: `backend/main.py`, `web/app_v2.py`, `web/routers/dashboard.py`, `backend/routers/admin.py`, `web/routers/admin.py`, `web/routers/auth.py`, `web/routers/jobs.py`, `core/pg_sqlite_shim.py`, `core/aegis_shield.py`, `core/iron_cloak.py`, `core/anti_ban.py`, `core/pa_job_scraper.py`, `infra/init.sql`
 - **Key findings**:
-  - Missing `db` instance definition in `core/database.py` breaks `candidate`, `squads`, and `webhook_bot` web routers.
-  - Typo `from typing import list` in `growth_station.py` raises `ImportError`.
-  - `web/routers/en.py` is dead code because prefix is stripped in middleware.
-  - Multi-instantiated `Jinja2Templates` leads to duplicate config/behavior.
-  - Split SQLite databases paths between backend (`jobhunt_local.db`) and web (`jobhunt_saas_v2.db`) leads to desynchronized state in local dev.
-  - Zero test coverage for web-tier router loading, which masked import/startup crashes.
-- **Unexplored areas**: None, audit complete.
+  - Ephemeral background tasks inside ASGI lifespan will be terminated unexpectedly on uWSGI process recycle.
+  - Thread pool sizes (32 workers) are too high for PythonAnywhere thread limits.
+  - Synchronous Upstash REST API requests in rate limiting add massive latency and timeout risks.
+  - SQLite `DELETE` mode on NFS blocks write concurrency, causing thread blockages and slow dashboard stats / DLQ requeues.
+  - Rate limiting writes to database (`system_config` table) on every authentication check, causing database lockups.
+  - Scraper fallback to `urllib` cannot spoof TLS fingerprints and will get blocked.
+  - All 632 test cases pass in 188.84 seconds.
+- **Unexplored areas**: None (task completed).
 
 ## Key Decisions Made
-- Perform search-first audit to limit token usage.
-- Bridge core.database and core.async_db to restore compatibility.
+- Executed full test suite locally inside the repo using `uv run pytest`.
+- Documented findings in `analysis.md` and `handoff.md`.
 
 ## Artifact Index
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_3\analysis.md — Main audit report and optimization strategy
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_3\handoff.md — Summary handoff report
+- `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_3\analysis.md` — Compatibility analysis and baseline test report.
+- `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_3\handoff.md` — Handoff report.

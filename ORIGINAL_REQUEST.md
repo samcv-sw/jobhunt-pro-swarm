@@ -115,3 +115,79 @@ Verify coordinated platform-specific rate limits, residential proxy fallback cha
 ### RTL Arabic UI
 - [ ] Next.js front-end compiles cleanly (`npm run build`) without TypeScript or styling issues.
 - [ ] No hardcoded physical alignment directions (left/right) are used in UI templates; only CSS logical properties.
+
+## Follow-up — 2026-07-16T17:21:23Z
+
+Deep optimization and production-hardening of BOTH the JobHunt Pro FastAPI Jinja2 templates (deployed at https://jhfguf.pythonanywhere.com) AND the Next.js frontend dashboard.
+
+Working directory: c:/Users/samde/Desktop/📂 Folders & Projects/cv sam new ma3 kimi
+Integrity mode: development
+
+## Requirements
+
+### R1. Layout & Typography Optimization (RTL-First)
+Refactor all templates under `web/templates/` and elements under `frontend/src/app/page.tsx` to meet premium visual and typography standards:
+- Convert physical styles (left/right margins, paddings, borders, widths, positions) into CSS Logical Properties.
+- Apply Arabic font stacks (`Cairo`, `Tajawal`, `IBM Plex Arabic`) with size >= 14px, line-height 1.6-2.0, and 0 letter-spacing.
+- Implement premium dark glassmorphism effects and transitions.
+
+### R2. Button & Form Validation
+Ensure all interactive elements are fully functional:
+- All buttons must have unique IDs, proper hover states, and map to correct backend FastAPI endpoints (e.g., `/api/v1/auth/login`, `/api/v1/payments/checkout`, `/api/v1/stats`).
+- All input forms must use `dir="auto"` for dynamic typing alignment.
+- Remove all dummy/placeholder content.
+
+### R3. Backend & Environment Compatibility
+Ensure the system is fully compliant with PythonAnywhere hosting limitations:
+- Run with optimized execution speed to prevent request timeouts.
+- Maintain auth rate limits and anti-ban header rotations for job scrapers.
+
+## Verification & Acceptance Criteria
+
+### Visual Compliance
+- [ ] No occurrences of `margin-left`, `margin-right`, `padding-left`, `padding-right`, `left`, `right` (except where strictly necessary for absolute assets) in modified code.
+- [ ] Arabic text font stack uses 'Cairo', 'Tajawal', 'IBM Plex Arabic' and size is >= 14px.
+- [ ] Inputs have dir="auto".
+- [ ] Zero placeholders/TODOs in content.
+
+### Functional Verification
+- [ ] All 626 tests pass successfully when executing `uv run pytest`.
+- [ ] Active buttons point to valid REST API paths.
+- [ ] Next.js dashboard connects successfully via WebSocket (/ws/war-room).
+
+## Follow-up — 2026-07-16T18:27:11Z
+
+Optimize frontend Lighthouse scores for JobHunt Pro (specifically the Next.js landing page and primary dashboard pages) to ensure strictly 100/100 Performance, Accessibility, Best Practices, and SEO.
+
+Working directory: `C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi`
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. Lighthouse Score Optimization
+Optimize the Next.js landing page and main dashboard page components to achieve 100/100 scores in:
+- Performance (e.g. optimizing image sizes, bundle size, script load order, layout shifts)
+- Accessibility (e.g. ARIA labels, color contrast, keyboard navigation)
+- Best Practices (e.g. secure link targets, modern APIs)
+- SEO (e.g. meta tags, headings, semantic markup)
+
+### R2. Programmatic Verification
+Implement or configure a verification script that runs a headless Lighthouse audit against the built static pages (using `lighthouse-ci` or a Node script calling `lighthouse`) to generate a JSON report confirming the scores.
+
+### R3. No Regressions
+Ensure all changes keep the existing Next.js build clean and all 653+ existing FastAPI backend & Next.js frontend tests passing.
+
+## Acceptance Criteria
+
+### Lighthouse Scores
+- [ ] Built Next.js landing page achieves 100/100 Performance, 100/100 Accessibility, 100/100 Best Practices, and 100/100 SEO in the programmatic audit.
+- [ ] Main dashboard page achieves 100/100 Performance, 100/100 Accessibility, 100/100 Best Practices, and 100/100 SEO in the programmatic audit.
+
+### Code Quality & RTL
+- [ ] No logical layout directions are broken (logical CSS properties are strictly preserved).
+- [ ] All new CSS/HTML remains responsive and complies with Gulf accessibility / Arabic typography guidelines.
+
+### Verification
+- [ ] A verification report is generated programmatically at the end of the run verifying the scores.
+- [ ] All 653+ existing project tests pass.
+

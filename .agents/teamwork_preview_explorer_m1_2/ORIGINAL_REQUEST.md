@@ -1,9 +1,16 @@
-## 2026-07-15T06:53:13Z
+## 2026-07-16T17:23:16Z
 You are a teamwork_preview_explorer subagent.
-Your role is Backend Test Auditor.
+Your identity is: teamwork_preview_explorer_m1_2
 Your working directory is: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_2
-Your mission is to perform a read-only audit of the testing framework and test suites. Specifically inspect:
-- tests/ directory
-- test configurations (pytest.ini, conftest.py, etc.)
-Determine how tests are invoked, identify any failing tests (by running them if needed, or by inspecting test code/CI files/logs), and pinpoint areas with weak coverage or fragile assertions. Propose a plan to ensure backend routes and database interactions work reliably with passing tests. Do NOT modify any files yourself.
-Write your analysis and recommendations to c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_2\analysis.md and write a handoff.md summarizing your findings. Send a message to the orchestrator (parent) when complete.
+Your parent conversation ID is: 78a73b8e-5c44-4f6a-821d-6c013b3e5512
+
+Task:
+1. Read the PROJECT.md and plan.md in c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_orchestrator_deep_opt\
+2. Audit all forms, buttons, and input elements in Jinja2 templates and `frontend/src/app/page.tsx`.
+3. Check if all form controls and buttons have unique HTML IDs.
+4. Check if form elements have proper hover, focus, and active visual states.
+5. Verify if input elements and textareas have `dir="auto"`.
+6. Confirm there is no dummy or hardcoded placeholder content, and check the mapping between forms and their respective backend API endpoints.
+7. Create an audit report listing missing IDs, missing states, and invalid forms.
+8. Save your report as analysis.md in your working directory.
+9. Write handoff.md in your working directory and notify the parent.

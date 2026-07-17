@@ -61,22 +61,21 @@ def format_neon_connection_string(url: str) -> str:
         query_params["prepareThreshold"] = "0"
         new_query = urlencode(query_params)
 
-        return urlunparse((
-            scheme,
-            new_netloc,
-            parsed.path,
-            parsed.params,
-            new_query,
-            parsed.fragment
-        ))
+        return urlunparse(
+            (scheme, new_netloc, parsed.path, parsed.params, new_query, parsed.fragment)
+        )
     except Exception as e:
         _db_logger.error(f"Error formatting Neon connection string: {e}")
         return url
 
-TURSO_URL        = os.getenv("TURSO_DATABASE_URL")       # e.g. libsql://my-db.turso.io
+
+TURSO_URL = os.getenv("TURSO_DATABASE_URL")  # e.g. libsql://my-db.turso.io
 TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN", "")
-LOCAL_DB_URL     = os.getenv("LOCAL_DATABASE_URL", "sqlite+aiosqlite:///./data/jobhunt_local.db")
-REMOTE_PG_URL    = format_neon_connection_string(os.getenv("DATABASE_URL")) if os.getenv("DATABASE_URL") else None
+LOCAL_DB_URL = os.getenv("LOCAL_DATABASE_URL", "sqlite+aiosqlite:///./data/jobhunt_saas_v2.db")
+REMOTE_PG_URL = (
+    format_neon_connection_string(os.getenv("DATABASE_URL")) if os.getenv("DATABASE_URL") else None
+)
+
 
 def _build_active_url() -> str:
     """Return the resolved async database URL at startup, logging the active backend."""
@@ -96,6 +95,7 @@ def _build_active_url() -> str:
         return url
     _db_logger.info('{"msg": "Using local SQLite fallback", "url": "%s"}', LOCAL_DB_URL)
     return LOCAL_DB_URL
+
 
 ACTIVE_DB_URL = _build_active_url()
 
@@ -119,36 +119,45 @@ else:
     # - pool_recycle=280: Neon serverless auto-suspends at 300s idle; recycle at 280s to avoid stale conns
     # - pool_pre_ping=True: detects stale/timed-out connections before use (essential for Neon)
     # - max_overflow=2: allows short bursts without connection exhaustion
-    engine_kwargs.update({
-        "pool_size":     3,     # baseline concurrent connections
-        "max_overflow":  2,     # burst headroom (total max = 5, within Neon free-tier limit)
-        "pool_recycle":  280,   # recycle stale connections before Neon 300s auto-suspend
-        "pool_timeout":  30,    # max wait for a free slot before raising OperationalError
-        "pool_pre_ping": True,  # heartbeat SELECT 1 before checkout — detects stale Neon conns
-    })
+    engine_kwargs.update(
+        {
+            "pool_size": 3,  # baseline concurrent connections
+            "max_overflow": 2,  # burst headroom (total max = 5, within Neon free-tier limit)
+            "pool_recycle": 280,  # recycle stale connections before Neon 300s auto-suspend
+            "pool_timeout": 30,  # max wait for a free slot before raising OperationalError
+            "pool_pre_ping": True,  # heartbeat SELECT 1 before checkout — detects stale Neon conns
+        }
+    )
     if "?" in ACTIVE_DB_URL:
         base_url, query = ACTIVE_DB_URL.split("?", 1)
         params = []
         for p in query.split("&"):
-            if not (p.startswith("sslmode=") or p.startswith("prepareThreshold=") or p.startswith("prepare_threshold=")):
+            if not (
+                p.startswith("sslmode=")
+                or p.startswith("prepareThreshold=")
+                or p.startswith("prepare_threshold=")
+            ):
                 params.append(p)
         ACTIVE_DB_URL = f"{base_url}?{'&'.join(params)}" if params else base_url
     engine_kwargs["connect_args"] = {
         # asyncpg passes unknown kwargs via server_settings; sslmode is
         # a libpq keyword handled by asyncpg's SSL negotiation.
-        "ssl": True,                         # enforce TLS (matches sslmode=require)
+        "ssl": True,  # enforce TLS (matches sslmode=require)
         "prepared_statement_cache_size": 0,  # PgBouncer compatibility (prepareThreshold=0)
         "server_settings": {
-            "statement_timeout": "10000",    # kill runaway queries after 10 s
+            "statement_timeout": "10000",  # kill runaway queries after 10 s
         },
     }
 
 engine = create_async_engine(ACTIVE_DB_URL, **engine_kwargs)
 
+
 # Enable Foreign Keys and WAL mode for SQLite
 @event.listens_for(engine.sync_engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
-    if "sqlite" in type(dbapi_connection).__name__.lower() or isinstance(dbapi_connection, SQLite3Connection):
+    if "sqlite" in type(dbapi_connection).__name__.lower() or isinstance(
+        dbapi_connection, SQLite3Connection
+    ):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.execute("PRAGMA journal_mode=WAL")
@@ -157,11 +166,11 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
         cursor.execute("PRAGMA temp_store=MEMORY")
         cursor.close()
 
-async_session = sessionmaker(
-    engine, class_=AsyncSession, expire_on_commit=False
-)
+
+async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 Base = declarative_base()
+
 
 async def get_db():
     """Yield an async database session and ensure it is closed after use.
@@ -207,8 +216,9 @@ async def warmup_db() -> None:
     if failures:
         _db_logger.warning(
             "[warmup_db] %d/%d warm-up pings failed: %s",
-            len(failures), len(tasks), failures[0],
+            len(failures),
+            len(tasks),
+            failures[0],
         )
     else:
         _db_logger.info("[warmup_db] All %d connections warmed up successfully.", pool_size)
-

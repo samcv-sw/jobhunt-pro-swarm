@@ -16,8 +16,9 @@ llm_pool = LLMProviderPool().initialize()
 TONE_REGISTRY = {
     "professional": "polished, formal, professional, and well-structured, highlighting experience and qualifications objectively and elegantly.",
     "confident": "high energy, assertive, confident, bold, showing strong self-assurance, demonstrating direct capability and clear value proposition.",
-    "creative": "engaging, storytelling, creative, unique, capturing attention with a compelling narrative and expressive language while showing personality."
+    "creative": "engaging, storytelling, creative, unique, capturing attention with a compelling narrative and expressive language while showing personality.",
 }
+
 
 async def generate_smart_cover_letter(job_description: str, user_cv: str) -> dict:
     """
@@ -49,7 +50,7 @@ async def generate_smart_cover_letter(job_description: str, user_cv: str) -> dic
             if cached_val:
                 logger.info("Cover letter cache hit! Returning in < 100ms.")
                 if isinstance(cached_val, bytes):
-                    cached_val = cached_val.decode('utf-8')
+                    cached_val = cached_val.decode("utf-8")
                 return json.loads(cached_val)
     except Exception as cache_err:
         logger.warning(f"Failed to fetch cover letter from edge cache: {cache_err}")
@@ -78,7 +79,7 @@ async def generate_smart_cover_letter(job_description: str, user_cv: str) -> dic
             user_prompt=user_prompt,
             preferred_provider=LLMProvider.GROQ,
             temperature=0.5,
-            max_tokens=1024
+            max_tokens=1024,
         )
 
         if not response_content:
@@ -100,7 +101,9 @@ async def generate_smart_cover_letter(job_description: str, user_cv: str) -> dic
         # Fire-and-forget: also populate the shorter LLM-specific cache key (1-hour TTL).
         # Never awaited directly so a cache failure cannot block the response.
         try:
-            asyncio.ensure_future(cache_llm_result(job_description, user_cv, parsed_response, ttl=3600))
+            asyncio.ensure_future(
+                cache_llm_result(job_description, user_cv, parsed_response, ttl=3600)
+            )
         except Exception as _ef_err:
             logger.warning('{"msg": "LLM cache ensure_future failed", "error": "%s"}', _ef_err)
 
@@ -110,11 +113,14 @@ async def generate_smart_cover_letter(job_description: str, user_cv: str) -> dic
         logger.error(f"Failed to generate cover letter: {e}")
         raise
 
+
 async def generate_smart_cover_letter_stream(job_description: str, user_cv: str, tone: str):
     """
     Async generator yielding text chunks wrapped in SSE format (JSON-encoded delta).
     """
-    logger.info(f"Initializing LLMProviderPool streaming inference for Cover letter with tone: {tone}...")
+    logger.info(
+        f"Initializing LLMProviderPool streaming inference for Cover letter with tone: {tone}..."
+    )
 
     # Build unique cache key using SHA-256 of user_cv + job_description
     raw_key = f"{user_cv}:{job_description}"
@@ -127,13 +133,13 @@ async def generate_smart_cover_letter_stream(job_description: str, user_cv: str,
             if cached_val:
                 logger.info("Cover letter stream cache hit! Streaming cached content.")
                 if isinstance(cached_val, bytes):
-                    cached_val = cached_val.decode('utf-8')
+                    cached_val = cached_val.decode("utf-8")
                 parsed = json.loads(cached_val)
                 body_text = parsed.get("body", "")
                 # Yield in chunks
                 chunk_size = 20
                 for i in range(0, len(body_text), chunk_size):
-                    chunk = body_text[i:i+chunk_size]
+                    chunk = body_text[i : i + chunk_size]
                     yield f"data: {json.dumps({'chunk': chunk})}\n\n"
                     await asyncio.sleep(0.01)
                 return
@@ -164,7 +170,7 @@ async def generate_smart_cover_letter_stream(job_description: str, user_cv: str,
             user_prompt=user_prompt,
             preferred_provider=LLMProvider.GROQ,
             temperature=0.6,
-            max_tokens=1024
+            max_tokens=1024,
         )
 
         if not response_content:
@@ -173,17 +179,14 @@ async def generate_smart_cover_letter_stream(job_description: str, user_cv: str,
         # Yield in chunks to simulate streaming
         chunk_size = 20
         for i in range(0, len(response_content), chunk_size):
-            chunk = response_content[i:i+chunk_size]
+            chunk = response_content[i : i + chunk_size]
             yield f"data: {json.dumps({'chunk': chunk})}\n\n"
             await asyncio.sleep(0.01)
 
         # Cache the generated content (format as subject & body, using a generic subject)
         try:
             if edge_cache.enabled:
-                cached_data = {
-                    "subject": "Cover Letter",
-                    "body": response_content
-                }
+                cached_data = {"subject": "Cover Letter", "body": response_content}
                 await edge_cache.set(cache_key, json.dumps(cached_data), ex=86400)
         except Exception as cache_err:
             logger.warning(f"Failed to cache generated stream: {cache_err}")

@@ -583,8 +583,12 @@ async def lifespan(app_instance):
     init_task = asyncio.create_task(_deferred_init())
     # ----------------------------------------------------------------------------
 
-    run_loops = os.getenv("RUN_BACKGROUND_LOOPS", "true").lower() in ("true", "1", "yes")
-    disable_loops = os.getenv("DISABLE_BACKGROUND_LOOPS", "false").lower() in ("true", "1", "yes")
+    is_pa = bool(
+        os.environ.get("PYTHONANYWHERE_SITE") or
+        os.environ.get("PYTHONANYWHERE_DOMAIN")
+    )
+    run_loops = os.getenv("RUN_BACKGROUND_LOOPS", "false" if is_pa else "true").lower() in ("true", "1", "yes")
+    disable_loops = os.getenv("DISABLE_BACKGROUND_LOOPS", "true" if is_pa else "false").lower() in ("true", "1", "yes")
 
     acquired_lock = False
     lock_fd = None
@@ -1310,6 +1314,7 @@ except Exception as e:
 
 _db_val = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
 db_path = str(BASE_DIR.parent / _db_val)
+DB_PATH = db_path
 
 def get_db(max_retries: int = 3):
     """Get Database connection. Optimized for Serverless (Turso first) and falls back to local SQLite on failure."""

@@ -1,35 +1,37 @@
-# BRIEFING — 2026-07-12T23:58:00+03:00
+# BRIEFING — 2026-07-16T18:55:10Z
 
 ## Mission
-Perform read-only investigation and design proposals for N+1 audit, bulk email Celery task group/chord, Arabic NLP job matching (AraBERT), and CV PDF parsing accuracy (pdfplumber).
+Explore options to optimize the Next.js Landing Page (frontend/src/app/page.tsx) to achieve strictly 100/100 in Lighthouse.
 
 ## 🔒 My Identity
 - Archetype: Explorer
-- Roles: Teamwork Explorer, Investigator
+- Roles: Read-only investigator
 - Working directory: C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m2_1
-- Original parent: 3e49a746-5cea-4b7e-9423-69f0eab49048
-- Milestone: Milestone 2
+- Original parent: d07ce593-961e-4881-bb59-9ce1dd0bdaeb
+- Milestone: Lighthouse Landing Page Optimization (M2)
 
 ## 🔒 Key Constraints
 - Read-only investigation — do NOT implement
-- No external HTTP calls (CODE_ONLY network mode)
+- Explore options to optimize the Next.js Landing Page to achieve strictly 100/100 in Lighthouse.
 
 ## Current Parent
-- Conversation ID: 3e49a746-5cea-4b7e-9423-69f0eab49048
-- Updated: 2026-07-12T23:58:00+03:00
+- Conversation ID: d07ce593-961e-4881-bb59-9ce1dd0bdaeb
+- Updated: 2026-07-16T18:55:10Z
 
 ## Investigation State
-- **Explored paths**: `backend/models.py`, `backend/main.py`, `backend/sync_worker.py`, `backend/tasks.py`, `core/ats_matcher.py`, `core/ai_tailor.py`, `core/resume_optimizer.py`
+- **Explored paths**: `frontend/src/app/page.tsx`, `frontend/src/app/layout.tsx`, `frontend/package.json`, `frontend/next.config.ts`, `frontend/scripts/audit-lighthouse.js`
 - **Key findings**:
-  - Found N+1 query loop updates in `backend/main.py:dlq_requeue` and individual update queries triggered on `session.commit()` inside loop in `backend/sync_worker.py`.
-  - Found that `send_application_email` celery task exists in `backend/tasks.py` but is unused; bulk emails are currently handled synchronously/in-process via `asyncio.gather` in `core/campaign_runner.py`.
-  - Found that `core/ats_matcher.py` is English-only and uses static regexes/taxonomies that fail on Arabic script.
-  - Found that `core/ai_tailor.py` uses `pdfplumber` directly but lacks the fallback logic present in `core/resume_optimizer.py`, and both extract text without multi-column layout considerations.
-- **Unexplored areas**: None
+  - Baseline scores: Perf 57, Acc 100, BP 96, SEO 100.
+  - CLS from hashing simulator state changes on load.
+  - Console errors from mount-time stats fetch and WS connection failure.
+  - Redundant preconnect resource links for self-hosted Google Fonts.
+- **Unexplored areas**: Dashboard page optimizations (out of scope for M2, planned for M3).
 
 ## Key Decisions Made
-- Proceeded with read-only investigation using grep and file finding tools.
-- Designed a unified proposal to address each issue: bulk DB operations for N+1 queries, Celery chords/groups for bulk email, AraBERT for Arabic semantic matching, and a consolidated helper in `core/pdf_extractor.py` for PDF parsing.
+- Recommending initialization of FNV-1a hash simulator with precalculated static values for "Demo User" (hash `2967679995`, shard `495`).
+- Recommending deferral of WebSocket and backend API calls by 5s.
+- Recommending removal of redundant Google Font preconnects.
 
 ## Artifact Index
-- C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m2_1\analysis.md — Detailed analysis and implementation proposals for Milestone 2 tasks.
+- `C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m2_1\report.md` — Detailed optimization report
+- `C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m2_1\handoff.md` — Handoff report following protocol

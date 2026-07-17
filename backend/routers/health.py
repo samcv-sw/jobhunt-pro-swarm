@@ -3,20 +3,20 @@
 Aggregates root metadata, health checks, healthz, and telemetry endpoints.
 """
 
+import asyncio
+import gc
 import logging
 import os
 import time
-import gc
-import asyncio
 from typing import Any
 
 from fastapi import APIRouter, Depends, Request
 from fastapi_cache.decorator import cache
+from sqlalchemy import func, select
 
 from backend.auth import verify_jwt
 from backend.database import async_session
 from backend.models import User
-from sqlalchemy import func, select
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +86,6 @@ async def health_v1(request: Request = None) -> dict[str, str]:
 @cache(expire=15)
 async def health_detailed(request: Request = None) -> dict[str, Any]:
     """Detailed health check: reports DB, Redis, SMTP, and Groq API status."""
-    import time
     result: dict[str, Any] = {"status": "ok", "components": {}}
 
     # Check DB
@@ -94,8 +93,12 @@ async def health_detailed(request: Request = None) -> dict[str, Any]:
     try:
         async with async_session() as session:
             from sqlalchemy import text
+
             await session.execute(text("SELECT 1"))
-        result["components"]["db"] = {"status": "ok", "latency_ms": round((time.monotonic() - db_start) * 1000, 2)}
+        result["components"]["db"] = {
+            "status": "ok",
+            "latency_ms": round((time.monotonic() - db_start) * 1000, 2),
+        }
     except Exception as e:
         result["components"]["db"] = {"status": "error", "detail": str(e)}
         result["status"] = "degraded"
@@ -106,10 +109,14 @@ async def health_detailed(request: Request = None) -> dict[str, Any]:
         r_start = time.monotonic()
         try:
             import redis.asyncio as aioredis
+
             r = aioredis.from_url(redis_url, socket_timeout=3)
             await r.ping()
             await r.aclose()
-            result["components"]["redis"] = {"status": "ok", "latency_ms": round((time.monotonic() - r_start) * 1000, 2)}
+            result["components"]["redis"] = {
+                "status": "ok",
+                "latency_ms": round((time.monotonic() - r_start) * 1000, 2),
+            }
         except Exception as e:
             result["components"]["redis"] = {"status": "error", "detail": str(e)}
             result["status"] = "degraded"
@@ -122,6 +129,7 @@ async def health_detailed(request: Request = None) -> dict[str, Any]:
         smtp_start = time.monotonic()
         try:
             from contextlib import suppress
+
             smtp_port = int(os.getenv("SMTP_PORT") or os.getenv("BREVO_SMTP_PORT") or "587")
             _, writer = await asyncio.wait_for(
                 asyncio.open_connection(smtp_host, smtp_port),
@@ -136,7 +144,7 @@ async def health_detailed(request: Request = None) -> dict[str, Any]:
                 "port": smtp_port,
                 "latency_ms": round((time.monotonic() - smtp_start) * 1000, 2),
             }
-        except asyncio.TimeoutError:
+        except TimeoutError:
             result["components"]["smtp"] = {
                 "status": "timeout",
                 "host": smtp_host,
@@ -159,10 +167,11 @@ async def health_detailed(request: Request = None) -> dict[str, Any]:
         groq_start = time.monotonic()
         try:
             import httpx
+
             async with httpx.AsyncClient(timeout=0.9) as client:
                 resp = await client.get(
                     "https://api.groq.com/openai/v1/models",
-                    headers={"Authorization": f"Bearer {groq_key}"}
+                    headers={"Authorization": f"Bearer {groq_key}"},
                 )
             groq_status = "ok" if resp.status_code in (200, 401) else "error"
             result["components"]["groq_api"] = {
@@ -198,8 +207,9 @@ async def get_telemetry(request: Request = None) -> dict:
     """Return process-level telemetry (memory, CPU, etc.)."""
     import threading
     import time as _time
+
     import backend.main as main_mod
-    
+
     start_time = getattr(main_mod, "_APP_START_TIME", 0.0)
     uptime = _time.monotonic() - start_time if start_time else 0.0
 
@@ -207,6 +217,7 @@ async def get_telemetry(request: Request = None) -> dict:
     open_fds = -1
     try:
         import psutil
+
         proc = psutil.Process(os.getpid())
         mem_info = proc.memory_info()
         rss_mb = round(mem_info.rss / (1024 * 1024), 2)

@@ -5,6 +5,7 @@ falls back to in-memory backend for local/free-tier SQLite environments.
 Upstash free-tier note: max 10 concurrent connections. The pool is capped
 at 10 to respect this limit across all cache operations.
 """
+
 import logging
 import os
 
@@ -35,7 +36,7 @@ def setup_cache(app: FastAPI) -> None:  # noqa: ARG001
 
             pool = aioredis.ConnectionPool.from_url(
                 redis_url,
-                max_connections=10,   # Respect Upstash free-tier limit
+                max_connections=10,  # Respect Upstash free-tier limit
                 decode_responses=True,
             )
             redis_client = aioredis.Redis(connection_pool=pool)
@@ -47,8 +48,7 @@ def setup_cache(app: FastAPI) -> None:  # noqa: ARG001
             return
         except Exception as exc:  # pragma: no cover
             logger.warning(
-                '{"msg": "Redis cache init failed, falling back to in-memory", '
-                '"error": "%s"}',
+                '{"msg": "Redis cache init failed, falling back to in-memory", "error": "%s"}',
                 exc,
             )
 

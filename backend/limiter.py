@@ -13,10 +13,12 @@ logger = logging.getLogger(__name__)
 # Try to import redis for distributed rate limiting
 try:
     import redis.asyncio as aioredis
+
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
     logger.warning("redis package not found. Rate limiter will fall back to local in-memory mode.")
+
 
 class RateLimiter:
     def __init__(self, requests_limit: int, window_seconds: int, redis_url: str = None):
@@ -37,15 +39,18 @@ class RateLimiter:
                     decode_responses=True,
                     socket_connect_timeout=2.0,
                     socket_keepalive=True,
-                    retry_on_timeout=True
+                    retry_on_timeout=True,
                 )
                 self._is_redis_connected = True
                 logger.info(f"Rate Limiter connected to Redis at {self.redis_url}")
             except Exception as e:
-                logger.error(f"Failed to initialize Redis for rate limiting: {e}. Falling back to in-memory mode.")
+                logger.error(
+                    f"Failed to initialize Redis for rate limiting: {e}. Falling back to in-memory mode."
+                )
                 self._is_redis_connected = False
 
         # Cleanup task will be initialized lazily on the first request to avoid "no running event loop" error.
+
     async def _periodic_cleanup(self):
         """Background loop to clean up expired in-memory rate limiting keys to prevent memory leaks."""
         while True:
@@ -58,7 +63,9 @@ class RateLimiter:
                     if i % 100 == 0:
                         await asyncio.sleep(0)
 
-                    self.history[ip] = [t for t in self.history[ip] if now - t < self.window_seconds]
+                    self.history[ip] = [
+                        t for t in self.history[ip] if now - t < self.window_seconds
+                    ]
                     # GIL-safe atomic check and deletion
                     if ip in self.history and not self.history[ip]:
                         self.history.pop(ip, None)
@@ -84,7 +91,9 @@ class RateLimiter:
 
             return count <= self.requests_limit
         except Exception as e:
-            logger.warning(f"Redis rate limiter failed ({e}). Falling back to in-memory rate limiter.")
+            logger.warning(
+                f"Redis rate limiter failed ({e}). Falling back to in-memory rate limiter."
+            )
             self._is_redis_connected = False
             if not self.cleanup_task:
                 self.cleanup_task = asyncio.create_task(self._periodic_cleanup())
@@ -92,13 +101,16 @@ class RateLimiter:
 
     async def __call__(self, request: Request):
         from backend.auth import _get_client_ip
+
         client_ip = _get_client_ip(request)
 
         # Check via Redis if connected
         if self._is_redis_connected and self.redis:
             allowed = await self._call_redis(client_ip)
             if not allowed and self._is_redis_connected:
-                raise HTTPException(status_code=429, detail="Too many requests. Rate limit exceeded.")
+                raise HTTPException(
+                    status_code=429, detail="Too many requests. Rate limit exceeded."
+                )
             elif self._is_redis_connected:
                 return
 
@@ -115,6 +127,7 @@ class RateLimiter:
 
     def reset(self):
         self.history.clear()
+
 
 # Adjust rate limits dynamically if testing is detected
 if "pytest" in sys.modules or os.getenv("TESTING") == "true":

@@ -4,9 +4,9 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
-<title>{{ _('JobHunt Pro — AI-Powered Automated Job Applications | 200 وكيل ذكاء اصطناعي, 24/7') }}</title>
-<meta content="AI-Powered Job Application Engine — Apply to thousands of jobs automatically. Your personal job-hunting AI works 24/7. Get hired faster." name="description"/>
-<meta content="job application, AI job search, automated applications, cover letter AI, job hunt, job board, career, hiring" name="keywords"/>
+<title>{{ _('JobHunt Pro — محرك التقديم الآلي للوظائف بالذكاء الاصطناعي | 200 وكيل ذكاء اصطناعي، 24/7') }}</title>
+<meta content="محرك التقديم الآلي للوظائف — قدّم على آلاف الوظائف تلقائياً. وكيل الذكاء الاصطناعي الخاص بك يعمل على مدار الساعة. احصل على وظيفة أسرع." name="description"/>
+<meta content="التقديم على الوظائف, البحث عن وظيفة بالذكاء الاصطناعي, التقديم الآلي, توليد خطابات التغطية, البحث الوظيفي, لوحات الوظائف, مسيرة مهنية, التوظيف" name="keywords"/>
 <meta content="JobHunt Pro" name="author"/>
 <meta content="index, follow" name="robots"/>
 <link href="https://jhfguf.pythonanywhere.com/" rel="canonical"/>
@@ -57,7 +57,7 @@
   </script>
 <link href="/static/css/landing-v4-rtl.css?v=20260629_v2" rel="stylesheet"/>
 <style>
-.cookie-banner{position:fixed;inset-block-end:0;inset-inline-start: 0;inset-inline-end: 0;background:rgba(10,10,25,0.97);border-inset-block-start:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px var(--space-3);backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
+.cookie-banner{position:fixed;inset-block-end:0;inset-inline-start:0;inset-inline-end:0;background:rgba(10,10,25,0.97);border-block-start:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px var(--space-3);backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
 .cookie-content{max-inline-size:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
 .cookie-content span{font-size:20px}
 .cookie-content p{font-size:12px;color:var(--muted);flex:1;min-inline-size:200px}
@@ -72,7 +72,7 @@
 .guarantee-badge{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(0,240,255,0.08),rgba(0,240,255,0.02));border:1px solid rgba(0,240,255,0.2);border-radius:20px;padding:20px 32px;max-inline-size:700px;inline-size:100%;backdrop-filter:blur(10px);animation:guaranteePulse 2s ease-in-out infinite}
 .guarantee-icon{font-size:32px;flex-shrink:0}
 .guarantee-text{display:flex;flex-direction:column;gap:4px;flex:1}
-.guarantee-text strong{font-size:16px;color:var(--cyan);color:var(--muted)}
+.guarantee-text strong{font-size:16px;color:var(--cyan)}
 .guarantee-seal{flex-shrink:0;opacity:0.8}
 @keyframes guaranteePulse{0%,100%{box-shadow:0 0 20px rgba(0,240,255,0.1)}50%{box-shadow:0 0 35px rgba(0,240,255,0.2)}}
 @media(max-width:600px){.guarantee-badge{flex-direction:column;text-align:center;padding:16px 20px}}
@@ -280,7 +280,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <section class="features" id="features">
 <div class="section-header">
 <span class="section-tag">✨ الميزات</span>
-<h2>{{ _('Everything You Need to احصل على وظيفة أحلامك') }}</h2>
+<h2>{{ _('كل ما تحتاجه للحصول على وظيفة أحلامك') }}</h2>
 <p>200 وكيل ذكاء اصطناعي يعملون على مدار الساعة لتوظيفك بشكل أسرع</p>
 </div>
 <div class="feature-grid">
@@ -297,7 +297,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <div class="feature-card" data-tilt="">
 <div class="feature-icon">📨</div>
 <h3>تناوب ذكي للبريد الإلكتروني</h3>
-<p>{{ _('20+ email providers with intelligent rotation to maximize delivery and avoid spam filters.') }}</p>
+<p>{{ _('أكثر من 20 مزود بريد إلكتروني مع تناوب ذكي لزيادة التسليم وتجنب مرشحات البريد المزعج.') }}</p>
 </div>
 <div class="feature-card" data-tilt="">
 <div class="feature-icon">📝</div>
@@ -448,7 +448,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <input dir="auto" id="monthsUnemployed" max="24" min="0" type="number" value="3"/>
 </div>
 <div class="calc-card">
-<label for="applicationsPerDay">{{ _('التقديم اليدوي/Day') }}</label>
+<label for="applicationsPerDay">{{ _('التقديم اليدوي') }}</label>
 <input dir="auto" id="applicationsPerDay" max="20" min="1" type="number" value="3"/>
 </div>
 <div class="calc-card highlight">
@@ -500,11 +500,10 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <!-- ═══ الأسعار ═══ -->
 <section class="pricing" id="pricing">
 <div class="section-header">
-<span class="section-tag">
 <span class="section-tag">💵 الأسعار</span>
 <h2>استثمر في مسيرتك المهنية</h2>
 <p>أقل من 7 سنتات لكل تقديم. احصل على وظيفة أو استرد أموالك.</p>
-</span></div>
+</div>
 <div class="pricing-grid">
 <div class="pricing-card">
 <div class="pricing-badge">{{ _('STARTER') }}</div>
@@ -514,8 +513,8 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <li>✅ 50 طلب/اليوم</li>
 <li>✅ 5 مواقع توظيف</li>
 <li>✅ 3 حسابات بريد</li>
-<li>{{ _('✅ أساسي dashboard') }}</li>
-<li>{{ _('❌ AI cover letters') }}</li>
+<li>{{ _('✅ الباقة الأساسية') }}</li>
+<li>{{ _('❌ رسائل تغطية بالذكاء الاصطناعي') }}</li>
 <li>❌ دعم ذو أولوية</li>
 </ul>
 <a class="pricing-btn" href="/register?plan=starter">ابدأ الآن</a>
@@ -786,12 +785,12 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <section class="final-cta">
 <div class="cta-glow-bg"></div>
 <div class="cta-content">
-<h2>{{ _('Ready to احصل على وظيفة أحلامك?') }}</h2>
+<h2>{{ _('جاهز للحصول على وظيفة أحلامك؟') }}</h2>
 <p>انضم إلى آلاف الباحثين عن عمل الناجحين الذين طوروا مساراتهم المهنية باستخدام أتمتة الذكاء الاصطناعي.</p>
 <div class="cta-stats">
 <div class="cta-stat"><strong>50,000+</strong> طلب يومياً</div>
 <div class="cta-stat"><strong>12%</strong> متوسط معدل المقابلات</div>
-<div class="cta-stat"><strong>{{ _('30-Day') }}</strong> ضمان استرداد الأموال</div>
+<div class="cta-stat"><strong>{{ _('30 يومًا') }}</strong> ضمان استرداد الأموال</div>
 </div>
 <a class="cta-button" href="/register">🚀 ابدأ تجربتك المجانية الآن</a>
 <p class="cta-small">لا حاجة لبطاقة ائتمان. ألغِ في أي وقت.</p>

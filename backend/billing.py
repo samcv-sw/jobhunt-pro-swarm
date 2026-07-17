@@ -13,16 +13,19 @@ router = APIRouter()
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
 APP_BASE_URL = os.environ.get("APP_BASE_URL", "https://jobhuntpro.com").rstrip("/")
 
+
 class CheckoutRequest(BaseModel):
     tier: str  # e.g., 'pro', 'enterprise'
     user_id: str
 
-@router.post("/api/v1/checkout", dependencies=[Depends(verify_jwt), Depends(rate_limiter)])
-async def create_checkout_session(request: CheckoutRequest):
-    tier_prices = {
-        "pro": "price_pro_mock_id",
-        "enterprise": "price_ent_mock_id"
-    }
+
+@router.post("/api/v1/checkout", dependencies=[Depends(rate_limiter)])
+async def create_checkout_session(request: CheckoutRequest, payload: dict = Depends(verify_jwt)):
+    user_id = payload.get("sub") or payload.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User ID not found in token")
+
+    tier_prices = {"pro": "price_pro_mock_id", "enterprise": "price_ent_mock_id"}
 
     price_id = tier_prices.get(request.tier.lower())
     if not price_id:
@@ -33,26 +36,30 @@ async def create_checkout_session(request: CheckoutRequest):
         if is_production:
             raise HTTPException(status_code=500, detail="Payment processing is not configured.")
         # Dev-only mock fallback (no real key, not production)
-        return {"checkout_url": f"{APP_BASE_URL}/dashboard?mock_session={request.user_id}"}
+        return {"checkout_url": f"{APP_BASE_URL}/dashboard?mock_session={user_id}"}
 
     try:
         session = await asyncio.to_thread(
             stripe.checkout.Session.create,
-            payment_method_types=['card'],
-            line_items=[{
-                'price': price_id,
-                'quantity': 1,
-            }],
-            mode='subscription',
-            success_url=f'{APP_BASE_URL}/dashboard?session_id={{CHECKOUT_SESSION_ID}}',
-            cancel_url=f'{APP_BASE_URL}/dashboard',
-            client_reference_id=request.user_id
+            payment_method_types=["card"],
+            line_items=[
+                {
+                    "price": price_id,
+                    "quantity": 1,
+                }
+            ],
+            mode="subscription",
+            success_url=f"{APP_BASE_URL}/dashboard?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{APP_BASE_URL}/dashboard",
+            client_reference_id=user_id,
         )
         return {"checkout_url": session.url}
     except Exception as e:
         # Secure fallback logic to prevent bypass in production
-        is_production = os.environ.get("ENV") == "production" or os.environ.get("INTEGRITY_MODE") == "benchmark"
+        is_production = (
+            os.environ.get("ENV") == "production" or os.environ.get("INTEGRITY_MODE") == "benchmark"
+        )
         is_mock_allowed = os.environ.get("INTEGRITY_MODE") == "development" and not is_production
         if is_mock_allowed and "Invalid API Key provided" in str(e):
-            return {"checkout_url": f"{APP_BASE_URL}/dashboard?mock_session={request.user_id}"}
+            return {"checkout_url": f"{APP_BASE_URL}/dashboard?mock_session={user_id}"}
         raise HTTPException(status_code=500, detail=str(e))

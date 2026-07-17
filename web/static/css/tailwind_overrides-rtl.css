@@ -1,3 +1,35 @@
+:root {
+  --text-x-direction: 1;
+  --glass-bg: rgba(10, 10, 25, 0.7);
+  --glass-blur: blur(12px);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+[dir="rtl"] {
+  --text-x-direction: -1;
+}
+
+/* Enforce Arabic font stack and zero letter-spacing for Arabic text */
+[dir="rtl"], .lang-ar, :lang(ar) {
+  font-family: 'Cairo', 'Tajawal', 'IBM Plex Arabic', sans-serif !important;
+  font-size: 16px;
+  line-height: 1.8 !important;
+  letter-spacing: 0px !important;
+}
+
+[dir="rtl"] input, [dir="rtl"] textarea, [dir="rtl"] select, [dir="rtl"] button {
+  font-family: 'Cairo', 'Tajawal', 'IBM Plex Arabic', sans-serif !important;
+  letter-spacing: 0px !important;
+}
+
+/* Dynamic scale mirroring for unicode arrows & directional icons */
+.dir-aware, .lucide-dir-aware, .dir-icon {
+  display: inline-block;
+  transform: scaleX(var(--text-x-direction, 1));
+  transition: transform 0.2s ease;
+}
+
 [x-cloak] {
   display: none !important;
 }

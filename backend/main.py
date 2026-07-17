@@ -1,9 +1,6 @@
-import gc
 import logging
 import os
 import re
-
-gc.set_threshold(50, 5, 5)
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager, suppress
 from typing import Any
@@ -15,9 +12,11 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import ORJSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
+from backend.ai_engine import generate_smart_cover_letter_stream  # noqa: F401
 from backend.routers.accounts import router as accounts_router
 from backend.routers.admin import dlq_requeue  # noqa: F401
 from backend.routers.admin import router as admin_router
@@ -26,10 +25,13 @@ from backend.routers.cover_letters import router as cover_letters_router
 from backend.routers.emails import router as emails_router
 from backend.routers.health import health_detailed  # noqa: F401
 from backend.routers.health import router as health_router
+from backend.routers.linkedin_auth import router as linkedin_auth_router
+from backend.routers.onboarding import router as onboarding_router
 from backend.routers.referral import router as referral_router
 from backend.routers.scraping import router as scraping_router
 from backend.routers.scraping import trigger_scrape  # noqa: F401
 from backend.routers.telegram import router as telegram_router
+from backend.routers.telegram_app import router as telegram_app_router
 from backend.routers.unsubscribe import router as unsubscribe_router
 from backend.routers.webhooks import (  # noqa: F401
     brevo_bounce_webhook,
@@ -44,11 +46,10 @@ from backend.schemas import (  # noqa: F401
     ScrapeRequest,
 )
 
-from .billing import router as billing_router
-from .limiter import rate_limiter  # noqa: F401
-from .database import async_session  # noqa: F401
 from .auth import verify_jwt  # noqa: F401
-from backend.ai_engine import generate_smart_cover_letter_stream  # noqa: F401
+from .billing import router as billing_router
+from .database import async_session  # noqa: F401
+from .limiter import rate_limiter  # noqa: F401
 
 # Sentry error tracking (free tier, optional)
 _sentry_dsn = os.getenv("SENTRY_DSN")
@@ -56,6 +57,7 @@ if _sentry_dsn:
     try:
         import sentry_sdk
         from sentry_sdk.integrations.fastapi import FastApiIntegration
+
         sentry_sdk.init(
             dsn=_sentry_dsn,
             integrations=[FastApiIntegration()],
@@ -106,13 +108,13 @@ if _token:
                     headers = {
                         "Content-Type": "application/json",
                         "Authorization": f"Bearer {self.source_token}",
-                        "User-Agent": "LogtailLogger/1.0"
+                        "User-Agent": "LogtailLogger/1.0",
                     }
                     req = urllib.request.Request(
                         "https://in.logs.betterstack.com",
                         data=_json.dumps(payload).encode("utf-8"),
                         headers=headers,
-                        method="POST"
+                        method="POST",
                     )
                     try:
                         with urllib.request.urlopen(req, timeout=5) as response:
@@ -127,10 +129,11 @@ if _token:
 logging.basicConfig(level=logging.INFO, handlers=_handlers)
 logger = logging.getLogger(__name__)
 
-# 32 workers to handle concurrent task queuing operations
+# Dynamically scale workers to handle concurrent task queuing operations
+is_pa = bool(os.environ.get("PYTHONANYWHERE_SITE") or os.environ.get("PYTHONANYWHERE_DOMAIN"))
+max_workers = 4 if is_pa else 32
 celery_dispatch_executor = ThreadPoolExecutor(
-    max_workers=32,
-    thread_name_prefix="celery_dispatch"
+    max_workers=max_workers, thread_name_prefix="celery_dispatch"
 )
 
 
@@ -143,11 +146,13 @@ async def lifespan(app: FastAPI):
     """Manage database migrations, schema setup, and Telegram webhook lifespan events."""
     global bot_instance, _APP_START_TIME
     import time as _time
+
     _APP_START_TIME = _time.monotonic()
     logger.info("Enterprise API starting up. Initializing database schema...")
     from .cache import setup_cache
     from .database import engine
     from .models import Base
+
     setup_cache(app)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -156,6 +161,7 @@ async def lifespan(app: FastAPI):
     # Initialize Telegram Bot in Webhook mode
     try:
         from core.telegram_bot import TelegramBot
+
         bot_instance = TelegramBot()
         app.state.bot_instance = bot_instance
         if bot_instance.enabled:
@@ -163,6 +169,7 @@ async def lifespan(app: FastAPI):
             bot_instance.notifier.start()
 
             import config
+
             site_url = getattr(config, "SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
             render_url = os.getenv("RENDER_EXTERNAL_URL") or os.getenv("RENDER_ENGINE_URL")
             base_url = (render_url or site_url).rstrip("/")
@@ -170,15 +177,18 @@ async def lifespan(app: FastAPI):
 
             logger.info(f"Setting Telegram webhook to: {webhook_url}")
             import httpx
+
             async with httpx.AsyncClient(timeout=10.0) as client:
                 res = await client.post(
                     f"https://api.telegram.org/bot{bot_instance.token}/setWebhook",
-                    json={"url": webhook_url}
+                    json={"url": webhook_url},
                 )
                 if res.status_code == 200:
                     logger.info("Telegram webhook registered successfully.")
                 else:
-                    logger.warning(f"Failed to set Telegram webhook: {res.status_code} - {res.text}")
+                    logger.warning(
+                        f"Failed to set Telegram webhook: {res.status_code} - {res.text}"
+                    )
     except Exception as e:
         logger.error(f"Failed to initialize Telegram webhook: {e}")
 
@@ -198,12 +208,13 @@ app = FastAPI(
     description="Enterprise API powering autonomous AI Agents with Celery Task Queues.",
     version="3.0.0",
     lifespan=lifespan,
-    default_response_class=ORJSONResponse
+    default_response_class=ORJSONResponse,
 )
 
 # ---------------------------------------------------------------------------
 # R2: Secure CORS Dynamic Origin Validation
 # ---------------------------------------------------------------------------
+
 
 def _build_origin_regex(pattern: str) -> re.Pattern | None:
     r"""Compile a single allowed-origin pattern into a strict regex.
@@ -220,7 +231,7 @@ def _build_origin_regex(pattern: str) -> re.Pattern | None:
 
     # Restrict wildcard to the first subdomain label only.
     # Reject TLD wildcards like *.com by requiring at least two dot-separated labels after wildcard (or localhost).
-    if not re.match(r'^https?://\*\.(?:localhost|[a-zA-Z0-9-]+\.[a-zA-Z0-9.-]+)$', pattern):
+    if not re.match(r"^https?://\*\.(?:localhost|[a-zA-Z0-9-]+\.[a-zA-Z0-9.-]+)$", pattern):
         raise ValueError(
             f"Unsupported wildcard origin pattern '{pattern}'. "
             "Wildcards are only allowed at the subdomain level, e.g. "
@@ -229,8 +240,8 @@ def _build_origin_regex(pattern: str) -> re.Pattern | None:
 
     # Escape the literal portion then replace the escaped wildcard placeholder.
     # re.escape("*") == r'\*' on Python 3.7+
-    escaped = re.escape(pattern).replace(re.escape("*"), '[a-zA-Z0-9-]+')
-    return re.compile(f'^{escaped}$')
+    escaped = re.escape(pattern).replace(re.escape("*"), "[a-zA-Z0-9-]+")
+    return re.compile(f"^{escaped}$")
 
 
 def is_origin_allowed(origin: str, allowed_patterns: list[str]) -> bool:
@@ -352,7 +363,6 @@ else:
     )
 
 
-
 # Custom Middleware for HTTP Security Headers (Defense-in-Depth)
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next: Any) -> Any:
@@ -378,7 +388,9 @@ async def add_security_headers(request: Request, call_next: Any) -> Any:
 
     # Enforce HTTPS HSTS only in production or if requested via HTTPS
     if request.url.scheme == "https" or os.getenv("ENV") == "production":
-        response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=63072000; includeSubDomains; preload"
+        )
 
     return response
 
@@ -393,6 +405,16 @@ app.include_router(health_router)
 app.include_router(referral_router)
 app.include_router(scraping_router)
 app.include_router(telegram_router)
+app.include_router(linkedin_auth_router)
+app.include_router(onboarding_router)
 app.include_router(unsubscribe_router)
 app.include_router(webhooks_router)
 app.include_router(websocket_router)
+app.include_router(telegram_app_router)
+
+# Mount Telegram Mini App static files
+_tma_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "telegram_miniapp")
+if os.path.isdir(_tma_dir):
+    app.mount(
+        "/telegram-miniapp", StaticFiles(directory=_tma_dir, html=True), name="telegram_miniapp"
+    )

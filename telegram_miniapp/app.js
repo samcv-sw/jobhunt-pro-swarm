@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const WEBHOOK_URL = "https://olympus-webhook.samsalameh-cv.workers.dev";
+    const WEBHOOK_URL = "";  // Served by FastAPI — use local origin
     let tg;
     let userId = 'demo123';
     let currentLang = 'en';
@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tg?.MainButton.show();
         
         try {
-            const response = await fetch(`${WEBHOOK_URL}/api/v1/checkout`, {
+            const response = await fetch(`${WEBHOOK_URL}/api/v1/tma/checkout`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userId: userId })

@@ -4,7 +4,7 @@ Extracted from backend/main.py as part of M2 Backend Router Optimization.
 """
 
 import logging
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter, Depends, Request
@@ -22,12 +22,13 @@ router = APIRouter(tags=["Scraping"])
 @router.post("/api/v1/scrape", dependencies=[Depends(verify_jwt), Depends(rate_limiter)])
 async def trigger_scrape(req: ScrapeRequest, request: Request = None) -> dict[str, str]:
     """Queue a scraping task via Celery with fallback to local SQLite job queue."""
+    import asyncio
     import os
     import sys
-    import asyncio
     from uuid import uuid4 as celery_uuid
-    from backend.tasks import scrape_jobs
+
     from backend.main import celery_dispatch_executor
+    from backend.tasks import scrape_jobs
 
     is_testing = "pytest" in sys.modules or os.getenv("PYTEST_CURRENT_TEST") is not None
     local_fallback = os.getenv("LOCAL_QUEUE_FALLBACK", "0") == "1"
@@ -36,11 +37,12 @@ async def trigger_scrape(req: ScrapeRequest, request: Request = None) -> dict[st
     if local_fallback:
         try:
             from core.job_queue import enqueue_task
+
             await loop.run_in_executor(
                 celery_dispatch_executor,
                 enqueue_task,
                 "scrape",
-                {"target_urls": req.target_urls, "user_id": req.user_id}
+                {"target_urls": req.target_urls, "user_id": req.user_id},
             )
             logger.info("Scrape task routed to local SQLite job queue (forced fallback).")
             return {"status": "queued_local", "task_id": f"local_{celery_uuid()}"}
@@ -51,21 +53,19 @@ async def trigger_scrape(req: ScrapeRequest, request: Request = None) -> dict[st
     if is_testing:
         try:
             task = await loop.run_in_executor(
-                celery_dispatch_executor,
-                scrape_jobs.delay,
-                req.target_urls,
-                req.user_id
+                celery_dispatch_executor, scrape_jobs.delay, req.target_urls, req.user_id
             )
             return {"status": "queued", "task_id": task.id}
         except Exception as exc:
             logger.error("Scrape task queuing failed during test: %s", exc)
             try:
                 from core.job_queue import enqueue_task
+
                 await loop.run_in_executor(
                     celery_dispatch_executor,
                     enqueue_task,
                     "scrape",
-                    {"target_urls": req.target_urls, "user_id": req.user_id}
+                    {"target_urls": req.target_urls, "user_id": req.user_id},
                 )
                 logger.info("Automatic fallback to SQLite queue successful.")
                 return {"status": "queued_local", "task_id": f"local_{celery_uuid()}"}
@@ -79,25 +79,26 @@ async def trigger_scrape(req: ScrapeRequest, request: Request = None) -> dict[st
             loop.run_in_executor(
                 celery_dispatch_executor,
                 lambda: scrape_jobs.apply_async(
-                    args=(req.target_urls, req.user_id),
-                    task_id=task_id,
-                    retry=False
-                )
+                    args=(req.target_urls, req.user_id), task_id=task_id, retry=False
+                ),
             ),
-            timeout=0.05
+            timeout=0.05,
         )
         return {"status": "queued", "task_id": task_id}
-    except asyncio.TimeoutError:
+    except TimeoutError:
         return {"status": "accepted", "task_id": task_id}
     except Exception as exc:
-        logger.error("Scrape task queuing failed: %s. Trying fallback to local SQLite job queue...", exc)
+        logger.error(
+            "Scrape task queuing failed: %s. Trying fallback to local SQLite job queue...", exc
+        )
         try:
             from core.job_queue import enqueue_task
+
             await loop.run_in_executor(
                 celery_dispatch_executor,
                 enqueue_task,
                 "scrape",
-                {"target_urls": req.target_urls, "user_id": req.user_id}
+                {"target_urls": req.target_urls, "user_id": req.user_id},
             )
             logger.info("Automatic fallback to SQLite queue successful.")
             return {"status": "queued_local", "task_id": f"local_{celery_uuid()}"}
@@ -111,6 +112,7 @@ async def scrapers_health(request: Request = None) -> dict[str, Any]:
     """Return per-platform scraper health scores — IMP-208."""
     try:
         from core.global_scraper import ScraperHealthTracker
+
         tracker = ScraperHealthTracker()
         scores = tracker.all_scores() if hasattr(tracker, "all_scores") else {}
         return {"status": "ok", "scores": scores}
@@ -118,6 +120,7 @@ async def scrapers_health(request: Request = None) -> dict[str, Any]:
         logger.warning(f"Scraper health unavailable: {e}")
         try:
             from sqlalchemy import text as _text
+
             cutoff = datetime.now(UTC) - timedelta(days=7)
             async with async_session() as session:
                 result = await session.execute(

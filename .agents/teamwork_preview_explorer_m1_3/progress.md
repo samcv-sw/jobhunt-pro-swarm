@@ -1,11 +1,11 @@
-# Progress — teamwork_preview_explorer_m1_3
+# Progress
 
-Last visited: 2026-07-15T10:01:00+03:00
+Last visited: 2026-07-16T20:32:00+03:00
 
-- [x] Create BRIEFING.md and ORIGINAL_REQUEST.md
-- [x] List contents of web/routers directory
-- [x] Audit web/app_v2.py
-- [x] Audit web/routers/*.py
-- [x] Write analysis.md
-- [x] Write handoff.md
-- [x] Send handoff message to parent
+## Tasks
+- [x] Read PROJECT.md and plan.md from orchestrator folder <!-- id: 0 -->
+- [x] Analyze backend routers and main entry point for PythonAnywhere compatibility <!-- id: 1 -->
+- [x] Investigate speed of core endpoints and timeout risks <!-- id: 2 -->
+- [x] Inspect auth rate limits (Aegis/Banshield) and scraper anti-ban headers <!-- id: 3 -->
+- [x] Execute the test suite using `uv run pytest` for baseline status <!-- id: 4 -->
+- [x] Create analysis.md and handoff.md, notify parent <!-- id: 5 -->

@@ -23,9 +23,11 @@ class TransactionState(enum.Enum):
     FAILED = "FAILED"
     REVERSED = "REVERSED"
 
+
 class EntryType(enum.Enum):
     CREDIT = "CREDIT"
     DEBIT = "DEBIT"
+
 
 class Account(Base):
     __tablename__ = "accounts"
@@ -37,10 +39,13 @@ class Account(Base):
     locked_cents = Column(Integer, default=0)
     status = Column(String, default="ACTIVE")
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
-    updated_at = Column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+    updated_at = Column(
+        DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
+    )
 
     def __repr__(self):
         return f"<Account(id={self.id}, tenant={self.tenant_id}, currency={self.currency}, balance={self.balance_cents})>"
+
 
 class Transaction(Base):
     __tablename__ = "transactions"
@@ -52,6 +57,7 @@ class Transaction(Base):
 
     def __repr__(self):
         return f"<Transaction(id={self.id}, ref={self.reference_id}, state={self.state})>"
+
 
 class LedgerEntry(Base):
     __tablename__ = "ledger_entries"
@@ -66,12 +72,11 @@ class LedgerEntry(Base):
     account = relationship("Account", lazy="selectin")
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
-    __table_args__ = (
-        Index("ix_ledger_entry_account_type", "account_id", "entry_type"),
-    )
+    __table_args__ = (Index("ix_ledger_entry_account_type", "account_id", "entry_type"),)
 
     def __repr__(self):
         return f"<LedgerEntry(id={self.id}, tx={self.transaction_id}, account={self.account_id}, amount={self.amount_cents})>"
+
 
 # --- NEW: Outbox Synchronization Pattern ---
 class SyncOutbox(Base):
@@ -79,13 +84,14 @@ class SyncOutbox(Base):
     Records local state mutations to be streamed to the cloud PostgreSQL database.
     This enables the 'Local-First' zero-latency architecture.
     """
+
     __tablename__ = "ps_crud_outbox"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     table_name = Column(String, nullable=False, index=True)
     record_id = Column(String, nullable=False)
-    operation = Column(String, nullable=False) # INSERT, UPDATE, DELETE
-    payload = Column(JSON, nullable=True) # The changed data
+    operation = Column(String, nullable=False)  # INSERT, UPDATE, DELETE
+    payload = Column(JSON, nullable=True)  # The changed data
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
     synced = Column(Boolean, default=False, index=True)
 
@@ -98,6 +104,7 @@ class Subscription(Base):
     """
     SaaS subscription details per tenant, synced to remote cloud PG.
     """
+
     __tablename__ = "subscriptions"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -109,7 +116,9 @@ class Subscription(Base):
     current_period_start = Column(DateTime, nullable=True)
     current_period_end = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
-    updated_at = Column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+    updated_at = Column(
+        DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
+    )
 
     def __repr__(self):
         return f"<Subscription(id={self.id}, tenant={self.tenant_id}, tier={self.tier}, status={self.status})>"
@@ -119,6 +128,7 @@ class Usage(Base):
     """
     Tracks resource utilization (scraping, AI letter generation) per tenant per billing period.
     """
+
     __tablename__ = "usages"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -128,7 +138,9 @@ class Usage(Base):
     billing_period_start = Column(DateTime, nullable=False)
     billing_period_end = Column(DateTime, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
-    updated_at = Column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+    updated_at = Column(
+        DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
+    )
 
     def __repr__(self):
         return f"<Usage(id={self.id}, tenant={self.tenant_id}, feature={self.feature}, count={self.count})>"
@@ -138,6 +150,7 @@ class User(Base):
     """
     User model for authentication and active status validation.
     """
+
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -150,7 +163,9 @@ class User(Base):
     unsubscribed = Column(Boolean, default=False)
     referred_by = Column(String, nullable=True, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
-    updated_at = Column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+    updated_at = Column(
+        DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
+    )
 
     def __repr__(self):
         return f"<User(id={self.id}, user_id={self.user_id}, email={self.email}, active={self.is_active})>"
@@ -160,6 +175,7 @@ class CoverLetterToneResult(Base):
     """
     Tracks A/B testing results for cover letter tones — IMP-182.
     """
+
     __tablename__ = "cover_letter_tone_results"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -170,7 +186,9 @@ class CoverLetterToneResult(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
     def __repr__(self):
-        return f"<CoverLetterToneResult(id={self.id}, tone={self.tone}, reply={self.reply_received})>"
+        return (
+            f"<CoverLetterToneResult(id={self.id}, tone={self.tone}, reply={self.reply_received})>"
+        )
 
 
 class FailedJob(Base):
@@ -179,6 +197,7 @@ class FailedJob(Base):
     task_name = Column(String, nullable=True, index=True)
     error = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(UTC), index=True)
+
     def __repr__(self):
         return f"<FailedJob(id={self.id}, task_name={self.task_name})>"
 
@@ -189,6 +208,7 @@ class AppLog(Base):
     level = Column(String, nullable=True, index=True)
     message = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(UTC), index=True)
+
     def __repr__(self):
         return f"<AppLog(id={self.id}, level={self.level})>"
 
@@ -201,6 +221,7 @@ class DailyAnalytics(Base):
     total_applications = Column(Integer, default=0)
     interviews = Column(Integer, default=0)
     offers = Column(Integer, default=0)
+
     def __repr__(self):
         return f"<DailyAnalytics(id={self.id}, date={self.date}, platform={self.platform})>"
 
@@ -227,4 +248,3 @@ class ScrapeLog(Base):
 
     def __repr__(self):
         return f"<ScrapeLog(id={self.id}, platform={self.platform}, status={self.status})>"
-

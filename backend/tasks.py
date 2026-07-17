@@ -26,6 +26,7 @@ import threading
 
 _thread_local = threading.local()
 
+
 def run_async(coro):
     try:
         loop = asyncio.get_running_loop()
@@ -38,6 +39,7 @@ def run_async(coro):
         loop = asyncio.new_event_loop()
         _thread_local.loop = loop
     return loop.run_until_complete(coro)
+
 
 @celery_app.task(bind=True, max_retries=3)
 def scrape_jobs(self, target_urls: list, user_id: str):
@@ -55,7 +57,8 @@ def scrape_jobs(self, target_urls: list, user_id: str):
         return {"status": "success", "jobs_found": len(structured_jobs), "jobs": structured_jobs}
     except Exception as exc:
         logger.error(f"Scraping failed: {exc}")
-        raise self.retry(exc=exc, countdown=60 * (2 ** self.request.retries))
+        raise self.retry(exc=exc, countdown=60 * (2**self.request.retries))
+
 
 def groq_rate_limit_retry(max_retries=3, default_countdown=10):
     def decorator(func):
@@ -94,12 +97,15 @@ def groq_rate_limit_retry(max_retries=3, default_countdown=10):
                 raise self.retry(exc=exc, countdown=int(countdown) + 1)
             except Exception as exc:
                 from celery.exceptions import Retry
+
                 if isinstance(exc, Retry):
                     raise
                 # Standard fallback retry
                 logger.error(f"Task failed: {exc}. Retrying...")
                 raise self.retry(exc=exc, countdown=default_countdown)
+
         return wrapper
+
     return decorator
 
 
@@ -114,23 +120,20 @@ def generate_cover_letter(self, job_description: str, user_cv: str):
     result = run_async(generate_smart_cover_letter(job_description, user_cv))
     return {"status": "success", "subject": result.get("subject"), "body": result.get("body")}
 
+
 @celery_app.task(
-    bind=True,
-    max_retries=5,
-    autoretry_for=(Exception,),
-    retry_backoff=True,
-    retry_jitter=True
+    bind=True, max_retries=5, autoretry_for=(Exception,), retry_backoff=True, retry_jitter=True
 )
 def send_application_email(self, cover_letter_subject: str, cover_letter_body: str, recipient: str):
     """
     Background task to send email leveraging native Celery retries with exponential backoff and rotation.
     """
     logger.info(f"Sending application email to {recipient}...")
-    run_async(email_sender.send_email(
-        to_email=recipient,
-        subject=cover_letter_subject,
-        body=cover_letter_body
-    ))
+    run_async(
+        email_sender.send_email(
+            to_email=recipient, subject=cover_letter_subject, body=cover_letter_body
+        )
+    )
     return {"status": "success"}
 
 
@@ -142,6 +145,7 @@ def send_bulk_emails_task(email_list: list[dict]):
     and runs them in parallel using Celery group.
     """
     from celery import group
+
     logger.info(f"Dispatching bulk parallel Celery tasks for {len(email_list)} emails.")
     job = group(
         send_application_email.s(item["subject"], item["body"], item["recipient"])
@@ -149,4 +153,3 @@ def send_bulk_emails_task(email_list: list[dict]):
     )
     result = job.apply_async()
     return {"status": "dispatched", "group_id": result.id}
-

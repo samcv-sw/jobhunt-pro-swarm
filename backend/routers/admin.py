@@ -9,7 +9,7 @@ from datetime import UTC, datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import bindparam, text
 
-from backend.auth import verify_jwt, require_admin
+from backend.auth import require_admin
 from backend.database import async_session
 
 logger = logging.getLogger(__name__)
@@ -22,34 +22,52 @@ async def dlq_requeue(request: Request = None) -> dict:
     """Requeue stale SyncOutbox records that failed to sync — IMP-207."""
     cutoff = datetime.now(UTC) - timedelta(hours=24)
     requeued_count = 0
+    import asyncio
+
     try:
         body: dict = {}
+        import contextlib
+
         if request:
-            try:
+            with contextlib.suppress(Exception):
                 body = await request.json()
-            except Exception:  # noqa: BLE001
-                pass
         queue_name = body.get("queue_name") or body.get("queue")
         task_ids = body.get("task_ids") or body.get("ids")
         async with async_session() as session:
-            params: dict = {"now": datetime.now(UTC).isoformat()}
+            select_params: dict = {}
             if task_ids or queue_name:
-                query_str = "UPDATE ps_crud_outbox SET synced = 0, created_at = :now WHERE 1=1"
+                select_query = "SELECT id FROM ps_crud_outbox WHERE 1=1"
                 if task_ids:
-                    query_str += " AND id IN :task_ids"
-                    params["task_ids"] = list(task_ids)
+                    select_query += " AND id IN :task_ids"
+                    select_params["task_ids"] = list(task_ids)
                 if queue_name:
-                    query_str += " AND table_name = :queue_name"
-                    params["queue_name"] = str(queue_name)
+                    select_query += " AND table_name = :queue_name"
+                    select_params["queue_name"] = str(queue_name)
             else:
-                query_str = "UPDATE ps_crud_outbox SET synced = 0, created_at = :now WHERE synced = 0 AND created_at < :cutoff"
-                params["cutoff"] = cutoff.isoformat()
-            stmt = text(query_str)
-            if "task_ids" in params:
+                select_query = (
+                    "SELECT id FROM ps_crud_outbox WHERE synced = 0 AND created_at < :cutoff"
+                )
+                select_params["cutoff"] = cutoff.isoformat()
+
+            stmt = text(select_query)
+            if "task_ids" in select_params:
                 stmt = stmt.bindparams(bindparam("task_ids", expanding=True))
-            result = await session.execute(stmt, params)
-            await session.commit()
-            requeued_count = result.rowcount or 0
+
+            result = await session.execute(stmt, select_params)
+            all_ids = [row[0] for row in result.fetchall()]
+
+            for i in range(0, len(all_ids), 100):
+                batch_ids = all_ids[i : i + 100]
+                update_query = (
+                    "UPDATE ps_crud_outbox SET synced = 0, created_at = :now WHERE id IN :batch_ids"
+                )
+                update_params = {"now": datetime.now(UTC).isoformat(), "batch_ids": batch_ids}
+                update_stmt = text(update_query).bindparams(bindparam("batch_ids", expanding=True))
+                batch_result = await session.execute(update_stmt, update_params)
+                await session.commit()
+                requeued_count += batch_result.rowcount or 0
+                await asyncio.sleep(0.01)
+
             logger.info("[DLQ] Requeued %s stale SyncOutbox records.", requeued_count)
     except Exception as e:  # noqa: BLE001
         logger.error("[DLQ] Requeue failed: %s", e)
