@@ -12,6 +12,8 @@ with open(env_path, "r", encoding="utf-8") as f:
 new_lines = []
 has_sec = False
 has_jwt = False
+has_db = False
+
 for line in lines:
     if line.startswith("SECRET_KEY="):
         line = "SECRET_KEY=9b743ad0bf90f3c647a61d8de9632ea68f90d069b15a4f9b8f90d069b15a4f9b"
@@ -19,14 +21,24 @@ for line in lines:
     elif line.startswith("JWT_SECRET_KEY="):
         line = "JWT_SECRET_KEY=8f90d069b15a4f9b8f90d069b15a4f9b8f90d069b15a4f9b8f90d069b15a4f9b"
         has_jwt = True
+    elif line.startswith("DATABASE_URL="):
+        # Point DATABASE_URL directly to unified SQLite path to sync backend and web components
+        line = "DATABASE_URL=sqlite+aiosqlite:////home/JHFGUF/jobhunt/jobhunt_saas_v2.db"
+        has_db = True
     new_lines.append(line)
 
 if not has_sec:
     new_lines.append("SECRET_KEY=9b743ad0bf90f3c647a61d8de9632ea68f90d069b15a4f9b8f90d069b15a4f9b")
 if not has_jwt:
     new_lines.append("JWT_SECRET_KEY=8f90d069b15a4f9b8f90d069b15a4f9b8f90d069b15a4f9b8f90d069b15a4f9b")
+if not has_db:
+    new_lines.append("DATABASE_URL=sqlite+aiosqlite:////home/JHFGUF/jobhunt/jobhunt_saas_v2.db")
+
+# Force override LOCAL_DATABASE_URL to match as well
+new_lines = [l for l in new_lines if not l.startswith("LOCAL_DATABASE_URL=")]
+new_lines.append("LOCAL_DATABASE_URL=sqlite+aiosqlite:////home/JHFGUF/jobhunt/jobhunt_saas_v2.db")
 
 with open(env_path, "w", encoding="utf-8") as f:
     f.write("\n".join(new_lines) + "\n")
 
-print(".env updated successfully with permanent keys!")
+print(".env updated successfully with unified SQLite database URL!")
