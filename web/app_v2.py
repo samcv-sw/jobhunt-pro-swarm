@@ -4009,7 +4009,7 @@ async def update_settings(
 
 
 # ==================== MIGRATED TO ROUTER — START (lines 3617-3635) ====================
-# @app.get("/services", response_class=HTMLResponse)
+@app.get("/services", response_class=HTMLResponse)
 def services_page(request: Request):
     # Show success flash to authenticated users
     success_msg = ""

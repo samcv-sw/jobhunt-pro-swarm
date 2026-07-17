@@ -284,3 +284,44 @@ def robots():
     site = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
     txt = f"User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: {site}/sitemap.xml"
     return PlainTextResponse(txt)
+
+
+@router.get("/contact", response_class=HTMLResponse)
+def contact_page(request: Request):
+    """Contact/Support page — works for Arabic (default) and English locales."""
+    get_db, get_verified_user_id, _, _, _, _, _public_shell, render_template = _deps()
+    msg = request.query_params.get("msg", "")
+    error = request.query_params.get("error", "")
+    user_name = ""
+    user_email = ""
+    user_id = get_verified_user_id(request)
+    if user_id:
+        try:
+            with get_db() as conn:
+                u = conn.execute(
+                    "SELECT name, email FROM users WHERE user_id = ?", (user_id,)
+                ).fetchone()
+                if u:
+                    user_name = u["name"] or ""
+                    user_email = u["email"] or ""
+        except Exception as exc:
+            logger.error(f"contact_page user fetch error: {exc}")
+    content = render_template(
+        "contact.html",
+        request=request,
+        msg=msg,
+        error=error,
+        user_name=user_name,
+        user_email=user_email,
+        is_logged_in=bool(user_id),
+    )
+    return HTMLResponse(
+        _public_shell(
+            content,
+            "اتصل بنا — JobHunt Pro",
+            "تواصل مع فريق دعم JobHunt Pro عبر واتساب أو البريد الإلكتروني. نرد خلال 24 ساعة.",
+            request=request,
+        )
+    )
+
+
