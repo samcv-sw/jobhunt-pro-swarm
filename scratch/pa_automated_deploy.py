@@ -170,7 +170,7 @@ try:
     print(read_sockjs_output(ws, timeout=3).encode('ascii', errors='ignore').decode('ascii'))
 
     print("Restoring populated database to unified data/ directory...")
-    ws.send(json.dumps(["if [ ! -f ~/jobhunt/data/jobhunt_saas_v2.db ] && [ -f ~/jobhunt/jobhunt_saas_v2.db ]; then cp ~/jobhunt/jobhunt_saas_v2.db ~/jobhunt/data/jobhunt_saas_v2.db; fi\n"]))
+    ws.send(json.dumps(["cp -f ~/jobhunt/jobhunt_saas_v2.db ~/jobhunt/data/jobhunt_saas_v2.db\n"]))
     print(read_sockjs_output(ws, timeout=3).encode('ascii', errors='ignore').decode('ascii'))
 
     print("Running database tables initialization/seeder...")
