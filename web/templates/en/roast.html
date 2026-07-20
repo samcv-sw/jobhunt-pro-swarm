@@ -4,6 +4,25 @@
 {% block title %}Roast My Resume - JobHunt Pro{% endblock %}
 {% block head %}
 <meta name="description" content="Roast My Resume — Get a brutally honest, AI-powered critique of your CV to find out why you are not landing job interviews.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Resume Roast | JobHunt Pro">
+<meta property="og:description" content="Roast My Resume — Get a brutally honest, AI-powered critique of your CV to find out why you are not landing job interviews.">
+<meta property="og:url" content="https://jhfguf.pythonanywhere.com/en/roast">
+<meta property="og:image" content="https://jhfguf.pythonanywhere.com/static/img/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Resume Roast | JobHunt Pro">
+<meta name="twitter:description" content="Roast My Resume — Get a brutally honest, AI-powered critique of your CV to find out why you are not landing job interviews.">
+<meta name="twitter:image" content="https://jhfguf.pythonanywhere.com/static/img/og-image.png">
+<link rel="canonical" href="https://jhfguf.pythonanywhere.com/en/roast">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Resume Roast | JobHunt Pro",
+  "url": "https://jhfguf.pythonanywhere.com/en/roast",
+  "description": "Roast My Resume — Get a brutally honest, AI-powered critique of your CV to find out why you are not landing job interviews."
+}
+</script>
 {% endblock %}
 {% block content %}
 {% include 'en/_public_nav.html' %}
@@ -13,7 +32,7 @@
     <p>Upload your PDF and let our brutally honest AI destroy your ego.</p>
     
     <div style="margin: 30px 0;">
-        <input dir="auto" type="file" id="resumeFile" accept="application/pdf" class="glass-input" style="margin-block-end: 20px;">
+        <input dir="auto" type="file" id="resumeFile" accept="application/pdf" class="glass-input" style="margin-block-end: 20px;" dir="auto">
         <button id="roastBtn" class="btn-primary" style="inline-size: 100%; background: var(--danger);">Roast Me Now</button>
     </div>
     

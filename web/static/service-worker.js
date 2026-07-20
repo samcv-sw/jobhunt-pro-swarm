@@ -1,6 +1,9 @@
-const CACHE_NAME = 'jobhunt-pro-v2-dynamic';
+const CACHE_NAME = 'jobhunt-pro-v3-dynamic';
+const OFFLINE_URL = '/offline.html';
 const STATIC_ASSETS = [
   '/',
+  '/en/',
+  OFFLINE_URL,
   '/static/css/index.css',
   '/static/css/cyberpunk.css',
   '/static/js/cyberpunk.js',
@@ -12,7 +15,9 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      return Promise.allSettled(
+        STATIC_ASSETS.map((url) => cache.add(url).catch(() => {}))
+      );
     })
   );
 });
@@ -20,28 +25,24 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.filter(name => name !== CACHE_NAME).map(name => caches.delete(name))
-      );
+      return Promise.allSettled(
+        cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
+      ).then(() => self.clients.claim());
     })
   );
 });
 
 self.addEventListener('fetch', (event) => {
   const request = event.request;
-  
-  // API calls and WebSockets should bypass cache completely
   if (request.url.includes('/api/') || request.url.includes('/ws/')) {
     event.respondWith(fetch(request));
     return;
   }
-
-  // Cross-Origin CDNs (Fonts, Alpine, ChartJS) -> Stale-While-Revalidate
   if (!request.url.startsWith(self.location.origin)) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
-        const fetchPromise = fetch(request).then(networkResponse => {
-          caches.open(CACHE_NAME).then(cache => cache.put(request, networkResponse.clone()));
+        const fetchPromise = fetch(request).then((networkResponse) => {
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse.clone()));
           return networkResponse;
         }).catch(() => cachedResponse);
         return cachedResponse || fetchPromise;
@@ -49,29 +50,24 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-
-  // Network-First for HTML/Dashboard
   if (request.headers.get('accept').includes('text/html')) {
     event.respondWith(
-      fetch(request).then(response => {
+      fetch(request).then((response) => {
         const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
         return response;
       }).catch(() => {
-        return caches.match(request).then(cached => cached || caches.match('/'));
+        return caches.match(request).then((cached) => cached || caches.match(OFFLINE_URL));
       })
     );
     return;
   }
-
-  // Cache-First for static assets (CSS, JS, Images)
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse;
-      
-      return fetch(request).then(networkResponse => {
+      return fetch(request).then((networkResponse) => {
         const copy = networkResponse.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
         return networkResponse;
       });
     })

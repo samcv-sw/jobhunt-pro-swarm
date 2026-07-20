@@ -242,6 +242,21 @@ def trust_page(request: Request):
     _, _, templates, config, _, _, _, _ = _deps()
     return templates.TemplateResponse(request, "trust.html", {"request": request, "VERSION": config.VERSION})
 
+@router.get("/roast", response_class=HTMLResponse)
+def roast_page(request: Request):
+    get_db, _, templates, config, _, _, _, _ = _deps()
+    return templates.TemplateResponse(request, "roast.html", {"VERSION": config.VERSION})
+
+@router.get("/employers", response_class=HTMLResponse)
+def employers_page(request: Request):
+    get_db, _, templates, config, _, _, _, _ = _deps()
+    return templates.TemplateResponse(request, "for_employers.html", {"VERSION": config.VERSION})
+
+@router.get("/employer/track", response_class=HTMLResponse)
+def employer_track_page(request: Request):
+    get_db, _, templates, config, _, _, _, _ = _deps()
+    return templates.TemplateResponse(request, "track_application.html", {"VERSION": config.VERSION})
+
 @router.get("/war-room", response_class=HTMLResponse)
 def war_room_redirect(request: Request):
     _, get_verified_user_id, _, _, _, _, _, _ = _deps()
@@ -270,12 +285,39 @@ def about_page(request: Request):
 
 @router.get("/sitemap.xml")
 def sitemap():
-    site = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
     today = datetime.now(UTC).strftime("%Y-%m-%d")
     xml = f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>{site}/</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>{site}/pricing</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/pricing</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/referral</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/faq</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/blog</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/privacy</loc><lastmod>{today}</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/trust</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/compare</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/chrome-extension</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/terms</loc><lastmod>{today}</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/contact</loc><lastmod>{today}</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/services</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/roast</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/employers</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/employer/track</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/pricing</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/faq</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/blog</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/compare</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/trust</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/chrome-extension</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/contact</loc><lastmod>{today}</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/privacy</loc><lastmod>{today}</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/terms</loc><lastmod>{today}</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/referral</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/track</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/services</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/roast</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://jhfguf.pythonanywhere.com/en/for-employers</loc><lastmod>{today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>'''
     return Response(content=xml, media_type="application/xml")
 

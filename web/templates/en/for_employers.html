@@ -1,6 +1,24 @@
 <meta property="og:title" content="For Employers | JobHunt Pro"/>
 <meta name="description" content="Find top talent fast with JobHunt Pro — the smart platform for employers."/>
 <title>For Employers | JobHunt Pro</title>
+<meta property="og:type" content="website">
+<meta property="og:description" content="Find top talent fast with JobHunt Pro — the smart platform for employers.">
+<meta property="og:url" content="https://jhfguf.pythonanywhere.com/en/for-employers">
+<meta property="og:image" content="https://jhfguf.pythonanywhere.com/static/img/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="For Employers | JobHunt Pro">
+<meta name="twitter:description" content="Find top talent fast with JobHunt Pro — the smart platform for employers.">
+<meta name="twitter:image" content="https://jhfguf.pythonanywhere.com/static/img/og-image.png">
+<link rel="canonical" href="https://jhfguf.pythonanywhere.com/en/for-employers">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "For Employers | JobHunt Pro",
+  "url": "https://jhfguf.pythonanywhere.com/en/for-employers",
+  "description": "Find top talent fast with JobHunt Pro — the smart platform for employers."
+}
+</script>
 <style>
 :root {
   --gold: #f59e0b; --gold2: #fbbf24; --purple: #8b5cf6; --pink: #ec4899;
@@ -89,7 +107,7 @@
 .form-group { margin-block-end:16px; }
 .form-group.full { grid-column:1/-1; }
 .form-group label { display:block; margin-block-end:5px; font-size:.82em; color:#94a3b8; font-weight:600; }
-.form-group input, .form-group textarea, .form-group select { inline-size:100%; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:rgba(15,15,35,.8); color:#e2e8f0; font-size:.92em; font-family:inherit; transition:border .2s; }
+.form-group input, .form-group textarea, .form-group select { inline-size:100%; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:rgba(15,15,35,.8); color:#e2e8f0; font-size:.92em; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit; transition:border .2s; }
 .form-group input:focus, .form-group textarea:focus { outline:none; border-color:var(--purple); }
 .form-group textarea { min-block-size:120px; resize:vertical; }
 .form-group .helper { font-size:.72em; color:#64748b; margin-block-start:4px; }
@@ -361,15 +379,15 @@
     <div class="form-grid">
       <div class="form-group">
         <label>🏢 Company Name *</label>
-        <input dir="auto" type="text" id="company_name" required placeholder="e.g. Murex, Bank Audi...">
+        <input dir="auto" type="text" id="company_name" required placeholder="e.g. Murex, Bank Audi..." dir="auto">
       </div>
       <div class="form-group">
         <label>💼 Job Title *</label>
-        <input dir="auto" type="text" id="job_title" required placeholder="e.g. Senior Network Engineer">
+        <input dir="auto" type="text" id="job_title" required placeholder="e.g. Senior Network Engineer" dir="auto">
       </div>
       <div class="form-group">
         <label>📍 Location *</label>
-        <input dir="auto" type="text" id="location" required placeholder="e.g. Beirut, Lebanon">
+        <input dir="auto" type="text" id="location" required placeholder="e.g. Beirut, Lebanon" dir="auto">
       </div>
       <div class="form-group">
         <label>🏷️ Category</label>
@@ -387,24 +405,24 @@
       </div>
       <div class="form-group">
         <label>💰 Salary Range <span style="font-size:.75em;color:var(--green);">(+3x applicants!)</span></label>
-        <input dir="auto" type="text" id="salary" placeholder="e.g. $2,500 - $3,500/month">
+        <input dir="auto" type="text" id="salary" placeholder="e.g. $2,500 - $3,500/month" dir="auto">
       </div>
       <div class="form-group">
         <label>📧 Contact Email *</label>
-        <input dir="auto" type="email" id="contact_email" required placeholder="hr@yourcompany.com">
+        <input dir="auto" type="email" id="contact_email" required placeholder="hr@yourcompany.com" dir="auto">
         <div class="helper">Applications forwarded here</div>
       </div>
       <div class="form-group full">
         <label>📋 Job Description *</label>
-        <textarea dir="auto" id="description" required placeholder="Describe the role, responsibilities, requirements, and why your company is a great place to work...&#10;&#10;💡 Tip: Include benefits, culture, and growth opportunities for 2x more applicants!"></textarea>
+        <textarea dir="auto" id="description" required placeholder="Describe the role, responsibilities, requirements, and why your company is a great place to work...&#10;&#10;💡 Tip: Include benefits, culture, and growth opportunities for 2x more applicants!" dir="auto"></textarea>
       </div>
       <div class="form-group">
         <label>🔗 External Apply URL (optional)</label>
-        <input dir="auto" type="url" id="apply_url" placeholder="https://yourcompany.com/careers/...">
+        <input dir="auto" type="url" id="apply_url" placeholder="https://yourcompany.com/careers/..." dir="auto">
       </div>
       <div class="form-group">
         <label>🖼️ Company Logo URL (optional)</label>
-        <input dir="auto" type="url" id="logo_url" placeholder="https://yourcompany.com/logo.png">
+        <input dir="auto" type="url" id="logo_url" placeholder="https://yourcompany.com/logo.png" dir="auto">
         <div class="helper">Appears next to your listing</div>
       </div>
     </div>
@@ -424,7 +442,7 @@
     <!-- LEGAL -->
     <div class="legal-box">
       <label>
-        <input dir="auto" type="checkbox" id="legal_check" required onchange="updateSubmitBtn()">
+        <input dir="auto" type="checkbox" id="legal_check" required onchange="updateSubmitBtn()" dir="auto">
         <span class="legal-text">
           ✅ I confirm this is a <strong>real, legal job</strong>. No scams, no pyramid schemes, no multi-level marketing, no fake jobs. I have the authority to post on behalf of this company. I understand that violations result in permanent ban and may be reported to authorities.
         </span>
