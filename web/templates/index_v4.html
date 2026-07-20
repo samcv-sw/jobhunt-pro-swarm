@@ -10,6 +10,9 @@
 <meta content="JobHunt Pro" name="author"/>
 <meta content="index, follow" name="robots"/>
 <link href="https://jhfguf.pythonanywhere.com/" rel="canonical"/>
+<link href="https://jhfguf.pythonanywhere.com/" rel="alternate" hreflang="ar"/>
+<link href="https://jhfguf.pythonanywhere.com/en/" rel="alternate" hreflang="en"/>
+<link href="https://jhfguf.pythonanywhere.com/" rel="alternate" hreflang="x-default"/>
 <link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
 <link href="/static/manifest.json" rel="manifest"/>
 <meta content="#0a0a14" name="theme-color"/>
@@ -17,16 +20,16 @@
 <!-- Open Graph -->
 <meta content="website" property="og:type"/>
 <meta content="https://jhfguf.pythonanywhere.com/" property="og:url"/>
-<meta content="JobHunt Pro — AI-Powered Automated Job Applications" property="og:title"/>
-<meta content="Your personal AI job-hunting engine works 24/7 — searching thousands of jobs, ينشئ طلبات تقديم مخصصة، ويرسلها عبر تناوب ذكي للبريد الإلكتروني." property="og:description"/>
+<meta content="JobHunt Pro — محرك التقديم الآلي للوظائف بالذكاء الاصطناعي" property="og:title"/>
+<meta content="وكيل الذكاء الاصطناعي الخاص بك يعمل على مدار الساعة — يبحث في آلاف الوظائف، ويُنشئ طلبات تقديم مخصصة، ويرسلها عبر تناوب ذكي للبريد الإلكتروني." property="og:description"/>
 <meta content="https://jhfguf.pythonanywhere.com/static/img/og-image.png" property="og:image"/>
 <meta content="1200" property="og:image:width"/>
 <meta content="630" property="og:image:height"/>
 <meta content="JobHunt Pro" property="og:site_name"/>
 <!-- Twitter Card -->
 <meta content="summary_large_image" name="twitter:card"/>
-<meta content="JobHunt Pro — AI-Powered Automated Job Applications" name="twitter:title"/>
-<meta content="Your personal AI job-hunting engine works 24/7. Get hired faster." name="twitter:description"/>
+<meta content="JobHunt Pro — محرك التقديم الآلي للوظائف بالذكاء الاصطناعي" name="twitter:title"/>
+<meta content="وكيل الذكاء الاصطناعي الخاص بك يعمل على مدار الساعة. احصل على وظيفة أسرع." name="twitter:description"/>
 <meta content="https://jhfguf.pythonanywhere.com/static/img/og-image.png" name="twitter:image"/>
 <!-- Preconnect for performance -->
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
@@ -60,9 +63,9 @@
 .cookie-banner{position:fixed;inset-block-end:0;inset-inline-start:0;inset-inline-end:0;background:rgba(10,10,25,0.97);border-block-start:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px var(--space-3);backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
 .cookie-content{max-inline-size:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
 .cookie-content span{font-size:20px}
-.cookie-content p{font-size:12px;color:var(--muted);flex:1;min-inline-size:200px}
+.cookie-content p{font-size: 14px;color:var(--muted);flex:1;min-inline-size:200px}
 .cookie-content a{color:var(--cyan)}
-.cookie-content button{background:var(--cyan);color:#000;border:none;padding:var(--space-1) 20px;border-radius:20px;font-weight:700;cursor:pointer;font-size:13px;white-space:nowrap}
+.cookie-content button{background:var(--cyan);color:#000;border:none;padding:var(--space-1) 20px;border-radius:20px;font-weight:700;cursor:pointer;font-size: 14px;white-space:nowrap}
 .cookie-content button:hover{opacity:0.9}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @media(max-width:600px){.cookie-content{text-align:center}}
@@ -326,11 +329,11 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <div class="ats-demo">
 <div class="ats-input-group">
 <label for="atsJobTitle">المسمى الوظيفي</label>
-<input dir="auto" id="atsJobTitle" placeholder="e.g. Software Engineer" type="text" value="Software Engineer"/>
+<input dir="auto" id="atsJobTitle" placeholder="e.g. Software Engineer" type="text" value="Software Engineer"/ dir="auto">
 </div>
 <div class="ats-input-group">
 <label for="atsSkills">مهاراتك (مفصولة بفواصل)</label>
-<input dir="auto" id="atsSkills" placeholder="e.g. Python, React, AWS" type="text" value="Python, JavaScript, React"/>
+<input dir="auto" id="atsSkills" placeholder="e.g. Python, React, AWS" type="text" value="Python, JavaScript, React"/ dir="auto">
 </div>
 <button class="primary" onclick="checkATS()">🔍 تحقق من نتيجتي</button>
 <div class="ats-result" id="atsResult" style="display:none;">
@@ -441,15 +444,15 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <div class="calc-grid">
 <div class="calc-card">
 <label for="currentSalary">الراتب المستهدف (دولار/سنة)</label>
-<input dir="auto" id="currentSalary" min="0" step="5000" type="number" value="80000"/>
+<input dir="auto" id="currentSalary" min="0" step="5000" type="number" value="80000"/ dir="auto">
 </div>
 <div class="calc-card">
 <label for="monthsUnemployed">أشهر البطالة</label>
-<input dir="auto" id="monthsUnemployed" max="24" min="0" type="number" value="3"/>
+<input dir="auto" id="monthsUnemployed" max="24" min="0" type="number" value="3"/ dir="auto">
 </div>
 <div class="calc-card">
 <label for="applicationsPerDay">{{ _('التقديم اليدوي') }}</label>
-<input dir="auto" id="applicationsPerDay" max="20" min="1" type="number" value="3"/>
+<input dir="auto" id="applicationsPerDay" max="20" min="1" type="number" value="3"/ dir="auto">
 </div>
 <div class="calc-card highlight">
 <div class="calc-result-label">{{ _('مع JobHunt Pro') }}</div>
@@ -1117,7 +1120,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
       const toast = document.createElement('div');
       toast.className = 'social-toast';
       toast.innerHTML = `🔥 <strong>${name}</strong> ${action}`;
-      toast.style.cssText = 'position:fixed;inset-block-end:80px;inset-inline-end: 20px;background:rgba(10,10,25,0.95);border:1px solid rgba(0,240,255,0.2);border-radius:12px;padding:14px 20px;font-size:13px;color:#fff;z-index:9999;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:340px;animation:slideInRight 0.4s ease-out;transition:opacity 0.4s';
+      toast.style.cssText = 'position:fixed;inset-block-end:80px;inset-inline-end: 20px;background:rgba(10,10,25,0.95);border:1px solid rgba(0,240,255,0.2);border-radius:12px;padding:14px 20px;font-size: 14px;color:#fff;z-index:9999;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:340px;animation:slideInRight 0.4s ease-out;transition:opacity 0.4s';
       document.body.appendChild(toast);
       setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 4000);
     }
@@ -1141,7 +1144,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
           <h3 style="font-size:24px;font-weight:800;margin-block-end:12px;color:#fff">انتظر! لا تفوت الفرصة</h3>
           <p style="color:rgba(255,255,255,0.6);margin-block-end:24px;line-height:1.7">آلاف الوظائف تُشغل الآن. ابدأ تجربتك المجانية ودع الذكاء الاصطناعي يقدم بالنيابة عنك أثناء غيابك.</p>
           <a href="/register" style="display:inline-block;background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;padding:16px 36px;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;box-shadow:0 4px 30px rgba(0,240,255,0.25)">🚀 ابدأ التجربة المجانية</a>
-          <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-block-start:16px">لا يتطلب بطاقة ائتمان</p>
+          <p style="font-size: 14px;color:rgba(255,255,255,0.3);margin-block-start:16px">لا يتطلب بطاقة ائتمان</p>
         </div>`;
       document.body.appendChild(overlay);
     });
