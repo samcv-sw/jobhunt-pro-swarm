@@ -1,81 +1,12 @@
-# =============================================================================
-# Keep-Alive & Free-Tier Permanence Strategy
-# =============================================================================
-# Render free tier spins down after 15 minutes of inactivity.
-# keepalive-ping cron runs every 14 minutes (1-min safety margin).
-# neon-warmer cron runs every 5 minutes to prevent Neon DB cold starts.
-# Upstash Redis: max_connections=10 respects free-tier concurrent limit.
-# Combined cost: $0/month | Uptime: 24/7 permanent on free tier.
-# =============================================================================
-# =============================================================================
-# Keep-Alive & Free-Tier Permanence Strategy
-# =============================================================================
-# Render free tier spins down after 15 minutes of inactivity.
-# keepalive-ping cron runs every 14 minutes — 1-minute safety margin.
-# neon-warmer cron runs every 5 minutes to prevent Neon DB cold starts.
-# Upstash Redis: max_connections=10 in Celery respects free-tier limit.
-# Combined monthly cost: $0 | Uptime: 24/7 permanent on free tiers.
-# =============================================================================
 services:
-
   - type: web
-    name: jobhunt-pro
+    name: jobhunt-pro-backend
     env: python
-    repo: https://github.com/samcv-sw/jobhunt-pro-swarm
-    branch: main
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn web.app_v2:app --host 0.0.0.0 --port $PORT --workers 2"
     plan: free
-    region: oregon
-    buildCommand: pip install -r requirements.txt
-    startCommand: python start_cloud.py
-    healthCheckPath: /healthz
     envVars:
-      - key: PYTHONUNBUFFERED
-        value: "1"
+      - key: PORT
+        value: 10000
       - key: PYTHON_VERSION
-        value: "3.11.11"
-      - key: DB_PATH
-        value: /tmp/jobhunt_saas_v2.db
-      - key: FORCE_SQLITE
-        value: "0"
-      # === ENV VARS TO SET IN RENDER DASHBOARD (secrets, not in git) ===
-      # Add these via Render Dashboard → Environment → Environment Variables
-      #
-      # GOOGLE_CLIENT_ID - from Google Cloud Console
-      # GOOGLE_CLIENT_SECRET - from Google Cloud Console
-      # GROQ_API_KEY - primary Groq key
-      # JSEARCH_API_KEY - SerpApi / JSearch key
-      # BREVO_API_KEY - Brevo SMTP key
-      # TELEGRAM_BOT_TOKEN - Telegram bot token
-      # TELEGRAM_CHAT_ID - Telegram admin chat
-      # NOWPAYMENTS_API_KEY - Crypto payment key
-      #
-      # SMTP credentials (all 15 accounts):
-      # GMAIL_SMTP_USER_1..15, GMAIL_APP_PASSWORD_1..15
-      #
-      # Hotmail pool (1000 accounts): already in data/hotmail_pool.json
-      #
-      # See RENDER_DEPLOY.md for full setup instructions
-
-  - type: cron
-    name: keepalive-ping
-    env: python
-    plan: free
-    region: oregon
-    schedule: "*/14 * * * *"
-    buildCommand: pip install requests==2.32.3
-    startCommand: python -c "import requests,os,sys; url=os.environ.get('APP_URL','https://jobhunt-pro.onrender.com')+'/healthz'; r=requests.get(url,timeout=10); print(f'Ping {url}: {r.status_code}'); sys.exit(0 if r.status_code==200 else 1)"
-    envVars:
-      - key: APP_URL
-        value: https://jobhunt-pro.onrender.com
-
-  - type: cron
-    name: neon-warmer
-    env: python  
-    plan: free
-    region: oregon
-    schedule: "*/5 * * * *"
-    buildCommand: pip install psycopg2-binary==2.9.9
-    startCommand: python core/neon_warmer.py
-    envVars:
-      - key: DATABASE_URL
-        sync: false
+        value: 3.12.0

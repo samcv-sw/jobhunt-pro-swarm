@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Offline — JobHunt Pro</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --neon: #00e5ff;
+    --neon2: #7c3aed;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', 'Cairo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: radial-gradient(circle at 50% 0%, #1a1a2e 0%, var(--bg) 60%);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    border-radius: 20px;
+    padding: 48px 40px;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(0, 229, 255, 0.08), 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+  .icon {
+    width: 72px; height: 72px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--neon), var(--neon2));
+    font-size: 36px;
+    box-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg, var(--neon), var(--neon2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+  button {
+    background: linear-gradient(135deg, var(--neon), var(--neon2));
+    color: #0a0a0f;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 32px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 229, 255, 0.3);
+  }
+  .pulse { animation: pulse 2s infinite; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pulse { animation: none; }
+    button { transition: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="card" role="alert" aria-live="assertive">
+    <div class="icon pulse" aria-hidden="true">📡</div>
+    <h1>You're Offline</h1>
+    <p>It looks like your connection dropped. Don't worry — your data is safe. Check your internet and try again. Pages you've already visited are still available.</p>
+    <button type="button" onclick="window.location.reload()">Retry Connection</button>
+  </div>
+</body>
+</html>

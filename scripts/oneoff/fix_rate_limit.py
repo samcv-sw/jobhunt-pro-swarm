@@ -15,7 +15,7 @@ old1 = '        self._stats_file = "cache/email_rotator_stats.json"'
 new1 = '        self._stats_file = str(Path(__file__).parent.parent / "cache" / "email_rotator_stats.json")'
 
 # Fix 2: _persist_stats: log errors instead of silent pass
-old2 = """    def _persist_stats(self) -> None:
+old2 = '''    def _persist_stats(self) -> None:
         """Save daily send counts for crash recovery."""
         try:
             os.makedirs(os.path.dirname(self._stats_file), exist_ok=True)
@@ -27,9 +27,9 @@ old2 = """    def _persist_stats(self) -> None:
             with open(self._stats_file, "w") as f:
                 json.dump(stats, f)
         except Exception:
-            pass"""
+            pass'''
 
-new2 = """    def _persist_stats(self) -> None:
+new2 = '''    def _persist_stats(self) -> None:
         """Save daily send counts for crash recovery."""
         try:
             os.makedirs(os.path.dirname(self._stats_file), exist_ok=True)
@@ -42,7 +42,7 @@ new2 = """    def _persist_stats(self) -> None:
                 json.dump(stats, f)
             logger.debug(f"[RotatorPool] Persisted stats: {stats}")
         except Exception as e:
-            logger.warning(f"[RotatorPool] Failed to persist stats: {e}")"""
+            logger.warning(f"[RotatorPool] Failed to persist stats: {e}")'''
 
 changes = 0
 if old1 in content:

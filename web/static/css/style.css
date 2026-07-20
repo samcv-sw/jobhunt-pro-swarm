@@ -18,12 +18,12 @@
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
 
   /* Dynamic LTR/RTL Font setup */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Cairo', 'Tajawal', 'Inter', sans-serif;
   --text-x-direction: 1;
 }
 
 [dir="rtl"] {
-  --font-sans: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+  --font-sans: 'Cairo', 'Tajawal', 'Inter', sans-serif;
   --text-x-direction: -1;
 }
 
@@ -470,4 +470,24 @@ body {
 }
 [dir="rtl"] .lucide-dir-aware {
   transform: scaleX(var(--text-x-direction, -1));
+}
+
+/* Global Arabic Typography */
+body, html, input, textarea, select {
+  font-family: 'Cairo', 'Tajawal', sans-serif;
+  line-height: 1.8;
+}
+
+
+/* Global Arabic Typography */
+body, html, input, textarea, select {
+  font-family: 'Cairo', 'Tajawal', sans-serif;
+  line-height: 1.8;
+}
+
+
+/* Global Arabic Typography */
+body, html, input, textarea, select {
+  font-family: 'Cairo', 'Tajawal', sans-serif;
+  line-height: 1.8;
 }

@@ -101,7 +101,7 @@ ENHANCEMENTS_2026-07-15.md  (Detailed changelog)
 ## 📈 Files Modified
 
 ```
-backend/main.py               (Added security headers middleware)
+web/app_v2.py               (Added security headers middleware)
 requirements.txt            (Optimized & deduplicated)
 ```
 

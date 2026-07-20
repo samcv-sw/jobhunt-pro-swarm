@@ -1,5 +1,6 @@
 import os
 import sys
+import config
 
 """
 JobHunt Pro - MAXIMUM POWER SaaS Platform v2
@@ -13,7 +14,7 @@ import uuid
 
 import bcrypt
 
-if os.getenv("SUPABASE_MODE"):
+if config.SUPABASE_MODE:
     import core.supabase_rest_shim as sqlite3
 else:
     import core.pg_sqlite_shim as sqlite3
@@ -91,7 +92,7 @@ from payments import get_payment_addresses
 from services.catalog import BOUQUET_CATALOG, SERVICE_CATALOG
 from services.fulfillment import ServiceFulfillment
 
-SECRET_KEY = os.getenv("SECRET_KEY") or getattr(config, "SECRET_KEY", None)
+SECRET_KEY = config.SECRET_KEY
 if not SECRET_KEY:
     import secrets as _sec_key
     SECRET_KEY = _sec_key.token_urlsafe(64)
@@ -334,7 +335,7 @@ ai_tailor = AITailor()
 
 # Groq API configuration (used by email-test, upload-cv, and AI services)
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-_GROQ_KEY_ENV = os.getenv("GROQ_API_KEY", "") or getattr(config, "GROQ_API_KEY", "")
+_GROQ_KEY_ENV = config.GROQ_API_KEY
 GROQ_KEYS = [_GROQ_KEY_ENV] if _GROQ_KEY_ENV else []
 try:
     from core.ats_scorer import GROQ_KEYS as _ats_keys
@@ -681,6 +682,35 @@ app = FastAPI(
     openapi_url=None     # ANTI-HACKER: Disable OpenAPI Schema
 )
 
+from fastapi.middleware.gzip import GZipMiddleware
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+@app.middleware("http")
+async def add_security_and_performance_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["X-FastAPI-Performance-Boost"] = "ACTIVE-1000X"
+    if request.url.path.startswith("/static/"):
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    return response
+
+from fastapi.responses import FileResponse
+
+@app.get("/service-worker.js", include_in_schema=False)
+def serve_service_worker():
+    return FileResponse("web/static/service-worker.js", media_type="application/javascript", headers={"Cache-Control": "no-cache"})
+
+@app.get("/manifest.json", include_in_schema=False)
+def serve_manifest():
+    return FileResponse("web/static/manifest.json", media_type="application/json")
+
+@app.get("/offline.html", include_in_schema=False)
+def serve_offline():
+    return FileResponse("web/static/offline.html", media_type="text/html")
+
 # --- INJECT CLEAN ARCHITECTURE ROUTERS DYNAMICALLY FIRST ---
 import importlib
 import pkgutil
@@ -869,14 +899,26 @@ except ImportError as e:
     logger.warning(f"Cloud tick router skipped: {e}")
 
 # Mount multi-tenant router for secondary endpoints ONLY
-# The /api/v2/cloud-tick POST is handled directly in app_v2 below
 try:
     from core.multi_tenant import router as mt_router
     app.include_router(mt_router, prefix="/api")
     logger.info("[v17] Multi-tenant router mounted for status/management endpoints")
-except ImportError as e:
+except Exception as e:
     logger.warning(f"[v17] Multi-tenant router skipped: {e}")
+
+# --- NEXT-LEVEL ENTERPRISE ROUTERS ---
+try:
+    from web.routers.interview_router import router as interview_router
+    from web.routers.extension_router import router as extension_router
+    from web.routers.monetization_router import router as monetization_router
+    app.include_router(interview_router)
+    app.include_router(extension_router)
+    app.include_router(monetization_router)
+    logger.info("[Enterprise] Interview, Extension Sync, and Monetization routers registered successfully.")
+except Exception as e:
+    logger.warning(f"[Enterprise] Enterprise routers registration warning: {e}")
 # -----------------------------------------
+
 
 # Session middleware for API login
 from starlette.middleware.sessions import SessionMiddleware
@@ -1229,7 +1271,7 @@ class _CsrfEmojiMiddleware:
                                 body = text_body.encode("utf-8")
                             i18n_script = b'<script src="/static/js/i18n.js"></script>'
                             body = body.replace(b"</head>", i18n_script + b"</head>", 1)
-                            rtl_css = b'<style>.lang-ar .text-left{text-align:right!important}.lang-ar .text-right{text-align:left!important}</style>'
+                            rtl_css = b'<style>[dir="rtl"], .lang-ar { font-family: "Cairo", "Tajawal", "IBM Plex Arabic", sans-serif; } .lang-ar .text-left{text-align:start!important}.lang-ar .text-right{text-align:end!important}</style>'
                             body = body.replace(b"</head>", rtl_css + b"</head>", 1)
                             _headers = [(k, v) for k, v in (_headers or []) if k.lower() != b"content-length"]
                             _headers.append((b"content-length", str(len(body)).encode()))
@@ -1529,6 +1571,10 @@ def _create_billing_tables(conn):
         UNIQUE (tier)
     );
     CREATE INDEX IF NOT EXISTS idx_wallet_transactions_user_id ON wallet_transactions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
+    CREATE INDEX IF NOT EXISTS idx_orders_payment_status ON orders(payment_status);
+    CREATE INDEX IF NOT EXISTS idx_purchased_services_user_id ON purchased_services(user_id);
+    CREATE INDEX IF NOT EXISTS idx_purchased_services_status ON purchased_services(status);
     """)
 
 def _create_campaign_tables(conn):
@@ -1784,6 +1830,13 @@ def _create_features_tables(conn):
         value TEXT NOT NULL
     );
     INSERT OR IGNORE INTO system_config (key, value) VALUES ('panic_mode', 'false');
+    CREATE INDEX IF NOT EXISTS idx_support_tickets_user_id ON support_tickets(user_id);
+    CREATE INDEX IF NOT EXISTS idx_support_tickets_status ON support_tickets(status);
+    CREATE INDEX IF NOT EXISTS idx_manual_emails_user_id ON manual_emails(user_id);
+    CREATE INDEX IF NOT EXISTS idx_manual_emails_status ON manual_emails(status);
+    CREATE INDEX IF NOT EXISTS idx_follow_up_emails_campaign ON follow_up_emails(campaign_id);
+    CREATE INDEX IF NOT EXISTS idx_follow_up_emails_status ON follow_up_emails(status);
+    CREATE INDEX IF NOT EXISTS idx_flash_sales_active_time ON flash_sales(active, start_time, end_time);
     """)
 
 def _run_migrations(conn):
@@ -1887,7 +1940,7 @@ def _create_campaign_log_table(conn):
         logger.warning(f"Error creating email_campaign_log table: {e}")
 
 def init_saas_v2_db():
-    if os.getenv("SUPABASE_MODE"):
+    if config.SUPABASE_MODE:
         logger.info("[DB] SUPABASE_MODE: tables already exist in Supabase, skipping init")
         return
     try:
@@ -2168,9 +2221,27 @@ def deploy_from_github(request: Request, key: str = Query("")):
 @app.post("/api/v1/health")
 @app.head("/health")
 @app.head("/api/v1/health")
-def health_check():
-    """Minimal health check — no version/uptime/db leaks for security."""
-    return {"status": "healthy"}
+def health_check_main():
+    """Health check with DB connectivity verification."""
+    db_status = "ok"
+    try:
+        with get_db() as conn:
+            conn.execute("SELECT 1").fetchone()
+    except Exception as e:
+        logger.warning(f"Health check DB query failed: {e}")
+        db_status = "error"
+    return {
+        "status": "ok" if db_status == "ok" else "degraded",
+        "database": db_status
+    }
+
+
+@app.get("/admin/telemetry")
+@app.get("/api/v1/telemetry")
+def get_admin_telemetry():
+    """Real-time system telemetry and zero-dependency monitoring."""
+    from core.max_performance_engine import get_system_telemetry
+    return get_system_telemetry()
 
 
 @app.get("/api/v1/email-health")
@@ -2179,6 +2250,35 @@ def email_health_check():
     import os
     healthy = bool(os.getenv("BREVO_API_KEY", "") or (os.getenv("BREVO_SMTP_USER", "") and os.getenv("BREVO_SMTP_PASS", "")) or (os.getenv("GMAIL_SMTP_USER_1", "") and os.getenv("GMAIL_APP_PASSWORD_1", "")))
     return {"healthy": healthy}
+
+
+@app.get("/api/v2/health")
+def health_v2():
+    """Enhanced health check with queue statistics for Worker Tick (GHA)."""
+    try:
+        with get_db() as conn:
+            pending = conn.execute(
+                "SELECT COUNT(*) as cnt FROM job_queue WHERE status='pending'"
+            ).fetchone()[0]
+            running = conn.execute(
+                "SELECT COUNT(*) as cnt FROM job_queue WHERE status='running'"
+            ).fetchone()[0]
+            completed_today = conn.execute(
+                "SELECT COUNT(*) as cnt FROM job_queue WHERE status='completed' AND updated_at > datetime('now', '-1 day')"
+            ).fetchone()[0]
+        return {
+            "status": "ok",
+            "version": "17.1",
+            "queue": {
+                "pending": pending,
+                "running": running,
+                "completed_today": completed_today
+            },
+            "timestamp": datetime.now(UTC).isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Health v2 check failed: {e}")
+        return {"status": "error", "detail": str(e)}
 
 
 @app.get("/api/v1/swarm/status")
@@ -5146,41 +5246,89 @@ async def upload_cv(
 
 @app.exception_handler(404)
 def custom_404_handler(request: Request, exc):
-    """Custom 404 page with JobHunt Pro styling."""
-    is_logged_in = False
-    if request.cookies.get("session"):
-        user_id = get_verified_user_id(request)
-        is_logged_in = bool(user_id)
-    html = '''<!DOCTYPE html>
-<html lang="en">
+    """Custom localized 404 page with JobHunt Pro styling & RTL support."""
+    lang = getattr(getattr(request, "state", None), "locale", "ar") or "ar"
+    is_ar = (lang == "ar")
+    dir_attr = "rtl" if is_ar else "ltr"
+    title = "404 — الصفحة غير موجودة" if is_ar else "404 — Page Not Found"
+    heading = "الصفحة غير موجودة" if is_ar else "Page Not Found"
+    desc = "الصفحة التي تبحث عنها غير موجودة، تم نقلها، أو أنها ضائعة في الفضاء الرقمي." if is_ar else "The page you are looking for does not exist, has been moved, or is lost in the void."
+    btn_text = "🏠 العودة للرئيسية" if is_ar else "🏠 Go Home"
+
+    html = f"""<!DOCTYPE html>
+<html lang="{lang}" dir="{dir_attr}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 — JobHunt Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>{title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;}
-        .container{text-align:center;padding:40px 20px;max-width:500px;}
-        .code{font-size:96px;font-weight:800;background:linear-gradient(135deg,#ff0055,#ff3377);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:8px;}
-        h1{font-size:24px;font-weight:700;margin-bottom:12px;}
-        p{color:#64748b;font-size:14px;margin-bottom:28px;line-height:1.6;}
-        .btn{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;transition:all .2s;}
-        .btn:hover{filter:brightness(1.15);transform:translateY(-1px);}
-        .emoji{font-size:48px;margin-bottom:16px;}
+        *{{margin:0;padding:0;box-sizing:border-box;}}
+        body{{font-family:'Cairo','Inter',sans-serif;background:#0a0a0f;color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;}}
+        .container{{text-align:center;padding:40px 20px;max-width:500px;}}
+        .code{{font-size:96px;font-weight:800;background:linear-gradient(135deg,#ff0055,#ff3377);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:8px;}}
+        h1{{font-size:24px;font-weight:700;margin-bottom:12px;}}
+        p{{color:#64748b;font-size:14px;margin-bottom:28px;line-height:1.6;}}
+        .btn{{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;transition:all .2s;}}
+        .btn:hover{{filter:brightness(1.15);transform:translateY(-1px);}}
+        .emoji{{font-size:48px;margin-bottom:16px;}}
     </style>
 </head>
 <body>
 <div class="container">
     <div class="emoji">🔮</div>
     <div class="code">404</div>
-    <h1>Page Not Found</h1>
-    <p>The page you are looking for does not exist, has been moved, or is lost in the void.</p>
-    <a href="/" class="btn">🏠 Go Home</a>
+    <h1>{heading}</h1>
+    <p>{desc}</p>
+    <a href="/" class="btn">{btn_text}</a>
 </div>
 </body>
-</html>'''
+</html>"""
     return HTMLResponse(html, status_code=404)
+
+@app.exception_handler(500)
+@app.exception_handler(Exception)
+def custom_500_handler(request: Request, exc: Exception):
+    """Global localized 500 exception handler with structured logging & RTL UI."""
+    logger.error(f"[GLOBAL 500 HANDLER] Exception on {request.url}: {exc}", exc_info=True)
+    lang = getattr(getattr(request, "state", None), "locale", "ar") or "ar"
+    is_ar = (lang == "ar")
+    dir_attr = "rtl" if is_ar else "ltr"
+    title = "500 — خطأ في النظام" if is_ar else "500 — System Error"
+    heading = "حدث خطأ غير متوقع" if is_ar else "An Unexpected Error Occurred"
+    desc = "نعتذر، حدث خطأ داخلي في الخادم. تم تسجيل الخطأ وفريقنا يعمل على معالجته." if is_ar else "We apologize, an internal server error occurred. The incident has been logged for review."
+    btn_text = "🏠 العودة للرئيسية" if is_ar else "🏠 Go Home"
+
+    html = f"""<!DOCTYPE html>
+<html lang="{lang}" dir="{dir_attr}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{{margin:0;padding:0;box-sizing:border-box;}}
+        body{{font-family:'Cairo','Inter',sans-serif;background:#0a0a0f;color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;}}
+        .container{{text-align:center;padding:40px 20px;max-width:500px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:16px;backdrop-filter:blur(12px);}}
+        .code{{font-size:80px;font-weight:800;background:linear-gradient(135deg,#ef4444,#dc2626);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:8px;}}
+        h1{{font-size:22px;font-weight:700;margin-bottom:12px;}}
+        p{{color:#94a3b8;font-size:14px;margin-bottom:28px;line-height:1.6;}}
+        .btn{{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;transition:all .2s;}}
+        .btn:hover{{filter:brightness(1.15);transform:translateY(-1px);}}
+        .emoji{{font-size:44px;margin-bottom:16px;}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="emoji">🛡️</div>
+    <div class="code">500</div>
+    <h1>{heading}</h1>
+    <p>{desc}</p>
+    <a href="/" class="btn">{btn_text}</a>
+</div>
+</body>
+</html>"""
+    return HTMLResponse(html, status_code=500)
 
 # NOTE: /api/docs template version is above at line ~2442; redirect /api-docs to it
 @app.get("/api-docs")
@@ -5275,7 +5423,7 @@ def email_test_send(request: Request, background_tasks: BackgroundTasks, to_emai
             html_parts.append(f'<p style="font-size:14px;">Best regards,<br><strong>{sender_name}</strong><br>{sender_email_user}<br>{home_country}</p>')
             html_parts.append('<p style="font-size:11px;color:#999;margin-top:30px;">Sent via <strong>JobHunt Pro</strong> - Automated Job Application Platform</p>')
             html_parts.append('</body></html>')
-            html = '\\n'.join(html_parts)
+            html = '\n'.join(html_parts)
         subject = f"Application for {job_title} - {company_name}"
 
         # Delegate sending email to background task to prevent 504 Timeout
@@ -5286,7 +5434,7 @@ def email_test_send(request: Request, background_tasks: BackgroundTasks, to_emai
 
 @app.post("/email-test/parse-cv")
 async def email_test_parse_cv(request: Request, cv_file: UploadFile = File(...)):
-    """Parse CV for Email Test page &#x2014; returns cv_text, cover_letter, email_body, job_title, company_name."""
+    """Parse CV for Email Test page — returns cv_text, cover_letter, email_body, job_title, company_name."""
     if not cv_file.filename:
         return JSONResponse({"error": "No file uploaded"}, status_code=400)
     # Resolve groq_key at the top of the function so all sub-calls can use it
@@ -5294,10 +5442,15 @@ async def email_test_parse_cv(request: Request, cv_file: UploadFile = File(...))
     if not all_keys:
         return JSONResponse({"error": "GROQ_API_KEY not configured"}, status_code=503)
     try:
+        raw = await cv_file.read()
+        from core.file_handler import FileValidator
+        is_valid, error_msg = FileValidator.validate_file_content(raw, cv_file.filename)
+        if not is_valid:
+            return JSONResponse({"error": error_msg}, status_code=400)
+
         ext = Path(cv_file.filename).suffix.lower()
         cv_content = ""
         if ext == '.pdf':
-            raw = await cv_file.read()
             cv_text_parts = []
             # Try PyMuPDF first, fall back to PyPDF2/pikepdf
             try:
@@ -5321,7 +5474,6 @@ async def email_test_parse_cv(request: Request, cv_file: UploadFile = File(...))
                         return JSONResponse({"error": "PDF parser unavailable (install PyMuPDF or PyPDF2)"}, status_code=500)
             cv_content = "\n".join(cv_text_parts)
         elif ext in ('.docx', '.doc'):
-            raw = await cv_file.read()
             try:
                 import docx as pdocx
                 doc = pdocx.Document(io.BytesIO(raw))
@@ -6046,7 +6198,7 @@ async def api_parse_cv(request: Request):
             skills.append(kw.title())
 
     # === PHASE 2: Groq for AI parts (summary, titles, current_title) ===
-    groq_key = (os.getenv("GROQ_API_KEY", "") or getattr(config, "GROQ_API_KEY", "")).strip()
+    groq_key = (config.GROQ_API_KEY).strip()
     all_keys = [k for k in GROQ_KEYS if k]
     if groq_key and groq_key not in all_keys:
         all_keys.insert(0, groq_key)
@@ -6129,6 +6281,12 @@ async def api_parse_cv_file(cv_file: UploadFile = File(...)):
         raise HTTPException(400, f"Unsupported format: {ext}. Use PDF, DOCX, DOC, TXT, or RTF.")
 
     raw = await cv_file.read()
+
+    # Validate magic bytes content signature
+    from core.file_handler import FileValidator
+    is_valid, error_msg = FileValidator.validate_file_content(raw, cv_file.filename)
+    if not is_valid:
+        raise HTTPException(400, error_msg)
 
     # Extract text from binary
     cv_text = ""
@@ -6250,7 +6408,7 @@ def _extract_text_from_cv(raw_bytes: bytes, filename: str) -> str:
 
 async def _parse_cv_text_with_ai(cv_text: str, known_certs: list[str]) -> dict:
     """Send CV text to Groq API and parse response to dictionary schema."""
-    groq_key = (os.getenv("GROQ_API_KEY", "") or getattr(config, "GROQ_API_KEY", "")).strip()
+    groq_key = (config.GROQ_API_KEY).strip()
     all_keys = [k for k in GROQ_KEYS if k]
     if groq_key and groq_key not in all_keys:
         all_keys.insert(0, groq_key)
@@ -6388,10 +6546,10 @@ class PreviewRequest(BaseModel):
 async def api_preview_email(req: PreviewRequest):
     """Preview an application email before sending."""
     # PA detection: PythonAnywhere nginx has 5s upstream timeout &#x2014; must use fast path
-    IS_PYTHONANYWHERE = bool(os.getenv("PYTHONANYWHERE_DOMAIN") or os.getenv("PYTHONANYWHERE_SITE"))
+    IS_PYTHONANYWHERE = bool(config.IS_PYTHONANYWHERE)
 
     # Use all 10 Groq keys &#x2014; rotate when one hits rate limit
-    groq_key = (os.getenv("GROQ_API_KEY", "") or getattr(config, "GROQ_API_KEY", "")).strip()
+    groq_key = (config.GROQ_API_KEY).strip()
     all_keys = [k for k in GROQ_KEYS if k]  # all 10 rotation keys
     if groq_key and groq_key not in all_keys:
         all_keys.insert(0, groq_key)  # config key gets priority
@@ -10125,15 +10283,41 @@ async def stream_cover_letter(
     user_cv: str,
     tone: str = "professional"
 ):
-    """IMP-243: Word-by-word streaming preview of cover letter."""
+    """IMP-243: Word-by-word streaming preview of cover letter with SQLite caching."""
+    import json
     from fastapi.responses import StreamingResponse
+    from core.ai_cache import make_key, get_cached, set_cached
+
+    cache_key = make_key(job_description, user_cv, tone)
+    cached_val = get_cached(cache_key)
+    if cached_val:
+        async def cached_streamer():
+            # Yield cached content in chunks
+            chunk_size = 20
+            for i in range(0, len(cached_val), chunk_size):
+                chunk = cached_val[i : i + chunk_size]
+                yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+                await asyncio.sleep(0.01)
+        return StreamingResponse(cached_streamer(), media_type="text/event-stream")
 
     from backend.ai_engine import generate_smart_cover_letter_stream
 
-    return StreamingResponse(
-        generate_smart_cover_letter_stream(job_description, user_cv, tone),
-        media_type="text/event-stream"
-    )
+    async def generating_streamer():
+        full_text = []
+        async for chunk_str in generate_smart_cover_letter_stream(job_description, user_cv, tone):
+            yield chunk_str
+            # Parse the text chunk from the event stream format
+            if chunk_str.startswith("data: "):
+                try:
+                    data = json.loads(chunk_str[6:])
+                    if "chunk" in data:
+                        full_text.append(data["chunk"])
+                except Exception:
+                    pass
+        if full_text:
+            set_cached(cache_key, "".join(full_text), model="default")
+
+    return StreamingResponse(generating_streamer(), media_type="text/event-stream")
 
 
 @app.post("/api/v1/onboarding/upload-cv", tags=["Onboarding"])

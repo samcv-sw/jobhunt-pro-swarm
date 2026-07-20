@@ -63,6 +63,17 @@ class RotatingEmailSender:
 
     def _sync_send_smtp(self, account: dict, msg: EmailMessage):
         """Synchronous SMTP logic to be run in a thread pool."""
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-            smtp.login(account["email"], account["password"])
-            smtp.send_message(msg)
+        smtp_server = account.get("smtp_server", "smtp.gmail.com")
+        smtp_port = int(account.get("smtp_port", 465))
+
+        logger.info(f"Connecting to SMTP server {smtp_server}:{smtp_port}...")
+        if smtp_port == 465:
+            with smtplib.SMTP_SSL(smtp_server, smtp_port) as smtp:
+                smtp.login(account["email"], account["password"])
+                smtp.send_message(msg)
+        else:
+            with smtplib.SMTP(smtp_server, smtp_port) as smtp:
+                smtp.starttls()
+                smtp.login(account["email"], account["password"])
+                smtp.send_message(msg)
+

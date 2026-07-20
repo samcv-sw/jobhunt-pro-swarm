@@ -62,9 +62,20 @@ async def get_stats(request: Request = None) -> dict[str, Any]:
 # Simple health checks (no DB dependency)
 # ---------------------------------------------------------------------------
 @router.get("/health")
-async def health_check(request: Request = None) -> dict[str, str]:
-    """Lightweight health check for load balancers."""
-    return {"status": "ok"}
+async def health_check(request: Request = None) -> dict[str, Any]:
+    """Lightweight health check with DB connectivity check."""
+    db_status = "ok"
+    try:
+        async with async_session() as session:
+            from sqlalchemy import text
+            await session.execute(text("SELECT 1"))
+    except Exception as e:
+        logger.warning(f"Health check DB query failed: {e}")
+        db_status = "error"
+    return {
+        "status": "ok" if db_status == "ok" else "degraded",
+        "database": db_status
+    }
 
 
 @router.get("/healthz")

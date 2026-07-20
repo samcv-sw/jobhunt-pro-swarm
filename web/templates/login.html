@@ -4,7 +4,7 @@
 <head>
 <link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
 <meta content="Login to JobHunt Pro — your AI-powered automated job application platform. Manage campaigns, track applications, and land your dream job faster." name="description"/>
 <meta content="noindex, follow" name="robots"/>
 <title>{{ _('Login — JobHunt Pro') }}</title>
@@ -63,15 +63,15 @@ body {
 .plan-badge{display:flex;align-items:center;gap:10px;background:rgba(0,240,255,0.06);border:1px solid rgba(0,240,255,0.15);border-radius:12px;padding:12px 16px;margin-block-end:24px}
 .plan-badge-icon{font-size:20px}
 .plan-badge-info strong{color:var(--accent-cyan);font-size:14px}
-.plan-badge-info span{color:var(--text-muted);font-size:12px;display:block}
+.plan-badge-info span{color:var(--text-muted);font-size: 14px;display:block}
 
 .form-group{margin-block-end:18px}
-.form-group label{display:block;font-size:13px;color:var(--text-muted);margin-block-end:6px;font-weight:500}
+.form-group label{display:block;font-size: 14px;color:var(--text-muted);margin-block-end:6px;font-weight:500}
 .form-group input{inline-size:100%;padding:13px 16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:15px;transition:all var(--transition);font-family:'Cairo',sans-serif}
 .form-group input:focus{outline:none;border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(0,240,255,0.1);background:rgba(255,255,255,0.06)}
 .form-group input::placeholder{color:var(--dim)}
 .pw-row{display:flex;justify-content:space-between;align-items:center;margin-block-end:24px}
-.pw-row a{color:var(--accent-cyan);text-decoration:none;font-size:13px}
+.pw-row a{color:var(--accent-cyan);text-decoration:none;font-size: 14px}
 .pw-row a:hover{text-decoration:underline}
 
 .btn-submit{inline-size:100%;padding:14px;background:linear-gradient(135deg,var(--accent-magenta),var(--accent-cyan));color:#020c1b;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:'Cairo',sans-serif;position:relative;overflow:hidden;}
@@ -84,15 +84,15 @@ body {
 .auth-footer a{color:var(--accent-cyan);text-decoration:none;font-weight:600;transition:color var(--transition);}
 .auth-footer a:hover{color:var(--accent-magenta);text-decoration:underline}
 
-.error{background:rgba(255,0,85,0.08);border:1px solid rgba(255,0,85,0.2);color:#ff0055;padding:12px 16px;border-radius:10px;margin-block-end:20px;font-size:13px;animation:shake 0.5s ease-out}
+.error{background:rgba(255,0,85,0.08);border:1px solid rgba(255,0,85,0.2);color:#ff0055;padding:12px 16px;border-radius:10px;margin-block-end:20px;font-size: 14px;animation:shake 0.5s ease-out}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 
-.trust-strip{text-align:center;margin-block-start:32px;font-size:11px;color:var(--dim);display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
+.trust-strip{text-align:center;margin-block-start:32px;font-size: 14px;color:var(--dim);display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
 .trust-strip span{display:flex;align-items:center;gap:4px}
 @media(max-width:480px){.auth-card{padding:28px 20px;border-radius:18px;} .auth-header h1{font-size:22px;} .trust-strip{gap:12px;}}
 @media(max-width:600px){.auth-card{padding:24px 20px;}}
 
-.oauth-divider{text-align:center;margin:20px 0;color:var(--dim);position:relative;font-size:13px;font-weight:500;}
+.oauth-divider{text-align:center;margin:20px 0;color:var(--dim);position:relative;font-size: 14px;font-weight:500;}
 .oauth-divider::before,.oauth-divider::after{content:'';position:absolute;inset-block-start:50%;inline-size:40%;block-size:1px;background:rgba(255,255,255,0.08);}
 .oauth-divider::before{inset-inline-start: 0;}
 .oauth-divider::after{inset-inline-end: 0;}
@@ -146,11 +146,11 @@ body {
 <form dir="auto" action="/login" method="POST">
 <div class="form-group">
 <label for="email">البريد الإلكتروني</label>
-<input autocomplete="email" autofocus="" dir="auto" id="email" name="email" placeholder="اسمك@مثال.com" required="" type="email"/>
+<input autocomplete="email" autofocus="" dir="auto" id="email" name="email" placeholder="اسمك@مثال.com" required="" type="email"/ dir="auto">
 </div>
 <div class="form-group">
 <label for="password">كلمة المرور</label>
-<input autocomplete="current-password" dir="auto" id="password" name="password" placeholder="●●●●●●●●" required="" type="password"/>
+<input autocomplete="current-password" dir="auto" id="password" name="password" placeholder="●●●●●●●●" required="" type="password"/ dir="auto">
 </div>
 <div class="pw-row">
 <a href="/forgot-password">نسيت كلمة المرور؟</a>

@@ -102,6 +102,34 @@ class FileValidator:
         
         return True, None
 
+    @staticmethod
+    def validate_file_content(content: bytes, filename: str) -> Tuple[bool, Optional[str]]:
+        """Validate file content by checking magic bytes to prevent execution of malicious uploads."""
+        if not content:
+            return False, "File is empty"
+            
+        ext = Path(filename).suffix.lower()
+        if ext == ".pdf":
+            if not content.startswith(b"%PDF"):
+                return False, "Invalid PDF: Magic bytes signature mismatch."
+        elif ext == ".docx":
+            if not content.startswith(b"PK\x03\x04"):
+                return False, "Invalid DOCX: Magic bytes signature mismatch."
+        elif ext == ".doc":
+            # doc files can be OLE compound binary or sometimes standard zip format (if renamed docx)
+            if not (content.startswith(b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1") or content.startswith(b"PK\x03\x04")):
+                return False, "Invalid DOC: Magic bytes signature mismatch."
+        elif ext == ".rtf":
+            if not content.startswith(b"{\\rtf"):
+                return False, "Invalid RTF: Magic bytes signature mismatch."
+        elif ext == ".txt":
+            # Simple heuristic check to confirm it's not a binary disguised as text
+            null_count = content.count(b"\x00")
+            if len(content) > 0 and (null_count / len(content)) > 0.05:
+                return False, "Invalid TXT: High density of null bytes suggests binary payload."
+                
+        return True, None
+
 
 class FileStorage:
     """Handle file storage operations."""

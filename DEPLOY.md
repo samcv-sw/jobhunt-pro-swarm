@@ -188,6 +188,9 @@ cd /home/jhfguf/jobhunt
 # 2. Pull / sync latest code
 git pull   # or upload via PA editor / Files tab
 
+# 2.5 Minify local JS/CSS assets (zero-cost, in-place, ~24% byte savings)
+python scripts/minify_local_assets.py
+
 # 3. Ensure deps
 pip install --user -r requirements.txt
 pip install --user a2wsgi

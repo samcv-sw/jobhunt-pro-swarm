@@ -68,7 +68,7 @@ Removed deprecated/test scripts:
 - ✅ Server fingerprint removal
 - ✅ CORS middleware with configurable origins
 
-**File**: Modified `backend/main.py` (lines 357-383)
+**File**: Modified `web/app_v2.py` (lines 708-750)
 
 ### Security Headers Details:
 ```

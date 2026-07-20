@@ -8,8 +8,8 @@
 
   .header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-block-end:28px}
   .header h1{font-family: 'Cairo', 'Orbitron',monospace;font-size:22px;font-weight:700;background:linear-gradient(135deg,#00f0ff,#ff0055);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .header .sub{font-size:13px;color:#64748b;margin-block-start:4px}
-  .header .date{font-size:12px;color:#52525b;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 14px}
+  .header .sub{font-size: 14px;color:#64748b;margin-block-start:4px}
+  .header .date{font-size: 14px;color:#52525b;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 14px}
 
   .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-block-end:28px}
   .kpi-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:20px 16px;text-align:center;transition:all .3s;position:relative;overflow:hidden}
@@ -21,7 +21,7 @@
   .kpi-card.danger::before{background:#ff0055}
   .kpi-card.info::before{background:#3b82f6}
   .kpi-card .kpi-value{font-size:30px;font-weight:800;line-height:1;margin-block-end:4px}
-  .kpi-card .kpi-label{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;color:#52525b;margin-block-start:4px}
+  .kpi-card .kpi-label{font-size: 14px;font-weight:600;color:#64748b;text-transform:uppercase;color:#52525b;margin-block-start:4px}
   .kpi-card .kpi-value.cyan{color:#00f0ff}
   .kpi-card .kpi-value.green{color:#4ade80}
   .kpi-card .kpi-value.yellow{color:#facc15}
@@ -31,7 +31,7 @@
 
   .rate-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-block-end:28px}
   .rate-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px;text-align:center}
-  .rate-card h3{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;margin-block-end:8px}
+  .rate-card h3{font-size: 14px;font-weight:600;color:#64748b;text-transform:uppercase;margin-block-end:8px}
   .rate-value{font-size:42px;font-weight:900;background:rgba(255,255,255,0.06);border-radius:3px;margin-block-start:12px;overflow:hidden}
   .rate-bar-fill{block-size:100%;border-radius:3px;transition:width 1s ease}
   .rate-bar-fill.green{background:linear-gradient(90deg,#4ade80,#22d3ee)}
@@ -42,8 +42,8 @@
   .section-title::after{content:'';flex:1;block-size:1px;background:linear-gradient(90deg,rgba(255,255,255,0.08),transparent)}
 
   .campaign-table{inline-size:100%;border-collapse:collapse;background:rgba(255,255,255,0.02);border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.05)}
-  .campaign-table th{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;padding:12px 14px;text-align: start;border-inset-block-end:1px solid rgba(255,255,255,0.05)}
-  .campaign-table td{padding:12px 14px;font-size:13px;border-inset-block-end:1px solid rgba(255,255,255,0.03)}
+  .campaign-table th{font-size: 14px;font-weight:700;color:#64748b;text-transform:uppercase;padding:12px 14px;text-align: start;border-inset-block-end:1px solid rgba(255,255,255,0.05)}
+  .campaign-table td{padding:12px 14px;font-size: 14px;border-inset-block-end:1px solid rgba(255,255,255,0.03)}
   .campaign-table tr:last-child td{border-inset-block-end:none}
   .campaign-table tr:hover td{background:rgba(255,255,255,0.03)}
   .campaign-table .num{font-weight:700;font-variant-numeric:tabular-nums;text-align:center}
@@ -52,7 +52,7 @@
   .campaign-table .num.red{color:#ff0055}
   .campaign-table .num.yellow{color:#facc15}
 
-  .badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;color:#3b82f6}
+  .badge{display:inline-block;font-size: 14px;font-weight:700;padding:3px 10px;border-radius:20px;color:#3b82f6}
   .badge-failed{background:rgba(255,0,85,0.15);color:#ff0055}
   .badge-opened{background:rgba(74,222,128,0.15);color:#4ade80}
   .badge-replied{background:rgba(250,204,21,0.15);color:#facc15}
@@ -61,7 +61,7 @@
   .empty-state .icon{font-size:48px;margin-block-end:12px;opacity:.4}
   .empty-state p{font-size:14px}
 
-  .nav-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#3b82f6;text-decoration:none;padding:8px 16px;border-radius:10px;background:rgba(59,130,246,0.08);transition:all .2s;margin-block-start:16px}
+  .nav-link{display:inline-flex;align-items:center;gap:6px;font-size: 14px;font-weight:600;color:#3b82f6;text-decoration:none;padding:8px 16px;border-radius:10px;background:rgba(59,130,246,0.08);transition:all .2s;margin-block-start:16px}
   .nav-link:hover{background:rgba(59,130,246,0.15)}
 
   @media(max-width:600px){.kpi-grid{grid-template-columns:1fr 1fr}.rate-grid{grid-template-columns:1fr}}

@@ -133,3 +133,79 @@ def force_reset_all(request: Request):
         return force_reset_all_campaigns()
     except Exception as e:
         return {"status": "error", "error": str(e)}
+
+
+# ---------------------------------------------------------------------------
+# Core Web Vitals collector — receives reports from the browser Performance
+# Observer and stores them in a fast in-memory ring buffer (no DB overhead).
+# ---------------------------------------------------------------------------
+_vitals_buffer: list[dict] = []
+_VITALS_MAX = 1000  # keep last 1000 measurements
+
+
+@router.post("/api/system/vitals")
+async def collect_web_vitals(request: Request):
+    """
+    Receive Core Web Vitals beacons from the frontend.
+    Expected payload: {"name": "LCP", "value": 1234, "rating": "good", "url": "/pricing"}
+    """
+    global _vitals_buffer
+    try:
+        data = await request.json()
+    except Exception:
+        return {"ok": False, "error": "invalid JSON"}
+
+    entry = {
+        "name": data.get("name", ""),
+        "value": data.get("value"),
+        "rating": data.get("rating", ""),
+        "url": data.get("url", ""),
+        "ts": time.time(),
+    }
+    _vitals_buffer.append(entry)
+    if len(_vitals_buffer) > _VITALS_MAX:
+        _vitals_buffer = _vitals_buffer[-_VITALS_MAX:]
+    return {"ok": True}
+
+
+@router.get("/api/system/vitals")
+def get_web_vitals(request: Request):
+    """Return aggregated Web Vitals stats (admin-only)."""
+    _, _, _, _, verify_system_key_fn, _ = _deps()
+    verify_system_key_fn(request)
+
+    if not _vitals_buffer:
+        return {"count": 0, "metrics": {}}
+
+    from collections import defaultdict
+    grouped: dict[str, list[float]] = defaultdict(list)
+    for entry in _vitals_buffer:
+        if entry.get("value") is not None:
+            grouped[entry["name"]].append(float(entry["value"]))
+
+    aggregated = {}
+    for metric, values in grouped.items():
+        values_sorted = sorted(values)
+        n = len(values_sorted)
+        aggregated[metric] = {
+            "count": n,
+            "p50": values_sorted[n // 2],
+            "p75": values_sorted[int(n * 0.75)],
+            "p95": values_sorted[int(n * 0.95)],
+            "avg": sum(values_sorted) / n,
+        }
+
+    return {"count": len(_vitals_buffer), "metrics": aggregated}
+
+
+@router.post("/api/system/ai-cache/purge")
+def system_ai_cache_purge(request: Request):
+    """Purge expired AI cache entries via system key verification (e.g. from GHA)."""
+    _, _, _, _, verify_system_key_fn, _ = _deps()
+    verify_system_key_fn(request)
+    try:
+        from core.ai_cache import purge_expired
+        deleted = purge_expired()
+        return {"status": "ok", "deleted": deleted}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}

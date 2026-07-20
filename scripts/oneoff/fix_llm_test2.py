@@ -13,7 +13,7 @@ lines = data.split(b'\n')
 
 # Build the replacement: lines 247-250
 replacement = [
-    b"        # Return JSON starting with [ — avoids _extract_json regex issue",
+    b"        # Return JSON starting with [ - avoids _extract_json regex issue",
     b"        return (",
     b'            \'[{"title": "Python Developer LLM", "url": "https://example.com/python-llm",\' ',
     b'             \'"company": "LLM Corp", "description_snippet": "Extracted via LLM fallback"}]\'',

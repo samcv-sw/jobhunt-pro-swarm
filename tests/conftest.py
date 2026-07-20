@@ -42,6 +42,24 @@ async def setup_test_database_session():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
+    # Run the web app's custom table creation functions
+    import sqlite3
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        from web.app_v2 import (
+            _create_billing_tables,
+            _create_campaign_tables,
+            _create_core_tables,
+            _create_features_tables,
+        )
+
+        _create_core_tables(conn)
+        _create_campaign_tables(conn)
+        _create_billing_tables(conn)
+        _create_features_tables(conn)
+    finally:
+        conn.close()
+
     yield
 
     # Clean up test DB after the session ends

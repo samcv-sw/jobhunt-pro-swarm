@@ -150,8 +150,8 @@ async def cloud_tick_endpoint(request: Request):
 def cloud_tick_status():
     return {
         "status": "ok",
-        "pa_token": bool(os.getenv("PA_API_TOKEN")),
-        "groq": bool(os.getenv("GROQ_API_KEY")),
+        "pa_token": bool(config.PA_API_TOKEN),
+        "groq": bool(config.GROQ_API_KEY),
         "time": datetime.now().isoformat(),
         "version": "v17.1-optimized"
     }

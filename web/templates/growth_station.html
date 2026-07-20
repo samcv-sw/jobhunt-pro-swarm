@@ -99,7 +99,7 @@
   padding: 14px 16px;
   border-bottom: 2px solid rgba(255,255,255,0.08);
   color: #64748b;
-  font-size: 13px;
+  font-size: 14px;
   text-transform: uppercase;
   font-weight: 700;
 }
@@ -200,12 +200,12 @@
 
       <div class="space-y-1">
         <label class="text-sm font-semibold text-slate-400">الكلمة المفتاحية / التخصص:</label>
-        <input type="text" id="keyword" dir="auto" placeholder="مثال: React Developer أو ATS" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+        <input type="text" id="keyword" dir="auto" placeholder="مثال: React Developer أو ATS" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500" dir="auto">
       </div>
 
       <div class="space-y-1" id="location-wrapper">
         <label class="text-sm font-semibold text-slate-400">الموقع الجغرافي:</label>
-        <input type="text" id="location" dir="auto" placeholder="مثال: Lebanon أو Dubai" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+        <input type="text" id="location" dir="auto" placeholder="مثال: Lebanon أو Dubai" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500" dir="auto">
       </div>
 
       <div class="space-y-1">
@@ -301,7 +301,7 @@
           <option value="b2b_maps">B2B Maps</option>
         </select>
         
-        <input type="text" id="search-input" dir="auto" onkeyup="loadLeads()" placeholder="ابحث بالاسم أو البريد..." class="bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
+        <input type="text" id="search-input" dir="auto" onkeyup="loadLeads()" placeholder="ابحث بالاسم أو البريد..." class="bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none" dir="auto">
         
         <button onclick="openOutreachModal()" class="btn-premium flex items-center gap-1.5 text-sm">
           <i data-lucide="megaphone" class="w-4 h-4"></i> أطلق حملة outreach
@@ -314,7 +314,7 @@
       <table class="premium-table" id="leads-table">
         <thead>
           <tr>
-            <th class="w-10"><input type="checkbox" id="select-all" dir="auto" onclick="toggleSelectAll(this)"></th>
+            <th class="w-10"><input type="checkbox" id="select-all" dir="auto" onclick="toggleSelectAll(this)" dir="auto"></th>
             <th>الاسم</th>
             <th>البريد الإلكتروني</th>
             <th>المصدر</th>
@@ -352,7 +352,7 @@
     <div class="space-y-4">
       <div>
         <label class="text-sm font-semibold text-slate-400 block mb-1">اسم الحملة:</label>
-        <input type="text" id="campaign-name" dir="auto" placeholder="مثال: React Developers Lebanon" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+        <input type="text" id="campaign-name" dir="auto" placeholder="مثال: React Developers Lebanon" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500" dir="auto">
       </div>
     </div>
     
@@ -435,7 +435,7 @@ function renderLeads(leads) {
     
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td><input type="checkbox" dir="auto" class="lead-checkbox" value="${l.id}"></td>
+      <td><input type="checkbox" dir="auto" class="lead-checkbox" value="${l.id}" dir="auto"></td>
       <td><div class="font-bold text-white">${l.name}</div></td>
       <td><span class="font-mono text-slate-300 text-xs">${l.email}</span></td>
       <td>${sourceBadge}</td>

@@ -109,6 +109,11 @@ async def upload_cv(
     if cv_file and cv_file.filename:
         try:
             file_bytes = await cv_file.read()
+            from core.file_handler import FileValidator
+            is_valid, error_msg = FileValidator.validate_file_content(file_bytes, cv_file.filename)
+            if not is_valid:
+                raise HTTPException(400, error_msg)
+
             fname = cv_file.filename.lower()
 
             if fname.endswith('.pdf'):

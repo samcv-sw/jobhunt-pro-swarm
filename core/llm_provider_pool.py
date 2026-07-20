@@ -86,6 +86,8 @@ class LLMProvider(Enum):
     GITHUB_MODELS = "github_models"
     QWEN = "qwen"
     ANTHROPIC = "anthropic"
+    NVIDIA = "nvidia"
+    MISTRAL = "mistral"
     DUMMY = "dummy"
 
 
@@ -300,6 +302,31 @@ PROVIDER_CONFIGS = [
         models=["claude-3-5-sonnet-20241022", "claude-3-5-sonnet-latest"],
         rate_limit_rpm=5,
         weight=9,  # High weight for high-quality generation
+        daily_limit=0,
+    ),
+    # ═══ NVIDIA NIM (free tier — 1000 credits startup pack) ═══
+    ProviderConfig(
+        name=LLMProvider.NVIDIA,
+        api_key_env="NVIDIA_API_KEY",
+        base_url="https://integrate.api.nvidia.com/v1/chat/completions",
+        models=[
+            "meta/llama-3.3-70b-instruct",
+            "nvidia/llama-3.1-nemotron-70b-instruct",
+            "meta/llama-3.1-70b-instruct",
+            "deepseek-ai/deepseek-r1",
+        ],
+        rate_limit_rpm=30,
+        weight=4,  # High priority, high quality and speed
+        daily_limit=0,
+    ),
+    # ═══ MISTRAL AI (free tier) ═══
+    ProviderConfig(
+        name=LLMProvider.MISTRAL,
+        api_key_env="MISTRAL_API_KEY",
+        base_url="https://api.mistral.ai/v1/chat/completions",
+        models=["mistral-tiny", "mistral-small-latest", "pixtral-12b-2409"],
+        rate_limit_rpm=30,
+        weight=3,
         daily_limit=0,
     ),
     # ═══ DUMMY (for testing) ═══

@@ -3,12 +3,11 @@
 <head>
     <meta name="description" content="JobHunt Pro: The world's most advanced AI-powered job application system. Fully automated, invisible, and hyper-efficient.">
     <meta property="og:title" content="JobHunt Pro - Ultimate AI Auto-Applier">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <link rel="stylesheet" href="/static/css/cyberpunk.css">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ANTI-GRAVITY MODE — JobHunt Pro</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
 <style>
@@ -16,7 +15,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
 
 body {
- font-family: 'Rajdhani', sans-serif;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Rajdhani', sans-serif;
  background: #0a0a1a;
  color: #fff;
  overflow: hidden;
@@ -52,23 +51,23 @@ body {
 }
 
 .logo {
- font-family: 'Orbitron', monospace;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron', monospace;
  font-size: 18px;
  font-weight: 900;
  background: linear-gradient(135deg, #00f0ff, #7b2ff7);
  -webkit-background-clip: text;
  -webkit-text-fill-color: transparent;
  text-shadow: 0 0 30px rgba(0,240,255,0.3);
- letter-spacing: 3px;
+ 
 }
 
 .anti-text {
- font-family: 'Orbitron', monospace;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron', monospace;
  font-size: 40px;
  font-weight: 900;
  text-align: center;
  text-transform: uppercase;
- letter-spacing: 10px;
+ 
  animation: pulse-glow 2s ease-in-out infinite;
  text-shadow: 0 0 40px rgba(123,47,247,0.6);
 }
@@ -92,8 +91,8 @@ body {
 }
 
 .ctrl-btn {
- font-family: 'Orbitron', monospace;
- font-size: 13px;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron', monospace;
+ font-size: 14px;
  font-weight: 700;
  padding: 12px 28px;
  border: 1px solid rgba(0,240,255,0.3);
@@ -102,7 +101,7 @@ body {
  cursor: pointer;
  border-radius: 4px;
  text-transform: uppercase;
- letter-spacing: 2px;
+ 
  transition: all 0.3s ease;
  backdrop-filter: blur(10px);
 }
@@ -138,7 +137,7 @@ body {
 }
 
 .stat-line {
- font-family: 'Rajdhani', sans-serif;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Rajdhani', sans-serif;
  font-size: 14px;
  color: rgba(255,255,255,0.6);
  line-height: 1.8;
@@ -157,10 +156,10 @@ body {
  inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;
  transform: translateX(-50%);
  z-index: 10;
- font-family: 'Rajdhani', sans-serif;
- font-size: 13px;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Rajdhani', sans-serif;
+ font-size: 14px;
  color: rgba(255,255,255,0.3);
- letter-spacing: 2px;
+ 
  text-align: center;
  animation: fade-pulse 3s ease-in-out infinite;
  pointer-events: none;
@@ -180,10 +179,10 @@ body {
  flex-direction: column;
  align-items: center;
  justify-content: center;
- font-family: 'Orbitron', monospace;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron', monospace;
  font-size: 16px;
  color: #00f0ff;
- letter-spacing: 4px;
+ 
  transition: opacity 0.8s ease;
 }
 #loading.hidden {
@@ -212,13 +211,13 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
- .anti-text { font-size: 24px; letter-spacing: 5px; }
+ .anti-text { font-size: 24px;  }
  .controls { inset-block-end: 20px; gap: 8px; }
- .ctrl-btn { font-size: 10px; padding: 8px 14px; }
+ .ctrl-btn { font-size: 14px; padding: 8px 14px; }
  #stats-display { inset-block-start: 70px; inset-inline-end: 15px; }
- .stat-line { font-size: 11px; }
+ .stat-line { font-size: 14px; }
  .top-bar { padding: 12px 15px; }
- .logo { font-size: 13px; }
+ .logo { font-size: 14px; }
 }
 </style>
 </head>

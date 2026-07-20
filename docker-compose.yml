@@ -63,7 +63,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - MAX_WORKERS=200
       - DAILY_SEND_LIMIT=2000
-      - DB_PATH=/app/data/jobhunt_saas_v2.db
+      # - DB_PATH=/app/data/jobhunt_saas_v2.db
       - DRY_RUN=${DRY_RUN:-false}
     ports:
       - "8000:8000"
@@ -122,7 +122,7 @@ services:
       dockerfile: Dockerfile
     container_name: jobhunt-celery
     restart: always
-    command: ["celery", "-A", "backend.celery_app", "worker", "--loglevel=info", "-P", "solo"]
+    command: ["celery", "-A", "backend.celery_app", "worker", "--loglevel=info", "-P", "eventlet", "--concurrency=100"]
     depends_on:
       redis:
         condition: service_healthy

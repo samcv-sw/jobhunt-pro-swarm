@@ -3,30 +3,29 @@
 <title>Admin Analytics | JobHunt Pro</title>
 <style>
  *{margin:0;padding:0;box-sizing:border-box}
- body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#e2e8f0;min-block-size:100vh}
+ body{font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter',sans-serif;background:#0a0a0f;color:#e2e8f0;min-block-size:100vh}
  .container{max-inline-size:1400px;margin:0 auto;padding:40px 24px}
  h1{font-size:28px;margin-block-end:4px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:inline-block}
  .subtitle{color:#64748b;margin-block-end:32px;font-size:14px}
  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-block-end:32px}
  .stat-card{background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px}
- .stat-card .label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:2px;margin-block-end:8px}
- .stat-card .value{font-size:36px;font-weight:900;letter-spacing:-1px}
- .stat-card .change{font-size:11px;margin-block-start:4px}
+ .stat-card .label{font-size: 14px;color:#64748b;text-transform:uppercase;margin-block-end:8px}
+ .stat-card .value{font-size:36px;font-weight:900;margin-block-start:4px}
  .stat-card .change.up{color:#22c55e}.stat-card .change.down{color:#ef4444}
  .chart-card{background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px;margin-block-end:16px}
  .chart-card h3{font-size:14px;margin-block-end:20px;color:#94a3b8}
  .bar-row{display:flex;align-items:center;gap:12px;margin-block-end:10px}
- .bar-row .bar-label{inline-size:140px;font-size:11px;color:#94a3b8;text-align: end;flex-shrink:0}
+ .bar-row .bar-label{inline-size:140px;font-size: 14px;color:#94a3b8;text-align: end;flex-shrink:0}
  .bar-row .bar-track{flex:1;block-size:28px;background:rgba(255,255,255,0.04);border-radius:6px;overflow:hidden}
- .bar-row .bar-fill{block-size:100%;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:10px;font-weight:700;color:#fff;min-inline-size:40px;transition:width 1s}
+ .bar-row .bar-fill{block-size:100%;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size: 14px;font-weight:700;color:#fff;min-inline-size:40px;transition:width 1s}
  .revenue-chart{display:flex;align-items:flex-end;gap:8px;block-size:200px;padding-block-start:16px}
  .revenue-bar{flex:1;border-radius:6px 6px 0 0;position:relative;min-inline-size:20px;transition:height 0.5s}
- .revenue-bar .bar-val{position:absolute;inset-block-start:-18px;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform:translateX(-50%);font-size:9px;font-weight:700;white-space:nowrap}
- .revenue-bar .bar-month{position:absolute;inset-block-end:-22px;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform:translateX(-50%);font-size:9px;color:#64748b;text-transform:uppercase}
+ .revenue-bar .bar-val{position:absolute;inset-block-start:-18px;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform:translateX(-50%);font-size: 14px;font-weight:700;white-space:nowrap}
+ .revenue-bar .bar-month{position:absolute;inset-block-end:-22px;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform:translateX(-50%);font-size: 14px;color:#64748b;text-transform:uppercase}
  .tier-card{padding:12px;border-radius:10px;margin-block-end:8px;display:flex;justify-content:space-between;align-items:center}
- .tier-card .tier-name{font-weight:600;font-size:13px}
- .tier-card .tier-stats{font-size:11px;color:#94a3b8}
- @media(max-width:768px){.grid{grid-template-columns:repeat(2,1fr)}.revenue-chart{overflow-x:auto}.bar-row .bar-label{inline-size:80px;font-size:10px}}
+ .tier-card .tier-name{font-weight:600;font-size: 14px}
+ .tier-card .tier-stats{font-size: 14px;color:#94a3b8}
+ @media(max-width:768px){.grid{grid-template-columns:repeat(2,1fr)}.revenue-chart{overflow-x:auto}.bar-row .bar-label{inline-size:80px;font-size: 14px}}
  </style>
 
 <div class="container">
@@ -99,19 +98,19 @@
  <!-- A/B Test Results -->
  <div class="chart-card">
  <h3>🧪 A/B Subject Line Testing</h3>
- <p style="font-size:12px;color:#64748b;margin-block-end:16px;">Test different email subjects to maximize open rates</p>
+ <p style="font-size: 14px;color:#64748b;margin-block-end:16px;">Test different email subjects to maximize open rates</p>
  <div id="abTestContainer" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
  <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:12px;padding:16px;text-align:center;">
- <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-block-end:8px;">Subject A</div>
- <div style="font-size:13px;margin-block-end:12px;color:#e2e8f0;">"Senior Network Engineer — 15+ Years Experience"</div>
+ <div style="font-size: 14px;color:#64748b;text-transform:uppercase;margin-block-end:8px;">Subject A</div>
+ <div style="font-size: 14px;margin-block-end:12px;color:#e2e8f0;">"Senior Network Engineer — 15+ Years Experience"</div>
  <div style="font-size:28px;font-weight:900;color:#3b82f6;">{{ ab_test_a_rate or 32 }}%</div>
- <div style="font-size:10px;color:#64748b;">open rate · {{ ab_test_a_sent or 100 }} sent</div>
+ <div style="font-size: 14px;color:#64748b;">open rate · {{ ab_test_a_sent or 100 }} sent</div>
  </div>
  <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:12px;padding:16px;text-align:center;">
- <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-block-end:8px;">Subject B</div>
- <div style="font-size:13px;margin-block-end:12px;color:#e2e8f0;">"Infrastructure Expert — CCNA, Fortinet NSE, MikroTik MTCNA"</div>
+ <div style="font-size: 14px;color:#64748b;text-transform:uppercase;margin-block-end:8px;">Subject B</div>
+ <div style="font-size: 14px;margin-block-end:12px;color:#e2e8f0;">"Infrastructure Expert — CCNA, Fortinet NSE, MikroTik MTCNA"</div>
  <div style="font-size:28px;font-weight:900;color:#8b5cf6;">{{ ab_test_b_rate or 44 }}%</div>
- <div style="font-size:10px;color:#64748b;">open rate · {{ ab_test_b_sent or 100 }} sent</div>
+ <div style="font-size: 14px;color:#64748b;">open rate · {{ ab_test_b_sent or 100 }} sent</div>
  </div>
  </div>
  </div>

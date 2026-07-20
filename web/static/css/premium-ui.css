@@ -43,7 +43,7 @@
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
   
   /* Dynamic font setup */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Cairo', 'Tajawal', 'Inter', sans-serif;
   
   /* Logical Properties for RTL */
   --text-x-direction: 1; /* Default LTR, set to -1 in RTL */
@@ -51,12 +51,12 @@
 
 [dir="rtl"] {
   --text-x-direction: -1;
-  --font-sans: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+  --font-sans: 'Cairo', 'Tajawal', 'Inter', sans-serif;
 }
 
 [dir="ltr"] {
   --text-x-direction: 1;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Cairo', 'Tajawal', 'Inter', sans-serif;
 }
 
 /* ==========================================================================

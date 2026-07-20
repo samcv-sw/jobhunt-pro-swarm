@@ -4,7 +4,7 @@
 <head>
 <link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
 <meta content="أكمل عملية شراء JobHunt Pro بأمان." name="description"/>
 <meta content="noindex, follow" name="robots"/>
 <title>{{ _('الدفع — JobHunt Pro') }}</title>
@@ -45,7 +45,7 @@
 
  .amount-label { font-size: 14px; color: #94a3b8; margin-block-end: 4px; }
  .amount-value { font-size: 32px; font-weight: 800; color: #3b82f6; }
- .order-id { font-size: 12px; color: #64748b; margin-block-start: 8px; font-family: 'Cairo', monospace; }
+ .order-id { font-size: 14px; color: #64748b; margin-block-start: 8px; font-family: 'Cairo', monospace; }
 
  .qr-section {
  margin-block-end: 28px;
@@ -70,7 +70,7 @@
  border-radius: 12px;
  padding: 12px 16px;
  font-family: 'Cairo', monospace;
- font-size: 12px;
+ font-size: 14px;
  color: #94a3b8;
  margin-block-end: 16px;
  word-break: break-all;
@@ -82,7 +82,7 @@
  border-color: rgba(59, 130, 246, 0.4);
  }
 
- .instruction { font-size: 13px; color: #94a3b8; margin-block-end: 24px; line-height: 1.5; }
+ .instruction { font-size: 14px; color: #94a3b8; margin-block-end: 24px; line-height: 1.5; }
 
  .btn {
  display: block;
@@ -129,7 +129,7 @@
  gap: 6px;
  padding: 6px 14px;
  border-radius: 20px;
- font-size: 12px;
+ font-size: 14px;
  font-weight: 600;
  background: rgba(249, 115, 22, 0.15);
  color: #f97316;
@@ -163,7 +163,7 @@
 <div class="amount-display">${{ "%.2f"|format(order.amount_usd) }}</div>
 <div style="margin-block-end:20px;">
 <span class="crypto-badge">{{ currency }}</span>
-<span style="font-size:12px;color:#64748b;margin-inline-start:8px;">الطلب: {{ order.order_id[:12] }}...</span>
+<span style="font-size: 14px;color:#64748b;margin-inline-start:8px;">الطلب: {{ order.order_id[:12] }}...</span>
 </div>
 <div style="block-size:1px;background:rgba(255,255,255,0.06);margin-block-end:20px;"></div>
 </div>
@@ -177,10 +177,10 @@
  </div>
 </div>
 <div style="background:rgba(255,255,255,0.03);border-radius:16px;padding:20px;margin-block-end:24px;">
-<div style="font-size:13px;color:#64748b;text-align:center;margin-block-end:4px;">
+<div style="font-size: 14px;color:#64748b;text-align:center;margin-block-end:4px;">
  أرسل <strong>${{ "%.2f"|format(order.amount_usd) }}</strong> بعملة <strong>{{ currency }}</strong> إلى العنوان أعلاه.
  </div>
-<div style="font-size:12px;color:#475569;text-align:center;">
+<div style="font-size: 14px;color:#475569;text-align:center;">
  بعد الإرسال، أرسل بريداً إلكترونياً إلى <strong style="color:#3b82f6;">{{ _('samsalameh.cv@gmail.com') }}</strong> {{ _('يحتوي على معرف المعاملة (hash).') }}
  <br/>سيتم إضافة الرصيد لحسابك خلال 24 ساعة.
  </div>

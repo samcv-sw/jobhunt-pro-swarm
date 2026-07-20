@@ -1,0 +1,10 @@
+name = "jobhunt-pro-keepalive"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+APP_URL = "https://jobhunt-pro.onrender.com/"
+ENGINE_URL = "https://jobhunt-pro-engine.onrender.com/"
+
+[triggers]
+crons = ["*/5 * * * *"]

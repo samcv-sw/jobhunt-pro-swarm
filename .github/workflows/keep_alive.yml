@@ -1,0 +1,26 @@
+name: 24/7 Cloud Endpoint Keep-Alive
+
+on:
+  schedule:
+    # Run every 5 minutes 24/7
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping-keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Cloud Backend Health Check
+        run: |
+          URL="${{ secrets.CLOUD_APP_URL }}"
+          if [ -z "$URL" ]; then
+            URL="https://jobhunt-pro.onrender.com/health"
+          fi
+          echo "Pinging 24/7 Cloud Endpoint: $URL"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$URL" || echo "500")
+          echo "HTTP Status Code: $STATUS"
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+            echo "SUCCESS: Endpoint is active and warm!"
+          else
+            echo "WARNING: Endpoint returned status $STATUS (or ping timed out)"
+          fi

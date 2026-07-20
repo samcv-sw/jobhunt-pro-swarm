@@ -4,7 +4,7 @@
 <head>
 <link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
 <meta content="سجّل دخولك إلى JobHunt Pro — منصة الذكاء الاصطناعي للتقديم التلقائي على الوظائف." name="description"/>
 <meta property="og:title" content="دخول — جوب هانت برو"/>
 <meta property="og:description" content="سجّل دخولك وتحكّم بحملاتك وتقديماتك الوظيفية الآن."/>
@@ -184,12 +184,12 @@ body.auth-page {
 <form dir="auto" action="/login" id="loginForm" method="POST" onsubmit="handleLogin(event)">
 <div class="form-group">
 <label for="email">البريد الإلكتروني</label>
-<input autocomplete="email" autofocus="" dir="auto" id="email" name="email" placeholder="you@example.com" required="" type="email"/>
+<input autocomplete="email" autofocus="" dir="auto" id="email" name="email" placeholder="you@example.com" required="" type="email"/ dir="auto">
 </div>
 <div class="form-group">
 <label for="password">كلمة المرور</label>
 <div class="pw-input-wrap">
-<input autocomplete="current-password" dir="auto" id="password" name="password" oninput="checkPwStrength(this.value)" placeholder="●●●●●●●●" required="" type="password"/>
+<input autocomplete="current-password" dir="auto" id="password" name="password" oninput="checkPwStrength(this.value)" placeholder="●●●●●●●●" required="" type="password"/ dir="auto">
 <button aria-label="Toggle password visibility" class="pw-toggle-btn" id="pwToggle" onclick="togglePwVisibility()" type="button">👁️</button>
 </div>
 <!-- Password Strength Meter -->
@@ -199,8 +199,8 @@ body.auth-page {
 <div class="pw-strength-label" id="pwStrengthLabel"></div>
 </div>
 <div class="pw-row">
-<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);cursor:pointer;">
-<input dir="auto" name="remember" style="accent-color:#00f0ff;" type="checkbox"/> تذكرني
+<label style="display:flex;align-items:center;gap:6px;font-size: 14px;color:var(--text-muted);cursor:pointer;">
+<input dir="auto" name="remember" style="accent-color:#00f0ff;" type="checkbox"/ dir="auto"> تذكرني
           </label>
 <a href="/forgot-password">نسيت كلمة المرور؟</a>
 </div>

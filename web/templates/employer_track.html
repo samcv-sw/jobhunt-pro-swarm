@@ -72,11 +72,11 @@
   <p>أدخل بريدك الإلكتروني لرؤية جميع وظائفك، أو البريد الإلكتروني + معرف الوظيفة لمنشور محدد.</p>
   <div style="margin-block-start:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(59,130,246,.08);padding:8px 16px;border-radius:10px;border:1px solid rgba(59,130,246,.2);">
-      <input dir="auto" type="checkbox" id="notifyCheck" style="accent-color:#3b82f6;" onchange="toggleNotifications()">
+      <input dir="auto" type="checkbox" id="notifyCheck" style="accent-color:#3b82f6;" onchange="toggleNotifications()" dir="auto">
       <span style="font-size:.85em;">📩 إشعاري عبر البريد الإلكتروني عند تقدم شخص ما</span>
     </label>
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(139,92,246,.08);padding:8px 16px;border-radius:10px;border:1px solid rgba(139,92,246,.2);">
-      <input dir="auto" type="checkbox" id="liveRefresh" style="accent-color:#8b5cf6;" onchange="toggleLiveRefresh()">
+      <input dir="auto" type="checkbox" id="liveRefresh" style="accent-color:#8b5cf6;" onchange="toggleLiveRefresh()" dir="auto">
       <span style="font-size:.85em;">🔄 تحديث تلقائي كل 30 ثانية</span>
     </label>
   </div>
@@ -87,11 +87,11 @@
   <h2>🔍 ابحث عن وظائفك</h2>
   <div class="form-group">
     <label>📧 بريدك الإلكتروني *</label>
-    <input dir="auto" type="email" id="trackEmail" placeholder="hr@yourcompany.com" required>
+    <input dir="auto" type="email" id="trackEmail" placeholder="hr@yourcompany.com" required dir="auto">
   </div>
   <div class="form-group">
     <label>🆔 معرف الوظيفة (اختياري — لوظيفة محددة)</label>
-    <input dir="auto" type="text" id="trackJobId" placeholder="job_xxxxxxxxxxxx">
+    <input dir="auto" type="text" id="trackJobId" placeholder="job_xxxxxxxxxxxx" dir="auto">
   </div>
   <button class="track-btn" onclick="trackJobs()">🔍 ابحث عن وظائفك</button>
   <div class="msg" id="trackMsg"></div>
@@ -331,11 +331,11 @@ function renderJobs(jobs, email) {
     html += '<div class="detail-section" id="applyForm_' + j.job_id + '" style="border:1px solid rgba(34,197,94,.2);background:rgba(34,197,94,.03);">';
     html += '<h4 style="margin-block-end:10px;color:#4ade80;">📩 التقديم على هذه الوظيفة</h4>';
     html += '<form dir="auto" onsubmit="event.preventDefault();submitApplication(\'' + j.job_id + '\');" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
-    html += '<div><input dir="auto" id="apply_' + j.job_id + '_name" placeholder="الاسم الكامل *" required style="inline-size:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
-    html += '<div><input dir="auto" id="apply_' + j.job_id + '_email" type="email" placeholder="البريد الإلكتروني *" required style="inline-size:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
-    html += '<div><input dir="auto" id="apply_' + j.job_id + '_phone" placeholder="رقم الهاتف (اختياري)" style="inline-size:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;"></div>';
+    html += '<div><input dir="auto" id="apply_' + j.job_id + '_name" placeholder="الاسم الكامل *" required style="inline-size:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;" dir="auto"></div>';
+    html += '<div><input dir="auto" id="apply_' + j.job_id + '_email" type="email" placeholder="البريد الإلكتروني *" required style="inline-size:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;" dir="auto"></div>';
+    html += '<div><input dir="auto" id="apply_' + j.job_id + '_phone" placeholder="رقم الهاتف (اختياري)" style="inline-size:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;" dir="auto"></div>';
     html += '<div><button class="btn" id="apply_' + j.job_id + '_btn" type="submit" style="inline-size:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;cursor:pointer;">📩 إرسال الطلب</button></div>';
-    html += '<div style="grid-column:1/-1;"><textarea dir="auto" id="apply_' + j.job_id + '_note" placeholder="رسالة تغطية / ليش إنت مناسب للوظيفة..." style="inline-size:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;min-block-size:60px;resize:vertical;font-family: 'Cairo', inherit;"></textarea></div>';
+    html += '<div style="grid-column:1/-1;"><textarea dir="auto" id="apply_' + j.job_id + '_note" placeholder="رسالة تغطية / ليش إنت مناسب للوظيفة..." style="inline-size:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;min-block-size:60px;resize:vertical;font-family: 'Cairo', inherit;" dir="auto"></textarea></div>';
     html += '<div id="apply_' + j.job_id + '_msg" style="grid-column:1/-1;font-size:.85em;"></div>';
     html += '</form></div>';
     

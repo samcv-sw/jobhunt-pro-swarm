@@ -7,25 +7,25 @@
 <style>
 .offers-page { inline-size: 100%; }
 .offers-header { display: flex; justify-content: space-between; align-items: center; margin-block-end: 28px; flex-wrap: wrap; gap: 16px; }
-.offers-title-wrapper h1 { font-size: 32px; font-weight: 800; background: linear-gradient(90deg, #f1f5f9, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-block-end: 4px; letter-spacing: -0.5px; }
+.offers-title-wrapper h1 { font-size: 32px; font-weight: 800; background: linear-gradient(90deg, #f1f5f9, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-block-end: 4px;  }
 .offers-title-wrapper p { font-size: 14px; color: var(--text-dim); }
 
 .wallet-badge { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.1)); border: 1px solid rgba(59, 130, 246, 0.25); padding: 10px 18px; border-radius: 14px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1); }
-.wallet-badge span { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-.wallet-badge strong { color: #22c55e; font-size: 18px; font-weight: 800; letter-spacing: -0.5px; text-shadow: 0 0 10px rgba(34, 197, 148, 0.2); }
+.wallet-badge span { font-size: 14px; color: var(--text-dim); text-transform: uppercase;  font-weight: 600; }
+.wallet-badge strong { color: #22c55e; font-size: 18px; font-weight: 800;  text-shadow: 0 0 10px rgba(34, 197, 148, 0.2); }
 
 /* Admin Dashboard Panel with Gradient Border Glow */
 .admin-card { background: linear-gradient(135deg, rgba(15, 10, 28, 0.95), rgba(10, 8, 20, 0.95)); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: 18px; padding: 28px; margin-block-end: 36px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255,255,255,0.05); position: relative; }
 .admin-card::before { content: ''; position: absolute; inset-block-start: -1px; inset-inline-start: -1px; inset-inline-end: -1px; inset-block-end: -1px; border-radius: 18px; background: linear-gradient(135deg, #f43f5e, #8b5cf6); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; opacity: 0.35; }
 .admin-card h2 { font-size: 20px; font-weight: 800; color: #f1f5f9; margin-block-end: 6px; display: flex; align-items: center; gap: 8px; }
-.admin-card .sub { font-size: 13px; color: var(--text-dim); margin-block-end: 24px; }
+.admin-card .sub { font-size: 14px; color: var(--text-dim); margin-block-end: 24px; }
 
 .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
 @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
 .form-grid form { display: contents; }
 .form-group { display: flex; flex-direction: column; gap: 8px; }
 .form-group.full-width { grid-column: 1 / -1; }
-.form-group label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; }
+.form-group label { font-size: 14px; color: var(--text-dim); text-transform: uppercase;  font-weight: 700; }
 .form-control { inline-size: 100%; padding: 12px 16px; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: var(--text); font-size: 14px; outline: none; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
 .form-control:focus { border-color: #3b82f6; background: rgba(0, 0, 0, 0.7); box-shadow: 0 0 12px rgba(59, 130, 246, 0.25), inset 0 2px 4px rgba(0,0,0,0.3); }
 
@@ -33,7 +33,7 @@
 .img-preview { inline-size: 72px !important; block-size: 72px !important; flex-shrink: 0; max-inline-size: 72px; max-block-size: 72px; border-radius: 12px; border: 1.5px solid rgba(59, 130, 246, 0.4); background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--text-muted); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: all 0.2s ease; }
 .img-preview img { inline-size: 100% !important; block-size: 100% !important; object-fit: cover !important; display: block; border-radius: 10px; }
 
-.btn-cyber { padding: 12px 28px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); display: inline-flex; align-items: center; gap: 8px; text-decoration: none; justify-content: center; text-transform: uppercase; letter-spacing: 0.5px; }
+.btn-cyber { padding: 12px 28px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); display: inline-flex; align-items: center; gap: 8px; text-decoration: none; justify-content: center; text-transform: uppercase;  }
 .btn-cyber.primary { background: linear-gradient(135deg, #f43f5e, #ec4899); color: #fff; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.35); position: relative; overflow: hidden; }
 .btn-cyber.primary:hover { filter: brightness(1.1); transform: translateY(-1.5px); box-shadow: 0 6px 20px rgba(244, 63, 94, 0.5); }
 .btn-cyber.primary:active { transform: translateY(0); }
@@ -58,10 +58,10 @@
     50% { transform: scale(1.03); box-shadow: 0 0 16px rgba(34, 197, 94, 0.6); }
     100% { transform: scale(1); box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
 }
-.savings-badge { position: absolute; inset-block-start: 16px; inset-inline-start: 16px; background: #22c55e; color: #052e16; padding: 5px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; z-index: 10; animation: pulseGlow 2.5s infinite ease-in-out; }
+.savings-badge { position: absolute; inset-block-start: 16px; inset-inline-start: 16px; background: #22c55e; color: #052e16; padding: 5px 12px; border-radius: 8px; font-weight: 800; font-size: 14px; text-transform: uppercase;  z-index: 10; animation: pulseGlow 2.5s infinite ease-in-out; }
 
 .offer-body { padding: 24px; display: flex; flex-direction: column; flex: 1; }
-.offer-title { font-size: 20px; font-weight: 800; color: #f8fafc; margin-block-end: 10px; letter-spacing: -0.3px; }
+.offer-title { font-size: 20px; font-weight: 800; color: #f8fafc; margin-block-end: 10px;  }
 .offer-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; margin-block-end: 20px; flex: 1; }
 
 .offer-note { background: rgba(59, 130, 246, 0.03); border-inline-start: 3px solid #3b82f6; padding: 10px 14px; border-radius: 0 10px 10px 0; margin-block-end: 24px; font-size: 12.5px; color: #94a3b8; font-style: italic; line-height: 1.5; border-inset-block-start: 1px solid rgba(59, 130, 246, 0.05); border-inset-block-end: 1px solid rgba(59, 130, 246, 0.05); }
@@ -72,7 +72,7 @@
 .purchases-section { margin-block-start: 48px; }
 .purchase-table-container { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
 .purchase-table { inline-size: 100%; border-collapse: collapse; }
-.purchase-table th { text-align: start; font-size: 11px; text-transform: uppercase; color: var(--text-muted); padding: 14px; border-inset-block-end: 1px solid var(--border); letter-spacing: 0.8px; font-weight: 700; }
+.purchase-table th { text-align: start; font-size: 14px; text-transform: uppercase; color: var(--text-muted); padding: 14px; border-inset-block-end: 1px solid var(--border);  font-weight: 700; }
 .purchase-table td { padding: 14px; border-inset-block-end: 1px solid rgba(255, 255, 255, 0.02); font-size: 13.5px; color: var(--text-dim); }
 .purchase-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
 .reqs-cell { max-inline-size: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; color: var(--blue); text-decoration: underline; font-weight: 500; }
@@ -88,8 +88,8 @@
 .modal-overlay.show { display: flex; }
 .modal-card { background: rgba(13, 13, 23, 0.98); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 32px; max-inline-size: 540px; inline-size: 92%; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 20px 50px rgba(0,0,0,0.6); display: flex; flex-direction: column; max-block-size: 90vh; overflow: hidden; min-block-size: 0; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-.modal-card h3 { font-size: 20px; font-weight: 800; color: #f8fafc; margin-block-end: 8px; letter-spacing: -0.3px; }
-.modal-card p { font-size: 13px; color: var(--text-dim); margin-block-end: 20px; }
+.modal-card h3 { font-size: 20px; font-weight: 800; color: #f8fafc; margin-block-end: 8px;  }
+.modal-card p { font-size: 14px; color: var(--text-dim); margin-block-end: 20px; }
 .modal-card form { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-block-size: 0; }
 .modal-form-body { flex: 1; overflow-y: auto; padding-inline-end: 8px; margin-block-end: 20px; min-block-size: 0; }
 .modal-form-body::-webkit-scrollbar { inline-size: 6px; }
@@ -133,26 +133,26 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="offerTitle">Offer Title</label>
-                    <input dir="auto" class="form-control" type="text" name="title" id="offerTitle" placeholder="e.g. Executive CV Makeover + 100 Companies" required autocomplete="off">
+                    <input dir="auto" class="form-control" type="text" name="title" id="offerTitle" placeholder="e.g. Executive CV Makeover + 100 Companies" required autocomplete="off" dir="auto">
                 </div>
                 <div class="form-group">
                     <label for="offerPrice">Discounted Price (USD)</label>
-                    <input dir="auto" class="form-control" type="number" name="price" id="offerPrice" placeholder="e.g. 19.99" step="0.01" min="1" required>
+                    <input dir="auto" class="form-control" type="number" name="price" id="offerPrice" placeholder="e.g. 19.99" step="0.01" min="1" required dir="auto">
                 </div>
                 <div class="form-group">
                     <label for="offerOriginalPrice">Original Price (USD) &mdash; Optional</label>
-                    <input dir="auto" class="form-control" type="number" name="original_price" id="offerOriginalPrice" placeholder="e.g. 49.99" step="0.01" min="0">
+                    <input dir="auto" class="form-control" type="number" name="original_price" id="offerOriginalPrice" placeholder="e.g. 49.99" step="0.01" min="0" dir="auto">
                 </div>
                 <div class="form-group full-width">
                     <label for="offerDesc">Description</label>
-                    <textarea dir="auto" class="form-control" name="description" id="offerDesc" rows="3" placeholder="Explain what is included in this offer in detail..." required></textarea>
+                    <textarea dir="auto" class="form-control" name="description" id="offerDesc" rows="3" placeholder="Explain what is included in this offer in detail..." required dir="auto"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="offerImage">Offer Image</label>
-                    <input dir="auto" class="form-control" type="text" name="image_url" id="offerImage" placeholder="Paste image link URL or upload below..." autocomplete="off">
+                    <input dir="auto" class="form-control" type="text" name="image_url" id="offerImage" placeholder="Paste image link URL or upload below..." autocomplete="off" dir="auto">
                     <div class="img-preview-box">
-                        <input dir="auto" type="file" id="imageFileUploader" accept="image/*" style="display: none;" onchange="convertImageToBase64(this)">
-                        <button type="button" class="btn-cyber secondary" style="padding: 6px 12px; font-size: 11px;" onclick="document.getElementById('imageFileUploader').click()">📤 Upload File</button>
+                        <input dir="auto" type="file" id="imageFileUploader" accept="image/*" style="display: none;" onchange="convertImageToBase64(this)" dir="auto">
+                        <button type="button" class="btn-cyber secondary" style="padding: 6px 12px; font-size: 14px;" onclick="document.getElementById('imageFileUploader').click()">📤 Upload File</button>
                         <div class="img-preview" id="imagePreview">🖼️</div>
                     </div>
                 </div>
@@ -167,16 +167,16 @@
                 <div class="form-group full-width api-fields-add" style="display: none; grid-column: 1 / -1; gap: 20px; grid-template-columns: 1fr 1fr;">
                     <div class="form-group" style="grid-column: span 1;">
                         <label for="offerApiUrl">Reseller API URL</label>
-                        <input dir="auto" class="form-control" type="url" name="reseller_api_url" id="offerApiUrl" placeholder="https://api.provider.com/v1/generate">
+                        <input dir="auto" class="form-control" type="url" name="reseller_api_url" id="offerApiUrl" placeholder="https://api.provider.com/v1/generate" dir="auto">
                     </div>
                     <div class="form-group" style="grid-column: span 1;">
                         <label for="offerApiKey">Reseller API Key / Token</label>
-                        <input dir="auto" class="form-control" type="text" name="reseller_api_key" id="offerApiKey" placeholder="API Secret Key Token" autocomplete="off">
+                        <input dir="auto" class="form-control" type="text" name="reseller_api_key" id="offerApiKey" placeholder="API Secret Key Token" autocomplete="off" dir="auto">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="offerNote">Important Note (Guideline/Restriction)</label>
-                    <textarea dir="auto" class="form-control" name="note" id="offerNote" rows="2" placeholder="e.g. Note: Delivery takes 48 hours and requires your current CV."></textarea>
+                    <textarea dir="auto" class="form-control" name="note" id="offerNote" rows="2" placeholder="e.g. Note: Delivery takes 48 hours and requires your current CV." dir="auto"></textarea>
                 </div>
                 <div class="form-group full-width" style="margin-block-start: 8px;">
                     <button type="submit" class="btn-cyber primary">➕ Publish Special Offer</button>
@@ -202,7 +202,7 @@
                 </div>
                 <div class="form-group full-width">
                     <label for="importKeysText">Subscription Keys / Accounts List (One per line)</label>
-                    <textarea dir="auto" class="form-control" name="keys" id="importKeysText" rows="4" placeholder="Paste your keys, account credentials, or links here.&#10;One item per line.&#10;e.g. USER:PASS-IPTV-123&#10;e.g. https://vpn.com/claim?code=abc" required></textarea>
+                    <textarea dir="auto" class="form-control" name="keys" id="importKeysText" rows="4" placeholder="Paste your keys, account credentials, or links here.&#10;One item per line.&#10;e.g. USER:PASS-IPTV-123&#10;e.g. https://vpn.com/claim?code=abc" required dir="auto"></textarea>
                 </div>
                 <div class="form-group full-width" style="margin-block-start: 8px;">
                     <button type="submit" class="btn-cyber primary" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);">📥 Import Keys into Inventory Pool</button>
@@ -227,7 +227,7 @@
                 
                 <span class="price-tag">
                     {% if offer.original_price|float > offer.price|float %}
-                    <span style="text-decoration: line-through; font-size: 12px; color: #94a3b8; margin-inline-end: 6px; font-weight: 500;">
+                    <span style="text-decoration: line-through; font-size: 14px; color: #94a3b8; margin-inline-end: 6px; font-weight: 500;">
                         ${{ "%.2f"|format(offer.original_price|float) }}
                     </span>
                     {% endif %}
@@ -247,27 +247,27 @@
                 
                 {% if offer.delivery_type == 'instant_pool' %}
                     {% if offer.keys_in_stock and offer.keys_in_stock|int > 0 %}
-                        <div class="stock-badge in-stock" style="color: #60a5fa; font-size: 11px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(59, 130, 246, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(59, 130, 246, 0.2); text-transform: uppercase; letter-spacing: 0.5px;">
+                        <div class="stock-badge in-stock" style="color: #60a5fa; font-size: 14px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(59, 130, 246, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(59, 130, 246, 0.2); text-transform: uppercase; ">
                             ⚡ Instant Delivery ({{ offer.keys_in_stock }} left)
                         </div>
                     {% else %}
-                        <div class="stock-badge out-of-stock" style="color: #fbbf24; font-size: 11px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(245, 158, 11, 0.2); text-transform: uppercase; letter-spacing: 0.5px;">
+                        <div class="stock-badge out-of-stock" style="color: #fbbf24; font-size: 14px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(245, 158, 11, 0.2); text-transform: uppercase; ">
                             ⏳ Manual Delivery (Restocking keys)
                         </div>
                     {% endif %}
                 {% elif offer.delivery_type == 'instant_api' %}
-                    <div class="stock-badge in-stock" style="color: #a78bfa; font-size: 11px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(139, 92, 246, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(139, 92, 246, 0.2); text-transform: uppercase; letter-spacing: 0.5px;">
+                    <div class="stock-badge in-stock" style="color: #a78bfa; font-size: 14px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(139, 92, 246, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(139, 92, 246, 0.2); text-transform: uppercase; ">
                         ⚡ Instant API Activation
                     </div>
                 {% else %}
-                    <div class="stock-badge manual" style="color: #94a3b8; font-size: 11px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.03); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.08); text-transform: uppercase; letter-spacing: 0.5px;">
+                    <div class="stock-badge manual" style="color: #94a3b8; font-size: 14px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.03); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.08); text-transform: uppercase; ">
                         ⏳ Manual Processing (24-48h)
                     </div>
                 {% endif %}
                 
                 {% if offer.original_price|float > offer.price|float %}
                 {% set savings_usd = offer.original_price|float - offer.price|float %}
-                <div class="savings-amount" style="color: #4ade80; font-size: 13px; font-weight: 700; margin-block-end: 16px; display: flex; align-items: center; gap: 6px; background: rgba(34, 197, 94, 0.06); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.15); inline-size: fit-content;">
+                <div class="savings-amount" style="color: #4ade80; font-size: 14px; font-weight: 700; margin-block-end: 16px; display: flex; align-items: center; gap: 6px; background: rgba(34, 197, 94, 0.06); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.15); inline-size: fit-content;">
                     🏷️ Save ${{ "%.2f"|format(savings_usd) }} instantly!
                 </div>
                 {% endif %}
@@ -287,7 +287,7 @@
                     
                     {% if is_admin %}
                     <div class="admin-actions-row" style="display: flex; gap: 8px; inline-size: 100%;">
-                        <button type="button" class="btn-cyber secondary" style="flex: 1; color: #f59e0b; border-color: rgba(245,158,11,0.2); background: rgba(245,158,11,0.05); padding: 10px 14px; font-size: 12px; justify-content: center;" title="Edit Offer" onclick="openEditModal(this)"
+                        <button type="button" class="btn-cyber secondary" style="flex: 1; color: #f59e0b; border-color: rgba(245,158,11,0.2); background: rgba(245,158,11,0.05); padding: 10px 14px; font-size: 14px; justify-content: center;" title="Edit Offer" onclick="openEditModal(this)"
                                 data-id="{{ offer.offer_id }}"
                                 data-title="{{ offer.title|escape }}"
                                 data-price="{{ offer.price }}"
@@ -299,7 +299,7 @@
                                 data-reseller-api-url="{{ offer.reseller_api_url|escape if offer.reseller_api_url else '' }}"
                                 data-reseller-api-key="{{ offer.reseller_api_key|escape if offer.reseller_api_key else '' }}">✏️ Edit</button>
                         <form dir="auto" method="POST" action="/api/v2/offers/delete/{{ offer.offer_id }}" style="flex: 1; margin: 0; display: flex;" onsubmit="return confirm('Are you sure you want to delete this offer?');">
-                            <button type="submit" class="btn-cyber secondary" style="inline-size: 100%; color: #ef4444; border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05); padding: 10px 14px; font-size: 12px; justify-content: center;" title="Delete Offer">🗑️ Delete</button>
+                            <button type="submit" class="btn-cyber secondary" style="inline-size: 100%; color: #ef4444; border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05); padding: 10px 14px; font-size: 14px; justify-content: center;" title="Delete Offer">🗑️ Delete</button>
                         </form>
                     </div>
                     {% endif %}
@@ -312,7 +312,7 @@
     <div style="text-align: center; padding: 60px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; margin-block-end: 40px;">
         <span style="font-size: 48px;">📦</span>
         <h3 style="font-size: 18px; margin-block-start: 12px; color: var(--text-dim);">No special offers currently listed</h3>
-        <p style="font-size: 13px; color: var(--text-muted); max-inline-size: 400px; margin: 6px auto 0;">Please check back later or contact support to request a custom billing bundle.</p>
+        <p style="font-size: 14px; color: var(--text-muted); max-inline-size: 400px; margin: 6px auto 0;">Please check back later or contact support to request a custom billing bundle.</p>
     </div>
     {% endif %}
 
@@ -339,7 +339,7 @@
                         <td style="font-weight: 600; color: #e2e8f0;">{{ p.offer_title }}</td>
                         <td style="color: #60a5fa;">{{ p.user_email }}</td>
                         <td style="color: var(--green); font-weight: bold;">${{ "%.2f"|format(p.price_paid|float) }}</td>
-                        <td style="color: var(--text-muted); font-size: 12px;">{{ p.created_at[:16] }}</td>
+                        <td style="color: var(--text-muted); font-size: 14px;">{{ p.created_at[:16] }}</td>
                         <td class="reqs-cell" onclick="alert('User Requirements:\n\n' + {{ p.user_requirements|tojson }})">
                             {{ p.user_requirements }}
                         </td>
@@ -349,11 +349,11 @@
                             {% else %}
                                 <div style="display: flex; flex-direction: column; gap: 6px;">
                                     {% if p.fulfillment_status == 'failed' %}
-                                        <span style="color: #f87171; font-weight: 700; font-size: 11px;">⚠️ Failed ({{ p.fulfillment_error[:25] if p.fulfillment_error else 'API/Pool error' }})</span>
+                                        <span style="color: #f87171; font-weight: 700; font-size: 14px;">⚠️ Failed ({{ p.fulfillment_error[:25] if p.fulfillment_error else 'API/Pool error' }})</span>
                                     {% else %}
-                                        <span style="color: #fbbf24; font-weight: 700; font-size: 11px;">⏳ Pending</span>
+                                        <span style="color: #fbbf24; font-weight: 700; font-size: 14px;">⏳ Pending</span>
                                     {% endif %}
-                                    <button type="button" class="btn-cyber secondary" style="padding: 4px 8px; font-size: 11px; color: #60a5fa; border-color: rgba(59,130,246,0.2); background: rgba(59,130,246,0.05); cursor: pointer; justify-content: center; inline-size: fit-content;" onclick="openFulfillModal('{{ p.purchase_id }}', '{{ p.offer_title|escape }}', '{{ p.user_email|escape }}')">🔑 Fulfill Manually</button>
+                                    <button type="button" class="btn-cyber secondary" style="padding: 4px 8px; font-size: 14px; color: #60a5fa; border-color: rgba(59,130,246,0.2); background: rgba(59,130,246,0.05); cursor: pointer; justify-content: center; inline-size: fit-content;" onclick="openFulfillModal('{{ p.purchase_id }}', '{{ p.offer_title|escape }}', '{{ p.user_email|escape }}')">🔑 Fulfill Manually</button>
                                 </div>
                             {% endif %}
                         </td>
@@ -387,23 +387,23 @@
                 <tbody>
                     {% for k in inventory_keys %}
                     <tr>
-                        <td style="font-family: monospace; font-size: 12.5px; color: #e2e8f0; word-break: break-all;">{{ k.key_content }}</td>
+                        <td style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; font-size: 12.5px; color: #e2e8f0; word-break: break-all;">{{ k.key_content }}</td>
                         <td style="font-weight: 600; color: #94a3b8;">{{ k.offer_title }}</td>
                         <td>
                             {% if k.is_used == 1 %}
-                                <span class="status-badge" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--text-muted); font-size: 10px;" title="Used at: {{ k.used_at }}">Used by {{ k.user_email }}</span>
+                                <span class="status-badge" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--text-muted); font-size: 14px;" title="Used at: {{ k.used_at }}">Used by {{ k.user_email }}</span>
                             {% else %}
-                                <span class="status-badge fulfilled" style="background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.15); color: #4ade80; font-size: 10px;">Available</span>
+                                <span class="status-badge fulfilled" style="background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.15); color: #4ade80; font-size: 14px;">Available</span>
                             {% endif %}
                         </td>
                         <td style="color: var(--text-muted); font-size: 11.5px;">{{ k.created_at[:16] }}</td>
                         <td>
                             {% if k.is_used == 0 %}
                             <form dir="auto" method="POST" action="/api/v2/offers/delete-key/{{ k.key_id }}" style="margin: 0; display: inline;" onsubmit="return confirm('Are you sure you want to delete this key?');">
-                                <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; padding: 0;" title="Delete Key">🗑️ Delete</button>
+                                <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; padding: 0;" title="Delete Key">🗑️ Delete</button>
                             </form>
                             {% else %}
-                                <span style="color: var(--text-muted); font-size: 12px; font-style: italic;">Locked</span>
+                                <span style="color: var(--text-muted); font-size: 14px; font-style: italic;">Locked</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -430,7 +430,7 @@
             <div class="modal-form-body">
                 <div class="form-group">
                     <label for="modalReqs">Tell us what you need / your requirements:</label>
-                    <textarea dir="auto" class="form-control" name="requirements" id="modalReqs" rows="5" placeholder="Specify your preferences, target industries, links, email text guidelines, or details of what you need..." required></textarea>
+                    <textarea dir="auto" class="form-control" name="requirements" id="modalReqs" rows="5" placeholder="Specify your preferences, target industries, links, email text guidelines, or details of what you need..." required dir="auto"></textarea>
                 </div>
             </div>
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -446,33 +446,33 @@
 <div class="modal-overlay" id="editModalOverlay" onclick="closeEditModal()">
     <div class="modal-card" onclick="event.stopPropagation()" style="max-inline-size: 600px;">
         <h3>✏️ Edit Special Offer</h3>
-        <p style="font-size:12px; color: var(--text-dim); margin-block-end: 20px;">Modify the details of this special offer listing.</p>
+        <p style="font-size: 14px; color: var(--text-dim); margin-block-end: 20px;">Modify the details of this special offer listing.</p>
         
         <form dir="auto" id="editOfferForm" method="POST" action="">
             <div class="modal-form-body">
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="editOfferTitle">Offer Title</label>
-                        <input dir="auto" class="form-control" type="text" name="title" id="editOfferTitle" placeholder="e.g. Executive CV Makeover + 100 Companies" required autocomplete="off">
+                        <input dir="auto" class="form-control" type="text" name="title" id="editOfferTitle" placeholder="e.g. Executive CV Makeover + 100 Companies" required autocomplete="off" dir="auto">
                     </div>
                     <div class="form-group">
                         <label for="editOfferPrice">Discounted Price (USD)</label>
-                        <input dir="auto" class="form-control" type="number" name="price" id="editOfferPrice" placeholder="e.g. 19.99" step="0.01" min="1" required>
+                        <input dir="auto" class="form-control" type="number" name="price" id="editOfferPrice" placeholder="e.g. 19.99" step="0.01" min="1" required dir="auto">
                     </div>
                     <div class="form-group">
                         <label for="editOfferOriginalPrice">Original Price (USD) &mdash; Optional</label>
-                        <input dir="auto" class="form-control" type="number" name="original_price" id="editOfferOriginalPrice" placeholder="e.g. 49.99" step="0.01" min="0">
+                        <input dir="auto" class="form-control" type="number" name="original_price" id="editOfferOriginalPrice" placeholder="e.g. 49.99" step="0.01" min="0" dir="auto">
                     </div>
                     <div class="form-group full-width">
                         <label for="editOfferDesc">Description</label>
-                        <textarea dir="auto" class="form-control" name="description" id="editOfferDesc" rows="3" placeholder="Explain what is included in this offer in detail..." required></textarea>
+                        <textarea dir="auto" class="form-control" name="description" id="editOfferDesc" rows="3" placeholder="Explain what is included in this offer in detail..." required dir="auto"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="editOfferImage">Offer Image</label>
-                        <input dir="auto" class="form-control" type="text" name="image_url" id="editOfferImage" placeholder="Paste image link URL or upload below..." autocomplete="off">
+                        <input dir="auto" class="form-control" type="text" name="image_url" id="editOfferImage" placeholder="Paste image link URL or upload below..." autocomplete="off" dir="auto">
                         <div class="img-preview-box">
-                            <input dir="auto" type="file" id="editImageFileUploader" accept="image/*" style="display: none;" onchange="convertEditImageToBase64(this)">
-                            <button type="button" class="btn-cyber secondary" style="padding: 6px 12px; font-size: 11px;" onclick="document.getElementById('editImageFileUploader').click()">📤 Upload File</button>
+                            <input dir="auto" type="file" id="editImageFileUploader" accept="image/*" style="display: none;" onchange="convertEditImageToBase64(this)" dir="auto">
+                            <button type="button" class="btn-cyber secondary" style="padding: 6px 12px; font-size: 14px;" onclick="document.getElementById('editImageFileUploader').click()">📤 Upload File</button>
                             <div class="img-preview" id="editImagePreview">🖼️</div>
                         </div>
                     </div>
@@ -487,16 +487,16 @@
                     <div class="form-group full-width api-fields-edit" style="display: none; grid-column: 1 / -1; gap: 20px; grid-template-columns: 1fr 1fr;">
                         <div class="form-group" style="grid-column: span 1;">
                             <label for="editOfferApiUrl">Reseller API URL</label>
-                            <input dir="auto" class="form-control" type="url" name="reseller_api_url" id="editOfferApiUrl" placeholder="https://api.provider.com/v1/generate">
+                            <input dir="auto" class="form-control" type="url" name="reseller_api_url" id="editOfferApiUrl" placeholder="https://api.provider.com/v1/generate" dir="auto">
                         </div>
                         <div class="form-group" style="grid-column: span 1;">
                             <label for="editOfferApiKey">Reseller API Key / Token</label>
-                            <input dir="auto" class="form-control" type="text" name="reseller_api_key" id="editOfferApiKey" placeholder="API Secret Key Token" autocomplete="off">
+                            <input dir="auto" class="form-control" type="text" name="reseller_api_key" id="editOfferApiKey" placeholder="API Secret Key Token" autocomplete="off" dir="auto">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="editOfferNote">Important Note (Guideline/Restriction)</label>
-                        <textarea dir="auto" class="form-control" name="note" id="editOfferNote" rows="2" placeholder="e.g. Note: Delivery takes 48 hours."></textarea>
+                        <textarea dir="auto" class="form-control" name="note" id="editOfferNote" rows="2" placeholder="e.g. Note: Delivery takes 48 hours." dir="auto"></textarea>
                     </div>
                 </div>
             </div>
@@ -787,21 +787,21 @@ function closeFulfillModal() {
 <div class="modal-overlay" id="fulfillModalOverlay" onclick="closeFulfillModal()">
     <div class="modal-card" onclick="event.stopPropagation()">
         <h3>🔑 Manual Order Fulfillment</h3>
-        <p style="font-size:12px; color: var(--text-dim); margin-block-end: 20px;">Deliver credentials or subscription keys directly to the customer.</p>
+        <p style="font-size: 14px; color: var(--text-dim); margin-block-end: 20px;">Deliver credentials or subscription keys directly to the customer.</p>
         
         <form dir="auto" id="fulfillForm" method="POST" action="">
             <div class="modal-form-body">
                 <div class="form-group" style="margin-block-end: 12px;">
                     <label>Customer</label>
-                    <input dir="auto" class="form-control" type="text" id="fulfillCustomerEmail" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);">
+                    <input dir="auto" class="form-control" type="text" id="fulfillCustomerEmail" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);" dir="auto">
                 </div>
                 <div class="form-group" style="margin-block-end: 12px;">
                     <label>Offer Package</label>
-                    <input dir="auto" class="form-control" type="text" id="fulfillOfferTitle" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);">
+                    <input dir="auto" class="form-control" type="text" id="fulfillOfferTitle" readonly style="background: rgba(255,255,255,0.02); color: var(--text-muted); border-color: rgba(255,255,255,0.05);" dir="auto">
                 </div>
                 <div class="form-group">
                     <label for="fulfillCredentials">Delivered Credentials / Subscription Keys / Access Link</label>
-                    <textarea dir="auto" class="form-control" name="credentials" id="fulfillCredentials" rows="4" placeholder="Paste IPTV logins, premium license key, account details, or instructions here..." required></textarea>
+                    <textarea dir="auto" class="form-control" name="credentials" id="fulfillCredentials" rows="4" placeholder="Paste IPTV logins, premium license key, account details, or instructions here..." required dir="auto"></textarea>
                 </div>
             </div>
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-block-start: 20px;">

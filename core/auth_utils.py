@@ -200,7 +200,7 @@ class RateLimitManager:
         key = f"{user_id}:{endpoint}"
         if key in self._user_limits:
             user_data = self._user_limits[key]
-            window = user_data.get("window", 3600)
+            window = user_data.get("window", self._cleanup_interval)
             elapsed = (datetime.utcnow() - user_data["first_request"]).total_seconds()
             reset_in = max(0, int(window - elapsed))
             return reset_in

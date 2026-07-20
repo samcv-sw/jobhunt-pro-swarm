@@ -148,7 +148,7 @@
       <span class="px-3 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded-full border border-blue-500/20">{{ _('DOCX') }}</span>
       <span class="px-3 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20">{{ _('TXT') }}</span>
     </div>
-    <input accept=".pdf,.docx,.doc,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" dir="auto" id="cvFile" onchange="handleFileSelect(this)" type="file"/>
+    <input accept=".pdf,.docx,.doc,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" dir="auto" id="cvFile" onchange="handleFileSelect(this)" type="file"/ dir="auto">
   </div>
 
   <!-- File Info -->
@@ -179,26 +179,26 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
     <div class="space-y-1.5">
       <label class="text-[11px] font-bold text-slate-400 uppercase">الاسم الكامل</label>
-      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="مثال: سام سلامة" type="text" value="{{ user.name if user else '' }}"/>
+      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="مثال: سام سلامة" type="text" value="{{ user.name if user else '' }}"/ dir="auto">
     </div>
     <div class="space-y-1.5">
       <label class="text-[11px] font-bold text-slate-400 uppercase">البريد الإلكتروني</label>
-      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="you@example.com" type="email" value="{{ user.email if user else '' }}"/>
+      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="you@example.com" type="email" value="{{ user.email if user else '' }}"/ dir="auto">
     </div>
   </div>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
     <div class="space-y-1.5">
       <label class="text-[11px] font-bold text-slate-400 uppercase">رقم الهاتف</label>
-      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="+961 70 000 000" type="tel"/>
+      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="+961 70 000 000" type="tel"/ dir="auto">
     </div>
     <div class="space-y-1.5">
       <label class="text-[11px] font-bold text-slate-400 uppercase">الموقع</label>
-      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="مثال: بيروت، لبنان" type="text"/>
+      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="مثال: بيروت، لبنان" type="text"/ dir="auto">
     </div>
   </div>
   <div class="space-y-1.5">
     <label class="text-[11px] font-bold text-slate-400 uppercase">لينكد إن (اختياري)</label>
-    <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="https://linkedin.com/in/yourprofile" type="url"/>
+    <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="https://linkedin.com/in/yourprofile" type="url"/ dir="auto">
   </div>
 </div>
 
@@ -209,7 +209,7 @@
   </h3>
   <div class="space-y-1.5 mb-3">
     <label class="text-[11px] font-bold text-slate-400 uppercase">إضافة المهارات (مفصولة بفاصلة أو اضغط إدخال)</label>
-    <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="skillsInput" onkeydown="handleSkillTag(event)" placeholder="Python، JavaScript، إدارة المشاريع، ..."/>
+    <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="skillsInput" onkeydown="handleSkillTag(event)" placeholder="Python، JavaScript، إدارة المشاريع، ..."/ dir="auto">
   </div>
   <div class="flex flex-wrap gap-2" id="skillTags">
     <span class="px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">{{ _('Python') }} <i class="w-3 h-3" data-lucide="x"></i></span>
@@ -245,7 +245,7 @@
   </div>
   <div class="space-y-1.5">
     <label class="text-[11px] font-bold text-slate-400 uppercase">نطاق مخصص</label>
-    <input class="cv-input w-full md:w-1/2 bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="مثال: $60,000 - $90,000" type="text"/>
+    <input class="cv-input w-full md:w-1/2 bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="مثال: $60,000 - $90,000" type="text"/ dir="auto">
   </div>
 </div>
 

@@ -26,6 +26,12 @@ async def roast_resume(file: UploadFile = File(...)):
     """Extracts text from PDF and sends to Gemini for a brutal roast."""
     try:
         content = await file.read()
+        from core.file_handler import FileValidator
+        from fastapi import HTTPException
+        is_valid, error_msg = FileValidator.validate_file_content(content, file.filename)
+        if not is_valid:
+            raise HTTPException(400, error_msg)
+
         text = ""
 
         # 1. Try pdfplumber (preferred)

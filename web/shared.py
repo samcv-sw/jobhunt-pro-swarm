@@ -54,11 +54,7 @@ jinja_env = jinja2.Environment(
 
 # Database
 _BASE_DIR = Path(__file__).parent
-_db_val = getattr(config, "DB_PATH", None) or "data/jobhunt_saas_v2.db"
-if os.path.isabs(_db_val):
-    db_path = _db_val
-else:
-    db_path = str(_BASE_DIR.parent / _db_val)
+db_path = getattr(config, "DB_PATH", None) or str(_BASE_DIR.parent / "data" / "jobhunt_saas_v2.db")
 
 def get_db(max_retries: int = 4):
     """DB factory: Turso -> Neon PG shim -> SQLite fallback."""
@@ -88,11 +84,18 @@ def get_db(max_retries: int = 4):
         except Exception as e:
             logger.warning(f"[DB] Neon shim connection creation failed: {e}")
 
-    # Strategy 3: SQLite Local Fallback (pointing strictly to jobhunt_saas_v2.db)
+    # Strategy 3: SQLite Local Fallback (pointing strictly to jobhunt_saas_v2.db or custom SQLite URL)
+    target_sqlite = db_path
+    env_db_url = os.getenv("DATABASE_URL")
+    if env_db_url and "sqlite" in env_db_url:
+        path_part = env_db_url.replace("sqlite+aiosqlite:///", "").replace("sqlite:///", "")
+        if path_part:
+            target_sqlite = path_part
+
     for attempt in range(max_retries):
         try:
             import core.pg_sqlite_shim as shim
-            conn = shim.connect(db_path, check_same_thread=False, timeout=60)
+            conn = shim.connect(target_sqlite, check_same_thread=False, timeout=60)
             try:
                 is_pa = bool(
                     os.environ.get("PYTHONANYWHERE_SITE") or
@@ -176,24 +179,6 @@ def _check_rate_limit(store: dict, ip: str, max_count: int, window_seconds: int 
         for k in list(store.keys()):
             if now - store[k][0] > window_seconds:
                 del store[k]
-
-    is_pa = bool(
-        os.environ.get("PYTHONANYWHERE_SITE") or
-        os.environ.get("PYTHONANYWHERE_DOMAIN")
-    )
-    if is_pa:
-        if ip not in store:
-            store[ip] = [now, 1]
-            return True
-        last_time, count = store[ip]
-        if now - last_time > window_seconds:
-            store[ip] = [now, 1]
-            return True
-        if count >= max_count:
-            return False
-        store[ip] = [last_time, count+1]
-        return True
-
     try:
         with get_db() as conn:
             db_key = f"rl:web_store:{ip}"

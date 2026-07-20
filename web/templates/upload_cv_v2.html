@@ -4,7 +4,7 @@
 <head>
 <link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
 <meta content="Upload your CV to start AI-powered job applications." name="description"/>
 <meta content="noindex,nofollow" name="robots"/>
 <title>{{ _('Upload CV — JobHunt Pro') }}</title>
@@ -67,7 +67,7 @@
   margin-block-end: 4px;
 }
 .upload-scale .step-box .step-desc {
-  font-size: 12px;
+  font-size: 14px;
   color: #94a3b8;
   line-height: 1.5;
 }
@@ -121,7 +121,7 @@
 .upload-scale .fmt-badge {
   padding: 5px 12px;
   border-radius: 16px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
 }
 .upload-scale .fmt-badge.pdf { background: rgba(239,68,68,.12); color: #fca5a5; }
@@ -141,7 +141,7 @@
 .upload-scale .file-info.show { display: flex; }
 .upload-scale .form-group { margin-block-end: 14px; }
 .upload-scale .form-group label {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   color: #94a3b8;
   text-transform: uppercase;
@@ -157,7 +157,7 @@
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 8px;
   color: #e2e8f0;
-  font-size: 13px;
+  font-size: 14px;
   font-family: 'Cairo', 'Inter', sans-serif;
   outline: none;
   transition: all .2s;
@@ -215,9 +215,9 @@
   box-shadow: 0 4px 20px rgba(59,130,246,.15);
 }
 .upload-scale .salary-preset .flag { font-size: 20px; margin-block-end: 4px; }
-.upload-scale .salary-preset .preset-title { font-size: 13px; font-weight: 700; margin-block-end: 2px; }
+.upload-scale .salary-preset .preset-title { font-size: 14px; font-weight: 700; margin-block-end: 2px; }
 .upload-scale .salary-preset .preset-range { font-size: 15px; font-weight: 800; color: #22c55e; margin-block-end: 2px; }
-.upload-scale .salary-preset .preset-desc { font-size: 11px; color: #64748b; }
+.upload-scale .salary-preset .preset-desc { font-size: 14px; color: #64748b; }
 .upload-scale .style-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -242,8 +242,8 @@
   box-shadow: 0 4px 20px rgba(139,92,246,.15) !important;
 }
 .upload-scale .style-card .sc-icon { font-size: 24px; margin-block-end: 6px; }
-.upload-scale .style-card .sc-name { font-size: 13px; font-weight: 700; margin-block-end: 2px; }
-.upload-scale .style-card .sc-desc { font-size: 11px; color: #64748b; line-height: 1.4; }
+.upload-scale .style-card .sc-name { font-size: 14px; font-weight: 700; margin-block-end: 2px; }
+.upload-scale .style-card .sc-desc { font-size: 14px; color: #64748b; line-height: 1.4; }
 .upload-scale .doc-status {
   display: flex;
   justify-content: space-between;
@@ -255,16 +255,16 @@
   margin-block-end: 8px;
 }
 .upload-scale .doc-status h4 { font-size: 14px; font-weight: 600; margin-block-end: 2px; }
-.upload-scale .doc-status .ds-meta { font-size: 11px; color: #64748b; }
-.upload-scale .ds-ready { color: #22c55e; font-weight: 700; font-size: 12px; }
-.upload-scale .ds-pending { color: #64748b; font-size: 12px; }
+.upload-scale .doc-status .ds-meta { font-size: 14px; color: #64748b; }
+.upload-scale .ds-ready { color: #22c55e; font-weight: 700; font-size: 14px; }
+.upload-scale .ds-pending { color: #64748b; font-size: 14px; }
 .upload-scale .completed-badge {
   display: inline-flex;
   padding: 4px 12px;
   background: rgba(34,197,94,.15);
   color: #4ade80;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   margin-inline-start: 10px;
 }
@@ -280,7 +280,7 @@
 }
 .upload-scale .flash-banner .fb-text { font-size: 14px; font-weight: 600; color: #fca5a5; }
 .upload-scale .flash-banner .fb-timer { font-family: 'Cairo', monospace; font-size: 20px; font-weight: 800; color: #ef4444; }
-.upload-scale .flash-banner .fb-deal { font-size: 13px; color: #94a3b8; }
+.upload-scale .flash-banner .fb-deal { font-size: 14px; color: #94a3b8; }
 .upload-scale .btn {
   display: inline-flex;
   align-items: center;
@@ -307,7 +307,7 @@
   color: #94a3b8;
 }
 .upload-scale .btn-outline:hover { background: rgba(255,255,255,.04); }
-.upload-scale .btn-sm { padding: 7px 14px; font-size: 12px; }
+.upload-scale .btn-sm { padding: 7px 14px; font-size: 14px; }
 .upload-scale .pulse-btn { animation: pulseGlow 2s ease-in-out infinite; }
 @keyframes pulseGlow {
   0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,.4); }
@@ -532,11 +532,11 @@
 <span class="fmt-badge word">{{ _('📘 DOCX') }}</span>
 <span class="fmt-badge txt">{{ _('📄 TXT') }}</span>
 </div>
-<input accept=".pdf,.doc,.docx,.txt,.rtf" dir="auto" id="cvFileInput" type="file"/>
+<input accept=".pdf,.doc,.docx,.txt,.rtf" dir="auto" id="cvFileInput" type="file"/ dir="auto">
 </div>
 <div class="file-info" id="fileInfo">
 <span>✅ <span id="fileName"></span></span>
-<span style="margin-inline-start:auto;font-size:13px;color:#4ade80;">{{ _('✓ Ready for AI extraction') }}</span>
+<span style="margin-inline-start:auto;font-size: 14px;color:#4ade80;">{{ _('✓ Ready for AI extraction') }}</span>
 </div>
 <div style="text-align:center;color:#64748b;font-size:14px;margin:24px 0;position:relative;">
 <span style="background:#0a0a0f;padding:0 14px;position:relative;z-index:1;">{{ _('OR paste text below') }}</span>
@@ -547,7 +547,7 @@
 
 Include: Full Name, Contact Info, Work Experience, Education, Skills, Certifications, Languages...
 
-Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea>
+Then click ✨ Auto-Fill to let AI extract everything automatically." dir="auto"></textarea>
 </div>
 <button class="btn btn-ai pulse-btn" id="parseBtn" onclick="parseCV()" style="inline-size:100%;padding:18px;font-size:18px;" type="button">
       {{ _('✨ Auto-Fill My Profile with AI') }}
@@ -555,44 +555,44 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
 </div>
 <!-- Profile Form -->
 <form dir="auto" action="/upload-cv" enctype="multipart/form-data" id="cvForm" method="POST">
-<input dir="auto" id="profileNameHidden" name="profile_name" type="hidden"/>
-<input dir="auto" id="skillsHidden" name="skills" type="hidden"/>
-<input dir="auto" id="targetTitlesHidden" name="target_titles" type="hidden"/>
-<input dir="auto" id="targetLocationsHidden" name="target_locations" type="hidden"/>
-<input dir="auto" id="cvFullTextHidden" name="cv_full_text" type="hidden"/>
-<input dir="auto" id="coverLetterTextHidden" name="cover_letter_text" type="hidden"/>
-<input dir="auto" id="emailBodyTextHidden" name="email_body" type="hidden"/>
+<input dir="auto" id="profileNameHidden" name="profile_name" type="hidden"/ dir="auto">
+<input dir="auto" id="skillsHidden" name="skills" type="hidden"/ dir="auto">
+<input dir="auto" id="targetTitlesHidden" name="target_titles" type="hidden"/ dir="auto">
+<input dir="auto" id="targetLocationsHidden" name="target_locations" type="hidden"/ dir="auto">
+<input dir="auto" id="cvFullTextHidden" name="cv_full_text" type="hidden"/ dir="auto">
+<input dir="auto" id="coverLetterTextHidden" name="cover_letter_text" type="hidden"/ dir="auto">
+<input dir="auto" id="emailBodyTextHidden" name="email_body" type="hidden"/ dir="auto">
 <!-- Basic Info -->
 <div class="card">
 <div class="card-title">{{ _('👤 Basic Information') }}</div>
 <div class="row">
-<div class="form-group"><label for="fullName">{{ _('Full Name') }} <span style="color:#f87171;">*</span></label><input dir="auto" id="fullName" placeholder="e.g. Sam Salameh" type="text"/></div>
-<div class="form-group"><label for="email">{{ _('Email') }}</label><input dir="auto" id="email" placeholder="your@email.com" type="email"/></div>
+<div class="form-group"><label for="fullName">{{ _('Full Name') }} <span style="color:#f87171;">*</span></label><input dir="auto" id="fullName" placeholder="e.g. Sam Salameh" type="text"/ dir="auto"></div>
+<div class="form-group"><label for="email">{{ _('Email') }}</label><input dir="auto" id="email" placeholder="your@email.com" type="email"/ dir="auto"></div>
 </div>
 <div class="row">
-<div class="form-group"><label for="phone">الهاتف</label><input dir="auto" id="phone" placeholder="+961 3 123 456" type="text"/></div>
-<div class="form-group"><label for="location">الموقع</label><input dir="auto" id="location" placeholder="بيروت، لبنان" type="text"/></div>
+<div class="form-group"><label for="phone">الهاتف</label><input dir="auto" id="phone" placeholder="+961 3 123 456" type="text"/ dir="auto"></div>
+<div class="form-group"><label for="location">الموقع</label><input dir="auto" id="location" placeholder="بيروت، لبنان" type="text"/ dir="auto"></div>
 </div>
 <div class="row">
-<div class="form-group"><label for="currentTitle">المسمى الوظيفي الحالي</label><input dir="auto" id="currentTitle" placeholder="مهندس شبكات أول" type="text"/></div>
-<div class="form-group"><label for="experienceYears">الخبرة (بالسنوات)</label><input dir="auto" id="experienceYears" max="50" min="0" type="number" value="5"/></div>
+<div class="form-group"><label for="currentTitle">المسمى الوظيفي الحالي</label><input dir="auto" id="currentTitle" placeholder="مهندس شبكات أول" type="text"/ dir="auto"></div>
+<div class="form-group"><label for="experienceYears">الخبرة (بالسنوات)</label><input dir="auto" id="experienceYears" max="50" min="0" type="number" value="5"/ dir="auto"></div>
 </div>
 <div class="row">
-<div class="form-group"><label for="education">التعليم</label><input dir="auto" id="education" placeholder="بكالوريوس هندسة" type="text"/></div>
-<div class="form-group"><label for="linkedin">لينكد إن</label><input dir="auto" id="linkedin" placeholder="https://linkedin.com/in/..." type="url"/></div>
+<div class="form-group"><label for="education">التعليم</label><input dir="auto" id="education" placeholder="بكالوريوس هندسة" type="text"/ dir="auto"></div>
+<div class="form-group"><label for="linkedin">لينكد إن</label><input dir="auto" id="linkedin" placeholder="https://linkedin.com/in/..." type="url"/ dir="auto"></div>
 </div>
-<div class="form-group"><label for="skillsInput">المهارات (مفصولة بفاصلة)</label><input dir="auto" id="skillsInput" placeholder="Cisco, Python, Linux, AWS, MikroTik, Fortinet..." type="text"/><div class="tag-list" id="skillsTags"></div></div>
-<div class="form-group"><label for="certsInput">الشهادات</label><input dir="auto" id="certsInput" placeholder="CCNA, NSE, MTCNA..." type="text"/><div class="tag-list" id="certsTags"></div></div>
-<div class="form-group"><label for="langsInput">اللغات</label><input dir="auto" id="langsInput" placeholder="English, Arabic, French..." type="text"/><div class="tag-list" id="langsTags"></div></div>
-<div class="form-group"><label for="experienceInput">الخبرات (مفصولة بفاصلة)</label><input dir="auto" id="experienceInput" placeholder="Ogero (2020-2023), Touch (2018-2020)..." type="text"/><div class="tag-list" id="experienceTags"></div></div>
-<div class="form-group"><label for="summary">الملخص المهني</label><textarea dir="auto" id="summary" placeholder="ملخص مهني قصير..." style="min-block-size:90px;"></textarea></div>
+<div class="form-group"><label for="skillsInput">المهارات (مفصولة بفاصلة)</label><input dir="auto" id="skillsInput" placeholder="Cisco, Python, Linux, AWS, MikroTik, Fortinet..." type="text"/ dir="auto"><div class="tag-list" id="skillsTags"></div></div>
+<div class="form-group"><label for="certsInput">الشهادات</label><input dir="auto" id="certsInput" placeholder="CCNA, NSE, MTCNA..." type="text"/ dir="auto"><div class="tag-list" id="certsTags"></div></div>
+<div class="form-group"><label for="langsInput">اللغات</label><input dir="auto" id="langsInput" placeholder="English, Arabic, French..." type="text"/ dir="auto"><div class="tag-list" id="langsTags"></div></div>
+<div class="form-group"><label for="experienceInput">الخبرات (مفصولة بفاصلة)</label><input dir="auto" id="experienceInput" placeholder="Ogero (2020-2023), Touch (2018-2020)..." type="text"/ dir="auto"><div class="tag-list" id="experienceTags"></div></div>
+<div class="form-group"><label for="summary">الملخص المهني</label><textarea dir="auto" id="summary" placeholder="ملخص مهني قصير..." style="min-block-size:90px;" dir="auto"></textarea></div>
 </div>
 <!-- Target + Salary -->
 <div class="card">
 <div class="card-title">{{ _('🎯 Target Job & Salary') }}</div>
 <div class="row" style="margin-block-end:20px;">
-<div class="form-group"><label for="targetCompany">{{ _('Target Company') }}</label><input dir="auto" id="targetCompany" placeholder="Murex, Cisco, Bank Audi..." type="text"/></div>
-<div class="form-group"><label for="targetJobTitle">{{ _('Target Job Title') }}</label><input dir="auto" id="targetJobTitle" placeholder="Senior Network Engineer" type="text"/></div>
+<div class="form-group"><label for="targetCompany">{{ _('Target Company') }}</label><input dir="auto" id="targetCompany" placeholder="Murex, Cisco, Bank Audi..." type="text"/ dir="auto"></div>
+<div class="form-group"><label for="targetJobTitle">{{ _('Target Job Title') }}</label><input dir="auto" id="targetJobTitle" placeholder="Senior Network Engineer" type="text"/ dir="auto"></div>
 </div>
 <label style="font-size:16px;color:#64748b;margin-block-end:14px;display:block;">{{ _('💰 Quick Salary Range') }}</label>
 <div class="salary-presets">
@@ -607,19 +607,19 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
 </div>
 </div>
 <div class="row">
-<div class="form-group"><label for="targetTitles">{{ _('Target Job Titles') }}</label><input dir="auto" id="targetTitles" placeholder="Senior Network Engineer, IT Manager..." type="text"/></div>
-<div class="form-group"><label for="targetLocations">{{ _('Target Locations') }}</label><input dir="auto" id="targetLocations" placeholder="Dubai, Remote, Riyadh, Beirut..." type="text"/></div>
+<div class="form-group"><label for="targetTitles">{{ _('Target Job Titles') }}</label><input dir="auto" id="targetTitles" placeholder="Senior Network Engineer, IT Manager..." type="text"/ dir="auto"></div>
+<div class="form-group"><label for="targetLocations">{{ _('Target Locations') }}</label><input dir="auto" id="targetLocations" placeholder="Dubai, Remote, Riyadh, Beirut..." type="text"/ dir="auto"></div>
 </div>
 <div class="row">
-<div class="form-group"><label for="minLocalSalary">{{ _('Min Local Salary ($)') }}</label><input dir="auto" id="minLocalSalary" min="0" step="100" type="number" value="1500"/></div>
-<div class="form-group"><label for="minIntlSalary">{{ _('Min Intl Salary ($)') }}</label><input dir="auto" id="minIntlSalary" min="0" step="100" type="number" value="6000"/></div>
+<div class="form-group"><label for="minLocalSalary">{{ _('Min Local Salary ($)') }}</label><input dir="auto" id="minLocalSalary" min="0" step="100" type="number" value="1500"/ dir="auto"></div>
+<div class="form-group"><label for="minIntlSalary">{{ _('Min Intl Salary ($)') }}</label><input dir="auto" id="minIntlSalary" min="0" step="100" type="number" value="6000"/ dir="auto"></div>
 </div>
 </div>
 <!-- Style Selection -->
 <div class="card">
 <div class="card-title">{{ _('🎨 Choose Your Style') }}</div>
 <div style="margin-block-end:24px;">
-<label style="font-size:13px;font-weight:600;color:#3b82f6;margin-block-end:12px;display:block;">{{ _('📧 EMAIL TONE — How the hiring manager reads your application') }}</label>
+<label style="font-size: 14px;font-weight:600;color:#3b82f6;margin-block-end:12px;display:block;">{{ _('📧 EMAIL TONE — How the hiring manager reads your application') }}</label>
 <div class="style-cards">
 <div class="style-card selected" data-style="email" onclick="selectStyle('email','professional',this)">
 <div class="sc-icon">🏢</div>
@@ -637,10 +637,10 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
 <div class="sc-desc">{{ _('Direct & powerful.') }}<br/>{{ _('Best for senior roles,') }}<br/>{{ _('tech leaders, consultants.') }}</div>
 </div>
 </div>
-<input dir="auto" id="emailStyle" type="hidden" value="professional"/>
+<input dir="auto" id="emailStyle" type="hidden" value="professional"/ dir="auto">
 </div>
 <div style="margin-block-end:24px;">
-<label style="font-size:13px;font-weight:600;color:#8b5cf6;margin-block-end:12px;display:block;">{{ _('📄 CV ATTACHMENT STYLE') }}</label>
+<label style="font-size: 14px;font-weight:600;color:#8b5cf6;margin-block-end:12px;display:block;">{{ _('📄 CV ATTACHMENT STYLE') }}</label>
 <div class="style-cards">
 <div class="style-card selected" data-style="cv" onclick="selectStyle('cv','executive',this)">
 <div class="sc-icon">👔</div>
@@ -658,10 +658,10 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
 <div class="sc-desc">{{ _('Glassmorphism badges,') }}<br/>{{ _('minimalist layout, sleek.') }}</div>
 </div>
 </div>
-<input dir="auto" id="cvStyle" type="hidden" value="executive"/>
+<input dir="auto" id="cvStyle" type="hidden" value="executive"/ dir="auto">
 </div>
 <div>
-<label style="font-size:13px;font-weight:600;color:#22c55e;margin-block-end:12px;display:block;">{{ _('✉️ COVER LETTER STYLE') }}</label>
+<label style="font-size: 14px;font-weight:600;color:#22c55e;margin-block-end:12px;display:block;">{{ _('✉️ COVER LETTER STYLE') }}</label>
 <div class="style-cards">
 <div class="style-card selected" data-style="cl" onclick="selectStyle('cl','storytelling',this)">
 <div class="sc-icon">📖</div>
@@ -679,7 +679,7 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
 <div class="sc-desc">{{ _('Classic business letter,') }}<br/>{{ _('formal structure, respectful.') }}</div>
 </div>
 </div>
-<input dir="auto" id="clStyle" type="hidden" value="storytelling"/>
+<input dir="auto" id="clStyle" type="hidden" value="storytelling"/ dir="auto">
 </div>
 </div>
 <!-- Document Status -->
@@ -712,9 +712,9 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
 <div style="display:flex;align-items:baseline;gap:10px;">
 <span style="font-size:34px;font-weight:900;color:#22c55e;">$9.50</span>
 <span style="font-size:18px;color:#64748b;text-decoration:line-through;">$35.00</span>
-<span style="font-size:13px;background:rgba(34,197,94,0.15);color:#4ade80;padding:3px 10px;border-radius:20px;">-73%</span>
+<span style="font-size: 14px;background:rgba(34,197,94,0.15);color:#4ade80;padding:3px 10px;border-radius:20px;">-73%</span>
 </div>
-<div style="font-size:13px;color:#64748b;margin-block-start:4px;">{{ _('Send to 20 companies in one click') }}</div>
+<div style="font-size: 14px;color:#64748b;margin-block-start:4px;">{{ _('Send to 20 companies in one click') }}</div>
 </div>
 <div style="display:flex;gap:12px;flex-wrap:wrap;">
 <button class="btn pulse-btn" onclick="saveAndGoCampaign()" style="padding:16px 32px;font-size:18px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;" type="button">
@@ -726,7 +726,7 @@ Then click ✨ Auto-Fill to let AI extract everything automatically."></textarea
 <button class="btn btn-sm btn-outline" onclick="saveProfile()" style="font-size:14px;" type="button">{{ _('💾 Save Only') }}</button>
 </div>
 </div>
-<div style="font-size:13px;color:#475569;margin-block-start:14px;border-inset-block-start:1px solid rgba(255,255,255,0.06);padding-block-start:14px;">{{ _('✓ Saves CV, cover letter, email body, profile — then opens campaign page to launch your applications') }}</div>
+<div style="font-size: 14px;color:#475569;margin-block-start:14px;border-inset-block-start:1px solid rgba(255,255,255,0.06);padding-block-start:14px;">{{ _('✓ Saves CV, cover letter, email body, profile — then opens campaign page to launch your applications') }}</div>
 </div>
 </form>
 </div>
@@ -1057,11 +1057,11 @@ async function previewEmail(silent) {
       if (!silent) showToast('✅ Preview ready! Switch tabs to see CV & Cover Letter.');
     } else {
       document.getElementById('previewContent').innerHTML =
-        '<div style="text-align:center;padding:40px;color:#f87171"><p>❌ ' + (d.detail || 'Could not generate preview') + '</p><p style="font-size:13px;color:#64748b;margin-block-start:8px;">Please try again or check your profile details.</p></div>';
+        '<div style="text-align:center;padding:40px;color:#f87171"><p>❌ ' + (d.detail || 'Could not generate preview') + '</p><p style="font-size: 14px;color:#64748b;margin-block-start:8px;">Please try again or check your profile details.</p></div>';
     }
   } catch(e) {
     document.getElementById('previewContent').innerHTML =
-      '<div style="text-align:center;padding:40px;color:#f87171"><p>❌ Connection error</p><p style="font-size:13px;color:#64748b;margin-block-start:8px;">Please check your internet and try again.</p></div>';
+      '<div style="text-align:center;padding:40px;color:#f87171"><p>❌ Connection error</p><p style="font-size: 14px;color:#64748b;margin-block-start:8px;">Please check your internet and try again.</p></div>';
   }
 }
 
@@ -1077,7 +1077,7 @@ function showPreviewContent(tabId) {
   var d = previewData;
   if (!d || !d.subject) {
     document.getElementById('previewContent').innerHTML =
-      '<div style="text-align:center;padding:60px;color:#64748b"><p>No preview data yet</p><p style="font-size:13px;margin-block-start:8px;">Click Preview or Auto-Fill to generate.</p></div>';
+      '<div style="text-align:center;padding:60px;color:#64748b"><p>No preview data yet</p><p style="font-size: 14px;margin-block-start:8px;">Click Preview or Auto-Fill to generate.</p></div>';
     return;
   }
   if (tabId === 'email') {

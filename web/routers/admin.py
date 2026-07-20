@@ -1,4 +1,4 @@
-﻿"""
+"""
 routers/admin.py - Admin Router (FastAPI APIRouter)
 Extracted from app_v2.py - Phase 1 Refactor
 """
@@ -747,3 +747,44 @@ def admin_user_detail(request: Request, target_user_id: str):
 def antigravity_page(request: Request):
     get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
     return templates.TemplateResponse(request, "antigravity.html")
+
+
+# ---------------------------------------------------------------------------
+# AI Cache Admin Endpoints
+# ---------------------------------------------------------------------------
+
+def _require_admin(request: Request):
+    """Raise 403 if request is not from an admin user."""
+    from web.shared import get_db, get_verified_user_id
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    with get_db() as conn:
+        user = conn.execute("SELECT user_type FROM users WHERE user_id = ?", (user_id,)).fetchone()
+    if not user or user.get("user_type") != "admin":
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+
+@router.get("/api/admin/ai-cache/stats")
+def ai_cache_stats(request: Request):
+    """Return AI cache statistics: total entries, fresh entries, expired entries."""
+    _require_admin(request)
+    try:
+        from core.ai_cache import get_stats
+        return get_stats()
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.post("/api/admin/ai-cache/purge")
+def ai_cache_purge(request: Request):
+    """Purge expired AI cache entries (older than 7 days)."""
+    _require_admin(request)
+    try:
+        from core.ai_cache import purge_expired
+        deleted = purge_expired()
+        return {"status": "ok", "deleted": deleted}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}

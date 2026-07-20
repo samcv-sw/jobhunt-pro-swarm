@@ -32,13 +32,13 @@
     <!-- Left Column: Settings Nav -->
     <div class="space-y-4">
       <div class="glass-panel p-4 space-y-2">
-        <button onclick="switchTab('profile')" id="btn-tab-profile" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-right text-sm font-medium transition-all bg-indigo-500/10 text-indigo-400">
+        <button onclick="switchTab('profile')" id="btn-tab-profile" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-end text-sm font-medium transition-all bg-indigo-500/10 text-indigo-400">
           <i data-lucide="user" class="w-4 h-4"></i> تفاصيل الحساب
         </button>
-        <button onclick="switchTab('security')" id="btn-tab-security" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-right text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-white/5">
+        <button onclick="switchTab('security')" id="btn-tab-security" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-end text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-white/5">
           <i data-lucide="lock" class="w-4 h-4"></i> الأمان وكلمة المرور
         </button>
-        <button onclick="switchTab('developer')" id="btn-tab-developer" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-white/5">
+        <button onclick="switchTab('developer')" id="btn-tab-developer" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-start text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-white/5">
           <i data-lucide="code" class="w-4 h-4"></i> مفتاح API للمطورين
         </button>
       </div>
@@ -57,18 +57,18 @@
         <form action="/settings" method="POST" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">البريد الإلكتروني</label>
-            <input type="email" value="{{ user.email }}" disabled class="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-sm text-slate-500 cursor-not-allowed" />
+            <input type="email" value="{{ user.email }}" disabled class="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-sm text-slate-500 cursor-not-allowed" / dir="auto">
             <p class="text-[10px] text-slate-500 mt-1.5">لا يمكن تغيير البريد الإلكتروني لأنه مرتبط بهوية حسابك.</p>
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">الاسم الكامل</label>
-            <input type="text" name="name" value="{{ user.name or '' }}" required dir="auto" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
+            <input type="text" name="name" value="{{ user.name or '' }}" required dir="auto" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" / dir="auto">
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">رقم الهاتف</label>
-            <input type="text" name="phone" value="{{ user.phone or '' }}" dir="auto" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
+            <input type="text" name="phone" value="{{ user.phone or '' }}" dir="auto" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" / dir="auto">
           </div>
 
           <div class="pt-4 border-t border-white/5 flex justify-end">
@@ -88,17 +88,17 @@
 
         <form action="/settings" method="POST" class="space-y-4">
           <!-- Include Name and Phone to prevent overwriting them as empty in the POST form -->
-          <input type="hidden" name="name" value="{{ user.name or '' }}" />
-          <input type="hidden" name="phone" value="{{ user.phone or '' }}" />
+          <input type="hidden" name="name" value="{{ user.name or '' }}" / dir="auto">
+          <input type="hidden" name="phone" value="{{ user.phone or '' }}" / dir="auto">
 
           <div>
             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">كلمة المرور الجديدة</label>
-            <input type="password" name="password" required minlength="8" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="8 أحرف على الأقل" />
+            <input type="password" name="password" required minlength="8" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="8 أحرف على الأقل" / dir="auto">
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">تأكيد كلمة المرور الجديدة</label>
-            <input type="password" name="confirm_password" required minlength="8" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="تأكيد كلمة المرور" />
+            <input type="password" name="confirm_password" required minlength="8" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="تأكيد كلمة المرور" / dir="auto">
           </div>
 
           <div class="pt-4 border-t border-white/5 flex justify-end">
@@ -120,7 +120,7 @@
           <div>
             <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">مفتاح API الخاص بك</label>
             <div class="flex gap-2">
-              <input type="password" id="apiKeyInput" value="{{ user.api_key or '' }}" readonly class="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-sm text-slate-300 font-mono focus:outline-none" />
+              <input type="password" id="apiKeyInput" value="{{ user.api_key or '' }}" readonly class="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-sm text-slate-300 font-mono focus:outline-none" / dir="auto">
               <button onclick="toggleApiKey()" class="bg-white/5 hover:bg-white/10 text-slate-300 px-4 rounded-xl border border-white/10 transition-all" title="إظهار / إخفاء">
                 <i id="apiKeyIcon" data-lucide="eye" class="w-5 h-5"></i>
               </button>
@@ -148,7 +148,7 @@ function switchTab(tabId) {
   const btns = ['profile', 'security', 'developer'];
   btns.forEach(b => {
     const el = document.getElementById('btn-tab-' + b);
-    el.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-right text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-white/5";
+    el.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-end text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-white/5";
   });
 
   // Show active panel
@@ -156,7 +156,7 @@ function switchTab(tabId) {
   
   // Set active button style
   const activeBtn = document.getElementById('btn-tab-' + tabId);
-  activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-right text-sm font-medium transition-all bg-indigo-500/10 text-indigo-400";
+  activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-end text-sm font-medium transition-all bg-indigo-500/10 text-indigo-400";
 }
 
 function toggleApiKey() {

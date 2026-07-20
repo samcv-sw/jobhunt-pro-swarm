@@ -121,8 +121,8 @@ else:
     # - max_overflow=2: allows short bursts without connection exhaustion
     engine_kwargs.update(
         {
-            "pool_size": 3,  # baseline concurrent connections
-            "max_overflow": 2,  # burst headroom (total max = 5, within Neon free-tier limit)
+            "pool_size": 2,  # baseline concurrent connections
+            "max_overflow": 1,  # burst headroom (total max = 3, within Neon free-tier limit)
             "pool_recycle": 280,  # recycle stale connections before Neon 300s auto-suspend
             "pool_timeout": 30,  # max wait for a free slot before raising OperationalError
             "pool_pre_ping": True,  # heartbeat SELECT 1 before checkout — detects stale Neon conns

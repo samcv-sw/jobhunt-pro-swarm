@@ -380,6 +380,29 @@ class TelegramNotifier:
             "sent": "📨",
         }.get(status.lower(), "📌")
 
+    @staticmethod
+    def format_job_match_card(job: dict) -> str:
+        """
+        Format a job match into a rich Telegram alert card ($0 cost notification).
+        """
+        title = job.get("title") or job.get("job_title") or "Position"
+        company = job.get("company") or job.get("company_name") or "Company"
+        location = job.get("location") or "Remote"
+        salary = job.get("salary") or job.get("salary_range") or "Competitive"
+        url = job.get("url") or job.get("apply_url") or "https://jobhuntpro.app"
+        match_score = job.get("match_score") or job.get("score") or "95%"
+
+        return (
+            f"🎯 *NEW HIGH-MATCH JOB DISCOVERED!*\n\n"
+            f"💼 *Title:* {title}\n"
+            f"🏢 *Company:* {company}\n"
+            f"📍 *Location:* {location}\n"
+            f"💰 *Salary:* {salary}\n"
+            f"🔥 *AI Match Score:* {match_score}\n\n"
+            f"🔗 [Apply Now Directly]({url})\n\n"
+            f"_Powered by JobHunt Pro 24/7 AI Engine_"
+        )
+
     def _send_alert(self, message: str):
         """Send alert via the async callback (runs in new event loop)."""
         try:

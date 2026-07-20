@@ -89,7 +89,7 @@ samsalameh.cv@gmail.com | +961 70 841 1009
 linkedin.com/in/sam-salameh
 
 ملخص مهني:
-أكثر من 15 سنة خبرة في هندسة الشبكات المتخصصة في تصميم البنية التحتية..." style="line-height:1.7;"></textarea>
+أكثر من 15 سنة خبرة في هندسة الشبكات المتخصصة في تصميم البنية التحتية..." style="line-height:1.7;" dir="auto"></textarea>
     <div class="mt-3 flex items-start gap-2 text-xs text-slate-500">
       <i class="w-4 h-4 text-slate-400 shrink-0" data-lucide="info"></i>
       <p style="line-height:1.7;">الصق النص الكامل — كلما زادت التفاصيل، كلما كانت الدرجة أدق.</p>
@@ -104,9 +104,9 @@ linkedin.com/in/sam-salameh
     <div class="flex flex-col md:flex-row gap-3 mb-4">
       <div class="relative flex-1">
         <i class="w-4 h-4 text-slate-500 absolute inset-inline-start-3 top-1/2 -translate-y-1/2" data-lucide="link" style="inset-inline-start:12px; position:absolute; inset-block-start:50%; transform:translateY(-50%);"></i>
-        <input class="ats-input w-full bg-slate-950/50 border border-slate-700 rounded-lg py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" style="padding-inline-start:36px; padding-inline-end:16px;" dir="auto" id="ats-url" placeholder="أو الصق رابط إعلان الوظيفة..." type="url"/>
+        <input class="ats-input w-full bg-slate-950/50 border border-slate-700 rounded-lg py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" style="padding-inline-start:36px; padding-inline-end:16px;" dir="auto" id="ats-url" placeholder="أو الصق رابط إعلان الوظيفة..." type="url"/ dir="auto">
       </div>
-      <button class="ats-btn-secondary" id="btn-url-import" onclick="importFromUrl()" style="padding-block:10px; padding-inline:1rem; font-size:13px;">
+      <button class="ats-btn-secondary" id="btn-url-import" onclick="importFromUrl()" style="padding-block:10px; padding-inline:1rem; font-size: 14px;">
         <i class="w-4 h-4" data-lucide="download-cloud"></i> استيراد
       </button>
     </div>
@@ -119,10 +119,10 @@ linkedin.com/in/sam-salameh
 - خبرة 5+ سنوات مع Cisco/Juniper
 - شهادة CCNP أو ما يعادلها
 - معرفة قوية بـ BGP وOSPF وMPLS
-- خبرة مع جدران حماية Fortinet..." style="line-height:1.7;"></textarea>
+- خبرة مع جدران حماية Fortinet..." style="line-height:1.7;" dir="auto"></textarea>
     <div class="relative">
       <i class="w-4 h-4 text-slate-500 absolute top-1/2 -translate-y-1/2" data-lucide="briefcase" style="inset-inline-start:12px; position:absolute; inset-block-start:50%; transform:translateY(-50%);"></i>
-      <input class="ats-input w-full bg-slate-950/50 border border-slate-700 rounded-lg py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" style="padding-inline-start:36px; padding-inline-end:16px;" dir="auto" id="ats-job-title" placeholder="المسمى الوظيفي (اختياري، مثال: مهندس شبكات أول)" type="text"/>
+      <input class="ats-input w-full bg-slate-950/50 border border-slate-700 rounded-lg py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" style="padding-inline-start:36px; padding-inline-end:16px;" dir="auto" id="ats-job-title" placeholder="المسمى الوظيفي (اختياري، مثال: مهندس شبكات أول)" type="text"/ dir="auto">
     </div>
   </div>
 </div>
@@ -132,7 +132,7 @@ linkedin.com/in/sam-salameh
   <button class="ats-btn-primary" id="btn-score" onclick="scoreResume()">
     <i class="w-5 h-5" data-lucide="scan-face"></i> تقييم سيرتي الذاتية
   </button>
-  <button class="ats-btn-secondary" id="btn-bulk-toggle" onclick="toggleBulkMode()" style="padding-block:12px; padding-inline:1.25rem; font-size:13px;">
+  <button class="ats-btn-secondary" id="btn-bulk-toggle" onclick="toggleBulkMode()" style="padding-block:12px; padding-inline:1.25rem; font-size: 14px;">
     <i class="w-4 h-4" data-lucide="layers"></i> تقييم مقابل وظائف متعددة
   </button>
   <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 ms-auto">
@@ -149,7 +149,7 @@ linkedin.com/in/sam-salameh
       </h3>
       <p class="text-xs text-slate-500 mt-1" style="line-height:1.7;">أضف مسميات وظيفية لمقارنة سيرتك الذاتية بمناصب متعددة دفعة واحدة (بحد أقصى 10).</p>
     </div>
-    <button class="ats-btn-primary" id="btn-bulk-score" onclick="scoreBulk()" style="padding-block:10px; padding-inline:1.25rem; font-size:13px;">
+    <button class="ats-btn-primary" id="btn-bulk-score" onclick="scoreBulk()" style="padding-block:10px; padding-inline:1.25rem; font-size: 14px;">
       <i class="w-4 h-4 fill-current" data-lucide="play"></i> تشغيل التقييم الجماعي
     </button>
   </div>
@@ -441,8 +441,8 @@ function addBulkRow() {
   const row = document.createElement('div');
   row.className = 'bulk-job-row flex flex-col sm:flex-row gap-3 items-start';
   row.innerHTML = `
-    <input dir="auto" type="text" class="bulk-title w-full sm:w-1/3 bg-slate-950/50 border border-slate-700 focus:border-cyan-500 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all" placeholder="المسمى الوظيفي (مثال: مطور)" />
-    <input dir="auto" type="text" class="bulk-desc w-full sm:flex-1 bg-slate-950/50 border border-slate-700 focus:border-cyan-500 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all" placeholder="الصق متطلبات الوظيفة..." />
+    <input dir="auto" type="text" class="bulk-title w-full sm:w-1/3 bg-slate-950/50 border border-slate-700 focus:border-cyan-500 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all" placeholder="المسمى الوظيفي (مثال: مطور)" / dir="auto">
+    <input dir="auto" type="text" class="bulk-desc w-full sm:flex-1 bg-slate-950/50 border border-slate-700 focus:border-cyan-500 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all" placeholder="الصق متطلبات الوظيفة..." / dir="auto">
     <button onclick="this.closest('.bulk-job-row').remove()" class="p-2 bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 border border-slate-700 hover:border-red-500/30 rounded-lg transition-colors flex-shrink-0">
       <i data-lucide="trash-2" class="w-4 h-4"></i>
     </button>

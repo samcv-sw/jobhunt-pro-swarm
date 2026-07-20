@@ -7,7 +7,7 @@
 .btn-export:hover{box-shadow:0 8px 30px rgba(249,115,22,0.35);transform:translateY(-2px);}
 
 .pill-group{display:flex;gap:8px;margin-block-end:20px;flex-wrap:wrap;}
-.pill{padding:8px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:25px;color:#94a3b8;font-size:12px;cursor:pointer;font-family: 'Cairo', 'Inter',sans-serif;transition:all .2s;white-space:nowrap;font-weight:500;}
+.pill{padding:8px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:25px;color:#94a3b8;font-size: 14px;cursor:pointer;font-family: 'Cairo', 'Inter',sans-serif;transition:all .2s;white-space:nowrap;font-weight:500;}
 .pill:hover{background:rgba(59,130,246,0.1);color:#3b82f6;border-color:#3b82f6;}
 .pill.active{background:rgba(59,130,246,0.15);color:#3b82f6;border-color:#3b82f6;font-weight:700;}
 
@@ -16,11 +16,11 @@
 .export-option input[type="radio"]{accent-color:#3b82f6;inline-size:16px;block-size:16px;cursor:pointer;flex-shrink:0;}
 .export-option .opt-info{flex:1;}
 .export-option .opt-title{font-weight:600;font-size:14px;}
-.export-option .opt-desc{font-size:11px;color:#64748b;margin-block-start:2px;}
+.export-option .opt-desc{font-size: 14px;color:#64748b;margin-block-start:2px;}
 
 @media(max-width:480px){
   .pill-group{gap:4px;}
-  .pill{padding:6px 14px;font-size:11px;}
+  .pill{padding:6px 14px;font-size: 14px;}
 }
 </style>
 <h1>📥 تصدير الطلبات</h1>
@@ -38,11 +38,11 @@
 <div class="row">
 <div class="form-group">
 <label>من تاريخ</label>
-<input dir="auto" id="from_date" type="date"/>
+<input dir="auto" id="from_date" type="date"/ dir="auto">
 </div>
 <div class="form-group">
 <label>إلى تاريخ</label>
-<input dir="auto" id="to_date" type="date"/>
+<input dir="auto" id="to_date" type="date"/ dir="auto">
 </div>
 </div>
 </div>
@@ -75,14 +75,14 @@
 <div class="card">
 <div class="card-title">📦 ماذا تريد أن تصدر</div>
 <label class="export-option">
-<input checked="" dir="auto" name="exportType" onchange="updateExportType(this.value)" type="radio" value="applications"/>
+<input checked="" dir="auto" name="exportType" onchange="updateExportType(this.value)" type="radio" value="applications"/ dir="auto">
 <div class="opt-info">
 <div class="opt-title">📩 طلبات التوظيف</div>
 <div class="opt-desc">جميع طلباتك المُرسلة مع الحالة، الشركة، ومعلومات التتبع</div>
 </div>
 </label>
 <label class="export-option">
-<input dir="auto" name="exportType" onchange="updateExportType(this.value)" type="radio" value="jobs"/>
+<input dir="auto" name="exportType" onchange="updateExportType(this.value)" type="radio" value="jobs"/ dir="auto">
 <div class="opt-info">
 <div class="opt-title">🏢 الوظائف المنشورة</div>
 <div class="opt-desc">الوظائف التي نشرتها كصاحب عمل (المشاهدات، الطلبات، الحالة)</div>

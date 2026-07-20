@@ -55,15 +55,12 @@ async def generate_smart_cover_letter(job_description: str, user_cv: str) -> dic
     except Exception as cache_err:
         logger.warning(f"Failed to fetch cover letter from edge cache: {cache_err}")
 
-    system_prompt = """
-    You are an expert executive recruiter and copywriter.
-    Your task is to write a highly persuasive, concise cover letter based on the provided CV and Job Description.
-    You MUST output valid JSON ONLY, adhering exactly to the following schema:
+    system_prompt = """You are an expert recruiter. Write a persuasive, concise cover letter.
+    Output valid JSON ONLY with this exact schema:
     {
         "subject": "Compelling subject line for the email",
         "body": "The full text of the cover letter, using proper paragraph breaks (\\n\\n)"
-    }
-    """
+    }"""
 
     user_prompt = f"""
     Job Description:
@@ -149,12 +146,8 @@ async def generate_smart_cover_letter_stream(job_description: str, user_cv: str,
     # Retrieve tone guidelines or default to professional
     tone_guidelines = TONE_REGISTRY.get(tone.lower(), TONE_REGISTRY["professional"])
 
-    system_prompt = f"""
-    You are an expert executive recruiter and copywriter.
-    Your task is to write a highly persuasive, concise cover letter based on the provided CV and Job Description.
-    You MUST write the cover letter using a tone that is {tone_guidelines}.
-    Write the cover letter content directly. Do not output JSON. Do not include introductory/outro comments or conversational filler.
-    """
+    system_prompt = f"""You are an expert copywriter. Write a persuasive, concise cover letter using a tone that is: {tone_guidelines}.
+    Write content directly. Do not output JSON. Do not include introductory/outro comments or conversational filler."""
 
     user_prompt = f"""
     Job Description:

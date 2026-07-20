@@ -14,6 +14,10 @@ logger = logging.getLogger("verify_integrity")
 # Add current directory to path
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
+# Prevent Celery from attempting to connect to Redis during integrity tests
+from backend.celery_app import celery_app
+celery_app.send_task = lambda *args, **kwargs: MagicMock()
+
 import backend.sync_worker
 from backend.auth import create_access_token
 from backend.main import app
@@ -75,9 +79,11 @@ async def test_concurrency_event_loop():
         mock_res.id = "mocked-task-id-123"
         return mock_res
 
-    # Backup original delay
+    # Backup original methods
     orig_delay = scrape_jobs.delay
+    orig_apply_async = scrape_jobs.apply_async
     scrape_jobs.delay = slow_delay
+    scrape_jobs.apply_async = slow_delay
 
     loop_responsiveness = []
 
@@ -108,8 +114,9 @@ async def test_concurrency_event_loop():
 
     await monitor_task
 
-    # Restore original delay
+    # Restore original methods
     scrape_jobs.delay = orig_delay
+    scrape_jobs.apply_async = orig_apply_async
 
     loop_responsiveness.sort()
     p90_delay = loop_responsiveness[int(len(loop_responsiveness) * 0.90)]

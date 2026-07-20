@@ -830,6 +830,8 @@ def should_use_pg(db_path: str | Any | None) -> bool:
     if not db_path:
         return True
     db_path_str = str(db_path).lower()
+    if db_path_str.startswith("postgresql://") or db_path_str.startswith("postgres://") or db_path_str.startswith("postgresql+asyncpg://"):
+        return True
     if ":memory:" in db_path_str:
         return False
     if "backup" in db_path_str:
@@ -861,21 +863,28 @@ def connect(
 ) -> PgConnectionWrapper | SqliteConnectionWrapper:
     """Connect to Neon PG with automatic SQLite fallback."""
     global FALLBACK_DB_PATH
-    if db_path:
+    # Only update FALLBACK_DB_PATH if it is not a PostgreSQL URL string
+    if db_path and not (isinstance(db_path, str) and (db_path.startswith("postgresql://") or db_path.startswith("postgres://") or db_path.startswith("postgresql+asyncpg://"))):
         FALLBACK_DB_PATH = db_path
 
     target_db = db_path or FALLBACK_DB_PATH or "jobhunt_saas_v2.db"
+    
+    # Resolve the proper SQLite database path for fallback.
+    sqlite_db = target_db
+    if isinstance(sqlite_db, str) and (sqlite_db.startswith("postgresql://") or sqlite_db.startswith("postgres://") or sqlite_db.startswith("postgresql+asyncpg://")):
+        sqlite_db = FALLBACK_DB_PATH if (FALLBACK_DB_PATH and not (isinstance(FALLBACK_DB_PATH, str) and (FALLBACK_DB_PATH.startswith("postgresql") or FALLBACK_DB_PATH.startswith("postgres")))) else "jobhunt_saas_v2.db"
+
     if not should_use_pg(target_db):
         logger.info(f"[DB] Bypassing PG for non-main database: {_safe_str(target_db)}")
-        return SqliteConnectionWrapper(target_db)
+        return SqliteConnectionWrapper(sqlite_db)
 
     if os.getenv("FORCE_SQLITE") == "1":
         logger.info("[DB] FORCE_SQLITE=1, skipping PG")
-        return SqliteConnectionWrapper(target_db)
+        return SqliteConnectionWrapper(sqlite_db)
 
     if not NEON_URI:
         logger.warning("[DB] No PostgreSQL URL set, using SQLite fallback")
-        return SqliteConnectionWrapper(target_db)
+        return SqliteConnectionWrapper(sqlite_db)
 
     try:
         return PgConnectionWrapper()
@@ -883,7 +892,7 @@ def connect(
         logger.error(
             f"[DB] Failed to connect to Neon PG: {pg_err}. Falling back to SQLite."
         )
-        return SqliteConnectionWrapper(target_db)
+        return SqliteConnectionWrapper(sqlite_db)
 
 
 class DictLikeRow(real_sqlite3.Row):

@@ -49,8 +49,8 @@ else:
     # Conserve connections under serverless limits (pool_size=2, max_overflow=2).
     engine = create_async_engine(
         NEON_URL,
-        pool_size=3,
-        max_overflow=2,
+        pool_size=2,
+        max_overflow=1,
         pool_timeout=30,       # Wait longer during cold starts
         pool_recycle=280,      # Recycle stale connections before 5-minute Neon suspend
         pool_pre_ping=True,    # Test connection viability before handing out

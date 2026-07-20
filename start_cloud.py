@@ -140,23 +140,42 @@ def launch_services():
         "limit": 80 * 1024 * 1024   # 80MB limit for Database Sync Worker
     }
 
-    # 3. Start FastAPI Uvicorn (Blocking process)
-    logger.info(f"Starting JobHunt Pro API on {HOST}:{PORT}...")
-    uvicorn_cmd = [
-        sys.executable, "-m", "uvicorn",
-        "backend.main:app",
-        "--host", HOST,
-        "--port", str(PORT),
-        "--workers", str(WORKERS),
-        "--access-log",
-    ]
-    if os.name != "nt":
-        uvicorn_cmd.extend(["--loop", "uvloop"])
+    # 3. Start FastAPI Web Server (Granian if installed, otherwise Uvicorn)
+    has_granian = False
+    try:
+        import importlib.util
+        if importlib.util.find_spec("granian") is not None:
+            has_granian = True
+    except ImportError:
+        pass
 
-    uvicorn_proc = subprocess.Popen(uvicorn_cmd)
+    if has_granian and os.name != "nt":
+        logger.info(f"Starting JobHunt Pro API with GRANIAN on {HOST}:{PORT}...")
+        web_cmd = [
+            sys.executable, "-m", "granian",
+            "--interface", "asgi",
+            "--host", HOST,
+            "--port", str(PORT),
+            "--workers", str(WORKERS),
+            "backend.main:app"
+        ]
+    else:
+        logger.info(f"Starting JobHunt Pro API with UVICORN on {HOST}:{PORT}...")
+        web_cmd = [
+            sys.executable, "-m", "uvicorn",
+            "backend.main:app",
+            "--host", HOST,
+            "--port", str(PORT),
+            "--workers", str(WORKERS),
+            "--access-log",
+        ]
+        if os.name != "nt":
+            web_cmd.extend(["--loop", "uvloop"])
+
+    web_proc = subprocess.Popen(web_cmd)
     running_services["uvicorn"] = {
-        "proc": uvicorn_proc,
-        "cmd": uvicorn_cmd,
+        "proc": web_proc,
+        "cmd": web_cmd,
         "limit": 220 * 1024 * 1024  # 220MB limit for Uvicorn
     }
 

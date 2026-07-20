@@ -80,7 +80,7 @@
         <span class="px-3 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20">TXT</span>
       </div>
       
-      <input dir="auto" type="file" id="cvFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".pdf,.docx,.doc,.txt" onchange="handleFileSelect(this)">
+      <input dir="auto" type="file" id="cvFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".pdf,.docx,.doc,.txt" onchange="handleFileSelect(this)" dir="auto">
     </div>
 
     <!-- File Info -->
@@ -111,26 +111,26 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Full Name</label>
-        <input dir="auto" type="text" placeholder="e.g. Sam Salameh" value="{{ user.name if user else '' }}" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
+        <input dir="auto" type="text" placeholder="e.g. Sam Salameh" value="{{ user.name if user else '' }}" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
       </div>
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Email</label>
-        <input dir="auto" type="email" placeholder="you@example.com" value="{{ user.email if user else '' }}" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
+        <input dir="auto" type="email" placeholder="you@example.com" value="{{ user.email if user else '' }}" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
       </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Phone</label>
-        <input dir="auto" type="tel" placeholder="+961 70 000 000" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
+        <input dir="auto" type="tel" placeholder="+961 70 000 000" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
       </div>
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Location</label>
-        <input dir="auto" type="text" placeholder="e.g. Beirut, Lebanon" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
+        <input dir="auto" type="text" placeholder="e.g. Beirut, Lebanon" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
       </div>
     </div>
     <div class="space-y-1.5">
       <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">LinkedIn (optional)</label>
-      <input dir="auto" type="url" placeholder="https://linkedin.com/in/yourprofile" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
+      <input dir="auto" type="url" placeholder="https://linkedin.com/in/yourprofile" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
     </div>
   </div>
 
@@ -141,7 +141,7 @@
     </h3>
     <div class="space-y-1.5 mb-3">
       <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Add Skills (comma separated or enter)</label>
-      <input dir="auto" type="text" placeholder="Python, JavaScript, Project Management, ..." id="skillsInput" onkeydown="handleSkillTag(event)" class="w-full bg-slate-950 border border-slate-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
+      <input dir="auto" type="text" placeholder="Python, JavaScript, Project Management, ..." id="skillsInput" onkeydown="handleSkillTag(event)" class="w-full bg-slate-950 border border-slate-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
     </div>
     <div class="flex flex-wrap gap-2" id="skillTags">
       <span class="px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">Python <i data-lucide="x" class="w-3 h-3"></i></span>
@@ -177,7 +177,7 @@
     </div>
     <div class="space-y-1.5">
       <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Custom Range</label>
-      <input dir="auto" type="text" placeholder="e.g. $60,000 - $90,000" class="w-full md:w-1/2 bg-slate-950 border border-slate-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all">
+      <input dir="auto" type="text" placeholder="e.g. $60,000 - $90,000" class="w-full md:w-1/2 bg-slate-950 border border-slate-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
     </div>
   </div>
 

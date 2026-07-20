@@ -1,99 +1,31 @@
-[project]
-name = "jobhunt-pro"
-version = "3.0.0"
-description = "Enterprise AI-Powered Job Application Automation Platform"
-readme = "README.md"
-license = { text = "MIT" }
-requires-python = ">=3.12"
-dependencies = [
-    "psutil>=5.9.0",
-    "duckduckgo-search>=6.0.0",
-]
-keywords = ["jobs", "ai", "automation", "fastapi", "celery"]
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Framework :: FastAPI",
-    "Intended Audience :: End Users/Desktop",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.12",
-    "Topic :: Office/Business",
-]
-
-[project.urls]
-Homepage = "https://jobhuntpro.render.com"
-Repository = "https://github.com/sam-salameh/jobhunt-pro"
-"Bug Tracker" = "https://github.com/sam-salameh/jobhunt-pro/issues"
-
-# ── Ruff Linter & Formatter ─────────────────────────────────────────────────
-[tool.ruff]
-target-version = "py312"
-line-length = 100
-exclude = ["archive", "scripts", ".venv2", "node_modules", "__pycache__", "web", "start_cloud.py", ".agents", ".github"]
-
-[tool.ruff.lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "UP",  # pyupgrade
-    "B",   # flake8-bugbear
-    "SIM", # flake8-simplify
-]
-ignore = [
-    "E501",   # line too long (handled by formatter)
-    "B008",   # do not perform function calls in argument defaults (FastAPI Depends pattern)
-    "SIM117", # use single with statement (not always cleaner)
-    "E402",   # Module level import not at top of file (needed for sys.path tweaks)
-    "B011",   # Do not assert False
-    "B904",   # raise from in exception handlers
-    "UP015",  # Unnecessary mode argument 'r'
-    "SIM112", # Capitalized env vars
-    "E741",   # Ambiguous variable name
-    "SIM115", # Context manager for opening files
-    "SIM102", # Nested if statements
-]
-
-[tool.ruff.lint.isort]
-known-first-party = ["backend", "core", "web", "config"]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-
-# ── Mypy Type Checker ────────────────────────────────────────────────────────
 [tool.mypy]
+strict = true
 python_version = "3.12"
 ignore_missing_imports = true
-no_strict_optional = true
-exclude = ["archive/", "scripts/oneoff/", ".venv2/"]
 
-# ── Coverage ─────────────────────────────────────────────────────────────────
 [tool.coverage.run]
-source = ["backend", "core"]
-omit = ["*/tests/*", "*/archive/*", "*/__pycache__/*"]
+source = ["web", "core", "backend"]
+omit = ["tests/*"]
 
 [tool.coverage.report]
-show_missing = true
-skip_covered = false
 fail_under = 80
 
-# ── Pytest Configuration ─────────────────────────────────────────────────────
-[tool.pytest.ini_options]
-# Use a project-local temp dir to avoid WinError 5 on Windows AppData symlink cleanup
-tmp_path_retention_policy = "none"
-# Default test discovery paths
-testpaths = ["tests"]
-# Suppress noisy third-party deprecation warnings
-filterwarnings = [
-    "ignore::DeprecationWarning:sqlalchemy",
-    "ignore::DeprecationWarning:celery",
-    "ignore::DeprecationWarning:passlib",
-]
-# Markers used in the test suite
-markers = [
-    "slow: marks tests as slow (deselect with -m 'not slow')",
-    "integration: marks integration tests that require live services",
-    "unit: marks pure unit tests with no external dependencies",
-]
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F"]
+
+[tool.poetry]
+name = "jobhunt-pro"
+version = "0.1.0"
+description = "JobHunt Pro Enterprise SaaS Engine"
+authors = ["Sam Salameh <samsalameh.cv@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.110.0"
+uvicorn = "^0.28.0"
+psycopg2-binary = "^2.9.9"
+sqlalchemy = "^2.0.0"

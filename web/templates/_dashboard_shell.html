@@ -24,14 +24,14 @@
         </div>
         <div style="min-inline-size:0;flex:1;">
           <p style="font-size:14px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ user.name or 'المستخدم' }}</p>
-          <p style="font-size:14px;color:#f0c040;font-family:monospace;margin-block-start:2px;">${{ "%.2f"|format(user.wallet_balance|default(0)) }} <span style="font-family: 'Cairo', 'Tajawal', sans-serif;">رصيد</span></p>
+          <p style="font-size:14px;color:#f0c040;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;margin-block-start:2px;">${{ "%.2f"|format(user.wallet_balance|default(0)) }} <span style="font-family: 'Cairo', 'Tajawal', sans-serif;">رصيد</span></p>
         </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <span style="font-size:14px;font-weight:700;color:#4b5563;text-transform:uppercase;">غرفة القيادة</span>
         <div style="display:flex;align-items:center;gap:5px;">
           <div style="inline-size:6px;block-size:6px;border-radius:50%;background:#00d4aa;animation:sbpulse 2s ease-in-out infinite;"></div>
-          <span style="font-size:14px;color:#00d4aa;font-family:monospace;font-weight:700;">LIVE</span>
+          <span style="font-size:14px;color:#00d4aa;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;font-weight:700;">LIVE</span>
         </div>
       </div>
     </div>
@@ -67,7 +67,7 @@
     <div style="padding:10px 10px 14px;border-block-start:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
       <a href="/wallet" class="sb-wallet-bar">
         <i data-lucide="coins" style="inline-size:15px;block-size:15px;color:#f0c040;flex-shrink:0;"></i>
-        <span style="font-size:14px;font-family:monospace;color:#f0c040;font-weight:700;">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</span>
+        <span style="font-size:14px;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;color:#f0c040;font-weight:700;">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</span>
         <span style="font-size:14px;color:#4b5563;margin-inline-start:auto;display:flex;align-items:center;gap:4px;">إضافة رصيد <i data-lucide="arrow-right" class="lucide-dir-aware inline-block w-4 h-4 align-middle"></i></span>
       </a>
       <a href="/logout" class="sb-logout">
@@ -89,13 +89,13 @@
           </button>
           <div>
             <h1 style="font-size:20px;font-weight:800;color:#fff;line-height:1.2;margin:0;">{{ title }}</h1>
-            <p style="font-size:14px;color:#00d4aa;font-family:monospace;margin:0;"><span style="font-family: 'Cairo', 'Tajawal', sans-serif;">حالة النظام: <span style="font-weight:700;">ممتاز ●</span></span></p>
+            <p style="font-size:14px;color:#00d4aa;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;margin:0;"><span style="font-family: 'Cairo', 'Tajawal', sans-serif;">حالة النظام: <span style="font-weight:700;">ممتاز ●</span></span></p>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
           <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:10px;">
             <i data-lucide="coins" style="inline-size:15px;block-size:15px;color:#f0c040;"></i>
-            <span style="font-size:14px;font-family:monospace;color:#fff;font-weight:700;">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</span>
+            <span style="font-size:14px;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;color:#fff;font-weight:700;">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</span>
             <a href="/wallet" style="font-size:14px;color:#8b5cf6;margin-inline-start:6px;text-decoration:none;font-weight:600;">إضافة</a>
           </div>
           <a href="/new-campaign" style="display:flex;align-items:center;gap:6px;padding:9px 18px;background:linear-gradient(135deg,#8b5cf6,#00d4aa);color:#fff;border-radius:10px;text-decoration:none;font-size:14px;font-weight:800;box-shadow:0 4px 20px rgba(139,92,246,0.35);transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">

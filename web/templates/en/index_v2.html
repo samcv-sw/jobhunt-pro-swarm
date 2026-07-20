@@ -4,7 +4,7 @@
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <link rel="stylesheet" href="/static/css/cyberpunk.css">
  <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
  <title>JobHunt Pro — Land Your Dream Job. Automatically.</title>
  <meta name="description" content="The most advanced job hunting platform. Apply to thousands of jobs, track every application, and get hired faster. Trusted by thousands of job seekers worldwide.">
 
@@ -61,7 +61,7 @@
 
   html{scroll-behavior:smooth}
   body{
-   font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
    background:var(--bg);
    color:var(--text);
    overflow-x:hidden;
@@ -137,14 +137,14 @@
   .section{position:relative;z-index:10;padding:100px 24px}
   .section-inner{max-inline-size:1200px;margin:0 auto}
   .section-label{
-   display:inline-block;font-family:'Orbitron',sans-serif;font-size:10px;
-   letter-spacing:5px;text-transform:uppercase;color:var(--cyan);
+   display:inline-block;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size: 14px;
+   text-transform:uppercase;color:var(--cyan);
    margin-block-end:16px;padding:8px 18px;border:1px solid var(--cyan-dim);
    border-radius:50px;background:var(--cyan-glow);
   }
   .section-title{
-   font-family:'Orbitron',sans-serif;font-size:clamp(28px,5vw,42px);
-   font-weight:800;letter-spacing:1px;margin-block-end:16px;line-height:1.2;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:clamp(28px,5vw,42px);
+   font-weight:800;margin-block-end:16px;line-height:1.2;
   }
   .section-subtitle{
    font-size:16px;color:var(--text-dim);max-inline-size:600px;line-height:1.8;
@@ -161,25 +161,25 @@
   .header.scrolled{background:rgba(5,5,10,0.95);padding:14px 48px}
   .logo-group{display:flex;flex-direction:column}
   .logo{
-   font-family:'Orbitron',sans-serif;font-size:24px;font-weight:900;
-   letter-spacing:4px;background:linear-gradient(135deg,var(--cyan),#00d4e0);
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:24px;font-weight:900;
+   background:linear-gradient(135deg,var(--cyan),#00d4e0);
    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
    background-clip:text;
   }
   .logo-accent{
-   font-size:9px;color:var(--cyan);letter-spacing:5px;
+   font-size: 14px;color:var(--cyan);
    text-transform:uppercase;opacity:0.8;
   }
   .nav-links{display:flex;gap:36px;align-items:center}
   .nav-links a{
-   color:var(--text-dim);text-decoration:none;font-size:13px;
-   font-weight:500;letter-spacing:1px;transition:color 0.3s;
+   color:var(--text-dim);text-decoration:none;font-size: 14px;
+   font-weight:500;transition:color 0.3s;
   }
   .nav-links a:hover{color:var(--cyan)}
   .nav-cta{
    padding:10px 24px;background:linear-gradient(135deg,var(--cyan),#0088aa);
    color:#000!important;border-radius:50px;font-weight:700!important;
-   font-size:12px!important;letter-spacing:2px!important;
+   font-size: 14px!important;
    transition:all 0.3s!important;border:none;cursor:pointer;
   }
   .nav-cta:hover{box-shadow:0 0 25px rgba(0,240,255,0.4);transform:translateY(-2px)}
@@ -195,8 +195,8 @@
   .hero-badge{
    display:inline-flex;align-items:center;gap:10px;
    padding:10px 24px;border:1px solid var(--cyan-dim);
-   border-radius:50px;font-size:11px;color:var(--cyan);
-   letter-spacing:4px;text-transform:uppercase;margin-block-end:28px;
+   border-radius:50px;font-size: 14px;color:var(--cyan);
+   text-transform:uppercase;margin-block-end:28px;
    animation:borderGlow 3s infinite;
   }
   .hero-badge .dot{
@@ -204,7 +204,7 @@
    animation:livePulse 1.5s infinite;
   }
   .hero-title{
-   font-family:'Orbitron',sans-serif;font-size:clamp(36px,8vw,72px);
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:clamp(36px,8vw,72px);
    font-weight:900;line-height:1.08;margin-block-end:24px;
   }
   .hero-title .cyan{
@@ -221,9 +221,9 @@
   .hero-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-block-end:60px}
   .btn{
    display:inline-flex;align-items:center;gap:8px;padding:16px 36px;
-   border-radius:50px;font-family:'Orbitron',sans-serif;font-size:13px;
+   border-radius:50px;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size: 14px;
    font-weight:700;cursor:pointer;transition:all 0.35s;text-decoration:none;
-   border:none;letter-spacing:2px;text-transform:uppercase;
+   border:none;text-transform:uppercase;
   }
   .btn-primary{
    background:linear-gradient(135deg,var(--cyan),#0088bb);
@@ -249,24 +249,24 @@
   }
   .hero-stat:hover{border-color:var(--cyan-dim);transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,0.4)}
   .hero-stat .val{
-   font-family:'Orbitron',sans-serif;font-size:32px;font-weight:900;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:32px;font-weight:900;
    background:linear-gradient(135deg,var(--cyan),#22d3ee);
    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
    background-clip:text;
   }
-  .hero-stat .label{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-block-start:6px}
+  .hero-stat .label{font-size: 14px;color:var(--muted);text-transform:uppercase;margin-block-start:6px}
 
   /* ═══════════════ TRUST BAR ═══════════════ */
   .trust-bar{position:relative;z-index:10;padding:40px 24px;border-inset-block-start:1px solid var(--border);border-inset-block-end:1px solid var(--border)}
   .trust-bar-inner{max-inline-size:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap}
   .trust-bar-label{
-   font-family:'Orbitron',sans-serif;font-size:10px;color:var(--muted);
-   letter-spacing:3px;text-transform:uppercase;white-space:nowrap;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size: 14px;color:var(--muted);
+   text-transform:uppercase;white-space:nowrap;
   }
   .trust-bar-logos{display:flex;gap:40px;align-items:center;flex-wrap:wrap;justify-content:center}
   .trust-logo{
-   font-family:'Orbitron',sans-serif;font-size:14px;color:var(--text-dim);
-   letter-spacing:3px;font-weight:700;opacity:0.5;transition:all 0.3s;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:14px;color:var(--text-dim);
+   font-weight:700;opacity:0.5;transition:all 0.3s;
   }
   .trust-logo:hover{opacity:0.9;color:var(--cyan)}
 
@@ -287,17 +287,17 @@
   .step-card:hover::before{opacity:1}
   .step-card:hover{border-color:var(--cyan-dim);transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,0.5)}
   .step-number{
-   font-family:'Orbitron',sans-serif;font-size:48px;font-weight:900;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:48px;font-weight:900;
    background:linear-gradient(135deg,var(--cyan),var(--magenta));
    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
    background-clip:text;margin-block-end:8px;
   }
   .step-icon{font-size:36px;margin-block-end:12px}
   .step-card h3{
-   font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:2px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:14px;
    margin-block-end:12px;color:var(--text);
   }
-  .step-card p{font-size:13px;color:var(--text-dim);line-height:1.7}
+  .step-card p{font-size: 14px;color:var(--text-dim);line-height:1.7}
 
   /* ═══════════════ FEATURES ═══════════════ */
   .feature-grid{
@@ -319,10 +319,10 @@
    border:1px solid var(--cyan-dim);
   }
   .feature-card h3{
-   font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:2px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:14px;
    margin-block-end:10px;color:var(--cyan);
   }
-  .feature-card p{font-size:13px;color:var(--text-dim);line-height:1.8}
+  .feature-card p{font-size: 14px;color:var(--text-dim);line-height:1.8}
 
   /* ═══════════════ STATS / SOCIAL PROOF ═══════════════ */
   .stats-row{
@@ -338,13 +338,13 @@
    box-shadow:0 8px 25px rgba(0,0,0,0.4);
   }
   .stat-card .big{
-   font-family:'Orbitron',sans-serif;font-size:40px;font-weight:900;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:40px;font-weight:900;
    background:linear-gradient(135deg,var(--cyan),#22d3ee);
    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
    background-clip:text;line-height:1.2;
   }
-  .stat-card .label{font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-block-start:8px}
-  .stat-card .sub{font-size:11px;color:var(--text-dim);margin-block-start:4px}
+  .stat-card .label{font-size: 14px;color:var(--muted);text-transform:uppercase;margin-block-start:8px}
+  .stat-card .sub{font-size: 14px;color:var(--text-dim);margin-block-start:4px}
 
   /* ═══════════════ PRICING ═══════════════ */
   .pricing-grid{
@@ -367,49 +367,49 @@
    position:absolute;inset-block-start:-15px;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform:translateX(-50%);
    background:linear-gradient(135deg,var(--magenta),#ff3377);
    color:#fff;padding:10px 24px;border-radius:50px;
-   font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;
-   letter-spacing:2px;white-space:nowrap;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size: 14px;font-weight:700;
+   white-space:nowrap;
   }
   .pricing-card .tier{
-   font-family:'Orbitron',sans-serif;font-size:10px;color:var(--muted);
-   text-transform:uppercase;letter-spacing:4px;margin-block-end:8px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size: 14px;color:var(--muted);
+   text-transform:uppercase;margin-block-end:8px;
   }
   .pricing-card .name{
-   font-family:'Orbitron',sans-serif;font-size:22px;font-weight:800;
-   margin-block-end:8px;letter-spacing:1px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:22px;font-weight:800;
+   margin-block-end:8px;
   }
   .pricing-card .companies{
-   font-family:'Orbitron',sans-serif;font-size:44px;font-weight:900;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:44px;font-weight:900;
    color:var(--cyan);line-height:1;
   }
   .pricing-card .companies span{
-   font-size:13px;color:var(--text-dim);font-weight:400;
+   font-size: 14px;color:var(--text-dim);font-weight:400;
   }
   .pricing-card .price{
-   font-family:'Orbitron',sans-serif;font-size:32px;font-weight:800;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:32px;font-weight:800;
    margin:14px 0 4px;
   }
   .pricing-card .price span{font-size:14px;color:var(--muted);font-weight:400}
-  .pricing-card .per{font-size:11px;color:var(--muted);margin-block-end:20px}
+  .pricing-card .per{font-size: 14px;color:var(--muted);margin-block-end:20px}
   .pricing-card .save{
    display:inline-block;padding:6px 14px;background:var(--cyan-glow);
    border:1px solid var(--cyan-dim);border-radius:50px;
-   color:var(--cyan);font-size:11px;font-weight:600;margin-block-end:18px;
+   color:var(--cyan);font-size: 14px;font-weight:600;margin-block-end:18px;
   }
   .pricing-card ul{
    list-style:none;text-align: start;margin-block-end:28px;flex:1;
   }
   .pricing-card ul li{
-   padding:10px 0;color:var(--text-dim);font-size:12px;
+   padding:10px 0;color:var(--text-dim);font-size: 14px;
    border-inset-block-end:1px solid var(--border);display:flex;align-items:center;gap:10px;
   }
   .pricing-card ul li::before{content:'\2713';color:var(--cyan);font-weight:700;font-size:14px}
   .pricing-card ul li:last-child{border-inset-block-end:none}
   .pricing-card .btn-block{
    display:block;inline-size:100%;padding:16px;border-radius:50px;
-   font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size: 14px;font-weight:700;
    cursor:pointer;transition:all var(--transition);text-decoration:none;
-   text-align:center;border:none;letter-spacing:2px;text-transform:uppercase;
+   text-align:center;border:none;text-transform:uppercase;
   }
   .pricing-card .btn-block.primary{
    background:linear-gradient(135deg,var(--cyan),#0088bb);color:#000;
@@ -436,9 +436,7 @@
    border-color:var(--magenta-dim);transform:translateY(-4px);
    box-shadow:0 8px 30px rgba(0,0,0,0.4);
   }
-  .testimonial-stars{color:#fbbf24;font-size:15px;margin-block-end:16px;letter-spacing:2px}
-  .testimonial-text{
-   font-size:14px;color:var(--text-dim);line-height:1.8;
+  .testimonial-stars{color:#fbbf24;font-size:15px;margin-block-end:16px;color:var(--text-dim);line-height:1.8;
    font-style:italic;margin-block-end:20px;
   }
   .testimonial-author{display:flex;align-items:center;gap:12px}
@@ -446,12 +444,12 @@
    inline-size:44px;block-size:44px;border-radius:50%;
    background:linear-gradient(135deg,var(--cyan),var(--magenta));
    display:flex;align-items:center;justify-content:center;
-   font-family:'Orbitron',sans-serif;font-weight:700;font-size:14px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-weight:700;font-size:14px;
    color:#fff;
   }
-  .testimonial-info .name{font-weight:600;font-size:13px}
-  .testimonial-info .role{font-size:11px;color:var(--muted)}
-  .testimonial-info .flag{font-size:13px;margin-inline-start:4px}
+  .testimonial-info .name{font-weight:600;font-size: 14px}
+  .testimonial-info .role{font-size: 14px;color:var(--muted)}
+  .testimonial-info .flag{font-size: 14px;margin-inline-start:4px}
 
   /* ═══════════════ EARNINGS TRACKER ═══════════════ */
   .earnings{
@@ -471,7 +469,7 @@
    z-index:-1;opacity:0.25;animation:gradientShift 5s ease infinite;
   }
   .earnings-label{
-   font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:5px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size: 14px;
    color:var(--muted);text-transform:uppercase;margin-block-end:10px;
   }
   .earnings-label .live-dot{
@@ -479,18 +477,18 @@
    border-radius:50%;margin-inline-end:8px;animation:livePulse 1.5s infinite;
   }
   .earnings-total{
-   font-family:'Orbitron',sans-serif;font-size:56px;font-weight:900;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:56px;font-weight:900;
    background:linear-gradient(135deg,var(--cyan),#22d3ee,var(--magenta));
    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
    background-clip:text;line-height:1.15;margin:4px 0;transition:all 0.5s;
   }
-  .earnings-sub{font-size:12px;color:var(--text-dim);letter-spacing:2px;margin-block-end:24px}
+  .earnings-sub{font-size: 14px;color:var(--text-dim);margin-block-end:24px}
   .earnings-periods{display:flex;gap:8px;justify-content:center;margin-block-end:28px;flex-wrap:wrap}
   .earnings-periods button{
-   padding:9px 20px;border-radius:50px;font-size:11px;letter-spacing:1px;
+   padding:9px 20px;border-radius:50px;font-size: 14px;
    cursor:pointer;transition:all 0.3s;background:transparent;
    color:var(--muted);border:1px solid var(--border);text-transform:uppercase;
-   font-family:'Inter',sans-serif;font-weight:500;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter',sans-serif;font-weight:500;
   }
   .earnings-periods button:hover{border-color:var(--cyan);color:var(--cyan)}
   .earnings-periods button.active{
@@ -508,10 +506,10 @@
   .earn-card:hover{border-color:var(--cyan-dim)}
   .earn-card .icon{font-size:20px;margin-block-end:6px}
   .earn-card .val{
-   font-family:'Orbitron',sans-serif;font-size:20px;font-weight:700;color:var(--cyan);
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:20px;font-weight:700;color:var(--cyan);
   }
-  .earn-card .label{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-block-start:4px}
-  .earn-card .count{font-size:10px;color:var(--text-dim);margin-block-start:2px}
+  .earn-card .label{font-size: 14px;color:var(--muted);text-transform:uppercase;margin-block-start:4px}
+  .earn-card .count{font-size: 14px;color:var(--text-dim);margin-block-start:2px}
 
   /* ═══════════════ FAQ ═══════════════ */
   .faq-list{max-inline-size:800px;margin:48px auto 0}
@@ -529,7 +527,7 @@
   }
   .faq-question:hover{color:var(--cyan)}
   .faq-question .arrow{
-   font-family:'Orbitron',sans-serif;font-size:18px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:18px;
    transition:transform 0.3s;color:var(--cyan);
   }
   .faq-item.open .faq-question .arrow{transform:rotate(45deg)}
@@ -552,7 +550,7 @@
    pointer-events:none;z-index:-1;
   }
   .cta-title{
-   font-family:'Orbitron',sans-serif;font-size:clamp(28px,5vw,44px);
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size:clamp(28px,5vw,44px);
    font-weight:900;line-height:1.2;margin-block-end:16px;
   }
   .cta-title .gradient-text{
@@ -563,7 +561,7 @@
   .cta-desc{font-size:16px;color:var(--text-dim);margin-block-end:36px;line-height:1.8}
   .cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
   .btn-lg{
-   padding:20px 48px;font-size:15px;letter-spacing:3px;
+   padding:20px 48px;font-size:15px;
   }
 
   /* ═══════════════ FOOTER ═══════════════ */
@@ -576,29 +574,21 @@
    gap:48px;max-inline-size:1200px;margin:0 auto 40px;
   }
   .footer-col h4{
-   font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:3px;
+   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Orbitron',sans-serif;font-size: 14px;
    color:var(--cyan);margin-block-end:20px;text-transform:uppercase;
   }
   .footer-col a{
    display:block;color:var(--text-dim);text-decoration:none;
-   font-size:13px;margin-block-end:12px;transition:color 0.2s;
+   font-size: 14px;margin-block-end:12px;transition:color 0.2s;
   }
   .footer-col a:hover{color:var(--cyan)}
-  .footer-col p{font-size:13px;color:var(--text-dim);line-height:1.8;margin-block-end:8px}
+  .footer-col p{font-size: 14px;color:var(--text-dim);line-height:1.8;margin-block-end:8px}
   .footer-bottom{
    max-inline-size:1200px;margin:0 auto;padding-block-start:24px;
    border-inset-block-start:1px solid var(--border);display:flex;
    justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
   }
-  .footer-bottom .copyright{font-size:11px;color:var(--muted);letter-spacing:1px}
-  .footer-bottom .payment{font-size:11px;color:var(--muted);letter-spacing:1px}
-  .footer-accent{color:var(--cyan)}
-
-  /* ═══════════════ MOBILE ═══════════════ */
-  @media(max-width:968px){
-   .nav-links{display:none}
-   .nav-links.open{
-    display:flex;flex-direction:column;position:absolute;
+  .footer-bottom .copyright{font-size: 14px;color:var(--muted);color:var(--muted);flex-direction:column;position:absolute;
     inset-block-start:100%;inset-inline-start: 0;inset-inline-end: 0;background:rgba(5,5,10,0.98);
     backdrop-filter:blur(16px);padding:24px;gap:20px;
     border-inset-block-end:1px solid var(--border);

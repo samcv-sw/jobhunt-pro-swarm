@@ -4,7 +4,7 @@
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta name="description" content="Create your free JobHunt Pro account. Let 200 AI agents apply to thousands of jobs for you — automatically.">
   <title>Create Account &mdash; JobHunt Pro</title>
   <link rel="stylesheet" href="/static/css/dashboard-v4.css?v=20260629_v2">
@@ -50,7 +50,7 @@
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 .validation-feedback {
-  font-size: 11px; margin-block-start: 4px; display: none;
+  font-size: 14px; margin-block-start: 4px; display: none;
 }
 .validation-feedback.show { display: block; }
 .validation-feedback.error { color: var(--accent-danger); }
@@ -68,13 +68,13 @@
 }
 .pw-requirements-v2.show { display: block; }
 .pw-requirements-v2 .req {
-  font-size: 12px; color: var(--text-muted);
+  font-size: 14px; color: var(--text-muted);
   padding: 3px 0;
   display: flex; align-items: center; gap: 8px;
   transition: color var(--transition-fast);
 }
 .pw-requirements-v2 .req.met { color: var(--accent-success); }
-.pw-requirements-v2 .req .req-icon { font-size: 10px; }
+.pw-requirements-v2 .req .req-icon { font-size: 14px; }
 
 /* ── Plan selector hover effect ── */
 .plan-option {
@@ -93,7 +93,7 @@
   position: absolute; inset-block-end: 4px; inset-inline-end: 4px;
   inline-size: 18px; block-size: 18px; border-radius: 50%;
   background: var(--accent-success); color: #fff;
-  font-size: 10px; font-weight: 700;
+  font-size: 14px; font-weight: 700;
   align-items: center; justify-content: center;
 }
 .plan-option.selected .checkmark { display: flex; }
@@ -152,14 +152,14 @@
       <h3>🎯 Choose Your Plan</h3>
       <div class="plan-options">
         <label class="plan-option selected" for="plan-starter">
-          <input dir="auto" type="radio" name="plan" value="starter" id="plan-starter" checked>
+          <input dir="auto" type="radio" name="plan" value="starter" id="plan-starter" checked dir="auto">
           <div class="plan-name">Starter</div>
           <div class="plan-price">$2 <span>one-time</span></div>
           <div class="plan-apps">10 applications</div>
           <div class="checkmark">✓</div>
         </label>
         <label class="plan-option" for="plan-basic">
-          <input dir="auto" type="radio" name="plan" value="basic" id="plan-basic">
+          <input dir="auto" type="radio" name="plan" value="basic" id="plan-basic" dir="auto">
           <span class="plan-badge-tag">POPULAR</span>
           <div class="plan-name">Basic</div>
           <div class="plan-price">$5 <span>one-time</span></div>
@@ -167,7 +167,7 @@
           <div class="checkmark">✓</div>
         </label>
         <label class="plan-option" for="plan-pro">
-          <input dir="auto" type="radio" name="plan" value="pro" id="plan-pro">
+          <input dir="auto" type="radio" name="plan" value="pro" id="plan-pro" dir="auto">
           <div class="plan-name">Pro ⭐</div>
           <div class="plan-price">$15 <span>one-time</span></div>
           <div class="plan-apps">500 applications</div>
@@ -183,33 +183,33 @@
       <!-- PROJECT AEGIS: Invisible Bot Honeypot -->
       <div style="display:none; visibility:hidden;">
         <label for="aegis_honeypot">Leave this empty if you are human</label>
-        <input class="glass-input" dir="auto" type="text" name="aegis_honeypot" id="aegis_honeypot" tabindex="-1" autocomplete="off">
+        <input class="glass-input" dir="auto" type="text" name="aegis_honeypot" id="aegis_honeypot" tabindex="-1" autocomplete="off" dir="auto">
       </div>
 
-      <input dir="auto" type="hidden" name="selected_plan" id="selectedPlan" value="starter">
-      <input dir="auto" type="hidden" name="ref" value="{{ ref }}">
+      <input dir="auto" type="hidden" name="selected_plan" id="selectedPlan" value="starter" dir="auto">
+      <input dir="auto" type="hidden" name="ref" value="{{ ref }}" dir="auto">
 
       <div class="form-group">
         <label for="regName">Full Name</label>
-        <input class="glass-input" dir="auto" type="text" id="regName" name="name" placeholder="e.g. Sam Salameh" required autocomplete="name" oninput="validateName(this)">
+        <input class="glass-input" dir="auto" type="text" id="regName" name="name" placeholder="e.g. Sam Salameh" required autocomplete="name" oninput="validateName(this)" dir="auto">
         <div class="validation-feedback" id="nameFeedback"></div>
       </div>
 
       <div class="form-group">
         <label for="regEmail">Email</label>
-        <input class="glass-input" dir="auto" type="email" id="regEmail" name="email" placeholder="you@example.com" required autocomplete="email" oninput="validateEmail(this)">
+        <input class="glass-input" dir="auto" type="email" id="regEmail" name="email" placeholder="you@example.com" required autocomplete="email" oninput="validateEmail(this)" dir="auto">
         <div class="validation-feedback" id="emailFeedback"></div>
       </div>
 
       <div class="form-group">
         <label for="regPhone">Phone (optional)</label>
-        <input class="glass-input" dir="auto" type="tel" id="regPhone" name="phone" placeholder="e.g. +961 70 000 000" autocomplete="tel">
+        <input class="glass-input" dir="auto" type="tel" id="regPhone" name="phone" placeholder="e.g. +961 70 000 000" autocomplete="tel" dir="auto">
       </div>
 
       <div class="form-group">
         <label for="regPassword">Password</label>
         <div class="pw-input-wrap">
-          <input class="glass-input" dir="auto" type="password" id="regPassword" name="password" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password" oninput="validatePassword(this.value)" onfocus="document.getElementById('pwReqs').classList.add('show')" onblur="setTimeout(function(){document.getElementById('pwReqs').classList.remove('show')},200)">
+          <input class="glass-input" dir="auto" type="password" id="regPassword" name="password" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password" oninput="validatePassword(this.value)" onfocus="document.getElementById('pwReqs').classList.add('show')" onblur="setTimeout(function(){document.getElementById('pwReqs').classList.remove('show')},200)" dir="auto">
           <button type="button" class="pw-toggle-btn" onclick="toggleRegPw()" id="regPwToggle" aria-label="Toggle password visibility">👁️</button>
         </div>
         <!-- Password Strength Meter -->

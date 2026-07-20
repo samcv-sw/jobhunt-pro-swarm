@@ -68,9 +68,8 @@ Temporary files (can be deleted):
 
 ### 8-ARCHIVE
 Old/backup files:
-- `archive/` - Old project versions
-- `_archive_temp/` - Temporary archives
-- Backup folders
+- `archive/` - [DELETED] Old project versions (cleaned up to prevent technical debt)
+- Backup folders (moved/archived)
 
 ## Quick Start
 

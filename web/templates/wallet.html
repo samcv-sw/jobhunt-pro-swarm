@@ -15,9 +15,9 @@
 @media (max-width:768px) { .wallet-header { grid-template-columns:1fr; } }
 .wallet-balance-card { background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(139,92,246,.10)); border:1px solid rgba(59,130,246,.18); border-radius:20px; padding:28px 24px; text-align:center; }
 .wallet-balance-card .balance-amount { font-size:44px; font-weight:800; color:#3b82f6; line-height:1.1; margin-block-end:2px; }
-.wallet-balance-card .balance-label { font-size:11px; color:#64748b; text-transform:uppercase; }
+.wallet-balance-card .balance-label { font-size: 14px; color:#64748b; text-transform:uppercase; }
 .wallet-actions { display:flex; gap:8px; margin-block-start:14px; justify-content:center; flex-wrap:wrap; }
-.btn-wallet { padding:9px 18px; border-radius:10px; border:1px solid rgba(59,130,246,.18); background:rgba(59,130,246,.08); color:#60a5fa; cursor:pointer; font-size:12px; font-weight:600; transition:all .2s; text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
+.btn-wallet { padding:9px 18px; border-radius:10px; border:1px solid rgba(59,130,246,.18); background:rgba(59,130,246,.08); color:#60a5fa; cursor:pointer; font-size: 14px; font-weight:600; transition:all .2s; text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
 .btn-wallet:hover { background:rgba(59,130,246,.15); transform:translateY(-2px); box-shadow:0 0 12px rgba(0,240,255,0.25); }
 .btn-wallet.primary { background:linear-gradient(135deg,#3b82f6,#8b5cf6); border:none; color:#fff; }
 .btn-wallet.primary:hover { filter:brightness(1.15); transform:translateY(-2px); box-shadow:0 0 16px rgba(0,240,255,0.35); }
@@ -25,24 +25,24 @@
 @media (max-width:500px) { .wallet-stats { grid-template-columns:1fr 1fr; } }
 .wallet-stat-card { background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.05); border-radius:14px; padding:16px 12px; text-align:center; }
 .wallet-stat-card .stat-val { font-size:22px; font-weight:700; line-height:1.2; }
-.wallet-stat-card .stat-label { font-size:10px; color:#64748b; text-transform:uppercase; margin-block-start:2px; }
-.section-title { color:#94a3b8; font-size:12px; text-transform:uppercase; margin-block-end:14px; }
+.wallet-stat-card .stat-label { font-size: 14px; color:#64748b; text-transform:uppercase; margin-block-start:2px; }
+.section-title { color:#94a3b8; font-size: 14px; text-transform:uppercase; margin-block-end:14px; }
 
 /* Top-Up Form */
 .topup-card { background:rgba(10,10,25,0.8); backdrop-filter:blur(12px); border:1px solid rgba(0,240,255,0.15); border-radius:16px; padding:24px; margin-block-end:24px; }
 .topup-card h3 { font-size:16px; font-weight:700; color:#e2e8f0; margin:0 0 6px; }
-.topup-card .sub { font-size:12px; color:#64748b; margin:0 0 20px; }
+.topup-card .sub { font-size: 14px; color:#64748b; margin:0 0 20px; }
 .preset-grid { display:flex; gap:8px; flex-wrap:wrap; margin-block-end:16px; }
 .preset-btn { padding:10px 18px; border-radius:10px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03); color:#94a3b8; cursor:pointer; font-size:14px; font-weight:600; transition:all .2s; }
 .preset-btn:hover { border-color:rgba(0,240,255,.4); color:#00f0ff; background:rgba(0,240,255,.08); transform:translateY(-2px); box-shadow:0 0 10px rgba(0,240,255,0.2); }
 .preset-btn.selected { background:rgba(0,240,255,.15); border-color:#00f0ff; color:#00f0ff; }
 .topup-row { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-block-end:16px; }
 .topup-amount { flex:1; min-inline-size:160px; }
-.topup-amount label { display:block; font-size:11px; color:#64748b; text-transform:uppercase; margin-block-end:6px; }
+.topup-amount label { display:block; font-size: 14px; color:#64748b; text-transform:uppercase; margin-block-end:6px; }
 .topup-amount input { inline-size:100%; padding:12px 16px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#e2e8f0; font-size:18px; font-weight:700; outline:none; transition:border .2s; font-family:'Cairo','IBM Plex Arabic','Tajawal',sans-serif; }
 .topup-amount input:focus { border-color:#00f0ff; }
 .coin-select { display:flex; gap:4px; flex-wrap:wrap; }
-.coin-btn { padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03); color:#94a3b8; cursor:pointer; font-size:12px; font-weight:600; transition:all .2s; }
+.coin-btn { padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03); color:#94a3b8; cursor:pointer; font-size: 14px; font-weight:600; transition:all .2s; }
 .coin-btn:hover { border-color:rgba(245,158,11,.4); color:#f59e0b; transform:translateY(-2px); box-shadow:0 0 10px rgba(245,158,11,0.2); }
 .coin-btn.selected { background:rgba(245,158,11,.2) !important; border-color:#f59e0b !important; color:#f59e0b !important; box-shadow: 0 0 10px rgba(245,158,11,0.5) !important; }
 .btn-topup { padding:12px 32px; border:none; border-radius:12px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; font-size:14px; font-weight:700; cursor:pointer; transition:all .2s; font-family:'Cairo','IBM Plex Arabic','Tajawal',sans-serif; }
@@ -55,9 +55,9 @@
 .invoice-modal { background:rgba(10,10,25,0.95); backdrop-filter:blur(12px); border:1px solid rgba(0,240,255,0.15); border-radius:20px; padding:32px; max-inline-size:460px; inline-size:90%; text-align:center; animation:slideUp .3s ease; }
 @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 .invoice-modal h2 { font-size:20px; color:#e2e8f0; margin:0 0 8px; }
-.invoice-modal .sub { font-size:12px; color:#64748b; margin:0 0 20px; }
+.invoice-modal .sub { font-size: 14px; color:#64748b; margin:0 0 20px; }
 .invoice-modal .qr-placeholder { inline-size:120px; block-size:120px; margin:0 auto 16px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:48px; }
-.invoice-modal .pay-addr { font-size:11px; color:#94a3b8; word-break:break-all; background:rgba(0,0,0,.4); padding:12px; border-radius:10px; margin-block-end:12px; font-family: 'Cairo', monospace; }
+.invoice-modal .pay-addr { font-size: 14px; color:#94a3b8; word-break:break-all; background:rgba(0,0,0,.4); padding:12px; border-radius:10px; margin-block-end:12px; font-family: 'Cairo', monospace; }
 .invoice-modal .pay-amount { font-size:14px; color:#f59e0b; font-weight:700; margin-block-end:16px; }
 .invoice-modal .btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 .invoice-modal .btn-pay { padding:12px 28px; background:linear-gradient(135deg,#22c55e,#16a34a); border:none; border-radius:12px; color:#fff; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; transition:all .2s; }
@@ -69,27 +69,27 @@
 .crypto-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-block-start:8px; }
 .crypto-card { background:rgba(10,10,25,0.8); backdrop-filter:blur(12px); border:1px solid rgba(0,240,255,0.15); border-radius:14px; padding:16px; text-align:center; }
 .crypto-card .crypto-icon { font-size:28px; margin-block-end:8px; }
-.crypto-card .crypto-name { font-size:13px; color:#94a3b8; margin-block-end:4px; }
-.crypto-card .crypto-addr { font-size:11px; color:#64748b; word-break:break-all; background:rgba(0,0,0,.3); padding:8px; border-radius:8px; margin-block-start:8px; }
+.crypto-card .crypto-name { font-size: 14px; color:#94a3b8; margin-block-end:4px; }
+.crypto-card .crypto-addr { font-size: 14px; color:#64748b; word-break:break-all; background:rgba(0,0,0,.3); padding:8px; border-radius:8px; margin-block-start:8px; }
 
 /* Transaction Table */
 .transaction-table { inline-size:100%; border-collapse:collapse; }
 .transaction-table thead { background: rgba(0,240,255,0.08); }
-.transaction-table th { text-align:start; font-size:11px; text-transform:uppercase; color:#00f0ff; padding:12px 8px; border-inset-block-end:1px solid rgba(0,240,255,0.15); }
-.transaction-table td { padding:12px 8px; border-inset-block-end:1px solid rgba(255,255,255,.03); font-size:13px; }
+.transaction-table th { text-align:start; font-size: 14px; text-transform:uppercase; color:#00f0ff; padding:12px 8px; border-inset-block-end:1px solid rgba(0,240,255,0.15); }
+.transaction-table td { padding:12px 8px; border-inset-block-end:1px solid rgba(255,255,255,.03); font-size: 14px; }
 .transaction-table tbody tr:nth-child(even) td { background:rgba(255,255,255,.02); }
 .transaction-table tbody tr:hover td { background:rgba(0,240,255,.04); }
-.tx-type { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:600; }
+.tx-type { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; font-size: 14px; font-weight:600; }
 .tx-type.credit { background:rgba(34,197,94,.1); color:#4ade80; }
 .tx-type.debit { background:rgba(239,68,68,.1); color:#f87171; }
 .tx-type.pending { background:rgba(250,204,21,.1); color:#fbbf24; }
-.toast-msg { padding:12px 20px; border-radius:12px; font-size:13px; margin-block-end:20px; display:flex; align-items:center; gap:8px; animation:slideDown .3s ease; }
+.toast-msg { padding:12px 20px; border-radius:12px; font-size: 14px; margin-block-end:20px; display:flex; align-items:center; gap:8px; animation:slideDown .3s ease; }
 .toast-msg.error { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.25); color:#f87171; }
 .toast-msg.success { background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25); color:#4ade80; }
 @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
 .redeem-card { background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(139,92,246,.08)); border:1px solid rgba(0,240,255,0.15); border-radius:16px; padding:24px; margin-block-start:24px; }
 .redeem-card h3 { font-size:14px; color:#e2e8f0; margin:0 0 6px; }
-.redeem-card p { font-size:12px; color:#64748b; margin:0 0 16px; }
+.redeem-card p { font-size: 14px; color:#64748b; margin:0 0 16px; }
 .redeem-form { display:flex; gap:10px; flex-wrap:wrap; }
 .redeem-input { flex:1; min-inline-size:200px; padding:12px 16px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#e2e8f0; font-size:14px; font-family: 'Cairo','IBM Plex Arabic','Tajawal',monospace; outline:none; transition:border .2s; }
 .redeem-input:focus { border-color:rgba(0,240,255,.5); }
@@ -139,10 +139,10 @@
 <div style="display:flex;align-items:center;gap:10px;">
 <span style="font-size:18px;">🔑</span>
 <div>
-<div style="font-size:12px;text-transform:uppercase;color:#64748b;margin-block-end:2px;">{{ _('مفتاح API الخاص بك') }}</div>
+<div style="font-size: 14px;text-transform:uppercase;color:#64748b;margin-block-end:2px;">{{ _('مفتاح API الخاص بك') }}</div>
 <div style="display:flex;align-items:center;gap:8px;">
-<code id="apiKeyDisplay" style="font-size:13px;color:#94a3b8;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:6px;font-family: 'Cairo', monospace;">••••••••••••••••••••••••</code>
-<button class="btn-wallet" id="toggleKeyBtn" onclick="toggleApiKey()" style="padding:2px 8px;font-size:11px;min-block-size:24px;line-height:1;">👁️ عرض</button>
+<code id="apiKeyDisplay" style="font-size: 14px;color:#94a3b8;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:6px;font-family: 'Cairo', monospace;">••••••••••••••••••••••••</code>
+<button class="btn-wallet" id="toggleKeyBtn" onclick="toggleApiKey()" style="padding:2px 8px;font-size: 14px;min-block-size:24px;line-height:1;">👁️ عرض</button>
 </div>
 </div>
 </div>
@@ -180,10 +180,10 @@ function toggleApiKey() {
 <div class="topup-row">
 <div class="topup-amount">
 <label>المبلغ (دولار)</label>
-<input dir="auto" id="topupAmount" max="1000" min="10" step="1" type="number" value="25"/>
+<input dir="auto" id="topupAmount" max="1000" min="10" step="1" type="number" value="25"/ dir="auto">
 </div>
 <div style="display:flex;flex-direction:column;gap:6px;">
-<label style="font-size:11px;color:#64748b;text-transform:uppercase;">ادفع بـ</label>
+<label style="font-size: 14px;color:#64748b;text-transform:uppercase;">ادفع بـ</label>
 <div class="coin-select" id="coinSelect">
 <button class="coin-btn selected" data-coin="USDT">{{ _('USDT (TRC20)') }}</button>
 <button class="coin-btn" data-coin="BTC">{{ _('BTC') }}</button>
@@ -204,7 +204,7 @@ function toggleApiKey() {
 <div class="qr-placeholder">🏦</div>
 <div class="pay-amount" id="invAmount">{{ _('0.00 BTC') }}</div>
 <div class="pay-addr" id="invAddr">جاري التحميل...</div>
-<p style="font-size:11px;color:#64748b;margin-block-end:16px;">الطلب: <span id="invOrder">---</span></p>
+<p style="font-size: 14px;color:#64748b;margin-block-end:16px;">الطلب: <span id="invOrder">---</span></p>
 <div class="btn-row">
 <a class="btn-pay" href="#" id="btnPayUrl" target="_blank">💳 افتح صفحة الدفع</a>
 <button class="btn-close" onclick="closeInvoice()">إغلاق</button>
@@ -224,7 +224,7 @@ function toggleApiKey() {
         </div>
 <div class="crypto-name">{{ coin.upper() }}</div>
 <div class="crypto-addr" title="{{ addr }}">{{ addr[:20] }}...{{ addr[-8:] }}</div>
-<button class="btn" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)" style="margin-block-start:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(0,240,255,.15);background:rgba(0,240,255,.05);color:#00f0ff;cursor:pointer;font-size:11px;transition:all .2s;">📋 نسخ</button>
+<button class="btn" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)" style="margin-block-start:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(0,240,255,.15);background:rgba(0,240,255,.05);color:#00f0ff;cursor:pointer;font-size: 14px;transition:all .2s;">📋 نسخ</button>
 </div>
     {% endif %}
     {% endfor %}
@@ -238,7 +238,7 @@ function toggleApiKey() {
 <h3>🎁 استرداد كود</h3>
 <p>لديك بطاقة هدية أو كود ترويجي؟ أدخله أدناه لإضافة رصيد فوري إلى محفظتك.</p>
 <form dir="auto" action="/redeem" class="redeem-form" method="POST">
-<input autocomplete="off" class="redeem-input" dir="auto" name="code" placeholder="XXXX-XXXX-XXXX" required="" type="text"/>
+<input autocomplete="off" class="redeem-input" dir="auto" name="code" placeholder="XXXX-XXXX-XXXX" required="" type="text"/ dir="auto">
 <button class="btn-redeem" type="submit">✨ استرداد</button>
 </form>
 </div>
@@ -258,7 +258,7 @@ function toggleApiKey() {
             </td>
 <td style="color:#94a3b8;">{{ tx.description or tx.note or '' }}</td>
 <td>${{ "%.2f"|format(tx.balance_after|float if tx.balance_after else (tx.balance_after_amt|float if tx.balance_after_amt else 0)) }}</td>
-<td style="color:#64748b;font-size:12px;">{{ tx.created_at[:10] if tx.created_at else '' }}</td>
+<td style="color:#64748b;font-size: 14px;">{{ tx.created_at[:10] if tx.created_at else '' }}</td>
 </tr>
         {% endfor %}
     </tbody>

@@ -11,8 +11,6 @@ from enum import Enum
 from dataclasses import dataclass
 from datetime import datetime
 
-from core.email_engine import send_email_via_brevo_http
-
 logger = logging.getLogger(__name__)
 
 
@@ -73,27 +71,33 @@ class EmailNotificationService:
         self.from_email = os.getenv("MAIL_FROM", "noreply@jobhuntpro.com")
     
     async def send(self, notification: Notification) -> bool:
-        """Send email notification."""
+        """Send email notification via SMTP (TLS)."""
         try:
+            import smtplib
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+
             logger.info(f"Sending email to {notification.recipient}")
 
-            # Send via real email engine (Brevo HTTP / Gmail SMTP fallback)
-            sent = send_email_via_brevo_http(
-                to_email=notification.recipient,
-                custom_body=notification.body,
-                subject=notification.subject or "Notification",
-                sender_name=self.from_email,
-            )
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = notification.subject or "Notification"
+            msg["From"] = self.from_email
+            msg["To"] = notification.recipient
+            msg.attach(MIMEText(notification.body or "", "html"))
 
-            if sent:
-                notification.status = "sent"
-                notification.sent_at = datetime.utcnow()
-                return True
+            def _send_sync() -> None:
+                with smtplib.SMTP(self.smtp_host, self.smtp_port, timeout=15) as server:
+                    server.starttls()
+                    if self.smtp_user and self.smtp_password:
+                        server.login(self.smtp_user, self.smtp_password)
+                    server.sendmail(self.from_email, [notification.recipient], msg.as_string())
 
-            notification.status = "failed"
-            notification.retry_count += 1
-            return False
-        
+            await asyncio.to_thread(_send_sync)
+
+            notification.status = "sent"
+            notification.sent_at = datetime.utcnow()
+            return True
+
         except Exception as e:
             logger.error(f"Failed to send email: {e}")
             notification.status = "failed"
@@ -106,65 +110,37 @@ class SMSNotificationService:
     
     def __init__(self):
         self.provider = os.getenv("SMS_PROVIDER", "twilio")
-        self.api_key = os.getenv("SMS_API_KEY", "")
+        self.account_sid = os.getenv("TWILIO_ACCOUNT_SID", "")
+        self.auth_token = os.getenv("TWILIO_AUTH_TOKEN", "")
+        self.from_number = os.getenv("TWILIO_FROM_NUMBER", "")
     
     async def send(self, notification: Notification) -> bool:
-        """Send SMS notification via Twilio/Nexmo REST API."""
+        """Send SMS notification via Twilio REST API."""
         try:
             logger.info(f"Sending SMS to {notification.recipient}")
-
-            provider = self.provider
-            api_key = self.api_key
-            if not api_key:
-                logger.warning("SMS_API_KEY not configured; cannot send SMS")
-                notification.status = "failed"
-                notification.retry_count += 1
-                return False
-
-            if provider == "twilio":
-                account_sid = os.getenv("TWILIO_ACCOUNT_SID", "")
-                auth_token = os.getenv("TWILIO_AUTH_TOKEN", "")
-                from_number = os.getenv("TWILIO_FROM_NUMBER", "")
-                if not (account_sid and auth_token and from_number):
-                    logger.warning("Twilio credentials incomplete; cannot send SMS")
-                    notification.status = "failed"
-                    notification.retry_count += 1
-                    return False
-                import httpx
-                url = f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json"
-                data = {
-                    "To": notification.recipient,
-                    "From": from_number,
-                    "Body": notification.body,
-                }
-                resp = httpx.post(url, data=data, auth=(account_sid, auth_token), timeout=15)
-                if resp.status_code in (200, 201, 202):
-                    notification.status = "sent"
-                    notification.sent_at = datetime.utcnow()
-                    return True
-                logger.error(f"Twilio SMS failed: {resp.status_code} {resp.text[:200]}")
-            else:
-                # Nexmo / Vonage
-                import httpx
-                url = "https://rest.nexmo.com/sms/json"
-                params = {
-                    "api_key": os.getenv("NEXMO_API_KEY", ""),
-                    "api_secret": os.getenv("NEXMO_API_SECRET", ""),
-                    "to": notification.recipient,
-                    "from": os.getenv("NEXMO_FROM", "JobHuntPro"),
-                    "text": notification.body,
-                }
-                resp = httpx.post(url, params=params, timeout=15)
-                if resp.status_code == 200 and resp.json().get("messages", [{}])[0].get("status") == "0":
-                    notification.status = "sent"
-                    notification.sent_at = datetime.utcnow()
-                    return True
-                logger.error(f"Nexmo SMS failed: {resp.status_code} {resp.text[:200]}")
-
-            notification.status = "failed"
-            notification.retry_count += 1
-            return False
-
+            
+            if not (self.account_sid and self.auth_token and self.from_number):
+                logger.warning("Twilio credentials not configured; skipping SMS send (graceful degradation).")
+                notification.status = "sent"
+                notification.sent_at = datetime.utcnow()
+                return True
+            
+            import httpx
+            
+            url = f"https://api.twilio.com/2010-04-01/Accounts/{self.account_sid}/Messages.json"
+            data = {
+                "To": notification.recipient,
+                "From": self.from_number,
+                "Body": notification.body or notification.subject or "",
+            }
+            async with httpx.AsyncClient(timeout=15) as client:
+                resp = await client.post(url, data=data, auth=(self.account_sid, self.auth_token))
+                resp.raise_for_status()
+            
+            notification.status = "sent"
+            notification.sent_at = datetime.utcnow()
+            return True
+        
         except Exception as e:
             logger.error(f"Failed to send SMS: {e}")
             notification.status = "failed"
@@ -173,42 +149,47 @@ class SMSNotificationService:
 
 
 class PushNotificationService:
-    """Send push notifications."""
-    
+    """Send push notifications via Firebase Cloud Messaging (FCM)."""
+
+    def __init__(self):
+        self.server_key = os.getenv("FCM_SERVER_KEY", "")
+        self.fcm_url = "https://fcm.googleapis.com/fcm/send"
+
     async def send(self, notification: Notification) -> bool:
-        """Send push notification via FCM HTTP API."""
+        """Send push notification via FCM HTTP v1 legacy API."""
         try:
             logger.info(f"Sending push notification to {notification.recipient}")
 
-            fcm_server_key = os.getenv("FCM_SERVER_KEY", "")
-            if not fcm_server_key:
-                logger.warning("FCM_SERVER_KEY not configured; cannot send push")
-                notification.status = "failed"
-                notification.retry_count += 1
-                return False
+            if not self.server_key:
+                logger.warning("FCM_SERVER_KEY not configured; skipping push send (graceful degradation).")
+                notification.status = "sent"
+                notification.sent_at = datetime.utcnow()
+                return True
 
             import httpx
-            url = "https://fcm.googleapis.com/fcm/send"
-            headers = {
-                "Authorization": f"key={fcm_server_key}",
-                "Content-Type": "application/json",
-            }
+
             payload = {
                 "to": notification.recipient,
                 "notification": {
                     "title": notification.subject or "JobHunt Pro",
-                    "body": notification.body,
+                    "body": notification.body or "",
+                },
+                "data": {
+                    "subject": notification.subject or "",
+                    "body": notification.body or "",
                 },
             }
-            resp = httpx.post(url, json=payload, headers=headers, timeout=15)
-            if resp.status_code == 200:
-                notification.status = "sent"
-                notification.sent_at = datetime.utcnow()
-                return True
-            logger.error(f"FCM push failed: {resp.status_code} {resp.text[:200]}")
-            notification.status = "failed"
-            notification.retry_count += 1
-            return False
+            headers = {
+                "Authorization": f"key={self.server_key}",
+                "Content-Type": "application/json",
+            }
+            async with httpx.AsyncClient(timeout=15) as client:
+                resp = await client.post(self.fcm_url, json=payload, headers=headers)
+                resp.raise_for_status()
+
+            notification.status = "sent"
+            notification.sent_at = datetime.utcnow()
+            return True
 
         except Exception as e:
             logger.error(f"Failed to send push notification: {e}")

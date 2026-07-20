@@ -3,7 +3,7 @@
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta name="description" content="Complete your JobHunt Pro purchase securely.">
   <meta name="robots" content="noindex, follow">
   <title>Checkout — JobHunt Pro</title>
@@ -24,7 +24,7 @@
  text-align: center;
  }
  .logo {
- font-family: 'JetBrains Mono', monospace;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'JetBrains Mono', monospace;
  font-size: 20px;
  font-weight: 700;
  margin-block-end: 24px;
@@ -40,10 +40,10 @@
  margin-block-end: 28px;
  }
  .order-label {
- font-size: 12px;
+ font-size: 14px;
  color: #6b7280;
  text-transform: uppercase;
- letter-spacing: 1px;
+ 
  margin-block-end: 4px;
  }
  .order-service {
@@ -54,14 +54,14 @@
  .order-amount {
  font-size: 42px;
  font-weight: 900;
- font-family: 'JetBrains Mono', monospace;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'JetBrains Mono', monospace;
  color: #00e5ff;
  margin: 12px 0;
  }
  .order-id {
- font-size: 11px;
+ font-size: 14px;
  color: #6b7280;
- font-family: monospace;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;
  background: rgba(0,0,0,0.3);
  padding: 4px 10px;
  border-radius: 4px;
@@ -69,7 +69,7 @@
  }
  .order-status {
  margin-block-start: 8px;
- font-size: 12px;
+ font-size: 14px;
  padding: 4px 12px;
  border-radius: 50px;
  display: inline-block;
@@ -106,9 +106,9 @@
  border: 1px solid rgba(255,255,255,0.08);
  background: transparent;
  color: #6b7280;
- font-size: 13px;
+ font-size: 14px;
  font-weight: 600;
- font-family: 'JetBrains Mono', monospace;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'JetBrains Mono', monospace;
  cursor: pointer;
  transition: all 0.2s;
  }
@@ -124,8 +124,8 @@
  border: 1px solid rgba(255,255,255,0.08);
  border-radius: 12px;
  padding: 14px 16px;
- font-family: 'JetBrains Mono', monospace;
- font-size: 11px;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'JetBrains Mono', monospace;
+ font-size: 14px;
  color: #94a3b8;
  word-break: break-all;
  cursor: pointer;
@@ -139,13 +139,13 @@
  color: #fff;
  }
  .copy-hint {
- font-size: 11px;
+ font-size: 14px;
  color: #6b7280;
  margin-block-start: 6px;
  }
 
  .instruction-text {
- font-size: 13px;
+ font-size: 14px;
  color: #94a3b8;
  margin-block-end: 20px;
  line-height: 1.6;
@@ -174,8 +174,8 @@
  border: 1px solid rgba(255,255,255,0.08);
  background: rgba(255,255,255,0.03);
  color: #fff;
- font-size: 13px;
- font-family: 'JetBrains Mono', monospace;
+ font-size: 14px;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'JetBrains Mono', monospace;
  outline: none;
  }
  .verify-input-group input:focus {
@@ -188,7 +188,7 @@
  background: linear-gradient(135deg, #00e5ff, #0088aa);
  color: #000;
  font-weight: 700;
- font-size: 13px;
+ font-size: 14px;
  cursor: pointer;
  white-space: nowrap;
  transition: all 0.3s;
@@ -203,7 +203,7 @@
 
  .verify-result {
  margin-block-start: 12px;
- font-size: 13px;
+ font-size: 14px;
  padding: 10px 14px;
  border-radius: 8px;
  display: none;
@@ -248,7 +248,7 @@
  color: #fff;
  font-weight: 700;
  font-size: 16px;
- font-family: 'Inter', sans-serif;
+ font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;
  cursor: pointer;
  transition: all 0.3s;
  margin-block-end: 24px;
@@ -283,26 +283,25 @@
  <div class="order-summary">
  <div class="order-label">Service</div>
  {% if order.item_type == 'bulk' and order.items %}
- <div class="order-service" style="font-size:13px;">
+ <div class="order-service" style="font-size: 14px;">
  {% for item in order.items %}
  <div style="display:flex;justify-content:space-between;padding:4px 0;border-inset-block-end:1px solid rgba(255,255,255,0.04);">
  <span>{{ item.service_name }}{% if item.quantity > 1 %} x{{ item.quantity }}{% endif %}</span>
- <span style="font-family:'JetBrains Mono',monospace;color:#00e5ff;">${{ "%.2f"|format(item.line_total) }}</span>
+ <span style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'JetBrains Mono',monospace;color:#00e5ff;">${{ "%.2f"|format(item.line_total) }}</span>
  </div>
  {% endfor %}
  </div>
  <div class="order-amount">${{ "%.2f"|format(order.total_price or order.price) }}</div>
- <div style="font-size:11px;color:#6b7280;">{{ order.items|length }} item(s) in this order</div>
+ <div style="font-size: 14px;color:#6b7280;">{{ order.items|length }} item(s) in this order</div>
  {% else %}
  <div class="order-service">{{ order.service_name }}</div>
  <div class="order-amount">${{ "%.2f"|format(order.price) }}</div>
  {% endif %}
  <div class="order-id">Order ID: {{ order.order_id }}</div>
- <div class="order-status
- {% if order.status in ('pending', 'pending_payment') %}status-pending{% elif order.status == 'paid' %}status-paid{% elif order.status == 'delivered' %}status-delivered{% endif %}">
+ <div class="order-status {% if order.status in ('pending', 'pending_payment') %}status-pending{% elif order.status == 'paid' %}status-paid{% elif order.status == 'delivered' %}status-delivered{% endif %}">
  {{ order.status|upper }}
  </div>
- <div style="margin-block-start:12px; font-size:12px; color:#6b7280;">
+ <div style="margin-block-start:12px; font-size: 14px; color:#6b7280;">
  Customer: {{ order.customer_name }} <{{ order.customer_email }}>
  </div>
  </div>
@@ -310,15 +309,15 @@
  {% if order.payment_code %}
  <!-- Payment Code Section -->
  <div style="margin-block-end:24px; padding:20px; background:rgba(0,229,255,0.05); border:1px solid rgba(0,229,255,0.2); border-radius:16px; text-align:center;">
- <div style="font-size:11px; color:#6b7280; text-transform:uppercase; letter-spacing:1px; margin-block-end:8px;">
+ <div style="font-size: 14px; color:#6b7280; text-transform:uppercase;  margin-block-end:8px;">
  YOUR PAYMENT CODE
  </div>
- <div style="font-size:28px; font-weight:900; font-family:'JetBrains Mono',monospace; color:#00e5ff; letter-spacing:4px; user-select:all; cursor:pointer;"
+ <div style="font-size:28px; font-weight:900; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'JetBrains Mono',monospace; color:#00e5ff;  user-select:all; cursor:pointer;"
  onclick="copyPaymentCode(this)"
  title="Click to copy">
  {{ order.payment_code }}
  </div>
- <div style="font-size:11px; color:#6b7280; margin-block-start:8px;">
+ <div style="font-size: 14px; color:#6b7280; margin-block-start:8px;">
  Click to copy &bull; You will need this code to verify your payment
  </div>
  </div>
@@ -329,7 +328,7 @@
  
  <!-- NOWPayments One-Click Payment -->
  <div class="nowpayments-section" style="margin-block-end:24px; padding:20px; background:rgba(139,92,246,0.05); border:1px solid rgba(139,92,246,0.15); border-radius:16px;">
- <div style="font-size:13px; color:#94a3b8; margin-block-end:12px;">
+ <div style="font-size: 14px; color:#94a3b8; margin-block-end:12px;">
  Pay instantly with credit/debit card or crypto
  </div>
  <button class="btn-nowpayments"
@@ -340,7 +339,7 @@
  onclick="payWithNOWPayments(this)">
  Pay with NOWPayments 
  </button>
- <div id="nowpaymentsStatus" style="font-size:12px; color:#6b7280; margin-block-start:8px; display:none;"></div>
+ <div id="nowpaymentsStatus" style="font-size: 14px; color:#6b7280; margin-block-start:8px; display:none;"></div>
  </div>
 
  <!-- Manual Crypto Payment (fallback) -->
@@ -373,12 +372,12 @@
  <!-- Verify Payment -->
  <div class="verify-section">
  <h3>Already sent payment? Verify here:</h3>
- <div style="font-size:12px; color:#6b7280; margin-block-end:12px; line-height:1.5;">
+ <div style="font-size: 14px; color:#6b7280; margin-block-end:12px; line-height:1.5;">
  Enter your <strong style="color:#00e5ff;">Payment Code</strong> (shown above) and the transaction hash from your crypto wallet.
  </div>
  <div class="verify-input-group" style="margin-block-end:8px;">
- <input dir="auto" type="text" id="paymentCode" placeholder="Payment Code (e.g. A1B2C3D4)" autocomplete="off" style="flex:1; padding:12px 16px; border-radius:10px; border:1px solid rgba(0,229,255,0.2); background:rgba(0,229,255,0.03); color:#fff; font-size:13px; font-family:'JetBrains Mono',monospace; outline:none; text-transform:uppercase; letter-spacing:2px;">
- <input dir="auto" type="text" id="txHash" placeholder="Transaction hash / TX ID" autocomplete="off">
+ <input dir="auto" type="text" id="paymentCode" placeholder="Payment Code (e.g. A1B2C3D4)" autocomplete="off" style="flex:1; padding:12px 16px; border-radius:10px; border:1px solid rgba(0,229,255,0.2); background:rgba(0,229,255,0.03); color:#fff; font-size: 14px; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'JetBrains Mono',monospace; outline:none; text-transform:uppercase; " dir="auto">
+ <input dir="auto" type="text" id="txHash" placeholder="Transaction hash / TX ID" autocomplete="off" dir="auto">
  <button class="btn-verify" id="verifyBtn" onclick="verifyPayment('{{ order.order_id }}')">Verify</button>
  </div>
  <div class="verify-result" id="verifyResult"></div>

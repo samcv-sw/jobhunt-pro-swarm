@@ -24,6 +24,12 @@ logger = logging.getLogger(__name__)
 WORD_RE = re.compile(r"\w+")
 JSON_BLOCK_RE = re.compile(r"```(?:json)?\s*([\s\S]*?)\s*```", re.IGNORECASE)
 
+STOP_WORDS = {
+    "and", "the", "or", "in", "to", "of", "with", "a", "for", "on",
+    "at", "by", "an", "is", "are", "we", "you", "our", "about", "your",
+    "that", "this", "from",
+}
+
 # Cache AsyncGroq clients globally to reuse connections and avoid overhead
 _groq_clients = {}
 
@@ -42,21 +48,19 @@ if _rotation_keys:
 else:
     GROQ_KEYS = [_primary_key] if _primary_key else [os.getenv("GROQ_API_KEY", "")]
 
-ATS_SYSTEM_PROMPT = """You are an expert ATS (Applicant Tracking System) analyzer with deep experience in HR tech, recruitment, and resume optimization. Your job is to objectively score how well a candidate's resume matches a given job description.
+ATS_SYSTEM_PROMPT = """You are an expert ATS analyzer. Objectively score how well a candidate's resume matches a given job description. Do not inflate scores; most score 40-70.
 
 Scoring guidelines:
-- calculation_scratchpad: MUST BE THE FIRST FIELD. Explain your thought process, identify specific gaps in experience, and list what keywords are missing before generating numerical scores.
-- overall_score: The weighted aggregate match (0-100). Weight heavily on skills_match (40%), experience_match (30%), keyword_density (15%), education_match (10%), format_score (5%).
-- skills_match: How many required/desired skills from the JD appear in the resume
-- experience_match: How well the candidate's experience aligns with the role's seniority and domain
-- education_match: How well education/certifications match requirements
-- keyword_density: How many JD keywords are organically present in the resume. Penalize score heavily if keyword density is unnaturally high (>5% repetition) indicating keyword stuffing.
-- format_score: Resume structure, clarity, ATS-friendliness (no images, tables, or complex formatting)
-- missing_keywords: List of important keywords from the JD that are absent from the resume
-- suggestions: 3-5 actionable, specific improvements tailored to this resume+JD pair
-- strengths: 2-4 things the resume does well against this specific JD
-
-Be honest and critical. Do not inflate scores. Most resumes score 40-70. Only exceptional matches score 80+."""
+- calculation_scratchpad: MUST BE THE FIRST FIELD. Explain thought process, gaps, and missing keywords before numeric scoring.
+- overall_score: Weighted aggregate match (0-100): skills_match (40%), experience_match (30%), keyword_density (15%), education_match (10%), format_score (5%).
+- skills_match: required/desired skills present (0-100).
+- experience_match: alignment with seniority and domain (0-100).
+- education_match: alignment with requirements (0-100).
+- keyword_density: organic presence. Penalize stuffing >5% (0-100).
+- format_score: structure, clarity, ATS-friendliness (0-100).
+- missing_keywords: important absent keywords.
+- suggestions: 3-5 specific improvements.
+- strengths: 2-4 key matches."""
 
 
 def _extract_json(text: str) -> dict:
@@ -174,6 +178,13 @@ async def score_resume(
     job_description_cleaned = (job_description or "").strip()
 
     if not resume_text_cleaned or not job_description_cleaned:
+        return fallback_score(resume_text_cleaned, job_description_cleaned)
+
+    # Fast NLP pre-filter (IMP-344): If word overlap is near-zero on long text, return heuristic score instantly
+    resume_words = set(WORD_RE.findall(resume_text_cleaned.lower()))
+    jd_words = set(WORD_RE.findall(job_description_cleaned.lower())) - STOP_WORDS
+    if len(jd_words) > 20 and len(resume_words & jd_words) < 2:
+        logger.info("[ATS Scorer] Fast pre-filter triggered (near-zero word overlap). Returning heuristic score.")
         return fallback_score(resume_text_cleaned, job_description_cleaned)
 
     # Try each configured Groq key in rotation and fallback across multiple models

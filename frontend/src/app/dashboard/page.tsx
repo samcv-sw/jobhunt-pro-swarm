@@ -330,7 +330,7 @@ export default function Dashboard() {
                   type="text"
                   dir="auto"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) = dir="auto"> setSearchTerm(e.target.value)}
                   placeholder={t("dashboard.searchPlaceholder")}
                   className="input-field py-2"
                 />

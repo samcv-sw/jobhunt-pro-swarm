@@ -7,6 +7,7 @@ from sqlalchemy import (
     Column,
     DateTime,
     Enum,
+    Float,
     ForeignKey,
     Index,
     Integer,
@@ -162,6 +163,25 @@ class User(Base):
     email_bounced = Column(Boolean, default=False)
     unsubscribed = Column(Boolean, default=False)
     referred_by = Column(String, nullable=True, index=True)
+
+    # Core fields
+    phone = Column(String, nullable=True)
+    company_name = Column(String, nullable=True)
+    user_type = Column(String, default="jobseeker")
+    wallet_balance = Column(Float, default=0.0)
+    total_spent = Column(Float, default=0.0)
+    api_key = Column(String, unique=True, nullable=True)
+
+    # Dynamic fields from migrations
+    login_streak = Column(Integer, default=0)
+    last_login = Column(DateTime, nullable=True)
+    oauth_provider = Column(String, nullable=True)
+    oauth_access_token = Column(String, nullable=True)
+    oauth_refresh_token = Column(String, nullable=True)
+    oauth_expires_at = Column(Float, nullable=True)
+    tokens = Column(Integer, default=0)
+    subscription_status = Column(String, default="free")
+
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
     updated_at = Column(
         DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)

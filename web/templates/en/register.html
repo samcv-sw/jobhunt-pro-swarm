@@ -3,7 +3,7 @@
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta name="description" content="Create your JobHunt Pro account. Start automating job applications with AI-crafted cover letters & 200-agent swarm. Choose your plan.">
   <title>Register &#x2014; JobHunt Pro | 200 AI Agents, 24/7</title>
   <link rel="stylesheet" href="/static/css/cyberpunk.css">
@@ -25,7 +25,7 @@
   --transition: 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
 }
 body {
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--bg-dark);
   color: var(--text-main);
   min-block-size: 100vh;
@@ -36,9 +36,8 @@ body {
 body::before{content:'';position:fixed;inset-block-start:0;inset-inline-start: 0;inline-size:100%;block-size:100%;pointer-events:none;z-index:0;background:radial-gradient(circle at 15% 50%, rgba(79, 172, 254, 0.08), transparent 25%),radial-gradient(circle at 85% 30%, rgba(0, 242, 254, 0.06), transparent 25%);}
 
 .headroom{position:relative;z-index:10;min-block-size:60px;background:rgba(5,5,15,.75);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-inset-block-end:1px solid var(--glass-border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-wrap:wrap;gap:10px}
-.headroom .brand{font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--accent-cyan),#00b8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;letter-spacing:-.5px}
-.headroom nav{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.headroom nav a{font-size:13px;color:var(--text-muted);font-weight:500;text-decoration:none;padding:6px 0;transition:all var(--transition)}
+.headroom .brand{font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--accent-cyan),#00b8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;gap:14px;flex-wrap:wrap;align-items:center}
+.headroom nav a{font-size: 14px;color:var(--text-muted);font-weight:500;text-decoration:none;padding:6px 0;transition:all var(--transition)}
 .headroom nav a:hover{color:#fff}
 
 .page-wrap{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:center;padding:30px 16px 60px;min-block-size:calc(100vh - 60px)}
@@ -46,8 +45,7 @@ body::before{content:'';position:fixed;inset-block-start:0;inset-inline-start: 0
 @media(max-width:700px){.container{grid-template-columns:1fr}}
 
 .card{background:var(--bg-panel);border:1px solid var(--glass-border);border-radius:20px;padding:32px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 8px 32px rgba(0,0,0,0.2)}
-.card h1{font-size:26px;font-weight:800;margin-block-end:6px;letter-spacing:-.5px}
-.card .subtitle{color:var(--text-muted);font-size:14px;margin-block-end:28px}
+.card h1{font-size:26px;font-weight:800;margin-block-end:6px;font-size:14px;margin-block-end:28px}
 
 /* Benefits sidebar */
 .benefits-card{background:var(--bg-panel);border:1px solid var(--glass-border);border-radius:20px;padding:28px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 8px 32px rgba(0,0,0,0.2)}
@@ -55,48 +53,47 @@ body::before{content:'';position:fixed;inset-block-start:0;inset-inline-start: 0
 .benefit-item{display:flex;align-items:flex-start;gap:10px;margin-block-end:14px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.03);transition:all var(--transition)}
 .benefit-item:hover{background:rgba(255,255,255,.04);border-color:var(--glass-border-hover)}
 .benefit-icon{font-size:18px;flex-shrink:0;margin-block-start:1px}
-.benefit-item strong{display:block;font-size:13px;color:#fff;margin-block-end:2px}
-.benefit-item span{font-size:11px;color:var(--text-muted)}
+.benefit-item strong{display:block;font-size: 14px;color:#fff;margin-block-end:2px}
+.benefit-item span{font-size: 14px;color:var(--text-muted)}
 
 /* Plan selector */
 .plan-selector{margin-block-end:28px}
-.plan-selector h3{font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-block-end:12px}
+.plan-selector h3{font-size: 14px;color:var(--text-muted);text-transform:uppercase;margin-block-end:12px}
 .plan-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 @media(max-width:400px){.plan-options{grid-template-columns:1fr}}
 .plan-option{position:relative;padding:14px 10px;background:rgba(255,255,255,.02);border:2px solid var(--glass-border);border-radius:12px;cursor:pointer;text-align:center;transition:all var(--transition)}
 .plan-option:hover{border-color:var(--glass-border-hover);background:rgba(255,255,255,.04)}
 .plan-option.selected{border-color:var(--accent-cyan);background:rgba(0,240,255,.06);box-shadow:0 0 20px var(--accent-glow)}
 .plan-option input{display:none}
-.plan-name{font-size:12px;font-weight:700;color:#fff;margin-block-end:4px}
+.plan-name{font-size: 14px;font-weight:700;color:#fff;margin-block-end:4px}
 .plan-price{font-size:18px;font-weight:800;color:var(--accent-cyan);text-shadow:0 0 10px var(--accent-glow)}
-.plan-price span{font-size:11px;color:var(--text-muted);font-weight:400}
-.plan-apps{font-size:10px;color:var(--text-muted);margin-block-start:3px}
-.plan-badge{position:absolute;inset-block-start:-8px;inset-inline-end:-6px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-magenta));color:#050505;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px}
+.plan-price span{font-size: 14px;color:var(--text-muted);font-weight:400}
+.plan-apps{font-size: 14px;color:var(--text-muted);margin-block-start:3px}
+.plan-badge{position:absolute;inset-block-start:-8px;inset-inline-end:-6px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-magenta));color:#050505;font-size: 14px;font-weight:800;padding:2px 8px;border-radius:20px}
 
-.savings-banner{text-align:center;margin:12px 0 20px;padding:10px;background:rgba(0,240,255,.04);border:1px solid rgba(0,240,255,.1);border-radius:10px;font-size:12px;color:var(--accent-cyan);font-weight:600}
+.savings-banner{text-align:center;margin:12px 0 20px;padding:10px;background:rgba(0,240,255,.04);border:1px solid rgba(0,240,255,.1);border-radius:10px;font-size: 14px;color:var(--accent-cyan);font-weight:600}
 .savings-banner strong{font-size:15px}
 
 .form-group{margin-block-end:18px}
-.form-group label{display:block;font-size:13px;color:var(--text-muted);margin-block-end:6px;font-weight:500}
-.form-group input{inline-size:100%;padding:13px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:15px;font-family:'Outfit',sans-serif;transition:all var(--transition)}
+.form-group label{display:block;font-size: 14px;color:var(--text-muted);margin-block-end:6px;font-weight:500}
+.form-group input{inline-size:100%;padding:13px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:15px;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Outfit',sans-serif;transition:all var(--transition)}
 .form-group input:focus{outline:none;border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(0,240,255,.1);background:rgba(255,255,255,.06)}
 .form-group input::placeholder{color:var(--dim)}
 
-.btn-submit{inline-size:100%;padding:14px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-magenta));color:#050505;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family:'Outfit',sans-serif;letter-spacing:-0.3px}
-.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 25px var(--accent-glow)}
+.btn-submit{inline-size:100%;padding:14px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-magenta));color:#050505;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all var(--transition);font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Outfit',sans-serif;box-shadow:0 8px 25px var(--accent-glow)}
 
-.link-row{text-align:center;margin-block-start:18px;font-size:13px;color:var(--text-muted)}
+.link-row{text-align:center;margin-block-start:18px;font-size: 14px;color:var(--text-muted)}
 .link-row a{color:var(--accent-cyan);text-decoration:none;font-weight:600}
 .link-row a:hover{text-decoration:underline}
 
-.error{background:rgba(255,0,85,.08);border:1px solid rgba(255,0,85,.2);color:#ff0055;padding:12px;border-radius:10px;margin-block-end:18px;font-size:13px}
+.error{background:rgba(255,0,85,.08);border:1px solid rgba(255,0,85,.2);color:#ff0055;padding:12px;border-radius:10px;margin-block-end:18px;font-size: 14px}
 
 .trust-strip{display:flex;align-items:center;justify-content:center;gap:8px;margin-block-start:20px;padding:12px;background:rgba(34,197,94,.03);border:1px solid rgba(34,197,94,.08);border-radius:10px}
-.trust-strip span{font-size:11px;color:#4ade80;font-weight:500}
+.trust-strip span{font-size: 14px;color:#4ade80;font-weight:500}
 
 .turnstile-wrap{display:flex;justify-content:center;margin:12px 0}
 
-.oauth-divider { text-align: center; margin: 24px 0; color: var(--dim); position: relative; font-size: 13px; font-weight: 500; }
+.oauth-divider { text-align: center; margin: 24px 0; color: var(--dim); position: relative; font-size: 14px; font-weight: 500; }
 .oauth-divider::before, .oauth-divider::after { content: ''; position: absolute; inset-block-start: 50%; inline-size: 40%; block-size: 1px; background: rgba(255,255,255,0.1); }
 .oauth-divider::before { inset-inline-start: 0; }
 .oauth-divider::after { inset-inline-end: 0; }
@@ -109,7 +106,7 @@ body::before{content:'';position:fixed;inset-block-start:0;inset-inline-start: 0
 </head>
 <body>
 <header class="headroom">
-  <a href="/" class="brand">⚡ JOBHUNT PRO <span style="font-size:10px;color:var(--accent-cyan);-webkit-text-fill-color:var(--accent-cyan);margin-inline-start: 6px;font-weight:400">v{{ VERSION }}</span></a>
+  <a href="/" class="brand">⚡ JOBHUNT PRO <span style="font-size: 14px;color:var(--accent-cyan);-webkit-text-fill-color:var(--accent-cyan);margin-inline-start: 6px;font-weight:400">v{{ VERSION }}</span></a>
   <nav>
     <a href="/">Home</a>
     <a href="/pricing">Pricing</a>
@@ -147,20 +144,20 @@ body::before{content:'';position:fixed;inset-block-start:0;inset-inline-start: 0
       <h3>🎯 Choose Your Plan</h3>
       <div class="plan-options">
         <label class="plan-option selected" for="plan-starter">
-          <input dir="auto" type="radio" name="plan" value="starter" id="plan-starter" checked>
+          <input dir="auto" type="radio" name="plan" value="starter" id="plan-starter" checked dir="auto">
           <div class="plan-name">Starter</div>
           <div class="plan-price">$2 <span>one-time</span></div>
           <div class="plan-apps">10 applications</div>
         </label>
         <label class="plan-option" for="plan-basic">
-          <input dir="auto" type="radio" name="plan" value="basic" id="plan-basic">
+          <input dir="auto" type="radio" name="plan" value="basic" id="plan-basic" dir="auto">
           <span class="plan-badge">POPULAR</span>
           <div class="plan-name">Basic</div>
           <div class="plan-price">$5 <span>one-time</span></div>
           <div class="plan-apps">100 applications</div>
         </label>
         <label class="plan-option" for="plan-pro">
-          <input dir="auto" type="radio" name="plan" value="pro" id="plan-pro">
+          <input dir="auto" type="radio" name="plan" value="pro" id="plan-pro" dir="auto">
           <div class="plan-name">Pro ⭐</div>
           <div class="plan-price">$15 <span>one-time</span></div>
           <div class="plan-apps">500 applications</div>
@@ -175,26 +172,26 @@ body::before{content:'';position:fixed;inset-block-start:0;inset-inline-start: 0
     <!-- PROJECT AEGIS: Invisible Bot Honeypot -->
     <div style="display:none; visibility:hidden;">
         <label>Leave this empty if you are human</label>
-        <input dir="auto" type="text" name="aegis_honeypot" id="aegis_honeypot" tabindex="-1" autocomplete="off">
+        <input dir="auto" type="text" name="aegis_honeypot" id="aegis_honeypot" tabindex="-1" autocomplete="off" dir="auto">
     </div>
 
-    <input dir="auto" type="hidden" name="selected_plan" id="selected-plan" value="starter">
-    <input dir="auto" type="hidden" name="ref" value="{{ ref }}">
+    <input dir="auto" type="hidden" name="selected_plan" id="selected-plan" value="starter" dir="auto">
+    <input dir="auto" type="hidden" name="ref" value="{{ ref }}" dir="auto">
     <div class="form-group">
       <label>Full Name</label>
-      <input dir="auto" type="text" name="name" placeholder="e.g. Sam Salameh" required autocomplete="name">
+      <input dir="auto" type="text" name="name" placeholder="e.g. Sam Salameh" required autocomplete="name" dir="auto">
     </div>
     <div class="form-group">
       <label>Email</label>
-      <input dir="auto" type="email" name="email" placeholder="you@example.com" required autocomplete="email">
+      <input dir="auto" type="email" name="email" placeholder="you@example.com" required autocomplete="email" dir="auto">
     </div>
     <div class="form-group">
       <label>Phone (optional)</label>
-      <input dir="auto" type="tel" name="phone" placeholder="e.g. +961 70 000 000" autocomplete="tel">
+      <input dir="auto" type="tel" name="phone" placeholder="e.g. +961 70 000 000" autocomplete="tel" dir="auto">
     </div>
     <div class="form-group">
       <label>Password</label>
-      <input dir="auto" type="password" name="password" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password">
+      <input dir="auto" type="password" name="password" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password" dir="auto">
     </div>
     {% if turnstile_site_key %}
     <div class="turnstile-wrap">

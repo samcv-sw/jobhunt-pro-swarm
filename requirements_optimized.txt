@@ -6,6 +6,7 @@
 # ── Core Framework ────────────────────────────────────────────────────────
 fastapi==0.112.0
 uvicorn[standard]==0.30.0
+granian==1.5.2
 httpx==0.28.1
 a2wsgi==1.10.10
 Flask==3.1.3

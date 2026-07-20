@@ -1,0 +1,43 @@
+name: Ultra 24/7 Multi-Cloud Keep-Alive & Health Monitor
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # Triggered every 5 minutes
+  workflow_dispatch:        # Manual trigger
+
+jobs:
+  multi_cloud_ping:
+    name: Ping All Cloud Nodes (0 Downtime)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping Render Backend App
+        run: |
+          RENDER_URL="${{ secrets.RENDER_URL }}"
+          if [ -n "$RENDER_URL" ]; then
+            echo "Pinging Render node: $RENDER_URL"
+            curl -s --fail --retry 3 --max-time 15 "$RENDER_URL/health" || echo "Render ping soft notice"
+          else
+            echo "RENDER_URL secret not set, skipping."
+          fi
+
+      - name: Ping HuggingFace Space Backend
+        run: |
+          HF_SPACE_URL="${{ secrets.HF_SPACE_URL }}"
+          if [ -n "$HF_SPACE_URL" ]; then
+            echo "Pinging HuggingFace Space node: $HF_SPACE_URL"
+            curl -s --fail --retry 3 --max-time 15 "$HF_SPACE_URL/health" || echo "HF Space ping soft notice"
+          else
+            echo "HF_SPACE_URL secret not set, skipping."
+          fi
+
+      - name: Ping Cloudflare Worker Edge Node
+        run: |
+          CF_WORKER_URL="${{ secrets.CF_WORKER_URL }}"
+          if [ -n "$CF_WORKER_URL" ]; then
+            echo "Pinging Cloudflare Edge node: $CF_WORKER_URL"
+            curl -s --fail --retry 2 --max-time 10 "$CF_WORKER_URL/ping" || echo "CF Worker ping soft notice"
+          else
+            echo "CF_WORKER_URL secret not set, skipping."
+          fi

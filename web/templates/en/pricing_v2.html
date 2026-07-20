@@ -36,7 +36,7 @@ header.headroom .brand {
   font-size: 18px;
   font-weight: 800;
   color: var(--blue, #3b82f6);
-  letter-spacing: -.5px;
+  
   text-decoration: none;
 }
 header.headroom nav {
@@ -44,7 +44,7 @@ header.headroom nav {
   gap: 18px;
 }
 header.headroom nav a {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted, #64748b);
   font-weight: 500;
   padding: 6px 0;
@@ -87,7 +87,7 @@ header.headroom nav a.pill {
   padding: 60px 20px; max-inline-size: 1200px; margin: 0 auto; position: relative; z-index: 10;
 }
 .pricing-section h2 {
-  font-size: 26px; font-weight: 700; text-align: center; margin-block-end: 8px; letter-spacing: -0.3px;
+  font-size: 26px; font-weight: 700; text-align: center; margin-block-end: 8px; 
 }
 .pricing-section .sub {
   text-align: center; color: var(--text-muted); margin-block-end: 48px; font-size: 14px;
@@ -139,38 +139,38 @@ header.headroom nav a.pill {
   position: absolute; inset-block-start: -14px; inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto; transform: translateX(-50%);
   background: linear-gradient(135deg, var(--magenta), #ec4899);
   color: #fff; padding: 6px 18px;
-  border-radius: 50px; font-size: 10px; font-weight: 700;
-  letter-spacing: 1px; white-space: nowrap; z-index: 10;
+  border-radius: 50px; font-size: 14px; font-weight: 700;
+   white-space: nowrap; z-index: 10;
 }
 .badge.premium { background: linear-gradient(135deg, var(--purple), #a78bfa); }
 .badge.best-value { background: linear-gradient(135deg, var(--blue), #06b6d4); color: #000; }
 
 /* ── Card content ── */
 .tier-name {
-  font-size: 10px; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 3px; margin-block-end: 8px;
+  font-size: 14px; color: var(--text-muted);
+  text-transform: uppercase;  margin-block-end: 8px;
 }
 .pricing-card h3 { font-size: 22px; font-weight: 700; margin-block-end: 14px; }
 .companies {
   font-size: 44px; font-weight: 800; color: var(--blue); line-height: 1;
 }
-.companies span { font-size: 13px; color: var(--text-muted); font-weight: 400; }
+.companies span { font-size: 14px; color: var(--text-muted); font-weight: 400; }
 .price {
   font-size: 34px; font-weight: 800; margin: 14px 0 4px;
 }
 .price.free { color: var(--green); }
-.price span { font-size: 13px; color: var(--text-muted); font-weight: 400; }
-.original-price { font-size: 13px; color: var(--text-muted); text-decoration: line-through; }
-.per { font-size: 11px; color: var(--text-muted); margin-block-end: 20px; letter-spacing: 1px; }
+.price span { font-size: 14px; color: var(--text-muted); font-weight: 400; }
+.original-price { font-size: 14px; color: var(--text-muted); text-decoration: line-through; }
+.per { font-size: 14px; color: var(--text-muted); margin-block-end: 20px;  }
 .savings {
   display: inline-block; padding: 5px 14px;
   background: var(--blue-dim); border: 1px solid rgba(59,130,246,.3);
-  border-radius: 50px; color: var(--blue); font-size: 11px; font-weight: 600; margin-block-end: 18px;
+  border-radius: 50px; color: var(--blue); font-size: 14px; font-weight: 600; margin-block-end: 18px;
 }
 
 .pricing-card ul { list-style: none; text-align: start; margin-block-end: 28px; }
 .pricing-card li {
-  padding: 9px 0; color: var(--text-muted); font-size: 12px;
+  padding: 9px 0; color: var(--text-muted); font-size: 14px;
   border-inset-block-end: 1px solid var(--border); line-height: 1.5;
 }
 .pricing-card li:last-child { border-inset-block-end: none; }
@@ -194,11 +194,11 @@ header.headroom nav a.pill {
 .flash-banner .fs-deal strong { font-size: 15px; color: var(--text); }
 .flash-banner .fs-deal .fs-pct {
   background: var(--red); color: #fff;
-  padding: 2px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; margin-inline-start: 8px;
+  padding: 2px 10px; border-radius: 20px; font-weight: 700; font-size: 14px; margin-inline-start: 8px;
 }
 .flash-banner .fs-countdown {
-  font-family: 'Inter', monospace; font-size: 18px; font-weight: 700;
-  letter-spacing: 1px; color: var(--red);
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', monospace; font-size: 18px; font-weight: 700;
+   color: var(--red);
 }
 @keyframes pulseGlow {
   0%,100% { box-shadow: 0 0 10px rgba(239,68,68,.08); }
@@ -214,7 +214,7 @@ header.headroom nav a.pill {
   padding: 36px 32px; text-align: center;
 }
 .bulk-calc label {
-  color: var(--text-muted); font-size: 12px; letter-spacing: 1px;
+  color: var(--text-muted); font-size: 14px; 
   text-transform: uppercase; display: block; margin-block-end: 10px;
 }
 .bulk-calc input[type="range"] {
@@ -232,8 +232,8 @@ header.headroom nav a.pill {
 .bulk-calc .bulk-stats { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
 .bulk-calc .bulk-stat { text-align: center; }
 .bulk-calc .bulk-stat .stat-label {
-  font-size: 11px; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 1px; margin-block-end: 4px;
+  font-size: 14px; color: var(--text-muted);
+  text-transform: uppercase;  margin-block-end: 4px;
 }
 .bulk-calc .bulk-stat .stat-value { font-size: 22px; font-weight: 700; }
 .bulk-calc .bulk-stat .stat-value.strikethrough { color: var(--text-muted); text-decoration: line-through; }
@@ -256,7 +256,7 @@ header.headroom nav a.pill {
 .urgency-box .urgency-stat .ur-value.purple { color: var(--purple); }
 .urgency-box .urgency-stat .ur-value.green { color: var(--green); }
 .urgency-box .urgency-stat .ur-label {
-  font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;
+  font-size: 14px; color: var(--text-muted); text-transform: uppercase; 
 }
 
 /* ── Comparison Table ── */
@@ -265,9 +265,9 @@ header.headroom nav a.pill {
   display: flex; justify-content: space-between;
   padding: 14px 0; border-inset-block-end: 1px solid var(--border);
 }
-.comparison-row .label { color: var(--text-muted); font-size: 13px; min-inline-size: 160px; }
-.comparison-row .them { color: rgba(107,114,128,.4); font-size: 13px; text-align: center; flex: 1; }
-.comparison-row .you { color: var(--blue); font-weight: 600; font-size: 13px; text-align: end; flex: 1; }
+.comparison-row .label { color: var(--text-muted); font-size: 14px; min-inline-size: 160px; }
+.comparison-row .them { color: rgba(107,114,128,.4); font-size: 14px; text-align: center; flex: 1; }
+.comparison-row .you { color: var(--blue); font-weight: 600; font-size: 14px; text-align: end; flex: 1; }
 
 /* ── A La Carte Services ── */
 .service-grid {
@@ -283,7 +283,7 @@ header.headroom nav a.pill {
 }
 .service-card:hover { border-color: var(--border-hover); }
 .service-info h3 { font-size: 14px; font-weight: 600; margin-block-end: 2px; }
-.service-info p { color: var(--text-muted); font-size: 11px; }
+.service-info p { color: var(--text-muted); font-size: 14px; }
 .service-price { font-size: 20px; font-weight: 700; color: var(--blue); }
 
 /* ── Crypto Section ── */
@@ -291,7 +291,7 @@ header.headroom nav a.pill {
   text-align: center; padding: 40px 20px; position: relative; z-index: 10;
 }
 .crypto-section h2 { font-size: 20px; margin-block-end: 12px; }
-.crypto-section p { color: var(--text-muted); font-size: 13px; line-height: 1.8; }
+.crypto-section p { color: var(--text-muted); font-size: 14px; line-height: 1.8; }
 
 /* ── Social Proof ── */
 .social-proof {
@@ -299,13 +299,13 @@ header.headroom nav a.pill {
 }
 .social-proof .stars { color: var(--gold); font-size: 22px; margin-block-end: 8px; }
 .social-proof h2 { font-size: 18px; font-weight: 600; margin-block-end: 10px; }
-.social-proof p { color: var(--text-muted); font-size: 13px; }
+.social-proof p { color: var(--text-muted); font-size: 14px; }
 
 /* ── Footer ── */
 .pricing-footer {
   padding: 32px; text-align: center;
   border-inset-block-start: 1px solid var(--border);
-  color: var(--text-muted); font-size: 12px; letter-spacing: 1px;
+  color: var(--text-muted); font-size: 14px; 
   position: relative; z-index: 10;
 }
 
@@ -320,7 +320,7 @@ header.headroom nav a.pill {
   box-shadow: var(--shadow-lg);
   transform: translateX(120%);
   transition: transform .4s cubic-bezier(.175,.885,.32,1.275);
-  display: flex; align-items: center; gap: 12px; font-size: 12px;
+  display: flex; align-items: center; gap: 12px; font-size: 14px;
 }
 .social-toast.show { transform: translateX(0); }
 .social-toast .st-avatar {
@@ -331,7 +331,7 @@ header.headroom nav a.pill {
 .social-toast .st-content { line-height: 1.5; }
 .social-toast .st-content .st-name { color: var(--text); font-weight: 600; }
 .social-toast .st-content .st-action { color: var(--blue); }
-.social-toast .st-content .st-time { color: var(--text-muted); font-size: 10px; }
+.social-toast .st-content .st-time { color: var(--text-muted); font-size: 14px; }
 .toast-close {
   position: absolute; inset-block-start: 6px; inset-inline-end: 10px;
   background: none; border: none; color: var(--text-muted);
@@ -344,7 +344,7 @@ header.headroom nav a.pill {
 }
 .scroll-link a {
   color: var(--blue); text-decoration: none;
-  font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+  font-size: 14px;  text-transform: uppercase;
   opacity: .7; transition: var(--transition);
 }
 .scroll-link a:hover { opacity: 1; }
@@ -371,7 +371,7 @@ header.headroom nav a.pill {
 }
 @media(max-width: 480px) {
   .pricing-hero h1 { font-size: 22px; }
-  .pricing-hero .subtitle { font-size: 13px; }
+  .pricing-hero .subtitle { font-size: 14px; }
   .pricing-card h3 { font-size: 18px; }
   .companies { font-size: 28px; }
   .price { font-size: 24px; }
@@ -385,7 +385,7 @@ header.headroom nav a.pill {
       0%,100% { box-shadow: 0 0 12px rgba(239,68,68,.15); }
       50% { box-shadow: 0 0 25px rgba(239,68,68,.3); }
     }
-    .fs-timer { font-size:26px; font-weight:800; color:var(--red); font-family:monospace; letter-spacing:2px; }
+    .fs-timer { font-size:26px; font-weight:800; color:var(--red); font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;  }
   </style>
 </head>
 
@@ -401,7 +401,7 @@ header.headroom nav a.pill {
 <!-- Flash Sale Banner (top) -->
 <div id="flashSaleBanner" style="display:none;max-inline-size:1200px;margin:-20px auto 20px;padding:16px 24px;background:linear-gradient(135deg,rgba(220,38,38,.12),rgba(239,68,68,.06));border:2px solid rgba(239,68,68,.25);border-radius:var(--radius);text-align:center;animation:pulseGlow 2s infinite;position:relative;z-index:10;">
   
-  <div style="font-size:12px;color:var(--red);text-transform:uppercase;letter-spacing:2px;">⚡ FLASH SALE ACTIVE</div>
+  <div style="font-size: 14px;color:var(--red);text-transform:uppercase;">⚡ FLASH SALE ACTIVE</div>
   <div style="font-size:17px;font-weight:700;color:var(--text);margin:4px 0;">
     <span id="fsTitle"></span> — <span id="fsDiscount" style="color:var(--red);font-size:20px;"></span> OFF
   </div>
@@ -435,7 +435,7 @@ header.headroom nav a.pill {
       <div class="badge {% if tier.badge == 'PREMIUM' %}premium{% elif tier.badge == 'BEST VALUE' %}best-value{% endif %}">{{ tier.badge }}</div>
       {% endif %}
       {% if discount > 0 %}
-      <div class="badge" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-size:10px;padding:6px 14px;inset-block-start:-14px;">{{ "%.0f"|format(discount) }}% OFF</div>
+      <div class="badge" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-size: 14px;padding:6px 14px;inset-block-start:-14px;">{{ "%.0f"|format(discount) }}% OFF</div>
       {% endif %}
       <div class="tier-name">{{ tier.name|upper }}</div>
       <h3>{{ tier.name }}</h3>
@@ -474,13 +474,13 @@ header.headroom nav a.pill {
       <label>Number of Campaigns</label>
       <input dir="auto" type="range" id="bulkQty" min="1" max="20" value="1" step="1"
         style="inline-size:100%;block-size:8px;-webkit-appearance:none;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:4px;outline:none;"
-        oninput="updateBulkCalc(this.value)">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-block-start:4px;">
+        oninput="updateBulkCalc(this.value)" dir="auto">
+      <div style="display:flex;justify-content:space-between;font-size: 14px;color:var(--text-muted);margin-block-start:4px;">
         <span>1</span><span>5</span><span>10</span><span>15</span><span>20</span>
       </div>
     </div>
     <div class="bulk-qty-display" id="bulkQtyDisplay">1</div>
-    <div style="color:var(--text-muted);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-block-end:16px;">CAMPAIGNS</div>
+    <div style="color:var(--text-muted);font-size: 14px;text-transform:uppercase;margin-block-end:16px;">CAMPAIGNS</div>
     <div class="bulk-stats">
       <div class="bulk-stat">
         <div class="stat-label">Normal Price</div>

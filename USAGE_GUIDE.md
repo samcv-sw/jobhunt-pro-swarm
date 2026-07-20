@@ -3,7 +3,7 @@
 ## Quick Start: Using New Features
 
 ### 1. 🔐 Security Headers (Already Active)
-Already integrated into `backend/main.py` — no setup needed!
+Already integrated into `web/app_v2.py` — no setup needed!
 
 ```python
 # You get these automatically on every response:

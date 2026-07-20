@@ -6,7 +6,7 @@
 [dir="rtl"] {
   --text-x-direction: -1;
   --gradient-dir: to left;
-  --font-sans: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+  --font-sans: 'Cairo', 'Tajawal', 'Inter', sans-serif;
   --font-display: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
   --cyber-font-display: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
   font-size: 16px;

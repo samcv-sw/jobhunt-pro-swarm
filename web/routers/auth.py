@@ -9,7 +9,7 @@ import logging
 import os
 import secrets
 import uuid
-
+import config
 import bcrypt
 import httpx
 from fastapi import APIRouter, Form, HTTPException, Request
@@ -44,6 +44,14 @@ def _verify_pw(pw: str, hashed: str) -> bool:
         return bcrypt.checkpw(pw.encode(), hashed.encode())
     except Exception:
         return False
+
+
+async def _hash_pw_async(pw: str) -> str:
+    return await asyncio.to_thread(_hash_pw, pw)
+
+
+async def _verify_pw_async(pw: str, hashed: str) -> bool:
+    return await asyncio.to_thread(_verify_pw, pw, hashed)
 
 
 def _gen_api_key() -> str:
@@ -150,7 +158,7 @@ async def register(
         api_key = _gen_api_key()
         conn.execute(
             "INSERT INTO users (user_id, email, password_hash, name, phone, company_name, user_type, api_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (user_id, email, _hash_pw(password), name, phone, company_name, user_type, api_key),
+            (user_id, email, await _hash_pw_async(password), name, phone, company_name, user_type, api_key),
         )
         conn.commit()
 
@@ -207,9 +215,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
         ).fetchone()
         pass  # conn.close()
 
-        if not user or not _verify_pw(
-            password, user["password_hash"] if hasattr(user, "__getitem__") else user[1]
-        ):
+        if not user or not await _verify_pw_async(password, user["password_hash"] if hasattr(user, "__getitem__") else user[1]):
             return templates.TemplateResponse(
                 request,
                 "login_v2.html",
@@ -247,9 +253,7 @@ async def api_login(request: Request):
         ).fetchone()
         pass  # conn.close()
 
-        if not user or not _verify_pw(
-            password, user["password_hash"] if hasattr(user, "__getitem__") else user[1]
-        ):
+        if not user or not await _verify_pw_async(password, user["password_hash"] if hasattr(user, "__getitem__") else user[1]):
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
         u = (
@@ -327,7 +331,8 @@ async def linkedin_login(request: Request):
     LinkedIn login entrypoint. Redirects to LinkedIn authorization page.
     For local testing/mock, if LINKEDIN_CLIENT_ID is not configured, it redirects to the callback with a mock code.
     """
-    client_id = os.getenv("LINKEDIN_CLIENT_ID")
+    _, _, _, config, _ = _deps()
+    client_id = getattr(config, "LINKEDIN_CLIENT_ID", "")
     redirect_uri = str(request.url_for("linkedin_callback"))
 
     if not client_id or client_id == "mock_linkedin_id":
@@ -353,8 +358,8 @@ async def linkedin_callback(request: Request, code: str = "", state: str = ""):
     name = "LinkedIn Candidate"
     phone = "+96170123456"
 
-    client_id = os.getenv("LINKEDIN_CLIENT_ID")
-    client_secret = os.getenv("LINKEDIN_CLIENT_SECRET")
+    client_id = getattr(config, "LINKEDIN_CLIENT_ID", "")
+    client_secret = getattr(config, "LINKEDIN_CLIENT_SECRET", "")
     redirect_uri = str(request.url_for("linkedin_callback"))
 
     if client_id and client_id != "mock_linkedin_id" and code != "mock_code_123":
@@ -457,7 +462,7 @@ async def google_login(request: Request):
     import urllib.parse
 
     _, _, _, config, _ = _deps()
-    client_id = getattr(config, "GOOGLE_CLIENT_ID", "") or os.getenv("GOOGLE_CLIENT_ID", "")
+    client_id = getattr(config, "GOOGLE_CLIENT_ID", "") or getattr(config, "GOOGLE_CLIENT_ID", "")
     redirect_uri = str(request.url_for("google_callback"))
 
     if not client_id or client_id == "mock_google_id":
@@ -489,7 +494,7 @@ async def google_callback(request: Request, code: str = "", state: str = ""):
     refresh_token = "mock_refresh_token_123"
     expires_in = 3600
 
-    client_id = getattr(config, "GOOGLE_CLIENT_ID", "") or os.getenv("GOOGLE_CLIENT_ID", "")
+    client_id = getattr(config, "GOOGLE_CLIENT_ID", "") or getattr(config, "GOOGLE_CLIENT_ID", "")
     client_secret = getattr(config, "GOOGLE_CLIENT_SECRET", "") or os.getenv(
         "GOOGLE_CLIENT_SECRET", ""
     )
@@ -591,7 +596,7 @@ async def microsoft_login(request: Request):
     import urllib.parse
 
     _, _, _, config, _ = _deps()
-    client_id = getattr(config, "MICROSOFT_CLIENT_ID", "") or os.getenv("MICROSOFT_CLIENT_ID", "")
+    client_id = getattr(config, "MICROSOFT_CLIENT_ID", "") or getattr(config, "MICROSOFT_CLIENT_ID", "")
     redirect_uri = str(request.url_for("microsoft_callback"))
 
     if not client_id or client_id == "mock_microsoft_id":
@@ -622,7 +627,7 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
     refresh_token = "mock_refresh_token_123"
     expires_in = 3600
 
-    client_id = getattr(config, "MICROSOFT_CLIENT_ID", "") or os.getenv("MICROSOFT_CLIENT_ID", "")
+    client_id = getattr(config, "MICROSOFT_CLIENT_ID", "") or getattr(config, "MICROSOFT_CLIENT_ID", "")
     client_secret = getattr(config, "MICROSOFT_CLIENT_SECRET", "") or os.getenv(
         "MICROSOFT_CLIENT_SECRET", ""
     )

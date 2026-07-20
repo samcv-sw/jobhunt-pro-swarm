@@ -20,25 +20,39 @@ from backend.ai_engine import generate_smart_cover_letter_stream  # noqa: F401
 from backend.routers.accounts import router as accounts_router
 from backend.routers.admin import dlq_requeue  # noqa: F401
 from backend.routers.admin import router as admin_router
+from backend.routers.agent_swarm import router as agent_swarm_router
 from backend.routers.analytics import router as analytics_router
+from backend.routers.auto_applier import router as auto_applier_router
 from backend.routers.cover_letters import router as cover_letters_router
+from backend.routers.edge_cache import router as edge_cache_router
 from backend.routers.emails import router as emails_router
+from backend.routers.enterprise_portal import router as enterprise_portal_router
 from backend.routers.health import health_detailed  # noqa: F401
 from backend.routers.health import router as health_router
+from backend.routers.hr_outreach import router as hr_outreach_router
+from backend.routers.interview_simulator import router as interview_simulator_router
 from backend.routers.linkedin_auth import router as linkedin_auth_router
+from backend.routers.microsite_generator import router as microsite_generator_router
 from backend.routers.onboarding import router as onboarding_router
+from backend.routers.portfolio_evaluator import router as portfolio_evaluator_router
 from backend.routers.referral import router as referral_router
+from backend.routers.salary_negotiator import router as salary_negotiator_router
 from backend.routers.scraping import router as scraping_router
 from backend.routers.scraping import trigger_scrape  # noqa: F401
+from backend.routers.self_healing_agent import router as self_healing_agent_router
+from backend.routers.stealth_scraper import router as stealth_scraper_router
 from backend.routers.telegram import router as telegram_router
 from backend.routers.telegram_app import router as telegram_app_router
 from backend.routers.unsubscribe import router as unsubscribe_router
+from backend.routers.video_avatar import router as video_avatar_router
+from backend.routers.vision_form_filler import router as vision_form_filler_router
 from backend.routers.webhooks import (  # noqa: F401
     brevo_bounce_webhook,
     sendgrid_bounce_webhook,
 )
 from backend.routers.webhooks import router as webhooks_router
 from backend.routers.websocket import router as websocket_router
+from backend.routers.whatsapp_sync import router as whatsapp_sync_router
 from backend.schemas import (  # noqa: F401
     AccountCreateRequest,
     CoverLetterRequest,
@@ -47,12 +61,13 @@ from backend.schemas import (  # noqa: F401
 )
 
 from .auth import verify_jwt  # noqa: F401
+from . import config
 from .billing import router as billing_router
 from .database import async_session  # noqa: F401
 from .limiter import rate_limiter  # noqa: F401
 
 # Sentry error tracking (free tier, optional)
-_sentry_dsn = os.getenv("SENTRY_DSN")
+_sentry_dsn = config.SENTRY_DSN
 if _sentry_dsn:
     try:
         import sentry_sdk
@@ -62,7 +77,7 @@ if _sentry_dsn:
             dsn=_sentry_dsn,
             integrations=[FastApiIntegration()],
             traces_sample_rate=0.1,
-            environment=os.getenv("ENV", "development"),
+            environment=config.ENV,
         )
         logging.getLogger(__name__).info("Sentry error tracking initialized.")
     except ImportError:
@@ -70,7 +85,7 @@ if _sentry_dsn:
 
 # Configure logger for Enterprise API
 _handlers = [logging.StreamHandler()]
-_token = os.getenv("LOGTAIL_SOURCE_TOKEN")
+_token = config.LOGTAIL_SOURCE_TOKEN
 if _token:
     import json as _json
     import threading
@@ -130,7 +145,7 @@ logging.basicConfig(level=logging.INFO, handlers=_handlers)
 logger = logging.getLogger(__name__)
 
 # Dynamically scale workers to handle concurrent task queuing operations
-is_pa = bool(os.environ.get("PYTHONANYWHERE_SITE") or os.environ.get("PYTHONANYWHERE_DOMAIN"))
+is_pa = bool(config.IS_PYTHONANYWHERE)
 max_workers = 4 if is_pa else 32
 celery_dispatch_executor = ThreadPoolExecutor(
     max_workers=max_workers, thread_name_prefix="celery_dispatch"
@@ -154,6 +169,8 @@ async def lifespan(app: FastAPI):
     from .models import Base
 
     setup_cache(app)
+    # Use SQLAlchemy's create_engine with the DATABASE_URL from config
+    engine = create_engine(config.DATABASE_URL, pool_pre_ping=True)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Database schema initialized successfully.")
@@ -168,10 +185,10 @@ async def lifespan(app: FastAPI):
             logger.info("Initializing Telegram bot in Webhook mode...")
             bot_instance.notifier.start()
 
-            import config
+            from . import config
 
             site_url = getattr(config, "SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
-            render_url = os.getenv("RENDER_EXTERNAL_URL") or os.getenv("RENDER_ENGINE_URL")
+            render_url = config.RENDER_URL
             base_url = (render_url or site_url).rstrip("/")
             webhook_url = f"{base_url}/webhook/telegram"
 
@@ -334,9 +351,9 @@ class SecureCORSMiddleware(BaseHTTPMiddleware):
 
 
 # Configure origins safely
-allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+allowed_origins_env = config.ALLOWED_ORIGINS_ENV
 if allowed_origins_env:
-    origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
+    origins = config.ALLOWED_ORIGINS
 else:
     # Safe defaults for local development
     origins = ["http://localhost:3000", "http://localhost:5173", "http://localhost:8000"]
@@ -347,7 +364,7 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # Use SecureCORSMiddleware whenever there are explicit allowed origins;
 # fall back to permissive CORSMiddleware only for fully local dev with no env config.
 _has_wildcard_pattern = any("*" in o for o in origins)
-if os.getenv("ENV") == "production" or allowed_origins_env or _has_wildcard_pattern:
+if config.ENV == "production" or allowed_origins_env or _has_wildcard_pattern:
     app.add_middleware(
         SecureCORSMiddleware,
         allowed_patterns=origins,
@@ -387,7 +404,7 @@ async def add_security_headers(request: Request, call_next: Any) -> Any:
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
 
     # Enforce HTTPS HSTS only in production or if requested via HTTPS
-    if request.url.scheme == "https" or os.getenv("ENV") == "production":
+    if request.url.scheme == "https" or config.ENV == "production":
         response.headers["Strict-Transport-Security"] = (
             "max-age=63072000; includeSubDomains; preload"
         )
@@ -411,6 +428,20 @@ app.include_router(unsubscribe_router)
 app.include_router(webhooks_router)
 app.include_router(websocket_router)
 app.include_router(telegram_app_router)
+app.include_router(auto_applier_router)
+app.include_router(interview_simulator_router)
+app.include_router(hr_outreach_router)
+app.include_router(salary_negotiator_router)
+app.include_router(whatsapp_sync_router)
+app.include_router(enterprise_portal_router)
+app.include_router(stealth_scraper_router)
+app.include_router(portfolio_evaluator_router)
+app.include_router(video_avatar_router)
+app.include_router(self_healing_agent_router)
+app.include_router(agent_swarm_router)
+app.include_router(vision_form_filler_router)
+app.include_router(microsite_generator_router)
+app.include_router(edge_cache_router)
 
 # Mount Telegram Mini App static files
 _tma_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "telegram_miniapp")

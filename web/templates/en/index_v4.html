@@ -9,6 +9,9 @@
   <meta name="author" content="JobHunt Pro">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://jhfguf.pythonanywhere.com/">
+  <link rel="alternate" hreflang="ar" href="https://jhfguf.pythonanywhere.com/"/>
+  <link rel="alternate" hreflang="en" href="https://jhfguf.pythonanywhere.com/en/"/>
+  <link rel="alternate" hreflang="x-default" href="https://jhfguf.pythonanywhere.com/"/>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <link rel="manifest" href="/static/manifest.json">
   <meta name="theme-color" content="#0a0a14">
@@ -66,9 +69,9 @@
 .cookie-banner{position:fixed;inset-block-end:0;inset-inline-start: 0;inset-inline-end: 0;background:rgba(10,10,25,0.97);border-inset-block-start:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px var(--space-3);backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
 .cookie-content{max-inline-size:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
 .cookie-content span{font-size:20px}
-.cookie-content p{font-size:12px;color:var(--muted);flex:1;min-inline-size:200px}
+.cookie-content p{font-size: 14px;color:var(--muted);flex:1;min-inline-size:200px}
 .cookie-content a{color:var(--cyan)}
-.cookie-content button{background:var(--cyan);color:#000;border:none;padding:var(--space-1) 20px;border-radius:20px;font-weight:700;cursor:pointer;font-size:13px;white-space:nowrap}
+.cookie-content button{background:var(--cyan);color:#000;border:none;padding:var(--space-1) 20px;border-radius:20px;font-weight:700;cursor:pointer;font-size: 14px;white-space:nowrap}
 .cookie-content button:hover{opacity:0.9}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @media(max-width:600px){.cookie-content{text-align:center}}
@@ -78,8 +81,7 @@
 .guarantee-badge{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(0,240,255,0.08),rgba(0,240,255,0.02));border:1px solid rgba(0,240,255,0.2);border-radius:20px;padding:20px 32px;max-inline-size:700px;inline-size:100%;backdrop-filter:blur(10px);animation:guaranteePulse 2s ease-in-out infinite}
 .guarantee-icon{font-size:32px;flex-shrink:0}
 .guarantee-text{display:flex;flex-direction:column;gap:4px;flex:1}
-.guarantee-text strong{font-size:16px;color:var(--cyan);letter-spacing:-0.3px}
-.guarantee-text span{font-size:13px;color:var(--muted)}
+.guarantee-text strong{font-size:16px;color:var(--cyan);color:var(--muted)}
 .guarantee-seal{flex-shrink:0;opacity:0.8}
 @keyframes guaranteePulse{0%,100%{box-shadow:0 0 20px rgba(0,240,255,0.1)}50%{box-shadow:0 0 35px rgba(0,240,255,0.2)}}
 @media(max-width:600px){.guarantee-badge{flex-direction:column;text-align:center;padding:16px 20px}}
@@ -343,11 +345,11 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   <div class="ats-demo">
     <div class="ats-input-group">
       <label for="atsJobTitle">Job Title</label>
-      <input dir="auto" type="text" id="atsJobTitle" placeholder="e.g. Software Engineer" value="Software Engineer">
+      <input dir="auto" type="text" id="atsJobTitle" placeholder="e.g. Software Engineer" value="Software Engineer" dir="auto">
     </div>
     <div class="ats-input-group">
       <label for="atsSkills">Your Skills (comma separated)</label>
-      <input dir="auto" type="text" id="atsSkills" placeholder="e.g. Python, React, AWS" value="Python, JavaScript, React">
+      <input dir="auto" type="text" id="atsSkills" placeholder="e.g. Python, React, AWS" value="Python, JavaScript, React" dir="auto">
     </div>
     <button class="primary" onclick="checkATS()">&#x1f50d; Check My Score</button>
     <div class="ats-result" id="atsResult" style="display:none;">
@@ -462,15 +464,15 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   <div class="calc-grid">
     <div class="calc-card">
       <label for="currentSalary">Your Target Salary ($/year)</label>
-      <input dir="auto" type="number" id="currentSalary" value="80000" min="0" step="5000">
+      <input dir="auto" type="number" id="currentSalary" value="80000" min="0" step="5000" dir="auto">
     </div>
     <div class="calc-card">
       <label for="monthsUnemployed">Months Unemployed</label>
-      <input dir="auto" type="number" id="monthsUnemployed" value="3" min="0" max="24">
+      <input dir="auto" type="number" id="monthsUnemployed" value="3" min="0" max="24" dir="auto">
     </div>
     <div class="calc-card">
       <label for="applicationsPerDay">Manual Applications/Day</label>
-      <input dir="auto" type="number" id="applicationsPerDay" value="3" min="1" max="20">
+      <input dir="auto" type="number" id="applicationsPerDay" value="3" min="1" max="20" dir="auto">
     </div>
     <div class="calc-card highlight">
       <div class="calc-result-label">With JobHunt Pro</div>
@@ -1155,7 +1157,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
       const toast = document.createElement('div');
       toast.className = 'social-toast';
       toast.innerHTML = `&#x1f525; <strong>${name}</strong> ${action}`;
-      toast.style.cssText = 'position:fixed;inset-block-end:80px;inset-inline-end:20px;background:rgba(10,10,25,0.95);border:1px solid rgba(0,240,255,0.2);border-radius:12px;padding:14px 20px;font-size:13px;color:#fff;z-index:9999;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:340px;animation:slideInRight 0.4s ease-out;transition:opacity 0.4s';
+      toast.style.cssText = 'position:fixed;inset-block-end:80px;inset-inline-end:20px;background:rgba(10,10,25,0.95);border:1px solid rgba(0,240,255,0.2);border-radius:12px;padding:14px 20px;font-size: 14px;color:#fff;z-index:9999;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:340px;animation:slideInRight 0.4s ease-out;transition:opacity 0.4s';
       document.body.appendChild(toast);
       setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 4000);
     }
@@ -1179,7 +1181,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
           <h3 style="font-size:24px;font-weight:800;margin-block-end:12px;color:#fff">Wait! Don't Miss Out</h3>
           <p style="color:rgba(255,255,255,0.6);margin-block-end:24px;line-height:1.7">Thousands of jobs are being filled right now. Start your free trial and let our AI apply for you while you're away.</p>
           <a href="/register" style="display:inline-block;background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;padding:16px 36px;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;box-shadow:0 4px 30px rgba(0,240,255,0.25)">&#x1f680; Start Free Trial</a>
-          <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-block-start:16px">No credit card required</p>
+          <p style="font-size: 14px;color:rgba(255,255,255,0.3);margin-block-start:16px">No credit card required</p>
         </div>`;
       document.body.appendChild(overlay);
     });

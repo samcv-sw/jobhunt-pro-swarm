@@ -419,7 +419,7 @@ Documentation:      Minimal → Extensive
 - Type hints throughout
 
 ### Key Files
-- Main app: `backend/main.py`
+- Main app: `web/app_v2.py`
 - Config: `config.py`
 - Tests: `tests/` directory
 - Core: `core/` directory (16 modules)

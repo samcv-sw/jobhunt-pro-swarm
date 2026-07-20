@@ -28,7 +28,7 @@
   background: transparent;
   color: #64748b;
   font-family: 'Cairo', 'Inter', sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
@@ -70,7 +70,7 @@
   margin-block-end: 6px;
 }
 .funnel-stat-label {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 500;
   color: #64748b;
   text-transform: uppercase;
@@ -78,7 +78,7 @@
   margin-block-end: 4px;
 }
 .funnel-stat-conv {
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -127,7 +127,7 @@
 }
 .funnel-stage-label {
   inline-size: 100px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: #d4d4d8;
   text-align: end;
@@ -147,7 +147,7 @@
   align-items: center;
   justify-content: flex-end;
   padding-inline-end: 14px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: #fff;
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -157,7 +157,7 @@
 .funnel-stage-value {
   position: absolute;
   inset-inline-end: -60px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: #e2e8f0;
   white-space: nowrap;
@@ -166,7 +166,7 @@
   position: absolute;
   inset-inline-start: 0;
   inset-block-start: -20px;
-  font-size: 10px;
+  font-size: 14px;
   color: #64748b;
   font-weight: 600;
 }
@@ -174,7 +174,7 @@
 /* التراجع indicators */
 .funnel-dropoff {
   text-align: center;
-  font-size: 11px;
+  font-size: 14px;
   color: #ef4444;
   font-weight: 600;
   margin: 2px 0 6px 114px;
@@ -191,14 +191,14 @@
 .funnel-table table {
   inline-size: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 14px;
 }
 .funnel-table th {
   text-align: start;
   padding: 12px 16px;
   background: rgba(255,255,255,0.03);
   color: #64748b;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   text-transform: uppercase;
   
@@ -212,7 +212,7 @@
   display: inline-block;
   padding: 3px 10px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
 }
 .conv-high { background: rgba(34,197,94,0.15); color: #4ade80; }
@@ -256,7 +256,7 @@
   margin: 0 0 2px;
 }
 .total-banner .banner-info p {
-  font-size: 12px;
+  font-size: 14px;
   color: #64748b;
   margin: 0;
 }
@@ -287,7 +287,7 @@
     <button class="funnel-filter-btn" data-period="90">آخر 90 يوم</button>
     <button class="funnel-filter-btn" data-period="all">كل الوقت</button>
   </div>
-  <span id="funnel-updated" style="color:#52525b;font-size:12px;"></span>
+  <span id="funnel-updated" style="color:#52525b;font-size: 14px;"></span>
 </div>
 
 <!-- Loading state -->
@@ -321,7 +321,7 @@
   <div class="funnel-chart-container">
     <div class="funnel-chart-header">
       <h3>📊 تفصيل المراحل</h3>
-      <div style="display:flex;gap:12px;font-size:11px;color:#64748b;">
+      <div style="display:flex;gap:12px;font-size: 14px;color:#64748b;">
         <span>🔵 الطلبات</span>
         <span>🟢 التحويلات</span>
       </div>
@@ -352,7 +352,7 @@
 <div id="funnel-empty" style="display:none;text-align:center;padding:60px 20px;">
   <div style="font-size:48px;margin-block-end:12px;">📭</div>
   <h3 style="color:#94a3b8;margin-block-end:8px;">ما في بيانات بعد</h3>
-  <p style="color:#52525b;font-size:13px;">بلّش ابعت طلبات لتشوف تحليلاتك هون.</p>
+  <p style="color:#52525b;font-size: 14px;">بلّش ابعت طلبات لتشوف تحليلاتك هون.</p>
 </div>
 
 <script>
@@ -493,7 +493,7 @@ function renderFunnelVisual(data) {
         <div class="funnel-stage-label">${stage.icon} ${stage.label}</div>
         <div class="funnel-stage-bar-wrap">
           <div class="funnel-stage-bar" style="inline-size:${pct}%;background:${stage.color};">
-            ${val > 0 ? '<span style="position:absolute;inset-inline-start: 10px;font-size:12px;">' + val.toLocaleString() + '</span>' : ''}
+            ${val > 0 ? '<span style="position:absolute;inset-inline-start: 10px;font-size: 14px;">' + val.toLocaleString() + '</span>' : ''}
           </div>
         </div>
       </div>`;

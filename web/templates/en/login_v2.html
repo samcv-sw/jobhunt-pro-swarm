@@ -3,7 +3,7 @@
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta name="description" content="Login to your JobHunt Pro account.">
   <meta name="robots" content="noindex,follow">
   <title>Login — JobHunt Pro</title>
@@ -120,12 +120,12 @@
       <form dir="auto" method="POST" action="/login" id="loginForm" onsubmit="handleLogin(event)">
         <div class="form-group">
           <label for="email">Email Address</label>
-          <input dir="auto" type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus>
+          <input dir="auto" type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email" autofocus dir="auto">
         </div>
         <div class="form-group">
           <label for="password">Password</label>
           <div class="pw-input-wrap">
-            <input dir="auto" type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password" oninput="checkPwStrength(this.value)">
+            <input dir="auto" type="password" id="password" name="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;" required autocomplete="current-password" oninput="checkPwStrength(this.value)" dir="auto">
             <button type="button" class="pw-toggle-btn" onclick="togglePwVisibility()" id="pwToggle" aria-label="Toggle password visibility">👁️</button>
           </div>
           <!-- Password Strength Meter -->
@@ -135,8 +135,8 @@
           <div class="pw-strength-label" id="pwStrengthLabel"></div>
         </div>
         <div class="pw-row">
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);cursor:pointer;">
-            <input dir="auto" type="checkbox" name="remember" style="accent-color:var(--accent-primary);"> Remember me
+          <label style="display:flex;align-items:center;gap:6px;font-size: 14px;color:var(--text-muted);cursor:pointer;">
+            <input dir="auto" type="checkbox" name="remember" style="accent-color:var(--accent-primary);" dir="auto"> Remember me
           </label>
           <a href="/forgot-password">Forgot password?</a>
         </div>

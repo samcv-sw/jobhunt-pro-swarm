@@ -3,7 +3,7 @@
 <head>
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta name="description" content="Complete your JobHunt Pro purchase securely.">
   <meta name="robots" content="noindex,follow">
   <title>Checkout — JobHunt Pro</title>
@@ -17,7 +17,7 @@
 
 body {
   background: var(--bg-main);
-  font-family: var(--font-sans);
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, var(--font-sans);
   color: var(--text-main);
   min-block-size: 100vh;
   display: flex;
@@ -55,7 +55,7 @@ body {
 
 /* ── Logo ── */
 .checkout-logo {
-  font-family: var(--font-mono);
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, var(--font-mono);
   font-size: 20px;
   font-weight: 700;
   margin-block-end: 24px;
@@ -77,7 +77,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text-dim);
   font-weight: 500;
 }
@@ -90,7 +90,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   transition: all var(--transition-base);
 }
@@ -133,10 +133,10 @@ body {
 }
 
 .order-label-v3 {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  
   margin-block-end: 4px;
 }
 
@@ -149,15 +149,15 @@ body {
 .order-amount-v3 {
   font-size: 42px;
   font-weight: 900;
-  font-family: var(--font-mono);
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, var(--font-mono);
   color: var(--accent-primary);
   margin: 12px 0;
 }
 
 .order-id-v3 {
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text-dim);
-  font-family: var(--font-mono);
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, var(--font-mono);
   background: rgba(0,0,0,0.3);
   padding: 4px 10px;
   border-radius: var(--radius-sm);
@@ -166,7 +166,7 @@ body {
 
 .order-status-v3 {
   margin-block-start: 8px;
-  font-size: 12px;
+  font-size: 14px;
   padding: 4px 12px;
   border-radius: var(--radius-full);
   display: inline-block;
@@ -192,7 +192,7 @@ body {
 
 .order-customer-v3 {
   margin-block-start: 12px;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-dim);
 }
 
@@ -207,19 +207,19 @@ body {
 }
 
 .payment-code-box .pc-label {
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  
   margin-block-end: 8px;
 }
 
 .payment-code-box .pc-code {
   font-size: 28px;
   font-weight: 900;
-  font-family: var(--font-mono);
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, var(--font-mono);
   color: var(--accent-primary);
-  letter-spacing: 4px;
+  
   user-select: all;
   cursor: pointer;
   transition: color var(--transition-fast);
@@ -228,7 +228,7 @@ body {
 .payment-code-box .pc-code:hover { color: var(--accent-info); }
 
 .payment-code-box .pc-hint {
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text-dim);
   margin-block-start: 8px;
 }
@@ -244,7 +244,7 @@ body {
   color: #fff;
   font-weight: 700;
   font-size: 16px;
-  font-family: var(--font-sans);
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, var(--font-sans);
   cursor: pointer;
   transition: all var(--transition-base);
   margin-block-end: 24px;
@@ -280,9 +280,9 @@ body {
   border: 1px solid var(--border-glass);
   background: transparent;
   color: var(--text-dim);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  font-family: var(--font-mono);
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, var(--font-mono);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
@@ -300,8 +300,8 @@ body {
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
   padding: 14px 16px;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, var(--font-mono);
+  font-size: 14px;
   color: var(--text-muted);
   word-break: break-all;
   cursor: pointer;
@@ -317,7 +317,7 @@ body {
 }
 
 .copy-hint-v3 {
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text-dim);
   margin-block-start: 6px;
 }
@@ -335,16 +335,16 @@ body {
 }
 
 .qr-label {
-  font-size: 10px;
+  font-size: 14px;
   color: var(--text-dim);
   margin-block-start: 6px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  
 }
 
 /* ── Instruction Text ── */
 .instruction-text-v3 {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   margin-block-end: 20px;
   line-height: 1.6;
@@ -377,8 +377,8 @@ body {
   border: 1px solid var(--border-glass);
   background: var(--bg-glass);
   color: var(--text-main);
-  font-size: 13px;
-  font-family: var(--font-mono);
+  font-size: 14px;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, var(--font-mono);
   outline: none;
   transition: border-color var(--transition-fast);
 }
@@ -394,7 +394,7 @@ body {
   background: var(--gradient-primary);
   color: #fff;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
   white-space: nowrap;
   transition: all var(--transition-fast);
@@ -411,7 +411,7 @@ body {
 
 .verify-result-v3 {
   margin-block-start: 12px;
-  font-size: 13px;
+  font-size: 14px;
   padding: 10px 14px;
   border-radius: var(--radius-sm);
   display: none;
@@ -500,23 +500,22 @@ body {
   <div class="order-summary-v3">
     <div class="order-label-v3">Service</div>
     {% if order.item_type == 'bulk' and order.items %}
-    <div class="order-service-v3" style="font-size:13px;">
+    <div class="order-service-v3" style="font-size: 14px;">
       {% for item in order.items %}
       <div style="display:flex;justify-content:space-between;padding:4px 0;border-inset-block-end:1px solid var(--border-glass);">
         <span>{{ item.service_name }}{% if item.quantity > 1 %} x{{ item.quantity }}{% endif %}</span>
-        <span style="font-family:var(--font-mono);color:var(--accent-primary);">${{ "%.2f"|format(item.line_total) }}</span>
+        <span style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, var(--font-mono);color:var(--accent-primary);">${{ "%.2f"|format(item.line_total) }}</span>
       </div>
       {% endfor %}
     </div>
     <div class="order-amount-v3">${{ "%.2f"|format(order.total_price or order.price) }}</div>
-    <div style="font-size:11px;color:var(--text-dim);">{{ order.items|length }} item(s) in this order</div>
+    <div style="font-size: 14px;color:var(--text-dim);">{{ order.items|length }} item(s) in this order</div>
     {% else %}
     <div class="order-service-v3">{{ order.service_name }}</div>
     <div class="order-amount-v3">${{ "%.2f"|format(order.price) }}</div>
     {% endif %}
     <div class="order-id-v3">Order ID: {{ order.order_id }}</div>
-    <div class="order-status-v3
-      {% if order.status in ('pending', 'pending_payment') %}status-pending-v3{% elif order.status == 'paid' %}status-paid-v3{% elif order.status == 'delivered' %}status-delivered-v3{% endif %}">
+    <div class="order-status-v3 {% if order.status in ('pending', 'pending_payment') %}status-pending-v3{% elif order.status == 'paid' %}status-paid-v3{% elif order.status == 'delivered' %}status-delivered-v3{% endif %}">
       {{ order.status|upper }}
     </div>
     <div class="order-customer-v3">
@@ -538,7 +537,7 @@ body {
 
   <!-- NOWPayments -->
   <div style="margin-block-end:24px; padding:20px; background:var(--accent-primary-dim); border:1px solid rgba(99,102,241,0.15); border-radius:var(--radius-lg);">
-    <div style="font-size:13px; color:var(--text-muted); margin-block-end:12px;">
+    <div style="font-size: 14px; color:var(--text-muted); margin-block-end:12px;">
       Pay instantly with credit/debit card or crypto
     </div>
     <button class="btn-nowpayments-v3"
@@ -549,7 +548,7 @@ body {
       onclick="payWithNOWPaymentsV3(this)">
       Pay with NOWPayments
     </button>
-    <div id="nowpaymentsStatusV3" style="font-size:12px; color:var(--text-dim); margin-block-start:8px; display:none;"></div>
+    <div id="nowpaymentsStatusV3" style="font-size: 14px; color:var(--text-dim); margin-block-start:8px; display:none;"></div>
   </div>
 
   <!-- Manual Crypto Payment -->
@@ -587,12 +586,12 @@ body {
   <!-- Verify Payment -->
   <div class="verify-section-v3">
     <h3>Already sent payment? Verify here:</h3>
-    <div style="font-size:12px; color:var(--text-dim); margin-block-end:12px; line-height:1.5;">
+    <div style="font-size: 14px; color:var(--text-dim); margin-block-end:12px; line-height:1.5;">
       Enter your <strong style="color:var(--accent-primary);">Payment Code</strong> (shown above) and the transaction hash from your crypto wallet.
     </div>
     <div class="verify-input-group-v3">
-      <input dir="auto" type="text" id="paymentCodeV3" placeholder="Payment Code (e.g. A1B2C3D4)" autocomplete="off" style="text-transform:uppercase; letter-spacing:2px;">
-      <input dir="auto" type="text" id="txHashV3" placeholder="Transaction hash / TX ID" autocomplete="off">
+      <input dir="auto" type="text" id="paymentCodeV3" placeholder="Payment Code (e.g. A1B2C3D4)" autocomplete="off" style="text-transform:uppercase; " dir="auto">
+      <input dir="auto" type="text" id="txHashV3" placeholder="Transaction hash / TX ID" autocomplete="off" dir="auto">
       <button class="btn-verify-v3" id="verifyBtnV3" onclick="verifyPaymentV3('{{ order.order_id }}')">Verify</button>
     </div>
     <div class="verify-result-v3" id="verifyResultV3"></div>

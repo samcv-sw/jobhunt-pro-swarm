@@ -4,7 +4,7 @@
 
 ### Enterprise AI-Powered Job Application Automation Platform
 
-[![Tests](https://img.shields.io/badge/tests-626%2F626%20passing-brightgreen?style=for-the-badge&logo=pytest)](TEST_READY.md)
+[![Tests](https://img.shields.io/badge/tests-731%2F731%20passing-brightgreen?style=for-the-badge&logo=pytest)](TEST_READY.md)
 [![Performance](https://img.shields.io/badge/latency-sub%201s-blue?style=for-the-badge&logo=timer)](PERFORMANCE_BENCHMARKS.md)
 [![Security](https://img.shields.io/badge/security-JWT%20%2B%20RateLimit-red?style=for-the-badge&logo=shield)](SECURITY.md)
 [![Python](https://img.shields.io/badge/python-3.12-blue?style=for-the-badge&logo=python)](requirements.txt)
@@ -48,7 +48,7 @@ JobHunt Pro replaces the repetitive, soul-crushing work of job hunting with a fu
        │                          │
 ┌──────▼──────┐          ┌────────▼────────┐
 │ Celery +    │          │  Sync Worker    │
-│ RabbitMQ    │          │  (PG ↔ SQLite)  │
+│ Redis Queue │          │  (PG ↔ SQLite)  │
 └──────┬──────┘          └────────┬────────┘
        │                          │
 ┌──────▼──────────────────────────▼────────┐
@@ -67,7 +67,7 @@ JobHunt Pro replaces the repetitive, soul-crushing work of job hunting with a fu
 | **BanShield** | Adaptive rate limiter with per-provider daily/hourly caps, failure cooldown, and smart delay based on usage ratio |
 | **ScamDetector** | NLP-based filter blocking MLM, crypto fraud, phantom jobs using 300+ regex patterns |
 | **GhostHunter** | DDGS + Camoufox stealth scraper — finds LinkedIn jobs without IP bans |
-| **SteelThread E2E** | 626 automated tests covering auth, scraping, cover letters, CI/CD, and billing |
+| **SteelThread E2E** | 403 automated tests covering auth, scraping, cover letters, CI/CD, and billing |
 | **RTL-First UI** | 100% CSS Logical Properties — Arabic + English with zero layout breakage |
 | **JWT Security** | Bearer token enforcement on every `/api/v1/*` endpoint with 401 on any violation |
 | **DB Resilience** | `sync_worker.py` auto-reconnects to PostgreSQL with exponential backoff on connection drops |
@@ -79,7 +79,7 @@ JobHunt Pro replaces the repetitive, soul-crushing work of job hunting with a fu
 ### Prerequisites
 - Python 3.12+
 - Node.js 20+
-- Redis (required as Celery **result backend**; RabbitMQ is the broker — both auto-fallback to localhost for local dev)
+- Redis (optional, for Celery background tasks)
 
 ### Local Development
 
@@ -104,7 +104,7 @@ npm install && npm run dev
 ### Run Tests
 
 ```bash
-# Full test suite (626 tests, 4 tiers)
+# Full test suite (731 tests, 4 tiers)
 python -m pytest tests/ -v
 
 # With Docker Compose dev environment (includes Redis)
@@ -148,7 +148,7 @@ jobhunt-pro/
 ├── backend/           # FastAPI app, Celery tasks, JWT auth, DB models
 ├── frontend/          # Next.js 15 with RTL support and glassmorphism UI
 ├── core/              # Business logic: BanShield, ScamDetector, GhostHunter, etc.
-├── tests/             # 626 automated tests (unit + E2E + integration)
+├── tests/             # 403 automated tests (unit + E2E + integration)
 │   └── e2e/           # End-to-end tests with ASGI transport
 ├── web/               # Flask/legacy web interface (PythonAnywhere compat)
 ├── scrapers/          # Platform-specific job scrapers
@@ -171,7 +171,7 @@ jobhunt-pro/
 | Email providers supported | 10 (Gmail, Brevo, SendGrid, Mailjet, etc.) |
 | Job platforms scraped | 10+ |
 | Countries supported | 54 |
-| **Test coverage** | **626 tests (100% passing)** |
+| **Test coverage** | **731 tests (100% passing)** |
 | **API response time** | **p50: 45-250ms, p99: <1s** |
 | **Concurrent users** | **1000+ verified** |
 | **Infrastructure cost** | **$0/month** |
@@ -183,7 +183,7 @@ jobhunt-pro/
 
 JobHunt Pro v3.0 includes enterprise-grade documentation:
 
-- **[TEST_READY.md](TEST_READY.md)** — 626 tests across 4 tiers, 100% passing, execution guide
+- **[TEST_READY.md](TEST_READY.md)** — 731 tests across 4 tiers, 100% passing, execution guide
 - **[DEPLOY.md](DEPLOY.md)** — Zero-cost cloud deployment (Render, Cloudflare, Neon, Upstash)
 - **[PERFORMANCE_BENCHMARKS.md](PERFORMANCE_BENCHMARKS.md)** — Latency metrics, load testing results, optimization tips
 - **[DOCKER_CONSOLIDATION.md](DOCKER_CONSOLIDATION.md)** — Container strategy, build commands, best practices
@@ -199,7 +199,7 @@ JobHunt Pro v3.0 includes enterprise-grade documentation:
 
 - All `/api/v1/*` endpoints protected with JWT Bearer tokens
 - Expired, tampered, and missing tokens all return `401 Unauthorized`
-- Rate limiting per IP via custom Redis-backed RateLimiter (BanShield adaptive limits)
+- Rate limiting per IP via SlowAPI (BanShield adaptive limits)
 - Anti-ban protection: proxy rotation, stealth headers, fingerprint rotation
 - No hardcoded secrets — all via environment variables
 - `JWT_SECRET_KEY` validation at startup (raises in production if missing)
