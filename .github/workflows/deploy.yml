@@ -1,4 +1,4 @@
-name: Deploy to Render and Fly.io
+name: Deploy to Render, Fly.io and PythonAnywhere
 
 on:
   push:
@@ -34,3 +34,18 @@ jobs:
       - name: Deploy to Fly.io
         if: ${{ env.FLY_API_TOKEN != '' }}
         run: flyctl deploy --remote-only
+
+  deploy-pythonanywhere:
+    runs-on: ubuntu-latest
+    env:
+      PA_DEPLOY_HOOK: ${{ secrets.PYTHONANYWHERE_DEPLOY_HOOK_URL }}
+      PA_DEPLOY_KEY: ${{ secrets.PYTHONANYWHERE_DEPLOY_SECRET }}
+    steps:
+      - name: Trigger PythonAnywhere Deployment
+        if: ${{ env.PA_DEPLOY_HOOK != '' && env.PA_DEPLOY_KEY != '' }}
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ secrets.PYTHONANYWHERE_DEPLOY_HOOK_URL }}/deploy?key=${{ secrets.PYTHONANYWHERE_DEPLOY_SECRET }}
+          method: 'POST'
+          timeout: 30000
+          preventFailureOnNoResponse: true
