@@ -736,9 +736,13 @@ class SqliteConnectionWrapper:
             self.conn.execute("PRAGMA synchronous=NORMAL")
             logger.info(f"[DB] Connected to SQLite fallback (WAL journal mode): {_safe_str(db_path)}")
 
-        self.conn.execute("PRAGMA cache_size=-16000")  # 16MB cache
+        self.conn.execute("PRAGMA cache_size=-64000")  # 64MB cache for sub-5ms queries
+        self.conn.execute("PRAGMA temp_store=MEMORY")   # In-memory temporary tables & sorts
+        self.conn.execute("PRAGMA mmap_size=268435456") # 256MB Memory Mapped I/O
         self.conn.execute("PRAGMA busy_timeout=30000")
         self.conn.execute("PRAGMA encoding='UTF-8'")
+        self.conn.execute("PRAGMA wal_autocheckpoint=1000")
+        self.conn.execute("PRAGMA optimize")
 
         BACKEND = "sqlite"
 
@@ -767,10 +771,20 @@ class SqliteConnectionWrapper:
     ) -> real_sqlite3.Cursor:
         cur = self.conn.cursor()
         query = self._translate_for_sqlite(query)
-        if params is not None:
-            cur.execute(query, params)
-        else:
-            cur.execute(query)
+        import time
+        max_retries = 5
+        for attempt in range(max_retries):
+            try:
+                if params is not None:
+                    cur.execute(query, params)
+                else:
+                    cur.execute(query)
+                break
+            except real_sqlite3.OperationalError as e:
+                if "locked" in str(e).lower() and attempt < max_retries - 1:
+                    time.sleep(0.05 * (2 ** attempt))
+                else:
+                    raise
         return cur
 
     def executescript(self, script: str) -> real_sqlite3.Cursor:

@@ -16,6 +16,8 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
+from core.security_shield import SecurityShieldMiddleware
+
 from backend.ai_engine import generate_smart_cover_letter_stream  # noqa: F401
 from backend.routers.accounts import router as accounts_router
 from backend.routers.admin import dlq_requeue  # noqa: F401
@@ -46,6 +48,7 @@ from backend.routers.telegram_app import router as telegram_app_router
 from backend.routers.unsubscribe import router as unsubscribe_router
 from backend.routers.video_avatar import router as video_avatar_router
 from backend.routers.vision_form_filler import router as vision_form_filler_router
+from backend.routers.waf_honeypot import router as waf_honeypot_router
 from backend.routers.webhooks import (  # noqa: F401
     brevo_bounce_webhook,
     sendgrid_bounce_webhook,
@@ -169,8 +172,6 @@ async def lifespan(app: FastAPI):
     from .models import Base
 
     setup_cache(app)
-    # Use SQLAlchemy's create_engine with the DATABASE_URL from config
-    engine = create_engine(config.DATABASE_URL, pool_pre_ping=True)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Database schema initialized successfully.")
@@ -358,6 +359,9 @@ else:
     # Safe defaults for local development
     origins = ["http://localhost:3000", "http://localhost:5173", "http://localhost:8000"]
 
+# Add SecurityShieldMiddleware for WAF, Honeypot & Rate Limiting protection
+app.add_middleware(SecurityShieldMiddleware)
+
 # Add GZip Middleware for massive payload compression
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
@@ -443,7 +447,164 @@ app.include_router(vision_form_filler_router)
 app.include_router(microsite_generator_router)
 app.include_router(edge_cache_router)
 
+from backend.routers.singularity_suite import router as singularity_suite_router
+app.include_router(singularity_suite_router)
+
+from backend.routers.closed_loop_router import router as closed_loop_router
+app.include_router(closed_loop_router)
+
+
+from backend.routers.voice_interview import router as voice_interview_router
+from backend.routers.chrome_auto_apply import router as chrome_auto_apply_router
+from backend.routers.video_resume_generator import router as video_resume_generator_router
+from backend.routers.white_label_portal import router as white_label_portal_router
+from backend.routers.predictive_market import router as predictive_market_router
+from backend.routers.b2b_recruiter_swarm import router as b2b_recruiter_swarm_router
+from backend.routers.live_video_interviewer import router as live_video_interviewer_router
+from backend.routers.vision_auto_apply import router as vision_auto_apply_router
+from backend.routers.self_healing_engine import router as self_healing_engine_router
+
+# Phase 7: Ultimate Autonomous Scaling Suite
+from backend.routers.lead_swarm import router as lead_swarm_router
+from backend.routers.self_healing_api import router as self_healing_api_router
+from backend.routers.autonomous_billing import router as autonomous_billing_router
+from backend.routers.ab_testing_engine import router as ab_testing_engine_router
+from backend.routers.edge_mesh_api import router as edge_mesh_api_router
+from backend.routers.ai_mock_interview import router as ai_mock_interview_router
+
+app.include_router(voice_interview_router)
+app.include_router(chrome_auto_apply_router)
+app.include_router(video_resume_generator_router)
+app.include_router(white_label_portal_router)
+app.include_router(predictive_market_router)
+app.include_router(b2b_recruiter_swarm_router)
+app.include_router(live_video_interviewer_router)
+app.include_router(vision_auto_apply_router)
+app.include_router(self_healing_engine_router)
+app.include_router(ai_mock_interview_router)
+
+# Phase 7 Registrations
+app.include_router(lead_swarm_router)
+app.include_router(self_healing_api_router)
+app.include_router(autonomous_billing_router)
+app.include_router(ab_testing_engine_router)
+app.include_router(edge_mesh_api_router)
+
+
+from backend.routers.crm_pipeline import router as crm_pipeline_router
+app.include_router(crm_pipeline_router)
+
+# God-Mode Next-Gen Upgrades
+from backend.routers.self_marketing_swarm import router as self_marketing_swarm_router
+from backend.routers.ats_reverse_engine import router as ats_reverse_engine_router
+from backend.routers.live_interview_coach import router as live_interview_coach_router
+from backend.routers.self_healing_telemetry import router as self_healing_telemetry_router
+from backend.routers.multi_tenant_portal import router as multi_tenant_portal_router
+
+app.include_router(self_marketing_swarm_router)
+app.include_router(ats_reverse_engine_router)
+app.include_router(live_interview_coach_router)
+app.include_router(self_healing_telemetry_router)
+app.include_router(multi_tenant_portal_router)
+
+# Phase 7 Empire Upgrades
+from backend.routers.ai_sdr_outreach import router as ai_sdr_outreach_router
+from backend.routers.ats_resume_sculptor import router as ats_resume_sculptor_router
+from backend.routers.interview_copilot import router as interview_copilot_router
+from backend.routers.scraping_swarm import router as scraping_swarm_router
+from backend.routers.salary_negotiator import router as salary_negotiator_router, salary_v1_router
+
+app.include_router(ai_sdr_outreach_router)
+from backend.routers.job_radar import router as job_radar_router
+app.include_router(job_radar_router)
+app.include_router(ats_resume_sculptor_router)
+app.include_router(interview_copilot_router)
+app.include_router(scraping_swarm_router)
+app.include_router(salary_negotiator_router)
+app.include_router(salary_v1_router)
+
+from web.routers.telegram_push import router as telegram_push_router
+app.include_router(telegram_push_router)
+
+# Next-Gen Quantum Suite Router
+from backend.routers.quantum_god_suite import router as quantum_god_suite_router
+app.include_router(quantum_god_suite_router)
+
+
+from web.routers.monetization_router import router as monetization_router
+app.include_router(monetization_router)
+
+from backend.routers.next_gen_god_suite import router as next_gen_god_suite_router
+app.include_router(next_gen_god_suite_router)
+
+# Phase 8 Level 100 God-Mode Empire Upgrades
+from backend.routers.voice_webrtc import router as voice_webrtc_router
+from backend.routers.social_omnipresence import router as social_omnipresence_router
+from backend.routers.ml_acceptance import router as ml_acceptance_router
+from backend.routers.edge_routing import router as edge_routing_router
+from backend.routers.pwa_push import router as pwa_push_router
+
+app.include_router(voice_webrtc_router)
+app.include_router(social_omnipresence_router)
+app.include_router(ml_acceptance_router)
+app.include_router(edge_routing_router)
+app.include_router(pwa_push_router)
+
+# Omni-God Master Orchestration Suite
+from backend.routers.omni_god_orchestrator import router as omni_god_orchestrator_router
+app.include_router(omni_god_orchestrator_router)
+
+# Singularity Empire 4-Pillar Upgrades
+from backend.routers.quantum_security_router import router as quantum_security_router
+from backend.routers.viral_sdr_router import router as viral_sdr_router
+from backend.routers.edge_cache_router import router as edge_cache_router_new
+from backend.routers.autopoietic_router import router as autopoietic_router
+
+app.include_router(quantum_security_router)
+app.include_router(viral_sdr_router)
+app.include_router(edge_cache_router_new)
+app.include_router(autopoietic_router)
+
+
+
+
+
+from backend.routers.god_tier_suite import router as god_tier_suite_router
+app.include_router(god_tier_suite_router)
+
+# Next-Gen Level 100 Upgrades
+from backend.routers.webgpu_router import router as webgpu_router
+from backend.routers.video_avatar_router import router as video_avatar_router
+from backend.routers.swarm_mesh_router import router as swarm_mesh_router
+from backend.routers.viral_growth_router import router as viral_growth_router
+from backend.routers.quantum_oracle_router import router as quantum_oracle_router
+
+app.include_router(webgpu_router)
+app.include_router(video_avatar_router)
+app.include_router(swarm_mesh_router)
+app.include_router(viral_growth_router)
+app.include_router(quantum_oracle_router)
+
+
+
+from backend.routers.singularity_hyper_router import router as singularity_hyper_router
+app.include_router(singularity_hyper_router)
+
+from backend.websocket_telemetry import telemetry_broadcaster
+from fastapi import WebSocket, WebSocketDisconnect
+
+@app.websocket("/ws/telemetry")
+async def websocket_telemetry_endpoint(websocket: WebSocket):
+    await telemetry_broadcaster.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            # Echo heartbeat or client commands
+    except WebSocketDisconnect:
+        telemetry_broadcaster.disconnect(websocket)
+
 # Mount Telegram Mini App static files
+
 _tma_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "telegram_miniapp")
 if os.path.isdir(_tma_dir):
     app.mount(

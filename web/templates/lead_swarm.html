@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunt Pro - Lead Acquisition Swarm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0c10;
+            --card-bg: #12161f;
+            --accent-green: #00e676;
+            --accent-gold: #ffd700;
+            --text-main: #f0f4f8;
+            --text-muted: #8a99ad;
+            --border-color: #1e2638;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+            direction: rtl;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        h1 {
+            color: var(--accent-gold);
+            margin: 0;
+        }
+        .badge {
+            background: rgba(0, 230, 118, 0.15);
+            color: var(--accent-green);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--accent-green);
+            font-weight: 700;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        .metric {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .lead-list {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .lead-list th, .lead-list td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .lead-list th {
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Lead Acquisition Swarm</h1>
+            <span class="badge">● Swarm Active</span>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>وكلاء التنقيب النشطون</h3>
+                <div class="metric">12 Agents</div>
+            </div>
+            <div class="card">
+                <h3>العملاء المستهدفون اليوم</h3>
+                <div class="metric">482 Leads</div>
+            </div>
+            <div class="card">
+                <h3>حملات التواصل التلقائي</h3>
+                <div class="metric">124 Sent</div>
+            </div>
+            <div class="card">
+                <h3>نسبة التحويل (Conversion)</h3>
+                <div class="metric" style="color: var(--accent-green)">14.8%</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔥 أحدث العملاء المستهدفين (Real-Time Pipeline)</h2>
+            <table class="lead-list">
+                <thead>
+                    <tr>
+                        <th>الشركة</th>
+                        <th>البريد الإلكتروني</th>
+                        <th>الحالة</th>
+                        <th>مقياس الملاءمة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Apex Global Tech</td>
+                        <td>hr@apexglobal.io</td>
+                        <td><span style="color: var(--accent-gold)">Warm Lead</span></td>
+                        <td>94%</td>
+                    </tr>
+                    <tr>
+                        <td>Dubai AI Labs</td>
+                        <td>talent@dubai-ai.ae</td>
+                        <td><span>Outreach Sent</span></td>
+                        <td>89%</td>
+                    </tr>
+                    <tr>
+                        <td>Fintech EU</td>
+                        <td>recruitment@fintech-eu.de</td>
+                        <td><span style="color: var(--accent-green)">Converted</span></td>
+                        <td>98%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

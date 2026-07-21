@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributed Scraping Swarm | JobHunt Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --accent: #06b6d4;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.75);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-block-size: 100vh;
+            padding-inline: 1.5rem;
+            padding-block: 2rem;
+            background-image: radial-gradient(circle at 10% 90%, rgba(16, 185, 129, 0.18) 0%, transparent 45%),
+                              radial-gradient(circle at 80% 10%, rgba(6, 182, 212, 0.15) 0%, transparent 45%);
+        }
+
+        .container {
+            max-inline-size: 1200px;
+            margin-inline: auto;
+        }
+
+        .header {
+            margin-block-end: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #34d399 0%, #22d3ee 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            margin-block-start: 0.5rem;
+        }
+
+        .node-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-block-end: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-block-end: 1rem;
+            color: #6ee7b7;
+        }
+
+        .node-card {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+            padding: 1.2rem;
+            border-inline-start: 4px solid var(--primary);
+        }
+
+        .node-card.scraping { border-inline-start-color: var(--accent); }
+
+        .node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-block-end: 0.5rem;
+        }
+
+        .node-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #fff;
+        }
+
+        .badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge-active { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge-scraping { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
+
+        .job-table {
+            inline-size: 100%;
+            border-collapse: collapse;
+            margin-block-start: 1rem;
+        }
+
+        .job-table th, .job-table td {
+            padding: 0.85rem 1rem;
+            text-align: start;
+            border-block-end: 1px solid var(--border-color);
+        }
+
+        .job-table th {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .job-table td {
+            font-size: 0.95rem;
+        }
+
+        .btn-action {
+            padding: 0.4rem 0.8rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.85rem;
+        }
+
+        .btn-trigger {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 Distributed Global Job Scraping Swarm</h1>
+            <p>شبكة خوادم موزعة تكتشف وتجمع الفرص الوظيفية فور نزولها عبر أكثر من 50 منصة عالمية</p>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 1.5rem;">
+            <h2 style="font-size: 1.4rem; color: #a7f3d0;">🖥️ خوادم السرب النشطة (Active Swarm Nodes)</h2>
+            <button id="triggerBtn" class="btn-trigger">🚀 إطلاق مسح شامل فوراً (Trigger Swarm)</button>
+        </div>
+
+        <div class="node-grid" id="nodesContainer">
+            <!-- Dynamic Nodes -->
+        </div>
+
+        <div class="card">
+            <h2>⚡ تغذية الوظائف المجمعة لحظياً (Aggregated Live Feed)</h2>
+            <table class="job-table">
+                <thead>
+                    <tr>
+                        <th>المسمى الوظيفي</th>
+                        <th>الشركة</th>
+                        <th>الموقع</th>
+                        <th>المنصة</th>
+                        <th>الخادم الجمع</th>
+                        <th>التوقيت</th>
+                        <th>إجراء</th>
+                    </tr>
+                </thead>
+                <tbody id="jobFeedTable">
+                    <!-- Dynamic Feed -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function loadSwarmData() {
+            try {
+                // Fetch Nodes
+                const nodesRes = await fetch('/api/v1/scraping-swarm/nodes');
+                const nodes = await nodesRes.json();
+                
+                const nodesContainer = document.getElementById('nodesContainer');
+                nodesContainer.innerHTML = nodes.map(n => `
+                    <div class="node-card ${n.status}">
+                        <div class="node-header">
+                            <span class="node-title">${n.node_id}</span>
+                            <span class="badge badge-${n.status}">${n.status.toUpperCase()}</span>
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 0.85rem; margin-block-end: 0.5rem;">الموقع: ${n.region}</div>
+                        <div style="font-size: 0.9rem;">المنصات: <strong>${n.active_portals.join(', ')}</strong></div>
+                        <div style="font-size: 0.9rem; margin-block-start: 0.3rem;">الوظائف المجمعة (24h): <strong style="color: #34d399;">${n.jobs_scraped_24h}</strong></div>
+                    </div>
+                `).join('');
+
+                // Fetch Feed
+                const feedRes = await fetch('/api/v1/scraping-swarm/aggregated-feed');
+                const feed = await feedRes.json();
+
+                const jobFeedTable = document.getElementById('jobFeedTable');
+                jobFeedTable.innerHTML = feed.map(j => `
+                    <tr>
+                        <td><strong>${j.title}</strong></td>
+                        <td>${j.company}</td>
+                        <td>${j.location}</td>
+                        <td><span style="color: #22d3ee; font-weight: 700;">${j.portal}</span></td>
+                        <td><code style="color: #a7f3d0;">${j.scraped_by_node}</code></td>
+                        <td>${j.posted_ago}</td>
+                        <td><a href="${j.apply_url}" target="_blank" class="btn-action">تقديم</a></td>
+                    </tr>
+                `).join('');
+
+            } catch (err) {
+                console.error("Error loading swarm data:", err);
+            }
+        }
+
+        document.getElementById('triggerBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('triggerBtn');
+            btn.innerText = "جاري إطلاق السرب...";
+            btn.disabled = true;
+
+            try {
+                await fetch('/api/v1/scraping-swarm/trigger', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        keywords: ["Full Stack", "Python", "React", "AI"],
+                        locations: ["Remote", "Worldwide"],
+                        target_portals: ["LinkedIn", "Indeed", "Glassdoor", "WeWorkRemotely"]
+                    })
+                });
+                alert("تم إطلاق مسح السرب بنجاح عبر جميع الخوادم الموزعة!");
+                loadSwarmData();
+            } catch (err) {
+                alert("حدث خطأ أثناء الاتصال.");
+            } finally {
+                btn.innerText = "🚀 إطلاق مسح شامل فوراً (Trigger Swarm)";
+                btn.disabled = false;
+            }
+        });
+
+        loadSwarmData();
+    </script>
+</body>
+</html>

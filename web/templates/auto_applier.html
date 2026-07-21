@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b0f19;
+            --card-bg: rgba(21, 29, 46, 0.7);
+            --border-glow: rgba(59, 130, 246, 0.3);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent-green: #10b981;
+            --accent-gold: #f59e0b;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-block-size: 100vh;
+            padding-inline: 1.5rem;
+            padding-block: 2rem;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+        }
+
+        .container {
+            max-inline-size: 1200px;
+            margin-inline: auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-block-end: 2.5rem;
+            padding-block-end: 1.5rem;
+            border-block-end: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-inline: 1rem;
+            padding-block: 0.5rem;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent-green);
+            font-weight: 700;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glow);
+            border-radius: 1rem;
+            padding: 1.75rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-block-end: 1.25rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-block-end: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-block-end: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        input[type="text"], input[type="number"], select {
+            inline-size: 100%;
+            padding-inline: 1rem;
+            padding-block: 0.75rem;
+            border-radius: 0.5rem;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-block-end: 1.5rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+
+        .btn-primary {
+            inline-size: 100%;
+            padding-block: 0.85rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-block-end: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .metric-box {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .metric-number {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-block-start: 0.25rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            inline-size: 100%;
+            border-collapse: collapse;
+            text-align: inset-inline-start;
+        }
+
+        th, td {
+            padding-inline: 1rem;
+            padding-block: 0.85rem;
+            border-block-end: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding-inline: 0.6rem;
+            padding-block: 0.25rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+        .badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--accent-gold); }
+        .badge-info { background: rgba(59, 130, 246, 0.2); color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>⚡ المُقَدِّم التلقائي الخارق للوظائف</h1>
+                <p style="color: var(--text-muted); margin-block-start: 0.25rem;">Autonomous Multi-Platform Job Auto-Applier</p>
+            </div>
+            <div class="status-pill">
+                <span style="display:inline-block; inline-size:8px; block-size:8px; background:var(--accent-green); border-radius:50%;"></span>
+                المحرك نشط وجاهز
+            </div>
+        </header>
+
+        <div class="grid">
+            <!-- Form Configuration -->
+            <div class="card">
+                <h2 class="card-title">⚙️ إعدادات التقديم التلقائي</h2>
+                <form id="autoApplyForm" onsubmit="startSwarm(event)">
+                    <div class="form-group">
+                        <label>المسمى الوظيفي المستهدف</label>
+                        <input type="text" id="jobKeywords" value="Software Engineer, Python, Backend" required dir="auto">
+                    </div>
+
+                    <div class="form-group">
+                        <label>المواقع والدول المستهدفة</label>
+                        <input type="text" id="locations" value="Remote, Dubai, Riyadh, Beirut" required dir="auto">
+                    </div>
+
+                    <div class="form-group">
+                        <label>الحد الأقصى للطلبات اليومية</label>
+                        <input type="number" id="dailyLimit" value="25" min="1" max="200" required dir="auto">
+                    </div>
+
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked id="autoTailor" dir="auto">
+                            تكييف الـ CV تلقائياً لكل وظيفة (Auto-Tailor)
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked id="autoCover" dir="auto">
+                            توليد خطاب تغطية ذكي (Cover Letter)
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-primary">🚀 إطلاق سرب التقديم التلقائي</button>
+                </form>
+            </div>
+
+            <!-- Telemetry & Active Status -->
+            <div class="card">
+                <h2 class="card-title">📊 لوحة متابعة الطلبات الحية</h2>
+
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <div class="metric-number" id="metricApplied">38</div>
+                        <div class="metric-label">تم التقديم عليها</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-number" style="color: var(--accent-gold);" id="metricMatched">142</div>
+                        <div class="metric-label">وظائف متوافقة</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-number" style="color: var(--accent-green);" id="metricInterviews">4</div>
+                        <div class="metric-label">دعوات مقابلات</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-number" style="color: #60a5fa;" id="metricCVs">38</div>
+                        <div class="metric-label">CV مخصص مُنشأ</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الوظيفة والشركة</th>
+                                <th>المنصة</th>
+                                <th>نسبة التوافق</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicationsTable">
+                            <tr>
+                                <td>
+                                    <strong>Senior Python/FastAPI Engineer</strong><br>
+                                    <span style="font-size:0.85rem; color:var(--text-muted);">TechCorp MENA • Dubai (Remote)</span>
+                                </td>
+                                <td><span class="badge badge-info">LinkedIn</span></td>
+                                <td style="font-weight: 700; color: var(--accent-green);">96%</td>
+                                <td><span class="badge badge-success">دعوة مقابلة</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Lead Full-Stack Developer</strong><br>
+                                    <span style="font-size:0.85rem; color:var(--text-muted);">Gulf Innovations • Riyadh</span>
+                                </td>
+                                <td><span class="badge badge-info">Bayt</span></td>
+                                <td style="font-weight: 700; color: var(--accent-green);">92%</td>
+                                <td><span class="badge badge-warning">تم التقديم</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Backend AI Developer</strong><br>
+                                    <span style="font-size:0.85rem; color:var(--text-muted);">CloudScale • Amman</span>
+                                </td>
+                                <td><span class="badge badge-info">Tanqeeb</span></td>
+                                <td style="font-weight: 700; color: var(--accent-green);">95%</td>
+                                <td><span class="badge badge-info">تمت المشاهدة</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function startSwarm(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.textContent = '⏳ جاري تشغيل المحرك التلقائي...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/auto-applier/run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_keywords: document.getElementById('jobKeywords').value.split(',').map(s => s.trim()),
+                        target_locations: document.getElementById('locations').value.split(',').map(s => s.trim()),
+                        daily_limit: parseInt(document.getElementById('dailyLimit').value),
+                        auto_tailor_cv: document.getElementById('autoTailor').checked,
+                        auto_generate_cover_letter: document.getElementById('autoCover').checked
+                    })
+                });
+                const data = await res.json();
+                alert('✅ ' + data.message);
+            } catch (err) {
+                alert('⚠️ حدث خطأ في التواصل مع المحرك.');
+            } finally {
+                btn.textContent = '🚀 إطلاق سرب التقديم التلقائي';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

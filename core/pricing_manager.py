@@ -577,3 +577,38 @@ def get_pricing_json() -> dict[str, Any]:
         "data": get_all_pricing(),
         "total_tiers": len(PRICING_TIERS),
     }
+
+PPP_DISCOUNTS = {
+    "LB": 0.50,  # Lebanon: 50% PPP discount
+    "EG": 0.50,  # Egypt: 50% PPP discount
+    "IN": 0.40,  # India: 40% PPP discount
+    "PK": 0.40,  # Pakistan: 40% PPP discount
+    "PH": 0.40,  # Philippines: 40% PPP discount
+    "NG": 0.50,  # Nigeria: 50% PPP discount
+    "KE": 0.40,  # Kenya: 40% PPP discount
+}
+
+def get_ppp_adjusted_pricing(country_code: str = "US") -> dict[str, Any]:
+    """Calculate location-adjusted pricing based on country PPP multiplier."""
+    c_code = (country_code or "US").upper().strip()
+    discount_rate = PPP_DISCOUNTS.get(c_code, 0.0)
+    multiplier = 1.0 - discount_rate
+
+    adjusted_tiers = []
+    for tier in PRICING_TIERS:
+        adj_price = round(tier["price_usd"] * multiplier, 2)
+        adjusted_tiers.append({
+            **tier,
+            "ppp_country": c_code,
+            "ppp_discount_pct": int(discount_rate * 100),
+            "adjusted_price_usd": adj_price,
+            "button_text": f"Get {tier['name']} – ${adj_price}" if adj_price > 0 else tier["button_text"]
+        })
+
+    return {
+        "country": c_code,
+        "ppp_discount_applied": discount_rate > 0,
+        "discount_percentage": int(discount_rate * 100),
+        "tiers": adjusted_tiers,
+    }
+

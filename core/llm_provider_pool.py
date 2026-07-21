@@ -484,7 +484,9 @@ class ProviderInstance:
                             f"Groq rate limit exhausted (remaining=0). Reset in {reset_time}s."
                         )
                         if edge_cache.enabled:
-                            await edge_cache.set("groq_rate_limit_reset", str(reset_at), ex=int(reset_time) + 2)
+                            res = edge_cache.set("groq_rate_limit_reset", str(reset_at), ex=int(reset_time) + 2)
+                            if hasattr(res, "__await__"):
+                                await res
 
             if response.status_code == 429:
                 retry_after_sec = 5.0
@@ -507,7 +509,9 @@ class ProviderInstance:
                 if self.config.name == LLMProvider.GROQ:
                     reset_at = time.time() + retry_after_sec
                     if edge_cache.enabled:
-                        await edge_cache.set("groq_rate_limit_reset", str(reset_at), ex=int(retry_after_sec) + 2)
+                        res = edge_cache.set("groq_rate_limit_reset", str(reset_at), ex=int(retry_after_sec) + 2)
+                        if asyncio.iscoroutine(res) or hasattr(res, "__await__"):
+                            await res
 
                 # Temporarily add fake requests to trigger the rate limit wait logic for next calls
                 for _ in range(self.config.rate_limit_rpm):

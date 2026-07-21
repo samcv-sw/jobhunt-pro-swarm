@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero-Click Vision Auto-Apply & CAPTCHA Solver — JobHunt Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #090c10;
+            --card-bg: rgba(22, 27, 34, 0.8);
+            --gold: #f59e0b;
+            --green: #10b981;
+            --blue: #3b82f6;
+            --border: rgba(245, 158, 11, 0.2);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background: var(--bg-main); color: #c9d1d9; padding: 2rem; min-height: 100vh; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 2rem; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .form-group { display: flex; gap: 1rem; margin-top: 1rem; }
+        input[type="text"] { flex: 1; background: #0d1117; border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 0.8rem 1rem; border-radius: 8px; font-size: 0.95rem; }
+        .btn { background: var(--gold); color: #000; font-weight: 700; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; cursor: pointer; }
+        .log-box { background: #0d1117; font-family: monospace; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); height: 200px; overflow-y: auto; color: #a7f3d0; margin-top: 1rem; }
+        .portal-tag { display: inline-block; padding: 0.4rem 0.8rem; background: rgba(59, 130, 246, 0.15); color: var(--blue); border-radius: 6px; font-weight: 700; margin-inline-end: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 style="color: var(--gold);">👁️ Zero-Click Vision Auto-Apply</h1>
+                <p>محرّك التقديم البصري التلقائي وحلّ التحديات الأمنية (CAPTCHAs)</p>
+            </div>
+            <div>
+                <span class="portal-tag">Workday</span>
+                <span class="portal-tag">Greenhouse</span>
+                <span class="portal-tag">Lever</span>
+                <span class="portal-tag">Taleo</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>تنفيذ تقديم جديد برابط الوظيفة (Vision Solver Execution)</h3>
+            <div class="form-group">
+                <input type="text" id="jobUrl" placeholder="أدخل رابط الوظيفة (مثال: https://myworkdayjobs.com/careers/job/1234)" dir="auto">
+                <button class="btn" onclick="runVisionApply()">تنفيذ التقديم البصري 🚀</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>سجلّ التنفيذ البصري والـ CAPTCHA Resolution Log</h3>
+            <div class="log-box" id="executionLog">
+                [SYSTEM READY] Vision Auto-Apply Engine initialized.<br>
+                [READY] Waiting for target submission URL...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function runVisionApply() {
+            const url = document.getElementById('jobUrl').value || 'https://myworkdayjobs.com/demo-job';
+            const log = document.getElementById('executionLog');
+            log.innerHTML += `<br>[EXEC] Scanning visual elements for: ${url}...`;
+            
+            try {
+                const res = await fetch('/api/vision-auto-apply/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ job_url: url, platform: "workday" })
+                });
+                const data = await res.json();
+                log.innerHTML += `<br>[SUCCESS] Detected elements: ${data.detected_elements.join(', ')}`;
+                log.innerHTML += `<br>[SUCCESS] CAPTCHA Auto-Resolved: ${data.captcha_resolved}`;
+                log.innerHTML += `<br>[COMPLETED] Application Submitted in ${data.execution_time_ms}ms!`;
+            } catch (e) {
+                log.innerHTML += `<br>[ERROR] Failed to execute vision apply.`;
+            }
+        }
+    </script>
+</body>
+</html>

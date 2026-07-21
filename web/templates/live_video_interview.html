@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Live Video AI Interviewer — JobHunt Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #07090e;
+            --glass: rgba(15, 23, 42, 0.8);
+            --gold: #f59e0b;
+            --green: #10b981;
+            --blue: #3b82f6;
+            --red: #ef4444;
+            --border: rgba(245, 158, 11, 0.25);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-dark); color: #f3f4f6; min-height: 100vh; padding: 2rem; }
+        .wrapper { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+        .video-box { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; position: relative; overflow: hidden; }
+        .video-feed { width: 100%; height: 400px; background: #111827; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #6b7280; font-size: 1.2rem; }
+        .radar-panel { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; }
+        .metric-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+        .metric-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top: 0.4rem; }
+        .metric-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width 0.5s ease; }
+        .question-card { background: rgba(245, 158, 11, 0.1); border-inline-start: 4px solid var(--gold); padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+        .btn { background: var(--gold); color: #000; font-weight: 700; border: none; padding: 0.8rem 1.8rem; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="video-box">
+            <h2 style="color: var(--gold); margin-bottom: 1rem;">📹 Live AI Video Simulation</h2>
+            <div class="video-feed" id="videoFeed">
+                [كاميرا المحاكاة الحية نشطة - Real-Time Stream Simulator]
+            </div>
+            <div class="question-card">
+                <h4 style="color: var(--gold);">السؤال الحالي:</h4>
+                <p id="currentQuestion">Tell me about a complex architectural decision you made for a Senior Engineer role.</p>
+            </div>
+            <button class="btn" onclick="nextQuestion()">السؤال التالي ➔</button>
+        </div>
+
+        <div class="radar-panel">
+            <h3 style="color: var(--gold); margin-bottom: 1.5rem;">📊 تحليل الأداء الحي (Biometrics)</h3>
+            
+            <div class="metric-group">
+                <div class="metric-row">
+                    <span>نسبة الثقة (Confidence)</span>
+                    <strong style="color: var(--green);" id="confVal">92%</strong>
+                </div>
+                <div class="metric-bar"><div class="metric-fill" id="confFill" style="width: 92%;"></div></div>
+            </div>
+
+            <div class="metric-group" style="margin-top: 1rem;">
+                <div class="metric-row">
+                    <span>التواصل البصري (Eye Contact)</span>
+                    <strong style="color: var(--blue);" id="eyeVal">88%</strong>
+                </div>
+                <div class="metric-bar"><div class="metric-fill" id="eyeFill" style="width: 88%;"></div></div>
+            </div>
+
+            <div class="metric-group" style="margin-top: 1rem;">
+                <div class="metric-row">
+                    <span>سرعة الحديث (WPM)</span>
+                    <strong style="color: var(--gold);" id="wpmVal">135 WPM</strong>
+                </div>
+                <div class="metric-bar"><div class="metric-fill" id="wpmFill" style="width: 75%;"></div></div>
+            </div>
+
+            <div style="margin-top: 2rem; background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; border: 1px solid var(--green);">
+                <h5 style="color: var(--green);">💡 توجيهات المساعد الذكي الحية:</h5>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;" id="aiTip">نبرة الصوت ممتازة ومستوى الثقة مرتفع جداً.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            "Tell me about a complex architectural decision you made for a Senior Engineer role.",
+            "How do you resolve high-priority production regressions under strict deadlines?",
+            "Walk me through how you optimize database latency and distributed state sync."
+        ];
+        let qIdx = 0;
+
+        function nextQuestion() {
+            qIdx = (qIdx + 1) % questions.length;
+            document.getElementById('currentQuestion').innerText = questions[qIdx];
+            // Simulate dynamic biometric adjustment
+            const conf = Math.floor(85 + Math.random() * 12);
+            document.getElementById('confVal').innerText = conf + '%';
+            document.getElementById('confFill').style.width = conf + '%';
+        }
+    </script>
+</body>
+</html>

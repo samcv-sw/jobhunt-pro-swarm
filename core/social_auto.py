@@ -295,3 +295,53 @@ def get_stats() -> dict:
         "last_quora": _state.get("last_quora", ""),
         "last_tweet": _state.get("last_tweet", ""),
     }
+
+
+# ── Telegram Mini App & Multi-Channel AI Outreach ───────────────
+
+TELEGRAM_VIRAL_POST_TEMPLATES = [
+    """🚀 Want 10x more interviews? Try JobHunt Pro Telegram Mini App!
+
+🔥 Features:
+- ⚡ 1-Click AI ATS Resume Matcher (0-100% Score)
+- 📝 AI-Generated Tailored Cover Letters
+- 🤖 Automated Job Applications & Follow-ups
+- 🎟️ Golden Ticket Referral Rewards
+
+Try it now on Telegram: t.me/JobHuntProBot/app
+#JobHunt #TelegramMiniApp #AI #CareerGrowth""",
+    """💼 Land your dream remote job with AI automation!
+
+JobHunt Pro Telegram Mini App searches jobs, optimizes your CV, and applies for you 24/7.
+🎁 Claim your free trial ticket inside the app!
+
+Link: t.me/JobHuntProBot/app
+#JobSearch #RemoteJobs #Automation"""
+]
+
+def get_telegram_viral_post() -> str:
+    """Generate a Telegram Mini App promotional post."""
+    post = random.choice(TELEGRAM_VIRAL_POST_TEMPLATES)
+    try:
+        _state['telegram_viral_posts'] = _state.get('telegram_viral_posts', 0) + 1
+        _state['last_telegram_viral'] = datetime.utcnow().isoformat()
+        _save_state()
+    except Exception as e:
+        logger.warning(f"[social_auto] State update failed: {e}")
+    return post
+
+def generate_ai_outreach_pitch(candidate_name: str = "", target_role: str = "", experience_years: int = 3) -> str:
+    """Generate a personalized AI outreach pitch for candidate acquisition."""
+    c_name = candidate_name or "there"
+    t_role = target_role or "new career opportunities"
+    pitch = f"""Hi {c_name},
+
+Notice you are exploring {t_role}.
+
+JobHunt Pro automates your application funnel using 200+ autonomous AI agents that match your {experience_years}+ years of experience directly to recruiters' ATS filters.
+
+Start free at: t.me/JobHuntProBot/app or jobhuntpro.io
+
+Best regards,
+The JobHunt Pro Swarm"""
+    return pitch

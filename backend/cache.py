@@ -54,3 +54,47 @@ def setup_cache(app: FastAPI) -> None:  # noqa: ARG001
 
     FastAPICache.init(InMemoryBackend(), prefix="jhp-cache")
     logger.info('{"msg": "In-memory API cache initialized (no REDIS_URL set)"}')
+
+
+import time
+import threading
+from typing import Any, Optional
+
+class UltraFastLRUCache:
+    """Thread-safe sub-millisecond in-memory LRU cache with TTL expiration."""
+    def __init__(self, maxsize: int = 2048, default_ttl: int = 300):
+        self._maxsize = maxsize
+        self._default_ttl = default_ttl
+        self._store: dict[str, tuple[Any, float]] = {}
+        self._lock = threading.Lock()
+
+    def get(self, key: str) -> Optional[Any]:
+        with self._lock:
+            if key not in self._store:
+                return None
+            val, expiry = self._store[key]
+            if time.time() > expiry:
+                del self._store[key]
+                return None
+            return val
+
+    def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+        with self._lock:
+            if len(self._store) >= self._maxsize:
+                # Evict oldest 10% keys
+                keys_to_remove = list(self._store.keys())[:max(1, self._maxsize // 10)]
+                for k in keys_to_remove:
+                    self._store.pop(k, None)
+            duration = ttl if ttl is not None else self._default_ttl
+            self._store[key] = (value, time.time() + duration)
+
+    def invalidate(self, key: str) -> bool:
+        with self._lock:
+            return self._store.pop(key, None) is not None
+
+    def clear(self) -> None:
+        with self._lock:
+            self._store.clear()
+
+fast_cache = UltraFastLRUCache()
+

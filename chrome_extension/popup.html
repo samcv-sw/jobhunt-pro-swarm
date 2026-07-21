@@ -1,84 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>JobHunt Pro</title>
-    <style>
-        body {
-            width: 350px;
-            padding: 15px;
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: #0f172a;
-            color: #e2e8f0;
-            margin: 0;
-        }
-        h2 {
-            margin-top: 0;
-            font-size: 1.2rem;
-            color: #38bdf8;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 10px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-            color: #94a3b8;
-        }
-        textarea, input {
-            width: 100%;
-            box-sizing: border-box;
-            background: #1e293b;
-            border: 1px solid #334155;
-            color: #f8fafc;
-            padding: 8px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-family: inherit;
-        }
-        textarea {
-            height: 120px;
-            resize: vertical;
-        }
-        button {
-            width: 100%;
-            background: #0ea5e9;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        button:hover {
-            background: #0284c7;
-        }
-        .status {
-            margin-top: 10px;
-            font-size: 0.85rem;
-            color: #10b981;
-            display: none;
-            text-align: center;
-        }
-    </style>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 320px;
+      margin: 0;
+      padding: 16px;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+    }
+    h2 {
+      margin: 0 0 12px 0;
+      font-size: 18px;
+      background: linear-gradient(135deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.2);
+      color: #818cf8;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      color: white;
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  </style>
 </head>
 <body>
-    <h2>JobHunt Pro - Shadow Scraper</h2>
-    
-    <label for="apiKey">Your API Key (Backend)</label>
-    <input dir="auto" type="password" id="apiKey" placeholder="secret-key">
-
-    <label for="profession">Target Profession</label>
-    <input dir="auto" type="text" id="profession" placeholder="e.g., Senior Frontend Engineer">
-
-    <label for="baseCv">Base CV Content</label>
-    <textarea dir="auto" id="baseCv" placeholder="Paste your full resume text here..."></textarea>
-
-    <button id="saveBtn">Save Settings</button>
-    <br><br>
-    <button id="scrapeBtn" style="background:#10b981;">⚡ Scrape Current Job</button>
-    <div id="status" class="status">Settings Saved Successfully!</div>
-
-    <script src="popup.js"></script>
+  <h2>⚡ JobHunt Pro Sidecar</h2>
+  <div class="badge">Status: Autonomous Swarm Active</div>
+  <button class="btn" id="btn-apply">✨ Instant 1-Click AI Apply</button>
+  <button class="btn btn-secondary" id="btn-tailor">📄 Tailor Resume for ATS</button>
+  <button class="btn btn-secondary" id="btn-negotiate">💼 AI Salary Negotiator</button>
+  <script src="popup.js"></script>
 </body>
 </html>

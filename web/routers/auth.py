@@ -414,10 +414,13 @@ async def linkedin_callback(request: Request, code: str = "", state: str = ""):
         else:
             user_id = f"user_{uuid.uuid4().hex[:16]}"
             api_key = _gen_api_key()
+            max_id_row = conn.execute("SELECT COALESCE(MAX(id), 0) + 1 FROM users").fetchone()
+            next_id = max_id_row[0] if max_id_row else 1
             conn.execute(
-                "INSERT INTO users (user_id, email, password_hash, name, phone, user_type, api_key, oauth_provider) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO users (id, user_id, email, password_hash, name, phone, user_type, api_key, oauth_provider) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
+                    next_id,
                     user_id,
                     email,
                     _hash_pw("OauthPasswordSecure123!"),
@@ -547,9 +550,10 @@ async def google_callback(request: Request, code: str = "", state: str = ""):
             user_id = f"user_{uuid.uuid4().hex[:16]}"
             api_key = _gen_api_key()
             conn.execute(
-                "INSERT INTO users (user_id, email, password_hash, name, phone, user_type, api_key, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO users (id, user_id, email, password_hash, name, phone, user_type, api_key, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
+                    user_id,
                     user_id,
                     email,
                     _hash_pw("OauthPasswordSecure123!"),
@@ -681,9 +685,10 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
             user_id = f"user_{uuid.uuid4().hex[:16]}"
             api_key = _gen_api_key()
             conn.execute(
-                "INSERT INTO users (user_id, email, password_hash, name, phone, user_type, api_key, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO users (id, user_id, email, password_hash, name, phone, user_type, api_key, oauth_provider, oauth_access_token, oauth_refresh_token, oauth_expires_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
+                    user_id,
                     user_id,
                     email,
                     _hash_pw("OauthPasswordSecure123!"),

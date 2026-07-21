@@ -6,7 +6,6 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 from web.shared import get_db, get_verified_user_id, templates, config
-from web.app_v2 import _build_dashboard_shell, render_template
 from core.pg_sqlite_shim import connect
 from core.swarm_leads import trigger_outreach_for_leads
 
@@ -86,6 +85,7 @@ def growth_station_page(request: Request):
     )
     
     # Wrap in dashboard shell
+    from web.app_v2 import _build_dashboard_shell
     return HTMLResponse(
         _build_dashboard_shell(
             user, 

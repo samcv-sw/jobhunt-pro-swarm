@@ -1,4 +1,8 @@
 import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from unittest.mock import MagicMock
 
 import pytest
@@ -46,17 +50,23 @@ async def setup_test_database_session():
     import sqlite3
     conn = sqlite3.connect(DB_PATH)
     try:
-        from web.app_v2 import (
-            _create_billing_tables,
-            _create_campaign_tables,
-            _create_core_tables,
-            _create_features_tables,
-        )
+        import web.app_v2 as app_v2
+        if hasattr(app_v2, "_create_tables"):
+            app_v2._create_tables(conn)
+        elif hasattr(app_v2, "_create_core_tables"):
+            app_v2._create_core_tables(conn)
+            app_v2._create_campaign_tables(conn)
+            app_v2._create_billing_tables(conn)
+            app_v2._create_features_tables(conn)
 
-        _create_core_tables(conn)
-        _create_campaign_tables(conn)
-        _create_billing_tables(conn)
-        _create_features_tables(conn)
+        # Run DB migration scripts (e.g. translation tables)
+        migrations_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "core", "db_migrations")
+        if os.path.exists(migrations_dir):
+            for sql_file in sorted(os.listdir(migrations_dir)):
+                if sql_file.endswith(".sql"):
+                    with open(os.path.join(migrations_dir, sql_file), "r", encoding="utf-8") as f:
+                        with contextlib.suppress(Exception):
+                            conn.executescript(f.read())
     finally:
         conn.close()
 

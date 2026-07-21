@@ -39,24 +39,26 @@ class ViralFactory:
             "--write-media",
             audio_path,
         ]
-        process = await asyncio.create_subprocess_exec(
-            *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-        )
-        await process.communicate()
-        return audio_path if process.returncode == 0 else ""
+        try:
+            process = await asyncio.create_subprocess_exec(
+                *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+            )
+            await process.communicate()
+            return audio_path if process.returncode == 0 else ""
+        except Exception as e:
+            logger.warning(f"[VIRAL FACTORY] edge-tts binary execution fallback: {e}")
+            return ""
 
     async def _generate_video(self, audio_path: str, filename: str) -> str:
         """Uses FFmpeg to attach a viral waveform and background to the audio."""
         video_path = os.path.join(self.output_dir, f"{filename}.mp4")
-
-        # We generate a vertical 1080x1920 video for TikTok/Shorts
         cmd = [
             "ffmpeg",
             "-y",
             "-f",
             "lavfi",
             "-i",
-            "color=c=black:s=1080x1920:d=1",  # Vertical black background
+            "color=c=black:s=1080x1920:d=1",
             "-i",
             audio_path,
             "-filter_complex",
@@ -78,12 +80,16 @@ class ViralFactory:
             "-shortest",
             video_path,
         ]
+        try:
+            process = await asyncio.create_subprocess_exec(
+                *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+            )
+            await process.communicate()
+            return video_path if process.returncode == 0 else ""
+        except Exception as e:
+            logger.warning(f"[VIRAL FACTORY] ffmpeg execution fallback: {e}")
+            return ""
 
-        process = await asyncio.create_subprocess_exec(
-            *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-        )
-        await process.communicate()
-        return video_path if process.returncode == 0 else ""
 
     async def create_viral_video(self, script_text: str = None) -> dict:
         """Generates a complete MP4 viral video from text."""

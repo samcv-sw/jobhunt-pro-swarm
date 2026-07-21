@@ -2,11 +2,10 @@
 JobHunt Pro — Stealth Job Discovery & Unlisted Career Page Scraper
 Finds unlisted job openings directly on company career portals before public posting.
 """
-
 import datetime
-
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
+from services.stealth_proxy_scraper_v3 import stealth_proxy_scraper_v3
 
 router = APIRouter(prefix="/api/v1/stealth", tags=["Stealth Job Scraper"])
 
@@ -45,3 +44,12 @@ async def discover_unlisted_jobs(
             match_score=93.0
         )
     ]
+
+@router.get("/scrape-proxy-network")
+async def scrape_proxy_network(target_url: str = "https://linkedin.com/jobs", query: str = "Software Engineer"):
+    return stealth_proxy_scraper_v3.scrape_target(target_url, query)
+
+@router.get("/headers")
+async def get_stealth_headers():
+    return stealth_proxy_scraper_v3.get_stealth_headers()
+

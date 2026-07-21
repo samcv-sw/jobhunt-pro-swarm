@@ -1,0 +1,65 @@
+/* JobHunt Pro — Luxury Glassmorphism & RTL UI Styling */
+
+:root {
+    --bg-glass-card: rgba(18, 24, 38, 0.75);
+    --border-glass: rgba(255, 215, 0, 0.18);
+    --gold-glow: rgba(255, 215, 0, 0.35);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-gold: #fbbf24;
+    --accent-emerald: #10b981;
+    --font-arabic: 'Cairo', 'Tajawal', 'IBM Plex Arabic', sans-serif;
+}
+
+body {
+    font-family: var(--font-arabic);
+    line-height: 1.8;
+}
+
+.glass-card-empire {
+    background: var(--bg-glass-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    padding-inline-start: 1.5rem;
+    padding-inline-end: 1.5rem;
+    padding-block-start: 1.25rem;
+    padding-block-end: 1.25rem;
+    transition: all 0.3s ease-in-out;
+}
+
+.glass-card-empire:hover {
+    border-color: var(--gold-glow);
+    box-shadow: 0 12px 40px 0 var(--gold-glow);
+    transform: translateY(-2px);
+}
+
+.live-activity-stream {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(15, 23, 42, 0.85);
+    border-inline-start: 4px solid var(--accent-gold);
+    border-radius: 8px;
+    padding-inline-start: 1rem;
+    padding-inline-end: 1rem;
+    padding-block-start: 0.75rem;
+    padding-block-end: 0.75rem;
+    margin-block-end: 1.5rem;
+    animation: pulse-border 2s infinite alternate;
+}
+
+.activity-badge-live {
+    inline-size: 10px;
+    block-size: 10px;
+    background-color: var(--accent-emerald);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent-emerald);
+}
+
+@keyframes pulse-border {
+    0% { border-color: var(--accent-gold); }
+    100% { border-color: var(--accent-emerald); }
+}

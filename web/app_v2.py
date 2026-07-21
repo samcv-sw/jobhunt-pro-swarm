@@ -692,6 +692,8 @@ async def add_security_and_performance_headers(request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
     response.headers["X-FastAPI-Performance-Boost"] = "ACTIVE-1000X"
     if request.url.path.startswith("/static/"):
         response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
@@ -710,6 +712,30 @@ def serve_manifest():
 @app.get("/offline.html", include_in_schema=False)
 def serve_offline():
     return FileResponse("web/static/offline.html", media_type="text/html")
+
+# --- PHASE 11 HYPER-OPTIMIZATION API ENDPOINTS ---
+from services.fast_vector_matcher import FastVectorMatcher
+from services.ai_interview_simulator import AIInterviewSimulator
+
+@app.post("/api/v2/fast-vector-match")
+async def api_fast_vector_match(payload: dict):
+    resume_text = payload.get("resume_text", "")
+    job_text = payload.get("job_text", "")
+    return FastVectorMatcher.analyze_fit(resume_text, job_text)
+
+@app.post("/api/v2/ai-interview/generate")
+async def api_ai_interview_generate(payload: dict):
+    job_title = payload.get("job_title", "Software Engineer")
+    num_q = payload.get("num_questions", 3)
+    return {"questions": AIInterviewSimulator.generate_interview_session(job_title, num_q)}
+
+@app.post("/api/v2/ai-interview/evaluate")
+async def api_ai_interview_evaluate(payload: dict):
+    q_id = payload.get("question_id", "gen_1")
+    answer = payload.get("candidate_answer", "")
+    concepts = payload.get("key_concepts", None)
+    return AIInterviewSimulator.evaluate_response(q_id, answer, concepts)
+
 
 # --- INJECT CLEAN ARCHITECTURE ROUTERS DYNAMICALLY FIRST ---
 import importlib
@@ -851,7 +877,7 @@ class _EdgeCacheRateLimitMiddleware:
         if scope["type"] != "http":
             await self.app(scope, receive, send); return
         path = scope.get("path", "")
-        if path == "/ping" or not edge_cache.enabled or self._load_test_mode:
+        if path == "/ping" or not getattr(edge_cache, "enabled", True) or self._load_test_mode:
             await self.app(scope, receive, send); return
         client = scope.get("client")
         ip = client[0] if client else "unknown"
@@ -911,10 +937,69 @@ try:
     from web.routers.interview_router import router as interview_router
     from web.routers.extension_router import router as extension_router
     from web.routers.monetization_router import router as monetization_router
+    from web.routers.websocket_router import router as websocket_router
+    from backend.routers.ai_mock_interview import router as ai_mock_interview_router
+    from backend.routers.job_radar import router as job_radar_router
+    from web.routers.auto_applier import router as auto_applier_router
+    from web.routers.voice_interview import router as voice_interview_router
+    from web.routers.acquisition_bot import router as acquisition_bot_router
+    from web.routers.portfolio import router as portfolio_router
+    from web.routers.analytics_radar import router as analytics_radar_router
+    from web.routers.ats_optimizer import router as ats_optimizer_router
+    from web.routers.tenants import router as tenants_router
+    from core.cloud_failover import router as cloud_failover_router
+
+    from web.routers.omni_ultra_router import omni_router
+    from web.routers.emperor_dashboard import router as emperor_dashboard_router
+    from web.routers.swarm_router import router as swarm_router
+    from web.routers.ats_builder_v2 import router as ats_builder_v2_router
+    from web.routers.viral_acquisition import router as viral_acquisition_router
+    from web.routers.ats_analyzer import router as ats_analyzer_router
+    from web.routers.live_swarm import router as live_swarm_router
+    from web.routers.live_copilot import router as live_copilot_router
+    from web.routers.salary_negotiator_api import router as salary_negotiator_api_router
+    from web.routers.resume_debate_api import router as resume_debate_api_router
+    from web.routers.outreach_media import router as outreach_media_router
+    from web.routers.micro_saas_api import router as micro_saas_api_router
+    from backend.routers.client_acquisition_swarm import router as client_acquisition_swarm_router
+    from web.routers.live_interview_hub import router as live_interview_hub_router
+    from web.routers.enterprise_b2b_suite import router as enterprise_b2b_suite_router
+    from backend.routers.god_mode_health import router as god_mode_health_router
+    from backend.routers.ats_resume_sculptor import router as ats_sculptor_router
+
     app.include_router(interview_router)
     app.include_router(extension_router)
     app.include_router(monetization_router)
-    logger.info("[Enterprise] Interview, Extension Sync, and Monetization routers registered successfully.")
+    app.include_router(websocket_router)
+    app.include_router(ai_mock_interview_router)
+    app.include_router(job_radar_router)
+    app.include_router(auto_applier_router)
+    app.include_router(voice_interview_router)
+    app.include_router(acquisition_bot_router)
+    app.include_router(portfolio_router)
+    app.include_router(analytics_radar_router)
+    app.include_router(ats_optimizer_router)
+    app.include_router(tenants_router)
+    app.include_router(cloud_failover_router)
+    app.include_router(omni_router)
+    app.include_router(emperor_dashboard_router)
+    app.include_router(swarm_router)
+    app.include_router(ats_builder_v2_router)
+    app.include_router(viral_acquisition_router)
+    app.include_router(ats_analyzer_router)
+    app.include_router(live_swarm_router)
+    app.include_router(live_copilot_router)
+    app.include_router(salary_negotiator_api_router)
+    app.include_router(resume_debate_api_router)
+    app.include_router(outreach_media_router)
+    app.include_router(micro_saas_api_router)
+    app.include_router(client_acquisition_swarm_router)
+    app.include_router(live_interview_hub_router)
+    app.include_router(enterprise_b2b_suite_router)
+    app.include_router(god_mode_health_router)
+    app.include_router(ats_sculptor_router)
+    logger.info("[Enterprise] All Autonomous SaaS & Ultra-Tier routers registered successfully.")
+
 except Exception as e:
     logger.warning(f"[Enterprise] Enterprise routers registration warning: {e}")
 # -----------------------------------------
@@ -3828,8 +3913,103 @@ async def smtp_connect(request: Request):
     except Exception as e:
         return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
 
+def _get_dashboard_pipeline_data(conn, user_id):
+    """Retrieve pipeline emails and category counts for the user dashboard."""
+    pipeline_emails = [dict(r) for r in conn.execute('''SELECT ce.id, ce.company_name, ce.job_title,
+        ce.pipeline_stage, ce.status, ce.sent_at, ce.opened_at, ce.responded_at
+        FROM campaign_emails ce
+        JOIN campaigns c ON ce.campaign_id = c.campaign_id
+        WHERE c.user_id = ?
+        ORDER BY ce.sent_at DESC
+        LIMIT 30''', (user_id,)).fetchall()]
+
+    pipeline_counts = {s: 0 for s in ["discovered", "applied", "followed_up", "interview", "offer"]}
+    for row in conn.execute('''SELECT COALESCE(ce.pipeline_stage, 'discovered') as stage, COUNT(*) as cnt
+        FROM campaign_emails ce
+        JOIN campaigns c ON ce.campaign_id = c.campaign_id
+        WHERE c.user_id = ?
+        GROUP BY COALESCE(ce.pipeline_stage, 'discovered')''', (user_id,)).fetchall():
+        pipeline_counts[row["stage"]] = row["cnt"]
+    return pipeline_emails, pipeline_counts
+
+def _process_dashboard_login_streak(conn, user, user_id):
+    """Process user daily login streaks and associated rewards."""
+    today = datetime.now().strftime("%Y-%m-%d")
+    login_streak = 0
+    streak_reward = 0
+    last_login_date = user.get("last_login", "")
+
+    try:
+        already_logged_today = conn.execute(
+            "SELECT id FROM daily_logins WHERE user_id = ? AND login_date = ?",
+            (user_id, today)
+        ).fetchone()
+    except Exception:
+        already_logged_today = None
+
+    milestone_rewards = {3: 0.50, 5: 1.00, 7: 2.00, 14: 5.00, 21: 10.00, 30: 25.00}
+
+    if not already_logged_today:
+        if last_login_date:
+            yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+            if last_login_date[:10] == yesterday:
+                login_streak = (user.get("login_streak", 0) or 0) + 1
+            elif last_login_date[:10] == today:
+                login_streak = user.get("login_streak", 0) or 0
+            else:
+                login_streak = 1
+        else:
+            login_streak = 1
+
+        if login_streak in milestone_rewards:
+            streak_reward = milestone_rewards[login_streak]
+            new_balance = user["wallet_balance"] + streak_reward
+            conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
+            conn.execute(
+                "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?,?,?,?,?)",
+                (user_id, "streak_reward", streak_reward, new_balance, f"Login streak {login_streak} days — ${streak_reward:.2f} bonus!")
+            )
+            user["wallet_balance"] = new_balance
+
+        conn.execute(
+            "INSERT OR IGNORE INTO daily_logins (user_id, login_date, streak_days, reward_amount) VALUES (?, ?, ?, ?)",
+            (user_id, today, login_streak, streak_reward)
+        )
+        conn.execute("UPDATE users SET login_streak = ?, last_login = ? WHERE user_id = ?",
+                     (login_streak, datetime.now().isoformat(), user_id))
+    else:
+        login_streak = user.get("login_streak", 0) or 0
+
+    all_milestones = sorted([3, 5, 7, 14, 21, 30])
+    next_milestone = None
+    days_to_next = 0
+    for ms in all_milestones:
+        if login_streak < ms:
+            next_milestone = ms
+            days_to_next = ms - login_streak
+            break
+    next_reward = milestone_rewards.get(next_milestone, 0) if next_milestone else 0
+    return login_streak, streak_reward, next_milestone, days_to_next, next_reward
+
+def _get_dashboard_additional_data(conn):
+    """Retrieve flash sales and recent purchases social proof data."""
+    now_iso = datetime.now().isoformat()
+    active_flash_sales = [dict(r) for r in conn.execute(
+        "SELECT * FROM flash_sales WHERE active = 1 AND start_time <= ? AND end_time > ? ORDER BY end_time ASC",
+        (now_iso, now_iso)
+    ).fetchall()]
+
+    recent_purchases = [dict(r) for r in conn.execute(
+        """SELECT o.amount_usd, o.package_name, o.created_at, u.name
+           FROM orders o JOIN users u ON o.user_id = u.user_id
+           WHERE o.payment_status = 'completed'
+           ORDER BY o.created_at DESC LIMIT 5"""
+    ).fetchall()]
+    return active_flash_sales, recent_purchases
+
 @app.get('/user-dashboard')
 def user_dashboard(request: Request):
+    """Render the candidate/user analytics dashboard with metrics and campaigns."""
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
@@ -3837,11 +4017,9 @@ def user_dashboard(request: Request):
     with get_db() as conn:
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         if not user_row:
-            pass  # conn.close()
             return RedirectResponse("/login", status_code=303)
         user = dict(user_row)
 
-        # Auto-Trigger Cloud Tick for Sam Salameh on dashboard load (2-minute cooldown)
         if user.get("user_type") == "admin" or user.get("email") in ("samsalameh.cv@gmail.com", "samatou683@gmail.com"):
             global _deploy_cooldown
             last_tick = _deploy_cooldown.get("last_dashboard_tick", 0)
@@ -3873,6 +4051,7 @@ def user_dashboard(request: Request):
                     logger.info("[UserDashboard] Auto-triggered campaign tick in background via dashboard load.")
                 except Exception as e:
                     logger.error(f"[UserDashboard] Failed to auto-trigger tick: {e}")
+
         profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchall()]
         campaigns = [dict(r) for r in conn.execute("""
             SELECT c.*, COUNT(ce.id) as total_emails,
@@ -3890,24 +4069,8 @@ def user_dashboard(request: Request):
 
         referrals = conn.execute("SELECT COUNT(*) FROM referrals WHERE referrer_id = ?", (user_id,)).fetchone()[0]
 
-        # Pipeline data for dashboard
-        pipeline_emails = [dict(r) for r in conn.execute('''SELECT ce.id, ce.company_name, ce.job_title,
-            ce.pipeline_stage, ce.status, ce.sent_at, ce.opened_at, ce.responded_at
-            FROM campaign_emails ce
-            JOIN campaigns c ON ce.campaign_id = c.campaign_id
-            WHERE c.user_id = ?
-            ORDER BY ce.sent_at DESC
-            LIMIT 30''', (user_id,)).fetchall()]
+        pipeline_emails, pipeline_counts = _get_dashboard_pipeline_data(conn, user_id)
 
-        pipeline_counts = {s: 0 for s in ["discovered", "applied", "followed_up", "interview", "offer"]}
-        for row in conn.execute('''SELECT COALESCE(ce.pipeline_stage, 'discovered') as stage, COUNT(*) as cnt
-            FROM campaign_emails ce
-            JOIN campaigns c ON ce.campaign_id = c.campaign_id
-            WHERE c.user_id = ?
-            GROUP BY COALESCE(ce.pipeline_stage, 'discovered')''', (user_id,)).fetchall():
-            pipeline_counts[row["stage"]] = row["cnt"]
-
-        # User's manual emails (may fail if table/column missing on PA)
         try:
             manual_emails_user = [dict(r) for r in conn.execute(
                 "SELECT to_email, subject, price_usd, status, created_at FROM manual_emails WHERE user_id = ? ORDER BY created_at DESC LIMIT 10",
@@ -3916,97 +4079,15 @@ def user_dashboard(request: Request):
         except Exception:
             manual_emails_user = []
 
-        # â&#x201D;€â&#x201D;€ Login Streak Logic (safe &#x2014; daily_logins table may not exist) â&#x201D;€â&#x201D;€â&#x201D;€
-        today = datetime.now().strftime("%Y-%m-%d")
-        login_streak = 0
-        streak_reward = 0
-        last_login_date = user.get("last_login", "")
-        already_logged_today = None
+        login_streak, streak_reward, next_milestone, days_to_next, next_reward = _process_dashboard_login_streak(conn, user, user_id)
+        active_flash_sales, recent_purchases = _get_dashboard_additional_data(conn)
 
-        # Check if already logged in today
-        try:
-            already_logged_today = conn.execute(
-                "SELECT id FROM daily_logins WHERE user_id = ? AND login_date = ?",
-                (user_id, today)
-            ).fetchone()
-        except Exception:
-            already_logged_today = None
-
-        # Reward milestones &#x2014; defined here so it's accessible outside the if block
-        milestone_rewards = {3: 0.50, 5: 1.00, 7: 2.00, 14: 5.00, 21: 10.00, 30: 25.00}
-
-        if not already_logged_today:
-            # Calculate new streak
-            if last_login_date:
-                yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
-                if last_login_date[:10] == yesterday:
-                    # Consecutive: increment streak
-                    login_streak = (user.get("login_streak", 0) or 0) + 1
-                elif last_login_date[:10] == today:
-                    # Already logged in today
-                    login_streak = user.get("login_streak", 0) or 0
-                else:
-                    # Gap: reset streak
-                    login_streak = 1
-            else:
-                login_streak = 1
-
-            # Reward milestones (default 0 for non-milestone days)
-            streak_reward = 0
-            if login_streak in milestone_rewards:
-                streak_reward = milestone_rewards[login_streak]
-                new_balance = user["wallet_balance"] + streak_reward
-                conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
-                conn.execute(
-                    "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?,?,?,?,?)",
-                    (user_id, "streak_reward", streak_reward, new_balance, f"Login streak {login_streak} days &#x2014; ${streak_reward:.2f} bonus!")
-                )
-                user["wallet_balance"] = new_balance
-
-            # Record daily login
-            conn.execute(
-                "INSERT OR IGNORE INTO daily_logins (user_id, login_date, streak_days, reward_amount) VALUES (?, ?, ?, ?)",
-                (user_id, today, login_streak, streak_reward)
-            )
-            conn.execute("UPDATE users SET login_streak = ?, last_login = ? WHERE user_id = ?",
-                         (login_streak, datetime.now().isoformat(), user_id))
-        else:
-            login_streak = user.get("login_streak", 0) or 0
-
-        # Next milestone info
-        all_milestones = sorted([3, 5, 7, 14, 21, 30])
-        next_milestone = None
-        days_to_next = 0
-        for ms in all_milestones:
-            if login_streak < ms:
-                next_milestone = ms
-                days_to_next = ms - login_streak
-                break
-        next_reward = milestone_rewards.get(next_milestone, 0) if next_milestone else 0
-
-        # â&#x201D;€â&#x201D;€ Active Flash Sales â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
-        now_iso = datetime.now().isoformat()
-        active_flash_sales = [dict(r) for r in conn.execute(
-            "SELECT * FROM flash_sales WHERE active = 1 AND start_time <= ? AND end_time > ? ORDER BY end_time ASC",
-            (now_iso, now_iso)
-        ).fetchall()]
-
-        # â&#x201D;€â&#x201D;€ Social Proof: recent purchases (last 5) â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
-        recent_purchases = [dict(r) for r in conn.execute(
-            """SELECT o.amount_usd, o.package_name, o.created_at, u.name
-               FROM orders o JOIN users u ON o.user_id = u.user_id
-               WHERE o.payment_status = 'completed'
-               ORDER BY o.created_at DESC LIMIT 5"""
-        ).fetchall()]
-
-        # â&#x201D;€â&#x201D;€ Dashboard Stats â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€â&#x201D;€
         total_sent = sum(c.get('sent', 0) or 0 for c in campaigns)
         total_opened = sum(c.get('opened', 0) or 0 for c in campaigns)
         responses = sum(1 for e in pipeline_emails if e.get('responded_at'))
         interviews = sum(1 for e in pipeline_emails if e.get('pipeline_stage') == 'interview')
         open_rate = round((total_opened / total_sent * 100) if total_sent > 0 else 0)
         response_rate = round((responses / total_sent * 100) if total_sent > 0 else 0)
-        # Deliverability: estimate based on open rate (floor 60, max 99)
         deliverability_score = max(60, min(99, 60 + open_rate)) if total_sent > 0 else 95
 
         total_pipeline = sum(pipeline_counts.values())
@@ -4033,8 +4114,6 @@ def user_dashboard(request: Request):
             'interview_percent': interview_pct,
             'offer_percent': offer_pct,
         }
-
-        pass  # conn.close()
 
         referral_link = f"{config.SITE_URL}/register?ref={user_id}"
         content = render_template("dashboard_v3.html", request=request, active_page="dashboard", user=user, profiles=profiles, profile_count=len(profiles), campaigns=campaigns, campaign_count=len(campaigns), transactions=transactions, referrals=referrals, referral_link=referral_link, pipeline_emails=pipeline_emails, pipeline_counts=pipeline_counts, manual_emails_user=manual_emails_user, login_streak=login_streak, streak_reward=streak_reward, next_milestone=next_milestone, days_to_next=days_to_next, next_reward=next_reward, flash_sales=active_flash_sales, recent_purchases=recent_purchases, stats=stats, candidates=[])
@@ -5433,11 +5512,49 @@ def email_test_send(request: Request, background_tasks: BackgroundTasks, to_emai
         return RedirectResponse(f"/email-test?success=Email+queued+for+delivery+to+{quote(to_email)}!+Check+your+inbox+shortly.&to_email={quote(to_email)}&company_name={quote(company_name)}&job_title={quote(job_title)}", status_code=303)
 
 @app.post("/email-test/parse-cv")
+def _parse_cv_file_to_text(raw: bytes, filename: str) -> str:
+    """Helper to parse raw file bytes of CV (PDF/DOCX/TXT) to plain text."""
+    from pathlib import Path
+    import io
+    ext = Path(filename).suffix.lower()
+    cv_content = ""
+    if ext == '.pdf':
+        cv_text_parts = []
+        try:
+            import fitz
+            doc = fitz.open(stream=raw, filetype="pdf")
+            cv_text_parts = [page.get_text() for page in doc]
+            doc.close()
+        except ImportError:
+            pass
+        if not cv_text_parts:
+            try:
+                from pypdf import PdfReader
+                reader = PdfReader(io.BytesIO(raw))
+                cv_text_parts = [page.extract_text() or '' for page in reader.pages]
+            except ImportError:
+                try:
+                    from PyPDF2 import PdfReader
+                    reader = PdfReader(io.BytesIO(raw))
+                    cv_text_parts = [page.extract_text() or '' for page in reader.pages]
+                except ImportError:
+                    raise Exception("PDF parser unavailable (install PyMuPDF or PyPDF2)")
+        cv_content = "\n".join(cv_text_parts)
+    elif ext in ('.docx', '.doc'):
+        try:
+            import docx as pdocx
+            doc = pdocx.Document(io.BytesIO(raw))
+            cv_content = "\n".join(p.text for p in doc.paragraphs)
+        except ImportError:
+            raise Exception("DOCX parser unavailable")
+    else:
+        cv_content = raw.decode('utf-8', errors='ignore')
+    return cv_content
+
 async def email_test_parse_cv(request: Request, cv_file: UploadFile = File(...)):
     """Parse CV for Email Test page — returns cv_text, cover_letter, email_body, job_title, company_name."""
     if not cv_file.filename:
         return JSONResponse({"error": "No file uploaded"}, status_code=400)
-    # Resolve groq_key at the top of the function so all sub-calls can use it
     all_keys = [k for k in GROQ_KEYS if k]
     if not all_keys:
         return JSONResponse({"error": "GROQ_API_KEY not configured"}, status_code=503)
@@ -5448,53 +5565,16 @@ async def email_test_parse_cv(request: Request, cv_file: UploadFile = File(...))
         if not is_valid:
             return JSONResponse({"error": error_msg}, status_code=400)
 
-        ext = Path(cv_file.filename).suffix.lower()
-        cv_content = ""
-        if ext == '.pdf':
-            cv_text_parts = []
-            # Try PyMuPDF first, fall back to PyPDF2/pikepdf
-            try:
-                import fitz
-                doc = fitz.open(stream=raw, filetype="pdf")
-                cv_text_parts = [page.get_text() for page in doc]
-                doc.close()
-            except ImportError:
-                pass
-            if not cv_text_parts:
-                try:
-                    from pypdf import PdfReader
-                    reader = PdfReader(io.BytesIO(raw))
-                    cv_text_parts = [page.extract_text() or '' for page in reader.pages]
-                except ImportError:
-                    try:
-                        from PyPDF2 import PdfReader
-                        reader = PdfReader(io.BytesIO(raw))
-                        cv_text_parts = [page.extract_text() or '' for page in reader.pages]
-                    except ImportError:
-                        return JSONResponse({"error": "PDF parser unavailable (install PyMuPDF or PyPDF2)"}, status_code=500)
-            cv_content = "\n".join(cv_text_parts)
-        elif ext in ('.docx', '.doc'):
-            try:
-                import docx as pdocx
-                doc = pdocx.Document(io.BytesIO(raw))
-                cv_content = "\n".join(p.text for p in doc.paragraphs)
-            except ImportError:
-                return JSONResponse({"error": "DOCX parser unavailable"}, status_code=500)
-        else:
-            raw = await cv_file.read()
-            cv_content = raw.decode('utf-8', errors='ignore')
-
+        cv_content = _parse_cv_file_to_text(raw, cv_file.filename)
         if not cv_content.strip():
             return JSONResponse({"error": "Could not read CV content"}, status_code=400)
 
         cv_content = cv_content[:3000]
 
-        # Step 1-4: All Groq API calls (single client session)
         async with httpx.AsyncClient(timeout=30.0) as client:
-            # Step 1: Parse profile
             resp = await client.post(GROQ_API_URL, json={
                 "model": "llama-3.1-8b-instant",
-                "messages": [{"role": "user", "content": f"Extract profile from CV. JSON: {{\"name\":\"\",\"current_title\":\"\",\"skills\":[],\"experience_years\":0,\"summary\":\"\",\"certifications\":[]}}\n\nCV: {cv_content[:2500]}"}],
+                "messages": [{"role": "user", "content": "Extract profile from CV. JSON: " + '{"name":"","current_title":"","skills":[],"experience_years":0,"summary":"","certifications":[]}' + f"\n\nCV: {cv_content[:2500]}"}],
                 "temperature": 0.3,
                 "max_tokens": 600,
             }, headers={"Authorization": f"Bearer {all_keys[0]}"})
@@ -5507,7 +5587,6 @@ async def email_test_parse_cv(request: Request, cv_file: UploadFile = File(...))
             current_title = profile_data.get("current_title", "")
             skills = ", ".join(profile_data.get("skills", []))
 
-            # Step 2: Generate CV text (plain text for textarea)
             ki2 = min(1, len(all_keys) - 1)
             resp2 = await client.post(GROQ_API_URL, json={
                 "model": "llama-3.1-8b-instant",
@@ -5517,10 +5596,9 @@ async def email_test_parse_cv(request: Request, cv_file: UploadFile = File(...))
             }, headers={"Authorization": f"Bearer {all_keys[ki2]}"})
 
             cv_raw = resp2.json()["choices"][0]["message"]["content"].strip() if resp2.status_code == 200 else ""
-            cv_text = re.sub(r'<[^>]+>', '', cv_raw)  # strip HTML
+            cv_text = re.sub(r'<[^>]+>', '', cv_raw)
             cv_text = re.sub(r'```\w*\n?', '', cv_text)
 
-            # Step 3: Generate cover letter (plain text)
             ki3 = min(2, len(all_keys) - 1)
             resp3 = await client.post(GROQ_API_URL, json={
                 "model": "llama-3.1-8b-instant",
@@ -5533,7 +5611,6 @@ async def email_test_parse_cv(request: Request, cv_file: UploadFile = File(...))
             cl_text = re.sub(r'<[^>]+>', '', cl_raw)
             cl_text = re.sub(r'```\w*\n?', '', cl_text)
 
-            # Step 4: Generate email body (plain text)
             ki4 = min(3, len(all_keys) - 1)
             resp4 = await client.post(GROQ_API_URL, json={
                 "model": "llama-3.1-8b-instant",
@@ -6098,51 +6175,36 @@ def sent_emails_page(request: Request):
         return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Sent Emails", "sent-emails", request=request))
 
 @app.post("/api/parse-cv")
-async def api_parse_cv(request: Request):
-    """Parse CV text - regex for basics + Groq for summary only."""
-    try:
-        body = await request.json()
-    except Exception:
-        raise HTTPException(400, "Invalid JSON")
-
-    cv_text = (body.get("cv_text") or "").strip()
-    if not cv_text:
-        raise HTTPException(400, "cv_text is required")
-
+def _extract_cv_contact_details(cv_text: str, cv_lower: str) -> tuple:
+    """Extract name, email, phone, linkedin, and location using fast regex rules."""
     import re as _re2
-    cv_lower = cv_text.lower()
-
-    # === PHASE 1: Regex extraction (fast, never fails) ===
-    # Name: first line or capitalized name pattern
     lines = [l.strip() for l in cv_text.split('\n') if l.strip()]
     name = lines[0][:60].strip() if lines else ""
-    # If first line looks like title, try second line
     if _re2.search(r'engineer|manager|specialist|developer|consultant|analyst|architect|lead|head|director', name.lower()):
         name = lines[1][:60].strip() if len(lines) > 1 else name
-    # Remove common prefixes
     name = _re2.sub(r'^(curriculum\s+vitae|cv|resume)[:;\-\s]*', '', name, flags=_re2.IGNORECASE).strip()
 
-    # Email
     email_m = _re2.search(r'[\w.+-]+@[\w-]+\.[\w.]+', cv_text)
     email = email_m.group(0) if email_m else ""
 
-    # Phone
     phone_m = _re2.search(r'(?:\+?\d{1,3}[\s\-]?)?\(?\d{2,4}\)?[\s\-]?\d{2,4}[\s\-]?\d{2,4}[\s\-]?\d{0,4}', cv_text)
     phone = phone_m.group(0).strip() if phone_m else ""
 
-    # LinkedIn - try URL pattern first, then text mention
     li_m = _re2.search(r'linkedin\.com/in/([\w\-]+)', cv_lower)
     if not li_m:
         li_m = _re2.search(r'linkedin:?\s*(?:https?://(?:www\.)?linkedin\.com/in/)?([\w\-]+)', cv_lower)
     linkedin = f"linkedin.com/in/{li_m.group(1)}" if li_m else ""
 
-    # Location
     loc_m = _re2.search(r'(?:location|based\s+in|address)[:\s]+([^\n]{3,40})', cv_lower)
     if not loc_m:
         loc_m = _re2.search(r'(beirut|dubai|lebanon|uae|saudi|qatar|kuwait|bahrain|oman|jordan|egypt|cairo|riyadh|doha|abu\s*dhabi|amman)', cv_lower)
     location = loc_m.group(1).strip().title() if loc_m else "Lebanon"
+    
+    return name, email, phone, linkedin, location
 
-    # Certifications
+def _extract_cv_metadata(cv_lower: str) -> tuple:
+    """Extract certifications, education, languages, experience years, and skills using fast regex rules."""
+    import re as _re2
     known_certs_txt = []
     cert_pats = [
         r'CCNA', r'CCNP', r'CCIE', r'Cisco Certified',
@@ -6162,7 +6224,6 @@ async def api_parse_cv(request: Request):
             if n not in [c.upper() for c in known_certs_txt]:
                 known_certs_txt.append(n)
 
-    # Education - find section header then next meaningful line
     education = ""
     edu_section = _re2.search(r'(?:education|academic|qualification)[s]?\s*[:\n]+([^\n]{5,80})', cv_lower)
     if edu_section:
@@ -6174,13 +6235,11 @@ async def api_parse_cv(request: Request):
         if edu_m:
             education = edu_m.group(0).strip().title()
 
-    # Languages
     langs = []
     for lang in ['arabic', 'english', 'french', 'spanish', 'german', 'italian', 'portuguese', 'dutch', 'turkish', 'russian', 'mandarin', 'chinese']:
         if _re2.search(r'\b' + lang + r'\b', cv_lower):
             langs.append(lang.title())
 
-    # Years of experience
     exp_years = 0
     for pat in [r'(\d{1,2})\+?\s*(?:years?|yrs)', r'(\d{1,2})\+?\s*years?\s*(?:of|experience)', r'experience.*?(\d{1,2})\+?\s*years?', r'(\d{1,2})\+?\s*years?\s*(?:of\s*)?experience']:
         m = _re2.search(pat, cv_lower)
@@ -6190,14 +6249,32 @@ async def api_parse_cv(request: Request):
                 exp_years = val
                 break
 
-    # Skills (common tech keywords)
     skill_kw = ['cisco','fortinet','mikrotik','juniper','palo alto','checkpoint','sophos','bgp','ospf','mpls','vpn','vlan','qos','tcp/ip','dns','dhcp','http','ssl','tls','ipsec','gre','eigrp','rip','stp','python','bash','powershell','awk','sed','ansible','terraform','docker','kubernetes','jenkins','git','linux','windows server','ubuntu','centos','debian','rhel','vmware','hyper-v','kvm','aws','azure','gcp','oracle cloud','wireshark','prtg','zabbix','solarwinds','nagios','snmp','firewall','ids/ips','siem','waf','vpn','cloud','automation','scripting','monitoring','networking','routing','switching','security','wireless','voip','sdn','nfv']
     skills = []
     for kw in skill_kw:
         if _re2.search(r'\b' + _re2.escape(kw) + r'\b', cv_lower):
             skills.append(kw.title())
+            
+    return known_certs_txt, education, langs, exp_years, skills
 
-    # === PHASE 2: Groq for AI parts (summary, titles, current_title) ===
+async def api_parse_cv(request: Request):
+    """Parse CV text - regex for basics + Groq for summary only."""
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(400, "Invalid JSON")
+
+    cv_text = (body.get("cv_text") or "").strip()
+    if not cv_text:
+        raise HTTPException(400, "cv_text is required")
+
+    cv_lower = cv_text.lower()
+
+    # === PHASE 1: Regex extraction ===
+    name, email, phone, linkedin, location = _extract_cv_contact_details(cv_text, cv_lower)
+    known_certs_txt, education, langs, exp_years, skills = _extract_cv_metadata(cv_lower)
+
+    # === PHASE 2: Groq for AI parts ===
     groq_key = (config.GROQ_API_KEY).strip()
     all_keys = [k for k in GROQ_KEYS if k]
     if groq_key and groq_key not in all_keys:
@@ -6209,11 +6286,10 @@ async def api_parse_cv(request: Request):
     target_locations = ["Dubai", "Remote"]
 
     if all_keys:
-        # Minimal prompt - ~150 chars → ~80 tokens + output ~150 tokens = ~230 total (safe!)
-        ai_prompt = f"From this CV, return JSON: {{\"summary\":\"2 sentences summary\",\"current_title\":\"last job title\",\"target_titles\":[\"title1\"],\"target_locations\":[\"city1\"]}}\n\nCV: {cv_text[:800]}"
+        ai_prompt = "From this CV, return JSON: " + '{"summary":"2 sentences summary","current_title":"last job title","target_titles":["title1"],"target_locations":["city1"]}' + f"\n\nCV: {cv_text[:800]}"
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
-                for ki, key in enumerate(all_keys[:4]):  # try only 4 keys max
+                for ki, key in enumerate(all_keys[:4]):
                     resp = await client.post(GROQ_API_URL, json={
                         "model": "llama-3.1-8b-instant",
                         "messages": [{"role": "user", "content": ai_prompt}],
@@ -6237,9 +6313,8 @@ async def api_parse_cv(request: Request):
                     if ai_data.get("target_locations"):
                         target_locations = ai_data["target_locations"]
         except Exception as e:
-            logger.error(e, exc_info=True)  # Groq failed, use regex fallbacks
+            logger.error(e, exc_info=True)
 
-    # Detect home country from location
     home_country = "Lebanon"
     for c in ["Lebanon", "UAE", "Saudi Arabia", "Qatar", "Kuwait", "Bahrain", "Oman", "Jordan", "Egypt"]:
         if c.lower() in cv_lower or c.lower() in location.lower():
@@ -6266,8 +6341,6 @@ async def api_parse_cv(request: Request):
         "salary_min_international": 0,
     }
     return {"status": "success", "profile": data}
-
-
 
 @app.post("/api/parse-cv-file")
 async def api_parse_cv_file(cv_file: UploadFile = File(...)):

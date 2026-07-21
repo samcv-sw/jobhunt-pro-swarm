@@ -38,3 +38,36 @@ async def view_candidate_profile(request: Request, candidate_id: str):
     return templates.TemplateResponse(
         request, "candidate_profile.html", {"cv": cv_data}
     )
+
+
+# ── Dynamic ATS, Mock Interview & Multi-Lang Endpoints ──────────
+
+from pydantic import BaseModel
+from typing import Optional
+from core.ats_matcher import api_ats_score
+from core.interview_prep import InterviewPrep
+
+class ATSScoreRequest(BaseModel):
+    resume_text: str
+    job_description: str
+
+class MockInterviewRequest(BaseModel):
+    job_title: Optional[str] = ""
+    job_description: Optional[str] = ""
+    count: Optional[int] = 5
+
+@router.post("/api/ats/score")
+async def calculate_ats_score(payload: ATSScoreRequest):
+    """Calculate 0-100% real-time ATS match score."""
+    res = await api_ats_score(payload.resume_text, payload.job_description)
+    return res
+
+@router.post("/api/candidate/mock-interview")
+async def generate_mock_interview(payload: MockInterviewRequest):
+    """Generate tailored mock interview questions for candidate preparation."""
+    questions = InterviewPrep.generate_custom_mock_interview(
+        job_title=payload.job_title,
+        job_description=payload.job_description,
+        count=payload.count or 5
+    )
+    return {"questions": questions}

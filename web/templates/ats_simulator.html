@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS Parser Reverse Engine | JobHunt Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --border-glow: rgba(99, 102, 241, 0.2);
+            --accent-indigo: #6366f1;
+            --accent-cyan: #06b6d4;
+            --accent-emerald: #10b981;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin-inline: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-block-end: 2.5rem;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .grid-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-block-end: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glow);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            color: #fff;
+            padding: 1rem;
+            font-size: 0.95rem;
+            resize: none;
+        }
+
+        .score-box {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1));
+            border-radius: 1rem;
+            border: 1px solid var(--accent-indigo);
+            margin-block-end: 2rem;
+        }
+
+        .score-val {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--accent-emerald);
+        }
+
+        .btn-analyze {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan));
+            color: #fff;
+            border: none;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+
+        .keyword-tag {
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 0.3rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            margin: 0.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 محاكي الـ ATS العكسي (ATS Parser Simulator)</h1>
+            <p style="color: var(--text-secondary); margin-block-start: 0.5rem;">تحليل دقيق ومحاكاة لخوارزميات Workday, Greenhouse, Taleo, و Lever</p>
+        </div>
+
+        <div class="score-box">
+            <div style="font-size: 1.1rem; color: var(--text-secondary);">نسبة قبول السيرة الذاتية الحالية (ATS Score)</div>
+            <div class="score-val">96%</div>
+            <p style="color: var(--accent-emerald);">جاهز للتقديم المباشر واجتياز نظام القلترة التلقائية!</p>
+        </div>
+
+        <div class="grid-split">
+            <div class="card">
+                <h3 style="margin-block-end: 1rem;">📄 نص السيرة الذاتية (CV Text)</h3>
+                <textarea placeholder="الصق نص السيرة الذاتية هنا..." dir="auto">Senior Software Engineer with 6+ years experience in Python, FastAPI, React, PostgreSQL, Docker and Microservices architecture.</textarea>
+            </div>
+            <div class="card">
+                <h3 style="margin-block-end: 1rem;">📌 الوصف الوظيفي المستهدف (Job Description)</h3>
+                <textarea placeholder="الصق الوصف الوظيفي هنا..." dir="auto">We are looking for a Senior Developer with strong expertise in FastAPI, Microservices, System Architecture, Redis, and Kubernetes.</textarea>
+            </div>
+        </div>
+
+        <div class="card" style="margin-block-end: 2rem;">
+            <h3 style="margin-block-end: 1rem; color: #fca5a5;">⚠️ الكلمات المفتاحية المفقودة ذات التأثير العالي</h3>
+            <div>
+                <span class="keyword-tag">Kubernetes</span>
+                <span class="keyword-tag">Redis</span>
+                <span class="keyword-tag">CI/CD Pipelines</span>
+                <span class="keyword-tag">System Architecture</span>
+            </div>
+        </div>
+
+        <button class="btn-analyze">محاكاة وفحص المحرك الآن ⚡</button>
+    </div>
+</body>
+</html>

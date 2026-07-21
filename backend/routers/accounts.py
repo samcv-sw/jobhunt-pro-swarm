@@ -33,7 +33,7 @@ async def create_account(req: AccountCreateRequest) -> dict[str, str]:
         await session.flush()
 
         outbox = SyncOutbox(
-            table_name="accounts",
+            table_name="billing_accounts",
             record_id=str(account.id),
             operation="INSERT",
             payload={

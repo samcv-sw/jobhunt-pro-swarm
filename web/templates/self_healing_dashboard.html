@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Healing Telemetry Dashboard | JobHunt Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #080c14;
+            --bg-card: rgba(17, 24, 39, 0.8);
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-cyan: #06b6d4;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin-inline: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-block-end: 2rem;
+            border-block-end: 1px solid rgba(255, 255, 255, 0.1);
+            padding-block-end: 1rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--accent-emerald), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .health-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-emerald);
+            border: 1px solid var(--accent-emerald);
+            padding: 0.5rem 1.2rem;
+            border-radius: 9999px;
+            font-weight: 700;
+        }
+
+        .node-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-block-end: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-block-start: 1rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: start;
+            border-block-end: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🛡️ نظام العلاج الذاتي والتبديل التلقائي (Self-Healing Telemetry)</h1>
+                <p style="color: var(--text-secondary); margin-block-start: 0.3rem;">مراقبة واستبدال العقد والبروكسيات التالفة تلقائياً بدون أي انقطاع</p>
+            </div>
+            <div class="health-badge">● SYSTEM ALL HEALTHY</div>
+        </div>
+
+        <div class="node-grid">
+            <div class="card">
+                <div style="color: var(--text-secondary);">إجمالي عقد البروكسي</div>
+                <div style="font-size: 2.2rem; font-weight: 900; color: var(--accent-cyan);">45 Node</div>
+            </div>
+            <div class="card">
+                <div style="color: var(--text-secondary);">العقد النشطة حالياً</div>
+                <div style="font-size: 2.2rem; font-weight: 900; color: var(--accent-emerald);">43 Active</div>
+            </div>
+            <div class="card">
+                <div style="color: var(--text-secondary);">العقد المعزولة للتعافي</div>
+                <div style="font-size: 2.2rem; font-weight: 900; color: var(--accent-amber);">2 Quarantined</div>
+            </div>
+            <div class="card">
+                <div style="color: var(--text-secondary);">عمليات العلاج (24 ساعة)</div>
+                <div style="font-size: 2.2rem; font-weight: 900; color: var(--accent-emerald);">14 Incidents</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-block-end: 1rem;">📜 سجل التعافي والعلاج الذاتي اللحظي</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>العقدة / Node ID</th>
+                        <th>نوع الخلل المكتشف</th>
+                        <th>الإجراء التلقائي المتخذ</th>
+                        <th>زمن الاستجابة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>proxy_node_09</td>
+                        <td><span style="color: var(--accent-amber);">429 Rate Limit</span></td>
+                        <td><strong style="color: var(--accent-emerald);">تبديل تلقائي (Autohotswap)</strong></td>
+                        <td>1.2s</td>
+                    </tr>
+                    <tr>
+                        <td>proxy_node_24</td>
+                        <td><span style="color: var(--accent-amber);">504 Timeout</span></td>
+                        <td><strong style="color: var(--accent-emerald);">إعادة توجيه مسار (Failover)</strong></td>
+                        <td>0.8s</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

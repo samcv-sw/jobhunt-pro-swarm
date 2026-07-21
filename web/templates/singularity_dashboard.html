@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: rgba(18, 18, 26, 0.75);
+            --border-gold: rgba(212, 175, 55, 0.3);
+            --gold-glow: #d4af37;
+            --gold-gradient: linear-gradient(135deg, #ffd700 0%, #d4af37 50%, #aa7c11 100%);
+            --text-main: #f0f0f5;
+            --text-muted: #9a9ab0;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --font-family: 'Cairo', 'Tajawal', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family);
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-block-size: 100vh;
+            padding-inline: 2rem;
+            padding-block: 2rem;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 45%);
+            background-attachment: fixed;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-block-end: 2rem;
+            padding-block-end: 1rem;
+            border-block-end: 1px solid var(--border-gold);
+        }
+
+        .brand-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .status-badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            padding-inline: 1rem;
+            padding-block: 0.5rem;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            inline-size: 10px;
+            block-size: 10px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        /* Tabs Navigation */
+        .tabs-nav {
+            display: flex;
+            gap: 0.75rem;
+            margin-block-end: 2rem;
+            overflow-x: auto;
+            padding-block-end: 0.5rem;
+        }
+
+        .tab-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-gold);
+            color: var(--text-muted);
+            padding-inline: 1.25rem;
+            padding-block: 0.75rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            color: var(--text-main);
+            border-color: var(--gold-glow);
+            background: rgba(212, 175, 55, 0.15);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+        }
+
+        /* Content Panels */
+        .panel {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .panel.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-block-end: 1rem;
+            color: var(--gold-glow);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .panel-desc {
+            color: var(--text-muted);
+            margin-block-end: 1.5rem;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+            margin-block-end: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        input, select, textarea {
+            background: rgba(10, 10, 15, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-md);
+            padding-inline: 1rem;
+            padding-block: 0.75rem;
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--gold-glow);
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-action {
+            background: var(--gold-gradient);
+            color: #000;
+            border: none;
+            padding-inline: 2rem;
+            padding-block: 0.85rem;
+            border-radius: var(--radius-md);
+            font-weight: 800;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .results-box {
+            margin-block-start: 1.5rem;
+            background: rgba(5, 5, 10, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            font-family: monospace;
+            dir: ltr;
+            white-space: pre-wrap;
+            color: #10b981;
+            max-block-size: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-container">
+        <div>
+            <h1 class="brand-title">👑 JobHunt Pro — Singularity Suite</h1>
+            <p style="color: var(--text-muted); margin-block-start: 0.25rem;">منظومة الذكاء الاصطناعي الفائقة 6 في 1 للسيطرة على التوظيف</p>
+        </div>
+        <div class="status-badge">
+            <span class="status-dot"></span>
+            <span>{{ system_status }}</span>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('auto-apply')">🤖 البوت التلقائي (Swarm)</button>
+        <button class="tab-btn" onclick="switchTab('voice-coach')">🎙️ مدرب المقابلات (Voice AI)</button>
+        <button class="tab-btn" onclick="switchTab('video-cv')">🎬 الـ Video CV والموقع 3D</button>
+        <button class="tab-btn" onclick="switchTab('outreach')">📧 استقطاب الـ HR والتواصل</button>
+        <button class="tab-btn" onclick="switchTab('salary')">💼 تفاوض الرواتب والحساب</button>
+        <button class="tab-btn" onclick="switchTab('white-label')">🌐 بوابة الوكالات (White-Label)</button>
+    </nav>
+
+    <!-- Tab 1: Auto Apply Swarm -->
+    <div id="panel-auto-apply" class="panel active">
+        <h2 class="panel-title">🤖 Autonomous Auto-Apply Bot Swarm</h2>
+        <p class="panel-desc">شغّل شبكة البوتات المستقلة لإرسال عشرات الطلبات المخصصة يومياً دون حظر مع تخطي الـ Cloudflare.</p>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>المسمى الوظيفي المستهدف</label>
+                <input type="text" id="auto-titles" value="Senior Software Engineer, AI Engineer" dir="auto">
+            </div>
+            <div class="form-group">
+                <label>المناطق الجغرافية</label>
+                <input type="text" id="auto-locations" value="Dubai, UAE, Riyadh, KSA, Remote" dir="auto">
+            </div>
+            <div class="form-group">
+                <label>حد الطلبات اليومي</label>
+                <input type="number" id="auto-limit" value="50" dir="auto">
+            </div>
+        </div>
+        <button class="btn-action" onclick="runModule('/api/v2/singularity/auto-apply/launch', {
+            job_titles: document.getElementById('auto-titles').value.split(','),
+            locations: document.getElementById('auto-locations').value.split(','),
+            max_daily_applications: parseInt(document.getElementById('auto-limit').value)
+        }, 'res-auto-apply')">🚀 إطلاق البوت التلقائي 24/7</button>
+        <div id="res-auto-apply" class="results-box"></div>
+    </div>
+
+    <!-- Tab 2: Voice Coach -->
+    <div id="panel-voice-coach" class="panel">
+        <h2 class="panel-title">🎙️ Real-Time Voice AI Interview Coach</h2>
+        <p class="panel-desc">جلسة مقابلة صوتية تفاعلية حية لتحديد نقاط القوة ومستوى الإجابات التكتيكي.</p>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>الوظيفة المراد التدرب عليها</label>
+                <input type="text" id="voice-role" value="Lead Full Stack Architect" dir="auto">
+            </div>
+            <div class="form-group">
+                <label>مستوى صعوبة المقابلة</label>
+                <select id="voice-diff">
+                    <option value="Hard">صعب (Senior/Lead)</option>
+                    <option value="Extreme">تحدي فائق (Faang Level)</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn-action" onclick="runModule('/api/v2/singularity/voice-coach/session', {
+            target_role: document.getElementById('voice-role').value,
+            difficulty: document.getElementById('voice-diff').value
+        }, 'res-voice-coach')">🎤 بدء جلسة المقابلة الصوتية</button>
+        <div id="res-voice-coach" class="results-box"></div>
+    </div>
+
+    <!-- Tab 3: Video CV -->
+    <div id="panel-video-cv" class="panel">
+        <h2 class="panel-title">🎬 AI Video CV & Interactive 3D Portfolio</h2>
+        <p class="panel-desc">إنشاء موقع شخصي 3D مع فيديو افتراضي مقدم بالذكاء الاصطناعي.</p>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>اسم المرشح</label>
+                <input type="text" id="cv-name" value="Sam" dir="auto">
+            </div>
+            <div class="form-group">
+                <label>المهارات الأساسية (مفصولة بفواصل)</label>
+                <input type="text" id="cv-skills" value="FastAPI, Next.js, AI Swarms, Python" dir="auto">
+            </div>
+        </div>
+        <button class="btn-action" onclick="runModule('/api/v2/singularity/video-cv/generate', {
+            candidate_name: document.getElementById('cv-name').value,
+            primary_skills: document.getElementById('cv-skills').value.split(',')
+        }, 'res-video-cv')">✨ توليد الـ Video CV والموقع</button>
+        <div id="res-video-cv" class="results-box"></div>
+    </div>
+
+    <!-- Tab 4: HR Outreach -->
+    <div id="panel-outreach" class="panel">
+        <h2 class="panel-title">📧 AI Cold Outreach & Recruiter Targeting</h2>
+        <p class="panel-desc">مولد الرسائل المخصصة جداً لمدراء التوظيف لرفع نسبة الرد لأكثر من 80%.</p>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>الشركات المستهدفة</label>
+                <input type="text" id="outreach-companies" value="Aramco, NEOM, McKinsey, Google" dir="auto">
+            </div>
+            <div class="form-group">
+                <label>صفة مسؤول التوظيف</label>
+                <input type="text" id="outreach-role" value="Head of Talent Acquisition" dir="auto">
+            </div>
+        </div>
+        <button class="btn-action" onclick="runModule('/api/v2/singularity/outreach/campaign', {
+            target_companies: document.getElementById('outreach-companies').value.split(','),
+            prospect_role: document.getElementById('outreach-role').value
+        }, 'res-outreach')">📩 إنشاء وإرسال الحملة الاستهدافية</button>
+        <div id="res-outreach" class="results-box"></div>
+    </div>
+
+    <!-- Tab 5: Salary Negotiator -->
+    <div id="panel-salary" class="panel">
+        <h2 class="panel-title">💼 AI Salary Negotiator & Market Predictor</h2>
+        <p class="panel-desc">حساب القيمة السوقية الحقيقية وتصنيع نص تفاوضي رفع العرض المالي.</p>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>المسمى الوظيفي</label>
+                <input type="text" id="sal-role" value="Lead Software Architect" dir="auto">
+            </div>
+            <div class="form-group">
+                <label>العرض المالي المقدم (سنوياً $)</label>
+                <input type="number" id="sal-offer" value="120000" dir="auto">
+            </div>
+            <div class="form-group">
+                <label>الدولة / المدينة</label>
+                <input type="text" id="sal-loc" value="Dubai, UAE" dir="auto">
+            </div>
+        </div>
+        <button class="btn-action" onclick="runModule('/api/v2/singularity/salary/analyze', {
+            role_title: document.getElementById('sal-role').value,
+            offered_salary_usd: parseFloat(document.getElementById('sal-offer').value),
+            location: document.getElementById('sal-loc').value
+        }, 'res-salary')">📊 تحليل السوق وإنشاء نص التفاوض</button>
+        <div id="res-salary" class="results-box"></div>
+    </div>
+
+    <!-- Tab 6: White-Label B2B -->
+    <div id="panel-white-label" class="panel">
+        <h2 class="panel-title">🌐 B2B Agency White-Label Portal</h2>
+        <p class="panel-desc">إعداد الهوية التجارية الخاصة بشركتك مع الدومين المخصص.</p>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>اسم الوكالة / الشركة</label>
+                <input type="text" id="wl-name" value="TalentEmpire AI" dir="auto">
+            </div>
+            <div class="form-group">
+                <label>الدومين المخصص (Custom Domain)</label>
+                <input type="text" id="wl-domain" value="jobs.talentempire.ai" dir="auto">
+            </div>
+            <div class="form-group">
+                <label>اللون الرئيسي (Primary Gold Hex)</label>
+                <input type="color" id="wl-color" value="#FFD700" dir="auto">
+            </div>
+        </div>
+        <button class="btn-action" onclick="runModule('/api/v2/singularity/white-label/config', {
+            brand_name: document.getElementById('wl-name').value,
+            custom_domain: document.getElementById('wl-domain').value,
+            primary_color: document.getElementById('wl-color').value
+        }, 'res-white-label')">⚙️ حفظ إعدادات الهوية التجارية</button>
+        <div id="res-white-label" class="results-box"></div>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById('panel-' + tabId).classList.add('active');
+        }
+
+        async function runModule(url, payload, resultId) {
+            const resBox = document.getElementById(resultId);
+            resBox.style.display = 'block';
+            resBox.textContent = '⏳ جاري المعالجة بواسطة الذكاء الاصطناعي...';
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                resBox.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                resBox.textContent = '❌ حدث خطأ أثناء الاتصال بالخادم: ' + err.message;
+            }
+        }
+    </script>
+</body>
+</html>

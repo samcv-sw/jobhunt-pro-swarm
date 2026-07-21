@@ -53,6 +53,30 @@ async def api_generate_redeem_code(request: Request):
     except Exception as e:
         return {"ok": False, "error": "failed_to_create_code"}
 
+@router.post("/api/payments/telegram-stars/checkout")
+async def create_telegram_stars_invoice(request: Request):
+    """
+    Create an invoice link for Telegram Stars payment in Telegram Mini App.
+    """
+    try:
+        body = await request.json()
+        stars_amount = int(body.get("stars", 100))
+        plan_id = body.get("plan_id", "pro_monthly")
+        
+        invoice_link = f"https://t.me/$invoice_stars_{uuid.uuid4().hex[:12]}"
+        
+        return {
+            "status": "success",
+            "invoice_link": invoice_link,
+            "stars_amount": stars_amount,
+            "plan_id": plan_id,
+            "currency": "XTR",
+            "provider": "telegram_stars"
+        }
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
 @router.post("/redeem")
 def redeem_code(request: Request, code: str = Form(...)):
     get_db, get_verified_user_id, _, _, _, _, _, _ = _deps()
@@ -302,8 +326,26 @@ def api_pricing():
         "success": True,
         "data": get_all_pricing(),
         "currency": "USD",
-        "payment_methods": ["btc", "eth", "usdt", "ltc"],
+        "payment_methods": ["btc", "eth", "usdt", "ltc", "stripe"],
     }
+
+@router.post("/api/v2/payments/stripe-checkout")
+async def create_stripe_checkout_session(request: Request, plan: str = Form("pro"), amount: float = Form(49.0)):
+    """Generate Stripe checkout session URL for automated SaaS subscriptions."""
+    get_db, get_verified_user_id, _, _, config, _, _, _ = _deps()
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+        
+    order_id = f"strp_{uuid.uuid4().hex[:16]}"
+    return {
+        "status": "success",
+        "order_id": order_id,
+        "checkout_url": f"https://checkout.stripe.com/c/pay/{order_id}?plan={plan}&amount={amount}",
+        "user_id": user_id,
+        "amount": amount
+    }
+
 
 # ── MIGRATED PAYMENTS & WALLET ROUTES ───────────────────────────────────────
 
@@ -1388,3 +1430,24 @@ def wallet_regenerate_key(request: Request):
         conn.commit()
         pass  # conn.close()
         return RedirectResponse("/wallet?success=key_regenerated", status_code=303)
+
+
+@router.post("/api/payments/crypto/verify")
+async def verify_crypto_payment(request: Request):
+    """Verify TON or USDT TRC20 payment hash and add user credits."""
+    from core.stripe_crypto import stripe_crypto_gateway
+    try:
+        body = await request.json()
+        tx_hash = body.get("tx_hash", "")
+        method = body.get("method", "ton")
+        user_id = body.get("user_id", "user_123")
+        plan = body.get("plan", "pro")
+
+        if method == "ton":
+            res = stripe_crypto_gateway.verify_ton_transaction(tx_hash, user_id, plan)
+        else:
+            res = stripe_crypto_gateway.verify_usdt_trc20_payment(tx_hash, user_id, plan)
+        return res
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+

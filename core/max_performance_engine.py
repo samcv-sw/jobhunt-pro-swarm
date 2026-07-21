@@ -39,7 +39,7 @@ def get_system_telemetry() -> dict:
     }
 
 def apply_db_performance_pragmas(conn):
-    """Apply high-performance SQLite PRAGMAs for fast zero-lock concurrency."""
+    """Apply high-performance SQLite PRAGMAs for fast zero-lock concurrency and zero table locks."""
     try:
         if hasattr(conn, "execute"):
             conn.execute("PRAGMA journal_mode=WAL;")
@@ -47,5 +47,8 @@ def apply_db_performance_pragmas(conn):
             conn.execute("PRAGMA temp_store=MEMORY;")
             conn.execute("PRAGMA cache_size=-64000;")
             conn.execute("PRAGMA mmap_size=30000000000;")
+            conn.execute("PRAGMA busy_timeout=5000;")
+            conn.execute("PRAGMA foreign_keys=ON;")
     except Exception as e:
         logger.debug(f"SQLite PRAGMA tuning skipped: {e}")
+

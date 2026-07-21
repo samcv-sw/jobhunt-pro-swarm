@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictive Job Market Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #090d16;
+            --card-bg: rgba(23, 32, 54, 0.8);
+            --primary: #ec4899;
+            --cyan: #06b6d4;
+            --text-main: #f9fafb;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+        }
+        .container {
+            max-inline-size: 1000px;
+            margin-inline: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-block-end: 2rem;
+        }
+        .trend-table {
+            inline-size: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .trend-table th, .trend-table td {
+            padding: 1.2rem;
+            text-align: inset-inline-start;
+        }
+        .trend-table th {
+            background: rgba(236, 72, 153, 0.2);
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .trend-table tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 تحليلات السوق المستقبلية وفروق الأجور (Predictive Market Matrix)</h1>
+        
+        <table class="trend-table">
+            <thead>
+                <tr>
+                    <th>الوظيفة المستهدفة (Hot Role)</th>
+                    <th>نسبة النمو المتوقعة (30-Day Growth)</th>
+                    <th>متوسط الأجر السنوي (US Market)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>AI Autonomous Systems Engineer</td>
+                    <td style="color: #10b981; font-weight: 700;">+45% 📈</td>
+                    <td>$165,000</td>
+                </tr>
+                <tr>
+                    <td>Rust Cloud Infra Specialist</td>
+                    <td style="color: #10b981; font-weight: 700;">+38% 📈</td>
+                    <td>$150,000</td>
+                </tr>
+                <tr>
+                    <td>LLM Security & Alignment Lead</td>
+                    <td style="color: #10b981; font-weight: 700;">+52% 📈</td>
+                    <td>$180,000</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

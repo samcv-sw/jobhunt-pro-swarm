@@ -1,49 +1,31 @@
 {
   "manifest_version": 3,
-  "name": "JobHunt Pro - Ghost Applier",
-  "version": "1.1.0",
-  "description": "Zero-Cost AI Job Application directly from LinkedIn using ChatGPT session piggybacking.",
+  "name": "JobHunt Pro — AI Sidecar & Auto-Applier",
+  "version": "2.0.0",
+  "description": "Instant 1-Click AI Auto-Apply, ATS Keyword Scoring & Cover Letter Generator for LinkedIn, Indeed, and Wuzzuf.",
   "permissions": [
-    "storage",
     "activeTab",
-    "tabs",
     "scripting",
-    "alarms"
+    "storage"
   ],
   "host_permissions": [
-    "https://www.linkedin.com/jobs/*",
-    "https://chatgpt.com/*",
-    "https://mail.google.com/*",
-    "https://jhfguf.pythonanywhere.com/*",
-    "http://127.0.0.1:5000/*"
+    "https://*.linkedin.com/*",
+    "https://*.indeed.com/*",
+    "https://*.wuzzuf.net/*",
+    "http://localhost:8000/*"
   ],
-  "background": {
-    "service_worker": "background.js"
+  "action": {
+    "default_popup": "popup.html"
   },
   "content_scripts": [
     {
       "matches": [
-        "https://www.linkedin.com/jobs/*"
+        "https://*.linkedin.com/*",
+        "https://*.indeed.com/*",
+        "https://*.wuzzuf.net/*"
       ],
-      "js": ["scraper-content.js", "shadow-content.js"],
-      "css": ["content.css"]
-    },
-    {
-      "matches": [
-        "https://chatgpt.com/*"
-      ],
-      "js": ["chatgpt-content.js"],
-      "run_at": "document_idle"
-    },
-    {
-      "matches": [
-        "https://mail.google.com/*"
-      ],
-      "js": ["gmail-content.js"],
-      "run_at": "document_idle"
+      "js": ["content.js"],
+      "run_at": "document_end"
     }
-  ],
-  "action": {
-    "default_popup": "popup.html"
-  }
+  ]
 }

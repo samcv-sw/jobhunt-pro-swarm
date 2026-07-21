@@ -1,0 +1,56 @@
+version: '3.8'
+
+# ==============================================================================
+# JobHunt Pro — Qubes OS & Whonix Dual-VM Cloud Deployment (24/7 $0 Cost)
+# ==============================================================================
+# Architecture:
+# 1. sys-whonix-gateway: Tor Gateway container handling transparent firewalling.
+# 2. anon-jobhunt-workstation: Application qube with NO direct WAN interface.
+#    All outbound traffic MUST pass through sys-whonix-gateway via internal bridge.
+# ==============================================================================
+
+services:
+  sys-whonix-gateway:
+    image: alpine:latest
+    container_name: sys-whonix-gateway
+    restart: always
+    environment:
+      - TOR_SOCKS_PORT=9050
+      - TOR_STREAM_PORTS=9100,9101
+    command: >
+      sh -c "apk add --no-cat tor iptables &&
+             echo 'SocksPort 0.0.0.0:9050' >> /etc/tor/torrc &&
+             echo 'SocksPort 0.0.0.0:9100' >> /etc/tor/torrc &&
+             echo 'SocksPort 0.0.0.0:9101' >> /etc/tor/torrc &&
+             tor -f /etc/tor/torrc"
+    networks:
+      whonix-internal-net:
+        ipv4_address: 10.152.152.10
+      wan-net:
+
+  anon-jobhunt-workstation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: anon-jobhunt-workstation
+    restart: always
+    environment:
+      - WHONIX_GATEWAY_HOST=10.152.152.10
+      - TOR_ENABLED=true
+    depends_on:
+      - sys-whonix-gateway
+    networks:
+      whonix-internal-net:
+        ipv4_address: 10.152.152.12
+
+networks:
+  # Isolated private network — workstation has NO direct WAN bridge!
+  whonix-internal-net:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 10.152.152.0/24
+
+  wan-net:
+    driver: bridge

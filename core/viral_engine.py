@@ -176,6 +176,20 @@ def get_share_card(tool: str, data: dict = None) -> dict[str, str]:
         return {}
 
 
+def generate_social_hook_card(tool: str, user_id: str = "guest", score: int = 85) -> dict[str, any]:
+    """Generates viral social hook card parameters with embedded referral tracking."""
+    ref_link = f"https://jobhuntpro.app?ref={user_id}"
+    return {
+        "tool": tool,
+        "score": score,
+        "referral_url": ref_link,
+        "headline": f"🚀 I scored {score}/100 on JobHunt Pro ATS Analyzer!",
+        "share_text": f"Scored {score}/100 on my resume! Optimize yours for free here: {ref_link}",
+        "card_preview_html": f'<div style="background:#0f172a;color:#fff;padding:15px;border-radius:8px;"><h3>ATS Score: {score}/100</h3><p>Powered by JobHunt Pro</p></div>'
+    }
+
+
+
 # ── Product Hunt Launch Kit ─────────────────────────────────
 
 PH_ASSETS = {

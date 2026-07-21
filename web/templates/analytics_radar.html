@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #070913;
+            --card-bg: rgba(15, 23, 42, 0.8);
+            --border-glow: rgba(16, 185, 129, 0.4);
+            --primary: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-block-size: 100vh;
+            padding-inline: 1.5rem;
+            padding-block: 2rem;
+            background-image: 
+                radial-gradient(circle at 80% 10%, rgba(16, 185, 129, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 20% 90%, rgba(139, 92, 246, 0.15) 0%, transparent 40%);
+        }
+
+        .container {
+            max-inline-size: 1200px;
+            margin-inline: auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-block-end: 2.5rem;
+            padding-block-end: 1.5rem;
+            border-block-end: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #34d399, #10b981, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .mrr-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.1));
+            border: 1px solid var(--border-glow);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            margin-block-end: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        .mrr-amount {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #fff;
+            margin-block-start: 0.25rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.25rem;
+            padding: 1.75rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        .metric-box {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .metric-val {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #60a5fa;
+            margin-block-end: 0.25rem;
+        }
+
+        .stream-item {
+            padding-block: 0.85rem;
+            border-block-end: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>📈 رادار تحليلات الأرباح والاستخدام المباشر</h1>
+                <p style="color: var(--text-muted); margin-block-start:0.25rem;">Live SaaS Revenue Radar & Telemetry</p>
+            </div>
+            <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--primary); padding: 0.5rem 1rem; border-radius: 9999px; font-weight:700;">
+                🟢 الأنظمة الموزعة: 100% نشطة
+            </div>
+        </header>
+
+        <!-- Big MRR Banner -->
+        <div class="mrr-card">
+            <div>
+                <span style="color:var(--text-muted); font-weight:600;">الإيرادات الشهرية المتكررة (MRR)</span>
+                <div class="mrr-amount">$14,850 <span style="font-size:1.2rem; color:var(--primary);">+24.8% هذا الشهر</span></div>
+            </div>
+            <div style="text-align: inset-inline-end;">
+                <div style="font-size:1.1rem; font-weight:700; color:#fff;">متوسط الدخل لكل مستخدم (ARPU)</div>
+                <div style="font-size:1.8rem; font-weight:900; color:#60a5fa;">$49.50</div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Usage Metrics -->
+            <div class="card">
+                <h2 style="color:#fff; font-size:1.3rem; margin-block-end:1.25rem;">⚡ مقاييس الاستخدام والأداء السحابي</h2>
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <div class="metric-val">48,290</div>
+                        <div style="color:var(--text-muted); font-size:0.9rem;">رصيد AI مستهلك</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-val" style="color:var(--primary);">12,840</div>
+                        <div style="color:var(--text-muted); font-size:0.9rem;">طلب تقديم أوتوماتيكي (Auto-Applied)</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-val" style="color:#a855f7;">3,410</div>
+                        <div style="color:var(--text-muted); font-size:0.9rem;">سيرة ذاتية مخصصة للوظائف</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-val" style="color:#f59e0b;">14ms</div>
+                        <div style="color:var(--text-muted); font-size:0.9rem;">زمن استجابة الـ API (Latency)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Stream -->
+            <div class="card">
+                <h2 style="color:#fff; font-size:1.3rem; margin-block-end:1.25rem;">📡 البث الحي لأحداث المنصة</h2>
+                <div class="stream-item">
+                    <div>
+                        <strong>💳 اشتراك مدفوع جديد ($49/mo)</strong><br>
+                        <span style="font-size:0.85rem; color:var(--text-muted);">Karim N.</span>
+                    </div>
+                    <span style="font-size:0.8rem; color:var(--primary);">الآن</span>
+                </div>
+                <div class="stream-item">
+                    <div>
+                        <strong>🚀 اكتمل سرب التقديم التلقائي (25 طلب)</strong><br>
+                        <span style="font-size:0.85rem; color:var(--text-muted);">Sarah M.</span>
+                    </div>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">منذ دقيقتين</span>
+                </div>
+                <div class="stream-item">
+                    <div>
+                        <strong>🎙️ مقابلات AI شفهية (Score: 96%)</strong><br>
+                        <span style="font-size:0.85rem; color:var(--text-muted);">Omar K.</span>
+                    </div>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">منذ 5 دقائق</span>
+                </div>
+                <div class="stream-item">
+                    <div>
+                        <strong>🌐 موقع سيرة ذاتية تفاعلي جديد</strong><br>
+                        <span style="font-size:0.85rem; color:var(--text-muted);">Rania F.</span>
+                    </div>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">منذ 8 دقائق</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

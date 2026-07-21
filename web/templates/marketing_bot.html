@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0d18;
+            --card-bg: rgba(18, 26, 43, 0.75);
+            --border-glow: rgba(245, 158, 11, 0.3);
+            --primary: #f59e0b;
+            --primary-hover: #d97706;
+            --accent-green: #10b981;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-block-size: 100vh;
+            padding-inline: 1.5rem;
+            padding-block: 2rem;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(245, 158, 11, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+        }
+
+        .container {
+            max-inline-size: 1100px;
+            margin-inline: auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-block-end: 2.5rem;
+            padding-block-end: 1.5rem;
+            border-block-end: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glow);
+            border-radius: 1.25rem;
+            padding: 1.75rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-block-end: 1.25rem;
+            color: #fff;
+        }
+
+        .form-group {
+            margin-block-end: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-block-end: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        input[type="text"], input[type="number"], select {
+            inline-size: 100%;
+            padding-inline: 1rem;
+            padding-block: 0.75rem;
+            border-radius: 0.5rem;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .btn-gold {
+            inline-size: 100%;
+            padding-block: 0.85rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            border: none;
+            border-radius: 0.5rem;
+            color: #000;
+            font-weight: 900;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-block-end: 1.75rem;
+        }
+
+        .metric-box {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .metric-val {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .metric-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-block-start: 0.25rem;
+        }
+
+        .lead-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-block: 0.75rem;
+            border-block-end: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .badge-gold { background: rgba(245, 158, 11, 0.2); color: var(--primary); padding: 0.25rem 0.6rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>🤖 مركز التسويق واستقطاب العملاء الذاتي</h1>
+                <p style="color: var(--text-muted); margin-block-start: 0.25rem;">Autonomous Client Acquisition & Viral Referral Engine</p>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: var(--primary); padding: 0.5rem 1rem; border-radius: 9999px; font-weight:700;">
+                🔥 الوضع الفيروسي (Viral Mode)
+            </div>
+        </header>
+
+        <div class="grid">
+            <!-- Campaign Launcher -->
+            <div class="card">
+                <h2 class="card-title">🚀 إطلاق حملة استقطاب جديدة</h2>
+                <form onsubmit="launchCampaign(event)">
+                    <div class="form-group">
+                        <label>منصة الاستهداف الرئيسية</label>
+                        <select id="targetPlatform">
+                            <option value="linkedin">LinkedIn (شبكات المحترفين)</option>
+                            <option value="telegram">Telegram (مجموعات الوظائف)</option>
+                            <option value="twitter">X / Twitter (مجتمع التقنية)</option>
+                            <option value="email">Direct Cold Outreach (الإيميل)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>المجال المهني المستهدف</label>
+                        <input type="text" id="targetNiche" value="Software Engineers & Tech Talent" dir="auto" required dir="auto">
+                    </div>
+
+                    <div class="form-group">
+                        <label>نوع العرض الاستقطابي (Hook Offer)</label>
+                        <select id="offerType">
+                            <option value="free_cv_roast">تحليل وفحص الـ CV مجاناً (Free CV Roast)</option>
+                            <option value="50_percent_discount">خصم 50% على باقة التقديم التلقائي</option>
+                            <option value="free_ai_credits">100 رصيد AI مجاني عند التسجيل</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>حجم الرسائل اليومية</label>
+                        <input type="number" id="dailyVolume" value="50" min="5" max="500" dir="auto">
+                    </div>
+
+                    <button type="submit" class="btn-gold">🔥 بدء الحملة التسويقية الذاتية</button>
+                </form>
+            </div>
+
+            <!-- Dashboard Analytics -->
+            <div class="card">
+                <h2 class="card-title">📈 مؤشرات الأداء وجلب المستخدمين الحية</h2>
+
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <div class="metric-val">1,845</div>
+                        <div class="metric-desc">مرشحين تم اكتشافهم</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-val" style="color: var(--accent-green);">112</div>
+                        <div class="metric-desc">مستخدم جديد مسجّل</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-val" style="color: #60a5fa;">18.06%</div>
+                        <div class="metric-desc">نسبة التحويل (Conversion Rate)</div>
+                    </div>
+                </div>
+
+                <h3 style="color:#fff; font-size:1.1rem; margin-block: 1rem;">⚡ آخر المشتركين عبر البوت التلقائي</h3>
+                <div class="lead-item">
+                    <div>
+                        <strong>Tariq K.</strong> — Senior Dev<br>
+                        <span style="font-size:0.85rem; color:var(--text-muted);">عبر LinkedIn • منذ 15 دقيقة</span>
+                    </div>
+                    <span class="badge-gold">مشترك مدفوع 💳</span>
+                </div>
+                <div class="lead-item">
+                    <div>
+                        <strong>Lina M.</strong> — Data Scientist<br>
+                        <span style="font-size:0.85rem; color:var(--text-muted);">عبر Telegram • منذ 42 دقيقة</span>
+                    </div>
+                    <span class="badge-gold">حساب جديد ✨</span>
+                </div>
+                <div class="lead-item">
+                    <div>
+                        <strong>Ahmad S.</strong> — DevOps Engineer<br>
+                        <span style="font-size:0.85rem; color:var(--text-muted);">عبر X (Twitter) • منذ ساعة</span>
+                    </div>
+                    <span class="badge-gold">تجربة مجانية 🚀</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function launchCampaign(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.textContent = '⏳ جاري إطلاق الحملة...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/marketing-bot/start-campaign', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        target_platform: document.getElementById('targetPlatform').value,
+                        target_role_niche: document.getElementById('targetNiche').value,
+                        offer_type: document.getElementById('offerType').value,
+                        max_outreach_daily: parseInt(document.getElementById('dailyVolume').value)
+                    })
+                });
+                const data = await res.json();
+                alert('✅ ' + data.message);
+            } catch (err) {
+                alert('⚠️ حدث خطأ في التواصل مع بوت التسويق.');
+            } finally {
+                btn.textContent = '🔥 بدء الحملة التسويقية الذاتية';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

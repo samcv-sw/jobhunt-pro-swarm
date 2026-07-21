@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B White-Label Enterprise Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(18, 26, 43, 0.85);
+            --primary: #3b82f6;
+            --emerald: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-block-end: 2rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-block-end: 2rem;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+        .stat-val {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--emerald);
+            margin-block-start: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏢 لوحة تحكم وكالات التوظيف (B2B White-Label Portal)</h1>
+        <span style="background: rgba(59, 130, 246, 0.2); color: var(--primary); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 700;">portal.apextalent.io</span>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>العملاء النشطون (Active Clients)</h3>
+            <div class="stat-val">48 شركة</div>
+        </div>
+        <div class="stat-card">
+            <h3>الإيرادات الشهرية (MRR)</h3>
+            <div class="stat-val">$14,352</div>
+        </div>
+        <div class="stat-card">
+            <h3>نسبة نمو البوابة</h3>
+            <div class="stat-val">+24.5%</div>
+        </div>
+    </div>
+</body>
+</html>

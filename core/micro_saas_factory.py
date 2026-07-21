@@ -95,7 +95,7 @@ def dispatch_saas_bounty():
 
     # 2. Assemble the Squad
     squad = fetch_bounty_squad(5)  # 5 devs per squad for a micro-saas
-    squad_names = [dev["name"] for dev in squad]
+    squad_names = [str(dev.get("name") or f"Dev_{dev.get('id', 'Member')}") for dev in squad]
     logger.info(f"Assembled Developer Squad: {', '.join(squad_names)}")
 
     # 3. Dispatch the Challenge

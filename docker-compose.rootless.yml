@@ -1,0 +1,65 @@
+# =========================================================================
+# JobHunt Pro — Rootless & Unprivileged Container Security Specification
+# Enforces Maximum Zero-Trust Isolation (L-Maximum l-7a2i2e)
+# =========================================================================
+version: '3.8'
+
+services:
+  # -----------------------------------------------------------------------
+  # Core JobHunt Pro Orchestrator (Rootless, Capabilities Dropped)
+  # -----------------------------------------------------------------------
+  app-rootless:
+    build:
+      context: .
+      dockerfile: Dockerfile.cloud
+    container_name: jobhunt-app-rootless-jailed
+    user: "1000:1000"  # Enforce non-root execution inside container
+    read_only: true    # Immutable filesystem defense
+    security_opt:
+      - no-new-privileges:true
+      - seccomp:unconfined  # Or custom seccomp profile
+    cap_drop:
+      - ALL  # Obliterate all Linux admin capabilities
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+      - /app/cache:rw,noexec,nosuid,size=128m
+    restart: unless-stopped
+    env_file:
+      - .env.cloud
+    environment:
+      - CLOUD_MODE=true
+      - ZERO_TRUST_ISOLATION=true
+      - PORT=8000
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - app_data:/app/data:rw
+      - app_logs:/app/logs:rw
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+  # -----------------------------------------------------------------------
+  # Autonomous Scraper & Agent Jail (Strict Network Boundary)
+  # -----------------------------------------------------------------------
+  agent-jail:
+    build:
+      context: .
+      dockerfile: Dockerfile.cloud
+    container_name: jobhunt-agent-jail
+    user: "1001:1001"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    command: ["python", "-c", "print('Agent Jail Active: Unprivileged Zero-Trust Execution')"]
+    restart: on-failure
+
+volumes:
+  app_data:
+  app_logs:

@@ -20,6 +20,8 @@ except ImportError:
     logger.warning("redis package not found. Rate limiter will fall back to local in-memory mode.")
 
 
+BLOCKED_HONEYPOT_IPS = set()
+
 class RateLimiter:
     def __init__(self, requests_limit: int, window_seconds: int, redis_url: str = None):
         self.requests_limit = requests_limit
@@ -104,6 +106,9 @@ class RateLimiter:
 
         client_ip = _get_client_ip(request)
 
+        if client_ip in BLOCKED_HONEYPOT_IPS:
+            raise HTTPException(status_code=403, detail="Access denied. IP blocked by Omni-Shield WAF Honeypot.")
+
         # Check via Redis if connected
         if self._is_redis_connected and self.redis:
             allowed = await self._call_redis(client_ip)
@@ -138,3 +143,4 @@ else:
     RATE_LIMIT_WINDOW = 60
 
 rate_limiter = RateLimiter(requests_limit=RATE_LIMIT_REQUESTS, window_seconds=RATE_LIMIT_WINDOW)
+

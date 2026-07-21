@@ -1,19 +1,20 @@
 {
-  "name": "JobHunt Pro",
-  "short_name": "JobHunt",
-  "description": "Enterprise AI Job Application Automator",
-  "start_url": "/dashboard",
+  "name": "JobHunt Pro — Sovereign Autonomous AI SaaS",
+  "short_name": "JobHuntPro",
+  "description": "Autonomous self-marketing, auto-applying, self-healing job search empire.",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a14",
-  "theme_color": "#00f0ff",
+  "background_color": "#090d16",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/static/img/icon-192.png",
+      "src": "/static/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/static/img/icon-512.png",
+      "src": "/static/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

@@ -97,6 +97,37 @@ def _autopilot_loop() -> None:
         time.sleep(3600)
 
 
+def trigger_apex_growth_burst() -> dict:
+    """Triggers an immediate multi-channel AI growth burst across all 5 acquisition channels."""
+    from core.client_hunter import client_hunter_engine
+    
+    # 1. B2B Global Scan & Pitch
+    b2b_cycle = client_hunter_engine.run_full_acquisition_cycle(region="GCC")
+    
+    # 2. Enqueue SEO, Social, Video & Influencer Tasks
+    tasks_triggered = []
+    try:
+        enqueue_task("growth_seo", {"topic": "AI Resume & Autonomous Applications 2026", "length": "1500_words"})
+        tasks_triggered.append("growth_seo")
+        enqueue_task("growth_b2b", {"target": "global_hr_directors", "pitch": "apex_white_label"})
+        tasks_triggered.append("growth_b2b")
+        enqueue_task("growth_social", {"platform": "x_linkedin_reddit", "mode": "viral_case_study"})
+        tasks_triggered.append("growth_social")
+        enqueue_task("growth_viral_video", {"count": 5})
+        tasks_triggered.append("growth_viral_video")
+        enqueue_task("growth_influencer", {"platform": "global_creator_network"})
+        tasks_triggered.append("growth_influencer")
+    except Exception as e:
+        logger.warning(f"[AUTOPILOT] Burst enqueue notice: {e}")
+
+    return {
+        "status": "success",
+        "burst_mode": "APEX_MAXIMUM_GLOBAL",
+        "channels_activated": len(tasks_triggered) + 1,
+        "tasks_enqueued": tasks_triggered,
+        "b2b_acquisition_telemetry": b2b_cycle["telemetry"]
+    }
+
 def start_autopilot() -> None:
     """Starts the background thread that continuously schedules AI growth tasks."""
     try:

@@ -216,6 +216,81 @@ class ExportHelper:
             return None
 
 
+    @staticmethod
+    def export_to_latex(profile_data: Dict[str, Any]) -> str:
+        """Export candidate profile to clean LaTeX resume format."""
+        name = profile_data.get("name", "Candidate Name")
+        title = profile_data.get("title", "Professional Software Engineer")
+        email = profile_data.get("email", "email@example.com")
+        summary = profile_data.get("summary", "Experienced engineer specializing in scalable software systems.")
+        skills = ", ".join(profile_data.get("skills", ["Python", "FastAPI", "Next.js", "Docker"]))
+
+        latex_doc = f"""\\documentclass[11pt,a4paper]{{article}}
+\\usepackage[utf8]{{utf8}}
+\\usepackage[margin=0.75in]{{geometry}}
+\\usepackage{{hyperref}}
+
+\\begin{{document}}
+\\begin{{center}}
+    {{\\Huge \\bfseries {name}}}\\\\[4pt]
+    {{\\Large {title}}}\\\\[4pt]
+    \\href{{mailto:{email}}}{{{email}}}
+\\end{{center}}
+
+\\hrule
+\\vspace{{10pt}}
+
+\\section*{{Professional Summary}}
+{summary}
+
+\\section*{{Core Skills}}
+{skills}
+
+\\section*{{Experience}}
+\\textbf{{Senior Engineer}} -- \\textit{{JobHunt Pro Sovereign Systems}}\\\\
+Developed autonomous high-throughput multi-agent automation engines.
+
+\\end{{document}}
+"""
+        return latex_doc
+
+    @staticmethod
+    def export_to_html_portfolio(profile_data: Dict[str, Any]) -> str:
+        """Export candidate profile to responsive HTML portfolio format."""
+        name = profile_data.get("name", "Candidate Name")
+        title = profile_data.get("title", "Software Engineer")
+        summary = profile_data.get("summary", "Building next-generation sovereign SaaS ecosystems.")
+        skills = profile_data.get("skills", ["Python", "FastAPI", "React", "Docker"])
+        skills_html = "".join([f'<span class="skill-tag">{s}</span>' for s in skills])
+
+        html_portfolio = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{name} - Portfolio</title>
+    <style>
+        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 2rem; }}
+        .card {{ max-width: 800px; margin: 0 auto; background: #1e293b; border-radius: 12px; padding: 2.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }}
+        h1 {{ color: #38bdf8; margin-bottom: 0.5rem; }}
+        .title {{ color: #94a3b8; font-size: 1.2rem; margin-bottom: 1.5rem; }}
+        .skill-tag {{ display: inline-block; background: #0284c7; color: white; padding: 4px 12px; border-radius: 16px; margin: 4px; font-size: 0.9rem; }}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>{name}</h1>
+        <div class="title">{title}</div>
+        <p>{summary}</p>
+        <h3>Skills & Expertise</h3>
+        <div>{skills_html}</div>
+    </div>
+</body>
+</html>
+"""
+        return html_portfolio
+
+
 class ReportBuilder:
     """Build reports from data."""
     

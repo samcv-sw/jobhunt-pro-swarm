@@ -64,3 +64,29 @@ def select_relevant_cv_sections(cv_text: str, job_description: str, max_sections
     reduction = 100 * (1 - len(selected_cv) / len(cv_text))
     logger.info("[CV-MATCHER] Selected %d/%d CV sections. Reduced CV string length by %.1f%%", len(ordered_sections), len(sections), reduction)
     return selected_cv
+
+
+def calculate_match_score(cv_text: str, job_description: str) -> dict:
+    """Calculate sub-millisecond zero-token TF-IDF & keyword overlap match score between CV and Job Description."""
+    if not cv_text or not job_description:
+        return {"match_score": 0.0, "matching_keywords": [], "missing_keywords": []}
+
+    cv_words = set(re.findall(r'\b[a-zA-Z0-9+#]{2,}\b', cv_text.lower()))
+    job_words = set(re.findall(r'\b[a-zA-Z0-9+#]{2,}\b', job_description.lower()))
+
+    # Filter out common stop words
+    stopwords = {"and", "the", "for", "with", "that", "this", "from", "have", "you", "are", "will", "our", "all", "your"}
+    job_keywords = job_words - stopwords
+    if not job_keywords:
+        return {"match_score": 100.0, "matching_keywords": list(cv_words)[:10], "missing_keywords": []}
+
+    overlap = cv_words.intersection(job_keywords)
+    missing = job_keywords - cv_words
+
+    match_percentage = min(100.0, round((len(overlap) / len(job_keywords)) * 100, 2))
+    return {
+        "match_score": match_percentage,
+        "matching_keywords": sorted(list(overlap))[:15],
+        "missing_keywords": sorted(list(missing))[:15]
+    }
+

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Audio-Visual Interview Coach | JobHunt Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #090d16;
+            --bg-card: rgba(15, 23, 42, 0.75);
+            --accent-rose: #f43f5e;
+            --accent-cyan: #38bdf8;
+            --accent-emerald: #10b981;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin-inline: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-block-end: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--accent-rose), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .video-box {
+            background: #000;
+            border-radius: 1rem;
+            height: 380px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid rgba(244, 63, 94, 0.3);
+            position: relative;
+            margin-block-end: 1.5rem;
+            overflow: hidden;
+        }
+
+        .recording-pulse {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(244, 63, 94, 0.2);
+            color: var(--accent-rose);
+            border: 1px solid var(--accent-rose);
+            padding: 0.4rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+        }
+
+        .coach-tip-card {
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(56, 189, 248, 0.1));
+            border: 1px solid var(--accent-cyan);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-block-end: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🎙️ المدرب المباشر للمقابلة (Live Interview Coach)</h1>
+                <p style="color: var(--text-secondary); margin-block-start: 0.3rem;">تحليل الصوت، السرعة، ونبرة الثقة لحظة بلحظة</p>
+            </div>
+            <button style="background: var(--accent-rose); color: #fff; border: none; padding: 0.8rem 1.8rem; border-radius: 0.5rem; font-weight: 700; cursor: pointer;">إنهاء المقابلة واستخراج التقرير</button>
+        </div>
+
+        <div class="video-box">
+            <div class="recording-pulse">● LIVE COACHING ACTIVE</div>
+            <div style="text-align: center;">
+                <div style="font-size: 4rem; margin-block-end: 1rem;">📷</div>
+                <p style="color: var(--text-secondary);">معاينة الكاميرا والتحليل الصوتي المباشر تعمل الآن بنجاح</p>
+            </div>
+        </div>
+
+        <div class="coach-tip-card">
+            <h3 style="color: var(--accent-cyan); margin-block-end: 0.5rem;">💡 نصيحة المدرب اللحظية (Live Feedback)</h3>
+            <p style="font-size: 1.1rem; font-weight: 600;">"سرعة إلقائك ممتازة (135 كلمة/دقيقة). تذكر تطبيق مرحلة (Results) في إجابتك الأخيرة لإظهار الأرقام."</p>
+        </div>
+
+        <div class="metrics-row">
+            <div class="metric-card">
+                <div style="color: var(--text-secondary); font-size: 0.85rem;">سرعة الحديث (WPM)</div>
+                <div style="font-size: 1.8rem; font-weight: 700; color: var(--accent-emerald);">135 WPM</div>
+            </div>
+            <div class="metric-card">
+                <div style="color: var(--text-secondary); font-size: 0.85rem;">مستوى الثقة والوضوح</div>
+                <div style="font-size: 1.8rem; font-weight: 700; color: var(--accent-cyan);">94%</div>
+            </div>
+            <div class="metric-card">
+                <div style="color: var(--text-secondary); font-size: 0.85rem;">كلمات الحشو (Fillers)</div>
+                <div style="font-size: 1.8rem; font-weight: 700; color: var(--accent-emerald);">0 كلم/دقيقة</div>
+            </div>
+            <div class="metric-card">
+                <div style="color: var(--text-secondary); font-size: 0.85rem;">منهجية الإجابة (STAR)</div>
+                <div style="font-size: 1.8rem; font-weight: 700; color: var(--accent-rose);">ACTION</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

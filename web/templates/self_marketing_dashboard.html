@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Self-Marketing Swarm | JobHunt Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0c10;
+            --bg-card: rgba(22, 27, 34, 0.75);
+            --border-glow: rgba(56, 189, 248, 0.2);
+            --accent-cyan: #38bdf8;
+            --accent-purple: #a855f7;
+            --accent-emerald: #10b981;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.12) 0px, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin-inline: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-block-end: 2rem;
+            padding-block-end: 1rem;
+            border-block-end: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge-status {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 0.4rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-block-end: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glow);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-cyan);
+        }
+
+        .stat-card .title {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-block-end: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--text-primary);
+        }
+
+        .card-main {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glow);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-block-end: 2rem;
+        }
+
+        .btn-launch {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #ffffff;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-launch:hover {
+            opacity: 0.9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-block-start: 1rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: start;
+            border-block-end: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🤖 Self-Marketing Swarm Engine</h1>
+                <p style="color: var(--text-secondary); margin-block-start: 0.3rem;">نظام التسويق وجلب العقود الذاتي الفريد من نوعه</p>
+            </div>
+            <span class="badge-status">● SWARM ACTIVE (24/7)</span>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="title">إجمالي العملاء المستهدفين</div>
+                <div class="value">1,420</div>
+            </div>
+            <div class="stat-card">
+                <div class="title">نسبة فتح الرسائل (Open Rate)</div>
+                <div class="value" style="color: var(--accent-cyan);">68.4%</div>
+            </div>
+            <div class="stat-card">
+                <div class="title">نسبة الرد والاستجابة (Reply Rate)</div>
+                <div class="value" style="color: var(--accent-purple);">21.3%</div>
+            </div>
+            <div class="stat-card">
+                <div class="title">مقابلات محجوزة (Meetings)</div>
+                <div class="value" style="color: var(--accent-emerald);">38</div>
+            </div>
+        </div>
+
+        <div class="card-main">
+            <h2 style="font-size: 1.3rem; margin-block-end: 1rem;">🚀 إطلاق حملة تسويقية ذاتية جديدة</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-block-end: 1.5rem;">
+                <input type="text" placeholder="اسم الحملة (مثال: Senior AI Leads)" style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-glow); color: #fff; padding: 0.8rem; border-radius: 0.5rem;" dir="auto">
+                <input type="text" placeholder="القطاع المستهدف (Tech, Fintech)" style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-glow); color: #fff; padding: 0.8rem; border-radius: 0.5rem;" dir="auto">
+                <input type="number" placeholder="حد التقديم اليومي (50)" style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-glow); color: #fff; padding: 0.8rem; border-radius: 0.5rem;" dir="auto">
+            </div>
+            <button class="btn-launch">تفعيل السوارم التلقائي ⚡</button>
+        </div>
+
+        <div class="card-main">
+            <h2 style="font-size: 1.3rem; margin-block-end: 1rem;">📋 أحدث الردود والتفاعلات الذكية</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>اسم العميل / مسؤول التوظيف</th>
+                        <th>الشركة</th>
+                        <th>درجة الاهتمام (AI Score)</th>
+                        <th>الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Sarah Connor</td>
+                        <td>TechCorp Global</td>
+                        <td><strong style="color: var(--accent-emerald);">94/100</strong></td>
+                        <td><span style="color: var(--accent-cyan);">تم الرد (Replied)</span></td>
+                    </tr>
+                    <tr>
+                        <td>Alex Mercer</td>
+                        <td>Innovate AI</td>
+                        <td><strong style="color: var(--accent-emerald);">98/100</strong></td>
+                        <td><span style="color: var(--accent-emerald);">مقابلة محددة</span></td>
+                    </tr>
+                    <tr>
+                        <td>David Wallace</td>
+                        <td>Dunder Mifflin Tech</td>
+                        <td><strong style="color: var(--accent-purple);">82/100</strong></td>
+                        <td><span style="color: var(--text-secondary);">تم الإرسال</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

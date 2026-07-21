@@ -30,6 +30,8 @@ def _deps():
     return get_db, get_verified_user_id, templates, is_admin_email, config, render_template, _public_shell, _build_dashboard_shell, send_email_via_brevo_http
 
 @router.get("/employers", response_class=HTMLResponse)
+@router.get("/for-employers", response_class=HTMLResponse)
+@router.get("/b2b/portal", response_class=HTMLResponse)
 def employers_page(request: Request):
     """Employers landing page — public, no login required."""
     get_db_fn, get_verified_user_id_fn, _, _, _, render_template_fn, _public_shell_fn, _build_dashboard_shell_fn, _ = _deps()
@@ -39,10 +41,10 @@ def employers_page(request: Request):
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         conn.close()
         user = dict(user_row) if user_row else {}
-        content = render_template_fn("for_employers.html", user=user, active_page="employers")
-        return HTMLResponse(_build_dashboard_shell_fn(user, user_id, content, "For Employers", "employers", request=request))
-    content = render_template_fn("for_employers.html", request=request, active_page="employers", user=None)
-    return HTMLResponse(_public_shell_fn(content, "For Employers — JobHunt Pro"))
+        content = render_template_fn("b2b_recruiter_dashboard.html", user=user, active_page="b2b")
+        return HTMLResponse(_build_dashboard_shell_fn(user, user_id, content, "B2B Recruiter Portal", "b2b", request=request))
+    content = render_template_fn("for_employers.html", request=request, active_page="b2b", user=None)
+    return HTMLResponse(_public_shell_fn(content, "B2B Recruiter Portal — JobHunt Pro"))
 
 @router.post("/api/employer/post-job")
 def api_employer_post_job(

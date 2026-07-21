@@ -57,3 +57,36 @@ def sitemap(request: Request):
     xml_header = b'<?xml version="1.0" encoding="UTF-8"?>\n'
 
     return Response(content=xml_header + xml_str, media_type="application/xml")
+
+@router.get("/api/seo/metadata")
+def get_page_seo_metadata(path: str = "/"):
+    """Programmatic SSG SEO Metadata Injector for dynamic job pages and landing pages."""
+    clean_path = path.strip("/")
+    title = "JobHunt Pro — Autonomous AI Job Application Empire"
+    description = "JobHunt Pro automates job search, ATS resume customization, cover letter writing, and client acquisition."
+    keywords = ["ATS Resume", "AI Job Applier", "Career Automation", "Resume Optimizer", "JobHunt Pro"]
+    
+    if "jobs" in clean_path:
+        parts = clean_path.split("/")
+        if len(parts) >= 3:
+            role = parts[1].replace("-", " ").title()
+            location = parts[2].replace("-", " ").title()
+            title = f"Top {role} Jobs in {location} | JobHunt Pro AI"
+            description = f"Apply automatically to top {role} opportunities in {location}. ATS optimization and AI application auto-fill included."
+            keywords.extend([role, location, f"{role} jobs", f"remote {role} jobs"])
+            
+    return {
+        "status": "success",
+        "path": path,
+        "title": title,
+        "description": description,
+        "keywords": keywords,
+        "canonical": f"https://jobhuntpro.io/{clean_path}",
+        "open_graph": {
+            "og:title": title,
+            "og:description": description,
+            "og:type": "website",
+            "og:site_name": "JobHunt Pro"
+        }
+    }
+

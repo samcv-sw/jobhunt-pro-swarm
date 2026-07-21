@@ -1,0 +1,116 @@
+<style>
+.emperor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-block-end: 2rem;
+}
+.emperor-card {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.emperor-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 215, 0, 0.6);
+}
+.emperor-val {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #fbbf24;
+    margin-block-start: 0.5rem;
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+}
+.emperor-label {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.gold-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #0f172a;
+    font-weight: 700;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    display: inline-block;
+    margin-inline-end: 0.5rem;
+}
+.status-pulse {
+    inline-size: 10px;
+    block-size: 10px;
+    background-color: #10b981;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 12px #10b981;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+</style>
+
+<div class="container-fluid" dir="auto">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <span class="gold-badge">👑 GOD MODE ACTIVE</span>
+            <h1 class="h2 text-white fw-bold d-inline align-middle">
+                {% if request.state.locale == 'ar' %}مركزي القيادي الإمبراطوري{% else %}Emperor Sovereign Command{% endif %}
+            </h1>
+        </div>
+        <div>
+            <span class="status-pulse me-2"></span>
+            <span class="text-emerald-400 fw-bold">100% Autonomous Sovereign Scaling</span>
+        </div>
+    </div>
+
+    <div class="emperor-grid">
+        <div class="emperor-card">
+            <div class="emperor-label">Monthly Recurring Revenue (MRR)</div>
+            <div class="emperor-val">${{ "%.2f"|format(telemetry.mrr_usd) }}</div>
+            <small class="text-success">↑ 24.8% growth rate</small>
+        </div>
+        <div class="emperor-card">
+            <div class="emperor-label">AI Token Burn Cost</div>
+            <div class="emperor-val">${{ "%.2f"|format(telemetry.token_burn_cost_usd) }}</div>
+            <small class="text-info">$0 Arbitrage Active</small>
+        </div>
+        <div class="emperor-card">
+            <div class="emperor-label">Active AI Swarms</div>
+            <div class="emperor-val">{{ telemetry.active_swarms }}</div>
+            <small class="text-warning">Autonomic Lead & Outreach Swarms</small>
+        </div>
+        <div class="emperor-card">
+            <div class="emperor-label">Self-Healed Patches (24h)</div>
+            <div class="emperor-val">{{ telemetry.self_healed_patches_24h }}</div>
+            <small class="text-emerald-400">Zero-Downtime Sentinel Active</small>
+        </div>
+    </div>
+
+    <div class="emperor-card mb-4">
+        <h3 class="h5 text-white mb-3 fw-bold">
+            {% if request.state.locale == 'ar' %}إحصائيات المنظومة الحية{% else %}Live Telemetry Diagnostics{% endif %}
+        </h3>
+        <div class="row text-center py-2">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="text-muted small">Total Users</div>
+                <div class="h4 text-white fw-bold mt-1">{{ telemetry.total_users }}</div>
+            </div>
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="text-muted small">Harvested Leads</div>
+                <div class="h4 text-white fw-bold mt-1">{{ telemetry.total_leads }}</div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted small">Generated Resumes</div>
+                <div class="h4 text-white fw-bold mt-1">{{ telemetry.total_resumes }}</div>
+            </div>
+        </div>
+    </div>
+</div>

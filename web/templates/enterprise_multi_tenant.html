@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Multi-Tenant Portal | JobHunt Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0f1d;
+            --bg-card: rgba(15, 23, 42, 0.75);
+            --accent-indigo: #6366f1;
+            --accent-purple: #8b5cf6;
+            --accent-emerald: #10b981;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin-inline: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-block-end: 2rem;
+            border-block-end: 1px solid rgba(255, 255, 255, 0.1);
+            padding-block-end: 1rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-block-end: 1.5rem;
+        }
+
+        .btn-create {
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+            color: #fff;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 0.8rem;
+            border-radius: 0.5rem;
+            margin-block-end: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🏢 بوابة المؤسسات والـ White-Label Multi-Tenant Portal</h1>
+                <p style="color: var(--text-secondary); margin-block-start: 0.3rem;">إدارة حسابات الشركات والمكاتب بأسماء ونطاقات خاصة</p>
+            </div>
+            <button class="btn-create">إضافة مؤسسة جديدة +</button>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-block-end: 1rem;">⚙️ تهيئة مؤسسة فرعية (Provision New Tenant)</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <input type="text" placeholder="اسم الشركة (مثال: Apex Recruitment Group)" dir="auto">
+                <input type="text" placeholder="النطاق الفرعي (مثال: apex)" dir="auto">
+            </div>
+            <input type="email" placeholder="بريد المسؤول الرئيسي (admin@apex.com)" dir="auto">
+            <button class="btn-create" style="width: 100%;">تأهيل البوابة الفرعية والنطاق الخاص 🚀</button>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-block-end: 1rem;">🌐 الحسابات والمؤسسات النشطة</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 0.5rem; border-inline-start: 4px solid var(--accent-indigo);">
+                <div>
+                    <strong>Apex Recruitment Group</strong>
+                    <div style="color: var(--text-secondary); font-size: 0.85rem;">https://apex.jobhuntpro.com</div>
+                </div>
+                <span style="color: var(--accent-emerald); font-weight: 700;">● ACTIVE</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -92,3 +92,35 @@ class InterviewPrep:
         except Exception as e:
             logger.error(f"Failed to sample Q&A questions: {e}")
             return cls.QUESTIONS[:count]
+
+    @classmethod
+    def generate_custom_mock_interview(cls, job_title: str = "", job_description: str = "", count: int = 5) -> list[dict[str, str]]:
+        """Dynamically generate interview questions tailored to a specific job description."""
+        base_questions = cls.get_random_questions(count)
+        if not job_title and not job_description:
+            return base_questions
+
+        tailored = []
+        for item in base_questions:
+            q = item["q"]
+            a = item["a"]
+            if job_title:
+                q = q.replace("this position", f"the {job_title} role")
+            tailored.append({"q": q, "a": a, "category": "General & Technical"})
+        
+        # Add custom technical question based on JD
+        if job_description:
+            jd_lower = job_description.lower()
+            if "python" in jd_lower:
+                tailored.append({
+                    "q": f"How do you utilize Python automation for {job_title or 'network and backend engineering'}?",
+                    "a": "I build custom scripts to parse logs, automate REST API endpoints, and interface with CI/CD pipelines to eliminate manual operational overhead.",
+                    "category": "Role Specific"
+                })
+            elif "cloud" in jd_lower or "aws" in jd_lower:
+                tailored.append({
+                    "q": "What is your approach to high-availability multi-cloud architecture?",
+                    "a": "I design stateless serverless edge functions with database connection pooling and automated regional failovers to maintain sub-15ms response times.",
+                    "category": "Cloud Architecture"
+                })
+        return tailored[:count]

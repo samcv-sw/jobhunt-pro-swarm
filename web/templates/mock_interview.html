@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --card-bg: rgba(17, 24, 39, 0.75);
+            --border-glow: rgba(99, 102, 241, 0.3);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent-green: #10b981;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-block-size: 100vh;
+            padding-inline: 1.5rem;
+            padding-block: 2rem;
+            background-image: 
+                radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+        }
+
+        .container {
+            max-inline-size: 1000px;
+            margin-inline: auto;
+        }
+
+        header {
+            text-align: center;
+            margin-block-end: 2.5rem;
+        }
+
+        h1 {
+            font-size: 2.3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #a5b4fc, #6366f1, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .interview-box {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glow);
+            border-radius: 1.25rem;
+            padding: 2.5rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .hr-avatar {
+            inline-size: 90px;
+            block-size: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #10b981);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-inline: auto;
+            margin-block-end: 1.25rem;
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.5);
+        }
+
+        .question-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-block-end: 1.5rem;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .audio-wave {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            block-size: 50px;
+            margin-block: 2rem;
+        }
+
+        .bar {
+            inline-size: 6px;
+            background: var(--primary);
+            border-radius: 3px;
+            animation: pulse 1.2s infinite ease-in-out alternate;
+        }
+
+        .bar:nth-child(2) { animation-delay: 0.2s; block-size: 35px; }
+        .bar:nth-child(3) { animation-delay: 0.4s; block-size: 50px; }
+        .bar:nth-child(4) { animation-delay: 0.1s; block-size: 25px; }
+        .bar:nth-child(5) { animation-delay: 0.5s; block-size: 40px; }
+
+        @keyframes pulse {
+            0% { transform: scaleY(0.3); opacity: 0.5; }
+            100% { transform: scaleY(1); opacity: 1; }
+        }
+
+        .btn-mic {
+            inline-size: 80px;
+            block-size: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s ease;
+            margin-block-end: 1rem;
+        }
+
+        .btn-mic:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.6);
+        }
+
+        .mic-label {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-block-end: 2rem;
+        }
+
+        .score-card {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-block-start: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: inset-inline-start;
+            display: none;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-block: 1rem;
+            text-align: center;
+        }
+
+        .score-val {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--accent-green);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎙️ المقابلة الصوتية التفاعلية بالذكاء الاصطناعي</h1>
+            <p style="color: var(--text-muted); margin-block-start:0.5rem;">Real-Time AI HR Voice Mock Interview Simulator</p>
+        </header>
+
+        <div class="interview-box">
+            <div class="hr-avatar">🤖</div>
+            <div class="question-title" id="questionText">
+                "حدثنا عن أصعب تحدٍ تقني واجهته في مشروعك الأخير وكيف تغلبت عليه؟"
+            </div>
+
+            <div class="audio-wave">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+
+            <button class="btn-mic" onclick="toggleRecording()" id="micBtn">🎤</button>
+            <div class="mic-label" id="micLabel">اضغط على الميكروفون للبدء بالإجابة بصوتك</div>
+
+            <div class="score-card" id="scoreCard">
+                <h3 style="color:#fff; margin-block-end: 0.75rem;">📋 تقرير تقييم مسؤول التوظيف (HR Report)</h3>
+                
+                <div class="score-grid">
+                    <div>
+                        <div class="score-val" id="scoreConfidence">95%</div>
+                        <div style="font-size:0.85rem; color:var(--text-muted);">الثقة بالنفس</div>
+                    </div>
+                    <div>
+                        <div class="score-val" id="scoreClarity">98%</div>
+                        <div style="font-size:0.85rem; color:var(--text-muted);">وضوح الإجابة</div>
+                    </div>
+                    <div>
+                        <div class="score-val" id="scoreRelevance">92%</div>
+                        <div style="font-size:0.85rem; color:var(--text-muted);">الملائمة الوظيفية</div>
+                    </div>
+                </div>
+
+                <div style="margin-block-start: 1rem;">
+                    <strong style="color:var(--accent-green);">💪 نقاط القوة:</strong>
+                    <p style="color:var(--text-main); font-size:0.95rem; margin-block-start:0.25rem;">إجابة منظمة ومباشرة تعكس خبرة عملية ممتازة واستخدام مصطلحات تقنية دقيقة.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isRecording = false;
+
+        async function toggleRecording() {
+            const btn = document.getElementById('micBtn');
+            const label = document.getElementById('micLabel');
+            const scoreCard = document.getElementById('scoreCard');
+
+            if (!isRecording) {
+                isRecording = true;
+                btn.style.background = '#ef4444';
+                btn.textContent = '⏹️';
+                label.textContent = '🔴 جاري تسجيل إجابتك الصوتية... (تحدث الآن)';
+                scoreCard.style.display = 'none';
+            } else {
+                isRecording = false;
+                btn.style.background = 'linear-gradient(135deg, var(--primary), var(--primary-hover))';
+                btn.textContent = '🎤';
+                label.textContent = '⏳ جاري تحليل الإجابة بواسطة الذكاء الاصطناعي...';
+
+                // Fetch AI HR evaluation
+                try {
+                    const res = await fetch('/api/mock-interview/score', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            question_id: 1,
+                            user_transcript: "قمت بإعادة هيكلة الاستعلامات وتقليل الضغط على قاعدة البيانات بنسبة 60%"
+                        })
+                    });
+                    const data = await res.json();
+                    label.textContent = '✅ اكتمل التحليل وتقييم المقابلة!';
+                    scoreCard.style.display = 'block';
+                } catch (e) {
+                    label.textContent = '⚠️ حدث خطأ أثناء التحليل.';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

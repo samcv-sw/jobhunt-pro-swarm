@@ -203,3 +203,19 @@ def api_v2_earnings(request: Request):
         ).fetchone()[0]
         pass  # conn.close()
         return {"success": True, "earnings_usd": float(earnings)}
+
+
+@router.get("/api/v2/og-image/{card_id}")
+def api_v2_og_image(card_id: str, title: str = "Verified Candidate Profile", subtitle: str = "JobHunt Pro Autopoietic Match", score: int = 98):
+    """Returns dynamic SVG OpenGraph card for social sharing."""
+    from backend.og_card_generator import generate_og_card_svg
+    svg_data = generate_og_card_svg(title=title, subtitle=subtitle, score=score)
+    return Response(content=svg_data, media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
+
+
+@router.get("/api/v2/multi-llm/health")
+def api_v2_multi_llm_health():
+    """Returns health and latency stats for multi-LLM dynamic router."""
+    from backend.multi_llm_router import llm_router
+    return {"success": True, "providers": llm_router.get_provider_health()}
+

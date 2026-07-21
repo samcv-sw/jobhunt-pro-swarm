@@ -31,7 +31,7 @@ class EntryType(enum.Enum):
 
 
 class Account(Base):
-    __tablename__ = "accounts"
+    __tablename__ = "billing_accounts"
 
     id = Column(Integer, primary_key=True, index=True)
     tenant_id = Column(String, index=True, nullable=False)
@@ -65,7 +65,7 @@ class LedgerEntry(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     transaction_id = Column(Integer, ForeignKey("transactions.id"), nullable=False, index=True)
-    account_id = Column(Integer, ForeignKey("accounts.id"), nullable=False, index=True)
+    account_id = Column(Integer, ForeignKey("billing_accounts.id"), nullable=False, index=True)
     amount_cents = Column(Integer, nullable=False)
     entry_type = Column(Enum(EntryType), nullable=False)
 
@@ -154,10 +154,10 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String, unique=True, index=True, nullable=False)
+    id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, unique=True, index=True, nullable=True)
     email = Column(String, unique=True, index=True, nullable=False)
-    password_hash = Column(String, nullable=False)
+    password_hash = Column(String, nullable=True)
     name = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     email_bounced = Column(Boolean, default=False)
@@ -191,13 +191,51 @@ class User(Base):
         return f"<User(id={self.id}, user_id={self.user_id}, email={self.email}, active={self.is_active})>"
 
 
+class JobTranslation(Base):
+    __tablename__ = 'job_translation'
+    id = Column(Integer, primary_key=True)
+    job_id = Column(Integer, nullable=True)
+    language_code = Column(String(10), nullable=False)
+    title = Column(String)
+    description = Column(String)
+    requirements = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+class UserTranslation(Base):
+    __tablename__ = 'user_translation'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String, ForeignKey('users.id'))
+    language_code = Column(String(10), nullable=False)
+    bio = Column(String)
+    skills = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+
+class UITextTranslation(Base):
+    __tablename__ = 'ui_text_translation'
+    id = Column(Integer, primary_key=True)
+    language_code = Column(String(10), nullable=False)
+    key = Column(String, nullable=False)
+    value = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+class Translation(Base):
+    __tablename__ = 'translation'
+    id = Column(Integer, primary_key=True)
+    language_code = Column(String(10), nullable=False)
+    content = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<Translation(id={self.id}, language_code={self.language_code}, content={self.content})>"
+
+
 class CoverLetterToneResult(Base):
-    """
-    Tracks A/B testing results for cover letter tones — IMP-182.
-    """
-
-    __tablename__ = "cover_letter_tone_results"
-
+    __tablename__ = 'cover_letter_tone_results'
     id = Column(Integer, primary_key=True, index=True)
     tone = Column(String, index=True, nullable=False)
     job_id = Column(String, index=True, nullable=True)
@@ -206,9 +244,7 @@ class CoverLetterToneResult(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
     def __repr__(self):
-        return (
-            f"<CoverLetterToneResult(id={self.id}, tone={self.tone}, reply={self.reply_received})>"
-        )
+        return f"<CoverLetterToneResult(id={self.id}, tone={self.tone}, reply={self.reply_received})>"
 
 
 class FailedJob(Base):

@@ -100,3 +100,19 @@ class HumanMouse:
 
         # Final micro-pause before clicking
         await asyncio.sleep(random.uniform(0.05, 0.15))
+
+    @staticmethod
+    def generate_typing_delays(text: str) -> list[float]:
+        """Generates realistic human keystroke delay intervals (in seconds)."""
+        delays = []
+        for char in text:
+            # Longer pause on space, punctuation, or caps
+            if char in " .,!?:;\n":
+                delay = random.uniform(0.12, 0.35)
+            elif char.isupper():
+                delay = random.uniform(0.08, 0.22)
+            else:
+                delay = random.uniform(0.03, 0.12)
+            delays.append(round(delay, 4))
+        return delays
+
