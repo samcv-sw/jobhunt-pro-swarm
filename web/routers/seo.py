@@ -90,3 +90,19 @@ def get_page_seo_metadata(path: str = "/"):
         }
     }
 
+@router.get("/llms.txt", response_class=Response)
+def llms_manifest():
+    """Generates dynamic llms.txt format for LLM Search Engine Agents (Perplexity, ChatGPT, Claude)."""
+    from web.seo_engine import SEOEngine
+    manifest = [
+        {"title": "الصفحة الرئيسية", "path": "/", "description": "محرك تقديم الوظائف بالذكاء الاصطناعي"},
+        {"title": "الباقات والأسعار", "path": "/pricing", "description": "خطط الباقات والخصومات المتاحة"},
+        {"title": "للشركات وأصحاب العمل", "path": "/for-employers", "description": "خدمات التوظيف ومطابقة المرشحين بالذكاء الاصطناعي"},
+        {"title": "فحص الـ CV ومطابقة الـ ATS", "path": "/ats-scorer", "description": "أداة تحسين وتسريع فحص السيرة الذاتية"},
+        {"title": "الخدمات والحلول الرقمية", "path": "/services", "description": "دليل خدمات التحول الرقمي والتتبع"},
+        {"title": "مركز الأمان والموثوقية", "path": "/trust", "description": "معايير الأمان والتشفير وحماية البيانات"}
+    ]
+    txt_content = SEOEngine.generate_llms_txt(manifest)
+    return Response(content=txt_content, media_type="text/plain; charset=utf-8")
+
+

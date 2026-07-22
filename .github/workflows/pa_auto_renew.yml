@@ -21,8 +21,5 @@ jobs:
         run: pip install requests pyotp beautifulsoup4
 
       - name: Run Auto-Renew Script
-        env:
-          PA_USERNAME: ${{ secrets.PA_USERNAME }}
-          PA_PASSWORD: ${{ secrets.PA_PASSWORD }}
-          PA_TOTP_SECRET: ${{ secrets.PA_TOTP_SECRET }}
-        run: python scripts/pa_auto_renew.py
+        run: python scripts/pythonanywhere_auto_extend.py
+

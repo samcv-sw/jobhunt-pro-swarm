@@ -532,3 +532,10 @@ body, html, input, textarea, select {
   font-family: 'Cairo', 'Tajawal', sans-serif;
   line-height: 1.8;
 }
+
+
+/* Global Arabic Typography */
+body, html, input, textarea, select {
+  font-family: 'Cairo', 'Tajawal', sans-serif;
+  line-height: 1.8;
+}

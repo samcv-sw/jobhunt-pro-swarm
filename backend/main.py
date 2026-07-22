@@ -590,6 +590,54 @@ app.include_router(quantum_oracle_router)
 from backend.routers.singularity_hyper_router import router as singularity_hyper_router
 app.include_router(singularity_hyper_router)
 
+# Galactic Tier Upgrades
+from backend.routers.omni_outreach_router import router as omni_outreach_router
+from backend.routers.voice_cloning_router import router as voice_cloning_router
+from backend.routers.saas_multitenancy_router import router as saas_multitenancy_router
+from backend.routers.ats_penetration_router import router as ats_penetration_router
+from backend.routers.edge_autodeploy_router import router as edge_autodeploy_router
+
+app.include_router(omni_outreach_router)
+app.include_router(voice_cloning_router)
+app.include_router(saas_multitenancy_router)
+app.include_router(ats_penetration_router)
+app.include_router(edge_autodeploy_router)
+
+# Imperial Sovereign Tier Upgrades
+from backend.routers.stealth_browser_router import router as stealth_browser_router
+from backend.routers.key_vault_router import router as key_vault_router
+from backend.routers.live_analytics_router import router as live_analytics_router
+
+app.include_router(stealth_browser_router)
+app.include_router(key_vault_router)
+app.include_router(live_analytics_router)
+
+# Million-Dollar Unicorn Empire Upgrades
+from backend.routers.viral_flywheel_router import router as viral_flywheel_router
+from backend.routers.b2b_lead_router import router as b2b_lead_router
+from backend.routers.seo_monopoly_router import router as seo_monopoly_router
+from backend.routers.revenue_engine_router import router as revenue_engine_router
+
+app.include_router(viral_flywheel_router)
+app.include_router(b2b_lead_router)
+app.include_router(seo_monopoly_router)
+app.include_router(revenue_engine_router)
+
+# Trillion-Dollar Singularity Empire Upgrades
+from backend.routers.autopoietic_swarm_router import router as autopoietic_swarm_router
+from backend.routers.p2p_fabric_router import router as p2p_fabric_router
+from backend.routers.omni_yield_router import router as omni_yield_router
+from backend.routers.knowledge_graph_router import router as knowledge_graph_router
+
+app.include_router(autopoietic_swarm_router)
+app.include_router(p2p_fabric_router)
+app.include_router(omni_yield_router)
+app.include_router(knowledge_graph_router)
+
+
+
+
+
 from backend.websocket_telemetry import telemetry_broadcaster
 from fastapi import WebSocket, WebSocketDisconnect
 

@@ -1,0 +1,80 @@
+/* ==========================================================================
+   JobHunt Pro - Interactive System & Hardware-Accelerated Micro-Animations
+   RTL Logical Properties & WCAG 2.1 AAA Compliant Design Tokens
+   ========================================================================== */
+
+:root {
+  --fsm-primary: #38bdf8;
+  --fsm-primary-hover: #0284c7;
+  --fsm-success: #10b981;
+  --fsm-error: #ef4444;
+  --fsm-bg-dark: #0f172a;
+  --fsm-text-light: #f8fafc;
+  --fsm-transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* FSM Ready Button Styles */
+.fsm-btn-ready {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding-block: 0.75rem;
+  padding-inline: 1.25rem;
+  font-family: inherit;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: var(--fsm-transition);
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  user-select: none;
+}
+
+/* States */
+[data-fsm-state="loading"] {
+  opacity: 0.85;
+  cursor: wait !important;
+  pointer-events: none;
+}
+
+.fsm-state-success {
+  background-color: var(--fsm-success) !important;
+  color: #ffffff !important;
+  border-color: var(--fsm-success) !important;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+.fsm-state-error {
+  background-color: var(--fsm-error) !important;
+  color: #ffffff !important;
+  border-color: var(--fsm-error) !important;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+}
+
+/* Spinner Animation */
+.fsm-spinner {
+  display: inline-block;
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: currentColor;
+  animation: fsm-spin 0.75s linear infinite;
+}
+
+@keyframes fsm-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Icons */
+.fsm-icon-success, .fsm-icon-error {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+/* RTL Logical Utilities */
+[dir="rtl"] .fsm-btn-ready {
+  font-family: 'Cairo', 'Tajawal', sans-serif;
+}
